@@ -26,10 +26,20 @@ export function kickboxing(): IFilm {
   return {
     durationSeconds: duration,
     fps: 30,
-    create: async (progress?: (message: string) => void): Promise<IFilmProduction> => {
+    create: async (
+      progress?: (message: string) => void,
+    ): Promise<IFilmProduction> => {
       const stage: RingStage = new RingStage();
-      const composition: AutoMovieComposition = composeKickboxing(stage.cast, duration);
-      const mounted: RingStage.IMounted = await stage.mount(composition, duration, "kickboxing", progress);
+      const composition: AutoMovieComposition = composeKickboxing(
+        stage.cast,
+        duration,
+      );
+      const mounted: RingStage.IMounted = await stage.mount(
+        composition,
+        duration,
+        "kickboxing",
+        progress,
+      );
       return {
         scene: mounted.scene,
         camera: mounted.camera,

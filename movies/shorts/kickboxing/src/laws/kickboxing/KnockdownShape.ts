@@ -59,15 +59,38 @@ export namespace KnockdownShape {
       roll: Math.PI / 6,
       pitch: Math.PI / 12,
       hands: {
-        left: { point: { x: measure.headRadius * 2, y: measure.shoulder - measure.hip * 0.5, z: measure.shoulderHalfWidth } },
-        right: { point: { x: measure.headRadius, y: measure.hip * 0.3, z: -measure.shoulderHalfWidth * 1.5 } },
+        left: {
+          point: {
+            x: measure.headRadius * 2,
+            y: measure.shoulder - measure.hip * 0.5,
+            z: measure.shoulderHalfWidth,
+          },
+        },
+        right: {
+          point: {
+            x: measure.headRadius,
+            y: measure.hip * 0.3,
+            z: -measure.shoulderHalfWidth * 1.5,
+          },
+        },
       },
     };
     const lying: IBoutPosture = rest_(measure, guard);
-    if (share <= HEAD_DRIVEN) return blendPosture(guard, struck, ease(share / HEAD_DRIVEN), rest);
+    if (share <= HEAD_DRIVEN)
+      return blendPosture(guard, struck, ease(share / HEAD_DRIVEN), rest);
     if (share <= HIP_DOWN)
-      return blendPosture(struck, folding, ease((share - HEAD_DRIVEN) / (HIP_DOWN - HEAD_DRIVEN)), rest);
-    return blendPosture(folding, lying, ease((share - HIP_DOWN) / (1 - HIP_DOWN)), rest);
+      return blendPosture(
+        struck,
+        folding,
+        ease((share - HEAD_DRIVEN) / (HIP_DOWN - HEAD_DRIVEN)),
+        rest,
+      );
+    return blendPosture(
+      folding,
+      lying,
+      ease((share - HIP_DOWN) / (1 - HIP_DOWN)),
+      rest,
+    );
   }
 
   /**
@@ -78,7 +101,10 @@ export namespace KnockdownShape {
    * @returns The posture.
    * @evidence docs/body/screenplay/kickboxing.md#s11-b01 On his right side with bent knees and arms.
    */
-  export function lying(measure: IFighterMeasure, guard: IBoutPosture): IBoutPosture {
+  export function lying(
+    measure: IFighterMeasure,
+    guard: IBoutPosture,
+  ): IBoutPosture {
     return rest_(measure, guard);
   }
 
@@ -108,7 +134,13 @@ export namespace KnockdownShape {
       cervical: { ...lyingPosture.cervical, lateralFlexion: 10 * effort },
       hands: {
         ...lyingPosture.hands,
-        left: { point: { x: measure.headRadius * 2, y: measure.shoulder - measure.hip * 0.9, z: -measure.shoulderHalfWidth * 0.2 } },
+        left: {
+          point: {
+            x: measure.headRadius * 2,
+            y: measure.shoulder - measure.hip * 0.9,
+            z: -measure.shoulderHalfWidth * 0.2,
+          },
+        },
       },
     };
     const up: number = Math.sin(Math.PI * Math.max(0, Math.min(1, share)));
@@ -126,12 +158,46 @@ export namespace KnockdownShape {
       lumbar: { flexion: 10, lateralFlexion: 0 },
       cervical: { flexion: 10, lateralFlexion: -15, rotation: 0 },
       hands: {
-        left: { point: { x: measure.headRadius * 2.5, y: measure.shoulder - measure.hip * 0.6, z: 0 } },
-        right: { point: { x: measure.headRadius * 2, y: measure.head - measure.hip * 0.6 - measure.headRadius * 2, z: -measure.shoulderHalfWidth } },
+        left: {
+          point: {
+            x: measure.headRadius * 2.5,
+            y: measure.shoulder - measure.hip * 0.6,
+            z: 0,
+          },
+        },
+        right: {
+          point: {
+            x: measure.headRadius * 2,
+            y: measure.head - measure.hip * 0.6 - measure.headRadius * 2,
+            z: -measure.shoulderHalfWidth,
+          },
+        },
       },
       feet: {
-        left: { point: { x: measure.thigh * 0.6, y: measure.ankle, z: measure.hipHalfWidth }, knee: { x: measure.thigh * 0.7, y: measure.hip * 0.5, z: measure.hipHalfWidth } },
-        right: { point: { x: measure.thigh * 0.3, y: measure.ankle, z: -measure.hipHalfWidth }, knee: { x: measure.thigh * 0.6, y: measure.hip * 0.5, z: -measure.hipHalfWidth } },
+        left: {
+          point: {
+            x: measure.thigh * 0.6,
+            y: measure.ankle,
+            z: measure.hipHalfWidth,
+          },
+          knee: {
+            x: measure.thigh * 0.7,
+            y: measure.hip * 0.5,
+            z: measure.hipHalfWidth,
+          },
+        },
+        right: {
+          point: {
+            x: measure.thigh * 0.3,
+            y: measure.ankle,
+            z: -measure.hipHalfWidth,
+          },
+          knee: {
+            x: measure.thigh * 0.6,
+            y: measure.hip * 0.5,
+            z: -measure.hipHalfWidth,
+          },
+        },
       },
       jaw: 6,
       wince: 0.8,

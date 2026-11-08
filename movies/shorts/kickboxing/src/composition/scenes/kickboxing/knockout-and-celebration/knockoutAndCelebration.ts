@@ -22,8 +22,10 @@ import type { IRingCast } from "../../../../interactions/kickboxing/IRingCast";
  */
 export function knockoutAndCelebration(cast: IRingCast): AutoMovieComposition {
   const { a, referee, bell } = cast;
-  const at = (offset: number, part: { readonly node: AutoMovieComposition }): AutoMovieComposition =>
-    AutoMovieComposition.at("count-10", part, offset);
+  const at = (
+    offset: number,
+    part: { readonly node: AutoMovieComposition },
+  ): AutoMovieComposition => AutoMovieComposition.at("count-10", part, offset);
   return AutoMovieComposition.parallel(
     at(0.6, referee.signal("knockout", 1.2, "Knockout! Red wins!")),
     at(1.8, referee.signal("winner", 0.2)),

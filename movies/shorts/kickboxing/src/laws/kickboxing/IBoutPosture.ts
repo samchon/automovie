@@ -44,10 +44,16 @@ export interface IBoutPosture {
   cervical: { flexion: number; lateralFlexion: number; rotation: number };
 
   /** Glove-centre goals and optional elbow aims, body frame, metres. */
-  hands: Record<"left" | "right", { point: IAutoMovieVector3; elbow?: IAutoMovieVector3 }>;
+  hands: Record<
+    "left" | "right",
+    { point: IAutoMovieVector3; elbow?: IAutoMovieVector3 }
+  >;
 
   /** Ankle goals of lifted feet and optional knee aims, body frame, metres; null keeps the stance placement. */
-  feet: Record<"left" | "right", { point: IAutoMovieVector3; knee?: IAutoMovieVector3 } | null>;
+  feet: Record<
+    "left" | "right",
+    { point: IAutoMovieVector3; knee?: IAutoMovieVector3 } | null
+  >;
 
   /** Turn of the support foot about the floor normal, radians, positive toward the own left. */
   pivot: number;

@@ -20,21 +20,46 @@ export function test_kickboxing_technique(): void {
   assert.equal(KickboxingTechnique.region(t.hook), "jaw-right");
   assert.equal(KickboxingTechnique.region(t["low-kick"]), "thigh-left");
   assert.equal(KickboxingTechnique.region(t["switch-kick"]), "ribs-right");
-  assert.equal(KickboxingTechnique.region(t["brazilian-kick"]), "jaw-neck-left");
+  assert.equal(
+    KickboxingTechnique.region(t["brazilian-kick"]),
+    "jaw-neck-left",
+  );
   assert.equal(t["brazilian-kick"].surface, "instep");
   assert.equal(t["brazilian-kick"].line, "descending");
   assert.equal(t["brazilian-kick"].disguise, "body-kick");
-  assert.equal(KickboxingTechnique.performed(t["feint-body-kick"]).name, "body-kick");
+  assert.equal(
+    KickboxingTechnique.performed(t["feint-body-kick"]).name,
+    "body-kick",
+  );
   for (const spec of Object.values(t))
-    if (spec.limb === "leg" && spec.level === "leg") assert.equal(spec.line, "arc", spec.name);
+    if (spec.limb === "leg" && spec.level === "leg")
+      assert.equal(spec.line, "arc", spec.name);
   assert.equal(t.teep.region, "stomach");
-  for (const banned of ["elbow", "throw", "sweep"]) assert.ok(!Object.keys(t).some((n) => n.includes(banned)));
-  for (const spec of Object.values(t)) if (spec.family === "round-kick") assert.equal(spec.guard, "forward", spec.name);
+  for (const banned of ["elbow", "throw", "sweep"])
+    assert.ok(!Object.keys(t).some((n) => n.includes(banned)));
+  for (const spec of Object.values(t))
+    if (spec.family === "round-kick")
+      assert.equal(spec.guard, "forward", spec.name);
   const { a, b } = polygonCast();
   const jab: number = KickboxingRange.of(a.body.measure, b.body.measure, "jab");
-  const kick: number = KickboxingRange.of(a.body.measure, b.body.measure, "body-kick");
+  const kick: number = KickboxingRange.of(
+    a.body.measure,
+    b.body.measure,
+    "body-kick",
+  );
   assert.ok(kick > 0 && jab > 0);
-  assert.equal(KickboxingRange.combination(a.body.measure, b.body.measure, ["jab", "body-kick"]), Math.min(jab, kick));
-  assert.equal(KickboxingRange.of(a.body.measure, b.body.measure, "feint-jab"), jab);
-  assert.throws(() => KickboxingRange.combination(a.body.measure, b.body.measure, []));
+  assert.equal(
+    KickboxingRange.combination(a.body.measure, b.body.measure, [
+      "jab",
+      "body-kick",
+    ]),
+    Math.min(jab, kick),
+  );
+  assert.equal(
+    KickboxingRange.of(a.body.measure, b.body.measure, "feint-jab"),
+    jab,
+  );
+  assert.throws(() =>
+    KickboxingRange.combination(a.body.measure, b.body.measure, []),
+  );
 }

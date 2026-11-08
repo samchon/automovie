@@ -13,13 +13,24 @@ import { CoverageLaw } from "../../../../src/laws/cinematography/CoverageLaw";
  */
 export function test_coverage_law(): void {
   const step = 1 / 30;
-  assert.ok(Math.abs(CoverageLaw.orbit(0, 3, step) - CoverageLaw.ORBIT * step) < 1e-12);
+  assert.ok(
+    Math.abs(CoverageLaw.orbit(0, 3, step) - CoverageLaw.ORBIT * step) < 1e-12,
+  );
   assert.equal(CoverageLaw.orbit(0, 0.01, step), 0.01);
-  const bearing = CoverageLaw.bearing({ x: -1, z: 0 }, { x: 1, z: 0 }, { x: 0, z: 2 });
+  const bearing = CoverageLaw.bearing(
+    { x: -1, z: 0 },
+    { x: 1, z: 0 },
+    { x: 0, z: 2 },
+  );
   // The referee is on +z, so the camera looks from -z: bearing pi (from +z toward +x).
   assert.ok(Math.abs(Math.abs(bearing) - Math.PI) < 1e-9);
   const share = CoverageLaw.follow(step);
   assert.ok(share > 0 && share < 1 && CoverageLaw.follow(2 * step) > share);
-  assert.equal(CoverageLaw.goal("medium", ["a"], 0).fieldOfView, CoverageLaw.FIELD_OF_VIEW);
-  assert.ok(CoverageLaw.goal("wide", ["a"], 0).fieldOfView > CoverageLaw.FIELD_OF_VIEW);
+  assert.equal(
+    CoverageLaw.goal("medium", ["a"], 0).fieldOfView,
+    CoverageLaw.FIELD_OF_VIEW,
+  );
+  assert.ok(
+    CoverageLaw.goal("wide", ["a"], 0).fieldOfView > CoverageLaw.FIELD_OF_VIEW,
+  );
 }

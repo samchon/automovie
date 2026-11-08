@@ -18,10 +18,19 @@ import { KickboxingTechnique } from "../../../../src/laws/kickboxing/KickboxingT
  * region follows the defending limb on the attacked side.
  */
 export function test_kickboxing_outcome(): void {
-  const decide = (attack: KickboxingTechnique.Name, answer: KickboxingAction.Answer): string =>
+  const decide = (
+    attack: KickboxingTechnique.Name,
+    answer: KickboxingAction.Answer,
+  ): string =>
     resolveAutoMovieOutcome(KickboxingOutcome.table, [
       KickboxingAction.intent("a", { kind: "strike", technique: attack }),
-      KickboxingAction.intent("b", { kind: "answer", answer, against: attack, lead: 0.3, strike: "x/0" }),
+      KickboxingAction.intent("b", {
+        kind: "answer",
+        answer,
+        against: attack,
+        lead: 0.3,
+        strike: "x/0",
+      }),
     ]).outcome;
   const rows: [KickboxingTechnique.Name, KickboxingAction.Answer, string][] = [
     ["jab", "take", "landed"],
@@ -51,13 +60,40 @@ export function test_kickboxing_outcome(): void {
     ["jab", "check", "illegal"],
     ["body-kick", "high-block", "illegal"],
   ];
-  for (const [attack, answer, outcome] of rows) assert.equal(decide(attack, answer), outcome, `${attack} vs ${answer}`);
-  for (const outcome of ["landed", "parried", "blocked", "checked"] as const) assert.ok(KickboxingOutcome.touches(outcome));
-  for (const outcome of ["evaded", "read", "ignored", "illegal"] as const) assert.ok(!KickboxingOutcome.touches(outcome));
-  assert.equal(KickboxingDefense.contact("cover", KickboxingTechnique.table.hook), "glove-right");
-  assert.equal(KickboxingDefense.contact("elbow-block", KickboxingTechnique.table["switch-kick"]), "forearm-right");
-  assert.equal(KickboxingDefense.contact("check", KickboxingTechnique.table["low-kick"]), "shin-left");
-  assert.equal(KickboxingDefense.contact("slip", KickboxingTechnique.table.cross), null);
-  assert.equal(KickboxingDefense.contact("parry", KickboxingTechnique.table["feint-jab"]), null);
-  assert.equal(KickboxingDefense.contact("elbow-block", KickboxingTechnique.table["brazilian-kick"]), "jaw-neck-left");
+  for (const [attack, answer, outcome] of rows)
+    assert.equal(decide(attack, answer), outcome, `${attack} vs ${answer}`);
+  for (const outcome of ["landed", "parried", "blocked", "checked"] as const)
+    assert.ok(KickboxingOutcome.touches(outcome));
+  for (const outcome of ["evaded", "read", "ignored", "illegal"] as const)
+    assert.ok(!KickboxingOutcome.touches(outcome));
+  assert.equal(
+    KickboxingDefense.contact("cover", KickboxingTechnique.table.hook),
+    "glove-right",
+  );
+  assert.equal(
+    KickboxingDefense.contact(
+      "elbow-block",
+      KickboxingTechnique.table["switch-kick"],
+    ),
+    "forearm-right",
+  );
+  assert.equal(
+    KickboxingDefense.contact("check", KickboxingTechnique.table["low-kick"]),
+    "shin-left",
+  );
+  assert.equal(
+    KickboxingDefense.contact("slip", KickboxingTechnique.table.cross),
+    null,
+  );
+  assert.equal(
+    KickboxingDefense.contact("parry", KickboxingTechnique.table["feint-jab"]),
+    null,
+  );
+  assert.equal(
+    KickboxingDefense.contact(
+      "elbow-block",
+      KickboxingTechnique.table["brazilian-kick"],
+    ),
+    "jaw-neck-left",
+  );
 }

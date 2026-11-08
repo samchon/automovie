@@ -27,14 +27,33 @@ export function aFinishesWithTheLeg(cast: IRingCast): AutoMovieComposition {
   const { a, b } = cast;
   const then = AutoMovieComposition.sequence;
   return RingPhase.fill(15, [
-    then(exchange(cast, "s02-b01", b.jab(), a.slip()), exchange(cast, "s02-b01c", a.jab(), b.take())),
+    then(
+      exchange(cast, "s02-b01", b.jab(), a.slip()),
+      exchange(cast, "s02-b01c", a.jab(), b.take()),
+    ),
     RingPhase.reset([a, "circle"], [b, "circle"]),
-    exchange(cast, "s02-b02", a.jab().cross().hook().lowKick(), b.parry().cover().cover().take()),
+    exchange(
+      cast,
+      "s02-b02",
+      a.jab().cross().hook().lowKick(),
+      b.parry().cover().cover().take(),
+    ),
     RingPhase.reset([b, "give"], [a, "press"]),
-    then(exchange(cast, "s02-b03", b.jab().cross(), a.parry().slip()), exchange(cast, "s02-b03c", a.bodyHook(), b.take())),
+    then(
+      exchange(cast, "s02-b03", b.jab().cross(), a.parry().slip()),
+      exchange(cast, "s02-b03c", a.bodyHook(), b.take()),
+    ),
     RingPhase.reset([a, "circle"]),
-    then(exchange(cast, "s02-b04", b.teep(), a.parry()), exchange(cast, "s02-b04c", b.jab(), a.slip())),
+    then(
+      exchange(cast, "s02-b04", b.teep(), a.parry()),
+      exchange(cast, "s02-b04c", b.jab(), a.slip()),
+    ),
     RingPhase.reset([a, "press"], [b, "give"]),
-    exchange(cast, "s02-b05", a.feintJab().bodyCross(), b.tell("feint-jab").elbowBlock()),
+    exchange(
+      cast,
+      "s02-b05",
+      a.feintJab().bodyCross(),
+      b.tell("feint-jab").elbowBlock(),
+    ),
   ]);
 }

@@ -48,10 +48,21 @@ export class FighterBody {
   public readonly measure: IFighterMeasure;
 
   /** Struck regions by id, as segment-local surface points. */
-  public readonly regions: Readonly<Record<string, resolveAutoMovieRelationalGoal.IRegion>>;
+  public readonly regions: Readonly<
+    Record<string, resolveAutoMovieRelationalGoal.IRegion>
+  >;
 
   /** Weapon surfaces by surface name and side, as segment-local points and outward directions. */
-  public readonly weapons: Readonly<Record<string, { bone: string; localPoint: IAutoMovieVector3; localDirection: IAutoMovieVector3 }>>;
+  public readonly weapons: Readonly<
+    Record<
+      string,
+      {
+        bone: string;
+        localPoint: IAutoMovieVector3;
+        localDirection: IAutoMovieVector3;
+      }
+    >
+  >;
 
   /** Neutral clinical FK, the reference for completing fitted segments. */
   public readonly neutral: AutoMovieHumanSkeleton.IOutput;
@@ -68,31 +79,59 @@ export class FighterBody {
    * @param shared A body already prepared from identical body controls, whose skeleton is reused.
    */
   public constructor(profile: IFighterProfile, shared?: FighterBody) {
-    if (shared && JSON.stringify(shared.controls) !== JSON.stringify(profile.parameters))
+    if (
+      shared &&
+      JSON.stringify(shared.controls) !== JSON.stringify(profile.parameters)
+    )
       throw new Error("A shared fighter body needs identical body controls");
     this.controls = profile.parameters;
     const skeleton: AutoMovieHumanSkeleton.PoseEvaluator =
       shared?.evaluate ?? AutoMovieHumanSkeleton.prepare(profile.parameters);
     const reference: AutoMovieHumanSkeleton.IOutput = skeleton({});
     const at = (bone: string): AutoMovieHumanSkeleton.IPlacement =>
-      reference.posed.find((p: AutoMovieHumanSkeleton.IPlacement): boolean => p.bone === bone)!;
-    const v = (p: readonly number[]): IAutoMovieVector3 => ({ x: p[0]!, y: p[1]!, z: p[2]! });
+      reference.posed.find(
+        (p: AutoMovieHumanSkeleton.IPlacement): boolean => p.bone === bone,
+      )!;
+    const v = (p: readonly number[]): IAutoMovieVector3 => ({
+      x: p[0]!,
+      y: p[1]!,
+      z: p[2]!,
+    });
     // The glove is a sphere a glove radius across the fist, centred beyond
     // the wrist along the forearm by the hand's own length.
-    const gloves: AutoMovieHumanPhysicalProfile.IEquipment[] = (["left", "right"] as const).map((side) => {
+    const gloves: AutoMovieHumanPhysicalProfile.IEquipment[] = (
+      ["left", "right"] as const
+    ).map((side) => {
       const hand: AutoMovieHumanSkeleton.IPlacement = at(`${side}Hand`);
       const elbow: AutoMovieHumanSkeleton.IPlacement = at(`${side}LowerArm`);
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(q(hand.rotation));
+      const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+        q(hand.rotation),
+      );
       const offset: IAutoMovieVector3 = Quaternion.rotateVector(
         inverse,
-        Vector3.scale(Vector3.normalize(Vector3.subtract(v(hand.position), v(elbow.position))), FighterBody.HAND_LENGTH),
+        Vector3.scale(
+          Vector3.normalize(
+            Vector3.subtract(v(hand.position), v(elbow.position)),
+          ),
+          FighterBody.HAND_LENGTH,
+        ),
       );
       return {
         bone: `${side}Hand`,
         mass: FighterBody.GLOVE_MASS,
         centerOfMass: offset,
-        inertia: { x: 0.4 * FighterBody.GLOVE_MASS * FighterBody.GLOVE_RADIUS ** 2, y: 0.4 * FighterBody.GLOVE_MASS * FighterBody.GLOVE_RADIUS ** 2, z: 0.4 * FighterBody.GLOVE_MASS * FighterBody.GLOVE_RADIUS ** 2 },
-        shape: { id: `${side}-glove`, material: "glove", kind: "sphere", radius: FighterBody.GLOVE_RADIUS, transform: { position: offset, rotation: Quaternion.identity() } },
+        inertia: {
+          x: 0.4 * FighterBody.GLOVE_MASS * FighterBody.GLOVE_RADIUS ** 2,
+          y: 0.4 * FighterBody.GLOVE_MASS * FighterBody.GLOVE_RADIUS ** 2,
+          z: 0.4 * FighterBody.GLOVE_MASS * FighterBody.GLOVE_RADIUS ** 2,
+        },
+        shape: {
+          id: `${side}-glove`,
+          material: "glove",
+          kind: "sphere",
+          radius: FighterBody.GLOVE_RADIUS,
+          transform: { position: offset, rotation: Quaternion.identity() },
+        },
       };
     });
     const prepared = AutoMovieHumanPhysicalProfile.prepare(
@@ -107,10 +146,22 @@ export class FighterBody {
         equipment: gloves,
         skin: "skin",
         materials: [
-          { id: "skin", friction: 0.7, restitution: 0, compliance: 0, damping: 0 },
+          {
+            id: "skin",
+            friction: 0.7,
+            restitution: 0,
+            compliance: 0,
+            damping: 0,
+          },
           // The kinematic performance measures contact geometrically, so the
           // glove's padding is not simulated as compliance.
-          { id: "glove", friction: 0.4, restitution: 0, compliance: 0, damping: 0 },
+          {
+            id: "glove",
+            friction: 0.4,
+            restitution: 0,
+            compliance: 0,
+            damping: 0,
+          },
         ],
       },
       skeleton,
@@ -120,10 +171,17 @@ export class FighterBody {
     this.neutral = reference;
     this.fit = shared?.fit ?? AutoMovieHumanLimbIk.prepare(this.evaluate);
     this.handOffset = FighterBody.HAND_LENGTH;
-    const segment = (bone: string): P.ISegment => this.profile.segments.find((s: P.ISegment): boolean => s.bone === bone)!;
+    const segment = (bone: string): P.ISegment =>
+      this.profile.segments.find((s: P.ISegment): boolean => s.bone === bone)!;
     const head: P.ISegment = segment("head");
     const headShape: P.IShape = head.shapes[0]!;
-    const headCentre: IAutoMovieVector3 = Vector3.add(head.neutral.position, Quaternion.rotateVector(head.neutral.rotation, headShape.transform.position));
+    const headCentre: IAutoMovieVector3 = Vector3.add(
+      head.neutral.position,
+      Quaternion.rotateVector(
+        head.neutral.rotation,
+        headShape.transform.position,
+      ),
+    );
     const shoulder: IAutoMovieVector3 = v(at("leftUpperArm").position);
     const wrist: IAutoMovieVector3 = v(at("leftHand").position);
     const elbow: IAutoMovieVector3 = v(at("leftLowerArm").position);
@@ -138,17 +196,31 @@ export class FighterBody {
       head: headCentre.y,
       headRadius: radius(headShape),
       gloveRadius: FighterBody.GLOVE_RADIUS,
-      armReach: Vector3.length(Vector3.subtract(elbow, shoulder)) + Vector3.length(Vector3.subtract(wrist, elbow)) + FighterBody.HAND_LENGTH,
+      armReach:
+        Vector3.length(Vector3.subtract(elbow, shoulder)) +
+        Vector3.length(Vector3.subtract(wrist, elbow)) +
+        FighterBody.HAND_LENGTH,
       thigh: Vector3.length(Vector3.subtract(knee, hip)),
       shank: Vector3.length(Vector3.subtract(ankle, knee)),
       ankle: ankle.y,
-      foot: FighterBody.FOOT_SHARE * profile.parameters.body.anatomy.stature! / 1000,
+      foot:
+        (FighterBody.FOOT_SHARE * profile.parameters.body.anatomy.stature!) /
+        1000,
     });
     // A region is the support point of its segment's collider in a body-frame direction at neutral.
-    const surface = (bone: string, direction: IAutoMovieVector3, shapeId?: string): resolveAutoMovieRelationalGoal.IRegion => {
+    const surface = (
+      bone: string,
+      direction: IAutoMovieVector3,
+      shapeId?: string,
+    ): resolveAutoMovieRelationalGoal.IRegion => {
       const s: P.ISegment = segment(bone);
-      const shape: P.IShape = shapeId ? s.shapes.find((c: P.IShape): boolean => c.id === shapeId)! : s.shapes[0]!;
-      const local: IAutoMovieVector3 = Quaternion.rotateVector(Quaternion.inverse(s.neutral.rotation), Vector3.normalize(direction));
+      const shape: P.IShape = shapeId
+        ? s.shapes.find((c: P.IShape): boolean => c.id === shapeId)!
+        : s.shapes[0]!;
+      const local: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.inverse(s.neutral.rotation),
+        Vector3.normalize(direction),
+      );
       return { bone, localPoint: support(shape, local) };
     };
     const regions: Record<string, resolveAutoMovieRelationalGoal.IRegion> = {
@@ -157,35 +229,113 @@ export class FighterBody {
       stomach: surface("spine", { x: 1, y: 0, z: 0 }),
       "head-back": surface("head", { x: -1, y: 0, z: 0 }),
     };
-    for (const [side, sign] of [["left", 1], ["right", -1]] as const) {
-      regions[`jaw-${side}`] = surface("head", { x: 0.4, y: -0.5, z: sign * 0.75 });
+    for (const [side, sign] of [
+      ["left", 1],
+      ["right", -1],
+    ] as const) {
+      regions[`jaw-${side}`] = surface("head", {
+        x: 0.4,
+        y: -0.5,
+        z: sign * 0.75,
+      });
       regions[`head-${side}`] = surface("head", { x: 0, y: 0, z: sign });
-      regions[`jaw-neck-${side}`] = surface("neck", { x: -0.3, y: 0.3, z: sign });
+      regions[`jaw-neck-${side}`] = surface("neck", {
+        x: -0.3,
+        y: 0.3,
+        z: sign,
+      });
       regions[`ribs-${side}`] = surface("chest", { x: 0.2, y: -0.3, z: sign });
-      regions[`thigh-${side}`] = surface(`${side}UpperLeg`, { x: 0.2, y: 0, z: sign });
-      regions[`glove-${side}`] = surface(`${side}Hand`, { x: 1, y: 0, z: 0 }, `${side}-glove`);
-      regions[`forearm-${side}`] = surface(`${side}LowerArm`, { x: 0.5, y: 0, z: sign });
-      regions[`shin-${side}`] = surface(`${side}LowerLeg`, { x: 1, y: 0, z: sign * 0.5 });
+      regions[`thigh-${side}`] = surface(`${side}UpperLeg`, {
+        x: 0.2,
+        y: 0,
+        z: sign,
+      });
+      regions[`glove-${side}`] = surface(
+        `${side}Hand`,
+        { x: 1, y: 0, z: 0 },
+        `${side}-glove`,
+      );
+      regions[`forearm-${side}`] = surface(`${side}LowerArm`, {
+        x: 0.5,
+        y: 0,
+        z: sign,
+      });
+      regions[`shin-${side}`] = surface(`${side}LowerLeg`, {
+        x: 1,
+        y: 0,
+        z: sign * 0.5,
+      });
     }
     this.regions = Object.freeze(regions);
-    const weapons: Record<string, { bone: string; localPoint: IAutoMovieVector3; localDirection: IAutoMovieVector3 }> = {};
-    for (const [side, sign] of [["left", 1], ["right", -1]] as const) {
+    const weapons: Record<
+      string,
+      {
+        bone: string;
+        localPoint: IAutoMovieVector3;
+        localDirection: IAutoMovieVector3;
+      }
+    > = {};
+    for (const [side, sign] of [
+      ["left", 1],
+      ["right", -1],
+    ] as const) {
       const glove = gloves.find((g) => g.bone === `${side}Hand`)!;
-      const along: IAutoMovieVector3 = Vector3.normalize(glove.shape.transform.position);
-      weapons[`knuckles-${side}`] = { bone: `${side}Hand`, localPoint: Vector3.add(glove.shape.transform.position, Vector3.scale(along, FighterBody.GLOVE_RADIUS)), localDirection: along };
+      const along: IAutoMovieVector3 = Vector3.normalize(
+        glove.shape.transform.position,
+      );
+      weapons[`knuckles-${side}`] = {
+        bone: `${side}Hand`,
+        localPoint: Vector3.add(
+          glove.shape.transform.position,
+          Vector3.scale(along, FighterBody.GLOVE_RADIUS),
+        ),
+        localDirection: along,
+      };
       const shin = surface(`${side}LowerLeg`, { x: 0.3, y: 0, z: -sign });
       const lower: P.ISegment = segment(`${side}LowerLeg`);
-      const toAnkle: IAutoMovieVector3 = Quaternion.rotateVector(Quaternion.inverse(lower.neutral.rotation), Vector3.subtract(v(at(`${side}Foot`).position), lower.neutral.position));
+      const toAnkle: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.inverse(lower.neutral.rotation),
+        Vector3.subtract(v(at(`${side}Foot`).position), lower.neutral.position),
+      );
       weapons[`shin-${side}`] = {
         bone: `${side}LowerLeg`,
-        localPoint: Vector3.add(Vector3.scale(toAnkle, FighterBody.SHIN_SHARE), Vector3.subtract(shin.localPoint, Vector3.scale(Vector3.normalize(toAnkle), Vector3.dot(shin.localPoint, Vector3.normalize(toAnkle))))),
-        localDirection: Vector3.normalize(Vector3.subtract(shin.localPoint, Vector3.scale(Vector3.normalize(toAnkle), Vector3.dot(shin.localPoint, Vector3.normalize(toAnkle))))),
+        localPoint: Vector3.add(
+          Vector3.scale(toAnkle, FighterBody.SHIN_SHARE),
+          Vector3.subtract(
+            shin.localPoint,
+            Vector3.scale(
+              Vector3.normalize(toAnkle),
+              Vector3.dot(shin.localPoint, Vector3.normalize(toAnkle)),
+            ),
+          ),
+        ),
+        localDirection: Vector3.normalize(
+          Vector3.subtract(
+            shin.localPoint,
+            Vector3.scale(
+              Vector3.normalize(toAnkle),
+              Vector3.dot(shin.localPoint, Vector3.normalize(toAnkle)),
+            ),
+          ),
+        ),
       };
       const instep = surface(`${side}Midfoot`, { x: 0.3, y: 1, z: 0 });
-      weapons[`instep-${side}`] = { ...instep, localDirection: Vector3.normalize(instep.localPoint) };
+      weapons[`instep-${side}`] = {
+        ...instep,
+        localDirection: Vector3.normalize(instep.localPoint),
+      };
       const sole = surface(`${side}Midfoot`, { x: 0.3, y: -1, z: 0 });
-      weapons[`sole-${side}`] = { ...sole, localDirection: Vector3.normalize(sole.localPoint) };
-      weapons[`knee-${side}`] = { ...surface(`${side}LowerLeg`, { x: 1, y: 0.4, z: 0 }), localDirection: Quaternion.rotateVector(Quaternion.inverse(lower.neutral.rotation), { x: 1, y: 0, z: 0 }) };
+      weapons[`sole-${side}`] = {
+        ...sole,
+        localDirection: Vector3.normalize(sole.localPoint),
+      };
+      weapons[`knee-${side}`] = {
+        ...surface(`${side}LowerLeg`, { x: 1, y: 0.4, z: 0 }),
+        localDirection: Quaternion.rotateVector(
+          Quaternion.inverse(lower.neutral.rotation),
+          { x: 1, y: 0, z: 0 },
+        ),
+      };
     }
     this.weapons = Object.freeze(weapons);
   }
@@ -226,10 +376,17 @@ export class FighterBody {
   ): FighterBody.IPlaced {
     const root = FighterBody.root(posture, frame.origin, frame.facing);
     const world = (p: IAutoMovieVector3): [number, number, number] => {
-      const w: IAutoMovieVector3 = Vector3.add(root.floor, Quaternion.rotateVector(root.rotation, p));
+      const w: IAutoMovieVector3 = Vector3.add(
+        root.floor,
+        Quaternion.rotateVector(root.rotation, p),
+      );
       return [w.x, w.y, w.z];
     };
-    const tuple = (p: IAutoMovieVector3): [number, number, number] => [p.x, p.y, p.z];
+    const tuple = (p: IAutoMovieVector3): [number, number, number] => [
+      p.x,
+      p.y,
+      p.z,
+    ];
     const prior: IAutoMovieHumanPose = {
       pelvis: posture.pelvis,
       spine: { thoracic: posture.thoracic, lumbar: posture.lumbar },
@@ -239,20 +396,56 @@ export class FighterBody {
     const leg = (side: "left" | "right") => {
       const lifted = posture.feet[side];
       if (!lifted) return { point: tuple(frame.feet[side]) };
-      return { point: world(lifted.point), ...(lifted.knee ? { aim: { bone: "knee" as const, point: world(lifted.knee), weight: 1 } } : {}) };
+      return {
+        point: world(lifted.point),
+        ...(lifted.knee
+          ? {
+              aim: {
+                bone: "knee" as const,
+                point: world(lifted.knee),
+                weight: 1,
+              },
+            }
+          : {}),
+      };
     };
     const arm = (side: "left" | "right") => {
       const hand = posture.hands[side];
-      return { point: world(hand.point), ...(hand.elbow ? { aim: { bone: "elbow" as const, point: world(hand.elbow), weight: 0.5 } } : {}) };
+      return {
+        point: world(hand.point),
+        ...(hand.elbow
+          ? {
+              aim: {
+                bone: "elbow" as const,
+                point: world(hand.elbow),
+                weight: 0.5,
+              },
+            }
+          : {}),
+      };
     };
     const fitted = this.fit({
       pose: prior,
-      root: { position: tuple(root.position), rotation: [root.rotation.x, root.rotation.y, root.rotation.z, root.rotation.w] },
+      root: {
+        position: tuple(root.position),
+        rotation: [
+          root.rotation.x,
+          root.rotation.y,
+          root.rotation.z,
+          root.rotation.w,
+        ],
+      },
       legs: { left: leg("left"), right: leg("right") },
       arms: { left: arm("left"), right: arm("right") },
       handOffset: this.handOffset,
     });
-    return { pose: fitted.pose, output: fitted.output, root: { position: root.position, rotation: root.rotation }, segments: this.segments(fitted.output, root), error: fitted.error };
+    return {
+      pose: fitted.pose,
+      output: fitted.output,
+      root: { position: root.position, rotation: root.rotation },
+      segments: this.segments(fitted.output, root),
+      error: fitted.error,
+    };
   }
 
   /**
@@ -262,13 +455,27 @@ export class FighterBody {
    * @param root The evaluator origin's world placement.
    * @returns World transforms of every physical segment.
    */
-  public segments(output: AutoMovieHumanSkeleton.IOutput, root: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }): Record<string, P.ITransform> {
+  public segments(
+    output: AutoMovieHumanSkeleton.IOutput,
+    root: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion },
+  ): Record<string, P.ITransform> {
     const result: Record<string, P.ITransform> = {};
-    const placements: Map<string, AutoMovieHumanSkeleton.IPlacement> = new Map(output.posed.map((p) => [p.bone, p]));
+    const placements: Map<string, AutoMovieHumanSkeleton.IPlacement> = new Map(
+      output.posed.map((p) => [p.bone, p]),
+    );
     for (const segment of this.profile.segments) {
-      const placement: AutoMovieHumanSkeleton.IPlacement = placements.get(segment.bone)!;
+      const placement: AutoMovieHumanSkeleton.IPlacement = placements.get(
+        segment.bone,
+      )!;
       result[segment.bone] = {
-        position: Vector3.add(root.position, Quaternion.rotateVector(root.rotation, { x: placement.position[0], y: placement.position[1], z: placement.position[2] })),
+        position: Vector3.add(
+          root.position,
+          Quaternion.rotateVector(root.rotation, {
+            x: placement.position[0],
+            y: placement.position[1],
+            z: placement.position[2],
+          }),
+        ),
         rotation: Quaternion.multiply(root.rotation, q(placement.rotation)),
       };
     }
@@ -291,16 +498,46 @@ export class FighterBody {
     const reference = {
       bones: output.bones.map((b) => ({ bone: b.bone, parent: b.parent })),
       posed: output.posed.map((p) => {
-        const position: IAutoMovieVector3 = Vector3.add(root.position, Quaternion.rotateVector(root.rotation, { x: p.position[0], y: p.position[1], z: p.position[2] }));
-        const rotation: IAutoMovieQuaternion = Quaternion.multiply(root.rotation, q(p.rotation));
-        return { bone: p.bone, position: [position.x, position.y, position.z] as [number, number, number], rotation: [rotation.x, rotation.y, rotation.z, rotation.w] as [number, number, number, number] };
+        const position: IAutoMovieVector3 = Vector3.add(
+          root.position,
+          Quaternion.rotateVector(root.rotation, {
+            x: p.position[0],
+            y: p.position[1],
+            z: p.position[2],
+          }),
+        );
+        const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+          root.rotation,
+          q(p.rotation),
+        );
+        return {
+          bone: p.bone,
+          position: [position.x, position.y, position.z] as [
+            number,
+            number,
+            number,
+          ],
+          rotation: [rotation.x, rotation.y, rotation.z, rotation.w] as [
+            number,
+            number,
+            number,
+            number,
+          ],
+        };
       }),
     };
-    const complete = AutoMovieHumanPhysicalPose.complete({ reference, segments });
+    const complete = AutoMovieHumanPhysicalPose.complete({
+      reference,
+      segments,
+    });
     return output.posed.map((p) => {
       const t: P.ITransform = complete[p.bone]!;
       const r: IAutoMovieQuaternion = Quaternion.normalize(t.rotation);
-      return { bone: p.bone, position: [t.position.x, t.position.y, t.position.z], rotation: [r.x, r.y, r.z, r.w] };
+      return {
+        bone: p.bone,
+        position: [t.position.x, t.position.y, t.position.z],
+        rotation: [r.x, r.y, r.z, r.w],
+      };
     });
   }
 }
@@ -339,24 +576,61 @@ export namespace FighterBody {
     posture: IBoutPosture,
     origin: IAutoMovieVector3,
     facing: { x: number; z: number },
-  ): { floor: IAutoMovieVector3; rotation: IAutoMovieQuaternion; position: IAutoMovieVector3 } {
+  ): {
+    floor: IAutoMovieVector3;
+    rotation: IAutoMovieQuaternion;
+    position: IAutoMovieVector3;
+  } {
     const heading: number = Math.atan2(-facing.z, facing.x);
     // The engine's axis-angle takes degrees.
     const degrees = (radians: number): number => (radians * 180) / Math.PI;
-    const yaw: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees(heading));
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(yaw, { x: 1, y: 0, z: 0 });
-    const left: IAutoMovieVector3 = Quaternion.rotateVector(yaw, { x: 0, y: 0, z: 1 });
-    const floor: IAutoMovieVector3 = Vector3.add(origin, Vector3.add(Vector3.scale(forward, posture.shift.forward), Vector3.scale(left, posture.shift.left)));
+    const yaw: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      { x: 0, y: 1, z: 0 },
+      degrees(heading),
+    );
+    const forward: IAutoMovieVector3 = Quaternion.rotateVector(yaw, {
+      x: 1,
+      y: 0,
+      z: 0,
+    });
+    const left: IAutoMovieVector3 = Quaternion.rotateVector(yaw, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
+    const floor: IAutoMovieVector3 = Vector3.add(
+      origin,
+      Vector3.add(
+        Vector3.scale(forward, posture.shift.forward),
+        Vector3.scale(left, posture.shift.left),
+      ),
+    );
     const rotation: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees(heading + posture.yaw)),
+        Quaternion.fromAxisAngle(
+          { x: 0, y: 1, z: 0 },
+          degrees(heading + posture.yaw),
+        ),
         Quaternion.multiply(
-          Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, degrees(-posture.pitch)),
-          Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, degrees(-posture.roll)),
+          Quaternion.fromAxisAngle(
+            { x: 0, y: 0, z: 1 },
+            degrees(-posture.pitch),
+          ),
+          Quaternion.fromAxisAngle(
+            { x: 1, y: 0, z: 0 },
+            degrees(-posture.roll),
+          ),
         ),
       ),
     );
-    return { floor, rotation, position: Vector3.add(floor, Quaternion.rotateVector(rotation, { x: 0, y: -posture.drop, z: 0 })) };
+    return {
+      floor,
+      rotation,
+      position: Vector3.add(
+        floor,
+        Quaternion.rotateVector(rotation, { x: 0, y: -posture.drop, z: 0 }),
+      ),
+    };
   }
 }
 
@@ -366,15 +640,24 @@ function q(r: readonly number[]): IAutoMovieQuaternion {
 }
 
 /** A collider's support point in a local unit direction: its farthest surface point that way. */
-function support(shape: P.IShape, direction: IAutoMovieVector3): IAutoMovieVector3 {
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(Quaternion.inverse(shape.transform.rotation), direction);
+function support(
+  shape: P.IShape,
+  direction: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  const local: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.inverse(shape.transform.rotation),
+    direction,
+  );
   let point: IAutoMovieVector3;
   switch (shape.kind) {
     case "sphere":
       point = Vector3.scale(local, shape.radius);
       break;
     case "capsule":
-      point = Vector3.add({ x: 0, y: Math.sign(local.y) * shape.halfLength, z: 0 }, Vector3.scale(local, shape.radius));
+      point = Vector3.add(
+        { x: 0, y: Math.sign(local.y) * shape.halfLength, z: 0 },
+        Vector3.scale(local, shape.radius),
+      );
       break;
     case "box": {
       const h = shape.halfExtents;
@@ -387,9 +670,14 @@ function support(shape: P.IShape, direction: IAutoMovieVector3): IAutoMovieVecto
       break;
     }
     default:
-      throw new Error(`Unsupported region collider ${(shape as P.IShape).kind}`);
+      throw new Error(
+        `Unsupported region collider ${(shape as P.IShape).kind}`,
+      );
   }
-  return Vector3.add(shape.transform.position, Quaternion.rotateVector(shape.transform.rotation, point));
+  return Vector3.add(
+    shape.transform.position,
+    Quaternion.rotateVector(shape.transform.rotation, point),
+  );
 }
 
 /** The radius of a round collider. */

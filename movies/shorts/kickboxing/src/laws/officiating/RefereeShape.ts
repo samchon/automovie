@@ -20,7 +20,14 @@ import { blendPosture } from "../kickboxing/blendPosture";
  */
 export namespace RefereeShape {
   /** A signal of the manual, or the crouch beside the fallen fighter. */
-  export type Signal = "fight" | "down" | "neutral-corner" | "count" | "knockout" | "winner" | "attend";
+  export type Signal =
+    | "fight"
+    | "down"
+    | "neutral-corner"
+    | "count"
+    | "knockout"
+    | "winner"
+    | "attend";
 
   /** Knee flexion of the officiating stance, degrees: "soft knees", read as half the fighters' stance bend. */
   const SOFT_KNEES: number = StanceShape.KNEE_FLEXION / 2;
@@ -37,9 +44,14 @@ export namespace RefereeShape {
    */
   export function stance(measure: IFighterMeasure): IBoutPosture {
     const drop: number = StanceShape.drop(measure, SOFT_KNEES);
-    const waist: number = measure.hip - drop + (measure.shoulder - measure.hip) * 0.3;
+    const waist: number =
+      measure.hip - drop + (measure.shoulder - measure.hip) * 0.3;
     const ready = (side: 1 | -1): { point: IAutoMovieVector3 } => ({
-      point: { x: measure.headRadius * 2, y: waist, z: side * measure.hipHalfWidth },
+      point: {
+        x: measure.headRadius * 2,
+        y: waist,
+        z: side * measure.hipHalfWidth,
+      },
     });
     return {
       drop,
@@ -79,7 +91,10 @@ export namespace RefereeShape {
     const shoulder: number = measure.shoulder - base.drop;
     const reach: number = measure.armReach;
     const toward: IAutoMovieVector3 = input.toward ?? { x: 1, y: 0, z: 0 };
-    const out = (side: 1 | -1, height: number): { point: IAutoMovieVector3 } => ({
+    const out = (
+      side: 1 | -1,
+      height: number,
+    ): { point: IAutoMovieVector3 } => ({
       point: {
         x: toward.x * reach * 0.9,
         y: shoulder + height,
@@ -93,7 +108,16 @@ export namespace RefereeShape {
         const up: number = s < 0.5 ? s * 2 : 1 - (s - 0.5) * 2;
         signal = {
           ...base,
-          hands: { ...base.hands, right: { point: { x: reach * 0.4, y: shoulder + up * measure.headRadius * 2, z: -measure.shoulderHalfWidth } } },
+          hands: {
+            ...base.hands,
+            right: {
+              point: {
+                x: reach * 0.4,
+                y: shoulder + up * measure.headRadius * 2,
+                z: -measure.shoulderHalfWidth,
+              },
+            },
+          },
         };
         break;
       }
@@ -107,7 +131,16 @@ export namespace RefereeShape {
         const beat: number = Math.sin(Math.PI * s);
         signal = {
           ...base,
-          hands: { ...base.hands, right: { point: { x: reach * 0.7, y: shoulder + measure.headRadius * beat, z: -measure.shoulderHalfWidth * 0.5 } } },
+          hands: {
+            ...base.hands,
+            right: {
+              point: {
+                x: reach * 0.7,
+                y: shoulder + measure.headRadius * beat,
+                z: -measure.shoulderHalfWidth * 0.5,
+              },
+            },
+          },
         };
         break;
       }
@@ -116,15 +149,37 @@ export namespace RefereeShape {
         signal = {
           ...base,
           hands: {
-            left: { point: { x: reach * 0.5, y: shoulder - measure.headRadius, z: measure.shoulderHalfWidth * (2 - 3 * cross) } },
-            right: { point: { x: reach * 0.5, y: shoulder - measure.headRadius, z: -measure.shoulderHalfWidth * (2 - 3 * cross) } },
+            left: {
+              point: {
+                x: reach * 0.5,
+                y: shoulder - measure.headRadius,
+                z: measure.shoulderHalfWidth * (2 - 3 * cross),
+              },
+            },
+            right: {
+              point: {
+                x: reach * 0.5,
+                y: shoulder - measure.headRadius,
+                z: -measure.shoulderHalfWidth * (2 - 3 * cross),
+              },
+            },
           },
         };
         break;
       }
       case "attend": {
         const drop: number = StanceShape.drop(measure, CROUCH_KNEES);
-        return blendPosture(base, { ...base, drop, thoracic: { ...base.thoracic, flexion: 25 }, cervical: { ...base.cervical, flexion: 20 } }, Math.min(1, s * 3), rest);
+        return blendPosture(
+          base,
+          {
+            ...base,
+            drop,
+            thoracic: { ...base.thoracic, flexion: 25 },
+            cervical: { ...base.cervical, flexion: 20 },
+          },
+          Math.min(1, s * 3),
+          rest,
+        );
       }
     }
     return blendPosture(base, signal, envelope, rest);

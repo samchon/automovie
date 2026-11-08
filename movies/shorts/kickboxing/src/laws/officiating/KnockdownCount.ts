@@ -46,7 +46,8 @@ export namespace KnockdownCount {
     corners: readonly [RingFootwork.IPoint, RingFootwork.IPoint],
     fallen: RingFootwork.IPoint,
   ): RingFootwork.IPoint {
-    const d = (p: RingFootwork.IPoint): number => Math.hypot(p.x - fallen.x, p.z - fallen.z);
+    const d = (p: RingFootwork.IPoint): number =>
+      Math.hypot(p.x - fallen.x, p.z - fallen.z);
     return d(corners[0]) >= d(corners[1]) ? corners[0] : corners[1];
   }
 }

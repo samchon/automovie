@@ -1,4 +1,7 @@
-import type { IAutoMovieIntent, resolveAutoMovieOutcome } from "@automovie/engine";
+import type {
+  IAutoMovieIntent,
+  resolveAutoMovieOutcome,
+} from "@automovie/engine";
 
 import { KickboxingAction } from "./KickboxingAction";
 import { KickboxingDefense } from "./KickboxingDefense";
@@ -34,7 +37,10 @@ export namespace KickboxingOutcome {
   /** Reads the attack and answer of an `[attack, answer]` pair. */
   const pair = (
     intents: readonly IAutoMovieIntent[],
-  ): { attack: KickboxingTechnique.ISpec; answer: KickboxingAction.Answer } | null => {
+  ): {
+    attack: KickboxingTechnique.ISpec;
+    answer: KickboxingAction.Answer;
+  } | null => {
     if (intents.length !== 2) return null;
     const attack: KickboxingAction.IAction = KickboxingAction.read(intents[0]!);
     const answer: KickboxingAction.IAction = KickboxingAction.read(intents[1]!);
@@ -47,7 +53,10 @@ export namespace KickboxingOutcome {
   const rule = (
     id: string,
     outcome: Outcome,
-    when: (attack: KickboxingTechnique.ISpec, answer: KickboxingAction.Answer) => boolean,
+    when: (
+      attack: KickboxingTechnique.ISpec,
+      answer: KickboxingAction.Answer,
+    ) => boolean,
   ): resolveAutoMovieOutcome.IRule<Outcome> => ({
     id,
     outcome,
@@ -65,7 +74,11 @@ export namespace KickboxingOutcome {
         "illegal",
         (attack, answer) => !KickboxingDefense.meets(answer, attack),
       ),
-      rule("feint-ignored", "ignored", (attack, answer) => !!attack.shows && answer === "take"),
+      rule(
+        "feint-ignored",
+        "ignored",
+        (attack, answer) => !!attack.shows && answer === "take",
+      ),
       rule("feint-read", "read", (attack) => !!attack.shows),
       rule(
         "disguise-passes",
@@ -78,13 +91,16 @@ export namespace KickboxingOutcome {
       rule(
         "evaded",
         "evaded",
-        (_attack, answer) => answer === "slip" || answer === "roll" || answer === "sway",
+        (_attack, answer) =>
+          answer === "slip" || answer === "roll" || answer === "sway",
       ),
       rule(
         "blocked",
         "blocked",
         (_attack, answer) =>
-          answer === "cover" || answer === "elbow-block" || answer === "high-block",
+          answer === "cover" ||
+          answer === "elbow-block" ||
+          answer === "high-block",
       ),
     ]),
     otherwise: "illegal",

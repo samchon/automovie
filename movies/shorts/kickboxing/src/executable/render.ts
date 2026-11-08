@@ -78,7 +78,9 @@ export async function render(): Promise<void> {
     throw new Error(
       "Set CHROME_PATH to an installed Chrome or Chromium executable",
     );
-  const url: URL = new URL(viewer ?? process.env.VIEWER_URL ?? "http://127.0.0.1:5199/");
+  const url: URL = new URL(
+    viewer ?? process.env.VIEWER_URL ?? "http://127.0.0.1:5199/",
+  );
   url.searchParams.set("capture", "1");
   url.searchParams.set("w", "1280");
   url.searchParams.set("h", "720");
@@ -132,16 +134,31 @@ export async function render(): Promise<void> {
     viewSelector: "#view",
     prepare: async (page): Promise<{ audioMix?: string }> => {
       const soundtrack = (await page.evaluate(
-        (): unknown => (window as unknown as { __afSoundtrack: () => unknown }).__afSoundtrack(),
+        (): unknown =>
+          (
+            window as unknown as { __afSoundtrack: () => unknown }
+          ).__afSoundtrack(),
         undefined,
-      )) as { cues: { asset: string; seconds: number; gain: number }[]; assets: Record<string, string> } | undefined;
+      )) as
+        | {
+            cues: { asset: string; seconds: number; gain: number }[];
+            assets: Record<string, string>;
+          }
+        | undefined;
       if (!soundtrack) return {};
       const mixed = await mixAutoMovieAudioCues({
         sampleRate: SAMPLE_RATE,
         durationSeconds: selected.film.durationSeconds,
-        assets: Object.fromEntries(Object.entries(soundtrack.assets).map(([id, file]) => [id, path.resolve(file)])),
+        assets: Object.fromEntries(
+          Object.entries(soundtrack.assets).map(([id, file]) => [
+            id,
+            path.resolve(file),
+          ]),
+        ),
         cues: soundtrack.cues,
-        outputPath: path.resolve(`.cache/render/${selected.name}/soundtrack.wav`),
+        outputPath: path.resolve(
+          `.cache/render/${selected.name}/soundtrack.wav`,
+        ),
       });
       return { audioMix: mixed.path };
     },

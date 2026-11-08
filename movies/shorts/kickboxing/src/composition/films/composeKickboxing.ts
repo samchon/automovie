@@ -30,7 +30,10 @@ import { theBrazilianKick } from "../scenes/kickboxing/the-brazilian-kick/theBra
  * @evidence docs/body/screenplay/kickboxing.md Every scene in screenplay order, one continuous take.
  * @evidence docs/body/screenplay/kickboxing.md#s10-b03 The camera begins widening at 143 s and holds to the end.
  */
-export function composeKickboxing(cast: RingStage["cast"], duration: number): AutoMovieComposition {
+export function composeKickboxing(
+  cast: RingStage["cast"],
+  duration: number,
+): AutoMovieComposition {
   return AutoMovieComposition.parallel(
     AutoMovieComposition.sequence(
       readingEachOther(cast),
@@ -46,7 +49,11 @@ export function composeKickboxing(cast: RingStage["cast"], duration: number): Au
       downAndTheCount(cast),
       knockoutAndCelebration(cast),
     ),
-    AutoMovieComposition.at("bell-open", cast.camera.holdFinish(duration - FINISH_VIEW), FINISH_VIEW),
+    AutoMovieComposition.at(
+      "bell-open",
+      cast.camera.holdFinish(duration - FINISH_VIEW),
+      FINISH_VIEW,
+    ),
   );
 }
 

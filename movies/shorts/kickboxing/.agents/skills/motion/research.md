@@ -1,6 +1,6 @@
 # Motion and conditioning references
 
-Use [production research](../production/research.md) for original movement evidence, connected phases and retained local references. These sources inform candidate methods and failure checks. Their reported experiments, embodiments and hardware do not validate this production or supply an installed solver. Adopting a principle below for film is a production inference, to be checked through the current host and commissioned output.
+Take movement evidence from the [performance study](../story/planning/research.md#performance-study) and its retained references; the sources below inform implementation methods only. These sources inform candidate methods and failure checks. Their reported experiments, embodiments and hardware do not validate this production or supply an installed solver. Adopting a principle below for film is a production inference, to be checked through the current host and commissioned output.
 
 | Primary source | Decision informed here |
 | --- | --- |

@@ -52,7 +52,11 @@ export namespace StepPattern {
     const target = (step: number): number =>
       step < 0 ? 0 : step + 2 >= n ? 1 : (step + 1 + (own === 0 ? 1 : 0)) / n;
     if (index % 2 === own)
-      return { from: target(index - 2), to: target(index), swing: position - index };
+      return {
+        from: target(index - 2),
+        to: target(index),
+        swing: position - index,
+      };
     const planted: number = target(index - 1);
     return { from: planted, to: planted, swing: 1 };
   }
@@ -75,7 +79,8 @@ export namespace StepPattern {
     const dz: number = to.z - from.z;
     const forward: number = dx * facing.x + dz * facing.z;
     const left: number = -dx * facing.z + dz * facing.x;
-    if (Math.abs(forward) >= Math.abs(left)) return forward >= 0 ? "left" : "right";
+    if (Math.abs(forward) >= Math.abs(left))
+      return forward >= 0 ? "left" : "right";
     return left >= 0 ? "left" : "right";
   }
 

@@ -18,12 +18,26 @@ export class RingLights {
 
   /** Build the lights. */
   public constructor() {
-    const fill: THREE.HemisphereLight = new THREE.HemisphereLight(0xe2efff, 0x3a3631, 1.6);
-    const key: THREE.DirectionalLight = new THREE.DirectionalLight(0xfff4e2, 2.6);
+    const fill: THREE.HemisphereLight = new THREE.HemisphereLight(
+      0xe2efff,
+      0x3a3631,
+      1.6,
+    );
+    const key: THREE.DirectionalLight = new THREE.DirectionalLight(
+      0xfff4e2,
+      2.6,
+    );
     key.position.set(0.5, 8, 1);
     key.castShadow = true;
     key.shadow.mapSize.set(2048, 2048);
-    Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4, near: 0.5, far: 15 });
+    Object.assign(key.shadow.camera, {
+      left: -4,
+      right: 4,
+      top: 4,
+      bottom: -4,
+      near: 0.5,
+      far: 15,
+    });
     this.object.add(fill, key, key.target);
   }
 

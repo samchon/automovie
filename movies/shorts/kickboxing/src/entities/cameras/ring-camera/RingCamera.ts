@@ -25,7 +25,12 @@ export class RingCamera {
 
   /** Build the camera with the coverage law's lens on the 16:9 delivery frame. */
   public constructor() {
-    this.camera = new THREE.PerspectiveCamera((CoverageLaw.FIELD_OF_VIEW * 180) / Math.PI, 16 / 9, 0.05, 80);
+    this.camera = new THREE.PerspectiveCamera(
+      (CoverageLaw.FIELD_OF_VIEW * 180) / Math.PI,
+      16 / 9,
+      0.05,
+      80,
+    );
   }
 
   /**
@@ -40,7 +45,9 @@ export class RingCamera {
       subject: this.id,
       capability: "frame",
       ...(anchor === undefined ? {} : { anchor }),
-      parameters: Object.freeze({ action: Object.freeze({ kind: "frame", size: "finish", seconds }) }),
+      parameters: Object.freeze({
+        action: Object.freeze({ kind: "frame", size: "finish", seconds }),
+      }),
     });
   }
 }

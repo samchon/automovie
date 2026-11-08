@@ -49,7 +49,8 @@ export default {
     "no-restricted-syntax": [
       "error",
       {
-        selector: "MemberExpression[object.name='Math'][property.name='random']",
+        selector:
+          "MemberExpression[object.name='Math'][property.name='random']",
         message: "Draw variation from the installed seeded generator.",
       },
     ],
@@ -69,18 +70,44 @@ export default {
           { from: "films", allow: ["packages", "films", "scenes", "host"] },
           {
             from: "scenes",
-            allow: ["packages", "scenes", "consequences", "interactions", "entities"],
+            allow: [
+              "packages",
+              "scenes",
+              "consequences",
+              "interactions",
+              "entities",
+            ],
           },
           {
             from: "consequences",
-            allow: ["packages", "consequences", "interactions", "entities", "laws"],
+            allow: [
+              "packages",
+              "consequences",
+              "interactions",
+              "entities",
+              "laws",
+            ],
           },
-          { from: "interactions", allow: ["packages", "interactions", "entities", "laws"] },
+          {
+            from: "interactions",
+            allow: ["packages", "interactions", "entities", "laws"],
+          },
           { from: "entities", allow: ["packages", "entities", "laws"] },
           { from: "laws", allow: ["packages", "laws"] },
           {
             from: "tests",
-            allow: ["tests", "packages", "host", "executable", "films", "scenes", "consequences", "interactions", "entities", "laws"],
+            allow: [
+              "tests",
+              "packages",
+              "host",
+              "executable",
+              "films",
+              "scenes",
+              "consequences",
+              "interactions",
+              "entities",
+              "laws",
+            ],
           },
           { from: "packages", allow: ["packages"] },
         ],

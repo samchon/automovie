@@ -1,4 +1,7 @@
-import type { IAutoMovieSchedule, checkAutoMovieLegality } from "@automovie/engine";
+import type {
+  IAutoMovieSchedule,
+  checkAutoMovieLegality,
+} from "@automovie/engine";
 
 import { KickboxingAction } from "./KickboxingAction";
 import { KickboxingDefense } from "./KickboxingDefense";
@@ -22,24 +25,45 @@ export namespace KickboxingLegality {
   /** Seconds two entries may be apart and still touch, the float tolerance of summed durations. */
   const TOUCH: number = 1e-6;
 
-  const strike = (entry: IAutoMovieSchedule.IEntry): Extract<KickboxingAction.IAction, { kind: "strike" }> | null => {
+  const strike = (
+    entry: IAutoMovieSchedule.IEntry,
+  ): Extract<KickboxingAction.IAction, { kind: "strike" }> | null => {
     if (entry.intent.capability !== "strike") return null;
-    const action: KickboxingAction.IAction = KickboxingAction.read(entry.intent);
+    const action: KickboxingAction.IAction = KickboxingAction.read(
+      entry.intent,
+    );
     return action.kind === "strike" ? action : null;
   };
 
   /** The limbs an entry occupies. */
   const limbs = (entry: IAutoMovieSchedule.IEntry): string[] => {
-    if (entry.intent.capability !== "strike" && entry.intent.capability !== "answer") return [];
-    const action: KickboxingAction.IAction = KickboxingAction.read(entry.intent);
+    if (
+      entry.intent.capability !== "strike" &&
+      entry.intent.capability !== "answer"
+    )
+      return [];
+    const action: KickboxingAction.IAction = KickboxingAction.read(
+      entry.intent,
+    );
     if (action.kind === "strike") {
-      const spec: KickboxingTechnique.ISpec = KickboxingTechnique.table[action.technique];
+      const spec: KickboxingTechnique.ISpec =
+        KickboxingTechnique.table[action.technique];
       return [`${spec.limb}-${spec.side}`];
     }
     if (action.kind === "answer") {
-      const limb: KickboxingDefense.Limb = KickboxingDefense.limb(action.answer);
-      const side: KickboxingTechnique.Side = KickboxingTechnique.opposite(KickboxingTechnique.table[action.against].side);
-      return limb === "rear-hand" ? ["arm-right"] : limb === "attacked-arm" ? [`arm-${side}`] : limb === "lead-leg" ? ["leg-left"] : [];
+      const limb: KickboxingDefense.Limb = KickboxingDefense.limb(
+        action.answer,
+      );
+      const side: KickboxingTechnique.Side = KickboxingTechnique.opposite(
+        KickboxingTechnique.table[action.against].side,
+      );
+      return limb === "rear-hand"
+        ? ["arm-right"]
+        : limb === "attacked-arm"
+          ? [`arm-${side}`]
+          : limb === "lead-leg"
+            ? ["leg-left"]
+            : [];
     }
     return [];
   };
@@ -49,60 +73,93 @@ export namespace KickboxingLegality {
     {
       id: "paired-answer",
       check: (entry: IAutoMovieSchedule.IEntry): string | null =>
-        entry.outcome === "illegal" ? `answer ${entry.index} does not meet its attack` : null,
+        entry.outcome === "illegal"
+          ? `answer ${entry.index} does not meet its attack`
+          : null,
     },
     {
       id: "no-attack-after-knockdown",
-      check: (entry: IAutoMovieSchedule.IEntry, schedule: IAutoMovieSchedule): string | null => {
+      check: (
+        entry: IAutoMovieSchedule.IEntry,
+        schedule: IAutoMovieSchedule,
+      ): string | null => {
         if (strike(entry) === null) return null;
-        const fall: IAutoMovieSchedule.IEntry | undefined = schedule.entries.find((other) => {
-          if (other.intent.capability !== "phase") return false;
-          const action: KickboxingAction.IAction = KickboxingAction.read(other.intent);
-          return action.kind === "phase" && action.phase === "fall" && other.subject !== entry.subject;
-        });
-        return fall !== undefined && entry.start >= fall.start ? `strike ${entry.index} follows the knockdown` : null;
+        const fall: IAutoMovieSchedule.IEntry | undefined =
+          schedule.entries.find((other) => {
+            if (other.intent.capability !== "phase") return false;
+            const action: KickboxingAction.IAction = KickboxingAction.read(
+              other.intent,
+            );
+            return (
+              action.kind === "phase" &&
+              action.phase === "fall" &&
+              other.subject !== entry.subject
+            );
+          });
+        return fall !== undefined && entry.start >= fall.start
+          ? `strike ${entry.index} follows the knockdown`
+          : null;
       },
     },
     {
       id: "single-clinch-knee",
-      check: (entry: IAutoMovieSchedule.IEntry, schedule: IAutoMovieSchedule): string | null => {
+      check: (
+        entry: IAutoMovieSchedule.IEntry,
+        schedule: IAutoMovieSchedule,
+      ): string | null => {
         const action = strike(entry);
-        if (action === null || KickboxingTechnique.table[action.technique].family !== "knee") return null;
+        if (
+          action === null ||
+          KickboxingTechnique.table[action.technique].family !== "knee"
+        )
+          return null;
         const touching = schedule.entries.filter(
           (other) =>
             other !== entry &&
             other.subject === entry.subject &&
             strike(other) !== null &&
-            (Math.abs(other.end - entry.start) < TOUCH || Math.abs(entry.end - other.start) < TOUCH),
+            (Math.abs(other.end - entry.start) < TOUCH ||
+              Math.abs(entry.end - other.start) < TOUCH),
         );
-        return touching.length > 0 ? `clinch knee ${entry.index} is not a single knee` : null;
+        return touching.length > 0
+          ? `clinch knee ${entry.index} is not a single knee`
+          : null;
       },
     },
     {
       id: "kick-in-combination",
-      check: (entry: IAutoMovieSchedule.IEntry, schedule: IAutoMovieSchedule): string | null => {
+      check: (
+        entry: IAutoMovieSchedule.IEntry,
+        schedule: IAutoMovieSchedule,
+      ): string | null => {
         const action = strike(entry);
         if (action === null) return null;
-        const spec: KickboxingTechnique.ISpec = KickboxingTechnique.table[action.technique];
+        const spec: KickboxingTechnique.ISpec =
+          KickboxingTechnique.table[action.technique];
         if (spec.family !== "round-kick") return null;
         const joined: boolean = schedule.entries.some(
           (other) =>
             other !== entry &&
             other.subject === entry.subject &&
             strike(other) !== null &&
-            (Math.abs(other.end - entry.start) < TOUCH || Math.abs(entry.end - other.start) < TOUCH),
+            (Math.abs(other.end - entry.start) < TOUCH ||
+              Math.abs(entry.end - other.start) < TOUCH),
         );
         return joined ? null : `kick ${entry.index} stands alone`;
       },
     },
     {
       id: "limb-exclusive",
-      check: (entry: IAutoMovieSchedule.IEntry, schedule: IAutoMovieSchedule): string | null => {
+      check: (
+        entry: IAutoMovieSchedule.IEntry,
+        schedule: IAutoMovieSchedule,
+      ): string | null => {
         const own: string[] = limbs(entry);
         if (own.length === 0) return null;
         // An answer holds its limb from the attack's launch to its contact; its
         // return to the guard can carry on into the next answer of that limb.
-        const busy = (e: IAutoMovieSchedule.IEntry): number => (e.intent.capability === "answer" ? (e.contact ?? e.end) : e.end);
+        const busy = (e: IAutoMovieSchedule.IEntry): number =>
+          e.intent.capability === "answer" ? (e.contact ?? e.end) : e.end;
         const clash = schedule.entries.find(
           (other) =>
             other.index > entry.index &&
@@ -111,7 +168,9 @@ export namespace KickboxingLegality {
             entry.start < busy(other) - TOUCH &&
             limbs(other).some((limb: string): boolean => own.includes(limb)),
         );
-        return clash ? `entries ${entry.index} and ${clash.index} use one limb at once` : null;
+        return clash
+          ? `entries ${entry.index} and ${clash.index} use one limb at once`
+          : null;
       },
     },
   ]);

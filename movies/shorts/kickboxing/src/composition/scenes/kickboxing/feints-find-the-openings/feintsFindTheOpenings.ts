@@ -26,12 +26,29 @@ export function feintsFindTheOpenings(cast: IRingCast): AutoMovieComposition {
   const { a, b } = cast;
   const then = AutoMovieComposition.sequence;
   return RingPhase.fill(15, [
-    exchange(cast, "s06-b01", a.feintJab().feintLowKick().cross(), b.tell("feint-jab").check().take()),
+    exchange(
+      cast,
+      "s06-b01",
+      a.feintJab().feintLowKick().cross(),
+      b.tell("feint-jab").check().take(),
+    ),
     RingPhase.reset([b, "press"], [a, "give"]),
-    exchange(cast, "s06-b02", b.jab().cross().hook().highKick(), a.parry().slip().roll().highBlock()),
+    exchange(
+      cast,
+      "s06-b02",
+      b.jab().cross().hook().highKick(),
+      a.parry().slip().roll().highBlock(),
+    ),
     RingPhase.reset([a, "give"]),
-    then(exchange(cast, "s06-b03", a.teep(), b.take()), exchange(cast, "s06-b03b", b.jab(), a.slip()), exchange(cast, "s06-b03c", a.bodyCross(), b.take())),
+    then(
+      exchange(cast, "s06-b03", a.teep(), b.take()),
+      exchange(cast, "s06-b03b", b.jab(), a.slip()),
+      exchange(cast, "s06-b03c", a.bodyCross(), b.take()),
+    ),
     RingPhase.reset([a, "circle"], [b, "circle"]),
-    then(exchange(cast, "s06-b04", b.jab().lowKick(), a.cover().check()), exchange(cast, "s06-b04c", a.jab().cross(), b.take().cover())),
+    then(
+      exchange(cast, "s06-b04", b.jab().lowKick(), a.cover().check()),
+      exchange(cast, "s06-b04c", a.jab().cross(), b.take().cover()),
+    ),
   ]);
 }

@@ -26,9 +26,22 @@ import type { IRingCast } from "../../../../interactions/kickboxing/IRingCast";
  */
 export function downAndTheCount(cast: IRingCast): AutoMovieComposition {
   const { a, b, referee } = cast;
-  const at = (offset: number, part: { readonly node: AutoMovieComposition }): AutoMovieComposition =>
-    AutoMovieComposition.at("s10-b04/3", part, offset);
-  const words: string[] = ["One!", "Two!", "Three!", "Four!", "Five!", "Six!", "Seven!", "Eight!", "Nine!", "Ten!"];
+  const at = (
+    offset: number,
+    part: { readonly node: AutoMovieComposition },
+  ): AutoMovieComposition => AutoMovieComposition.at("s10-b04/3", part, offset);
+  const words: string[] = [
+    "One!",
+    "Two!",
+    "Three!",
+    "Four!",
+    "Five!",
+    "Six!",
+    "Seven!",
+    "Eight!",
+    "Nine!",
+    "Ten!",
+  ];
   return AutoMovieComposition.parallel(
     at(0, b.phase("fall", 1.6)),
     at(0, referee.signal("down", 1, "Down!")),
@@ -36,7 +49,12 @@ export function downAndTheCount(cast: IRingCast): AutoMovieComposition {
     at(1.6, referee.signal("neutral-corner", 1.5, "Neutral corner!")),
     at(1.6, a.move("corner", 8)),
     at(7, referee.signal("count", 1)),
-    ...words.map((word: string, k: number) => at(8 + k, referee.signal("count", 1, word, k === 9 ? "count-10" : undefined))),
+    ...words.map((word: string, k: number) =>
+      at(
+        8 + k,
+        referee.signal("count", 1, word, k === 9 ? "count-10" : undefined),
+      ),
+    ),
     at(8, b.phase("attempt", 4.5)),
     at(12.5, b.phase("lie", 3.5)),
     at(16, b.phase("attempt", 0.8)),

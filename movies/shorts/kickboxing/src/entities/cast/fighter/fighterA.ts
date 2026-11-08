@@ -81,9 +81,29 @@ export const fighterA: IFighterProfile = Object.freeze<IFighterProfile>({
     "feint-low-kick",
     "feint-body-kick",
   ],
-  defenses: ["parry", "cover", "slip", "roll", "sway", "elbow-block", "high-block", "check", "take"],
+  defenses: [
+    "parry",
+    "cover",
+    "slip",
+    "roll",
+    "sway",
+    "elbow-block",
+    "high-block",
+    "check",
+    "take",
+  ],
   habits: [
-    { id: "checks-drag", trigger: ["feint-low-kick"], response: "check", reliability: 1 },
-    { id: "answers-pump", trigger: ["feint-jab"], response: "parry", reliability: 1 },
+    {
+      id: "checks-drag",
+      trigger: ["feint-low-kick"],
+      response: "check",
+      reliability: 1,
+    },
+    {
+      id: "answers-pump",
+      trigger: ["feint-jab"],
+      response: "parry",
+      reliability: 1,
+    },
   ],
 });

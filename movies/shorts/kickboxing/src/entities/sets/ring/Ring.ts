@@ -47,7 +47,10 @@ export class Ring {
         id: "neutral-corners",
         center: { x: 0, y: 0, z: 0 },
         radius: h * Math.SQRT2,
-        landmarks: Object.freeze({ "north-east": { x: h, y: 0, z: h }, "south-west": { x: -h, y: 0, z: -h } }),
+        landmarks: Object.freeze({
+          "north-east": { x: h, y: 0, z: h },
+          "south-west": { x: -h, y: 0, z: -h },
+        }),
       },
     ]);
     Object.freeze(this);

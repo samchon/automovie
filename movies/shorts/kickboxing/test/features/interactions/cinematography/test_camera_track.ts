@@ -19,12 +19,23 @@ export function test_camera_track(): void {
   for (let k = 1; k < camera.length; k++) {
     const a = camera[k - 1]!;
     const b = camera[k]!;
-    if (Math.hypot(b.position.x - a.position.x, b.position.y - a.position.y, b.position.z - a.position.z) > 1e-4) moving++;
-    if (b.size !== a.size && k * CameraTrack.STEP < 143) changes.push(k * CameraTrack.STEP);
-    assert.ok(Math.max(Math.abs(b.position.x), Math.abs(b.position.z)) < cast.ring.half);
+    if (
+      Math.hypot(
+        b.position.x - a.position.x,
+        b.position.y - a.position.y,
+        b.position.z - a.position.z,
+      ) > 1e-4
+    )
+      moving++;
+    if (b.size !== a.size && k * CameraTrack.STEP < 143)
+      changes.push(k * CameraTrack.STEP);
+    assert.ok(
+      Math.max(Math.abs(b.position.x), Math.abs(b.position.z)) < cast.ring.half,
+    );
     if (k * CameraTrack.STEP >= 143.1) assert.equal(b.size, "finish");
   }
   assert.ok(moving / camera.length >= 0.6, `moving ${moving / camera.length}`);
-  const mean = (changes[changes.length - 1]! - changes[0]!) / (changes.length - 1);
+  const mean =
+    (changes[changes.length - 1]! - changes[0]!) / (changes.length - 1);
   assert.ok(mean >= 2 && mean <= 8, `mean size interval ${mean}`);
 }

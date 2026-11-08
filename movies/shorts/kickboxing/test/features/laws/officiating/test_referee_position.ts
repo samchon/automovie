@@ -19,12 +19,40 @@ export function test_referee_position(): void {
   const ring = { half: 3, margin: 0.4, step: 0.3 };
   const a = { x: -0.6, z: 0 };
   const b = { x: 0.6, z: 0 };
-  const open = RefereePosition.goal({ a, b, side: 1, close: false, ring, reach: 0.7 });
-  const close = RefereePosition.goal({ a, b, side: 1, close: true, ring, reach: 0.7 });
-  assert.ok(Math.abs(RefereePosition.view(open.point, a, b) - Math.PI / 2) < 1e-9);
-  assert.ok(RefereePosition.view(open.point, a, b) >= RefereePosition.SIDE_VIEW);
-  assert.ok(Math.hypot(open.point.x, open.point.z) > Math.hypot(close.point.x, close.point.z));
-  const cornered = RefereePosition.goal({ a: { x: -0.6, z: 2.4 }, b: { x: 0.6, z: 2.4 }, side: 1, close: false, ring, reach: 0.7 });
+  const open = RefereePosition.goal({
+    a,
+    b,
+    side: 1,
+    close: false,
+    ring,
+    reach: 0.7,
+  });
+  const close = RefereePosition.goal({
+    a,
+    b,
+    side: 1,
+    close: true,
+    ring,
+    reach: 0.7,
+  });
+  assert.ok(
+    Math.abs(RefereePosition.view(open.point, a, b) - Math.PI / 2) < 1e-9,
+  );
+  assert.ok(
+    RefereePosition.view(open.point, a, b) >= RefereePosition.SIDE_VIEW,
+  );
+  assert.ok(
+    Math.hypot(open.point.x, open.point.z) >
+      Math.hypot(close.point.x, close.point.z),
+  );
+  const cornered = RefereePosition.goal({
+    a: { x: -0.6, z: 2.4 },
+    b: { x: 0.6, z: 2.4 },
+    side: 1,
+    close: false,
+    ring,
+    reach: 0.7,
+  });
   assert.equal(cornered.side, -1);
   const next = RefereePosition.walk({ x: 0, z: 0 }, { x: 10, z: 0 }, 0.5);
   assert.ok(Math.abs(next.x - RefereePosition.SPEED * 0.5) < 1e-12);
@@ -33,5 +61,14 @@ export function test_referee_position(): void {
   assert.equal(KnockdownCount.number(157, 3), 160);
   assert.equal(KnockdownCount.number(157, KnockdownCount.TEN), 167);
   assert.throws(() => KnockdownCount.number(157, 11));
-  assert.deepEqual(KnockdownCount.corner([{ x: 3, z: 3 }, { x: -3, z: -3 }], { x: -1, z: -1 }), { x: 3, z: 3 });
+  assert.deepEqual(
+    KnockdownCount.corner(
+      [
+        { x: 3, z: 3 },
+        { x: -3, z: -3 },
+      ],
+      { x: -1, z: -1 },
+    ),
+    { x: 3, z: 3 },
+  );
 }

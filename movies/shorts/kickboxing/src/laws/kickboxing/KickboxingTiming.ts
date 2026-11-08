@@ -73,9 +73,11 @@ export namespace KickboxingTiming {
     technique: KickboxingTechnique.Name,
     follows?: KickboxingTechnique.Name,
   ): number {
-    const spec: KickboxingTechnique.ISpec = KickboxingTechnique.table[technique];
+    const spec: KickboxingTechnique.ISpec =
+      KickboxingTechnique.table[technique];
     if (spec.shows) {
-      const shown: KickboxingTechnique.ISpec = KickboxingTechnique.table[spec.shows.of];
+      const shown: KickboxingTechnique.ISpec =
+        KickboxingTechnique.table[spec.shows.of];
       const full: number =
         shown.limb === "arm" ? delivery(shown.name, follows) : KICK_CHAMBER;
       return full * spec.shows.share;
@@ -83,7 +85,8 @@ export namespace KickboxingTiming {
     if (spec.family === "punch") {
       const previous: KickboxingTechnique.ISpec | undefined =
         follows === undefined ? undefined : KickboxingTechnique.table[follows];
-      if (previous === undefined || previous.limb !== "arm") return JAB_DELIVERY;
+      if (previous === undefined || previous.limb !== "arm")
+        return JAB_DELIVERY;
       return previous.side === spec.side
         ? SAME_HAND_INTERVAL
         : ALTERNATING_INTERVAL;
@@ -117,7 +120,8 @@ export namespace KickboxingTiming {
     technique: KickboxingTechnique.Name,
     follows?: KickboxingTechnique.Name,
   ): number {
-    const spec: KickboxingTechnique.ISpec = KickboxingTechnique.table[technique];
+    const spec: KickboxingTechnique.ISpec =
+      KickboxingTechnique.table[technique];
     if (spec.shows) return delivery(technique, follows);
     return spec.family === "punch" ? 0 : KICK_RECOIL;
   }
@@ -187,7 +191,9 @@ export namespace KickboxingTiming {
           contact: action.lead,
         };
       case "defend":
-        throw new Error(`An unpaired ${action.answer} has no timing; an exchange pairs it first`);
+        throw new Error(
+          `An unpaired ${action.answer} has no timing; an exchange pairs it first`,
+        );
       case "move":
         return { duration: action.seconds ?? action.steps * STEP_PERIOD };
       case "touch":

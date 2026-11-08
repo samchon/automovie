@@ -17,12 +17,16 @@ import { KickboxingTiming } from "../../../../src/laws/kickboxing/KickboxingTimi
  * Expectations are the research values, not the implementation's.
  */
 export function test_kickboxing_timing(): void {
-  const near = (a: number, b: number): void => assert.ok(Math.abs(a - b) < 1e-12, `${a} != ${b}`);
+  const near = (a: number, b: number): void =>
+    assert.ok(Math.abs(a - b) < 1e-12, `${a} != ${b}`);
   near(KickboxingTiming.delivery("jab"), 0.405);
   near(KickboxingTiming.delivery("cross", "jab"), 1.05 / 3);
   near(KickboxingTiming.delivery("jab", "jab"), 1.35 / 3);
   near(KickboxingTiming.delivery("jab", "low-kick"), 0.405);
-  near(KickboxingTiming.delivery("body-kick"), 0.074 + 0.14 * 1.02 + 0.11 * 1.02);
+  near(
+    KickboxingTiming.delivery("body-kick"),
+    0.074 + 0.14 * 1.02 + 0.11 * 1.02,
+  );
   near(KickboxingTiming.after("body-kick"), 0.65);
   near(KickboxingTiming.after("cross", "jab"), 0);
   near(KickboxingTiming.delivery("feint-jab"), 0.405 / 2);
@@ -33,10 +37,30 @@ export function test_kickboxing_timing(): void {
   const strike = KickboxingTiming.of({ kind: "strike", technique: "low-kick" });
   near(strike.contact!, KickboxingTiming.KICK_IMPACT);
   near(strike.duration, KickboxingTiming.KICK_IMPACT + 0.65);
-  near(KickboxingTiming.of({ kind: "move", movement: "circle", steps: 4 }).duration, 2);
-  near(KickboxingTiming.of({ kind: "move", movement: "approach", steps: 2, seconds: 0.405 }).duration, 0.405);
-  const answer = KickboxingTiming.of({ kind: "answer", answer: "cover", against: "cross", lead: 0.35, strike: "x/0" });
+  near(
+    KickboxingTiming.of({ kind: "move", movement: "circle", steps: 4 })
+      .duration,
+    2,
+  );
+  near(
+    KickboxingTiming.of({
+      kind: "move",
+      movement: "approach",
+      steps: 2,
+      seconds: 0.405,
+    }).duration,
+    0.405,
+  );
+  const answer = KickboxingTiming.of({
+    kind: "answer",
+    answer: "cover",
+    against: "cross",
+    lead: 0.35,
+    strike: "x/0",
+  });
   near(answer.contact!, 0.35);
   assert.throws(() => KickboxingTiming.of({ kind: "defend", answer: "parry" }));
-  assert.throws(() => KickboxingAction.read({ subject: "a", capability: "strike" }));
+  assert.throws(() =>
+    KickboxingAction.read({ subject: "a", capability: "strike" }),
+  );
 }

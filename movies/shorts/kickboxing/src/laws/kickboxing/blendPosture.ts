@@ -40,7 +40,10 @@ export function blendPosture(
   const v = Vector3.lerp;
   const record = <T extends Record<string, number>>(a: T, b: T): T =>
     Object.fromEntries(
-      Object.keys(a).map((key: string): [string, number] => [key, n(a[key]!, b[key]!)]),
+      Object.keys(a).map((key: string): [string, number] => [
+        key,
+        n(a[key]!, b[key]!),
+      ]),
     ) as T;
   const foot = (side: "left" | "right"): IBoutPosture["feet"]["left"] => {
     const a: IBoutPosture["feet"]["left"] = from.feet[side];
@@ -49,13 +52,15 @@ export function blendPosture(
     const pa = a ?? { point: rest[side] };
     const pb = b ?? { point: rest[side] };
     if ((a === null && w === 0) || (b === null && w === 1)) return null;
-    const knee = pa.knee && pb.knee ? v(pa.knee, pb.knee, w) : w < 0.5 ? pa.knee : pb.knee;
+    const knee =
+      pa.knee && pb.knee ? v(pa.knee, pb.knee, w) : w < 0.5 ? pa.knee : pb.knee;
     return { point: v(pa.point, pb.point, w), ...(knee ? { knee } : {}) };
   };
   const hand = (side: "left" | "right"): IBoutPosture["hands"]["left"] => {
     const a = from.hands[side];
     const b = to.hands[side];
-    const elbow = a.elbow && b.elbow ? v(a.elbow, b.elbow, w) : w < 0.5 ? a.elbow : b.elbow;
+    const elbow =
+      a.elbow && b.elbow ? v(a.elbow, b.elbow, w) : w < 0.5 ? a.elbow : b.elbow;
     return { point: v(a.point, b.point, w), ...(elbow ? { elbow } : {}) };
   };
   return {

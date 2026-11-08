@@ -29,12 +29,30 @@ export function aWeathersIt(cast: IRingCast): AutoMovieComposition {
   return RingPhase.fill(15, [
     RingPhase.reset([b, "press"], [a, "give"]),
     then(
-      exchange(cast, "s08-b01", b.jab().cross().uppercut().bodyHook().lowKick(), a.parry().cover().cover().elbowBlock().check()),
-      exchange(cast, "s08-b02", a.bodyHook().hook().cross(), b.take().cover().take()),
+      exchange(
+        cast,
+        "s08-b01",
+        b.jab().cross().uppercut().bodyHook().lowKick(),
+        a.parry().cover().cover().elbowBlock().check(),
+      ),
+      exchange(
+        cast,
+        "s08-b02",
+        a.bodyHook().hook().cross(),
+        b.take().cover().take(),
+      ),
     ),
     RingPhase.reset([b, "give"], [a, "press"]),
     exchange(cast, "s08-b03", a.clinchKnee(), b.take()),
     RingPhase.reset([a, "circle"], [b, "circle"]),
-    then(exchange(cast, "s08-b04", b.feintJab().bodyCross(), a.tell("feint-jab").elbowBlock()), exchange(cast, "s08-b04c", a.jab().cross(), b.slip().cover())),
+    then(
+      exchange(
+        cast,
+        "s08-b04",
+        b.feintJab().bodyCross(),
+        a.tell("feint-jab").elbowBlock(),
+      ),
+      exchange(cast, "s08-b04c", a.jab().cross(), b.slip().cover()),
+    ),
   ]);
 }

@@ -10,4 +10,7 @@ import type { FighterBody } from "./FighterBody";
  * @evidence docs/body/settings/cast/fighter-a.md#build The body the settings describe, behind one surface.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the interactions read; the figure alone needs the Human body itself.
  */
-export type IFighterBody = Pick<FighterBody, "measure" | "regions" | "weapons" | "profile" | "place" | "complete">;
+export type IFighterBody = Pick<
+  FighterBody,
+  "measure" | "regions" | "weapons" | "profile" | "place" | "complete"
+>;

@@ -33,17 +33,36 @@ export namespace KickboxingRange {
    * @returns Stance-origin distance, metres.
    * @evidence docs/research/kickboxing/techniques.md#reach Weapon reach plus region depth.
    */
-  export function of(attacker: IFighterMeasure, receiver: IFighterMeasure, technique: KickboxingTechnique.Name): number {
-    const spec: KickboxingTechnique.ISpec = KickboxingTechnique.performed(KickboxingTechnique.table[technique]);
+  export function of(
+    attacker: IFighterMeasure,
+    receiver: IFighterMeasure,
+    technique: KickboxingTechnique.Name,
+  ): number {
+    const spec: KickboxingTechnique.ISpec = KickboxingTechnique.performed(
+      KickboxingTechnique.table[technique],
+    );
     // Depth of the struck region in front of the receiver's stance origin.
-    const depth: number = spec.level === "head" ? receiver.headRadius : spec.level === "body" ? receiver.shoulderHalfWidth / 2 : receiver.hipHalfWidth;
+    const depth: number =
+      spec.level === "head"
+        ? receiver.headRadius
+        : spec.level === "body"
+          ? receiver.shoulderHalfWidth / 2
+          : receiver.hipHalfWidth;
     switch (spec.family) {
       case "punch":
         return REACH_SHARE * attacker.armReach + attacker.gloveRadius + depth;
       case "round-kick":
-        return REACH_SHARE * (attacker.thigh + StrikeShape.SHIN_SHARE * attacker.shank) + depth;
+        return (
+          REACH_SHARE *
+            (attacker.thigh + StrikeShape.SHIN_SHARE * attacker.shank) +
+          depth
+        );
       case "push-kick":
-        return REACH_SHARE * (attacker.thigh + attacker.shank) + attacker.foot / 2 + depth;
+        return (
+          REACH_SHARE * (attacker.thigh + attacker.shank) +
+          attacker.foot / 2 +
+          depth
+        );
       case "knee":
         return attacker.thigh + depth;
       case "feint":

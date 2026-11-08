@@ -1,7 +1,4 @@
-import {
-  AutoMovieComposition,
-  type IAutoMovieIntent,
-} from "@automovie/engine";
+import { AutoMovieComposition, type IAutoMovieIntent } from "@automovie/engine";
 
 import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
 import { KickboxingRange } from "../../laws/kickboxing/KickboxingRange";
@@ -41,43 +38,72 @@ export function exchange(
   const strikes: IAutoMovieIntent[] = flatten(attack.node);
   const answers: IAutoMovieIntent[] = flatten(defense.node);
   if (strikes.length === 0 || strikes.length !== answers.length)
-    throw new Error(`Exchange ${id} pairs ${strikes.length} strikes with ${answers.length} answers`);
+    throw new Error(
+      `Exchange ${id} pairs ${strikes.length} strikes with ${answers.length} answers`,
+    );
   const attacker: string = strikes[0]!.subject;
   const receiver: string = answers[0]!.subject;
   const fighters = [cast.a, cast.b];
   const self = fighters.find((f) => f.id === attacker);
   const other = fighters.find((f) => f.id === receiver);
-  if (!self || !other || self === other) throw new Error(`Exchange ${id} needs both fighters`);
+  if (!self || !other || self === other)
+    throw new Error(`Exchange ${id} needs both fighters`);
   const techniques: KickboxingTechnique.Name[] = [];
-  const anchored: IAutoMovieIntent[] = strikes.map((intent: IAutoMovieIntent, k: number): IAutoMovieIntent => {
-    const action: KickboxingAction.IAction = KickboxingAction.read(intent);
-    if (intent.subject !== attacker || action.kind !== "strike") throw new Error(`Exchange ${id}: part ${k} is not ${attacker}'s strike`);
-    techniques.push(action.technique);
-    return KickboxingAction.intent(attacker, action, `${id}/${k}`);
-  });
-  const aligned: AutoMovieComposition[] = answers.map((intent: IAutoMovieIntent, k: number): AutoMovieComposition => {
-    const action: KickboxingAction.IAction = KickboxingAction.read(intent);
-    if (intent.subject !== receiver || action.kind !== "defend") throw new Error(`Exchange ${id}: answer ${k} is not ${receiver}'s defense`);
-    const strike = KickboxingAction.read(anchored[k]!);
-    if (strike.kind !== "strike") throw new Error("unreachable");
-    const lead: number = KickboxingTiming.delivery(strike.technique, strike.follows);
-    return AutoMovieComposition.at(
-      `${id}/${k}`,
-      KickboxingAction.intent(receiver, { kind: "answer", answer: action.answer, against: strike.technique, lead, strike: `${id}/${k}` }),
-      -lead,
-    );
-  });
+  const anchored: IAutoMovieIntent[] = strikes.map(
+    (intent: IAutoMovieIntent, k: number): IAutoMovieIntent => {
+      const action: KickboxingAction.IAction = KickboxingAction.read(intent);
+      if (intent.subject !== attacker || action.kind !== "strike")
+        throw new Error(
+          `Exchange ${id}: part ${k} is not ${attacker}'s strike`,
+        );
+      techniques.push(action.technique);
+      return KickboxingAction.intent(attacker, action, `${id}/${k}`);
+    },
+  );
+  const aligned: AutoMovieComposition[] = answers.map(
+    (intent: IAutoMovieIntent, k: number): AutoMovieComposition => {
+      const action: KickboxingAction.IAction = KickboxingAction.read(intent);
+      if (intent.subject !== receiver || action.kind !== "defend")
+        throw new Error(
+          `Exchange ${id}: answer ${k} is not ${receiver}'s defense`,
+        );
+      const strike = KickboxingAction.read(anchored[k]!);
+      if (strike.kind !== "strike") throw new Error("unreachable");
+      const lead: number = KickboxingTiming.delivery(
+        strike.technique,
+        strike.follows,
+      );
+      return AutoMovieComposition.at(
+        `${id}/${k}`,
+        KickboxingAction.intent(receiver, {
+          kind: "answer",
+          answer: action.answer,
+          against: strike.technique,
+          lead,
+          strike: `${id}/${k}`,
+        }),
+        -lead,
+      );
+    },
+  );
   const range: number = KickboxingRange.combination(
     self.body.measure,
     other.body.measure,
     techniques,
   );
   const first = KickboxingAction.read(anchored[0]!);
-  const seconds: number = first.kind === "strike" ? KickboxingTiming.delivery(first.technique) : 0;
+  const seconds: number =
+    first.kind === "strike" ? KickboxingTiming.delivery(first.technique) : 0;
   return AutoMovieComposition.parallel(
     AutoMovieComposition.sequence(...anchored),
     ...aligned,
-    KickboxingAction.intent(attacker, { kind: "move", movement: "approach", steps: APPROACH_STEPS, range, seconds }),
+    KickboxingAction.intent(attacker, {
+      kind: "move",
+      movement: "approach",
+      steps: APPROACH_STEPS,
+      range,
+      seconds,
+    }),
   );
 }
 
@@ -88,5 +114,7 @@ const APPROACH_STEPS: number = 2;
 function flatten(node: AutoMovieComposition): IAutoMovieIntent[] {
   if (node.kind === "intent") return [node.intent];
   if (node.kind === "sequence") return node.parts.flatMap(flatten);
-  throw new Error(`An exchange chain is a sequence of intents, not ${node.kind}`);
+  throw new Error(
+    `An exchange chain is a sequence of intents, not ${node.kind}`,
+  );
 }

@@ -58,14 +58,25 @@ export namespace RefereePosition {
    * @returns The point and the side; the side flips only when his side has no room for the near distance.
    * @evidence docs/research/officiating/referee.md#positioning The adopted law.
    */
-  export function goal(input: IGoalInput): { point: RingFootwork.IPoint; side: 1 | -1 } {
-    const centre: RingFootwork.IPoint = { x: (input.a.x + input.b.x) / 2, z: (input.a.z + input.b.z) / 2 };
+  export function goal(input: IGoalInput): {
+    point: RingFootwork.IPoint;
+    side: 1 | -1;
+  } {
+    const centre: RingFootwork.IPoint = {
+      x: (input.a.x + input.b.x) / 2,
+      z: (input.a.z + input.b.z) / 2,
+    };
     const dx: number = input.b.x - input.a.x;
     const dz: number = input.b.z - input.a.z;
     const length: number = Math.hypot(dx, dz) || 1;
     const near: number = length / 2 + input.ring.step + input.reach;
-    const reach = (side: 1 | -1): { normal: RingFootwork.IPoint; room: number } => {
-      const normal: RingFootwork.IPoint = { x: (-dz / length) * side, z: (dx / length) * side };
+    const reach = (
+      side: 1 | -1,
+    ): { normal: RingFootwork.IPoint; room: number } => {
+      const normal: RingFootwork.IPoint = {
+        x: (-dz / length) * side,
+        z: (dx / length) * side,
+      };
       return { normal, room: room(centre, normal, input.ring) };
     };
     let side: 1 | -1 = input.side;
@@ -78,9 +89,15 @@ export namespace RefereePosition {
       }
     }
     // As far out as the ring allows, up to twice the close distance so he can keep pace.
-    const distance: number = Math.min(input.close ? near : FAR_SHARE * near, along.room);
+    const distance: number = Math.min(
+      input.close ? near : FAR_SHARE * near,
+      along.room,
+    );
     return {
-      point: { x: centre.x + along.normal.x * distance, z: centre.z + along.normal.z * distance },
+      point: {
+        x: centre.x + along.normal.x * distance,
+        z: centre.z + along.normal.z * distance,
+      },
       side,
     };
   }
@@ -104,7 +121,10 @@ export namespace RefereePosition {
     const distance: number = Math.hypot(dx, dz);
     const step: number = SPEED * seconds;
     if (distance <= step) return target;
-    return { x: current.x + (dx / distance) * step, z: current.z + (dz / distance) * step };
+    return {
+      x: current.x + (dx / distance) * step,
+      z: current.z + (dz / distance) * step,
+    };
   }
 
   /**
@@ -116,14 +136,20 @@ export namespace RefereePosition {
    * @returns The angle; at least `SIDE_VIEW` is a side view.
    * @evidence docs/research/officiating/referee.md#targets The side-view target.
    */
-  export function view(referee: RingFootwork.IPoint, a: RingFootwork.IPoint, b: RingFootwork.IPoint): number {
+  export function view(
+    referee: RingFootwork.IPoint,
+    a: RingFootwork.IPoint,
+    b: RingFootwork.IPoint,
+  ): number {
     const cx: number = (a.x + b.x) / 2;
     const cz: number = (a.z + b.z) / 2;
     const ux: number = b.x - a.x;
     const uz: number = b.z - a.z;
     const vx: number = referee.x - cx;
     const vz: number = referee.z - cz;
-    const cos: number = Math.abs(ux * vx + uz * vz) / ((Math.hypot(ux, uz) || 1) * (Math.hypot(vx, vz) || 1));
+    const cos: number =
+      Math.abs(ux * vx + uz * vz) /
+      ((Math.hypot(ux, uz) || 1) * (Math.hypot(vx, vz) || 1));
     return Math.acos(Math.min(1, cos));
   }
 
@@ -146,7 +172,8 @@ export namespace RefereePosition {
     const ux: number = b.x - a.x;
     const uz: number = b.z - a.z;
     const length2: number = ux * ux + uz * uz || 1;
-    const t: number = ((referee.x - a.x) * ux + (referee.z - a.z) * uz) / length2;
+    const t: number =
+      ((referee.x - a.x) * ux + (referee.z - a.z) * uz) / length2;
     if (t <= 0 || t >= 1) return false;
     const px: number = a.x + ux * t - referee.x;
     const pz: number = a.z + uz * t - referee.z;
@@ -154,10 +181,17 @@ export namespace RefereePosition {
   }
 
   /** Distance from a point along a unit direction to the margin inside the ropes. */
-  function room(from: RingFootwork.IPoint, direction: RingFootwork.IPoint, ring: RingFootwork.IRing): number {
+  function room(
+    from: RingFootwork.IPoint,
+    direction: RingFootwork.IPoint,
+    ring: RingFootwork.IRing,
+  ): number {
     const limit: number = ring.half - ring.margin;
     const along = (p: number, d: number): number =>
       d > 0 ? (limit - p) / d : d < 0 ? (-limit - p) / d : Infinity;
-    return Math.max(0, Math.min(along(from.x, direction.x), along(from.z, direction.z)));
+    return Math.max(
+      0,
+      Math.min(along(from.x, direction.x), along(from.z, direction.z)),
+    );
   }
 }

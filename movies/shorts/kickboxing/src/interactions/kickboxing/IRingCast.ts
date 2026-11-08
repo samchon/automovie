@@ -1,7 +1,7 @@
+import type { RingCamera } from "../../entities/cameras/ring-camera/RingCamera";
 import type { Fighter } from "../../entities/cast/fighter/Fighter";
 import type { Referee } from "../../entities/cast/referee/Referee";
 import type { Bell } from "../../entities/props/bell/Bell";
-import type { RingCamera } from "../../entities/cameras/ring-camera/RingCamera";
 import type { Ring } from "../../entities/sets/ring/Ring";
 
 /**

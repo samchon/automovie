@@ -5,8 +5,8 @@ import {
   type preparePhysicalGeometry,
 } from "@automovie/engine";
 
-import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
 import type { Fighter } from "../../entities/cast/fighter/Fighter";
+import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
 import { BoutPerformance } from "./BoutPerformance";
 import type { IRingCast } from "./IRingCast";
 
@@ -87,8 +87,20 @@ export namespace ContactReceipts {
           const seconds: number = touch.entry.contact! + k * frame;
           const bodies = performance.at(seconds);
           const result = measureAutoMovieContact({
-            a: { subject: striker.id, region: touch.spec.surface, profile: striker.body.profile, segments: bodies[striker.id]!.segments, bones: weaponBones(touch.spec) },
-            b: { subject: receiver.id, region: touch.region, profile: receiver.body.profile, segments: bodies[receiver.id]!.segments, bones: regionBones(receiver, touch.region) },
+            a: {
+              subject: striker.id,
+              region: touch.spec.surface,
+              profile: striker.body.profile,
+              segments: bodies[striker.id]!.segments,
+              bones: weaponBones(touch.spec),
+            },
+            b: {
+              subject: receiver.id,
+              region: touch.region,
+              profile: receiver.body.profile,
+              segments: bodies[receiver.id]!.segments,
+              bones: regionBones(receiver, touch.region),
+            },
             queries,
             seconds,
           });
@@ -102,7 +114,16 @@ export namespace ContactReceipts {
           ...auditAutoMovieOutcome(
             {
               id: touch.entry.intent.anchor!,
-              required: [{ a: { subject: striker.id }, b: { subject: receiver.id, region: touch.region }, window: { start: touch.entry.contact! - FRAMES * frame, end: touch.entry.contact! + FRAMES * frame } }],
+              required: [
+                {
+                  a: { subject: striker.id },
+                  b: { subject: receiver.id, region: touch.region },
+                  window: {
+                    start: touch.entry.contact! - FRAMES * frame,
+                    end: touch.entry.contact! + FRAMES * frame,
+                  },
+                },
+              ],
             },
             contacts,
           ),
@@ -145,7 +166,8 @@ export namespace ContactReceipts {
     const r = receiver.body.regions[region];
     if (!r) throw new Error(`Unknown region ${region}`);
     if (region.startsWith("glove-")) return [r.bone];
-    if (region.startsWith("forearm-")) return [r.bone, r.bone.replace("LowerArm", "Hand")];
+    if (region.startsWith("forearm-"))
+      return [r.bone, r.bone.replace("LowerArm", "Hand")];
     return [r.bone];
   }
 }

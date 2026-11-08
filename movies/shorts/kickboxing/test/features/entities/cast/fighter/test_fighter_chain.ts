@@ -27,12 +27,22 @@ export function test_fighter_chain(): void {
     { kind: "strike", technique: "cross", follows: "jab" },
     { kind: "strike", technique: "hook", follows: "cross" },
   ]);
-  assert.deepEqual(actions(a.feintJab().jab().node)[1], { kind: "strike", technique: "jab" });
-  assert.deepEqual(actions(a.lowKick().jab().node)[1], { kind: "strike", technique: "jab" });
+  assert.deepEqual(actions(a.feintJab().jab().node)[1], {
+    kind: "strike",
+    technique: "jab",
+  });
+  assert.deepEqual(actions(a.lowKick().jab().node)[1], {
+    kind: "strike",
+    technique: "jab",
+  });
   assert.throws(() => a.switchKick());
   assert.throws(() => b.brazilianKick());
-  assert.deepEqual(actions(b.tell("brazilian-kick").node), [{ kind: "defend", answer: "elbow-block" }]);
-  assert.deepEqual(actions(a.tell("feint-low-kick").node), [{ kind: "defend", answer: "check" }]);
+  assert.deepEqual(actions(b.tell("brazilian-kick").node), [
+    { kind: "defend", answer: "elbow-block" },
+  ]);
+  assert.deepEqual(actions(a.tell("feint-low-kick").node), [
+    { kind: "defend", answer: "check" },
+  ]);
   assert.throws(() => a.tell("high-kick"));
   assert.throws(() => a.move("circle", 1));
   assert.equal(flatten(a.move("circle", 2).node)[0]!.subject, "a");

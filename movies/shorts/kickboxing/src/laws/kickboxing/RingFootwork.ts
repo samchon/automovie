@@ -76,7 +76,11 @@ export namespace RingFootwork {
    * @evidence contracts/development/behaviors.md#deterministic-evaluation Pure.
    */
   export function move(
-    action: { movement: KickboxingAction.Movement; steps: number; range?: number },
+    action: {
+      movement: KickboxingAction.Movement;
+      steps: number;
+      range?: number;
+    },
     mover: IPoint,
     opponent: IPoint,
     ring: IRing,
@@ -86,7 +90,10 @@ export namespace RingFootwork {
     const toward: IPoint = unit(sub(opponent, mover));
     // A fighter feeling the ropes behind him circles out toward the open side
     // instead of giving more ground or circling along them.
-    if ((action.movement === "give" || action.movement === "circle") && onRopes(mover, ring))
+    if (
+      (action.movement === "give" || action.movement === "circle") &&
+      onRopes(mover, ring)
+    )
       return escape(mover, opponent, length, ring);
     // Own left of a fighter facing `toward` with y up: forward x up.
     const left: IPoint = { x: -toward.z, z: toward.x };
@@ -95,34 +102,71 @@ export namespace RingFootwork {
         return clamp(orbit(mover, opponent, length, 1), ring);
       case "pivot":
         return clamp(
-          orbit(mover, opponent, Math.min(length, PIVOT_ARC * dist(mover, opponent)), 1),
+          orbit(
+            mover,
+            opponent,
+            Math.min(length, PIVOT_ARC * dist(mover, opponent)),
+            1,
+          ),
           ring,
         );
       case "escape":
         return escape(mover, opponent, length, ring);
       case "give":
         return clamp(
-          add(mover, scale(add(scale(toward, -Math.cos(GIVE_ANGLE)), scale(left, Math.sin(GIVE_ANGLE))), length)),
+          add(
+            mover,
+            scale(
+              add(
+                scale(toward, -Math.cos(GIVE_ANGLE)),
+                scale(left, Math.sin(GIVE_ANGLE)),
+              ),
+              length,
+            ),
+          ),
           ring,
         );
       case "press": {
         // Mirror the receiver's diagonal escape: his lateral speed is
         // length sin(45), the presser takes half of it across, the rest forward.
         const across: number = CUT_SHARE * length * Math.sin(GIVE_ANGLE);
-        const forward: number = Math.sqrt(Math.max(0, length * length - across * across));
+        const forward: number = Math.sqrt(
+          Math.max(0, length * length - across * across),
+        );
         const receiverLeft: IPoint = scale(left, -1);
-        return clamp(add(mover, add(scale(toward, forward), scale(receiverLeft, across))), ring);
+        return clamp(
+          add(mover, add(scale(toward, forward), scale(receiverLeft, across))),
+          ring,
+        );
       }
       case "centre":
-        return clamp(add(mover, scale(unit(scale(mover, -1)), Math.min(length, Math.hypot(mover.x, mover.z)))), ring);
+        return clamp(
+          add(
+            mover,
+            scale(
+              unit(scale(mover, -1)),
+              Math.min(length, Math.hypot(mover.x, mover.z)),
+            ),
+          ),
+          ring,
+        );
       case "approach":
       case "separate":
-        return clamp(sub(opponent, scale(toward, action.range ?? dist(mover, opponent))), ring);
+        return clamp(
+          sub(opponent, scale(toward, action.range ?? dist(mover, opponent))),
+          ring,
+        );
       case "corner":
       case "celebrate":
         if (!target) throw new Error(`${action.movement} needs a target point`);
         return clamp(
-          add(mover, scale(unit(sub(target, mover)), Math.min(length, dist(mover, target)))),
+          add(
+            mover,
+            scale(
+              unit(sub(target, mover)),
+              Math.min(length, dist(mover, target)),
+            ),
+          ),
           ring,
         );
     }
@@ -147,8 +191,10 @@ export namespace RingFootwork {
    * @evidence contracts/development/behaviors.md#deterministic-evaluation Pure.
    */
   export function onRopes(point: IPoint, ring: IRing): boolean {
-    return ring.half - Math.max(Math.abs(point.x), Math.abs(point.z)) <=
-      ring.margin + ROPE_ZONE_STEPS * ring.step;
+    return (
+      ring.half - Math.max(Math.abs(point.x), Math.abs(point.z)) <=
+      ring.margin + ROPE_ZONE_STEPS * ring.step
+    );
   }
 
   /**
@@ -189,7 +235,8 @@ export namespace RingFootwork {
     let turn: number = Math.atan2(b.z, b.x) - start;
     if (turn > Math.PI) turn -= 2 * Math.PI;
     if (turn < -Math.PI) turn += 2 * Math.PI;
-    const radius: number = Math.hypot(a.x, a.z) + (Math.hypot(b.x, b.z) - Math.hypot(a.x, a.z)) * s;
+    const radius: number =
+      Math.hypot(a.x, a.z) + (Math.hypot(b.x, b.z) - Math.hypot(a.x, a.z)) * s;
     return {
       x: about.x + radius * Math.cos(start + turn * s),
       z: about.z + radius * Math.sin(start + turn * s),
@@ -197,32 +244,63 @@ export namespace RingFootwork {
   }
 
   /** Move along a circle about the opponent by an arc length, toward the mover's left (+1) or right (-1). */
-  function orbit(mover: IPoint, opponent: IPoint, arc: number, side: 1 | -1): IPoint {
+  function orbit(
+    mover: IPoint,
+    opponent: IPoint,
+    arc: number,
+    side: 1 | -1,
+  ): IPoint {
     const r: IPoint = sub(mover, opponent);
     const radius: number = Math.hypot(r.x, r.z);
     if (radius === 0) return mover;
     // The mover's left, seen facing the opponent, is a clockwise turn of his
     // offset seen from above (y up), so the angle decreases for side +1.
     const angle: number = Math.atan2(r.z, r.x) - (side * arc) / radius;
-    return { x: opponent.x + radius * Math.cos(angle), z: opponent.z + radius * Math.sin(angle) };
+    return {
+      x: opponent.x + radius * Math.cos(angle),
+      z: opponent.z + radius * Math.sin(angle),
+    };
   }
 
   /** Circle out of the rope zone: around the opponent toward the roomier side, half the path toward the centre (film reading of "circles out toward the open side"). */
-  function escape(mover: IPoint, opponent: IPoint, length: number, ring: IRing): IPoint {
-    const around: IPoint = orbit(mover, opponent, length / 2, roomier(mover, opponent, ring));
+  function escape(
+    mover: IPoint,
+    opponent: IPoint,
+    length: number,
+    ring: IRing,
+  ): IPoint {
+    const around: IPoint = orbit(
+      mover,
+      opponent,
+      length / 2,
+      roomier(mover, opponent, ring),
+    );
     const inward: IPoint = unit(scale(around, -1));
-    return clamp(add(around, scale(inward, Math.min(length / 2, Math.hypot(around.x, around.z)))), ring);
+    return clamp(
+      add(
+        around,
+        scale(inward, Math.min(length / 2, Math.hypot(around.x, around.z))),
+      ),
+      ring,
+    );
   }
 
   /** The circling side with more room: +1 for the mover's left, -1 for his right. */
   function roomier(mover: IPoint, opponent: IPoint, ring: IRing): 1 | -1 {
-    const room = (p: IPoint): number => ring.half - Math.max(Math.abs(p.x), Math.abs(p.z));
-    return room(orbit(mover, opponent, ring.step, 1)) >= room(orbit(mover, opponent, ring.step, -1)) ? 1 : -1;
+    const room = (p: IPoint): number =>
+      ring.half - Math.max(Math.abs(p.x), Math.abs(p.z));
+    return room(orbit(mover, opponent, ring.step, 1)) >=
+      room(orbit(mover, opponent, ring.step, -1))
+      ? 1
+      : -1;
   }
 
   function clamp(p: IPoint, ring: IRing): IPoint {
     const limit: number = ring.half - ring.margin;
-    return { x: Math.max(-limit, Math.min(limit, p.x)), z: Math.max(-limit, Math.min(limit, p.z)) };
+    return {
+      x: Math.max(-limit, Math.min(limit, p.x)),
+      z: Math.max(-limit, Math.min(limit, p.z)),
+    };
   }
 
   function add(a: IPoint, b: IPoint): IPoint {

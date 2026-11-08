@@ -27,14 +27,31 @@ export namespace CelebrationShape {
    * @returns The posture.
    * @evidence docs/body/screenplay/kickboxing.md#s12-b02 The raise, pump and second raise.
    */
-  export function posture(measure: IFighterMeasure, guard: IBoutPosture, seconds: number): IBoutPosture {
+  export function posture(
+    measure: IFighterMeasure,
+    guard: IBoutPosture,
+    seconds: number,
+  ): IBoutPosture {
     const top: number = measure.shoulder - guard.drop + measure.armReach * 0.85;
-    const high = (side: 1 | -1): { point: { x: number; y: number; z: number } } => ({
-      point: { x: measure.headRadius, y: top, z: side * measure.shoulderHalfWidth * 1.3 },
+    const high = (
+      side: 1 | -1,
+    ): { point: { x: number; y: number; z: number } } => ({
+      point: {
+        x: measure.headRadius,
+        y: top,
+        z: side * measure.shoulderHalfWidth * 1.3,
+      },
     });
     // After the first raise the right glove pumps once per step pair.
     const pumping: boolean = seconds > RAISE && seconds < RAISE * 3;
-    const pump: number = pumping ? 0.5 - 0.5 * Math.cos((2 * Math.PI * (seconds - RAISE)) / (2 * KickboxingTiming.STEP_PERIOD)) : 0;
+    const pump: number = pumping
+      ? 0.5 -
+        0.5 *
+          Math.cos(
+            (2 * Math.PI * (seconds - RAISE)) /
+              (2 * KickboxingTiming.STEP_PERIOD),
+          )
+      : 0;
     return {
       ...guard,
       yaw: 0,

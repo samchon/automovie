@@ -19,7 +19,12 @@ import { KickboxingTechnique } from "./KickboxingTechnique";
  */
 export namespace KickboxingDefense {
   /** The limb an answer occupies: the rear (right) hand, the attacked side's arm, the whole body, the lead (left) leg, or nothing. */
-  export type Limb = "rear-hand" | "attacked-arm" | "body" | "lead-leg" | "none";
+  export type Limb =
+    | "rear-hand"
+    | "attacked-arm"
+    | "body"
+    | "lead-leg"
+    | "none";
 
   /**
    * The limb an answer occupies.
@@ -157,7 +162,8 @@ export namespace KickboxingDefense {
 
   /** The technique a receiver reads: what a feint shows, what a disguise imitates, or the attack itself. */
   function read(attack: KickboxingTechnique.ISpec): KickboxingTechnique.ISpec {
-    const shown: KickboxingTechnique.ISpec = KickboxingTechnique.performed(attack);
+    const shown: KickboxingTechnique.ISpec =
+      KickboxingTechnique.performed(attack);
     return shown.disguise !== undefined
       ? KickboxingTechnique.table[shown.disguise]
       : shown;

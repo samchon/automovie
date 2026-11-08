@@ -25,18 +25,35 @@ export function test_referee_track(): void {
     const b = BoutLaws.origin(schedule, "b", t, cast).point;
     if (RefereePosition.view(r, a, b) >= RefereePosition.SIDE_VIEW) side++;
     samples++;
-    assert.ok(!RefereePosition.between(r, a, b, cast.referee.body.measure.shoulderHalfWidth * 2), `between at ${t}`);
+    assert.ok(
+      !RefereePosition.between(
+        r,
+        a,
+        b,
+        cast.referee.body.measure.shoulderHalfWidth * 2,
+      ),
+      `between at ${t}`,
+    );
     assert.ok(Math.max(Math.abs(r.x), Math.abs(r.z)) < cast.ring.half);
     if (k > 0) {
       const p = referee.points[k - 1]!;
-      assert.ok(Math.hypot(r.x - p.x, r.z - p.z) <= RefereePosition.SPEED * step + 1e-9);
+      assert.ok(
+        Math.hypot(r.x - p.x, r.z - p.z) <= RefereePosition.SPEED * step + 1e-9,
+      );
     }
   }
   assert.ok(side / samples >= 0.9, `side view ${side / samples}`);
   for (let phase = 0; phase < 10; phase++) {
     let walked = 0;
-    for (let k = Math.round((phase * 15) / step) + 1; k <= Math.round(((phase + 1) * 15) / step); k++)
-      walked += Math.hypot(referee.points[k]!.x - referee.points[k - 1]!.x, referee.points[k]!.z - referee.points[k - 1]!.z);
+    for (
+      let k = Math.round((phase * 15) / step) + 1;
+      k <= Math.round(((phase + 1) * 15) / step);
+      k++
+    )
+      walked += Math.hypot(
+        referee.points[k]!.x - referee.points[k - 1]!.x,
+        referee.points[k]!.z - referee.points[k - 1]!.z,
+      );
     assert.ok(walked >= 1, `phase ${phase + 1} walked ${walked}`);
   }
 }

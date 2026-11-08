@@ -1,4 +1,8 @@
-import { type IAutoMovieSchedule, createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+import {
+  type IAutoMovieSchedule,
+  createAutoMovieRandom,
+  deriveAutoMovieSeed,
+} from "@automovie/engine";
 
 import type { ContactReceipts } from "../../interactions/kickboxing/ContactReceipts";
 import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
@@ -55,7 +59,13 @@ export namespace SoundCues {
   };
 
   /** Impact takes, lightest first: five recorded punches and pad contacts. */
-  const IMPACTS: readonly string[] = ["punch1", "punch2", "punch3", "punch4", "punch5"];
+  const IMPACTS: readonly string[] = [
+    "punch1",
+    "punch2",
+    "punch3",
+    "punch4",
+    "punch5",
+  ];
 
   /**
    * The cues.
@@ -65,40 +75,77 @@ export namespace SoundCues {
    * @param receipts The measured contacts.
    * @returns Cues in time order.
    */
-  export function of(seed: string, schedule: IAutoMovieSchedule, receipts: readonly ContactReceipts.IReceipt[]): ICue[] {
+  export function of(
+    seed: string,
+    schedule: IAutoMovieSchedule,
+    receipts: readonly ContactReceipts.IReceipt[],
+  ): ICue[] {
     const cues: ICue[] = [];
     for (const entry of schedule.entries) {
-      if (entry.intent.capability === "ring") cues.push({ asset: "bell", seconds: entry.start, gain: 0.9 });
+      if (entry.intent.capability === "ring")
+        cues.push({ asset: "bell", seconds: entry.start, gain: 0.9 });
       else if (entry.intent.capability === "signal") {
         const action = OfficiatingAction.read(entry.intent);
-        const asset: string | undefined = action.words === undefined ? undefined : WORDS[action.words];
+        const asset: string | undefined =
+          action.words === undefined ? undefined : WORDS[action.words];
         if (asset) cues.push({ asset, seconds: entry.start, gain: 1 });
       } else if (entry.intent.capability === "strike") {
         const action = KickboxingAction.read(entry.intent);
-        if (action.kind === "strike" && !KickboxingTechnique.table[action.technique].shows)
+        if (
+          action.kind === "strike" &&
+          !KickboxingTechnique.table[action.technique].shows
+        )
           cues.push({ asset: "breath", seconds: entry.start, gain: 0.35 });
       } else if (entry.intent.capability === "move") {
         const action = KickboxingAction.read(entry.intent);
         if (action.kind === "move")
           for (let k: number = 0; k < action.steps; k++)
-            cues.push({ asset: "step", seconds: entry.start + ((k + 1) * (entry.end - entry.start)) / action.steps, gain: 0.25 });
+            cues.push({
+              asset: "step",
+              seconds:
+                entry.start +
+                ((k + 1) * (entry.end - entry.start)) / action.steps,
+              gain: 0.25,
+            });
       } else if (entry.intent.capability === "phase") {
         const action = KickboxingAction.read(entry.intent);
         if (action.kind === "phase" && action.phase === "fall")
           for (const share of [0.55, 0.8, 1])
-            cues.push({ asset: "fall", seconds: entry.start + (entry.end - entry.start) * share, gain: 0.8 });
-      } else if (entry.intent.capability === "answer" && entry.outcome === "evaded")
-        cues.push({ asset: "air", seconds: entry.contact ?? entry.start, gain: 0.3 });
+            cues.push({
+              asset: "fall",
+              seconds: entry.start + (entry.end - entry.start) * share,
+              gain: 0.8,
+            });
+      } else if (
+        entry.intent.capability === "answer" &&
+        entry.outcome === "evaded"
+      )
+        cues.push({
+          asset: "air",
+          seconds: entry.contact ?? entry.start,
+          gain: 0.3,
+        });
     }
     for (const r of receipts) {
       if (!r.contact) continue;
-      const spec: KickboxingTechnique.ISpec = KickboxingTechnique.table[r.technique];
-      const random = createAutoMovieRandom(deriveAutoMovieSeed(seed, "impact", r.anchor));
+      const spec: KickboxingTechnique.ISpec =
+        KickboxingTechnique.table[r.technique];
+      const random = createAutoMovieRandom(
+        deriveAutoMovieSeed(seed, "impact", r.anchor),
+      );
       const heavy: boolean = spec.limb === "leg" || spec.disguise !== undefined;
       const landed: boolean = r.outcome === "landed";
-      const take: number = heavy ? 3 + (random.uint32(0) % 2) : random.uint32(0) % 3;
-      cues.push({ asset: IMPACTS[take]!, seconds: r.seconds, gain: (landed ? 0.9 : 0.55) * (spec.disguise !== undefined ? 1.1 : 1) });
+      const take: number = heavy
+        ? 3 + (random.uint32(0) % 2)
+        : random.uint32(0) % 3;
+      cues.push({
+        asset: IMPACTS[take]!,
+        seconds: r.seconds,
+        gain: (landed ? 0.9 : 0.55) * (spec.disguise !== undefined ? 1.1 : 1),
+      });
     }
-    return cues.sort((x, y) => x.seconds - y.seconds || x.asset.localeCompare(y.asset));
+    return cues.sort(
+      (x, y) => x.seconds - y.seconds || x.asset.localeCompare(y.asset),
+    );
   }
 }

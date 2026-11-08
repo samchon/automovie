@@ -19,7 +19,11 @@ export namespace ImpactMarks {
   const RISE: number = 0.35;
 
   /** Mark added by one landed blow, by level: kicks and the finish mark more than punches (film choice). */
-  const STRENGTH: Readonly<Record<KickboxingTechnique.Level, number>> = { head: 0.45, body: 0.4, leg: 0.5 };
+  const STRENGTH: Readonly<Record<KickboxingTechnique.Level, number>> = {
+    head: 0.45,
+    body: 0.4,
+    leg: 0.5,
+  };
 
   /**
    * Marks on a fighter at a second.
@@ -29,12 +33,24 @@ export namespace ImpactMarks {
    * @param seconds Film seconds.
    * @returns Redness by region, in [0, 1].
    */
-  export function at(receipts: readonly ContactReceipts.IReceipt[], subject: string, seconds: number): Record<string, number> {
+  export function at(
+    receipts: readonly ContactReceipts.IReceipt[],
+    subject: string,
+    seconds: number,
+  ): Record<string, number> {
     const marks: Record<string, number> = {};
     for (const r of receipts) {
-      if (r.receiver !== subject || r.outcome !== "landed" || !r.contact || r.seconds > seconds) continue;
-      const spec: KickboxingTechnique.ISpec = KickboxingTechnique.table[r.technique];
-      const strength: number = spec.disguise !== undefined ? 1 : STRENGTH[spec.level];
+      if (
+        r.receiver !== subject ||
+        r.outcome !== "landed" ||
+        !r.contact ||
+        r.seconds > seconds
+      )
+        continue;
+      const spec: KickboxingTechnique.ISpec =
+        KickboxingTechnique.table[r.technique];
+      const strength: number =
+        spec.disguise !== undefined ? 1 : STRENGTH[spec.level];
       const rise: number = Math.min(1, (seconds - r.seconds) / RISE);
       marks[r.region] = Math.min(1, (marks[r.region] ?? 0) + strength * rise);
     }

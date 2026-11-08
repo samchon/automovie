@@ -17,14 +17,32 @@ import { polygonCast } from "../../../internal/polygonCast";
 export function test_kickboxing_legality(): void {
   const cast = polygonCast();
   const { a, b } = cast;
-  const rules = (part: AutoMovieComposition): string[] => BoutLaws.check(BoutLaws.resolve(cast, part)).map((v) => v.split(":")[0]!);
-  assert.deepEqual(rules(exchange(cast, "x", a.jab().cross().lowKick(), b.parry().cover().check())), []);
-  assert.ok(rules(exchange(cast, "x", a.lowKick(), b.check())).includes("kick-in-combination"));
-  assert.ok(rules(exchange(cast, "x", a.jab().lowKick(), b.cover().slip())).includes("paired-answer"));
+  const rules = (part: AutoMovieComposition): string[] =>
+    BoutLaws.check(BoutLaws.resolve(cast, part)).map((v) => v.split(":")[0]!);
+  assert.deepEqual(
+    rules(
+      exchange(cast, "x", a.jab().cross().lowKick(), b.parry().cover().check()),
+    ),
+    [],
+  );
+  assert.ok(
+    rules(exchange(cast, "x", a.lowKick(), b.check())).includes(
+      "kick-in-combination",
+    ),
+  );
+  assert.ok(
+    rules(exchange(cast, "x", a.jab().lowKick(), b.cover().slip())).includes(
+      "paired-answer",
+    ),
+  );
   const fall = AutoMovieComposition.sequence(
     b.phase("fall", 1.6).node,
     exchange(cast, "x", a.jab(), b.take()),
   );
   assert.ok(rules(fall).includes("no-attack-after-knockdown"));
-  assert.ok(rules(exchange(cast, "x", a.jab().clinchKnee(), b.cover().take())).includes("single-clinch-knee"));
+  assert.ok(
+    rules(exchange(cast, "x", a.jab().clinchKnee(), b.cover().take())).includes(
+      "single-clinch-knee",
+    ),
+  );
 }

@@ -27,14 +27,35 @@ export function bPlaysTheLongGame(cast: IRingCast): AutoMovieComposition {
   const { a, b } = cast;
   const then = AutoMovieComposition.sequence;
   return RingPhase.fill(15, [
-    exchange(cast, "s03-b01", b.feintLowKick().lowKick(), a.tell("feint-low-kick").take()),
+    exchange(
+      cast,
+      "s03-b01",
+      b.feintLowKick().lowKick(),
+      a.tell("feint-low-kick").take(),
+    ),
     RingPhase.reset([a, "circle"]),
-    then(exchange(cast, "s03-b02", b.jab().cross().hook().lowKick(), a.cover().cover().roll().check()), exchange(cast, "s03-b02c", a.cross(), b.cover())),
+    then(
+      exchange(
+        cast,
+        "s03-b02",
+        b.jab().cross().hook().lowKick(),
+        a.cover().cover().roll().check(),
+      ),
+      exchange(cast, "s03-b02c", a.cross(), b.cover()),
+    ),
     RingPhase.reset([b, "give"], [a, "press"]),
     exchange(cast, "s03-b03", a.jab().jab(), b.cover().take()),
     RingPhase.reset([b, "give"]),
-    exchange(cast, "s03-b04", b.feintJab().bodyHook(), a.tell("feint-jab").take()),
+    exchange(
+      cast,
+      "s03-b04",
+      b.feintJab().bodyHook(),
+      a.tell("feint-jab").take(),
+    ),
     RingPhase.reset([a, "circle"]),
-    then(exchange(cast, "s03-b05", a.jab().lowKick(), b.cover().check()), exchange(cast, "s03-b05c", b.cross(), a.slip())),
+    then(
+      exchange(cast, "s03-b05", a.jab().lowKick(), b.cover().check()),
+      exchange(cast, "s03-b05c", b.cross(), a.slip()),
+    ),
   ]);
 }

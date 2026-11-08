@@ -11,9 +11,21 @@ import { polygonCast } from "./polygonCast";
 export function polygonFilm(): polygonFilm.IFilm {
   if (cached) return cached;
   const cast: IRingCast = polygonCast();
-  const schedule: IAutoMovieSchedule = BoutLaws.resolve(cast, composeKickboxing(cast, DURATION));
-  const referee: RefereeTrack.ITrack = RefereeTrack.resolve(cast, schedule, DURATION);
-  const camera: CameraTrack.ISample[] = CameraTrack.resolve(cast, schedule, referee, DURATION);
+  const schedule: IAutoMovieSchedule = BoutLaws.resolve(
+    cast,
+    composeKickboxing(cast, DURATION),
+  );
+  const referee: RefereeTrack.ITrack = RefereeTrack.resolve(
+    cast,
+    schedule,
+    DURATION,
+  );
+  const camera: CameraTrack.ISample[] = CameraTrack.resolve(
+    cast,
+    schedule,
+    referee,
+    DURATION,
+  );
   cached = { cast, schedule, referee, camera, duration: DURATION };
   return cached;
 }

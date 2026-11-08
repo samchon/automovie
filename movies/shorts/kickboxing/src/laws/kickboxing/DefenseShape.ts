@@ -35,7 +35,10 @@ export namespace DefenseShape {
   const SWAY_EXTENSION: number = 10;
 
   /** Check: hip flexion and abduction of the raised lead leg, degrees (Evolve checking guide: lift and turn the shin out). */
-  const CHECK_HIP: { flexion: number; abduction: number } = { flexion: 60, abduction: 20 };
+  const CHECK_HIP: { flexion: number; abduction: number } = {
+    flexion: 60,
+    abduction: 20,
+  };
 
   /** Reaction of a landed blow: cervical turn and side bend away from a head blow, trunk flexion over a body blow, degrees, at full strength. */
   const REACTION: { neck: number; trunk: number } = { neck: 20, trunk: 15 };
@@ -75,9 +78,15 @@ export namespace DefenseShape {
    * @evidence docs/research/kickboxing/techniques.md#defenses A defense begins at the attack's launch and completes by its contact.
    */
   export function posture(input: IInput): IBoutPosture | null {
-    const spec: KickboxingTechnique.ISpec = KickboxingTechnique.table[input.attack];
-    const tail: number = KickboxingTiming.answerTail(input.answer, input.attack);
-    const hold: number = spec.shows ? KickboxingTiming.delivery(input.attack) : 0;
+    const spec: KickboxingTechnique.ISpec =
+      KickboxingTechnique.table[input.attack];
+    const tail: number = KickboxingTiming.answerTail(
+      input.answer,
+      input.attack,
+    );
+    const hold: number = spec.shows
+      ? KickboxingTiming.delivery(input.attack)
+      : 0;
     const t: number = input.seconds;
     if (t >= input.lead + tail) return null;
     const engagement: number =
@@ -90,7 +99,12 @@ export namespace DefenseShape {
           : t < input.lead + hold
             ? 1
             : 1 - ease((t - input.lead - hold) / (tail - hold));
-    return blendPosture(input.guard, shape(input, KickboxingTechnique.performed(spec)), engagement, input.rest);
+    return blendPosture(
+      input.guard,
+      shape(input, KickboxingTechnique.performed(spec)),
+      engagement,
+      input.rest,
+    );
   }
 
   /** The fully engaged answer. */
@@ -108,7 +122,13 @@ export namespace DefenseShape {
           ...guard,
           hands: {
             ...guard.hands,
-            right: { point: Vector3.add(guard.hands.right.point, { x: measure.gloveRadius * 2, y: 0, z: measure.headRadius }) },
+            right: {
+              point: Vector3.add(guard.hands.right.point, {
+                x: measure.gloveRadius * 2,
+                y: 0,
+                z: measure.headRadius,
+              }),
+            },
           },
         };
       case "cover":
@@ -117,20 +137,43 @@ export namespace DefenseShape {
           hands: {
             ...guard.hands,
             [side]: {
-              point: { x: measure.headRadius * 0.5, y: head - (spec.line === "rising" ? measure.headRadius : 0), z: sign * (measure.headRadius + measure.gloveRadius * 0.5) },
-              elbow: { x: measure.headRadius, y: measure.shoulder - guard.drop - measure.headRadius * 2, z: sign * measure.shoulderHalfWidth * 0.8 },
+              point: {
+                x: measure.headRadius * 0.5,
+                y: head - (spec.line === "rising" ? measure.headRadius : 0),
+                z: sign * (measure.headRadius + measure.gloveRadius * 0.5),
+              },
+              elbow: {
+                x: measure.headRadius,
+                y: measure.shoulder - guard.drop - measure.headRadius * 2,
+                z: sign * measure.shoulderHalfWidth * 0.8,
+              },
             },
           },
         };
       case "elbow-block":
         return {
           ...guard,
-          thoracic: { ...guard.thoracic, lateralFlexion: guard.thoracic.lateralFlexion + sign * SLIP_BEND / 2 },
+          thoracic: {
+            ...guard.thoracic,
+            lateralFlexion:
+              guard.thoracic.lateralFlexion + (sign * SLIP_BEND) / 2,
+          },
           hands: {
             ...guard.hands,
             [side]: {
-              point: { x: cheek.point.x * 0.6, y: measure.shoulder - guard.drop, z: sign * measure.shoulderHalfWidth * 0.6 },
-              elbow: { x: measure.headRadius * 0.5, y: measure.hip - guard.drop + (measure.shoulder - measure.hip) * 0.4, z: sign * measure.shoulderHalfWidth },
+              point: {
+                x: cheek.point.x * 0.6,
+                y: measure.shoulder - guard.drop,
+                z: sign * measure.shoulderHalfWidth * 0.6,
+              },
+              elbow: {
+                x: measure.headRadius * 0.5,
+                y:
+                  measure.hip -
+                  guard.drop +
+                  (measure.shoulder - measure.hip) * 0.4,
+                z: sign * measure.shoulderHalfWidth,
+              },
             },
           },
         };
@@ -140,8 +183,16 @@ export namespace DefenseShape {
           hands: {
             ...guard.hands,
             [side]: {
-              point: { x: measure.headRadius * 0.3, y: head + measure.headRadius, z: sign * (measure.headRadius + measure.gloveRadius) },
-              elbow: { x: measure.headRadius, y: measure.shoulder - guard.drop, z: sign * (measure.shoulderHalfWidth + measure.headRadius) },
+              point: {
+                x: measure.headRadius * 0.3,
+                y: head + measure.headRadius,
+                z: sign * (measure.headRadius + measure.gloveRadius),
+              },
+              elbow: {
+                x: measure.headRadius,
+                y: measure.shoulder - guard.drop,
+                z: sign * (measure.shoulderHalfWidth + measure.headRadius),
+              },
             },
           },
         };
@@ -152,15 +203,22 @@ export namespace DefenseShape {
           drop: guard.drop + measure.headRadius * 0.5,
           shift: { forward: 0, left: sign * measure.headRadius },
           thoracic: { ...guard.thoracic, lateralFlexion: sign * SLIP_BEND },
-          lumbar: { ...guard.lumbar, lateralFlexion: sign * SLIP_BEND / 2 },
-          cervical: { ...guard.cervical, lateralFlexion: -sign * SLIP_BEND / 2 },
+          lumbar: { ...guard.lumbar, lateralFlexion: (sign * SLIP_BEND) / 2 },
+          cervical: {
+            ...guard.cervical,
+            lateralFlexion: (-sign * SLIP_BEND) / 2,
+          },
         };
       }
       case "roll":
         return {
           ...guard,
           drop: guard.drop + measure.headRadius * 1.5,
-          thoracic: { ...guard.thoracic, flexion: ROLL_FLEXION, lateralFlexion: -sign * SLIP_BEND / 2 },
+          thoracic: {
+            ...guard.thoracic,
+            flexion: ROLL_FLEXION,
+            lateralFlexion: (-sign * SLIP_BEND) / 2,
+          },
           lumbar: { ...guard.lumbar, flexion: ROLL_FLEXION / 2 },
           cervical: { ...guard.cervical, flexion: -ROLL_FLEXION / 2 },
         };
@@ -174,11 +232,35 @@ export namespace DefenseShape {
       case "check": {
         const f: number = (CHECK_HIP.flexion * Math.PI) / 180;
         const a: number = (CHECK_HIP.abduction * Math.PI) / 180;
-        const hip: IAutoMovieVector3 = { x: 0, y: measure.hip - guard.drop, z: measure.hipHalfWidth };
-        const knee: IAutoMovieVector3 = Vector3.add(hip, Vector3.scale(Vector3.normalize({ x: Math.sin(f), y: -Math.cos(f), z: Math.sin(a) }), measure.thigh));
+        const hip: IAutoMovieVector3 = {
+          x: 0,
+          y: measure.hip - guard.drop,
+          z: measure.hipHalfWidth,
+        };
+        const knee: IAutoMovieVector3 = Vector3.add(
+          hip,
+          Vector3.scale(
+            Vector3.normalize({
+              x: Math.sin(f),
+              y: -Math.cos(f),
+              z: Math.sin(a),
+            }),
+            measure.thigh,
+          ),
+        );
         return {
           ...guard,
-          feet: { ...guard.feet, left: { point: Vector3.add(knee, { x: -measure.shank * 0.2, y: -measure.shank, z: measure.shank * 0.2 }), knee } },
+          feet: {
+            ...guard.feet,
+            left: {
+              point: Vector3.add(knee, {
+                x: -measure.shank * 0.2,
+                y: -measure.shank,
+                z: measure.shank * 0.2,
+              }),
+              knee,
+            },
+          },
         };
       }
       case "take": {
@@ -190,8 +272,16 @@ export namespace DefenseShape {
             cervical: {
               ...guard.cervical,
               rotation: guard.cervical.rotation - sign * REACTION.neck * s,
-              lateralFlexion: -sign * REACTION.neck * s * (spec.line === "descending" ? 1.5 : 0.5),
-              flexion: guard.cervical.flexion - (spec.line === "straight" || spec.line === "rising" ? REACTION.neck * s : 0),
+              lateralFlexion:
+                -sign *
+                REACTION.neck *
+                s *
+                (spec.line === "descending" ? 1.5 : 0.5),
+              flexion:
+                guard.cervical.flexion -
+                (spec.line === "straight" || spec.line === "rising"
+                  ? REACTION.neck * s
+                  : 0),
             },
             shift: { forward: -measure.headRadius * s, left: 0 },
             wince: s,
@@ -199,8 +289,21 @@ export namespace DefenseShape {
         if (spec.level === "body")
           return {
             ...guard,
-            thoracic: { ...guard.thoracic, flexion: guard.thoracic.flexion + REACTION.trunk * s, lateralFlexion: sign * REACTION.trunk * s * 0.5 },
-            hands: { ...guard.hands, [side]: { point: { x: cheek.point.x * 0.5, y: measure.shoulder - guard.drop, z: sign * measure.shoulderHalfWidth * 0.6 } } },
+            thoracic: {
+              ...guard.thoracic,
+              flexion: guard.thoracic.flexion + REACTION.trunk * s,
+              lateralFlexion: sign * REACTION.trunk * s * 0.5,
+            },
+            hands: {
+              ...guard.hands,
+              [side]: {
+                point: {
+                  x: cheek.point.x * 0.5,
+                  y: measure.shoulder - guard.drop,
+                  z: sign * measure.shoulderHalfWidth * 0.6,
+                },
+              },
+            },
             jaw: 10 * s,
             wince: s,
           };

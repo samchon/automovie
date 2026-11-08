@@ -45,12 +45,19 @@ export class ImpactSpray {
    * @param receipts The measured contacts.
    * @param points The world contact point of each receipt by anchor.
    */
-  public constructor(seed: string, receipts: readonly ContactReceipts.IReceipt[], points: Readonly<Record<string, IAutoMovieVector3>>) {
+  public constructor(
+    seed: string,
+    receipts: readonly ContactReceipts.IReceipt[],
+    points: Readonly<Record<string, IAutoMovieVector3>>,
+  ) {
     this.drops = [];
     for (const r of receipts) {
       if (r.outcome !== "landed" || !r.contact || !points[r.anchor]) continue;
-      const spec: KickboxingTechnique.ISpec = KickboxingTechnique.table[r.technique];
-      const random = createAutoMovieRandom(deriveAutoMovieSeed(seed, "spray", r.anchor));
+      const spec: KickboxingTechnique.ISpec =
+        KickboxingTechnique.table[r.technique];
+      const random = createAutoMovieRandom(
+        deriveAutoMovieSeed(seed, "spray", r.anchor),
+      );
       const bleeds: boolean = spec.level === "head";
       for (let k: number = 0; k < ImpactSpray.DROPLETS; k++) {
         // A fan away from the striker: random direction in the upper hemisphere, speed 1.5-3.5 m/s.
@@ -60,15 +67,38 @@ export class ImpactSpray {
         this.drops.push({
           start: r.seconds,
           origin: points[r.anchor]!,
-          velocity: { x: Math.cos(azimuth) * speed * (1 - rise), y: rise * speed, z: Math.sin(azimuth) * speed * (1 - rise) },
-          blood: bleeds && random.float(k * 4 + 3) < (spec.disguise !== undefined ? 0.6 : 0.3),
+          velocity: {
+            x: Math.cos(azimuth) * speed * (1 - rise),
+            y: rise * speed,
+            z: Math.sin(azimuth) * speed * (1 - rise),
+          },
+          blood:
+            bleeds &&
+            random.float(k * 4 + 3) < (spec.disguise !== undefined ? 0.6 : 0.3),
           stays: spec.disguise !== undefined,
         });
       }
     }
-    const geometry: THREE.SphereGeometry = new THREE.SphereGeometry(0.008, 6, 4);
-    this.sweat = new THREE.InstancedMesh(geometry, new THREE.MeshStandardMaterial({ color: 0xdfe8ee, roughness: 0.2, transparent: true, opacity: 0.8 }), Math.max(1, this.drops.length));
-    this.blood = new THREE.InstancedMesh(geometry, new THREE.MeshStandardMaterial({ color: 0x8a0f16, roughness: 0.4 }), Math.max(1, this.drops.length));
+    const geometry: THREE.SphereGeometry = new THREE.SphereGeometry(
+      0.008,
+      6,
+      4,
+    );
+    this.sweat = new THREE.InstancedMesh(
+      geometry,
+      new THREE.MeshStandardMaterial({
+        color: 0xdfe8ee,
+        roughness: 0.2,
+        transparent: true,
+        opacity: 0.8,
+      }),
+      Math.max(1, this.drops.length),
+    );
+    this.blood = new THREE.InstancedMesh(
+      geometry,
+      new THREE.MeshStandardMaterial({ color: 0x8a0f16, roughness: 0.4 }),
+      Math.max(1, this.drops.length),
+    );
     this.object.add(this.sweat, this.blood);
   }
 
@@ -85,8 +115,15 @@ export class ImpactSpray {
       const t: number = seconds - d.start;
       if (t < 0 || (t > ImpactSpray.FLIGHT && !(d.blood && d.stays))) continue;
       const f: number = Math.min(t, ImpactSpray.FLIGHT);
-      const y: number = Math.max(0.002, d.origin.y + d.velocity.y * f - 0.5 * ImpactSpray.GRAVITY * f * f);
-      matrix.makeTranslation(d.origin.x + d.velocity.x * f, y, d.origin.z + d.velocity.z * f);
+      const y: number = Math.max(
+        0.002,
+        d.origin.y + d.velocity.y * f - 0.5 * ImpactSpray.GRAVITY * f * f,
+      );
+      matrix.makeTranslation(
+        d.origin.x + d.velocity.x * f,
+        y,
+        d.origin.z + d.velocity.z * f,
+      );
       if (d.blood) this.blood.setMatrixAt(blood++, matrix);
       else this.sweat.setMatrixAt(sweat++, matrix);
     }

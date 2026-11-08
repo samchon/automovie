@@ -33,6 +33,8 @@ export namespace SoundAssets {
 
   /** Production-relative WAV path of every asset. */
   export const paths: Readonly<Record<string, string>> = Object.freeze(
-    Object.fromEntries(ids.map((id) => [id, `media/automovie/kickboxing/audios/${id}.wav`])),
+    Object.fromEntries(
+      ids.map((id) => [id, `media/automovie/kickboxing/audios/${id}.wav`]),
+    ),
   );
 }

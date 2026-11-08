@@ -50,12 +50,24 @@ export namespace CoverageLaw {
    * @returns The framing goal the engine resolves into a camera.
    * @evidence docs/research/cinematography/fight-coverage.md#law The sizes and the side-on bearing.
    */
-  export function goal(size: Size, subjects: readonly string[], bearing: number): IAutoMovieFramingGoal {
+  export function goal(
+    size: Size,
+    subjects: readonly string[],
+    bearing: number,
+  ): IAutoMovieFramingGoal {
     // Wide sizes frame people spread along the floor, so their share is of
     // the 16:9 frame's width: the horizontal field of view sets the distance.
     const across: boolean = size === "wide" || size === "finish";
-    const fieldOfView: number = across ? 2 * Math.atan(Math.tan(FIELD_OF_VIEW / 2) * ASPECT) : FIELD_OF_VIEW;
-    return { subjects, fill: FILL[size], bearing, elevation: ELEVATION, fieldOfView };
+    const fieldOfView: number = across
+      ? 2 * Math.atan(Math.tan(FIELD_OF_VIEW / 2) * ASPECT)
+      : FIELD_OF_VIEW;
+    return {
+      subjects,
+      fill: FILL[size],
+      bearing,
+      elevation: ELEVATION,
+      fieldOfView,
+    };
   }
 
   /** Delivery frame aspect, width over height. */
@@ -81,7 +93,8 @@ export namespace CoverageLaw {
     const nz: number = dx;
     const cx: number = (a.x + b.x) / 2;
     const cz: number = (a.z + b.z) / 2;
-    const side: number = (referee.x - cx) * nx + (referee.z - cz) * nz >= 0 ? -1 : 1;
+    const side: number =
+      (referee.x - cx) * nx + (referee.z - cz) * nz >= 0 ? -1 : 1;
     return Math.atan2(side * nx, side * nz);
   }
 
@@ -94,7 +107,11 @@ export namespace CoverageLaw {
    * @returns The next bearing.
    * @evidence docs/research/cinematography/fight-coverage.md#law At most 0.9 rad/s.
    */
-  export function orbit(current: number, target: number, seconds: number): number {
+  export function orbit(
+    current: number,
+    target: number,
+    seconds: number,
+  ): number {
     let delta: number = target - current;
     while (delta > Math.PI) delta -= 2 * Math.PI;
     while (delta < -Math.PI) delta += 2 * Math.PI;

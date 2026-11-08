@@ -1,22 +1,22 @@
 import {
-  checkAutoMovieLegality,
   type IAutoMovieIntent,
   type IAutoMovieSchedule,
+  checkAutoMovieLegality,
   resolveAutoMovieOutcome,
   resolveAutoMovieSchedule,
   resolveAutoMovieZone,
 } from "@automovie/engine";
 
+import type { Fighter } from "../../entities/cast/fighter/Fighter";
 import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
 import { KickboxingLegality } from "../../laws/kickboxing/KickboxingLegality";
 import { KickboxingOutcome } from "../../laws/kickboxing/KickboxingOutcome";
 import { KickboxingRange } from "../../laws/kickboxing/KickboxingRange";
+import { KickboxingTiming } from "../../laws/kickboxing/KickboxingTiming";
 import { RingFootwork } from "../../laws/kickboxing/RingFootwork";
 import { StanceShape } from "../../laws/kickboxing/StanceShape";
-import { KickboxingTiming } from "../../laws/kickboxing/KickboxingTiming";
 import { KnockdownCount } from "../../laws/officiating/KnockdownCount";
 import { RefereePosition } from "../../laws/officiating/RefereePosition";
-import type { Fighter } from "../../entities/cast/fighter/Fighter";
 import type { IRingCast } from "./IRingCast";
 import { boutTiming } from "./boutTiming";
 
@@ -52,40 +52,69 @@ export namespace BoutLaws {
    * @param composition The film's composition.
    * @returns The frozen schedule.
    */
-  export function resolve(cast: IRingCast, composition: Parameters<typeof resolveAutoMovieSchedule>[0]): IAutoMovieSchedule {
+  export function resolve(
+    cast: IRingCast,
+    composition: Parameters<typeof resolveAutoMovieSchedule>[0],
+  ): IAutoMovieSchedule {
     const start: Record<string, RingFootwork.IPoint> = initial(cast);
     return resolveAutoMovieSchedule(composition, {
       timing: boutTiming,
       outcome: (entry: IAutoMovieSchedule.IEntry): string | undefined => {
         if (entry.intent.capability !== "answer") return undefined;
-        const action: KickboxingAction.IAction = KickboxingAction.read(entry.intent);
+        const action: KickboxingAction.IAction = KickboxingAction.read(
+          entry.intent,
+        );
         if (action.kind !== "answer") return undefined;
-        const strike: IAutoMovieIntent = KickboxingAction.intent("attacker", { kind: "strike", technique: action.against });
-        return resolveAutoMovieOutcome(KickboxingOutcome.table, [strike, entry.intent]).outcome;
+        const strike: IAutoMovieIntent = KickboxingAction.intent("attacker", {
+          kind: "strike",
+          technique: action.against,
+        });
+        return resolveAutoMovieOutcome(KickboxingOutcome.table, [
+          strike,
+          entry.intent,
+        ]).outcome;
       },
-      state: (entry: IAutoMovieSchedule.IEntry, context: resolveAutoMovieSchedule.IContext): IState | undefined => {
+      state: (
+        entry: IAutoMovieSchedule.IEntry,
+        context: resolveAutoMovieSchedule.IContext,
+      ): IState | undefined => {
         if (entry.intent.capability !== "move") return undefined;
-        const action: KickboxingAction.IAction = KickboxingAction.read(entry.intent);
+        const action: KickboxingAction.IAction = KickboxingAction.read(
+          entry.intent,
+        );
         if (action.kind !== "move") return undefined;
         const mover: Fighter = fighter(cast, entry.subject);
         const opponent: Fighter = mover === cast.a ? cast.b : cast.a;
-        const from: RingFootwork.IPoint = latest(context.entries, mover.id, entry.start) ?? start[mover.id]!;
-        const against: RingFootwork.IPoint = latest(context.entries, opponent.id, entry.start) ?? start[opponent.id]!;
+        const from: RingFootwork.IPoint =
+          latest(context.entries, mover.id, entry.start) ?? start[mover.id]!;
+        const against: RingFootwork.IPoint =
+          latest(context.entries, opponent.id, entry.start) ??
+          start[opponent.id]!;
         // Walking to the corner and the victory steps are ordinary walking at a
         // comfortable speed, not the fighting stance's short steps.
-        const walking: boolean = action.movement === "corner" || action.movement === "celebrate";
+        const walking: boolean =
+          action.movement === "corner" || action.movement === "celebrate";
         const ring: RingFootwork.IRing = {
           half: cast.ring.half,
           margin: StanceShape.margin(mover.body.measure),
-          step: walking ? RefereePosition.SPEED * KickboxingTiming.STEP_PERIOD : StanceShape.step(mover.body.measure),
+          step: walking
+            ? RefereePosition.SPEED * KickboxingTiming.STEP_PERIOD
+            : StanceShape.step(mover.body.measure),
         };
         const target: RingFootwork.IPoint | undefined =
           action.movement === "corner"
             ? floor(KnockdownCount.corner(corners(cast), against))
             : action.movement === "celebrate"
-              ? floor(resolveAutoMovieZone(cast.ring.zones, `${mover.profile.corner}-corner`))
+              ? floor(
+                  resolveAutoMovieZone(
+                    cast.ring.zones,
+                    `${mover.profile.corner}-corner`,
+                  ),
+                )
               : undefined;
-        return { origin: RingFootwork.move(action, from, against, ring, target) };
+        return {
+          origin: RingFootwork.move(action, from, against, ring, target),
+        };
       },
     });
   }
@@ -97,7 +126,9 @@ export namespace BoutLaws {
    * @returns One text per violation; empty when legal.
    */
   export function check(schedule: IAutoMovieSchedule): string[] {
-    return checkAutoMovieLegality(schedule, KickboxingLegality.rules).map((v) => `${v.rule}: ${v.detail}`);
+    return checkAutoMovieLegality(schedule, KickboxingLegality.rules).map(
+      (v) => `${v.rule}: ${v.detail}`,
+    );
   }
 
   /**
@@ -115,7 +146,15 @@ export namespace BoutLaws {
     subject: string,
     seconds: number,
     cast: IRingCast,
-  ): { point: RingFootwork.IPoint; moving?: { entry: IAutoMovieSchedule.IEntry; share: number; from: RingFootwork.IPoint; about: RingFootwork.IPoint } } {
+  ): {
+    point: RingFootwork.IPoint;
+    moving?: {
+      entry: IAutoMovieSchedule.IEntry;
+      share: number;
+      from: RingFootwork.IPoint;
+      about: RingFootwork.IPoint;
+    };
+  } {
     const start: Record<string, RingFootwork.IPoint> = initial(cast);
     let before: RingFootwork.IPoint = start[subject]!;
     for (const entry of schedule.entries) {
@@ -125,18 +164,32 @@ export namespace BoutLaws {
         continue;
       }
       if (entry.start <= seconds) {
-        const action: KickboxingAction.IAction = KickboxingAction.read(entry.intent);
+        const action: KickboxingAction.IAction = KickboxingAction.read(
+          entry.intent,
+        );
         if (action.kind !== "move") break;
         const opponent: string = subject === cast.a.id ? cast.b.id : cast.a.id;
-        const about: RingFootwork.IPoint = latest(schedule.entries, opponent, entry.start) ?? start[opponent]!;
-        const share: number = (seconds - entry.start) / (entry.end - entry.start);
+        const about: RingFootwork.IPoint =
+          latest(schedule.entries, opponent, entry.start) ?? start[opponent]!;
+        const share: number =
+          (seconds - entry.start) / (entry.end - entry.start);
         // An arc between two points inside the ropes can bulge past them; the
         // fighter stays inside by his margin.
         const fighter: Fighter = subject === cast.a.id ? cast.a : cast.b;
-        const limit: number = cast.ring.half - StanceShape.margin(fighter.body.measure);
-        const p: RingFootwork.IPoint = RingFootwork.along(action.movement, before, (entry.state as IState).origin, about, share);
+        const limit: number =
+          cast.ring.half - StanceShape.margin(fighter.body.measure);
+        const p: RingFootwork.IPoint = RingFootwork.along(
+          action.movement,
+          before,
+          (entry.state as IState).origin,
+          about,
+          share,
+        );
         return {
-          point: { x: Math.max(-limit, Math.min(limit, p.x)), z: Math.max(-limit, Math.min(limit, p.z)) },
+          point: {
+            x: Math.max(-limit, Math.min(limit, p.x)),
+            z: Math.max(-limit, Math.min(limit, p.z)),
+          },
           moving: { entry, share, from: before, about },
         };
       }
@@ -152,9 +205,14 @@ export namespace BoutLaws {
    * @param cast The cast.
    * @returns Origins by subject id.
    */
-  export function initial(cast: IRingCast): Record<string, RingFootwork.IPoint> {
+  export function initial(
+    cast: IRingCast,
+  ): Record<string, RingFootwork.IPoint> {
     const distance: number = kicking(cast);
-    return { [cast.a.id]: { x: -distance / 2, z: 0 }, [cast.b.id]: { x: distance / 2, z: 0 } };
+    return {
+      [cast.a.id]: { x: -distance / 2, z: 0 },
+      [cast.b.id]: { x: distance / 2, z: 0 },
+    };
   }
 
   /**
@@ -173,16 +231,34 @@ export namespace BoutLaws {
     throw new Error(`Unknown fighter ${id}`);
   }
 
-  function latest(entries: readonly IAutoMovieSchedule.IEntry[], subject: string, seconds: number): RingFootwork.IPoint | undefined {
+  function latest(
+    entries: readonly IAutoMovieSchedule.IEntry[],
+    subject: string,
+    seconds: number,
+  ): RingFootwork.IPoint | undefined {
     let found: IAutoMovieSchedule.IEntry | undefined;
     for (const entry of entries)
-      if (entry.subject === subject && entry.state !== undefined && entry.end <= seconds + 1e-9 && (found === undefined || entry.end >= found.end))
+      if (
+        entry.subject === subject &&
+        entry.state !== undefined &&
+        entry.end <= seconds + 1e-9 &&
+        (found === undefined || entry.end >= found.end)
+      )
         found = entry;
     return found ? (found.state as IState).origin : undefined;
   }
 
-  function corners(cast: IRingCast): [RingFootwork.IPoint, RingFootwork.IPoint] {
-    return [floor(resolveAutoMovieZone(cast.ring.zones, "neutral-corners", "north-east")), floor(resolveAutoMovieZone(cast.ring.zones, "neutral-corners", "south-west"))];
+  function corners(
+    cast: IRingCast,
+  ): [RingFootwork.IPoint, RingFootwork.IPoint] {
+    return [
+      floor(
+        resolveAutoMovieZone(cast.ring.zones, "neutral-corners", "north-east"),
+      ),
+      floor(
+        resolveAutoMovieZone(cast.ring.zones, "neutral-corners", "south-west"),
+      ),
+    ];
   }
 
   function floor(p: { x: number; z: number }): RingFootwork.IPoint {

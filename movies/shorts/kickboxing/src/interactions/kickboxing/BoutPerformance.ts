@@ -5,14 +5,17 @@ import {
   type preparePhysicalGeometry,
   resolveAutoMovieRelationalGoal,
 } from "@automovie/engine";
-import type { IAutoMovieVector3, IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import type {
+  IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
+} from "@automovie/interface";
 
+import type { Fighter } from "../../entities/cast/fighter/Fighter";
+import type { FighterBody } from "../../entities/cast/fighter/FighterBody";
 import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
 import { KickboxingDefense } from "../../laws/kickboxing/KickboxingDefense";
 import { KickboxingOutcome } from "../../laws/kickboxing/KickboxingOutcome";
 import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
-import type { Fighter } from "../../entities/cast/fighter/Fighter";
-import type { FighterBody } from "../../entities/cast/fighter/FighterBody";
 import { FighterPosture } from "./FighterPosture";
 import type { IRingCast } from "./IRingCast";
 
@@ -38,7 +41,8 @@ import type { IRingCast } from "./IRingCast";
 export class BoutPerformance {
   private readonly priors: Map<string, FighterBody.IPlaced> = new Map();
 
-  private readonly finals: Map<number, Record<string, BoutPerformance.IBody>> = new Map();
+  private readonly finals: Map<number, Record<string, BoutPerformance.IBody>> =
+    new Map();
 
   /** Share of a delivery, before contact and after it, over which the relational fit is weighted in and out. */
   public static readonly FIT_SHARE: number = 0.25;
@@ -69,10 +73,25 @@ export class BoutPerformance {
     const result: Record<string, BoutPerformance.IBody> = {};
     for (const fighter of [this.cast.a, this.cast.b]) {
       const prior: FighterBody.IPlaced = this.prior(fighter.id, seconds);
-      const posed = FighterPosture.at(this.cast, this.schedule, fighter.id, seconds, null);
-      let segments: Record<string, P.ITransform> = this.contact(fighter, seconds, prior.segments);
+      const posed = FighterPosture.at(
+        this.cast,
+        this.schedule,
+        fighter.id,
+        seconds,
+        null,
+      );
+      let segments: Record<string, P.ITransform> = this.contact(
+        fighter,
+        seconds,
+        prior.segments,
+      );
       segments = this.settle(fighter, seconds, segments);
-      result[fighter.id] = { ...prior, segments, jaw: posed.posture.jaw, wince: posed.posture.wince };
+      result[fighter.id] = {
+        ...prior,
+        segments,
+        jaw: posed.posture.jaw,
+        wince: posed.posture.wince,
+      };
     }
     if (this.finals.size > BoutPerformance.CACHE) this.finals.clear();
     this.finals.set(key, result);
@@ -90,11 +109,21 @@ export class BoutPerformance {
     const key: string = `${subject}@${Math.round(seconds * BoutPerformance.KEY)}`;
     const cached = this.priors.get(key);
     if (cached) return cached;
-    const fighter: Fighter = subject === this.cast.a.id ? this.cast.a : this.cast.b;
+    const fighter: Fighter =
+      subject === this.cast.a.id ? this.cast.a : this.cast.b;
     // Strike targets read the opponent's prior without its own strike
     // targets, so the two priors never wait on each other.
-    const posed = FighterPosture.at(this.cast, this.schedule, subject, seconds, this.reader());
-    const placed: FighterBody.IPlaced = fighter.body.place(posed.posture, posed.frame);
+    const posed = FighterPosture.at(
+      this.cast,
+      this.schedule,
+      subject,
+      seconds,
+      this.reader(),
+    );
+    const placed: FighterBody.IPlaced = fighter.body.place(
+      posed.posture,
+      posed.frame,
+    );
     if (this.priors.size > BoutPerformance.CACHE) this.priors.clear();
     this.priors.set(key, placed);
     return placed;
@@ -102,13 +131,21 @@ export class BoutPerformance {
 
   /** Reads a region's world point on a fighter's prior. */
   private reader(): FighterPosture.RegionReader {
-    return (subject: string, region: string, seconds: number): IAutoMovieVector3 => {
-      const fighter: Fighter = subject === this.cast.a.id ? this.cast.a : this.cast.b;
+    return (
+      subject: string,
+      region: string,
+      seconds: number,
+    ): IAutoMovieVector3 => {
+      const fighter: Fighter =
+        subject === this.cast.a.id ? this.cast.a : this.cast.b;
       const placed: FighterBody.IPlaced = this.shallow(subject, seconds);
       const r = fighter.body.regions[region];
       if (!r) throw new Error(`Unknown region ${subject}.${region}`);
       const s: P.ITransform = placed.segments[r.bone]!;
-      return Vector3.add(s.position, Quaternion.rotateVector(s.rotation, r.localPoint));
+      return Vector3.add(
+        s.position,
+        Quaternion.rotateVector(s.rotation, r.localPoint),
+      );
     };
   }
 
@@ -117,15 +154,29 @@ export class BoutPerformance {
     const key: string = `${subject}~${Math.round(seconds * BoutPerformance.KEY)}`;
     const cached = this.priors.get(key);
     if (cached) return cached;
-    const fighter: Fighter = subject === this.cast.a.id ? this.cast.a : this.cast.b;
-    const posed = FighterPosture.at(this.cast, this.schedule, subject, seconds, null);
-    const placed: FighterBody.IPlaced = fighter.body.place(posed.posture, posed.frame);
+    const fighter: Fighter =
+      subject === this.cast.a.id ? this.cast.a : this.cast.b;
+    const posed = FighterPosture.at(
+      this.cast,
+      this.schedule,
+      subject,
+      seconds,
+      null,
+    );
+    const placed: FighterBody.IPlaced = fighter.body.place(
+      posed.posture,
+      posed.frame,
+    );
     this.priors.set(key, placed);
     return placed;
   }
 
   /** Bend touching strikes onto the receiver's region near contact. */
-  private contact(fighter: Fighter, seconds: number, prior: Record<string, P.ITransform>): Record<string, P.ITransform> {
+  private contact(
+    fighter: Fighter,
+    seconds: number,
+    prior: Record<string, P.ITransform>,
+  ): Record<string, P.ITransform> {
     let segments: Record<string, P.ITransform> = prior;
     for (const strike of BoutPerformance.touching(this.schedule, fighter.id)) {
       const delivery: number = strike.entry.contact! - strike.entry.start;
@@ -133,32 +184,60 @@ export class BoutPerformance {
       const offset: number = seconds - strike.entry.contact!;
       if (offset < -window || offset > window) continue;
       const weight: number = 1 - Math.abs(offset) / window;
-      const receiver: Fighter = fighter === this.cast.a ? this.cast.b : this.cast.a;
+      const receiver: Fighter =
+        fighter === this.cast.a ? this.cast.b : this.cast.a;
       const goal = this.goal(fighter, receiver, strike);
       const result = resolveAutoMovieRelationalGoal({
         performer: fighter.id,
-        goal: { ...goal, window: { start: strike.entry.contact! - window, end: strike.entry.contact! + window } },
+        goal: {
+          ...goal,
+          window: {
+            start: strike.entry.contact! - window,
+            end: strike.entry.contact! + window,
+          },
+        },
         bodies: {
-          [fighter.id]: this.body(fighter, strike.spec, (s: number) => (s === seconds ? segments : this.prior(fighter.id, s).segments)),
-          [receiver.id]: this.body(receiver, strike.spec, (s: number) => this.prior(receiver.id, s).segments),
+          [fighter.id]: this.body(fighter, strike.spec, (s: number) =>
+            s === seconds ? segments : this.prior(fighter.id, s).segments,
+          ),
+          [receiver.id]: this.body(
+            receiver,
+            strike.spec,
+            (s: number) => this.prior(receiver.id, s).segments,
+          ),
         },
         seconds,
         iterations: BoutPerformance.ITERATIONS,
         approachWeight: BoutPerformance.APPROACH_WEIGHT,
       });
-      if (result.active) segments = blend(segments, result.targets, ease(weight));
+      if (result.active)
+        segments = blend(segments, result.targets, ease(weight));
     }
     return segments;
   }
 
   /** The relational goal of a touching strike: its weapon surface onto the region its outcome decides. */
-  private goal(fighter: Fighter, receiver: Fighter, strike: BoutPerformance.ITouch): Omit<Parameters<typeof resolveAutoMovieRelationalGoal>[0]["goal"], "window"> {
-    const weapon = fighter.body.weapons[`${strike.spec.surface}-${strike.spec.side}`];
+  private goal(
+    fighter: Fighter,
+    receiver: Fighter,
+    strike: BoutPerformance.ITouch,
+  ): Omit<
+    Parameters<typeof resolveAutoMovieRelationalGoal>[0]["goal"],
+    "window"
+  > {
+    const weapon =
+      fighter.body.weapons[`${strike.spec.surface}-${strike.spec.side}`];
     if (!weapon) throw new Error(`No ${strike.spec.surface} surface`);
     return {
-      surface: { bone: weapon.bone, localPoint: weapon.localPoint, localDirection: weapon.localDirection },
+      surface: {
+        bone: weapon.bone,
+        localPoint: weapon.localPoint,
+        localDirection: weapon.localDirection,
+      },
       target: { subject: receiver.id, region: strike.region },
-      ...(strike.spec.line === "descending" ? { approach: Vector3.normalize({ x: 0, y: -1, z: 0 }) } : {}),
+      ...(strike.spec.line === "descending"
+        ? { approach: Vector3.normalize({ x: 0, y: -1, z: 0 }) }
+        : {}),
       // The strike committed its path at launch or chamber in the shape; a
       // touching outcome means the region is there at contact, so the fit
       // tracks it through the contact window.
@@ -167,11 +246,22 @@ export class BoutPerformance {
   }
 
   /** An engine body over a fighter's segments, held on the support foot opposite the striking limb. */
-  private body(fighter: Fighter, spec: KickboxingTechnique.ISpec, pose: (s: number) => Record<string, P.ITransform>): resolveAutoMovieRelationalGoal.IBody {
-    const support: "left" | "right" = spec.limb === "leg" ? KickboxingTechnique.opposite(spec.side) : "left";
+  private body(
+    fighter: Fighter,
+    spec: KickboxingTechnique.ISpec,
+    pose: (s: number) => Record<string, P.ITransform>,
+  ): resolveAutoMovieRelationalGoal.IBody {
+    const support: "left" | "right" =
+      spec.limb === "leg" ? KickboxingTechnique.opposite(spec.side) : "left";
     const reach: string[] =
       spec.limb === "arm"
-        ? ["chest", `${spec.side}Shoulder`, `${spec.side}UpperArm`, `${spec.side}LowerArm`, `${spec.side}Hand`]
+        ? [
+            "chest",
+            `${spec.side}Shoulder`,
+            `${spec.side}UpperArm`,
+            `${spec.side}LowerArm`,
+            `${spec.side}Hand`,
+          ]
         : [`${spec.side}UpperLeg`, `${spec.side}LowerLeg`, `${spec.side}Foot`];
     // The trunk leans into a punch; a kick also bends the support leg, except
     // the descending kick, whose turnover the shape already placed and whose
@@ -197,23 +287,43 @@ export class BoutPerformance {
   }
 
   /** Settle a fallen fighter onto the canvas by his lowest collider. */
-  private settle(fighter: Fighter, seconds: number, segments: Record<string, P.ITransform>): Record<string, P.ITransform> {
-    const fall: IAutoMovieSchedule.IEntry | undefined = this.schedule.entries.find((e) => {
-      if (e.subject !== fighter.id || e.intent.capability !== "phase") return false;
-      const action = KickboxingAction.read(e.intent);
-      return action.kind === "phase" && action.phase === "fall";
-    });
+  private settle(
+    fighter: Fighter,
+    seconds: number,
+    segments: Record<string, P.ITransform>,
+  ): Record<string, P.ITransform> {
+    const fall: IAutoMovieSchedule.IEntry | undefined =
+      this.schedule.entries.find((e) => {
+        if (e.subject !== fighter.id || e.intent.capability !== "phase")
+          return false;
+        const action = KickboxingAction.read(e.intent);
+        return action.kind === "phase" && action.phase === "fall";
+      });
     if (!fall || seconds < fall.start) return segments;
     let lowest: number = Infinity;
     for (const segment of fighter.body.profile.segments)
       for (const shape of segment.shapes)
-        lowest = Math.min(lowest, this.queries.minimumY({ body: fighter.id, bone: segment.bone, shape, pose: segments[segment.bone]! }));
+        lowest = Math.min(
+          lowest,
+          this.queries.minimumY({
+            body: fighter.id,
+            bone: segment.bone,
+            shape,
+            pose: segments[segment.bone]!,
+          }),
+        );
     // During the fall the body may only be lifted out of the canvas; once he
     // lies, it rests exactly on it.
     const lift: number = seconds >= fall.end ? -lowest : Math.max(0, -lowest);
     if (lift === 0) return segments;
     return Object.fromEntries(
-      Object.entries(segments).map(([bone, t]) => [bone, { position: { ...t.position, y: t.position.y + lift }, rotation: t.rotation }]),
+      Object.entries(segments).map(([bone, t]) => [
+        bone,
+        {
+          position: { ...t.position, y: t.position.y + lift },
+          rotation: t.rotation,
+        },
+      ]),
     );
   }
 }
@@ -267,7 +377,10 @@ export namespace BoutPerformance {
    * @returns His touching strikes in time order.
    * @evidence docs/research/kickboxing/exchanges.md#outcomes Landed, parried, blocked and checked strikes touch.
    */
-  export function touching(schedule: IAutoMovieSchedule, subject: string): ITouch[] {
+  export function touching(
+    schedule: IAutoMovieSchedule,
+    subject: string,
+  ): ITouch[] {
     const answers: Map<string, IAutoMovieSchedule.IEntry> = new Map();
     for (const entry of schedule.entries) {
       if (entry.intent.capability !== "answer") continue;
@@ -276,7 +389,12 @@ export namespace BoutPerformance {
     }
     const result: ITouch[] = [];
     for (const entry of schedule.entries) {
-      if (entry.subject !== subject || entry.intent.capability !== "strike" || entry.intent.anchor === undefined) continue;
+      if (
+        entry.subject !== subject ||
+        entry.intent.capability !== "strike" ||
+        entry.intent.anchor === undefined
+      )
+        continue;
       const answer = answers.get(entry.intent.anchor);
       if (!answer || answer.outcome === undefined) continue;
       const outcome = answer.outcome as KickboxingOutcome.Outcome;
@@ -284,8 +402,12 @@ export namespace BoutPerformance {
       const action = KickboxingAction.read(entry.intent);
       const defend = KickboxingAction.read(answer.intent);
       if (action.kind !== "strike" || defend.kind !== "answer") continue;
-      const spec: KickboxingTechnique.ISpec = KickboxingTechnique.table[action.technique];
-      const region: string | null = KickboxingDefense.contact(defend.answer, spec);
+      const spec: KickboxingTechnique.ISpec =
+        KickboxingTechnique.table[action.technique];
+      const region: string | null = KickboxingDefense.contact(
+        defend.answer,
+        spec,
+      );
       if (region === null) continue;
       result.push({ entry, spec, outcome, region, answer });
     }
@@ -294,12 +416,22 @@ export namespace BoutPerformance {
 }
 
 /** Blend world segments: positions linearly, rotations by slerp. */
-function blend(a: Record<string, P.ITransform>, b: Record<string, P.ITransform>, w: number): Record<string, P.ITransform> {
+function blend(
+  a: Record<string, P.ITransform>,
+  b: Record<string, P.ITransform>,
+  w: number,
+): Record<string, P.ITransform> {
   return Object.fromEntries(
     Object.entries(a).map(([bone, t]) => {
       const u: P.ITransform | undefined = b[bone];
       if (!u) return [bone, t];
-      return [bone, { position: Vector3.lerp(t.position, u.position, w), rotation: Quaternion.slerp(t.rotation, u.rotation, w) }];
+      return [
+        bone,
+        {
+          position: Vector3.lerp(t.position, u.position, w),
+          rotation: Quaternion.slerp(t.rotation, u.rotation, w),
+        },
+      ];
     }),
   );
 }

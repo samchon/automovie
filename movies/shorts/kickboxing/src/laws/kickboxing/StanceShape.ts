@@ -194,9 +194,17 @@ export namespace StanceShape {
       pelvis: { tilt: 0, obliquity: 0, rotation: 0 },
       // The root turns toward the own right with the stance; the trunk and neck
       // turn back toward the opponent (positive rotation turns the front left).
-      thoracic: { flexion: CHIN_TUCK / 2, lateralFlexion: 0, rotation: toDegrees(TURN) / 2 },
+      thoracic: {
+        flexion: CHIN_TUCK / 2,
+        lateralFlexion: 0,
+        rotation: toDegrees(TURN) / 2,
+      },
       lumbar: { flexion: 0, lateralFlexion: 0 },
-      cervical: { flexion: CHIN_TUCK, lateralFlexion: 0, rotation: toDegrees(TURN) / 2 },
+      cervical: {
+        flexion: CHIN_TUCK,
+        lateralFlexion: 0,
+        rotation: toDegrees(TURN) / 2,
+      },
       hands: {
         left: cheek(measure, head, 1),
         right: cheek(measure, head, -1),

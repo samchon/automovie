@@ -39,7 +39,9 @@ export namespace StrikeShape {
    * frames (rotated support foot, not a measured angle) and the Brazilian
    * kick's "heel turns toward the target".
    */
-  const PIVOT: Readonly<Record<KickboxingTechnique.Level | "turnover", number>> = {
+  const PIVOT: Readonly<
+    Record<KickboxingTechnique.Level | "turnover", number>
+  > = {
     leg: Math.PI / 4,
     body: Math.PI / 3,
     head: Math.PI / 3,
@@ -104,18 +106,33 @@ export namespace StrikeShape {
    * @evidence docs/research/kickboxing/techniques.md#laws The family laws.
    */
   export function posture(input: IInput): IBoutPosture | null {
-    const shown: KickboxingTechnique.ISpec = KickboxingTechnique.performed(input.spec);
-    const delivery: number = KickboxingTiming.delivery(input.spec.name, input.follows);
+    const shown: KickboxingTechnique.ISpec = KickboxingTechnique.performed(
+      input.spec,
+    );
+    const delivery: number = KickboxingTiming.delivery(
+      input.spec.name,
+      input.follows,
+    );
     const t: number = input.seconds;
     if (input.spec.shows) {
       // A feint shows its share and returns along the same path.
       const share: number = input.spec.shows.share;
-      const fraction: number = t <= delivery ? t / delivery : Math.max(0, 2 - t / delivery);
+      const fraction: number =
+        t <= delivery ? t / delivery : Math.max(0, 2 - t / delivery);
       if (t >= 2 * delivery) return null;
-      return family({ ...input, spec: shown }, shown, share * ease(fraction), "out", fraction);
+      return family(
+        { ...input, spec: shown },
+        shown,
+        share * ease(fraction),
+        "out",
+        fraction,
+      );
     }
     if (shown.family === "punch") {
-      const out: number = t <= delivery ? ease(t / delivery) : 1 - ease((t - delivery) / KickboxingTiming.HAND_RECOVERY);
+      const out: number =
+        t <= delivery
+          ? ease(t / delivery)
+          : 1 - ease((t - delivery) / KickboxingTiming.HAND_RECOVERY);
       if (t >= delivery + KickboxingTiming.HAND_RECOVERY) return null;
       return punch(input, shown, Math.max(0, out));
     }
@@ -123,7 +140,10 @@ export namespace StrikeShape {
     if (t >= end) return null;
     // Kicks follow keys: launch, chamber key, impact, back to chamber, replant.
     const phase: "out" | "back" = t <= delivery ? "out" : "back";
-    const progress: number = t <= delivery ? t / delivery : (t - delivery) / KickboxingTiming.KICK_RECOIL;
+    const progress: number =
+      t <= delivery
+        ? t / delivery
+        : (t - delivery) / KickboxingTiming.KICK_RECOIL;
     return family(input, shown, 1, phase, progress);
   }
 
@@ -149,38 +169,75 @@ export namespace StrikeShape {
   }
 
   /** A punch at extension `out` in [0, 1]. */
-  function punch(input: IInput, spec: KickboxingTechnique.ISpec, out: number): IBoutPosture {
+  function punch(
+    input: IInput,
+    spec: KickboxingTechnique.ISpec,
+    out: number,
+  ): IBoutPosture {
     const { measure, guard } = input;
     const side: "left" | "right" = spec.side;
     const sign: 1 | -1 = side === "left" ? 1 : -1;
     const start: IAutoMovieVector3 = guard.hands[side].point;
-    const shoulder: IAutoMovieVector3 = { x: 0, y: measure.shoulder - guard.drop, z: sign * measure.shoulderHalfWidth };
-    const aim: IAutoMovieVector3 = input.target ?? Vector3.add(shoulder, { x: measure.armReach, y: 0, z: 0 });
-    const direction: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(aim, shoulder));
+    const shoulder: IAutoMovieVector3 = {
+      x: 0,
+      y: measure.shoulder - guard.drop,
+      z: sign * measure.shoulderHalfWidth,
+    };
+    const aim: IAutoMovieVector3 =
+      input.target ??
+      Vector3.add(shoulder, { x: measure.armReach, y: 0, z: 0 });
+    const direction: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(aim, shoulder),
+    );
     // The glove centre stops a glove radius short of the target minus the landing depth.
-    const end: IAutoMovieVector3 = Vector3.subtract(aim, Vector3.scale(direction, measure.gloveRadius - LANDING_DEPTH));
+    const end: IAutoMovieVector3 = Vector3.subtract(
+      aim,
+      Vector3.scale(direction, measure.gloveRadius - LANDING_DEPTH),
+    );
     const control: IAutoMovieVector3 =
       spec.line === "arc"
-        ? Vector3.add(Vector3.lerp(start, end, 0.5), { x: 0, y: 0, z: sign * measure.shoulderHalfWidth * 2 })
+        ? Vector3.add(Vector3.lerp(start, end, 0.5), {
+            x: 0,
+            y: 0,
+            z: sign * measure.shoulderHalfWidth * 2,
+          })
         : spec.line === "rising"
-          ? Vector3.add(Vector3.lerp(start, end, 0.5), { x: 0, y: -measure.headRadius * 2, z: 0 })
+          ? Vector3.add(Vector3.lerp(start, end, 0.5), {
+              x: 0,
+              y: -measure.headRadius * 2,
+              z: 0,
+            })
           : Vector3.lerp(start, end, 0.5);
     const point: IAutoMovieVector3 = bezier(start, control, end, out);
     // Rear-side punches carry the stance turn through the trunk; lead hooks
     // turn it back and lead straights a third of that (IBA pages 42-45,
     // techniques section 3); positive rotation turns the front left.
-    const drive: number = (spec.side === "right" ? 1 : spec.line === "arc" ? -1 : -1 / 3) * toDegrees(StanceShape.TURN) * out;
+    const drive: number =
+      (spec.side === "right" ? 1 : spec.line === "arc" ? -1 : -1 / 3) *
+      toDegrees(StanceShape.TURN) *
+      out;
     const body: number = spec.level === "body" ? measure.headRadius * out : 0;
     return {
       ...guard,
       drop: guard.drop + body,
-      thoracic: { ...guard.thoracic, rotation: guard.thoracic.rotation + drive },
+      thoracic: {
+        ...guard.thoracic,
+        rotation: guard.thoracic.rotation + drive,
+      },
       pelvis: { ...guard.pelvis, rotation: guard.pelvis.rotation + drive / 2 },
       hands: {
         ...guard.hands,
         [side]: {
           point,
-          ...(spec.line === "arc" ? { elbow: Vector3.add(shoulder, { x: 0, y: 0, z: sign * measure.shoulderHalfWidth }) } : {}),
+          ...(spec.line === "arc"
+            ? {
+                elbow: Vector3.add(shoulder, {
+                  x: 0,
+                  y: 0,
+                  z: sign * measure.shoulderHalfWidth,
+                }),
+              }
+            : {}),
         },
       },
     };
@@ -197,10 +254,18 @@ export namespace StrikeShape {
     const { measure, guard, rest } = input;
     const side: "left" | "right" = spec.side;
     const sign: 1 | -1 = side === "left" ? 1 : -1;
-    const hip: IAutoMovieVector3 = { x: 0, y: measure.hip - guard.drop, z: sign * measure.hipHalfWidth };
+    const hip: IAutoMovieVector3 = {
+      x: 0,
+      y: measure.hip - guard.drop,
+      z: sign * measure.hipHalfWidth,
+    };
     const chamber: { point: IAutoMovieVector3; knee: IAutoMovieVector3 } = fold(
       hip,
-      CHAMBER_HIP[spec.disguise ? KickboxingTechnique.table[spec.disguise].level : spec.level],
+      CHAMBER_HIP[
+        spec.disguise
+          ? KickboxingTechnique.table[spec.disguise].level
+          : spec.level
+      ],
       sign,
       measure,
     );
@@ -212,37 +277,72 @@ export namespace StrikeShape {
       ? Vector3.normalize({ x: 0.2, y: -1, z: -sign * 0.3 })
       : { x: 0, y: 0, z: -sign };
     const impact = {
-      knee: Vector3.subtract(target, Vector3.scale(across, measure.shank * SHIN_SHARE)),
-      point: Vector3.add(target, Vector3.scale(across, measure.shank * (1 - SHIN_SHARE))),
+      knee: Vector3.subtract(
+        target,
+        Vector3.scale(across, measure.shank * SHIN_SHARE),
+      ),
+      point: Vector3.add(
+        target,
+        Vector3.scale(across, measure.shank * (1 - SHIN_SHARE)),
+      ),
     };
-    if (turnover) impact.knee = Vector3.add(impact.knee, { x: 0, y: measure.headRadius, z: 0 });
-    const chamberShare: number = KickboxingTiming.KICK_CHAMBER / KickboxingTiming.KICK_IMPACT;
+    if (turnover)
+      impact.knee = Vector3.add(impact.knee, {
+        x: 0,
+        y: measure.headRadius,
+        z: 0,
+      });
+    const chamberShare: number =
+      KickboxingTiming.KICK_CHAMBER / KickboxingTiming.KICK_IMPACT;
     let foot: { point: IAutoMovieVector3; knee: IAutoMovieVector3 };
     let reach: number;
     if (phase === "out" && progress <= chamberShare) {
       const s: number = ease(progress / chamberShare);
-      foot = { point: Vector3.lerp(rest[side], chamber.point, s), knee: chamber.knee };
+      foot = {
+        point: Vector3.lerp(rest[side], chamber.point, s),
+        knee: chamber.knee,
+      };
       reach = 0;
     } else if (phase === "out") {
       const s: number = ease((progress - chamberShare) / (1 - chamberShare));
-      foot = { point: Vector3.lerp(chamber.point, impact.point, s), knee: Vector3.lerp(chamber.knee, impact.knee, s) };
+      foot = {
+        point: Vector3.lerp(chamber.point, impact.point, s),
+        knee: Vector3.lerp(chamber.knee, impact.knee, s),
+      };
       reach = s;
     } else if (progress <= 0.5) {
       const s: number = ease(progress / 0.5);
-      foot = { point: Vector3.lerp(impact.point, chamber.point, s), knee: Vector3.lerp(impact.knee, chamber.knee, s) };
+      foot = {
+        point: Vector3.lerp(impact.point, chamber.point, s),
+        knee: Vector3.lerp(impact.knee, chamber.knee, s),
+      };
       reach = 1 - s;
     } else {
       const s: number = ease((progress - 0.5) / 0.5);
-      foot = { point: Vector3.lerp(chamber.point, rest[side], s), knee: chamber.knee };
+      foot = {
+        point: Vector3.lerp(chamber.point, rest[side], s),
+        knee: chamber.knee,
+      };
       reach = 0;
     }
-    const lift: number = phase === "out" ? Math.min(1, progress / chamberShare) : progress <= 0.5 ? 1 : 1 - ease((progress - 0.5) / 0.5);
-    const turn: number = (turnover ? PIVOT.turnover : PIVOT[spec.level]) * Math.max(reach, lift * 0.5);
+    const lift: number =
+      phase === "out"
+        ? Math.min(1, progress / chamberShare)
+        : progress <= 0.5
+          ? 1
+          : 1 - ease((progress - 0.5) / 0.5);
+    const turn: number =
+      (turnover ? PIVOT.turnover : PIVOT[spec.level]) *
+      Math.max(reach, lift * 0.5);
     const lean: number = LEAN[spec.level] * Math.max(reach, lift * 0.5);
     // The kicking-side glove reaches forward along the head line; the other guards the cheek.
     const head: number = measure.head - guard.drop;
     const forward: { point: IAutoMovieVector3 } = {
-      point: { x: measure.armReach * 0.75, y: head, z: sign * measure.headRadius },
+      point: {
+        x: measure.armReach * 0.75,
+        y: head,
+        z: sign * measure.headRadius,
+      },
     };
     // The turnover rolls the hips over: the body leans away from the kick and
     // the kicking hip rises (brazilian-kick.md#law), up to the pelvis's
@@ -251,9 +351,15 @@ export namespace StrikeShape {
     const kicked: IBoutPosture = {
       ...guard,
       roll: guard.roll + sign * TURNOVER_ROLL * over,
-      pelvis: { ...guard.pelvis, obliquity: guard.pelvis.obliquity + TURNOVER_HIKE * over },
+      pelvis: {
+        ...guard.pelvis,
+        obliquity: guard.pelvis.obliquity + TURNOVER_HIKE * over,
+      },
       yaw: guard.yaw + sign * turn,
-      thoracic: { ...guard.thoracic, lateralFlexion: guard.thoracic.lateralFlexion - sign * lean },
+      thoracic: {
+        ...guard.thoracic,
+        lateralFlexion: guard.thoracic.lateralFlexion - sign * lean,
+      },
       hands: { ...guard.hands, [side]: forward },
       feet: { ...guard.feet, [side]: foot },
       pivot: sign * turn,
@@ -262,12 +368,27 @@ export namespace StrikeShape {
   }
 
   /** The lead-leg teep: knee up, sole driven forward to the stomach, recoil. */
-  function teep(input: IInput, phase: "out" | "back", progress: number, amount: number): IBoutPosture {
+  function teep(
+    input: IInput,
+    phase: "out" | "back",
+    progress: number,
+    amount: number,
+  ): IBoutPosture {
     const { measure, guard, rest } = input;
-    const hip: IAutoMovieVector3 = { x: 0, y: measure.hip - guard.drop, z: measure.hipHalfWidth };
+    const hip: IAutoMovieVector3 = {
+      x: 0,
+      y: measure.hip - guard.drop,
+      z: measure.hipHalfWidth,
+    };
     const chamber = fold(hip, CHAMBER_HIP.body, 1, measure);
-    const aim: IAutoMovieVector3 = input.target ?? Vector3.add(hip, { x: measure.thigh + measure.shank, y: 0, z: 0 });
-    const end: IAutoMovieVector3 = Vector3.subtract(aim, { x: measure.foot / 2 - LANDING_DEPTH, y: 0, z: 0 });
+    const aim: IAutoMovieVector3 =
+      input.target ??
+      Vector3.add(hip, { x: measure.thigh + measure.shank, y: 0, z: 0 });
+    const end: IAutoMovieVector3 = Vector3.subtract(aim, {
+      x: measure.foot / 2 - LANDING_DEPTH,
+      y: 0,
+      z: 0,
+    });
     const out: number = phase === "out" ? ease(progress) : 1 - ease(progress);
     const point: IAutoMovieVector3 =
       phase === "out" && progress < 0.6
@@ -276,33 +397,65 @@ export namespace StrikeShape {
           ? Vector3.lerp(chamber.point, end, ease((progress - 0.6) / 0.4))
           : progress < 0.5
             ? Vector3.lerp(end, chamber.point, ease(progress / 0.5))
-            : Vector3.lerp(chamber.point, rest.left, ease((progress - 0.5) / 0.5));
+            : Vector3.lerp(
+                chamber.point,
+                rest.left,
+                ease((progress - 0.5) / 0.5),
+              );
     const kicked: IBoutPosture = {
       ...guard,
       shift: { forward: -measure.headRadius * out, left: 0 },
-      thoracic: { ...guard.thoracic, flexion: guard.thoracic.flexion - 10 * out },
+      thoracic: {
+        ...guard.thoracic,
+        flexion: guard.thoracic.flexion - 10 * out,
+      },
       feet: { ...guard.feet, left: { point } },
     };
     return blendPosture(guard, kicked, amount, rest);
   }
 
   /** The clinch knee: both gloves behind the receiver's head, the rear knee driven up into his stomach. */
-  function knee(input: IInput, phase: "out" | "back", progress: number, amount: number): IBoutPosture {
+  function knee(
+    input: IInput,
+    phase: "out" | "back",
+    progress: number,
+    amount: number,
+  ): IBoutPosture {
     const { measure, guard, rest } = input;
-    const hip: IAutoMovieVector3 = { x: 0, y: measure.hip - guard.drop, z: -measure.hipHalfWidth };
-    const target: IAutoMovieVector3 = input.target ?? Vector3.add(hip, { x: measure.thigh, y: 0, z: 0 });
-    const kneePoint: IAutoMovieVector3 = Vector3.subtract(target, { x: LANDING_DEPTH, y: 0, z: 0 });
-    const ankle: IAutoMovieVector3 = Vector3.add(kneePoint, { x: -measure.shank * 0.6, y: -measure.shank * 0.8, z: 0 });
+    const hip: IAutoMovieVector3 = {
+      x: 0,
+      y: measure.hip - guard.drop,
+      z: -measure.hipHalfWidth,
+    };
+    const target: IAutoMovieVector3 =
+      input.target ?? Vector3.add(hip, { x: measure.thigh, y: 0, z: 0 });
+    const kneePoint: IAutoMovieVector3 = Vector3.subtract(target, {
+      x: LANDING_DEPTH,
+      y: 0,
+      z: 0,
+    });
+    const ankle: IAutoMovieVector3 = Vector3.add(kneePoint, {
+      x: -measure.shank * 0.6,
+      y: -measure.shank * 0.8,
+      z: 0,
+    });
     const out: number = phase === "out" ? ease(progress) : 1 - ease(progress);
     const grip: IAutoMovieVector3 = input.clinch ?? guard.hands.left.point;
     const kneed: IBoutPosture = {
       ...guard,
       thoracic: { ...guard.thoracic, flexion: guard.thoracic.flexion + 10 },
       hands: {
-        left: { point: Vector3.add(grip, { x: 0, y: 0, z: measure.gloveRadius }) },
-        right: { point: Vector3.add(grip, { x: 0, y: 0, z: -measure.gloveRadius }) },
+        left: {
+          point: Vector3.add(grip, { x: 0, y: 0, z: measure.gloveRadius }),
+        },
+        right: {
+          point: Vector3.add(grip, { x: 0, y: 0, z: -measure.gloveRadius }),
+        },
       },
-      feet: { ...guard.feet, right: { point: Vector3.lerp(rest.right, ankle, out), knee: kneePoint } },
+      feet: {
+        ...guard.feet,
+        right: { point: Vector3.lerp(rest.right, ankle, out), knee: kneePoint },
+      },
     };
     return blendPosture(guard, kneed, amount * Math.min(1, out * 2), rest);
   }
@@ -315,15 +468,37 @@ export namespace StrikeShape {
     measure: IFighterMeasure,
   ): { point: IAutoMovieVector3; knee: IAutoMovieVector3 } {
     const f: number = (flexion * Math.PI) / 180;
-    const thigh: IAutoMovieVector3 = { x: Math.sin(f), y: -Math.cos(f), z: sign * 0.25 };
-    const knee: IAutoMovieVector3 = Vector3.add(hip, Vector3.scale(Vector3.normalize(thigh), measure.thigh));
+    const thigh: IAutoMovieVector3 = {
+      x: Math.sin(f),
+      y: -Math.cos(f),
+      z: sign * 0.25,
+    };
+    const knee: IAutoMovieVector3 = Vector3.add(
+      hip,
+      Vector3.scale(Vector3.normalize(thigh), measure.thigh),
+    );
     const k: number = f + Math.PI - (CHAMBER_KNEE * Math.PI) / 180;
-    const shank: IAutoMovieVector3 = { x: -Math.sin(Math.PI - k) * 0.6, y: -Math.cos(Math.PI - k), z: 0 };
-    return { knee, point: Vector3.add(knee, Vector3.scale(Vector3.normalize(shank), measure.shank)) };
+    const shank: IAutoMovieVector3 = {
+      x: -Math.sin(Math.PI - k) * 0.6,
+      y: -Math.cos(Math.PI - k),
+      z: 0,
+    };
+    return {
+      knee,
+      point: Vector3.add(
+        knee,
+        Vector3.scale(Vector3.normalize(shank), measure.shank),
+      ),
+    };
   }
 
   /** Quadratic Bezier. */
-  function bezier(a: IAutoMovieVector3, c: IAutoMovieVector3, b: IAutoMovieVector3, t: number): IAutoMovieVector3 {
+  function bezier(
+    a: IAutoMovieVector3,
+    c: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+    t: number,
+  ): IAutoMovieVector3 {
     return Vector3.lerp(Vector3.lerp(a, c, t), Vector3.lerp(c, b, t), t);
   }
 

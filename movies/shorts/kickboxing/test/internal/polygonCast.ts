@@ -1,10 +1,10 @@
-import { Bell } from "../../src/entities/props/bell/Bell";
 import { RingCamera } from "../../src/entities/cameras/ring-camera/RingCamera";
 import { Fighter } from "../../src/entities/cast/fighter/Fighter";
 import type { IFighterBody } from "../../src/entities/cast/fighter/IFighterBody";
 import { fighterA } from "../../src/entities/cast/fighter/fighterA";
 import { fighterB } from "../../src/entities/cast/fighter/fighterB";
 import { Referee } from "../../src/entities/cast/referee/Referee";
+import { Bell } from "../../src/entities/props/bell/Bell";
 import { Ring } from "../../src/entities/sets/ring/Ring";
 import type { IRingCast } from "../../src/interactions/kickboxing/IRingCast";
 import type { IFighterMeasure } from "../../src/laws/kickboxing/IFighterMeasure";
@@ -33,7 +33,16 @@ export function polygonCast(): IRingCast {
   return {
     a: new Fighter(fighterA, undefined, body(1.8, 0.095)),
     b: new Fighter(fighterB, undefined, body(1.8, 0.095)),
-    referee: new Referee({ measure: measure(1.78, 0), profile: { segments: [], joints: [] } as unknown as IFighterBody["profile"], place: (): never => { throw new Error("A polygon man is not posed"); } }),
+    referee: new Referee({
+      measure: measure(1.78, 0),
+      profile: {
+        segments: [],
+        joints: [],
+      } as unknown as IFighterBody["profile"],
+      place: (): never => {
+        throw new Error("A polygon man is not posed");
+      },
+    }),
     ring: new Ring(),
     camera: new RingCamera(),
     bell: new Bell(),
@@ -44,11 +53,11 @@ export function polygonCast(): IRingCast {
 function measure(h: number, gloves: number): IFighterMeasure {
   return {
     hip: 0.53 * h,
-    hipHalfWidth: 0.191 * h / 2,
+    hipHalfWidth: (0.191 * h) / 2,
     shoulder: 0.818 * h,
-    shoulderHalfWidth: 0.259 * h / 2,
+    shoulderHalfWidth: (0.259 * h) / 2,
     head: 0.936 * h,
-    headRadius: 0.13 * h / 2,
+    headRadius: (0.13 * h) / 2,
     gloveRadius: gloves,
     armReach: (0.186 + 0.146 + 0.108 / 2) * h,
     thigh: 0.245 * h,

@@ -90,16 +90,27 @@ export class RefereeBody {
 
   /** Build his body. */
   public constructor() {
-    const prepared = AutoMovieHumanPhysicalProfile.prepare(RefereeBody.PARAMETERS, {
-      mass: RefereeBody.MASS,
-      // Required by the provider, unused by this kinematic performance.
-      frequency: 20,
-      dampingRatio: 1,
-      torquePerKg: 50,
-      equipment: [],
-      skin: "skin",
-      materials: [{ id: "skin", friction: 0.7, restitution: 0, compliance: 0, damping: 0 }],
-    });
+    const prepared = AutoMovieHumanPhysicalProfile.prepare(
+      RefereeBody.PARAMETERS,
+      {
+        mass: RefereeBody.MASS,
+        // Required by the provider, unused by this kinematic performance.
+        frequency: 20,
+        dampingRatio: 1,
+        torquePerKg: 50,
+        equipment: [],
+        skin: "skin",
+        materials: [
+          {
+            id: "skin",
+            friction: 0.7,
+            restitution: 0,
+            compliance: 0,
+            damping: 0,
+          },
+        ],
+      },
+    );
     this.evaluate = prepared.evaluate;
     this.profile = prepared.profile;
     this.neutral = this.evaluate({});
@@ -108,19 +119,28 @@ export class RefereeBody {
       const p = this.neutral.posed.find((x) => x.bone === bone)!.position;
       return { x: p[0], y: p[1], z: p[2] };
     };
-    const head: P.ISegment = this.profile.segments.find((s) => s.bone === "head")!;
+    const head: P.ISegment = this.profile.segments.find(
+      (s) => s.bone === "head",
+    )!;
     const shape: P.IShape = head.shapes[0]!;
-    const centre: IAutoMovieVector3 = Vector3.add(head.neutral.position, Quaternion.rotateVector(head.neutral.rotation, shape.transform.position));
-    const length = (a: string, b: string): number => Vector3.length(Vector3.subtract(at(a), at(b)));
+    const centre: IAutoMovieVector3 = Vector3.add(
+      head.neutral.position,
+      Quaternion.rotateVector(head.neutral.rotation, shape.transform.position),
+    );
+    const length = (a: string, b: string): number =>
+      Vector3.length(Vector3.subtract(at(a), at(b)));
     this.measure = Object.freeze({
       hip: at("leftUpperLeg").y,
       hipHalfWidth: Math.abs(at("leftUpperLeg").z),
       shoulder: at("leftUpperArm").y,
       shoulderHalfWidth: Math.abs(at("leftUpperArm").z),
       head: centre.y,
-      headRadius: shape.kind === "sphere" || shape.kind === "capsule" ? shape.radius : 0,
+      headRadius:
+        shape.kind === "sphere" || shape.kind === "capsule" ? shape.radius : 0,
       gloveRadius: 0,
-      armReach: length("leftUpperArm", "leftLowerArm") + length("leftLowerArm", "leftHand"),
+      armReach:
+        length("leftUpperArm", "leftLowerArm") +
+        length("leftLowerArm", "leftHand"),
       thigh: length("leftUpperLeg", "leftLowerLeg"),
       shank: length("leftLowerLeg", "leftFoot"),
       ankle: at("leftFoot").y,
@@ -137,14 +157,32 @@ export class RefereeBody {
    */
   public place(
     posture: IBoutPosture,
-    frame: { origin: IAutoMovieVector3; facing: { x: number; z: number }; feet: Record<"left" | "right", IAutoMovieVector3> },
-  ): { output: AutoMovieHumanSkeleton.IOutput; root: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }; segments: Record<string, P.ITransform> } {
+    frame: {
+      origin: IAutoMovieVector3;
+      facing: { x: number; z: number };
+      feet: Record<"left" | "right", IAutoMovieVector3>;
+    },
+  ): {
+    output: AutoMovieHumanSkeleton.IOutput;
+    root: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
+    segments: Record<string, P.ITransform>;
+  } {
     const heading: number = Math.atan2(-frame.facing.z, frame.facing.x);
     // The engine's axis-angle takes degrees.
-    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, ((heading + posture.yaw) * 180) / Math.PI);
-    const position: IAutoMovieVector3 = Vector3.add(frame.origin, { x: 0, y: -posture.drop, z: 0 });
+    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      { x: 0, y: 1, z: 0 },
+      ((heading + posture.yaw) * 180) / Math.PI,
+    );
+    const position: IAutoMovieVector3 = Vector3.add(frame.origin, {
+      x: 0,
+      y: -posture.drop,
+      z: 0,
+    });
     const world = (p: IAutoMovieVector3): [number, number, number] => {
-      const w: IAutoMovieVector3 = Vector3.add(frame.origin, Quaternion.rotateVector(rotation, p));
+      const w: IAutoMovieVector3 = Vector3.add(
+        frame.origin,
+        Quaternion.rotateVector(rotation, p),
+      );
       return [w.x, w.y, w.z];
     };
     const fitted = this.fit({
@@ -153,20 +191,42 @@ export class RefereeBody {
         neck: { cervical: posture.cervical },
         head: { jaw: { opening: Math.max(0, posture.jaw) } },
       },
-      root: { position: [position.x, position.y, position.z], rotation: [rotation.x, rotation.y, rotation.z, rotation.w] },
-      legs: {
-        left: { point: [frame.feet.left.x, frame.feet.left.y, frame.feet.left.z] },
-        right: { point: [frame.feet.right.x, frame.feet.right.y, frame.feet.right.z] },
+      root: {
+        position: [position.x, position.y, position.z],
+        rotation: [rotation.x, rotation.y, rotation.z, rotation.w],
       },
-      arms: { left: { point: world(posture.hands.left.point) }, right: { point: world(posture.hands.right.point) } },
+      legs: {
+        left: {
+          point: [frame.feet.left.x, frame.feet.left.y, frame.feet.left.z],
+        },
+        right: {
+          point: [frame.feet.right.x, frame.feet.right.y, frame.feet.right.z],
+        },
+      },
+      arms: {
+        left: { point: world(posture.hands.left.point) },
+        right: { point: world(posture.hands.right.point) },
+      },
     });
     const segments: Record<string, P.ITransform> = {};
     const placements = new Map(fitted.output.posed.map((p) => [p.bone, p]));
     for (const segment of this.profile.segments) {
       const p = placements.get(segment.bone)!;
       segments[segment.bone] = {
-        position: Vector3.add(position, Quaternion.rotateVector(rotation, { x: p.position[0], y: p.position[1], z: p.position[2] })),
-        rotation: Quaternion.multiply(rotation, { x: p.rotation[0], y: p.rotation[1], z: p.rotation[2], w: p.rotation[3] }),
+        position: Vector3.add(
+          position,
+          Quaternion.rotateVector(rotation, {
+            x: p.position[0],
+            y: p.position[1],
+            z: p.position[2],
+          }),
+        ),
+        rotation: Quaternion.multiply(rotation, {
+          x: p.rotation[0],
+          y: p.rotation[1],
+          z: p.rotation[2],
+          w: p.rotation[3],
+        }),
       };
     }
     return { output: fitted.output, root: { position, rotation }, segments };

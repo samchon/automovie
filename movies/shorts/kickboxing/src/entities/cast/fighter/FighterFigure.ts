@@ -48,26 +48,64 @@ export class FighterFigure {
    */
   public constructor(profile: IFighterProfile, body: FighterBody) {
     this.colors = Object.fromEntries(
-      body.neutral.bones.map((b: AutoMovieHumanSkeleton.IBone): [string, number] => [b.bone, b.bone === "hips" ? profile.shorts : profile.skin]),
+      body.neutral.bones.map(
+        (b: AutoMovieHumanSkeleton.IBone): [string, number] => [
+          b.bone,
+          b.bone === "hips" ? profile.shorts : profile.skin,
+        ],
+      ),
     );
-    this.figure = createAutoMovieHumanPolygonFigure({ evaluate: (): AutoMovieHumanSkeleton.IOutput => body.neutral, partColors: this.colors });
+    this.figure = createAutoMovieHumanPolygonFigure({
+      evaluate: (): AutoMovieHumanSkeleton.IOutput => body.neutral,
+      partColors: this.colors,
+    });
     this.object.add(this.figure.object);
-    const cloth: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({ color: profile.shorts, roughness: 0.95 });
-    const trim: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({ color: profile.trim, roughness: 0.8 });
-    const glove: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({ color: profile.gloves, roughness: 0.55 });
+    const cloth: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({
+      color: profile.shorts,
+      roughness: 0.95,
+    });
+    const trim: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({
+      color: profile.trim,
+      roughness: 0.8,
+    });
+    const glove: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({
+      color: profile.gloves,
+      roughness: 0.55,
+    });
     this.owned.push(cloth, trim, glove);
     for (const side of ["left", "right"] as const) {
       // Shorts cover the upper half of each thigh, mid-thigh length.
-      const upper = body.neutral.bones.find((b) => b.bone === `${side}UpperLeg`)!;
-      const knee = body.neutral.bones.find((b) => b.bone === `${side}LowerLeg`)!;
-      const parent: THREE.Group = this.figure.drawing.bones.get(`${side}UpperLeg`)!;
-      const along: THREE.Vector3 = new THREE.Vector3(...knee.position).sub(new THREE.Vector3(...upper.position));
+      const upper = body.neutral.bones.find(
+        (b) => b.bone === `${side}UpperLeg`,
+      )!;
+      const knee = body.neutral.bones.find(
+        (b) => b.bone === `${side}LowerLeg`,
+      )!;
+      const parent: THREE.Group = this.figure.drawing.bones.get(
+        `${side}UpperLeg`,
+      )!;
+      const along: THREE.Vector3 = new THREE.Vector3(...knee.position).sub(
+        new THREE.Vector3(...upper.position),
+      );
       const length: number = along.length() / 2;
-      const leg: THREE.CylinderGeometry = new THREE.CylinderGeometry(upper.radius * 1.12, upper.radius * 1.08, length, 10);
-      const band: THREE.CylinderGeometry = new THREE.CylinderGeometry(upper.radius * 1.13, upper.radius * 1.13, length * 0.08, 10);
+      const leg: THREE.CylinderGeometry = new THREE.CylinderGeometry(
+        upper.radius * 1.12,
+        upper.radius * 1.08,
+        length,
+        10,
+      );
+      const band: THREE.CylinderGeometry = new THREE.CylinderGeometry(
+        upper.radius * 1.13,
+        upper.radius * 1.13,
+        length * 0.08,
+        10,
+      );
       this.owned.push(leg, band);
       const direction: THREE.Vector3 = along.clone().normalize();
-      const turn: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+      const turn: THREE.Quaternion = new THREE.Quaternion().setFromUnitVectors(
+        new THREE.Vector3(0, 1, 0),
+        direction,
+      );
       const shorts: THREE.Mesh = new THREE.Mesh(leg, cloth);
       shorts.quaternion.copy(turn);
       shorts.position.copy(direction.clone().multiplyScalar(length / 2));
@@ -76,15 +114,27 @@ export class FighterFigure {
       cuff.position.copy(direction.clone().multiplyScalar(length));
       parent.add(shorts, cuff);
       // The glove is the hand's physical glove collider, drawn where it is.
-      const hand: P.ISegment = body.profile.segments.find((s) => s.bone === `${side}Hand`)!;
-      const shape: P.IShape = hand.shapes.find((s) => s.id === `${side}-glove`)!;
-      const sphere: THREE.BufferGeometry = createAutoMovieClosedSphereGeometry(shape.kind === "sphere" ? shape.radius : 0, 18, 12);
+      const hand: P.ISegment = body.profile.segments.find(
+        (s) => s.bone === `${side}Hand`,
+      )!;
+      const shape: P.IShape = hand.shapes.find(
+        (s) => s.id === `${side}-glove`,
+      )!;
+      const sphere: THREE.BufferGeometry = createAutoMovieClosedSphereGeometry(
+        shape.kind === "sphere" ? shape.radius : 0,
+        18,
+        12,
+      );
       this.owned.push(sphere);
       const mesh: THREE.Mesh = new THREE.Mesh(sphere, glove);
       mesh.name = `${side}-glove`;
       // The hand group moves by the same placement as the physical segment,
       // so the collider's segment-local offset is the mesh's local position.
-      mesh.position.set(shape.transform.position.x, shape.transform.position.y, shape.transform.position.z);
+      mesh.position.set(
+        shape.transform.position.x,
+        shape.transform.position.y,
+        shape.transform.position.z,
+      );
       this.figure.drawing.bones.get(`${side}Hand`)!.add(mesh);
     }
     this.object.traverse((o: THREE.Object3D): void => {
@@ -109,7 +159,11 @@ export class FighterFigure {
       units: [
         { unit: "browLowerer", intensity: wince, side: "both" },
         { unit: "lidTightener", intensity: wince, side: "both" },
-        { unit: "jawDrop", intensity: Math.min(1, Math.round(face.jaw / 5) / 10), side: "both" },
+        {
+          unit: "jawDrop",
+          intensity: Math.min(1, Math.round(face.jaw / 5) / 10),
+          side: "both",
+        },
       ],
     };
     this.figure.place({ posed }, undefined, expression);
@@ -119,20 +173,33 @@ export class FighterFigure {
   /** Redden the struck regions' parts toward a bruise, quantized so colours rebuild only on change. */
   private mark(marks: Readonly<Record<string, number>>): void {
     const parts: Record<string, string[]> = {
-      face: ["head"], chin: ["head"], "jaw-left": ["head"], "jaw-right": ["head"], "head-left": ["head"], "head-right": ["head"],
-      "jaw-neck-left": ["neck"], "jaw-neck-right": ["neck"], stomach: ["spine"], "ribs-left": ["chest"], "ribs-right": ["chest"],
-      "thigh-left": ["leftUpperLeg"], "thigh-right": ["rightUpperLeg"],
+      face: ["head"],
+      chin: ["head"],
+      "jaw-left": ["head"],
+      "jaw-right": ["head"],
+      "head-left": ["head"],
+      "head-right": ["head"],
+      "jaw-neck-left": ["neck"],
+      "jaw-neck-right": ["neck"],
+      stomach: ["spine"],
+      "ribs-left": ["chest"],
+      "ribs-right": ["chest"],
+      "thigh-left": ["leftUpperLeg"],
+      "thigh-right": ["rightUpperLeg"],
     };
     const levels: Record<string, number> = {};
     for (const [region, level] of Object.entries(marks))
-      for (const bone of parts[region] ?? []) levels[bone] = Math.max(levels[bone] ?? 0, Math.round(level * 5) / 5);
+      for (const bone of parts[region] ?? [])
+        levels[bone] = Math.max(levels[bone] ?? 0, Math.round(level * 5) / 5);
     const key: string = JSON.stringify(levels);
     if (key === this.flush) return;
     this.flush = key;
     const bruise: THREE.Color = new THREE.Color(FighterFigure.BRUISE);
     const colors: Record<string, number> = { ...this.colors };
     for (const [bone, level] of Object.entries(levels))
-      colors[bone] = new THREE.Color(this.colors[bone]).lerp(bruise, level * FighterFigure.BRUISE_SHARE).getHex();
+      colors[bone] = new THREE.Color(this.colors[bone])
+        .lerp(bruise, level * FighterFigure.BRUISE_SHARE)
+        .getHex();
     this.figure.drawing.setPartColors(colors);
   }
 

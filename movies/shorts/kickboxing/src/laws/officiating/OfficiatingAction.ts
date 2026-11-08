@@ -39,8 +39,14 @@ export namespace OfficiatingAction {
    */
   export function read(intent: IAutoMovieIntent): IAction {
     const action: unknown = intent.parameters?.action;
-    if (typeof action !== "object" || action === null || (action as { kind?: unknown }).kind !== "signal")
-      throw new Error(`Intent ${intent.subject}.${intent.capability} carries no signal`);
+    if (
+      typeof action !== "object" ||
+      action === null ||
+      (action as { kind?: unknown }).kind !== "signal"
+    )
+      throw new Error(
+        `Intent ${intent.subject}.${intent.capability} carries no signal`,
+      );
     return action as IAction;
   }
 
@@ -52,7 +58,11 @@ export namespace OfficiatingAction {
    * @param anchor Optional anchor id.
    * @returns The frozen intent.
    */
-  export function intent(subject: string, action: IAction, anchor?: string): IAutoMovieIntent {
+  export function intent(
+    subject: string,
+    action: IAction,
+    anchor?: string,
+  ): IAutoMovieIntent {
     return Object.freeze({
       subject,
       capability: "signal",

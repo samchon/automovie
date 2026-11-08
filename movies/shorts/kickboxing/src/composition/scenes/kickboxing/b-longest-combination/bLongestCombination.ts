@@ -30,13 +30,31 @@ export function bLongestCombination(cast: IRingCast): AutoMovieComposition {
   return RingPhase.fill(15, [
     RingPhase.reset([a, "circle"], [b, "circle"]),
     then(
-      exchange(cast, "s07-b01", b.jab().cross().bodyHook().lowKick(), a.cover().parry().elbowBlock().check()),
+      exchange(
+        cast,
+        "s07-b01",
+        b.jab().cross().bodyHook().lowKick(),
+        a.cover().parry().elbowBlock().check(),
+      ),
       exchange(cast, "s07-b01c", a.jab().cross(), b.slip().slip()),
-      exchange(cast, "s07-b02", b.hook().cross().hook(), a.take().cover().cover()),
+      exchange(
+        cast,
+        "s07-b02",
+        b.hook().cross().hook(),
+        a.take().cover().cover(),
+      ),
     ),
     RingPhase.reset([a, "pivot"]),
     exchange(cast, "s07-b03", a.teep(), b.take()),
     RingPhase.reset([b, "press"], [a, "give"]),
-    then(exchange(cast, "s07-b04", b.jab().cross().bodyKick(), a.cover().cover().elbowBlock()), exchange(cast, "s07-b04c", a.jab().cross(), b.parry().slip())),
+    then(
+      exchange(
+        cast,
+        "s07-b04",
+        b.jab().cross().bodyKick(),
+        a.cover().cover().elbowBlock(),
+      ),
+      exchange(cast, "s07-b04c", a.jab().cross(), b.parry().slip()),
+    ),
   ]);
 }
