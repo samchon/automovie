@@ -197,6 +197,42 @@ export namespace StanceShape {
   }
 
   /**
+   * The stance switch at a share of its movement: the feet exchange lead and
+   * rear on their own hip tracks, so they pass without crossing, and the body
+   * turn mirrors with them into the southpaw stance at the half, then back to
+   * orthodox by the end; each half is one quick hop of both feet, as in the
+   * switch that sets up the switch kick.
+   *
+   * @param measure The fighter's measure.
+   * @param share Progress through the switch in [0, 1].
+   * @returns Body-frame ankle points, the body turn in radians and the feet's lift share in [0, 1].
+   * @evidence docs/research/kickboxing/ring-generalship.md#stance The switch exchanges lead and rear feet without crossing.
+   */
+  export function switching(
+    measure: IFighterMeasure,
+    share: number,
+  ): {
+    feet: Record<"left" | "right", IAutoMovieVector3>;
+    yaw: number;
+    lift: number;
+  } {
+    const p: number = 2 * Math.max(0, Math.min(1, share));
+    const half: number = p <= 1 ? p : 2 - p;
+    // Smoothstep of each hop's progress toward the mirrored stance.
+    const mirrored: number = half * half * (3 - 2 * half);
+    const stance = feet(measure);
+    const swap = (q: IAutoMovieVector3): IAutoMovieVector3 => ({
+      ...q,
+      x: q.x * (1 - 2 * mirrored),
+    });
+    return {
+      feet: { left: swap(stance.left), right: swap(stance.right) },
+      yaw: TURN * (1 - 2 * mirrored),
+      lift: Math.sin(Math.PI * (p % 1)),
+    };
+  }
+
+  /**
    * The distance a stance origin keeps from the rope line: shoulder half-width plus the glove's diameter.
    *
    * @param measure The fighter's measure.

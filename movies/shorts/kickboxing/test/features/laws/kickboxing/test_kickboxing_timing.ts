@@ -12,7 +12,7 @@ import { KickboxingTiming } from "../../../../src/laws/kickboxing/KickboxingTimi
  * starts afresh; kicks reach impact at 0.074 + 0.25 x 1.02 s and replant
  * 0.65 s later (Gavagan and Sayers 2017); a pump jab shows half the jab and
  * returns; a kick feint shows the chamber key; an answer to a feint holds
- * while it returns; a movement takes its steps at 0.35 s each unless a
+ * while it returns; a movement takes its steps at the stepping period each unless a
  * step-in rides a strike's seconds; an unpaired defense has no timing.
  * Expectations are the research values, not the implementation's.
  */
@@ -40,7 +40,7 @@ export function test_kickboxing_timing(): void {
   near(
     KickboxingTiming.of({ kind: "move", movement: "circle", steps: 4 })
       .duration,
-    4 * 0.35,
+    4 * KickboxingTiming.STEP_PERIOD,
   );
   near(
     KickboxingTiming.of({

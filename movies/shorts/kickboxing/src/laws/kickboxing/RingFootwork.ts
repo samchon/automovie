@@ -150,6 +150,9 @@ export namespace RingFootwork {
           ),
           ring,
         );
+      case "switch":
+        // A switch changes the feet in place; the origin holds.
+        return clamp(mover, ring);
       case "approach":
       case "separate":
         return clamp(

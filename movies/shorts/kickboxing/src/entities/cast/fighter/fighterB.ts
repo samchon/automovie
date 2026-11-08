@@ -16,6 +16,7 @@ import type { IFighterProfile } from "./IFighterProfile";
  * @evidence docs/body/settings/cast/fighter-b.md#defense Parry, cover, body block, slips, rolls and the check.
  * @evidence docs/body/settings/cast/fighter-b.md#drops-left-arm Whenever A's right knee rises (a right body or head kick, or its feint) he drops his left elbow by the chamber, every time once learned.
  * @evidence docs/body/settings/cast/fighter-b.md#chases-pump His right glove jumps to a pump jab, every time.
+ * @evidence docs/research/kickboxing/exchanges.md#feints A shoulder feint draws the parry; a level feint draws the elbow block; the body-kick feint shows the knee rise.
  * @evidence docs/body/settings/cast/fighter-b.md#stays-on-leg After his checked low kick he stays on the kicking leg a beat too long.
  */
 export const fighterB: IFighterProfile = Object.freeze<IFighterProfile>({
@@ -81,6 +82,9 @@ export const fighterB: IFighterProfile = Object.freeze<IFighterProfile>({
     "knee",
     "feint-jab",
     "feint-low-kick",
+    "feint-body-kick",
+    "feint-shoulder",
+    "feint-level",
   ],
   defenses: [
     "parry",
@@ -100,6 +104,13 @@ export const fighterB: IFighterProfile = Object.freeze<IFighterProfile>({
       sees: { limb: "leg", side: "right", levels: ["body", "head"] },
       response: "elbow-block",
       ready: "chamber",
+      reliability: 1,
+    },
+    {
+      kind: "tell",
+      id: "reads-level",
+      sees: { families: ["feint"], limb: "arm", levels: ["body"] },
+      response: "elbow-block",
       reliability: 1,
     },
     {

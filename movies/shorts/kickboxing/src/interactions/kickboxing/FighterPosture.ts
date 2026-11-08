@@ -116,7 +116,11 @@ export namespace FighterPosture {
       y: 0,
       z: here.point.z,
     };
-    const guard: IBoutPosture = StanceShape.guard(measure);
+    const switching = switchAt(here, measure);
+    const guard: IBoutPosture =
+      switching === null
+        ? StanceShape.guard(measure)
+        : { ...StanceShape.guard(measure), yaw: switching.yaw };
     const rest: Record<"left" | "right", IAutoMovieVector3> = local(
       feet,
       origin,
@@ -380,6 +384,18 @@ export namespace FighterPosture {
     });
   }
 
+  /** The stance switch under way at an origin's movement, or null. */
+  function switchAt(
+    here: ReturnType<typeof BoutLaws.origin>,
+    measure: Fighter["body"]["measure"],
+  ): ReturnType<typeof StanceShape.switching> | null {
+    if (!here.moving) return null;
+    const action = KickboxingAction.read(here.moving.entry.intent);
+    return action.kind === "move" && action.movement === "switch"
+      ? StanceShape.switching(measure, here.moving.share)
+      : null;
+  }
+
   /** World ankle points of the planted feet: stance placements about the origin on the step pattern. */
   function planted(
     fighter: Fighter,
@@ -409,6 +425,21 @@ export namespace FighterPosture {
     const { entry, share, from, about } = here.moving;
     const action = KickboxingAction.read(entry.intent);
     if (action.kind !== "move") throw new Error("unreachable");
+    if (action.movement === "switch") {
+      // Both feet hop through the mirrored stance in place.
+      const switched = StanceShape.switching(fighter.body.measure, share);
+      const hop = (side: "left" | "right"): IAutoMovieVector3 => {
+        const p = switched.feet[side];
+        return {
+          x: here.point.x + facing.x * p.x - facing.z * p.z,
+          y:
+            p.y +
+            switched.lift * fighter.body.measure.ankle * StepPattern.LIFT_SHARE,
+          z: here.point.z + facing.z * p.x + facing.x * p.z,
+        };
+      };
+      return { left: hop("left"), right: hop("right") };
+    }
     const to: RingFootwork.IPoint = (entry.state as BoutLaws.IState).origin!;
     const first: "left" | "right" = StepPattern.leading(from, to, facing);
     const along = (s: number): RingFootwork.IPoint =>

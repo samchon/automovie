@@ -140,6 +140,14 @@ export class Fighter {
   public feintBodyKick(): FighterChain {
     return this.chain().feintBodyKick();
   }
+  /** Shoulder feint of the cross. @returns The chain. */
+  public feintShoulder(): FighterChain {
+    return this.chain().feintShoulder();
+  }
+  /** Level-change feint of the body cross. @returns The chain. */
+  public feintLevel(): FighterChain {
+    return this.chain().feintLevel();
+  }
   /** Parry. @returns The chain. */
   public parry(): FighterChain {
     return this.chain().parry();

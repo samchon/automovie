@@ -453,17 +453,30 @@ export namespace CameraTrack {
     const limit: number = cast.ring.half - LENS_MARGIN;
     const x: number = Math.max(-limit, Math.min(limit, frame.position.x));
     const z: number = Math.max(-limit, Math.min(limit, frame.position.z));
+    const run: number = Math.hypot(x - frame.target.x, z - frame.target.z);
+    // When the ropes stop the dolly short of the framing distance, the lens
+    // cranes up until it is that far from the target again, so the framed
+    // subjects still fit wherever the footwork has taken them.
+    const needed: number = Math.hypot(
+      frame.position.x - frame.target.x,
+      frame.position.y - frame.target.y,
+      frame.position.z - frame.target.z,
+    );
+    const clamped: boolean = x !== frame.position.x || z !== frame.position.z;
+    const rise: number = clamped
+      ? Math.max(
+          run * Math.tan(goal.elevation),
+          Math.sqrt(Math.max(0, needed * needed - run * run)),
+        )
+      : run * Math.tan(goal.elevation);
     return {
       position: {
         x,
-        y:
-          frame.target.y +
-          Math.hypot(x - frame.target.x, z - frame.target.z) *
-            Math.tan(goal.elevation),
+        y: frame.target.y + rise,
         z,
       },
       target: frame.target,
-      clamped: x !== frame.position.x || z !== frame.position.z,
+      clamped,
     };
   }
 

@@ -42,6 +42,7 @@ export namespace KickboxingAction {
     | "centre"
     | "approach"
     | "separate"
+    | "switch"
     | "corner"
     | "celebrate";
 

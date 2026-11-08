@@ -6,6 +6,7 @@ import type { IFighterMeasure } from "./IFighterMeasure";
 import { KickboxingTechnique } from "./KickboxingTechnique";
 import { KickboxingTiming } from "./KickboxingTiming";
 import { PunchShape } from "./PunchShape";
+import { StraightLegShape } from "./StraightLegShape";
 import { TurnoverShape } from "./TurnoverShape";
 import { blendPosture } from "./blendPosture";
 
@@ -48,16 +49,6 @@ export namespace StrikeShape {
 
   /** Share of the arm's reach the kicking-side glove holds forward at the head line: three quarters, the extended guard read from the PLOS impact frame. */
   const GUARD_REACH: number = 0.75;
-
-  /** Hip flexion of the round-kick chamber, degrees, by level: thigh toward the target height (PLOS Fig. 3 chamber). */
-  const CHAMBER_HIP: Readonly<Record<KickboxingTechnique.Level, number>> = {
-    leg: 45,
-    body: 80,
-    head: 95,
-  };
-
-  /** Knee flexion of the chamber, degrees: the folded shank of PLOS Fig. 3 B. */
-  const CHAMBER_KNEE: number = 110;
 
   /** Trunk lean away from a round kick at impact, degrees: the thoracic side-bend range, by level. */
   const LEAN: Readonly<Record<KickboxingTechnique.Level, number>> = {
@@ -163,9 +154,9 @@ export namespace StrikeShape {
       case "round-kick":
         return roundKick(input, shown, phase, progress, amount);
       case "push-kick":
-        return teep(input, phase, progress, amount);
+        return StraightLegShape.teep(input, phase, progress, amount);
       case "knee":
-        return knee(input, phase, progress, amount);
+        return StraightLegShape.knee(input, phase, progress, amount);
       case "feint":
         throw new Error("A feint performs another technique");
     }
@@ -219,9 +210,9 @@ export namespace StrikeShape {
       y: turnover ? TurnoverShape.hip(measure) - drop : measure.hip - drop,
       z: sign * measure.hipHalfWidth,
     };
-    const folded: { point: IAutoMovieVector3; knee: IAutoMovieVector3 } = fold(
+    const folded: { point: IAutoMovieVector3; knee: IAutoMovieVector3 } = StraightLegShape.fold(
       hip,
-      CHAMBER_HIP[
+      StraightLegShape.CHAMBER_HIP[
         spec.disguise
           ? KickboxingTechnique.table[spec.disguise].level
           : spec.level
@@ -360,131 +351,6 @@ export namespace StrikeShape {
       amount * Math.max(lift, reach),
       input.rest,
     );
-  }
-
-  /** The lead-leg teep: knee up, sole driven forward to the stomach, recoil. */
-  function teep(
-    input: IInput,
-    phase: "out" | "back",
-    progress: number,
-    amount: number,
-  ): IBoutPosture {
-    const { measure, guard, rest } = input;
-    const hip: IAutoMovieVector3 = {
-      x: 0,
-      y: measure.hip - guard.drop,
-      z: measure.hipHalfWidth,
-    };
-    const chamber = fold(hip, CHAMBER_HIP.body, 1, measure);
-    const aim: IAutoMovieVector3 =
-      input.target ??
-      Vector3.add(hip, { x: measure.thigh + measure.shank, y: 0, z: 0 });
-    const end: IAutoMovieVector3 = Vector3.subtract(aim, {
-      x: measure.foot / 2 - LANDING_DEPTH,
-      y: 0,
-      z: 0,
-    });
-    const out: number = phase === "out" ? ease(progress) : 1 - ease(progress);
-    const point: IAutoMovieVector3 =
-      phase === "out" && progress < 0.6
-        ? Vector3.lerp(rest.left, chamber.point, ease(progress / 0.6))
-        : phase === "out"
-          ? Vector3.lerp(chamber.point, end, ease((progress - 0.6) / 0.4))
-          : progress < 0.5
-            ? Vector3.lerp(end, chamber.point, ease(progress / 0.5))
-            : Vector3.lerp(
-                chamber.point,
-                rest.left,
-                ease((progress - 0.5) / 0.5),
-              );
-    const kicked: IBoutPosture = {
-      ...guard,
-      shift: { forward: -measure.headRadius * out, left: 0 },
-      thoracic: {
-        ...guard.thoracic,
-        flexion: guard.thoracic.flexion - 10 * out,
-      },
-      feet: { ...guard.feet, left: { point } },
-    };
-    return blendPosture(guard, kicked, amount, rest);
-  }
-
-  /** The clinch knee: both gloves behind the receiver's head, the rear knee driven up into his stomach. */
-  function knee(
-    input: IInput,
-    phase: "out" | "back",
-    progress: number,
-    amount: number,
-  ): IBoutPosture {
-    const { measure, guard, rest } = input;
-    const hip: IAutoMovieVector3 = {
-      x: 0,
-      y: measure.hip - guard.drop,
-      z: -measure.hipHalfWidth,
-    };
-    const target: IAutoMovieVector3 =
-      input.target ?? Vector3.add(hip, { x: measure.thigh, y: 0, z: 0 });
-    const kneePoint: IAutoMovieVector3 = Vector3.subtract(target, {
-      x: LANDING_DEPTH,
-      y: 0,
-      z: 0,
-    });
-    const ankle: IAutoMovieVector3 = Vector3.add(kneePoint, {
-      x: -measure.shank * 0.6,
-      y: -measure.shank * 0.8,
-      z: 0,
-    });
-    const out: number = phase === "out" ? ease(progress) : 1 - ease(progress);
-    const grip: IAutoMovieVector3 = input.clinch ?? guard.hands.left.point;
-    const kneed: IBoutPosture = {
-      ...guard,
-      thoracic: { ...guard.thoracic, flexion: guard.thoracic.flexion + 10 },
-      hands: {
-        left: {
-          point: Vector3.add(grip, { x: 0, y: 0, z: measure.gloveRadius }),
-        },
-        right: {
-          point: Vector3.add(grip, { x: 0, y: 0, z: -measure.gloveRadius }),
-        },
-      },
-      feet: {
-        ...guard.feet,
-        right: { point: Vector3.lerp(rest.right, ankle, out), knee: kneePoint },
-      },
-    };
-    return blendPosture(guard, kneed, amount * Math.min(1, out * 2), rest);
-  }
-
-  /** The folded chamber of a leg at a hip flexion, raised beside the hip toward the front. */
-  function fold(
-    hip: IAutoMovieVector3,
-    flexion: number,
-    sign: 1 | -1,
-    measure: IFighterMeasure,
-  ): { point: IAutoMovieVector3; knee: IAutoMovieVector3 } {
-    const f: number = (flexion * Math.PI) / 180;
-    const thigh: IAutoMovieVector3 = {
-      x: Math.sin(f),
-      y: -Math.cos(f),
-      z: sign * 0.25,
-    };
-    const knee: IAutoMovieVector3 = Vector3.add(
-      hip,
-      Vector3.scale(Vector3.normalize(thigh), measure.thigh),
-    );
-    const k: number = f + Math.PI - (CHAMBER_KNEE * Math.PI) / 180;
-    const shank: IAutoMovieVector3 = {
-      x: -Math.sin(Math.PI - k) * 0.6,
-      y: -Math.cos(Math.PI - k),
-      z: 0,
-    };
-    return {
-      knee,
-      point: Vector3.add(
-        knee,
-        Vector3.scale(Vector3.normalize(shank), measure.shank),
-      ),
-    };
   }
 
   /**
