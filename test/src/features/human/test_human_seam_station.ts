@@ -1,7 +1,7 @@
 import { AutoMovieLoftChain, AutoMovieSeamStation, type AutoMovieLoftFrame, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanSeam } from "../../../../packages/human/src/lofting/AutoMovieHumanSeam";
 import type { IAutoMovieHumanSeam } from "../../../../packages/human/src/lofting/IAutoMovieHumanSeam";
-import { HumanSeamObserver } from "../internal/HumanSeamObserver";
+import { HumanSeamObserver } from "../../../../packages/human/src/inspection/HumanSeamObserver";
 
 /**
  * Along a chain the shared station rule leaves no curvature step at any

@@ -1,3 +1,4 @@
+import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
@@ -31,7 +32,7 @@ export namespace AutoMovieSolidFoot {
    *
    * @evidence contracts/common.md#principled-implementation Chart parameters identify the surface point whose two normalized tangential residuals passed the local solve's criterion.
    * @evidence contracts/common.md#clear-and-simple-design Two chart scalars, the evaluated world point and distance expose the result without duplicating a surface.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The record does not certify a global minimum, a positive-definite Hessian at acceptance or domain membership; callers own those geometric premises.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Acceptance certifies finite owned-chart membership and local stationarity, not a global minimum, a positive-definite Hessian or constrained boundary optimum.
    * @evidence contracts/common.md#meaningful-documentation Distinguishes chart coordinates from mm world point/distance and labels the result as local.
    * @evidenceExclude contracts/performance.md#efficient-algorithms The result interface performs no minimization.
    * @evidence contracts/performance.md#reuse-equivalent-work Callers may reuse its chart parameters as later guesses and its already evaluated point instead of rereading that accepted surface jet.
@@ -67,9 +68,9 @@ export namespace AutoMovieSolidFoot {
    *
    * @evidence contracts/common.md#principled-implementation Solves the two tangential stationarity equations by Newton, using the metric Gauss-Newton system when the full Hessian is not positive definite and bounding the chart step's linearized world length.
    * @evidence contracts/common.md#clear-and-simple-design One local iterate owns residual, Hessian selection, relative small-system solve and step scaling.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Acceptance checks normalized tangential residuals only, so a stationary maximum or another basin is not excluded; there is no global search or post-step descent certificate, and domain checks remain with callers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Only owned finite trials are evaluated; at most twenty scalar feasibility halvings preserve the actual map. Normalized tangential stationarity still does not exclude maxima/other basins or certify a constrained boundary optimum; no post-step distance-descent claim is made.
    * @evidence contracts/common.md#meaningful-documentation Gives mm target/tolerance, the two normalized residual tests, regional-guess premise, step/iteration behavior and nullable failure.
-   * @evidence contracts/performance.md#efficient-algorithms At most 60 fixed-size jet/system evaluations and constant iterate storage; each surface callback's cost and the solve's local conditioning remain relevant.
+   * @evidence contracts/performance.md#efficient-algorithms At most 60 fixed-size jet/system evaluations and twenty scalar domain halvings per update, with constant iterate storage; callback cost and local conditioning remain relevant.
    * @evidence contracts/performance.md#reuse-equivalent-work One current jet supplies both residuals, Hessian/metric terms and the accepted point; repeated calls do not share a prepared search.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The iterate and temporary vectors/matrices are call-local on success or null; only a small foot record with the jet's point reference escapes.
    */
@@ -83,7 +84,12 @@ export namespace AutoMovieSolidFoot {
     let v: number = guess[1];
 
     for (let step: number = 0; step < STEPS; step++) {
-      const j: IAutoMovieSolidSurface.IJet = surface.jet(u, v);
+      const j: IAutoMovieSolidSurface.IJet | null = AutoMovieSolidDomain.jet(
+        surface,
+        u,
+        v,
+      );
+      if (j === null) return null;
       const r: Vec3 = sub(j.p, q);
       const lu: number = norm(j.u);
       const lv: number = norm(j.v);
@@ -124,7 +130,25 @@ export namespace AutoMovieSolidFoot {
         ),
       );
       const bound: number = Math.max(norm(r), tolerance);
-      const k: number = length > bound && length > 0 ? bound / length : 1;
+      let k: number = length > bound && length > 0 ? bound / length : 1;
+      let trial: number = 0;
+      while (
+        !AutoMovieSolidDomain.contains(
+          surface,
+          u + k * delta[0],
+          v + k * delta[1],
+        ) &&
+        trial++ < 20
+      )
+        k /= 2;
+      if (
+        !AutoMovieSolidDomain.contains(
+          surface,
+          u + k * delta[0],
+          v + k * delta[1],
+        )
+      )
+        return null;
       u += k * delta[0];
       v += k * delta[1];
     }

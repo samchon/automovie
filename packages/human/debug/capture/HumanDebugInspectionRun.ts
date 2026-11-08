@@ -32,7 +32,7 @@ export async function HumanDebugInspectionRun(root: string, plan: P, resume: boo
     for (const record of records) {
       const index: number | undefined = positions.get(record.row.id);
       const planned: P.Row | undefined = index === undefined ? undefined : manifest.rows[index];
-      if (index === undefined || planned?.scope !== record.row.scope || planned.stage !== record.row.stage || JSON.stringify(planned.names) !== JSON.stringify(record.row.names) || JSON.stringify(planned.curveIds) !== JSON.stringify(record.row.curveIds)) throw new Error("Durable progress does not match the expanded immutable plan");
+      if (index === undefined || planned?.scope !== record.row.scope || planned.stage !== record.row.stage || planned.piece !== record.row.piece || JSON.stringify(planned.names) !== JSON.stringify(record.row.names) || JSON.stringify(planned.curveIds) !== JSON.stringify(record.row.curveIds)) throw new Error("Durable progress does not match the expanded immutable plan");
       if (record.source !== null && record.source !== diskSource.sourceSha256) throw new Error("Durable progress belongs to a different source epoch");
       manifest.rows[index] = record.row;
       manifest.source ??= record.source;
@@ -52,7 +52,7 @@ export async function HumanDebugInspectionRun(root: string, plan: P, resume: boo
     await fs.mkdir(path.dirname(out), { recursive: true });
     await fs.mkdir(out);
     const now: string = new Date().toISOString();
-    manifest = { version: 1, plan, planSha256, out, createdUtc: now, updatedUtc: now, completedUtc: null, source: null, diskSource, ...identity, frames: {}, treeParts: [], originalIds: [], rows: [HumanDebugInspectionRows.initial()], preparations: [], notes: ["Capture done is not anatomy acceptance. Input runtime values/digest are unavailable. Source hashes identify disk inventory, not independently every transformed dependency. Reference pack digest conservatively includes all local JSON files. Automatic individual cameras maximize measured world-box projection, not a fixed source-front/world-front equivalence. Full manifest/index are block checkpoints; progress files are atomic durable row results. Original and raw prejoin producers report actual pose null even though the requested pose is bind; final Boolean preparation is a separate opt-in stage."] };
+    manifest = { version: 1, plan, planSha256, out, createdUtc: now, updatedUtc: now, completedUtc: null, source: null, diskSource, ...identity, frames: {}, treeParts: [], originalParts: [], sourceScope: null, originalIds: [], rows: [HumanDebugInspectionRows.initial(plan)], preparations: [], notes: ["Capture done is not anatomy acceptance. Input runtime values/digest are unavailable. Source hashes identify disk inventory, not independently every transformed dependency. Reference pack digest conservatively includes all local JSON files. Automatic individual cameras maximize measured world-box projection, not a fixed source-front/world-front equivalence. Full manifest/index are block checkpoints; progress files are atomic durable row results. Original and raw prejoin producers report actual pose null even though the requested pose is bind; final Boolean preparation is a separate opt-in stage. A regional scope records observed originals separately from tree membership; raw=false omits raw requests."] };
     await fs.writeFile(path.join(out, "plan.json"), JSON.stringify(plan, null, 2) + "\n");
   }
   await fs.mkdir(path.join(out, "responses"), { recursive: true });
@@ -92,7 +92,7 @@ export async function HumanDebugInspectionRun(root: string, plan: P, resume: boo
         });
         if (prior) throw new Error("A pre-existing batch round is not overwritten; inspect orphaned artifacts before resuming " + round);
         query.set("round", round);
-        query.set("pieces", row.stage.startsWith("raw-") ? "source.parts*tree" : "whole");
+        query.set("pieces", row.stage.startsWith("raw-") ? plan.scope === undefined ? "source.parts*tree" : "inspection-explicit-piece-only" : "whole");
         query.set("cameras", row.camera);
         query.set("keep", manifest.source === null ? "0" : "1");
         query.set("fresh", randomUUID());
@@ -177,14 +177,15 @@ function options(row: P.Row, manifest: P.Manifest, frame: P.Frame | undefined): 
   const curves: string[] = row.curveIds !== null && row.curveIds.length === 1
     ? row.curveIds
     : row.names.map((name: string): string => (raw ? "" : "view.") + name + "/*");
-  const none: boolean = row.stage === "inventory" || row.stage === "reference" || row.stage === "raw-clay" || final;
-  const query: URLSearchParams = new URLSearchParams({ person: "f1", pose: "bind", parts: row.stage === "framing" || row.stage === "raw-curves" || sections ? "none" : raw ? row.names.map((name: string): string => name + "/*").join(",") : final ? "*" : "reference.*", curves: none ? "none" : [...curves, ...(sections ? ["reference.*/*"] : [])].join(","), labels: "0", viewLabels: "0", legend: "0", axes: "0", w: String(manifest.plan.size ?? 1200), h: String(manifest.plan.size ?? 1200), ui: "0", xray: "1", curveWidth: "0.08" });
-  if (raw) query.set("piece", "source.parts:tree");
+  const scopedInventory: boolean = row.stage === "inventory" && manifest.plan.scope !== undefined;
+  const none: boolean = row.stage === "inventory" && !scopedInventory || row.stage === "reference" || row.stage === "raw-clay" || final;
+  const query: URLSearchParams = new URLSearchParams({ person: "f1", pose: "bind", parts: scopedInventory || row.stage === "framing" || row.stage === "raw-curves" || sections ? "none" : raw ? row.names.map((name: string): string => name + "/*").join(",") : final ? "*" : "reference.*", curves: none ? "none" : [...curves, ...(sections ? ["reference.*/*"] : [])].join(","), labels: "0", viewLabels: "0", legend: "0", axes: "0", w: String(manifest.plan.size ?? 1200), h: String(manifest.plan.size ?? 1200), ui: "0", xray: "1", curveWidth: "0.08" });
+  if (raw) query.set("piece", row.piece ?? "source.parts:tree");
   else if (!final) {
     query.set("reference", "f1");
     query.set("referenceStyle", sections ? "loft" : "clay");
     query.set("referencePart", "*");
-    query.set("part", "*");
+    query.set("part", manifest.plan.scope?.join(",") ?? "*");
   } else query.set("hide", "human.hair.*,human.garment.*,human.clothes.*,human.underwear*");
   for (const [name, value] of Object.entries(HumanDebugInspectionValidate.camera(row, frame).query)) query.set(name, value);
 

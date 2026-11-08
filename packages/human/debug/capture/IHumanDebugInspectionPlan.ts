@@ -9,9 +9,13 @@ export interface IHumanDebugInspectionPlan {
   id: string;
   /** This campaign's explicitly authorized person. */
   person: "f1";
+  /** Optional canonical original-name globs; omission retains the complete-tree overview. */
+  scope?: string[];
+  /** Include selected raw three-pass observations; false permits original-only inspection. */
+  raw?: boolean;
   /** Selected original parts; missing names remain unavailable. */
   parts: IHumanDebugInspectionPlan.Part[];
-  /** Enumerate every actual tree part; explicit parts supply camera overrides or unavailable requests. */
+  /** Enumerate actual tree/scoped original members; explicit parts supply overrides or unavailable requests. */
   allParts?: boolean;
   /** Explicit connection neighbours, without inferring dependency closure. */
   groups: IHumanDebugInspectionPlan.Group[];
@@ -72,9 +76,11 @@ export namespace IHumanDebugInspectionPlan {
     automaticCamera: boolean;
     /** Scope whose measured frame this row consumes. */
     frameKey: string;
-    /** Exact source part names, not unconnected studies. */
+    /** Exact eligible source names; only the scoped inventory/blocked probe carries plan globs. */
     names: string[];
-    /** Exact original IDs, or null for the complete selected raw chains. */
+    /** Exact dynamic raw subject, null for reference/original/final rows. */
+    piece: string | null;
+    /** Exact original IDs, or null for inventory discovery or the complete selected raw chains. */
     curveIds: string[] | null;
     /** Durable capture status. */
     status: Status;
@@ -159,6 +165,10 @@ export namespace IHumanDebugInspectionPlan {
     frames: Record<string, Frame>;
     /** Whole actual production tree, without studies or definition-only additions. */
     treeParts: string[];
+    /** Eligible original members, distinct from whole-tree membership for a scoped packet. */
+    originalParts: string[];
+    /** Actual regional scope, observed names and unavailable requests; null for full-tree packets. */
+    sourceScope: { requested: string[]; observed: string[]; unavailable: string[]; tree: "not-assembled" } | null;
     /** Original display inventory, including explicit unavailability diagnostics in the first receipt. */
     originalIds: string[];
     /** Every requested frame and its completion state. */

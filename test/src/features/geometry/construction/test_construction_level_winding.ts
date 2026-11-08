@@ -16,7 +16,7 @@ type V3 = [number, number, number];
  * 2. The same part on a level axis (the world's level planes at the station's height, its origin's course 0 in x and z, its stations the heights): the same share faces out. The head's nose, the only level-axis part of the head, rendered as a pit (log-head.md, nose1/merge-three.png) while every straight-axis part rendered right.
  * 3. Red: the straight part's triangles read with their winding turned, which face inward, fail the same share.
  *
- * @evidence contracts/testing.md#behavioral-verification Realizes each merge with `realizeAutoMovieConstruction` and reads the one skin it draws (`IRealization.mesh`): each triangle's owner (the face that evaluates its first vertex) and its normal from its corners in index order. It catches a face whose triangles are wound against its outward side, which a renderer culls and shows as a hole; any skin wound outward passes.
+ * @evidence contracts/testing.md#behavioral-verification Realizes each merge and records named face-unavailability diagnostics, then preserves the original first-vertex evaluating-owner filter and normal statistic. Mixed part/blend owners are printed separately: a boundary vertex's evaluator does not prove the triangle belongs to the part face, so this legacy filtered statistic alone cannot attribute a failure to the level frame.
  * @evidence contracts/testing.md#independent-expectations A sphere's outward normal at a point is the direction from its centre; a triangle on it, wound counter-clockwise from outside, has a normal within a few degrees of that direction, so its dot with the centre's direction is positive. The 95 % share leaves room for the triangles along the trimmed seam and the blend's rails.
  * @evidence contracts/testing.md#distinguishing-cases Positive: the straight part, the reference. The case under test: the level part. Negative: the straight part's triangles turned.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_level_winding`; it realizes made trees in process and starts no host, browser or GPU.
@@ -63,6 +63,7 @@ export function test_construction_level_winding(): void {
       { chord: 1e-4 },
     );
     const m: AutoMovieConstructionRealization.IMesh = real.mesh;
+    for (const diagnostic of real.diagnostics) if (diagnostic.contract === "face triangulation") failures.push(`unavailable realized face ${diagnostic.node}: ${diagnostic.detail}`);
     const owner: number = m.owners.indexOf("part");
     if (owner < 0) {
       failures.push(`the part owns no face of the skin: ${real.diagnostics.map((d: { node: string; contract: string }): string => `${d.node} ${d.contract}`).join("; ")}`);
@@ -71,6 +72,9 @@ export function test_construction_level_winding(): void {
     const at: (v: number) => V3 = (v: number): V3 => [m.positions[3 * v]!, m.positions[3 * v + 1]!, m.positions[3 * v + 2]!];
     let out: number = 0;
     const inward: number[] = [];
+    const byOwners: Map<string, { outward: number; inward: number }> = new Map();
+    const inwardCharts: Map<string, number> = new Map();
+    const chartExamples: string[] = [];
     let all: number = 0;
     for (let t: number = 0; t < m.indices.length; t += 3) {
       if (m.coordinates[3 * m.indices[t]!] !== owner) continue;
@@ -82,10 +86,35 @@ export function test_construction_level_winding(): void {
       const n: V3 = [e[1] * f[2] - e[2] * f[1], e[2] * f[0] - e[0] * f[2], e[0] * f[1] - e[1] * f[0]];
       const g: V3 = [(a[0] + b[0] + c[0]) / 3 - centre[0], (a[1] + b[1] + c[1]) / 3 - centre[1], (a[2] + b[2] + c[2]) / 3 - centre[2]];
       all++;
-      if (n[0] * g[0] + n[1] * g[1] + n[2] * g[2] > 0) out++;
-      else inward.push(g[1] / r);
+      const faces: string = [0, 1, 2].map((k: number): string => m.owners[m.coordinates[3 * m.indices[t + k]!]!]!).join("/");
+      const counts: { outward: number; inward: number } = byOwners.get(faces) ?? { outward: 0, inward: 0 };
+      if (n[0] * g[0] + n[1] * g[1] + n[2] * g[2] > 0) {
+        out++;
+        counts.outward++;
+      } else {
+        inward.push(g[1] / r);
+        counts.inward++;
+        if ([0, 1, 2].every((k: number): boolean => m.coordinates[3 * m.indices[t + k]!] === owner)) {
+          const points: [number, number][] = [0, 1, 2].map((k: number): [number, number] => [m.coordinates[3 * m.indices[t + k]! + 1]!, m.coordinates[3 * m.indices[t + k]! + 2]!]);
+          for (let k: number = 1; k < 3; k++) points[k]![1] += 2 * Math.PI * Math.round((points[0]![1] - points[k]![1]) / (2 * Math.PI));
+          const p: [number, number] = points[0]!;
+          const q: [number, number] = points[1]!;
+          const z: [number, number] = points[2]!;
+          const sign: number = real.surfaces.find((s: { name: string }): boolean => s.name === "part")!.orientation;
+          const area: number = sign * ((q[0] - p[0]) * (z[1] - p[1]) - (q[1] - p[1]) * (z[0] - p[0]));
+          const kind: string = area > 0 ? "positive chart, inward sphere" : "nonpositive chart, inward sphere";
+          inwardCharts.set(kind, (inwardCharts.get(kind) ?? 0) + 1);
+          if (chartExamples.length < 8) chartExamples.push(`${points.map((c: [number, number]): string => `[${c.join(",")}]`).join(" ")} area ${area}`);
+        }
+      }
+      byOwners.set(faces, counts);
     }
-    if (!turned && all > 0 && out / all < SHARE) failures.push(`  inward triangles at heights ${[...new Set(inward.map((h: number): string => h.toFixed(1)))].join(", ")} part radii from the centre`);
+    if (!turned && all > 0 && out / all < SHARE) {
+      failures.push(`  inward triangles at heights ${[...new Set(inward.map((h: number): string => h.toFixed(1)))].join(", ")} part radii from the centre`);
+      for (const [faces, counts] of byOwners) failures.push(`  ${faces}: ${counts.outward} outward, ${counts.inward} inward`);
+      for (const [kind, count] of inwardCharts) failures.push(`  ${kind}: ${count}`);
+      failures.push(...chartExamples.map((value: string): string => `  inward chart ${value}`));
+    }
     return all === 0 ? 0 : out / all;
   };
 

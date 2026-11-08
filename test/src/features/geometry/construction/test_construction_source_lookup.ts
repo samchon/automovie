@@ -5,6 +5,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { AutoMovieNaturalSpline } from "../../../../../packages/engine/src/geometry/construction/AutoMovieNaturalSpline";
+import { ConstructionHermiteReading } from "../../internal/construction/ConstructionHermiteReading";
 import { nclose } from "../../internal/nclose";
 
 /**
@@ -15,14 +16,16 @@ import { nclose } from "../../internal/nclose";
  * 2. A large affine spline with query-owned indexed-read observation bounds value, derivative and combined lookup work logarithmically; fewer reads are allowed. An exact internal knot retains the original left polynomial's rounding.
  * 3. NaN keeps the old last-span nonfinite value/first derivative and zero exterior second derivative. Infinity uses each documented end tangent; source admission still rejects nonfinite parameters.
  * 4. A closing sqrt source keeps its exact pole zero, finite parameter jet and absent singular station jet. A near-pole finite point survives overflowing station2; fresh value-copied source data gives the same result.
+ * 5. The requested quintic 1+t+2t²-3t³+t⁴+t⁵/2 and its analytic first/second derivatives agree at three physical scales, knots and tangent extensions. Combined readings strictly preserve the existing separate APIs, including multi-span knots, signed zero, NaN and infinities.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real natural value/derivative/combined readers and Outline.at/value, observing source values, qualified jets, failures and indexed-read counts on an unchanged query-owned array.
- * @evidence contracts/testing.md#independent-expectations The first cubic is 1-1.2375t+0.2475t^3 and the second is 0.01-0.495t+0.7425t^2-0.2475t^3; derivatives and exterior tangent lines follow directly. The large fixture is y=2x+3 with zero curvature. sqrt(s) and its singular derivatives give the pole oracle. For exact-knot rounding, the independent three-knot natural equation M1=3*(d1-d0)/(h0+h1) derives the middle curvature from input secants before evaluating the left cubic. Decimal coefficients used by the toleranced checks are not substituted into this strict representation check, which also distinguishes direct right-knot return. The lookup allowance is a generous logarithmic upper bound, not an exact implementation layout.
- * @evidence contracts/testing.md#distinguishing-cases Includes reciprocal length scales, interior knots/extrema/extensions, negative stations, large knot populations, NaN/infinities and exact/tiny closing stations. A first-to-last scan exceeds the work allowance; evaluating a pole's station derivative as finite or clamping its neighbour loses the tiny-value oracle.
+ * @evidence contracts/testing.md#behavioral-verification Calls the real natural and requested-quintic value/derivative/combined readers and Outline.at/value, observing source values, qualified jets, failures and indexed-read counts on an unchanged query-owned array.
+ * @evidence contracts/testing.md#independent-expectations The first cubic is 1-1.2375t+0.2475t^3 and the second is 0.01-0.495t+0.7425t^2-0.2475t^3; derivatives and exterior tangent lines follow directly. The quintic scenario differentiates its stated degree-five polynomial analytically, and separate original value/derivative APIs additionally enforce strict binary64 arithmetic. The large fixture is y=2x+3 with zero curvature. sqrt(s) and its singular derivatives give the pole oracle. For exact-knot rounding, the independent three-knot natural equation M1=3*(d1-d0)/(h0+h1) derives the middle curvature from input secants before evaluating the left cubic. Decimal coefficients used by the toleranced checks are not substituted into this strict representation check, which also distinguishes direct right-knot return. The lookup allowance is a generous logarithmic upper bound, not an exact implementation layout.
+ * @evidence contracts/testing.md#distinguishing-cases Includes reciprocal length scales, natural and genuine requested quintics, unequal multi-span knots/extrema/extensions, signed-zero and negative stations, large knot populations, NaN/infinities and exact/tiny closing stations. A first-to-last scan exceeds the work allowance; evaluating a pole's station derivative as finite or clamping its neighbour loses the tiny-value oracle.
  * @evidence contracts/testing.md#execution-ownership Discoverable synchronous CPU question through --include construction_source_lookup, with synthetic immutable sources and no host, timing benchmark, Human generation, viewer or GPU.
  */
 export function test_construction_source_lookup(): void {
   const failures: string[] = [];
+  ConstructionHermiteReading.check(failures);
   for (const scale of [0.001, 1, 1000]) {
     const spline: AutoMovieNaturalSpline.ISpline =
       AutoMovieNaturalSpline.create(
@@ -79,7 +82,9 @@ export function test_construction_source_lookup(): void {
   const expectedLeft: number = 1 + (firstSecant - cubic + cubic);
   const actualKnot: number = AutoMovieNaturalSpline.evaluate(tie, 1);
   if (Object.is(expectedLeft, 0.01))
-    failures.push("red: the knot fixture cannot distinguish direct right return");
+    failures.push(
+      "red: the knot fixture cannot distinguish direct right return",
+    );
   if (!Object.is(actualKnot, expectedLeft))
     failures.push(
       `left polynomial knot ${actualKnot.toPrecision(17)}, expected ${expectedLeft.toPrecision(17)}`,

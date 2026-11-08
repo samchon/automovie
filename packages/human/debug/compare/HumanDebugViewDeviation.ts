@@ -164,7 +164,9 @@ export namespace HumanDebugViewDeviation {
         (r: HumanDebugReferenceCut.IRegion): boolean =>
           names.length === 0 || names.includes(r.name),
       );
-      const knots: IAutoMovieViewPart.IKnot[] = p.part.front.positive.knots;
+      const knots: IAutoMovieViewPart.IKnot[] | undefined = (p.guides?.source ?? p.part)?.front.positive.knots;
+      if (knots === undefined)
+        throw new Error(`Raw source ${p.name} has no available original station controls`);
       const first: number = sections[0]!.station;
       const last: number = sections[sections.length - 1]!.station;
       const edges: number[] = [];

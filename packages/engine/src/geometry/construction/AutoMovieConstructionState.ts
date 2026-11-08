@@ -1,5 +1,7 @@
 import type { IAutoMovieConstructionDiagnostic } from "@automovie/interface";
 
+import type { AutoMovieConstructionProfile } from "./AutoMovieConstructionProfile";
+import type { AutoMovieConstructionProfileBody } from "./AutoMovieConstructionProfileBody";
 import type { AutoMovieConstructionRealization } from "./AutoMovieConstructionRealization";
 import type { AutoMovieSolidBody } from "./AutoMovieSolidBody";
 import type { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
@@ -46,6 +48,12 @@ export namespace AutoMovieConstructionState {
     /** The blends' surfaces, in walk order. */
     blendSurfaces: IAutoMovieSolidSurface[];
 
+    /** Actual retained profile families, in walk order; absent in legacy manually assembled states. */
+    profiles?: AutoMovieConstructionProfile.IPrepared[];
+
+    /** Actual collapsed profile ends awaiting drawn-boundary admission. */
+    profileEnds?: AutoMovieConstructionProfileBody.IEnd[];
+
     /** The kept joins. */
     joins: AutoMovieConstructionRealization.IJoin[];
 
@@ -55,7 +63,7 @@ export namespace AutoMovieConstructionState {
     /** Every broken premise. */
     diagnostics: IAutoMovieConstructionDiagnostic[];
 
-    /** Pending end-layer replacements of continuations, by the part face's name. */
+    /** Pending continuation transformations by leaf name; a nested owner composes the previous pending transformation before its own. */
     overrides: Map<string, IOverride>;
   }
 
@@ -63,12 +71,12 @@ export namespace AutoMovieConstructionState {
    * A scoped continuation replacement callback and the walk's application/failure state.
    *
    * @evidence contracts/common.md#principled-implementation The callback receives the just-lofted part chain; applied/error record the walk's actual use of its chain-or-premise result.
-   * @evidence contracts/common.md#clear-and-simple-design One pending record connects a named future view to its host boundary without a second loft pass.
+   * @evidence contracts/common.md#clear-and-simple-design One current record connects a named future view to its host boundary; a nested record retains and composes its enclosing record without a second loft pass.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Pending existence is not success: realization checks applied and the part face before retaining the continuation.
    * @evidence contracts/common.md#meaningful-documentation Gives the replacement result and distinguishes unapplied, applied and failed state.
    * @evidenceExclude contracts/performance.md#efficient-algorithms This record declares an operation; ConstructionContinuation.apply owns the concrete transformation cost.
    * @evidence contracts/performance.md#reuse-equivalent-work The callback closes over the already realized host chain and is consumed at the named part's normal construction point, avoiding repeated host generation.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The overrides map retains the callback/host dependencies only during the corresponding part walk; the entry is then deleted and no background work is acquired.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The overrides map retains callback/host dependencies during the corresponding part walk; its enclosing entry is then restored, or the key is deleted when none existed. Nested callback links have that walk's scope and acquire no background work.
    */
   export interface IOverride {
     /**
@@ -76,7 +84,7 @@ export namespace AutoMovieConstructionState {
      *
      * @evidence contracts/common.md#principled-implementation A chain-or-string result lets the realizing view preserve a failed replacement as a named continuation premise rather than substituting geometry.
      * @evidence contracts/common.md#clear-and-simple-design The callback consumes the already lofted chain and leaves applied/error bookkeeping to its walk owner.
-     * @evidence contracts/common.md#prohibited-implementation-shortcuts The signature promises no validation or automatic retry; its current producer delegates directly to ConstructionContinuation.apply.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts The signature promises no validation or retry; its producer applies enclosing pending transformations before its own ConstructionContinuation.apply call, preserving each owner's actual result and first refusal.
      * @evidence contracts/common.md#meaningful-documentation States successful replacement versus premise-string return and the pending endpoint role.
      * @evidenceExclude contracts/performance.md#efficient-algorithms This callable interface member has no implementation; the concrete continuation transform owns its algorithm.
      * @evidence contracts/performance.md#reuse-equivalent-work The current producer reuses its closed-over host boundary and the supplied part chain instead of lofting either again.
@@ -139,6 +147,12 @@ export namespace AutoMovieConstructionState {
     /** The blend surface list's length. */
     blendSurfaces: number;
 
+    /** Retained original profile count; zero in legacy states. */
+    profiles: number;
+
+    /** Actual collapsed-end record count. */
+    profileEnds: number;
+
     /** The kept join list's length. */
     joins: number;
 
@@ -179,6 +193,8 @@ export namespace AutoMovieConstructionState {
       chainList: state.chainList.length,
       chainSurfaces: state.chainSurfaces.length,
       blendSurfaces: state.blendSurfaces.length,
+      profiles: state.profiles?.length ?? 0,
+      profileEnds: state.profileEnds?.length ?? 0,
       joins: state.joins.length,
       trims: state.trims.length,
     };
@@ -220,6 +236,9 @@ export namespace AutoMovieConstructionState {
     state.chainList.length = s.chainList;
     state.chainSurfaces.length = s.chainSurfaces;
     state.blendSurfaces.length = s.blendSurfaces;
+    if (state.profiles !== undefined) state.profiles.length = s.profiles;
+    if (state.profileEnds !== undefined)
+      state.profileEnds.length = s.profileEnds;
     state.joins.length = s.joins;
     state.trims.length = s.trims;
   }

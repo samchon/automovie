@@ -1,8 +1,7 @@
-import { AutoMovieHumanBodyPlaces } from "../AutoMovieHumanBodyPlaces";
+import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import { AutoMovieHumanTrunkInguinalFold } from "../AutoMovieHumanTrunkInguinalFold";
 import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
-import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import type { IAutoMovieHumanTrunkSolution } from "../IAutoMovieHumanTrunkSolution";
 import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
 import type { AutoMovieHumanTrunkViews } from "./AutoMovieHumanTrunkViews";
@@ -11,27 +10,10 @@ import type { AutoMovieHumanTrunkViews } from "./AutoMovieHumanTrunkViews";
  * The trunk's interim accessors (#3044's rule for priors the campaign has
  * not yet replaced: read from the construction that produces them today,
  * listed as remaining, never refit; `log-body.md`, "Interim accessors"):
- * the trunk's forward places, its sites above the chest and every fold's
+ * the trunk's sites above the chest and every fold's
  * radius, each read on the old trunk's solve with no number of its own.
  */
 export namespace AutoMovieHumanTrunkInterim {
-  /**
-   * Cervicale's and the perineum's forward places: forward of the ankle
-   * centres' midpoint by their stature shares (`AutoMovieHumanBodyPlaces`,
-   * estimated from the private reference set: no published source found).
-   *
-   * @param measures The person's measures, world mm.
-   * @param scale Calibration millimetres per world millimetre.
-   * @param ankles The two ankle centres' mean forward place, calibration mm.
-   * @returns Both forward places, calibration mm.
-   */
-  export function places(measures: IAutoMovieHumanBodyMeasures, scale: number, ankles: number): { cervicale: number; perineum: number } {
-    return {
-      cervicale: ankles + AutoMovieHumanBodyPlaces.cervicale(measures) * scale,
-      perineum: ankles + AutoMovieHumanBodyPlaces.perineum(measures) * scale,
-    };
-  }
-
   /**
    * Torso-only axilla and acromion boundaries above the chest. The old
    * table's upper half-breadth includes the arms, so the shoulder's
@@ -62,9 +44,13 @@ export namespace AutoMovieHumanTrunkInterim {
     stature: number,
     cervicale: number,
   ): AutoMovieHumanTrunkViews.ILaws["upper"] {
-    const T: typeof AutoMovieHumanReferenceOutlines = AutoMovieHumanReferenceOutlines;
+    const T: typeof AutoMovieHumanReferenceOutlines =
+      AutoMovieHumanReferenceOutlines;
     const top: number = measures.cervicaleHeight * scale;
-    const table = (site: string, y: number): AutoMovieHumanTrunkViews.ILaws["upper"][number] => {
+    const table = (
+      site: string,
+      y: number,
+    ): AutoMovieHumanTrunkViews.ILaws["upper"][number] => {
       const share: number = (y - crotch) / (top - crotch);
       const read = (column: string): number => T.at(T.TRUNK, column, share);
       return {
@@ -85,14 +71,28 @@ export namespace AutoMovieHumanTrunkInterim {
     // circle radius medial to it. The latter is an explicit geometric
     // attachment convention, not a newly fitted anatomical ratio.
     const shoulder: [number, number, number] = solution.landmarks.shoulder;
-    const radius: number = measures.upperArmCircumference * scale / (2 * Math.PI);
+    const radius: number =
+      (measures.upperArmCircumference * scale) / (2 * Math.PI);
     const upper: AutoMovieHumanTrunkViews.ILaws["upper"] = [
-      { ...table("axilla", measures.axillaHeight * scale), half: shoulder[2] - radius },
+      {
+        ...table("axilla", measures.axillaHeight * scale),
+        half: shoulder[2] - radius,
+      },
       { ...table("acromion", shoulder[1]), half: shoulder[2] },
-    ].filter((site: AutoMovieHumanTrunkViews.ILaws["upper"][number]): boolean => site.y > chest + gap && site.y < seat.y - gap);
+    ].filter(
+      (site: AutoMovieHumanTrunkViews.ILaws["upper"][number]): boolean =>
+        site.y > chest + gap && site.y < seat.y - gap,
+    );
     return [
       ...upper,
-      { site: "neck", y: seat.y, half: seat.width, front: seat.front[0], back: seat.back[0], shoulder: table("neck", seat.y).shoulder },
+      {
+        site: "neck",
+        y: seat.y,
+        half: seat.width,
+        front: seat.front[0],
+        back: seat.back[0],
+        shoulder: table("neck", seat.y).shoulder,
+      },
     ];
   }
 
@@ -107,6 +107,9 @@ export namespace AutoMovieHumanTrunkInterim {
    * @returns The radius, calibration mm.
    */
   export function foldRadius(solution: IAutoMovieHumanTrunkSolution): number {
-    return AutoMovieHumanTrunkInguinalFold.softness(solution.pitch, AutoMovieHumanTrunkRows.MAX_GAP);
+    return AutoMovieHumanTrunkInguinalFold.softness(
+      solution.pitch,
+      AutoMovieHumanTrunkRows.MAX_GAP,
+    );
   }
 }

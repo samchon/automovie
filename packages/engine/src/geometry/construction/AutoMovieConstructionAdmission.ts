@@ -1,7 +1,7 @@
-import type { AutoMovieConstructionNode } from "@automovie/interface";
+import type { AutoMovieConstructionNode, IAutoMovieConstructionSplit } from "@automovie/interface";
 
 /**
- * A construction tree's admission, before any work: every node of the closed union, every view part's, join's, continuation's and trim's name used once, and every seed, continuation and trim naming a face of the right subtree (a part face or a continuation's faces a view part, a host face a view part or a join's blend). A tree that breaks one is refused whole, by a throw naming the node and the rule.
+ * A construction tree's structural admission before work: every node of the closed union, every name used once, and every seed, continuation and trim naming a face of the right subtree. Declared views and explicit native source leaves produce chain part faces. Original profile leaves reserve qualified family/piece faces for atlas hosts and trims; chain-specific part joins and continuation remain restricted to chain leaves. Runtime availability is admitted at each leaf.
  *
  * @evidence contracts/common.md#principled-implementation Bottom-up name sets admit only references to faces structurally produced by the required subtree; later geometric failures can still prevent those faces from being realized.
  * @evidence contracts/common.md#clear-and-simple-design One recursive check returns each subtree's view and face names; uniqueness, the closed union and every face reference are read from that one pass.
@@ -12,6 +12,15 @@ import type { AutoMovieConstructionNode } from "@automovie/interface";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The call owns a global seen set, open recursion frames and child/union view-face sets; none remains retained by this module after return or throw.
  */
 export namespace AutoMovieConstructionAdmission {
+  /** Structurally produced part leaves and all faces in one admitted subtree. */
+  interface Names {
+    /** Declared or source-supplied part names. */
+    views: Set<string>;
+
+    /** Part and blend face names. */
+    faces: Set<string>;
+  }
+
   /**
    * Admit a tree.
    *
@@ -28,9 +37,8 @@ export namespace AutoMovieConstructionAdmission {
    */
   export function admit(root: AutoMovieConstructionNode): void {
     const seen: Set<string> = new Set();
-    const check = (
-      node: AutoMovieConstructionNode,
-    ): { views: Set<string>; faces: Set<string> } => {
+    /** Check this node before returning the faces structurally produced below it. */
+    function check(node: AutoMovieConstructionNode): Names {
       const name: string = (node as { name?: unknown }).name as string;
       if (typeof name !== "string")
         throw new Error("realizeAutoMovieConstruction: a node has no name");
@@ -39,18 +47,36 @@ export namespace AutoMovieConstructionAdmission {
           `realizeAutoMovieConstruction: the name ${name} is used twice`,
         );
       seen.add(name);
-      const need = (set: Set<string>, face: string, what: string): void => {
+      /** Require a reference to a face of the operation's declared subtree. */
+      function need(set: Set<string>, face: string, what: string): void {
         if (!set.has(face))
           throw new Error(
             `realizeAutoMovieConstruction: ${name}'s ${what} ${face} is not a face of its subtree`,
           );
-      };
+      }
       switch (node.type) {
         case "view":
+        case "source":
           return { views: new Set([name]), faces: new Set([name]) };
+        case "profile": {
+          const faces: Set<string> = new Set();
+          for (const loop of node.loops)
+            for (const piece of loop.pieces) {
+              const face: string = name + "/" + piece.id;
+              if (seen.has(face))
+                throw new Error(
+                  "realizeAutoMovieConstruction: the name " +
+                    face +
+                    " is used twice",
+                );
+              seen.add(face);
+              faces.add(face);
+            }
+          return { views: new Set(), faces };
+        }
         case "join": {
-          const host = check(node.host);
-          const part = check(node.part);
+          const host: Names = check(node.host);
+          const part: Names = check(node.part);
           need(part.views, node.seed.partFace, "part face");
           need(host.faces, node.seed.hostFace, "host face");
           return {
@@ -59,8 +85,8 @@ export namespace AutoMovieConstructionAdmission {
           };
         }
         case "continue": {
-          const host = check(node.host);
-          const part = check(node.part);
+          const host: Names = check(node.host);
+          const part: Names = check(node.part);
           need(host.views, node.hostFace, "host face");
           need(part.views, node.partFace, "part face");
           return {
@@ -68,8 +94,89 @@ export namespace AutoMovieConstructionAdmission {
             faces: union(host.faces, part.faces),
           };
         }
+        case "split": {
+          /** Refuse a split field outside its declared range, naming it. */
+          const refuse: (what: string) => never = (what: string): never => {
+            throw new Error(`realizeAutoMovieConstruction: ${name}'s ${what}`);
+          };
+          const host: Names = check(node.host);
+          need(host.views, node.hostFace, "host face");
+          const [a, b]: [number, number] = node.seam;
+          if (!(Number.isFinite(a) && Number.isFinite(b) && a < b && b < a + 2 * Math.PI))
+            refuse(`seam [${a}, ${b}] is not a < b < a + 2 pi`);
+          if (!(Number.isInteger(node.count) && node.count >= 8 && node.count % 4 === 0))
+            refuse(`count ${node.count} is not a multiple of 4 of at least 8`);
+          if (!(Number.isInteger(node.rows) && node.rows >= 1))
+            refuse(`rows ${node.rows} is not a positive integer`);
+          // A curved seam's knots advance along the chord from its first end;
+          // whether the last stays short of the chord needs the host, so the
+          // realization refuses that one.
+          const profile: IAutoMovieConstructionSplit.IProfile | undefined = node.profile;
+          if (profile !== undefined) {
+            if (profile.knots.length === 0) refuse("profile has no knot");
+            let previous: number = 0;
+            for (const [along, depth] of profile.knots) {
+              if (!(Number.isFinite(along) && Number.isFinite(depth) && along > previous))
+                refuse(`profile knot [${along}, ${depth}] m is not finite and advancing along the chord`);
+              previous = along;
+            }
+            if (!(Number.isFinite(profile.corner) && profile.corner > 0 && profile.corner < Math.PI / 2))
+              refuse(`profile corner ${profile.corner} rad is not in (0, pi / 2)`);
+          }
+          let views: Set<string> = host.views;
+          let faces: Set<string> = host.faces;
+          for (const child of node.children) {
+            const part: Names = check(child.part);
+            need(part.views, child.partFace, "part face");
+            if (!(Number.isFinite(child.rail) && child.rail > 0))
+              refuse(`rail ${child.rail} m of ${child.partFace} is not positive`);
+            const crease: typeof child.crease = child.crease;
+            if (
+              crease !== undefined &&
+              !(
+                Number.isFinite(crease.start) &&
+                Number.isFinite(crease.end) &&
+                Number.isFinite(crease.transition) &&
+                crease.start <= crease.end &&
+                crease.end < crease.start + 2 * Math.PI &&
+                crease.transition > 0
+              )
+            )
+              refuse(`crease of ${child.band} is not start <= end < start + 2 pi with a positive transition`);
+            if (seen.has(child.band))
+              throw new Error(
+                `realizeAutoMovieConstruction: the name ${child.band} is used twice`,
+              );
+            seen.add(child.band);
+            views = union(views, part.views);
+            faces = union(union(faces, part.faces), new Set([child.band]));
+          }
+          return { views, faces };
+        }
+        case "port": {
+          const host: Names = check(node.host);
+          const part: Names = check(node.part);
+          need(host.views, node.hostFace, "host face");
+          need(part.views, node.partFace, "part face");
+          const { centre, semi } = node.loop;
+          if (!(centre.every(Number.isFinite) && semi[0] > 0 && semi[1] > 0 && semi[1] < Math.PI && Number.isFinite(semi[0]) && (node.loop.sense === 1 || node.loop.sense === -1)))
+            throw new Error(`realizeAutoMovieConstruction: ${name}'s port curve is not a finite chart ellipse with positive semi-axes, the phase one under pi`);
+          if (!(Number.isInteger(node.count) && node.count >= 8 && node.count % 4 === 0))
+            throw new Error(`realizeAutoMovieConstruction: ${name}'s count ${node.count} is not a multiple of 4 of at least 8`);
+          if (!(Number.isInteger(node.rows) && node.rows >= 1))
+            throw new Error(`realizeAutoMovieConstruction: ${name}'s rows ${node.rows} is not a positive integer`);
+          if (!(Number.isFinite(node.rail) && node.rail > 0))
+            throw new Error(`realizeAutoMovieConstruction: ${name}'s rail ${node.rail} m is not positive`);
+          if (seen.has(node.band))
+            throw new Error(`realizeAutoMovieConstruction: the name ${node.band} is used twice`);
+          seen.add(node.band);
+          return {
+            views: union(host.views, part.views),
+            faces: union(union(host.faces, part.faces), new Set([node.band])),
+          };
+        }
         case "trim": {
-          const host = check(node.host);
+          const host: Names = check(node.host);
           need(host.faces, node.face, "face");
           return host;
         }
@@ -78,7 +185,7 @@ export namespace AutoMovieConstructionAdmission {
             `realizeAutoMovieConstruction: ${name} has the unknown type ${(node as { type?: unknown }).type as string}`,
           );
       }
-    };
+    }
     check(root);
   }
 

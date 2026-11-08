@@ -12,9 +12,10 @@ import type { IHumanDebugCompilerState } from "../contracts/IHumanDebugCompilerS
 import type { IHumanDebugOptions } from "../contracts/IHumanDebugOptions";
 import type { IHumanDebugSnapshot } from "../contracts/IHumanDebugSnapshot";
 import { HumanDebugCompilerPanel } from "./HumanDebugCompilerPanel";
-import { HumanDebugCameraState } from "./HumanDebugCameraState";
 import { HumanDebugControls } from "./HumanDebugControls";
 import { HumanDebugLegend } from "./HumanDebugLegend";
+import { HumanDebugCameraState } from "./HumanDebugCameraState";
+import { HumanDebugPageSnapshot } from "./HumanDebugPageSnapshot";
 import { HumanDebugPageWork } from "./HumanDebugPageWork";
 import { HumanDebugStage } from "./HumanDebugStage";
 import { HumanDebugView } from "./HumanDebugView";
@@ -68,7 +69,11 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
   const stage: HumanDebugStage = new HumanDebugStage(canvas, (): void => {
     dirty = true;
   });
-  const work: HumanDebugPageWork = new HumanDebugPageWork((active: boolean): void => { stage.orbit.enabled = !active; });
+  const work: HumanDebugPageWork = new HumanDebugPageWork(
+    (active: boolean): void => {
+      stage.orbit.enabled = !active;
+    },
+  );
 
   // Filled once mountViewer returns; the frame callback may run before that.
   const viewer: { mount?: IAutoMovieViewerHandle } = {};
@@ -80,6 +85,12 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
   let framed: string = "";
   let loaded: number | null = null;
   let source: string | null = null;
+
+  /** Current view whose evaluated inventory was last listed; cleared before retiring it. */
+  let listed: HumanDebugView | undefined;
+
+  /** That listing's curve count; scoped original displays can append more ids on apply. */
+  let listedCurves: number = -1;
   const size: { width: number; height: number } = { width: 0, height: 0 };
 
   // Draw on demand; labels follow the camera after every draw.
@@ -143,32 +154,18 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
 
   const snapshot: () => IHumanDebugSnapshot = (): IHumanDebugSnapshot => {
     work.checkOpen();
-    const context: WebGLRenderingContext | WebGL2RenderingContext =
-      viewer.mount!.renderer.getContext();
-    const debug: WEBGL_debug_renderer_info | null = context.getExtension(
-      "WEBGL_debug_renderer_info",
-    );
-    return {
-      query: HumanDebugOptions.write(options),
-      notices: [...notices],
-      subject: view === undefined ? null : { ...view.subject.key },
-      provenance: view?.subject.provenance ?? null,
-      shown: view?.visible() ?? { parts: [], curves: [] },
-      inventory: view?.inventory() ?? { parts: [], curves: [] },
-      camera: placement === null ? null : { ...placement, ...HumanDebugCameraState(stage.camera, stage.orbit.target).placement },
+    return HumanDebugPageSnapshot({
+      context: viewer.mount!.renderer.getContext(),
+      options,
+      notices,
+      view,
+      placement,
+      stage,
       section,
-      canvas: {
-        width: canvas.width,
-        height: canvas.height,
-        gpu: String(
-          context.getParameter(
-            debug?.UNMASKED_RENDERER_WEBGL ?? context.RENDERER,
-          ),
-        ),
-      },
-      loadMilliseconds: loaded,
+      canvas,
+      loaded,
       source,
-    };
+    });
   };
 
   /** Apply one options record: subject, display, framing, section, URL, controls and notices. */
@@ -184,6 +181,7 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
     work.checkOpen();
     options = next;
     loaded = null;
+    const failures: unknown[] = [];
     element<HTMLElement>("app").classList.toggle("bare", !options.ui);
     try {
       // A piece has no pose, so its key ignores the pose variable; a comparison is keyed by its
@@ -229,6 +227,8 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
       ) {
         const previous: HumanDebugView | undefined = view;
         view = undefined;
+        listed = undefined;
+        listedCurves = -1;
         await previous?.dispose();
         work.checkOpen();
         labels.replaceChildren();
@@ -260,7 +260,9 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
             options.pose,
             reference,
           ),
-          (subject: ConstructorParameters<typeof HumanDebugView>[0]): HumanDebugView => {
+          (
+            subject: ConstructorParameters<typeof HumanDebugView>[0],
+          ): HumanDebugView => {
             const current: HumanDebugView = new HumanDebugView(subject);
             view = current;
             return current;
@@ -270,15 +272,24 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
         view = received;
         loaded = performance.now() - started;
         stage.content.add(view.object, view.overlays);
-        const inventory: { parts: string[]; curves: string[] } =
-          view.inventory();
-        controls.list(inventory.parts, inventory.curves);
         framed = "";
       }
-      const referenceDisplay: unknown = view.subject.provenance.referenceDisplay;
-      if (referenceDisplay !== null && typeof referenceDisplay === "object" && "diagnostic" in referenceDisplay && typeof referenceDisplay.diagnostic === "string")
+      const referenceDisplay: unknown =
+        view.subject.provenance.referenceDisplay;
+      if (
+        referenceDisplay !== null &&
+        typeof referenceDisplay === "object" &&
+        "diagnostic" in referenceDisplay &&
+        typeof referenceDisplay.diagnostic === "string"
+      )
         messages.push(referenceDisplay.diagnostic);
       const shown: { parts: string[]; curves: string[] } = view.apply(options);
+      const inventory: { parts: string[]; curves: string[] } = view.inventory();
+      if (listed !== view || listedCurves !== inventory.curves.length) {
+        controls.list(inventory.parts, inventory.curves);
+        listed = view;
+        listedCurves = inventory.curves.length;
+      }
       HumanDebugLegend(legend, view.subject.legend, options);
       const focus: THREE.Box3 = view.focus(options);
       if (focus.isEmpty())
@@ -334,24 +345,47 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
         error instanceof Error ? (error.stack ?? error.message) : String(error);
       console.error(text);
       messages = [...messages, text];
+      failures.push(error);
     }
-    const query: string = HumanDebugOptions.write(options);
-    history.replaceState(
-      null,
-      "",
-      location.pathname + (query === "" ? "" : "?" + query) + location.hash,
-    );
-    address.value = location.href;
-    noticeBox.textContent = messages.join("\n");
-    controls.show(options, revision);
-    notices = messages;
-    await nextFrame();
+    try {
+      const query: string = HumanDebugOptions.write(options);
+      history.replaceState(
+        null,
+        "",
+        location.pathname + (query === "" ? "" : "?" + query) + location.hash,
+      );
+      address.value = location.href;
+      noticeBox.textContent = messages.join("\n");
+      controls.show(options, revision);
+      notices = messages;
+      await nextFrame();
+    } catch (error: unknown) {
+      if (failures.length !== 0)
+        throw new AggregateError(
+          [failures[0], error],
+          "Subject preparation and failure display both failed",
+          { cause: failures[0] },
+        );
+      throw error;
+    }
+    if (failures.length !== 0) throw failures[0];
     return snapshot();
   };
-  const apply = (next: IHumanDebugOptions, messages: string[]): Promise<IHumanDebugSnapshot> => {
-    if (work.closed) return Promise.reject(new Error("Human debug page closed"));
+  const apply = (
+    next: IHumanDebugOptions,
+    messages: string[],
+  ): Promise<IHumanDebugSnapshot> => {
+    if (work.closed)
+      return Promise.reject(new Error("Human debug page closed"));
     const revision: number = controls.request(next);
-    return work.apply(next, messages, (request: IHumanDebugOptions, notices: string[]): Promise<IHumanDebugSnapshot> => update(request, notices, revision));
+    return work.apply(
+      next,
+      messages,
+      (
+        request: IHumanDebugOptions,
+        notices: string[],
+      ): Promise<IHumanDebugSnapshot> => update(request, notices, revision),
+    );
   };
 
   const controls: HumanDebugControls = new HumanDebugControls(
@@ -363,27 +397,44 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
   // Orbiting is a control too: the camera is written back as az, el, dist and target.
   stage.orbit.addEventListener("end", (): void => {
     if (work.closed) return;
-    const requested: IHumanDebugOptions = { ...controls.requested(), ...HumanDebugCameraState(stage.camera, stage.orbit.target).options };
+    const requested: IHumanDebugOptions = {
+      ...controls.requested(),
+      ...HumanDebugCameraState(stage.camera, stage.orbit.target).options,
+    };
     const revision: number = controls.request(requested);
-    void work.run(async (): Promise<void> => {
-      options = { ...options, ...HumanDebugCameraState(stage.camera, stage.orbit.target).options };
-      framed = "";
-      history.replaceState(null, "", location.pathname + "?" + HumanDebugOptions.write(options) + location.hash);
-      address.value = location.href;
-      controls.show(options, revision);
+    void work
+      .run(async (): Promise<void> => {
+        options = {
+          ...options,
+          ...HumanDebugCameraState(stage.camera, stage.orbit.target).options,
+        };
+        framed = "";
+        history.replaceState(
+          null,
+          "",
+          location.pathname +
+            "?" +
+            HumanDebugOptions.write(options) +
+            location.hash,
+        );
+        address.value = location.href;
+        controls.show(options, revision);
 
-      // Recording the camera requests no draw; release input before the next pointer/wheel event.
-    }).catch(console.error);
+        // Recording the camera requests no draw; release input before the next pointer/wheel event.
+      })
+      .catch(console.error);
   });
   element<HTMLButtonElement>("capture").addEventListener("click", (): void => {
-    void work.run(async (): Promise<void> => {
-      await nextFrame();
-      work.checkOpen();
-      const link: HTMLAnchorElement = document.createElement("a");
-      link.download = "human-debug.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    }).catch(console.error);
+    void work
+      .run(async (): Promise<void> => {
+        await nextFrame();
+        work.checkOpen();
+        const link: HTMLAnchorElement = document.createElement("a");
+        link.download = "human-debug.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      })
+      .catch(console.error);
   });
   const resize: ResizeObserver = new ResizeObserver((): void => {
     dirty = true;
@@ -394,22 +445,24 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
   // The capture checks disk stability; served-transform freshness is a separate boundary.
   const initial: typeof first = structuredClone(first);
   const initialRevision: number = controls.request(initial.options);
-  const ready: Promise<IHumanDebugSnapshot> = work.run(async (): Promise<IHumanDebugSnapshot> => {
-    await fetch(HUMAN_DEBUG_ROUTES.source, { cache: "no-store" })
-    .then(
-      (response: Response): Promise<{ sourceSha256: string }> =>
-        response.json(),
-    )
-    .then((value: { sourceSha256: string }): void => {
+  const ready: Promise<IHumanDebugSnapshot> = work.run(
+    async (): Promise<IHumanDebugSnapshot> => {
+      await fetch(HUMAN_DEBUG_ROUTES.source, { cache: "no-store" })
+        .then(
+          (response: Response): Promise<{ sourceSha256: string }> =>
+            response.json(),
+        )
+        .then((value: { sourceSha256: string }): void => {
+          work.checkOpen();
+          source = value.sourceSha256;
+        })
+        .catch((error: unknown): void =>
+          console.error("Source hash unavailable", error),
+        );
       work.checkOpen();
-      source = value.sourceSha256;
-    })
-    .catch((error: unknown): void =>
-      console.error("Source hash unavailable", error),
-    );
-    work.checkOpen();
-    return update(initial.options, initial.notices, initialRevision);
-  });
+      return update(initial.options, initial.notices, initialRevision);
+    },
+  );
   const automation: IHumanDebugAutomation = {
     ready,
     apply: (search: string): Promise<IHumanDebugSnapshot> => {
@@ -426,12 +479,17 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
     async (): Promise<void> => {
       const previous: HumanDebugView | undefined = view;
       view = undefined;
+      listed = undefined;
+      listedCurves = -1;
       await previous?.dispose();
     },
   ]);
   window.addEventListener(
     "pagehide",
-    (): void => { work.close(); void retire().catch(console.error); },
+    (): void => {
+      work.close();
+      void retire().catch(console.error);
+    },
     { once: true },
   );
   return automation;

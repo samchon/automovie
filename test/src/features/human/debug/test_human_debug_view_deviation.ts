@@ -192,7 +192,7 @@ export function test_human_debug_view_deviation(): void {
     regions: [{ name: "head", sections: [pack.regions[0]!.sections[0]!] }],
   };
   // Stations 100 mm apart exceed the cut's maximum 24 mm half-slab.
-  const line100 = (value: number): IAutoMovieViewPart.IOutline => ({
+  const line100: (value: number) => IAutoMovieViewPart.IOutline = (value: number): IAutoMovieViewPart.IOutline => ({
     knots: [0, 100].map(
       (station: number): IAutoMovieViewPart.IKnot => ({
         site: "s" + station,
@@ -201,8 +201,10 @@ export function test_human_debug_view_deviation(): void {
       }),
     ),
   });
+  const original: IAutoMovieViewPart | null = parts[0]!.part;
+  if (original === null) throw new Error("The deviation fixture needs its actual complete original");
   const spaced: IAutoMovieViewPart = {
-    ...parts[0]!.part,
+    ...original,
     stations: [0, 100],
     front: { positive: line100(1), negative: line100(-1) },
     side: { positive: line100(1), negative: line100(-1) },

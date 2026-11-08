@@ -26,10 +26,10 @@ type Layer = IAutoMovieLoftChain.ILayer & {
  * 1. A bottom-root and top-root family have radius sqrt(distance) in their dimensionless physical station. Their values and both station derivatives are read before/between/at principal layers at three congruent scales, including virtual-pole spans.
  * 2. A two-pole family uses the independent three-knot natural cubic 3q/pi-4q^3/pi^3 on the first angle half, mirrored on the second. Added exact samples must retain that polynomial and its physical chain-rule jets.
  * 3. Pole values stay zero while physical derivative requests fail explicitly. Open/outside ends remain unowned, equal-value copies preserve the definition, missing/different maps are station boundaries, and invalid present derivative widths throw.
- * 4. The public ViewLoft producer consumes the same root/angle radial sources. Its actual Point and Jet readers reproduce the independent guide radius and both station derivatives inside the surviving-layer domain; physical pole records remain axis-centred without extending that domain.
+ * 4. The public ViewLoft producer consumes the same root/angle radial sources. Its actual Point and Jet readers reproduce the independent guide radius and both station derivatives inside the principal regular interval. Retained original caps own the complete authored endpoint domain; their axis-centred pole Point0 remains distinct from unavailable regular physical2.
  * 5. A made 0.01-scale coefficient displacement fails the same independent numeric reader.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises the parameter-data producer and endpoint/weight consumers on prescribed coefficient arrays, then the public ViewLoft producer through actual Point/Jet readers, asserting values, both physical derivatives, virtual endpoint ownership, regular surface bounds and explicit singular/invalid behavior.
+ * @evidence contracts/testing.md#behavioral-verification Exercises parameter-data producer and endpoint/weight consumers on prescribed coefficient arrays, then actual ViewLoft Point/Jet readers. Asserts values, both physical derivatives in the principal regular interval, complete authored cap ownership, true pole Point0 and explicit singular/invalid behavior.
  * @evidence contracts/testing.md#independent-expectations Closed-form root radii and an explicit angle cubic provide independent values/derivatives; direct control rows are prescribed cosine/sine multiples. The public producer receives those radial source knots and a constant ellipse shoulder; guide phase zero must read the same radius. Limits are 512 binary64 epsilons times the natural geometric/derivative scale, allowing only floating interpolation arithmetic. The observer rejects a deliberately displaced value. This does not establish exact fidelity of arbitrary source sections or geometric G2 at a true pole.
  * @evidence contracts/testing.md#distinguishing-cases Covers bottom/top/both poles, virtual and interior spans, scales 0.001/1/1000, zero pole versus singular station jet, open/outside ownership, value copies, mixed maps and malformed present metadata. Existing diff/axes and view-pole tests retain their unchanged actual-realization expectations.
  * @evidence contracts/testing.md#execution-ownership Discoverable synchronous CPU operator test through --include construction_operator_pole_coefficients; it starts no process, Human generation, viewer or GPU.
@@ -262,8 +262,8 @@ function consumer(
   const chain: IAutoMovieLoftChain = result.chain;
   const low: number = chain.layers[0]!.y;
   const high: number = chain.layers[chain.layers.length - 1]!.y;
-  if (result.surface.domain?.[0] !== low || result.surface.domain?.[1] !== high)
-    failures.push("actual pole source changed the regular surface domain");
+  if (result.surface.domain?.[0] !== stations[0] || result.surface.domain?.[1] !== stations[stations.length - 1])
+    failures.push("actual pole surface lost its original owned source domain");
   for (const pole of [chain.pole, chain.opposite])
     if (pole !== undefined) {
       const station: number =
@@ -277,6 +277,9 @@ function consumer(
         failures.push(
           "actual physical pole differs from its source axis endpoint",
         );
+      const point: number[] = result.surface.point!(station, 0.37);
+      if (point.some((value: number, k: number): boolean => !nclose(value, origin[k]!, 512 * Number.EPSILON * scale))) failures.push("actual pole Point0 differs from the original axis endpoint");
+      if (!throws((): void => { result.surface!.jet(station, 0.37); })) failures.push("actual pole invented finite regular physical2");
     }
   const queries: number[] = (
     mode === "bottom"

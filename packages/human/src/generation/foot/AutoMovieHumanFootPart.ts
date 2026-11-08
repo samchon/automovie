@@ -1,6 +1,8 @@
 import type { AutoMovieSolidVector, IAutoMovieViewPart } from "@automovie/engine";
 import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
+import { AutoMovieHumanSiteControls } from "../limb/AutoMovieHumanSiteControls";
+import type { AutoMovieHumanFootConnection } from "./AutoMovieHumanFootConnection";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 
@@ -91,6 +93,12 @@ export namespace AutoMovieHumanFootPart {
 
     /** Widest spacing between layers, mm. */
     gap: number;
+
+    /** Authored dorsal outline only; its independent knots never resample either across outline. */
+    dorsal?: IAutoMovieViewPart.IOutline;
+
+    /** Actual complete leg owner, its original frame and available jets at the authored sagittal connection. */
+    ankle?: AutoMovieHumanFootConnection.IAnkle;
   }
 
   /**
@@ -100,11 +108,55 @@ export namespace AutoMovieHumanFootPart {
    * @returns The part, its loft and the diagnostics.
    */
   export function create(input: IInput): AutoMovieHumanSiteViewPart.IResult {
-    return AutoMovieHumanSiteViewPart.create(source(input));
+    return AutoMovieHumanSiteViewPart.loft(define(input));
   }
 
   /**
-   * The exact original source consumed by create, before section or loft work.
+   * Prepare the final original part; preserve every unmodified edge function when dorsal-only stations are added.
+   * The optional base must be the unmodified preparation of this same input.
+   *
+   * @evidence contracts/common.md#principled-implementation Replaces only front.positive on the original prepared part; emission stations union the old layers and dorsal knots without resampling any other original.
+   * @evidence contracts/common.md#clear-and-simple-design One final part and its matching canonical-axis view serve parent readings, metrics and lofting.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not add global sites, rerun lateral/medial interpolation or use a mesh to infer the replacement.
+   * @evidence contracts/common.md#meaningful-documentation States same-input base ownership and the distinction between edge source knots and emission stations.
+   * @evidence contracts/performance.md#efficient-algorithms Performs one shared definition preparation unless supplied, then O(n log n) finite station union and view unit conversion.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the same-input base when the dorsal author already needed it; the returned final preparation owns subsequent source reads and loft.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned final records and borrows unchanged edge objects from the same original definition; no persistent cache exists.
+   */
+  export function define(input: IInput, base?: AutoMovieHumanSiteViewPart.IDefinition): AutoMovieHumanSiteViewPart.IDefinition {
+    const declaration: AutoMovieHumanSiteViewPart.IInput = source(input);
+    const prepared: AutoMovieHumanSiteViewPart.IDefinition = base ?? AutoMovieHumanSiteViewPart.define(declaration);
+    if (prepared.part === null || input.dorsal === undefined) return prepared;
+    const part: IAutoMovieViewPart = { ...prepared.part, front: { ...prepared.part.front, positive: input.dorsal }, stations: [...new Set([...prepared.part.stations, ...input.dorsal.knots.map((knot: IAutoMovieViewPart.IKnot): number => knot.station)])].sort((a: number, b: number): number => a - b) };
+    return { part, view: AutoMovieHumanConstructionView.of(part, declaration.axis), diagnostics: prepared.diagnostics };
+  }
+
+  /**
+   * Author the shared local scalar/section/frame declaration directly.
+   * Dorsal replacement preserves the original side/plantar/fullness objects
+   * and their parameter; station union affects only observation density.
+   * No completed foot or raw surface supplies the toe boundary.
+   */
+  export function controls(input: IInput, base?: AutoMovieHumanSiteControls.IOutput): AutoMovieHumanSiteControls.IOutput {
+    const declaration: AutoMovieHumanSiteViewPart.IInput = source(input);
+    const prepared: AutoMovieHumanSiteControls.IOutput = base ?? AutoMovieHumanSiteControls.prepare(declaration);
+    const original: AutoMovieHumanSiteControls.IControls | null = prepared.controls;
+    if (original === null || input.dorsal === undefined) return prepared;
+    const scalars: typeof original.scalars = {
+      ...original.scalars,
+      front: { ...original.scalars.front, positive: input.dorsal },
+      stations: [...new Set([...original.scalars.stations,
+        ...input.dorsal.knots.map((knot: IAutoMovieViewPart.IKnot): number => knot.station)])]
+        .sort((a: number, b: number): number => a - b),
+    };
+    return { controls: { input: declaration, axis: original.axis, scalars,
+      field: AutoMovieHumanSiteControls.native(input.name, scalars) },
+      diagnostics: prepared.diagnostics };
+  }
+
+  /**
+   * The base site declaration. define owns the final optional dorsal replacement
+   * while preserving these complete independent side and plantar sources.
    *
    * @evidence contracts/common.md#principled-implementation Converts the actual foot's fixed floor frame, named edge laws, jets, ranges and closing planes into its single production source declaration.
    * @evidence contracts/common.md#clear-and-simple-design Separates the existing declaration from realization so input dimensions can read the same source.
@@ -124,7 +176,7 @@ export namespace AutoMovieHumanFootPart {
     const up: Vec3 = [0, 1, 0];
     const v: Vec3 = [input.along[2], 0, -input.along[0]];
     const origin: Vec3 = [input.heel[0], input.height, input.heel[2]];
-    const swap = (e: [number, number, number, number]): [number, number, number, number] => (input.side === "right" ? e : [e[0], -e[3], e[2], -e[1]]);
+    const swap: (e: [number, number, number, number]) => [number, number, number, number] = (e: [number, number, number, number]): [number, number, number, number] => (input.side === "right" ? e : [e[0], -e[3], e[2], -e[1]]);
     return {
       name: input.name,
       axis: { type: "straight", origin: AutoMovieHumanConstructionView.point(origin), u: AutoMovieHumanConstructionView.direction(up), v: AutoMovieHumanConstructionView.direction(v) },

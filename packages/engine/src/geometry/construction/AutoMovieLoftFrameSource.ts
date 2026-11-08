@@ -1,5 +1,6 @@
 import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
 
+import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 import type { AutoMovieViewAxis } from "./AutoMovieViewAxis";
@@ -131,7 +132,7 @@ export namespace AutoMovieLoftFrameSource {
    * Actual frame jet of an unchanged common-source interval, or null for a layer-defined boundary.
    *
    * @evidence contracts/common.md#principled-implementation Both endpoints must retain the same valid analytic axis; the interval then reads that very source at the requested station.
-   * @evidence contracts/common.md#clear-and-simple-design Null explicitly identifies absent/different-source boundary interpolation; invalid present data throws.
+   * @evidence contracts/common.md#clear-and-simple-design Null identifies absent/different-source boundary interpolation; unavailable returned axis2 is an explicit admission error, while stale ownership and callback exceptions propagate unchanged.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No owner is inferred from matching sampled values, and an unavailable interior source jet does not trigger a fitted fallback.
    * @evidence contracts/common.md#meaningful-documentation Callers use the ordinary Hermite rule only for null, preserving mixed-source continuation boundary jets.
    * @evidence contracts/performance.md#efficient-algorithms Fixed endpoint validation plus one actual source query; no layer scan or dense resampling.
@@ -148,7 +149,7 @@ export namespace AutoMovieLoftFrameSource {
     if (axis === null) return null;
     const jet: AutoMovieViewAxisJet.IJet | null = axis.jet!(station, parameter);
     if (jet === null || ![jet.value, jet.first, jet.second].every(finite))
-      throw new Error(
+      throw new AutoMovieLoftAdmissionError(
         `Retained axis has no finite analytic frame jet at station ${station} mm`,
       );
     return jet;

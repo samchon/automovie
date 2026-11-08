@@ -55,8 +55,8 @@ export namespace AutoMovieHumanArmInterim {
     const biceps: number = (inputs.upper / 2 - placement.projection) / placement.humerus;
     if (!(biceps > AutoMovieHumanDeltoidSpan.ROOT && biceps < 1)) throw new Error("The retained biceps midpoint must follow the first free deltoid source row inside the humerus");
     const forearm: number = Math.hypot(wrist[0] - elbow[0], wrist[1] - elbow[1], wrist[2] - elbow[2]);
-    const box = (table: AutoMovieHumanReferenceOutlines.ITable, share: number, girth: number): [number, number, number, number] => {
-      const read = (column: string): number => T.at(table, column, share) * girth;
+    const box: (table: AutoMovieHumanReferenceOutlines.ITable, share: number, girth: number) => [number, number, number, number] = (table: AutoMovieHumanReferenceOutlines.ITable, share: number, girth: number): [number, number, number, number] => {
+      const read: (column: string) => number = (column: string): number => T.at(table, column, share) * girth;
       const lateral: number = read("lateral");
       const medial: number = read("medial");
       const [plus, minus]: [number, number] = side === "left" ? [lateral, medial] : [medial, lateral];
@@ -79,19 +79,28 @@ export namespace AutoMovieHumanArmInterim {
   /**
    * The depth whose inscribed ellipse with a breadth runs a tape: the root of
    * Ramanujan's second approximation by the Illinois rule, between a sliver
-   * and the circle's reach; the breadth itself where the tape cannot be met.
+   * and the declared positive depth bracket. A failed approximate solve is
+   * refused; the final asymmetric native section owns its separate exact tape.
    *
    * @param breadth The whole breadth, mm.
    * @param girth The tape, mm.
    * @returns The whole depth, mm.
    */
   export function ellipseDepth(breadth: number, girth: number): number {
-    const perimeter = (d: number): number => {
+    const perimeter: (d: number) => number = (d: number): number => {
       const a: number = breadth / 2;
       const b: number = d / 2;
       const h: number = ((a - b) / (a + b)) ** 2;
       return Math.PI * (a + b) * (1 + (3 * h) / (10 + Math.sqrt(4 - 3 * h)));
     };
-    return AutoMovieIllinois.root((d: number): number => perimeter(d) - girth, 1e-6, girth, 1e-6, 100) ?? breadth;
+    if (!(Number.isFinite(breadth) && breadth > 0 && Number.isFinite(girth) && girth > 0))
+      throw new Error("Palm ellipse proxy requires positive finite breadth and girth");
+    const depth: number | null = AutoMovieIllinois.root(
+      (d: number): number => perimeter(d) - girth, 1e-6, girth, 1e-6, 100,
+    );
+    if (depth === null || !Number.isFinite(depth) || !(depth > 0) ||
+      Math.abs(perimeter(depth) - girth) > 1e-6)
+      throw new Error("Palm Ramanujan ellipse-depth proxy has no admitted positive root for its unchanged tape");
+    return depth;
   }
 }

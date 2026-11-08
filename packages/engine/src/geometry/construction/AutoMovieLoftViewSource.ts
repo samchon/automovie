@@ -43,6 +43,20 @@ interface Cap {
  */
 export namespace AutoMovieLoftViewSource {
   /**
+   * Borrowed original scalar/domain data, without a completed part or frame.
+   *
+   * @evidence contracts/common.md#principled-implementation Picks exactly the original fields create reads: physical station bounds, signed scalar parameters, direct fullness and pole declarations. Existing full parts and the shared scalar-control producer supply the same values.
+   * @evidence contracts/common.md#clear-and-simple-design Separates native scalar preparation from anatomical frames, names, display density and part publication, which this factory never reads.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Changes no runtime access order, numeric admission, derivative availability or failed-source meaning; omitted metadata never substitutes geometry.
+   * @evidence contracts/common.md#meaningful-documentation The borrowed fields retain IAutoMovieViewPart's calibration-mm stations, signed chart units, normalized scalar jets and cap semantics; producers keep them immutable during use.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This structural input type runs no algorithm; create owns actual scalar preparation and diagnostics.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type schedules no reuse; the caller owns the declaration and create returns its actual prepared coefficients.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources References follow the producer's original knot populations and lifetime; the type allocates no copied curves, cache, geometry or external resource.
+   */
+  export type IInput = Pick<IAutoMovieViewPart, "stations" | "front" | "side" | "fullness" | "pole">;
+
+
+  /**
    * Value-copyable original scalar definition of a direct view field.
    *
    * @evidence contracts/common.md#principled-implementation Explicit prepared sources retain their actual interpolation parameters, scalar jets and cap law.
@@ -100,7 +114,7 @@ export namespace AutoMovieLoftViewSource {
    * @evidence contracts/performance.md#reuse-equivalent-work Each admitted scalar spline is retained once for subsequent station reads.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns copied scalar preparations and cap metadata; inputs and temporary arrays are not globally retained.
    */
-  export function create(part: IAutoMovieViewPart): IResult | null {
+  export function create(part: IInput): IResult | null {
     if (part.fullness.kind === "girth") return null;
     const diagnostics: AutoMovieViewOutline.IFailure[] = [];
     const first: number = part.stations[0] ?? NaN;

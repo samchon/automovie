@@ -138,7 +138,7 @@ export namespace AutoMovieViewOutline {
   /**
    * Prepare the original knots, returning a named premise failure rather than a replacement curve.
    *
-   * @evidence contracts/common.md#principled-implementation Admits finite ordered knots, zero radial pole knots and source parameter, then prepares the existing natural spline. Explicit jet/range data alone selects shared-jet quintics through their owning validator; interval arithmetic must be representable.
+   * @evidence contracts/common.md#principled-implementation Admits finite ordered knots and zero radial pole knots at the source coordinate's same singular ends. An open retained end leaves that original coordinate unchanged. Explicit jet/range data alone selects shared-jet quintics through their owning validator; interval arithmetic must be representable.
    * @evidence contracts/common.md#clear-and-simple-design One admission path serves open and both pole forms and returns the existing diagnostic contract on failure.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not sort, merge, clamp or replace malformed knots, and refuses unrepresentable parameter intervals or cubic coefficients.
    * @evidence contracts/common.md#meaningful-documentation Documents source ownership, pole units, explicit failures and the lack of a half-space guarantee.
@@ -208,11 +208,11 @@ export namespace AutoMovieViewOutline {
       return { contract: "outline", detail: chosen };
     if (inferred !== undefined && outline.parameter !== undefined) {
       const same: boolean =
-        inferred.type === "angle"
-          ? chosen?.type === "angle" &&
-            chosen.bottom === inferred.bottom &&
-            chosen.top === inferred.top
+        chosen?.type === "angle"
+          ? (ends.bottom === undefined || chosen.bottom === ends.bottom) &&
+            (ends.top === undefined || chosen.top === ends.top)
           : chosen?.type === "root" &&
+            inferred.type === "root" &&
             chosen.end === inferred.end &&
             chosen.pole === inferred.pole;
       if (!same)

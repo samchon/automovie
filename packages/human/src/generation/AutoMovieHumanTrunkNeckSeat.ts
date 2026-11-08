@@ -1,4 +1,12 @@
-import { AutoMovieLoftChain, AutoMovieLoftFrameSource, type IAutoMovieLoftChain, type AutoMovieLoftFrame } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  type AutoMovieLoftFrame,
+  AutoMovieLoftFrameSource,
+  AutoMovieLoftSection,
+  AutoMovieLoftSectionConnect,
+  AutoMovieLoftSectionSource,
+  type IAutoMovieLoftChain,
+} from "@automovie/engine";
 
 /**
  * The neck's internal overlap ring as the remaining old shoulders read it.
@@ -59,7 +67,7 @@ export namespace AutoMovieHumanTrunkNeckSeat {
   const COUNT: number = 512;
 
   /** Spacing of the heights the lateral outline's derivatives are read over, mm: wide enough to stay clear of the sampling, narrow against the 20 mm flare. */
-  const STEP: number = 1.5;
+  export const STEP: number = 1.5;
 
   /**
    * Read the neck's bottom ring.
@@ -96,7 +104,10 @@ export namespace AutoMovieHumanTrunkNeckSeat {
    * @returns The outline's jet.
    */
   export function lateral(neck: IAutoMovieLoftChain, y: number): ILateral {
-    const extreme = (h: number): number => Math.max(...ringAt(neck, h).map((p: [number, number, number]): number => p[2]));
+    const extreme: (h: number) => number = (h: number): number =>
+      Math.max(
+        ...ringAt(neck, h).map((p: [number, number, number]): number => p[2]),
+      );
     const z0: number = extreme(y);
     const z1: number = extreme(y + STEP);
     const z2: number = extreme(y + 2 * STEP);
@@ -128,35 +139,75 @@ export namespace AutoMovieHumanTrunkNeckSeat {
    *
    * @param neck The neck chain.
    * @returns A layer carrying the neck's jets at its bottom.
-   * @evidence contracts/common.md#principled-implementation Retains the same regular station, coefficients, frame, first/second station jets and actual axis owner; only an originally unframed world-horizontal layer receives its exact identity-plane interpretation.
+   * @evidence contracts/common.md#principled-implementation Retains the actual complete native endpoint family beside the same regular station, compatibility coefficients, frame/lift station jets and actual axis owner; only an originally unframed horizontal layer receives its identity-plane interpretation.
    * @evidence contracts/common.md#clear-and-simple-design Returns one explicit boundary record for the receiver's identity-framed horizontal family.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The central source validator checks snapshot ownership; unsupported coordinates or incomplete lift jets throw instead of being dropped, levelled or zero-filled as measured data.
    * @evidence contracts/common.md#meaningful-documentation States root versus physical jets, fixed-plane derivative premises, immutable borrowing and changed old-family interpolation.
-   * @evidence contracts/performance.md#efficient-algorithms Copies O(N) coefficients and optional lift arrays with constant frame validation; no mesh or complete source is rebuilt.
+   * @evidence contracts/performance.md#efficient-algorithms Copies O(N) coefficient/lift arrays and validates the frame; native capture additionally pays the source owner's bracket, layer/law/binding search and actual scalar2 lookup costs. No mesh or complete part is rebuilt.
    * @evidence contracts/performance.md#reuse-equivalent-work Borrows the unchanged frame/source snapshots and keeps the owner's existing coefficient curvatures when supplied.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns owned numeric arrays and borrows immutable geometry records for the receiver's definition lifetime, without retaining the input chain globally.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns owned numeric arrays and explicit endpoint/binding snapshots, and borrows immutable frame records for the receiving definition's lifetime without retaining the original chain globally.
    */
   export function layer(neck: IAutoMovieLoftChain): IAutoMovieLoftChain.ILayer {
     const a: IAutoMovieLoftChain.ILayer = neck.layers[0]!;
     const b: IAutoMovieLoftChain.ILayer = neck.layers[1]!;
     const H: number = b.y - a.y;
     AutoMovieLoftFrameSource.validate(a);
-    if (a.frame !== undefined && (a.frame.origin[1] !== a.y || a.frame.u.some((v: number, i: number): boolean => v !== [1, 0, 0][i]) || a.frame.v.some((v: number, i: number): boolean => v !== [0, 0, 1][i]) || a.frameSlopes === undefined || a.frameCurvatures === undefined)) throw new Error("The old trunk needs a regular level +X/+Z neck boundary at the same world height");
-    const frame: AutoMovieLoftFrame.IFrame = a.frame ?? { origin: [0, a.y, 0], u: [1, 0, 0], v: [0, 0, 1] };
-    const frameSlopes: AutoMovieLoftFrame.IFrame = a.frameSlopes ?? { origin: [0, 1, 0], u: [0, 0, 0], v: [0, 0, 0] };
-    const frameCurvatures: AutoMovieLoftFrame.IFrame = a.frameCurvatures ?? { origin: [0, 0, 0], u: [0, 0, 0], v: [0, 0, 0] };
-    if (frameSlopes.origin[1] !== 1 || frameCurvatures.origin[1] !== 0 || [...frameSlopes.u, ...frameSlopes.v, ...frameCurvatures.u, ...frameCurvatures.v].some((value: number): boolean => value !== 0)) throw new Error("The old trunk needs unit world-height station speed and a fixed +X/+Z boundary basis through second order");
-    if ((a.lift !== undefined && a.liftSlopes === undefined) || (a.lift === undefined && a.liftCurvatures !== undefined)) throw new Error("The neck boundary has incomplete lift station jets");
+    if (
+      a.frame !== undefined &&
+      (a.frame.origin[1] !== a.y ||
+        a.frame.u.some((v: number, i: number): boolean => v !== [1, 0, 0][i]) ||
+        a.frame.v.some((v: number, i: number): boolean => v !== [0, 0, 1][i]) ||
+        a.frameSlopes === undefined ||
+        a.frameCurvatures === undefined)
+    )
+      throw new Error(
+        "The old trunk needs a regular level +X/+Z neck boundary at the same world height",
+      );
+    const frame: AutoMovieLoftFrame.IFrame = a.frame ?? {
+      origin: [0, a.y, 0],
+      u: [1, 0, 0],
+      v: [0, 0, 1],
+    };
+    const frameSlopes: AutoMovieLoftFrame.IFrame = a.frameSlopes ?? {
+      origin: [0, 1, 0],
+      u: [0, 0, 0],
+      v: [0, 0, 0],
+    };
+    const frameCurvatures: AutoMovieLoftFrame.IFrame = a.frameCurvatures ?? {
+      origin: [0, 0, 0],
+      u: [0, 0, 0],
+      v: [0, 0, 0],
+    };
+    if (
+      frameSlopes.origin[1] !== 1 ||
+      frameCurvatures.origin[1] !== 0 ||
+      [
+        ...frameSlopes.u,
+        ...frameSlopes.v,
+        ...frameCurvatures.u,
+        ...frameCurvatures.v,
+      ].some((value: number): boolean => value !== 0)
+    )
+      throw new Error(
+        "The old trunk needs unit world-height station speed and a fixed +X/+Z boundary basis through second order",
+      );
+    if (
+      (a.lift !== undefined && a.liftSlopes === undefined) ||
+      (a.lift === undefined && a.liftCurvatures !== undefined)
+    )
+      throw new Error("The neck boundary has incomplete lift station jets");
 
     // A cubic Hermite interval of width H with end values f0, f1 and slopes
     // m0, m1 has f'' at its start of (6 (f1 - f0) / H - 4 m0 - 2 m1) / H.
-    const curvatures: number[] = a.coefficients.map((f0: number, i: number): number =>
-      a.curvatures !== undefined
-        ? a.curvatures[i]!
-        : (6 * (b.coefficients[i]! - f0)) / (H * H) - (4 * a.slopes[i]! + 2 * b.slopes[i]!) / H,
+    const curvatures: number[] = a.coefficients.map(
+      (f0: number, i: number): number =>
+        a.curvatures !== undefined
+          ? a.curvatures[i]!
+          : (6 * (b.coefficients[i]! - f0)) / (H * H) -
+            (4 * a.slopes[i]! + 2 * b.slopes[i]!) / H,
     );
 
-    return {
+    const boundary: IAutoMovieLoftChain.ILayer = {
       y: a.y,
       coefficients: [...a.coefficients],
       slopes: [...a.slopes],
@@ -165,11 +216,24 @@ export namespace AutoMovieHumanTrunkNeckSeat {
       frameSlopes,
       frameCurvatures,
       ...(a.frameSource === undefined ? {} : { frameSource: a.frameSource }),
-      ...(a.coefficientSource === undefined ? {} : { coefficientSource: a.coefficientSource }),
+      ...(a.coefficientSource === undefined
+        ? {}
+        : { coefficientSource: a.coefficientSource }),
       ...(a.view === undefined ? {} : { view: a.view }),
-      ...(a.lift !== undefined ? { lift: [...a.lift], liftSlopes: [...a.liftSlopes!] } : {}),
-      ...(a.liftCurvatures === undefined ? {} : { liftCurvatures: [...a.liftCurvatures] }),
+      ...(a.lift !== undefined
+        ? { lift: [...a.lift], liftSlopes: [...a.liftSlopes!] }
+        : {}),
+      ...(a.liftCurvatures === undefined
+        ? {}
+        : { liftCurvatures: [...a.liftCurvatures] }),
     };
+    if (AutoMovieLoftSection.present(neck)) {
+      const field: AutoMovieLoftSectionSource.IEndpoint["field"] | string =
+        AutoMovieLoftSectionConnect.capture(neck, a.y);
+      if (typeof field === "string") throw new Error(field);
+      boundary.sectionSource = AutoMovieLoftSectionSource.bind(boundary, field);
+    }
+    return boundary;
   }
 
   /**
@@ -179,11 +243,17 @@ export namespace AutoMovieHumanTrunkNeckSeat {
    * @param y Height, mm.
    * @returns The ring's points.
    */
-  function ringAt(neck: IAutoMovieLoftChain, y: number): [number, number, number][] {
+  function ringAt(
+    neck: IAutoMovieLoftChain,
+    y: number,
+  ): [number, number, number][] {
     return AutoMovieLoftChain.ring(
       neck,
       y,
-      Array.from({ length: COUNT }, (_: unknown, i: number): number => (2 * Math.PI * i) / COUNT),
+      Array.from(
+        { length: COUNT },
+        (_: unknown, i: number): number => (2 * Math.PI * i) / COUNT,
+      ),
     );
   }
 }

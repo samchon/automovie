@@ -1,6 +1,8 @@
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
+import { AutoMovieLoftSectionConnect } from "./AutoMovieLoftSectionConnect";
+import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /**
@@ -15,21 +17,22 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * is C2 at every layer whatever the derivatives a layer carries. Three-point
  * slopes, as `AutoMovieHumanHorizontalChain.build` gives, leave the cubic
  * spans meeting at a corner in curvature, a line at every layer.
- * Explicit pole-coordinate coefficient data and actual-axis frame data keep
- * their producer's station jets instead. Their source records remain part of
+ * Native scalar compatibility rows, explicit pole-coordinate coefficients,
+ * complete endpoint owners and actual-axis frame data keep their producer's
+ * station jets instead. Their source records remain part of
  * the chain's geometry and must remain immutable with the principal values.
  *
  * A layer shared with another chain is the owner's: the neighbour copies the
  * owner's layer and its derivatives, signed into its own station direction
  * ({@link copy}), and keeps them through the solve.
  *
- * @evidence contracts/common.md#principled-implementation Ordinary fields receive natural-spline jets; explicit coefficient/frame sources retain their actual regular-station jets. Shared endpoint jets make their Hermite boundaries C2 under compatible finite producer premises.
+ * @evidence contracts/common.md#principled-implementation Ordinary fields receive natural-spline jets; native compatibility rows and complete endpoint owners are validated and preserved, while explicit coefficient/frame sources keep their own jets. Changed spans receive explicit generating laws from the retained actual endpoints.
  * @evidence contracts/common.md#clear-and-simple-design One function makes a chain continuous, keeping the layers a caller names.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Layers too close for a stable spline are refused by the station contract, not merged.
  * @evidence contracts/common.md#meaningful-documentation States which fields get jets, which layers are kept and the station premise.
- * @evidence contracts/performance.md#efficient-algorithms One tridiagonal solve per field component, linear in the layers.
+ * @evidence contracts/performance.md#efficient-algorithms Ordinary field solves are O(LW); continuous additionally validates explicit source bindings per bracket and pays SectionConnect.finish's actual endpoint/law lookup and changed-span preparation costs. Source-owned coefficient solves are skipped.
  * @evidence contracts/performance.md#reuse-equivalent-work Each curvature call computes one station-gap array; elimination coefficients are recalculated per component, and supplied curvature results are reused by slopes.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned chain shares unchanged fields and kept layers with its input and owns new derivative arrays; solve scratch is call-local and no module cache retains a chain.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned chain shares original scalar/binding data and kept endpoint layers, owns new ordinary derivative arrays and any published changed-span laws; solve scratch is call-local and no module cache retains a chain.
  */
 export namespace AutoMovieSeamStation {
   /**
@@ -215,7 +218,7 @@ export namespace AutoMovieSeamStation {
    * @evidence contracts/common.md#clear-and-simple-design One coordinator owns spacing, field preparation and selective layer replacement while curvatures/slopes own the tridiagonal mathematics.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects kept layers without coefficient curvatures and nonfinite new coefficient jets; lifted/framed field widths and remaining jet completeness are producer premises, not silently repaired.
    * @evidence contracts/common.md#meaningful-documentation States unchanged principal values, kept-layer identity, optional field behavior and the new layer-table return.
-   * @evidence contracts/performance.md#efficient-algorithms O(LW) field work/output plus O(L) keep/station storage; each field's natural solve is linear, though elimination factors are rebuilt per component.
+   * @evidence contracts/performance.md#efficient-algorithms Ordinary solves cost O(LW); native compatibility solves are skipped. Explicit bindings are validated per bracket before edits, and changed endpoints additionally pay SectionConnect.finish's layer/law/binding and preparation costs.
    * @evidence contracts/performance.md#reuse-equivalent-work Wholly source-owned coefficient/frame tables skip redundant natural solves; ordinary slopes reuse their curvature solve, lift prepares once and kept layer objects remain shared.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The returned chain owns new derivative arrays and shares kept layers/other chain fields; temporary station, value and solver tables are not retained by the module.
    */
@@ -232,10 +235,15 @@ export namespace AutoMovieSeamStation {
       ),
     );
     const kept: Set<number> = new Set(keep);
-    const coefficientSources: boolean = rows.every(
-      (l: IAutoMovieLoftChain.ILayer): boolean =>
-        l.coefficientSource !== undefined,
-    );
+    for (let q: number = 0; q + 1 < rows.length; q++)
+      AutoMovieLoftSectionSource.validate(chain, q, q + 1);
+    const native: boolean = chain.nativeSource !== undefined;
+    const coefficientSources: boolean =
+      native ||
+      rows.every(
+        (l: IAutoMovieLoftChain.ILayer): boolean =>
+          l.coefficientSource !== undefined,
+      );
     const values: number[][] = coefficientSources
       ? []
       : rows.map((l: IAutoMovieLoftChain.ILayer): number[] => [
@@ -271,7 +279,7 @@ export namespace AutoMovieSeamStation {
     const pM: number[][] = planeSpline ? curvatures(t, planes) : [];
     const pS: number[][] = planeSpline ? slopes(t, planes, pM) : [];
 
-    return {
+    return AutoMovieLoftSectionConnect.finish({
       ...chain,
       layers: rows.map(
         (
@@ -279,18 +287,20 @@ export namespace AutoMovieSeamStation {
           k: number,
         ): IAutoMovieLoftChain.ILayer => {
           AutoMovieLoftFrameSource.validate(l);
-          if (kept.has(k)) {
-            if (l.curvatures === undefined)
+          if (kept.has(k) || l.sectionSource !== undefined) {
+            if (l.curvatures === undefined && l.sectionSource === undefined)
               throw new Error(
                 `Kept layer ${k} of ${chain.name} carries no curvatures`,
               );
             return l;
           }
           const coefficientSlopes: number[] =
-            l.coefficientSource === undefined ? cS[k]! : l.slopes;
+            !native && l.coefficientSource === undefined ? cS[k]! : l.slopes;
           const coefficientCurvatures: number[] | undefined =
-            l.coefficientSource === undefined ? cM[k]! : l.curvatures;
-          if (coefficientCurvatures === undefined)
+            !native && l.coefficientSource === undefined
+              ? cM[k]!
+              : l.curvatures;
+          if (coefficientCurvatures === undefined && !native)
             throw new Error(
               "A retained coefficient source carries no station curvatures",
             );
@@ -299,11 +309,12 @@ export namespace AutoMovieSeamStation {
             coefficientSlopes,
             AutoMovieLoftContract.FINITE,
           );
-          AutoMovieLoftContract.jet(
-            chain.name + " layer " + k + " curvatures",
-            coefficientCurvatures,
-            AutoMovieLoftContract.FINITE,
-          );
+          if (coefficientCurvatures !== undefined)
+            AutoMovieLoftContract.jet(
+              chain.name + " layer " + k + " curvatures",
+              coefficientCurvatures,
+              AutoMovieLoftContract.FINITE,
+            );
           return {
             ...l,
             slopes: coefficientSlopes,
@@ -315,7 +326,7 @@ export namespace AutoMovieSeamStation {
           };
         },
       ),
-    };
+    });
   }
 
   /**

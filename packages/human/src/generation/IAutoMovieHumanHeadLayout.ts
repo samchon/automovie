@@ -4,7 +4,17 @@ import type { IAutoMovieHumanHeadLandmarks } from "./IAutoMovieHumanHeadLandmark
 import type { IAutoMovieHumanHeadMandible } from "./IAutoMovieHumanHeadMandible";
 import type { IAutoMovieHumanHeadNeck } from "./IAutoMovieHumanHeadNeck";
 
-/** Stations and sizes of one person, calibration millimetres. */
+/**
+ * Stations and sizes of one person, calibration millimetres.
+ *
+ * @evidence contracts/common.md#principled-implementation Keeps public chords, shared datums, original neck sources and explicitly separate shape priors available to actual source authors.
+ * @evidence contracts/common.md#clear-and-simple-design One layout feeds head mass and regional builders before any tree realization.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Data does not certify reference fit, actual tape closure, internal overlap or final join success.
+ * @evidence contracts/common.md#meaningful-documentation Fields state calibration units and distinguish border direction, bulk relief, measurements and retained conventions.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A data interface performs no calculation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Producers own each original preparation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns numeric records and call-owned source closures; no global figure is retained.
+ */
 export interface IAutoMovieHumanHeadLayout {
   /** Calibration millimetres per world millimetre. */
   scale: number;
@@ -70,6 +80,9 @@ export interface IAutoMovieHumanHeadLayout {
    */
   vault: number;
 
+  /** Actual-tape cranial diagonal-transfer power; affects native fullness above nasion only, preserving lower face/neck and all four original guides. */
+  cranialTapePower?: number;
+
   /** Public head-tape target, calibration mm, with the retired correction. */
   tape: number;
 
@@ -94,7 +107,7 @@ export interface IAutoMovieHumanHeadLayout {
   /** Lower vermilion height. */
   lowerLip: number;
 
-  /** Lips' forward leads over the face at the middles of their vermilions. */
+  /** Separate normal bulk shape priors, calibration mm; neither chord directions nor individual peak targets. */
   lips: [number, number];
 
   /** Retained multiple of maximum incisal mouth-opening capacity; unused by the resting source, not a rest lip gap. */

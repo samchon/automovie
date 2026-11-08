@@ -1,11 +1,12 @@
 import { HumanDebugInspectionPlan } from "./HumanDebugInspectionPlan";
+import { HumanDebugPattern } from "../contracts/HumanDebugPattern";
 import type { IHumanDebugInspectionPlan as P } from "./IHumanDebugInspectionPlan";
 
 /** Inventory-driven plan expansion. Geometry and source membership come only from the real snapshot. */
 export namespace HumanDebugInspectionRows {
-  /** The first retained reference-only frame discovers source identity and the complete inventory. */
-  export function initial(): P.Row {
-    return row(0, "inventory", "inventory", "front", "reference", [], []);
+  /** Discover full-tree identity from reference clay, or scoped originals from a curve-only probe. */
+  export function initial(plan: P): P.Row {
+    return row(0, "inventory", "inventory", "front", "reference", plan.scope ?? [], plan.scope === undefined ? [] : null);
   }
 
   /** Keep known intended stages explicit if source inventory itself is unavailable. */
@@ -17,11 +18,12 @@ export namespace HumanDebugInspectionRows {
       manifest.rows.push(next);
     };
     const cameras: P.Camera[] = manifest.plan.cameras ?? HumanDebugInspectionPlan.CAMERAS;
-    for (const camera of manifest.plan.referenceCameras ?? HumanDebugInspectionPlan.REFERENCE_CAMERAS) add("reference", "whole", camera, []);
-    for (const scope of [{ id: "whole", names: [] }, ...manifest.plan.parts.map((part: P.Part): { id: string; names: string[] } => ({ id: "part:" + part.name, names: [part.name] })), ...manifest.plan.groups.map((group: P.Group): { id: string; names: string[] } => ({ id: "group:" + group.id, names: group.parts }))])
+    const overview: string = manifest.plan.scope === undefined ? "whole" : "selected";
+    for (const camera of manifest.plan.referenceCameras ?? HumanDebugInspectionPlan.REFERENCE_CAMERAS) add("reference", overview, camera, manifest.plan.scope ?? []);
+    for (const scope of [{ id: overview, names: manifest.plan.scope ?? [] }, ...manifest.plan.parts.map((part: P.Part): { id: string; names: string[] } => ({ id: "part:" + part.name, names: [part.name] })), ...manifest.plan.groups.map((group: P.Group): { id: string; names: string[] } => ({ id: "group:" + group.id, names: group.parts }))])
       for (const camera of cameras) {
         add("original", scope.id, camera, scope.names);
-        for (const stage of ["raw-curves", "raw-overlay", "raw-clay"] as const) add(stage, scope.id, camera, scope.names);
+        if (manifest.plan.raw !== false) for (const stage of ["raw-curves", "raw-overlay", "raw-clay"] as const) add(stage, scope.id, camera, scope.names);
       }
     for (const part of manifest.plan.parts) {
       for (const edge of HumanDebugInspectionPlan.EDGES) add("original", "curve:" + part.name + "/" + edge, part.outlineCameras?.[edge] ?? "front", [part.name]);
@@ -31,26 +33,38 @@ export namespace HumanDebugInspectionRows {
     manifest.notes.push("Raw top count is unknown because inventory failed; no unobserved ring is counted complete.");
     if (manifest.plan.allParts) {
       add("original", "all-parts:inventory-unavailable", "front", []);
-      manifest.notes.push("All-parts enumeration is unavailable because the actual tree inventory failed; unknown parts are not counted complete.");
+      manifest.notes.push("All-parts enumeration is unavailable because the requested original inventory failed; unknown parts are not counted complete.");
     }
   }
 
   /** Expand only requested parts and neighbours, never every part times every ring times every camera. */
   export function expand(manifest: P.Manifest, receipt: P.Receipt): void {
     const provenance: Record<string, unknown> = receipt.snapshot.provenance ?? {};
-    const observation: { treeParts?: unknown } = (provenance.observation ?? {}) as { treeParts?: unknown };
+    const observation: { stage?: string; treeParts?: unknown; scope?: { observed?: unknown }; unavailableParts?: unknown } = (provenance.observation ?? {}) as { stage?: string; treeParts?: unknown; scope?: { observed?: unknown }; unavailableParts?: unknown };
     if (!Array.isArray(observation.treeParts) || !observation.treeParts.every((name: unknown): boolean => typeof name === "string"))
       throw new Error("The inventory snapshot exposes no actual production-tree names");
-    manifest.treeParts = [...observation.treeParts] as string[];
+    const scoped: boolean = manifest.plan.scope !== undefined;
+    if (scoped && (observation.stage !== "scoped-source-definition" || !Array.isArray(observation.scope?.observed) || !observation.scope.observed.every((name: unknown): boolean => typeof name === "string"))) throw new Error("The packet scope has no actual scoped-original observation");
+    if (!scoped && observation.stage !== "source-definition") throw new Error("A complete-tree packet cannot adopt a partial original observation");
+    manifest.treeParts = scoped ? [] : [...observation.treeParts] as string[];
+    const observed: string[] = scoped ? [...observation.scope!.observed as string[]] : manifest.treeParts;
+    const records: { name?: string; part?: boolean }[] = Array.isArray(provenance.sourceRecords) ? provenance.sourceRecords as { name?: string; part?: boolean }[] : [];
+    manifest.originalParts = scoped ? observed.filter((name: string): boolean => HumanDebugPattern.matches(name, manifest.plan.scope!, "") && records.some((record: typeof records[number]): boolean => record.name === name && record.part === true)) : [...manifest.treeParts];
+    const unavailable: string[] = Array.isArray(observation.unavailableParts) ? observation.unavailableParts.filter((name: unknown): name is string => typeof name === "string") : [];
+    manifest.sourceScope = scoped ? { requested: [...manifest.plan.scope!], observed, unavailable, tree: "not-assembled" } : null;
     manifest.originalIds = receipt.snapshot.inventory.curves.filter((id: string): boolean =>
-      manifest.treeParts.some((name: string): boolean => id.startsWith("human.construction.view." + name + "/")));
+      manifest.originalParts.some((name: string): boolean => id.startsWith("human.construction.view." + name + "/")));
     const plan: P = manifest.plan;
+    const enumerated: string[] = scoped
+      ? [...new Set([...manifest.originalParts, ...unavailable.filter((name: string): boolean => /^[A-Za-z][A-Za-z0-9_.-]*$/.test(name) && HumanDebugPattern.matches(name, plan.scope!, ""))])]
+      : manifest.originalParts;
     const parts: P.Part[] = plan.allParts
-      ? [...manifest.treeParts.map((name: string): P.Part => plan.parts.find((part: P.Part): boolean => part.name === name) ?? { name }), ...plan.parts.filter((part: P.Part): boolean => !manifest.treeParts.includes(part.name))]
+      ? [...enumerated.map((name: string): P.Part => plan.parts.find((part: P.Part): boolean => part.name === name) ?? { name }), ...plan.parts.filter((part: P.Part): boolean => !enumerated.includes(part.name))]
       : plan.parts;
     const cameras: P.Camera[] = plan.cameras ?? HumanDebugInspectionPlan.CAMERAS;
     const refs: P.Camera[] = plan.referenceCameras ?? HumanDebugInspectionPlan.REFERENCE_CAMERAS;
-    const scopes: { id: string; names: string[] }[] = [{ id: "whole", names: manifest.treeParts }];
+    const overview: string = scoped ? "selected" : "whole";
+    const scopes: { id: string; names: string[] }[] = [{ id: overview, names: manifest.originalParts }];
     const sectionRows: P.Row[] = [];
     const add: (stage: P.Stage, scope: string, camera: P.Camera, key: string, names: string[], ids: string[] | null, reason?: string) => void = (
       stage: P.Stage, scope: string, camera: P.Camera, key: string, names: string[], ids: string[] | null, reason?: string,
@@ -61,15 +75,15 @@ export namespace HumanDebugInspectionRows {
     };
     const idsOf: (names: readonly string[]) => string[] = (names: readonly string[]): string[] => manifest.originalIds.filter((id: string): boolean =>
       names.some((name: string): boolean => id.startsWith("human.construction.view." + name + "/")));
-    add("framing", "whole", "front", "whole", manifest.treeParts, manifest.originalIds);
-    for (const camera of refs) add("reference", "whole", camera, "whole", manifest.treeParts, []);
-    for (const camera of cameras) add("original", "whole", camera, "whole", manifest.treeParts, manifest.originalIds);
+    add("framing", overview, "front", overview, manifest.originalParts, manifest.originalIds);
+    for (const camera of refs) add("reference", overview, camera, overview, manifest.originalParts, []);
+    for (const camera of cameras) add("original", overview, camera, overview, manifest.originalParts, manifest.originalIds);
 
     for (const part of parts) {
       const scope: string = "part:" + part.name;
       const names: string[] = [part.name];
       const ids: string[] = idsOf(names);
-      const absent: string | undefined = manifest.treeParts.includes(part.name) ? undefined : "Requested part is absent from the actual production tree";
+      const absent: string | undefined = manifest.originalParts.includes(part.name) ? undefined : "Requested part is unavailable in the actual original observation";
       scopes.push({ id: scope, names });
       add("framing", scope, "front", scope, names, ids, absent);
       for (const camera of cameras) add("original", scope, camera, scope, names, ids, absent);
@@ -102,8 +116,8 @@ export namespace HumanDebugInspectionRows {
 
     for (const group of plan.groups) {
       const scope: string = "group:" + group.id;
-      const missing: string[] = group.parts.filter((name: string): boolean => !manifest.treeParts.includes(name));
-      const reason: string | undefined = missing.length === 0 ? undefined : "Connection group has unavailable tree members: " + missing.join(",");
+      const missing: string[] = group.parts.filter((name: string): boolean => !manifest.originalParts.includes(name));
+      const reason: string | undefined = missing.length === 0 ? undefined : "Connection group has unavailable original members: " + missing.join(",");
       scopes.push({ id: scope, names: group.parts });
       const ids: string[] = idsOf(group.parts);
       add("framing", scope, "front", scope, group.parts, ids, reason);
@@ -117,19 +131,20 @@ export namespace HumanDebugInspectionRows {
       manifest.rows.push(next);
     }
 
-    // One raw tree document serves every scope and all three display passes.
-    for (const scope of scopes)
+    // One fixed requested raw document serves these scopes; scoped packets do not ask for the whole tree.
+    if (plan.raw !== false) for (const scope of scopes)
       for (const camera of cameras)
         for (const stage of ["raw-curves", "raw-overlay", "raw-clay"] as const) {
-          const missing: string[] = scope.names.filter((name: string): boolean => !manifest.treeParts.includes(name));
-          add(stage, scope.id, camera, scope.id, scope.names, null, missing.length === 0 ? undefined : "Raw scope has unavailable tree members: " + missing.join(","));
+          const missing: string[] = scope.names.filter((name: string): boolean => !manifest.originalParts.includes(name));
+          add(stage, scope.id, camera, scope.id, scope.names, null, missing.length === 0 ? undefined : "Raw scope has unavailable original members: " + missing.join(","));
+          manifest.rows[manifest.rows.length - 1]!.piece = plan.scope === undefined ? "source.parts:tree" : "source.parts:" + plan.scope.join(",");
         }
     if (plan.final)
-      for (const camera of cameras) add("final-clay", "whole", camera, "whole", manifest.treeParts, []);
+      for (const camera of cameras) add("final-clay", overview, camera, overview, manifest.originalParts, []);
   }
 
   /** A stable numeric id keeps server round names below their existing sixty-four-character limit. */
   function row(index: number, stage: P.Stage, scope: string, camera: P.Camera, frameKey: string, names: string[], curveIds: string[] | null): P.Row {
-    return { id: "s" + String(index).padStart(4, "0"), stage, scope, camera, automaticCamera: false, frameKey, names, curveIds, status: "pending", error: null, failureKind: null, artifact: null, startedUtc: null, endedUtc: null, elapsedMilliseconds: null };
+    return { id: "s" + String(index).padStart(4, "0"), stage, scope, camera, automaticCamera: false, frameKey, names, piece: null, curveIds, status: "pending", error: null, failureKind: null, artifact: null, startedUtc: null, endedUtc: null, elapsedMilliseconds: null };
   }
 }

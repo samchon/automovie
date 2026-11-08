@@ -9,6 +9,7 @@ import { AutoMovieConicArc } from "../../../../../packages/engine/src/geometry/c
 import { AutoMovieConicArcField } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicFieldJet";
 import { AutoMovieConicHermite } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicHermite";
+import { AutoMovieViewConic } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewConic";
 import { ConstructionConicOracle } from "../../internal/construction/ConstructionConicOracle";
 import { nclose } from "../../internal/nclose";
 
@@ -50,10 +51,14 @@ export function test_construction_source_value_cost(): void {
     );
     const radial: ReturnType<typeof AutoMovieLoftSectionNative.radial> =
       AutoMovieLoftSectionNative.radial(inputs);
+    const value: ReturnType<typeof AutoMovieLoftSectionNative.value> =
+      AutoMovieLoftSectionNative.value(inputs);
     const point: ReturnType<typeof AutoMovieLoftSectionNative.point> =
       AutoMovieLoftSectionNative.point(inputs);
     const phase: ReturnType<typeof AutoMovieLoftSectionNative.phase> =
       AutoMovieLoftSectionNative.phase(inputs);
+    const shared: AutoMovieLoftSectionNative.ICurve =
+      AutoMovieLoftSectionNative.curve(inputs);
     const angles: number[] = [
       0,
       -0,
@@ -76,10 +81,21 @@ export function test_construction_source_value_cost(): void {
         AutoMovieViewSection.radius(section, phi);
       const actualRadial: ReturnType<typeof radial> = radial(phi);
       const expectedPoint: [number, number] = phase(phi).p;
-      const actualPoint: [number, number] = point(phi);
+      const actualPoint: [number, number] = shared.point(phi);
+      const sharedPhase: ReturnType<typeof phase> = shared.phase(phi);
+      const originalPhase: ReturnType<typeof phase> = phase(phi);
       if (
+        !Object.is(value(phi), expectedRadial[0]) ||
         !actualRadial.every((value: number, i: number): boolean =>
           Object.is(value, expectedRadial[i]),
+        ) ||
+        !point(phi).every((value: number, i: number): boolean =>
+          Object.is(value, actualPoint[i]),
+        ) ||
+        !(["p", "t", "tt"] as const).every((key: "p" | "t" | "tt"): boolean =>
+          sharedPhase[key].every((value: number, i: number): boolean =>
+            Object.is(value, originalPhase[key][i]),
+          ),
         ) ||
         !actualPoint.every((value: number, i: number): boolean =>
           Object.is(value, expectedPoint[i]),
@@ -97,6 +113,7 @@ export function test_construction_source_value_cost(): void {
         )[0];
         const scale: number = Math.max(...inputs.extents);
         if (
+          !nclose(value(phi), rho, 2e-9 * scale) ||
           !nclose(actualPoint[0], rho * Math.cos(phi), 2e-9 * scale) ||
           !nclose(actualPoint[1], rho * Math.sin(phi), 2e-9 * scale)
         )
@@ -127,6 +144,9 @@ export function test_construction_source_value_cost(): void {
   ]) {
     if (!AutoMovieLoftSectionNative.radial(inputs)(0.3).every(Number.isNaN))
       failures.push("invalid source has a radial value fallback");
+    for (const phi of [0, Math.PI / 2, Math.PI, -0.3])
+      if (!Number.isNaN(AutoMovieLoftSectionNative.value(inputs)(phi)))
+        failures.push("invalid source has a scalar fallback at " + phi);
     let rejected: boolean = false;
     try {
       AutoMovieLoftSectionNative.point(inputs);
@@ -142,6 +162,8 @@ export function test_construction_source_value_cost(): void {
   for (const phi of [NaN, Infinity, -Infinity]) {
     if (!AutoMovieLoftSectionNative.radial(valid)(phi).every(Number.isNaN))
       failures.push("nonfinite query has a radial fallback");
+    if (!Number.isNaN(AutoMovieLoftSectionNative.value(valid)(phi)))
+      failures.push("nonfinite query has a scalar fallback");
     let rejected: boolean = false;
     try {
       AutoMovieLoftSectionNative.point(valid)(phi);
@@ -160,6 +182,7 @@ export function test_construction_source_value_cost(): void {
   };
   for (const factory of [
     AutoMovieLoftSectionNative.radial,
+    AutoMovieLoftSectionNative.value,
     AutoMovieLoftSectionNative.point,
   ]) {
     let retained: boolean = false;
@@ -169,6 +192,28 @@ export function test_construction_source_value_cost(): void {
       retained = error === marker;
     }
     if (!retained) failures.push("input getter exception identity changed");
+  }
+  for (const extent of [0, -1, Infinity, NaN]) {
+    if (!Number.isNaN(AutoMovieConicArc.value(extent, 2, E, 0)))
+      failures.push("invalid guide extent has a scalar fallback");
+    const source: AutoMovieViewConic.ICurve = AutoMovieViewSection.bare(
+      { extents: [3, 2, 3, 2] },
+      [E, E, E, E],
+    ).conics;
+    const invalid: AutoMovieViewConic.ICurve = {
+      ...source,
+      quarters: source.quarters.map(
+        (
+          quarter: AutoMovieViewConic.IQuarter,
+          i: number,
+        ): AutoMovieViewConic.IQuarter =>
+          i === 0
+            ? { ...quarter, extents: [extent, quarter.extents[1]] }
+            : quarter,
+      ),
+    };
+    if (!Number.isNaN(AutoMovieViewConic.value(invalid, 0)))
+      failures.push("invalid cardinal value has a scalar fallback");
   }
 
   const solved: AutoMovieViewSection.ISolved = AutoMovieViewSection.solve(

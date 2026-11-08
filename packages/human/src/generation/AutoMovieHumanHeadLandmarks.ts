@@ -20,9 +20,27 @@ import type { IAutoMovieHumanHeadNeck } from "./IAutoMovieHumanHeadNeck";
  * source-curve observers check their actual downstream points. The retired
  * radial head pass still accepts its correction record, but is not the
  * production view lane's source or calibration loop.
+ *
+ * @evidence contracts/common.md#principled-implementation Public dimensions and declared anatomical/geometric conventions produce one shared landmark/layout record before source authoring.
+ * @evidence contracts/common.md#clear-and-simple-design Canonical LS/LI own border chords; separate bulk priors and one regional sulcus owner avoid a profile-to-lip residual cycle.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Clinical cohort peaks do not become personal border targets, and no mixed-cohort coefficient or reference fit supplies direction.
+ * @evidence contracts/common.md#meaningful-documentation Distinguishes public distances, adopted placement conventions, the retired correction path and downstream source observations.
+ * @evidence contracts/performance.md#efficient-algorithms Fixed-size landmark arithmetic and bounded natural spline preparations precede source builders.
+ * @evidence contracts/performance.md#reuse-equivalent-work Head mass, lips and inner parts consume the same canonical record.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns its layout and compiled splines; no person cache is retained.
  */
 export namespace AutoMovieHumanHeadLandmarks {
-  /** Prepare a prior's curves. */
+  /**
+   * Prepare the prior's original profile and dorsum splines.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the engine natural spline on the prior's own knots.
+   * @evidence contracts/common.md#clear-and-simple-design Returns those preparations with their unchanged prior.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No generated skin or person-indexed fit supplies the source.
+   * @evidence contracts/common.md#meaningful-documentation States the two prepared owners.
+   * @evidence contracts/performance.md#efficient-algorithms Two linear-size scalar spline preparations.
+   * @evidence contracts/performance.md#reuse-equivalent-work All layout reads borrow the returned compiled prior.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the prior reference and its two preparations.
+   */
   export function compile(
     prior: AutoMovieHumanHeadPrior.IPrior = AutoMovieHumanHeadPrior.PRIOR,
   ): IAutoMovieHumanHeadCompiled {
@@ -39,7 +57,17 @@ export namespace AutoMovieHumanHeadLandmarks {
     };
   }
 
-  /** No correction: the keys as the definitions place them. */
+  /**
+   * No correction: the original definitions' neutral legacy record.
+   *
+   * @evidence contracts/common.md#principled-implementation Identity entries preserve the generating input at the retired correction boundary.
+   * @evidence contracts/common.md#clear-and-simple-design One record supplies layout's explicit default.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts This is neither a person fit nor new output calibration.
+   * @evidence contracts/common.md#meaningful-documentation Names its neutral and legacy role.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Constant data evaluates no algorithm.
+   * @evidence contracts/performance.md#reuse-equivalent-work Layout calls borrow this immutable policy record.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Module retention is a fixed numeric record.
+   */
   export const NONE: IAutoMovieHumanHeadCorrections = {
     nasion: 0,
     subnasale: 0,
@@ -55,6 +83,14 @@ export namespace AutoMovieHumanHeadLandmarks {
   /**
    * The person's landmarks, stations and sizes from the neck ring and the
    * inputs, before any view part, loft or skin join is constructed.
+   *
+   * @evidence contracts/common.md#principled-implementation Public Euclidean chords close on canonical LS/LI along the explicitly adopted Sn-Pg tangent convention; independent bulk priors no longer determine those directions or a host sulcus knot.
+   * @evidence contracts/common.md#clear-and-simple-design A single record owns anatomical sites and source inputs; regional authors own their actual geometry.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses chords outside their material spans instead of changing inputs, inventing a mixed-cohort ratio or forcing clinical mean peaks.
+   * @evidence contracts/common.md#meaningful-documentation The local datum comments distinguish the geometric direction convention from measured border direction and peak protrusion.
+   * @evidence contracts/performance.md#efficient-algorithms Fixed-size datum arithmetic, one original median spline and two eye-source records; no loft or final realization occurs.
+   * @evidence contracts/performance.md#reuse-equivalent-work The returned canonical sites and bulk priors are consumed directly by the mass and regional source builders.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned numeric layout and source splines; temporary knot lists do not enter a global cache.
    */
   export function layout(
     compiled: IAutoMovieHumanHeadCompiled,
@@ -130,15 +166,18 @@ export namespace AutoMovieHumanHeadLandmarks {
       sn + NP * Math.sin(up - apex),
     ];
 
-    // The lips and the chin about the subnasale-pogonion line.
+    // The shared border chords follow the Sn-Pg material direction. This
+    // geometric convention supplies no clinical peak-protrusion target.
     const upperLip: number = head.face.mouth.upperVermilionHeight * k;
     const lowerLip: number = head.face.mouth.lowerVermilionHeight * k;
-    const line = (y: number): number =>
-      snx + ((pgx - snx) * (sn - y)) / Math.max(1, sn - pg);
-    const ls: P2 = [line(sto + upperLip / 2) + p.lips[0]! * q, sto + upperLip / 2];
-    const li: P2 = [line(sto - lowerLip / 2) + p.lips[1]! * q, sto - lowerLip / 2];
-    const sl: P2 = [0, (li[1] + pg) / 2];
-    sl[0] = li[0] + ((pgx - li[0]) * (li[1] - sl[1])) / (li[1] - pg) - p.sulcus * q;
+    if (!(sn > pg)) throw new Error("The lip material direction requires subnasale above pogonion");
+    const line: (y: number) => number = (y: number): number => snx + ((pgx - snx) * (sn - y)) / (sn - pg);
+    const span: number = Math.hypot(snx - pgx, sn - pg);
+    const tangent: P2 = [(snx - pgx) / span, (sn - pg) / span];
+    const stoPoint: P2 = [line(sto), sto];
+    const ls: P2 = [stoPoint[0] + upperLip * tangent[0], sto + upperLip * tangent[1]];
+    const li: P2 = [stoPoint[0] - lowerLip * tangent[0], sto - lowerLip * tangent[1]];
+    if (!(li[1] >= pg && ls[1] <= sn)) throw new Error("The public vermilion chords leave the lower and upper lip material spans");
     const turn: number = pg - menton;
     const contourGn: P2 = [pgx - (1 - Math.SQRT1_2) * turn, menton + (1 - Math.SQRT1_2) * turn];
 
@@ -146,15 +185,16 @@ export namespace AutoMovieHumanHeadLandmarks {
     // continued under it by its own curvature, plus a natural spline of the
     // landmarks' departures from it; nothing above the forehead.
     const top: number = vertex - g;
-    const ellipse = (y: number): number => centre + (L / 2) * AutoMovieHumanHeadMath.crownShare(y, g, top);
-    const base = (y: number): number => line(y);
+    const ellipse: (y: number) => number = (y: number): number => centre + (L / 2) * AutoMovieHumanHeadMath.crownShare(y, g, top);
+    const base: (y: number) => number = line;
     // `[height, forward place]` of each landmark of the profile.
-    const knots: P2[] = [
+    const profileSites: P2[] = [
       [menton, pgx - turn],
       [contourGn[1], contourGn[0]],
       [pg, pgx],
-      [sl[1], sl[0]],
+      [li[1], li[0]],
       [sto, base(sto)],
+      [ls[1], ls[0]],
       [sn, snx],
       [n, nx],
       [g, gx],
@@ -162,11 +202,12 @@ export namespace AutoMovieHumanHeadLandmarks {
       [g + 0.7 * top, ellipse(g + 0.7 * top)],
       [vertex, ellipse(vertex)],
     ];
+    const knots: P2[] = profileSites.filter((point: P2, i: number, all: P2[]): boolean => i === 0 || point[0] !== all[i - 1]![0]);
     const profile: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
       knots.map((p2: P2): number => p2[0]),
       knots.map((p2: P2): number => p2[1] - ellipse(p2[0])),
     );
-    const along = (y: number): number =>
+    const along: (y: number) => number = (y: number): number =>
       ellipse(y) + AutoMovieNaturalSpline.evaluate(profile, y);
 
     // Beside the midline: the tragion the upper facial depth behind the
@@ -187,7 +228,7 @@ export namespace AutoMovieHumanHeadLandmarks {
       ((prior.mandible.plane[0]! + prior.mandible.plane[1]! * inputs.sex) * Math.PI) / 180;
     const gonion: P2 = [goX, menton + (pgx - turn - goX) * Math.tan(plane)];
 
-    const opening = (e: PublicEye): IAutoMovieHumanHeadEyeOpening => {
+    const opening: (e: PublicEye) => IAutoMovieHumanHeadEyeOpening = (e: PublicEye): IAutoMovieHumanHeadEyeOpening => {
       const inner: number = (head.face.intercanthalWidth * k) / 2;
       const length: number = e.palpebralFissureLength * k;
       return {
@@ -233,10 +274,9 @@ export namespace AutoMovieHumanHeadLandmarks {
       mouthWidth: (head.face.mouth.width * k) / 2,
       upperLip,
       lowerLip,
-      lips: [
-        Math.max(0, ls[0] - along(ls[1])),
-        Math.max(0, li[0] - along(li[1])),
-      ],
+      // Separate normal bulk priors; these neither orient the public chord
+      // nor calibrate an individual's outermost lip to the clinical mean.
+      lips: [p.lips[0]! * q, p.lips[1]! * q],
       gap: f.gape * head.mouthOpening * k,
       joint: f.joint * head.mandibularLaterotrusion * k,
       left: opening(head.face.eyePair.left),
@@ -265,6 +305,8 @@ export namespace AutoMovieHumanHeadLandmarks {
         pronasale: prn,
         subnasale: [snx, sn],
         stomion: [base(sto), sto],
+        labraleSuperius: ls,
+        labraleInferius: li,
         pogonion: [pgx, pg],
         menton: [pgx - turn, menton],
         gnathion: contourGn,
@@ -316,7 +358,7 @@ function canthi(
   face: AutoMovieHumanHeadPrior.IFace,
   scale: number,
 ): [number, number] {
-  const series = (h: readonly number[], unit: number, t: number): number =>
+  const series: (h: readonly number[], unit: number, t: number) => number = (h: readonly number[], unit: number, t: number): number =>
     unit *
     (h[0]! * Math.cos(t) +
       h[1]! * Math.sin(t) +

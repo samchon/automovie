@@ -22,6 +22,26 @@ type Compare = (
 
 /** Boundary regularity questions separated from closed-form radial oracles. */
 export namespace ConstructionConicFieldBoundary {
+  /** A same-geometry descriptor is plain data, and malformed required fields retain the named Failure protocol. */
+  export function malformed(
+    at: Prepared,
+    ray: AutoMovieViewConic.IRay,
+    failures: string[],
+  ): void {
+    for (const field of ["radial", "point", "tangent", "position"] as const) {
+      const broken: AutoMovieViewConic.IRay = {
+        ...ray,
+        [field]: null,
+      } as unknown as AutoMovieViewConic.IRay;
+      const result: ReturnType<typeof AutoMovieViewSectionField.readRay> =
+        AutoMovieViewSectionField.readRay(at, broken);
+      if (!("kind" in result) || !result.detail.includes("descriptor"))
+        failures.push(
+          `Malformed ray ${field} lost its named Failure protocol.`,
+        );
+    }
+  }
+
   /** Guide ownership switches while compact supports approach the exact total-order-two guide limit. */
   export function tie(compare: Compare): void {
     const r: Scalar = [Math.SQRT2 - 1, 0, 0];

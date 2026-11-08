@@ -6,6 +6,8 @@ import {
 
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkAxis } from "./AutoMovieHumanTrunkAxis";
+import { AutoMovieHumanTrunkConnection } from "./AutoMovieHumanTrunkConnection";
+import { AutoMovieHumanTrunkSectionFamily } from "./AutoMovieHumanTrunkSectionFamily";
 import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
 
 /**
@@ -30,11 +32,11 @@ import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
  * back at its site; an untaped site keeps its sourced shoulder. The box is
  * symmetric along `u` about the mid-depth, so one common shoulder serves the
  * four quarters with no departure until a sourced law of the front and back
- * quarters lands. A head supplies a top pole inside its neck volume: the
- * trunk closes there before the merge trims its hidden dome away. An open
- * neck ring alone gives the fold no host surface above the intersection.
- * With that internal cap, signed scalar hull ranges keep opposite outlines
- * apart on the entire closed span. Its top source tangent is the secant from
+ * quarters lands. The head supplies the same upper scalar-support datum as
+ * before, preserving the original angle parameter and lower polynomials.
+ * A shared neck ends the actual part at its regular connection: the support
+ * above that end is not a lofted cap. Signed scalar hull ranges retain the
+ * original noncrossing support span. Its upper support tangent is the secant from
  * the last neck radius to the pole in the shared angle parameter, with zero
  * second parameter derivative. It is nonzero; a range filter must not flatten
  * a wrong-way pole tangent to zero. Physical station derivatives remain
@@ -57,9 +59,9 @@ export namespace AutoMovieHumanTrunkViewPart {
   export type IResult = AutoMovieHumanSiteViewPart.IResult;
 
   /**
-   * The trunk's hidden top closure, on the head mass's own axis and above
-   * the last neck section, in calibration millimetres. The caller derives
-   * it from the neck section and the head axis, never a sampled skin mesh.
+   * The trunk's retained upper scalar-support datum, on the head axis above
+   * the regular connection, in calibration millimetres. A shared connection
+   * excludes it from the actual part domain without changing the source clock.
    */
   export interface ITop {
     /** Forward place of the head mass's axis, mm. */
@@ -73,7 +75,7 @@ export namespace AutoMovieHumanTrunkViewPart {
    * Build the trunk base from its views.
    *
    * @param views The perineum and the sites' knots.
-   * @param top Optional top pole inside the head. Without a head, the last section remains open for standalone inspection.
+   * @param top Optional upper source support. A shared neck restricts the actual part to its regular end; standalone callers can explicitly retain the closure.
    * @returns The part, its loft and the diagnostics; generation keeps going on a null loft, whose diagnostics say why.
    *
    * @evidence contracts/common.md#principled-implementation Named values and the derived pole/axis remain fixed. Signed scalar hulls author noncrossing closed-span edges; the top secant and zero second derivative are normalized angle jets, not finite physical-station jets. This supplies an internal cap without certifying final-surface G2.
@@ -88,6 +90,18 @@ export namespace AutoMovieHumanTrunkViewPart {
     views: IAutoMovieHumanTrunkViews,
     top?: ITop,
   ): IResult {
+    return AutoMovieHumanSiteViewPart.loft(define(views, top));
+  }
+
+  /** Prepare the identical original outlines, fullness, canonical neck and axis before raw lofting. */
+  export function define(
+    views: IAutoMovieHumanTrunkViews,
+    top?: ITop,
+    sections: ReadonlyMap<
+      string,
+      AutoMovieHumanTrunkSectionFamily.IPlane
+    > = AutoMovieHumanTrunkSectionFamily.define(views),
+  ): AutoMovieHumanSiteViewPart.IDefinition {
     // A site whose back stands at or before its front has no depth, and one
     // at or under the perineum no place above the pole.
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
@@ -107,7 +121,65 @@ export namespace AutoMovieHumanTrunkViewPart {
           detail: `site ${s.site} at ${s.y} mm: front ${s.front} mm over back ${s.back} mm, perineum at ${views.perineum.y} mm`,
         });
     if (diagnostics.length !== 0)
-      return { part: null, loft: null, view: null, diagnostics };
+      return { part: null, view: null, diagnostics };
+
+    // Candidate shoulders remain candidate-dependent. Independent tape sites
+    // retain the same box and solve once for this common original family.
+    const fullness: Map<string, { shoulder: number }> = new Map();
+    let unavailable: boolean = false;
+    for (const site of views.sites) {
+      const plane: AutoMovieHumanTrunkSectionFamily.IPlane | undefined =
+        sections.get(site.site);
+      const depth: number = (site.front - site.back) / 2;
+      const extents: readonly number[] = site.sectionBox?.extents ?? [depth, site.half, depth, site.half];
+      if (
+        plane === undefined ||
+        plane.y !== site.y ||
+        plane.back !== site.back ||
+        plane.origin[0] !== (site.sectionBox === undefined ? (site.front + site.back) / 2 : site.back + extents[2]!) ||
+        plane.origin[1] !== 0 ||
+        (site.sectionBox !== undefined &&
+          (extents[0] !== extents[2] || extents[1] !== site.half || extents[3] !== site.half ||
+            site.front !== site.back + (extents[0]! + extents[2]!))) ||
+        plane.box.extents.some(
+          (extent: number, quarter: number): boolean =>
+            extent !== extents[quarter],
+        )
+      ) {
+        diagnostics.push({
+          producer: `view.${NAME}`,
+          level: 2,
+          contract: "original section family",
+          detail: `site ${site.site} does not belong to the supplied common plane`,
+        });
+        unavailable = true;
+        continue;
+      }
+      if ("shoulder" in site.fullness) {
+        fullness.set(site.site, site.fullness);
+        continue;
+      }
+      if (
+        plane.fullness !== site.fullness &&
+        (!("girth" in plane.fullness) ||
+          plane.fullness.girth !== site.fullness.girth)
+      ) {
+        diagnostics.push({
+          producer: `view.${NAME}`,
+          level: 2,
+          contract: "original section family",
+          detail: `tape ${site.site} does not belong to the supplied common plane`,
+        });
+        unavailable = true;
+        continue;
+      }
+      const solved: AutoMovieHumanTrunkSectionFamily.IFullness =
+        plane.resolve();
+      diagnostics.push(...solved.diagnostics);
+      if (solved.fullness === null) unavailable = true;
+      else fullness.set(site.site, solved.fullness);
+    }
+    if (unavailable) return { part: null, view: null, diagnostics };
 
     const last: IAutoMovieHumanTrunkViews.ISite =
       views.sites[views.sites.length - 1]!;
@@ -117,9 +189,9 @@ export namespace AutoMovieHumanTrunkViewPart {
     )
       return {
         part: null,
-        loft: null,
         view: null,
         diagnostics: [
+          ...diagnostics,
           {
             producer: `view.${NAME}`,
             level: 2,
@@ -139,7 +211,9 @@ export namespace AutoMovieHumanTrunkViewPart {
       );
       const secant: number = -Math.PI / (Math.PI - theta);
       const depth: number = (last.front - last.back) / 2;
-      const jet = (edge: number): IAutoMovieViewPart.IKnot["jet"] => ({
+      const jet: (edge: number) => IAutoMovieViewPart.IKnot["jet"] = (
+        edge: number,
+      ): IAutoMovieViewPart.IKnot["jet"] => ({
         first: edge * secant,
         second: 0,
       });
@@ -150,18 +224,31 @@ export namespace AutoMovieHumanTrunkViewPart {
 
     const definition: Pick<
       AutoMovieHumanSiteViewPart.IInput,
-      "sites" | "pole" | "poleJets" | "ranges"
+      "sites" | "pole" | "poleJets" | "ranges" | "fullnessRange"
     > = {
+      // Native shoulder values must stay in (0,1) between their named sites.
+      // The existing C2 hull law prepares automatic jets here, before the
+      // connection transfers those real derivatives into explicit quarters.
+      // Positive endpoint values and this closed control hull keep every
+      // interior shoulder positive without clamping an evaluated source.
+      fullnessRange: { minimum: 0, maximum: 1 },
       sites: views.sites.map(
         (
           s: IAutoMovieHumanTrunkViews.ISite,
         ): AutoMovieHumanSiteViewPart.ISite => {
-          const depth: number = (s.front - s.back) / 2;
+          const plane: AutoMovieHumanTrunkSectionFamily.IPlane = sections.get(
+            s.site,
+          )!;
           return {
             site: s.site,
-            station: s.y,
-            edges: [depth, s.half, -depth, -s.half],
-            fullness: s.fullness,
+            station: plane.y,
+            edges: [
+              plane.box.extents[0]!,
+              plane.box.extents[1]!,
+              -plane.box.extents[2]!,
+              -plane.box.extents[3]!,
+            ],
+            fullness: fullness.get(s.site)!,
           };
         },
       ),
@@ -192,7 +279,7 @@ export namespace AutoMovieHumanTrunkViewPart {
           (s: IAutoMovieHumanTrunkViews.ISite): IAutoMovieViewPart.IKnot => ({
             site: s.site,
             station: s.y,
-            value: s.back,
+            value: sections.get(s.site)!.back,
           }),
         ),
         ...(top === undefined
@@ -224,9 +311,9 @@ export namespace AutoMovieHumanTrunkViewPart {
     if (typeof axis === "string")
       return {
         part: null,
-        loft: null,
         view: null,
         diagnostics: [
+          ...diagnostics,
           {
             producer: `view.${NAME}`,
             level: 2,
@@ -235,13 +322,21 @@ export namespace AutoMovieHumanTrunkViewPart {
           },
         ],
       };
-    return AutoMovieHumanSiteViewPart.create({
-      name: NAME,
-      axis: axis.axis,
-      ...definition,
-      order: ORDER,
-      samples: SAMPLES,
-      gap: GAP,
-    });
+    const built: AutoMovieHumanSiteViewPart.IDefinition =
+      AutoMovieHumanSiteViewPart.define({
+        name: NAME,
+        axis: axis.axis,
+        ...definition,
+        order: ORDER,
+        samples: SAMPLES,
+        gap: GAP,
+      });
+    const prepared: AutoMovieHumanSiteViewPart.IDefinition = {
+      ...built,
+      diagnostics: [...diagnostics, ...built.diagnostics],
+    };
+    return views.connection === undefined
+      ? prepared
+      : AutoMovieHumanTrunkConnection.apply(prepared, views.connection);
   }
 }

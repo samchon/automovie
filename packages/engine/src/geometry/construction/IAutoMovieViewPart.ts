@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import type { AutoMovieViewAxis } from "./AutoMovieViewAxis";
+import type { IAutoMovieLoftRelief } from "./IAutoMovieLoftRelief";
 
 /**
  * A part as its views draw it, the input of the view-to-section operator
@@ -50,9 +51,14 @@ export interface IAutoMovieViewPart {
 
   /**
    * Stations of the emitted chain's layers in mm, strictly increasing. They
-   * must include every outline and fullness knot's station, so each named site
-   * is a layer and reads back exactly; between knots they stand as densely as
-   * the surface needs.
+   * For a direct shoulder/top source, its continuous functions own every knot
+   * even without a layer there. Generic girth's coefficient representation
+   * requires each retained contour/fullness knot as a declared station.
+   * Controls outside that interval
+   * may remain to preserve the original scalar function and explicit parameter;
+   * they emit no layer. Between sites, stations follow the surface's needs.
+   * Generic girth checks all those declared knots regardless of site label;
+   * internal interpolation and axis-source knots require no extra layers.
    */
   stations: number[];
 
@@ -71,8 +77,12 @@ export interface IAutoMovieViewPart {
    * perineum's cap), where all four outlines and the girth have a knot of
    * value 0 at that end's station. The chain then carries that point as its
    * `pole`. Radial source preparation uses a signed square-root parameter
-   * for one pole and an angle parameter for two; an explicit parameter must
-   * match that closure. The loft adds rings at equal steps of the root of
+   * for one pole and an angle parameter for two by default. An explicit original
+   * parameter must have the same singular endpoint and inward side at every
+   * actual pole; its other endpoint may lie outside the retained interval.
+   * Parameter endpoints alone declare no cap. Preserving an old native field
+   * requires the removed cap's actual effects to vanish on the kept interval.
+   * The loft adds rings at equal steps of the root of
    * pole distance and moves shoulders toward the conic ellipse value by a
    * quintic smoothstep over the nearest outline-knot span. These construction
    * choices require regular compatible source/frame jets for a smooth dome;
@@ -86,6 +96,15 @@ export interface IAutoMovieViewPart {
 
   /** Uniform phases of the chain's own rings, as `IAutoMovieLoftChain.samples`. */
   samples: number;
+
+  /**
+   * Features written as heights over windows of the lofted chain's chart,
+   * millimetres of station and radians of phase (`IAutoMovieLoftRelief`),
+   * composed onto the chain the loft returns (its `reliefs`), so every reader
+   * of that chain, the construction tree's realized face included, reads the
+   * part with them. Absent means none: the chain is unchanged.
+   */
+  reliefs?: IAutoMovieLoftRelief[];
 }
 export namespace IAutoMovieViewPart {
   /**

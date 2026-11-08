@@ -49,14 +49,12 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
     const sex: AutoMovieHumanSex = AutoMovieHumanBodyAnatomy.sexOf(person.parameters);
     const k: number = plan.scale;
     const tragion: number = plan.vertex - AutoMovieHumanHeadArcs.tragionDrop(inputs.head, sex) * k;
-    const top = (ear: IAutoMovieHumanEar): number => tragion + AutoMovieHumanEarPlace.aboveTragion(ear, sex) * k;
+    const top: (ear: IAutoMovieHumanEar) => number = (ear: IAutoMovieHumanEar): number => tragion + AutoMovieHumanEarPlace.aboveTragion(ear, sex) * k;
     const composed: AutoMovieHumanHeadComposer.IOutput = AutoMovieHumanHeadComposer.compose(plan, inputs.head.earPair, neck.bottom[1], {
       tragion,
       ears: { left: top(inputs.head.earPair.left), right: top(inputs.head.earPair.right) },
       faceExponent: AutoMovieHumanFacePlan.exponent(inputs.head, sex),
     });
-    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [...composed.diagnostics];
-
     // The chains each argument shows: the placed parts' own lofts, or the
     // head's construction tree realized by the engine.
     const chains: (IAutoMovieLoftChain | null)[] = [];
@@ -66,12 +64,19 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
       for (const study of composed.studies) chains.push(study.loft.chain);
     }
     if (which === "nose.alone") chains.push(...composed.parts.filter((p: AutoMovieHumanHeadComposer.IPlaced): boolean => p.feature.part.name === "nose").map((p: AutoMovieHumanHeadComposer.IPlaced): IAutoMovieLoftChain | null => p.loft.chain));
+
+    // Explicit raw getters may add their own failures; read diagnostics only
+    // after those requested results exist, without waking any other loft.
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [...composed.diagnostics];
+
     // `nose`: the head mass and the nose alone, one merge.
-    const subset: AutoMovieHumanHeadComposer.IOutput =
-      which === "nose" ? { ...composed, parts: composed.parts.filter((p: AutoMovieHumanHeadComposer.IPlaced): boolean => p.feature.part.name === "nose") } : composed;
+    const subset: Pick<AutoMovieHumanHeadComposer.IOutput, "massView" | "parts"> = {
+      massView: composed.massView,
+      parts: which === "nose" ? composed.parts.filter((p: AutoMovieHumanHeadComposer.IPlaced): boolean => p.feature.part.name === "nose") : composed.parts,
+    };
     let skin: IHumanDebugDocument.IPart[] = [];
     if (which === "all" || which === "composed" || which === "nose") {
-      const realized: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction(AutoMovieHumanHeadTree.of(subset), { chord: CHORD });
+      const realized: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction(AutoMovieHumanHeadTree.of(subset), { chord: CHORD, sources: composed.sources });
       for (const d of realized.diagnostics) diagnostics.push({ producer: `construction.${d.node}`, level: 6, contract: d.contract, detail: d.detail });
       chains.push(...realized.chains);
       if (which === "all") for (const j of realized.joins) chains.push(j.blend.chain);

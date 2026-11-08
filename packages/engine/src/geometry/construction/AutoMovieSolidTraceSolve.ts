@@ -1,5 +1,7 @@
+import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import type { AutoMovieSolidTraceLaw } from "./AutoMovieSolidTraceLaw";
+import { AutoMovieSolidTraceTrial } from "./AutoMovieSolidTraceTrial";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
@@ -9,7 +11,8 @@ type Vec4 = [number, number, number, number];
 type IJet = IAutoMovieSolidSurface.IJet;
 type IPoint = AutoMovieSolidIntersection.IPoint;
 type ILaw = AutoMovieSolidTraceLaw.ILaw;
-const { combine, cross, dot, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
+const { combine, cross, dot, norm, sub }: typeof AutoMovieSolidVector =
+  AutoMovieSolidVector;
 
 /**
  * The meeting points of an intersection trace (`AutoMovieSolidIntersection`): Newton's method on the four equations `A(s, phi) = B(y, theta)` and the parameter law, on one host face or across an atlas's faces where the host point leaves one, each point's first and second rates in `t` by the implicit function theorem, and the continuation step from one point to the next with its halving.
@@ -47,9 +50,9 @@ export namespace AutoMovieSolidTraceSolve {
    * @returns The point with its face, or null when a solve fails or the point
    *   leaves through an open end.
    *
-   * @evidence contracts/common.md#principled-implementation Solves three surface-meeting equations plus the selected law with backtracked Newton, then maps rejected host-chart points through the atlas and derives rates by the implicit function theorem on a nonsingular Jacobian.
+   * @evidence contracts/common.md#principled-implementation Backtracked Newton solves three meeting equations plus the selected law on actual owned charts. An exterior host proposal first uses the atlas's neighbour boundary foot as an initializer, whose actual residual must still descend; accepted meetings derive rates through a nonsingular Jacobian.
    * @evidence contracts/common.md#clear-and-simple-design The atlas loop owns face identity while solveOn owns one-face Newton and point owns the rate equations.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Accepts the norm of position differences plus the raw law residual; those terms have law-dependent units and no dimensional scaling is applied. It checks host kept regions here, with surface domains checked by the outer tracer.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves the raw unscaled residual, tolerance and shared crossing budget. No exterior source is evaluated, and no mapped boundary foot is published without solving the meeting. Numeric unavailability is null; callback/binding errors propagate. Trim-kept checks remain separate from original chart ownership.
    * @evidence contracts/common.md#meaningful-documentation Gives chart guess order, parameter, starting face, local tolerance/failure semantics and the raw-residual/domain boundaries.
    * @evidence contracts/performance.md#efficient-algorithms At most five face Newton attempts each use up to 40 iterations with 20 trial halvings, plus a polish and two rate solves; atlas/surface/law callback costs are included rather than reduced to one jet per iteration.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses accepted jets/residuals during Newton and one Jacobian's values for the two rate systems, but factorization and arc-law callback readings are repeated.
@@ -66,23 +69,29 @@ export namespace AutoMovieSolidTraceSolve {
   ): IPoint | null {
     let f: number = face;
     let x: Vec4 = [guess[0], guess[1], guess[2], guess[3]];
+    const budget: { left: number } = { left: SWITCHES };
     for (let k: number = 0; k <= SWITCHES; k++) {
       const p: IPoint | null = solveOn(
         part,
-        host.faces[f]!,
+        host,
         law,
         t,
         x,
         tolerance,
+        f,
+        budget,
       );
       if (p === null) return null;
-      if (host.kept(f, p.y, p.theta)) return { ...p, face: f };
+      f = p.face;
+      if (host.kept(f, p.y, p.theta)) return p;
+      if (budget.left === 0) return null;
       const next: { face: number; u: number; v: number } | null = host.across(
         f,
         p.y,
         p.theta,
       );
       if (next === null) return null;
+      budget.left--;
       f = next.face;
       x = [p.s, p.phi, next.u, next.v];
     }
@@ -103,20 +112,32 @@ export namespace AutoMovieSolidTraceSolve {
    */
   function solveOn(
     part: IAutoMovieSolidSurface,
-    host: IAutoMovieSolidSurface,
+    host: IAutoMovieSolidAtlas,
     law: ILaw,
     t: number,
     guess: Readonly<Vec4>,
     tolerance: number,
+    face: number,
+    budget: { left: number },
   ): IPoint | null {
     let x: Vec4 = [guess[0], guess[1], guess[2], guess[3]];
-    let a: IJet = part.jet(x[0], x[1]);
-    let b: IJet = host.jet(x[2], x[3]);
-    const residual: (aj: IJet, bj: IJet, xs: Vec4) => number[] = (aj: IJet, bj: IJet, xs: Vec4): number[] => [
-      ...sub(aj.p, bj.p),
-      law.g(aj.p, xs[1], t),
-    ];
-    const size: (r: number[]) => number = (r: number[]): number => Math.hypot(...r);
+    const initialA: IJet | null = AutoMovieSolidDomain.jet(part, x[0], x[1]);
+    if (initialA === null) return null;
+    const initialB: ReturnType<typeof AutoMovieSolidTraceTrial> =
+      AutoMovieSolidTraceTrial(host, face, x[2], x[3], budget.left > 0);
+    if (initialB === null) return null;
+    if (initialB.crossed) budget.left--;
+    let currentFace: number = initialB.face;
+    x = [x[0], x[1], initialB.u, initialB.v];
+    let a: IJet = initialA;
+    let b: IJet = initialB.jet;
+    const residual: (aj: IJet, bj: IJet, xs: Vec4) => number[] = (
+      aj: IJet,
+      bj: IJet,
+      xs: Vec4,
+    ): number[] => [...sub(aj.p, bj.p), law.g(aj.p, xs[1], t)];
+    const size: (r: number[]) => number = (r: number[]): number =>
+      Math.hypot(...r);
     let r: number[] = residual(a, b, x);
     let gap: number = size(r);
 
@@ -137,13 +158,25 @@ export namespace AutoMovieSolidTraceSolve {
           x[2] + k * dx[2]!,
           x[3] + k * dx[3]!,
         ];
-        const ay: IJet = part.jet(y[0], y[1]);
-        const by: IJet = host.jet(y[2], y[3]);
-        const ry: number[] = residual(ay, by, y);
+        const ay: IJet | null = AutoMovieSolidDomain.jet(part, y[0], y[1]);
+        if (ay === null) continue;
+        const by: ReturnType<typeof AutoMovieSolidTraceTrial> =
+          AutoMovieSolidTraceTrial(
+            host,
+            currentFace,
+            y[2],
+            y[3],
+            budget.left > 0,
+          );
+        if (by === null) continue;
+        const mapped: Vec4 = [y[0], y[1], by.u, by.v];
+        const ry: number[] = residual(ay, by.jet, mapped);
         if (size(ry) < gap) {
-          x = y;
+          if (by.crossed) budget.left--;
+          currentFace = by.face;
+          x = mapped;
           a = ay;
-          b = by;
+          b = by.jet;
           r = ry;
           gap = size(ry);
           moved = true;
@@ -169,15 +202,29 @@ export namespace AutoMovieSolidTraceSolve {
         x[2] + polish[2]!,
         x[3] + polish[3]!,
       ];
-      const ay: IJet = part.jet(y[0], y[1]);
-      const by: IJet = host.jet(y[2], y[3]);
-      if (size(residual(ay, by, y)) <= gap) {
-        x = y;
-        a = ay;
-        b = by;
+      const ay: IJet | null = AutoMovieSolidDomain.jet(part, y[0], y[1]);
+      if (ay !== null) {
+        const by: ReturnType<typeof AutoMovieSolidTraceTrial> =
+          AutoMovieSolidTraceTrial(
+            host,
+            currentFace,
+            y[2],
+            y[3],
+            budget.left > 0,
+          );
+        if (by !== null) {
+          const mapped: Vec4 = [y[0], y[1], by.u, by.v];
+          if (size(residual(ay, by.jet, mapped)) <= gap) {
+            if (by.crossed) budget.left--;
+            currentFace = by.face;
+            x = mapped;
+            a = ay;
+            b = by.jet;
+          }
+        }
       }
     }
-    return point(a, b, law, t, x, 0);
+    return point(a, b, law, t, x, currentFace);
   }
 
   /** The 4 by 4 Jacobian by rows: the meeting's three, then the parameter's. */
@@ -313,7 +360,11 @@ export namespace AutoMovieSolidTraceSolve {
     let halvings: number = 0;
 
     /** Every accepted or rejected meeting candidate spends the same product work budget. */
-    for (let attempt: number = 0; current.t !== target && attempt < 1024; attempt++) {
+    for (
+      let attempt: number = 0;
+      current.t !== target && attempt < 1024;
+      attempt++
+    ) {
       const step: number =
         Math.abs(target - current.t) < Math.abs(h) ? target - current.t : h;
       const x0: Vec4 = [current.s, current.phi, current.y, current.theta];
@@ -344,15 +395,17 @@ export namespace AutoMovieSolidTraceSolve {
       const allowance: number = 0.25 * length + 10 * tolerance;
 
       /** A missing correction is rejected; a present one keeps the original defect norm. */
-      const defect: number = next === null ? Infinity : norm(sub(next.point, predicted));
+      const defect: number =
+        next === null ? Infinity : norm(sub(next.point, predicted));
       if (next !== null && defect <= allowance) {
         current = next;
         halvings = 0;
 
         // Recovery proposes a larger step; its own corrected result must still pass.
-        h = defect <= allowance / 8
-          ? Math.sign(step) * Math.min(Math.abs(span), 2 * Math.abs(step))
-          : step;
+        h =
+          defect <= allowance / 8
+            ? Math.sign(step) * Math.min(Math.abs(span), 2 * Math.abs(step))
+            : step;
         continue;
       }
       if (++halvings > HALVINGS) return null;

@@ -62,26 +62,61 @@ export namespace AutoMovieViewSectionConic {
   }
 
   /**
-   * Actual native-piece arclength in the section's length unit.
+   * Actual native-piece arclength after a fixed diagonal map, in the same length unit.
    *
-   * @evidence contracts/common.md#principled-implementation Integrates each quadratic half in its nearest-end native chart, using the retained turn partition without subtracting a near-one quadrature abscissa. Each convex cubic end is enclosed by its chord and control-polygon lengths; positive homogeneous subdivision tightens that enclosure independently of weight-induced speed spikes.
+   * axisScale is dimensionless, finite and nonzero; reflection has the same
+   * norm. Source extents, controls, weights, native supports and partitions
+   * remain unchanged. Only derivative/control differences enter the mapped
+   * norm. tolerance is a positive native estimated target, default1e-7;
+   * unresolved work/depth or nonfinite arithmetic remains NaN.
+   *
+   * @evidence contracts/common.md#principled-implementation Integrates each quadratic half in its nearest-end native chart, using the retained turn partition without subtracting a near-one quadrature abscissa. Each same original convex cubic end is enclosed by its diagonally mapped chord and control-polygon lengths; invertible linear maps preserve the convex/positive-weight premises; positive homogeneous subdivision tightens that enclosure independently of weight-induced speed spikes.
    * @evidence contracts/common.md#clear-and-simple-design Native quadrature and geometric end enclosures return one length or NaN for the identical composed source.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts An unresolved enclosure, nonfinite speed or exhausted bound returns NaN; a chord alone never substitutes for an unresolved arclength.
-   * @evidence contracts/common.md#meaningful-documentation Half the 1e-7 length budget belongs to all eight possible ends and half to quadratic quadrature; 64epsilon floors account for floating arithmetic, without an interval-certificate claim.
+   * @evidence contracts/common.md#meaningful-documentation Half the requested length budget belongs to all eight possible ends and half to quadratic quadrature; 64epsilon floors account for floating arithmetic, without an interval-certificate claim.
    * @evidence contracts/performance.md#efficient-algorithms At most8192 interior panel visits and8192 per present end, each to depth24; ordinary flat ends close their enclosure without subdivision.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses prepared controls/native partitions; child quadrature panels reuse their coarse integrals.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Eight local quadratic-half domains and bounded invocation-owned subdivision stacks die on return or failure.
    */
   export function length(
     section: Pick<AutoMovieViewSection.ISection, "conics">,
+    axisScale: readonly [number, number] = [1, 1],
+    tolerance: number = 1e-7,
   ): number {
     if (section.conics.failure !== null) return NaN;
+    if (
+      !Array.isArray(axisScale) ||
+      axisScale.length !== 2 ||
+      !axisScale.every(
+        (value: number): boolean => Number.isFinite(value) && value !== 0,
+      ) ||
+      !(Number.isFinite(tolerance) && tolerance > 0)
+    )
+      return NaN;
+    const scale: readonly [number, number] = [
+      Math.abs(axisScale[0]),
+      Math.abs(axisScale[1]),
+    ];
     const domains: IDomain[] = [];
     let total: number = 0;
-    for (const arc of section.conics.quarters) {
-      for (const patch of [arc.start, arc.end])
+    for (const [q, arc] of section.conics.quarters.entries()) {
+      // These coefficients scale the existing velocity only; no source preparation reads them.
+      const derivativeLengths: readonly [number, number] = [
+        arc.extents[0] * scale[q % 2]!,
+        arc.extents[1] * scale[(q + 1) % 2]!,
+      ];
+      if (
+        !derivativeLengths.every(
+          (value: number): boolean => Number.isFinite(value) && value > 0,
+        )
+      )
+        return NaN;
+      for (const [end, patch] of [arc.start, arc.end].entries())
         if (patch !== null) {
-          const measured: number = endLength(patch, 5e-8 / 8);
+          const measured: number = endLength(patch, tolerance / 16, [
+            scale[(q + end) % 2]!,
+            scale[(q + end + 1) % 2]!,
+          ]);
           if (!Number.isFinite(measured)) return NaN;
           total += measured;
         }
@@ -102,8 +137,8 @@ export namespace AutoMovieViewSectionConic {
           ],
           speed: (t: number): number =>
             AutoMovieConicArc.speed(
-              arc.extents[reverse ? 1 : 0],
-              arc.extents[reverse ? 0 : 1],
+              derivativeLengths[reverse ? 1 : 0],
+              derivativeLengths[reverse ? 0 : 1],
               arc.shoulder,
               t,
             ),
@@ -121,7 +156,8 @@ export namespace AutoMovieViewSectionConic {
             a,
             b,
             coarse: panel(domain.speed, a, b),
-            tolerance: 5e-8 / (domains.length * (domain.anchors.length - 1)),
+            tolerance:
+              tolerance / 2 / (domains.length * (domain.anchors.length - 1)),
             depth: 0,
           },
         ];
@@ -169,7 +205,7 @@ export namespace AutoMovieViewSectionConic {
           }
         }
       }
-    return total;
+    return Number.isFinite(total) && total > 0 ? total : NaN;
   }
 
   /**
@@ -259,6 +295,7 @@ export namespace AutoMovieViewSectionConic {
   function endLength(
     patch: AutoMovieConicHermite.IPatch,
     tolerance: number,
+    axisScale: readonly [number, number] = [1, 1],
   ): number {
     const scale: number = Math.max(...patch.weights);
     const controls: [number, number, number][] = patch.points.map(
@@ -278,8 +315,8 @@ export namespace AutoMovieViewSectionConic {
       const current: IEndPanel = pending.pop()!;
       const points: [number, number][] = current.controls.map(
         (point: readonly [number, number, number]): [number, number] => [
-          patch.deficit * (point[0] / point[2]),
-          patch.height * (point[1] / point[2]),
+          patch.deficit * axisScale[0] * (point[0] / point[2]),
+          patch.height * axisScale[1] * (point[1] / point[2]),
         ],
       );
       const lower: number = Math.hypot(

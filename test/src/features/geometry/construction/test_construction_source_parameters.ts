@@ -2,6 +2,7 @@ import { AutoMovieConstructionViews, AutoMovieViewOutline, AutoMovieViewParallel
 import type { AutoMovieConstructionOutlineParameter, IAutoMovieConstructionParallelAxis } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { ConstructionSourceParameterSubset } from "../../internal/construction/ConstructionSourceParameterSubset";
 import { nclose } from "../../internal/nclose";
 
 /**
@@ -12,10 +13,11 @@ import { nclose } from "../../internal/nclose";
  * 2. The angle source through station 0/2/4 and values 10/11/10 has the independent natural cubic 10+3theta/pi-4theta^3/pi^3 on the first half. Both nonzero endpoint values survive, including a station 1e-300 near the bottom.
  * 3. A declared parallel origin combines root X, angle Y and station Z at two scales a thousand apart. Actual frames and their original metre declaration are replayed through the tree adapter without resampling. Mutating the returned declaration cannot alter its actual source axis; a raw black-box axis has no inferred declaration.
  * 4. Radial closure still refuses a nonzero closing knot and an incompatible explicit parameter. Invalid parameter endpoints and outside-domain queries stay explicit failures.
+ * 5. Asymmetric angle-coordinate cubics retain full controls and scalar/world2 when one pole or both poles are outside the emitted interval. The retained cuts lie outside removed cap supports; actual ViewCurves, direct Source and ViewLoft preserve the original field, distinguish real poles from singular coordinate endpoints and refuse wrong zero/end/direction/domain premises.
  *
- * @evidence contracts/testing.md#behavioral-verification Reads the scalar value/jet owner, real parallel source factory, source-declaration transfer and ConstructionViews frame converter, asserting original coordinates and explicit closure/parameter failures.
- * @evidence contracts/testing.md#independent-expectations Closed forms are square roots and the elementary three-knot natural cubic in theta=2asin(sqrt(s/4)); derivatives use the analytic chain rule. A fixed u=Y/v=X basis with those world-coordinate curves is an authored source declaration, not a sampled black-box approximation. Tolerance 3e-11 times scale covers binary64 conversion; exact replay compares the same original declaration path, while the absolute positions use independent formulas.
- * @evidence contracts/testing.md#distinguishing-cases Nonzero endpoint versus required radial zero, bottom/top/angle parameters, tiny endpoint distance, two unit scales, actual source metadata versus unsupported black box, mutation and invalid/outside-domain cases distinguish the owners.
+ * @evidence contracts/testing.md#behavioral-verification Reads the scalar value/jet owner, real parallel source factory, source-declaration transfer and ConstructionViews frame converter. The subset helper additionally consumes actual ViewCurves, direct Source and ViewLoft and asserts retained original controls, cap2, world2 and final owned-domain refusals.
+ * @evidence contracts/testing.md#independent-expectations Closed forms are square roots and the elementary three-knot natural cubic in theta=2asin(sqrt(s/4)); derivatives use the analytic chain rule. A fixed u=Y/v=X basis with those world-coordinate curves is an authored source declaration. Tolerance 3e-11 times scale covers conversion; replay shares the original declaration while absolute positions use independent formulas. The subset helper documents its distinct asymmetric cubic, cap and guide-curvature equations and fixed 3e-9 component budget.
+ * @evidence contracts/testing.md#distinguishing-cases Nonzero endpoint versus required radial zero, bottom/top/angle parameters, tiny endpoint distance, unit scales, actual source metadata versus black box, mutation and invalid/outside-domain cases distinguish the owners. Both one-pole subsets and a regular middle interval retain an original angle map without inventing caps; wrong endpoint/side, missing zero/pole and an outside-map control still refuse.
  * @evidence contracts/testing.md#execution-ownership Discoverable synchronous CPU unit through --include construction_source_parameters; synthetic original declarations start no Human generation, process, viewer or GPU.
  */
 export function test_construction_source_parameters(): void {
@@ -103,6 +105,7 @@ export function test_construction_source_parameters(): void {
     const invalid: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({ ...angle, parameter: p });
     if (!("detail" in invalid)) failures.push("invalid parameter admitted");
   }
+  ConstructionSourceParameterSubset(failures);
   TestValidator.predicate(`${failures.length} original parameter findings:\n${failures.join("\n")}`, (): boolean => failures.length === 0);
 }
 

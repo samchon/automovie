@@ -36,9 +36,12 @@ import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures"
  * person's trunk length, the survey's mean for the sex scaled by stature over
  * the sample's mean stature.
  *
- * Limits: the means of one population, not a person's posture (the public
- * input has no spinal angle, so every person of a sex takes one shape scaled
- * by stature); the inflection is C1 between the two arcs, so a spline through
+ * Limits: the kyphosis and lordosis are the person's posture inputs
+ * (`kyphoticAngle`, `lordoticAngle`), but the thoracic bending angle and the
+ * trunk length are one population's means for the sex, the length scaled by
+ * stature (the survey's own kyphosis and lordosis means stay in
+ * {@link SHAPE} as the record of that population); the inflection is C1
+ * between the two arcs, so a spline through
  * {@link IProfile.knots} carries the curve at C2 with zero curvature there;
  * the sacral part of the column below the lumbosacral joint is left out of the
  * radii's split; below the PSIS level the line runs on along its tangent, the
@@ -110,16 +113,25 @@ export namespace AutoMovieHumanBackProfile {
   }
 
   /**
-   * A person's back line from cervicale's height, stature and sex.
+   * A person's back line from cervicale's height, stature, sex and posture
+   * inputs: the kyphosis and lordosis angles are the person's
+   * `kyphoticAngle` and `lordoticAngle` (DIERS surface tangents between the
+   * inflections; their defaults are the Bioengineering 2022 Table 4 means,
+   * `AutoMovieHumanBodyAnatomy`); the thoracic bending angle and the trunk
+   * length stay the survey's for the sex ({@link SHAPE}). Premise: the
+   * kyphosis exceeds twice the thoracic bending (the inflection leans
+   * forward), and the lordosis exceeds that remainder.
    *
    * @param measures A person's resolved measures.
    */
   export function of(measures: IAutoMovieHumanBodyMeasures): IProfile {
     const shape: IShape = SHAPE[measures.sex === AutoMovieHumanSex.Female ? 0 : 1];
     const rad: number = Math.PI / 180;
+    const kyphosis: number = measures.kyphoticAngle;
+    const lordosis: number = measures.lordoticAngle;
     const alpha: number = 2 * shape.thoracicBending * rad;
-    const beta: number = (shape.kyphosis - 2 * shape.thoracicBending) * rad;
-    const gamma: number = (shape.lordosis - shape.kyphosis + 2 * shape.thoracicBending) * rad;
+    const beta: number = (kyphosis - 2 * shape.thoracicBending) * rad;
+    const gamma: number = (lordosis - kyphosis + 2 * shape.thoracicBending) * rad;
 
     // Arc lengths R1 (alpha + beta) and R2 (beta + gamma) stand as the
     // thoracic and lumbar columns' lengths; with R1 = 1 the C7 to PSIS chord

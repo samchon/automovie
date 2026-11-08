@@ -26,6 +26,8 @@ interface ICurve {
 /**
  * Read one reference person's skin sections from the checkout's private pack
  * (`.references/curves/<id>/` at the repository root, git-ignored), for the view comparison.
+ * Keep the original f1, f2, m1 and m2 collection available; the new f1 basis copies are explicit
+ * Node inspection inputs and do not replace this viewer's original source paths.
  *
  * The pack's files are listed when Vite transforms this module (`import.meta.glob`, as served
  * addresses only), so a checkout without the pack lists none and nothing of it reaches the
@@ -35,7 +37,8 @@ interface ICurve {
  * `(start + end) / 2 + h (startDerivative - endDerivative) / 8`), rounded to 0.1 mm. Valid open arcs
  * include their final endpoint and remain open; only curves the pack's audit marks broken are left out. A region keeps the lowest section of each `step`
  * of height, so the head's event sections, thousands within a few centimetres, thin to an even
- * stack.
+ * stack. The source fit tolerance supplies no curve-to-polyline approximation bound for this
+ * sampling, rounding or thinning.
  *
  * @param id Reference id, such as `f1`.
  * @param step Least height between kept sections, mm, positive.
@@ -94,6 +97,7 @@ export async function HumanDebugReferenceFiles(id: string, step: number): Promis
  * Uses the Hermite midpoint identity with each span's declared phase width, or zero when absent.
  * A closed path wraps to its first point; an open path retains its last recorded endpoint without
  * adding a closure edge. Source coordinates are sampled directly without fitting between curves.
+ * The original fit tolerance does not certify the connecting display polygon.
  * One O(H) pass returns two points per span and one extra open endpoint; no source span is retained.
  */
 function sample(curve: ICurve, closed: boolean): number[] {

@@ -215,9 +215,9 @@ function consumer(): void {
   const owner: number = AutoMovieSolidMesh.owner(mesh, surface);
   const chart: Point[] = phases.map((v: number): Point => [1, v]);
   const vertices: number[] = chart.map(([u, v]: Point): number => AutoMovieSolidMesh.vertex(mesh, [Math.cos(v), u, Math.sin(v)], owner, u, v));
-  const open: number[][] = AutoMovieSolidMesh.face(mesh, { surface, stations: [0, 1, 2, 3], phases, loops: [{ kind: "start", chart, vertices }] });
+  const open: AutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(mesh, { surface, stations: [0, 1, 2, 3], phases, loops: [{ kind: "start", chart, vertices }] });
   TestValidator.predicate("cylinder vertex/triangle populations", mesh.positions.length === 36 && mesh.indices.length === 48);
-  TestValidator.predicate("sole open top", open.length === 1 && open[0]!.length === 4 && open[0]!.every((id: number): boolean => mesh.coordinates[3 * id + 1] === 3));
+  TestValidator.predicate("sole open top", open.length === 1 && open[0]!.vertices.length === 4 && open[0]!.vertices.every((id: number): boolean => mesh.coordinates[3 * id + 1] === 3));
   const edges: Map<string, number> = new Map();
   for (let t: number = 0; t < mesh.indices.length; t += 3) {
     const ids: number[] = mesh.indices.slice(t, t + 3);

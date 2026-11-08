@@ -38,6 +38,41 @@ interface Direction {
  */
 export namespace AutoMovieLoftSectionNative {
   /**
+   * Two separate capabilities of one immutable numeric station preparation.
+   *
+   * @evidence contracts/common.md#principled-implementation Both methods consume the same prepared native conics and original phase clock.
+   * @evidence contracts/common.md#clear-and-simple-design Point0 and phase derivatives remain distinct operations over one station.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A Point0 request evaluates no phase or physical derivatives and neither method substitutes failed geometry.
+   * @evidence contracts/common.md#meaningful-documentation Coordinates use local mm and phase derivatives use radians; no physical-station jet is claimed.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This capability record performs no algorithm.
+   * @evidence contracts/performance.md#reuse-equivalent-work The producer owns one unchanged numeric preparation for its two explicit consumers.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Its caller owns fixed conic data and fresh returned vectors.
+   */
+  export interface ICurve {
+    /** Read only the actual finite local Cartesian point. */
+    point(phi: number): [number, number];
+
+    /** Explicitly read that same original point and its first two phase derivatives. */
+    phase(phi: number): Phase;
+  }
+
+  /**
+   * Prepare the numeric source once when a consumer needs Point0 inversion and a later phase tangent.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the same NUMBER preparation, quarter restoration and capability-specific readers as point and phase.
+   * @evidence contracts/common.md#clear-and-simple-design One station descriptor separates preparation from each required evaluation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not memoize arbitrary algebra callbacks, require physical2, change input access order, retain failed preparations or alter native admission.
+   * @evidence contracts/common.md#meaningful-documentation The returned Point0 and phase operations retain their individual finite-output checks.
+   * @evidence contracts/performance.md#efficient-algorithms One fixed four-quarter numeric preparation replaces two identical station preparations.
+   * @evidence contracts/performance.md#reuse-equivalent-work Both actual operations share this call's unchanged numeric source; no station or trial map is introduced.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The descriptor owns fixed source records only until the caller releases it.
+   */
+  export function curve(inputs: AutoMovieLoftViewRead.IValues): ICurve {
+    const geometry: AutoMovieViewConic.ICurve = prepare(inputs);
+    return { point: pointFrom(geometry), phase: phaseFrom(geometry) };
+  }
+
+  /**
    * Prepare finite value/phase geometry using NUMBER alone.
    *
    * @evidence contracts/common.md#principled-implementation Actual extent/shoulder values enter the shared numeric quarter factory, independently of physical station2 availability.
@@ -51,16 +86,7 @@ export namespace AutoMovieLoftSectionNative {
   export function phase(
     inputs: AutoMovieLoftViewRead.IValues,
   ): (phi: number) => Phase {
-    const geometry: AutoMovieViewConic.ICurve = prepare(inputs);
-    if (geometry.failure !== null)
-      throw new AutoMovieLoftAdmissionError(
-        `Native value source: ${geometry.failure}`,
-      );
-    return (phi: number): Phase => {
-      const ray: AutoMovieViewConic.IRay = locate(geometry, phi);
-      const at: Direction = direction(ray);
-      return polarPhase(at, ray.radial);
-    };
+    return phaseFrom(prepare(inputs));
   }
 
   /**
@@ -83,6 +109,24 @@ export namespace AutoMovieLoftSectionNative {
   }
 
   /**
+   * Prepare the original radius value required by scalar dimension constraints.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the same NUMBER curvature and G2 geometry admission as radial, then its owner's value-only inverse kernel.
+   * @evidence contracts/common.md#clear-and-simple-design Scalar constraints explicitly request value, while radial retains its original three-component contract.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves input getter exceptions and source/query refusal; no phase or physical derivatives are claimed or replaced.
+   * @evidence contracts/common.md#meaningful-documentation The closure returns calibration length or NaN when its required source/value cannot be read.
+   * @evidence contracts/performance.md#efficient-algorithms One four-quarter preparation serves value queries without tangent, radial2 or curvature conversion.
+   * @evidence contracts/performance.md#reuse-equivalent-work Only this caller's unchanged numeric geometry is shared.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fixed geometry until the closure is released; no global cache exists.
+   */
+  export function value(
+    inputs: AutoMovieLoftViewRead.IValues,
+  ): (phi: number) => number {
+    const geometry: AutoMovieViewConic.ICurve = prepare(inputs);
+    return (phi: number): number => AutoMovieViewConic.value(geometry, phi);
+  }
+
+  /**
    * Prepare exactly the finite Cartesian value capability of the native source.
    *
    * @evidence contracts/common.md#principled-implementation Same admitted NUMBER geometry and shared raw/G2 inverse produce the identical physically restored primal coordinates.
@@ -96,26 +140,7 @@ export namespace AutoMovieLoftSectionNative {
   export function point(
     inputs: AutoMovieLoftViewRead.IValues,
   ): (phi: number) => [number, number] {
-    const geometry: AutoMovieViewConic.ICurve = prepare(inputs);
-    if (geometry.failure !== null)
-      throw new AutoMovieLoftAdmissionError(
-        `Native value source: ${geometry.failure}`,
-      );
-    return (phi: number): [number, number] => {
-      const ray: Pick<AutoMovieViewConic.IRay, "point" | "quarter"> | null =
-        AutoMovieViewConic.point(geometry, phi);
-      if (ray === null)
-        throw new AutoMovieLoftAdmissionError(
-          "The native source has no admitted finite phase reading.",
-        );
-      const p: [number, number] = cartesian(ray);
-      const size: number = Math.hypot(p[0], p[1]);
-      if (!(Number.isFinite(size) && size > 0))
-        throw new AutoMovieLoftAdmissionError(
-          "The native primal point has no finite positive norm.",
-        );
-      return p;
-    };
+    return pointFrom(prepare(inputs));
   }
 
   /**
@@ -170,18 +195,75 @@ export namespace AutoMovieLoftSectionNative {
   }
 }
 
+/** Share one caller-owned numeric station without changing this capability's admission. */
+function phaseFrom(
+  geometry: AutoMovieViewConic.ICurve,
+): (phi: number) => Phase {
+  if (geometry.failure !== null)
+    throw new AutoMovieLoftAdmissionError(
+      `Native value source: ${geometry.failure}`,
+    );
+  return (phi: number): Phase => {
+    const ray: AutoMovieViewConic.IRay = locate(geometry, phi);
+    const at: Direction = direction(ray);
+    return polarPhase(at, ray.radial);
+  };
+}
+
+/** Share one caller-owned numeric station without changing this capability's admission. */
+function pointFrom(
+  geometry: AutoMovieViewConic.ICurve,
+): (phi: number) => [number, number] {
+  if (geometry.failure !== null)
+    throw new AutoMovieLoftAdmissionError(
+      `Native value source: ${geometry.failure}`,
+    );
+  return (phi: number): [number, number] => {
+    const ray: Pick<AutoMovieViewConic.IRay, "point" | "quarter"> | null =
+      AutoMovieViewConic.point(geometry, phi);
+    if (ray === null)
+      throw new AutoMovieLoftAdmissionError(
+        "The native source has no admitted finite phase reading.",
+      );
+    const p: [number, number] = cartesian(ray);
+    const size: number = Math.hypot(p[0], p[1]);
+    if (!(Number.isFinite(size) && size > 0))
+      throw new AutoMovieLoftAdmissionError(
+        "The native primal point has no finite positive norm.",
+      );
+    return p;
+  };
+}
+
 /** The shared geometry-only preparation preserves NUMBER operation and input order. */
 function prepare(
   inputs: AutoMovieLoftViewRead.IValues,
 ): AutoMovieViewConic.ICurve {
   const ops: AutoMovieConicFieldJet.IAlgebra<number> =
     AutoMovieConicFieldJet.NUMBER;
-  return AutoMovieViewConic.prepareGeometry(
-    ops,
-    inputs.extents,
-    inputs.shoulders,
-    AutoMovieViewConic.curvatures(ops, inputs.extents, inputs.shoulders),
-  );
+  const extents: AutoMovieLoftViewRead.IValues["extents"] = inputs.extents;
+  const shoulders: AutoMovieLoftViewRead.IValues["shoulders"] =
+    inputs.shoulders;
+  const curvatures: ReturnType<typeof AutoMovieViewConic.curvatures<number>> =
+    AutoMovieViewConic.curvatures(ops, inputs.extents, inputs.shoulders);
+  const geometry: AutoMovieViewConic.ICurve =
+    AutoMovieViewConic.prepareGeometry(ops, extents, shoulders, curvatures);
+  if (geometry.failure === null) return geometry;
+
+  // This tuple was computed by this numeric preparation. Do not reread
+  // caller-owned extent/shoulder accessors to decorate a failed result.
+  // Preserve nonfinite curvature values by name without another solve.
+  return {
+    ...geometry,
+    failure:
+      geometry.failure +
+      "; operands=" +
+      JSON.stringify({ curvatures }, (_key: string, value: unknown): unknown =>
+        typeof value === "number" && !Number.isFinite(value)
+          ? String(value)
+          : value,
+      ),
+  };
 }
 
 /** Forward the raw requested phase to its one numeric owner, including tiny negative distances. */

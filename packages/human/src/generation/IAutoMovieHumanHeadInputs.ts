@@ -29,12 +29,18 @@ export interface IAutoMovieHumanHeadInputs {
   neckBase: {
     /** Tape through the back, side and front neck points, mm. */
     girth: number;
+
     /** C7 spinous-process height above the standing surface, mm. */
     cervicaleHeight: number;
+
     /** Side neck point height above the standing surface, mm. */
     sideNeckPointHeight: number;
+
     /** Front neck point at the jugular notch above the standing surface, mm. */
     suprasternaleHeight: number;
+
+    /** Common C7 X in the ankle-midpoint body frame, world mm; the local neck prior is registered to this generating datum. */
+    cervicaleOrigin: number;
   };
 
   /** Masculine-feminine coordinate, -1 to 1. */

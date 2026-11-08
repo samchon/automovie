@@ -1,6 +1,6 @@
 import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node/chrome";
 import { createHash } from "node:crypto";
-import { type Browser, type ConsoleMessage, type Page, type Request, type Response, chromium } from "playwright-core";
+import { type Browser, type CDPSession, type ConsoleMessage, type Page, type Request, type Response, chromium } from "playwright-core";
 
 import { HUMAN_DEBUG_ROUTES } from "../contracts/HUMAN_DEBUG_ROUTES";
 import { HumanDebugOptions } from "../contracts/HumanDebugOptions";
@@ -377,7 +377,7 @@ export class HumanDebugCaptureSession {
     await Promise.race([browser.close().catch((): void => {}), delay(HumanDebugCaptureMonitor.GRACE)]);
   }
 
-  /** The resident page, starting Chrome once and again after it disconnects; any WebSocket the page opens is held unconnected. */
+  /** The resident page has HTTP caching disabled before navigation; source/PNG reuse is separate. WebSockets stay unconnected. */
   private async resident(): Promise<Page> {
     // A Chrome that crashed or was closed under the session is launched again, never reused.
     if (this.browser !== undefined && !this.browser.isConnected()) {
@@ -393,6 +393,17 @@ export class HumanDebugCaptureSession {
       args: ["--ignore-gpu-blocklist", "--enable-gpu", ...(process.platform === "win32" ? ["--use-angle=d3d11"] : [])],
     });
     const page: Page = await this.browser.newPage({ viewport: { width: 1600, height: 1300 } });
+    try {
+      // Keep this protocol session attached for the page lifetime: detaching it
+      // early would remove the page's cache policy. Target closure releases it.
+      const network: CDPSession = await page.context().newCDPSession(page);
+      page.once("close", (): void => { void network.detach().catch((): void => {}); });
+      await network.send("Network.setCacheDisabled", { cacheDisabled: true });
+      console.info("[human-debug] resident page HTTP cache disabled (CDP)");
+    } catch (error) {
+      await page.close({ runBeforeUnload: false }).catch((): void => {});
+      throw error;
+    }
     page.setDefaultTimeout(HumanDebugCaptureMonitor.FRAME);
     await page.routeWebSocket(/.*/, (): void => {});
     page.on("pageerror", (error: Error): void => console.error("[human-debug page]", error.stack ?? error.message));

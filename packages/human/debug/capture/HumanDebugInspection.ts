@@ -8,8 +8,6 @@ import type { IHumanDebugInspectionPlan } from "./IHumanDebugInspectionPlan";
 export async function HumanDebugInspection(argv: readonly string[]): Promise<void> {
   if (argv.length !== 2 && argv.length !== 3 || argv[0] !== "--plan" || argv[1] === undefined || argv.length === 3 && argv[2] !== "--resume")
     throw new Error("Usage: ttsx -P packages/human/tsconfig.debug.scripts.json packages/human/debug/capture/HumanDebugInspection.ts --plan <data.json> [--resume]");
-  if (process.env.AUTOMOVIE_HUMAN_PEOPLE !== "f1") throw new Error("Set AUTOMOVIE_HUMAN_PEOPLE=f1 for this inspection");
-  if (process.env.TEMP === undefined || process.env.TEMP !== process.env.TMP || !path.isAbsolute(process.env.TEMP)) throw new Error("TEMP and TMP must name the same absolute task-owned directory");
   const root: string = process.cwd();
   await fs.access(path.join(root, "packages/human/debug/server/HumanDebugBatch.ts"));
   const plan: IHumanDebugInspectionPlan = await HumanDebugInspectionPlan.read(path.resolve(argv[1]));

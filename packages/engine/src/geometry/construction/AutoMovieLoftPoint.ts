@@ -1,7 +1,9 @@
+import { AutoMovieLoftCapRead } from "./AutoMovieLoftCapRead";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieLoftRelief } from "./AutoMovieLoftRelief";
+import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
@@ -9,11 +11,11 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 /**
  * Value-only loft station samplers and the existing bounded lazy point cache.
  *
- * @evidence contracts/common.md#principled-implementation Uses the chain's own coefficient/frame/lift definitions and existing phase evaluator; explicit pole-coordinate controls change only their declared coefficient interpolation.
+ * @evidence contracts/common.md#principled-implementation Explicit scalar/continuation sources own native local values, while absent sources keep the actual existing basis; both use the same frame/lift/relief owners.
  * @evidence contracts/common.md#clear-and-simple-design Point preparation, lazy support and its weak cache share one value-reading owner; LoftChain keeps its public entry points.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves ordinary arithmetic, support visits, cache ordering and vector ownership without sampling another geometry.
  * @evidence contracts/common.md#meaningful-documentation Public readers state physical units, immutable source equivalence and bounded cache lifetime.
- * @evidence contracts/performance.md#efficient-algorithms Full samplers prepare O(N) arrays once; single spline phases combine only visited four-control supports after O(N) storage allocation.
+ * @evidence contracts/performance.md#efficient-algorithms Native cold preparation includes scalar lookup, layer/binding/span validation and fixed native geometry; legacy samplers prepare O(N) arrays and lazy legacy points visit four-control supports.
  * @evidence contracts/performance.md#reuse-equivalent-work One station sampler is shared across phases and the last eight inserted stations across point calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Weak chain keys retain at most eight station closures; caller-owned samplers live only until their caller releases them.
  */
@@ -28,11 +30,11 @@ export namespace AutoMovieLoftPoint {
    * @param chain Chain to evaluate.
    * @param s Station within the chain; world height for horizontal layers.
    *
-   * @evidence contracts/common.md#principled-implementation Reads one station's coefficient/source frame/lift definition and the existing periodic phase evaluator; relief values remain in physical station.
+   * @evidence contracts/common.md#principled-implementation Reads a validated original cap directly, or the station's explicit local field/legacy basis with its actual frame/lift/relief owners; the original collapsed tip supplies only its actual phase-constant value.
    * @evidence contracts/common.md#clear-and-simple-design One prepared value sampler serves many phases without rebuilding its station data.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps the existing phase, lift-normal and relief arithmetic; actual source fields are validated by their owning readers.
    * @evidence contracts/common.md#meaningful-documentation States station/phase units, borrowed immutable chain data and caller-owned returned vectors.
-   * @evidence contracts/performance.md#efficient-algorithms Prepares O(N) coefficient/lift arrays once, then uses the existing local phase support per call.
+   * @evidence contracts/performance.md#efficient-algorithms Native source validation/scalar lookup and fixed geometry, or O(N) legacy coefficients, are prepared once; a native phase uses one numeric inverse, while lift keeps its existing basis support.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the station's frame and prepared arrays across every requested phase.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The returned closure retains the immutable chain, including its source owners, and one station's prepared arrays/frame until its caller releases it; no cache is added here.
    */
@@ -40,7 +42,13 @@ export namespace AutoMovieLoftPoint {
     chain: IAutoMovieLoftChain,
     s: number,
   ): (t: number) => [number, number, number] {
-    const c: number[] = AutoMovieLoftChain.coefficients(chain, s);
+    const cap: ReturnType<typeof AutoMovieLoftCapRead.phase> =
+      AutoMovieLoftCapRead.phase(chain, s);
+    if (cap !== null) return (t: number): [number, number, number] => cap(t).p;
+    const source: ReturnType<typeof AutoMovieLoftSection.phase> =
+      AutoMovieLoftSection.phase(chain, s);
+    const c: number[] | null =
+      source === null ? AutoMovieLoftChain.coefficients(chain, s) : null;
     const f: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(chain, s);
 
     // A lifted section leaves its plane along the frame normal by the
@@ -51,15 +59,14 @@ export namespace AutoMovieLoftPoint {
     const n: [number, number, number] = normal(f);
 
     return (t: number): [number, number, number] => {
-      const p: [number, number, number, number] = AutoMovieLoftChain.section(
-        chain,
-        c,
-        t,
-      );
+      const p: readonly number[] =
+        source === null
+          ? AutoMovieLoftChain.section(chain, c!, t)
+          : source(t).p;
       const q: [number, number, number] = AutoMovieLoftFrame.place(
         f,
-        p[0],
-        p[1],
+        p[0]!,
+        p[1]!,
       );
       if (lifted !== null) {
         const h: number = AutoMovieSplineCurve.evaluate(
@@ -75,6 +82,8 @@ export namespace AutoMovieLoftPoint {
         if (d === 0) continue;
         for (let k: number = 0; k < 3; k++) q[k]! += d * relief.axis[k]!;
       }
+      if (source !== null && !q.every(Number.isFinite))
+        throw new Error("The actual native point has no finite world value.");
       return q;
     };
   }
@@ -92,9 +101,9 @@ export namespace AutoMovieLoftPoint {
    *
    * @evidence contracts/common.md#principled-implementation Reuses a station sampler under the immutable chain identity; spline controls are combined lazily with the same explicit coefficient interpolation as the eager reader.
    * @evidence contracts/common.md#clear-and-simple-design The original eight-insertion sampler cache owns single-point reuse in this one module.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves phase wrapping, summation order, nonpromoting hits, insertion/eviction and fresh point vectors; only explicit capped coefficient metadata selects the new parameter rule.
-   * @evidence contracts/common.md#meaningful-documentation States immutable chain/cache equivalence and regular station/phase units.
-   * @evidence contracts/performance.md#efficient-algorithms New spline stations allocate O(N) holey rows/bitmap; each phase combines at most four newly visited controls, while other bases retain eager preparation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves legacy arithmetic, nonpromoting hits, insertion/eviction and fresh vectors; explicit native data alone selects the actual field and raw phases reach its own wrapping owner.
+   * @evidence contracts/common.md#meaningful-documentation States immutable chain/cache equivalence and station-mm/phase-radian units; only explicit surviving original ends authorize cap values beyond principal rows.
+   * @evidence contracts/performance.md#efficient-algorithms Native misses use the value-only source sampler including validation/scalar lookup; source-absent spline misses retain O(N) holey rows/bitmap and at most four new control combinations per phase.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the same last eight inserted station preparations without promoting hits.
    * @evidence contracts/performance.md#bound-retention-and-release-resources A weak chain key owns at most eight O(N) sampler records; eviction releases a record and returned points are fresh.
    */
@@ -109,10 +118,79 @@ export namespace AutoMovieLoftPoint {
     if (kept === undefined) SAMPLERS.set(chain, (kept = []));
     for (const entry of kept) if (entry.s === s) return entry.at(t);
     const at: (t: number) => [number, number, number] =
-      chain.basis === "spline" ? lazy(chain, s) : sampler(chain, s);
+      chain.basis === "spline" && !AutoMovieLoftSection.present(chain)
+        ? lazy(chain, s)
+        : sampler(chain, s);
     kept.unshift({ s, at });
     if (kept.length > RECENT) kept.pop();
     return at(t);
+  }
+
+  /**
+   * Actual world value and phase tangent without physical station2 admission.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the same explicit local field or legacy basis as sampler, its frame value and the actual lift/relief phase derivatives.
+   * @evidence contracts/common.md#clear-and-simple-design One caller-owned station closure serves numerical-station normal consumers independently of analytic station jets.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No missing physical derivative is inferred and neither eight-station module cache receives this plan.
+   * @evidence contracts/common.md#meaningful-documentation Returns fresh world p/t in mm and mm per radian on regular rows or validated original caps; a collapsed original tip is phase-constant but has no asserted physical station jet.
+   * @evidence contracts/performance.md#efficient-algorithms One local value/frame/lift preparation precedes each fixed native inverse or existing basis phase lookup.
+   * @evidence contracts/performance.md#reuse-equivalent-work The closure shares its prepared station geometry, frame and lift across phases.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller alone retains this plan until release; every result owns fresh vectors and no new module cache exists.
+   */
+  export function phaseSampler(
+    chain: IAutoMovieLoftChain,
+    s: number,
+  ): (t: number) => {
+    p: [number, number, number];
+    t: [number, number, number];
+  } {
+    const cap: ReturnType<typeof AutoMovieLoftCapRead.phase> =
+      AutoMovieLoftCapRead.phase(chain, s);
+    if (cap !== null) return cap;
+    const source: ReturnType<typeof AutoMovieLoftSection.phase> =
+      AutoMovieLoftSection.phase(chain, s);
+    const c: number[] | null =
+      source === null ? AutoMovieLoftChain.coefficients(chain, s) : null;
+    const f: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(chain, s);
+    const n: [number, number, number] = normal(f);
+    const l: number[] | null = AutoMovieLoftChain.lift(chain, s);
+    const lifted: number[] | null = l === null ? null : [...l, ...l];
+    return (
+      t: number,
+    ): { p: [number, number, number]; t: [number, number, number] } => {
+      const local: { p: readonly number[]; t: readonly number[] } =
+        source === null ? legacyPhase(chain, c!, t) : source(t);
+      const p: [number, number, number] = AutoMovieLoftFrame.place(
+        f,
+        local.p[0]!,
+        local.p[1]!,
+      );
+      const dt: [number, number, number] = [0, 0, 0];
+      for (let k: number = 0; k < 3; k++)
+        dt[k] = f.u[k]! * local.t[0]! + f.v[k]! * local.t[1]!;
+      if (lifted !== null) {
+        const h: [number, number, number, number] =
+          AutoMovieSplineCurve.evaluate(lifted, chain.order, t);
+        for (let k: number = 0; k < 3; k++) {
+          p[k]! += h[0] * n[k]!;
+          dt[k]! += h[2] * n[k]!;
+        }
+      }
+      for (const relief of chain.reliefs ?? []) {
+        const h: [number, number, number] = AutoMovieLoftRelief.height(
+          relief,
+          s,
+          t,
+        );
+        for (let k: number = 0; k < 3; k++) {
+          p[k]! += h[0] * relief.axis[k]!;
+          dt[k]! += h[2] * relief.axis[k]!;
+        }
+      }
+      if (![...p, ...dt].every(Number.isFinite))
+        throw new Error("The actual phase-only world reading is nonfinite.");
+      return { p, t: dt };
+    };
   }
 
   /**
@@ -276,6 +354,20 @@ export namespace AutoMovieLoftPoint {
       f.v[0] * f.u[1] - f.v[1] * f.u[0],
     ];
   }
+}
+
+/** Preserve the actual legacy basis value and first phase derivative. */
+function legacyPhase(
+  chain: IAutoMovieLoftChain,
+  coefficients: number[],
+  phase: number,
+): { p: [number, number]; t: [number, number] } {
+  const q: [number, number, number, number] = AutoMovieLoftChain.section(
+    chain,
+    coefficients,
+    phase,
+  );
+  return { p: [q[0], q[1]], t: [q[2], q[3]] };
 }
 
 /** One lazily read control component. */

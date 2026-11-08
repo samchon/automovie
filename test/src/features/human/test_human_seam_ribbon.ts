@@ -3,7 +3,7 @@ import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/
 import { AutoMovieLoftChain, AutoMovieSeamStation, AutoMovieSplineCurve, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanSeam } from "../../../../packages/human/src/lofting/AutoMovieHumanSeam";
 import type { IAutoMovieHumanSeam } from "../../../../packages/human/src/lofting/IAutoMovieHumanSeam";
-import { HumanSeamObserver } from "../internal/HumanSeamObserver";
+import { HumanSeamObserver } from "../../../../packages/human/src/inspection/HumanSeamObserver";
 
 /**
  * A ribbon leaving an owner's surface by the J4 cross derivatives meets it

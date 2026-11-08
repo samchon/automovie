@@ -1,4 +1,5 @@
 import { AutoMovieHarmonicCurve } from "./AutoMovieHarmonicCurve";
+import { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
@@ -14,16 +15,17 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * Capped coefficientSource rows instead interpolate in their declared common root/angle
  * coordinate and carry derivatives to station. Matching frameSource rows read their actual
  * analytic axis; ordinary/mixed boundaries retain the existing layer-plane interpolation.
- * The phase representation and principal-layer domain are unchanged. Finite true-pole values,
- * full cap-span ownership and geometric G2 at an apex are not certified by this regular chart.
+ * Explicit native sources own actual polar geometry; compatibility coefficients remain
+ * independently readable. Polar phase meaning and principal-layer domain are unchanged.
+ * Full cap-span ownership and apex G2 are not certified by this regular chart.
  *
- * @evidence contracts/common.md#principled-implementation Values are functions of explicit principal/source data: ordinary station Hermite, declared capped coefficient coordinates and actual or layer-interpolated frames.
+ * @evidence contracts/common.md#principled-implementation Actual points/phase readers use explicit native/continuation generators or the legacy basis, while coefficient readers and their mean-axis statistic remain explicit compatibility operations; frames keep their actual or layer-interpolated owners.
  * @evidence contracts/common.md#clear-and-simple-design Public chain readings delegate point/cache and frame responsibility to their single owners without changing callers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Retains the original regular-domain bounds and ordinary arithmetic; invalid present frame metadata throws rather than silently changing geometry.
  * @evidence contracts/common.md#meaningful-documentation States interpolation modes, mm/radian units, immutable callable sources and unverified pole/phase fidelity.
- * @evidence contracts/performance.md#efficient-algorithms Binary bracketing and one span evaluation serve each reading; samplers reuse station work and lazy points combine visited controls only.
+ * @evidence contracts/performance.md#efficient-algorithms Native cold preparation includes source/binding/layer/law lookup and fixed geometry, while legacy readings retain binary bracketing and local basis support; samplers reuse their prepared station work.
  * @evidence contracts/performance.md#reuse-equivalent-work Existing point and Jet caches share immutable chain identity; actual axes and parameter jets are prepared once by their producers.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The point owner retains at most eight weak-key station samplers; returned arrays/vectors belong to their caller.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Point and Jet each retain eight weak-key station plans; external sampler closures and binder rows have independent caller lifetimes. Returned arrays/vectors are fresh.
  */
 export namespace AutoMovieLoftChain {
   /**
@@ -213,11 +215,11 @@ export namespace AutoMovieLoftChain {
    * Frame of an unchanged actual-axis interval or its declared layer interpolation.
    * Different source owners at a continuation boundary use the copied endpoint jets.
    *
-   * @evidence contracts/common.md#principled-implementation Matching valid actual-axis records read that source; other boundaries retain the existing Hermite/rotation frame.
+   * @evidence contracts/common.md#principled-implementation Validated original caps and matching valid row-axis records read their actual axis; other boundaries retain the existing Hermite/rotation frame.
    * @evidence contracts/common.md#clear-and-simple-design The frame owner holds source selection and every fallback together.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Stale/stripped source records throw; numerical fallback is not called an exact RMF jet.
-   * @evidence contracts/common.md#meaningful-documentation States regular-domain and copied-continuation boundary behavior.
-   * @evidence contracts/performance.md#efficient-algorithms Binary bracketing plus constant frame work or the actual axis query.
+   * @evidence contracts/common.md#meaningful-documentation States original retained cap, regular-domain and copied-continuation boundary behavior; coefficient means/controls remain principal-domain statistics.
+   * @evidence contracts/performance.md#efficient-algorithms Cap ownership validates O(K+N) source/row snapshots; ordinary queries use binary bracketing and constant frame work or the actual axis query.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the immutable prepared actual axis when declared.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a caller-owned frame without a query cache here.
    */
@@ -225,6 +227,9 @@ export namespace AutoMovieLoftChain {
     chain: IAutoMovieLoftChain,
     s: number,
   ): AutoMovieLoftFrame.IFrame {
+    const cap: AutoMovieLoftCapSource.ISource | null =
+      AutoMovieLoftCapSource.at(chain, s);
+    if (cap !== null) return cap.axis.at(s);
     const [lo, hi]: [number, number] = bracket(chain, s);
     return AutoMovieLoftFrameSource.frame(chain, s, lo, hi);
   }
@@ -370,12 +375,12 @@ export namespace AutoMovieLoftChain {
    * Prepare the existing value-only station sampler, including actual source metadata.
    *
    * @param chain Immutable chain whose retained sources remain unchanged.
-   * @param s Regular station in the existing principal-layer domain, mm.
+   * @param s Owned station in the principal interval or an explicitly retained original cap, mm.
    *
    * @evidence contracts/common.md#principled-implementation Delegates the same value-only point definition to its point owner.
    * @evidence contracts/common.md#clear-and-simple-design The public API stays in LoftChain while point preparation has one owner.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No alternative geometry or phase evaluator is introduced.
-   * @evidence contracts/common.md#meaningful-documentation States immutable source and regular station units.
+   * @evidence contracts/common.md#meaningful-documentation States immutable source and physical station units; retained cap Point0 does not imply physical2 at its collapsed tip.
    * @evidence contracts/performance.md#efficient-algorithms The point owner prepares O(N) arrays once for repeated phase calls.
    * @evidence contracts/performance.md#reuse-equivalent-work The returned closure reuses its one station preparation.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Caller release ends the returned closure's retained station lifetime.
@@ -385,6 +390,27 @@ export namespace AutoMovieLoftChain {
     s: number,
   ): (t: number) => [number, number, number] {
     return AutoMovieLoftPoint.sampler(chain, s);
+  }
+
+  /**
+   * Prepare actual value and phase tangent without station-jet admission.
+   *
+   * @evidence contracts/common.md#principled-implementation Delegates source/basis value and phase differentiation to the same point owner.
+   * @evidence contracts/common.md#clear-and-simple-design A thin adapter serves callers whose station derivative remains numerical.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Present source data never routes through compatibility coefficients or missing station jets.
+   * @evidence contracts/common.md#meaningful-documentation Uses principal or explicitly retained cap stations in mm and phase radians; unavailable phase derivatives still fail and world outputs are fresh.
+   * @evidence contracts/performance.md#efficient-algorithms Costs follow the point owner's actual local field/frame/lift preparation and phase reading.
+   * @evidence contracts/performance.md#reuse-equivalent-work The returned closure reuses one station preparation across phases.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Caller release ends this closure's lifetime independently of Point/Jet module caches.
+   */
+  export function phaseSampler(
+    chain: IAutoMovieLoftChain,
+    s: number,
+  ): (t: number) => {
+    p: [number, number, number];
+    t: [number, number, number];
+  } {
+    return AutoMovieLoftPoint.phaseSampler(chain, s);
   }
 
   /**

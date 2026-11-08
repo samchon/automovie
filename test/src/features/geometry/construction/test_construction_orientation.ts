@@ -1,15 +1,21 @@
 import {
+  AutoMovieLoftChain,
   type AutoMovieLoftFrame,
+  AutoMovieLoftFrameSource,
+  AutoMovieLoftJet,
   AutoMovieSolidBlendChain,
   AutoMovieSolidChain,
   type AutoMovieSolidJoin,
   AutoMovieSolidMerge,
   AutoMovieSplineCurve,
+  AutoMovieViewLoft,
   type IAutoMovieLoftChain,
   type IAutoMovieSolidSurface,
+  type IAutoMovieViewPart,
 } from "@automovie/engine";
 
 import { HumanSolidShapes } from "../../internal/HumanSolidShapes";
+import { ConstructionSourceIngress } from "../../internal/construction/ConstructionSourceIngress";
 
 /** World vector, in the fixture's millimetres or a dimensionless direction. */
 type Vec3 = [number, number, number];
@@ -21,10 +27,11 @@ type Vec3 = [number, number, number];
  * 1. Regular flat annuli have normal +Y or -Y at three scales. Tube-centre inference has zero facing there, while explicit orientation admits the surface. Reversing station, phase or world handedness transforms its sign and preserves the declared outward side.
  * 2. Actual cylinder/plane merges publish host outward normals and their blend's orientation at translated/mirrored sources. Both rail normals agree with the independent plane/cylinder normals at every published column.
  * 3. Collapsed/nonfinite jets, invalid explicit signs, unsupported column counts and zero/nonfinite supplied outward normals cannot publish a usable oriented surface.
+ * 4. Unavailable returned anchor jets and numeric local/world/lift failures refuse a surface while direct Jet queries still throw. Finite Point0 survives missing physical2; stale bindings and actual callback errors retain their identity.
  *
  * @evidence contracts/testing.md#behavioral-verification Reads SolidChain.surface on admitted annular layer data and exercises the actual SolidMerge to SolidJoin.column to SolidBlendChain producer path. It catches a sign inferred from an irrelevant storage origin or lost across a reflection and refuses malformed/degenerate source data.
  * @evidence contracts/testing.md#independent-expectations A flat annulus has normal parallel to Y and zero dot product with its in-plane radial direction. Reversing one chart coordinate or reflecting world X reverses the raw chart cross product, requiring the declared sign to change. The real merge's host normal is +Z and its cylinder normal is the translated radial XY direction, derived directly from the closed-form solids.
- * @evidence contracts/testing.md#distinguishing-cases Uses both outward sides, three length scales, station/phase/world reversals, translated actual merges, both rails, absent orientation, invalid signs/counts, collapsed geometry and nonfinite/zero outward sources. It does not claim final tessellation or the separate part-only winding defect is repaired.
+ * @evidence contracts/testing.md#distinguishing-cases Uses both outward sides, three length scales, station/phase/world reversals, actual merges, both rails, invalid signs/counts, collapsed/nonfinite geometry, numeric lift failure, stale source data and exact callback-error identity. It does not claim final tessellation or the separate part-only winding defect is repaired.
  * @evidence contracts/testing.md#execution-ownership Discoverable synchronous synthetic CPU unit through --include construction_orientation; no Human, viewer, server, process or fixture is generated.
  */
 export function test_construction_orientation(): void {
@@ -99,6 +106,7 @@ export function test_construction_orientation(): void {
     "nonfinite surface point",
     (): IAutoMovieSolidSurface | null => AutoMovieSolidChain.surface(nonfinite),
   );
+  admission(failures);
   const invalidSign: IAutoMovieLoftChain = annulus(1, 1, "identity");
   invalidSign.orientation = 0 as 1;
   refusal(
@@ -221,6 +229,158 @@ export function test_construction_orientation(): void {
     throw new Error(
       `${failures.length} orientation findings:\n${failures.join("\n")}`,
     );
+}
+
+/** Numeric admission is nullable; malformed ownership and foreign callback errors are not. */
+function admission(failures: string[]): void {
+  for (const kind of ["coefficient", "lift"] as const) {
+    const chain: IAutoMovieLoftChain = annulus(1, 1, "identity");
+    for (const layer of chain.layers)
+      if (kind === "coefficient") layer.coefficients[0] = NaN;
+      else {
+        layer.lift = new Array<number>(chain.order).fill(NaN);
+        layer.liftSlopes = new Array<number>(chain.order).fill(0);
+      }
+    refusal(
+      failures,
+      `nonfinite ${kind} surface`,
+      (): IAutoMovieSolidSurface | null => AutoMovieSolidChain.surface(chain),
+    );
+    try {
+      AutoMovieLoftJet.at(chain, 0.5, 0);
+      failures.push(`direct nonfinite ${kind} Jet was accepted`);
+    } catch {
+      // A direct required-total2 query remains an explicit failure.
+    }
+  }
+
+  // The two authored endpoint boxes are valid; their actual quintic crosses its axis inside.
+  const family: ReturnType<typeof ConstructionSourceIngress.family> =
+    ConstructionSourceIngress.family(1, false);
+  const invalid: IAutoMovieViewPart = {
+    ...family.child,
+    stations: [0, 40],
+    front: {
+      ...family.child.front,
+      positive: {
+        knots: [
+          {
+            site: "first",
+            station: 0,
+            value: 2,
+            jet: { first: -40, second: 0 },
+          },
+          {
+            site: "last",
+            station: 40,
+            value: 3,
+            jet: { first: 40, second: 0 },
+          },
+        ],
+      },
+    },
+  };
+  const refused: ReturnType<typeof AutoMovieViewLoft.create> =
+    AutoMovieViewLoft.create(invalid);
+  if (
+    refused.surface !== null ||
+    !refused.diagnostics.some(
+      (fault: (typeof refused.diagnostics)[number]): boolean =>
+        fault.contract === "solid surface",
+    )
+  )
+    failures.push("An invalid native anchor escaped named surface admission.");
+
+  const original: ReturnType<typeof AutoMovieViewLoft.create> =
+    AutoMovieViewLoft.create(ConstructionSourceIngress.family(1, false).child);
+  if (original.chain === null)
+    throw new Error("The native orientation admission fixture has no chain.");
+  const stale: IAutoMovieLoftChain = {
+    ...original.chain,
+    layers: original.chain.layers.map(
+      (layer: IAutoMovieLoftChain.ILayer): IAutoMovieLoftChain.ILayer => ({
+        ...layer,
+        coefficients: layer.coefficients.map(
+          (value: number): number => value + 1,
+        ),
+      }),
+    ),
+  };
+  try {
+    AutoMovieSolidChain.surface(stale);
+    failures.push(
+      "A stale native binding became a nullable numeric admission.",
+    );
+  } catch (error: unknown) {
+    if (!(error instanceof Error))
+      failures.push("A stale native binding lost its explicit error.");
+  }
+
+  const base: IAutoMovieLoftChain = annulus(1, 1, "identity");
+  const frame: AutoMovieLoftFrame.IFrame = base.layers[0]!.frame!;
+  const still: AutoMovieLoftFrame.IFrame = {
+    origin: [0, 0, 0],
+    u: [0, 0, 0],
+    v: [0, 0, 0],
+  };
+  const marker: Error = new Error("actual axis callback identity");
+  const axis: IAutoMovieViewPart["axis"] = {
+    at: (): AutoMovieLoftFrame.IFrame => frame,
+    jet: (
+      station: number,
+    ): ReturnType<NonNullable<IAutoMovieViewPart["axis"]["jet"]>> => {
+      if (station === 0.5) throw marker;
+      return { value: frame, first: still, second: still };
+    },
+  };
+  const retained: IAutoMovieLoftChain | string =
+    AutoMovieLoftFrameSource.retain(base, axis);
+  if (typeof retained === "string") throw new Error(retained);
+  try {
+    AutoMovieSolidChain.surface(retained);
+    failures.push(
+      "An actual axis callback failure became a nullable admission.",
+    );
+  } catch (error: unknown) {
+    if (error !== marker)
+      failures.push("The actual axis callback error identity changed.");
+  }
+
+  // Values remain available when only the interior physical jet is absent.
+  for (const unavailable of ["null", "nonfinite"] as const) {
+    const valueAxis: IAutoMovieViewPart["axis"] = {
+      at: (): AutoMovieLoftFrame.IFrame => frame,
+      jet: (
+        station: number,
+      ): ReturnType<NonNullable<IAutoMovieViewPart["axis"]["jet"]>> => {
+        if (station !== 0.5)
+          return { value: frame, first: still, second: still };
+        return unavailable === "null"
+          ? null
+          : {
+              value: frame,
+              first: still,
+              second: { ...still, origin: [NaN, 0, 0] },
+            };
+      },
+    };
+    const source: IAutoMovieLoftChain | string =
+      AutoMovieLoftFrameSource.retain(base, valueAxis);
+    if (typeof source === "string") throw new Error(source);
+    if (!AutoMovieLoftChain.point(source, 0.5, 0).every(Number.isFinite))
+      failures.push(`Unavailable ${unavailable} axis2 erased finite Point0.`);
+    refusal(
+      failures,
+      `unavailable ${unavailable} anchor axis2`,
+      (): IAutoMovieSolidSurface | null => AutoMovieSolidChain.surface(source),
+    );
+    try {
+      AutoMovieLoftJet.at(source, 0.5, 0);
+      failures.push(`Unavailable ${unavailable} direct axis2 was accepted.`);
+    } catch {
+      // A direct physical2 request cannot manufacture the missing derivative.
+    }
+  }
 }
 
 /** A publication failure is null; exceptions remain findings while later independent cases still run. */

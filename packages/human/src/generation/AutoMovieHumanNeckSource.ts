@@ -9,6 +9,8 @@ import { AutoMovieHumanNeckPrior } from "./AutoMovieHumanNeckPrior";
  * constructing another skin from these original harmonic rows.
  * Their private shape and XZ perimeter normalization are not a published
  * infrathyroid plane or a closed three-dimensional base-tape construction.
+ * One rigid AP frame map registers that local prior at the shared body-input
+ * C7 before its rows, mean, posterior, head or joint consumers are published.
  *
  * @evidence contracts/common.md#principled-implementation Shares the existing four generating rows and their units, reads harmonic means analytically and takes the endpoint secant from the same final two authored points as the previous chain's linear endpoint derivative.
  * @evidence contracts/common.md#clear-and-simple-design One pure input record serves head layout and the remaining old trunk adapter, without constructing an unused neck mesh for the head.
@@ -23,12 +25,16 @@ export namespace AutoMovieHumanNeckSource {
   export interface IRow {
     /** Unmodified dimensionless x/z and millimetre y harmonics. */
     ring: AutoMovieHumanNeckPrior.IRing;
+
     /** Baseline forward and vertical translation before harmonic offsets. */
     origin: [number, number, number];
+
     /** Lateral harmonic scale, calibration mm. */
     width: number;
+
     /** Forward harmonic scale, calibration mm. */
     depth: number;
+
     /** Calibration mm per world mm, applied to y harmonics. */
     scale: number;
   }
@@ -37,25 +43,33 @@ export namespace AutoMovieHumanNeckSource {
   export interface IOutput {
     /** The original four rows in rising mean-height order. */
     rows: IRow[];
+
     /** Analytic top mean, adopted posterior point and endpoint dx/dy. */
     head: IAutoMovieHumanHeadNeck;
+
     /** Bottom generating row's analytic phase mean; not a named base-tape point. */
     bottom: [number, number, number];
+
     /** Calibration mm per world mm supplied by the body input boundary. */
     scale: number;
+
     /** Retained phase resolution for projected normalization and the transitional engine chain. */
     order: number;
+
     /** Retained chain display density; not the density of the head's view curves. */
     samples: number;
+
+    /** Same rigid AP map applied to every generating row and head datum. */
+    registration: NonNullable<IAutoMovieHumanHeadNeck["registration"]>;
   }
 
   /**
    * Resolve world inputs into their one calibration-space source definition.
    *
-   * @evidence contracts/common.md#principled-implementation Preserves the existing log-interpolated sizes and harmonic rows, closes posterior phase pi at public C7, and reads the exact two-point endpoint secant rather than fitting a new interpolation.
+   * @evidence contracts/common.md#principled-implementation Preserves log-interpolated intrinsic sizes and harmonic shapes, closes posterior phase pi at public C7 height and rigidly registers the local prior at the common body-frame C7 X. The intrinsic two-point secant is evaluated before translation and no curve is fitted.
    * @evidence contracts/common.md#clear-and-simple-design Produces descriptors and placement numbers only; a separate consumer may construct the old trunk's temporary chain.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The old projected perimeter remains explicitly interim; no emitted chain, mesh, sampled ray or anatomical-site compensation determines the head frame.
-   * @evidence contracts/common.md#meaningful-documentation States world-to-calibration conversion and the difference between a generating frame and actual skin/tape geometry.
+   * @evidence contracts/common.md#meaningful-documentation States world-to-calibration conversion, local-to-common rigid registration, both C7 estimates and the distinction between generating placement and actual skin/tape geometry.
    * @evidence contracts/performance.md#efficient-algorithms A bounded four-row normalization and two analytic phase reads replace constructing a periodic chain merely to recover its inputs.
    * @evidence contracts/performance.md#reuse-equivalent-work One returned record supplies both consumers in the production definition.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Descriptor arrays are caller-owned and retain only immutable prior rows; no global body or source cache is added.
@@ -73,14 +87,29 @@ export namespace AutoMovieHumanNeckSource {
       return { ring, origin: [(prior.place.level[k]! + prior.place.sex[k]! * inputs.sex) * scale, meanTop + prior.drop[k]! * scale, 0], width, depth: aspect * width, scale };
     });
     const top: IRow = rows[last]!;
+    const priorPosterior: [number, number, number] = point(top, Math.PI);
+    const previous: [number, number, number] = point(rows[last - 1]!, Math.PI);
+    const dy: number = priorPosterior[1] - previous[1];
+    if (dy === 0 || !Number.isFinite(dy)) throw new Error("The neck's authored posterior endpoint has no finite height secant");
+    const cervicaleX: number = inputs.neckBase.cervicaleOrigin * scale;
+    const translationX: number = cervicaleX - priorPosterior[0];
+    if (![cervicaleX, translationX].every(Number.isFinite))
+      throw new Error("The local neck prior has no finite common C7 frame map");
+
+    // One rigid generating-frame map registers the local prior before any
+
+    // curve, head or joint consumes it. Relative shape and the intrinsic
+
+    // posterior secant are evaluated in the unchanged local prior frame.
+    for (const row of rows) row.origin[0] += translationX;
     const centre: [number, number, number] = mean(top);
     const posterior: [number, number, number] = point(top, Math.PI);
-    const previous: [number, number, number] = point(rows[last - 1]!, Math.PI);
-    const dy: number = posterior[1] - previous[1];
-    if (dy === 0 || !Number.isFinite(dy)) throw new Error("The neck's authored posterior endpoint has no finite height secant");
+    const registration: NonNullable<IAutoMovieHumanHeadNeck["registration"]> = {
+      priorCervicaleX: priorPosterior[0], cervicaleX, mappedCervicaleX: posterior[0], translationX,
+    };
     return {
-      rows, scale, order: prior.order, samples: prior.samples, bottom: mean(rows[0]!),
-      head: { level: centre[1], x: centre[0], radius: inputs.neck * scale / (2 * Math.PI), back: posterior[0], backLevel: posterior[1], backSlope: (posterior[0] - previous[0]) / dy },
+      rows, scale, order: prior.order, samples: prior.samples, bottom: mean(rows[0]!), registration,
+      head: { level: centre[1], x: centre[0], radius: inputs.neck * scale / (2 * Math.PI), back: posterior[0], backLevel: posterior[1], backSlope: (priorPosterior[0] - previous[0]) / dy, registration },
     };
   }
 

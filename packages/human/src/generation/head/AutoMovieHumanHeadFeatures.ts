@@ -1,13 +1,17 @@
-import { type IAutoMovieViewPart, AutoMovieViewSection } from "@automovie/engine";
+import {
+  AutoMovieViewSection,
+  type IAutoMovieViewPart,
+} from "@automovie/engine";
 import type { IAutoMovieConstructionView } from "@automovie/interface";
+
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import type { IAutoMovieHumanHeadEyeOpening } from "../IAutoMovieHumanHeadEyeOpening";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
+import { AutoMovieHumanHeadLipPart } from "./AutoMovieHumanHeadLipPart";
 import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
 import { AutoMovieHumanHeadNosePart } from "./AutoMovieHumanHeadNosePart";
-import { AutoMovieHumanHeadLipPart } from "./AutoMovieHumanHeadLipPart";
 
 /**
  * The face's parts that join the head mass, each drawn from its views in its
@@ -31,7 +35,7 @@ import { AutoMovieHumanHeadLipPart } from "./AutoMovieHumanHeadLipPart";
  * @evidence contracts/common.md#clear-and-simple-design Returns one fixed feature list with parent, operator and search metadata; the part owners define the curves and HeadTree defines their joins.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No native reference fit or post-join relocation enters this assembly. The inset floor, recess and profile choices remain declared conventions rather than measured tissue thickness or containment proofs.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes original features, orbital cutters, estimated embedding and unfinished openings from a completed skin.
- * @evidence contracts/performance.md#efficient-algorithms A fixed nose, two lips and two orbit sources use bounded section/radius reads and Dome's fixed station count; no body realization or reference scan occurs here.
+ * @evidence contracts/performance.md#efficient-algorithms A fixed feature set uses original parent scalar preparations, source-site ordering and bounded native contact inverses at their owners' costs. The lips share one prepared native contact; each cap has a fixed station count.
  * @evidence contracts/performance.md#reuse-equivalent-work Each feature is constructed once and its original source is returned for Composer; the paired orbits use their own input fields through the same builder.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned views and metadata. This namespace holds only scalar constants and functions, with no retained figure, cache or handle.
  */
@@ -39,7 +43,7 @@ export namespace AutoMovieHumanHeadFeatures {
   /**
    * One original part and the metadata its tree join consumes.
    *
-   * @evidence contracts/common.md#principled-implementation Keeps the actual source/declaration, parent/operator, world-mm seed, size and optional phase/share search together without changing geometry at the join boundary.
+   * @evidence contracts/common.md#principled-implementation Keeps actual geometry, cumulative tree parent, original material owner/contact and independent world-mm placement seed with the authored join search.
    * @evidence contracts/common.md#clear-and-simple-design One record serves Composer and HeadTree for both top-level and nested features.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A seed/search is an authored join request, not proof of a host crossing or successful blend.
    * @evidence contracts/common.md#meaningful-documentation Fields state units, borrowed original-view identity, defaults and the distinction between search metadata and geometry.
@@ -57,10 +61,10 @@ export namespace AutoMovieHumanHeadFeatures {
     /** Added to the head mass, or cut from it. */
     join: "merge" | "diff";
 
-    /** The landmark the join is seeded at, world mm, on or near the head mass. */
+    /** Original anatomical or conventional placement anchor, world mm, independent of a derived material contact. */
     seed: [number, number, number];
 
-    /** The part's station where its base meets the head mass, mm. */
+    /** Actual cap contact station, mm; other feature families retain their declared station convention. */
     contact: number;
 
     /** The part's own size the blend width follows: its height and its least half extent, mm. */
@@ -68,6 +72,12 @@ export namespace AutoMovieHumanHeadFeatures {
 
     /** The part it joins: `head.mass`, or another part's chain name. */
     parent: string;
+
+    /** Actual original material source, independently of the cumulative tree parent. */
+    material?: IAutoMovieViewPart;
+
+    /** Same complete native contact used by a cap's embedding; its placement seed remains separate. */
+    attachment?: AutoMovieHumanHeadDome.IHost;
 
     /**
      * Whether the part lies along its parent, long and thin (a lip, a lid, a
@@ -109,76 +119,182 @@ export namespace AutoMovieHumanHeadFeatures {
    * @evidence contracts/common.md#clear-and-simple-design Builds one nose, two lips and two orbit records; each source owner and the tree's join owner retain their separate jobs.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads no native mesh or join result. The 3 mm floor and profile/recess seat are explicit modelling choices, not certified containment or an eyelid opening.
    * @evidence contracts/common.md#meaningful-documentation Identifies actual mass ownership, calibration-mm placement and original-source output; join metadata does not certify realized skin.
-   * @evidence contracts/performance.md#efficient-algorithms Fixed five-feature work uses bounded source-section/radius queries and fixed-size source construction; no complete body or reference is realized here.
+   * @evidence contracts/performance.md#efficient-algorithms Five feature sources retain their original scalar-admission and bounded section-inversion costs; one shared lip contact serves both lips, while orbital contacts sort original sites and search bounded native/plane brackets before curvature and fixed-size cap work.
    * @evidence contracts/performance.md#reuse-equivalent-work The supplied mass is borrowed for placement rather than rebuilt, and every source is returned once for Composer's retained declaration/loft.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returned views and metadata belong to the caller; temporary arrays and the local orbit builder add no cache, background work or retained external handle.
    */
-  export function of(plan: IAutoMovieHumanHeadLayout, mass: IAutoMovieViewPart): IFeature[] {
+  export function of(
+    plan: IAutoMovieHumanHeadLayout,
+    mass: IAutoMovieViewPart,
+    attempts?: AutoMovieHumanHeadDome.IAttempt[],
+  ): IFeature[] {
+    return prepare(plan, mass, attempts).read();
+  }
+
+  /** Explicit top-level regional requests share their actual numeric contact owner. */
+  export interface IPrepared {
+    /** Actual constructor keys in original production order, without building geometry. */
+    readonly names: readonly string[];
+
+    /** Request only these top-level originals; absence requests the complete top-level set. */
+    read(names?: readonly string[]): IFeature[];
+  }
+
+  /** One factory's actual return or original thrown value, owned by this preparation. */
+  type IAttempt =
+    | { kind: "returned"; parts: IFeature[] }
+    | { kind: "threw"; error: unknown };
+
+  /** Names of these same five factory slots; no parent input or geometry is required. */
+  export function names(): string[] {
+    return ["nose", "lip.upper", "lip.lower", "orbit.left", "orbit.right"];
+  }
+
+  /** Prepare the five original factories; no host read or regional constructor runs here. */
+  export function prepare(
+    plan: IAutoMovieHumanHeadLayout,
+    mass: IAutoMovieViewPart,
+    attempts?: AutoMovieHumanHeadDome.IAttempt[],
+  ): IPrepared {
     const k: number = plan.scale;
-    const out: IFeature[] = [];
+    let contact: AutoMovieHumanHeadLipPart.IContact | undefined;
 
-    // The nose's body from its views (`AutoMovieHumanHeadNosePart`), its axis
-    // the inset and twice the face's sagitta under its half width behind the
-    // profile, so its sides lie inside the face where the face turns back.
-    const middle: number = (plan.nasion + plan.tip) / 2;
-    const fall: number = AutoMovieHumanHeadMassPart.frontAt(mass, middle, 0) - AutoMovieHumanHeadMassPart.frontAt(mass, middle, plan.noseWidth);
-    const depth: number = INSET + 2 * fall;
-    out.push({
-      part: AutoMovieHumanHeadNosePart.of(plan, depth),
-      join: "merge",
-      seed: [AutoMovieHumanHeadMedianProfile.profileAt(plan, middle), middle, 0],
-      contact: INSET,
-      size: [plan.noseLead, plan.noseWidth],
-      parent: "head.mass",
-      elongated: true,
-      search: { phase: 0, from: 0.5, to: 0 },
-    });
+    /** The paired lips borrow this same actual original contact at explicit demand. */
+    const lipContact: () => AutoMovieHumanHeadLipPart.IContact =
+      (): AutoMovieHumanHeadLipPart.IContact => {
+        contact ??= AutoMovieHumanHeadLipPart.contact(mass, plan.stomion);
+        return contact;
+      };
 
-    // Each lip owns its whole border and the same resting contact arch.
-    // A parent-foot translation must not change their shared curve.
-    for (const upper of [true, false]) out.push({
-      part: AutoMovieHumanHeadLipPart.of(plan, upper, mass),
-      join: "merge",
-      seed: [plan.landmarks.stomion[0], plan.stomion, 0],
-      contact: 0,
-      size: [upper ? plan.upperLip : plan.lowerLip, plan.mouthWidth],
-      parent: "head.mass",
-      elongated: true,
-      search: { phase: Math.PI / 2, from: 0, to: 1 },
-    });
+    /** Only this requested source reads the original mass's nasal fall. */
+    const nose: () => IFeature[] = (): IFeature[] => {
+      // The nose's body from its views (`AutoMovieHumanHeadNosePart`), its axis
+      // the inset and twice the face's sagitta under its half width behind the
+      // profile, so its sides lie inside the face where the face turns back.
+      const middle: number = (plan.nasion + plan.tip) / 2;
+      const fall: number =
+        AutoMovieHumanHeadMassPart.frontAt(mass, middle, 0) -
+        AutoMovieHumanHeadMassPart.frontAt(mass, middle, plan.noseWidth);
+      const depth: number = INSET + 2 * fall;
+      return [
+        {
+          part: AutoMovieHumanHeadNosePart.of(plan, depth),
+          join: "merge",
+          seed: [
+            AutoMovieHumanHeadMedianProfile.profileAt(plan, middle),
+            middle,
+            0,
+          ],
+          contact: INSET,
+          size: [plan.noseLead, plan.noseWidth],
+          parent: "head.mass",
+          material: mass,
+          elongated: true,
+          search: { phase: 0, from: 0.5, to: 0 },
+        },
+      ];
+    };
 
-    // The orbits: cutters from in front of the skin back to the lid margin.
-    const face: AutoMovieHumanHeadPrior.IFace = AutoMovieHumanHeadPrior.PRIOR.face;
-    const orbit = (side: "left" | "right", sign: 1 | -1, eye: IAutoMovieHumanHeadEyeOpening): void => {
+    /** Each lip keeps its original source and shares only its contact preparation. */
+    const lip: (upper: boolean) => IFeature[] = (
+      upper: boolean,
+    ): IFeature[] => {
+      return [
+        {
+          part: AutoMovieHumanHeadLipPart.of(plan, upper, mass, lipContact()),
+          join: "merge",
+          seed: [plan.landmarks.stomion[0], plan.stomion, 0],
+          contact: 0,
+          size: [upper ? plan.upperLip : plan.lowerLip, plan.mouthWidth],
+          parent: "head.mass",
+          material: mass,
+          elongated: true,
+          search: { phase: Math.PI / 2, from: 0, to: 1 },
+        },
+      ];
+    };
+
+    /** Each orbital cutter owns its actual side input and explicit native host reads. */
+    const orbit: (
+      side: "left" | "right",
+      sign: 1 | -1,
+      eye: IAutoMovieHumanHeadEyeOpening,
+    ) => IFeature[] = (
+      side: "left" | "right",
+      sign: 1 | -1,
+      eye: IAutoMovieHumanHeadEyeOpening,
+    ): IFeature[] => {
+      const face: AutoMovieHumanHeadPrior.IFace =
+        AutoMovieHumanHeadPrior.PRIOR.face;
       const z: number = sign * eye.place;
-      const front: number = AutoMovieHumanHeadMassPart.frontAt(mass, plan.eye, z);
+      const front: number = AutoMovieHumanHeadMassPart.frontAt(
+        mass,
+        plan.eye,
+        z,
+      );
 
       // The cutter reaches the lid margin, the prior's recess behind the
       // nasion's skin (`face.eyeRecess`): the closed lids over the globe are
       // the floor it leaves, so the head has no lid parts of its own. Lids
       // standing inside the bare head mass met nothing to join, and a cut to
       // the bony socket left a pit the globe is not there to fill.
-      const floor: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion) - face.eyeRecess * k;
+      const floor: number =
+        AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion) -
+        face.eyeRecess * k;
       const depth: number = Math.max(INSET, front - floor);
-      out.push(
-        dome(
-          `orbit.${side}`,
-          "diff",
-          [front + INSET, plan.eye, z],
-          [-1, 0, 0],
-          [0, 0, sign],
-          [eye.length / 2, eye.height, eye.length / 2, eye.height],
-          depth + INSET,
-          2,
-          [front, plan.eye, z],
-          AutoMovieHumanHeadMassPart.frontRadiusAt(mass, plan.eye, z),
-        ),
+      return dome(
+        `orbit.${side}`,
+        "diff",
+        [front + INSET, plan.eye, z],
+        [-1, 0, 0],
+        [0, 0, sign],
+        [eye.length / 2, eye.height, eye.length / 2, eye.height],
+        depth + INSET,
+        2,
+        [front, plan.eye, z],
+        mass,
+        attempts,
       );
     };
-    orbit("left", 1, plan.left);
-    orbit("right", -1, plan.right);
-
-    return out;
+    const builders: readonly (() => IFeature[])[] = [
+      nose,
+      (): IFeature[] => lip(true),
+      (): IFeature[] => lip(false),
+      (): IFeature[] => orbit("left", 1, plan.left),
+      (): IFeature[] => orbit("right", -1, plan.right),
+    ];
+    const factories: ReadonlyMap<string, () => IFeature[]> = new Map(
+      names().map((name: string, i: number): [string, () => IFeature[]] => [
+        name,
+        builders[i]!,
+      ]),
+    );
+    const retained: Map<string, IAttempt> = new Map();
+    return {
+      names: [...factories.keys()],
+      read(names?: readonly string[]): IFeature[] {
+        const wanted: Set<string> | null =
+          names === undefined ? null : new Set(names);
+        return [...factories].flatMap(
+          ([name, make]: [string, () => IFeature[]]): IFeature[] => {
+            if (wanted !== null && !wanted.has(name)) return [];
+            const previous: IAttempt | undefined = retained.get(name);
+            if (previous !== undefined) {
+              if (previous.kind === "threw") throw previous.error;
+              return previous.parts;
+            }
+            try {
+              const parts: IFeature[] = make();
+              retained.set(name, { kind: "returned", parts });
+              return parts;
+            } catch (error: unknown) {
+              retained.set(name, { kind: "threw", error });
+              throw error;
+            }
+          },
+        );
+      },
+    };
   }
 
   /** One dome feature. */
@@ -192,17 +308,45 @@ export namespace AutoMovieHumanHeadFeatures {
     height: number,
     profile: number,
     seed: [number, number, number],
-    host?: number,
-  ): IFeature {
+    host?: IAutoMovieViewPart,
+    attempts?: AutoMovieHumanHeadDome.IAttempt[],
+  ): IFeature[] {
     const h: number = Math.max(INSET + 0.5, height);
-    return {
-      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents, height: h, profile, shoulder: AutoMovieViewSection.ELLIPSE, ...(host === undefined ? {} : { host }) }),
-      join,
-      seed,
-      contact: INSET,
-      size: [h - INSET, Math.min(...extents)],
-      parent: "head.mass",
-      elongated: Math.max(...extents) > 2 * Math.min(...extents),
-    };
+    const source: AutoMovieHumanHeadDome.IPart | null =
+      AutoMovieHumanHeadDome.attempt(
+        {
+          name,
+          origin,
+          outward,
+          along,
+          extents,
+          height: h,
+          profile,
+          shoulder: AutoMovieViewSection.ELLIPSE,
+        },
+        host,
+        seed,
+        attempts,
+      );
+    return source === null
+      ? []
+      : [
+          {
+            part: source,
+            join,
+            seed,
+            contact:
+              source.attachment === null || source.attachment.parameter === null
+                ? INSET
+                : source.stations.at(-1)! - h + source.attachment.parameter,
+            size: [h - INSET, Math.min(...extents)],
+            parent: "head.mass",
+            ...(host === undefined ? {} : { material: host }),
+            ...(source.attachment === null
+              ? {}
+              : { attachment: source.attachment }),
+            elongated: Math.max(...extents) > 2 * Math.min(...extents),
+          },
+        ];
   }
 }

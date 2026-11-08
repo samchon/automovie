@@ -53,8 +53,10 @@ export namespace AutoMovieHumanTrunkChains {
    */
   export function build(solution: IAutoMovieHumanTrunkSolution, sampling: ISampling): [IAutoMovieLoftChain, IAutoMovieLoftChain] {
     const l: IAutoMovieHumanTrunkLandmarks = solution.landmarks;
-    if (solution.neck.basis !== "spline" || solution.neck.order !== AutoMovieHumanTrunkQuadrant.ORDER) throw new Error("The old trunk boundary requires the same periodic spline basis and control order as its actual neck");
-    const top: IAutoMovieLoftChain.ILayer = AutoMovieHumanTrunkNeckSeat.layer(solution.neck);
+    const neck: IAutoMovieLoftChain | undefined = solution.neck ?? solution.rawNeck?.();
+    if (neck === undefined) throw new Error("The explicit legacy trunk loft has no actual neck supplier");
+    if (neck.basis !== "spline" || neck.order !== AutoMovieHumanTrunkQuadrant.ORDER) throw new Error("The old trunk boundary requires the same periodic spline basis and control order as its actual neck");
+    const top: IAutoMovieLoftChain.ILayer = AutoMovieHumanTrunkNeckSeat.layer(neck);
     const spacing = (): number => AutoMovieHumanTrunkRows.MAX_GAP;
 
     // Rows of each chain between its ends, the landmarks kept; the vault is

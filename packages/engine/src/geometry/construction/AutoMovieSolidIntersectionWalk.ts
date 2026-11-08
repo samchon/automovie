@@ -1,3 +1,4 @@
+import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidTraceLaw } from "./AutoMovieSolidTraceLaw";
 import { AutoMovieSolidTraceSolve } from "./AutoMovieSolidTraceSolve";
@@ -87,10 +88,15 @@ export namespace AutoMovieSolidIntersectionWalk {
       along: Vec3 | null,
     ): Vec3 | null => {
       /** Part partials at this accepted preimage. */
-      const a: IJet = part.jet(p.s, p.phi);
+      const a: IJet | null = AutoMovieSolidDomain.jet(part, p.s, p.phi);
 
       /** Current host-face partials at the same meeting. */
-      const b: IJet = host.faces[p.face]!.jet(p.y, p.theta);
+      const b: IJet | null = AutoMovieSolidDomain.jet(
+        host.faces[p.face]!,
+        p.y,
+        p.theta,
+      );
+      if (a === null || b === null) return null;
 
       /** Original normalized intersection tangent, absent at degeneracy. */
       const t: Vec3 | null = AutoMovieSolidVector.unit(
@@ -126,10 +132,16 @@ export namespace AutoMovieSolidIntersectionWalk {
     ];
 
     /** Part jet used by the original seed plane and initial chord. */
-    const a0: IJet = part.jet(x0[0], x0[1]);
+    const a0: IJet | null = AutoMovieSolidDomain.jet(part, x0[0], x0[1]);
 
     /** Host jet used by the seed-plane tangent. */
-    const b0: IJet = host.faces[face0]!.jet(x0[2], x0[3]);
+    const b0: IJet | null = AutoMovieSolidDomain.jet(
+      host.faces[face0]!,
+      x0[2],
+      x0[3],
+    );
+    if (a0 === null || b0 === null)
+      return "the seed has no owned regular surface chart";
 
     /** Original seed tangent before the existing correction solve. */
     const t0: Vec3 | null = AutoMovieSolidVector.unit(

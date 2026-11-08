@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieLoftChain, type AutoMovieSolidBlendChain, type AutoMovieSolidJoin, type AutoMovieSolidRail, type IAutoMovieLoftChain, type IAutoMovieSolidSurface } from "@automovie/engine";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
-import { HumanSeamObserver } from "../HumanSeamObserver";
+import { HumanSeamObserver } from "../../../../../packages/human/src/inspection/HumanSeamObserver";
 
 type IRow = HumanAnatomyAudit.IRow;
 

@@ -1,3 +1,7 @@
+import type { AutoMovieViewSection } from "@automovie/engine";
+
+import type { AutoMovieHumanTrunkConnection } from "./AutoMovieHumanTrunkConnection";
+
 /**
  * The trunk as its views draw it, in calibration millimetres in the body frame
  * (forward +X, up +Y, left +Z): the input of the trunk's view part
@@ -18,6 +22,8 @@
  * their own), so no measure is counted twice (#3047).
  */
 export interface IAutoMovieHumanTrunkViews {
+  /** Actual canonical neck family/frame; both original builders consume this same regular boundary. */
+  connection?: AutoMovieHumanTrunkConnection.IDefinition;
   /**
    * The perineum: the trunk's bottom pole, where every outline meets at one
    * point. Its height is the crotch's (ISO 8559-1 5.7.6, the inseam over the
@@ -58,6 +64,15 @@ export namespace IAutoMovieHumanTrunkViews {
 
     /** Forward place of the back profile on the median line, mm, behind `front`. */
     back: number;
+
+    /**
+     * Optional original symmetric local support box, calibration mm, owned
+     * before its world placement. The front must equal back plus its full
+     * AP depth and half must equal both lateral supports. Scalar admission
+     * and actual native outlines consume these identical local values;
+     * they do not recover depth by subtracting two rounded world positions.
+     */
+    sectionBox?: AutoMovieViewSection.IBox;
 
     /**
      * What owns the section's fullness here: a taut-tape girth (mm) solved on

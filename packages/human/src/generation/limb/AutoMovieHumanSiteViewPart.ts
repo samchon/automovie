@@ -1,6 +1,16 @@
-import { AutoMovieConstructionViews, type AutoMovieLoftContract, type AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
-import type { AutoMovieConstructionAxis, IAutoMovieConstructionView } from "@automovie/interface";
-import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView";
+import {
+  type AutoMovieLoftContract,
+  AutoMovieViewLoft,
+  type IAutoMovieViewPart,
+} from "@automovie/engine";
+import type {
+  AutoMovieConstructionAxis,
+  IAutoMovieConstructionView,
+} from "@automovie/interface";
+
+import type { AutoMovieHumanMassSource } from "./AutoMovieHumanMassSource";
+import type { AutoMovieHumanSiteControls } from "./AutoMovieHumanSiteControls";
+import { AutoMovieHumanSiteDefinition } from "./AutoMovieHumanSiteDefinition";
 
 /**
  * A body part lofted from view knots at named sites: the composition every
@@ -11,7 +21,7 @@ import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView
  * Knots. Each site stands at a station of the part's axis and gives the four
  * edges of the box there as signed chart coordinates relative to the axis
  * (the extremes along `+u`, `+v`, `-u`, `-v`), and what owns the fullness: a
- * taut-tape girth or a sourced conic shoulder. Every outline is the natural
+ * taut-tape girth or a sourced conic shoulder. An outline uses the natural
  * cubic spline of its knots (the operator's), so each published measure is a
  * knot and the outline is C2 between. Explicit jets/ranges select the shared
  * C2 quintic owner instead of the default natural cubic.
@@ -37,6 +47,20 @@ import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView
  * operator's own follow.
  */
 export namespace AutoMovieHumanSiteViewPart {
+  /** Retain one call-owned prepared source until its explicit generating owner changes. No geometry or cache is global; child sources are invalidated when a coupled parent is replaced. */
+  export function lazy<T>(
+    factory: () => T,
+    owner: () => unknown = (): undefined => undefined,
+  ): () => T {
+    let prepared: { owner: unknown; value: T } | undefined;
+    return (): T => {
+      const current: unknown = owner();
+      if (prepared === undefined || prepared.owner !== current)
+        prepared = { owner: current, value: factory() };
+      return prepared.value;
+    };
+  }
+
   /** One site's knots. */
   export interface ISite {
     /** The measurement site, such as `stylion` or `waist`, named in diagnostics. */
@@ -49,7 +73,9 @@ export namespace AutoMovieHumanSiteViewPart {
     edges: [number, number, number, number];
 
     /** A taut-tape girth (mm) solved on the site's box, or a sourced conic shoulder in `(0, 1)`. */
-    fullness: { girth: number } | { shoulder: number };
+    fullness:
+      | { girth: number; jet?: IAutoMovieViewPart.IKnot["jet"] }
+      | { shoulder: number; jet?: IAutoMovieViewPart.IKnot["jet"] };
 
     /** Optional four edge jets in the whole source's normalized parameter, each with its edge value's units. */
     jets?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IKnot["jet"]>;
@@ -67,16 +93,33 @@ export namespace AutoMovieHumanSiteViewPart {
     sites: ISite[];
 
     /** Closing points where every edge meets the axis, below the first site (`bottom`), above the last (`top`), or both. The shared root/angle parameter owns endpoint regularity; a closing point alone does not certify a final G2 surface. Absent, both ends are open sections. */
-    pole?: { end: "bottom" | "top"; station: number } | { end: "both"; bottom: number; top: number };
+    pole?:
+      | { end: "bottom" | "top"; station: number }
+      | { end: "both"; bottom: number; top: number };
 
     /** Optional closing-knot jets, in the whole source's normalized root/angle parameter and edge-value units. A physical station derivative at a pole remains singular. */
-    poleJets?: { bottom?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IKnot["jet"]>; top?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IKnot["jet"]> };
+    poleJets?: {
+      bottom?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IKnot["jet"]>;
+      top?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IKnot["jet"]>;
+    };
+
+    /** Optional direct-fullness jets at the same physical end knots; normalization uses the fullness outline's whole station span. */
+    fullnessPoleJets?: {
+      bottom?: IAutoMovieViewPart.IKnot["jet"];
+      top?: IAutoMovieViewPart.IKnot["jet"];
+    };
 
     /** Sourced departures of each quarter's shoulder, knots by station; absent means none. */
     departures?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline>;
 
+    /** Optional sufficient native-shoulder hull, authored before any connection copies its actual C2 jets. Values and genuine prescribed jets are retained or refused, never clamped. */
+    fullnessRange?: IAutoMovieViewPart.IOutline["range"];
+
     /** Optional sufficient scalar bounds for the four closed edge spans; these do not impose a moving world-plane constraint. */
     ranges?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline["range"]>;
+
+    /** Explicit original scalar coordinate shared by a local region and its host; closure remains separately declared by pole. */
+    parameter?: IAutoMovieViewPart.IOutline["parameter"];
 
     /** Control points of every section, a multiple of 4. */
     order: number;
@@ -90,6 +133,8 @@ export namespace AutoMovieHumanSiteViewPart {
 
   /** The part and its loft. */
   export interface IResult {
+    /** Actual consumed mass parent/contact, when this result is a mass; no reconstructed attachment is published. */
+    massConnection?: AutoMovieHumanMassSource.IConnection;
     /** The view part handed to the operator, or null when the knots are malformed. */
     part: IAutoMovieViewPart | null;
 
@@ -111,6 +156,38 @@ export namespace AutoMovieHumanSiteViewPart {
     result: IResult;
   }
 
+  /** Original part, canonical metre view and preparation diagnostics, before a raw loft exists. The synchronous caller owns this record. */
+  export type IDefinition = Pick<
+    IResult,
+    "part" | "view" | "diagnostics" | "massConnection"
+  >;
+
+  /** Prepare the identical production source without constructing a raw loft. */
+  export function define(input: IInput): IDefinition {
+    return AutoMovieHumanSiteDefinition.of(input);
+  }
+
+  /** Publish the exact shared generating controls; no sibling part or source solve is needed. */
+  export function fromControls(
+    prepared: AutoMovieHumanSiteControls.IOutput,
+  ): IDefinition {
+    return AutoMovieHumanSiteDefinition.publish(prepared);
+  }
+
+  /** Loft this exact prepared part once; copy diagnostics so the shared definition remains unchanged. */
+  export function loft(definition: IDefinition): IResult {
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [
+      ...definition.diagnostics,
+    ];
+    if (definition.part === null)
+      return { ...definition, loft: null, diagnostics };
+    const result: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(
+      definition.part,
+    );
+    diagnostics.push(...result.diagnostics);
+    return { ...definition, loft: result, diagnostics };
+  }
+
   /**
    * Build and loft a part from its sites.
    *
@@ -118,74 +195,7 @@ export namespace AutoMovieHumanSiteViewPart {
    * @returns The part, its loft and the diagnostics.
    */
   export function create(input: IInput): IResult {
-    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
-    const producer: string = `view.${input.name}`;
-    const fail = (contract: string, detail: string): IResult => {
-      diagnostics.push({ producer, level: 2, contract, detail });
-      return { part: null, loft: null, view: null, diagnostics };
-    };
-
-    const frame: AutoMovieViewAxis.IAxis | string = AutoMovieConstructionViews.frame(input.axis);
-    if (typeof frame === "string") return fail("axis", frame);
-
-    // The sites rise, each box holds its axis, and a pole lies beyond them.
-    const sites: ISite[] = input.sites;
-    if (sites.length < 2) return fail("sites", `${sites.length} sites; a part needs at least two`);
-    for (let k: number = 0; k < sites.length; k++) {
-      const s: ISite = sites[k]!;
-      if (k > 0 && !(s.station > sites[k - 1]!.station)) return fail("sites", `site ${s.site} at ${s.station} mm does not rise above ${sites[k - 1]!.site}`);
-      if (!(s.edges[0] > 0 && s.edges[1] > 0 && s.edges[2] < 0 && s.edges[3] < 0)) return fail("sites", `site ${s.site}: edges [${s.edges.join(", ")}] mm do not hold the axis inside the box`);
-    }
-    // The closing stations, each beyond its end's site.
-    const pole: IInput["pole"] = input.pole;
-    const bottom: number | null = pole === undefined || pole.end === "top" ? null : pole.end === "both" ? pole.bottom : pole.station;
-    const top: number | null = pole === undefined || pole.end === "bottom" ? null : pole.end === "both" ? pole.top : pole.station;
-    if ((input.poleJets?.bottom !== undefined && bottom === null) || (input.poleJets?.top !== undefined && top === null)) return fail("pole jets", "closing-knot jets require the corresponding declared pole");
-    if (bottom !== null && !(bottom < sites[0]!.station)) return fail("pole", `the bottom pole at ${bottom} mm does not lie below the first site`);
-    if (top !== null && !(top > sites[sites.length - 1]!.station)) return fail("pole", `the top pole at ${top} mm does not lie above the last site`);
-
-    // The common shoulder at each site: solved from its tape, or given.
-    const shoulders: number[] = [];
-    for (const s of sites) {
-      if ("shoulder" in s.fullness) {
-        shoulders.push(s.fullness.shoulder);
-        continue;
-      }
-      const solved: AutoMovieViewSection.ISolved = AutoMovieViewSection.solve(`${producer} ${s.site}`, { extents: [s.edges[0], s.edges[1], -s.edges[2], -s.edges[3]] }, s.fullness.girth);
-      diagnostics.push(...solved.diagnostics);
-      if (solved.section === null) return fail("fullness", `site ${s.site}: no section fits the tape ${s.fullness.girth} mm`);
-      shoulders.push(solved.section.shoulders[0]);
-    }
-
-    // Each outline through its sites, each pole's knot at zero (the shoulder
-    // repeats its neighbouring site's there).
-    const knots = (value: (s: ISite, k: number) => number, atBottom: number, atTop: number): IAutoMovieViewPart.IOutline => {
-      const out: IAutoMovieViewPart.IKnot[] = sites.map((s: ISite, k: number): IAutoMovieViewPart.IKnot => ({ site: s.site, station: s.station, value: value(s, k) }));
-      if (bottom !== null) out.unshift({ site: "bottom pole", station: bottom, value: atBottom });
-      if (top !== null) out.push({ site: "top pole", station: top, value: atTop });
-      return { knots: out };
-    };
-    const stationList: number[] = sites.map((s: ISite): number => s.station);
-    if (bottom !== null) stationList.unshift(bottom);
-    if (top !== null) stationList.push(top);
-    const part: IAutoMovieViewPart = {
-      name: input.name,
-      axis: frame,
-      stations: subdivide(stationList, input.gap),
-      front: { positive: outline(input, 0), negative: outline(input, 2) },
-      side: { positive: outline(input, 1), negative: outline(input, 3) },
-      fullness: {
-        kind: "shoulder",
-        shoulder: knots((_: ISite, k: number): number => shoulders[k]!, shoulders[0]!, shoulders[shoulders.length - 1]!),
-        ...(input.departures !== undefined ? { departures: input.departures } : {}),
-      },
-      ...(pole !== undefined ? { pole: pole.end } : {}),
-      order: input.order,
-      samples: input.samples,
-    };
-    const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
-    diagnostics.push(...loft.diagnostics);
-    return { part, loft, view: AutoMovieHumanConstructionView.of(part, input.axis), diagnostics };
+    return loft(define(input));
   }
 
   /**
@@ -200,31 +210,10 @@ export namespace AutoMovieHumanSiteViewPart {
    * @evidence contracts/performance.md#reuse-equivalent-work Both consumers use this owner, so a changed source field cannot silently be dropped by a parallel conversion.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns an owned declaration with no cache or source-result lifetime beyond its caller.
    */
-  export function outline(input: Pick<IInput, "sites" | "pole" | "poleJets" | "ranges">, quarter: 0 | 1 | 2 | 3): IAutoMovieViewPart.IOutline {
-    const knots: IAutoMovieViewPart.IKnot[] = input.sites.map((site: ISite): IAutoMovieViewPart.IKnot => ({ site: site.site, station: site.station, value: site.edges[quarter], ...(site.jets?.[quarter] === undefined ? {} : { jet: site.jets[quarter] }) }));
-    const pole: IInput["pole"] = input.pole;
-    if (pole !== undefined && pole.end !== "top") knots.unshift({ site: "bottom pole", station: pole.end === "both" ? pole.bottom : pole.station, value: 0, ...(input.poleJets?.bottom?.[quarter] === undefined ? {} : { jet: input.poleJets.bottom[quarter] }) });
-    if (pole !== undefined && pole.end !== "bottom") knots.push({ site: "top pole", station: pole.end === "both" ? pole.top : pole.station, value: 0, ...(input.poleJets?.top?.[quarter] === undefined ? {} : { jet: input.poleJets.top[quarter] }) });
-    const range: IAutoMovieViewPart.IOutline["range"] = input.ranges?.[quarter];
-    return { knots, ...(range === undefined ? {} : { range }) };
-  }
-
-  /**
-   * The layer stations: every kept station, and each run between two cut into
-   * the fewest equal intervals no wider than the gap.
-   *
-   * @param kept Strictly rising stations, mm.
-   * @param gap Widest interval, mm, positive.
-   * @returns Strictly rising stations holding every kept one exactly.
-   */
-  function subdivide(kept: readonly number[], gap: number): number[] {
-    const out: number[] = [kept[0]!];
-    for (let k: number = 1; k < kept.length; k++) {
-      const a: number = kept[k - 1]!;
-      const b: number = kept[k]!;
-      const count: number = Math.max(1, Math.ceil((b - a) / gap - 1e-9));
-      for (let i: number = 1; i <= count; i++) out.push(i === count ? b : a + ((b - a) * i) / count);
-    }
-    return out;
+  export function outline(
+    input: Pick<IInput, "sites" | "pole" | "poleJets" | "ranges" | "parameter">,
+    quarter: 0 | 1 | 2 | 3,
+  ): IAutoMovieViewPart.IOutline {
+    return AutoMovieHumanSiteDefinition.outline(input, quarter);
   }
 }

@@ -2,7 +2,7 @@ import { AutoMovieHumanSeam } from "../../../../packages/human/src/lofting/AutoM
 import { AutoMovieHumanSeamKnot } from "../../../../packages/human/src/lofting/AutoMovieHumanSeamKnot";
 import { AutoMovieSplineCurve } from "@automovie/engine";
 import type { IAutoMovieHumanSeam } from "../../../../packages/human/src/lofting/IAutoMovieHumanSeam";
-import { HumanSeamObserver } from "../internal/HumanSeamObserver";
+import { HumanSeamObserver } from "../../../../packages/human/src/inspection/HumanSeamObserver";
 
 /**
  * A section assembled from guides and sectors owns every guide's point,

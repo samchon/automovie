@@ -16,6 +16,22 @@ export interface IHumanDebugSnapshot {
   /** Producer facts of the subject. */
   provenance: Record<string, unknown> | null;
 
+  /** Actual resolved presentation demand; absent in historical receipts, whose defaults are not reconstructed. */
+  display?: {
+    /** Requested reference producer; null means none. */
+    reference: string | null;
+    /** Actual reference representation selected by the UI. */
+    referenceStyle: "clay" | "loft";
+    /** Reference crop selectors before visibility filtering. */
+    referencePart: string[];
+    /** Reference alpha in (0, 1]. CPU opaque clay does not reproduce values below 1. */
+    referenceOpacity: number;
+    /** Ordinary raw surface alpha in (0, 1]. */
+    opacity: number;
+    /** Whether non-axis source lines ignore surface depth; axes always do. */
+    xray: boolean;
+  };
+
   /** Ids shown. */
   shown: { parts: string[]; curves: string[] };
 

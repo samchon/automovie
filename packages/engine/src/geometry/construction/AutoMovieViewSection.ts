@@ -5,6 +5,7 @@ import type { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 import { AutoMovieViewConic } from "./AutoMovieViewConic";
 import { AutoMovieViewSectionConic } from "./AutoMovieViewSectionConic";
+import { AutoMovieViewSectionRange } from "./AutoMovieViewSectionRange";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /** The four ordered support directions and their corresponding source-quarter records. */
@@ -23,7 +24,7 @@ type Measured = Pick<
  *
  * The conic is read directly. The knot list is a quadrature/inspection partition, not a polar Hermite replacement. Girth measures the same rational pieces with bounded native quadrature and geometric end enclosures; finite measurement belongs to reach admission and every solved result must meet its measured residual. Four exact guides and shoulder points retain their input ownership. Final periodic phase fitting and station interpolation remain separate from this source section.
  *
- * @evidence contracts/common.md#principled-implementation Exact rational quarters and admitted convex rational G2 ends preserve the four support jets, positive curvature and original shoulders; one actual-source girth selects a common shoulder by Illinois.
+ * @evidence contracts/common.md#principled-implementation Exact rational quarters and admitted convex rational G2 ends preserve the four support jets, positive curvature and original shoulders; actual native validity and girth residual admit an ellipse candidate directly or select a common shoulder by bracketed Illinois.
  * @evidence contracts/common.md#clear-and-simple-design Public sections own their complete observations; range and Illinois retain only the measured source until a public result is selected.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No input box, aspect exception, relaxed convexity threshold or sampled replacement curve hides failed source premises.
  * @evidence contracts/common.md#meaningful-documentation States source ownership, conic parameter, correction/error proof owner, numerical girth limit and separation from final loft fitting.
@@ -202,13 +203,6 @@ export namespace AutoMovieViewSection {
     };
   }
 
-  /** Compute the identical native arclength before range/Illinois admission. */
-  function measured(box: IBox, shoulders: Quarters<number>): Measured {
-    const value: Measured = AutoMovieViewSectionConic.prepare(box, shoulders);
-    value.girth = AutoMovieViewSectionConic.length(value);
-    return value;
-  }
-
   /** Decorate only a selected public section, retaining its already measured girth. */
   function completed(value: Measured): ISection {
     const section: ISection = observations(value);
@@ -263,7 +257,10 @@ export namespace AutoMovieViewSection {
   }
 
   /**
-   * Actual native-piece arclength, in source length units.
+   * Actual native-piece arclength, optionally in a fixed diagonal metric.
+   * axisScale contains two finite nonzero dimensionless signed axis scales;
+   * magnitudes determine the norm, and omitted scales preserve ordinary length.
+   * Original sections/G2 controls stay unchanged; this returns no error bound.
    *
    * @evidence contracts/common.md#principled-implementation Delegates the actual quadratic/cubic speeds to the single native quadrature owner.
    * @evidence contracts/common.md#clear-and-simple-design Public length keeps the section API while measurement mechanics remain with ViewSectionConic.
@@ -273,8 +270,40 @@ export namespace AutoMovieViewSection {
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the section's prepared native partition and G2 controls.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only one scalar survives the measurement's local scratch.
    */
-  export function length(section: ISection): number {
-    return AutoMovieViewSectionConic.length(section);
+  export function length(
+    section: ISection,
+    axisScale: readonly [number, number] = [1, 1],
+  ): number {
+    return AutoMovieViewSectionConic.length(section, axisScale);
+  }
+
+  /**
+   * Two actual native target-refinement observations of the same mapped source.
+   *
+   * @evidence contracts/common.md#principled-implementation Measures the identical source at native estimated targets1e-7 and5e-8 in source length units, returning the finer result and actual absolute difference; this observation is neither a bound nor the polar GL8 K/2K rule.
+   * @evidence contracts/common.md#clear-and-simple-design Reuses the single native quadrature/enclosure owner twice, without preparing a new section or adding an integrator.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not manufacture zero error; coincident answers can yield an observed zero. Invalid map/source or exhausted numeric admission stays NaN, and original getter exceptions propagate.
+   * @evidence contracts/common.md#meaningful-documentation The signed finite nonzero diagonal scale is dimensionless; lengths/difference retain source units, normally mm. Both targets and the observation-only meaning are explicit.
+   * @evidence contracts/performance.md#efficient-algorithms Two bounded native measurements retain the existing8192-panel/depth24 limits per measurement; no polar inverse is evaluated at quadrature nodes.
+   * @evidence contracts/performance.md#reuse-equivalent-work Both measurements share the same original prepared rational/G2 functions, partitions and controls with no source reconstruction.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only two returned scalars survive; each measurement releases its bounded local panel stacks.
+   */
+  export function measure(
+    section: ISection,
+    axisScale: readonly [number, number] = [1, 1],
+  ): {
+    /** Finer native-target measurement in source units, normally mm; NaN on numeric refusal. */
+    lengthMm: number;
+    /** Actual absolute difference of the two native estimated targets, not a bound or polar K/2K result. */
+    differenceMm: number;
+  } {
+    const coarse: number = AutoMovieViewSectionConic.length(section, axisScale);
+    const fine: number = AutoMovieViewSectionConic.length(
+      section,
+      axisScale,
+      5e-8,
+    );
+    return { lengthMm: fine, differenceMm: Math.abs(fine - coarse) };
   }
 
   /**
@@ -307,65 +336,18 @@ export namespace AutoMovieViewSection {
     box: IBox,
     departures: Quarters<number> = [0, 0, 0, 0],
   ): IRange | null {
-    const at: (r: number) => Measured | null = (r: number): Measured | null => {
-      const s: Quarters<number> = departures.map(
-        (d: number): number => r + d,
-      ) as Quarters<number>;
-      if (!s.every((x: number): boolean => x > 0 && x < 1)) return null;
-      const section: Measured = measured(box, s);
-      return AutoMovieViewSectionConic.fault(section) === null ? section : null;
-    };
-    if (at(ELLIPSE) === null) return null;
-
-    // Scale the finite shoulder bracket's bisection count by the box's
-    // perimeter. This is a numerical reach search, not a derivative or
-    // girth-error certificate; solve checks its actual final residual.
-    const e: Quarters<number> = box.extents;
-    const steps: number = Math.min(
-      64,
-      Math.max(
-        0,
-        Math.ceil(
-          Math.log2((2 * (e[0] + e[1] + e[2] + e[3])) / GIRTH_TOLERANCE),
-        ),
-      ),
-    );
-    const edge: (inside: number, outside: number) => number = (
-      inside: number,
-      outside: number,
-    ): number => {
-      let a: number = inside;
-      let b: number = outside;
-      for (let i: number = 0; i < steps; i++) {
-        const m: number = (a + b) / 2;
-        if (m === a || m === b) break;
-        if (at(m) !== null) a = m;
-        else b = m;
-      }
-      return a;
-    };
-    const lo: number = edge(ELLIPSE, 0);
-    const hi: number = edge(ELLIPSE, 1);
-    const shaped: (r: number) => Measured = (r: number): Measured =>
-      measured(
-        box,
-        departures.map((d: number): number => r + d) as Quarters<number>,
-      );
-    const girths: [number, number] = [shaped(lo).girth, shaped(hi).girth];
-    return girths.every(Number.isFinite) && girths[0] < girths[1]
-      ? { shoulder: [lo, hi], girth: girths }
-      : null;
+    return AutoMovieViewSectionRange.create(box, departures);
   }
 
   /**
    * Actual source section of a requested finite girth, or its explicit reach diagnostic.
    *
-   * @evidence contracts/common.md#principled-implementation Illinois on the continuous admitted source girth proposes a common shoulder; actual source validity and measured girth residual are checked before success. An outside request retains an endpoint with a diagnostic.
+   * @evidence contracts/common.md#principled-implementation An actual valid ellipse candidate whose measured residual passes is accepted directly. Otherwise Illinois on an admitted local or complete-reach bracket proposes a common shoulder, whose actual source validity and original1e-6 residual are checked before success. Local refusal falls back to complete reach; an outside request retains its original endpoint and diagnostic.
    * @evidence contracts/common.md#clear-and-simple-design One result carries a nullable actual section and named reach, shape or unresolved-residual diagnostics.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No girth scaling, null-to-endpoint success or unchecked last estimate hides a failed solve.
    * @evidence contracts/common.md#meaningful-documentation States retained-endpoint and no-finite-range behavior.
-   * @evidence contracts/performance.md#efficient-algorithms At most100 Illinois iterations after bounded range preparation.
-   * @evidence contracts/performance.md#reuse-equivalent-work Each candidate source serves its identical length/fault checks; the selected source also supplies all final public observations without rebuilding its geometry.
+   * @evidence contracts/performance.md#efficient-algorithms One native ellipse measurement can complete the request; otherwise at most100 Illinois iterations follow an admitted two-candidate local bracket or the unchanged bounded complete reach search. Failed local solving permits one complete-reach retry.
+   * @evidence contracts/performance.md#reuse-equivalent-work The call-owned numeric trial map reuses identical shoulder measurements and the selected actual source; it retains no foreign algebra callbacks or cross-input state. Complete endpoint geometry remains the original range owner's result.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only the selected section and diagnostics survive; rejected candidates are invocation-local.
    */
   export function solve(
@@ -374,79 +356,98 @@ export namespace AutoMovieViewSection {
     girth: number,
     departures: Quarters<number> = [0, 0, 0, 0],
   ): ISolved {
-    const reach: IRange | null = range(box, departures);
     const e: Quarters<number> = box.extents;
     const W: number = e[0] + e[2];
     const D: number = e[1] + e[3];
-    const shaped: (r: number) => Measured = (r: number): Measured =>
-      measured(
-        box,
-        departures.map((d: number): number => r + d) as Quarters<number>,
+    const family: AutoMovieViewSectionRange.IFamily =
+      AutoMovieViewSectionRange.nearby(box, departures, girth);
+    if (family.accepted !== undefined)
+      return { section: completed(family.accepted.source), diagnostics: [] };
+    let local: boolean = family.range !== null;
+    let reach: IRange | null = family.range ?? range(box, departures);
+
+    // Only an admitted local solve may retry through the unchanged complete
+    // reach path; original callback exceptions are never caught or replaced.
+    for (;;) {
+      if (reach === null)
+        return {
+          section: null,
+          diagnostics: [
+            {
+              producer,
+              level: 2,
+              contract: "view section",
+              detail: `the box [${e.join(", ")}] mm with departures [${departures.join(", ")}] has no finite admitted source/girth reach from the ellipse's shoulder`,
+            },
+          ],
+        };
+      const [lo, hi]: [number, number] = reach.girth;
+      if (!(girth >= lo && girth <= hi)) {
+        const end: number = girth < lo ? reach.shoulder[0] : reach.shoulder[1];
+        return {
+          section: completed(family.at(end).source),
+          diagnostics: [
+            {
+              producer,
+              level: 2,
+              contract: "girth in reach",
+              detail: `girth ${girth} mm outside the reach ${lo} to ${hi} mm of the box ${W} by ${D} mm (rhombus ${2 * Math.hypot(W, D)} mm, rectangle ${2 * (W + D)} mm); the section is the shoulder ${end}`,
+            },
+          ],
+        };
+      }
+      let localRefusal: boolean = false;
+      const r: number | null = AutoMovieIllinois.root(
+        (x: number): number => {
+          const trial: AutoMovieViewSectionRange.ITrial = family.at(x);
+          if (local && trial.fault !== null) {
+            localRefusal = true;
+            return NaN;
+          }
+          return trial.source.girth - girth;
+        },
+        reach.shoulder[0],
+        reach.shoulder[1],
+        GIRTH_TOLERANCE,
+        ITERATIONS,
       );
-    if (reach === null)
-      return {
-        section: null,
-        diagnostics: [
-          {
-            producer,
-            level: 2,
-            contract: "view section",
-            detail: `the box [${e.join(", ")}] mm with departures [${departures.join(", ")}] has no finite admitted source/girth reach from the ellipse's shoulder`,
-          },
-        ],
-      };
-    const [lo, hi]: [number, number] = reach.girth;
-    if (!(girth >= lo && girth <= hi)) {
-      const end: number = girth < lo ? reach.shoulder[0] : reach.shoulder[1];
-      return {
-        section: completed(shaped(end)),
-        diagnostics: [
-          {
-            producer,
-            level: 2,
-            contract: "girth in reach",
-            detail: `girth ${girth} mm outside the reach ${lo} to ${hi} mm of the box ${W} by ${D} mm (rhombus ${2 * Math.hypot(W, D)} mm, rectangle ${2 * (W + D)} mm); the section is the shoulder ${end}`,
-          },
-        ],
-      };
+      const value: Measured | null =
+        r === null || !Number.isFinite(r) ? null : family.at(r).source;
+      const failure: string | null =
+        value === null
+          ? "no finite bracketed shoulder estimate"
+          : AutoMovieViewSectionConic.fault(value);
+      const residual: number = value === null ? NaN : value.girth - girth;
+      const section: ISection | null = value === null ? null : completed(value);
+      const refused: boolean =
+        localRefusal ||
+        failure !== null ||
+        !Number.isFinite(residual) ||
+        Math.abs(residual) > GIRTH_TOLERANCE;
+      if (local && refused) {
+        local = false;
+        reach = range(box, departures);
+        continue;
+      }
+      if (refused)
+        return {
+          section,
+          diagnostics: [
+            {
+              producer,
+              level: 2,
+              contract: "girth solve",
+              detail: `girth ${girth} has no admitted residual within ${GIRTH_TOLERANCE}; residual ${residual}; ${failure ?? "iteration bound exhausted"}`,
+            },
+          ],
+        };
+      return { section, diagnostics: [] };
     }
-    const r: number | null = AutoMovieIllinois.root(
-      (x: number): number => shaped(x).girth - girth,
-      reach.shoulder[0],
-      reach.shoulder[1],
-      GIRTH_TOLERANCE,
-      ITERATIONS,
-    );
-    const value: Measured | null =
-      r === null || !Number.isFinite(r) ? null : shaped(r);
-    const failure: string | null =
-      value === null
-        ? "no finite bracketed shoulder estimate"
-        : AutoMovieViewSectionConic.fault(value);
-    const residual: number = value === null ? NaN : value.girth - girth;
-    const section: ISection | null = value === null ? null : completed(value);
-    if (
-      failure !== null ||
-      !Number.isFinite(residual) ||
-      Math.abs(residual) > GIRTH_TOLERANCE
-    )
-      return {
-        section,
-        diagnostics: [
-          {
-            producer,
-            level: 2,
-            contract: "girth solve",
-            detail: `girth ${girth} has no admitted residual within ${GIRTH_TOLERANCE}; residual ${residual}; ${failure ?? "iteration bound exhausted"}`,
-          },
-        ],
-      };
-    return { section, diagnostics: [] };
   }
 }
 
 /** Accepted measured girth residual, in source length units (kernel millimetres). */
-const GIRTH_TOLERANCE: number = 1e-6;
+const GIRTH_TOLERANCE: number = AutoMovieViewSectionRange.TOLERANCE;
 
 /** Bounded Illinois residual evaluations. */
 const ITERATIONS: number = 100;

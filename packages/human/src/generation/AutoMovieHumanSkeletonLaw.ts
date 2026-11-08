@@ -1,18 +1,14 @@
+import type { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import type { AutoMovieHumanArmConstruction } from "./AutoMovieHumanArmConstruction";
 import type { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import type { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
+import { AutoMovieHumanLimbRest } from "./AutoMovieHumanLimbRest";
+import { AutoMovieHumanSkeletonChain } from "./AutoMovieHumanSkeletonChain";
 import { AutoMovieHumanTrunkLandmarks } from "./AutoMovieHumanTrunkLandmarks";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
-import { AutoMovieHumanFootPrior } from "./AutoMovieHumanFootPrior";
-import { AutoMovieHumanLegPrior } from "./AutoMovieHumanLegPrior";
-import { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
-import { AutoMovieHumanFootBones } from "./foot/AutoMovieHumanFootBones";
 import { AutoMovieHumanHandBones } from "./hand/AutoMovieHumanHandBones";
-import { AutoMovieHumanLegBones } from "./leg/AutoMovieHumanLegBones";
 import type { AutoMovieHumanHeadLane } from "./head/AutoMovieHumanHeadLane";
-import type { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
-import { AutoMovieHumanSkeletonChain } from "./AutoMovieHumanSkeletonChain";
+
 /**
  * The bind skeleton, placed by rule before any limb is lofted, in calibration
  * millimetres (forward +X, up +Y, left +Z, floor at y = 0).
@@ -69,7 +65,7 @@ export namespace AutoMovieHumanSkeletonLaw {
     trunk: AutoMovieHumanTrunkLandmarks.ILandmarks;
 
     /** The generating head lane's joint and eye references. */
-    head: AutoMovieHumanHeadLane.IOutput;
+    head: Pick<AutoMovieHumanHeadLane.IOutput, "skeleton" | "eyes">;
 
     /** The resolved anatomical sex used by digit dimensions. */
     sex: AutoMovieHumanSex;
@@ -79,6 +75,7 @@ export namespace AutoMovieHumanSkeletonLaw {
   export interface IOutput {
     /** Parent-before-child bone records. */
     bones: IBone[];
+
     /** Actual sided joint/material-frame definitions, before any digit skin. */
     hands: Record<"left" | "right", AutoMovieHumanHandBones.IOutput>;
   }
@@ -93,7 +90,10 @@ export namespace AutoMovieHumanSkeletonLaw {
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the actual definition result rather than deriving a parallel skeleton.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned bones and retains no source globally.
    */
-  export function derive(root: IAutoMovieHumanBodyCalibration, inputs: IInputs): IBone[] {
+  export function derive(
+    root: IAutoMovieHumanBodyCalibration,
+    inputs: IInputs,
+  ): IBone[] {
     return define(root, inputs).bones;
   }
 
@@ -115,10 +115,67 @@ export namespace AutoMovieHumanSkeletonLaw {
     root: IAutoMovieHumanBodyCalibration,
     inputs: IInputs,
   ): IOutput {
-    const S: number = root.stature;
+    return complete(
+      body(root, {
+        ...inputs,
+        neckBase: inputs.head.skeleton.neckBase,
+        neckRadius: inputs.head.skeleton.neckRadius,
+      }),
+      inputs.head,
+      root.stature,
+    );
+  }
+
+  /** Body-owned joints and their true neck attachment datum; no head mass or eye placement is needed. */
+  export type IBodyInputs = Omit<IInputs, "head"> & {
+    /** Shared world neck-base position in calibration mm. */
+    neckBase: Vec3;
+
+    /** Shared normal-neck lateral scale in calibration mm. */
+    neckRadius: number;
+
+    /** Same invocation's independent original rest owner; absent only for legacy direct callers. */
+    limbs?: AutoMovieHumanLimbRest.IOutput;
+  };
+
+  /**
+   * Place only body-owned bones from public limb inputs and the common neck datum.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the identical body placement rules as define, with a shared neck datum instead of a completed head or eye source.
+   * @evidence contracts/common.md#clear-and-simple-design The common builder owns all body arithmetic; full define separately adds actual head-owned neck/atlas/head/jaw/eye bones.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No fake head/eyes, source readback, nominal zero joint, changed rest frame or copied pose replaces a dependency.
+   * @evidence contracts/common.md#meaningful-documentation The result is the body-owned subset, not a completed whole-person skeleton or binding.
+   * @evidence contracts/performance.md#efficient-algorithms Executes fixed-size anatomical vector work without head, curve, loft or mesh preparation.
+   * @evidence contracts/performance.md#reuse-equivalent-work Both production and scoped originals use the same body builder and actual hand records.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns caller-owned body bone/hand records and retains no parent source or global state.
+   */
+  export function body(
+    root: Pick<IAutoMovieHumanBodyCalibration, "stature" | "diagnostics">,
+    inputs: IBodyInputs,
+  ): IOutput {
+    return build(root, inputs);
+  }
+
+  /**
+   * Add only actual head-owned bones to an existing body definition.
+   * The body's bone objects and both hand/material records retain identity.
+   * Head bones follow chest before its existing limb children, preserving
+   * the original parent-before-child ordering and bind frame arithmetic.
+   */
+  export function complete(
+    body: IOutput,
+    head: IInputs["head"],
+    S: number,
+  ): IOutput {
     const bones: IBone[] = [];
-    const hands: IOutput["hands"] = {} as IOutput["hands"];
-    const add = (
+    const neckBase: Vec3 = head.skeleton.neckBase;
+    const add: (
+      bone: string,
+      parent: string | null,
+      position: Vec3,
+      toward: Vec3,
+      tip?: Vec3 | null,
+    ) => void = (
       bone: string,
       parent: string | null,
       position: Vec3,
@@ -127,41 +184,14 @@ export namespace AutoMovieHumanSkeletonLaw {
     ): void => {
       bones.push({ bone, parent, position, toward, tip });
     };
-
-    // The legs' lines, first: the hips stand on them.
-    const feet: Record<"left" | "right", AutoMovieHumanFootBones.IBones> = {
-      left: AutoMovieHumanFootBones.of(inputs.feet.left, 1).bones,
-      right: AutoMovieHumanFootBones.of(inputs.feet.right, -1).bones,
-    };
-    const hipForward: number = AutoMovieHumanTrunkLandmarks.axisAt(inputs.trunk, inputs.trunk.crotch)[0];
-    const legs: Record<"left" | "right", ILeg> = {
-      left: leg(S, inputs.legs, "left", feet.left.ankle[1], hipForward),
-      right: leg(S, inputs.legs, "right", feet.right.ankle[1], hipForward),
-    };
-
-    // Trunk column: hip centres, de Leva trunk boundaries, neck base.
-    const hipY: number = HIP * S;
-    const pelvis: Vec3 = lerp(legs.left.hip, legs.right.hip, 0.5);
-    const span: number = CERVICALE * S;
-    // The trunk's generating sagittal definition owns the column's axis.
-    const spineAt = (y: number): Vec3 =>
-      AutoMovieHumanTrunkLandmarks.axisAt(inputs.trunk, y);
-    const lumbar: Vec3 = spineAt(hipY + OMPHALION * span);
-    const thoracic: Vec3 = spineAt(hipY + XIPHION * span);
-
-    // These points belong to the head lane's actual generating definition.
-    const { neckBase, occiput, neckRadius, crown }: AutoMovieHumanHeadLane.ISkeleton = inputs.head.skeleton;
+    const { occiput, crown }: AutoMovieHumanHeadLane.ISkeleton = head.skeleton;
     const atlas: Vec3 = lerp(neckBase, occiput, 0.85);
-
-    add("hips", null, pelvis, lumbar);
-    add("spine", "hips", lumbar, thoracic);
-    add("chest", "spine", thoracic, neckBase);
     add("neck", "chest", neckBase, atlas);
     add("atlas", "neck", atlas, occiput);
     add("head", "atlas", occiput, crown, crown);
 
     // Jaw and eyes (conventional facial placements, see the joint-range note).
-    const eyes: IAutoMovieHumanBodyCalibration.IEye[] = inputs.head.eyes;
+    const eyes: IAutoMovieHumanBodyCalibration.IEye[] = head.eyes;
     const eyeMid: Vec3 = [0, 1, 2].map(
       (i: number): number =>
         eyes.reduce(
@@ -174,20 +204,99 @@ export namespace AutoMovieHumanSkeletonLaw {
     const chin: Vec3 = [eyeMid[0], eyeMid[1] - 0.068 * S, 0];
     add("jaw", "head", tmj, chin, chin);
     for (const eye of eyes) {
-      const gaze: Vec3 = [eye.centre[0] + 0.03 * S, eye.centre[1], eye.centre[2]];
+      const gaze: Vec3 = [
+        eye.centre[0] + 0.03 * S,
+        eye.centre[1],
+        eye.centre[2],
+      ];
       add(`${eye.side}Eye`, "head", eye.centre, gaze, gaze);
     }
 
+    const index: number = body.bones.findIndex(
+      (bone: IBone): boolean => bone.bone === "chest",
+    );
+    if (index < 0)
+      throw new Error("Head completion requires the actual body chest bone");
+    return {
+      bones: [
+        ...body.bones.slice(0, index + 1),
+        ...bones,
+        ...body.bones.slice(index + 1),
+      ],
+      hands: body.hands,
+    };
+  }
+
+  /** The shared body arithmetic; head and eye records are an explicit later completion. */
+  function build(
+    root: Pick<IAutoMovieHumanBodyCalibration, "stature" | "diagnostics">,
+    inputs: IBodyInputs,
+  ): IOutput {
+    const S: number = root.stature;
+    const bones: IBone[] = [];
+    const hands: IOutput["hands"] = {} as IOutput["hands"];
+    const add: (
+      bone: string,
+      parent: string | null,
+      position: Vec3,
+      toward: Vec3,
+      tip?: Vec3 | null,
+    ) => void = (
+      bone: string,
+      parent: string | null,
+      position: Vec3,
+      toward: Vec3,
+      tip: Vec3 | null = null,
+    ): void => {
+      bones.push({ bone, parent, position, toward, tip });
+    };
+
+    // Full bind publication consumes the same direct rest records as originals.
+    const limbs: AutoMovieHumanLimbRest.IOutput =
+      inputs.limbs ??
+      AutoMovieHumanLimbRest.create({
+        stature: S,
+        arms: inputs.arms,
+        feet: inputs.feet,
+        legs: inputs.legs,
+        sex: inputs.sex,
+        diagnostics: root.diagnostics ?? [],
+        shoulder: (): AutoMovieHumanLimbRest.IShoulder => inputs.trunk,
+        hipForward: AutoMovieHumanTrunkLandmarks.axisAt(
+          inputs.trunk,
+          inputs.trunk.crotch,
+        )[0],
+      });
+    const legs: Record<"left" | "right", AutoMovieHumanLimbRest.ILeg> = {
+      left: limbs.leg("left"),
+      right: limbs.leg("right"),
+    };
+
+    // Trunk column: hip centres, de Leva trunk boundaries, neck base.
+    const hipY: number = HIP * S;
+    const pelvis: Vec3 = lerp(legs.left.hip, legs.right.hip, 0.5);
+    const span: number = CERVICALE * S;
+
+    // The trunk's generating sagittal definition owns the column's axis.
+    const spineAt: (y: number) => Vec3 = (y: number): Vec3 =>
+      AutoMovieHumanTrunkLandmarks.axisAt(inputs.trunk, y);
+    const lumbar: Vec3 = spineAt(hipY + OMPHALION * span);
+    const thoracic: Vec3 = spineAt(hipY + XIPHION * span);
+
+    const neckBase: Vec3 = inputs.neckBase;
+    const neckRadius: number = inputs.neckRadius;
+    add("hips", null, pelvis, lumbar);
+    add("spine", "hips", lumbar, thoracic);
+    add("chest", "spine", thoracic, neckBase);
+
     for (const side of ["left", "right"] as const) {
       const s: 1 | -1 = side === "left" ? 1 : -1;
-      const reflected = (point: Vec3): Vec3 => [point[0], point[1], s * point[2]];
-      const prior: AutoMovieHumanArmPrior.IArm = AutoMovieHumanArmPrior.PRIOR.arm;
-      const bones_: AutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place(inputs.trunk.glenohumeral, unit(prior.upper), unit(prior.lower), inputs.arms.upper, inputs.arms.lower, inputs.trunk.shoulder[1] - inputs.trunk.glenohumeral[1]);
-      const hand: AutoMovieHumanHandBones.IOutput = AutoMovieHumanHandBones.sided(AutoMovieHumanHandBones.of(bones_.wrist, inputs.arms[side], inputs.sex, inputs.arms.scale, root.diagnostics ?? []), s);
+      const arm: AutoMovieHumanLimbRest.IArm = limbs.arm(side);
+      const hand: AutoMovieHumanHandBones.IOutput = arm.hand;
       hands[side] = hand;
-      const elbow: Vec3 = reflected(bones_.elbow);
-      const wrist: Vec3 = reflected(bones_.wrist);
-      const glenohumeral: Vec3 = reflected(bones_.shoulder);
+      const elbow: Vec3 = arm.bones.elbow;
+      const wrist: Vec3 = arm.bones.wrist;
+      const glenohumeral: Vec3 = arm.bones.shoulder;
       const sternoclavicular: Vec3 = [
         spineAt(glenohumeral[1])[0],
         glenohumeral[1],
@@ -205,25 +314,39 @@ export namespace AutoMovieHumanSkeletonLaw {
       const [cmc, mcp, ip, thumbTip]: Vec3[] = hand.thumb.centres;
       add(`${side}ThumbMetacarpal`, `${side}Hand`, cmc!, mcp!);
       add(`${side}ThumbProximal`, `${side}ThumbMetacarpal`, mcp!, ip!);
-      add(`${side}ThumbDistal`, `${side}ThumbProximal`, ip!, thumbTip!, thumbTip!);
+      add(
+        `${side}ThumbDistal`,
+        `${side}ThumbProximal`,
+        ip!,
+        thumbTip!,
+        thumbTip!,
+      );
       for (const name of ["Index", "Middle", "Ring", "Little"] as const) {
-        const [mcp_, pip, dip, tip]: Vec3[] =
-          hand.fingers[name].centres;
+        const [mcp_, pip, dip, tip]: Vec3[] = hand.fingers[name].centres;
         add(`${side}${name}Proximal`, `${side}Hand`, mcp_!, pip!);
         add(`${side}${name}Intermediate`, `${side}${name}Proximal`, pip!, dip!);
-        add(`${side}${name}Distal`, `${side}${name}Intermediate`, dip!, tip!, tip!);
+        add(
+          `${side}${name}Distal`,
+          `${side}${name}Intermediate`,
+          dip!,
+          tip!,
+          tip!,
+        );
       }
 
       // Leg, foot and the five toes, the foot moved under the stance.
-      const own: ILeg = legs[side];
-      const moved = (p: Vec3): Vec3 => [
+      const own: AutoMovieHumanLimbRest.ILeg = legs[side];
+      const moved: (p: Vec3) => Vec3 = (p: Vec3): Vec3 => [
         p[0] + own.shift[0],
         p[1],
         p[2] + own.shift[1],
       ];
+
       // The foot's own centres: the metatarsal heads and each toe's joints.
-      const centres: AutoMovieHumanFootConstruction.IBones = feet[side];
-      const toes: Vec3[][] = centres.toes.map((t: Vec3[]): Vec3[] => t.map(moved));
+      const centres: AutoMovieHumanFootConstruction.IBones = own.foot;
+      const toes: Vec3[][] = centres.toes.map((t: Vec3[]): Vec3[] =>
+        t.map(moved),
+      );
       const ball: Vec3 = moved(centres.ball);
       const midfoot: Vec3 = lerp(own.ankle, ball, 0.4);
       add(`${side}UpperLeg`, "hips", own.hip, own.knee);
@@ -234,7 +357,13 @@ export namespace AutoMovieHumanSkeletonLaw {
       toes.forEach((t: Vec3[], i: number): void => {
         if (i === 0) {
           add(`${side}HalluxProximal`, `${side}Midfoot`, t[0]!, t[1]!);
-          add(`${side}HalluxDistal`, `${side}HalluxProximal`, t[1]!, t[2]!, t[2]!);
+          add(
+            `${side}HalluxDistal`,
+            `${side}HalluxProximal`,
+            t[1]!,
+            t[2]!,
+            t[2]!,
+          );
           return;
         }
         const n: string = `${side}Toe${i + 1}`;
@@ -248,10 +377,9 @@ export namespace AutoMovieHumanSkeletonLaw {
 }
 
 type Vec3 = AutoMovieHumanSkeletonChain.Vec3;
-/** The leg joints and translation from the foot's own ankle origin. */
-type ILeg = Pick<AutoMovieHumanLegBones.IBones, "hip" | "knee" | "ankle"> & { shift: [number, number] };
 /** Fixed-size interpolation of the generating joint references. */
-const { lerp }: typeof AutoMovieHumanSkeletonChain = AutoMovieHumanSkeletonChain;
+const { lerp }: typeof AutoMovieHumanSkeletonChain =
+  AutoMovieHumanSkeletonChain;
 /**
  * ANSUR II joint-centre stature fractions, sexes averaged
  * (`docs/anatomy/skeleton.md`): the hip, for the trunk column. The leg's own
@@ -263,20 +391,3 @@ const HIP: number = 0.518;
 const CERVICALE: number = 0.3425;
 const OMPHALION: number = 0.245;
 const XIPHION: number = 0.617;
-
-/** Place one leg without reading a crotch polygon or an ankle ring. */
-function leg(stature: number, inputs: AutoMovieHumanLegConstruction.IInputs, side: "left" | "right", ankleHeight: number, hipForward: number): ILeg {
-  const sign: number = side === "left" ? 1 : -1;
-  const prior: AutoMovieHumanLegPrior.IAnkle = AutoMovieHumanLegPrior.PRIOR.ankle;
-  const ankleForward: number = (prior.offset + prior.fat * inputs.fat + prior.muscularity * inputs.muscularity) * inputs.scale;
-  const joints: AutoMovieHumanLegBones.IBones = AutoMovieHumanLegBones.of({ stature, scale: inputs.scale, ankleHeight, medial: AutoMovieHumanFootPrior.PRIOR.malleoli.medial.height, hipForward, ankleForward });
-  const reflect = (point: Vec3): Vec3 => [point[0], point[1], sign * point[2]];
-  return { hip: reflect(joints.hip), knee: reflect(joints.knee), ankle: reflect(joints.ankle), shift: [joints.ankle[0], sign * joints.ankle[2]] };
-}
-
-/** Normalize the shared observed bind directions without retaining a skin law. */
-function unit(direction: readonly number[]): Vec3 {
-  const length: number = Math.hypot(...direction);
-  if (!(length > 0)) throw new Error("An arm bind direction must have positive length");
-  return [direction[0]! / length, direction[1]! / length, direction[2]! / length];
-}

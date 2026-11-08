@@ -157,96 +157,11 @@ export namespace AutoMovieSolidBlendChain {
       columns.push(c);
     }
 
-    // The station span: the mean chord between the rails.
-    let chord: number = 0;
-    for (const c of columns)
-      chord += Math.hypot(
-        ...[0, 1, 2].map(
-          (i: number): number => c.end.point[i]! - c.start.point[i]!,
-        ),
-      );
-    const L: number = chord / count;
-    if (!(Number.isFinite(L) && L > 0)) return null;
-
-    /** Two ribbon ends use the same physical chord clock, with station derivatives scaled by L. */
-    const layer: (
-      y: number,
-      pick: (c: AutoMovieSolidJoin.IColumn) => [Vec3, Vec3, Vec3],
-    ) => IAutoMovieLoftChain.ILayer = (
-      y: number,
-      pick: (c: AutoMovieSolidJoin.IColumn) => [Vec3, Vec3, Vec3],
-    ): IAutoMovieLoftChain.ILayer => {
-      const rows: [Vec3, Vec3, Vec3][] = columns.map(pick);
-
-      /** World X/Z ribbon components in the level storage plane. */
-      const plane: (k: 0 | 1 | 2, by: number) => number[] = (
-        k: 0 | 1 | 2,
-        by: number,
-      ): number[] =>
-        AutoMovieSplineCurve.interpolate(
-          rows.map((r: [Vec3, Vec3, Vec3]): [number, number] => [
-            r[k][0] * by,
-            r[k][2] * by,
-          ]),
-        );
-
-      /** The world Y component is the lift along the level frame's normal. */
-      const height: (k: 0 | 1 | 2, by: number) => number[] = (
-        k: 0 | 1 | 2,
-        by: number,
-      ): number[] =>
-        AutoMovieSplineCurve.interpolate(
-          rows.map((r: [Vec3, Vec3, Vec3]): [number, number] => [
-            r[k][1] * by,
-            0,
-          ]),
-        ).slice(0, count);
-      return {
-        y,
-        frame: LEVEL,
-        frameSlopes: STILL,
-        frameCurvatures: STILL,
-        coefficients: plane(0, 1),
-        slopes: plane(1, 1 / L),
-        curvatures: plane(2, 1 / (L * L)),
-        lift: height(0, 1),
-        liftSlopes: height(1, 1 / L),
-        liftCurvatures: height(2, 1 / (L * L)),
-      };
-    };
-    const chain: IAutoMovieLoftChain = {
-      name,
-      basis: "spline",
-      order: count,
-      rule: "polar",
-      samples: count,
-      layers: [
-        layer(0, (c: AutoMovieSolidJoin.IColumn): [Vec3, Vec3, Vec3] => [
-          c.start.point,
-          c.start.first,
-          c.start.second,
-        ]),
-        layer(L, (c: AutoMovieSolidJoin.IColumn): [Vec3, Vec3, Vec3] => [
-          c.end.point,
-          c.end.first,
-          c.end.second,
-        ]),
-      ],
-    };
-
     const r0: AutoMovieSolidJoin.IColumn = columns[0]!;
-
-    // A blend is an annulus, not a tube about its storage frame's origin.
-    // Its rail continues the host's oriented surface. A regular connected
-    // blend keeps that sign; the join's fold observations are not a global
-    // certificate for the later periodic interpolation between columns.
-    const edge: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, 0, 0);
-    const facing: number = AutoMovieSolidVector.dot(
-      AutoMovieSolidVector.cross(edge.s, edge.t),
-      r0.outward,
-    );
-    if (!(Number.isFinite(facing) && Math.abs(facing) > 0)) return null;
-    chain.orientation = facing > 0 ? 1 : -1;
+    const published: { chain: IAutoMovieLoftChain; length: number } | null =
+      strip(name, columns, r0.outward);
+    if (published === null) return null;
+    const { chain, length: L } = published;
 
     // A part's rail that does not wind round its phase encloses a region of
     // its chart; the part keeps the side its rail stands toward from the
@@ -339,6 +254,129 @@ export namespace AutoMovieSolidBlendChain {
         chart: partChart,
       },
     };
+  }
+
+  /**
+   * The strip between two ribbon rails as a two-layer chain: the quintic
+   * Hermite in station from the start ribbons (station 0) to the end ribbons
+   * (station `L`, the columns' mean chord), each field the periodic cubic
+   * B-spline through the columns in phase, in the world's level frame with
+   * the height as the lift; its outward sign from `outward`, the start rail's
+   * outward normal at column 0. A join's blend ({@link of}) and a split's
+   * bands (`AutoMovieConstructionSplitRealize`) publish through it.
+   *
+   * @param name The chain's name.
+   * @param columns The ribbon pairs at uniform phases `2 pi k / n`, `n` a multiple of 4 of at least 8.
+   * @param outward The start surface's outward normal at column 0.
+   * @returns The chain and its station span `L`, mm, or null for a nonpositive or nonfinite span or an unusable orientation anchor.
+   *
+   * @evidence contracts/common.md#principled-implementation A chain interval whose two layers carry values, slopes and second derivatives is the quintic Hermite in station (`AutoMovieStationHermite`), so copying each ribbon's point, first over `L` and second over `L^2` reproduces the blend columns exactly at the column phases; between them every field is the periodic cubic B-spline interpolant.
+   * @evidence contracts/common.md#clear-and-simple-design One builder owns the ribbons-to-layers mapping and the outward sign, shared by both strip producers so their chains cannot drift apart.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses a degenerate span or orientation instead of publishing; the column count and finiteness are the caller's admission.
+   * @evidence contracts/common.md#meaningful-documentation States the layer fields, the station and phase meanings, the units and the refusals.
+   * @evidence contracts/performance.md#efficient-algorithms One pass for the span and twelve O(n) periodic spline interpolations for n columns, then one chain jet for the sign.
+   * @evidence contracts/performance.md#reuse-equivalent-work The caller's already evaluated ribbons are read once per field; nothing is re-evaluated on a surface.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns O(n) layer arrays owned by the caller; the layers reference the shared LEVEL/STILL factory records as the join's blend always has, and no column array is retained.
+   */
+  export function strip(
+    name: string,
+    columns: readonly {
+      start: { point: Vec3; first: Vec3; second: Vec3 };
+      end: { point: Vec3; first: Vec3; second: Vec3 };
+    }[],
+    outward: Vec3,
+  ): { chain: IAutoMovieLoftChain; length: number } | null {
+    const count: number = columns.length;
+
+    // The station span: the mean chord between the rails.
+    let chord: number = 0;
+    for (const c of columns)
+      chord += Math.hypot(
+        ...[0, 1, 2].map(
+          (i: number): number => c.end.point[i]! - c.start.point[i]!,
+        ),
+      );
+    const L: number = chord / count;
+    if (!(Number.isFinite(L) && L > 0)) return null;
+
+    /** One ribbon end's point and its two cross derivatives at a column. */
+    type Pick = (c: (typeof columns)[number]) => [Vec3, Vec3, Vec3];
+
+    /** Two ribbon ends use the same physical chord clock, with station derivatives scaled by L. */
+    const layer: (y: number, pick: Pick) => IAutoMovieLoftChain.ILayer = (
+      y: number,
+      pick: Pick,
+    ): IAutoMovieLoftChain.ILayer => {
+      const rows: [Vec3, Vec3, Vec3][] = columns.map(pick);
+
+      /** World X/Z ribbon components in the level storage plane. */
+      const plane: (k: 0 | 1 | 2, by: number) => number[] = (
+        k: 0 | 1 | 2,
+        by: number,
+      ): number[] =>
+        AutoMovieSplineCurve.interpolate(
+          rows.map((r: [Vec3, Vec3, Vec3]): [number, number] => [
+            r[k][0] * by,
+            r[k][2] * by,
+          ]),
+        );
+
+      /** The world Y component is the lift along the level frame's normal. */
+      const height: (k: 0 | 1 | 2, by: number) => number[] = (
+        k: 0 | 1 | 2,
+        by: number,
+      ): number[] =>
+        AutoMovieSplineCurve.interpolate(
+          rows.map((r: [Vec3, Vec3, Vec3]): [number, number] => [
+            r[k][1] * by,
+            0,
+          ]),
+        ).slice(0, count);
+      return {
+        y,
+        frame: LEVEL,
+        frameSlopes: STILL,
+        frameCurvatures: STILL,
+        coefficients: plane(0, 1),
+        slopes: plane(1, 1 / L),
+        curvatures: plane(2, 1 / (L * L)),
+        lift: height(0, 1),
+        liftSlopes: height(1, 1 / L),
+        liftCurvatures: height(2, 1 / (L * L)),
+      };
+    };
+    const chain: IAutoMovieLoftChain = {
+      name,
+      basis: "spline",
+      order: count,
+      rule: "polar",
+      samples: count,
+      layers: [
+        layer(0, (c: (typeof columns)[number]): [Vec3, Vec3, Vec3] => [
+          c.start.point,
+          c.start.first,
+          c.start.second,
+        ]),
+        layer(L, (c: (typeof columns)[number]): [Vec3, Vec3, Vec3] => [
+          c.end.point,
+          c.end.first,
+          c.end.second,
+        ]),
+      ],
+    };
+
+    // A blend is an annulus, not a tube about its storage frame's origin.
+    // Its rail continues the start surface's oriented surface. A regular
+    // connected strip keeps that sign; one anchor is not a global
+    // certificate for the periodic interpolation between columns.
+    const edge: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, 0, 0);
+    const facing: number = AutoMovieSolidVector.dot(
+      AutoMovieSolidVector.cross(edge.s, edge.t),
+      outward,
+    );
+    if (!(Number.isFinite(facing) && Math.abs(facing) > 0)) return null;
+    chain.orientation = facing > 0 ? 1 : -1;
+    return { chain, length: L };
   }
 }
 

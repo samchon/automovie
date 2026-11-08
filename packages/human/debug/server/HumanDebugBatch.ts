@@ -11,8 +11,8 @@ import type { IHumanDebugFrame } from "./IHumanDebugFrame";
 /**
  * Render every part of one person and save the images as evidence.
  *
- * The subjects are the whole figure and every registered piece entry (each registered argument as
- * its own entry), narrowed by `pieces` globs over the entry names; each is drawn from every camera
+ * An explicit parsed piece selects that single dynamic subject. Otherwise subjects are the whole
+ * figure and registered entries narrowed by `pieces` globs. Each is drawn from every camera
  * of `cameras`. Each frame is written as `<subject>.<camera>.png` beside a `<subject>.<camera>.json`
  * receipt holding the response headers' facts (source hash, PNG SHA-256, capture time, canonical
  * options, GPU) and the page's snapshot, under `<evidence>/<person>/<round>/`. A failed frame is
@@ -24,7 +24,7 @@ import type { IHumanDebugFrame } from "./IHumanDebugFrame";
  * @param directory Evidence directory of the round.
  * @param entries Piece entries `<name>` or `<name>:<argument>`, null for the whole figure.
  * @param cameras Camera names.
- * @param options Options every frame starts from.
+ * @param options Options every frame starts from; a non-null piece takes precedence over the registry entry list.
  * @param nonce `fresh` nonce shared by the round's frames, or null.
  * @param keep Keep the page's loaded source from the first frame too, so batches of several people share one source.
  * @param left Whether the client already left; the frames not yet started are then not drawn.
@@ -42,7 +42,8 @@ export async function HumanDebugBatch(
 ): Promise<IHumanDebugBatchItem[]> {
   await fs.mkdir(directory, { recursive: true });
   const items: IHumanDebugBatchItem[] = [];
-  for (const piece of entries)
+  const selected: readonly (string | null)[] = options.piece === null ? entries : [options.piece];
+  for (const piece of selected)
     for (const camera of cameras) {
       const name: string = (piece ?? "whole").replace(/[^A-Za-z0-9_.-]/g, "-") + "." + camera;
       try {

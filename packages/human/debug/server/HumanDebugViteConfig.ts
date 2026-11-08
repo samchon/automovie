@@ -16,8 +16,8 @@ const ENVIRONMENT: IHumanDebugEnvironment = HumanDebugEnvironment(DIRECTORY);
  * The Vite configuration of the debug viewer, served from the Human package directory.
  *
  * A page keeps the source it loaded until it is reloaded by hand or by a capture's own request:
- * Vite's update socket is off (`server.hmr: false`), so a save reaches no open page, and the
- * a reload requests modules from the running server. Its watcher is intended to invalidate served
+ * Vite's update socket is off (`server.hmr: false`), so a save reaches no open page, and
+ * a reload requests modules from the running server. Its watcher invalidates served
  * files, but disk hash equality does not prove workspace dependency transforms are fresh; compare
  * actual served exports/bytes when investigating that boundary. The watcher ignores evidence and
  * compiler folders a capture writes into. In the installed
@@ -46,6 +46,10 @@ export const HumanDebugViteConfig: UserConfig = defineConfig({
     // No update socket: a save reloads no open page; a manual or capture reload
     // requests the running server's modules, whose transform freshness is a separate boundary.
     hmr: false,
+
+    // This also overrides Vite's immutable optimized-dependency response policy.
+    // The transform cache still follows file invalidation; open pages do not reload.
+    headers: { "Cache-Control": "no-store" },
     fs: { allow: [ENVIRONMENT.repository] },
     watch: { ignored: ["**/.tmp/**", "**/.shots/**", "**/.ttsc/**", "**/dev/**", "**/lib/**", "**/docs/**", "**/*.md"] },
   },

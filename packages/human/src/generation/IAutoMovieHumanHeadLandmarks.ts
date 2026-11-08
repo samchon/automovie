@@ -1,4 +1,14 @@
-/** Points of the midline and beside it, `[x, y]`, calibration millimetres. */
+/**
+ * Points of the midline and beside it, `[x, y]`, calibration millimetres.
+ *
+ * @evidence contracts/common.md#principled-implementation Shared named datums supply original head and regional sources; LS/LI chords remain independent of section bulk priors.
+ * @evidence contracts/common.md#clear-and-simple-design One fixed landmark record replaces independently recomputed border locations.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The record claims neither individual clinical peaks nor final realized skin positions.
+ * @evidence contracts/common.md#meaningful-documentation Every field identifies its anatomical site and the tuple's calibration units.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A data interface evaluates no geometry.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work The layout producer owns datum preparation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The owning layout retains only fixed-size numeric tuples.
+ */
 export interface IAutoMovieHumanHeadLandmarks {
   /** Glabella. */
   glabella: P2;
@@ -14,6 +24,12 @@ export interface IAutoMovieHumanHeadLandmarks {
 
   /** Stomion. */
   stomion: P2;
+
+  /** Shared upper vermilion border; its chord to stomion is the public upper height. */
+  labraleSuperius: P2;
+
+  /** Shared lower vermilion border; its chord to stomion is the public lower height. */
+  labraleInferius: P2;
 
   /** Pogonion, the chin's most prominent point. */
   pogonion: P2;

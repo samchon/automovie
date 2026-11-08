@@ -1,4 +1,8 @@
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  type IAutoMovieLoftChain,
+} from "@automovie/engine";
+
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
@@ -6,7 +10,8 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
 import type { IAutoMovieHumanSurfaceBoundary as IBoundary } from "./IAutoMovieHumanSurfaceBoundary";
 import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
 
-const { endHeight } = AutoMovieHumanBodySurfaceRead;
+const { endHeight, capHeight }: typeof AutoMovieHumanBodySurfaceRead =
+  AutoMovieHumanBodySurfaceRead;
 
 /** A chain's closed ends: the pole caps and domes, their base rings, and the cells and boundaries a chain's grid closes on. */
 export namespace AutoMovieHumanBodySurfacePoles {
@@ -15,7 +20,18 @@ export namespace AutoMovieHumanBodySurfacePoles {
    *
    * A calibrated pole is the recovered critical point (crown, fingertip) or
    * a provisional closure point; without one the end closes at its axis.
-   * The fan belongs to the chain's end interval.
+   * Both declared endpoint points take precedence over a calibrated fallback
+   * or the regular-end axis. A retained cap has already been sampled by the
+   * loft owner; its final tiny ring closes at this true tip station. A
+   * legacy straight fan alone does not replay an original cap interval.
+   *
+   * @evidence contracts/common.md#principled-implementation Both pole and opposite are consumed as explicit endpoint point data before calibrated or axis fallbacks.
+   * @evidence contracts/common.md#clear-and-simple-design One endpoint owner selects the point and keeps the existing fan/dome emission path.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not replace an original cap profile or promote a finite endpoint point to physical2 or G2 support.
+   * @evidence contracts/common.md#meaningful-documentation States point precedence and the fan's distinct source-fidelity limit.
+   * @evidence contracts/performance.md#efficient-algorithms Point selection adds one constant check to the existing bounded cap construction.
+   * @evidence contracts/performance.md#reuse-equivalent-work Uses the producer's endpoint record without another source or recovered point.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The existing call-owned mesh owns emitted vertices; point selection introduces no retained resource.
    */
   export function pole(
     context: IContext,
@@ -23,11 +39,13 @@ export namespace AutoMovieHumanBodySurfacePoles {
     end: "top" | "bottom",
     ring: number[],
   ): void {
-    const y: number = endHeight(target, end);
+    const tip: number | null = capHeight(target, end);
+    const y: number = tip ?? endHeight(target, end);
     const calibrated: IAutoMovieHumanBodyCalibration.IPole | undefined =
       context.poles.get(target.name + ":" + end);
     const point: [number, number, number] =
       (target.pole?.end === end ? target.pole.point : undefined) ??
+      (target.opposite?.end === end ? target.opposite.point : undefined) ??
       calibrated?.point ??
       AutoMovieLoftChain.axis(target, y);
 
@@ -56,7 +74,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
     // dome's own normal, d/da x d/du of the quarter ellipse, rather than the
     // faceted mesh's.
     let last: number[] = ring;
-    if (calibrated?.critical === true) {
+    if (tip === null && calibrated?.critical === true) {
       const corners: [number, number, number][] = ring.map(
         (v: number): [number, number, number] =>
           AutoMovieHumanLoftMesh.position(context.mesh, v),
@@ -123,7 +141,8 @@ export namespace AutoMovieHumanBodySurfacePoles {
           const after: [number, number, number] = corners[(k + 1) % n]!;
           const da: number[] = [0, 1, 2].map(
             (j: number): number =>
-              -(q[j]! - c[j]!) * Math.sin(a) + (point[j]! - c[j]!) * Math.cos(a),
+              -(q[j]! - c[j]!) * Math.sin(a) +
+              (point[j]! - c[j]!) * Math.cos(a),
           );
           const du: number[] = [0, 1, 2].map(
             (j: number): number => (after[j]! - before[j]!) * Math.cos(a),
@@ -175,6 +194,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
     target: IAutoMovieLoftChain,
     end: "top" | "bottom",
   ): number | null {
+    if (capHeight(target, end) !== null) return null;
     const calibrated: IAutoMovieHumanBodyCalibration.IPole | undefined =
       context.poles.get(target.name + ":" + end);
     if (calibrated?.critical !== true) return null;
@@ -183,7 +203,9 @@ export namespace AutoMovieHumanBodySurfacePoles {
       { length: 32 },
       (_: unknown, i: number): number => (2 * Math.PI * i) / 32,
     );
-    const measure = (y: number): [number, [number, number, number]] => {
+    const measure: (y: number) => [number, [number, number, number]] = (
+      y: number,
+    ): [number, [number, number, number]] => {
       const ring: [number, number, number][] = AutoMovieLoftChain.ring(
         target,
         y,
@@ -285,7 +307,9 @@ export namespace AutoMovieHumanBodySurfacePoles {
     s1: number,
     phases: readonly number[],
   ): void {
-    const holed: ((corners: readonly [number, number][]) => string | null) | null = holing(context, target);
+    const holed:
+      | ((corners: readonly [number, number][]) => string | null)
+      | null = holing(context, target);
     if (holed === null) {
       AutoMovieHumanLoftMesh.band(context.mesh, lower, upper);
       return;
@@ -301,7 +325,13 @@ export namespace AutoMovieHumanBodySurfacePoles {
       ];
       const key: string | null = holed(corners);
       if (key !== null) {
-        leave(context, target, key, [lower[i]!, lower[j]!, upper[j]!, upper[i]!], corners);
+        leave(
+          context,
+          target,
+          key,
+          [lower[i]!, lower[j]!, upper[j]!, upper[i]!],
+          corners,
+        );
         continue;
       }
       context.mesh.indices.push(lower[i]!, upper[i]!, lower[j]!);
@@ -327,9 +357,17 @@ export namespace AutoMovieHumanBodySurfacePoles {
     s0: number,
     s1: number,
   ): void {
-    const holed: ((corners: readonly [number, number][]) => string | null) | null = holing(context, target);
+    const holed:
+      | ((corners: readonly [number, number][]) => string | null)
+      | null = holing(context, target);
     if (holed === null) {
-      AutoMovieHumanLoftMesh.zipper(context.mesh, lower, lowerPhases, upper, upperPhases);
+      AutoMovieHumanLoftMesh.zipper(
+        context.mesh,
+        lower,
+        lowerPhases,
+        upper,
+        upperPhases,
+      );
       return;
     }
 
@@ -343,11 +381,19 @@ export namespace AutoMovieHumanBodySurfacePoles {
       charts.set(v, [s1, upperPhases[i]!]);
     });
     const start: number = context.mesh.indices.length;
-    AutoMovieHumanLoftMesh.zipper(context.mesh, lower, lowerPhases, upper, upperPhases);
+    AutoMovieHumanLoftMesh.zipper(
+      context.mesh,
+      lower,
+      lowerPhases,
+      upper,
+      upperPhases,
+    );
     const made: number[] = context.mesh.indices.splice(start);
     for (let k: number = 0; k < made.length; k += 3) {
       const triangle: number[] = [made[k]!, made[k + 1]!, made[k + 2]!];
-      const corners: [number, number][] = triangle.map((v: number): [number, number] => charts.get(v)!);
+      const corners: [number, number][] = triangle.map(
+        (v: number): [number, number] => charts.get(v)!,
+      );
       const key: string | null = holed(corners);
       if (key !== null) leave(context, target, key, triangle, corners);
       else context.mesh.indices.push(...triangle);

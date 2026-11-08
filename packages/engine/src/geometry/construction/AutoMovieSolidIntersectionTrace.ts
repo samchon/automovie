@@ -1,4 +1,5 @@
 import type { AutoMovieLoftContract } from "./AutoMovieLoftContract";
+import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidIntersectionWalk } from "./AutoMovieSolidIntersectionWalk";
 import { AutoMovieSolidTraceLaw } from "./AutoMovieSolidTraceLaw";
@@ -133,10 +134,17 @@ export namespace AutoMovieSolidIntersectionTrace {
           "the angle parameter's normal and reference are parallel or zero",
         );
       law = made;
-      t0 =
-        parameter.kind === "phase"
-          ? input.seed.phi
-          : law.angle(part.jet(input.seed.s, input.seed.phi).p);
+      const seedJet: IJet | null = AutoMovieSolidDomain.jet(
+        part,
+        input.seed.s,
+        input.seed.phi,
+      );
+      if (seedJet === null)
+        return report(
+          "one loop per contact",
+          "the seed has no owned regular surface chart",
+        );
+      t0 = parameter.kind === "phase" ? input.seed.phi : law.angle(seedJet.p);
       first = AutoMovieSolidTraceSolve.solve(
         part,
         host,
@@ -209,10 +217,12 @@ export namespace AutoMovieSolidIntersectionTrace {
     const partShift: number = partWinding * part.period;
 
     /** Part metric used by the original closure test. */
-    const a0: IJet = part.jet(first.s, first.phi);
+    const a0: IJet | null = AutoMovieSolidDomain.jet(part, first.s, first.phi);
 
     /** Host metric at the original starting chart point. */
-    const b0: IJet = home.jet(first.y, first.theta);
+    const b0: IJet | null = AutoMovieSolidDomain.jet(home, first.y, first.theta);
+    if (a0 === null || b0 === null)
+      return report("regular chart", "the original closure metric has no admitted physical2");
 
     /** Original maximum chart displacement measured through local surface speeds. */
     const closed: number = Math.max(

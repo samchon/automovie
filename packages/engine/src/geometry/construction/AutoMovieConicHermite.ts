@@ -246,6 +246,27 @@ export namespace AutoMovieConicHermite {
       : null;
   }
 
+  /**
+   * Read only the radius of the same admitted projective source point.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses locateReading's unchanged endpoint identities, log-odds inverse and residual, then the same first-end extent or point norm as HermiteField.ray.
+   * @evidence contracts/common.md#clear-and-simple-design A scalar capability omits tangent and logarithmic curvature conversion.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not alter inverse iterations, projective point arithmetic or source admission, and promises no uncomputed derivative.
+   * @evidence contracts/common.md#meaningful-documentation Returns source length or NaN when the inverse/value is unavailable.
+   * @evidence contracts/performance.md#efficient-algorithms Preserves the bounded inverse while omitting the final derivative geometry.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work One query owns its inverse without a cache.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a scalar and retains no query data.
+   */
+  export function value(patch: IPatch, angle: number): number {
+    const selected: Located | null = locateReading(patch, angle);
+    if (selected === null) return NaN;
+    const value: number =
+      selected.position === "first"
+        ? patch.extent
+        : Math.hypot(...selected.reading.point);
+    return Number.isFinite(value) && value > 0 ? value : NaN;
+  }
+
   /** The original inverse, including its exact endpoint and residual policy. */
   function locateReading(patch: IPatch, angle: number): Located | null {
     if (!(Number.isFinite(angle) && angle >= 0 && angle <= patch.angle))

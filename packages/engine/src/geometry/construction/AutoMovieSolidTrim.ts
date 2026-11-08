@@ -1,4 +1,5 @@
 import type { AutoMovieLoftContract } from "./AutoMovieLoftContract";
+import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidFoot } from "./AutoMovieSolidFoot";
 import { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidRibbon } from "./AutoMovieSolidRibbon";
@@ -261,7 +262,12 @@ export namespace AutoMovieSolidTrim {
     // turned toward the opening; null where the chart degenerates.
     const square = (t: number): [number, number, number, number] | null => {
       const [u, v, du, dv]: [number, number, number, number] = at(t);
-      const j: IAutoMovieSolidSurface.IJet = surface.jet(u, v);
+      const j: IAutoMovieSolidSurface.IJet | null = AutoMovieSolidDomain.jet(
+        surface,
+        u,
+        v,
+      );
+      if (j === null) return null;
       const E: number = dot(j.u, j.u);
       const F: number = dot(j.u, j.v);
       const G: number = dot(j.v, j.v);
@@ -287,8 +293,8 @@ export namespace AutoMovieSolidTrim {
           `the surface's chart degenerates on the loop at sample ${i}`,
         );
     const ribbon = (t: number, a: number): AutoMovieSolidRibbon.IRibbon => {
-      // Checked regular at the polygon's samples; between them the chart of a
-      // smooth surface stays regular.
+      // Sampled regularity does not certify the intervals between samples;
+      // the existing zero-direction fallback remains an explicit limitation.
       const [u, v, du, dv]: [number, number, number, number] =
         square(t) ??
         ([...at(t).slice(0, 2), 0, 0] as [number, number, number, number]);

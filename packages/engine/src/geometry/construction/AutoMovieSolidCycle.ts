@@ -14,7 +14,7 @@
  * cycle turns back in phase. The separate station reader returns only its
  * first crossing and is not a general inverse of that predicate.
  *
- * @evidence contracts/common.md#principled-implementation Hole/island parity reads the stored polygon on its mean-phase query branch; winding parity reads each segment on its shifted local phase branch. These existing comparisons do not establish inclusive boundary ownership.
+ * @evidence contracts/common.md#principled-implementation Hole/island parity reads the stored polygon on its mean-phase query branch; winding parity moves original segment endpoints to the unchanged query's cover, with shared raw endpoints and integer turns. The half-open comparisons do not establish inclusive boundary ownership.
  * @evidence contracts/common.md#clear-and-simple-design One cycle record and its readings: kept, station, foot, centre and shift.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A cycle that turns back in phase is counted by parity, not by an assumed monotone order.
  * @evidence contracts/common.md#meaningful-documentation States the four kinds and which side each keeps.
@@ -144,10 +144,10 @@ export namespace AutoMovieSolidCycle {
         ? { centreV: centre(cycle)[1] }
         : {
             ends: cycle.chart.map(
-              (a: [number, number], k: number): [number, number] => {
+              (a: [number, number], k: number): [number, number, number] => {
                 const raw: [number, number] =
                   cycle.chart[(k + 1) % cycle.chart.length]!;
-                return [raw[0], shift(raw[1], a[1], period ?? 2 * Math.PI)];
+                return windingEnd(a, raw, period ?? 2 * Math.PI);
               },
             ),
           };
@@ -158,10 +158,22 @@ export namespace AutoMovieSolidCycle {
   /** Cycle-invariant values; coordinates and kind are owned unchanged by the caller. */
   interface IPrepared {
     /** Mean v for hole/island parity, including NaN on an empty chart. */ centreV?: number;
-    /** Winding endpoints on their first point's nearest phase branch. */ ends?: [
+    /** Original winding endpoint and its integer turn relative to the segment start. */ ends?: [
+      number,
       number,
       number,
     ][];
+  }
+
+  /** Preserve the original raw endpoint's x/y-before-start-phase access and exception order. */
+  function windingEnd(
+    a: [number, number],
+    raw: [number, number],
+    period: number,
+  ): [number, number, number] {
+    const u: number = raw[0];
+    const v: number = raw[1];
+    return [u, v, Math.round((a[1] - v) / period)];
   }
 
   /** The original parity and tie arithmetic, with optional invariant values. */
@@ -194,21 +206,38 @@ export namespace AutoMovieSolidCycle {
 
     // A winding cycle: the parity of its crossings with the ray from the
     // point along the phase line toward the side the face keeps it from
-    // (down the stations for a start cycle), each segment read on the
-    // branch of the point's phase nearest it, so a cycle that turns back in
-    // phase (a clipped detour) still counts right.
+    // (down the stations for a start cycle). Move each original segment to
+    // the query's cover: shifting the query instead can round a negative
+    // sub-ULP phase to the closing endpoint and lose both adjacent crossings.
     const p: number = period ?? 2 * Math.PI;
     let count: number = 0;
     for (let k: number = 0; k < n; k++) {
       const a: [number, number] = cycle.chart[k]!;
       const raw: [number, number] = cycle.chart[(k + 1) % n]!;
-      const b: [number, number] =
-        prepared === undefined
-          ? [raw[0], shift(raw[1], a[1], p)]
-          : prepared.ends![k]!;
-      const w: number = shift(v, (a[1] + b[1]) / 2, p);
-      if (a[1] > w === b[1] > w) continue;
-      const x: number = a[0] + ((w - a[1]) * (b[0] - a[0])) / (b[1] - a[1]);
+      const b: [number, number, number] =
+        prepared === undefined ? windingEnd(a, raw, p) : prepared.ends![k]!;
+      const turn: number = b[2];
+      const end: number = b[1] + turn * p;
+      const reference: number = (a[1] + end) / 2;
+      let translation: number = 0;
+      let bv: number = end;
+      let w: number = v;
+      if (Number.isFinite(p) && p > 0) {
+        const image: number = -Math.round((reference - v) / p);
+        translation = image * p;
+        bv = b[1] + (turn + image) * p;
+      } else {
+        // Preserve the legacy invalid-period result; this branch admits no new source.
+        w = shift(v, reference, p);
+      }
+      const av: number = a[1] + translation;
+      if (av > w === bv > w) continue;
+
+      // The source start coordinates keep the original reached getter sequence.
+      const x: number =
+        a[0] +
+        ((w - (a[1] + translation)) * (b[0] - a[0])) /
+          (bv - (a[1] + translation));
       if (cycle.kind === "start" ? x <= u : x >= u) count++;
     }
     return count % 2 === 1;

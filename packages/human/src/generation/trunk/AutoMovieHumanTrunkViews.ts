@@ -3,6 +3,7 @@ import { AutoMovieViewSection } from "@automovie/engine";
 import { AutoMovieHumanBodyBox } from "../AutoMovieHumanBodyBox";
 import { AutoMovieHumanTrunkLandmarks } from "../AutoMovieHumanTrunkLandmarks";
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
+import type { AutoMovieHumanTrunkConnection } from "./AutoMovieHumanTrunkConnection";
 import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
 
 /**
@@ -110,6 +111,7 @@ export namespace AutoMovieHumanTrunkViews {
     scale: number,
     laws: ILaws,
     amplitudes: { breast: number; gluteal: number },
+    connection?: AutoMovieHumanTrunkConnection.IDefinition,
   ): IAutoMovieHumanTrunkViews {
     const cervicale: number = measures.cervicaleHeight * scale;
     const at = (share: number): number =>
@@ -240,6 +242,7 @@ export namespace AutoMovieHumanTrunkViews {
       perineum: { y: crotch, x: laws.perineum },
       sites,
       backProfile,
+      ...(connection === undefined ? {} : { connection }),
     };
   }
 }

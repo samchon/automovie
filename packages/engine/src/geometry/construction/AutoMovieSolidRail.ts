@@ -1,11 +1,14 @@
+import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
+import { AutoMovieSolidRailSolve } from "./AutoMovieSolidRailSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 type IJet = IAutoMovieSolidSurface.IJet;
-const { combine, cross, dot, norm, sub, unit } = AutoMovieSolidVector;
+const { combine, cross, dot, norm, unit }: typeof AutoMovieSolidVector =
+  AutoMovieSolidVector;
 
 /**
  * The two rails at one intersection point, where each surface is trimmed back on its kept side.
@@ -20,7 +23,7 @@ const { combine, cross, dot, norm, sub, unit } = AutoMovieSolidVector;
  * @evidence contracts/common.md#clear-and-simple-design One rail record and one evaluator select the kept side and part-offset mode, with local direction/chord/section helpers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Where the directions are tangent to the other surface no rail exists and null returns.
  * @evidence contracts/common.md#meaningful-documentation States the square offset, the normal section, the modes and the kept sides.
- * @evidence contracts/performance.md#efficient-algorithms First-order starts feed bounded 40-step offset/section solves and bounded face/bisection attempts; each atlas query's own cost remains part of the operation.
+ * @evidence contracts/performance.md#efficient-algorithms First-order starts feed bounded 40-step offset/section solves, with at most twenty host trials per step and four accepted chart changes; each atlas query's own cost remains part of the operation.
  * @evidence contracts/performance.md#reuse-equivalent-work The square direction's jet seeds both the offset and the section solve.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one record per point and retains nothing.
  */
@@ -61,7 +64,7 @@ export namespace AutoMovieSolidRail {
     /** The host's rail chart point `[y, theta]` on that face. */
     host: [number, number];
 
-    /** The host's offset direction in its rail face's chart, toward and past the rail, the chart vector of unit world speed (at the preimage, or at the last crossing). */
+    /** Original outward direction projected into the rail face's tangent plane, as a chart vector of unit world speed. */
     across: [number, number];
 
     /** The host's rail point, mm. */
@@ -103,7 +106,7 @@ export namespace AutoMovieSolidRail {
   /** Faces one host rail may cross before it is refused. */
   export const SWITCHES: number = 4;
 
-  /** Halvings that place an offset's crossing of a trim, to `2^-40` of the offset. */
+  /** Legacy crossing-resolution constant, retained for callers; atlas Newton no longer uses this bisection. */
   export const CROSSING_BISECTIONS: number = 40;
 
   /**
@@ -120,9 +123,9 @@ export namespace AutoMovieSolidRail {
    *
    * @evidence contracts/common.md#principled-implementation Orients kept-side directions from surface normals, solves chord offsets and square-mode normal sections, then maps host offsets across atlas faces under regular, representable chart arithmetic.
    * @evidence contracts/common.md#clear-and-simple-design One evaluator composes direction, scalar offset and two-equation section helpers while retaining explicit station/square part behavior.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Null records checked failures, but later host-switch iterations currently bracket from hostChart to itself; general multiple-hop boundary placement is therefore unresolved. Final extra Newton updates and domain membership are not independently certified here.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Jets are admitted to actual owned domains before evaluation. Host boundary feet are only Newton initializers and a published rail must solve the unchanged plane/chord equations on a kept actual face; local branch convergence remains a premise.
    * @evidence contracts/common.md#meaningful-documentation Gives kept side, offset modes, chord/station units, nullable failures and the remaining multiple-hop/numerical validation limits.
-   * @evidence contracts/performance.md#efficient-algorithms Uses fixed 40-step local solves, up to four main host-switch iterations and forty crossing bisections per switch, plus one final neighbour refinement; surface/atlas callback costs are additional.
+   * @evidence contracts/performance.md#efficient-algorithms Part offsets retain the bounded scalar/section solves; one host normal-section solve uses at most forty iterations, twenty trial halvings per iteration and four accepted chart changes. Surface/atlas callback costs are additional.
    * @evidence contracts/performance.md#reuse-equivalent-work Initial jets supply normals, metric directions and the normal-section plane; this function owns no cache, while its join caller caches returned rails by parameter.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Iterates, jets and directions are call-local; only the fixed rail record/borrowed curve point escapes, with population retention delegated to its caller's cache.
    */
@@ -135,9 +138,14 @@ export namespace AutoMovieSolidRail {
     hostWidth: number,
     mode: Mode = "station",
   ): IRail | null {
-    const a: IJet = part.jet(curve.s, curve.phi);
+    const a: IJet | null = AutoMovieSolidDomain.jet(part, curve.s, curve.phi);
     const surface: IAutoMovieSolidSurface = host.faces[curve.face]!;
-    const b: IJet = surface.jet(curve.y, curve.theta);
+    const b: IJet | null = AutoMovieSolidDomain.jet(
+      surface,
+      curve.y,
+      curve.theta,
+    );
+    if (a === null || b === null) return null;
     const outA: Vec3 | null = unit(cross(a.u, a.v));
     const outB: Vec3 | null = unit(cross(b.u, b.v));
     if (outA === null || outB === null) return null;
@@ -165,7 +173,8 @@ export namespace AutoMovieSolidRail {
       partAcross = [side / norm(a.u), 0];
       if (typeof partWidth === "number") {
         const lambda: number | null = offset(
-          (l: number): IJet => part.jet(curve.s + side * l, curve.phi),
+          (l: number): IJet | null =>
+            AutoMovieSolidDomain.jet(part, curve.s + side * l, curve.phi),
           [side, 0],
           curve.point,
           partWidth,
@@ -188,7 +197,12 @@ export namespace AutoMovieSolidRail {
       partAcross = e;
       sigma = e[0] >= 0 ? 1 : -1;
       const lambda: number | null = offset(
-        (l: number): IJet => part.jet(curve.s + l * e[0], curve.phi + l * e[1]),
+        (l: number): IJet | null =>
+          AutoMovieSolidDomain.jet(
+            part,
+            curve.s + l * e[0],
+            curve.phi + l * e[1],
+          ),
         e,
         curve.point,
         partWidth,
@@ -215,157 +229,46 @@ export namespace AutoMovieSolidRail {
       1,
     );
     if (across === null) return null;
-    const mu: number | null = offset(
-      (l: number): IJet =>
-        surface.jet(curve.y + l * across[0], curve.theta + l * across[1]),
-      across,
-      curve.point,
-      hostWidth,
-    );
-    if (mu === null) return null;
-    let face: number = curve.face;
-    let hostChart: [number, number] = [
-      curve.y + mu * across[0],
-      curve.theta + mu * across[1],
-    ];
-    let direction: [number, number] = across;
-
-    // An offset that leaves its face continues on the neighbour from the
-    // crossing, along the same world direction in the neighbour's chart.
-    for (
-      let k: number = 0;
-      k < SWITCHES && !host.kept(face, hostChart[0], hostChart[1]);
-      k++
-    ) {
-      const from: [number, number] =
-        k === 0 ? [curve.y, curve.theta] : hostChart;
-      const inside: (l: number) => boolean = (l: number): boolean =>
-        host.kept(
-          face,
-          from[0] + l * (hostChart[0] - from[0]),
-          from[1] + l * (hostChart[1] - from[1]),
-        );
-      let lo: number = 0;
-      let hi: number = 1;
-      for (let i: number = 0; i < CROSSING_BISECTIONS; i++) {
-        const m: number = (lo + hi) / 2;
-        if (inside(m)) lo = m;
-        else hi = m;
-      }
-      const at: [number, number] = [
-        from[0] + hi * (hostChart[0] - from[0]),
-        from[1] + hi * (hostChart[1] - from[1]),
-      ];
-      const here: IJet = host.faces[face]!.jet(at[0], at[1]);
-      const world: Vec3 = combine([
-        [direction[0], here.u],
-        [direction[1], here.v],
-      ]);
-      const next: { face: number; u: number; v: number } | null = host.across(
-        face,
-        at[0],
-        at[1],
-      );
-      if (next === null) return null;
-      const there: IJet = host.faces[next.face]!.jet(next.u, next.v);
-      const e: [number, number] | null = AutoMovieSolidVector.solve2(
-        dot(there.u, there.u),
-        dot(there.u, there.v),
-        dot(there.u, there.v),
-        dot(there.v, there.v),
-        [dot(there.u, world), dot(there.v, world)],
-      );
-      if (e === null) return null;
-      const speed: number = norm(
-        combine([
-          [e[0], there.u],
-          [e[1], there.v],
-        ]),
-      );
-      if (!(speed > 0)) return null;
-      face = next.face;
-      direction = [e[0] / speed, e[1] / speed];
-      const onward: IAutoMovieSolidSurface = host.faces[face]!;
-      const start: [number, number] = [next.u, next.v];
-      const nu: number | null = offset(
-        (l: number): IJet =>
-          onward.jet(start[0] + l * direction[0], start[1] + l * direction[1]),
-        direction,
-        curve.point,
-        hostWidth,
-        Math.max(0, hostWidth - norm(sub(there.p, curve.point))),
-      );
-      if (nu === null) return null;
-      hostChart = [start[0] + nu * direction[0], start[1] + nu * direction[1]];
-    }
-
-    // The rail in the normal section through the curve point: the plane of
-    // the host's normal and its square direction at the preimage.
-    const settled: [number, number] | null = section(
-      host.faces[face]!,
-      hostChart,
-      curve.point,
-      plane(b, across),
-      hostWidth,
-    );
-    if (settled === null) return null;
-    hostChart = settled;
-    // A rail that the normal section settles a hair across a face's boundary
-    // (a rail point at the crossing itself, as the clip's bisection asks for)
-    // belongs to the neighbour: map it across and settle it there.
-    if (!host.kept(face, hostChart[0], hostChart[1])) {
-      const here: IJet = host.faces[face]!.jet(hostChart[0], hostChart[1]);
-      const world: Vec3 = combine([
-        [direction[0], here.u],
-        [direction[1], here.v],
-      ]);
-      const next: { face: number; u: number; v: number } | null = host.across(
-        face,
-        hostChart[0],
-        hostChart[1],
-      );
-      if (next === null) return null;
-      const again: [number, number] | null = section(
-        host.faces[next.face]!,
-        [next.u, next.v],
+    // The initial chart displacement selects a local branch; every equation
+    // is subsequently read on its actual retained face, including neighbours.
+    const settled: ReturnType<typeof AutoMovieSolidRailSolve.atlas> =
+      AutoMovieSolidRailSolve.atlas(
+        host,
+        curve.face,
+        [curve.y + hostWidth * across[0], curve.theta + hostWidth * across[1]],
         curve.point,
         plane(b, across),
-        hostWidth,
-      );
-      if (again === null || !host.kept(next.face, again[0], again[1]))
-        return null;
-      const there: IJet = host.faces[next.face]!.jet(again[0], again[1]);
-      const e: [number, number] | null = AutoMovieSolidVector.solve2(
-        dot(there.u, there.u),
-        dot(there.u, there.v),
-        dot(there.u, there.v),
-        dot(there.v, there.v),
-        [dot(there.u, world), dot(there.v, world)],
-      );
-      if (e === null) return null;
-      const speed: number = norm(
         combine([
-          [e[0], there.u],
-          [e[1], there.v],
+          [across[0], b.u],
+          [across[1], b.v],
         ]),
+        hostWidth,
+        STEPS,
+        ROUNDING,
+        SWITCHES,
       );
-      if (!(speed > 0)) return null;
-      face = next.face;
-      hostChart = again;
-      direction = [e[0] / speed, e[1] / speed];
-    }
-
+    if (settled === null) return null;
+    const face: number = settled.face;
+    const hostChart: [number, number] = settled.chart;
+    const direction: [number, number] = settled.direction;
+    const partJet: IJet | null = AutoMovieSolidDomain.jet(part, s, phi);
+    const hostJet: IJet | null = AutoMovieSolidDomain.jet(
+      host.faces[face]!,
+      hostChart[0],
+      hostChart[1],
+    );
+    if (partJet === null || hostJet === null) return null;
     return {
       curve,
       s,
       phi,
       sigma,
       partAcross,
-      partPoint: part.jet(s, phi).p,
+      partPoint: partJet.p,
       hostFace: face,
       host: hostChart,
       across: direction,
-      hostPoint: host.faces[face]!.jet(hostChart[0], hostChart[1]).p,
+      hostPoint: hostJet.p,
     };
   }
 
@@ -386,31 +289,15 @@ export namespace AutoMovieSolidRail {
     m: Readonly<Vec3>,
     width: number,
   ): [number, number] | null {
-    if (!(norm(m) > 0)) return null;
-    // Rounding grows with the coordinates, not with the chord: a sub-millimetre
-    // chord far from the origin still converges to the coordinates' precision.
-    const scale: number = width + norm(from);
-    let x: [number, number] = [start[0], start[1]];
-    for (let step: number = 0; step < STEPS; step++) {
-      const j: IJet = surface.jet(x[0], x[1]);
-      const r: Vec3 = sub(j.p, from);
-      const f1: number = dot(r, m);
-      const f2: number = dot(r, r) - width * width;
-      const done: boolean =
-        Math.abs(f1) <= ROUNDING * scale &&
-        Math.abs(f2) <= 2 * width * ROUNDING * scale;
-      const dx: [number, number] | null = AutoMovieSolidVector.solve2(
-        dot(j.u, m),
-        dot(j.v, m),
-        2 * dot(r, j.u),
-        2 * dot(r, j.v),
-        [-f1, -f2],
-      );
-      if (dx === null) return null;
-      x = [x[0] + dx[0], x[1] + dx[1]];
-      if (done) return x;
-    }
-    return null;
+    return AutoMovieSolidRailSolve.section(
+      surface,
+      start,
+      from,
+      m,
+      width,
+      STEPS,
+      ROUNDING,
+    );
   }
 
   /** From surface jet j and preimage chart tangent (u',v'), return the inverse-metric square chart direction at unit world speed, signed along world direction toward for side=1 and against it for -1; return null for a failed metric solve, vanishing speed or zero sidedness. */
@@ -446,44 +333,20 @@ export namespace AutoMovieSolidRail {
 
   /** Solve chart distance l along the jet callback along(l) and chart direction d at positive world chord width from world point from, both in mm. The initial remaining-chord guess is start or width, divided by world speed; failed/invalid offsets return null, and an accepted residual takes one final unchecked Newton update. */
   function offset(
-    along: (l: number) => IJet,
+    along: (l: number) => IJet | null,
     d: readonly [number, number],
     from: Readonly<Vec3>,
     width: number,
     start?: number,
   ): number | null {
-    if (!(width > 0)) return null;
-    const j0: IJet = along(0);
-    const speed: number = norm(
-      combine([
-        [d[0], j0.u],
-        [d[1], j0.v],
-      ]),
+    return AutoMovieSolidRailSolve.offset(
+      along,
+      d,
+      from,
+      width,
+      STEPS,
+      ROUNDING,
+      start,
     );
-    if (!(speed > 0)) return null;
-    let l: number = (start ?? width) / speed;
-    for (let step: number = 0; step < STEPS; step++) {
-      const j: IJet = along(l);
-      const r: Vec3 = sub(j.p, from);
-      const chord: number = norm(r);
-      const miss: number = chord - width;
-      const rate: number =
-        dot(
-          r,
-          combine([
-            [d[0], j.u],
-            [d[1], j.v],
-          ]),
-        ) / chord;
-      if (!(rate > 0)) return null;
-
-      // Converged: one last step takes the miss from the tolerance to
-      // rounding, so neighbouring rail points carry no solver noise.
-      const converged: boolean =
-        Math.abs(miss) <= ROUNDING * (width + norm(from));
-      l -= miss / rate;
-      if (converged) return l;
-    }
-    return null;
   }
 }

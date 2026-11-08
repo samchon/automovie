@@ -25,10 +25,10 @@ export namespace AutoMovieConstructionSkin {
    * @param state The walk's chains and their surfaces.
    * @param open Each face's open ends, as `AutoMovieSolidBody.draw` returns them.
    *
-   * @evidence contracts/common.md#principled-implementation Maps original chain surfaces by identity, classifies each nonempty returned open cycle by its first vertex station's nearer end and fans it to that end's declared pole.
+   * @evidence contracts/common.md#principled-implementation Maps original chain surfaces by identity and consumes draw's complete endpoint record. An owned original tip is evaluated and recorded at its actual source station, separately from physical2; old datum-only poles retain their existing fan behavior.
    * @evidence contracts/common.md#clear-and-simple-design Cap selection stays at the chain/body boundary while SolidMesh owns vertex insertion and orientation-aware triangle emission.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Skips non-chain faces and ends without a pole; assumes draw's unzipped cycles are genuine endpoint cycles with compatible chart coordinates, rather than independently proving that property here.
-   * @evidence contracts/common.md#meaningful-documentation States body mutation, input open-cycle provenance, pole-only closure and open-end preservation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Skips non-chain faces, generic planar rims with end null and ends without a pole. Does not infer this face's station from a foreign owner's coordinates or cap a partial periodic endpoint rejected by draw.
+   * @evidence contracts/common.md#meaningful-documentation States body mutation, open-cycle provenance and pole-only closure. Owned tips require surface Point0 and use its chart station; datum-only legacy fans do not acquire a new source replay claim.
    * @evidence contracts/performance.md#efficient-algorithms Chain-map construction and boundary-fan work are linear in their inputs; each mapped face additionally scans up to R existing mesh owners, so F such faces can pay O(FR) lookup work.
    * @evidence contracts/performance.md#reuse-equivalent-work One surface-to-chain map serves all faces; existing ring vertices are reused by fans rather than copied as a second boundary.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The local map and fan arrays die after the call; the body retains emitted apex vertices/triangles and any newly registered surface owner for its own lifetime.
@@ -36,7 +36,7 @@ export namespace AutoMovieConstructionSkin {
   export function close(
     body: AutoMovieSolidBody.IBody,
     state: AutoMovieConstructionState.IState,
-    open: readonly number[][][],
+    open: readonly (readonly AutoMovieSolidMesh.IOpen[])[],
   ): void {
     const chainOf: Map<IAutoMovieSolidSurface, IAutoMovieLoftChain> = new Map(
       state.chainSurfaces.map(
@@ -54,14 +54,10 @@ export namespace AutoMovieConstructionSkin {
       if (chain === undefined) return;
       const first: number = chain.layers[0]!.y;
       const last: number = chain.layers[chain.layers.length - 1]!.y;
-      const owner: number = AutoMovieSolidMesh.owner(body.mesh, f.surface);
-      for (const cycle of open[i] ?? []) {
-        if (cycle.length === 0) continue;
-        const station: number = body.mesh.coordinates[3 * cycle[0]! + 1]!;
-        const end: "bottom" | "top" =
-          Math.abs(station - first) <= Math.abs(station - last)
-            ? "bottom"
-            : "top";
+      for (const boundary of open[i] ?? []) {
+        const cycle: number[] = boundary.vertices;
+        const end: "bottom" | "top" | null = boundary.end;
+        if (cycle.length === 0 || end === null) continue;
         const pole: IAutoMovieLoftChain["pole"] =
           chain.pole?.end === end
             ? chain.pole
@@ -69,11 +65,18 @@ export namespace AutoMovieConstructionSkin {
               ? chain.opposite
               : undefined;
         if (pole === undefined) continue;
+        const station: number =
+          pole.source?.station ?? (end === "bottom" ? first : last);
+        const point: [number, number, number] =
+          pole.source === undefined
+            ? pole.point
+            : ownedPoint(f.surface, station);
+        const owner: number = AutoMovieSolidMesh.owner(body.mesh, f.surface);
         const apex: number = AutoMovieSolidMesh.vertex(
           body.mesh,
-          pole.point,
+          point,
           owner,
-          end === "bottom" ? first : last,
+          station,
           0,
         );
         const fan: [number, number, number][] = cycle.map(
@@ -122,4 +125,14 @@ export namespace AutoMovieConstructionSkin {
       ),
     };
   }
+}
+
+/** An owned original tip must replay through its value owner, without inventing a physical jet. */
+function ownedPoint(
+  surface: IAutoMovieSolidSurface,
+  station: number,
+): [number, number, number] {
+  if (surface.point === undefined)
+    throw new Error("An owned original cap requires its surface Point0 reader.");
+  return surface.point(station, 0);
 }

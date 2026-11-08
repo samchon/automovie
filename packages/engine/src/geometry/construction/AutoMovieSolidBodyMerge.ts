@@ -46,7 +46,7 @@ export namespace AutoMovieSolidBodyMerge {
    * @param without A face index to leave out, or -1.
    * @returns The atlas and the body index of each atlas face.
    *
-   * @evidence contracts/common.md#principled-implementation Copies face trim cycles at atlas creation while borrowing their surfaces, then maps body indices and polygon-foot shares for continuation; inclusive parity remains a classifier limitation.
+   * @evidence contracts/common.md#principled-implementation Copies face trim cycles and original-atlas addresses while borrowing immutable surfaces/atlases. Original domain exits follow their actual chart map before trim classification; retained-cycle exits preserve polygon-foot shares. Legacy cycle-inclusive parity remains a limitation.
    * @evidence contracts/common.md#clear-and-simple-design One frozen face list and back-index map keep later clips from altering the join's original host region.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves violated-cycle scans, raw chart-distance ranking and open/excluded-neighbour nulls without changing boundary ties.
    * @evidence contracts/common.md#meaningful-documentation States snapshot versus borrowed-surface lifetime and the body-to-atlas index/foot correspondence.
@@ -74,6 +74,10 @@ export namespace AutoMovieSolidBodyMerge {
     const frozen: IFace[] = index.map(
       (k: number): IFace => ({
         ...body.faces[k]!,
+        sourceAtlas:
+          body.faces[k]!.sourceAtlas === undefined
+            ? undefined
+            : { ...body.faces[k]!.sourceAtlas! },
         cycles: body.faces[k]!.cycles.map(copy),
       }),
     );
@@ -97,6 +101,21 @@ export namespace AutoMovieSolidBodyMerge {
 
           /** Captured face whose rejected cycles may supply a neighbour. */
           const f: IFace = face(i);
+          const original: IFace["sourceAtlas"] = f.sourceAtlas;
+          if (
+            original !== undefined &&
+            !original.atlas.kept(original.face, u, v)
+          ) {
+            const next: ReturnType<IAutoMovieSolidAtlas["across"]> =
+              original.atlas.across(original.face, u, v);
+            if (next === null) return null;
+            const target: number | undefined = back.get(
+              original.offset + next.face,
+            );
+            return target === undefined
+              ? null
+              : { face: target, u: next.u, v: next.v };
+          }
 
           /** Nearest violated-cycle chart foot encountered so far. */
           let best: {
@@ -387,8 +406,8 @@ export namespace AutoMovieSolidBodyMerge {
    * @param v Its `v`.
    * @returns True when kept.
    *
-   * @evidence contracts/common.md#principled-implementation Conjoins current cycle predicates using the face's period; the existing inclusive-boundary gap remains.
-   * @evidence contracts/common.md#clear-and-simple-design One every call preserves cycle order and the first false short circuit.
+   * @evidence contracts/common.md#principled-implementation Requires the actual original source atlas domain when supplied, then conjoins current cycle predicates using the face's period; the legacy cycle-inclusive-boundary gap remains.
+   * @evidence contracts/common.md#clear-and-simple-design The original source domain precedes the unchanged ordered cycle conjunction and first-false short circuit.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no domain repair, boundary tolerance or replacement classification.
    * @evidence contracts/common.md#meaningful-documentation Identifies the current face/cycle inputs and kept-side boolean.
    * @evidence contracts/performance.md#efficient-algorithms Reached cycle predicates cost O(S+L) worst-case work for S edges and L cycles.
@@ -396,8 +415,12 @@ export namespace AutoMovieSolidBodyMerge {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a boolean without retaining the face or query.
    */
   export function kept(face: IFace, u: number, v: number): boolean {
-    return face.cycles.every((c: AutoMovieSolidCycle.ICycle): boolean =>
-      AutoMovieSolidCycle.kept(c, u, v, face.surface.period),
+    return (
+      (face.sourceAtlas === undefined ||
+        face.sourceAtlas.atlas.kept(face.sourceAtlas.face, u, v)) &&
+      face.cycles.every((c: AutoMovieSolidCycle.ICycle): boolean =>
+        AutoMovieSolidCycle.kept(c, u, v, face.surface.period),
+      )
     );
   }
 

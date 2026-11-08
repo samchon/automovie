@@ -71,7 +71,13 @@ export class HumanDebugCurves {
    * @param curves Curves in metres, ids unique.
    */
   public constructor(curves: readonly IHumanDebugDocument.ICurve[]) {
+    this.extend(curves);
+  }
+
+  /** Admit newly requested original curves to these same owned holders; known ids retain their geometry. */
+  public extend(curves: readonly IHumanDebugDocument.ICurve[]): void {
     for (const curve of curves) {
+      if (this.tubes.has(curve.id)) continue;
       const mesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial> = new THREE.Mesh(
         new THREE.BufferGeometry(),
         new THREE.MeshBasicMaterial(),

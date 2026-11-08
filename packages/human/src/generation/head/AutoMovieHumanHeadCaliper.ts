@@ -1,4 +1,4 @@
-import { AutoMovieViewOutline, type IAutoMovieViewPart } from "@automovie/engine";
+import { AutoMovieIllinois, AutoMovieViewOutline, type IAutoMovieViewPart } from "@automovie/engine";
 import type { IAutoMovieConstructionOutline, IAutoMovieConstructionView } from "@automovie/interface";
 
 import { AutoMovieHumanHeadVault } from "../AutoMovieHumanHeadVault";
@@ -15,7 +15,7 @@ import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Contains no private polynomial evaluator, mesh read, reference fit, endpoint clamp or change to the independent public length.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes the selected posterior cranial domain, verified fixed chart, numerical candidates and unfinished whole anatomical/visual acceptance.
  * @evidence contracts/performance.md#efficient-algorithms Prepares two bare mass sources once, then only a scalar original curve and bounded-degree distance candidates per reach iteration; no loft, feature or full figure is rebuilt inside the solve.
- * @evidence contracts/performance.md#reuse-equivalent-work Reuses the original source partition, pole parameter and linear reach basis across sixty bisections.
+ * @evidence contracts/performance.md#reuse-equivalent-work Reuses the original source partition, pole parameter and linear reach basis across actual bracket/root trials.
  * @evidence contracts/performance.md#bound-retention-and-release-resources All temporary views, prepared curves and candidate arrays are call-owned; only the resulting layout survives.
  */
 export namespace AutoMovieHumanHeadCaliper {
@@ -33,7 +33,7 @@ export namespace AutoMovieHumanHeadCaliper {
    * @evidence contracts/common.md#clear-and-simple-design Returns a new layout with closed reach and its updated retained tape proxy, leaving original construction and independent observation to the existing callers.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses an unsupported frame, changed partition/parameter/jet pattern, nonlinear range admission or failed distance query rather than sampling a replacement or selecting a named point as the maximum.
    * @evidence contracts/common.md#meaningful-documentation States the chosen domain, linear-family premise, fixed-chart verification, numerical boundary and zero-reach bracketing member that is never emitted as a part.
-   * @evidence contracts/performance.md#efficient-algorithms Two source preparations precede a bounded sixty-four-step bracket and sixty bisections on one dimension.
+   * @evidence contracts/performance.md#efficient-algorithms Two source preparations precede the existing bounded bracket and at most64 bracketed Illinois trials on one dimension, followed by the actual maximum-distance residual admission.
    * @evidence contracts/performance.md#reuse-equivalent-work The bracket and solve share the same canonical basis and target; final composition builds and lofts the result once.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns only a caller-owned layout; temporary source families have no global registry or cache.
    */
@@ -56,7 +56,10 @@ export namespace AutoMovieHumanHeadCaliper {
     const targetValue: number | string = AutoMovieViewOutline.value(front, glabella);
     if (typeof targetValue === "string") throw new Error(`Cranial glabella source: ${targetValue}`);
 
+    const measured: Map<number, number> = new Map();
     const maximum: (reach: number) => number = (reach: number): number => {
+      const previous: number | undefined = measured.get(reach);
+      if (previous !== undefined) return previous;
       const share: number = (reach - plan.reach) / plan.reach;
       const curve: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({ ...first, knots: first.knots.map((k: IAutoMovieViewPart.IKnot, i: number): IAutoMovieViewPart.IKnot => ({ ...k, value: k.value + share * (second.knots[i]!.value - k.value), ...(k.jet === undefined ? {} : { jet: { first: k.jet.first === null ? null : k.jet.first + share * (second.knots[i]!.jet!.first! - k.jet.first), second: k.jet.second === null ? null : k.jet.second + share * (second.knots[i]!.jet!.second! - k.jet.second) } }) })) }, { top: upper });
       if ("detail" in curve) throw new Error(`Cranial posterior family: ${curve.detail}`);
@@ -68,17 +71,24 @@ export namespace AutoMovieHumanHeadCaliper {
         if (typeof value === "string") throw new Error(`Cranial caliper reading: ${value}`);
         longest = Math.max(longest, Math.hypot(station - glabella, value - targetValue));
       }
+      measured.set(reach, longest);
       return longest;
     };
-    let lo: number = 0;
+    const lo: number = 0;
     let hi: number = 2 * plan.reach;
     for (let i: number = 0; maximum(hi) < plan.length && i < 64; i++) hi *= 2;
     if (!(Number.isFinite(hi) && maximum(lo) <= plan.length && maximum(hi) >= plan.length)) throw new Error("Public cranial caliper has no nonnegative finite reach bracket in the retained family");
-    for (let i: number = 0; i < 60; i++) {
-      const middle: number = (lo + hi) / 2;
-      if (maximum(middle) < plan.length) lo = middle; else hi = middle;
-    }
-    const closed: IAutoMovieHumanHeadLayout = { ...plan, reach: (lo + hi) / 2 };
+    const reach: number | null = AutoMovieIllinois.root(
+      (candidate: number): number => maximum(candidate) - plan.length,
+      lo, hi, 128 * Number.EPSILON * plan.length, 64,
+    );
+    if (reach === null || !Number.isFinite(reach))
+      throw new Error("Cranial caliper has no selected finite posterior-reach root");
+    const actual: number = maximum(reach);
+    if (!(Number.isFinite(actual) && Math.abs(actual - plan.length) <=
+      128 * Number.EPSILON * Math.max(actual, plan.length)))
+      throw new Error("Cranial caliper maximum-distance residual failed admission");
+    const closed: IAutoMovieHumanHeadLayout = { ...plan, reach };
     closed.vault = AutoMovieHumanHeadVault.closing(closed);
     return closed;
   }

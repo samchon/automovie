@@ -89,18 +89,20 @@ export namespace HumanDebugInspectionValidate {
     const raw: boolean = row.stage.startsWith("raw-");
     if (raw) fits(actual, bounds(receipt));
     const final: boolean = row.stage === "final-clay";
-    const expectedPiece: string = raw ? "source.parts:tree" : "reference:";
-    if (!final && !(snapshot.subject.piece ?? "").startsWith(expectedPiece)) throw new Error("Unexpected producer subject");
+    const expectedPiece: string = row.piece ?? "source.parts:tree";
+    if (!final && (raw ? snapshot.subject.piece !== expectedPiece : !(snapshot.subject.piece ?? "").startsWith("reference:"))) throw new Error("Unexpected producer subject");
     const provenance: Record<string, unknown> = snapshot.provenance ?? {};
-    if (raw && provenance.selection !== "production-tree") throw new Error("Raw display did not select the actual production tree");
+    if (raw && provenance.selection !== (expectedPiece === "source.parts:tree" ? "production-tree" : "part-name-globs")) throw new Error("Raw display did not preserve its actual requested source selection");
     if (final && provenance.producer !== "AutoMovieHuman.prepare") throw new Error("Final clay is not ordinary prepared output");
-    const wanted: string[] = row.curveIds ?? snapshot.inventory.curves.filter((id: string): boolean => row.names.some((name: string): boolean => id.startsWith("human.construction." + name + "/")));
+    const wanted: string[] = row.curveIds ?? snapshot.inventory.curves.filter((id: string): boolean => row.names.some((name: string): boolean => HumanDebugPattern.matches(id, [(raw ? "" : "view.") + name + "/*"], "human.construction.")));
     const references: string[] = row.stage === "original-sections" ? snapshot.inventory.curves.filter((id: string): boolean => id.startsWith("human.construction.reference.")) : [];
     if (row.stage === "original-sections" && references.length === 0) throw new Error("Reference section-curve support is unavailable");
-    const visible: string[] = row.stage === "reference" || row.stage === "inventory" || row.stage === "raw-clay" || final ? [] : [...wanted, ...references];
+    const scopedInventory: boolean = row.stage === "inventory" && row.names.length !== 0;
+    const visible: string[] = row.stage === "reference" || row.stage === "inventory" && !scopedInventory || row.stage === "raw-clay" || final ? [] : [...wanted, ...references];
     if (visible.length !== snapshot.shown.curves.length || visible.some((id: string): boolean => !snapshot.shown.curves.includes(id))) throw new Error("Shown curve IDs differ from the complete intended selection");
-    if ((row.stage === "framing" || row.stage === "original" || row.stage === "original-sections" || row.stage === "raw-curves" || row.stage === "raw-overlay") && wanted.length === 0) throw new Error("The requested curve selection is empty");
-    if ((row.stage === "framing" || row.stage === "raw-curves" || row.stage === "original-sections") && snapshot.shown.parts.length !== 0) throw new Error("Curves-only pass contains a surface");
+    if ((scopedInventory || row.stage === "framing" || row.stage === "original" || row.stage === "original-sections" || row.stage === "raw-curves" || row.stage === "raw-overlay") && wanted.length === 0) throw new Error("The requested curve selection is empty");
+    if ((scopedInventory || row.stage === "framing" || row.stage === "raw-curves" || row.stage === "original-sections") && snapshot.shown.parts.length !== 0) throw new Error("Curves-only pass contains a surface");
+    if ((row.stage === "original" || row.stage === "reference" || row.stage === "inventory" && !scopedInventory) && !snapshot.shown.parts.some((id: string): boolean => id.startsWith("human.skin.reference."))) throw new Error("Reference clay is unavailable in this comparison");
     if (row.stage === "raw-clay" || row.stage === "raw-overlay") {
       const parts: string[] = snapshot.inventory.parts.filter((id: string): boolean => row.names.some((name: string): boolean => HumanDebugPattern.matches(id, [name + "/*"], "human.skin.")));
       if (parts.length === 0 || parts.length !== snapshot.shown.parts.length || parts.some((id: string): boolean => !snapshot.shown.parts.includes(id))) throw new Error("Raw surfaces differ from the selected actual chains");

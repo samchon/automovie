@@ -1,7 +1,12 @@
+import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
+import { AutoMovieLoftCapRead } from "./AutoMovieLoftCapRead";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import { AutoMovieLoftRelief } from "./AutoMovieLoftRelief";
+import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
+import type { AutoMovieLoftSectionLegacy } from "./AutoMovieLoftSectionLegacy";
+import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 import type { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
@@ -16,7 +21,7 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * is, between two layers, `P(s, t) = o(s) + x(s, t) u(s) + z(s, t) v(s)`
  * with coefficient Hermite factors in physical station or a declared pole
  * coordinate, actual analytic frames or the existing component-plane fit,
- * and the unchanged periodic cubic phase spline, plus a lift along
+ * and the actual local source/continuation total2 or legacy phase spline, plus a lift along
  * `w = v x u` and its reliefs along their axes. Each derivative is then the
  * product rule over those factors, each factor's derivative exact:
  *
@@ -30,13 +35,13 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * The strips, the trims' and lids' cross derivatives and the shading
  * normals read these instead of differences of sampled points.
  *
- * @evidence contracts/common.md#principled-implementation The chain's surface 2-jet is assembled from the station jets of coefficients, frame and lift by the product rule, so merge, diff and trim read exact first and second derivatives.
+ * @evidence contracts/common.md#principled-implementation The chain's required local total2, actual frame derivatives and lift/relief derivatives combine by one product rule; each owner must admit the requested physical derivatives.
  * @evidence contracts/common.md#clear-and-simple-design One jet record and one evaluation per station and phase; `carries` states when a chain has the jets it needs.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No derivative is a finite difference; a chain without its jets is refused by `carries`.
  * @evidence contracts/common.md#meaningful-documentation States each jet component and the terms of its product rule.
- * @evidence contracts/performance.md#efficient-algorithms A spline station combines only the four controls needed by a phase, once per visited control; its holey arrays and bitmap still allocate O(N) space. Other inputs retain eager combination.
+ * @evidence contracts/performance.md#efficient-algorithms Native stations pay explicit binding/span/scalar2 validation and fixed native preparation, then one numeric inverse and selected source2 evaluation per phase. Legacy spline stations retain four-control support and O(N) holey storage; lift remains its own basis.
  * @evidence contracts/performance.md#reuse-equivalent-work Each of the last eight inserted stations shares its Hermite weights, frame, visited controls and lift preparation across phases; hits do not reorder this cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources A weak chain key owns at most eight station records, each with O(N) control storage; eviction releases that record, and returned jets own fresh vectors.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources A weak chain key owns eight station records with native geometry or legacy O(N) controls and optional lift data; eviction releases one record. External Point samplers and binder rows have separate owners; outputs are fresh.
  */
 export namespace AutoMovieLoftJet {
   /**
@@ -71,25 +76,27 @@ export namespace AutoMovieLoftJet {
   }
 
   /**
-   * Whether every layer of a chain carries the plane, its station
-   * derivatives and the coefficients' second derivatives a jet needs.
-   * This presence predicate does not validate basis, lengths or numeric values.
+   * Whether the actual local interval owners carry physical2 and every
+   * layer carries its frame2. Projection curvatures are required only by
+   * actual legacy intervals. This is not complete numeric/regularity validation.
    *
-   * @evidence contracts/common.md#principled-implementation Requires curvature and all three frame derivative orders on every layer before a caller chooses analytic jets.
-   * @evidence contracts/common.md#clear-and-simple-design One short-circuiting every over the layer fields, without constructing a parallel model.
+   * @evidence contracts/common.md#principled-implementation Requires recorded native source2 availability or legacy coefficient curvature, plus all frame derivative orders at every layer; actual queries still admit their requested station derivatives.
+   * @evidence contracts/common.md#clear-and-simple-design A shared local-capability predicate precedes one frame-presence scan, without another geometry model.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Tests field presence only, including the ordinary every semantics for an empty layer list; it is not a complete chain validator.
    * @evidence contracts/common.md#meaningful-documentation Lists the required fields and the validation this predicate does not perform.
-   * @evidence contracts/performance.md#efficient-algorithms At most O(L) presence checks for L layers, stopping at the first incomplete layer and allocating no result collection.
+   * @evidence contracts/performance.md#efficient-algorithms Local source-status lookup includes binary searches on clipped rows and O(L*S) law presence for L layers/S laws, followed by O(L) frame checks; no phase/source2 evaluation or cache allocation occurs.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This pure presence predicate coordinates no requests or reusable station preparation; at owns that cache.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads the supplied chain and retains nothing after returning its boolean.
    */
   export function carries(chain: IAutoMovieLoftChain): boolean {
-    return chain.layers.every(
-      (l: IAutoMovieLoftChain.ILayer): boolean =>
-        l.curvatures !== undefined &&
-        l.frame !== undefined &&
-        l.frameSlopes !== undefined &&
-        l.frameCurvatures !== undefined,
+    return (
+      AutoMovieLoftSection.regular(chain) &&
+      chain.layers.every(
+        (l: IAutoMovieLoftChain.ILayer): boolean =>
+          l.frame !== undefined &&
+          l.frameSlopes !== undefined &&
+          l.frameCurvatures !== undefined,
+      )
     );
   }
 
@@ -100,11 +107,11 @@ export namespace AutoMovieLoftJet {
    * @param s Station within the chain.
    * @param t Phase, radians.
    *
-   * @evidence contracts/common.md#principled-implementation Combines the station Hermite and periodic cubic section jets with the written product rule, then adds lift and relief derivatives.
-   * @evidence contracts/common.md#clear-and-simple-design Station preparation is shared; phase evaluation still uses the existing spline jet reader.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps ordinary Hermite summation, phase wrapping, regular-layer bounds and returned vector ownership; explicit cap data changes only coefficient weights and actual-axis records supply their own frame derivatives.
+   * @evidence contracts/common.md#principled-implementation Combines actual native/continuation total2 or the unchanged legacy station/basis jets with the frame product rule, then adds lift and relief derivatives.
+   * @evidence contracts/common.md#clear-and-simple-design One station cache owns local/frame/lift preparation and one extracted world product rule serves both local authorities.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps ordinary interpolation and returned vector ownership; only validated surviving original cap owners bypass row bracketing, reading actual source2/axis2. Truezero or unavailable physical2 fails without a Taylor map or zero fill.
    * @evidence contracts/common.md#meaningful-documentation States station and phase units and the surface product rule above.
-   * @evidence contracts/performance.md#efficient-algorithms On a spline, a phase fills at most four previously unread controls in three derivative rows, including lift when present; array allocation remains linear in order.
+   * @evidence contracts/performance.md#efficient-algorithms Native source2 preparation skips unneeded compatibility derivative weights and each phase reads one numeric inverse plus selected AD source; legacy spline phases retain lazy four-control filling. Native lift arrays are prepared eagerly once in O(N).
    * @evidence contracts/performance.md#reuse-equivalent-work Station weights, frame and lift directions are prepared once, and each visited control is combined once while its station remains cached.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Uses the weak-key eight-station insertion cache and returns fresh mutable jet vectors, never a cached output jet.
    */
@@ -113,69 +120,17 @@ export namespace AutoMovieLoftJet {
     // station derivatives) is the same for every phase, so the last stations
     // read per chain are kept; a chain is never changed once built.
     const station: IStation = stationOf(chain, s);
-    const { c, f }: IStation = station;
+    const { f }: IStation = station;
 
     // Section values in the plane: x, z and their phase derivatives at the
     // value, the station slope and the station curvature of the coefficients.
     const n: number = chain.order;
     fill(station, n, t);
-    const q0: J = AutoMovieSplineCurve.jet(c[0]!, n, t);
-    const q1: J = AutoMovieSplineCurve.jet(c[1]!, n, t);
-    const q2: J = AutoMovieSplineCurve.jet(c[2]!, n, t);
-    const [f0, f1, f2] = f as [number[], number[], number[]];
-    const o: V[] = [
-      [f0[0]!, f0[1]!, f0[2]!],
-      [f1[0]!, f1[1]!, f1[2]!],
-      [f2[0]!, f2[1]!, f2[2]!],
-    ];
-    const U: V[] = [
-      [f0[3]!, f0[4]!, f0[5]!],
-      [f1[3]!, f1[4]!, f1[5]!],
-      [f2[3]!, f2[4]!, f2[5]!],
-    ];
-    const W: V[] = [
-      [f0[6]!, f0[7]!, f0[8]!],
-      [f1[6]!, f1[7]!, f1[8]!],
-      [f2[6]!, f2[7]!, f2[8]!],
-    ];
-
-    // Each component written out: the product rule over the plane's axes
-    // and the section's values, with no intermediate vectors.
-    const p: V = [0, 0, 0];
-    const ds: V = [0, 0, 0];
-    const dt: V = [0, 0, 0];
-    const dss: V = [0, 0, 0];
-    const dst: V = [0, 0, 0];
-    const dtt: V = [0, 0, 0];
-    for (let k: number = 0; k < 3; k++) {
-      const u0: number = U[0]![k]!;
-      const u1: number = U[1]![k]!;
-      const u2: number = U[2]![k]!;
-      const w0: number = W[0]![k]!;
-      const w1: number = W[1]![k]!;
-      const w2: number = W[2]![k]!;
-      p[k] = o[0]![k]! + u0 * q0[0] + w0 * q0[1];
-      ds[k] = o[1]![k]! + u0 * q1[0] + u1 * q0[0] + w0 * q1[1] + w1 * q0[1];
-      dt[k] = u0 * q0[2] + w0 * q0[3];
-      dss[k] =
-        o[2]![k]! +
-        u0 * q2[0] +
-        2 * u1 * q1[0] +
-        u2 * q0[0] +
-        w0 * q2[1] +
-        2 * w1 * q1[1] +
-        w2 * q0[1];
-      dst[k] = u0 * q1[2] + u1 * q0[2] + w0 * q1[3] + w1 * q0[3];
-      dtt[k] = u0 * q0[4] + w0 * q0[5];
-    }
-    const jet: IJet = {
-      p,
-      s: ds,
-      t: dt,
-      ss: dss,
-      st: dst,
-      tt: dtt,
-    };
+    const local: ReturnType<typeof AutoMovieLoftSectionLegacy.jet> =
+      station.native === null
+        ? section(station.controls!, n, t)
+        : station.native(t);
+    const jet: IJet = AutoMovieLoftWorldJet(local, f);
 
     // The lift a shape law writes moves points along w = v x u by the station
     // Hermite of its values, quintic where it carries curvatures, as in AutoMovieLoftChain.ring.
@@ -193,6 +148,12 @@ export namespace AutoMovieLoftJet {
       jet.st = sum(jet.st, scale(e, h[4]!));
       jet.tt = sum(jet.tt, scale(e, h[5]!));
     }
+    if (
+      !Object.values(jet).every((row: V): boolean => row.every(Number.isFinite))
+    )
+      throw new AutoMovieLoftAdmissionError(
+        "The complete frame/local/lift/relief total2 is nonfinite.",
+      );
     return jet;
   }
 
@@ -209,7 +170,11 @@ export namespace AutoMovieLoftJet {
   }
 
   /** A station's plane, section controls and optional lift controls. */
-  interface IStation extends IControls {
+  interface IStation {
+    /** Actual basis controls only on the legacy branch; no fabricated rows on a native station. */
+    controls: IControls | null;
+    /** Actual local total2 generator, absent only on the existing basis branch. */
+    native: ReturnType<typeof AutoMovieLoftSection.jet>;
     /** Plane and its first and second station derivatives. */
     f: number[][];
     /** One byte per spline control; absent for the original eager path. */
@@ -239,24 +204,41 @@ export namespace AutoMovieLoftJet {
       STATIONS.get(chain);
     if (kept === undefined) STATIONS.set(chain, (kept = []));
     for (const entry of kept) if (entry.s === s) return entry.station;
+    const cap: ReturnType<typeof AutoMovieLoftCapRead.jet> =
+      AutoMovieLoftCapRead.jet(chain, s);
+    if (cap !== null) {
+      const station: IStation = { controls: null, ...cap };
+      kept.unshift({ s, station });
+      if (kept.length > RECENT) kept.pop();
+      return station;
+    }
     const [lo, hi]: [number, number] = AutoMovieLoftChain.bracket(chain, s);
     const a: IAutoMovieLoftChain.ILayer = chain.layers[lo]!;
     const b: IAutoMovieLoftChain.ILayer = chain.layers[hi]!;
     const H: number = b.y - a.y;
     const u: number = Math.min(1, Math.max(0, (s - a.y) / H));
+    const native: ReturnType<typeof AutoMovieLoftSection.jet> =
+      AutoMovieLoftSection.jet(chain, s);
     const w: number[][] = [0, 1, 2].map((order: number): number[] =>
       AutoMovieStationHermite.weights(u, H, order as 0 | 1 | 2, true),
     );
 
     // Section coefficients and plane, each with its two station derivatives.
     const source: AutoMovieLoftCoefficientSource.IControls | null =
-      AutoMovieLoftCoefficientSource.controls(chain, s);
+      native === null
+        ? AutoMovieLoftCoefficientSource.controls(chain, s)
+        : null;
     const coefficientWeights: number[][] =
-      source === null
-        ? w
-        : [0, 1, 2].map((order: number): number[] =>
-            AutoMovieLoftCoefficientSource.weights(source, order as 0 | 1 | 2),
-          );
+      native !== null
+        ? []
+        : source === null
+          ? w
+          : [0, 1, 2].map((order: number): number[] =>
+              AutoMovieLoftCoefficientSource.weights(
+                source,
+                order as 0 | 1 | 2,
+              ),
+            );
     const ca: AutoMovieStationHermite.IEnd = source?.a ?? {
       value: a.coefficients,
       slope: a.slopes,
@@ -269,6 +251,7 @@ export namespace AutoMovieLoftJet {
     };
     const n: number = chain.order;
     const lazy: boolean =
+      native === null &&
       chain.basis === "spline" &&
       Number.isInteger(n) &&
       n > 0 &&
@@ -302,10 +285,11 @@ export namespace AutoMovieLoftJet {
       );
     }
     const station: IStation = {
-      a: ca,
-      b: cb,
-      weights: coefficientWeights,
-      c,
+      controls:
+        native === null
+          ? { a: ca, b: cb, weights: coefficientWeights, c }
+          : null,
+      native,
       f,
     };
     if (lazy) station.filled = new Uint8Array(n);
@@ -365,16 +349,17 @@ export namespace AutoMovieLoftJet {
 
   /** Fill the same periodic support read by SplineCurve.jet, without changing its arithmetic. */
   function fill(station: IStation, n: number, t: number): void {
-    if (station.filled === undefined) return;
+    const controls: IControls | null = station.controls;
+    if (station.filled === undefined || controls === null) return;
     const u: number = ((((t / (2 * Math.PI)) % 1) + 1) % 1) * n;
     const i: number = Math.min(n - 1, Math.floor(u));
     for (let offset: number = -1; offset <= 2; offset++) {
       const j: number = (i + offset + n) % n;
       if (station.filled[j] === 1) continue;
       for (let order: number = 0; order < 3; order++) {
-        const w: number[] = station.weights[order]!;
-        station.c[order]![j] = scalar(station.a, station.b, w, j);
-        station.c[order]![n + j] = scalar(station.a, station.b, w, n + j);
+        const w: number[] = controls.weights[order]!;
+        controls.c[order]![j] = scalar(controls.a, controls.b, w, j);
+        controls.c[order]![n + j] = scalar(controls.a, controls.b, w, n + j);
         if (station.lift !== undefined) {
           const l: ILift = station.lift;
           const value: number = scalar(l.a, l.b, l.weights[order]!, j);
@@ -426,6 +411,25 @@ type V = [number, number, number];
 
 /** A section's `[x, z, x_t, z_t, x_tt, z_tt]` at one phase. */
 type J = [number, number, number, number, number, number];
+
+/** Read exactly the required local total2 from the unchanged complete legacy basis. */
+function section(
+  controls: { c: number[][] },
+  n: number,
+  t: number,
+): ReturnType<typeof AutoMovieLoftSectionLegacy.jet> {
+  const q0: J = AutoMovieSplineCurve.jet(controls.c[0]!, n, t);
+  const q1: J = AutoMovieSplineCurve.jet(controls.c[1]!, n, t);
+  const q2: J = AutoMovieSplineCurve.jet(controls.c[2]!, n, t);
+  return {
+    p: [q0[0], q0[1]],
+    s: [q1[0], q1[1]],
+    t: [q0[2], q0[3]],
+    ss: [q2[0], q2[1]],
+    st: [q1[2], q1[3]],
+    tt: [q0[4], q0[5]],
+  };
+}
 
 /**
  * Add the lift `h(s, t) w(s)` and its derivatives to a jet, `w = v x u`;

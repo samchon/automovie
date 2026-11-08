@@ -4,6 +4,7 @@ import type {
   AutoMovieConstructionParameter,
   IAutoMovieConstructionOutline,
   IAutoMovieConstructionOutlinePair,
+  IAutoMovieConstructionSource,
   IAutoMovieConstructionView,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -16,17 +17,17 @@ import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 import { rollAutoMovieViewAxis } from "./rollAutoMovieViewAxis";
 
 /**
- * A construction tree's view part as the view-to-section operator's input (`IAutoMovieViewPart`): the tree's metres turned into the kernel's millimetres once, its axis record turned into the frame function it names, and its closed unions into the operator's own records.
+ * A construction tree's view part as the view-to-section operator's input (`IAutoMovieViewPart`): declared metres become kernel millimetres once, while an explicit source leaf reads its already evaluated input from this call's context.
  *
  * Lengths (stations, chart coordinates, girths, axis points, steps) are scaled by {@link SCALE}; shares, departures and directions are not.
  *
- * @evidence contracts/common.md#principled-implementation The tree's metres become the kernel's millimetres in one place with one factor, and each closed union maps to the operator's own record by its discriminant, so no length is scaled twice or not at all.
+ * @evidence contracts/common.md#principled-implementation Declarative lengths convert once and explicit source leaves preserve their actual millimetre functions; each discriminant selects that stated input owner.
  * @evidence contracts/common.md#clear-and-simple-design One converter per record kind: part, frame, parameter, point and direction.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Shares, departures and directions are left unscaled because they carry no length; an inadmissible axis returns its rule, not a substitute frame.
  * @evidence contracts/common.md#meaningful-documentation States the scale, what it applies to and what it does not.
- * @evidence contracts/performance.md#efficient-algorithms Every conversion is linear in the knots it copies.
+ * @evidence contracts/performance.md#efficient-algorithms A source leaf pays its context's key lookup; declarative conversion is linear in the knots it copies plus axis preparation.
  * @evidence contracts/performance.md#reuse-equivalent-work A view is converted once per realization, and its frame function is built once and shared by every station.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The converted records belong to the caller; nothing is cached here.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Converted records belong to their caller; source inputs are borrowed unchanged and neither context nor source is registered globally.
  */
 export namespace AutoMovieConstructionViews {
   /** Millimetres per metre: the kernel's unit over the tree's. */
@@ -35,21 +36,33 @@ export namespace AutoMovieConstructionViews {
   /**
    * The operator's part for a view.
    *
-   * @param view The view part, metres.
-   * @returns The part in millimetres, or the axis admission rule it broke.
+   * @param view A declarative metre view or an explicit evaluated-source leaf.
+   * @param sources This invocation's immutable source map, containing millimetre inputs and their actual function owners.
+   * @returns The part in millimetres, or the axis/source admission rule it broke.
    *   Outline/order/section admission belongs to ViewLoft, not this copy.
    *
-   * @evidence contracts/common.md#principled-implementation Converts length-valued stations, outlines and girths by SCALE, preserves dimensionless fullness values and normalized-jet meaning, and delegates the declared axis kind to frame.
-   * @evidence contracts/common.md#clear-and-simple-design Builds the axis first so its string failure stops the copy, then assembles one kernel input through the existing pair/fullness source converters.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not sort, clamp or admit the copied scalar data. The level-axis helper currently copies only station/value, dropping general outline parameter/range/jet metadata; that contract gap is not repaired by this conversion's documentation.
-   * @evidence contracts/common.md#meaningful-documentation States metre input, millimetre output, delegated scalar/section admission and the axis-specific string failure; successful copying alone is not geometry acceptance.
-   * @evidence contracts/performance.md#efficient-algorithms Linear copying in layer stations and all outline knots, plus the selected axis builder's preparation cost; no section, trace or mesh is generated here.
-   * @evidence contracts/performance.md#reuse-equivalent-work Returns one prepared axis for all stations of this converted view; repeated part calls rebuild their copies and no cross-call identity cache is maintained.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns converted arrays/outline records and the axis's captured source preparation. This converter retains no global result; transitive axis metadata belongs to its factory.
+   * @evidence contracts/common.md#principled-implementation An explicit source key reads the complete evaluated part unchanged; declarative views convert length fields by SCALE and dispatch their axis kind through frame.
+   * @evidence contracts/common.md#clear-and-simple-design Source selection precedes the existing declarative conversion; source absence and name mismatch are string failures, not another geometry path.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Source functions are never sampled, redeclared or scaled again. Declarative copies are not sorted or clamped; their level-axis helper's existing parameter/jet metadata limitation remains separate.
+   * @evidence contracts/common.md#meaningful-documentation States both input units, lookup-scoped map ownership, immutable generating dependencies for returned readers and source/axis string failures; ViewLoft owns numerical shape admission.
+   * @evidence contracts/performance.md#efficient-algorithms Source lookup follows the supplied ReadonlyMap implementation with constant additional checks; declarative conversion copies all knots once plus axis preparation, without lofting.
+   * @evidence contracts/performance.md#reuse-equivalent-work Returns the source's actual prepared owners by reference or one newly converted axis; no name cache, registry or previous invocation selects geometry.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Source results borrow the caller's immutable part and transitive functions; converted arrays are caller-owned. This function retains no map or global state; an authored callback may retain its own context.
    */
   export function part(
-    view: IAutoMovieConstructionView,
+    view: IAutoMovieConstructionView | IAutoMovieConstructionSource,
+    sources?: ReadonlyMap<string, IAutoMovieViewPart>,
   ): IAutoMovieViewPart | string {
+    if (view.type === "source") {
+      if (typeof view.source !== "string" || view.source.length === 0)
+        return "an evaluated source needs a nonempty invocation key";
+      const source: IAutoMovieViewPart | undefined = sources?.get(view.source);
+      if (source === undefined)
+        return `evaluated source ${view.source} is absent from this invocation`;
+      if (source === null || source.name !== view.name)
+        return `evaluated source ${view.source} does not name ${view.name}`;
+      return source;
+    }
     const axis: AutoMovieViewAxis.IAxis | string = frame(view.axis);
     if (typeof axis === "string") return axis;
     return {

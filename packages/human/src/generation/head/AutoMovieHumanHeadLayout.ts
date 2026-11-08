@@ -43,6 +43,12 @@ export namespace AutoMovieHumanHeadLayout {
       cervicaleHeight: inputs.neckBase.cervicaleHeight * source.scale,
       sideNeckPointHeight: inputs.neckBase.sideNeckPointHeight * source.scale,
       suprasternaleHeight: inputs.neckBase.suprasternaleHeight * source.scale,
+
+      // The harmonic neck has already been rigidly registered to this
+      // shared input frame; shape-dependent posterior estimates do not
+      // move the body's common C7 datum.
+      cervicaleOrigin: inputs.neckBase.cervicaleOrigin * source.scale,
+      priorCervicaleOrigin: source.registration.priorCervicaleX,
     } };
     plan.vault = AutoMovieHumanHeadVault.closing(plan);
     return plan;

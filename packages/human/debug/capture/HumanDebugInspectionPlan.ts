@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { HUMAN_DEBUG_CAMERAS } from "../contracts/HUMAN_DEBUG_CAMERAS";
+import { HumanDebugPattern } from "../contracts/HumanDebugPattern";
 import type { IHumanDebugInspectionPlan as P } from "./IHumanDebugInspectionPlan";
 
 /** Data validation and file identity, without importing or executing Human generation. */
@@ -21,7 +22,7 @@ export namespace HumanDebugInspectionPlan {
   /** Read an inspection plan and reject unsupported keys so angle-unit typos cannot be ignored. */
   export async function read(file: string): Promise<P> {
     const value: P = JSON.parse(await fs.readFile(file, "utf8")) as P;
-    keys(value, ["version", "id", "person", "parts", "allParts", "groups", "cameras", "referenceCameras", "final", "size"], "plan");
+    keys(value, ["version", "id", "person", "scope", "raw", "parts", "allParts", "groups", "cameras", "referenceCameras", "final", "size"], "plan");
     if (value.version !== 1 || value.person !== "f1" || typeof value.id !== "string" || !/^[A-Za-z0-9][A-Za-z0-9_-]{0,39}$/.test(value.id))
       throw new Error("version=1, person=f1 and a safe packet id of at most 40 characters are required");
     if (!Array.isArray(value.parts) || !Array.isArray(value.groups)) throw new Error("parts and groups must be arrays");
@@ -50,6 +51,12 @@ export namespace HumanDebugInspectionPlan {
     if (value.size !== undefined && (!Number.isInteger(value.size) || value.size < 400 || value.size > 2000)) throw new Error("size must be 400..2000 pixels");
     if (value.final !== undefined && typeof value.final !== "boolean") throw new Error("final must be a boolean");
     if (value.allParts !== undefined && typeof value.allParts !== "boolean") throw new Error("allParts must be a boolean");
+    if (value.raw !== undefined && typeof value.raw !== "boolean") throw new Error("raw must be a boolean");
+    if (value.scope !== undefined) {
+      if (!Array.isArray(value.scope) || value.scope.length === 0 || new Set(value.scope).size !== value.scope.length || value.scope.some((pattern: string): boolean => typeof pattern !== "string" || !/^[A-Za-z][A-Za-z0-9_.*-]*$/.test(pattern) || pattern === "tree")) throw new Error("scope needs unique named/glob canonical originals; omit it for the complete tree");
+      const requested: string[] = [...value.parts.map((part: P.Part): string => part.name), ...value.groups.flatMap((group: P.Group): string[] => group.parts)];
+      if (requested.some((part: string): boolean => !HumanDebugPattern.matches(part, value.scope!, ""))) throw new Error("Every explicit part/group member must be included in scope");
+    }
     return value;
   }
 

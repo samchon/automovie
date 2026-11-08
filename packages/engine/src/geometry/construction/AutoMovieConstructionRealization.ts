@@ -1,11 +1,14 @@
 import type { IAutoMovieConstructionDiagnostic } from "@automovie/interface";
 
+import type { AutoMovieConstructionProfile } from "./AutoMovieConstructionProfile";
 import type { AutoMovieSolidBlendChain } from "./AutoMovieSolidBlendChain";
 import type { AutoMovieSolidBody } from "./AutoMovieSolidBody";
 import type { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
 import type { AutoMovieSolidTrim } from "./AutoMovieSolidTrim";
+import type { IAutoMovieConstructionProfileSource } from "./IAutoMovieConstructionProfileSource";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
+import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /**
  * What {@link realizeAutoMovieConstruction} reads besides the tree, and what it returns: every view part's chain, every join's traced curve and blend, every trim and the body of trimmed faces, with the premises the tree could not keep. The default result includes one tessellated skin; an explicit `skin: false` request returns null there.
@@ -13,7 +16,7 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * The tree is in metres; the kernel works in millimetres, so the owning view, seed, width and trim adapters convert physical lengths at their input boundaries. The chains, surfaces, joins, trims and body are the kernel's own records and stay in millimetres, as their declarations state; the skin's positions are returned in metres, the tree's unit. Any node may be the root: a subtree realizes alone, with its own diagnostics.
  *
  * @evidence contracts/common.md#principled-implementation Publishes the realized operator records so a consumer reads the chain/curve/blend used by the skin; physical lengths change units at the relevant authoring-to-kernel adapters rather than through a second geometry representation.
- * @evidence contracts/common.md#clear-and-simple-design The physical chord and optional skin request share one options record; the default and explicitly unskinned result types preserve the same operator records without making the default mesh nullable.
+ * @evidence contracts/common.md#clear-and-simple-design Chord, optional skin and invocation-local evaluated sources share one options record; default and explicitly unskinned results preserve the same operator records without making the default mesh nullable.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Carries no field for a specific part, fixture or caller; a node left out by a broken premise is absent from its list and named in `diagnostics`, never replaced by a fallback shape.
  * @evidence contracts/common.md#meaningful-documentation States each field's content, order and unit, the unit change at entry, the root rule and the effect of a broken premise.
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime body; the realization's cost is answered on `realizeAutoMovieConstruction`.
@@ -22,15 +25,15 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  */
 export namespace AutoMovieConstructionRealization {
   /**
-   * Requested realization controls, with lengths in the tree's metres.
+   * Realization controls and this invocation's optional evaluated source context.
    *
-   * @evidence contracts/common.md#principled-implementation The chord field expresses the requested physical tessellation tolerance independently of kernel millimetre coordinates.
-   * @evidence contracts/common.md#clear-and-simple-design One physical tolerance and one optional boolean distinguish operator realization from its final skin, without unrelated rendering settings.
+   * @evidence contracts/common.md#principled-implementation Chord uses tree metres; explicit source keys resolve actual already evaluated millimetre parts, preserving their frame/scalar functions through normal engine lofting.
+   * @evidence contracts/common.md#clear-and-simple-design Tolerance, optional final-skin request and an optional invocation-local source map keep runtime owners outside the pure authoring AST.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts This type does not certify achieved geometric error; realization's positivity check and the emitter's finite midpoint/phase/depth criterion do not prove a continuous maximum bound.
-   * @evidence contracts/common.md#meaningful-documentation States requested tolerance meaning, metres, positive range and the default-on skin request; disabling the skin preserves chord admission, grid preparation and the chord-derived trim solve tolerance.
+   * @evidence contracts/common.md#meaningful-documentation States metre tolerance, default-on skin, millimetre evaluated sources and their immutable caller lifetime; source absence is diagnosed without a sampled fallback.
    * @evidenceExclude contracts/performance.md#efficient-algorithms The option record executes no tessellation algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This scalar option coordinates no requests or cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns at most two scalar fields and no acquired handle or retained output population.
+   * @evidence contracts/performance.md#reuse-equivalent-work Sources share their actual prepared functions within the invocation; no global registration or implicit geometry cache is selected by this record.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The call borrows its lookup map; returned chains/surfaces retain actual generating dependencies, which must remain immutable for their readers' lifetime. Source closures may retain their own transitive context; the engine adds no later map lookup.
    */
   export interface IProps {
     /** The skin's chord tolerance: the largest distance between a triangle and the surface it stands for, metres, positive. */
@@ -38,6 +41,12 @@ export namespace AutoMovieConstructionRealization {
 
     /** Draw and return the final skin unless false; operator records, boundary publication, diagnostics and chord-derived work remain requested in either mode. */
     skin?: boolean;
+
+    /** Evaluated millimetre parts selected only by explicit leaf keys. The map serves this call; retained generating owners stay immutable while outputs are read. Missing keys are diagnostics, never declaration sampling. */
+    sources?: ReadonlyMap<string, IAutoMovieViewPart>;
+
+    /** Actual original piecewise families by pure profile node name. Complete matching declarations and immutable source dependencies are required through output-reader lifetime. */
+    profiles?: ReadonlyMap<string, IAutoMovieConstructionProfileSource>;
   }
 
   /**
@@ -113,6 +122,9 @@ export namespace AutoMovieConstructionRealization {
 
     /** Every face's surface: each chain's lofted surface, then each blend's, named as their owners are, millimetres. */
     surfaces: IAutoMovieSolidSurface[];
+
+    /** Retained original piecewise families and actual source/neighborhood/atlas readers; absent in older manually assembled results. Metadata names alone certify no evaluated binding weights. */
+    profiles?: AutoMovieConstructionProfile.IPrepared[];
 
     /** Every join that kept its premises, in the order the tree applies them (hosts before the joins on them). */
     joins: IJoin[];

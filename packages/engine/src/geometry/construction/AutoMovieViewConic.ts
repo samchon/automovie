@@ -179,6 +179,38 @@ export namespace AutoMovieViewConic {
   }
 
   /**
+   * Same native radial value without requesting phase derivatives.
+   *
+   * @evidence contracts/common.md#principled-implementation The unchanged periodic selection dispatches to each actual conic/G2 scalar kernel; guide values retain their exact extent override.
+   * @evidence contracts/common.md#clear-and-simple-design Shares selection and inverse owners with radius while exposing only a scalar capability.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Retains the raw normalized native-point norm and scale order, rather than a norm reconstructed from restored Point0; no clamp, geometry fallback or arbitrary callback memoization is introduced.
+   * @evidence contracts/common.md#meaningful-documentation Returns a source length or NaN on source/query/value failure; phase-derivative admission belongs to radius.
+   * @evidence contracts/performance.md#efficient-algorithms One fixed selection and the original inverse omit unused tangent and polar2 work.
+   * @evidence contracts/performance.md#reuse-equivalent-work Uses the caller's unchanged prepared quarters.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A scalar query retains no state.
+   */
+  export function value(curve: ICurve, phi: number): number {
+    const selected: Selection | null = selection(curve, phi);
+    if (selected === null) return NaN;
+    const { local, toEnd, arc, kind }: Selection = selected;
+    if (local === 0)
+      return Number.isFinite(arc.extents[0]) && arc.extents[0] > 0
+        ? arc.extents[0]
+        : NaN;
+    return kind === "conic"
+      ? AutoMovieConicArc.value(
+          arc.extents[0],
+          arc.extents[1],
+          arc.shoulder,
+          local,
+        )
+      : AutoMovieConicHermite.value(
+          kind === "start" ? arc.start! : arc.end!,
+          kind === "start" ? local : toEnd,
+        );
+  }
+
+  /**
    * Numeric quarter and selected-piece location for one periodic polar query.
    *
    * @evidence contracts/common.md#principled-implementation Uses the existing signed small-distance lookup and one native or log-odds inverse.

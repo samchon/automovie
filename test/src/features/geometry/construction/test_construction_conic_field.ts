@@ -415,6 +415,13 @@ function copies(failures: string[]): void {
   ])
     compare(copy, 0.37, expected, 1, "cold value copy", failures);
   const value: AutoMovieViewSectionField.IRadialJet = radial(at, 0.37);
+  const ray: AutoMovieViewConic.IRay | null = AutoMovieViewConic.read(
+    at.geometry,
+    0.37,
+  );
+  if (ray === null)
+    failures.push("The same-geometry descriptor fixture was unavailable");
+  else ConstructionConicFieldBoundary.malformed(at, ray, failures);
   value[0] = 999;
   compare(at, 0.37, expected, 1, "fresh radial output", failures);
   const stale: Prepared = structuredClone(at);

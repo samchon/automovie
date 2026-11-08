@@ -1,9 +1,12 @@
 import type { AutoMovieHarmonicCurve } from "./AutoMovieHarmonicCurve";
+import type { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";
 import type { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import type { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import type { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import type { AutoMovieLoftParameter } from "./AutoMovieLoftParameter";
+import type { AutoMovieLoftSectionConnect } from "./AutoMovieLoftSectionConnect";
+import type { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 import type { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import type { IAutoMovieLoftRelief } from "./IAutoMovieLoftRelief";
 
@@ -73,6 +76,12 @@ export interface IAutoMovieLoftChain {
   /** Principal layers ordered by strictly increasing height, at least two. */
   layers: IAutoMovieLoftChain.ILayer[];
 
+  /** Original plain scalar field and independent compatibility-row bindings. Present data owns points/phase/jets; stale or broken data throws. Absence retains the legacy basis. Finite values do not imply physical source2 availability. */
+  nativeSource?: AutoMovieLoftSectionSource.ISource;
+
+  /** Complete generating laws on spans changed by continuation; other spans keep their original source. Immutable copies preserve these laws and coefficient rewrites must re-express their bindings. */
+  sectionSpans?: AutoMovieLoftSectionConnect.ISpan[];
+
   /**
    * Features written as heights over this chain's surface (the nose and
    * lips over the face, the breasts over the thorax); see
@@ -92,6 +101,9 @@ export interface IAutoMovieLoftChain {
 
     /** The pole, mm. */
     point: [number, number, number];
+
+    /** Actual original cap owner, retained only while this end and its adjacent boundary survive unchanged. Values and positive-section physical2 have separate admission; JSON cannot restore its callable axis. */
+    source?: AutoMovieLoftCapSource.ISource;
   };
 
   /**
@@ -106,6 +118,9 @@ export interface IAutoMovieLoftChain {
 
     /** The pole, mm. */
     point: [number, number, number];
+
+    /** Same explicit original-cap ownership as pole.source; removing this end removes its extra domain. */
+    source?: AutoMovieLoftCapSource.ISource;
   };
 }
 export namespace IAutoMovieLoftChain {
@@ -136,6 +151,9 @@ export namespace IAutoMovieLoftChain {
 
     /** Direct coefficient derivatives in a common closing root/angle coordinate, with finite virtual zero-pole data. The existing coefficients remain the values; absent/different maps select the ordinary station-Hermite boundary. This is a new principal-coefficient interpolant, not a guarantee of original scalar/fullness fidelity between layers. */
     coefficientSource?: AutoMovieLoftCoefficientSource.ISource;
+
+    /** Complete actual endpoint family, oriented into this station/phase chart and independently bound to these numeric rows. Its physical source2 is a C2 construction premise, separate from ordinary finite Point0. */
+    sectionSource?: AutoMovieLoftSectionSource.IEndpoint;
 
     /**
      * Section coefficients in mm, in the layout of the chain's basis

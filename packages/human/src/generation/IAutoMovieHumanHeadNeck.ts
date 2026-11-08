@@ -22,7 +22,25 @@ export interface IAutoMovieHumanHeadNeck {
   backSlope: number;
 
   /** Base tape and resolved heights in calibration mm, scaled once by HeadLayout; absent on retired layout readers. */
-  base?: IAutoMovieHumanHeadInputs["neckBase"];
+  base?: IAutoMovieHumanHeadInputs["neckBase"] & {
+    /** Original local-prior posterior X before registration, calibration mm. */
+    priorCervicaleOrigin: number;
+  };
+
+  /** One explicit AP rigid registration from local harmonic prior to the common body frame, calibration mm. */
+  registration?: {
+    /** Prior posterior datum before mapping. */
+    priorCervicaleX: number;
+
+    /** Common generating C7 datum. */
+    cervicaleX: number;
+
+    /** Actual mapped posterior, preserving the affine map's numeric result. */
+    mappedCervicaleX: number;
+
+    /** Exact authored rigid-frame translation. */
+    translationX: number;
+  };
 
   /** Actual lower-head radius/origin and named-height course, authored before the final mass. */
   curves?: AutoMovieHumanHeadNeckCurves.IOutput;

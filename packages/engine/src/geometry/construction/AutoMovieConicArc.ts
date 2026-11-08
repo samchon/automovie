@@ -415,6 +415,35 @@ export namespace AutoMovieConicArc {
     return selected.reverse ? [y, x] : [x, y];
   }
 
+  /**
+   * Radius value in the identical native inverse and normalization as locate.
+   *
+   * @evidence contracts/common.md#principled-implementation Reads the same normalized rational point and computes hypot(point)*scale, or the exact nearest guide extent, as the full radial reader.
+   * @evidence contracts/common.md#clear-and-simple-design Separates a scalar value from unused tangent and polar derivatives.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No physical-point renormalization, sampled approximation or invalid inverse fallback changes the original value arithmetic.
+   * @evidence contracts/common.md#meaningful-documentation Returns source length or NaN for an invalid query/value; it makes no phase-derivative availability claim.
+   * @evidence contracts/performance.md#efficient-algorithms Constant original inverse, rational point and norm work omit velocity and curvature work.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure query retains no work across calls.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only a scalar escapes the call.
+   */
+  export function value(a: number, b: number, r: number, phi: number): number {
+    const selected: Inverse | null = inverse(a, b, r, phi);
+    if (selected === null) return NaN;
+    if (selected.t === 0)
+      return Number.isFinite(selected.first) && selected.first > 0
+        ? selected.first
+        : NaN;
+    const point: readonly [number, number] = AutoMovieConicArcField.point(
+      AutoMovieConicFieldJet.NUMBER,
+      selected.x,
+      selected.y,
+      selected.w,
+      selected.t,
+    );
+    const value: number = Math.hypot(...point) * selected.scale;
+    return Number.isFinite(value) && value > 0 ? value : NaN;
+  }
+
   /** Preserve every inverse and normalization operation used by locate. */
   function inverse(
     a: number,

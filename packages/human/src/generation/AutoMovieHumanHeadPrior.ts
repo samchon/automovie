@@ -46,7 +46,7 @@ export namespace AutoMovieHumanHeadPrior {
     /** Soft-tissue pogonion ahead of the glabella's vertical, millimetres: Legan and Burstone 1980, 0 (4). */
     pogonion: number;
 
-    /** Labrale superius and inferius ahead of the sn-pg line, millimetres: Legan and Burstone 1980, 3 (1) and 2 (1). */
+    /** Clinical perpendicular peak-protrusion norms from Sn-Pg', mm (Legan and Burstone 1980: 3 (1), 2 (1)); section relief reuses them as explicit shape priors, not achieved personal peaks or border directions. */
     lips: readonly number[];
 
     /** Sublabiale behind the li-pg line, millimetres: Legan and Burstone 1980's mentolabial sulcus, 4 (2). */

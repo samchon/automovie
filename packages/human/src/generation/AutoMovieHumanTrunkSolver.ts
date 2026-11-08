@@ -1,17 +1,18 @@
-﻿import type { AutoMovieLoftContract, IAutoMovieLoftChain, IAutoMovieLoftRelief } from "@automovie/engine";
+﻿import type {
+  AutoMovieLoftContract,
+  IAutoMovieLoftChain,
+  IAutoMovieLoftRelief,
+} from "@automovie/engine";
+
 import { AutoMovieHumanBreastProfile } from "./AutoMovieHumanBreastProfile";
 import { AutoMovieHumanShoulderCap } from "./AutoMovieHumanShoulderCap";
+import { AutoMovieHumanShoulderDatum } from "./AutoMovieHumanShoulderDatum";
 import { AutoMovieHumanShoulderLine } from "./AutoMovieHumanShoulderLine";
-import type { IAutoMovieHumanShoulderOutline } from "./IAutoMovieHumanShoulderOutline";
-import type { IAutoMovieHumanTrunkContext } from "./IAutoMovieHumanTrunkContext";
-import type { IAutoMovieHumanTrunkInputs } from "./IAutoMovieHumanTrunkInputs";
-import type { IAutoMovieHumanTrunkSection } from "./IAutoMovieHumanTrunkSection";
-import type { IAutoMovieHumanTrunkSolution } from "./IAutoMovieHumanTrunkSolution";
-import type { IAutoMovieHumanTrunkState } from "./IAutoMovieHumanTrunkState";
-import type { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
 import { AutoMovieHumanTrunkClosure } from "./AutoMovieHumanTrunkClosure";
+import type { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
 import { AutoMovieHumanTrunkCourses } from "./AutoMovieHumanTrunkCourses";
 import { AutoMovieHumanTrunkFeatures } from "./AutoMovieHumanTrunkFeatures";
+import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
 import { AutoMovieHumanTrunkInguinalFold } from "./AutoMovieHumanTrunkInguinalFold";
 import { AutoMovieHumanTrunkKeys } from "./AutoMovieHumanTrunkKeys";
 import { AutoMovieHumanTrunkLandmarks } from "./AutoMovieHumanTrunkLandmarks";
@@ -19,7 +20,12 @@ import { AutoMovieHumanTrunkNeckSeat } from "./AutoMovieHumanTrunkNeckSeat";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 import { AutoMovieHumanTrunkRows } from "./AutoMovieHumanTrunkRows";
 import { AutoMovieHumanTrunkShapes } from "./AutoMovieHumanTrunkShapes";
-import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
+import type { IAutoMovieHumanShoulderOutline } from "./IAutoMovieHumanShoulderOutline";
+import type { IAutoMovieHumanTrunkContext } from "./IAutoMovieHumanTrunkContext";
+import type { IAutoMovieHumanTrunkInputs } from "./IAutoMovieHumanTrunkInputs";
+import type { IAutoMovieHumanTrunkSection } from "./IAutoMovieHumanTrunkSection";
+import type { IAutoMovieHumanTrunkSolution } from "./IAutoMovieHumanTrunkSolution";
+import type { IAutoMovieHumanTrunkState } from "./IAutoMovieHumanTrunkState";
 
 /**
  * The trunk solved from the person's inputs, the crotch height and the neck's
@@ -42,8 +48,14 @@ export namespace AutoMovieHumanTrunkSolver {
     /** Height of the crotch ring, mm. */
     crotch: number;
 
-    /** The neck chain, named `head`. */
-    neck: IAutoMovieLoftChain;
+    /** Already requested legacy neck chain; absent during direct original preparation. */
+    neck?: IAutoMovieLoftChain;
+
+    /** Same physical internal cut's original support descriptor, before any chain. */
+    neckBoundary?: AutoMovieHumanTrunkNeckSeat.ISeat;
+
+    /** Explicit legacy raw supplier; original solving and metadata never call it. */
+    rawNeck?: () => IAutoMovieLoftChain;
 
     /** The thigh tape, mm, for the groin width; absent, the references' median ratio is used. */
     thigh?: number;
@@ -55,9 +67,6 @@ export namespace AutoMovieHumanTrunkSolver {
   /** What the solve moves; saved, it replays a solved trunk without solving again. */
   export type IState = IAutoMovieHumanTrunkState;
 
-  /** The lowest the shoulder point stands under the neck's ring, mm: the line needs a run to copy the ring's slope over. Conventional. */
-  const SHOULDER_GAP: number = 6;
-
   /** Passes closing the tapes and the courses together; the second only corrects what the first moved. */
   const PASSES: number = 2;
 
@@ -68,26 +77,41 @@ export namespace AutoMovieHumanTrunkSolver {
    * @returns The column, landmarks, reliefs and shoulder pieces.
    */
   export function solve(fixed: IFixed): IAutoMovieHumanTrunkSolution {
+    if ((fixed.neck === undefined) === (fixed.neckBoundary === undefined))
+      throw new Error(
+        "Trunk preparation needs exactly one actual neck chain or original boundary",
+      );
+
     // The old trunk's construction and the body lane's interim solve the
     // same person's trunk from the same inputs object; the second takes the
     // first's solution, which its readers never change.
-    const kept: { fixed: IFixed; solution: IAutoMovieHumanTrunkSolution } | undefined = SOLVED.get(fixed.inputs);
+    const kept:
+      | { fixed: IFixed; solution: IAutoMovieHumanTrunkSolution }
+      | undefined = SOLVED.get(fixed.inputs);
     if (
       kept !== undefined &&
       kept.fixed.stature === fixed.stature &&
       kept.fixed.crotch === fixed.crotch &&
       kept.fixed.neck === fixed.neck &&
+      kept.fixed.neckBoundary === fixed.neckBoundary &&
+      kept.fixed.rawNeck === fixed.rawNeck &&
       kept.fixed.thigh === fixed.thigh &&
       kept.fixed.groinRatio === fixed.groinRatio
     )
       return kept.solution;
-    const solution: IAutoMovieHumanTrunkSolution = replay(fixed, converge(fixed));
+    const solution: IAutoMovieHumanTrunkSolution = replay(
+      fixed,
+      converge(fixed),
+    );
     SOLVED.set(fixed.inputs, { fixed: { ...fixed }, solution });
     return solution;
   }
 
   /** The last solution per inputs object, with what it was solved from. */
-  const SOLVED: WeakMap<IAutoMovieHumanTrunkInputs, { fixed: IFixed; solution: IAutoMovieHumanTrunkSolution }> = new WeakMap();
+  const SOLVED: WeakMap<
+    IAutoMovieHumanTrunkInputs,
+    { fixed: IFixed; solution: IAutoMovieHumanTrunkSolution }
+  > = new WeakMap();
 
   /**
    * Close the tapes and the courses and give the state that closes them.
@@ -116,7 +140,10 @@ export namespace AutoMovieHumanTrunkSolver {
    * @param st The solved state of `converge`.
    * @returns The column, landmarks, reliefs and shoulder pieces.
    */
-  export function replay(fixed: IFixed, st: IState): IAutoMovieHumanTrunkSolution {
+  export function replay(
+    fixed: IFixed,
+    st: IState,
+  ): IAutoMovieHumanTrunkSolution {
     return solution(context(fixed), st);
   }
 
@@ -129,9 +156,15 @@ export namespace AutoMovieHumanTrunkSolver {
   function context(fixed: IFixed): IAutoMovieHumanTrunkContext {
     // The cervicale at the person's own height (ANSUR II cervicale height),
     // on the back of the neck's ring.
-    const seat: AutoMovieHumanTrunkNeckSeat.ISeat = AutoMovieHumanTrunkNeckSeat.read(fixed.neck);
-    const cervicale: [number, number, number] = [seat.back[0], fixed.inputs.cervicale, 0];
-    const at: (share: number) => number = (share: number): number => AutoMovieHumanTrunkLandmarks.at(fixed.crotch, cervicale[1], share);
+    const seat: AutoMovieHumanTrunkNeckSeat.ISeat =
+      fixed.neckBoundary ?? AutoMovieHumanTrunkNeckSeat.read(fixed.neck!);
+    const cervicale: [number, number, number] = [
+      seat.back[0],
+      fixed.inputs.cervicale,
+      0,
+    ];
+    const at: (share: number) => number = (share: number): number =>
+      AutoMovieHumanTrunkLandmarks.at(fixed.crotch, cervicale[1], share);
     const pitch: number = ringPitch(fixed.inputs.hip / (2 * Math.PI));
 
     return {
@@ -143,8 +176,14 @@ export namespace AutoMovieHumanTrunkSolver {
       iliocristale: at(AutoMovieHumanTrunkLandmarks.ILIOCRISTALE),
       omphalion: at(AutoMovieHumanTrunkLandmarks.OMPHALION),
       axilla: fixed.inputs.axilla,
-      shoulderY: Math.min(fixed.inputs.acromion, seat.y - SHOULDER_GAP),
-      soft: AutoMovieHumanTrunkInguinalFold.softness(pitch, AutoMovieHumanTrunkRows.MAX_GAP),
+      shoulderY: AutoMovieHumanShoulderDatum.overlapStation(
+        fixed.inputs.acromion,
+        seat.y,
+      ),
+      soft: AutoMovieHumanTrunkInguinalFold.softness(
+        pitch,
+        AutoMovieHumanTrunkRows.MAX_GAP,
+      ),
     };
   }
 
@@ -155,7 +194,10 @@ export namespace AutoMovieHumanTrunkSolver {
    * @returns The pitch, mm.
    */
   function ringPitch(radius: number): number {
-    return (2 * Math.PI * AutoMovieHumanTrunkShapes.CROTCH_WIDTH * radius * 1.1) / AutoMovieHumanTrunkQuadrant.ORDER;
+    return (
+      (2 * Math.PI * AutoMovieHumanTrunkShapes.CROTCH_WIDTH * radius * 1.1) /
+      AutoMovieHumanTrunkQuadrant.ORDER
+    );
   }
 
   /**
@@ -167,8 +209,14 @@ export namespace AutoMovieHumanTrunkSolver {
    */
   function start(ctx: IAutoMovieHumanTrunkContext): IState {
     const inputs: IAutoMovieHumanTrunkInputs = ctx.fixed.inputs;
-    const at: (share: number) => number = (share: number): number => AutoMovieHumanTrunkLandmarks.at(ctx.fixed.crotch, ctx.cervicale[1], share);
-    const round: (tape: number) => number = (tape: number): number => (tape / (2 * Math.PI)) * 1.1;
+    const at: (share: number) => number = (share: number): number =>
+      AutoMovieHumanTrunkLandmarks.at(
+        ctx.fixed.crotch,
+        ctx.cervicale[1],
+        share,
+      );
+    const round: (tape: number) => number = (tape: number): number =>
+      (tape / (2 * Math.PI)) * 1.1;
 
     return {
       waist: at(AutoMovieHumanTrunkLandmarks.WAIST),
@@ -176,7 +224,10 @@ export namespace AutoMovieHumanTrunkSolver {
       shoulderZ: inputs.biacromial / 2,
       anterior: AutoMovieHumanTrunkGuides.SHARE.anteriorAxillary,
       groin: AutoMovieHumanTrunkShapes.CROTCH_WIDTH * round(inputs.hip),
-      projection: AutoMovieHumanBreastProfile.start(inputs.chest, inputs.underbust),
+      projection: AutoMovieHumanBreastProfile.start(
+        inputs.chest,
+        inputs.underbust,
+      ),
       widths: {
         buttock: round(inputs.hip),
         highHip: round(inputs.highHip),
@@ -194,36 +245,55 @@ export namespace AutoMovieHumanTrunkSolver {
    * @param st The solved state.
    * @returns The solution.
    */
-  function solution(ctx: IAutoMovieHumanTrunkContext, st: IState): IAutoMovieHumanTrunkSolution {
+  function solution(
+    ctx: IAutoMovieHumanTrunkContext,
+    st: IState,
+  ): IAutoMovieHumanTrunkSolution {
     const inputs: IAutoMovieHumanTrunkInputs = ctx.fixed.inputs;
-    const col: AutoMovieHumanTrunkColumn.IColumn = AutoMovieHumanTrunkKeys.column(ctx, st);
-    const h: AutoMovieHumanTrunkKeys.Heights = AutoMovieHumanTrunkKeys.heights(ctx, st);
-    const where: AutoMovieHumanTrunkFeatures.ISites = AutoMovieHumanTrunkKeys.sites(ctx, st, col);
+    const col: AutoMovieHumanTrunkColumn.IColumn =
+      AutoMovieHumanTrunkKeys.column(ctx, st);
+    const h: AutoMovieHumanTrunkKeys.Heights = AutoMovieHumanTrunkKeys.heights(
+      ctx,
+      st,
+    );
+    const where: AutoMovieHumanTrunkFeatures.ISites =
+      AutoMovieHumanTrunkKeys.sites(ctx, st, col);
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
-    const reliefs: IAutoMovieLoftRelief[] = AutoMovieHumanTrunkFeatures.all(col, where, diagnostics);
-    const shoulder: [number, number, number] = [
-      AutoMovieHumanTrunkShapes.SHOULDER.middle * ctx.fixed.stature,
-      ctx.shoulderY,
-      st.shoulderZ,
-    ];
-    const glenohumeral: [number, number, number] = AutoMovieHumanTrunkLandmarks.glenohumeral(shoulder, ctx.seat.side, inputs.scale);
-    const line: IAutoMovieHumanShoulderOutline = AutoMovieHumanShoulderLine.create(
-      { y: ctx.shoulderY, z: st.shoulderZ },
-      ctx.seat.lateral,
+    const reliefs: IAutoMovieLoftRelief[] = AutoMovieHumanTrunkFeatures.all(
+      col,
+      where,
+      diagnostics,
     );
+    const {
+      shoulder,
+      glenohumeral,
+    }: ReturnType<typeof AutoMovieHumanShoulderDatum.create> =
+      AutoMovieHumanShoulderDatum.create(
+        inputs,
+        ctx.fixed.stature,
+        ctx.seat.side,
+        st.shoulderZ,
+      );
+    const line: IAutoMovieHumanShoulderOutline =
+      AutoMovieHumanShoulderLine.create(
+        { y: ctx.shoulderY, z: st.shoulderZ },
+        ctx.seat.lateral,
+      );
     const radius: number = inputs.bicep / (2 * Math.PI);
-    const cap: IAutoMovieHumanShoulderOutline = AutoMovieHumanShoulderCap.create(line.at(ctx.shoulderY), ctx.shoulderY, {
-      y: glenohumeral[1],
-      z: glenohumeral[2],
-      radius,
-    });
+    const cap: IAutoMovieHumanShoulderOutline =
+      AutoMovieHumanShoulderCap.create(line.at(ctx.shoulderY), ctx.shoulderY, {
+        y: glenohumeral[1],
+        z: glenohumeral[2],
+        radius,
+      });
     const bustS: IAutoMovieHumanTrunkSection = col.at(h.bust);
-    const bustPoint: [number, number, number] = AutoMovieHumanTrunkCourses.point(
-      bustS,
-      reliefs,
-      Math.min(0.8 * bustS.width, inputs.bustSpan / 2),
-      "front",
-    );
+    const bustPoint: [number, number, number] =
+      AutoMovieHumanTrunkCourses.point(
+        bustS,
+        reliefs,
+        Math.min(0.8 * bustS.width, inputs.bustSpan / 2),
+        "front",
+      );
 
     return {
       column: col,
@@ -231,7 +301,8 @@ export namespace AutoMovieHumanTrunkSolver {
       diagnostics,
       sites: where,
       seat: ctx.seat,
-      neck: ctx.fixed.neck,
+      neck: ctx.fixed.neck ?? null,
+      rawNeck: ctx.fixed.rawNeck,
       line,
       oval: { glenohumeral, radius, cap },
       pitch: ringPitch(inputs.hip / (2 * Math.PI)),
@@ -248,12 +319,16 @@ export namespace AutoMovieHumanTrunkSolver {
         shoulder,
         glenohumeral,
         bustPoint,
-        axis: Array.from({ length: 65 }, (_: unknown, i: number): [number, number] => {
-          const y: number = ctx.fixed.crotch + (i / 64) * (ctx.seat.y - ctx.fixed.crotch);
-          const s: IAutoMovieHumanTrunkSection = col.at(y);
+        axis: Array.from(
+          { length: 65 },
+          (_: unknown, i: number): [number, number] => {
+            const y: number =
+              ctx.fixed.crotch + (i / 64) * (ctx.seat.y - ctx.fixed.crotch);
+            const s: IAutoMovieHumanTrunkSection = col.at(y);
 
-          return [y, (s.front + s.back) / 2];
-        }),
+            return [y, (s.front + s.back) / 2];
+          },
+        ),
       },
     };
   }

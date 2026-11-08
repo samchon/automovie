@@ -31,8 +31,11 @@ export interface IAutoMovieHumanTrunkSolution {
   /** The neck's bottom ring as the shoulders read it. */
   seat: AutoMovieHumanTrunkNeckSeat.ISeat;
 
-  /** The neck chain, whose bottom layer the shoulders copy. */
-  neck: IAutoMovieLoftChain;
+  /** Already requested legacy neck chain; null during original-only preparation. */
+  neck: IAutoMovieLoftChain | null;
+
+  /** Explicit raw demand used only by the legacy chain builder; ordinary property/JSON reads do not execute it. */
+  rawNeck?: () => IAutoMovieLoftChain;
 
   /** The trapezius line from the shoulder point to the neck's ring. */
   line: IAutoMovieHumanShoulderOutline;

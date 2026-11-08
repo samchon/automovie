@@ -137,7 +137,31 @@ export class HumanDebugShading {
     const box: THREE.Box3 = new THREE.Box3();
     for (const entry of this.meshes)
       if (entry.object.visible && (patterns.length === 0 || HumanDebugPattern.matches(entry.id, patterns, PREFIX)))
-        box.union(new THREE.Box3().setFromObject(entry.mesh));
+        box.union(this.meshBounds(entry.mesh));
+    return box;
+  }
+
+  /**
+   * Bound only complete triangles in the mesh's active index/draw range. Native reference crops
+   * retain their original position buffer, whose unused vertices must not frame the whole body.
+   * Human buildModel supplies ordinary/skinned triangle meshes, not instances. Its public vertex
+   * reader retains current morph/skin evaluation, and matrixWorld retains the actual placement.
+   * This reads O(I) drawn vertex references without changing buffers or keeping another cache.
+   */
+  private meshBounds(mesh: THREE.Mesh): THREE.Box3 {
+    const box: THREE.Box3 = new THREE.Box3();
+    const geometry: THREE.BufferGeometry = mesh.geometry;
+    const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute | undefined = geometry.getAttribute("position");
+    if (position === undefined) return box;
+    const index: THREE.BufferAttribute | null = geometry.getIndex();
+    const start: number = Math.max(0, geometry.drawRange.start);
+    const available: number = Math.min(index?.count ?? position.count, geometry.drawRange.start + geometry.drawRange.count) - start;
+    const end: number = start + 3 * Math.floor(Math.max(0, available) / 3);
+    const point: THREE.Vector3 = new THREE.Vector3();
+    for (let offset: number = start; offset < end; offset++) {
+      mesh.getVertexPosition(index === null ? offset : index.getX(offset), point);
+      box.expandByPoint(point.applyMatrix4(mesh.matrixWorld));
+    }
     return box;
   }
 

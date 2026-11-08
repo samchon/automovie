@@ -62,6 +62,12 @@ export namespace AutoMovieSolidBody {
     /** Its trim cycles. */
     cycles: AutoMovieSolidCycle.ICycle[];
 
+    /** Original source atlas and stable body-index translation; immutable while this face is retained. */
+    sourceAtlas?: { atlas: IAutoMovieSolidAtlas; face: number; offset: number };
+
+    /** Shared source-chart tessellation boundaries; these do not trim the original analytic atlas. */
+    meshLoops?: AutoMovieSolidMesh.ILoop[];
+
     /** Whether it is a diff's cutter, drawn facing into the cutter. */
     inverted?: boolean;
   }
@@ -236,22 +242,27 @@ export namespace AutoMovieSolidBody {
    * Tessellate every face.
    *
    * @param body The body; its mesh receives the triangles.
-   * @returns Each face's open ends (vertex cycles), by face.
+   * @param onFailure Optional face-name/detail receiver for named planning failures; absence preserves the throwing default.
+   * @returns Each face's explicit native boundary occurrences and complete endpoint classification, by face.
    *
    * @evidence contracts/common.md#principled-implementation Draws every face on its original grid and cycles into the existing shared mesh.
-   * @evidence contracts/common.md#clear-and-simple-design One ordered face map returns the same residual open cycles by face.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not reset buffers or prove every residual cycle is a legitimate endpoint; repeated draws append again.
-   * @evidence contracts/common.md#meaningful-documentation States mesh mutation and returned cycle/index ownership.
-   * @evidence contracts/performance.md#efficient-algorithms Includes each face's grid jets, classification, candidate matching and zipper work.
+   * @evidence contracts/common.md#clear-and-simple-design One ordered face map preserves explicit chart/winding/end records and adapts a present diagnostic callback to its actual face name.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not install a no-op callback when none was supplied; named refusal then throws. A supplied receiver can leave other faces and seams present, so its result may be partial. Repeated draws still append again.
+   * @evidence contracts/common.md#meaningful-documentation States mesh mutation, callback/default exception semantics and explicit occurrence ownership.
+   * @evidence contracts/performance.md#efficient-algorithms Includes each face's grid, constrained residual triangulation, incidence and callback costs.
    * @evidence contracts/performance.md#reuse-equivalent-work Reads existing shared rail vertices and surface owners instead of independently welding boundaries.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The body retains appended geometry; temporary face work expires and returned open-cycle arrays belong to the caller.
    */
-  export function draw(body: IBody): number[][][] {
-    return body.faces.map((f: IFace): number[][] =>
+  export function draw(
+    body: IBody,
+    onFailure?: (face: string, detail: string) => void,
+  ): AutoMovieSolidMesh.IOpen[][] {
+    return body.faces.map((f: IFace): AutoMovieSolidMesh.IOpen[] =>
       AutoMovieSolidMesh.face(body.mesh, {
         surface: f.surface,
         stations: f.stations,
         phases: f.phases,
+        domainLoops: f.meshLoops,
         loops: f.cycles.map(
           (c: AutoMovieSolidCycle.ICycle): AutoMovieSolidMesh.ILoop => ({
             kind: c.kind,
@@ -260,6 +271,10 @@ export namespace AutoMovieSolidBody {
           }),
         ),
         inverted: f.inverted,
+        onFailure:
+          onFailure === undefined
+            ? undefined
+            : (detail: string): void => onFailure(f.surface.name, detail),
       }),
     );
   }
@@ -274,7 +289,7 @@ export namespace AutoMovieSolidBody {
    *
    * @evidence contracts/common.md#principled-implementation Renumbers shared cycle vertex indices into boundary point identities and names each evaluating chain/chart.
    * @evidence contracts/common.md#clear-and-simple-design A serializable boundary projection omits surface callbacks and full interior tessellation buffers.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Carries declared cycles/inversion without proving closed topology or repairing missing geometry.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves domain versus cut roles through serialization; carries inversion without proving closed topology, standalone source availability or repaired geometry.
    * @evidence contracts/common.md#meaningful-documentation States chain/chart correspondence and that faces reference shared point identifiers.
    * @evidenceExclude contracts/performance.md#efficient-algorithms This data type performs no remapping; publish owns its linear boundary traversal.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no work; shared point identifiers avoid duplicating the same boundary vertex in its projection.
@@ -299,6 +314,18 @@ export namespace AutoMovieSolidBody {
         chart: [number, number][];
       }[];
 
+      /** Original grid-side authorities, separate from actual cuts; absent in legacy publications. Same shared point IDs and this-face charts are retained. Mesh admission still requires actual domain sides and supported roles. */
+      domainLoops?: IPublished["faces"][number]["cycles"];
+
+      /** Sampling chart bounds published with domainLoops, distinct from original source ownership. Periodic phases are first/last unrepeated samples; their period remains the actual surface period. */
+      grid?: {
+        /** First/last regular sampling station, kernel mm. */
+        stations: [number, number];
+
+        /** First/last sampling phase in the source chart's actual units. */
+        phases: [number, number];
+      };
+
       /** Whether it is a diff's cutter. */
       inverted?: boolean;
     }[];
@@ -310,10 +337,10 @@ export namespace AutoMovieSolidBody {
    * @param body The body, its faces' surfaces named after their chains.
    * @returns The published body.
    *
-   * @evidence contracts/common.md#principled-implementation Walks face cycles in order and assigns one published point to each first-seen shared mesh index.
+   * @evidence contracts/common.md#principled-implementation Publishes original domain authorities and actual trim cycles into separate fields, assigning one shared point to each first-seen mesh index across both roles.
    * @evidence contracts/common.md#clear-and-simple-design One map preserves shared boundary identity while projecting owners to chain names and chart coordinates.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not include the full mesh or certify geometry; valid owner coordinates are the current body premise.
-   * @evidence contracts/common.md#meaningful-documentation States renumbering, chain/chart identity and detached cycle charts.
+   * @evidence contracts/common.md#meaningful-documentation States renumbering, original-domain versus cutting roles, actual sampling bounds distinct from source ownership, chain/chart identity and detached boundary charts.
    * @evidence contracts/performance.md#efficient-algorithms Linear in faces and boundary records, with one expected-constant map lookup per referenced vertex.
    * @evidence contracts/performance.md#reuse-equivalent-work The same mesh index reuses its earlier published identifier across all faces.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns fresh boundary/face/chart arrays; the local index map and body reference are not retained by that projection.
@@ -340,25 +367,41 @@ export namespace AutoMovieSolidBody {
       index.set(v, points.length - 1);
       return points.length - 1;
     };
+    /** Copy one boundary record while retaining the one shared point identity across either role. */
+    const cycle: (
+      c: AutoMovieSolidMesh.ILoop,
+    ) => IPublished["faces"][number]["cycles"][number] = (
+      c: AutoMovieSolidMesh.ILoop,
+    ): IPublished["faces"][number]["cycles"][number] => ({
+      kind: c.kind,
+      points: c.vertices.map(point),
+      chart: c.chart.map((p: [number, number]): [number, number] => [
+        p[0],
+        p[1],
+      ]),
+    });
     return {
       name: body.name,
       points,
-      faces: body.faces.map((f: IFace): IPublished["faces"][number] => ({
-        chain: f.surface.name,
-        cycles: f.cycles.map(
-          (
-            c: AutoMovieSolidCycle.ICycle,
-          ): IPublished["faces"][number]["cycles"][number] => ({
-            kind: c.kind,
-            points: c.vertices.map(point),
-            chart: c.chart.map((p: [number, number]): [number, number] => [
-              p[0],
-              p[1],
-            ]),
-          }),
-        ),
-        ...(f.inverted === true ? { inverted: true } : {}),
-      })),
+      faces: body.faces.map((f: IFace): IPublished["faces"][number] => {
+        const domains: IPublished["faces"][number]["cycles"] | undefined =
+          f.meshLoops?.map(cycle);
+        const grid: IPublished["faces"][number]["grid"] =
+          domains === undefined
+            ? undefined
+            : {
+                stations: [f.stations[0]!, f.stations[f.stations.length - 1]!],
+                phases: [f.phases[0]!, f.phases[f.phases.length - 1]!],
+              };
+        return {
+          chain: f.surface.name,
+          cycles: f.cycles.map(cycle),
+          ...(domains === undefined
+            ? {}
+            : { domainLoops: domains, grid: grid! }),
+          ...(f.inverted === true ? { inverted: true } : {}),
+        };
+      }),
     };
   }
 
