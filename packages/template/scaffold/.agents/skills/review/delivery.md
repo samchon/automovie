@@ -10,15 +10,15 @@ Check the required [passes and handoff](../story/workflow.md#completion), and lo
 
 Watch the whole assembled artifact as an audience that has not read its plans, and lock that response before opening the screenplay or code, covering the opening, ending, middle and every join. A whole-video hint contains the programmed main scenes and the complete timeline, and carries staging, identity, camera, action and timing at its adopted representation; stick figures and coarse meshes can do that. Inspect contacts, support, facing, reactions, occlusion and continuity through the motion. Every screenplay beat reaches the picture through the scene that cites it; a function name or citation proves neither invocation nor visibility.
 
-### Measure and compare {#measure-and-compare}
-
-Measure every target the research and screenplay set for what a viewer sees and hears on the evaluated displayed bodies and camera, sampled across the whole film, and on the decoded delivery audio: distance by phase, posture, footwork travel, action speed and rate, idle share, framing of the acting bodies, dialogue audibility over the bed and overlapping cue density. Report them from the page or render acceptance report. A target met only by the resolved schedule is not met.
-
-Before any delivery claim, lay a contact sheet of the whole film beside the previous delivery at the same times, as review tools compare versions side by side ([Flow Production Tracking](https://help.autodesk.com/cloudhelp/ENU/SG-Tutorials/files/SG_Tutorials_tu_collaborative_review_html.html)), and compare the measures. A regression in any of them blocks delivery until it is repaired or the owner accepts it.
-
 Check control channels against the [conditioning handoff](../production/conditioning.md) at matched frames, and a selected generator's actual accepted inputs and outputs under [generation](../production/generation.md). A finished direct 3D or generated film is judged by its own picture and sound for preserved action, identity, continuity and audience effect, not by its conditioning.
 
-Record the checklist and its observations in `docs/acceptance/<film>.md`: every scene and beat seen, on-model entities, contacts, presences, camera, sound and continuity, so a later revision is accepted against the same list. Take runtime from performed and measured timing, never page or word count, and review sound with picture under [audio listening](../audio/acquisition.md); a changed voice take can change reactions, captions and shot lengths. Measure the delivered file's profile and synchronization through actual playback in the intended consumer, as [finishing](../production/finishing.md) records them; an encoder exit or a matching nominal duration is not playback.
+Record the checklist, its observations and the [measures](#measure-and-compare) in `docs/acceptance/<film>.md`: every scene and beat seen, on-model entities, contacts, presences, camera, sound and continuity, so a later revision is accepted against the same list. Take runtime from performed and measured timing, never page or word count, and review sound with picture under [audio listening](../audio/acquisition.md); a changed voice take can change reactions, captions and shot lengths. Measure the delivered file's profile and synchronization through actual playback in the intended consumer, as [finishing](../production/finishing.md) records them; an encoder exit or a matching nominal duration is not playback.
+
+## Measure and compare {#measure-and-compare}
+
+Measure the research's targets for what a viewer sees and hears where the viewer meets them: on the displayed bodies and camera at frames sampled across the whole film, and on the decoded delivery audio. The resolved schedule only plans them.
+
+Every delivery claim after the first follows a side-by-side comparison with the previous delivery, as review tools compare versions ([Flow Production Tracking](https://help.autodesk.com/cloudhelp/ENU/SG-Tutorials/files/SG_Tutorials_tu_collaborative_review_html.html)): a contact sheet of the whole film at matched times, and the measures beside it. A regression holds delivery until it is repaired or the owner accepts it.
 
 ## Assets
 

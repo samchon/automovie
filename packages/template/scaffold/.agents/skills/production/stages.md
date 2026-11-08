@@ -18,4 +18,4 @@ Caches are derived state: never commit one or cite it as the source of truth. Le
 
 ## Iterate on the affected interval
 
-Inspect a change over its affected interval: play the changed scenes' interval and capture targeted stills of it. Render the whole film only for delivery, where the frame cache recaptures only changed frames. Interval inspection never replaces the whole-film measures and comparison of [delivery review](../review/delivery.md#measure-and-compare), which every delivery claim needs.
+Inspect a change over its affected interval: play the changed scenes' interval and capture targeted stills of it. Render the whole film for delivery, where the frame cache recaptures only changed frames, after the whole-film [measures and comparison](../review/delivery.md#measure-and-compare).
