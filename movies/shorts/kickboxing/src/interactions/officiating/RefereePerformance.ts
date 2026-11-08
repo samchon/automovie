@@ -1,12 +1,13 @@
 import {
-  resolveAutoMovieZone,
   type IAutoMovieSchedule,
+  resolveAutoMovieZone,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { RefereeBody } from "../../entities/cast/referee/RefereeBody";
 import type { IBoutPosture } from "../../laws/kickboxing/IBoutPosture";
 import { KickboxingTiming } from "../../laws/kickboxing/KickboxingTiming";
+import { KneeSupport } from "../../laws/kickboxing/KneeSupport";
 import { StanceShape } from "../../laws/kickboxing/StanceShape";
 import { StepPattern } from "../../laws/kickboxing/StepPattern";
 import { KnockdownCount } from "../../laws/officiating/KnockdownCount";
@@ -93,6 +94,19 @@ export namespace RefereePerformance {
       if (action.words !== undefined && share < SPEECH_SHARE)
         jaw = SPEAKING_JAW * Math.sin(Math.PI * (share / SPEECH_SHARE));
     }
+    // Standing or walking, at least one supporting knee keeps its least bend.
+    posture = {
+      ...posture,
+      drop: Math.max(
+        posture.drop,
+        KneeSupport.drop(
+          measure,
+          KneeSupport.legs(measure, rest(feet, origin, facing), posture.shift),
+          KneeSupport.UPRIGHT,
+          "one",
+        ),
+      ),
+    };
     const placed = body.place({ ...posture, jaw }, { origin, facing, feet });
     return { ...placed, jaw };
 

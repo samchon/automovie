@@ -1,4 +1,4 @@
-import { Vector3, type IAutoMovieSchedule } from "@automovie/engine";
+import { type IAutoMovieSchedule, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { Fighter } from "../../entities/cast/fighter/Fighter";
@@ -8,6 +8,7 @@ import type { IBoutPosture } from "../../laws/kickboxing/IBoutPosture";
 import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
 import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
 import { KickboxingTiming } from "../../laws/kickboxing/KickboxingTiming";
+import { KneeSupport } from "../../laws/kickboxing/KneeSupport";
 import { KnockdownShape } from "../../laws/kickboxing/KnockdownShape";
 import type { RingFootwork } from "../../laws/kickboxing/RingFootwork";
 import { StanceShape } from "../../laws/kickboxing/StanceShape";
@@ -234,6 +235,29 @@ export namespace FighterPosture {
     // Between busy actions the guard keeps its rhythm.
     if (seconds < after && !corner)
       posture = GuardRhythm.apply(posture, measure, schedule, subject, seconds);
+    // Standing, the supporting knees keep their least bend: both in the
+    // fighting stance, at least one upright in the corner and the celebration.
+    // A kick's or check's raised leg carries no weight and the fall is exempt.
+    if (
+      seconds < after &&
+      posture.feet.left === null &&
+      posture.feet.right === null
+    ) {
+      const upright: boolean =
+        corner || movedTo(schedule, subject, seconds, ["celebrate"]);
+      posture = {
+        ...posture,
+        drop: Math.max(
+          posture.drop,
+          KneeSupport.drop(
+            measure,
+            KneeSupport.legs(measure, rest, posture.shift),
+            upright ? KneeSupport.UPRIGHT : KneeSupport.STANCE,
+            upright ? "one" : "both",
+          ),
+        ),
+      };
+    }
     return { posture, frame: { origin, facing, feet } };
   }
 

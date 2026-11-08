@@ -1,18 +1,10 @@
-import {
-  type IAutoMovieSchedule,
-  Quaternion,
-  Vector3,
-} from "@automovie/engine";
+import type { IAutoMovieSchedule } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { CoverageLaw } from "../../laws/cinematography/CoverageLaw";
 import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
-import { KickboxingRange } from "../../laws/kickboxing/KickboxingRange";
 import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
-import { CameraTrack } from "../cinematography/CameraTrack";
-import type { BoutPerformance } from "./BoutPerformance";
-import type { IRingCast } from "./IRingCast";
-import { PictureTargets } from "./PictureTargets";
+import { KneeSupport } from "../../laws/kickboxing/KneeSupport";
+import { PictureGeometry } from "./PictureGeometry";
 
 /**
  * The research's targets measured where the viewer meets them: on the
@@ -25,6 +17,9 @@ import { PictureTargets } from "./PictureTargets";
  * PictureMeasures.measure(samples, { close: 0.6, fieldOfView, aspect });
  * ```
  *
+ * {@link DisplayedPicture} reads the mounted film into these samples.
+ *
+ * @evidence docs/research/kickboxing/techniques.md#standing-knees The most bent supporting knee of every standing frame.
  * @evidence docs/research/kickboxing/ring-generalship.md#targets Distance by phase, close range, footwork travel and lateral share, idle share.
  * @evidence docs/research/kickboxing/ring-generalship.md#stance Stance knee flexion on the displayed legs.
  * @evidence docs/research/kickboxing/techniques.md#punch-timing Peak fist and foot speeds measured on the displayed limbs.
@@ -59,14 +54,23 @@ export namespace PictureMeasures {
     ankle: IAutoMovieVector3;
   }
 
-  /** A displayed fighter at one instant. */
+  /** A displayed figure at one instant. */
   export interface IBody {
     /** Each leg. */
     legs: Record<"left" | "right", ILeg>;
 
     /** Each wrist. */
     hands: Record<"left" | "right", IAutoMovieVector3>;
+
+    /** Ankle height of a planted foot, metres. */
+    planted: number;
+
+    /** Whether he is falling or down, carrying no weight on his feet. */
+    fallen: boolean;
   }
+
+  /** Lift above the planted ankle height under which a displayed foot carries weight, metres: a centimetre of fitting tolerance. */
+  export const SUPPORT_LIFT: number = 0.01;
 
   /** One sampled instant. */
   export interface ISample {
@@ -78,6 +82,9 @@ export namespace PictureMeasures {
 
     /** Both fighters' displayed bodies. */
     bodies: [IBody, IBody];
+
+    /** Every displayed figure whose standing knees are measured: the fighters and the referee. */
+    figures: readonly IBody[];
 
     /** The delivered lens. */
     lens: { position: IAutoMovieVector3; target: IAutoMovieVector3 };
@@ -180,9 +187,33 @@ export namespace PictureMeasures {
     const knees: number[] = standing
       .filter((s) => s.phase === "outside")
       .flatMap((s) =>
-        s.bodies.flatMap((b) => [flexion(b.legs.left), flexion(b.legs.right)]),
+        s.bodies.flatMap((b) => [
+          PictureGeometry.flexion(b.legs.left),
+          PictureGeometry.flexion(b.legs.right),
+        ]),
       );
-    if (knees.length > 0) result["knee-flexion"] = mean(knees);
+    if (knees.length > 0) result["knee-flexion"] = PictureGeometry.mean(knees);
+    // Every standing frame of every figure: its most bent supporting knee.
+    const bends: number[] = samples.flatMap((s) =>
+      s.figures.flatMap((b) => {
+        if (b.fallen) return [];
+        const support = (["left", "right"] as const).filter(
+          (side) => b.legs[side].ankle.y <= b.planted + SUPPORT_LIFT,
+        );
+        return support.length === 0
+          ? []
+          : [
+              Math.max(
+                ...support.map((side) => PictureGeometry.flexion(b.legs[side])),
+              ),
+            ];
+      }),
+    );
+    if (bends.length > 0) {
+      result["standing-knee-min"] = Math.min(...bends);
+      result["straight-knee-share"] =
+        bends.filter((k) => k < KneeSupport.UPRIGHT).length / bends.length;
+    }
     // Foot travel, its lateral share and idleness between consecutive standing instants.
     let travel: number = 0;
     let lateral: number = 0;
@@ -211,7 +242,11 @@ export namespace PictureMeasures {
           fastest = Math.max(
             fastest,
             Math.hypot(dx, b.y - a.y, dz) / dt,
-            speed(p.bodies[f].hands[side], q.bodies[f].hands[side], dt),
+            PictureGeometry.speed(
+              p.bodies[f].hands[side],
+              q.bodies[f].hands[side],
+              dt,
+            ),
           );
         }
         pairs++;
@@ -228,7 +263,7 @@ export namespace PictureMeasures {
       samples.filter((s) =>
         s.bodies.every((b) =>
           (["left", "right"] as const).every((side) =>
-            inside(s.lens, b.legs[side].ankle, limits),
+            PictureGeometry.inside(s.lens, b.legs[side].ankle, limits),
           ),
         ),
       ).length / Math.max(1, samples.length);
@@ -255,8 +290,8 @@ export namespace PictureMeasures {
     /** The measuring limits. */
     limits: ILimits;
 
-    /** Both displayed fighters, in cast order, and the delivered lens at an instant. */
-    read(seconds: number): Pick<ISample, "bodies" | "lens">;
+    /** Both displayed fighters, in cast order, every displayed figure and the delivered lens at an instant. */
+    read(seconds: number): Pick<ISample, "bodies" | "figures" | "lens">;
 
     /** The displayed striking point of a fighter's technique at an instant: the glove's knuckles for a punch, the midfoot for a kick. */
     striking(
@@ -306,159 +341,14 @@ export namespace PictureMeasures {
         t += 1 / SPEED_RATE
       )
         path.push({ seconds: t, point: film.striking(entry.subject, spec, t) });
-      peaks[spec.limb === "arm" ? "punch" : "kick"].push(peak(path));
+      peaks[spec.limb === "arm" ? "punch" : "kick"].push(
+        PictureGeometry.peak(path),
+      );
     }
     for (const [kind, list] of Object.entries(peaks))
-      if (list.length > 0) result[`${kind}-peak-speed`] = median(list);
+      if (list.length > 0)
+        result[`${kind}-peak-speed`] = PictureGeometry.median(list);
     return result;
-  }
-
-  /**
-   * The picture measures of the mounted film, read from the displayed
-   * fighters' segments and the delivered camera track, each ranged measure
-   * with its research range beside it ({@link PictureTargets.annotate}).
-   *
-   * @param cast The cast.
-   * @param schedule The schedule.
-   * @param performance The displayed bodies.
-   * @param camera The delivered camera track.
-   * @param duration Running time, seconds.
-   * @returns Named measures.
-   */
-  export function displayed(
-    cast: IRingCast,
-    schedule: IAutoMovieSchedule,
-    performance: BoutPerformance,
-    camera: CameraTrack.ISample[],
-    duration: number,
-  ): Record<string, number> {
-    const fall = schedule.entries.find((e) => {
-      if (e.intent.capability !== "phase") return false;
-      const action = KickboxingAction.read(e.intent);
-      return action.kind === "phase" && action.phase === "fall";
-    });
-    const joint = (
-      subject: string,
-      bone: string,
-      seconds: number,
-    ): IAutoMovieVector3 =>
-      performance.at(seconds)[subject]!.segments[bone]!.position;
-    const leg = (subject: string, side: "left" | "right", seconds: number) => ({
-      hip: joint(subject, `${side}UpperLeg`, seconds),
-      knee: joint(subject, `${side}LowerLeg`, seconds),
-      ankle: joint(subject, `${side}Foot`, seconds),
-    });
-    const body = (subject: string, seconds: number): IBody => ({
-      legs: {
-        left: leg(subject, "left", seconds),
-        right: leg(subject, "right", seconds),
-      },
-      hands: {
-        left: joint(subject, "leftHand", seconds),
-        right: joint(subject, "rightHand", seconds),
-      },
-    });
-    const measured: Record<string, number> = film({
-      schedule,
-      duration,
-      finish: {
-        start: CameraTrack.strike(schedule)?.start ?? duration,
-        fall: fall?.start ?? duration,
-      },
-      limits: {
-        close: KickboxingRange.clinch(cast.a.body.measure, cast.b.body.measure),
-        fieldOfView: CoverageLaw.FIELD_OF_VIEW,
-        aspect: CoverageLaw.ASPECT,
-      },
-      read: (seconds: number) => {
-        const shot = CameraTrack.at(camera, seconds);
-        return {
-          bodies: [body(cast.a.id, seconds), body(cast.b.id, seconds)],
-          lens: { position: shot.position, target: shot.target },
-        };
-      },
-      striking: (subject, spec, seconds) => {
-        if (spec.limb !== "arm")
-          return joint(subject, `${spec.side}Midfoot`, seconds);
-        const fighter = subject === cast.a.id ? cast.a : cast.b;
-        const fist = fighter.body.weapons[`knuckles-${spec.side}`]!;
-        const s = performance.at(seconds)[subject]!.segments[fist.bone]!;
-        return Vector3.add(
-          s.position,
-          Quaternion.rotateVector(s.rotation, fist.localPoint),
-        );
-      },
-    });
-    return PictureTargets.annotate(
-      measured,
-      PictureTargets.of(cast.a.body.measure, cast.b.body.measure),
-    );
-  }
-
-  /**
-   * The peak speed of a point along its sampled path.
-   *
-   * @param path Instants and the point's world position, in time order.
-   * @returns Metres per second.
-   */
-  export function peak(
-    path: readonly { seconds: number; point: IAutoMovieVector3 }[],
-  ): number {
-    let most: number = 0;
-    for (let k: number = 1; k < path.length; k++)
-      most = Math.max(
-        most,
-        speed(
-          path[k - 1]!.point,
-          path[k]!.point,
-          path[k]!.seconds - path[k - 1]!.seconds,
-        ),
-      );
-    return most;
-  }
-
-  /**
-   * Knee flexion of a displayed leg: the angle between thigh and shank.
-   *
-   * @param leg The leg's joints.
-   * @returns Degrees; 0 for a straight leg.
-   */
-  export function flexion(leg: ILeg): number {
-    const t: IAutoMovieVector3 = Vector3.subtract(leg.knee, leg.hip);
-    const s: IAutoMovieVector3 = Vector3.subtract(leg.ankle, leg.knee);
-    const c: number =
-      Vector3.dot(t, s) / (Vector3.length(t) * Vector3.length(s));
-    return (Math.acos(Math.max(-1, Math.min(1, c))) * 180) / Math.PI;
-  }
-
-  /**
-   * Whether a world point projects inside the delivered frame.
-   *
-   * @param lens The lens.
-   * @param point The point.
-   * @param limits The field of view and aspect.
-   * @returns True inside the frame.
-   */
-  export function inside(
-    lens: ISample["lens"],
-    point: IAutoMovieVector3,
-    limits: Pick<ILimits, "fieldOfView" | "aspect">,
-  ): boolean {
-    const forward: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(lens.target, lens.position),
-    );
-    const right: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(forward, { x: 0, y: 1, z: 0 }),
-    );
-    const up: IAutoMovieVector3 = Vector3.cross(right, forward);
-    const v: IAutoMovieVector3 = Vector3.subtract(point, lens.position);
-    const depth: number = Vector3.dot(v, forward);
-    if (depth <= 0) return false;
-    const tan: number = Math.tan(limits.fieldOfView / 2);
-    return (
-      Math.abs(Vector3.dot(v, up) / depth) <= tan &&
-      Math.abs(Vector3.dot(v, right) / depth) <= tan * limits.aspect
-    );
   }
 
   function distance(s: ISample): number {
@@ -473,26 +363,6 @@ export namespace PictureMeasures {
       x: (b.legs.left.ankle.x + b.legs.right.ankle.x) / 2,
       z: (b.legs.left.ankle.z + b.legs.right.ankle.z) / 2,
     };
-  }
-
-  function speed(
-    a: IAutoMovieVector3,
-    b: IAutoMovieVector3,
-    dt: number,
-  ): number {
-    return dt > 0 ? Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z) / dt : 0;
-  }
-
-  function median(values: readonly number[]): number {
-    const sorted: number[] = [...values].sort((x, y) => x - y);
-    const mid: number = Math.floor(sorted.length / 2);
-    return sorted.length % 2 === 1
-      ? sorted[mid]!
-      : (sorted[mid - 1]! + sorted[mid]!) / 2;
-  }
-
-  function mean(values: readonly number[]): number {
-    return values.reduce((sum, v) => sum + v, 0) / values.length;
   }
 
   function sub(a: { x: number; z: number }, b: { x: number; z: number }) {

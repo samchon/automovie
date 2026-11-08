@@ -33,7 +33,7 @@ import { CameraTrack } from "../../../interactions/cinematography/CameraTrack";
 import { FinishSight } from "../../../interactions/cinematography/FinishSight";
 import { BoutLaws } from "../../../interactions/kickboxing/BoutLaws";
 import { BoutPerformance } from "../../../interactions/kickboxing/BoutPerformance";
-import { PictureMeasures } from "../../../interactions/kickboxing/PictureMeasures";
+import { DisplayedPicture } from "../../../interactions/kickboxing/DisplayedPicture";
 import { ContactReceipts } from "../../../interactions/kickboxing/ContactReceipts";
 import type { IRingCast } from "../../../interactions/kickboxing/IRingCast";
 import { RefereePerformance } from "../../../interactions/officiating/RefereePerformance";
@@ -157,10 +157,11 @@ export class RingStage {
       );
     }
     progress?.("Measuring the picture");
-    const picture: Record<string, number> = PictureMeasures.displayed(
+    const picture: Record<string, number> = DisplayedPicture.measures(
       cast,
       schedule,
       performance,
+      referee,
       camera,
       duration,
     );

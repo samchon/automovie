@@ -13,7 +13,7 @@ import { SightLaw } from "../../laws/cinematography/SightLaw";
  *
  * ```ts
  * for (const view of FinishHold.views(scene, lens, hold, overhead, step)) ...;
- * FinishHold.bearing({ open, current, frames: (b) => FinishHold.frames(lensAt(b), spheres, scene) });
+ * FinishHold.bearing({ open, current, margin: (b) => FinishHold.margin(lensAt(b), spheres, scene) });
  * ```
  *
  * @evidence docs/research/cinematography/fight-coverage.md#law Side-on first; the least turn or rise that clears the blow, no higher than an operator holds the camera; the open side held through the fall and the count.
@@ -101,53 +101,66 @@ export namespace FinishHold {
   }
 
   /**
-   * Whether a lens frames every man whole: the top and bottom of each one's
-   * bounding sphere inside the delivered frame.
+   * How well a lens frames every man whole: the least normalized margin of
+   * the top and bottom of each one's bounding sphere inside the delivered
+   * frame, and of each man's distance beyond the nearest the lens can hold
+   * him whole, his sphere's radius over the sine of the half field of view.
    *
    * @param lens The lens.
    * @param spheres Each man's bounding sphere.
    * @param scene The finish scene the frame test reads.
-   * @returns True when all are in frame.
+   * @returns Positive when every man is in frame and far enough; negative otherwise.
    */
-  export function frames(
+  export function margin(
     lens: Pick<ILens, "position" | "target">,
     spheres: readonly { center: IAutoMovieVector3; radius: number }[],
     scene: SightLaw.IScene,
-  ): boolean {
-    return (
-      SightLaw.framed(
-        lens.position,
-        lens.target,
-        {
-          ...scene,
-          watched: spheres.flatMap((s) =>
-            [-1, 1].map((side) => ({
-              point: { ...s.center, y: s.center.y + side * s.radius },
-              seconds: scene.seconds,
-              carriers: [],
-            })),
-          ),
-        },
-        CoverageLaw.FIELD_OF_VIEW,
-        CoverageLaw.ASPECT,
-      ) > 0
+  ): number {
+    const framed: number = SightLaw.framed(
+      lens.position,
+      lens.target,
+      {
+        ...scene,
+        watched: spheres.flatMap((s) =>
+          [-1, 1].map((side) => ({
+            point: { ...s.center, y: s.center.y + side * s.radius },
+            seconds: scene.seconds,
+            carriers: [],
+          })),
+        ),
+      },
+      CoverageLaw.FIELD_OF_VIEW,
+      CoverageLaw.ASPECT,
     );
+    const near: number = Math.min(
+      ...spheres.map((s) => {
+        const least: number =
+          s.radius / Math.sin(CoverageLaw.FIELD_OF_VIEW / 2);
+        const d: number = Math.hypot(
+          s.center.x - lens.position.x,
+          s.center.y - lens.position.y,
+          s.center.z - lens.position.z,
+        );
+        return (d - least) / least;
+      }),
+    );
+    return Math.min(framed, near);
   }
 
   /**
    * The wanted bearing at one instant after the blow.
    *
-   * @param input The open side's bearing, the current bearing and whether a bearing's lens frames every man.
-   * @returns The current bearing while it frames them inside the open half; else the framing bearing of the open half nearest it; else the open bearing.
+   * @param input The open side's bearing, the current bearing and a bearing's framing margin.
+   * @returns The current bearing while it frames every man inside the open half; else the framing bearing of the open half nearest it; else the open half's best-framing bearing.
    */
   export function bearing(input: {
     open: number;
     current: number;
-    frames: (bearing: number) => boolean;
+    margin: (bearing: number) => number;
   }): number {
     if (
       turn(input.open, input.current) <= Math.PI / 2 + 1e-9 &&
-      input.frames(input.current)
+      input.margin(input.current) > 0
     )
       return input.current;
     const candidates: number[] = [];
@@ -157,7 +170,14 @@ export namespace FinishHold {
       (p: number, q: number): number =>
         turn(input.current, p) - turn(input.current, q),
     );
-    return candidates.find(input.frames) ?? input.open;
+    let best: { bearing: number; margin: number } | undefined;
+    for (const b of candidates) {
+      const m: number = input.margin(b);
+      if (m > 0) return b;
+      if (best === undefined || m > best.margin)
+        best = { bearing: b, margin: m };
+    }
+    return best!.bearing;
   }
 
   /** Unsigned turn between two bearings, radians. */

@@ -1,6 +1,7 @@
 import type { IFighterMeasure } from "../../laws/kickboxing/IFighterMeasure";
 import { KickboxingRange } from "../../laws/kickboxing/KickboxingRange";
 import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
+import { KneeSupport } from "../../laws/kickboxing/KneeSupport";
 import { StanceShape } from "../../laws/kickboxing/StanceShape";
 
 /**
@@ -20,6 +21,7 @@ import { StanceShape } from "../../laws/kickboxing/StanceShape";
  * @evidence docs/research/kickboxing/techniques.md#reach Outside range a step beyond the teep; no fixed range in metres.
  * @evidence docs/research/cinematography/fight-coverage.md#targets Both fighters' feet in frame for at least 80% of the film.
  * @evidence docs/research/kickboxing/techniques.md#kick-timing Peak metatarsal speed of the measured Muay Thai kicks.
+ * @evidence docs/research/kickboxing/techniques.md#standing-knees No standing frame with its supporting knees straight.
  */
 export namespace PictureTargets {
   /** An accepted range of one measure. */
@@ -105,6 +107,16 @@ export namespace PictureTargets {
         StanceShape.KNEE_FLEXION_RANGE[0],
         StanceShape.KNEE_FLEXION_RANGE[1],
         `${GENERALSHIP}#stance`,
+      ),
+      "standing-knee-min": range(
+        KneeSupport.UPRIGHT,
+        Infinity,
+        "docs/research/kickboxing/techniques.md#standing-knees",
+      ),
+      "straight-knee-share": range(
+        0,
+        0,
+        "docs/research/kickboxing/techniques.md#standing-knees",
       ),
       "foot-travel-per-minute": range(
         FOOT_TRAVEL_MIN,

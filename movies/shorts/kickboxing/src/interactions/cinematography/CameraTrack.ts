@@ -147,8 +147,8 @@ export namespace CameraTrack {
       bearing: number,
       elevation: number,
       framed: Record<string, { center: IAutoMovieVector3; radius: number }>,
-    ): boolean =>
-      FinishHold.frames(
+    ): number =>
+      FinishHold.margin(
         place(
           cast,
           CoverageLaw.goal("finish", everyone, bearing, elevation),
@@ -216,7 +216,7 @@ export namespace CameraTrack {
                   bearing: FinishHold.bearing({
                     open: view.bearing,
                     current: s.bearing,
-                    frames: (bearing: number): boolean =>
+                    margin: (bearing: number): number =>
                       holds(bearing, s.elevation, framed),
                   }),
                   elevation: view.elevation,
