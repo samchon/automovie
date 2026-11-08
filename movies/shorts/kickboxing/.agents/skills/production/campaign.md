@@ -10,7 +10,7 @@ Read the current instructions, bodies, source, outputs and run record before ass
 
 Dispatch each task through [story](../story/SKILL.md), [motion](../motion/SKILL.md), [audio](../audio/SKILL.md), [development](../development/SKILL.md) or [review](../review/SKILL.md). One writer owns a changing body, reviewers get the actual inputs in their reading order, and additional agents are used only when authorized, with disjoint write scopes; without independence, self-review is recorded as such.
 
-Inspect the actual process, artifacts and errors before calling a quiet run stalled, and resume a stopped run from its last valid output, keeping its failure. A changed input starts a new result; a restart inherits no verdict. A blocking capability is repaired at its package owner and reconnected to its consumer, or reported with the exact missing behavior while independent work continues. File counts, a running agent, passing validation or a preview never establish an unwatched whole film.
+Inspect the actual process, artifacts and errors before calling a quiet run stalled, and resume a stopped run from its last valid output and [saved stages](stages.md), keeping its failure. A changed input starts a new result; a restart inherits no verdict. A blocking capability is repaired at its package owner and reconnected to its consumer, or reported with the exact missing behavior while independent work continues. File counts, a running agent, passing validation or a preview never establish an unwatched whole film.
 
 ## Observe
 

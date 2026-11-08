@@ -10,7 +10,7 @@ Give the edit one timeline owner. Choose shots, order, in/out points, transition
 
 ## Render
 
-Record the delivery profile (dimensions, frame rate, container and codec, color, audio and caption tracks, and any dialogue, music and effects stems or music-and-effects mix it requires) in [project context](profile.md). Before scaling a new host, run one small path through capture or take ingestion, a join, sound and the encoded file, and play it in the intended consumer. Then render the complete scope and check its profile, extent, first and last material and both sides of every edit.
+Record the delivery profile (dimensions, frame rate, container and codec, color, audio and caption tracks, loudness target, and any dialogue, music and effects stems or music-and-effects mix it requires) in [project context](profile.md). Before scaling a new host, run one small path through capture or take ingestion, a join, sound and the encoded file, and play it in the intended consumer. Then render the complete scope for delivery, reusing unchanged [stages](stages.md), and check its profile, extent, first and last material and both sides of every edit.
 
 For imported or generated media, map decoded timestamps and time bases into the edit; a nominal frame rate cannot place an action, especially at variable rates. Trimming, retiming and rebasing are different operations, and a shortest-stream option or silent padding must not hide lost material. [FFmpeg's filters](https://ffmpeg.org/ffmpeg-filters.html) document `trim`, `setpts`, `fps` and `atempo`.
 

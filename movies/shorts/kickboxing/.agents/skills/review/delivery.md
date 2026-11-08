@@ -12,7 +12,13 @@ Watch the whole assembled artifact as an audience that has not read its plans, a
 
 Check control channels against the [conditioning handoff](../production/conditioning.md) at matched frames, and a selected generator's actual accepted inputs and outputs under [generation](../production/generation.md). A finished direct 3D or generated film is judged by its own picture and sound for preserved action, identity, continuity and audience effect, not by its conditioning.
 
-Record the checklist and its observations in `docs/acceptance/<film>.md`: every scene and beat seen, on-model entities, contacts, presences, camera, sound and continuity, so a later revision is accepted against the same list. Take runtime from performed and measured timing, never page or word count, and review sound with picture under [audio listening](../audio/acquisition.md); a changed voice take can change reactions, captions and shot lengths. Measure the delivered file's profile and synchronization through actual playback in the intended consumer, as [finishing](../production/finishing.md) records them; an encoder exit or a matching nominal duration is not playback.
+Record the checklist, its observations and the [measures](#measure-and-compare) in `docs/acceptance/<film>.md`: every scene and beat seen, on-model entities, contacts, presences, camera, sound and continuity, so a later revision is accepted against the same list. Take runtime from performed and measured timing, never page or word count, and review sound with picture under [audio listening](../audio/acquisition.md); a changed voice take can change reactions, captions and shot lengths. Measure the delivered file's profile and synchronization through actual playback in the intended consumer, as [finishing](../production/finishing.md) records them; an encoder exit or a matching nominal duration is not playback.
+
+## Measure and compare {#measure-and-compare}
+
+Measure the research's targets for what a viewer sees and hears where the viewer meets them: on the displayed bodies and camera at frames sampled across the whole film, and on the decoded delivery audio. The resolved schedule only plans them.
+
+Every delivery claim after the first follows a side-by-side comparison with the previous delivery, as review tools compare versions ([Flow Production Tracking](https://help.autodesk.com/cloudhelp/ENU/SG-Tutorials/files/SG_Tutorials_tu_collaborative_review_html.html)): a contact sheet of the whole film at matched times, and the measures beside it. A regression holds delivery until it is repaired or the owner accepts it.
 
 ## Assets
 
