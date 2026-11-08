@@ -33,6 +33,7 @@ import { CameraTrack } from "../../../interactions/cinematography/CameraTrack";
 import { FinishSight } from "../../../interactions/cinematography/FinishSight";
 import { BoutLaws } from "../../../interactions/kickboxing/BoutLaws";
 import { BoutPerformance } from "../../../interactions/kickboxing/BoutPerformance";
+import { PictureMeasures } from "../../../interactions/kickboxing/PictureMeasures";
 import { ContactReceipts } from "../../../interactions/kickboxing/ContactReceipts";
 import type { IRingCast } from "../../../interactions/kickboxing/IRingCast";
 import { RefereePerformance } from "../../../interactions/officiating/RefereePerformance";
@@ -155,10 +156,19 @@ export class RingStage {
         Quaternion.rotateVector(s.rotation, region.localPoint),
       );
     }
+    progress?.("Measuring the picture");
+    const picture: Record<string, number> = PictureMeasures.displayed(
+      cast,
+      schedule,
+      performance,
+      camera,
+      duration,
+    );
     const cues: SoundCues.ICue[] = SoundCues.of(
       seed,
       schedule,
       measured.receipts,
+      duration,
     );
     const scene: THREE.Scene = new THREE.Scene();
     scene.background = new THREE.Color(RingStage.BACKGROUND);
@@ -259,10 +269,15 @@ export class RingStage {
             ]
           : []),
       ],
-      measures:
-        clearance === undefined || framing === undefined
+      measures: {
+        ...picture,
+        "foreground-overlap": SoundCues.overlap(
+          cues.filter((c) => c.asset !== SoundCues.BED),
+        ),
+        ...(clearance === undefined || framing === undefined
           ? {}
-          : { "finish-clearance": clearance, "finish-in-frame": framing },
+          : { "finish-clearance": clearance, "finish-in-frame": framing }),
+      },
       receipts: measured.receipts,
       cues,
       seek,

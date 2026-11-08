@@ -34,7 +34,7 @@ export function test_cue_alignment(): void {
       contact: true,
     },
   ];
-  const cues = SoundCues.of(seed, schedule, receipts);
+  const cues = SoundCues.of(seed, schedule, receipts, 180).filter((c) => c.asset !== SoundCues.BED);
   const events: Record<string, number[]> = {};
   const add = (kind: string, seconds: number): void => {
     (events[kind] ??= []).push(seconds);

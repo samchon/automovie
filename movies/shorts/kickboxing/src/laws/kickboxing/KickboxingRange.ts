@@ -1,5 +1,6 @@
 import type { IFighterMeasure } from "./IFighterMeasure";
 import { KickboxingTechnique } from "./KickboxingTechnique";
+import { StanceShape } from "./StanceShape";
 import { StrikeShape } from "./StrikeShape";
 import { TurnoverShape } from "./TurnoverShape";
 
@@ -7,13 +8,15 @@ import { TurnoverShape } from "./TurnoverShape";
  * The stance-origin distance at which a technique reaches its region: the
  * weapon's reach from its root joint in the attacker's frame plus the
  * receiver region's depth toward the attacker, both measured on the bodies.
- * A combination keeps the shortest range its strikes need.
+ * Fighters stand off at outside range; a combination is a range cycle in
+ * which each strike's entry brings the body to that strike's own range,
+ * and the attacker exits to outside range after the last.
  *
  * ```ts
- * KickboxingRange.combination(attacker, receiver, ["jab", "cross", "low-kick"]);
+ * KickboxingRange.cycle(attacker, receiver, ["jab", "cross", "low-kick"]);
  * ```
  *
- * @evidence docs/research/kickboxing/techniques.md#reach Range is measured on the two bodies; a combination keeps the shortest range its strikes need.
+ * @evidence docs/research/kickboxing/techniques.md#reach Range is measured on the two bodies; every strike enters to its own range and the attacker exits.
  * @evidence docs/research/kickboxing/techniques.md#surfaces Weapons and regions.
  */
 export namespace KickboxingRange {
@@ -75,20 +78,60 @@ export namespace KickboxingRange {
   }
 
   /**
-   * The range of a combination: the shortest its strikes need.
+   * Outside range, where fighters stand off, circle and feint: one ring step
+   * beyond the longest kick's range, so no strike lands without its entry.
    *
    * @param attacker The attacker's measure.
    * @param receiver The receiver's measure.
-   * @param techniques Its techniques.
    * @returns Stance-origin distance, metres.
-   * @evidence docs/research/kickboxing/techniques.md#reach The shortest range of the combination.
+   * @evidence docs/research/kickboxing/techniques.md#reach Outside range is a step beyond the teep's range.
    */
-  export function combination(
+  export function outside(
+    attacker: IFighterMeasure,
+    receiver: IFighterMeasure,
+  ): number {
+    return of(attacker, receiver, "teep") + StanceShape.step(attacker);
+  }
+
+  /**
+   * Clinch range, under which the pair stands chest to chest: the knee's
+   * range, the shortest of every technique, at which only the clinch knee
+   * lands.
+   *
+   * @param attacker The attacker's measure.
+   * @param receiver The receiver's measure.
+   * @returns Stance-origin distance, metres.
+   * @evidence docs/research/kickboxing/techniques.md#reach Clinch range is the knee's range; only pressing, the clinch and the finish work inside it.
+   */
+  export function clinch(
+    attacker: IFighterMeasure,
+    receiver: IFighterMeasure,
+  ): number {
+    return of(attacker, receiver, "knee");
+  }
+
+  /**
+   * The range cycle of a combination: each strike's own entry closes (or
+   * opens) to that strike's contact range as the combination progresses, a
+   * feint from where its shown technique would land, and after the last
+   * strike the attacker exits back to outside range.
+   *
+   * @param attacker The attacker's measure.
+   * @param receiver The receiver's measure.
+   * @param techniques Its techniques, feints included.
+   * @returns Each strike's contact range and the exit range, metres.
+   * @throws When the combination is empty.
+   * @evidence docs/research/kickboxing/techniques.md#reach Every strike carries its own entry; the attacker exits after the last.
+   */
+  export function cycle(
     attacker: IFighterMeasure,
     receiver: IFighterMeasure,
     techniques: readonly KickboxingTechnique.Name[],
-  ): number {
+  ): { entries: number[]; exit: number } {
     if (techniques.length === 0) throw new Error("A combination has strikes");
-    return Math.min(...techniques.map((t) => of(attacker, receiver, t)));
+    return {
+      entries: techniques.map((t) => of(attacker, receiver, t)),
+      exit: outside(attacker, receiver),
+    };
   }
 }

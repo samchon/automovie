@@ -16,7 +16,7 @@ import { KickboxingTechnique } from "./KickboxingTechnique";
  * @evidence docs/research/kickboxing/techniques.md#punch-timing Jab delivery 0.405 s; alternating-hand interval 1.05 / 3 s; same-hand interval 1.35 / 3 s; recovery one alternating interval.
  * @evidence docs/research/kickboxing/techniques.md#kick-timing Chamber key 0.074 + 0.14 x 1.02 s, impact 0.11 x 1.02 s later, recoil 0.65 s; teep and knee by their stated analogues.
  * @evidence docs/research/kickboxing/exchanges.md#feints A feint's shown part and its return take the shown technique's own time.
- * @evidence docs/research/kickboxing/ring-generalship.md#step Two steps per second between exchanges.
+ * @evidence docs/research/kickboxing/ring-generalship.md#step About three steps per second between exchanges.
  * @evidence contracts/development/common.md#meaningful-documentation States the law, units (seconds) and how combinations chain.
  * @evidence contracts/development/design.md#principled-representation Every constant is a named law with its source; durations are seconds of film time.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The constants the pose and interaction laws also read are exported; `of` serves the schedule resolver.
@@ -47,8 +47,12 @@ export namespace KickboxingTiming {
   /** Impact to the kicking foot's replant, seconds (measured recoil). */
   export const KICK_RECOIL: number = 0.65;
 
-  /** Seconds per step between exchanges: two steps per second (film choice recorded in the study). */
-  export const STEP_PERIOD: number = 0.5;
+  /**
+   * Seconds per step between exchanges: about three steps per second, the
+   * light bouncing cadence of kickboxing footwork inside the 2 to 3.5 steps
+   * per second the study records; a walking cadence of two read as slow.
+   */
+  export const STEP_PERIOD: number = 0.35;
 
   /**
    * Seconds from a strike's launch to its contact or shown peak.

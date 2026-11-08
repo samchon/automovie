@@ -3,9 +3,11 @@ import type { IBoutPosture } from "./IBoutPosture";
 import type { IFighterMeasure } from "./IFighterMeasure";
 
 /**
- * The orthodox fighting stance and guard, scaled from the fighter's own
- * measured body: feet a shoulder width apart along the line on separated
- * hip-width tracks, knees slightly bent, the body turned so the lead
+ * The orthodox kickboxing stance and guard, scaled from the fighter's own
+ * measured body: feet a little more than a shoulder width apart along the
+ * line on separated hip-width tracks, knees clearly flexed and springy so
+ * either leg can lift at once, a light rhythm through the knees and the
+ * pawing lead glove between exchanges, the body turned so the lead
  * shoulder leads, chin tucked and gloves at the cheeks with the elbows over
  * the ribs. Every other shape starts from this posture.
  *
@@ -15,20 +17,68 @@ import type { IFighterMeasure } from "./IFighterMeasure";
  * ```
  *
  * @evidence docs/research/kickboxing/techniques.md#laws Shapes in the performer's own frame.
- * @evidence docs/research/kickboxing/ring-generalship.md#step Step and rope margin from the stance and shoulders.
+ * @evidence docs/research/kickboxing/ring-generalship.md#stance The kickboxing stance as translated ranges.
+ * @evidence docs/research/kickboxing/ring-generalship.md#step Step, entry and rope margin from the stance and shoulders.
  * @evidence docs/body/settings/cast/fighter-a.md#stance The orthodox stance A and B share.
  * @evidence contracts/development/common.md#meaningful-documentation States the stance and what each function returns.
- * @evidence contracts/development/design.md#principled-representation Ratios are named readings of the IBA stance drawings, applied to measured lengths.
+ * @evidence contracts/development/design.md#principled-representation Ratios are named translations of kickboxing stance coaching, applied to measured lengths.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The guard, the feet and the step and margin the footwork law reads.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No fighter is named; both share the law and differ by their measure.
  */
 export namespace StanceShape {
   /**
-   * Knee flexion of the stance, degrees: IBA p.34 shows "slightly bent"
-   * knees; the film reads that as twenty degrees, a stated reading of the
-   * drawing, not a measurement.
+   * Knee flexion of the kickboxing stance, degrees. Kickboxing and Muay Thai
+   * coaching keeps the knees soft and bent so either leg lifts at once to
+   * check or kick; no source measures the angle, so the film translates it
+   * inside {@link KNEE_FLEXION_RANGE} at its lower middle.
    */
-  export const KNEE_FLEXION: number = 20;
+  export const KNEE_FLEXION: number = 32;
+
+  /**
+   * The translated range of stance knee flexion, degrees: above the 20
+   * degrees read from the boxing (IBA) drawing, which shows straight legs on
+   * the figure, and up to the 45 degrees of a deep boxer's crouch (a rear knee
+   * bent to 135 degrees). The picture measure is accepted inside it.
+   */
+  export const KNEE_FLEXION_RANGE: readonly [number, number] = [25, 45];
+
+  /**
+   * Stance length along the line as a multiple of the shoulder width:
+   * kickboxing guides put the feet a little more than shoulder width apart,
+   * Muay Thai guides no wider than the shoulders; the film takes 1.2 inside
+   * that coaching range of 1.0 to 1.3.
+   */
+  export const LENGTH_SHARE: number = 1.2;
+
+  /**
+   * One ring step as a share of the stance length: the following foot
+   * restores the stance without crossing (IBA pages 36-39), so a step is at
+   * most half the stance; the film takes the half.
+   */
+  export const STEP_SHARE: number = 0.5;
+
+  /**
+   * The longest entry of one strike as a share of the stance length: a
+   * step-in or lunge whose lead foot travels up to a full stance while the
+   * rear foot drags behind to restore it (IBA stepping jab); the film takes
+   * the full stance.
+   */
+  export const ENTRY_SHARE: number = 1;
+
+  /**
+   * Vertical bounce of the guard's rhythm, as a share of the stance's knee
+   * drop: kickboxers keep a light rhythmic bounce through the knees between
+   * exchanges; a third of the stance drop keeps it visible without leaving
+   * the stance (film reading of the coaching).
+   */
+  export const RHYTHM_SHARE: number = 1 / 3;
+
+  /**
+   * Lead-glove pump of the guard's rhythm, as a share of the arm reach: the
+   * pawing lead hand that measures distance and shows small feints between
+   * exchanges; a fifth of the reach (film reading of the coaching).
+   */
+  export const PUMP_SHARE: number = 0.2;
 
   /**
    * Body turn of the orthodox stance from the line to the opponent, radians:
@@ -41,8 +91,8 @@ export namespace StanceShape {
   export const CHIN_TUCK: number = 12;
 
   /**
-   * The stance length along the line, metres: a shoulder width, the coaching
-   * convention for feet "about shoulder width apart".
+   * The stance length along the line, metres: {@link LENGTH_SHARE} shoulder
+   * widths, the kickboxing coaching convention.
    *
    * @param measure The fighter's measure.
    * @returns Metres.
@@ -59,11 +109,11 @@ export namespace StanceShape {
    * @evidence contracts/development/behaviors.md#deterministic-evaluation Pure.
    */
   export function length(measure: IFighterMeasure): number {
-    return 2 * measure.shoulderHalfWidth;
+    return LENGTH_SHARE * 2 * measure.shoulderHalfWidth;
   }
 
   /**
-   * One step: half the stance length, so the following foot restores the stance without crossing.
+   * One ring step: {@link STEP_SHARE} of the stance length, so the following foot restores the stance without crossing.
    *
    * @param measure The fighter's measure.
    * @returns Metres.
@@ -80,7 +130,70 @@ export namespace StanceShape {
    * @evidence contracts/development/behaviors.md#deterministic-evaluation Pure.
    */
   export function step(measure: IFighterMeasure): number {
-    return length(measure) / 2;
+    return STEP_SHARE * length(measure);
+  }
+
+  /**
+   * The longest entry of one strike: the step-in or lunge that carries the
+   * body from where it stands into that strike's contact range.
+   *
+   * @param measure The fighter's measure.
+   * @returns Metres.
+   * @evidence docs/research/kickboxing/ring-generalship.md#step The entry is at most a stance length.
+   * @evidence contracts/development/common.md#meaningful-documentation States the law.
+   * @evidence contracts/development/implementation.md#principled-implementation A share of the stance length.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the stance length.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Nothing is retained.
+   * @evidence contracts/development/behaviors.md#studied-laws The studied entry.
+   * @evidence contracts/development/behaviors.md#relational-goals No position is read.
+   * @evidence contracts/development/behaviors.md#deterministic-evaluation Pure.
+   */
+  export function entry(measure: IFighterMeasure): number {
+    return ENTRY_SHARE * length(measure);
+  }
+
+  /**
+   * The guard's rhythm inside a free interval between busy actions: a
+   * bounce through the knees and a pawing lead glove on every other beat, a
+   * whole number of beats near the step cadence, zero with zero slope at both
+   * ends so it joins every strike, answer and phase without a jump.
+   *
+   * @param measure The fighter's measure.
+   * @param seconds Seconds since the free interval began.
+   * @param span The free interval's length, seconds.
+   * @param period Seconds per beat.
+   * @returns The extra knee drop and the lead glove's forward pump, metres.
+   * @evidence docs/research/kickboxing/ring-generalship.md#stance The guard keeps its rhythm between exchanges.
+   * @evidence contracts/development/common.md#meaningful-documentation States the shape and its ends.
+   * @evidence contracts/development/implementation.md#principled-implementation Squared sines of whole beats over the interval.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the stance drop.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record.
+   * @evidence contracts/development/behaviors.md#studied-laws The studied rhythm.
+   * @evidence contracts/development/behaviors.md#relational-goals No position is read.
+   * @evidence contracts/development/behaviors.md#deterministic-evaluation Pure.
+   */
+  export function rhythm(
+    measure: IFighterMeasure,
+    seconds: number,
+    span: number,
+    period: number,
+  ): { drop: number; pump: number } {
+    if (!(span > 0) || seconds <= 0 || seconds >= span)
+      return { drop: 0, pump: 0 };
+    const beats: number = Math.max(1, Math.round(span / period));
+    const phase: number = (Math.PI * beats * seconds) / span;
+    const bounce: number = Math.sin(phase) ** 2;
+    const pump: number = Math.sin(phase / 2) ** 2 * bounce;
+    return {
+      drop: RHYTHM_SHARE * drop(measure, KNEE_FLEXION) * bounce,
+      pump: PUMP_SHARE * measure.armReach * pump,
+    };
   }
 
   /**

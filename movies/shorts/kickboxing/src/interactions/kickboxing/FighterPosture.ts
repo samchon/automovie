@@ -15,6 +15,7 @@ import { StepPattern } from "../../laws/kickboxing/StepPattern";
 import { StrikeShape } from "../../laws/kickboxing/StrikeShape";
 import { blendPosture } from "../../laws/kickboxing/blendPosture";
 import { BoutLaws } from "./BoutLaws";
+import { GuardRhythm } from "./GuardRhythm";
 import type { IRingCast } from "./IRingCast";
 
 /**
@@ -226,6 +227,9 @@ export namespace FighterPosture {
           posture = CelebrationShape.posture(measure, guard, t);
       }
     }
+    // Between busy actions the guard keeps its rhythm.
+    if (seconds < after && !corner)
+      posture = GuardRhythm.apply(posture, measure, schedule, subject, seconds);
     return { posture, frame: { origin, facing, feet } };
   }
 

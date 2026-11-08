@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IBoutPosture } from "./IBoutPosture";
 import type { KickboxingTechnique } from "./KickboxingTechnique";
+import { KickboxingTiming } from "./KickboxingTiming";
 import { StanceShape } from "./StanceShape";
 import { StrikeShape } from "./StrikeShape";
 
@@ -20,6 +21,41 @@ import { StrikeShape } from "./StrikeShape";
  * @evidence docs/research/kickboxing/techniques.md Section 3: rear punches carry the stance turn through the trunk.
  */
 export namespace PunchShape {
+  /**
+   * Seconds of a punch's extension, the fist's fast travel into contact: a
+   * smoothstep peaks at 1.5 times its mean speed, so a fist travelling about
+   * half a metre at the measured 7.3-12 m/s peak (cross 7.3-8.5 m/s, lead
+   * hook 11.95 m/s; Frontiers in Sports and Active Living 2024) takes about
+   * 1.5 x 0.5 / 7.5 = 0.1 s.
+   */
+  export const EXTENSION: number = 0.1;
+
+  /** Share of the punch shown during its startup, before the extension: the shoulder and hip turn that begin before the fist leaves (film reading). */
+  export const LOAD: number = 0.15;
+
+  /**
+   * A punch's extension at an instant: the startup loads the shoulder and
+   * hips while the entry lands, the fist extends at its peak speed over the
+   * last {@link EXTENSION} seconds to contact, and returns over the hand's
+   * recovery.
+   *
+   * @param seconds Seconds since the launch.
+   * @param delivery Launch to contact, seconds.
+   * @returns Extension in [0, 1].
+   * @evidence docs/research/kickboxing/techniques.md#punch-timing Delivery, peak fist speed and recovery.
+   */
+  export function amount(seconds: number, delivery: number): number {
+    const extension: number = Math.min(delivery, EXTENSION);
+    const load: number = delivery - extension;
+    if (seconds <= load) return load > 0 ? LOAD * ease(seconds / load) : 0;
+    if (seconds <= delivery)
+      return LOAD + (1 - LOAD) * ease((seconds - load) / extension);
+    return Math.max(
+      0,
+      1 - ease((seconds - delivery) / KickboxingTiming.HAND_RECOVERY),
+    );
+  }
+
   /**
    * A punch at extension `out` in [0, 1].
    *
@@ -115,5 +151,11 @@ export namespace PunchShape {
 
   function toDegrees(radians: number): number {
     return (radians * 180) / Math.PI;
+  }
+
+  /** Smoothstep easing of a progress in [0, 1]. */
+  function ease(t: number): number {
+    const x: number = Math.max(0, Math.min(1, t));
+    return x * x * (3 - 2 * x);
   }
 }

@@ -130,10 +130,7 @@ export namespace StrikeShape {
       );
     }
     if (shown.family === "punch") {
-      const out: number =
-        t <= delivery
-          ? ease(t / delivery)
-          : 1 - ease((t - delivery) / KickboxingTiming.HAND_RECOVERY);
+      const out: number = PunchShape.amount(t, delivery);
       if (t >= delivery + KickboxingTiming.HAND_RECOVERY) return null;
       return PunchShape.posture(input, shown, Math.max(0, out));
     }

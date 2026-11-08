@@ -178,7 +178,8 @@ export namespace CameraTrack {
                   hit?.receiver === cast.b.id ? "b-upper" : "a-upper",
                   hit?.receiver === cast.b.id ? "a-upper" : "b-upper",
                 ]
-              : ["a-upper", "b-upper"];
+              : // A medium frames both whole bodies, so the feet and stance read.
+                ["a", "b"];
         // Side-on opposite the referee; from the finish, the visibility law's view.
         const aim: SightLaw.IView =
           s.size === "finish" && view !== undefined

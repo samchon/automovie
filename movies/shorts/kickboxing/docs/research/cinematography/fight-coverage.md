@@ -19,4 +19,5 @@ One continuous inside-the-ring take, as in *Creed*. The camera keeps a side view
 - Mean interval between shot-size changes between 2 and 8 s, bracketing the 2.7 s action-film average and longer broadcast holds.
 - The camera is moving for at least 60% of the bout.
 - The lens stays inside the ropes.
+- Medium and wide shots frame both fighters' whole bodies: both fighters' feet are inside the delivered frame for at least 80% of the film, measured on the displayed ankles.
 - At the finishing contact, the striking surface over its descent and the struck region are unoccluded from the delivered camera: the least sightline clearance is positive.

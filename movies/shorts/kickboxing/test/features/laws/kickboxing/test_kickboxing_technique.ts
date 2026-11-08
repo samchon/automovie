@@ -48,18 +48,21 @@ export function test_kickboxing_technique(): void {
     "body-kick",
   );
   assert.ok(kick > 0 && jab > 0);
-  assert.equal(
-    KickboxingRange.combination(a.body.measure, b.body.measure, [
-      "jab",
-      "body-kick",
-    ]),
-    Math.min(jab, kick),
+  const cycle = KickboxingRange.cycle(a.body.measure, b.body.measure, [
+    "jab",
+    "body-kick",
+  ]);
+  assert.deepEqual(cycle.entries, [jab, kick]);
+  assert.equal(cycle.exit, KickboxingRange.outside(a.body.measure, b.body.measure));
+  assert.ok(cycle.exit > Math.max(jab, kick));
+  assert.ok(
+    KickboxingRange.clinch(a.body.measure, b.body.measure) < Math.min(jab, kick),
   );
   assert.equal(
     KickboxingRange.of(a.body.measure, b.body.measure, "feint-jab"),
     jab,
   );
   assert.throws(() =>
-    KickboxingRange.combination(a.body.measure, b.body.measure, []),
+    KickboxingRange.cycle(a.body.measure, b.body.measure, []),
   );
 }
