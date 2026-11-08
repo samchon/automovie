@@ -1,10 +1,10 @@
 import { planViewerFrameTimes } from "@automovie/render";
 import {
-  type IAutoMovieViewerVideoResult,
   decodeAutoMovieDelivery,
   mixAutoMovieAudioCues,
   renderViewerFrames,
   renderViewerVideo,
+  type IAutoMovieViewerVideoResult,
 } from "@automovie/render/node";
 import ffmpeg from "ffmpeg-static";
 import ffprobe from "ffprobe-static";
@@ -128,6 +128,10 @@ export async function render(): Promise<void> {
     },
     durationSeconds: selected.film.durationSeconds,
     frameDir: `.cache/render/${selected.name}`,
+    // Frames whose page digest is unchanged are reused from the last run;
+    // every fiftieth reused frame is recaptured to prove the digest whole.
+    cacheDirectory: `.cache/frames/${selected.name}`,
+    cacheVerifyEvery: 50,
     outputPath: path.join(directory, "film.mp4"),
     chromeExecutable,
     ffmpegExecutable: process.env.FFMPEG_PATH ?? ffmpeg ?? "",
@@ -170,6 +174,7 @@ export async function render(): Promise<void> {
       if (progress.index % 150 === 0) console.log(progress);
     },
   });
+  if (result.frameCache) console.log({ frameCache: result.frameCache });
   await mkdir(directory, { recursive: true });
   await writeFile(
     path.join(directory, "capture-report.json"),

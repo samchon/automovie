@@ -9,6 +9,7 @@ import {
   AutoMovieHumanPhysicalProfile,
   AutoMovieHumanSkeleton,
   type IAutoMovieHumanPose,
+  type resolveAutoMovieHumanCalibration,
 } from "@automovie/human";
 import type {
   IAutoMovieQuaternion,
@@ -77,8 +78,13 @@ export class FighterBody {
    *
    * @param profile His settings record.
    * @param shared A body already prepared from identical body controls, whose skeleton is reused.
+   * @param calibration Human's body calibration of these controls, read from the artifact store; calibrated here when absent.
    */
-  public constructor(profile: IFighterProfile, shared?: FighterBody) {
+  public constructor(
+    profile: IFighterProfile,
+    shared?: FighterBody,
+    calibration?: Awaited<ReturnType<typeof resolveAutoMovieHumanCalibration>>,
+  ) {
     if (
       shared &&
       JSON.stringify(shared.controls) !== JSON.stringify(profile.parameters)
@@ -86,7 +92,11 @@ export class FighterBody {
       throw new Error("A shared fighter body needs identical body controls");
     this.controls = profile.parameters;
     const skeleton: AutoMovieHumanSkeleton.PoseEvaluator =
-      shared?.evaluate ?? AutoMovieHumanSkeleton.prepare(profile.parameters);
+      shared?.evaluate ??
+      AutoMovieHumanSkeleton.prepare(
+        profile.parameters,
+        calibration ? { calibration } : {},
+      );
     const reference: AutoMovieHumanSkeleton.IOutput = skeleton({});
     const at = (bone: string): AutoMovieHumanSkeleton.IPlacement =>
       reference.posed.find(
@@ -319,10 +329,22 @@ export class FighterBody {
           ),
         ),
       };
-      const instep = surface(`${side}Midfoot`, { x: 0.3, y: 1, z: 0 });
+      // The instep meets the distal shin at the ankle's front: the shin
+      // collider's front surface at the ankle end of the lower leg.
+      const axis: IAutoMovieVector3 = Vector3.normalize(toAnkle);
+      const front: IAutoMovieVector3 = surface(`${side}LowerLeg`, {
+        x: 1,
+        y: 0,
+        z: 0,
+      }).localPoint;
+      const out: IAutoMovieVector3 = Vector3.subtract(
+        front,
+        Vector3.scale(axis, Vector3.dot(front, axis)),
+      );
       weapons[`instep-${side}`] = {
-        ...instep,
-        localDirection: Vector3.normalize(instep.localPoint),
+        bone: `${side}LowerLeg`,
+        localPoint: Vector3.add(toAnkle, out),
+        localDirection: Vector3.normalize(out),
       };
       const sole = surface(`${side}Midfoot`, { x: 0.3, y: -1, z: 0 });
       weapons[`sole-${side}`] = {

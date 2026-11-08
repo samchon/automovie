@@ -1,6 +1,7 @@
 import type { IFighterMeasure } from "./IFighterMeasure";
 import { KickboxingTechnique } from "./KickboxingTechnique";
 import { StrikeShape } from "./StrikeShape";
+import { TurnoverShape } from "./TurnoverShape";
 
 /**
  * The stance-origin distance at which a technique reaches its region: the
@@ -52,16 +53,14 @@ export namespace KickboxingRange {
       case "punch":
         return REACH_SHARE * attacker.armReach + attacker.gloveRadius + depth;
       case "round-kick":
-        // The shin lands with its lower part; the instep lands with the
-        // top of the foot, a whole shank and half a foot beyond the knee.
-        return (
-          REACH_SHARE *
-            (attacker.thigh +
-              (spec.surface === "instep"
-                ? attacker.shank + attacker.foot / 2
-                : StrikeShape.SHIN_SHARE * attacker.shank)) +
-          depth
-        );
+        // The shin lands with its lower part; the descending kick's instep
+        // comes down from the turnover's raised knee, so its range is that
+        // geometry's horizontal run.
+        return spec.line === "descending"
+          ? TurnoverShape.range(attacker, receiver)
+          : REACH_SHARE *
+              (attacker.thigh + StrikeShape.SHIN_SHARE * attacker.shank) +
+              depth;
       case "push-kick":
         return (
           REACH_SHARE * (attacker.thigh + attacker.shank) +

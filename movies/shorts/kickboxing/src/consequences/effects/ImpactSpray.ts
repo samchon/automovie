@@ -35,6 +35,9 @@ export class ImpactSpray {
   /** Gravity, m/s^2. */
   public static readonly GRAVITY: number = 9.81;
 
+  /** Radius of a droplet, metres: a sweat or blood drop about 1.6 cm across. */
+  public static readonly RADIUS: number = 0.008;
+
   /** Seconds a droplet flies before it is gone or lies on the canvas. */
   public static readonly FLIGHT: number = 0.6;
 
@@ -80,7 +83,7 @@ export class ImpactSpray {
       }
     }
     const geometry: THREE.SphereGeometry = new THREE.SphereGeometry(
-      0.008,
+      ImpactSpray.RADIUS,
       6,
       4,
     );
@@ -111,19 +114,8 @@ export class ImpactSpray {
     const matrix: THREE.Matrix4 = new THREE.Matrix4();
     let sweat: number = 0;
     let blood: number = 0;
-    for (const d of this.drops) {
-      const t: number = seconds - d.start;
-      if (t < 0 || (t > ImpactSpray.FLIGHT && !(d.blood && d.stays))) continue;
-      const f: number = Math.min(t, ImpactSpray.FLIGHT);
-      const y: number = Math.max(
-        0.002,
-        d.origin.y + d.velocity.y * f - 0.5 * ImpactSpray.GRAVITY * f * f,
-      );
-      matrix.makeTranslation(
-        d.origin.x + d.velocity.x * f,
-        y,
-        d.origin.z + d.velocity.z * f,
-      );
+    for (const d of this.visible(seconds)) {
+      matrix.makeTranslation(d.position.x, d.position.y, d.position.z);
       if (d.blood) this.blood.setMatrixAt(blood++, matrix);
       else this.sweat.setMatrixAt(sweat++, matrix);
     }
@@ -131,6 +123,41 @@ export class ImpactSpray {
     this.blood.count = blood;
     this.sweat.instanceMatrix.needsUpdate = true;
     this.blood.instanceMatrix.needsUpdate = true;
+  }
+
+  /**
+   * The droplets shown at a second, without placing them: in flight under
+   * gravity, or the blood that stays where it landed.
+   *
+   * @param seconds Film seconds.
+   * @returns Each visible droplet's kind and position, in drop order.
+   */
+  public visible(
+    seconds: number,
+  ): { blood: boolean; position: { x: number; y: number; z: number } }[] {
+    const shown: {
+      blood: boolean;
+      position: { x: number; y: number; z: number };
+    }[] = [];
+    for (const d of this.drops) {
+      const t: number = seconds - d.start;
+      if (t < 0 || (t > ImpactSpray.FLIGHT && !(d.blood && d.stays))) continue;
+      const f: number = Math.min(t, ImpactSpray.FLIGHT);
+      shown.push({
+        blood: d.blood,
+        position: {
+          x: d.origin.x + d.velocity.x * f,
+          // A droplet comes to rest on the canvas, whose top is the world
+          // floor (the ring's set), its centre a radius above it.
+          y: Math.max(
+            ImpactSpray.RADIUS,
+            d.origin.y + d.velocity.y * f - 0.5 * ImpactSpray.GRAVITY * f * f,
+          ),
+          z: d.origin.z + d.velocity.z * f,
+        },
+      });
+    }
+    return shown;
   }
 
   /** Release the droplets. */

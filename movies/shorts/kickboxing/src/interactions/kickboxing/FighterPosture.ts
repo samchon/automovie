@@ -1,4 +1,4 @@
-import { type IAutoMovieSchedule, Vector3 } from "@automovie/engine";
+import { Vector3, type IAutoMovieSchedule } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { Fighter } from "../../entities/cast/fighter/Fighter";
@@ -209,8 +209,9 @@ export namespace FighterPosture {
           rest,
         );
       } else if (action.kind === "phase") {
+        // He falls from the posture the blow caught him in.
         if (action.phase === "fall")
-          posture = KnockdownShape.fall(measure, guard, rest, t);
+          posture = KnockdownShape.fall(measure, posture, rest, t);
         else if (action.phase === "lie" && seconds < entry.end)
           posture = KnockdownShape.lying(measure, guard);
         else if (action.phase === "attempt" && seconds < entry.end)
@@ -247,7 +248,12 @@ export namespace FighterPosture {
     return Math.min(seconds, commit);
   }
 
-  /** Layer a shape over the posture so far: the later layer takes the limbs and channels it moves. */
+  /**
+   * Layer a shape over the posture so far. Each layer is a full posture
+   * over the guard, so its difference from the guard is added: a kick
+   * launched while a punch still recovers keeps its whole shape, and two
+   * answers on one limb cross-fade as one returns and the other engages.
+   */
   function merge(
     current: IBoutPosture,
     layer: IBoutPosture,
@@ -255,9 +261,59 @@ export namespace FighterPosture {
     rest: Record<"left" | "right", IAutoMovieVector3>,
   ): IBoutPosture {
     if (current === guard) return layer;
-    // Each layer is a full posture over the guard; add its difference from the guard.
-    const blended: IBoutPosture = blendPosture(current, layer, 0.5, rest);
-    return blended;
+    const n = (c: number, l: number, g: number): number => c + l - g;
+    const record = <T extends Record<string, number>>(c: T, l: T, g: T): T =>
+      Object.fromEntries(
+        Object.keys(c).map((key: string): [string, number] => [
+          key,
+          n(c[key]!, l[key]!, g[key]!),
+        ]),
+      ) as T;
+    const point = (
+      c: IAutoMovieVector3,
+      l: IAutoMovieVector3,
+      g: IAutoMovieVector3,
+    ): IAutoMovieVector3 => Vector3.add(c, Vector3.subtract(l, g));
+    const hand = (side: "left" | "right"): IBoutPosture["hands"]["left"] => {
+      const c = current.hands[side];
+      const l = layer.hands[side];
+      const g = guard.hands[side];
+      const elbow: IAutoMovieVector3 | undefined =
+        c.elbow && l.elbow && g.elbow
+          ? point(c.elbow, l.elbow, g.elbow)
+          : (l.elbow ?? c.elbow);
+      return {
+        point: point(c.point, l.point, g.point),
+        ...(elbow ? { elbow } : {}),
+      };
+    };
+    const foot = (side: "left" | "right"): IBoutPosture["feet"]["left"] => {
+      const c = current.feet[side];
+      const l = layer.feet[side];
+      if (l === null) return c;
+      if (c === null) return l;
+      const knee: IAutoMovieVector3 | undefined = l.knee ?? c.knee;
+      return {
+        point: point(c.point, l.point, rest[side]),
+        ...(knee ? { knee } : {}),
+      };
+    };
+    return {
+      drop: n(current.drop, layer.drop, guard.drop),
+      shift: record(current.shift, layer.shift, guard.shift),
+      yaw: n(current.yaw, layer.yaw, guard.yaw),
+      pitch: n(current.pitch, layer.pitch, guard.pitch),
+      roll: n(current.roll, layer.roll, guard.roll),
+      pelvis: record(current.pelvis, layer.pelvis, guard.pelvis),
+      thoracic: record(current.thoracic, layer.thoracic, guard.thoracic),
+      lumbar: record(current.lumbar, layer.lumbar, guard.lumbar),
+      cervical: record(current.cervical, layer.cervical, guard.cervical),
+      hands: { left: hand("left"), right: hand("right") },
+      feet: { left: foot("left"), right: foot("right") },
+      pivot: n(current.pivot, layer.pivot, guard.pivot),
+      jaw: n(current.jaw, layer.jaw, guard.jaw),
+      wince: n(current.wince, layer.wince, guard.wince),
+    };
   }
 
   function read(

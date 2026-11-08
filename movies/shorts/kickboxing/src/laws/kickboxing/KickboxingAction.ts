@@ -1,5 +1,4 @@
 import type { IAutoMovieIntent } from "@automovie/engine";
-
 import type { KickboxingTechnique } from "./KickboxingTechnique";
 
 /**

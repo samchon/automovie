@@ -29,7 +29,9 @@ export function kickboxing(): IFilm {
     create: async (
       progress?: (message: string) => void,
     ): Promise<IFilmProduction> => {
-      const stage: RingStage = new RingStage();
+      progress?.("Preparing the bodies");
+      const { calibrations, source } = await RingStage.calibrate();
+      const stage: RingStage = new RingStage(calibrations);
       const composition: AutoMovieComposition = composeKickboxing(
         stage.cast,
         duration,
@@ -57,6 +59,13 @@ export function kickboxing(): IFilm {
           measures: mounted.measures,
         },
         seek: mounted.seek,
+        ...(source === undefined
+          ? {}
+          : {
+              digest: (seconds: number): string =>
+                `${source}
+${mounted.digest(seconds)}`,
+            }),
         dispose: mounted.dispose,
       };
     },

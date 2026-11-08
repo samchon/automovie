@@ -1,7 +1,7 @@
 import {
   AutoMovieComposition,
-  type IAutoMovieIntent,
   resolveAutoMovieSchedule,
+  type IAutoMovieIntent,
 } from "@automovie/engine";
 
 import type { Fighter } from "../../entities/cast/fighter/Fighter";

@@ -1,7 +1,7 @@
 import {
-  type IAutoMovieSchedule,
   createAutoMovieRandom,
   deriveAutoMovieSeed,
+  type IAutoMovieSchedule,
 } from "@automovie/engine";
 
 import type { ContactReceipts } from "../../interactions/kickboxing/ContactReceipts";

@@ -1,7 +1,7 @@
 import {
-  type IAutoMovieViewerHandle,
   createAutoMoviePerformanceOverlay,
   mountViewer,
+  type IAutoMovieViewerHandle,
 } from "@automovie/viewer";
 
 import type { IFilm } from "./IFilm";
@@ -157,8 +157,25 @@ function seek(time: number): void {
   previous = performance.now();
   draw();
 }
+/**
+ * The frame cache's digest of an exact second: SHA-256 of the production's
+ * own digest text, without moving or drawing the scene.
+ */
+async function frameDigest(time: number): Promise<string> {
+  const text: string = production.digest!(
+    clampProductionSeconds(time, durationSeconds),
+  );
+  const bytes: ArrayBuffer = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(text),
+  );
+  return Array.from(new Uint8Array(bytes), (b: number): string =>
+    b.toString(16).padStart(2, "0"),
+  ).join("");
+}
 Object.assign(window, {
   __afSeek: seek,
+  ...(production.digest ? { __afFrameDigest: frameDigest } : {}),
   __afSoundtrack: (): IFilmProduction["soundtrack"] => production.soundtrack,
   __afReport: (): IFilmProduction["report"] => production.report,
 });

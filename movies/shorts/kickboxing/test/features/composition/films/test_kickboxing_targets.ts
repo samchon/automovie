@@ -1,6 +1,6 @@
 import {
-  type IAutoMovieSchedule,
   measureAutoMovieSchedule,
+  type IAutoMovieSchedule,
 } from "@automovie/engine";
 import assert from "node:assert/strict";
 

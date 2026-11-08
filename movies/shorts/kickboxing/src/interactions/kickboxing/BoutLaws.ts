@@ -1,10 +1,10 @@
 import {
-  type IAutoMovieIntent,
-  type IAutoMovieSchedule,
   checkAutoMovieLegality,
   resolveAutoMovieOutcome,
   resolveAutoMovieSchedule,
   resolveAutoMovieZone,
+  type IAutoMovieIntent,
+  type IAutoMovieSchedule,
 } from "@automovie/engine";
 
 import type { Fighter } from "../../entities/cast/fighter/Fighter";

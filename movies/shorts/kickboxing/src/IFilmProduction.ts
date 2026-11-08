@@ -63,6 +63,20 @@ export interface IFilmProduction {
   seek(seconds: number): void;
 
   /**
+   * Everything that decides the pixels drawn at an exact film second, as
+   * text, without placing anything: the identity of the code that draws and
+   * the state `seek` would place. Absent when the code's identity is unknown.
+   *
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature has no body; the film that implements it answers.
+   */
+  digest?(seconds: number): string;
+
+  /**
    * Releases the scene's resources when the Viewer page closes.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the call releases and when.

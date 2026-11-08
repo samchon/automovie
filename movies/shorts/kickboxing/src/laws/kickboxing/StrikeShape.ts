@@ -6,6 +6,7 @@ import type { IFighterMeasure } from "./IFighterMeasure";
 import { KickboxingTechnique } from "./KickboxingTechnique";
 import { KickboxingTiming } from "./KickboxingTiming";
 import { PunchShape } from "./PunchShape";
+import { TurnoverShape } from "./TurnoverShape";
 import { blendPosture } from "./blendPosture";
 
 /**
@@ -36,23 +37,14 @@ export namespace StrikeShape {
 
   /**
    * Support-foot turn at impact, radians, read from the Chan rear-oblique
-   * frames (rotated support foot, not a measured angle) and the Brazilian
-   * kick's "heel turns toward the target".
+   * frames (rotated support foot, not a measured angle); the Brazilian
+   * kick's heel turns toward the target as far as the head kick's.
    */
-  const PIVOT: Readonly<
-    Record<KickboxingTechnique.Level | "turnover", number>
-  > = {
+  const PIVOT: Readonly<Record<KickboxingTechnique.Level, number>> = {
     leg: Math.PI / 4,
     body: Math.PI / 3,
     head: Math.PI / 3,
-    turnover: Math.PI / 2,
   };
-
-  /** Whole-body lean away from the Brazilian kick at the turnover, radians: the trunk "leans back" read as thirty degrees. */
-  const TURNOVER_ROLL: number = Math.PI / 6;
-
-  /** Pelvis obliquity of the turnover, degrees: half the channel's forty-five-degree hike range read as the hip rolling over. */
-  const TURNOVER_HIKE: number = 22;
 
   /** Hip flexion of the round-kick chamber, degrees, by level: thigh toward the target height (PLOS Fig. 3 chamber). */
   const CHAMBER_HIP: Readonly<Record<KickboxingTechnique.Level, number>> = {
@@ -179,7 +171,13 @@ export namespace StrikeShape {
     }
   }
 
-  /** A round kick, including the switch kick and the Brazilian kick. */
+  /**
+   * A round kick, including the switch kick and the Brazilian kick. The
+   * body turns by the support pivot while the kick travels, so every goal
+   * the receiver or the facing line fixes (the target, the planted foot,
+   * the forward glove) is stated in the guard's frame and turned into the
+   * body's frame of the instant.
+   */
   function roundKick(
     input: IInput,
     spec: KickboxingTechnique.ISpec,
@@ -187,15 +185,41 @@ export namespace StrikeShape {
     progress: number,
     amount: number,
   ): IBoutPosture {
-    const { measure, guard, rest } = input;
+    const { measure, guard } = input;
     const side: "left" | "right" = spec.side;
     const sign: 1 | -1 = side === "left" ? 1 : -1;
+    const turnover: boolean = spec.line === "descending";
+    const chamberShare: number =
+      KickboxingTiming.KICK_CHAMBER / KickboxingTiming.KICK_IMPACT;
+    const lift: number =
+      phase === "out"
+        ? Math.min(1, progress / chamberShare)
+        : progress <= 0.5
+          ? 1
+          : 1 - ease((progress - 0.5) / 0.5);
+    const reach: number =
+      phase === "out"
+        ? progress <= chamberShare
+          ? 0
+          : ease((progress - chamberShare) / (1 - chamberShare))
+        : progress <= 0.5
+          ? 1 - ease(progress / 0.5)
+          : 0;
+    const drive: number = Math.max(reach, lift * 0.5);
+    const turn: number = PIVOT[spec.level] * drive;
+    const local = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+      unturn(p, sign * turn);
+    const rest: IAutoMovieVector3 = local(input.rest[side]);
+    // The turnover rises onto the straightened support, tilts the pelvis back
+    // and hikes the kicking hip (brazilian-kick.md#law).
+    const over: number = turnover ? drive : 0;
+    const drop: number = guard.drop * (1 - over);
     const hip: IAutoMovieVector3 = {
       x: 0,
-      y: measure.hip - guard.drop,
+      y: turnover ? TurnoverShape.hip(measure) - drop : measure.hip - drop,
       z: sign * measure.hipHalfWidth,
     };
-    const chamber: { point: IAutoMovieVector3; knee: IAutoMovieVector3 } = fold(
+    const folded: { point: IAutoMovieVector3; knee: IAutoMovieVector3 } = fold(
       hip,
       CHAMBER_HIP[
         spec.disguise
@@ -205,114 +229,122 @@ export namespace StrikeShape {
       sign,
       measure,
     );
-    const turnover: boolean = spec.line === "descending";
-    const target: IAutoMovieVector3 = input.target ?? chamber.knee;
+    const target: IAutoMovieVector3 =
+      input.target === null ? folded.knee : local(input.target);
     // The shin crosses the target toward the kicker's other side; the
-    // descending kick arrives from above it instead.
-    const across: IAutoMovieVector3 = turnover
-      ? Vector3.normalize({ x: 0.2, y: -1, z: -sign * 0.3 })
-      : { x: 0, y: 0, z: -sign };
-    const impact = {
-      knee: Vector3.subtract(
-        target,
-        Vector3.scale(across, measure.shank * SHIN_SHARE),
-      ),
-      point: Vector3.add(
-        target,
-        Vector3.scale(across, measure.shank * (1 - SHIN_SHARE)),
-      ),
-    };
-    if (turnover)
-      impact.knee = Vector3.add(impact.knee, {
-        x: 0,
-        y: measure.headRadius,
-        z: 0,
-      });
-    const chamberShare: number =
-      KickboxingTiming.KICK_CHAMBER / KickboxingTiming.KICK_IMPACT;
+    // descending kick's instep comes down onto it from the highest knee.
+    const impact: { knee: IAutoMovieVector3; point: IAutoMovieVector3 } =
+      turnover
+        ? TurnoverShape.impact(hip, target, measure)
+        : {
+            knee: Vector3.add(target, {
+              x: 0,
+              y: 0,
+              z: sign * measure.shank * SHIN_SHARE,
+            }),
+            point: Vector3.add(target, {
+              x: 0,
+              y: 0,
+              z: -sign * measure.shank * (1 - SHIN_SHARE),
+            }),
+          };
+    // The descending kick's chamber keeps climbing: the folded lower leg
+    // hangs under the turnover's knee, above the receiver's shoulder line,
+    // before the foot rises over the target.
+    const chamber: { point: IAutoMovieVector3; knee: IAutoMovieVector3 } =
+      turnover
+        ? {
+            knee: impact.knee,
+            point: Vector3.add(
+              impact.knee,
+              Vector3.subtract(folded.point, folded.knee),
+            ),
+          }
+        : folded;
     let foot: { point: IAutoMovieVector3; knee: IAutoMovieVector3 };
-    let reach: number;
-    if (phase === "out" && progress <= chamberShare) {
-      const s: number = ease(progress / chamberShare);
+    if (phase === "out" && progress <= chamberShare)
       foot = {
-        point: Vector3.lerp(rest[side], chamber.point, s),
+        point: Vector3.lerp(rest, chamber.point, ease(progress / chamberShare)),
         knee: chamber.knee,
       };
-      reach = 0;
-    } else if (phase === "out") {
-      const s: number = ease((progress - chamberShare) / (1 - chamberShare));
-      // The descending kick's folded leg first carries the foot a shank above
-      // the target, then opens and drops it onto the target from above
+    else if (phase === "out") {
+      // The descending kick's knee climbs while the folded lower leg rises
+      // over the target, then the foot drops onto it from above
       // (brazilian-kick.md#law: the knee climbs, the lower leg drops).
-      const apex: IAutoMovieVector3 = Vector3.add(target, {
-        x: 0,
-        y: measure.shank,
-        z: 0,
-      });
+      const top: IAutoMovieVector3 = TurnoverShape.apex(
+        impact.knee,
+        target,
+        measure,
+      );
       foot = {
         point: !turnover
-          ? Vector3.lerp(chamber.point, impact.point, s)
-          : s < 0.5
-            ? Vector3.lerp(chamber.point, apex, ease(s * 2))
-            : Vector3.lerp(apex, impact.point, ease(s * 2 - 1)),
-        knee: Vector3.lerp(chamber.knee, impact.knee, s),
+          ? Vector3.lerp(chamber.point, impact.point, reach)
+          : reach < 0.5
+            ? Vector3.lerp(chamber.point, top, ease(reach * 2))
+            : Vector3.lerp(top, impact.point, ease(reach * 2 - 1)),
+        knee: Vector3.lerp(
+          chamber.knee,
+          impact.knee,
+          turnover ? ease(Math.min(1, reach * 2)) : reach,
+        ),
       };
-      reach = s;
     } else if (progress <= 0.5) {
       const s: number = ease(progress / 0.5);
       foot = {
         point: Vector3.lerp(impact.point, chamber.point, s),
         knee: Vector3.lerp(impact.knee, chamber.knee, s),
       };
-      reach = 1 - s;
-    } else {
-      const s: number = ease((progress - 0.5) / 0.5);
+    } else
       foot = {
-        point: Vector3.lerp(chamber.point, rest[side], s),
+        point: Vector3.lerp(
+          chamber.point,
+          rest,
+          ease((progress - 0.5) / 0.5),
+        ),
         knee: chamber.knee,
       };
-      reach = 0;
-    }
-    const lift: number =
-      phase === "out"
-        ? Math.min(1, progress / chamberShare)
-        : progress <= 0.5
-          ? 1
-          : 1 - ease((progress - 0.5) / 0.5);
-    const turn: number =
-      (turnover ? PIVOT.turnover : PIVOT[spec.level]) *
-      Math.max(reach, lift * 0.5);
-    const lean: number = LEAN[spec.level] * Math.max(reach, lift * 0.5);
-    // The kicking-side glove reaches forward along the head line; the other guards the cheek.
-    const head: number = measure.head - guard.drop;
+    // The turnover's trunk leans only by the pelvis's tilt and hike, the
+    // lumbar spine flexing back over the kick to keep the head up.
+    const lean: number = turnover ? 0 : LEAN[spec.level] * drive;
+    // The kicking-side glove reaches forward along the head line toward the
+    // receiver, the head lowered as the turnover tilts the trunk back; the
+    // other guards the cheek.
+    const tilt: number = (TurnoverShape.TILT * over * Math.PI) / 180;
     const forward: { point: IAutoMovieVector3 } = {
-      point: {
+      point: local({
         x: measure.armReach * 0.75,
-        y: head,
+        y:
+          measure.hip + (measure.head - measure.hip) * Math.cos(tilt) - drop,
         z: sign * measure.headRadius,
-      },
+      }),
     };
-    // The turnover rolls the hips over: the body leans away from the kick and
-    // the kicking hip rises (brazilian-kick.md#law), up to the pelvis's
-    // obliquity range's half.
-    const over: number = turnover ? Math.max(reach, lift * 0.5) : 0;
     const kicked: IBoutPosture = {
       ...guard,
-      roll: guard.roll + sign * TURNOVER_ROLL * over,
+      drop,
       pelvis: {
         ...guard.pelvis,
-        obliquity: guard.pelvis.obliquity + TURNOVER_HIKE * over,
+        tilt: guard.pelvis.tilt - TurnoverShape.TILT * over,
+        obliquity: guard.pelvis.obliquity + sign * TurnoverShape.HIKE * over,
       },
       yaw: guard.yaw + sign * turn,
       thoracic: {
         ...guard.thoracic,
         lateralFlexion: guard.thoracic.lateralFlexion - sign * lean,
       },
+      lumbar: {
+        ...guard.lumbar,
+        flexion: guard.lumbar.flexion + TurnoverShape.COUNTER * over,
+      },
       hands: { ...guard.hands, [side]: forward },
       feet: { ...guard.feet, [side]: foot },
       pivot: sign * turn,
     };
-    return blendPosture(guard, kicked, amount * Math.max(lift, reach), rest);
+    return blendPosture(
+      guard,
+      kicked,
+      amount * Math.max(lift, reach),
+      input.rest,
+    );
   }
 
   /** The lead-leg teep: knee up, sole driven forward to the stomach, recoil. */
@@ -438,6 +470,13 @@ export namespace StrikeShape {
         Vector3.scale(Vector3.normalize(shank), measure.shank),
       ),
     };
+  }
+
+  /** A guard-frame point in the frame of a body turned further by `angle` about +Y (right-handed). */
+  function unturn(p: IAutoMovieVector3, angle: number): IAutoMovieVector3 {
+    const c: number = Math.cos(angle);
+    const s: number = Math.sin(angle);
+    return { x: p.x * c - p.z * s, y: p.y, z: p.x * s + p.z * c };
   }
 
   /** Smoothstep easing of a progress in [0, 1]. */

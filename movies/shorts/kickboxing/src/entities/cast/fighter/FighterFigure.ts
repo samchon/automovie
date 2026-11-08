@@ -2,8 +2,8 @@ import type { AutoMovieHumanSkeleton } from "@automovie/human";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { createAutoMovieClosedSphereGeometry } from "@automovie/viewer";
 import {
-  type AutoMovieHumanCartoon,
   createAutoMovieHumanPolygonFigure,
+  type AutoMovieHumanCartoon,
 } from "@automovie/viewer/human-polygon";
 import * as THREE from "three";
 

@@ -1,4 +1,5 @@
 import { AutoMovieChain } from "@automovie/engine";
+import type { resolveAutoMovieHumanCalibration } from "@automovie/human";
 
 import { KickboxingAction } from "../../../laws/kickboxing/KickboxingAction";
 import { KickboxingTechnique } from "../../../laws/kickboxing/KickboxingTechnique";
@@ -46,11 +47,13 @@ export class Fighter {
    * @param profile His settings record.
    * @param shared Another fighter with identical body controls whose prepared skeleton is reused.
    * @param body A body realizing the same settings without the Human figure, for logic units.
+   * @param calibration Human's body calibration of his controls, read from the artifact store.
    */
   public constructor(
     profile: IFighterProfile,
     shared?: Fighter,
     body?: IFighterBody,
+    calibration?: Awaited<ReturnType<typeof resolveAutoMovieHumanCalibration>>,
   ) {
     this.id = profile.id;
     this.profile = profile;
@@ -59,6 +62,7 @@ export class Fighter {
       new FighterBody(
         profile,
         shared?.body instanceof FighterBody ? shared.body : undefined,
+        calibration,
       );
     this.vocabulary = new Set<string>([
       ...profile.repertoire,

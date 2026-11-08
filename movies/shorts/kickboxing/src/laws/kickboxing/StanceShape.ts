@@ -1,5 +1,4 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-
 import type { IBoutPosture } from "./IBoutPosture";
 import type { IFighterMeasure } from "./IFighterMeasure";
 

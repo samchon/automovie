@@ -1,5 +1,4 @@
 import type { IAutoMovieHumanParameters } from "@automovie/human";
-
 import type { KickboxingAction } from "../../../laws/kickboxing/KickboxingAction";
 import type { KickboxingTechnique } from "../../../laws/kickboxing/KickboxingTechnique";
 

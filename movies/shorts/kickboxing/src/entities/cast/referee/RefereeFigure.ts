@@ -52,12 +52,12 @@ export class RefereeFigure {
         )
           ? c.shoes
           : /^(hips|leftUpperLeg|rightUpperLeg|leftLowerLeg|rightLowerLeg)/.test(
-                b.bone,
-              )
+            b.bone,
+          )
             ? c.trousers
             : /^(head|neck|atlas)|Hand|Thumb|Index|Middle|Ring|Little/.test(
-                  b.bone,
-                )
+              b.bone,
+            )
               ? c.skin
               : c.shirt,
       ]),

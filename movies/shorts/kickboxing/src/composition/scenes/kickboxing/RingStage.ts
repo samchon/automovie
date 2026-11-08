@@ -1,15 +1,17 @@
 import {
+  preparePhysicalGeometry,
+  Quaternion,
+  Vector3,
   type AutoMovieComposition,
   type AutoMoviePhysicsCache,
   type IAutoMovieSchedule,
-  Quaternion,
-  Vector3,
-  preparePhysicalGeometry,
 } from "@automovie/engine";
 import type {
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
+import { resolveAutoMovieHumanCalibration } from "@automovie/human";
+import { createAutoMovieHttpArtifactStore } from "@automovie/render";
 import * as THREE from "three";
 
 import { ImpactMarks } from "../../../consequences/effects/ImpactMarks";
@@ -22,6 +24,7 @@ import type { FighterFigure } from "../../../entities/cast/fighter/FighterFigure
 import { fighterA } from "../../../entities/cast/fighter/fighterA";
 import { fighterB } from "../../../entities/cast/fighter/fighterB";
 import { Referee } from "../../../entities/cast/referee/Referee";
+import { RefereeBody } from "../../../entities/cast/referee/RefereeBody";
 import type { RefereeFigure } from "../../../entities/cast/referee/RefereeFigure";
 import { RingLights } from "../../../entities/lights/ring-lights/RingLights";
 import { Bell } from "../../../entities/props/bell/Bell";
@@ -53,13 +56,22 @@ export class RingStage {
   /** Everyone the scenes compose. */
   public readonly cast: IRingCast;
 
-  /** Build the cast from the settings. */
-  public constructor() {
-    const a: Fighter = new Fighter(fighterA);
+  /**
+   * Build the cast from the settings.
+   *
+   * @param calibrations Human's body calibrations of the fighters' shared controls and the referee's, read from the artifact store; each body calibrates itself when its entry is absent.
+   */
+  public constructor(calibrations: RingStage.ICalibrations = {}) {
+    const a: Fighter = new Fighter(
+      fighterA,
+      undefined,
+      undefined,
+      calibrations.fighter,
+    );
     this.cast = Object.freeze({
       a,
       b: new Fighter(fighterB, a),
-      referee: new Referee(),
+      referee: new Referee(undefined, calibrations.referee),
       ring: new Ring(),
       camera: new RingCamera(),
       bell: new Bell(),
@@ -194,8 +206,35 @@ export class RingStage {
       };
       scene.updateMatrixWorld(true);
     };
+    // Everything `seek` places at a second, read without placing it: the
+    // fighters' poses, marks and faces, the referee, the droplets and the lens.
+    const digest = (seconds: number): string => {
+      const bodies = performance.at(seconds);
+      const official = RefereePerformance.at(cast, schedule, referee, seconds);
+      return JSON.stringify({
+        fighters: [cast.a, cast.b].map((fighter: Fighter) => {
+          const body = bodies[fighter.id]!;
+          return {
+            pose: body.pose,
+            root: body.root,
+            segments: body.segments,
+            jaw: body.jaw,
+            wince: body.wince,
+            marks: ImpactMarks.at(measured.receipts, fighter.id, seconds),
+          };
+        }),
+        referee: {
+          root: official.root,
+          segments: official.segments,
+          jaw: official.jaw,
+        },
+        spray: spray.visible(seconds),
+        camera: CameraTrack.at(camera, seconds),
+      });
+    };
     seek(0);
     return {
+      digest,
       scene,
       camera: view,
       schedule,
@@ -261,6 +300,44 @@ export class RingStage {
     };
   }
 
+  /**
+   * Human's body calibrations of the cast, read from the development
+   * server's artifact store under the digest of Human's source (computed and
+   * stored on a miss), with the digest of this production's source that the
+   * frame digest carries. Outside the development server, nothing: every
+   * body calibrates itself and the page publishes no frame digest.
+   *
+   * @returns The calibrations and the production's source digest.
+   */
+  public static async calibrate(): Promise<{
+    calibrations: RingStage.ICalibrations;
+    source?: string;
+  }> {
+    const response: Response | undefined = await fetch(
+      RingStage.SOURCES,
+    ).catch((): undefined => undefined);
+    if (!response?.ok) return { calibrations: {} };
+    const sources = (await response.json()) as {
+      human: string;
+      production: string;
+    };
+    const options = {
+      store: createAutoMovieHttpArtifactStore(RingStage.ARTIFACTS),
+      toolchain: { "@automovie/human#src": sources.human },
+    };
+    const [fighter, referee] = await Promise.all([
+      resolveAutoMovieHumanCalibration(fighterA.parameters, options),
+      resolveAutoMovieHumanCalibration(RefereeBody.PARAMETERS, options),
+    ]);
+    return { calibrations: { fighter, referee }, source: sources.production };
+  }
+
+  /** The development server's artifact store. */
+  public static readonly ARTIFACTS: string = "/__automovie/artifacts";
+
+  /** The development server's source digests of Human and this production. */
+  public static readonly SOURCES: string = "/__automovie/sources";
+
   /** The soundtrack's assets. */
   public static readonly SOUND: Readonly<Record<string, string>> =
     SoundAssets.paths;
@@ -271,6 +348,15 @@ export class RingStage {
 
 /** Companion types of {@link RingStage}. */
 export namespace RingStage {
+  /** Human's body calibrations the cast is built from. */
+  export interface ICalibrations {
+    /** The fighters' shared body controls. */
+    fighter?: Awaited<ReturnType<typeof resolveAutoMovieHumanCalibration>>;
+
+    /** The referee's body controls. */
+    referee?: Awaited<ReturnType<typeof resolveAutoMovieHumanCalibration>>;
+  }
+
   /** A mounted stage. */
   export interface IMounted {
     /** The scene. */
@@ -299,6 +385,9 @@ export namespace RingStage {
 
     /** Place everything for a second. */
     seek(seconds: number): void;
+
+    /** The state `seek` would place at a second, as text, without placing it: the frame digest's input. */
+    digest(seconds: number): string;
 
     /** Bodies for the review overlay. */
     bodies: { id: string; profile: P }[];

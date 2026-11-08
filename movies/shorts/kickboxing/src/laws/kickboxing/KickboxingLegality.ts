@@ -1,6 +1,6 @@
 import type {
-  IAutoMovieSchedule,
   checkAutoMovieLegality,
+  IAutoMovieSchedule,
 } from "@automovie/engine";
 
 import { KickboxingAction } from "./KickboxingAction";

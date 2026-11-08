@@ -96,8 +96,7 @@ export function exchange(
   const seconds: number =
     first.kind === "strike" ? KickboxingTiming.delivery(first.technique) : 0;
   // A later kick that needs more room than the combination's range takes it
-  // while it chambers: the support foot slides back to that kick's own range,
-  // as the Brazilian kick's turnover opens the distance its instep needs.
+  // while it chambers: the support foot slides back to that kick's own range.
   // Punches never step back inside a combination.
   const room: AutoMovieComposition[] = anchored.flatMap(
     (intent: IAutoMovieIntent, k: number): AutoMovieComposition[] => {

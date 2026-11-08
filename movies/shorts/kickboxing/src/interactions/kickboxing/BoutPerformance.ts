@@ -1,9 +1,9 @@
 import {
-  type IAutoMovieSchedule,
   Quaternion,
-  Vector3,
-  type preparePhysicalGeometry,
   resolveAutoMovieRelationalGoal,
+  Vector3,
+  type IAutoMovieSchedule,
+  type preparePhysicalGeometry,
 } from "@automovie/engine";
 import type {
   IAutoMovieVector3,
@@ -237,10 +237,10 @@ export class BoutPerformance {
         localPoint: weapon.localPoint,
         localDirection: weapon.localDirection,
       },
+      // The descending kick's path already comes down from the turnover's
+      // apex in the shape; an imposed arrival direction would only turn the
+      // whole body over the support and drop the raised knee.
       target: { subject: receiver.id, region: strike.region },
-      ...(strike.spec.line === "descending"
-        ? { approach: Vector3.normalize({ x: 0, y: -1, z: 0 }) }
-        : {}),
       // The strike committed its path at launch or chamber in the shape; a
       // touching outcome means the region is there at contact, so the fit
       // tracks it through the contact window.
@@ -306,21 +306,33 @@ export class BoutPerformance {
         return action.kind === "phase" && action.phase === "fall";
       });
     if (!fall || seconds < fall.start) return segments;
-    let lowest: number = Infinity;
-    for (const segment of fighter.body.profile.segments)
-      for (const shape of segment.shapes)
-        lowest = Math.min(
-          lowest,
-          this.queries.minimumY({
-            body: fighter.id,
-            bone: segment.bone,
-            shape,
-            pose: segments[segment.bone]!,
-          }),
-        );
-    // During the fall the body may only be lifted out of the canvas; once he
-    // lies, it rests exactly on it.
-    const lift: number = seconds >= fall.end ? -lowest : Math.max(0, -lowest);
+    const lowest = (pose: Record<string, P.ITransform>): number => {
+      let least: number = Infinity;
+      for (const segment of fighter.body.profile.segments)
+        for (const shape of segment.shapes)
+          least = Math.min(
+            least,
+            this.queries.minimumY({
+              body: fighter.id,
+              bone: segment.bone,
+              shape,
+              pose: pose[segment.bone]!,
+            }),
+          );
+      return least;
+    };
+    // During the fall the body may only be lifted out of the canvas, beyond
+    // the depth his planted feet already had when the blow caught him, an
+    // allowance that fades over the fall so he leaves his feet without a
+    // jump; once he lies, he rests exactly on the canvas.
+    const share: number = (seconds - fall.start) / (fall.end - fall.start);
+    const standing: number = Math.max(
+      0,
+      -lowest(this.prior(fighter.id, fall.start).segments),
+    );
+    const depth: number = -lowest(segments);
+    const lift: number =
+      seconds >= fall.end ? depth : Math.max(0, depth - standing * (1 - share));
     if (lift === 0) return segments;
     return Object.fromEntries(
       Object.entries(segments).map(([bone, t]) => [

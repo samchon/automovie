@@ -45,6 +45,19 @@ export namespace DefenseShape {
   /** Reaction of a landed blow: cervical turn and side bend away from a head blow, trunk flexion over a body blow, degrees, at full strength. */
   const REACTION: { neck: number; trunk: number } = { neck: 20, trunk: 15 };
 
+  /**
+   * How far an elbow block sinks the receiver: the elbow drops over the ribs
+   * as the knees bend by a head radius, so the forearm meets a body-height
+   * kick without the glove leaving the cheek.
+   *
+   * @param measure The receiver's measure.
+   * @returns Metres the root lowers below the guard.
+   * @evidence docs/research/kickboxing/techniques.md#defenses The elbow drops over the ribs; the other glove stays on the cheek.
+   */
+  export function sink(measure: IFighterMeasure): number {
+    return measure.headRadius;
+  }
+
   /** Inputs of one answer's posture. */
   export interface IInput {
     /** The receiver's measure. */
@@ -161,9 +174,19 @@ export namespace DefenseShape {
             },
           },
         };
-      case "elbow-block":
+      case "elbow-block": {
+        // The whole body sinks onto the block, so the forearm's goals sink
+        // with it: the glove a head radius under the shoulder line and the
+        // elbow over the ribs, which leaves that side of the head open.
+        const lowered: number = guard.drop + sink(measure);
+        const other = guard.hands[KickboxingTechnique.opposite(side)];
+        const down = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+          ...p,
+          y: p.y - sink(measure),
+        });
         return {
           ...guard,
+          drop: lowered,
           thoracic: {
             ...guard.thoracic,
             lateralFlexion:
@@ -171,23 +194,26 @@ export namespace DefenseShape {
           },
           hands: {
             ...guard.hands,
+            [KickboxingTechnique.opposite(side)]: {
+              point: down(other.point),
+              ...(other.elbow ? { elbow: down(other.elbow) } : {}),
+            },
             [side]: {
               point: {
                 x: cheek.point.x * 0.6,
-                y: measure.shoulder - guard.drop,
+                y: measure.shoulder - lowered - measure.headRadius,
                 z: sign * measure.shoulderHalfWidth * 0.6,
               },
               elbow: {
                 x: measure.headRadius * 0.5,
                 y:
-                  measure.hip -
-                  guard.drop +
-                  (measure.shoulder - measure.hip) * 0.4,
+                  measure.hip - lowered + (measure.shoulder - measure.hip) * 0.4,
                 z: sign * measure.shoulderHalfWidth,
               },
             },
           },
         };
+      }
       case "high-block":
         return {
           ...guard,

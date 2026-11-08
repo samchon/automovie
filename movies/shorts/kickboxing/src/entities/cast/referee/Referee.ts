@@ -1,4 +1,5 @@
 import { AutoMovieChain } from "@automovie/engine";
+import type { resolveAutoMovieHumanCalibration } from "@automovie/human";
 
 import { OfficiatingAction } from "../../../laws/officiating/OfficiatingAction";
 import type { RefereeShape } from "../../../laws/officiating/RefereeShape";
@@ -30,11 +31,13 @@ export class Referee {
    * Build the referee.
    *
    * @param body A body realizing his settings without the Human figure, for logic units.
+   * @param calibration Human's body calibration of his controls, read from the artifact store.
    */
   public constructor(
     body?: Pick<RefereeBody, "measure" | "profile" | "place">,
+    calibration?: Awaited<ReturnType<typeof resolveAutoMovieHumanCalibration>>,
   ) {
-    this.body = body ?? new RefereeBody();
+    this.body = body ?? new RefereeBody(calibration);
     Object.freeze(this);
   }
 

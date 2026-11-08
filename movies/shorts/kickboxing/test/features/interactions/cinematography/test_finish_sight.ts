@@ -1,16 +1,23 @@
+import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import assert from "node:assert/strict";
 
 import { CameraTrack } from "../../../../src/interactions/cinematography/CameraTrack";
 import { FinishSight } from "../../../../src/interactions/cinematography/FinishSight";
+import { FighterPosture } from "../../../../src/interactions/kickboxing/FighterPosture";
 import { SightLaw } from "../../../../src/laws/cinematography/SightLaw";
+import { TurnoverShape } from "../../../../src/laws/kickboxing/TurnoverShape";
 import { polygonFilm } from "../../../internal/polygonFilm";
 
 /**
  * The finishing strike stays visible from the delivered camera.
  *
- * Scenarios (docs/research/cinematography/fight-coverage.md#targets): the
- * finish view keeps the Brazilian kick's struck region and its descending
- * striking surface clear of every body and inside the frame from the lens
+ * Scenarios (docs/research/cinematography/fight-coverage.md#targets,
+ * docs/research/kickboxing/brazilian-kick.md#law): the striker's commanded
+ * leg reaches the struck region from a knee over the receiver's sunk
+ * shoulder line, at the turnover's range, with the instep coming down; the
+ * finish view keeps that leg (knee, shin and ankle over the descent) and
+ * the struck region clear of every body and inside the frame from the lens
  * the track delivers at the contact, and holds the wide view on that side
  * through the fall, the count and the celebration; the lens stands on the
  * open side of the attacker–receiver line; the same
@@ -24,6 +31,40 @@ export function test_finish_sight(): void {
   assert.ok(finishing, "the finish view names its strike");
   assert.ok(Math.abs(finishing.contact! - 150) < 1e-9, "contact at 150");
   const scene = FinishSight.volumes(cast, schedule, referee)(finishing);
+  // The kick reads as a Brazilian kick: the striker's leg reaches the
+  // region from a knee raised over the receiver's sunk shoulder line, at a
+  // leg's range rather than chest to chest, and the instep comes down.
+  const ma = cast.a.body.measure;
+  const mb = cast.b.body.measure;
+  const leg = FinishSight.leg(cast, schedule, finishing, scene.seconds);
+  const length = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
+    Vector3.length(Vector3.subtract(p, q));
+  assert.ok(
+    length(leg.knee, leg.hip) <= ma.thigh + 0.01,
+    `knee ${length(leg.knee, leg.hip)} m from the hip, beyond the thigh`,
+  );
+  assert.ok(
+    length(leg.ankle, scene.contact) < mb.headRadius,
+    `instep ${length(leg.ankle, scene.contact)} m off the region`,
+  );
+  const sunk = FighterPosture.at(cast, schedule, cast.b.id, scene.seconds, null)
+    .posture.drop;
+  assert.ok(leg.knee.y > mb.shoulder - sunk, "knee over the shoulder line");
+  assert.ok(
+    Math.hypot(
+      scene.attacker.x - scene.receiver.x,
+      scene.attacker.z - scene.receiver.z,
+    ) >=
+      TurnoverShape.range(ma, mb) - 0.01,
+    "a leg apart at the contact",
+  );
+  const before = FinishSight.leg(
+    cast,
+    schedule,
+    finishing,
+    scene.seconds - CameraTrack.STEP,
+  );
+  assert.ok(before.ankle.y > leg.ankle.y, "the instep comes down");
   const lens = CameraTrack.at(camera, scene.seconds);
   const clearance = CameraTrack.clearance(camera, scene);
   assert.ok(clearance > 0, `finish occluded by ${-clearance} m`);

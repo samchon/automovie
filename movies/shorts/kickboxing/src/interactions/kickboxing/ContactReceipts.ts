@@ -1,7 +1,7 @@
 import {
-  type IAutoMovieSchedule,
   auditAutoMovieOutcome,
   measureAutoMovieContact,
+  type IAutoMovieSchedule,
   type preparePhysicalGeometry,
 } from "@automovie/engine";
 

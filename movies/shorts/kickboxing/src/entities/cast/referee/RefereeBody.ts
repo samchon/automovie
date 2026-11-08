@@ -5,6 +5,7 @@ import {
   AutoMovieHumanSex,
   AutoMovieHumanSkeleton,
   type IAutoMovieHumanParameters,
+  type resolveAutoMovieHumanCalibration,
 } from "@automovie/human";
 import type {
   IAutoMovieQuaternion,
@@ -88,8 +89,12 @@ export class RefereeBody {
   /** His mass, kilograms. */
   public static readonly MASS: number = 76;
 
-  /** Build his body. */
-  public constructor() {
+  /**
+   * Build his body.
+   *
+   * @param calibration Human's body calibration of his controls, read from the artifact store; calibrated here when absent.
+   */
+  public constructor(calibration?: Awaited<ReturnType<typeof resolveAutoMovieHumanCalibration>>) {
     const prepared = AutoMovieHumanPhysicalProfile.prepare(
       RefereeBody.PARAMETERS,
       {
@@ -110,6 +115,10 @@ export class RefereeBody {
           },
         ],
       },
+      AutoMovieHumanSkeleton.prepare(
+        RefereeBody.PARAMETERS,
+        calibration ? { calibration } : {},
+      ),
     );
     this.evaluate = prepared.evaluate;
     this.profile = prepared.profile;

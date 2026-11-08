@@ -6,6 +6,7 @@ import { KickboxingTechnique } from "../../../../src/laws/kickboxing/KickboxingT
 import { KickboxingTiming } from "../../../../src/laws/kickboxing/KickboxingTiming";
 import { StanceShape } from "../../../../src/laws/kickboxing/StanceShape";
 import { StrikeShape } from "../../../../src/laws/kickboxing/StrikeShape";
+import { TurnoverShape } from "../../../../src/laws/kickboxing/TurnoverShape";
 import { polygonCast } from "../../../internal/polygonCast";
 
 /**
@@ -18,7 +19,8 @@ import { polygonCast } from "../../../internal/polygonCast";
  * length and the stance drop grows with knee flexion; through a round kick's
  * chamber, impact and recoil, on both sides, the kicking-side glove reaches
  * forward at the head line while the other stays at the guard's cheek; the
- * Brazilian kick's shin descends onto the target; strikes and answers return
+ * Brazilian kick's knee climbs over the hip with the pelvis tilted back and
+ * its lower leg hangs from that knee onto the target; strikes and answers return
  * to nothing after their recovery; a slip moves the head outside the punch.
  */
 export function test_strike_shape(): void {
@@ -88,8 +90,13 @@ export function test_strike_shape(): void {
         seconds,
         target: { x: 0.8, y: 1.2, z: 0 },
       })!;
+      // Forward toward the receiver: the glove read back in the guard's
+      // frame, before the kick's turn of the body.
+      const turn: number = p.yaw - guard.yaw;
+      const glove = p.hands[side].point;
       assert.ok(
-        p.hands[side].point.x > guard.hands[side].point.x,
+        glove.x * Math.cos(turn) + glove.z * Math.sin(turn) >
+          guard.hands[side].point.x,
         `${name} ${side} glove forward at ${seconds}`,
       );
       assert.ok(
@@ -113,10 +120,21 @@ export function test_strike_shape(): void {
     seconds: KickboxingTiming.KICK_IMPACT,
     target: { x: 0.8, y: 1.55, z: 0 },
   })!;
+  // The turnover's knee climbs over the hip and the lower leg reaches down
+  // from it, so the instep lands on the target from the raised knee.
+  const turned = brazilian.feet.right!;
   assert.ok(
-    brazilian.feet.right!.knee!.y > 1.55,
-    "knee above the target before the descent",
+    turned.knee!.y > TurnoverShape.hip(measure),
+    "knee above the hip at the turnover",
   );
+  assert.ok(
+    Math.abs(
+      Vector3.length(Vector3.subtract(turned.knee!, turned.point)) -
+        measure.shank,
+    ) < 1e-9,
+    "the lower leg hangs from the knee",
+  );
+  assert.ok(brazilian.pelvis.tilt < guard.pelvis.tilt, "the pelvis tilts back");
   const slip = DefenseShape.posture({
     measure,
     guard,

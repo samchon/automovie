@@ -1,6 +1,6 @@
 import {
-  type IAutoMovieSchedule,
   resolveAutoMovieFraming,
+  type IAutoMovieSchedule,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
