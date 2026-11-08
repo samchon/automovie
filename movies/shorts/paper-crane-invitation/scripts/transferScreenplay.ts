@@ -1,4 +1,4 @@
-import { stripNaturalnessComments } from "@automovie/evidence/narrative";
+import { stripNaturalnessComments } from "@automovie/evidence";
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -24,12 +24,16 @@ async function main(): Promise<void> {
   const current: Buffer = await readFile(bodyPath);
   const transferred: Buffer = stripNaturalnessComments(working);
   if (!current.equals(frozen) && !current.equals(transferred))
-    throw new Error("Current body contains a separate repair; transfer refused");
+    throw new Error(
+      "Current body contains a separate repair; transfer refused",
+    );
 
   await writeFile(bodyPath, transferred);
   const observed: Buffer = await readFile(bodyPath);
   if (!observed.equals(transferred))
-    throw new Error("Transferred body differs from comment-free reviewed bytes");
+    throw new Error(
+      "Transferred body differs from comment-free reviewed bytes",
+    );
   console.log(
     JSON.stringify({
       bodySha256: createHash("sha256").update(observed).digest("hex"),

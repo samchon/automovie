@@ -51,10 +51,11 @@ interface Case {
  *    the independently authored analytic region. Output also has positive chart area, exact edge pairing,
  *    unchanged exposed rail indices and the analytic plane/cylinder coordinates.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls AutoMovieSolidMesh.face on independently specified planar and periodic charts and reads only emitted indices, owner coordinates and returned boundaries. It detects missing or overlapping regions, inverted faces, opened shared seams and omitted collinear boundary vertices.
- * @evidence contracts/testing.md#independent-expectations Areas are sums and differences of prescribed rectangles or trapezoids in the input chart. An oriented triangulation uses each interior edge once in each direction and each exposed boundary once. The plane and unit cylinder provide independent coordinate and outward-normal oracles; no join, loft, mesher predicate or triangulator computes the expected region.
- * @evidence contracts/testing.md#distinguishing-cases Includes empty interiors, fully removed regions, redundant nested holes, boundary contacts and subdivisions, distinct periodic rail populations, seam translation and a clipped winding boundary. Real merge closure and sphere winding remain owned by operator_body and level_winding; caps and generating surfaces remain owned by view_pole and operator_mesh.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by --include construction_mesh_regions. It generates no person and starts no renderer, host or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls AutoMovieSolidMesh.face on independently specified planar and periodic charts and reads only emitted indices, owner coordinates and returned boundaries. It detects missing or overlapping regions, inverted faces, opened shared seams and omitted collinear boundary vertices.
+ * @evidence contracts/development/testing.md#independent-expectations Areas are sums and differences of prescribed rectangles or trapezoids in the input chart. An oriented triangulation uses each interior edge once in each direction and each exposed boundary once. The plane and unit cylinder provide independent coordinate and outward-normal oracles; no join, loft, mesher predicate or triangulator computes the expected region.
+ * @evidence contracts/development/testing.md#distinguishing-cases Includes empty interiors, fully removed regions, redundant nested holes, boundary contacts and subdivisions, distinct periodic rail populations, seam translation and a clipped winding boundary. Real merge closure and sphere winding remain owned by operator_body and level_winding; caps and generating surfaces remain owned by view_pole and operator_mesh.
+ * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by --include construction_mesh_regions. It generates no person and starts no renderer, host or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An uncut square, a collinearly subdivided square hole, nested redundant holes,).
  */
 export function test_construction_mesh_regions(): void {
   const failures: string[] = [];
@@ -90,7 +91,8 @@ export function test_construction_mesh_regions(): void {
     },
     {
       name: "collinear shared hole",
-      contains: (u: number, v: number): boolean => inside([0, 0, 4, 4], u, v) && !inside(hole, u, v),
+      contains: (u: number, v: number): boolean =>
+        inside([0, 0, 4, 4], u, v) && !inside(hole, u, v),
       periodic: false,
       stations: grid,
       loops: [{ kind: "hole", points: square(hole) }],
@@ -98,7 +100,8 @@ export function test_construction_mesh_regions(): void {
     },
     {
       name: "nested redundant holes",
-      contains: (u: number, v: number): boolean => inside([0, 0, 4, 4], u, v) && !inside(hole, u, v),
+      contains: (u: number, v: number): boolean =>
+        inside([0, 0, 4, 4], u, v) && !inside(hole, u, v),
       periodic: false,
       stations: grid,
       loops: [
@@ -109,7 +112,9 @@ export function test_construction_mesh_regions(): void {
     },
     {
       name: "island and hole",
-      contains: (u: number, v: number): boolean => inside([0.5, 0.5, 3.5, 3.5], u, v) && !inside([1.5, 1.5, 2.5, 2.5], u, v),
+      contains: (u: number, v: number): boolean =>
+        inside([0.5, 0.5, 3.5, 3.5], u, v) &&
+        !inside([1.5, 1.5, 2.5, 2.5], u, v),
       periodic: false,
       stations: grid,
       loops: [
@@ -128,7 +133,8 @@ export function test_construction_mesh_regions(): void {
     },
     {
       name: "hole inside one coarse cell",
-      contains: (u: number, v: number): boolean => inside([0, 0, 4, 4], u, v) && !inside([1.8, 1.8, 2.2, 2.2], u, v),
+      contains: (u: number, v: number): boolean =>
+        inside([0, 0, 4, 4], u, v) && !inside([1.8, 1.8, 2.2, 2.2], u, v),
       periodic: false,
       stations: [0, 4],
       loops: [{ kind: "hole", points: square([1.8, 1.8, 2.2, 2.2]) }],
@@ -144,7 +150,8 @@ export function test_construction_mesh_regions(): void {
     },
     {
       name: "domain edge contact",
-      contains: (u: number, v: number): boolean => inside([0, 0, 4, 4], u, v) && !inside([0, 1, 2, 3], u, v),
+      contains: (u: number, v: number): boolean =>
+        inside([0, 0, 4, 4], u, v) && !inside([0, 1, 2, 3], u, v),
       periodic: false,
       stations: grid,
       loops: [
@@ -158,7 +165,8 @@ export function test_construction_mesh_regions(): void {
     },
     {
       name: "subdivided domain contact",
-      contains: (u: number, v: number): boolean => inside([0, 0, 4, 4], u, v) && !inside([0, 1.5, 2, 2.5], u, v),
+      contains: (u: number, v: number): boolean =>
+        inside([0, 0, 4, 4], u, v) && !inside([0, 1.5, 2, 2.5], u, v),
       periodic: false,
       stations: grid,
       loops: [
@@ -172,7 +180,8 @@ export function test_construction_mesh_regions(): void {
     },
     {
       name: "domain corner contact",
-      contains: (u: number, v: number): boolean => inside([0, 0, 4, 4], u, v) && !inside([0, 0, 2, 2], u, v),
+      contains: (u: number, v: number): boolean =>
+        inside([0, 0, 4, 4], u, v) && !inside([0, 0, 2, 2], u, v),
       periodic: false,
       stations: grid,
       loops: [
@@ -204,7 +213,10 @@ export function test_construction_mesh_regions(): void {
     },
     {
       name: "periodic seam hole",
-      contains: (u: number, v: number): boolean => u > 0 && u < 4 && !(u > 1 && u < 3 && Math.abs(v - turn * Math.round(v / turn)) < 0.3),
+      contains: (u: number, v: number): boolean =>
+        u > 0 &&
+        u < 4 &&
+        !(u > 1 && u < 3 && Math.abs(v - turn * Math.round(v / turn)) < 0.3),
       periodic: true,
       stations: grid,
       loops: [{ kind: "hole", points: square([1, -0.3, 3, 0.3]) }],
@@ -212,7 +224,10 @@ export function test_construction_mesh_regions(): void {
     },
     {
       name: "translated periodic seam hole",
-      contains: (u: number, v: number): boolean => u > 0 && u < 4 && !(u > 1 && u < 3 && Math.abs(v - turn * Math.round(v / turn)) < 0.3),
+      contains: (u: number, v: number): boolean =>
+        u > 0 &&
+        u < 4 &&
+        !(u > 1 && u < 3 && Math.abs(v - turn * Math.round(v / turn)) < 0.3),
       periodic: true,
       stations: grid,
       loops: [
@@ -225,7 +240,14 @@ export function test_construction_mesh_regions(): void {
     },
     {
       name: "clipped winding end",
-      contains: (u: number, v: number): boolean => u > 0 && u < 4 - Math.max(0, 2 - 32 * Math.abs(v - turn * Math.round(v / turn)) / turn),
+      contains: (u: number, v: number): boolean =>
+        u > 0 &&
+        u <
+          4 -
+            Math.max(
+              0,
+              2 - (32 * Math.abs(v - turn * Math.round(v / turn))) / turn,
+            ),
       periodic: true,
       stations: grid,
       loops: [
@@ -356,10 +378,20 @@ function inspect(input: Case, phases: number[], failures: string[]): void {
         `triangle ${t / 3} has non-positive oriented chart area ${signed}; context ${JSON.stringify({ ids, unwrapped: chart, stored: ids.map((id: number): [number, number] => [mesh.coordinates[3 * id + 1]!, mesh.coordinates[3 * id + 2]!]) })}`,
       );
     area += signed;
-    for (const weights of [[1 / 3, 1 / 3, 1 / 3], [0.6, 0.2, 0.2], [0.2, 0.6, 0.2], [0.2, 0.2, 0.6]]) {
-      const u: number = a[0] * weights[0]! + b[0] * weights[1]! + c[0] * weights[2]!;
-      const v: number = a[1] * weights[0]! + b[1] * weights[1]! + c[1] * weights[2]!;
-      if (!input.contains(u, v)) report(`triangle ${t / 3} left its independent analytic region at ${u}/${v}`);
+    for (const weights of [
+      [1 / 3, 1 / 3, 1 / 3],
+      [0.6, 0.2, 0.2],
+      [0.2, 0.6, 0.2],
+      [0.2, 0.2, 0.6],
+    ]) {
+      const u: number =
+        a[0] * weights[0]! + b[0] * weights[1]! + c[0] * weights[2]!;
+      const v: number =
+        a[1] * weights[0]! + b[1] * weights[1]! + c[1] * weights[2]!;
+      if (!input.contains(u, v))
+        report(
+          `triangle ${t / 3} left its independent analytic region at ${u}/${v}`,
+        );
     }
     for (let k: number = 0; k < 3; k++) {
       const key: string = `${ids[k]},${ids[(k + 1) % 3]}`;

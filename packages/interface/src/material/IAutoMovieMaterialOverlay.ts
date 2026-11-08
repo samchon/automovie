@@ -5,10 +5,10 @@ import { AutoMovieTextureBinding } from "./AutoMovieTextureBinding";
  *
  * Colour alpha times `strength` controls colour, optional roughness and replacement-normal coverage. Multiply normals instead add strength-scaled XY to the existing tangent normal and multiply their Z components before normalization; this branch ignores colour alpha and can change an existing normal even at zero strength. glTF has no counterpart. These shader formulas do not prove a physical response or observed appearance.
  *
- * @evidence contracts/common.md#principled-implementation Ordered colour/roughness and replacement normals use alpha-times-strength coverage. Multiply normals use whiteout composition with strength-scaled XY and retained sampled Z, independently of colour alpha; zero strength therefore does not universally preserve an existing normal.
- * @evidence contracts/common.md#clear-and-simple-design Each overlay owns its image, blend, optional colour and relief factors and strength; the enclosing material owns list order and the four-layer budget, while texture references reuse the normal material sampling representation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No use selects a special shader branch; the same multiply or replace rule applies to any authored image, and an unavailable colour image applies no overlay instead of fabricating coverage.
- * @evidence contracts/common.md#meaningful-documentation Defines colour coverage, edge texels, ordered blend formulas, multiply-normal alpha/zero-strength limits, finite factors and defaults, and the missing glTF counterpart without a physical-response guarantee.
+ * @evidence contracts/development/design.md#principled-representation Ordered colour/roughness and replacement normals use alpha-times-strength coverage. Multiply normals use whiteout composition with strength-scaled XY and retained sampled Z, independently of colour alpha; zero strength therefore does not universally preserve an existing normal.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Each overlay owns its image, blend, optional colour and relief factors and strength; the enclosing material owns list order and the four-layer budget, while texture references reuse the normal material sampling representation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No use selects a special shader branch; the same multiply or replace rule applies to any authored image, and an unavailable colour image applies no overlay instead of fabricating coverage.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines colour coverage, edge texels, ordered blend formulas, multiply-normal alpha/zero-strength limits, finite factors and defaults, and the missing glTF counterpart without a physical-response guarantee.
  */
 export interface IAutoMovieMaterialOverlay {
   /**

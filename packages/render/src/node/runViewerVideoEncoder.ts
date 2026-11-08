@@ -4,13 +4,13 @@ import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
  * Run one FFmpeg process, retaining only the last 64 KiB of stderr. Cancellation
  * or the encoder timeout kills the child and rejection waits for process close.
  *
- * @evidence contracts/common.md#principled-implementation Node spawn passes an argument vector without shell interpretation; close establishes process completion and AbortSignal terminates cancellation through Node's supported child-process contract.
- * @evidence contracts/common.md#clear-and-simple-design This helper owns only encoder lifetime and bounded diagnostics; planning and frame capture remain separate.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nonzero exit and spawn/abort failures reject with actual diagnostic output, without retries or replacement output.
- * @evidence contracts/common.md#meaningful-documentation States process count, shell-free arguments, diagnostic bound and cancellation ownership.
- * @evidence contracts/performance.md#efficient-algorithms Each stderr chunk copies at most its own bytes plus the retained 64 KiB tail; stdout is drained and discarded.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Encoding is an effectful single invocation and is not shared.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Owns one child until close; abort or the finite encoder timeout kills it, the timer clears on close, stdout is drained and stderr retention is capped at 65536 bytes.
+ * @evidence contracts/development/implementation.md#principled-implementation Node spawn passes an argument vector without shell interpretation; close establishes process completion and AbortSignal terminates cancellation through Node's supported child-process contract.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This helper owns only encoder lifetime and bounded diagnostics; planning and frame capture remain separate.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonzero exit and spawn/abort failures reject with actual diagnostic output, without retries or replacement output.
+ * @evidence contracts/development/common.md#meaningful-documentation States process count, shell-free arguments, diagnostic bound and cancellation ownership.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each stderr chunk copies at most its own bytes plus the retained 64 KiB tail; stdout is drained and discarded.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Encoding is an effectful single invocation and is not shared.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns one child until close; abort or the finite encoder timeout kills it, the timer clears on close, stdout is drained and stderr retention is capped at 65536 bytes.
  */
 export function runViewerVideoEncoder(
   executable: string,

@@ -26,10 +26,11 @@ import { nclose } from "../internal/predicates";
  * 3. Non-loop twin: the same motion with loop off clamps past the end on both
  *    sides (parity at t = duration + 0.5).
  *
- * @evidence contracts/testing.md#behavioral-verification Bakes the looping fixture and checks id/loop/exact duration, then invokes the actual bridge-versus-FK helper at bake times and duration/later/negative queries, plus a non-looping past-end twin.
- * @evidence contracts/testing.md#independent-expectations Literal duration 1 and the local 0-to-90-to-0 seam-closed motion define the fixture; modulo/clamp equivalence is a metamorphic representation law with shared product math, not an independent geometry oracle. Existing default 1e-6 position/quaternion-dot tolerances remain and duration uses eps0.
- * @evidence contracts/testing.md#distinguishing-cases Retains full bake grid, exact duration wrap, 1.3 and -0.2 queries, plus non-looping 1.5 clamp. The default-rate queried linear sections are this fixture's scope; arbitrary easing and between-sample error are covered separately.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns its metadata bake and both parity helper invocations; the helper's product call tree uses local data and registers no tests. No viewer, process or native artifact is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Bakes the looping fixture and checks id/loop/exact duration, then invokes the actual bridge-versus-FK helper at bake times and duration/later/negative queries, plus a non-looping past-end twin.
+ * @evidence contracts/development/testing.md#independent-expectations Literal duration 1 and the local 0-to-90-to-0 seam-closed motion define the fixture; modulo/clamp equivalence is a metamorphic representation law with shared product math, not an independent geometry oracle. Existing default 1e-6 position/quaternion-dot tolerances remain and duration uses eps0.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains full bake grid, exact duration wrap, 1.3 and -0.2 queries, plus non-looping 1.5 clamp. The default-rate queried linear sections are this fixture's scope; arbitrary easing and between-sample error are covered separately.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns its metadata bake and both parity helper invocations; the helper's product call tree uses local data and registers no tests. No viewer, process or native artifact is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The bridge copies the motion's loop flag, id, and duration onto the clip.).
  */
 export function test_motion_to_clip_loop(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

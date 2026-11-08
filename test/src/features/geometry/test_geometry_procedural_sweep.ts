@@ -37,10 +37,11 @@ const sweep = (
  * 2. The same bent sweep rebuilds to identical numbers.
  * 3. A one-point path, a non-finite point and two coincident points are each refused by the spine's own diagnostic.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs `meshAutoMovieSweep` on a bent and a vertical path, asserting finite buffers, the vertical prism's volume through `inspectAutoMovieMeshTopology`, exact rebuild of the bend, and the three spine refusals.
- * @evidence contracts/testing.md#independent-expectations The vertical two-metre square carried two metres encloses 2 * 2 * 2 = 8 cubic metres, a closed-form prism volume; the refusal texts are the spine's documented diagnostics. Rebuild equality tests determinism, not independently expected bent geometry.
- * @evidence contracts/testing.md#distinguishing-cases Covers a turning path and a straight vertical one, an exact rebuild, and three malformed paths one property away from the vertical sweep; interpolation between stations, guides and the atlas are owned by the other sweep and loft tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable named entry calls portable engine functions directly; it installs no consumer, builds no native artifact and starts no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `meshAutoMovieSweep` on a bent and a vertical path, asserting finite buffers, the vertical prism's volume through `inspectAutoMovieMeshTopology`, exact rebuild of the bend, and the three spine refusals.
+ * @evidence contracts/development/testing.md#independent-expectations The vertical two-metre square carried two metres encloses 2 * 2 * 2 = 8 cubic metres, a closed-form prism volume; the refusal texts are the spine's documented diagnostics. Rebuild equality tests determinism, not independently expected bent geometry.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers a turning path and a straight vertical one, an exact rebuild, and three malformed paths one property away from the vertical sweep; interpolation between stations, guides and the atlas are owned by the other sweep and loft tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable named entry calls portable engine functions directly; it installs no consumer, builds no native artifact and starts no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A square swept along a horizontal right-angle bend and up a vertical path both give finite, nonempty meshes, and the vertical sweep of a...).
  */
 export function test_geometry_procedural_sweep(): void {
   const small: IAutoMovieProfilePoint[] = square.map(

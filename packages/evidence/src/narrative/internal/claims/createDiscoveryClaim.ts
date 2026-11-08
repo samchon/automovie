@@ -24,13 +24,13 @@ import { createDiscoveryReferences } from "../references/createDiscoveryReferenc
  * one a work declared has to be possible in a single file; scattered through
  * the contracts it means reading the contracts to find out what was skipped.
  *
- * @evidence contracts/common.md#principled-implementation Open-world duties target shared/language discovery H2s while their hosts are work-contract files, with negative findings centralized on one discovery carrier and stage activation derived from construction.
- * @evidence contracts/common.md#clear-and-simple-design The claim factory owns this contract-to-contract relation rather than asking manuscript units to testify about whether their contract was discovered.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The one negative-results carrier is the declared discovery workflow, and settings omits narrative-layer questions through the shared reference factory rather than a consumer exception.
- * @evidence contracts/common.md#meaningful-documentation The prose identifies adopted-rule hosts, truthful negative findings, the single negative carrier and why manuscript hosts cannot answer this relation.
- * @evidence contracts/performance.md#efficient-algorithms The factory constructs one claim and a fixed-size discovery-reference list; its one optional language-file existence probe and path operations dominate fixed population work, independent of manuscript length.
- * @evidence contracts/performance.md#reuse-equivalent-work Shared and language discovery reference builders own their selection rules; the optional language contract is probed on each config construction so installation changes are not hidden behind a cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned claim and references are caller-owned, with a fixed family count; the synchronous existence probe exposes no retained handle or background task.
+ * @evidence contracts/development/implementation.md#principled-implementation Open-world duties target shared/language discovery H2s while their hosts are work-contract files, with negative findings centralized on one discovery carrier and stage activation derived from construction.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The claim factory owns this contract-to-contract relation rather than asking manuscript units to testify about whether their contract was discovered.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The one negative-results carrier is the declared discovery workflow, and settings omits narrative-layer questions through the shared reference factory rather than a consumer exception.
+ * @evidence contracts/development/common.md#meaningful-documentation The prose identifies adopted-rule hosts, truthful negative findings, the single negative carrier and why manuscript hosts cannot answer this relation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The factory constructs one claim and a fixed-size discovery-reference list; its one optional language-file existence probe and path operations dominate fixed population work, independent of manuscript length.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared and language discovery reference builders own their selection rules; the optional language contract is probed on each config construction so installation changes are not hidden behind a cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned claim and references are caller-owned, with a fixed family count; the synchronous existence probe exposes no retained handle or background task.
  */
 export function createDiscoveryClaim(
   props: IProductionConfigProps,

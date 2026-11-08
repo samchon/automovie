@@ -1,10 +1,10 @@
-import { createEvidenceConfig } from "@automovie/evidence";
 import {
   type IProductionConfigProps,
+  createEvidenceConfig,
   createPackageContract,
   createPackagePopulationContract,
   createProductionConfig,
-} from "@automovie/evidence/narrative";
+} from "@automovie/evidence";
 import type {
   IEvidenceCheckAnalysis,
   IEvidenceClaim,
@@ -25,10 +25,11 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * 4. Unsupported script naturalness settings and source tuples are refused.
  * 5. Language and work expression duties stay on construction, not a retired final pass.
  *
- * @evidence contracts/testing.md#behavioral-verification Evaluates real Markdown through native Evidence while removing and restoring unit and population expression answers; unsupported stage and source tuple options are checked at configuration construction.
- * @evidence contracts/testing.md#independent-expectations The lifecycle requires script unit expression and population duties during construction, independently of screenplay revision; a missing answer must block rather than be deferred to a frozen edition. Fixture certification supplies native fingerprints, not creative approval.
- * @evidence contracts/testing.md#distinguishing-cases Missing unit and population answers distinguish their independent native duties; restored answers establish complete coverage. Language and work duties exercise the same construction respondents. Unsupported script naturalness settings and both legacy source tuples fail configuration validation.
- * @evidence contracts/testing.md#execution-ownership The exported asynchronous entry evaluates public APIs in process and owns its temporary files under finally, without an installed consumer, subprocess, browser, GPU or replacement of a foreign method.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates real Markdown through native Evidence while removing and restoring unit and population expression answers; unsupported stage and source tuple options are checked at configuration construction.
+ * @evidence contracts/development/testing.md#independent-expectations The lifecycle requires script unit expression and population duties during construction, independently of screenplay revision; a missing answer must block rather than be deferred to a frozen edition. Fixture certification supplies native fingerprints, not creative approval.
+ * @evidence contracts/development/testing.md#distinguishing-cases Missing unit and population answers distinguish their independent native duties; restored answers establish complete coverage. Language and work duties exercise the same construction respondents. Unsupported script naturalness settings and both legacy source tuples fail configuration validation.
+ * @evidence contracts/development/testing.md#execution-ownership The exported asynchronous entry evaluates public APIs in process and owns its temporary files under finally, without an installed consumer, subprocess, browser, GPU or replacement of a foreign method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Missing unit expression answers block construction despite valid content.).
  */
 export async function test_template_production_script_expression(): Promise<void> {
   const root: string = ProductionWorkflowFixture.create();

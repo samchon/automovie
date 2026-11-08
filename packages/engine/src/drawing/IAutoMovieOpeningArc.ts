@@ -7,13 +7,10 @@ import { IAutoMoviePlanarPoint } from "@automovie/interface";
  * at angle `start` about `center`, and turns by the signed `sweep` to reach
  * the edge's `to` point; a negative sweep runs clockwise.
  *
- * @evidence contracts/common.md#principled-implementation Centre, radius, start angle and signed sweep are the standard parametrization of a circular arc, from which both chord points and the circular-segment area follow in closed form.
- * @evidence contracts/common.md#clear-and-simple-design The four numbers the drafted outline and the exact area both need, so the conversion from a bulge happens once in `autoMovieOpeningArc`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Carries no special case; a straight edge has no arc record at all rather than a sentinel radius.
- * @evidence contracts/common.md#meaningful-documentation The comment states the producer, the frame, how start and sweep reach the edge's two ends, the sweep's sign convention and formula, its validated bound and the radius's sign.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A four-field arc record that computes nothing; `autoMovieOpeningArc` states the cost of producing it.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A value record produced per edge; there is no work to share.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds four numbers and owns no handle or task.
+ * @evidence contracts/development/design.md#principled-representation Centre, radius, start angle and signed sweep are the standard parametrization of a circular arc, from which both chord points and the circular-segment area follow in closed form.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The four numbers the drafted outline and the exact area both need, so the conversion from a bulge happens once in `autoMovieOpeningArc`.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries no special case; a straight edge has no arc record at all rather than a sentinel radius.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states the producer, the frame, how start and sweep reach the edge's two ends, the sweep's sign convention and formula, its validated bound and the radius's sign.
  */
 export interface IAutoMovieOpeningArc {
   /** Centre of the arc's circle, in profile-frame metres. */

@@ -53,3 +53,8 @@ export * from "./normalizeGuidePasses";
 export * from "./planGuidePassOutputs";
 export * from "./audio";
 export * from "./cache/createAutoMovieHttpArtifactStore";
+export * from "./node";
+export * from "./node/capture/DEFAULT_CHROME_EXECUTABLE";
+export * from "./film/equalOrderedScalars";
+export * from "./node/equalRational";
+export * from "./node/exactProductionClockProduct";

@@ -125,10 +125,11 @@ const run: (
  * 2. Accept the identical actions on the outward rest-chain twin.
  * 3. Leave non-arm hold and unresolved skeleton lookup outside this arm-chain refusal.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs stageScene and performShot and checks located hand/kind faults, geometry guidance and accepted twins, catching an unperformable arm request silently skipped after null synthesis.
- * @evidence contracts/testing.md#independent-expectations The authored down-chain rest direction is parallel to its flexion axis, while the outward twin changes that direction alone; the gate contract makes the former unbendable for these verbs. The test measures admission, not a rendered reach trajectory.
- * @evidence contracts/testing.md#distinguishing-cases Keeps reach and both right-arm gestures, outward positive twins, hold and unresolved-rig scope boundaries. Solver position accuracy, region masking and motion constraints have dedicated tests.
- * @evidence contracts/testing.md#execution-ownership The synchronous discoverable unit owns all in-memory performance gate cases and directly calls engine source with the existing numerical synthesizer; no native rig, browser or GPU is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs stageScene and performShot and checks located hand/kind faults, geometry guidance and accepted twins, catching an unperformable arm request silently skipped after null synthesis.
+ * @evidence contracts/development/testing.md#independent-expectations The authored down-chain rest direction is parallel to its flexion axis, while the outward twin changes that direction alone; the gate contract makes the former unbendable for these verbs. The test measures admission, not a rendered reach trajectory.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps reach and both right-arm gestures, outward positive twins, hold and unresolved-rig scope boundaries. Solver position accuracy, region masking and motion constraints have dedicated tests.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable unit owns all in-memory performance gate cases and directly calls engine source with the existing numerical synthesizer; no native rig, browser or GPU is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Refuse reach, point and strike on an arms-down chain with located geometry guidance.).
  */
 export function test_film_perform_shot_arm_chain_gate(): void {
   // 1. the refusal, at the field that names the arm

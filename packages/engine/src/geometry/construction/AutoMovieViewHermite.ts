@@ -7,25 +7,19 @@ import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
 /**
  * Explicit C2 source jets and sufficient scalar-range filtering of shared quintic Hermite knot jets.
  *
- * @evidence contracts/common.md#principled-implementation Shared endpoint values/first/second derivatives determine quintic spans; containing every Bezier control in an explicit scalar interval bounds the whole span by convex hull.
- * @evidence contracts/common.md#clear-and-simple-design Prepares only requested jet/range curves; the unrequested natural-cubic path remains with ViewOutline.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Authored data is retained or refused, never clamped; a hull refusal is not described as an actual curve violation, and a scalar interval is not a world-frame constraint.
- * @evidence contracts/common.md#meaningful-documentation States normalized source-jet units, sufficient hull filtering, extension limits and its explicit flattening convention.
- * @evidence contracts/performance.md#efficient-algorithms Linear preparation and critical-parameter observation; value/derivative queries locate one span by binary search and evaluate a fixed-degree polynomial.
- * @evidence contracts/performance.md#reuse-equivalent-work Natural knot jets and quintic coefficients are formed once for all reads.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One source owns O(n) jets and coefficients; queries retain no state or global cache.
+ * @evidence contracts/development/common.md#meaningful-documentation States normalized source-jet units, sufficient hull filtering, extension limits and its explicit flattening convention.
+ * @evidence contracts/development/design.md#principled-representation Represents Explicit C2 source jets and sufficient scalar-range filtering of shared quintic Hermite knot jets: companion namespace of 8 members (`ICurve`, `create`, `value`, `derivative`, `read`, `critical`, ...); units and frames named in its text: second, degree, local, byte. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieViewHermite` in packages/engine/src/geometry/construction/AutoMovieViewHermite.ts; its surface is the 8 members listed and the text shows 9 other files naming it, mostly packages/human (6), packages/engine (2), test (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieViewHermite {
   /**
    * Prepared spans in the selected unnormalized source parameter.
    *
-   * @evidence contracts/common.md#principled-implementation Retains one shared first/second jet per source knot and fixed-degree coefficients on each positive interval.
-   * @evidence contracts/common.md#clear-and-simple-design Existing abscissae/ordinates and three derived arrays suffice for all source reads.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Holds no emitted sections or fitted source points.
-   * @evidence contracts/common.md#meaningful-documentation Members distinguish parameter jets from normalized per-span polynomial coefficients.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record carries preparation; the producer and readers own reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The enclosing source owns its O(n) derived arrays and already-owned natural knots.
+   * @evidence contracts/development/design.md#principled-representation Retains one shared first/second jet per source knot and fixed-degree coefficients on each positive interval.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Existing abscissae/ordinates and three derived arrays suffice for all source reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Holds no emitted sections or fitted source points.
+   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish parameter jets from normalized per-span polynomial coefficients.
    */
   export interface ICurve {
     /** Source parameter knots, shared with the owning admitted natural source. */
@@ -43,13 +37,13 @@ export namespace AutoMovieViewHermite {
   /**
    * Admit requested normalized source jets and an optional sufficient scalar hull bound.
    *
-   * @evidence contracts/common.md#principled-implementation Converts normalized jets by the whole parameter span and retains natural components for nulls; a node shares both derivatives across incident quintics. Each unauthored natural jet starts at its largest linear-constraint factor in [0,1]; at most 64 inward adjacent binary64 factors resolve rounded control arithmetic, otherwise preparation reports representability failure.
-   * @evidence contracts/common.md#clear-and-simple-design One linear preparation produces coefficients or a named source failure, with no alternate curve after refusal.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Out-of-range knots, nonfinite jets/arithmetic and conflicting authored hulls are explicit failures; a zero factor is a documented flattening convention, not a least-bending claim.
-   * @evidence contracts/common.md#meaningful-documentation States jet normalization, null components, sufficient hull semantics and closed-knot-span scope.
-   * @evidence contracts/performance.md#efficient-algorithms Linear passes derive natural jets, admit four controls per knot with at most 64 adjacent-factor rounding attempts, and build fixed-degree coefficients; no per-knot spline scan is repeated.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the admitted natural curvature solve and stores one final jet/coefficient preparation for all value, derivative and critical reads.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Successful sources own O(n) arrays; failed local preparation is released and no global cache retains input records.
+   * @evidence contracts/development/implementation.md#principled-implementation Converts normalized jets by the whole parameter span and retains natural components for nulls; a node shares both derivatives across incident quintics. Each unauthored natural jet starts at its largest linear-constraint factor in [0,1]; at most 64 inward adjacent binary64 factors resolve rounded control arithmetic, otherwise preparation reports representability failure.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One linear preparation produces coefficients or a named source failure, with no alternate curve after refusal.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Out-of-range knots, nonfinite jets/arithmetic and conflicting authored hulls are explicit failures; a zero factor is a documented flattening convention, not a least-bending claim.
+   * @evidence contracts/development/common.md#meaningful-documentation States jet normalization, null components, sufficient hull semantics and closed-knot-span scope.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear passes derive natural jets, admit four controls per knot with at most 64 adjacent-factor rounding attempts, and build fixed-degree coefficients; no per-knot spline scan is repeated.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the admitted natural curvature solve and stores one final jet/coefficient preparation for all value, derivative and critical reads.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Successful sources own O(n) arrays; failed local preparation is released and no global cache retains input records.
    */
   export function create(
     spline: AutoMovieNaturalSpline.ISpline,
@@ -188,13 +182,13 @@ export namespace AutoMovieViewHermite {
   /**
    * Scalar value, with the endpoint tangent beyond the closed source knot span.
    *
-   * @evidence contracts/common.md#principled-implementation Evaluates the unique admitted Hermite polynomial on a span and its first-order parameter tangent outside the source knots.
-   * @evidence contracts/common.md#clear-and-simple-design A value-only query allocates no derivative or reading record.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Returns the original exact knot ordinate at a knot and never clamps a range or extension value.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes the closed-span hull guarantee from open tangent extension.
-   * @evidence contracts/performance.md#efficient-algorithms O(log n) span search plus constant Horner arithmetic.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reads already prepared coefficients and endpoint jets.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one scalar and retains no query state.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the unique admitted Hermite polynomial on a span and its first-order parameter tangent outside the source knots.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A value-only query allocates no derivative or reading record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Returns the original exact knot ordinate at a knot and never clamps a range or extension value.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes the closed-span hull guarantee from open tangent extension.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(log n) span search plus constant Horner arithmetic.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads already prepared coefficients and endpoint jets.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no query state.
    */
   export function value(curve: ICurve, x: number): number {
     const last: number = curve.xs.length - 1;
@@ -215,13 +209,13 @@ export namespace AutoMovieViewHermite {
   /**
    * First/second derivatives in the selected source parameter.
    *
-   * @evidence contracts/common.md#principled-implementation Differentiates the same quintic polynomial analytically, retaining the shared authored knot jets and zero second derivative on tangent extension.
-   * @evidence contracts/common.md#clear-and-simple-design One two-number result supplies the outline's existing station chain rule.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no finite differences or fabricated endpoint jet; derivatives outside the knot span belong to the stated tangent extension.
-   * @evidence contracts/common.md#meaningful-documentation States derivative parameter and extension behavior.
-   * @evidence contracts/performance.md#efficient-algorithms O(log n) search and two constant-degree Horner evaluations.
-   * @evidence contracts/performance.md#reuse-equivalent-work Uses the prepared shared jets and coefficients.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one pair and retains no query state.
+   * @evidence contracts/development/implementation.md#principled-implementation Differentiates the same quintic polynomial analytically, retaining the shared authored knot jets and zero second derivative on tangent extension.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One two-number result supplies the outline's existing station chain rule.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses no finite differences or fabricated endpoint jet; derivatives outside the knot span belong to the stated tangent extension.
+   * @evidence contracts/development/common.md#meaningful-documentation States derivative parameter and extension behavior.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(log n) search and two constant-degree Horner evaluations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the prepared shared jets and coefficients.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one pair and retains no query state.
    */
   export function derivative(curve: ICurve, x: number): [number, number] {
     const last: number = curve.xs.length - 1;
@@ -244,13 +238,13 @@ export namespace AutoMovieViewHermite {
   /**
    * Value and both parameter derivatives from one selected original span.
    *
-   * @evidence contracts/common.md#principled-implementation Uses the identical prepared quintic Horner expressions and authored knot jets as value/derivative, including each original endpoint and exterior tangent rule.
-   * @evidence contracts/common.md#clear-and-simple-design One lookup supplies a consumer that needs all three values; the separate scalar/derivative APIs remain available.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No new polynomial, clamp, finite-difference derivative, failed-value replacement or retained query is introduced.
-   * @evidence contracts/common.md#meaningful-documentation Returns value, first and second derivatives in the source parameter, with the existing NaN/infinite-input arithmetic.
-   * @evidence contracts/performance.md#efficient-algorithms One O(log n) search and the existing constant-degree Horner expressions replace two searches in a combined consumer.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the same span, normalized coordinate and coefficients for value and both derivatives within this query; no generic algebra callbacks or cross-input cache are involved.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one fresh three-number tuple and retains no input, cursor or query state.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the identical prepared quintic Horner expressions and authored knot jets as value/derivative, including each original endpoint and exterior tangent rule.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup supplies a consumer that needs all three values; the separate scalar/derivative APIs remain available.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No new polynomial, clamp, finite-difference derivative, failed-value replacement or retained query is introduced.
+   * @evidence contracts/development/common.md#meaningful-documentation Returns value, first and second derivatives in the source parameter, with the existing NaN/infinite-input arithmetic.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(log n) search and the existing constant-degree Horner expressions replace two searches in a combined consumer.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same span, normalized coordinate and coefficients for value and both derivatives within this query; no generic algebra callbacks or cross-input cache are involved.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh three-number tuple and retains no input, cursor or query state.
    */
   export function read(curve: ICurve, x: number): [number, number, number] {
     const last: number = curve.xs.length - 1;
@@ -285,13 +279,13 @@ export namespace AutoMovieViewHermite {
   /**
    * Additional isolated zero-slope parameters strictly inside each source span.
    *
-   * @evidence contracts/common.md#principled-implementation Reads every quintic derivative polynomial through the bounded-degree monotone-partition root owner, excluding named knots and constant spans.
-   * @evidence contracts/common.md#clear-and-simple-design Produces only additional source observations for the existing knot-plus-critical renderer workflow.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not infer extrema from emitted sections or assert interval certification for binary64 roots.
-   * @evidence contracts/common.md#meaningful-documentation States root meaning, excluded knots and the numerical observation limit.
-   * @evidence contracts/performance.md#efficient-algorithms O(n) spans with bounded degree-four root work; near-zero partition candidates can add observations beyond the four mathematical roots, with at most fifteen candidates per span from the bounded recursion.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work One inspection reads a fixed prepared source; the caller can retain its resulting sampling stations.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The invocation-local output holds at most fifteen binary64 candidates per source span and retains no additional source owner.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads every quintic derivative polynomial through the bounded-degree monotone-partition root owner, excluding named knots and constant spans.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Produces only additional source observations for the existing knot-plus-critical renderer workflow.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not infer extrema from emitted sections or assert interval certification for binary64 roots.
+   * @evidence contracts/development/common.md#meaningful-documentation States root meaning, excluded knots and the numerical observation limit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(n) spans with bounded degree-four root work; near-zero partition candidates can add observations beyond the four mathematical roots, with at most fifteen candidates per span from the bounded recursion.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One inspection reads a fixed prepared source; the caller can retain its resulting sampling stations.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The invocation-local output holds at most fifteen binary64 candidates per source span and retains no additional source owner.
    */
   export function critical(curve: ICurve): number[] {
     return curve.coefficients.flatMap(

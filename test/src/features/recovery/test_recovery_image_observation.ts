@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryImageInput } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryImageInput } from "@automovie/interface";
 import { observeAutoMovieRecoveryImages } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
@@ -21,10 +21,11 @@ interface RecoveryImageMutation {
  * 3. Sparse camera/background/view arrays, wrong byte populations, unrepresentable pixel charts and exhausted budgets refuse.
  * 4. Cancellation and a failing progress observer preserve terminal outcome semantics.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the public RGB observer and asserts physical row coordinates, edge limits, cloned camera ownership, explicit rejection reasons and callback/cancellation outcomes rather than source arrangement.
- * @evidence contracts/testing.md#independent-expectations Analytic pixel-centre raster truth fixes the first row at 0.125 mm and the last at 99.875 mm. Ideal measured edge error is at most half the 0.25 mm pitch. On a four-by-four inset square, abs(byte-background) >= threshold independently determines complete versus empty support for all 256 values of each channel at thresholds .5, 20, 20.5 and 255.
- * @evidence contracts/testing.md#distinguishing-cases Covers valid extent, colour threshold, empty support, horizontal and vertical clipping/connectivity, eight-connected diagonals versus disjoint consecutive row intervals, sparse tuples/populations, exact byte length, pixel/row/view budgets and terminal callbacks. Inverse fit and independent surface generation have separate tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable portable test_recovery_image_observation entry uses resident arrays and caller-owned AbortControllers only, with no process, filesystem, renderer, native artifact or foreign-method replacement.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public RGB observer and asserts physical row coordinates, edge limits, cloned camera ownership, explicit rejection reasons and callback/cancellation outcomes rather than source arrangement.
+ * @evidence contracts/development/testing.md#independent-expectations Analytic pixel-centre raster truth fixes the first row at 0.125 mm and the last at 99.875 mm. Ideal measured edge error is at most half the 0.25 mm pitch. On a four-by-four inset square, abs(byte-background) >= threshold independently determines complete versus empty support for all 256 values of each channel at thresholds .5, 20, 20.5 and 255.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers valid extent, colour threshold, empty support, horizontal and vertical clipping/connectivity, eight-connected diagonals versus disjoint consecutive row intervals, sparse tuples/populations, exact byte length, pixel/row/view budgets and terminal callbacks. Inverse fit and independent surface generation have separate tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable portable test_recovery_image_observation entry uses resident arrays and caller-owned AbortControllers only, with no process, filesystem, renderer, native artifact or foreign-method replacement.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Three calibrated images yield four hundred ordered physical rows per view.).
  */
 export function test_recovery_image_observation(): void {
   const input: IAutoMovieRecoveryImageInput = recoveryImageFixture();

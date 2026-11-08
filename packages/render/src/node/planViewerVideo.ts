@@ -5,13 +5,13 @@ import type { IAutoMovieViewerVideoOptions } from "./IAutoMovieViewerVideoOption
 /**
  * Admit an exact finite capture clock and construct one video/audio encode vector.
  *
- * @evidence contracts/common.md#principled-implementation A finite safe integral duration-times-fps product admits exact frame count before renderVideo's rounded schedule. FFmpeg maps explicit streams and pads/trims audio against that clock, never against the shortest input.
- * @evidence contracts/common.md#clear-and-simple-design Portable admission and argument construction are separated from process/browser effects so invalid requests fail before allocation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No duration is rounded into acceptance; the existing video encoder vector remains the basis for both silent and sound output.
- * @evidence contracts/common.md#meaningful-documentation Documents exact frame admission, explicit stream mapping and soundtrack extent.
- * @evidence contracts/performance.md#efficient-algorithms Fixed-size validation and argument construction cost O(1) in frame count and allocate no frame schedule.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each request is admitted once and no effectful work is shared.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns only frame count and argument strings; acquires no native resource.
+ * @evidence contracts/development/implementation.md#principled-implementation A finite safe integral duration-times-fps product admits exact frame count before renderVideo's rounded schedule. FFmpeg maps explicit streams and pads/trims audio against that clock, never against the shortest input.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Portable admission and argument construction are separated from process/browser effects so invalid requests fail before allocation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No duration is rounded into acceptance; the existing video encoder vector remains the basis for both silent and sound output.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents exact frame admission, explicit stream mapping and soundtrack extent.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-size validation and argument construction cost O(1) in frame count and allocate no frame schedule.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each request is admitted once and no effectful work is shared.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns only frame count and argument strings; acquires no native resource.
  */
 export function planViewerVideo(options: IAutoMovieViewerVideoOptions): {
   frameCount: number;

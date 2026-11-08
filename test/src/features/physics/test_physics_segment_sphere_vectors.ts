@@ -31,10 +31,11 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
  *    segment checks.
  * 3. Finite segment/sphere intersection behavior is preserved.
  *
- * @evidence contracts/testing.md#behavioral-verification Rejects non-finite segment or center vectors through both collision entries and checks a valid entry parameter, catching invalid roots silently converted into misses while preserving finite intersections.
- * @evidence contracts/testing.md#independent-expectations Finite vector admission and authored one-dimensional geometry give refusal and entry 0.4 independently of implementation output; exceptions are checked for presence rather than identity.
- * @evidence contracts/testing.md#distinguishing-cases Separates invalid start, end and center, inherited projectile-center admission and a finite positive twin; radius and timing admission belong to neighboring units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit supplies local records and owns every assertion without real processes, browsers, GPUs or dynamic cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Rejects non-finite segment or center vectors through both collision entries and checks a valid entry parameter, catching invalid roots silently converted into misses while preserving finite intersections.
+ * @evidence contracts/development/testing.md#independent-expectations Finite vector admission and authored one-dimensional geometry give refusal and entry 0.4 independently of implementation output; exceptions are checked for presence rather than identity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates invalid start, end and center, inherited projectile-center admission and a finite positive twin; radius and timing admission belong to neighboring units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit supplies local records and owns every assertion without real processes, browsers, GPUs or dynamic cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite segment start, segment end, and sphere center components throw.).
  */
 export function test_physics_segment_sphere_vectors(): void {
   const a: IAutoMovieVector3 = v(0, 0, 0);

@@ -21,10 +21,11 @@ import { material } from "../internal/renderFixtures";
  * 2. Generation/filter combinations, malformed levels and both independently required environment products retain unknown bytes/cardinality.
  * 3. Intrinsic/display and raw factory dimensions contrast matching fallback; framebuffer, depth, compressed and target families preserve their separate ownership boundary.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls real texture observation and Engine closure over authored manual layouts and unsupported families, preserving diagnostics while refusing bytes/cardinality.
- * @evidence contracts/testing.md#independent-expectations Authored first-level sizes, independently required closure populations and unknown-value expectations judge metadata; current flags do not establish prior native upload layout.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts empty/manual/generated/filter policies, canonical/malformed levels, intrinsic/display dimensions and framebuffer/depth/compressed/target families without inventing safe storage.
- * @evidence contracts/testing.md#execution-ownership The named entry owns existing CPU Three inputs, releases wrappers and uses no native renderer, GPU query or new layout driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls real texture observation and Engine closure over authored manual layouts and unsupported families, preserving diagnostics while refusing bytes/cardinality.
+ * @evidence contracts/development/testing.md#independent-expectations Authored first-level sizes, independently required closure populations and unknown-value expectations judge metadata; current flags do not establish prior native upload layout.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts empty/manual/generated/filter policies, canonical/malformed levels, intrinsic/display dimensions and framebuffer/depth/compressed/target families without inventing safe storage.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry owns existing CPU Three inputs, releases wrappers and uses no native renderer, GPU query or new layout driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty/manual mip configurations distinguish supported authority from retained authored first-level extents and uncertain native history.).
  */
 export async function test_viewer_texture_manual_layout_uncertainty(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

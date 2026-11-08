@@ -89,10 +89,11 @@ const same: (
  * 5. A tolerance on one axis alone leaves the other axis exact, so the two bounds
  *    are independent rather than one shared jitter.
  *
- * @evidence contracts/testing.md#behavioral-verification Regenerates actual formation slots and observes undressed/zero-dressed lattice identity, bounded nonzero displacement, seed reproducibility/variation and independent dressing axes; always-zero jitter, exceeded tolerance or cross-axis leakage fails.
- * @evidence contracts/testing.md#independent-expectations Four ranks of 25 and authored 0.7/1.2-meter spacing independently determine the line lattice, while 0.25/0.4-meter bounds define permitted deviations. Same-seed comparisons are consistency checks, and the fixed seeds' every-member displacement is stronger than merely observing one changed slot without predicting hash outputs.
- * @evidence contracts/testing.md#distinguishing-cases Covers omitted dressing, zero bounds, both nonzero bounds, repeated and changed seeds and lateral-only dressing over all 100 slots; other layouts, terrain and malformed design admission have separate units.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_world_formation_dressing entry owns direct CPU slot regeneration and local numeric facts, with no renderer, browser, Human asset or dynamic scenario registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Regenerates actual formation slots and observes undressed/zero-dressed lattice identity, bounded nonzero displacement, seed reproducibility/variation and independent dressing axes; always-zero jitter, exceeded tolerance or cross-axis leakage fails.
+ * @evidence contracts/development/testing.md#independent-expectations Four ranks of 25 and authored 0.7/1.2-meter spacing independently determine the line lattice, while 0.25/0.4-meter bounds define permitted deviations. Same-seed comparisons are consistency checks, and the fixed seeds' every-member displacement is stronger than merely observing one changed slot without predicting hash outputs.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers omitted dressing, zero bounds, both nonzero bounds, repeated and changed seeds and lateral-only dressing over all 100 slots; other layouts, terrain and malformed design admission have separate units.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_world_formation_dressing entry owns direct CPU slot regeneration and local numeric facts, with no renderer, browser, Human asset or dynamic scenario registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A layout with no dressing places every member on exact lattice geometry,).
  */
 export function test_world_formation_dressing(): void {
   const exact: ReturnType<typeof positions> = positions(line({ seed: 7 }));

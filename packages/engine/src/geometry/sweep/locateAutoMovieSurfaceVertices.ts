@@ -26,13 +26,13 @@ import { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
  * @returns One location per vertex, in vertex order.
  * @throws Error when the network's patches are not the cage's, a parameter's face is out of range or not a quad, or its coordinates leave 0 to 1.
  *
- * @evidence contracts/common.md#principled-implementation Chart composition: the subdivision's face parameters through the sampler's per-corner patch coordinates, then a sweep patch's affine map to its domain rectangle.
- * @evidence contracts/common.md#clear-and-simple-design Reads only the parameters, the corner coordinates and the patch ranges; it neither subdivides nor evaluates a sweep.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A cage from another network is refused by its patch names instead of matched by position, and a non-quad face, which the sampler never emits, is refused rather than guessed.
- * @evidence contracts/common.md#meaningful-documentation States the chart, its within-patch exactness and continuity, its seam limitation, the domain map, the pose independence and every refusal.
- * @evidence contracts/performance.md#efficient-algorithms O(V + P) for V vertices and P patches, a constant blend per vertex.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A single pass; the caller keeps its result across poses, as the description states.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the result holds one location per vertex, owned by the caller.
+ * @evidence contracts/development/implementation.md#principled-implementation Chart composition: the subdivision's face parameters through the sampler's per-corner patch coordinates, then a sweep patch's affine map to its domain rectangle.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads only the parameters, the corner coordinates and the patch ranges; it neither subdivides nor evaluates a sweep.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cage from another network is refused by its patch names instead of matched by position, and a non-quad face, which the sampler never emits, is refused rather than guessed.
+ * @evidence contracts/development/common.md#meaningful-documentation States the chart, its within-patch exactness and continuity, its seam limitation, the domain map, the pose independence and every refusal.
+ * @evidence contracts/development/implementation.md#efficient-algorithms O(V + P) for V vertices and P patches, a constant blend per vertex.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A single pass; the caller keeps its result across poses, as the description states.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the result holds one location per vertex, owned by the caller.
  */
 export const locateAutoMovieSurfaceVertices: (props: {
   network: IAutoMovieSurfaceNetwork;

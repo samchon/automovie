@@ -96,10 +96,11 @@ const key: (time: number, rootY: number) => IAutoMovieKeyframe = (
  *    at the custom address; the default-plane midpoint owns the depth assertion.
  * 4. NaN/zero sample rates and NaN tolerance produce located range failures instead of silently skipping the time walk.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual ground-contact sampling and checks advisory penetration paths, the midpoint depth, intent suppression and custom-ground warning count, then requires malformed rate/tolerance errors.
- * @evidence contracts/testing.md#independent-expectations Existing leg rest offsets sum to ground height, so a -0.2 root midpoint gives 0.2m penetration; a 0.1 raised ground over a one-second still clip sampled at 1Hz gives two endpoint warnings. Literal custom paths and numeric overshoot are independent expectations of that geometry and clock.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts dipping/grazing, intentional/unintentional, default/raised ground and default/custom paths, plus nonfinite/zero clocks and nonfinite tolerance. The grazing assertion requires success only, which is weaker than proving no advisory warning.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit reuses its existing generic rig and clip cases to reach portable sampling/FK; it creates no Human asset, new geometry case, browser, renderer or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual ground-contact sampling and checks advisory penetration paths, the midpoint depth, intent suppression and custom-ground warning count, then requires malformed rate/tolerance errors.
+ * @evidence contracts/development/testing.md#independent-expectations Existing leg rest offsets sum to ground height, so a -0.2 root midpoint gives 0.2m penetration; a 0.1 raised ground over a one-second still clip sampled at 1Hz gives two endpoint warnings. Literal custom paths and numeric overshoot are independent expectations of that geometry and clock.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts dipping/grazing, intentional/unintentional, default/raised ground and default/custom paths, plus nonfinite/zero clocks and nonfinite tolerance. The grazing assertion requires success only, which is weaker than proving no advisory warning.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit reuses its existing generic rig and clip cases to reach portable sampling/FK; it creates no Human asset, new geometry case, browser, renderer or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A root dip below the ground produces physics WARNINGS (D015: advice, not a).
  */
 export function test_validation_ground_contact(): void {
   const dipping: IAutoMovieMotion = makeMotion(

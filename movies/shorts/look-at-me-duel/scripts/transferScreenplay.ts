@@ -1,4 +1,4 @@
-import { stripNaturalnessComments } from "@automovie/evidence/narrative";
+import { stripNaturalnessComments } from "@automovie/evidence";
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -16,7 +16,9 @@ import path from "node:path";
 export async function transferScreenplay(): Promise<void> {
   const root: string = path.resolve(import.meta.dirname, "..");
   const relative: string = "screenplay/look-at-me-this-time.md";
-  const frozen: Buffer = await readFile(path.join(root, "docs/revision", relative));
+  const frozen: Buffer = await readFile(
+    path.join(root, "docs/revision", relative),
+  );
   const working: Buffer = await readFile(
     path.join(root, "docs/naturalness", relative),
   );
@@ -24,12 +26,16 @@ export async function transferScreenplay(): Promise<void> {
   const current: Buffer = await readFile(target);
   const projected: Buffer = stripNaturalnessComments(working);
   if (!current.equals(frozen) && !current.equals(projected))
-    throw new Error("Current body differs from frozen and reviewed working text");
+    throw new Error(
+      "Current body differs from frozen and reviewed working text",
+    );
 
   await writeFile(target, projected);
   const observed: Buffer = await readFile(target);
   if (!observed.equals(projected))
-    throw new Error("Transferred body differs from comment-free reviewed bytes");
+    throw new Error(
+      "Transferred body differs from comment-free reviewed bytes",
+    );
 
   console.log(
     JSON.stringify({

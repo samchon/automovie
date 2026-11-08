@@ -27,10 +27,11 @@ const target: (t: number) => IAutoMovieVector3 = (
  * 2. The valid boundary `iterations = 1` still returns a best-so-far partial
  *    solve.
  *
- * @evidence contracts/testing.md#behavioral-verification Requests moving leads with invalid iteration caps and requires null, then admits one step with a positive flight time, catching fractional/unbounded iteration or rejection of the valid lower boundary.
- * @evidence contracts/testing.md#independent-expectations A positive integer cap is the declared bounded-iteration contract; authored invalid scalars and the admitted one-step lower boundary supply expectations independently of candidate arithmetic. This unit does not establish intercept accuracy.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts NaN, infinity, fractional 1.5, zero and negative caps with one admitted step; convergence and closest-candidate selection belong to neighboring moving-launch units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns the local cases and calls solveMovingLaunch with an authored callback, without hosts or dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Requests moving leads with invalid iteration caps and requires null, then admits one step with a positive flight time, catching fractional/unbounded iteration or rejection of the valid lower boundary.
+ * @evidence contracts/development/testing.md#independent-expectations A positive integer cap is the declared bounded-iteration contract; authored invalid scalars and the admitted one-step lower boundary supply expectations independently of candidate arithmetic. This unit does not establish intercept accuracy.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts NaN, infinity, fractional 1.5, zero and negative caps with one admitted step; convergence and closest-candidate selection belong to neighboring moving-launch units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit owns the local cases and calls solveMovingLaunch with an authored callback, without hosts or dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite, non-integer, and less-than-one iteration counts return `null`.).
  */
 export function test_physics_moving_launch_iterations(): void {
   for (const iterations of [Number.NaN, Infinity, 1.5, 0, -1])

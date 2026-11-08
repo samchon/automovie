@@ -1,4 +1,4 @@
-import { trimProductionAudioPresentation } from "@automovie/render/node";
+import { trimProductionAudioPresentation } from "@automovie/render";
 import { BoxParser, createFile } from "mp4box";
 
 /** Write small supported Opus silence packets with authored sample clocks and priming. Presentation sample counts are inputs, so expected durations are calculated independently. */

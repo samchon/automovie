@@ -10,25 +10,19 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 /**
  * Explicit actual-axis ownership of a loft's frame, with the original Hermite fallback.
  *
- * @evidence contracts/common.md#principled-implementation An unchanged pair from one analytic source reads that source's frame jet; different or absent sources use the layer-defined boundary interpolation. A present but stale source is an error.
- * @evidence contracts/common.md#clear-and-simple-design Source records live on layers as geometry data; no registry or bind history changes a record's interpretation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not approximate an analytic axis by extra samples or silently replace invalid retained source data by another surface.
- * @evidence contracts/common.md#meaningful-documentation States value-copy equivalence, callable-source ownership, immutability, serialization failure and mixed-source boundary interpolation.
- * @evidence contracts/performance.md#efficient-algorithms Retention is linear in layers; validation and frame queries use fixed-size records beside the source owner's own query cost.
- * @evidence contracts/performance.md#reuse-equivalent-work Every layer shares its immutable prepared axis; snapshots are validation data rather than a separate frame fit.
- * @evidence contracts/performance.md#bound-retention-and-release-resources A retained layer owns a fixed-size numeric snapshot and an axis reference; releasing all its layers releases that source, without a global registry.
+ * @evidence contracts/development/common.md#meaningful-documentation States value-copy equivalence, callable-source ownership, immutability, serialization failure and mixed-source boundary interpolation.
+ * @evidence contracts/development/design.md#principled-representation Represents Explicit actual-axis ownership of a loft's frame, with the original Hermite fallback: companion namespace of 6 members (`ISource`, `retain`, `validate`, `actual`, `frame`, `owner`); units and frames named in its text: frames, frame, second, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieLoftFrameSource` in packages/engine/src/geometry/construction/AutoMovieLoftFrameSource.ts; its surface is the 6 members listed and the text shows 11 other files naming it, mostly packages/engine (9), packages/human (1), test (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftFrameSource {
   /**
    * An actual source and independent numeric snapshot of its published layer jet.
    *
-   * @evidence contracts/common.md#principled-implementation The callable source determines intermediate frames; station/value/derivatives verify that a copied layer still represents that source datum.
-   * @evidence contracts/common.md#clear-and-simple-design Axis identity and one station jet make geometry ownership visible in the layer record.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A stripped or mutated source is invalid, not an instruction to respline; source absence alone selects ordinary layer interpolation.
-   * @evidence contracts/common.md#meaningful-documentation Same numeric layer copies preserve meaning while sharing the actual immutable axis; JSON cannot serialize that callable and must reconstruct it from the authored tree.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This geometry-data interface performs no query.
-   * @evidence contracts/performance.md#reuse-equivalent-work Every unchanged layer from the same prepared axis shares that source identity.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources A layer retains one axis reference, a station, one copied value frame and an optional three-frame station-jet snapshot; the source's knots live until its last retaining caller releases it.
+   * @evidence contracts/development/design.md#principled-representation The callable source determines intermediate frames; station/value/derivatives verify that a copied layer still represents that source datum.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Axis identity and one station jet make geometry ownership visible in the layer record.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A stripped or mutated source is invalid, not an instruction to respline; source absence alone selects ordinary layer interpolation.
+   * @evidence contracts/development/common.md#meaningful-documentation Same numeric layer copies preserve meaning while sharing the actual immutable axis; JSON cannot serialize that callable and must reconstruct it from the authored tree.
    */
   export interface ISource {
     /** Immutable actual source; its analytic jet callback must remain callable. */
@@ -47,13 +41,13 @@ export namespace AutoMovieLoftFrameSource {
   /**
    * Retain an analytic axis on every final loft layer, replacing resplined frame jets.
    *
-   * @evidence contracts/common.md#principled-implementation Each layer receives its actual source frame and analytic derivatives, so unchanged source intervals evaluate the original axis; a numerical value-only axis retains the existing layer interpolation.
-   * @evidence contracts/common.md#clear-and-simple-design One post-solve conversion keeps coefficient interpolation independent of actual frame ownership.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A singular station jet remains null with its finite frame value; only nonfinite source values or falsely finite jet records fail retention.
-   * @evidence contracts/common.md#meaningful-documentation Returns the input for a value-only axis, a new immutable layer table on success, or the failed station premise; source and layer snapshots must remain unchanged thereafter.
-   * @evidence contracts/performance.md#efficient-algorithms O(L) source queries and fixed numeric copies prepare L layers, plus each axis query's documented cost.
-   * @evidence contracts/performance.md#reuse-equivalent-work All records retain the one prepared axis and each query supplies value and derivatives together.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Success owns a new layer list, fixed snapshots and axis references; failure retains no partial output and no external resource.
+   * @evidence contracts/development/implementation.md#principled-implementation Each layer receives its actual source frame and analytic derivatives, so unchanged source intervals evaluate the original axis; a numerical value-only axis retains the existing layer interpolation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One post-solve conversion keeps coefficient interpolation independent of actual frame ownership.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A singular station jet remains null with its finite frame value; only nonfinite source values or falsely finite jet records fail retention.
+   * @evidence contracts/development/common.md#meaningful-documentation Returns the input for a value-only axis, a new immutable layer table on success, or the failed station premise; source and layer snapshots must remain unchanged thereafter.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(L) source queries and fixed numeric copies prepare L layers, plus each axis query's documented cost.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work All records retain the one prepared axis and each query supplies value and derivatives together.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Success owns a new layer list, fixed snapshots and axis references; failure retains no partial output and no external resource.
    */
   export function retain(
     chain: IAutoMovieLoftChain,
@@ -101,13 +95,13 @@ export namespace AutoMovieLoftFrameSource {
   /**
    * Validate a present retained source without changing its meaning.
    *
-   * @evidence contracts/common.md#principled-implementation Checks callable ownership and exact station/value/derivative equality against independent source snapshots; value copies of the same data remain equivalent.
-   * @evidence contracts/common.md#clear-and-simple-design One validator is shared by interval reads and operations preserving a layer's source.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Throws on a present stripped/stale source; does not clear it or quietly choose another frame geometry.
-   * @evidence contracts/common.md#meaningful-documentation Absence is allowed; transformed producers must explicitly remove or re-express source ownership, and in-place mutation remains unsupported by chain caches.
-   * @evidence contracts/performance.md#efficient-algorithms At most 27 exact component comparisons and one callback-presence check take constant work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Pure validation creates no reusable preparation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains no layer, source or output after returning or throwing.
+   * @evidence contracts/development/implementation.md#principled-implementation Checks callable ownership and exact station/value/derivative equality against independent source snapshots; value copies of the same data remain equivalent.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One validator is shared by interval reads and operations preserving a layer's source.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Throws on a present stripped/stale source; does not clear it or quietly choose another frame geometry.
+   * @evidence contracts/development/common.md#meaningful-documentation Absence is allowed; transformed producers must explicitly remove or re-express source ownership, and in-place mutation remains unsupported by chain caches.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most 27 exact component comparisons and one callback-presence check take constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure validation creates no reusable preparation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no layer, source or output after returning or throwing.
    */
   export function validate(layer: Layer): void {
     const source: ISource | undefined = layer.frameSource;
@@ -131,13 +125,13 @@ export namespace AutoMovieLoftFrameSource {
   /**
    * Actual frame jet of an unchanged common-source interval, or null for a layer-defined boundary.
    *
-   * @evidence contracts/common.md#principled-implementation Both endpoints must retain the same valid analytic axis; the interval then reads that very source at the requested station.
-   * @evidence contracts/common.md#clear-and-simple-design Null identifies absent/different-source boundary interpolation; unavailable returned axis2 is an explicit admission error, while stale ownership and callback exceptions propagate unchanged.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No owner is inferred from matching sampled values, and an unavailable interior source jet does not trigger a fitted fallback.
-   * @evidence contracts/common.md#meaningful-documentation Callers use the ordinary Hermite rule only for null, preserving mixed-source continuation boundary jets.
-   * @evidence contracts/performance.md#efficient-algorithms Fixed endpoint validation plus one actual source query; no layer scan or dense resampling.
-   * @evidence contracts/performance.md#reuse-equivalent-work Uses the prepared axis shared by both endpoint records.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh source jet or null and owns no cache or retained endpoint references.
+   * @evidence contracts/development/implementation.md#principled-implementation Both endpoints must retain the same valid analytic axis; the interval then reads that very source at the requested station.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Null identifies absent/different-source boundary interpolation; unavailable returned axis2 is an explicit admission error, while stale ownership and callback exceptions propagate unchanged.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No owner is inferred from matching sampled values, and an unavailable interior source jet does not trigger a fitted fallback.
+   * @evidence contracts/development/common.md#meaningful-documentation Callers use the ordinary Hermite rule only for null, preserving mixed-source continuation boundary jets.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed endpoint validation plus one actual source query; no layer scan or dense resampling.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the prepared axis shared by both endpoint records.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh source jet or null and owns no cache or retained endpoint references.
    */
   export function actual(
     a: Layer,
@@ -158,13 +152,13 @@ export namespace AutoMovieLoftFrameSource {
   /**
    * Source frame or the original component/rotation Hermite between bracketed layers.
    *
-   * @evidence contracts/common.md#principled-implementation Reads actual unchanged-source frames first, then preserves the existing framed Hermite, horizontal or Catmull-Rom/rotation interpolation rule for layer-defined intervals.
-   * @evidence contracts/common.md#clear-and-simple-design This owner keeps source selection and every frame fallback together; the chain supplies its already found bracket.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not normalize interpolated axes or change the old fallback arithmetic, bounds or neighbour selection.
-   * @evidence contracts/common.md#meaningful-documentation lo/hi are the admitted chain bracket; explicit source validation distinguishes missing support from corrupted retained data.
-   * @evidence contracts/performance.md#efficient-algorithms Constant neighbour and nine-component work follows bracket lookup, plus actual source-query cost when used.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the caller's bracket and prepared source; fallback endpoint weights are computed once per reading.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Every returned frame owns local vectors; no chain or interpolation result is retained globally.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads actual unchanged-source frames first, then preserves the existing framed Hermite, horizontal or Catmull-Rom/rotation interpolation rule for layer-defined intervals.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This owner keeps source selection and every frame fallback together; the chain supplies its already found bracket.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not normalize interpolated axes or change the old fallback arithmetic, bounds or neighbour selection.
+   * @evidence contracts/development/common.md#meaningful-documentation lo/hi are the admitted chain bracket; explicit source validation distinguishes missing support from corrupted retained data.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant neighbour and nine-component work follows bracket lookup, plus actual source-query cost when used.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the caller's bracket and prepared source; fallback endpoint weights are computed once per reading.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Every returned frame owns local vectors; no chain or interpolation result is retained globally.
    */
   export function frame(
     chain: IAutoMovieLoftChain,

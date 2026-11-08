@@ -1,4 +1,4 @@
-import type { IAutoMovieViewerVideoOptions } from "@automovie/render/node";
+import type { IAutoMovieViewerVideoOptions } from "@automovie/render";
 import ffmpeg from "ffmpeg-static";
 
 import { durationSeconds } from "./src/durationSeconds";

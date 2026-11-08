@@ -52,10 +52,11 @@ const wildPose: (rng: () => number) => IAutoMovieJointPose[] = (
  *    idempotence check is exercising the clamp path, not comparing two no-ops.
  * 3. A pose already inside ROM passes through clamping unchanged.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls clampPose once and twice on each existing seeded pose, checks exact fixed-point values and a real first-pass joint change, then checks an authored in-range pose remains unchanged.
- * @evidence contracts/testing.md#independent-expectations Projection is expected to settle after one application and preserve an already-admitted input; replay alone cannot independently establish that the settled values are the correct bounds, which clamp-pose and cone examples address.
- * @evidence contracts/testing.md#distinguishing-cases The fixed seed supplies200 eight-joint angle triples in [-200,200), alongside the in-range neighbor and per-pose non-vacuity; finite sampling is not exhaustive branch, anatomical-population or arbitrary multi-turn cone coverage.
- * @evidence contracts/testing.md#execution-ownership The named test_rom_clamp_idempotence entry synchronously runs the actual numerical clamp with a local seeded generator and existing engine rig; it uses no global random patch, new Human asset, viewer or validation driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls clampPose once and twice on each existing seeded pose, checks exact fixed-point values and a real first-pass joint change, then checks an authored in-range pose remains unchanged.
+ * @evidence contracts/development/testing.md#independent-expectations Projection is expected to settle after one application and preserve an already-admitted input; replay alone cannot independently establish that the settled values are the correct bounds, which clamp-pose and cone examples address.
+ * @evidence contracts/development/testing.md#distinguishing-cases The fixed seed supplies200 eight-joint angle triples in [-200,200), alongside the in-range neighbor and per-pose non-vacuity; finite sampling is not exhaustive branch, anatomical-population or arbitrary multi-turn cone coverage.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_rom_clamp_idempotence entry synchronously runs the actual numerical clamp with a local seeded generator and existing engine rig; it uses no global random patch, new Human asset, viewer or validation driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Over 200 seeded wild poses, `clampPose(clampPose(p)) === clampPose(p)`).
  */
 export function test_rom_clamp_idempotence(): void {
   const rng: () => number = makeRng(0x7c3f0055);

@@ -9,13 +9,10 @@ import type { IAutoMovieExternalMotionInspection } from "./IAutoMovieExternalMot
  *
  * Inspection is synchronous because the production builder already holds the exact resident bytes and must reject violations of its selected structural/profile contract before anything is built from them. It does not certify complete glTF validity or image media decoding. Hosts still construct the render mesh with their own loader from the same content-addressed asset; these facts only gate it.
  *
- * @evidence contracts/common.md#principled-implementation The record reports only facts read from the declared JSON and checked against resident bytes: counts of the top-level arrays, the extension union, sidecar URIs, profile-proved humanoid slots with weight usage, and motion takes when the motion profile ran.
- * @evidence contracts/common.md#clear-and-simple-design One inspection result serves every profile, with `humanoidBones` empty and `motion` absent where a profile does not compute them, so the production inventory reads one shape.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `format` is a family label: a `.vrm` suffix or declared VRM extension produces `vrm`, while `vrm-humanoid-v1` separately checks VRM metadata; the label alone certifies no rig.
- * @evidence contracts/common.md#meaningful-documentation The comments state why inspection is synchronous, that hosts still load the render mesh themselves, how `format` is decided, the order of `extensions` and `resources`, how each profile fills `humanoidBones`, and when `motion` is present.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The interface types the inspector's result and has no code; inspection cost is answered on `inspectAutoMovieExternalModelBytes`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A plain result record has nothing to share between consumers.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds new arrays proportional to extensions, resources, slots and motion data, owned by the caller, and no reference to the container bytes.
+ * @evidence contracts/development/design.md#principled-representation The record reports only facts read from the declared JSON and checked against resident bytes: counts of the top-level arrays, the extension union, sidecar URIs, profile-proved humanoid slots with weight usage, and motion takes when the motion profile ran.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One inspection result serves every profile, with `humanoidBones` empty and `motion` absent where a profile does not compute them, so the production inventory reads one shape.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts `format` is a family label: a `.vrm` suffix or declared VRM extension produces `vrm`, while `vrm-humanoid-v1` separately checks VRM metadata; the label alone certifies no rig.
+ * @evidence contracts/development/common.md#meaningful-documentation The comments state why inspection is synchronous, that hosts still load the render mesh themselves, how `format` is decided, the order of `extensions` and `resources`, how each profile fills `humanoidBones`, and when `motion` is present.
  */
 export interface IAutoMovieExternalModelInspection {
   /** Profile the caller selected and the inspection enforced. */

@@ -17,10 +17,11 @@ import { qclose } from "../internal/qclose";
  * 3. Abduction rotates about local Z.
  * 4. Twist rotates about local Y.
  *
- * @evidence contracts/testing.md#behavioral-verification Converts undriven/zero joints and separate 90-degree flexion, abduction and twist, checking rotation against literal Cartesian quaternions; an axis swap or failure to preserve identity fails.
- * @evidence contracts/testing.md#independent-expectations Identity is (0,0,0,1); a quarter-turn has half-angle sine/cosine sqrt(1/2) on exactly the declared X/Z/Y axis. Expected rotations do not call the product quaternion constructor or composition owner.
- * @evidence contracts/testing.md#distinguishing-cases Keeps null and explicit-zero triples plus each individually driven default axis; mixed order, custom bases and malformed inputs belong to neighboring entries.
- * @evidence contracts/testing.md#execution-ownership The runner discovers this exported CPU test and it directly invokes jointToQuaternion source using finite conventional angles; no renderer or clinical measurement protocol is executed.
+ * @evidence contracts/development/testing.md#behavioral-verification Converts undriven/zero joints and separate 90-degree flexion, abduction and twist, checking rotation against literal Cartesian quaternions; an axis swap or failure to preserve identity fails.
+ * @evidence contracts/development/testing.md#independent-expectations Identity is (0,0,0,1); a quarter-turn has half-angle sine/cosine sqrt(1/2) on exactly the declared X/Z/Y axis. Expected rotations do not call the product quaternion constructor or composition owner.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps null and explicit-zero triples plus each individually driven default axis; mixed order, custom bases and malformed inputs belong to neighboring entries.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers this exported CPU test and it directly invokes jointToQuaternion source using finite conventional angles; no renderer or clinical measurement protocol is executed.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No articulation (all axes null, or all zero) yields the identity.).
  */
 export function test_kinematics_joint_axes(): void {
   const id: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };

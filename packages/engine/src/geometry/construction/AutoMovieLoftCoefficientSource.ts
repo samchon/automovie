@@ -8,25 +8,19 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 /**
  * New principal-coefficient interpolation in the part's selected common root/angle pole coordinate.
  *
- * @evidence contracts/common.md#principled-implementation Principal coefficient values and finite parameter derivatives define a new interpolant in the common pole coordinate; zero virtual endpoints participate in the same natural solve and station jets follow the chain rule. Variable-fullness source curves are not claimed reproduced exactly between layers.
- * @evidence contracts/common.md#clear-and-simple-design Explicit layer data stores parameter derivatives beside the existing station derivatives; finite virtual pole endpoints extend only an actually closed source end.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not replace the original pole law with a station fit, add rings to hide interpolation error, clamp a derivative or invent a finite station jet at a pole.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes direct coefficient data from callable frame ownership, source curves from the new coefficient interpolant and parameter jets from singular station jets. Scope is axis-centred zero-section caps; ViewLoft obtains each physical pole from the same actual axis at the same closing station.
- * @evidence contracts/performance.md#efficient-algorithms Preparation is O(LW) for L layers and W coefficients; queries bracket in O(log L) and prepare six fixed-size weights per derivative order.
- * @evidence contracts/performance.md#reuse-equivalent-work One parameter-coordinate natural solve prepares all layer/pole derivatives; pole endpoint arrays are shared by the layer records.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned chain owns O(LW) derivative data and at most two O(W) pole records; no registry or global cache retains the preparation.
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes direct coefficient data from callable frame ownership, source curves from the new coefficient interpolant and parameter jets from singular station jets. Scope is axis-centred zero-section caps; ViewLoft obtains each physical pole from the same actual axis at the same closing station.
+ * @evidence contracts/development/design.md#principled-representation Represents New principal-coefficient interpolation in the part's selected common root/angle pole coordinate: companion namespace of 7 members (`IEnd`, `IEnds`, `ISource`, `IControls`, `prepare`, `controls`, ...); units and frames named in its text: second, local, frame. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieLoftCoefficientSource` in packages/engine/src/geometry/construction/AutoMovieLoftCoefficientSource.ts; its surface is the 7 members listed and the text shows 8 other files naming it, mostly packages/engine (7), test (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftCoefficientSource {
   /**
    * A finite virtual endpoint in the chosen coordinate, not a physical-station jet.
    *
-   * @evidence contracts/common.md#principled-implementation A closing pole contributes the zero section and its natural-spline parameter jets without placing a degenerate principal layer in the chain.
-   * @evidence contracts/common.md#clear-and-simple-design One station and one existing Hermite endpoint layout carry virtual cap data.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Finite parameter slopes/curvatures make no claim of finite physical-station derivatives.
-   * @evidence contracts/common.md#meaningful-documentation Station uses kernel mm and slope/curvature use the selected parameter coordinate.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This endpoint record performs no solve.
-   * @evidence contracts/performance.md#reuse-equivalent-work Every retained layer shares the same prepared cap endpoint arrays.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources At most two O(W) records belong to one prepared capped chain.
+   * @evidence contracts/development/design.md#principled-representation A closing pole contributes the zero section and its natural-spline parameter jets without placing a degenerate principal layer in the chain.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One station and one existing Hermite endpoint layout carry virtual cap data.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Finite parameter slopes/curvatures make no claim of finite physical-station derivatives.
+   * @evidence contracts/development/common.md#meaningful-documentation Station uses kernel mm and slope/curvature use the selected parameter coordinate.
    */
   export interface IEnd extends AutoMovieStationHermite.IEnd {
     /** Actual pole station, kernel mm. */
@@ -42,13 +36,10 @@ export namespace AutoMovieLoftCoefficientSource {
   /**
    * Optional virtual coefficient endpoints for actual closing ends.
    *
-   * @evidence contracts/common.md#principled-implementation Only a declared bottom/top pole receives a virtual zero section at its original station.
-   * @evidence contracts/common.md#clear-and-simple-design Two optional records distinguish open ends from single/both caps.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Absence does not invent a cap or extend an open end.
-   * @evidence contracts/common.md#meaningful-documentation Members identify which end owns each finite parameter endpoint.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Endpoint data executes no algorithm.
-   * @evidence contracts/performance.md#reuse-equivalent-work One endpoint object is shared across its chain's layer records.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Its retaining layers own at most two endpoint references and their arrays.
+   * @evidence contracts/development/design.md#principled-representation Only a declared bottom/top pole receives a virtual zero section at its original station.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two optional records distinguish open ends from single/both caps.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Absence does not invent a cap or extend an open end.
+   * @evidence contracts/development/common.md#meaningful-documentation Members identify which end owns each finite parameter endpoint.
    */
   export interface IEnds {
     /** Virtual zero section of a bottom cap; absent at an open bottom. */
@@ -61,13 +52,10 @@ export namespace AutoMovieLoftCoefficientSource {
   /**
    * Direct parameter-derivative data of one principal coefficient row.
    *
-   * @evidence contracts/common.md#principled-implementation The layer's existing coefficients remain its values; these arrays supply their first/second derivatives in the explicit map, so equal-value copies retain the same interpolation.
-   * @evidence contracts/common.md#clear-and-simple-design One map, two derivative arrays and shared endpoint data extend the existing principal-layer definition without a hidden source-value copy.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A transformed endpoint must explicitly remove/re-express this parameter data; mismatched or absent endpoint maps select the documented station-Hermite boundary, never a fitted source.
-   * @evidence contracts/common.md#meaningful-documentation Arrays use the existing coefficient layout; source data and the chain are immutable after preparation, as required by existing station caches.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This stored interpolation record executes no evaluation.
-   * @evidence contracts/performance.md#reuse-equivalent-work Queries share the parameter derivative arrays and virtual cap endpoints.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Each layer owns O(W) parameter derivatives and shares one map/end record; no full source table is duplicated per layer.
+   * @evidence contracts/development/design.md#principled-representation The layer's existing coefficients remain its values; these arrays supply their first/second derivatives in the explicit map, so equal-value copies retain the same interpolation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One map, two derivative arrays and shared endpoint data extend the existing principal-layer definition without a hidden source-value copy.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A transformed endpoint must explicitly remove/re-express this parameter data; mismatched or absent endpoint maps select the documented station-Hermite boundary, never a fitted source.
+   * @evidence contracts/development/common.md#meaningful-documentation Arrays use the existing coefficient layout; source data and the chain are immutable after preparation, as required by existing station caches.
    */
   export interface ISource {
     /** Admitted root/angle map with kernel-mm endpoints. */
@@ -86,13 +74,10 @@ export namespace AutoMovieLoftCoefficientSource {
   /**
    * One parameter span's direct endpoint arrays and three interpolation-weight rows.
    *
-   * @evidence contracts/common.md#principled-implementation Parameter Hermite weights and the forward map's optional station change define value and both physical derivative orders.
-   * @evidence contracts/common.md#clear-and-simple-design Existing Hermite endpoint arrays preserve lazy per-control combination in the consumer.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A null change keeps a finite parameter value but supplies no finite physical 2-jet.
-   * @evidence contracts/common.md#meaningful-documentation Rows are value/first/second parameter orders; change is dq/ds,d2q/ds2.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This preparation record performs no phase evaluation.
-   * @evidence contracts/performance.md#reuse-equivalent-work All phase controls at a station share these endpoint arrays and weights.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources A retaining station owns three six-entry rows and borrows two endpoint records; it acquires no external resource.
+   * @evidence contracts/development/design.md#principled-representation Parameter Hermite weights and the forward map's optional station change define value and both physical derivative orders.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Existing Hermite endpoint arrays preserve lazy per-control combination in the consumer.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A null change keeps a finite parameter value but supplies no finite physical 2-jet.
+   * @evidence contracts/development/common.md#meaningful-documentation Rows are value/first/second parameter orders; change is dq/ds,d2q/ds2.
    */
   export interface IControls {
     /** Lower endpoint values and parameter derivatives. */
@@ -111,13 +96,13 @@ export namespace AutoMovieLoftCoefficientSource {
   /**
    * Prepare the capped coefficient data and carry its regular layer jets to station.
    *
-   * @evidence contracts/common.md#principled-implementation Adds zero pole rows and solves a new coefficient natural cubic in the selected common pole coordinate, then converts regular layer jets by both chain-rule orders. The caller supplies axis-centred physical poles, not arbitrary off-axis fan closures.
-   * @evidence contracts/common.md#clear-and-simple-design One preparation returns a new layer table with explicit parameter data and unchanged coefficient values.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses mismatched closure, nonincreasing parameter knots or nonfinite derivatives; no synthetic section, tolerance adjustment or finite pole-station derivative is substituted.
-   * @evidence contracts/common.md#meaningful-documentation Input parameter and stations use kernel mm; failures return the premise string and do not mutate the input chain.
-   * @evidence contracts/performance.md#efficient-algorithms O(LW) natural solves and conversions allocate only retained derivative rows, two cap rows and linear scratch.
-   * @evidence contracts/performance.md#reuse-equivalent-work Curvature results feed parameter slopes, regular station derivatives and both virtual cap endpoints once.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Failure releases local tables; success owns new derivative arrays and shares original coefficient/frame fields plus fixed pole records.
+   * @evidence contracts/development/implementation.md#principled-implementation Adds zero pole rows and solves a new coefficient natural cubic in the selected common pole coordinate, then converts regular layer jets by both chain-rule orders. The caller supplies axis-centred physical poles, not arbitrary off-axis fan closures.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One preparation returns a new layer table with explicit parameter data and unchanged coefficient values.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses mismatched closure, nonincreasing parameter knots or nonfinite derivatives; no synthetic section, tolerance adjustment or finite pole-station derivative is substituted.
+   * @evidence contracts/development/common.md#meaningful-documentation Input parameter and stations use kernel mm; failures return the premise string and do not mutate the input chain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(LW) natural solves and conversions allocate only retained derivative rows, two cap rows and linear scratch.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Curvature results feed parameter slopes, regular station derivatives and both virtual cap endpoints once.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Failure releases local tables; success owns new derivative arrays and shares original coefficient/frame fields plus fixed pole records.
    */
   export function prepare(
     chain: IAutoMovieLoftChain,
@@ -222,13 +207,13 @@ export namespace AutoMovieLoftCoefficientSource {
   /**
    * Parameter span at a station, or null for an ordinary station-Hermite boundary.
    *
-   * @evidence contracts/common.md#principled-implementation Reads actual principal values with their parameter jets; an owned cap uses its virtual pole row before the first/after the last surviving section.
-   * @evidence contracts/common.md#clear-and-simple-design One binary bracket and shared-map decision prepare endpoints for all phase controls.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid present metadata throws; only missing/different maps or a genuinely unowned range return null for the caller's existing path.
-   * @evidence contracts/common.md#meaningful-documentation Checks parameter domains and row widths, not arbitrary caller-supplied numeric correctness; immutable prepared data remains the producer premise.
-   * @evidence contracts/performance.md#efficient-algorithms O(log L) bracketing and constant map/weight work avoid eager O(W) coefficient combination.
-   * @evidence contracts/performance.md#reuse-equivalent-work The returned preparation shares stored endpoint jets across every phase read at the station.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns fixed-size weight rows and borrowed endpoints; no module cache retains the chain.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads actual principal values with their parameter jets; an owned cap uses its virtual pole row before the first/after the last surviving section.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One binary bracket and shared-map decision prepare endpoints for all phase controls.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid present metadata throws; only missing/different maps or a genuinely unowned range return null for the caller's existing path.
+   * @evidence contracts/development/common.md#meaningful-documentation Checks parameter domains and row widths, not arbitrary caller-supplied numeric correctness; immutable prepared data remains the producer premise.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(log L) bracketing and constant map/weight work avoid eager O(W) coefficient combination.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned preparation shares stored endpoint jets across every phase read at the station.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fixed-size weight rows and borrowed endpoints; no module cache retains the chain.
    */
   export function controls(
     chain: IAutoMovieLoftChain,
@@ -307,13 +292,13 @@ export namespace AutoMovieLoftCoefficientSource {
   /**
    * Physical-station weights of one prepared coefficient span.
    *
-   * @evidence contracts/common.md#principled-implementation Converts parameter weights by dq/ds and d2q/ds2 for both derivative orders; value weights remain finite at the pole.
-   * @evidence contracts/common.md#clear-and-simple-design The existing lazy/eager Hermite consumers use the same six-weight array representation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A singular physical derivative request throws instead of producing a finite endpoint Taylor jet.
-   * @evidence contracts/common.md#meaningful-documentation Order zero reads the finite value; orders one/two require the prepared finite forward 2-jet.
-   * @evidence contracts/performance.md#efficient-algorithms Six fixed scalar combinations take constant work and storage.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the station's prepared parameter basis and map derivatives across all controls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns weights and retains no span or chain.
+   * @evidence contracts/development/implementation.md#principled-implementation Converts parameter weights by dq/ds and d2q/ds2 for both derivative orders; value weights remain finite at the pole.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The existing lazy/eager Hermite consumers use the same six-weight array representation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A singular physical derivative request throws instead of producing a finite endpoint Taylor jet.
+   * @evidence contracts/development/common.md#meaningful-documentation Order zero reads the finite value; orders one/two require the prepared finite forward 2-jet.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Six fixed scalar combinations take constant work and storage.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the station's prepared parameter basis and map derivatives across all controls.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns weights and retains no span or chain.
    */
   export function weights(controls: IControls, order: 0 | 1 | 2): number[] {
     if (order === 0) return controls.weights[0]!;

@@ -27,10 +27,11 @@ import {
  * 3. A static collision transfers no momentum, so the suggested impulse is zero.
  * 4. Bodies held far apart produce no warnings, events, or response.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs detectBodyCollision on intersecting and separated static capsules, asserting warning/event counts, first-event actor identities and kind, a response with zero impulse, and a clean empty result for separation.
- * @evidence contracts/testing.md#independent-expectations The perpendicular centerlines are 0.1 m apart with summed radii 0.4 m, so penetration is positive at both endpoints of a one-second 1 Hz sample window. Static endpoints imply zero relative velocity and impulse. The test checks counts and identity but not penetration magnitude, event source, or response pose.
- * @evidence contracts/testing.md#distinguishing-cases A static overlap and distant negative twin separate advisory contacts from empty success. Malformed capsules/rates, coincident closest points, and physicsIntent suppression belong to their neighboring collision tests; moving impacts are not covered here.
- * @evidence contracts/testing.md#execution-ownership The named test_validation_body_collision entry directly exercises portable motion/FK, capsule distance, and response arithmetic using the shared staticActor fixture; it starts no physics host and owns no dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs detectBodyCollision on intersecting and separated static capsules, asserting warning/event counts, first-event actor identities and kind, a response with zero impulse, and a clean empty result for separation.
+ * @evidence contracts/development/testing.md#independent-expectations The perpendicular centerlines are 0.1 m apart with summed radii 0.4 m, so penetration is positive at both endpoints of a one-second 1 Hz sample window. Static endpoints imply zero relative velocity and impulse. The test checks counts and identity but not penetration magnitude, event source, or response pose.
+ * @evidence contracts/development/testing.md#distinguishing-cases A static overlap and distant negative twin separate advisory contacts from empty success. Malformed capsules/rates, coincident closest points, and physicsIntent suppression belong to their neighboring collision tests; moving impacts are not covered here.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_validation_body_collision entry directly exercises portable motion/FK, capsule distance, and response arithmetic using the shared staticActor fixture; it starts no physics host and owns no dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two actors whose capsules overlap by 0.3m produce a warning per sampled).
  */
 export function test_validation_body_collision(): void {
   const hit: IAutoMovieBodyCollisionResult = detectBodyCollision({

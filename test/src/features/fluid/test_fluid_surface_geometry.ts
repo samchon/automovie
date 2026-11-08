@@ -95,10 +95,11 @@ const at: (
  *    for this grid — an empty pond nobody was told about. Its twin is the same
  *    lattice paired with its own state, which draws.
  *
- * @evidence contracts/testing.md#behavioral-verification Lowers selected CPU fluid states into mesh data and observes cell-centre positions, normals, indices, velocity attributes, wet/solid quad decisions, bounds and domain-id refusal.
- * @evidence contracts/testing.md#independent-expectations Authored origin, bed, depth and grid spacing determine literal positions, bounds and index counts; geometric equations derive slope normals and face-averaged velocity without a recorded mesh oracle. Triangle winding is not independently asserted.
- * @evidence contracts/testing.md#distinguishing-cases Keeps flat and sloped fields, wet/dry/solid quad decisions, empty and singleton populations, a nonzero authored origin and foreign state id; renderer adoption, camera consistency and full state-source provenance are not established here.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns CPU mesh-record assertions through fluidSurfaceGeometry and existing state fixtures; no native geometry upload, image or GPU execution is observed.
+ * @evidence contracts/development/testing.md#behavioral-verification Lowers selected CPU fluid states into mesh data and observes cell-centre positions, normals, indices, velocity attributes, wet/solid quad decisions, bounds and domain-id refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Authored origin, bed, depth and grid spacing determine literal positions, bounds and index counts; geometric equations derive slope normals and face-averaged velocity without a recorded mesh oracle. Triangle winding is not independently asserted.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps flat and sloped fields, wet/dry/solid quad decisions, empty and singleton populations, a nonzero authored origin and foreign state id; renderer adoption, camera consistency and full state-source provenance are not established here.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns CPU mesh-record assertions through fluidSurfaceGeometry and existing state fixtures; no native geometry upload, image or GPU execution is observed.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A still flat pool: one vertex per cell at `origin.y + bed + depth`, every).
  */
 export function test_fluid_surface_geometry(): void {
   const flat: ReturnType<typeof pool> = pool({

@@ -65,10 +65,11 @@ const T: (
  *    fold contract), not the placement alone: the negative twin distinguishes
  *    the two whenever `pose.root` is non-identity.
  *
- * @evidence contracts/testing.md#behavioral-verification Lowers existing scene placements/camera/light/skeleton nodes, composes rest worlds and plays a held-pose bridge, observing expected positions/rotations and a nonidentity root fold.
- * @evidence contracts/testing.md#independent-expectations Authored scene transforms give rest translations; placement multiplied by specialized resolvePose supplies a parity oracle for held bones, sharing product math rather than an external FK reference. Camera/light assertions here check positions, not every transform coefficient.
- * @evidence contracts/testing.md#distinguishing-cases Rigid versus rigged placements and rest versus held nonidentity-root pose distinguish missing/extra subtree and lost root folding; namespace admission and moving clip parity belong to adjacent scene tests.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_scene_to_nodes entry owns portable synchronous lowering/bridge/FK comparison on existing engine fixtures; it does not render a scene or certify anatomical pose quality.
+ * @evidence contracts/development/testing.md#behavioral-verification Lowers existing scene placements/camera/light/skeleton nodes, composes rest worlds and plays a held-pose bridge, observing expected positions/rotations and a nonidentity root fold.
+ * @evidence contracts/development/testing.md#independent-expectations Authored scene transforms give rest translations; placement multiplied by specialized resolvePose supplies a parity oracle for held bones, sharing product math rather than an external FK reference. Camera/light assertions here check positions, not every transform coefficient.
+ * @evidence contracts/development/testing.md#distinguishing-cases Rigid versus rigged placements and rest versus held nonidentity-root pose distinguish missing/extra subtree and lost root folding; namespace admission and moving clip parity belong to adjacent scene tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_scene_to_nodes entry owns portable synchronous lowering/bridge/FK comparison on existing engine fixtures; it does not render a scene or certify anatomical pose quality.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A placement group's world position/rotation match its scene-node transform;).
  */
 export function test_resolve_scene_to_nodes(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

@@ -22,10 +22,11 @@ import {
  * 3. A placementless legacy sculpture needs no building environment.
  * 4. Empty prop, set and environment registries remain valid.
  *
- * @evidence contracts/testing.md#behavioral-verification Validates the furnished registry, reversed declaration order, placementless legacy prop and empty registries through the existing placement scenario helper.
- * @evidence contracts/testing.md#independent-expectations The fixture declares a geometrically supported room and unique joins, so success and order invariance follow the placement contract; expected success is literal rather than copied from a validation snapshot.
- * @evidence contracts/testing.md#distinguishing-cases Preserves the complete room, forward-reference reversal, placementless legacy input and empty collections; addressed negative identities, geometry and adjacent silences belong to the sibling placement entries.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_prop_placement and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Validates the furnished registry, reversed declaration order, placementless legacy prop and empty registries through the existing placement scenario helper.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture declares a geometrically supported room and unique joins, so success and order invariance follow the placement contract; expected success is literal rather than copied from a validation snapshot.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves the complete room, forward-reference reversal, placementless legacy input and empty collections; addressed negative identities, geometry and adjacent silences belong to the sibling placement entries.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_prop_placement and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Accept the full furnished room with its support and building relations.).
  */
 export function test_film_prop_placement(): void {
   const scenario: {

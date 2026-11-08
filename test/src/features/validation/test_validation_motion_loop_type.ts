@@ -16,10 +16,11 @@ import { hasViolation } from "../internal/hasViolation";
  * 1. A forged string false is refused at loop.
  * 2. Boolean true remains supported.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateMotion for string false and boolean true, requiring a located type refusal and supported looping acceptance.
- * @evidence contracts/testing.md#independent-expectations The loop field is boolean, and a string is not that type regardless of spelling; the expected result follows its declared domain rather than sampler output.
- * @evidence contracts/testing.md#distinguishing-cases Separates a truthy forged string from supported true; motion_valid owns supported false and temporal cases own duration/time domains.
- * @evidence contracts/testing.md#execution-ownership This named unit validates existing clip/rig records without playing a loop, creating a host or dynamically registering tests.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateMotion for string false and boolean true, requiring a located type refusal and supported looping acceptance.
+ * @evidence contracts/development/testing.md#independent-expectations The loop field is boolean, and a string is not that type regardless of spelling; the expected result follows its declared domain rather than sampler output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates a truthy forged string from supported true; motion_valid owns supported false and temporal cases own duration/time domains.
+ * @evidence contracts/development/testing.md#execution-ownership This named unit validates existing clip/rig records without playing a loop, creating a host or dynamically registering tests.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A forged string false is refused at loop.).
  */
 export function test_validation_motion_loop_type(): void {
   const invalid: IAutoMovieMotion = {

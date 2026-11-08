@@ -1,4 +1,4 @@
-import type { IAutoMovieViewerVideoOptions } from "@automovie/render/node";
+import type { IAutoMovieViewerVideoOptions } from "@automovie/render";
 import ffmpeg from "ffmpeg-static";
 
 import { durationSeconds } from "./src/durationSeconds";
@@ -20,7 +20,8 @@ export default {
   prepare: async (page): Promise<{}> => {
     await page.evaluate(async (): Promise<void> => {
       const host: Window & { __afPrepare?: () => Promise<void> } = window;
-      if (host.__afPrepare === undefined) throw new Error("Production preparation hook is absent");
+      if (host.__afPrepare === undefined)
+        throw new Error("Production preparation hook is absent");
       await host.__afPrepare();
     }, undefined);
     return {};

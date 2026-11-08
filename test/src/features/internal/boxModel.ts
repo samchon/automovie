@@ -3,10 +3,10 @@ import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 /**
  * A generated numerical model containing the requested number of identical unit-box parts.
  *
- * @evidence contracts/testing.md#behavioral-verification Existing material, semantic and render-budget units consume these parts through real model/material/inventory operations; this helper creates input without asserting measured output.
- * @evidence contracts/testing.md#independent-expectations Every part is an authored unit box with a position-derived id and the matching supplied material id, allowing expectations from six-face arithmetic instead of production snapshots.
- * @evidence contracts/testing.md#distinguishing-cases Omitted parts selects one; supplied counts retain Array.from length semantics, missing per-part material selects null, and the supplied materials array is borrowed rather than cloned or admitted.
- * @evidence contracts/testing.md#execution-ownership Pure fixture construction for existing unit entries, with fresh part records and no renderer, filesystem, native artifact or case registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Existing material, semantic and render-budget units consume these parts through real model/material/inventory operations; this helper creates input without asserting measured output.
+ * @evidence contracts/development/testing.md#independent-expectations Every part is an authored unit box with a position-derived id and the matching supplied material id, allowing expectations from six-face arithmetic instead of production snapshots.
+ * @evidence contracts/development/testing.md#distinguishing-cases Omitted parts selects one; supplied counts retain Array.from length semantics, missing per-part material selects null, and the supplied materials array is borrowed rather than cloned or admitted.
+ * @evidence contracts/development/testing.md#execution-ownership Pure fixture construction for existing unit entries, with fresh part records and no renderer, filesystem, native artifact or case registration.
  */
 export const boxModel: (props: {
   id: string;

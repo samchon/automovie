@@ -21,13 +21,13 @@ import { locateAutoMovieSurfaceCoordinate } from "./locateAutoMovieSurfaceCoordi
  * @returns The point on `to`, and its surface coordinate.
  * @throws Error when the face is out of range, the local coordinates leave 0 to 1, or the two cages have different patch lists.
  *
- * @evidence contracts/common.md#principled-implementation Tiers share the patch chart, so mapping is chart composition: the source face's bilinear corner blend gives the chart point, exactly on a grid, and the target's grid or face inversion places it.
- * @evidence contracts/common.md#clear-and-simple-design Composes the corner coordinates the sampler publishes with the locator; it holds no state of its own.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Tiers whose patch lists differ are refused instead of matched by position.
- * @evidence contracts/common.md#meaningful-documentation States the mapping, why it is exact, the requirement that both tiers share a network, and the refusals.
- * @evidence contracts/performance.md#efficient-algorithms O(P) to compare the patch name lists, then constant chart composition plus target location: O(1) for a grid or up to 30 Newton steps per target-band face. Temporary name strings and weights are released on return.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure lookup.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#principled-implementation Tiers share the patch chart, so mapping is chart composition: the source face's bilinear corner blend gives the chart point, exactly on a grid, and the target's grid or face inversion places it.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Composes the corner coordinates the sampler publishes with the locator; it holds no state of its own.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tiers whose patch lists differ are refused instead of matched by position.
+ * @evidence contracts/development/common.md#meaningful-documentation States the mapping, why it is exact, the requirement that both tiers share a network, and the refusals.
+ * @evidence contracts/development/implementation.md#efficient-algorithms O(P) to compare the patch name lists, then constant chart composition plus target location: O(1) for a grid or up to 30 Newton steps per target-band face. Temporary name strings and weights are released on return.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure lookup.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export const mapAutoMovieSurfaceTier: (props: {
   from: IAutoMovieSurfaceCage;

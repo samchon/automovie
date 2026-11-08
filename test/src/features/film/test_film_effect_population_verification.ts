@@ -20,10 +20,11 @@ import {
  * 2. Refuse missing, extra, empty or reordered entries.
  * 3. Refuse digest-valid field retargeting, malformed runtime version and inconsistent timeline clock.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls verifyProductionFilmEffectPopulation through its named refusal boundary and checks accepted versus invalid-input/runtime classes, catching an individually valid but incomplete, reordered or retargeted population.
- * @evidence contracts/testing.md#independent-expectations The authored cue set requires one entry per cue in start-frame/id order with matching identity, rate, interval and intensity. Resealing recomputes digests so mutations reach field comparisons; it is not an independent digest correctness oracle.
- * @evidence contracts/testing.md#distinguishing-cases Keeps current/empty/resealed/provenance-only neighbours and every original cardinality/order/identity/clock/id/zone/frame/intensity mutation. Production identity, absent from a timeline, is owned by sampler identity checks.
- * @evidence contracts/testing.md#execution-ownership The discoverable portable synchronous entry owns all mutation cases, using existing data factories and real verifier source without installation, a render host or a browser.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls verifyProductionFilmEffectPopulation through its named refusal boundary and checks accepted versus invalid-input/runtime classes, catching an individually valid but incomplete, reordered or retargeted population.
+ * @evidence contracts/development/testing.md#independent-expectations The authored cue set requires one entry per cue in start-frame/id order with matching identity, rate, interval and intensity. Resealing recomputes digests so mutations reach field comparisons; it is not an independent digest correctness oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps current/empty/resealed/provenance-only neighbours and every original cardinality/order/identity/clock/id/zone/frame/intensity mutation. Production identity, absent from a timeline, is owned by sampler identity checks.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable portable synchronous entry owns all mutation cases, using existing data factories and real verifier source without installation, a render host or a browser.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Accept current, unchanged resealed and empty-track populations and ignore source provenance alone.).
  */
 export function test_film_effect_population_verification(): void {
   const timeline: IAutoMovieFilmTimeline = filmEffectTimeline();

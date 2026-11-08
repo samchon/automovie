@@ -160,13 +160,14 @@ interface IShotCase {
  * 5. Missing performance, motion and metadata entries are located without escaped exceptions; missing clearance samples are located separately from clock completeness.
  * 6. Dense empty motions, event/intent/coverage rows and a complete three-instant clearance plan remain accepted.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateShotArtifact on malformed shot fields and requires the authored error path, including missing performance, object-motion and metadata entries and carried clearance samples without escaped exceptions.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateShotArtifact on malformed shot fields and requires the authored error path, including missing performance, object-motion and metadata entries and carried clearance samples without escaped exceptions.
  *
- * @evidence contracts/testing.md#independent-expectations Expected paths come from each authored shot field and required object/array shape; the independent two-second, one-Hz clock is [0,1,2]. Path-prefix checks permit unrelated findings, and structural clear-report acceptance does not prove physical camera clearance or geometry freshness.
+ * @evidence contracts/development/testing.md#independent-expectations Expected paths come from each authored shot field and required object/array shape; the independent two-second, one-Hz clock is [0,1,2]. Path-prefix checks permit unrelated findings, and structural clear-report acceptance does not prove physical camera clearance or geometry freshness.
  *
- * @evidence contracts/testing.md#distinguishing-cases Keeps every existing identity, duration, event, intent, coverage and light-motion case and admits dense empty-motion and metadata twins. Missing middle samples are distinguished from a whole report hole; malformed cases use the existing partial fixture and require their own path rather than complete-shot validity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps every existing identity, duration, event, intent, coverage and light-motion case and admits dense empty-motion and metadata twins. Missing middle samples are distinguished from a whole report hole; malformed cases use the existing partial fixture and require their own path rather than complete-shot validity.
  *
- * @evidence contracts/testing.md#execution-ownership Portable engine admission runs through test_validation_shot_artifact_paths; the discoverable test_validation_shot_artifact_paths entry owns every synchronous case without a browser or native renderer.
+ * @evidence contracts/development/testing.md#execution-ownership Portable engine admission runs through test_validation_shot_artifact_paths; the discoverable test_validation_shot_artifact_paths entry owns every synchronous case without a browser or native renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Identity: a blank id, a scene that is not the scene beside it, and a camera).
  */
 export function test_validation_shot_artifact_paths(): void {
   TestValidator.predicate(

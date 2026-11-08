@@ -104,10 +104,11 @@ const faceNormal: (triangle: THREE.Vector3[]) => THREE.Vector3 = (
  * 6. Null and omitted spaces produce no support group.
  * 7. Depth mode replaces the support material and restore returns the original reference.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual scene/space realization and depth mode, reads indexed triangles, normals and heights, and observes exact material replacement/restoration.
- * @evidence contracts/testing.md#independent-expectations Authored square/ramp/heightfield inputs yield independent upward normals, a (-1,2,0)/sqrt(5) ramp normal and known center heights judged with numerical predicates.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts floor/ramp/internal relief, collinear omission, null/omitted space and a structural material swap; these checks do not certify pixels or native geometry admission.
- * @evidence contracts/testing.md#execution-ownership The named entry owns existing CPU model/support graphs and a returned pass handle, restores the pass and starts no native renderer, browser or visual probe.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual scene/space realization and depth mode, reads indexed triangles, normals and heights, and observes exact material replacement/restoration.
+ * @evidence contracts/development/testing.md#independent-expectations Authored square/ramp/heightfield inputs yield independent upward normals, a (-1,2,0)/sqrt(5) ramp normal and known center heights judged with numerical predicates.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts floor/ramp/internal relief, collinear omission, null/omitted space and a structural material swap; these checks do not certify pixels or native geometry admission.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry owns existing CPU model/support graphs and a returned pass handle, restores the pass and starts no native renderer, browser or visual probe.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A one-floor space appends its named support group and mesh after model/light nodes.).
  */
 export function test_viewer_space_ground(): void {
   // 1. the group, its placement, and its naming.

@@ -10,10 +10,11 @@ import { readRecoveryViewerDocument } from "../../../../packages/playground/src/
  * 2. Invalid UTF-8, oversized lengths, extra bytes and truncated bodies refuse.
  * 3. Admission and HTTP failures cancel their own readable stream.
  *
- * @evidence contracts/testing.md#behavioral-verification Reads real native File, Response and ReadableStream objects, checks exact returned text and observes the stream's own cancellation callback when admission fails.
- * @evidence contracts/testing.md#independent-expectations Explicit encoded byte sequences establish exact Unicode and BOM identity; the declared byte limit and HTTP lengths independently determine refusal instead of comparing private loader state.
- * @evidence contracts/testing.md#distinguishing-cases Covers known and absent lengths, multibyte UTF-8, BOM preservation, malformed UTF-8, empty/oversized admission, extra/truncated payloads and non-success HTTP status. No large payload must be allocated to test declared-size admission.
- * @evidence contracts/testing.md#execution-ownership This portable asynchronous test owns native in-memory files and streams only; it opens no disk file or network socket, replaces no foreign method and starts no browser or renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads real native File, Response and ReadableStream objects, checks exact returned text and observes the stream's own cancellation callback when admission fails.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit encoded byte sequences establish exact Unicode and BOM identity; the declared byte limit and HTTP lengths independently determine refusal instead of comparing private loader state.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers known and absent lengths, multibyte UTF-8, BOM preservation, malformed UTF-8, empty/oversized admission, extra/truncated payloads and non-success HTTP status. No large payload must be allocated to test declared-size admission.
+ * @evidence contracts/development/testing.md#execution-ownership This portable asynchronous test owns native in-memory files and streams only; it opens no disk file or network socket, replaces no foreign method and starts no browser or renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Native File and streamed Response retain multibyte text and a leading BOM.).
  */
 export async function test_playground_recovery_document(): Promise<void> {
   const text: string = '\uFEFF{"label":"곡선\u{1F30D}"}';

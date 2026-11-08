@@ -9,13 +9,13 @@ import { escapeWebVttText } from "./escapeWebVttText";
  * empty class span `<c></c>`, which keeps a visible line without writing a
  * blank line that would end the cue block.
  *
- * @evidence contracts/common.md#principled-implementation WebVTT ends a cue at the first empty line, and an empty `<c>` span renders no text, so replacing only empty lines with it preserves the line structure while every other line is escaped with the WebVTT character references.
- * @evidence contracts/common.md#clear-and-simple-design Normalization belongs to `canonicalizeAutoMovieCaptionText` and escaping to `escapeWebVttText`; this function adds only the per-line blank-line rule that applies to payloads alone.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The `<c></c>` span is the WebVTT class span used for its specified empty rendering, not a marker any reader recognizes, and no caption is special-cased.
- * @evidence contracts/common.md#meaningful-documentation The doc states the canonicalization it applies, the escape, and why an empty line becomes an empty class span.
- * @evidence contracts/performance.md#efficient-algorithms Normalization, split, per-line escape and join are each linear in the caption length, so a caption of L characters costs O(L) time and space.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure per-caption serialization shares no work across calls or consumers.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The intermediate line array is released on return, and the function keeps no state, handle or task.
+ * @evidence contracts/development/implementation.md#principled-implementation WebVTT ends a cue at the first empty line, and an empty `<c>` span renders no text, so replacing only empty lines with it preserves the line structure while every other line is escaped with the WebVTT character references.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Normalization belongs to `canonicalizeAutoMovieCaptionText` and escaping to `escapeWebVttText`; this function adds only the per-line blank-line rule that applies to payloads alone.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The `<c></c>` span is the WebVTT class span used for its specified empty rendering, not a marker any reader recognizes, and no caption is special-cased.
+ * @evidence contracts/development/common.md#meaningful-documentation The doc states the canonicalization it applies, the escape, and why an empty line becomes an empty class span.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Normalization, split, per-line escape and join are each linear in the caption length, so a caption of L characters costs O(L) time and space.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure per-caption serialization shares no work across calls or consumers.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The intermediate line array is released on return, and the function keeps no state, handle or task.
  */
 export const serializeAutoMovieWebVttCueText: (value: string) => string = (
   value: string,

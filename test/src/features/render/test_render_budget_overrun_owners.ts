@@ -20,10 +20,11 @@ import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture
  *
  * 1. Triangle, draw, texture, shadow, instance and fluid overruns name their exact excess and owner.
  *
- * @evidence contracts/testing.md#behavioral-verification Evaluates six one-metric over-limit twins and asserts each finding's status, exact excess, dominant editable owner/source/cost and recovery presence, catching attribution to a repeated frame pass instead of authored resources.
- * @evidence contracts/testing.md#independent-expectations Original staged/instance populations, unit-box counts, RGBA mip texel sum and declared shadow/fluid storage determine literal arithmetic. Only the selected metric limit changes, and expected owner paths are authored addresses rather than report-derived values.
- * @evidence contracts/testing.md#distinguishing-cases Preserves triangle, draw, texture-byte, shadow-map, instance-slot and fluid-cell overruns with repeated pass costs retained; unbudgeted, malformed, unknown storage and contributor truncation are separate cases.
- * @evidence contracts/testing.md#execution-ownership The named test_render_budget_overrun_owners owns the six portable CPU inventory/report twins through existing fixtures and shape projection; no renderer, texture allocation, fluid host or GPU is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates six one-metric over-limit twins and asserts each finding's status, exact excess, dominant editable owner/source/cost and recovery presence, catching attribution to a repeated frame pass instead of authored resources.
+ * @evidence contracts/development/testing.md#independent-expectations Original staged/instance populations, unit-box counts, RGBA mip texel sum and declared shadow/fluid storage determine literal arithmetic. Only the selected metric limit changes, and expected owner paths are authored addresses rather than report-derived values.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves triangle, draw, texture-byte, shadow-map, instance-slot and fluid-cell overruns with repeated pass costs retained; unbudgeted, malformed, unknown storage and contributor truncation are separate cases.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_render_budget_overrun_owners owns the six portable CPU inventory/report twins through existing fixtures and shape projection; no renderer, texture allocation, fluid host or GPU is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Triangle, draw, texture, shadow, instance and fluid overruns name their exact excess and owner.).
  */
 export function test_render_budget_overrun_owners(): void {
   const target: ReturnType<typeof renderBudgetTargetFixture> =

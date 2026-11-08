@@ -10,13 +10,13 @@ import { writtenVersion } from "./writtenVersion";
 /**
  * Capture one existing ordinary single-link file through its pathname.
  *
- * @evidence contracts/common.md#principled-implementation A fresh lstat admits an ordinary single-link pathname and captures its physical identity plus written and full versions.
- * @evidence contracts/common.md#clear-and-simple-design One snapshot producer supplies replacement admission and before-and-after resident verification.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Links and multiply linked residents fail before a snapshot can authorize writing.
- * @evidence contracts/common.md#meaningful-documentation The comment states ordinary single-link admission and the snapshot members document exact version semantics.
- * @evidence contracts/performance.md#efficient-algorithms One lstat and a fixed number of bigint-to-string encodings dominate, independent of file contents.
- * @evidence contracts/performance.md#reuse-equivalent-work Each snapshot is a new pathname observation, so a previous snapshot is not reused as current ownership.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only scalar snapshot fields escape; lstat opens no retained descriptor in this owner.
+ * @evidence contracts/development/implementation.md#principled-implementation A fresh lstat admits an ordinary single-link pathname and captures its physical identity plus written and full versions.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One snapshot producer supplies replacement admission and before-and-after resident verification.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Links and multiply linked residents fail before a snapshot can authorize writing.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states ordinary single-link admission and the snapshot members document exact version semantics.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One lstat and a fixed number of bigint-to-string encodings dominate, independent of file contents.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each snapshot is a new pathname observation, so a previous snapshot is not reused as current ownership.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only scalar snapshot fields escape; lstat opens no retained descriptor in this owner.
  */
 export const captureScaffoldFile: (file: string) => IScaffoldFileSnapshot = (
   file: string,

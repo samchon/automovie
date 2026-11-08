@@ -25,10 +25,11 @@ const TIERS: AutoMovieSurfaceTier[] = ["lowest", "low", "medium", "high"];
  * 2. A boundary missing a ring fails the manifold check: dropping the
  *    bottle's mouth ring leaves its mouth as an undeclared opening.
  *
- * @evidence contracts/testing.md#behavioral-verification Samples networks with `sampleAutoMovieSurfaceNetwork` and inspects the cages; welding that missed a shared side leaves a one-face edge off any ring, overlapping or flipped patches repeat a directed edge, and a pinched vertex splits its fan, while any closed, consistently wound layout passes.
- * @evidence contracts/testing.md#independent-expectations The manifold, ring and fan conditions are computed in this test from the faces and the published rings alone.
- * @evidence contracts/testing.md#distinguishing-cases Covers sweep, Coons and curve patches, reported rings and holes, every tier, and the negative of an undeclared opening; the branched body is owned by the network cage test, symmetry and shape invariance are owned by the network mirror test and positions by the rig and Gordon tests.
- * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_network_bodies` entry with no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples networks with `sampleAutoMovieSurfaceNetwork` and inspects the cages; welding that missed a shared side leaves a one-face edge off any ring, overlapping or flipped patches repeat a directed edge, and a pinched vertex splits its fan, while any closed, consistently wound layout passes.
+ * @evidence contracts/development/testing.md#independent-expectations The manifold, ring and fan conditions are computed in this test from the faces and the published rings alone.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers sweep, Coons and curve patches, reported rings and holes, every tier, and the negative of an undeclared opening; the branched body is owned by the network cage test, symmetry and shape invariance are owned by the network mirror test and positions by the rig and Gordon tests.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_network_bodies` entry with no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The bottle and the holed network, with their Coons heel band, curve).
  */
 export function test_geometry_sweep_network_bodies(): void {
   const bodies: Array<[string, IAutoMovieSurfaceNetwork]> = [

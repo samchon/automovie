@@ -73,10 +73,11 @@ const extents: (
  * 5. A graph defect and a wet-zone defect each refuse the drawing, quoting the
  *    path the violation stands at.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual service lowering, checks generated model/set records, tube extents and route-ring vertex counts, then verifies invalid section resolution and graph/wet-zone refusals at their owning paths.
- * @evidence contracts/testing.md#independent-expectations The authored cold run spans x=3.5..8 at y=2.5/z=1 with radius0.025; route points times nine or four ring points (the sides plus the seam repeat), plus two caps of eight or three, fix component counts independently of returned meshes.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts straight/turning routes, default/coarse section resolution, invalid two-side/fractional requests and graph versus wet-zone failures while checking world-baked identity placement; endpoint ids are sampled, not an exhaustive declaration-order assertion.
- * @evidence contracts/testing.md#execution-ownership Owns synchronous in-memory bathhouse/network and emitted geometry records through the portable runner; no browser, GPU, screenshot or output file is created, and these numerical mesh checks do not establish visual appearance or live product integration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual service lowering, checks generated model/set records, tube extents and route-ring vertex counts, then verifies invalid section resolution and graph/wet-zone refusals at their owning paths.
+ * @evidence contracts/development/testing.md#independent-expectations The authored cold run spans x=3.5..8 at y=2.5/z=1 with radius0.025; route points times nine or four ring points (the sides plus the seam repeat), plus two caps of eight or three, fix component counts independently of returned meshes.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts straight/turning routes, default/coarse section resolution, invalid two-side/fractional requests and graph versus wet-zone failures while checking world-baked identity placement; endpoint ids are sampled, not an exhaustive declaration-order assertion.
+ * @evidence contracts/development/testing.md#execution-ownership Owns synchronous in-memory bathhouse/network and emitted geometry records through the portable runner; no browser, GPU, screenshot or output file is created, and these numerical mesh checks do not establish visual appearance or live product integration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every run becomes exactly one generated model and one staged piece, named for).
  */
 export function test_service_network_render(): void {
   const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();

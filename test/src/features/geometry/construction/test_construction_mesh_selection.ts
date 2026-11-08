@@ -3,8 +3,8 @@ import { TestValidator } from "@nestia/e2e";
 import type { AutoMovieSolidMeshConstraints } from "../../../../../packages/engine/src/geometry/construction/AutoMovieSolidMeshConstraints";
 import { AutoMovieSolidMeshPlan } from "../../../../../packages/engine/src/geometry/construction/AutoMovieSolidMeshPlan";
 import { triangulateAutoMovieSolidBoundary } from "../../../../../packages/engine/src/geometry/construction/triangulateAutoMovieSolidBoundary";
-import { ConstructionMeshSelectionGeometry } from "../../internal/construction/ConstructionMeshSelectionGeometry";
 import { ConstructionGridAuthorities } from "../../internal/construction/ConstructionGridAuthorities";
+import { ConstructionMeshSelectionGeometry } from "../../internal/construction/ConstructionMeshSelectionGeometry";
 import { nclose } from "../../internal/nclose";
 
 /** One original native-chart position, with station length and dimensionless phase. */
@@ -27,10 +27,11 @@ type Point = readonly [number, number];
  * 6. Two cylinder rims with 20/15 phase intervals preserve all 37 points and 35 triangles, area 6 after station normalization, outward radial-plus-z chords and exact topology across three units and four cyclic starts. A separate phase rotation retains those geometric checks.
  * 7. A parabolic face preserves its independent cell chord bound and foreign shared domain IDs; exact/extra/near/coarse boundary populations remain distinct at three world units and both orientations.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real boundary ear owner and complete native planner, then inspects original IDs, positive triangles, point ownership and public topology. It does not infer an internal chosen bridge from a later diagonal.
- * @evidence contracts/testing.md#independent-expectations Native chart area divided by station scale is 0.75+0.375*departure for the trapezoid,16-4=12 for the centered square hole,4*3-2*2=8 for the U and2*3=6 for the cylinder strip; raw areas have an additional scale factor. The literal ear diagonal follows the declared occurrence-gap/tip-ID policy and N+2H-2 gives eight hole triangles. The strip maps exactly to (20*scale*cos(phi),20*scale*sin(phi),u); outward chords must face its independent radial-plus-z vector. Unit covariance compares public ID triples alongside independent geometry rather than a stored implementation snapshot.
- * @evidence contracts/testing.md#distinguishing-cases Includes near and far unequal lengths, cyclic starts, original-arc versus pure-ID order, a nontrivial hole and three positive length units. Membership probes and edge incidence are discrete checks, not a continuous world-surface certificate; malformed/periodic/atomic cases belong to the existing plan and consumer questions.
- * @evidence contracts/testing.md#execution-ownership Discoverable synchronous CPU test through construction_mesh_selection, using made charts only, with no person, host, render, process or foreign replacement.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the real boundary ear owner and complete native planner, then inspects original IDs, positive triangles, point ownership and public topology. It does not infer an internal chosen bridge from a later diagonal.
+ * @evidence contracts/development/testing.md#independent-expectations Native chart area divided by station scale is 0.75+0.375*departure for the trapezoid,16-4=12 for the centered square hole,4*3-2*2=8 for the U and2*3=6 for the cylinder strip; raw areas have an additional scale factor. The literal ear diagonal follows the declared occurrence-gap/tip-ID policy and N+2H-2 gives eight hole triangles. The strip maps exactly to (20*scale*cos(phi),20*scale*sin(phi),u); outward chords must face its independent radial-plus-z vector. Unit covariance compares public ID triples alongside independent geometry rather than a stored implementation snapshot.
+ * @evidence contracts/development/testing.md#distinguishing-cases Includes near and far unequal lengths, cyclic starts, original-arc versus pure-ID order, a nontrivial hole and three positive length units. Membership probes and edge incidence are discrete checks, not a continuous world-surface certificate; malformed/periodic/atomic cases belong to the existing plan and consumer questions.
+ * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU test through construction_mesh_selection, using made charts only, with no person, host, render, process or foreign replacement.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Convex trapezoids at three station units, exact/one-ULP/plainly unequal).
  */
 export function test_construction_mesh_selection(): void {
   const failures: string[] = [];
@@ -72,7 +73,9 @@ function ears(failures: string[]): void {
           continue;
         }
         if (ConstructionMeshSelectionGeometry.keys(made) !== "0/1/3;1/2/3")
-          failures.push(`integer ear order/${scale}/${offset}: ${ConstructionMeshSelectionGeometry.keys(made)}`);
+          failures.push(
+            `integer ear order/${scale}/${offset}: ${ConstructionMeshSelectionGeometry.keys(made)}`,
+          );
         let area: number = 0;
         for (const triangle of made) {
           const a: Point = points[triangle.vertices[0]]!;
@@ -165,7 +168,9 @@ function holes(failures: string[]): void {
     }
     if (made.triangles.length !== 8)
       failures.push(`hole selection/${scale}: expected eight triangles`);
-    const topology: string = ConstructionMeshSelectionGeometry.keys(made.triangles);
+    const topology: string = ConstructionMeshSelectionGeometry.keys(
+      made.triangles,
+    );
     if (reference === undefined) reference = topology;
     else if (topology !== reference)
       failures.push(`hole selection/${scale}: unit-dependent ID topology`);

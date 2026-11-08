@@ -3,11 +3,11 @@ import {
   type IAutoMovieContourLoft64 as L,
   generateAutoMovieContourLoft64,
   tessellateAutoMovieContourLoft64,
-} from "@automovie/engine/geometry/curve";
+} from "@automovie/engine";
 import {
   createAutoMovieRecoveryContourFileMesh,
   writeAutoMovieRecoveryArtifact,
-} from "@automovie/recovery/node";
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 import fs from "node:fs";
 import os from "node:os";
@@ -26,10 +26,11 @@ import { nclose } from "../internal/nclose";
  * 4. Vertex/construction callbacks preserve their original thrown identity.
  * 5. Accessors refuse without invocation; reflection failures retain the primary.
  *
- * @evidence contracts/testing.md#behavioral-verification Generates real memory and file channels, publishes and rereads their complete values, measures actual triangle areas, and exercises exact population ceilings and original callback-error identity. Accessors refuse without execution; an input-reflection throw retains its original symbol and leaves no destination. Caller coefficients remain byte-identical.
- * @evidence contracts/testing.md#independent-expectations A two-metre square's perimeter is eight metres and a one-metre axial height gives eight square metres of lateral surface; a one-metre cavity adds four. Four straight boundary spans require eight elementary triangles and eight vertices per cylinder. File/memory equality additionally checks original normal reduction and order, but does not independently prove topology or rasterization.
- * @evidence contracts/testing.md#distinguishing-cases Covers ordinary open-ended prism, reversed cavity winding, complete empty output, exact versus one-below vertex/triangle ceilings, existing destination refusal, throwing vertex/construction callbacks, uncalled accessor refusal and input-reflection failure. Existing contour boundary and strip tests own split/merge, terminal, phase, malformed curve and shared-bank semantics; this entry does not claim actual filesystem cleanup-failure injection or whole canonical validation.
- * @evidence contracts/testing.md#execution-ownership The discoverable entry invokes public CPU kernels and synchronous Node artifact/file consumers with authored cubic geometry in one owned temporary directory. It starts no process/browser/GPU/build and replaces no foreign method; temporary files are removed after preserving any primary test failure.
+ * @evidence contracts/development/testing.md#behavioral-verification Generates real memory and file channels, publishes and rereads their complete values, measures actual triangle areas, and exercises exact population ceilings and original callback-error identity. Accessors refuse without execution; an input-reflection throw retains its original symbol and leaves no destination. Caller coefficients remain byte-identical.
+ * @evidence contracts/development/testing.md#independent-expectations A two-metre square's perimeter is eight metres and a one-metre axial height gives eight square metres of lateral surface; a one-metre cavity adds four. Four straight boundary spans require eight elementary triangles and eight vertices per cylinder. File/memory equality additionally checks original normal reduction and order, but does not independently prove topology or rasterization.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers ordinary open-ended prism, reversed cavity winding, complete empty output, exact versus one-below vertex/triangle ceilings, existing destination refusal, throwing vertex/construction callbacks, uncalled accessor refusal and input-reflection failure. Existing contour boundary and strip tests own split/merge, terminal, phase, malformed curve and shared-bank semantics; this entry does not claim actual filesystem cleanup-failure injection or whole canonical validation.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable entry invokes public CPU kernels and synchronous Node artifact/file consumers with authored cubic geometry in one owned temporary directory. It starts no process/browser/GPU/build and replaces no foreign method; temporary files are removed after preserving any primary test failure.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Prism and cavity preserve indexed values, ordered normals and known area.).
  */
 export function test_geometry_contour_file_output(): void {
   const directory: string = fs.mkdtempSync(

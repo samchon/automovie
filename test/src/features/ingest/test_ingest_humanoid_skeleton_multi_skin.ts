@@ -31,10 +31,11 @@ const bonesOf: (bones: IAutoMovieBone[]) => string[] = (
  * 3. Complementary partial skins union: skin one maps `Hips`, skin two maps `Spine` (sharing the hips joint), and the emitted skeleton carries both slots with `spine` parenting `hips` across the skin boundary.
  * 4. First-wins across skins: when two skins name distinct nodes `Spine`, the earlier skin's node owns the slot: the later duplicate is dropped, matching the single-skin duplicate rule.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the mapper with reordered, complementary and conflicting skins, checking mapped slots, hierarchy and first-owner rest; reading only the first skin or replacing an earlier slot fails.
- * @evidence contracts/testing.md#independent-expectations Authored joint names and parent edges determine hips/spine membership, and the earlier Spine's quarter-metre offset fixes the first-wins expectation independently.
- * @evidence contracts/testing.md#distinguishing-cases Accessory/body order twins, complementary skin union and duplicate slots across distinct nodes are covered; helper composition and no-hips behavior belong to the single-rig unit, and order independence applies only to nonconflicting slots.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_ingest_humanoid_skeleton_multi_skin entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the mapper with reordered, complementary and conflicting skins, checking mapped slots, hierarchy and first-owner rest; reading only the first skin or replacing an earlier slot fails.
+ * @evidence contracts/development/testing.md#independent-expectations Authored joint names and parent edges determine hips/spine membership, and the earlier Spine's quarter-metre offset fixes the first-wins expectation independently.
+ * @evidence contracts/development/testing.md#distinguishing-cases Accessory/body order twins, complementary skin union and duplicate slots across distinct nodes are covered; helper composition and no-hips behavior belong to the single-rig unit, and order independence applies only to nonconflicting slots.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_ingest_humanoid_skeleton_multi_skin entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An accessory-first document (skin "cloth" holds only an unmapped `Button`, skin "body" holds `Hips → Spine`) still yields the body...).
  */
 export function test_ingest_humanoid_skeleton_multi_skin(): void {
   // 1. accessory skin first: the body rig sits in the second skin

@@ -59,10 +59,11 @@ const failsAt: (
  * 3. Each mountable and destructible scalar family is independently rejected at its exact path.
  * 4. Impact hardness and penetrability above one are rejected. Profile admission uses (0,1], a stricter lower bound than resolveImpact's [0,1] physical coefficient domain.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls focused profile and model admission, requiring supported capability acceptance and located refusals for duplicate/blank identity, repeated trait kinds and each invalid capability scalar.
- * @evidence contracts/testing.md#independent-expectations Seats are positive bounded integers; payload, durability and mass are positive; restitution is in [0,1] and hardness/penetrability in (0,1]. Literal invalid values and trait paths derive from these declared domains, not a simulated response.
- * @evidence contracts/testing.md#distinguishing-cases Retains one complete mixed-trait profile, duplicate identity/kind and independently changed scalar fields including upper coefficient excess. Actual mounting, impacts, driver binding and gait execution are owned elsewhere.
- * @evidence contracts/testing.md#execution-ownership The named portable unit uses existing model records and local profile/finding adapters, with no physics host, actor installation or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls focused profile and model admission, requiring supported capability acceptance and located refusals for duplicate/blank identity, repeated trait kinds and each invalid capability scalar.
+ * @evidence contracts/development/testing.md#independent-expectations Seats are positive bounded integers; payload, durability and mass are positive; restitution is in [0,1] and hardness/penetrability in (0,1]. Literal invalid values and trait paths derive from these declared domains, not a simulated response.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains one complete mixed-trait profile, duplicate identity/kind and independently changed scalar fields including upper coefficient excess. Actual mounting, impacts, driver binding and gait execution are owned elsewhere.
+ * @evidence contracts/development/testing.md#execution-ownership The named portable unit uses existing model records and local profile/finding adapters, with no physics host, actor installation or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A complete mountable/destructible profile passes both the focused validator and validateModel.).
  */
 export function test_validation_profile_capabilities(): void {
   const valid: IAutoMovieProfile = profile();

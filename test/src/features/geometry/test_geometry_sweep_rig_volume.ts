@@ -147,10 +147,11 @@ const enclosed = (positions: ArrayLike<number>, faces: number[][]): number => {
  *    0.5 percent with volume preservation at the medium tier, while plain
  *    re-sweeping changes it by more than 1 percent.
  *
- * @evidence contracts/testing.md#behavioral-verification Poses rigs of a bound tube with `rigAutoMovieSurfaceNetwork` and measures their limit surfaces; a rig that skipped the joint rescale, settled it against a wrong volume or scaled the wrong stations fails, while any rescale that restores the measured volume passes.
- * @evidence contracts/testing.md#independent-expectations The volume is the divergence theorem over the twice-subdivided limit surface closed by centroid fans, checked against the cylinder's volume at rest, not the engine's swept-volume integral; the record path is the engine's separate posing and sampling. Its limitation: a self-intersecting region would count twice, which this radius and bend avoid.
- * @evidence contracts/testing.md#distinguishing-cases Covers preserved and plain posing, the oracle at rest and the rig against the record path under preservation; that equality on the branched body is owned by the rig pose test.
- * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_rig_volume` entry with no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Poses rigs of a bound tube with `rigAutoMovieSurfaceNetwork` and measures their limit surfaces; a rig that skipped the joint rescale, settled it against a wrong volume or scaled the wrong stations fails, while any rescale that restores the measured volume passes.
+ * @evidence contracts/development/testing.md#independent-expectations The volume is the divergence theorem over the twice-subdivided limit surface closed by centroid fans, checked against the cylinder's volume at rest, not the engine's swept-volume integral; the record path is the engine's separate posing and sampling. Its limitation: a self-intersecting region would count twice, which this radius and bend avoid.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers preserved and plain posing, the oracle at rest and the rig against the record path under preservation; that equality on the branched body is owned by the rig pose test.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_rig_volume` entry with no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Posed with volume preservation, the rig writes the cage that sampling).
  */
 export function test_geometry_sweep_rig_volume(): void {
   const straight: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };

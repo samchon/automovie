@@ -25,13 +25,13 @@ import { sampleDescription } from "./sampleDescription";
  *
  * No production module calls this function at present; only tests reach it.
  *
- * @evidence contracts/common.md#principled-implementation Equality is decided on the parser's sample tables and the exact payload byte ranges, so two containers that store the same coded pictures at the same times pass even when their box layout differs, and nothing is decoded.
- * @evidence contracts/common.md#clear-and-simple-design Flag and decoder-configuration equality reuse `sameSampleFlags` and `sameSampleDescription`, and the two small track and timing comparisons are local because no other module compares whole tracks. The gap is that no production consumer remains.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No tick, flag or byte tolerance is applied, and neither input is treated specially by name or size.
- * @evidence contracts/common.md#meaningful-documentation The doc lists every track-level and per-sample equality, which tracks are compared and which ignored, and each refusal message.
- * @evidence contracts/performance.md#efficient-algorithms Both files are parsed once, with box and expanded sample-table populations driving delegated parsing. For S sample pairs, comparisons visit payload bytes and serialize their subsample tables; changed description objects add child-box serialization. Track matrix and edit-list comparisons also scale with their contents, so compared payload bytes alone do not bound the complete operation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A proof compares two caller-held byte arrays once and offers no result another call could share.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Both parsed files and their sample tables are released on return, and the function opens no handle or task.
+ * @evidence contracts/development/implementation.md#principled-implementation Equality is decided on the parser's sample tables and the exact payload byte ranges, so two containers that store the same coded pictures at the same times pass even when their box layout differs, and nothing is decoded.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Flag and decoder-configuration equality reuse `sameSampleFlags` and `sameSampleDescription`, and the two small track and timing comparisons are local because no other module compares whole tracks. The gap is that no production consumer remains.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tick, flag or byte tolerance is applied, and neither input is treated specially by name or size.
+ * @evidence contracts/development/common.md#meaningful-documentation The doc lists every track-level and per-sample equality, which tracks are compared and which ignored, and each refusal message.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Both files are parsed once, with box and expanded sample-table populations driving delegated parsing. For S sample pairs, comparisons visit payload bytes and serialize their subsample tables; changed description objects add child-box serialization. Track matrix and edit-list comparisons also scale with their contents, so compared payload bytes alone do not bound the complete operation.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A proof compares two caller-held byte arrays once and offers no result another call could share.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Both parsed files and their sample tables are released on return, and the function opens no handle or task.
  */
 export const assertProductionFeatureUsesRenditionVideo: (props: {
   feature: Uint8Array;

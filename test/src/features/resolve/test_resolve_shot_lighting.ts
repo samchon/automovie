@@ -138,10 +138,11 @@ const intensityOf: (lights: IAutoMovieLight[], id: string) => number = (
  *    light the scene does not stage, and `range` on a directional light (a kind
  *    that carries no falloff). Each throws instead of skipping.
  *
- * @evidence contracts/testing.md#behavioral-verification Resolves real light clips and observes cue values, untouched reference identity, color/range/cone writes, per-light accumulation and loud refusal of unsupported or absent targets.
- * @evidence contracts/testing.md#independent-expectations Authored STEP keys hold1.4 before the1.6-second cue and0.04 from the cue; linear endpoint means give the color midpoint, while untouched staged objects and kind-specific parameters supply identity/preservation expectations.
- * @evidence contracts/testing.md#distinguishing-cases Cue boundaries, a singleton hold, no clips/unaddressed lights, each authored value property and two simultaneous fields contrast valid writes with node/foreign/missing/kind-mismatch refusals; transform and area-light behavior have separate cases.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_shot_lighting entry synchronously executes portable numerical light records through direct source calls; cue values do not prove that a physically rendered candle appears dark.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves real light clips and observes cue values, untouched reference identity, color/range/cone writes, per-light accumulation and loud refusal of unsupported or absent targets.
+ * @evidence contracts/development/testing.md#independent-expectations Authored STEP keys hold1.4 before the1.6-second cue and0.04 from the cue; linear endpoint means give the color midpoint, while untouched staged objects and kind-specific parameters supply identity/preservation expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Cue boundaries, a singleton hold, no clips/unaddressed lights, each authored value property and two simultaneous fields contrast valid writes with node/foreign/missing/kind-mismatch refusals; transform and area-light behavior have separate cases.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_shot_lighting entry synchronously executes portable numerical light records through direct source calls; cue values do not prove that a physically rendered candle appears dark.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: S-03 realized. The blowout clip evaluates to 1.4 at `t = 0` (the lower).
  */
 export function test_resolve_shot_lighting(): void {
   // 1. S-03, at the instants that decide the beat.

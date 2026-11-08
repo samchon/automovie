@@ -81,10 +81,11 @@ const frameAction: (
  *    zero and a non-finite `focalLength` are `range` violations at
  *    `.focalLength`.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs performShot with present or omitted camera intents and with invalid focus/focal lengths, checking emitted lens metadata, resolved focus, invariant compiled motion, and located type/range refusals.
- * @evidence contracts/testing.md#independent-expectations The staged knightB point (0,0,0.7), authored 85 mm focal length, and explicit medium/static vocabulary form the positive oracle. The paired clip comparison establishes intent noninterference rather than an independent camera-path oracle; ghost, zero, and NaN have explicit refusal expectations.
- * @evidence contracts/testing.md#distinguishing-cases Present versus omitted intents distinguishes metadata carriage and null defaults from camera solving; an unstaged focus and zero/nonfinite lenses distinguish target and scalar admission while preserving the valid framing fixture.
- * @evidence contracts/testing.md#execution-ownership Uses real staging and performance assembly with local skeleton and synthesizer callbacks through declared product seams, without a renderer, resource access, clock, or replacement of dependencies. Existing test12ValuesClose retains record keys, track order, lengths, and exact nclose numeric comparisons for the paired clips.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs performShot with present or omitted camera intents and with invalid focus/focal lengths, checking emitted lens metadata, resolved focus, invariant compiled motion, and located type/range refusals.
+ * @evidence contracts/development/testing.md#independent-expectations The staged knightB point (0,0,0.7), authored 85 mm focal length, and explicit medium/static vocabulary form the positive oracle. The paired clip comparison establishes intent noninterference rather than an independent camera-path oracle; ghost, zero, and NaN have explicit refusal expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Present versus omitted intents distinguishes metadata carriage and null defaults from camera solving; an unstaged focus and zero/nonfinite lenses distinguish target and scalar admission while preserving the valid framing fixture.
+ * @evidence contracts/development/testing.md#execution-ownership Uses real staging and performance assembly with local skeleton and synthesizer callbacks through declared product seams, without a renderer, resource access, clock, or replacement of dependencies. Existing test12ValuesClose retains record keys, track order, lengths, and exact nclose numeric comparisons for the paired clips.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A frame with `focus: knightB` and `focalLength: 85` emits one intent entry).
  */
 export function test_film_camera_intent(): void {
   // 1. intents ride to shot.cameraIntent.

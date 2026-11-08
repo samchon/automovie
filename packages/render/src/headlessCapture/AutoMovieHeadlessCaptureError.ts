@@ -1,1 +1,1 @@
-export { AutoMovieHeadlessCaptureError } from "@automovie/viewer/node";
+export { AutoMovieHeadlessCaptureError } from "@automovie/viewer";

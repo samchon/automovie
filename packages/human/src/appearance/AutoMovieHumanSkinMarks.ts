@@ -1,13 +1,13 @@
-import { encodeAutoMoviePng } from "@automovie/engine/render/encodeAutoMoviePng";
+import { encodeAutoMoviePng } from "@automovie/engine";
 import type { IAutoMovieImage } from "@automovie/interface";
 
 import type { IAutoMovieHumanSkinAppearance } from "../structures/appearance/IAutoMovieHumanSkinAppearance";
 import { AutoMovieHumanAppearanceNoise } from "./AutoMovieHumanAppearanceNoise";
 import type { AutoMovieHumanSkinChart } from "./AutoMovieHumanSkinChart";
+import { AutoMovieHumanSkinMarksPaint } from "./AutoMovieHumanSkinMarksPaint";
 import { AutoMovieHumanSkinPigment } from "./AutoMovieHumanSkinPigment";
 import type { AutoMovieHumanSkinTone } from "./AutoMovieHumanSkinTone";
 import { AutoMovieHumanSkinVector } from "./AutoMovieHumanSkinVector";
-import { AutoMovieHumanSkinMarksPaint } from "./AutoMovieHumanSkinMarksPaint";
 
 /**
  * Seeded skin marks (freckles, moles and acne spots) drawn into one image
@@ -209,7 +209,8 @@ type IKind = AutoMovieHumanSkinMarksPaint.IKind;
 
 /** A triangle a mark lands on. */
 type ITriangle = AutoMovieHumanSkinMarksPaint.ITriangle;
-const { digest, splat, srgb }: typeof AutoMovieHumanSkinMarksPaint = AutoMovieHumanSkinMarksPaint;
+const { digest, splat, srgb }: typeof AutoMovieHumanSkinMarksPaint =
+  AutoMovieHumanSkinMarksPaint;
 
 /**
  * The kinds the skin appearance requests, with their colours.
@@ -399,4 +400,3 @@ function eachTriangle(
     },
   );
 }
-

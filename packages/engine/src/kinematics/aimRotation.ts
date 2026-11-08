@@ -31,13 +31,13 @@ const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
  * @returns A unit quaternion.
  * @throws Error naming the vector and component when a component is not finite.
  *
- * @evidence contracts/common.md#principled-implementation The shortest arc between two unit vectors is the rotation about their cross product by `atan2(|a x b|, a . b)`, which `rotationBetween` computes without a near-parallel deadzone; normalizing first removes the magnitudes the angle does not depend on, and the documented zero-vector identity is `rotationBetween`'s degenerate branch rather than a separate rule.
- * @evidence contracts/common.md#clear-and-simple-design A validating front for the one shared shortest-arc primitive, so every aim, light, projectile and two-bone caller turns vectors the same way while non-finite input is refused with the aim's own message.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Non-finite components are refused rather than replaced, and no tolerance snaps a small angle to the identity.
- * @evidence contracts/common.md#meaningful-documentation States its uses and how to call it for aiming, the shared primitive and why that matters, the aligned, antiparallel and zero-length results, and the refusal.
- * @evidence contracts/performance.md#efficient-algorithms Six input finiteness checks precede the shared constant-time shortest-arc computation; direction normalization occurs only in rotationBetween.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two vectors; callers that need it per frame or per candidate pass different vectors each time.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns no temporary vectors or persistent state; the delegated computation's bounded direction and quaternion records leave no references here.
+ * @evidence contracts/development/implementation.md#principled-implementation The shortest arc between two unit vectors is the rotation about their cross product by `atan2(|a x b|, a . b)`, which `rotationBetween` computes without a near-parallel deadzone; normalizing first removes the magnitudes the angle does not depend on, and the documented zero-vector identity is `rotationBetween`'s degenerate branch rather than a separate rule.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure A validating front for the one shared shortest-arc primitive, so every aim, light, projectile and two-bone caller turns vectors the same way while non-finite input is refused with the aim's own message.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Non-finite components are refused rather than replaced, and no tolerance snaps a small angle to the identity.
+ * @evidence contracts/development/common.md#meaningful-documentation States its uses and how to call it for aiming, the shared primitive and why that matters, the aligned, antiparallel and zero-length results, and the refusal.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Six input finiteness checks precede the shared constant-time shortest-arc computation; direction normalization occurs only in rotationBetween.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of two vectors; callers that need it per frame or per candidate pass different vectors each time.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Owns no temporary vectors or persistent state; the delegated computation's bounded direction and quaternion records leave no references here.
  */
 export const aimRotation: (
   from: IAutoMovieVector3,

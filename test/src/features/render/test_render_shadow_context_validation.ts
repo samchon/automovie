@@ -22,10 +22,11 @@ import { hasViolation } from "../internal/predicates";
  * 3. An invalid earlier light does not shift a later point's contextual diagnostic, and an independent environment scalar error is collected beside it.
  * 4. Invalid shadow discriminators and enabled flags produce their addressed shape errors without invoking the contextual profile with invalid policy.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs real environment and staging admission, refusing enabled point VSM at the original light path while collecting independent environment scalar and policy shape errors.
- * @evidence contracts/testing.md#independent-expectations The supported point-shadow policy admits PCF/legacy alias and disabled VSM but rejects enabled point VSM; hand-authored source rows determine exact located paths. Boundary agreement is shared-policy consistency, not an independent native shadow-format oracle.
- * @evidence contracts/testing.md#distinguishing-cases Supported and enabled-VSM twins, noncasting lights, an earlier malformed row, invalid policy fields and negative environment intensity preserve acceptance, refusal and diagnostic coexistence.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_shadow_context_validation owns its cases. Portable Engine admission through existing input factories, without shader compilation, framebuffer creation or a real render host.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs real environment and staging admission, refusing enabled point VSM at the original light path while collecting independent environment scalar and policy shape errors.
+ * @evidence contracts/development/testing.md#independent-expectations The supported point-shadow policy admits PCF/legacy alias and disabled VSM but rejects enabled point VSM; hand-authored source rows determine exact located paths. Boundary agreement is shared-policy consistency, not an independent native shadow-format oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Supported and enabled-VSM twins, noncasting lights, an earlier malformed row, invalid policy fields and negative environment intensity preserve acceptance, refusal and diagnostic coexistence.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_shadow_context_validation owns its cases. Portable Engine admission through existing input factories, without shader compilation, framebuffer creation or a real render host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: PCF, its legacy alias, and globally disabled VSM accept a point caster through environment and staging admission.).
  */
 export function test_render_shadow_context_validation(): void {
   const shadow: {

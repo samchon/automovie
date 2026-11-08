@@ -10,13 +10,13 @@ import { createAutoMovieCatalogVersionResolver } from "./createAutoMovieCatalogV
  * @returns The table keyed by token name, such as `engine` or `kokoroJs`.
  * @throws When any catalog entry is missing or invalid, naming it.
  *
- * @evidence contracts/common.md#principled-implementation Removing only a leading caret or tilde turns an npm range anchored on one version into that exact version, which is the semver meaning of both markers; the premise is that those three catalog entries are written as `^x.y.z`, `~x.y.z`, or `x.y.z`, which the workspace manifest does.
- * @evidence contracts/common.md#clear-and-simple-design The function owns only the mapping from token names to catalog entries; YAML reading belongs to `createAutoMovieCatalogVersionResolver`, and file access to the build script.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The exact-version rule applies to the three named runtime packages by their catalog names because their graphs need one version, and no value is hard-coded; every version comes from the inputs.
- * @evidence contracts/common.md#meaningful-documentation The comment states which catalog owns each group, which entries become exact and how, the keys of the result, and what throws.
- * @evidence contracts/performance.md#efficient-algorithms The manifest is parsed once; each of nineteen lookups scans the direct keys of the root, catalogs mapping and requested catalog, including alias resolution where needed. The fixed lookup count keeps total work linear in manifest size, with one parsed document and thirty result strings.
- * @evidence contracts/performance.md#reuse-equivalent-work All nineteen lookups share one resolver and therefore one parsed document of `props.workspace`, the only input they depend on; nothing outlives the call, so no invalidation is needed.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The resolver and its parsed document are released when the function returns; only the result table, thirty strings, is retained by the caller.
+ * @evidence contracts/development/implementation.md#principled-implementation Removing only a leading caret or tilde turns an npm range anchored on one version into that exact version, which is the semver meaning of both markers; the premise is that those three catalog entries are written as `^x.y.z`, `~x.y.z`, or `x.y.z`, which the workspace manifest does.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The function owns only the mapping from token names to catalog entries; YAML reading belongs to `createAutoMovieCatalogVersionResolver`, and file access to the build script.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The exact-version rule applies to the three named runtime packages by their catalog names because their graphs need one version, and no value is hard-coded; every version comes from the inputs.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states which catalog owns each group, which entries become exact and how, the keys of the result, and what throws.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The manifest is parsed once; each of nineteen lookups scans the direct keys of the root, catalogs mapping and requested catalog, including alias resolution where needed. The fixed lookup count keeps total work linear in manifest size, with one parsed document and thirty result strings.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All nineteen lookups share one resolver and therefore one parsed document of `props.workspace`, the only input they depend on; nothing outlives the call, so no invalidation is needed.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The resolver and its parsed document are released when the function returns; only the result table, thirty strings, is retained by the caller.
  */
 export const resolveAutoMovieTemplateDependencyVersions: (
   props: IAutoMovieTemplateDependencyVersionsProps,

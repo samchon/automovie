@@ -155,10 +155,11 @@ const facesOutward: (surface: IAutoMovieSubdivisionSurface) => boolean = (
  *    the apex, which joins only triangles, follows the same vertex rule.
  * 4. The same cage and level rebuild to identical numbers in identical order.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs `subdivideAutoMovieSurface` at one level and asserts refined positions, counts, vertex numbering and quad winding; a wrong rule weight, wrong numbering, or flipped child quad fails.
- * @evidence contracts/testing.md#independent-expectations Expected points come from Catmull and Clark (1978) as rewritten in the test from cage data, and the cube values 5/9 and 3/4 are the textbook closed forms; the edge order is re-derived by walking the cage, not read from the implementation.
- * @evidence contracts/testing.md#distinguishing-cases Covers a closed all-quad cage, valences 3, 5 and 6, triangles beside a quad, and exact determinism; limit evaluation, boundaries, creases, UVs, parameters and refusals are owned by the other `test_geometry_subdivision_*` tests.
- * @evidence contracts/testing.md#execution-ownership A discoverable unit entry calling the portable engine function on synthetic cages; no consumer, native build, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `subdivideAutoMovieSurface` at one level and asserts refined positions, counts, vertex numbering and quad winding; a wrong rule weight, wrong numbering, or flipped child quad fails.
+ * @evidence contracts/development/testing.md#independent-expectations Expected points come from Catmull and Clark (1978) as rewritten in the test from cage data, and the cube values 5/9 and 3/4 are the textbook closed forms; the edge order is re-derived by walking the cage, not read from the implementation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers a closed all-quad cage, valences 3, 5 and 6, triangles beside a quad, and exact determinism; limit evaluation, boundaries, creases, UVs, parameters and refusals are owned by the other `test_geometry_subdivision_*` tests.
+ * @evidence contracts/development/testing.md#execution-ownership A discoverable unit entry calling the portable engine function on synthetic cages; no consumer, native build, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A cube refines to 26 vertices and 24 quads: cage vertex `i` stays vertex).
  */
 export function test_geometry_subdivision_rules(): void {
   const cube: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({

@@ -31,10 +31,11 @@ import {
  *    refused in one round at their `$input.set[i]` paths; an omitted
  *    `facingDeg` is not a violation.
  *
- * @evidence contracts/testing.md#behavioral-verification Stages static set nodes, yaw and full rotations, and a camera aimed at a set piece; then requires the seven malformed node/model/position/rotation refusals.
- * @evidence contracts/testing.md#independent-expectations Literal node order, floor model id, null floor motion/pose and authored rotations define expectations; qclose and vclose observe orientation and aim without deep float equality. Camera displacement comes from authored placement geometry; product normalization/rotation helpers participate in the observation, so their shared faults are not independently excluded.
- * @evidence contracts/testing.md#distinguishing-cases Retains omitted yaw, ninety-degree yaw, full quaternion, cast-id collision, blank ids, nonfinite position/yaw/rotation and conflicting rotation spellings; scale and logical ground admission belong to their separate entries.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns these portable scene-record and quaternion assertions through engine staging/math and existing fixtures; it does not display or certify architecture.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages static set nodes, yaw and full rotations, and a camera aimed at a set piece; then requires the seven malformed node/model/position/rotation refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Literal node order, floor model id, null floor motion/pose and authored rotations define expectations; qclose and vclose observe orientation and aim without deep float equality. Camera displacement comes from authored placement geometry; product normalization/rotation helpers participate in the observation, so their shared faults are not independently excluded.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains omitted yaw, ninety-degree yaw, full quaternion, cast-id collision, blank ids, nonfinite position/yaw/rotation and conflicting rotation spellings; scale and logical ground admission belong to their separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns these portable scene-record and quaternion assertions through engine staging/math and existing fixtures; it does not display or certify architecture.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A floor (no `facingDeg`) and a turned wall stage as scene nodes after the).
  */
 export function test_film_stage_scene_set(): void {
   const staged: ReturnType<typeof stageScene> = stageScene(

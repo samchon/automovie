@@ -48,10 +48,11 @@ const SUBJECT: Parameters<
  *
  * 1. The forged macro framing refuses with an Error naming the unknown framing and authored token.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls compileCameraMove with macro outside the supported framing union and requires its named unknown-framing Error, catching lookup of an undefined aim fraction followed by malformed camera keys.
- * @evidence contracts/testing.md#independent-expectations Macro is outside the interface's wide/full/medium/close vocabulary; the literal error fragments identify framing admission rather than another camera failure, without deriving an expected clip from compiler output.
- * @evidence contracts/testing.md#distinguishing-cases Owns a forged framing beside supported static motion and valid lens/subject data; forged moves and supported camera paths have separate tests. Untyped property-coercion failures are outside this string case.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_camera_framing_type entry owns one direct numeric compiler refusal and observes its Error through throwsError without a viewer, GPU, native artifact or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls compileCameraMove with macro outside the supported framing union and requires its named unknown-framing Error, catching lookup of an undefined aim fraction followed by malformed camera keys.
+ * @evidence contracts/development/testing.md#independent-expectations Macro is outside the interface's wide/full/medium/close vocabulary; the literal error fragments identify framing admission rather than another camera failure, without deriving an expected clip from compiler output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns a forged framing beside supported static motion and valid lens/subject data; forged moves and supported camera paths have separate tests. Untyped property-coercion failures are outside this string case.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_camera_framing_type entry owns one direct numeric compiler refusal and observes its Error through throwsError without a viewer, GPU, native artifact or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: The forged macro framing refuses with an Error naming the unknown framing and authored token.).
  */
 export function test_film_camera_framing_type(): void {
   TestValidator.predicate(

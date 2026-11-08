@@ -13,13 +13,13 @@ import type { IAutoMovieSequenceDissolvePixelCheck } from "./IAutoMovieSequenceD
  *
  *
  *
- * @evidence contracts/common.md#principled-implementation Each transition selects its sampled blend nearest alpha 0.5, decodes the mixed and two isolated PNGs, and compares mean absolute RGB distances using the documented predicate.
- * @evidence contracts/common.md#clear-and-simple-design One observation per transition keeps failed conditions and measured distances visible without changing sequence rendering.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The thresholds are the existing diagnostic heuristic, not an exact compositor oracle; failed observations retain a reason rather than throwing as a quality verdict.
- * @evidence contracts/common.md#meaningful-documentation The comment specifies midpoint selection, thresholds, rounding and the distinction between false observations and I/O or dimension failures.
- * @evidence contracts/performance.md#efficient-algorithms For T transitions and F frames, sample selection costs O(TF); each selected check scans three W by H decoded images, O(TWH) pixel work.
- * @evidence contracts/performance.md#reuse-equivalent-work The observer reads the existing mixed-frame PNG and asks the borrowed session only for the two isolated shots; it does not recapture mixed frames.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns saved PNGs and the borrowed session; each iteration retains three decoded images until its check completes and the returned O(T) array holds numeric metadata only.
+ * @evidence contracts/development/implementation.md#principled-implementation Each transition selects its sampled blend nearest alpha 0.5, decodes the mixed and two isolated PNGs, and compares mean absolute RGB distances using the documented predicate.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One observation per transition keeps failed conditions and measured distances visible without changing sequence rendering.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The thresholds are the existing diagnostic heuristic, not an exact compositor oracle; failed observations retain a reason rather than throwing as a quality verdict.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment specifies midpoint selection, thresholds, rounding and the distinction between false observations and I/O or dimension failures.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For T transitions and F frames, sample selection costs O(TF); each selected check scans three W by H decoded images, O(TWH) pixel work.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The observer reads the existing mixed-frame PNG and asks the borrowed session only for the two isolated shots; it does not recapture mixed frames.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns saved PNGs and the borrowed session; each iteration retains three decoded images until its check completes and the returned O(T) array holds numeric metadata only.
  */
 export const verifySequenceDissolvePixels: (props: {
   /** Saved mixed-frame PNG paths keyed by their canonical sequence frame index. */

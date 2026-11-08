@@ -16,10 +16,11 @@ import { nclose } from "../../internal/nclose";
  * 2. Unreachable, nonfinite, invalid branch and collapsed original inputs
  *    refuse. A source data-getter exception keeps its exact original identity.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs the public original native query and checks its returned native point, phase/half, signed actual residual and bounded iteration count; failures cannot turn into a successful adjusted point.
- * @evidence contracts/testing.md#independent-expectations Elementary ellipse roots are x=half*a*sqrt(1-z²/b²) or z=half*b*sqrt(1-x²/a²). The original polar clock follows atan2; abs1e-10*max(1,scale) covers binary64 root/native inversion without changing the production residual32eps criterion.
- * @evidence contracts/testing.md#distinguishing-cases Covers both half signs/coordinates, interior and singular support endpoints, three scales, adjacent outside reach, nonfinite target, malformed branch, collapsed extents and getter identity. This Point0 question asserts no inverse physical derivative.
- * @evidence contracts/testing.md#execution-ownership Discoverable synchronous construction_native_coordinate CPU question uses synthetic source values and starts no Human generation, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the public original native query and checks its returned native point, phase/half, signed actual residual and bounded iteration count; failures cannot turn into a successful adjusted point.
+ * @evidence contracts/development/testing.md#independent-expectations Elementary ellipse roots are x=half*a*sqrt(1-z²/b²) or z=half*b*sqrt(1-x²/a²). The original polar clock follows atan2; abs1e-10*max(1,scale) covers binary64 root/native inversion without changing the production residual32eps criterion.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers both half signs/coordinates, interior and singular support endpoints, three scales, adjacent outside reach, nonfinite target, malformed branch, collapsed extents and getter identity. This Point0 question asserts no inverse physical derivative.
+ * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous construction_native_coordinate CPU question uses synthetic source values and starts no Human generation, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Both coordinates and both other-coordinate halves of the exact ellipse).
  */
 export function test_construction_native_coordinate(): void {
   const failures: string[] = [];

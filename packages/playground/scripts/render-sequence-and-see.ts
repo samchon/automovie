@@ -1,7 +1,7 @@
-import { renderSequenceAndSeeCommand as main } from "@automovie/render/node";
+import { renderSequenceAndSeeCommand as main } from "@automovie/render";
 import path from "node:path";
 
-export { renderSequenceAndSeeCommand as main } from "@automovie/render/node";
+export { renderSequenceAndSeeCommand as main } from "@automovie/render";
 
 if (path.resolve(process.argv[1] ?? "") === path.resolve(import.meta.filename))
   void main().catch((error: unknown): void => {

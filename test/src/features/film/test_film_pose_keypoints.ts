@@ -117,10 +117,11 @@ const of: (
  * 3. Omit a missing joint and intersect the default set with the actual two-bone rig.
  * 4. Apply raised node placement, square aspect and a sampled static camera clip.
  *
- * @evidence contracts/testing.md#behavioral-verification Projects authored hip/head rig positions and checks normalized coordinates, crop-boundary admission, unclamped outside points, missing joints, node placement, aspect and sampled static camera.
- * @evidence contracts/testing.md#independent-expectations A 60-degree vertical pinhole lens maps the one-metre head at five-metre depth to y=(1-1/(5*tan(pi/6)))/2; centered hips and authored clip/crop bounds give the other expectations. This arithmetic tests portable projection, not ControlNet quality or rendered pixels.
- * @evidence contracts/testing.md#distinguishing-cases Preserves two joints, high/behind/far/beside positions, missing/default joint sets, crop boundary, raised node, square aspect and static camera sample; no nonstatic camera path is asserted here.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_pose_keypoints unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Projects authored hip/head rig positions and checks normalized coordinates, crop-boundary admission, unclamped outside points, missing joints, node placement, aspect and sampled static camera.
+ * @evidence contracts/development/testing.md#independent-expectations A 60-degree vertical pinhole lens maps the one-metre head at five-metre depth to y=(1-1/(5*tan(pi/6)))/2; centered hips and authored clip/crop bounds give the other expectations. This arithmetic tests portable projection, not ControlNet quality or rendered pixels.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves two joints, high/behind/far/beside positions, missing/default joint sets, crop boundary, raised node, square aspect and static camera sample; no nonstatic camera path is asserted here.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_pose_keypoints unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Project centered hips and a one-metre head, including a crop boundary.).
  */
 export function test_film_pose_keypoints(): void {
   // 1. basic projection.

@@ -1,15 +1,15 @@
-import { requireProcessId } from "./requireProcessId.ts";
+import { requireProcessId } from "./requireProcessId.js";
 
 /**
  * Admit a creation-ordered process tree from immutable OS observations. Parent IDs survive their old process allocation, so an edge is usable only when the current parent was created strictly before its child. Decimal stamps use BigInt to preserve adjacent microseconds beyond Number's exact integer range. The result contains owned records in parent-first order. A missing or reused root and ambiguous snapshot refuse before any native handle is terminated.
  *
- * @evidence contracts/common.md#principled-implementation Validates unique positive pid records and unsigned decimal births, indexes children in snapshot order and admits only strictly newer descendants of an exact current root, preserving parent-first breadth traversal.
- * @evidence contracts/common.md#clear-and-simple-design Pure snapshot admission stays outside discovery and termination; by-pid and parent-child indexes preserve identity checks and output ordering without changing the host API.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing/reused roots and ambiguous records refuse before a plan escapes; strict birth increases prevent ancestry cycles, and stale parent pid links or later unseen children do not create authority.
- * @evidence contracts/common.md#meaningful-documentation Documents immutable native-observation premise, exact BigInt text semantics, root refusal and parent-first ordering without claiming a namespace lock.
- * @evidence contracts/performance.md#efficient-algorithms P records are indexed and decimal births interpreted once, then admitted-parent buckets are visited, O(P+T) record work plus decimal parse/comparison cost; this removes the prior whole-snapshot scan for every parent.
- * @evidence contracts/performance.md#reuse-equivalent-work One immutable call-local snapshot supplies all ancestry comparisons; no tree or creation result is cached across native observations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Indexes and the admitted queue retain O(P+T) borrowed record references only during the call; returned pid/birth records are copies with no handle or termination effect.
+ * @evidence contracts/development/implementation.md#principled-implementation Validates unique positive pid records and unsigned decimal births, indexes children in snapshot order and admits only strictly newer descendants of an exact current root, preserving parent-first breadth traversal.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pure snapshot admission stays outside discovery and termination; by-pid and parent-child indexes preserve identity checks and output ordering without changing the host API.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing/reused roots and ambiguous records refuse before a plan escapes; strict birth increases prevent ancestry cycles, and stale parent pid links or later unseen children do not create authority.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents immutable native-observation premise, exact BigInt text semantics, root refusal and parent-first ordering without claiming a namespace lock.
+ * @evidence contracts/development/implementation.md#efficient-algorithms P records are indexed and decimal births interpreted once, then admitted-parent buckets are visited, O(P+T) record work plus decimal parse/comparison cost; this removes the prior whole-snapshot scan for every parent.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One immutable call-local snapshot supplies all ancestry comparisons; no tree or creation result is cached across native observations.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Indexes and the admitted queue retain O(P+T) borrowed record references only during the call; returned pid/birth records are copies with no handle or termination effect.
  */
 export function selectProcessOwnershipTree(
   snapshot: ReadonlyArray<{

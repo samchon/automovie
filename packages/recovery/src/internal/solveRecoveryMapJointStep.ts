@@ -1,10 +1,10 @@
-import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface";
 
-import type { IAutoMovieRecoveryMapJointStep } from "../structures/internal/IAutoMovieRecoveryMapJointStep";
 import type { IAutoMovieRecoveryMapJointBlock } from "../structures/internal/IAutoMovieRecoveryMapJointBlock";
 import type { IAutoMovieRecoveryMapJointPreparation } from "../structures/internal/IAutoMovieRecoveryMapJointPreparation";
-import { prepareRecoveryMapJointBlocks } from "./prepareRecoveryMapJointBlocks";
+import type { IAutoMovieRecoveryMapJointStep } from "../structures/internal/IAutoMovieRecoveryMapJointStep";
 import { createRecoveryMapMetric } from "./createRecoveryMapMetric";
+import { prepareRecoveryMapJointBlocks } from "./prepareRecoveryMapJointBlocks";
 import { solveRecoveryMapDesign } from "./solveRecoveryMapDesign";
 
 /**
@@ -15,13 +15,13 @@ import { solveRecoveryMapDesign } from "./solveRecoveryMapDesign";
  * Optional metric retention exposes inverse/transpose actions from the same
  * damped arrowhead design; the caller separately admits and charges its factor.
  *
- * @evidence contracts/common.md#principled-implementation Every point's undamped three-column design and the undamped reduced camera design are independently rank checked. Identical point/camera column scaling and augmented damping define one full least-squares problem; orthogonal elimination and back substitution solve it without constructing a dense all-point design.
- * @evidence contracts/common.md#clear-and-simple-design Shared current-block preparation serves this complete LS operation and a separate rank/metric-only operation. This API still computes all requested steps and its scaled gradient; geometric acceptance stays with the optimizer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No damped rank, epsilon inverse, normal equations, dropped residual or separately normalized camera supplies observability. Unresolved point blocks or the reduced camera design throw before a step is returned.
- * @evidence contracts/common.md#meaningful-documentation States variable gauge-fixed camera coordinates, point-local elimination, consistent damping, unscaled returned steps and independent undamped rank diagnostics.
- * @evidence contracts/performance.md#efficient-algorithms With E observations, L points and C admitted camera columns, point elimination costs O((E+L)*C); reduced QR/SVD costs O(E*C^2+S*C^3). Storage is O(E*C+L*C+C^2), avoiding a dense (C+3L)-column factorization. Actual variable-width sizes are admitted before allocations.
- * @evidence contracts/performance.md#reuse-equivalent-work One shared preparation preserves original per-point scale/SVD/gradient order and serves both undamped and damped elimination. Stored triangles recover all point steps after the same reduced camera solve; no cross-state answer is cached.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Camera/point steps and scalar diagnostics transfer. Explicit metric retention additionally holds O(L*C+C^2) owned current factors/scales for the feasible consumer; ordinary calls retain none. No borrowed observations, global cache or external handles remain.
+ * @evidence contracts/development/implementation.md#principled-implementation Every point's undamped three-column design and the undamped reduced camera design are independently rank checked. Identical point/camera column scaling and augmented damping define one full least-squares problem; orthogonal elimination and back substitution solve it without constructing a dense all-point design.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared current-block preparation serves this complete LS operation and a separate rank/metric-only operation. This API still computes all requested steps and its scaled gradient; geometric acceptance stays with the optimizer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No damped rank, epsilon inverse, normal equations, dropped residual or separately normalized camera supplies observability. Unresolved point blocks or the reduced camera design throw before a step is returned.
+ * @evidence contracts/development/common.md#meaningful-documentation States variable gauge-fixed camera coordinates, point-local elimination, consistent damping, unscaled returned steps and independent undamped rank diagnostics.
+ * @evidence contracts/development/implementation.md#efficient-algorithms With E observations, L points and C admitted camera columns, point elimination costs O((E+L)*C); reduced QR/SVD costs O(E*C^2+S*C^3). Storage is O(E*C+L*C+C^2), avoiding a dense (C+3L)-column factorization. Actual variable-width sizes are admitted before allocations.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One shared preparation preserves original per-point scale/SVD/gradient order and serves both undamped and damped elimination. Stored triangles recover all point steps after the same reduced camera solve; no cross-state answer is cached.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Camera/point steps and scalar diagnostics transfer. Explicit metric retention additionally holds O(L*C+C^2) owned current factors/scales for the feasible consumer; ordinary calls retain none. No borrowed observations, global cache or external handles remain.
  */
 export function solveRecoveryMapJointStep(
   blocks: readonly IAutoMovieRecoveryMapJointBlock[],
@@ -32,13 +32,15 @@ export function solveRecoveryMapJointStep(
 ): IAutoMovieRecoveryMapJointStep {
   if (!(damping >= 0) || !Number.isFinite(damping))
     throw new Error("camera-map: bounded joint blocks required");
-  const prepared: IAutoMovieRecoveryMapJointPreparation = prepareRecoveryMapJointBlocks(blocks, minimumRatio, budget, true);
+  const prepared: IAutoMovieRecoveryMapJointPreparation =
+    prepareRecoveryMapJointBlocks(blocks, minimumRatio, budget, true);
   const cameraWidth: number = prepared.cameraWidth;
   const cameraScales: number[] = prepared.cameraScales;
   const pointScales: number[][] = prepared.pointScales;
   const minimumPointDesignRatio: number = prepared.minimumPointDesignRatio;
   const gradient: number = prepared.gradient!;
-  const eliminate: IAutoMovieRecoveryMapJointPreparation["eliminate"] = prepared.eliminate;
+  const eliminate: IAutoMovieRecoveryMapJointPreparation["eliminate"] =
+    prepared.eliminate;
   const original: ReturnType<typeof eliminate> = eliminate(0);
   const qualified: ReturnType<typeof solveRecoveryMapDesign> =
     solveRecoveryMapDesign(

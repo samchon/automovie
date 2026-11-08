@@ -1,4 +1,4 @@
-import { ProcessOwnership } from "@automovie/viewer/process/ProcessOwnership";
+import { ProcessOwnership } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
@@ -21,10 +21,11 @@ import { throwsError } from "../internal/predicates";
  * 6. Siblings preserve snapshot order ahead of their descendants, so an indexed
  *    traversal must keep the same parent-first breadth order.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the production pure ownership-tree facade and checks admitted records/order, unchanged input and exact refusal boundaries; invalid public discovery/stop selectors are exercised before any native transport can run.
- * @evidence contracts/testing.md#independent-expectations Authored pid/parent/birth facts independently define strictly-newer ancestry, exact root identity and breadth order; literal expected descendants catch stale links, rounded ticks and sibling-order drift. These immutable value cases do not prove a live OS snapshot, namespace locking or termination.
- * @evidence contracts/testing.md#distinguishing-cases Covers reordered snapshot, genuine child/grandchild, unrelated/older/equal/newer-reused edges, adjacent beyond-safe-integer births, singleton/missing/reused root, duplicates, malformed birth and invalid numeric/empty-authority inputs; native transport and capture-object authority are covered by neighboring process units.
- * @evidence contracts/testing.md#execution-ownership The named exported unit entry invokes maintained production source with literal record arrays and invalid pre-effect selectors; it starts no child process, OS host, browser or GPU and creates no dynamically registered case.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the production pure ownership-tree facade and checks admitted records/order, unchanged input and exact refusal boundaries; invalid public discovery/stop selectors are exercised before any native transport can run.
+ * @evidence contracts/development/testing.md#independent-expectations Authored pid/parent/birth facts independently define strictly-newer ancestry, exact root identity and breadth order; literal expected descendants catch stale links, rounded ticks and sibling-order drift. These immutable value cases do not prove a live OS snapshot, namespace locking or termination.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers reordered snapshot, genuine child/grandchild, unrelated/older/equal/newer-reused edges, adjacent beyond-safe-integer births, singleton/missing/reused root, duplicates, malformed birth and invalid numeric/empty-authority inputs; native transport and capture-object authority are covered by neighboring process units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported unit entry invokes maintained production source with literal record arrays and invalid pre-effect selectors; it starts no child process, OS host, browser or GPU and creates no dynamically registered case.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A root, child and grandchild are admitted parent first; an unrelated).
  */
 export function test_process_ownership_tree(): void {
   const root: { pid: number; createdAt: string } = {

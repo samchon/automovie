@@ -25,10 +25,11 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
  *
  * 1. Non-finite/non-positive duration and frame rate values all throw.
  *
- * @evidence contracts/testing.md#behavioral-verification Requests trajectory clips with invalid duration or frame rate and requires exceptions, catching admission that silently emits empty or malformed sampled clips.
- * @evidence contracts/testing.md#independent-expectations Positive finite seconds and frames per second are the declared sampling contract; the expected failure does not come from a generated clip. Exception type and internal evaluation order are not asserted.
- * @evidence contracts/testing.md#distinguishing-cases Tests NaN, infinity and zero independently for duration and fps; valid sample values, endpoint inclusion and facing belong to the trajectory unit.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit calls the clip producer with an in-memory projectile and owns all assertions without a renderer, host or dynamic cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Requests trajectory clips with invalid duration or frame rate and requires exceptions, catching admission that silently emits empty or malformed sampled clips.
+ * @evidence contracts/development/testing.md#independent-expectations Positive finite seconds and frames per second are the declared sampling contract; the expected failure does not come from a generated clip. Exception type and internal evaluation order are not asserted.
+ * @evidence contracts/development/testing.md#distinguishing-cases Tests NaN, infinity and zero independently for duration and fps; valid sample values, endpoint inclusion and facing belong to the trajectory unit.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit calls the clip producer with an in-memory projectile and owns all assertions without a renderer, host or dynamic cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Non-finite/non-positive duration and frame rate values all throw.).
  */
 export function test_physics_projectile_trajectory_timing(): void {
   TestValidator.predicate(

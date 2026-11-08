@@ -16,8 +16,8 @@ import {
 } from "playwright-core";
 
 import type { IAutoMovieRenderResult } from "../IAutoMovieRenderResult";
-import type { IAutoMovieHeadlessCaptureSession } from "../headlessCapture/IAutoMovieHeadlessCaptureSession";
 import { frameTimes } from "../frameTimes";
+import type { IAutoMovieHeadlessCaptureSession } from "../headlessCapture/IAutoMovieHeadlessCaptureSession";
 import { createHeadlessCaptureAdapter } from "../headlessCapture/createHeadlessCaptureAdapter";
 import type { IAutoMovieViewerVideoOptions } from "./IAutoMovieViewerVideoOptions";
 import type { IAutoMovieViewerVideoResult } from "./IAutoMovieViewerVideoResult";
@@ -38,13 +38,13 @@ import { runViewerVideoEncoder } from "./runViewerVideoEncoder";
  * entries this run did not reference are deleted; the result's `frameCache`
  * reports the counts. Encoding always consumes the complete merged sequence.
  *
- * @evidence contracts/common.md#principled-implementation Admission precedes allocation; the public headless adapter awaits the real viewer seek, then renderVideo supplies the half-open i/fps schedule. PNG IHDR dimensions reject accidental canvas/HUD scaling before encoding. The original frame schedule and explicit audio mapping drive one FFmpeg process.
- * @evidence contracts/common.md#clear-and-simple-design Render owns browser/session/scratch/encoder lifetime while Viewer owns completed hook and pixel transport. Production callers keep their scene identity, editorial acceptance and sound design.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every route uses the same PNG-header, raster, byte-budget and browser-error checks. Valid uniform or dark images remain legitimate; image content and sound require independent viewing and listening.
- * @evidence contracts/common.md#meaningful-documentation Describes exact-time pixels, raster requirement, resource ownership, returned measurements and the limits of capture observations.
- * @evidence contracts/performance.md#efficient-algorithms F frames require F sequential seeks, screenshots, hashes and writes plus one encode; O(F) metadata and at most maxFrameBytes PNG disk storage are retained. Browser screenshot, motion and drawing costs remain in the measured capture interval.
- * @evidence contracts/performance.md#reuse-equivalent-work One browser/page/session serves all frames; each distinct screenshot is captured once and the existing render schedule is shared with encoding metadata.
- * @evidence contracts/performance.md#bound-retention-and-release-resources A unique child scratch directory and partial MP4 are owned exclusively; PNG scratch is removed on all outcomes and the MP4 replaces its destination only after successful encoding. Session/page/browser release is attempted after success, failure and abort; cleanup errors retain prior causes. Abort closes the browser and Node terminates an active encoder. Metadata is bounded by maxFrames, browser diagnostics by 16 entries and encoder stderr by 64 KiB.
+ * @evidence contracts/development/implementation.md#principled-implementation Admission precedes allocation; the public headless adapter awaits the real viewer seek, then renderVideo supplies the half-open i/fps schedule. PNG IHDR dimensions reject accidental canvas/HUD scaling before encoding. The original frame schedule and explicit audio mapping drive one FFmpeg process.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Render owns browser/session/scratch/encoder lifetime while Viewer owns completed hook and pixel transport. Production callers keep their scene identity, editorial acceptance and sound design.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every route uses the same PNG-header, raster, byte-budget and browser-error checks. Valid uniform or dark images remain legitimate; image content and sound require independent viewing and listening.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes exact-time pixels, raster requirement, resource ownership, returned measurements and the limits of capture observations.
+ * @evidence contracts/development/implementation.md#efficient-algorithms F frames require F sequential seeks, screenshots, hashes and writes plus one encode; O(F) metadata and at most maxFrameBytes PNG disk storage are retained. Browser screenshot, motion and drawing costs remain in the measured capture interval.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One browser/page/session serves all frames; each distinct screenshot is captured once and the existing render schedule is shared with encoding metadata.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A unique child scratch directory and partial MP4 are owned exclusively; PNG scratch is removed on all outcomes and the MP4 replaces its destination only after successful encoding. Session/page/browser release is attempted after success, failure and abort; cleanup errors retain prior causes. Abort closes the browser and Node terminates an active encoder. Metadata is bounded by maxFrames, browser diagnostics by 16 entries and encoder stderr by 64 KiB.
  */
 export async function renderViewerVideo(
   options: IAutoMovieViewerVideoOptions,
@@ -113,36 +113,41 @@ export async function renderViewerVideo(
       if (message.type() === "error") recordError(message.text());
     });
     let capturedBytes: number = 0;
-    const writeFrame: (file: string, bytes: Uint8Array) => Promise<void> =
-      async (file: string, bytes: Uint8Array): Promise<void> => {
-        options.signal?.throwIfAborted();
-        const png: Buffer = Buffer.from(
-          bytes.buffer,
-          bytes.byteOffset,
-          bytes.byteLength,
+    const writeFrame: (
+      file: string,
+      bytes: Uint8Array,
+    ) => Promise<void> = async (
+      file: string,
+      bytes: Uint8Array,
+    ): Promise<void> => {
+      options.signal?.throwIfAborted();
+      const png: Buffer = Buffer.from(
+        bytes.buffer,
+        bytes.byteOffset,
+        bytes.byteLength,
+      );
+      if (
+        png.length < 24 ||
+        png.readUInt32BE(0) !== 0x89504e47 ||
+        png.readUInt32BE(12) !== 0x49484452 ||
+        png.readUInt32BE(16) !== options.spec.frameFormat.width ||
+        png.readUInt32BE(20) !== options.spec.frameFormat.height
+      )
+        throw new Error(
+          "Captured PNG raster differs from the requested render spec",
         );
-        if (
-          png.length < 24 ||
-          png.readUInt32BE(0) !== 0x89504e47 ||
-          png.readUInt32BE(12) !== 0x49484452 ||
-          png.readUInt32BE(16) !== options.spec.frameFormat.width ||
-          png.readUInt32BE(20) !== options.spec.frameFormat.height
-        )
-          throw new Error(
-            "Captured PNG raster differs from the requested render spec",
-          );
-        capturedBytes += png.length;
-        if (capturedBytes > (options.maxFrameBytes ?? 8 * 1024 ** 3))
-          throw new Error("Viewer video exceeded maxFrameBytes");
-        await writeFile(file, bytes);
-        captures.push({
-          index: captures.length,
-          timeSeconds: captures.length / options.spec.frameFormat.fps,
-          sha256: createHash("sha256").update(bytes).digest("hex"),
-          bytes: bytes.length,
-          captureMs: 0,
-        });
-      };
+      capturedBytes += png.length;
+      if (capturedBytes > (options.maxFrameBytes ?? 8 * 1024 ** 3))
+        throw new Error("Viewer video exceeded maxFrameBytes");
+      await writeFile(file, bytes);
+      captures.push({
+        index: captures.length,
+        timeSeconds: captures.length / options.spec.frameFormat.fps,
+        sha256: createHash("sha256").update(bytes).digest("hex"),
+        bytes: bytes.length,
+        captureMs: 0,
+      });
+    };
     session = await createHeadlessCaptureAdapter({
       page,
       url: options.url,

@@ -74,10 +74,11 @@ function basisX(m: number[]): [number, number, number] {
  *    hinge's world X basis lands at `(cos110°, 0, −sin110°)`, with the
  *    violations tagged by the forged profile's id.
  *
- * @evidence contracts/testing.md#behavioral-verification Feeds the forged articulation into resolveFrame; an in-range rotation produces no violations and the mirror's expected world X-basis X/Z components, while an over-range rotation reports the authored profile and has the hinge's expected three-component endpoint basis.
- * @evidence contracts/testing.md#independent-expectations Y-axis rotation maps +X to (cos(angle),0,-sin(angle)); the fixture's sin55/cos55 component bounds clamp a 150-degree key to the unit 110-degree endpoint. Trigonometric expected bases and nclose predicates are independent of the resolver output, while this case proves no visual door appearance.
- * @evidence contracts/testing.md#distinguishing-cases Keeps the same forged graph and copy driver while changing 90-degree legal travel to 150-degree excess; both no-violation and profile-tagged refusal outcomes are required. Graph admission and scene placement composition belong to the paired forge gates and scene integration tests.
- * @evidence contracts/testing.md#execution-ownership The runner discovers this synchronous test; it owns two portable numerical forge/resolve cases over authored data and starts no renderer or external host.
+ * @evidence contracts/development/testing.md#behavioral-verification Feeds the forged articulation into resolveFrame; an in-range rotation produces no violations and the mirror's expected world X-basis X/Z components, while an over-range rotation reports the authored profile and has the hinge's expected three-component endpoint basis.
+ * @evidence contracts/development/testing.md#independent-expectations Y-axis rotation maps +X to (cos(angle),0,-sin(angle)); the fixture's sin55/cos55 component bounds clamp a 150-degree key to the unit 110-degree endpoint. Trigonometric expected bases and nclose predicates are independent of the resolver output, while this case proves no visual door appearance.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps the same forged graph and copy driver while changing 90-degree legal travel to 150-degree excess; both no-violation and profile-tagged refusal outcomes are required. Graph admission and scene placement composition belong to the paired forge gates and scene integration tests.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers this synchronous test; it owns two portable numerical forge/resolve cases over authored data and starts no renderer or external host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The forged spec passes the gates, and its articulation feeds resolveFrame).
  */
 export function test_film_forge_prop_door(): void {
   const forged: IAutoMovieForgedProp = forgeProp(createDoorPropSpec());

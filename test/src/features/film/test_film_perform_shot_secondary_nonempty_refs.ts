@@ -37,10 +37,11 @@ const synth: IAutoMovieActionSynthesizer = (
  * Scenarios:
  * 1. Retains tab projectile, space targets, singleton blank group and blank attachment parent in the original six-action draft; nonblank admission is covered by the respective launch/positional/mount entries.
  *
- * @evidence contracts/testing.md#behavioral-verification Performs launch, lookAt, reach, point gesture and attach drafts with matching blank staged references and checks each original located type violation.
- * @evidence contracts/testing.md#independent-expectations Whitespace-only projectile, node target, group member and parent references are invalid even if the staged lookup contains them; the authored per-action field paths are independent expectations.
- * @evidence contracts/testing.md#distinguishing-cases Retains tab projectile, space targets, singleton blank group and blank attachment parent in the original six-action draft; nonblank admission is covered by the respective launch/positional/mount entries.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_secondary_nonempty_refs unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs launch, lookAt, reach, point gesture and attach drafts with matching blank staged references and checks each original located type violation.
+ * @evidence contracts/development/testing.md#independent-expectations Whitespace-only projectile, node target, group member and parent references are invalid even if the staged lookup contains them; the authored per-action field paths are independent expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains tab projectile, space targets, singleton blank group and blank attachment parent in the original six-action draft; nonblank admission is covered by the respective launch/positional/mount entries.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_secondary_nonempty_refs unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Retains tab projectile, space targets, singleton blank group and blank attachment parent in the original six-action draft; nonblank...).
  */
 export function test_film_perform_shot_secondary_nonempty_refs(): void {
   const script: IAutoMovieScript = makeScriptWrite();

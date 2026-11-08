@@ -1,4 +1,4 @@
-import { normalizeProductionH264Mp4 } from "@automovie/render/node";
+import { normalizeProductionH264Mp4 } from "@automovie/render";
 import { createFile } from "mp4box";
 
 /**

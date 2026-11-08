@@ -42,13 +42,13 @@ import { resolvedPerformShotPoint } from "./resolvedPerformShotPoint";
  * @param props.runtime The clearance runtime, when the caller supplied one.
  * @returns The shot's camera fields.
  *
- * @evidence contracts/common.md#principled-implementation Every take compiles through the one framing grammar with its own staged camera as the parameter, so the side the director staged is the side the angle plays from; subjects come from one framer and focus points from the gate's own resolution, so the intent names the point the gate accepted.
- * @evidence contracts/common.md#clear-and-simple-design The camera stage of `performShot` in one place, delegating the solve to `compileCameraMove` and `compileCameraCoverage`, measurement to the subject framer and obstruction to `compileCameraClearanceReports`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Hero and coverage are compiled by the same grammar and framer; a coverage take gets no invented lens intent, and an obstructed take is reported rather than nudged.
- * @evidence contracts/common.md#meaningful-documentation States each compiled field, the clip id formats, the locked-off case, what an intent carries and who reads it, how coverage plays, the shared framer, and where clearance refusals go.
- * @evidence contracts/performance.md#efficient-algorithms One camera compile per take plus one subject measurement per frame move and coverage job, with model extents memoized across takes by the framer, and the clearance sweep's own cost.
- * @evidence contracts/performance.md#reuse-equivalent-work One framer is built per shot and shared by every take, so a subject's model extent is measured once however many cameras frame it.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The framer and its memo are dropped on return; the caller owns the returned clips, intents, takes and reports.
+ * @evidence contracts/development/implementation.md#principled-implementation Every take compiles through the one framing grammar with its own staged camera as the parameter, so the side the director staged is the side the angle plays from; subjects come from one framer and focus points from the gate's own resolution, so the intent names the point the gate accepted.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The camera stage of `performShot` in one place, delegating the solve to `compileCameraMove` and `compileCameraCoverage`, measurement to the subject framer and obstruction to `compileCameraClearanceReports`.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Hero and coverage are compiled by the same grammar and framer; a coverage take gets no invented lens intent, and an obstructed take is reported rather than nudged.
+ * @evidence contracts/development/common.md#meaningful-documentation States each compiled field, the clip id formats, the locked-off case, what an intent carries and who reads it, how coverage plays, the shared framer, and where clearance refusals go.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One camera compile per take plus one subject measurement per frame move and coverage job, with model extents memoized across takes by the framer, and the clearance sweep's own cost.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One framer is built per shot and shared by every take, so a subject's model extent is measured once however many cameras frame it.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The framer and its memo are dropped on return; the caller owns the returned clips, intents, takes and reports.
  */
 export function compilePerformShotCameras(
   context: IPerformShotGateContext,

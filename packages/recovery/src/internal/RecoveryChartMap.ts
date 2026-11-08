@@ -2,25 +2,19 @@
  * Private Dirichlet parameterization of an observed triangulated chart.
  * Original source incidence is used only by observation and never returned.
  *
- * @evidence contracts/common.md#principled-implementation Positive uniform graph weights define a discrete harmonic map with fixed boundary values; every free component must reach a fixed vertex and every output triangle is independently checked for positive parameter area.
- * @evidence contracts/common.md#clear-and-simple-design One private numerical owner separates chart registration from subsequent coefficient fitting and engine generation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source triangle is published as generated geometry, no folded parameter face is silently flipped, and no parameter is clipped into the domain.
- * @evidence contracts/common.md#meaningful-documentation States private source lifetime, fixed-boundary responsibility and explicit numerical and orientation qualification.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Namespace initialization computes nothing.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work No global cache exists.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Input and output lifetime belongs to the observation caller.
+ * @evidence contracts/development/common.md#meaningful-documentation States private source lifetime, fixed-boundary responsibility and explicit numerical and orientation qualification.
+ * @evidence contracts/development/design.md#principled-representation Represents Private Dirichlet parameterization of an observed triangulated chart: companion namespace of 3 members (`Input`, `Result`, `parameterize`); units and frames named in its text: local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `RecoveryChartMap` in packages/recovery/src/internal/RecoveryChartMap.ts; its surface is the 3 members listed and the text shows 1 other file naming it, mostly packages/recovery (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace RecoveryChartMap {
   /**
    * Private chart incidence with an already ordered, curve-registered boundary.
    *
-   * @evidence contracts/common.md#principled-implementation Source vertex identities and triangle edges define positive harmonic weights; boundary coordinates carry the declared curve correspondence.
-   * @evidence contracts/common.md#clear-and-simple-design The topology owner supplies a chart and the map owner solves only its interior parameters.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither disk topology nor material correspondence is inferred from endpoint count or distance.
-   * @evidence contracts/common.md#meaningful-documentation Records private addresses, normalized coordinates, numerical tolerance and finite work limits.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no solve.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work No cache is owned by the record.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The observation caller owns all arrays.
+   * @evidence contracts/development/design.md#principled-representation Source vertex identities and triangle edges define positive harmonic weights; boundary coordinates carry the declared curve correspondence.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The topology owner supplies a chart and the map owner solves only its interior parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither disk topology nor material correspondence is inferred from endpoint count or distance.
+   * @evidence contracts/development/common.md#meaningful-documentation Records private addresses, normalized coordinates, numerical tolerance and finite work limits.
    */
   export interface Input {
     /** Number of private observation vertices, including clipped edge observations. */
@@ -42,13 +36,10 @@ export namespace RecoveryChartMap {
   /**
    * Observation-only coordinates and complete numerical/orientation findings.
    *
-   * @evidence contracts/common.md#principled-implementation The returned harmonic coordinates retain fixed values and independently computed signed areas for every original chart triangle.
-   * @evidence contracts/common.md#clear-and-simple-design Linear convergence and parameter orientation qualify different properties and remain separate.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Folded or collapsed triangles remain explicit; a converged solve does not certify a valid disk chart or a fitted surface.
-   * @evidence contracts/common.md#meaningful-documentation States coordinate order, residual meaning, private witnesses and limited qualification.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no traversal.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Coordinates are reused by fitting for this same private chart only.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns returned parameters and failed-face addresses.
+   * @evidence contracts/development/design.md#principled-representation The returned harmonic coordinates retain fixed values and independently computed signed areas for every original chart triangle.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Linear convergence and parameter orientation qualify different properties and remain separate.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Folded or collapsed triangles remain explicit; a converged solve does not certify a valid disk chart or a fitted surface.
+   * @evidence contracts/development/common.md#meaningful-documentation States coordinate order, residual meaning, private witnesses and limited qualification.
    */
   export interface Result {
     /** Normalized chart coordinates in private input-vertex order. */
@@ -76,13 +67,13 @@ export namespace RecoveryChartMap {
    * The caller still establishes disk topology and a compatible boundary map;
    * positive computed triangle areas are checked rather than assumed from that premise.
    *
-   * @evidence contracts/common.md#principled-implementation Diagonally preconditioned conjugate gradients solve the symmetric free graph Laplacian with fixed-neighbor right-hand sides; all original equations and parameter triangles are checked after solving.
-   * @evidence contracts/common.md#clear-and-simple-design One admitted adjacency graph serves anchoring, both coordinate solves and residual reconstruction.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No source position is a generating control, no missing anchor is guessed, and solver failure or a folded UV face remains unqualified without clipping or triangle reversal.
-   * @evidence contracts/common.md#meaningful-documentation States anchoring, positive-definiteness premises, binary64 residuals and separate topological/fitting obligations.
-   * @evidence contracts/performance.md#efficient-algorithms For V private vertices, E graph edges and I iterations per coordinate, admission is O(V+E), solving O(I(V+E)), and storage O(V+E); conditioning controls the required iteration count.
-   * @evidence contracts/performance.md#reuse-equivalent-work One undirected adjacency and free-index registry are reused for u, v and independent original-equation residuals.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Adjacency and PCG arrays are local and released on return or refusal; only parameters and diagnostic witnesses escape to the private observation caller.
+   * @evidence contracts/development/implementation.md#principled-implementation Diagonally preconditioned conjugate gradients solve the symmetric free graph Laplacian with fixed-neighbor right-hand sides; all original equations and parameter triangles are checked after solving.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One admitted adjacency graph serves anchoring, both coordinate solves and residual reconstruction.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source position is a generating control, no missing anchor is guessed, and solver failure or a folded UV face remains unqualified without clipping or triangle reversal.
+   * @evidence contracts/development/common.md#meaningful-documentation States anchoring, positive-definiteness premises, binary64 residuals and separate topological/fitting obligations.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For V private vertices, E graph edges and I iterations per coordinate, admission is O(V+E), solving O(I(V+E)), and storage O(V+E); conditioning controls the required iteration count.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One undirected adjacency and free-index registry are reused for u, v and independent original-equation residuals.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Adjacency and PCG arrays are local and released on return or refusal; only parameters and diagnostic witnesses escape to the private observation caller.
    */
   export function parameterize(input: Input): Result {
     if (

@@ -1,4 +1,4 @@
-import { stripNaturalnessComments } from "@automovie/evidence/narrative";
+import { stripNaturalnessComments } from "@automovie/evidence";
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -15,7 +15,9 @@ import path from "node:path";
  */
 export async function transferScreenplay(args: string[]): Promise<void> {
   if (args.length !== 5)
-    throw new Error("Supply working frozen body reviewed-working-sha256 report");
+    throw new Error(
+      "Supply working frozen body reviewed-working-sha256 report",
+    );
 
   const workingPath: string = path.resolve(args[0]!);
   const frozenPath: string = path.resolve(args[1]!);
@@ -37,7 +39,9 @@ export async function transferScreenplay(args: string[]): Promise<void> {
   await writeFile(bodyPath, transferred);
   const actualBody: Buffer = await readFile(bodyPath);
   if (!actualBody.equals(transferred))
-    throw new Error("Written body differs from the comment-free working edition");
+    throw new Error(
+      "Written body differs from the comment-free working edition",
+    );
 
   const report: {
     working: string;

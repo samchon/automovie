@@ -14,13 +14,13 @@ import { writtenVersion } from "./writtenVersion";
  *
  * The link count is read from the descriptor this operation writes through rather than from a pathname stat, so the decision and the write look at the same file. Rewriting the inode is admissible only while exactly one entry names it, because every other name would observe the write.
  *
- * @evidence contracts/common.md#principled-implementation One ordinary single-link file descriptor is verified against pathname generations before truncation, after write/readback and after close.
- * @evidence contracts/common.md#clear-and-simple-design The replacement owner groups positioned writing and resident verification while shared ownership and snapshot helpers define identity.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No retry or deletion hides a failed replacement; pre-truncation failures refuse and post-truncation failures retain partial bytes. A concurrent new hard link after the link-count check remains the documented limitation.
- * @evidence contracts/common.md#meaningful-documentation The comment states in-place semantics, descriptor-based link admission and effects on other names of the inode.
- * @evidence contracts/performance.md#efficient-algorithms One full write and readback are linear in bytes, with a fixed number of stat and resident-open operations.
- * @evidence contracts/performance.md#reuse-equivalent-work Replacement is an effect that repeats per request; snapshots are fresh observations and no previous successful write is reused.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The owner attempts writer and temporary resident descriptor close on every exit, combining close failures with earlier failures; failed close leaves actual release unproven. Readback storage is bounded by file bytes and released with the call.
+ * @evidence contracts/development/implementation.md#principled-implementation One ordinary single-link file descriptor is verified against pathname generations before truncation, after write/readback and after close.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The replacement owner groups positioned writing and resident verification while shared ownership and snapshot helpers define identity.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No retry or deletion hides a failed replacement; pre-truncation failures refuse and post-truncation failures retain partial bytes. A concurrent new hard link after the link-count check remains the documented limitation.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states in-place semantics, descriptor-based link admission and effects on other names of the inode.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One full write and readback are linear in bytes, with a fixed number of stat and resident-open operations.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Replacement is an effect that repeats per request; snapshots are fresh observations and no previous successful write is reused.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owner attempts writer and temporary resident descriptor close on every exit, combining close failures with earlier failures; failed close leaves actual release unproven. Readback storage is bounded by file bytes and released with the call.
  */
 export const overwriteScaffoldFile: (props: {
   base: IScaffoldPhysicalDirectory;

@@ -1,1 +1,1 @@
-export type { IAutoMovieHeadlessLocator } from "@automovie/viewer/node";
+export type { IAutoMovieHeadlessLocator } from "@automovie/viewer";

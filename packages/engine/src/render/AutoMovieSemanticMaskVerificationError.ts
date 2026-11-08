@@ -9,13 +9,10 @@
  * actually throws, and every refusal would read as an unrelated exception.
  *
  *
- * @evidence contracts/common.md#principled-implementation Carry one of unsupported, invalid or digest-mismatch on the Error so receipt consumers classify a verifier refusal by constructor identity and a typed reason rather than prose parsing.
- * @evidence contracts/common.md#clear-and-simple-design One canonical class is shared by verifyAutoMovieSemanticMask and autoMovieSemanticMaskVerificationFailure; duplicated constructors would break instanceof classification.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The reason comes from actual verifier branches and no expected receipt or fixture changes its classification; unrelated exceptions remain outside this class.
- * @evidence contracts/common.md#meaningful-documentation The constructor documents the refusal reason and retains the ordinary message for human diagnosis; classification is independent of message text.
- * @evidence contracts/performance.md#efficient-algorithms Constructing/classifying one error is fixed structural work aside from message/stack storage managed by the runtime.
- * @evidence contracts/performance.md#reuse-equivalent-work Consumers reuse the same imported constructor identity; each refusal creates a distinct error rather than sharing mutable exception state.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The catcher owns the error for its reporting lifetime; the class opens no native handle or retry task and retains only reason/message/stack.
+ * @evidence contracts/development/design.md#principled-representation Carry one of unsupported, invalid or digest-mismatch on the Error so receipt consumers classify a verifier refusal by constructor identity and a typed reason rather than prose parsing.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One canonical class is shared by verifyAutoMovieSemanticMask and autoMovieSemanticMaskVerificationFailure; duplicated constructors would break instanceof classification.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The reason comes from actual verifier branches and no expected receipt or fixture changes its classification; unrelated exceptions remain outside this class.
+ * @evidence contracts/development/common.md#meaningful-documentation The constructor documents the refusal reason and retains the ordinary message for human diagnosis; classification is independent of message text.
  */
 export class AutoMovieSemanticMaskVerificationError extends Error {
   public constructor(

@@ -1,10 +1,10 @@
-import { planViewerFrameTimes } from "@automovie/render";
 import {
+  DEFAULT_CHROME_EXECUTABLE,
+  planViewerFrameTimes,
   recordViewerPlayback,
   renderViewerFrames,
   writeViewerFrameSheet,
-} from "@automovie/render/node";
-import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node/chrome";
+} from "@automovie/render";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 

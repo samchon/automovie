@@ -72,10 +72,11 @@ const makeSpace: (partial?: Partial<IAutoMovieSpace>) => IAutoMovieSpace = (
  *    a valid contrast to the self-crossing quadrilateral, not a one-coordinate
  *    mutation of the same corners. Nonconvexity alone does not cause refusal.
  *
- * @evidence contracts/testing.md#behavioral-verification Stages authored floor/ramp space, observes carried metadata and coordinates, queries its ground heights, and distinguishes malformed crossing/axis/reference refusals from a valid concave ring.
- * @evidence contracts/testing.md#independent-expectations The authored square and one-metre ramp give literal ids and heights zero, one-half and one metre, with zero outside; coordinate predicates compare fixture values rather than sampling an implementation to generate an oracle.
- * @evidence contracts/testing.md#distinguishing-cases Retains present/omitted space, floor/ramp endpoint and off-footprint queries, self-crossing ring, degenerate ramp, dangling walkable id and concave negative twin; holes and alternative height rules have separate space tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit owns staging and portable ground callback queries with existing fixtures; no scene mesh, browser, GPU or rendered ground is observed.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages authored floor/ramp space, observes carried metadata and coordinates, queries its ground heights, and distinguishes malformed crossing/axis/reference refusals from a valid concave ring.
+ * @evidence contracts/development/testing.md#independent-expectations The authored square and one-metre ramp give literal ids and heights zero, one-half and one metre, with zero outside; coordinate predicates compare fixture values rather than sampling an implementation to generate an oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains present/omitted space, floor/ramp endpoint and off-footprint queries, self-crossing ring, degenerate ramp, dangling walkable id and concave negative twin; holes and alternative height rules have separate space tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous unit owns staging and portable ground callback queries with existing fixtures; no scene mesh, browser, GPU or rendered ground is observed.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A floor + ramp space stages onto the scene verbatim (ids, kinds, anchors, and).
  */
 export function test_film_stage_scene_space(): void {
   const staged: ReturnType<typeof stageScene> = stageScene(

@@ -27,13 +27,13 @@ const MIN_RING_DOUBLE_AREA: number = 1e-9;
 /**
  * Admit ids/kinds, simple finite XZ footprint rings, strictly interior disjoint holes and exactly one supported ground statement.
  *
- * @evidence contracts/common.md#principled-implementation Admit ids/kinds, simple finite XZ footprint rings, strictly interior disjoint holes and exactly one supported ground statement.
- * @evidence contracts/common.md#clear-and-simple-design Polygon and footprint owners handle geometric predicates; surface/height variants own their scalar rules.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Plan Y is ignored, area/ramp thresholds are absolute policies, and finite admission alone does not guarantee overflow-free extreme arithmetic.
- * @evidence contracts/common.md#meaningful-documentation Constant/plane/heightfield shapes, lattice cardinality, walkable references and hole contact policy are stated.
- * @evidence contracts/performance.md#efficient-algorithms Ring simplicity/containment/hole-pair predicates can be quadratic; heightfield samples and surface ids require linear scans.
- * @evidence contracts/performance.md#reuse-equivalent-work Each admitted ring is built once for its comparisons, sharing canonical polygon/height meanings.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Ring/ids/hole arrays release after the call; the report owns diagnostics and no terrain mesh or GPU state is created.
+ * @evidence contracts/development/implementation.md#principled-implementation Admit ids/kinds, simple finite XZ footprint rings, strictly interior disjoint holes and exactly one supported ground statement.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Polygon and footprint owners handle geometric predicates; surface/height variants own their scalar rules.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Plan Y is ignored, area/ramp thresholds are absolute policies, and finite admission alone does not guarantee overflow-free extreme arithmetic.
+ * @evidence contracts/development/common.md#meaningful-documentation Constant/plane/heightfield shapes, lattice cardinality, walkable references and hole contact policy are stated.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Ring simplicity/containment/hole-pair predicates can be quadratic; heightfield samples and surface ids require linear scans.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each admitted ring is built once for its comparisons, sharing canonical polygon/height meanings.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Ring/ids/hole arrays release after the call; the report owns diagnostics and no terrain mesh or GPU state is created.
  */
 export const validateSpace: (props: {
   space: IAutoMovieSpace;

@@ -14,13 +14,13 @@ import { recoveryOpen } from "./internal/recoveryOpen";
  * coverage and diagnostics remain authoritative. This host alone writes console
  * records; importing the memory package performs no command or filesystem work.
  *
- * @evidence contracts/common.md#principled-implementation An explicit command table dispatches existing source observation or source-free reconstruction owners after validating a supplied source epoch.
- * @evidence contracts/common.md#clear-and-simple-design Installed and compatibility entry points share one dispatcher with explicit arguments; no environment variable supplies package behavior.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The dispatcher does not infer paths, change numeric policy, retry failed geometry, spawn workers or overwrite existing artifacts.
- * @evidence contracts/common.md#meaningful-documentation States exit meanings, explicit provenance and the separate meaning of partial geometry.
- * @evidence contracts/performance.md#efficient-algorithms Argument admission is O(A) in argument count before one delegated operation; generating and serialization costs remain with their owners.
- * @evidence contracts/performance.md#reuse-equivalent-work One command executes once with the supplied epoch and arguments; there is no result or effect cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The dispatcher acquires no handle and awaits the asynchronous local writer before returning; delegated hosts own their declared files and staging.
+ * @evidence contracts/development/implementation.md#principled-implementation An explicit command table dispatches existing source observation or source-free reconstruction owners after validating a supplied source epoch.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Installed and compatibility entry points share one dispatcher with explicit arguments; no environment variable supplies package behavior.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The dispatcher does not infer paths, change numeric policy, retry failed geometry, spawn workers or overwrite existing artifacts.
+ * @evidence contracts/development/common.md#meaningful-documentation States exit meanings, explicit provenance and the separate meaning of partial geometry.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Argument admission is O(A) in argument count before one delegated operation; generating and serialization costs remain with their owners.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One command executes once with the supplied epoch and arguments; there is no result or effect cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The dispatcher acquires no handle and awaits the asynchronous local writer before returning; delegated hosts own their declared files and staging.
  */
 export async function runAutoMovieRecoveryCommand(
   args: readonly string[],

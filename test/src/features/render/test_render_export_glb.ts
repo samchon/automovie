@@ -4,7 +4,7 @@ import {
   IAutoMovieModelPart,
   IAutoMovieTransform,
 } from "@automovie/interface";
-import { exportModelToGLB } from "@automovie/render/node";
+import { exportModelToGLB } from "@automovie/render";
 import {
   Document,
   Material,
@@ -155,10 +155,11 @@ const OBJECT: IAutoMovieModel = {
  * 3. A skeletonless object with a raw, non-indexed, norm-less mesh and no material exports the bare positions only (no NORMAL, no indices, no material binding): the negative twin of the character's every branch.
  * 4. The transparent/emissive material on the object becomes a BLEND material with an emissive factor.
  *
- * @evidence contracts/testing.md#behavioral-verification Exports model bytes and independently reads the GLB to observe bone parenting, mesh attributes, material presence and explicit missing-parent, attached-bone and material refusals.
- * @evidence contracts/testing.md#independent-expectations Binary glTF magic and the two-bone/two-part authored graph supply exact header, count and hierarchy expectations; NodeIO is a format reader independent of the model conversion but shares the serializer SDK. Attribute presence does not prove capsule silhouette or pixel fidelity.
- * @evidence contracts/testing.md#distinguishing-cases Rigged primitives contrast with unattached indexed and unindexed meshes; absent normals, indices and material binding remain absent, and transparent emissive material data and three broken references retain their cases.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_export_glb owns its cases. In-memory Node SDK serialization and parsing, without writing a GLB file or starting an external viewer, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Exports model bytes and independently reads the GLB to observe bone parenting, mesh attributes, material presence and explicit missing-parent, attached-bone and material refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Binary glTF magic and the two-bone/two-part authored graph supply exact header, count and hierarchy expectations; NodeIO is a format reader independent of the model conversion but shares the serializer SDK. Attribute presence does not prove capsule silhouette or pixel fidelity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Rigged primitives contrast with unattached indexed and unindexed meshes; absent normals, indices and material binding remain absent, and transparent emissive material data and three broken references retain their cases.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_export_glb owns its cases. In-memory Node SDK serialization and parsing, without writing a GLB file or starting an external viewer, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The bytes are a valid binary glTF: non-empty and prefixed with the `glTF` magic.).
  */
 export async function test_render_export_glb(): Promise<void> {
   const io: NodeIO = new NodeIO();

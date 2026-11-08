@@ -1,9 +1,9 @@
-import { realizeAutoMovieBicubicAtlas64 } from "@automovie/engine/geometry/realizeAutoMovieBicubicAtlas64";
+import { realizeAutoMovieBicubicAtlas64 } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryImageInput,
   IAutoMovieRecoveryImageLoft,
   IAutoMovieRecoveryImageObservation,
-} from "@automovie/interface/recovery";
+} from "@automovie/interface";
 import {
   compileAutoMovieRecoveryImageLoft,
   fitAutoMovieRecoveryImageLoft,
@@ -24,10 +24,11 @@ import { recoveryImageFixture } from "../internal/recoveryImageFixture";
  * 4. An oscillating profile needs multiple spans and remains bounded by the declared fit budget.
  * 5. Serialized recipes reconstruct without observations, and independent dimension edits preserve unrelated axes and exact return.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises public image observation, inverse fitting, saved-recipe compilation and the actual bicubic engine realization. Asserts conditional residuals, emitted vertex fidelity, explicit partial coverage, reserved-angle support and dimension behavior rather than inspecting implementation strings.
- * @evidence contracts/testing.md#independent-expectations Closed-form ellipse and box support and physical pixel centres supply independent geometric expectations. Emitted vertices are checked against the analytic implicit ellipse at their actual Y; half-pixel observation noise, circular-cubic approximation and tessellation are covered by a fixed 0.5 mm vertex tolerance. Reserved directions never enter fitting.
- * @evidence contracts/testing.md#distinguishing-cases Covers cubic and oscillating profiles, unsupported nonellipse support, duplicate/insufficient directions, contradictory camera metadata, span/row/rank budgets, malformed observation rows, positive scales, combined edits and exact recipe return. Image-mask admission has its own test; this analytic cohort establishes no photographic or camera-estimation performance.
- * @evidence contracts/testing.md#execution-ownership The portable test_recovery_image_loft entry owns small RGB/observation arrays and a bounded CPU engine mesh only. It opens no file, installs no package, starts no process/browser/GPU and imports no Human generator or viewer.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises public image observation, inverse fitting, saved-recipe compilation and the actual bicubic engine realization. Asserts conditional residuals, emitted vertex fidelity, explicit partial coverage, reserved-angle support and dimension behavior rather than inspecting implementation strings.
+ * @evidence contracts/development/testing.md#independent-expectations Closed-form ellipse and box support and physical pixel centres supply independent geometric expectations. Emitted vertices are checked against the analytic implicit ellipse at their actual Y; half-pixel observation noise, circular-cubic approximation and tessellation are covered by a fixed 0.5 mm vertex tolerance. Reserved directions never enter fitting.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers cubic and oscillating profiles, unsupported nonellipse support, duplicate/insufficient directions, contradictory camera metadata, span/row/rank budgets, malformed observation rows, positive scales, combined edits and exact recipe return. Image-mask admission has its own test; this analytic cohort establishes no photographic or camera-estimation performance.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_image_loft entry owns small RGB/observation arrays and a bounded CPU engine mesh only. It opens no file, installs no package, starts no process/browser/GPU and imports no Human generator or viewer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An analytic elliptical family yields compact coefficients and finite own-engine geometry.).
  */
 export function test_recovery_image_loft(): void {
   const policy: Parameters<typeof fitAutoMovieRecoveryImageLoft>[1] = {

@@ -1,4 +1,4 @@
-import { decomposeAutoMovieSingularMatrix } from "@automovie/engine/math/decomposeAutoMovieSingularMatrix";
+import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoveryCameraChart } from "../../../../packages/recovery/src/internal/createRecoveryCameraChart";
@@ -20,10 +20,11 @@ import { nclose } from "../internal/nclose";
  * 2. Perturbed nonplanar cameras/points and missing third observations jointly converge toward prescribed geometry with the first pose and seed scale unchanged. Every ordinary trial prepays256 chart-update and512 differential visits.
  * 3. Singular point blocks, an unobservable third camera, a nonorigin first-camera gauge and iteration exhaustion cannot become a completed accepted refinement.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual block step and joint optimizer, comparing every camera/point delta and actual fixed-population cost, pose, baseline and work outcome. It detects inconsistent damping, omitted point terms, wrong gauge, extra translation normalization and falsely accepted unobservable fits.
- * @evidence contracts/testing.md#independent-expectations A separately assembled complete column-normalized augmented design includes every point/camera variable and identical diagonal damping; its SVD solution is an independent elimination oracle. Prescribed trig rotations and scalar pinhole projections supply nonlinear geometry truth. Shared SVD arithmetic is not an independent decomposition-accuracy reference.
- * @evidence contracts/testing.md#distinguishing-cases Covers zero/positive damping, arbitrary nonsymmetric block data, all returned coordinates, point-rank loss, sparse missing observations, nonunit third translation, unchanged first pose, unit seed baseline, common observation count and one-step nonconvergence. Resection and public-image admission have separate tests.
- * @evidence contracts/testing.md#execution-ownership The portable test_recovery_camera_map_joint entry uses resident numerical arrays only; it starts no compiler, process, installation, filesystem host, browser or GPU and replaces no foreign method.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual block step and joint optimizer, comparing every camera/point delta and actual fixed-population cost, pose, baseline and work outcome. It detects inconsistent damping, omitted point terms, wrong gauge, extra translation normalization and falsely accepted unobservable fits.
+ * @evidence contracts/development/testing.md#independent-expectations A separately assembled complete column-normalized augmented design includes every point/camera variable and identical diagonal damping; its SVD solution is an independent elimination oracle. Prescribed trig rotations and scalar pinhole projections supply nonlinear geometry truth. Shared SVD arithmetic is not an independent decomposition-accuracy reference.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers zero/positive damping, arbitrary nonsymmetric block data, all returned coordinates, point-rank loss, sparse missing observations, nonunit third translation, unchanged first pose, unit seed baseline, common observation count and one-step nonconvergence. Resection and public-image admission have separate tests.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_camera_map_joint entry uses resident numerical arrays only; it starts no compiler, process, installation, filesystem host, browser or GPU and replaces no foreign method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Undamped and damped block-QR steps agree with independently assembled full original-design SVD over all camera and point variables.).
  */
 export function test_recovery_camera_map_joint(): void {
   const fixture: ReturnType<typeof createRecoveryMapNumericalFixture> =

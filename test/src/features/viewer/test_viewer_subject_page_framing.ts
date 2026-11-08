@@ -27,10 +27,11 @@ import {
  * 6. Grounded/lifted inputs distinguish downward eye height, level safety and monotonic elevation.
  * 7. Placed and prototype keys report their coordinate spaces and the authored room member ids.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls real subject description, turntable planning, framing and camera pose application; judges every authored box corner against all six CPU frustum planes.
- * @evidence contracts/testing.md#independent-expectations Separately computed box centers/diagonals, authored landscape/portrait aspects and literal member ids define expectations; the consumed-only fixture casts do not certify complete compiled or material validity.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts smaller content, overflowing content, absent content, grounded/lifted subjects and model/world coordinate labels. Frustum containment proves no occlusion, visible pixels or browser page wiring.
- * @evidence contracts/testing.md#execution-ownership The named entry reuses existing non-Human inspection records and CPU cameras/frusta without a renderer or new probe; source revision and real page/hardware behavior remain external.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls real subject description, turntable planning, framing and camera pose application; judges every authored box corner against all six CPU frustum planes.
+ * @evidence contracts/development/testing.md#independent-expectations Separately computed box centers/diagonals, authored landscape/portrait aspects and literal member ids define expectations; the consumed-only fixture casts do not certify complete compiled or material validity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts smaller content, overflowing content, absent content, grounded/lifted subjects and model/world coordinate labels. Frustum containment proves no occlusion, visible pixels or browser page wiring.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry reuses existing non-Human inspection records and CPU cameras/frusta without a renderer or new probe; source revision and real page/hardware behavior remain external.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The room's declared and content boxes differ in center and extent.).
  */
 export function test_viewer_subject_page_framing(): void {
   const artifact: import("@automovie/interface").IAutoMovieSubjectArtifact =

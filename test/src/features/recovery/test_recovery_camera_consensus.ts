@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoveryCameraChart } from "../../../../packages/recovery/src/internal/createRecoveryCameraChart";
@@ -16,10 +16,11 @@ import { nclose } from "../internal/nclose";
  * 3. An independently authored projective 2D map supplies an immediate ambiguous planar explanation; a one-proposal absence search remains unfinished.
  * 4. Caller checkpoint exceptions propagate unchanged even when their message resembles a numerical refusal.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs actual deterministic calibrated proposals, local refits, final sampling-target checks, four-pose selection and competing planar search. It observes correspondence identities, independent physical pose, numerical stopping diagnostics and unchanged callback-failure identity.
- * @evidence contracts/testing.md#independent-expectations Direct scalar projection of independently authored 3D coordinates, a known Y rotation and unit translation generates 32 valid observations; eight mismatches are separate fixed image coordinates. A rational 2D homography generates planar truth. Physical expectations do not come from the fitted model, another estimator or saved output.
- * @evidence contracts/testing.md#distinguishing-cases Covers noisy nonplanar support with outliers, calibrated rather than algebraic scoring, distinct homography absence/found states, insufficient sampling work, final local convergence and callback failure outside proposal catches. RGB observation, malformed public input and photographic camera accuracy remain separate tests or experiments.
- * @evidence contracts/testing.md#execution-ownership The portable test_recovery_camera_consensus entry owns only small synchronous numerical populations; it starts no installation, subprocess, native artifact, browser or GPU and replaces no foreign method.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs actual deterministic calibrated proposals, local refits, final sampling-target checks, four-pose selection and competing planar search. It observes correspondence identities, independent physical pose, numerical stopping diagnostics and unchanged callback-failure identity.
+ * @evidence contracts/development/testing.md#independent-expectations Direct scalar projection of independently authored 3D coordinates, a known Y rotation and unit translation generates 32 valid observations; eight mismatches are separate fixed image coordinates. A rational 2D homography generates planar truth. Physical expectations do not come from the fitted model, another estimator or saved output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers noisy nonplanar support with outliers, calibrated rather than algebraic scoring, distinct homography absence/found states, insufficient sampling work, final local convergence and callback failure outside proposal catches. RGB observation, malformed public input and photographic camera accuracy remain separate tests or experiments.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_camera_consensus entry owns only small synchronous numerical populations; it starts no installation, subprocess, native artifact, browser or GPU and replaces no foreign method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Independent nonplanar pinhole projections with small noise and 20 percent mismatches retain the true material correspondences and...).
  */
 export function test_recovery_camera_consensus(): void {
   const policy: IAutoMovieRecoveryCameraPairInput["policy"] = {

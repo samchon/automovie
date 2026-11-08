@@ -16,10 +16,11 @@ import { createGalleryHostFacts } from "../internal/createGalleryHostFacts";
  * 2. Authored image attributes retain their source paths; actual clones adopted by the active document resolve both URLs.
  * 3. A separate capture identifier needs no image data and remains focus owner after closure.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual article reader, selection projection and gallery controller, observing secondary-opener identity, exterior/view ordering, active-document URL resolution and restored opener focus; choosing the primary link or retaining an unrelated focus owner fails.
- * @evidence contracts/testing.md#independent-expectations Authored markup supplies distinct primary/capture anchors and relative image paths, and the declared document base independently determines absolute URLs; separate controller facts observe requested focus rather than native browser focus or modal success.
- * @evidence contracts/testing.md#distinguishing-cases Covers an image-free secondary opener, inert-template image adoption, absent tour, empty document and close after opening; malformed markup and collection navigation have separate gallery units.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_website_gallery_secondary_link entry owns resident JSDOM parsing and portable controller effects through an existing owned host fixture; it starts no browser and does not prove navigation, image decoding or native dialog behavior.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual article reader, selection projection and gallery controller, observing secondary-opener identity, exterior/view ordering, active-document URL resolution and restored opener focus; choosing the primary link or retaining an unrelated focus owner fails.
+ * @evidence contracts/development/testing.md#independent-expectations Authored markup supplies distinct primary/capture anchors and relative image paths, and the declared document base independently determines absolute URLs; separate controller facts observe requested focus rather than native browser focus or modal success.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers an image-free secondary opener, inert-template image adoption, absent tour, empty document and close after opening; malformed markup and collection navigation have separate gallery units.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_website_gallery_secondary_link entry owns resident JSDOM parsing and portable controller effects through an existing owned host fixture; it starts no browser and does not prove navigation, image decoding or native dialog behavior.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Actual marked markup selects the secondary opener and article image, never the primary link.).
  */
 export function test_website_gallery_secondary_link(): void {
   const dom: JSDOM = new JSDOM(

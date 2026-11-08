@@ -10,13 +10,10 @@ import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
  * returns slot indices; `seal` then sizes the arrays and fills them at rest.
  * `pose` refreshes them for the current bone motions, or at rest for `null`.
  *
- * @evidence contracts/common.md#principled-implementation A compiled evaluator over a fixed set of parameters, the standard split of a deformable surface into pose-invariant sampling and per-pose evaluation.
- * @evidence contracts/common.md#clear-and-simple-design Three slot kinds cover what a cage needs: section planes, scale factors and the normal and spine derivative at a point.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Registering after `seal` is refused, so every slot has storage.
- * @evidence contracts/common.md#meaningful-documentation States the two phases, the slot kinds and the array layouts.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A record; costs are on `rigAutoMovieSweep`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record; it is the reuse.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record whose arrays its producer sizes.
+ * @evidence contracts/development/design.md#principled-representation A compiled evaluator over a fixed set of parameters, the standard split of a deformable surface into pose-invariant sampling and per-pose evaluation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Three slot kinds cover what a cage needs: section planes, scale factors and the normal and spine derivative at a point.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Registering after `seal` is refused, so every slot has storage.
+ * @evidence contracts/development/common.md#meaningful-documentation States the two phases, the slot kinds and the array layouts.
  */
 export interface IAutoMovieSweepRig {
   /** The sweep compiled at rest; its shape before the scale profile is the shape in every pose. */
@@ -28,13 +25,13 @@ export interface IAutoMovieSweepRig {
    * @param u Along the spine
    * @returns The slot: the plane is `frames[12 slot ...]`, origin, first axis, second axis, normal
    *
-   * @evidence contracts/common.md#principled-implementation Registers a section plane slot by parameter, deduplicated.
-   * @evidence contracts/common.md#clear-and-simple-design Returns the slot index.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Registration after `seal` is refused.
-   * @evidence contracts/common.md#meaningful-documentation States the slot layout.
-   * @evidence contracts/performance.md#efficient-algorithms One map operation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
+   * @evidence contracts/development/implementation.md#principled-implementation Registers a section plane slot by parameter, deduplicated.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Returns the slot index.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Registration after `seal` is refused.
+   * @evidence contracts/development/common.md#meaningful-documentation States the slot layout.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One map operation.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
    */
   frame(u: number): number;
 
@@ -44,13 +41,13 @@ export interface IAutoMovieSweepRig {
    * @param u Along the spine
    * @returns The slot: the factor is `scales[slot]`
    *
-   * @evidence contracts/common.md#principled-implementation Registers a scale factor slot.
-   * @evidence contracts/common.md#clear-and-simple-design Returns the slot index.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Registration after `seal` is refused.
-   * @evidence contracts/common.md#meaningful-documentation States the slot layout.
-   * @evidence contracts/performance.md#efficient-algorithms One map operation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
+   * @evidence contracts/development/implementation.md#principled-implementation Registers a scale factor slot.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Returns the slot index.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Registration after `seal` is refused.
+   * @evidence contracts/development/common.md#meaningful-documentation States the slot layout.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One map operation.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
    */
   scale(u: number): number;
 
@@ -63,13 +60,13 @@ export interface IAutoMovieSweepRig {
    * @returns The slot: the unit normal is `probes[6 slot ...]` and the derivative along the spine the next three numbers
    * @throws Error if the rig is sealed or any cell reach is negative or nonfinite
    *
-   * @evidence contracts/common.md#principled-implementation Uses the source surface's finite-difference step and four writers of the same fixed-cell geometric field for its normal and axial derivative.
-   * @evidence contracts/common.md#clear-and-simple-design Returns the slot index.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The difference step is the surface's own.
-   * @evidence contracts/common.md#meaningful-documentation States the slot layout.
-   * @evidence contracts/performance.md#efficient-algorithms Four writers at registration, each with one to nine shape reads and one to three per-pose scale terms; frame and scale slots deduplicate with all other samples.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the source surface's finite-difference step and four writers of the same fixed-cell geometric field for its normal and axial derivative.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Returns the slot index.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The difference step is the surface's own.
+   * @evidence contracts/development/common.md#meaningful-documentation States the slot layout.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four writers at registration, each with one to nine shape reads and one to three per-pose scale terms; frame and scale slots deduplicate with all other samples.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
    */
   probe(
     u: number,
@@ -87,13 +84,13 @@ export interface IAutoMovieSweepRig {
    * @param cell Spacing to the neighbouring sample below and above along `u`, then below and above along `v`
    * @returns The writer, three numbers in metres at an offset
    *
-   * @evidence contracts/common.md#principled-implementation Tensor trapezoid integration over the fixed cell: radial radii or parameter-correspondence Cartesian points, with scale inside the u integral.
-   * @evidence contracts/common.md#clear-and-simple-design Shapes read now, scale and frame per pose.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The declared correspondence selects radial or Cartesian averaging; no Cartesian section is projected onto an unrelated polar direction.
-   * @evidence contracts/common.md#meaningful-documentation States the weights and the zero cell.
-   * @evidence contracts/performance.md#efficient-algorithms Up to nine shape reads at registration, three terms per pose.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
+   * @evidence contracts/development/implementation.md#principled-implementation Tensor trapezoid integration over the fixed cell: radial radii or parameter-correspondence Cartesian points, with scale inside the u integral.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shapes read now, scale and frame per pose.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The declared correspondence selects radial or Cartesian averaging; no Cartesian section is projected onto an unrelated polar direction.
+   * @evidence contracts/development/common.md#meaningful-documentation States the weights and the zero cell.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Up to nine shape reads at registration, three terms per pose.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
    */
   sample(
     u: number,
@@ -104,13 +101,13 @@ export interface IAutoMovieSweepRig {
   /**
    * Size the arrays and fill them at rest.
    *
-   * @evidence contracts/common.md#principled-implementation Sizes the slot arrays and fills them at rest.
-   * @evidence contracts/common.md#clear-and-simple-design One call.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Later registration is refused.
-   * @evidence contracts/common.md#meaningful-documentation States the effect.
-   * @evidence contracts/performance.md#efficient-algorithms O(F + P) frame and probe evaluations.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
+   * @evidence contracts/development/implementation.md#principled-implementation Sizes the slot arrays and fills them at rest.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Later registration is refused.
+   * @evidence contracts/development/common.md#meaningful-documentation States the effect.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(F + P) frame and probe evaluations.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
    */
   seal(): void;
 
@@ -123,13 +120,13 @@ export interface IAutoMovieSweepRig {
    * @param factor The factor at a spine parameter, positive and finite
    * @throws Error when called before `seal`, or the factor or its resulting scale is not positive and finite at a slot, or a probe is not representable
    *
-   * @evidence contracts/common.md#principled-implementation A shape correction folded into the scale, the one place every sample, probe and pose reads the radius from.
-   * @evidence contracts/common.md#clear-and-simple-design One factor per scale slot, replaced rather than compounded.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A factor that is not positive and finite is refused instead of clamped.
-   * @evidence contracts/common.md#meaningful-documentation States when the factor applies and that a call replaces the last.
-   * @evidence contracts/performance.md#efficient-algorithms O(S + P) for S scale slots and P probes.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
+   * @evidence contracts/development/implementation.md#principled-implementation A shape correction folded into the scale, the one place every sample, probe and pose reads the radius from.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One factor per scale slot, replaced rather than compounded.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A factor that is not positive and finite is refused instead of clamped.
+   * @evidence contracts/development/common.md#meaningful-documentation States when the factor applies and that a call replaces the last.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(S + P) for S scale slots and P probes.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
    */
   girth(factor: (u: number) => number): void;
 
@@ -147,13 +144,13 @@ export interface IAutoMovieSweepRig {
    *
    * @param bones Current bone motions, or `null` for rest
    *
-   * @evidence contracts/common.md#principled-implementation Re-sweeps the bound sweep and refreshes every slot.
-   * @evidence contracts/common.md#clear-and-simple-design One call per pose.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An unbound sweep stays at rest.
-   * @evidence contracts/common.md#meaningful-documentation States the rest case.
-   * @evidence contracts/performance.md#efficient-algorithms As `rigAutoMovieSweep` details, no allocation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
+   * @evidence contracts/development/implementation.md#principled-implementation Re-sweeps the bound sweep and refreshes every slot.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call per pose.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unbound sweep stays at rest.
+   * @evidence contracts/development/common.md#meaningful-documentation States the rest case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms As `rigAutoMovieSweep` details, no allocation.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
    */
   pose(bones: IAutoMovieBoneBuffer | null): void;
 }

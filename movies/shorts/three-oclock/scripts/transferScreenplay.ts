@@ -1,4 +1,4 @@
-import { stripNaturalnessComments } from "@automovie/evidence/narrative";
+import { stripNaturalnessComments } from "@automovie/evidence";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -22,23 +22,38 @@ export function transferScreenplay(): void {
     throw new Error("Supply exactly the independently closed frozen SHA256");
 
   const root: string = path.resolve(import.meta.dirname, "..");
-  const frozenPath: string = path.join(root, "docs/revision/screenplay/three-oclock.md");
-  const workingPath: string = path.join(root, "docs/naturalness/screenplay/three-oclock.md");
-  const bodyPath: string = path.join(root, "docs/body/screenplay/three-oclock.md");
+  const frozenPath: string = path.join(
+    root,
+    "docs/revision/screenplay/three-oclock.md",
+  );
+  const workingPath: string = path.join(
+    root,
+    "docs/naturalness/screenplay/three-oclock.md",
+  );
+  const bodyPath: string = path.join(
+    root,
+    "docs/body/screenplay/three-oclock.md",
+  );
   const frozen: Buffer = fs.readFileSync(frozenPath);
   const working: Buffer = fs.readFileSync(workingPath);
   const promoted: Buffer = stripNaturalnessComments(working);
   const current: Buffer = fs.readFileSync(bodyPath);
   const frozenHash: string = createHash("sha256").update(frozen).digest("hex");
   if (frozenHash !== expectedFrozenHash.toLowerCase())
-    throw new Error("Frozen construction differs from this cycle's reviewed original");
+    throw new Error(
+      "Frozen construction differs from this cycle's reviewed original",
+    );
   if (!current.equals(frozen) && !current.equals(promoted))
-    throw new Error("Current body has changed outside this initial expression transfer");
+    throw new Error(
+      "Current body has changed outside this initial expression transfer",
+    );
 
   fs.writeFileSync(bodyPath, promoted);
   const actual: Buffer = fs.readFileSync(bodyPath);
   if (!actual.equals(promoted))
-    throw new Error("Promoted body does not equal the comment-free reviewed working bytes");
+    throw new Error(
+      "Promoted body does not equal the comment-free reviewed working bytes",
+    );
   if (!fs.readFileSync(frozenPath).equals(frozen))
     throw new Error("Frozen construction changed during transfer");
 

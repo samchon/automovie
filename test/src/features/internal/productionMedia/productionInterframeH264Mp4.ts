@@ -1,4 +1,4 @@
-import { normalizeProductionH264Mp4 } from "@automovie/render/node";
+import { normalizeProductionH264Mp4 } from "@automovie/render";
 
 /** An independently encoded two-frame AVC input whose second sample depends on its opening sync frame. Its payload is input data, never the expected output of current logic. */
 export const productionInterframeH264Mp4 = (): Uint8Array =>

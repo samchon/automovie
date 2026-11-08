@@ -4,13 +4,10 @@ import type { IAutoMovieRecoveryMapPose } from "../image/IAutoMovieRecoveryMapPo
 /**
  * Qualified robust resection or explicit support and convergence refusal.
  *
- * @evidence contracts/common.md#principled-implementation A pose exists only after fixed-population pixel consensus, stable final membership, converged refinement and recomputed conditional trial requirements pass.
- * @evidence contracts/common.md#clear-and-simple-design The named result separates final qualification from optional transient diagnostic events.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Refused intermediate poses do not become a registered camera; indices alone do not certify material identity.
- * @evidence contracts/common.md#meaningful-documentation Members distinguish actual proposals, refinement attempts, fitted support and conditional confidence from geometric truth.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased result performs no fit.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The numerical owner supplies the final already computed report.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owned final coefficients and O(N) support transfer without retaining images, diagnostic history or resources.
+ * @evidence contracts/development/design.md#principled-representation A pose exists only after fixed-population pixel consensus, stable final membership, converged refinement and recomputed conditional trial requirements pass.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The named result separates final qualification from optional transient diagnostic events.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Refused intermediate poses do not become a registered camera; indices alone do not certify material identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Members distinguish actual proposals, refinement attempts, fitted support and conditional confidence from geometric truth.
  */
 export interface IAutoMovieRecoveryResectionConsensus {
   /** Accepted world-to-camera pose, or null for any qualification failure. */

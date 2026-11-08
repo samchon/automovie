@@ -12,10 +12,11 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * 2. Either oriented side of a triangular loop on a closed tetrahedron is a valid patch. A nonseparating cycle around a periodic torus is refused.
  * 3. Invalid boundaries, incomplete/degenerate triangles, inconsistent winding and nonmanifold edges are refused before a partial cut can be returned.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls oriented triangle-region selection and checks exact source ordinals or structural refusal; crossing a supplied boundary or silently consuming an exterior component fails.
- * @evidence contracts/testing.md#independent-expectations The authored annulus and tetrahedron adjacency determine the two-triangle interior and complementary closed patches; a periodic 3-by-3 torus loop is nonseparating independently of spatial projection.
- * @evidence contracts/testing.md#distinguishing-cases Inner/outer and reversed boundaries, closed complementary sides, nonseparating loops, empty/short/repeated/invalid boundaries and incomplete/degenerate/inconsistently wound/nonmanifold sources are retained; this unit does not judge anatomical or visual plausibility.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_geometry_triangle_region entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls oriented triangle-region selection and checks exact source ordinals or structural refusal; crossing a supplied boundary or silently consuming an exterior component fails.
+ * @evidence contracts/development/testing.md#independent-expectations The authored annulus and tetrahedron adjacency determine the two-triangle interior and complementary closed patches; a periodic 3-by-3 torus loop is nonseparating independently of spatial projection.
+ * @evidence contracts/development/testing.md#distinguishing-cases Inner/outer and reversed boundaries, closed complementary sides, nonseparating loops, empty/short/repeated/invalid boundaries and incomplete/degenerate/inconsistently wound/nonmanifold sources are retained; this unit does not judge anatomical or visual plausibility.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_geometry_triangle_region entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A square inside a triangulated annulus selects exactly its two triangles; the outer boundary selects all ten and a reversed inner loop...).
  */
 export function test_geometry_triangle_region(): void {
   const indices: number[] = [

@@ -1,13 +1,16 @@
-import type { IAutoMovieRecoveryInput, IAutoMovieRecoveryRegistration } from "@automovie/interface/recovery";
-import type { IAutoMovieRecoveryMeshSections } from "../../structures/mesh/IAutoMovieRecoveryMeshSections";
-import type { IAutoMovieRecoveryOpenContinuation } from "../../structures/curve/IAutoMovieRecoveryOpenContinuation";
+import type {
+  IAutoMovieRecoveryInput,
+  IAutoMovieRecoveryRegistration,
+} from "@automovie/interface";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { restoreRecoveryCurveBasis } from "../../internal/restoreRecoveryCurveBasis";
 import { reconstructRecoveryOpen } from "../../internal/reconstructRecoveryOpen";
+import { restoreRecoveryCurveBasis } from "../../internal/restoreRecoveryCurveBasis";
 import { AutoMovieRecoveryOpenContinuation as O } from "../../reconstruction/AutoMovieRecoveryOpenContinuation";
+import type { IAutoMovieRecoveryOpenContinuation } from "../../structures/curve/IAutoMovieRecoveryOpenContinuation";
+import type { IAutoMovieRecoveryMeshSections } from "../../structures/mesh/IAutoMovieRecoveryMeshSections";
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
 
 /**
@@ -16,13 +19,13 @@ import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecove
  * Source mesh admission occurs only in observe. The graph references the complete curve byte hash;
  * original coefficients are neither duplicated nor refitted. source epoch argument is required.
  *
- * @evidence contracts/common.md#principled-implementation Complete-byte hashes bind source registration, saved cubic authority and source-independent endpoint transport. Reconstruction opens only the two generating publications.
- * @evidence contracts/common.md#clear-and-simple-design Separate observation and reconstruction commands make source consumption explicit; the sidecar avoids copying hundreds of thousands of open coefficients.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No original vertices, source indices or source normals enter reconstruction, no aperture is closed, and existing artifacts cannot be overwritten.
- * @evidence contracts/common.md#meaningful-documentation Documents commands, immutable byte authority, source-only observation, fitting reuse and source-epoch provenance.
- * @evidence contracts/performance.md#efficient-algorithms Files are read and hashed once per command; assembly and serialization are linear in admitted or generated data. Numerical work remains with existing observation and engine operators.
- * @evidence contracts/performance.md#reuse-equivalent-work The original curve publication is reused without fitting, and one engine result supplies model and actual construction.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Synchronous reads and writes close handles. One command owns temporary source arrays or generated buffers, with no global cache or external process.
+ * @evidence contracts/development/implementation.md#principled-implementation Complete-byte hashes bind source registration, saved cubic authority and source-independent endpoint transport. Reconstruction opens only the two generating publications.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Separate observation and reconstruction commands make source consumption explicit; the sidecar avoids copying hundreds of thousands of open coefficients.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No original vertices, source indices or source normals enter reconstruction, no aperture is closed, and existing artifacts cannot be overwritten.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents commands, immutable byte authority, source-only observation, fitting reuse and source-epoch provenance.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Files are read and hashed once per command; assembly and serialization are linear in admitted or generated data. Numerical work remains with existing observation and engine operators.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The original curve publication is reused without fitting, and one engine result supplies model and actual construction.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Synchronous reads and writes close handles. One command owns temporary source arrays or generated buffers, with no global cache or external process.
  */
 export function recoveryOpen(args: string[], sourceEpoch: string): void {
   const [command, first, second, output]: string[] = args;
@@ -69,7 +72,9 @@ export function recoveryOpen(args: string[], sourceEpoch: string): void {
       registration:
         | IAutoMovieRecoveryRegistration
         | { units: string; frame: string; pose: string };
-    } = restoreRecoveryCurveBasis(saved.value) as IAutoMovieRecoveryMeshSections & {
+    } = restoreRecoveryCurveBasis(
+      saved.value,
+    ) as IAutoMovieRecoveryMeshSections & {
       provenance: { inputHash: string; sourceEpoch: string };
       registration:
         | IAutoMovieRecoveryRegistration
@@ -146,13 +151,17 @@ export function recoveryOpen(args: string[], sourceEpoch: string): void {
       JSON.stringify({
         intervals: graph.intervals.length,
         pairs: graph.intervals.reduce(
-          (sum: number, x: IAutoMovieRecoveryOpenContinuation["intervals"][number]): number =>
-            sum + x.pairs.length,
+          (
+            sum: number,
+            x: IAutoMovieRecoveryOpenContinuation["intervals"][number],
+          ): number => sum + x.pairs.length,
           0,
         ),
         unsupportedGroups: graph.intervals.reduce(
-          (sum: number, x: IAutoMovieRecoveryOpenContinuation["intervals"][number]): number =>
-            sum + x.unresolved.length,
+          (
+            sum: number,
+            x: IAutoMovieRecoveryOpenContinuation["intervals"][number],
+          ): number => sum + x.unresolved.length,
           0,
         ),
       }),
@@ -160,7 +169,9 @@ export function recoveryOpen(args: string[], sourceEpoch: string): void {
   } else {
     const saved: ReturnType<typeof read> = read(first),
       topology: ReturnType<typeof read> = read(second);
-    const bundle: IAutoMovieRecoveryMeshSections = restoreRecoveryCurveBasis(saved.value) as IAutoMovieRecoveryMeshSections;
+    const bundle: IAutoMovieRecoveryMeshSections = restoreRecoveryCurveBasis(
+      saved.value,
+    ) as IAutoMovieRecoveryMeshSections;
     const graph: IAutoMovieRecoveryOpenContinuation & {
       provenance: { curveBundleSha256: string };
     } = topology.value as IAutoMovieRecoveryOpenContinuation & {

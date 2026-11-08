@@ -19,10 +19,11 @@ import { throwsError } from "../internal/predicates";
  * 3. Discovery returns its actual stamp/null and rejects every malformed PID
  *    before it can reach the effect host.
  *
- * @evidence contracts/testing.md#behavioral-verification Reads and stops through the production ownership controller against recorded POSIX facts, asserting pre-effect selector/authority refusal, exact discovery/signal requests and original failures followed by retry.
- * @evidence contracts/testing.md#independent-expectations Authored creation stamps, caller-supplied authority and the contract's root-only signal define the expected request sequence; recorded host requests do not prove real native termination or atomic PID reuse protection.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts malformed selectors, absent authority, matching/absent/changed identities, discovery and signal failures and fresh retry. Original-child capture, Windows ancestry and transport decoding belong to neighboring process units.
- * @evidence contracts/testing.md#execution-ownership The named exported unit reaches production source through the existing ProcessOwnershipUnit loader and supplied fact recorder; it starts no child or OS host and dynamically registers no cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads and stops through the production ownership controller against recorded POSIX facts, asserting pre-effect selector/authority refusal, exact discovery/signal requests and original failures followed by retry.
+ * @evidence contracts/development/testing.md#independent-expectations Authored creation stamps, caller-supplied authority and the contract's root-only signal define the expected request sequence; recorded host requests do not prove real native termination or atomic PID reuse protection.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts malformed selectors, absent authority, matching/absent/changed identities, discovery and signal failures and fresh retry. Original-child capture, Windows ancestry and transport decoding belong to neighboring process units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported unit reaches production source through the existing ProcessOwnershipUnit loader and supplied fact recorder; it starts no child or OS host and dynamically registers no cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Invalid selectors or absent authority request no host effects, while a).
  */
 export function test_process_ownership_posix_admission(): void {
   const { facts, host }: ReturnType<typeof createProcessOwnershipHostFacts> =

@@ -9,13 +9,13 @@ import { ViolationCollector } from "./ViolationCollector";
 /**
  * Require one connected root and resolvable acyclic ancestry using declared names, parent edges and traversal.
  *
- * @evidence contracts/common.md#principled-implementation Require one connected root and resolvable acyclic ancestry using declared names, parent edges and traversal.
- * @evidence contracts/common.md#clear-and-simple-design Skeleton graph admission is separate from transform scalar and pose ROM checks.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid graphs are reported rather than silently attaching detached bones or changing parent links.
- * @evidence contracts/common.md#meaningful-documentation Diagnostics identify roots, missing parents and cyclic/disconnected structure.
- * @evidence contracts/performance.md#efficient-algorithms B bones and child edges drive graph indexing/walks with proportional temporary sets/maps.
- * @evidence contracts/performance.md#reuse-equivalent-work One local bone/children index serves all root/parent/reachability checks.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller's collector owns faults; no FK pose, skeleton cache or native rig persists.
+ * @evidence contracts/development/implementation.md#principled-implementation Require one connected root and resolvable acyclic ancestry using declared names, parent edges and traversal.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Skeleton graph admission is separate from transform scalar and pose ROM checks.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid graphs are reported rather than silently attaching detached bones or changing parent links.
+ * @evidence contracts/development/common.md#meaningful-documentation Diagnostics identify roots, missing parents and cyclic/disconnected structure.
+ * @evidence contracts/development/implementation.md#efficient-algorithms B bones and child edges drive graph indexing/walks with proportional temporary sets/maps.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One local bone/children index serves all root/parent/reachability checks.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller's collector owns faults; no FK pose, skeleton cache or native rig persists.
  */
 export const validateSkeletonGraph: (
   skeleton: IAutoMovieSkeleton,

@@ -45,10 +45,11 @@ const MODEL: import("@automovie/interface").IAutoMovieModel =
  * 6. An id no declared unit answers for is still refused.
  * 7. Reassigning a unit's space root reshapes that unit and nothing else, so a building takes part in a structural diff as its own subject.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls subject inventory, direct descriptions, element bounds and structural diff; losing building addresses, ignoring descendants/populations or reshaping unrelated subjects fails.
- * @evidence contracts/testing.md#independent-expectations Two authored mesh corners, a four-metre roof offset and a two-by-two grid at independently computed centres define union bounds; no renderer output supplies expectations.
- * @evidence contracts/testing.md#distinguishing-cases Element-bearing, population-only and empty units, unknown ids and a one-unit root reassignment are contrasted; these inspection records do not claim validated design legality or displayed geometry.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_inspection_subject_building_unit entry owns these synchronous portable compiled-record cases and local fact callbacks; resident synthetic records require no production installation, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls subject inventory, direct descriptions, element bounds and structural diff; losing building addresses, ignoring descendants/populations or reshaping unrelated subjects fails.
+ * @evidence contracts/development/testing.md#independent-expectations Two authored mesh corners, a four-metre roof offset and a two-by-two grid at independently computed centres define union bounds; no renderer output supplies expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Element-bearing, population-only and empty units, unknown ids and a one-unit root reassignment are contrasted; these inspection records do not claim validated design legality or displayed geometry.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_inspection_subject_building_unit entry owns these synchronous portable compiled-record cases and local fact callbacks; resident synthetic records require no production installation, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The enumeration carries one subject per declared building unit.).
  */
 export function test_inspection_subject_building_unit(): void {
   const record: IAutoMovieBuiltEnvironment = environment();

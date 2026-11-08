@@ -1,5 +1,5 @@
-import { AutoMovieMatrix3 } from "@automovie/engine/math/AutoMovieMatrix3";
-import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface/recovery";
+import { AutoMovieMatrix3 } from "@automovie/engine";
+import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoveryCameraChart } from "../../../../packages/recovery/src/internal/createRecoveryCameraChart";
@@ -21,10 +21,11 @@ import { nclose } from "../internal/nclose";
  * 3. The analytic five-coordinate Sampson Jacobian agrees with central differences of actual calibrated image residuals, and left rotation/radian conventions have independent trigonometric truth.
  * 4. Noisy independent pinhole projections refine from a perturbed pose toward the known camera, while a one-iteration budget remains explicitly unfinished.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises sampling, local pose action, analytic derivatives and actual robust optimization, asserting physical camera orientation/direction, unit gauge, cost decrease and explicit nonconvergence. It detects optimistic small-population confidence, repeated indices, wrong quotient derivatives, angle units and matrix-update order.
- * @evidence contracts/testing.md#independent-expectations For 10 observations with 8 inliers, an eight-draw success probability is 1/45; logarithmic failure probability determines the independent trial count. Direct scalar pinhole projection of nonplanar points supplies known R and t. Analytic Y-angle composition and normalized (1,.1,.2) supply local-update truth; central differences only check the derivative of the declared residual, not its photographic accuracy.
- * @evidence contracts/testing.md#distinguishing-cases Covers no possible successful sample, all-inlier single-trial success, deterministic model-domain separation, both skew signs, unequal focal scales, five local directions, small deterministic pixel noise, positive cost reduction, preserved unit translation and exhausted iteration budget. Public RGB admission, outlier consensus and photographic correctness have separate owners.
- * @evidence contracts/testing.md#execution-ownership The portable test_recovery_camera_refinement entry owns finite numerical arrays and synchronous CPU assertions only; no file, installation, native build, process or rendering host is started and no foreign method is replaced.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises sampling, local pose action, analytic derivatives and actual robust optimization, asserting physical camera orientation/direction, unit gauge, cost decrease and explicit nonconvergence. It detects optimistic small-population confidence, repeated indices, wrong quotient derivatives, angle units and matrix-update order.
+ * @evidence contracts/development/testing.md#independent-expectations For 10 observations with 8 inliers, an eight-draw success probability is 1/45; logarithmic failure probability determines the independent trial count. Direct scalar pinhole projection of nonplanar points supplies known R and t. Analytic Y-angle composition and normalized (1,.1,.2) supply local-update truth; central differences only check the derivative of the declared residual, not its photographic accuracy.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers no possible successful sample, all-inlier single-trial success, deterministic model-domain separation, both skew signs, unequal focal scales, five local directions, small deterministic pixel noise, positive cost reduction, preserved unit translation and exhausted iteration budget. Public RGB admission, outlier consensus and photographic correctness have separate owners.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_camera_refinement entry owns finite numerical arrays and synchronous CPU assertions only; no file, installation, native build, process or rendering host is started and no foreign method is replaced.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Finite-population sampling uses the exact all-inlier probability for unique draws, with impossible and all-inlier boundaries.).
  */
 export function test_recovery_camera_refinement(): void {
   const confidence: number = 0.999;

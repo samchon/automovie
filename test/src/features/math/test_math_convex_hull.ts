@@ -42,10 +42,11 @@ const v: (x: number, z: number) => IAutoMovieVector3 = (
  *    clamps past the end, and survives a zero-length segment.
  * 7. An empty hull refuses a nearest-edge query rather than returning absent endpoints.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs hull construction, containment, boundary distance and projection, asserting declared geometry and a named empty-nearest-edge refusal rather than accepting missing endpoints.
- * @evidence contracts/testing.md#independent-expectations Square, collinear and singleton coordinates determine expected hull populations and analytic point/segment gaps; assertions use those authored dimensions rather than captured product output.
- * @evidence contracts/testing.md#distinguishing-cases Covers interior/exterior/edge queries, duplicates, collinear/empty/singleton hulls, secondary sorting and clamped/zero-length projection; small-scale tests own tiny nonzero spans.
- * @evidence contracts/testing.md#execution-ownership The discoverable math function owns its local planar cases and directly calls TypeScript geometry without a renderer, external process or native build.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs hull construction, containment, boundary distance and projection, asserting declared geometry and a named empty-nearest-edge refusal rather than accepting missing endpoints.
+ * @evidence contracts/development/testing.md#independent-expectations Square, collinear and singleton coordinates determine expected hull populations and analytic point/segment gaps; assertions use those authored dimensions rather than captured product output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers interior/exterior/edge queries, duplicates, collinear/empty/singleton hulls, secondary sorting and clamped/zero-length projection; small-scale tests own tiny nonzero spans.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable math function owns its local planar cases and directly calls TypeScript geometry without a renderer, external process or native build.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A square with an interior point gives four hull vertices and the declared).
  */
 export function test_math_convex_hull(): void {
   TestValidator.predicate(

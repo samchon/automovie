@@ -12,13 +12,13 @@ const DEFAULT_BASE: string = process.env.BASE ?? "http://127.0.0.1:5173";
  * Parse this existing capture CLI's arguments and print its completed artifact summary. Help returns before capture; invalid numeric options or capture failures reject. Relative destinations resolve against the existing repository-root convention, and the default base URL is read once when this module loads.
  *
  *
- * @evidence contracts/common.md#principled-implementation Named CLI flags become explicit route, clock and output options; finite positive values, even dimensions and canonical guide names are admitted before capture.
- * @evidence contracts/common.md#clear-and-simple-design The command parses configuration and prints the completed artifact summary while captureRenderAndSee owns browser and media work.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Help returns without capture; bad numeric values reject instead of being silently corrected.
- * @evidence contracts/common.md#meaningful-documentation The help describes flag defaults and destinations, and the comment explains cwd resolution and module-time BASE selection.
- * @evidence contracts/performance.md#efficient-algorithms Parsing is O(A) in arguments plus guide-name normalization; the delegated capture dominates runtime.
- * @evidence contracts/performance.md#reuse-equivalent-work Options are parsed once per invocation and the completed artifact supplies the printed summary without another render.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The command owns only its parsed strings and result reference; delegated capture releases browser and encoder handles. Output files remain at requested paths.
+ * @evidence contracts/development/implementation.md#principled-implementation Named CLI flags become explicit route, clock and output options; finite positive values, even dimensions and canonical guide names are admitted before capture.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The command parses configuration and prints the completed artifact summary while captureRenderAndSee owns browser and media work.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Help returns without capture; bad numeric values reject instead of being silently corrected.
+ * @evidence contracts/development/common.md#meaningful-documentation The help describes flag defaults and destinations, and the comment explains cwd resolution and module-time BASE selection.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Parsing is O(A) in arguments plus guide-name normalization; the delegated capture dominates runtime.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Options are parsed once per invocation and the completed artifact supplies the printed summary without another render.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The command owns only its parsed strings and result reference; delegated capture releases browser and encoder handles. Output files remain at requested paths.
  */
 export const renderAndSeeCommand: (argv?: string[]) => Promise<void> = async (
   argv: string[] = process.argv.slice(2),

@@ -25,10 +25,11 @@ const readShadowMap: (
  * 3. Shared cube maps release one handle, known current borrowers refuse before mutation, and failed queries do not skip independent public retirement.
  * 4. Failed native observation retains its original cause after public cleanup; repeat requests no query, delete or public disposal again.
  *
- * @evidence contracts/testing.md#behavioral-verification Executes production cube query, supplemental retirement and scene cleanup with the existing in-memory facts plus real Three disposal events; checks exact caller state, independent failures and sticky failed-scene refusal without another operation.
- * @evidence contracts/testing.md#independent-expectations Authored framebuffer/raster values, object identity and independently counted event/request lists define expectations; the opaque handle and recorded GL calls are orchestration facts, not native texture existence or GPU/kernel release proof.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts unsupported/cold/retained profiles, texture/nontexture/null attachments, query/restore/delete/reset errors, shared aliases, borrower preflight and unknown failed observation with repeated no-retry.
- * @evidence contracts/testing.md#execution-ownership The named entry uses its existing typed in-memory host and actual CPU Three resources/listeners; no native renderer, new host implementation, foreign/global method replacement, Human fixture or driver is installed.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes production cube query, supplemental retirement and scene cleanup with the existing in-memory facts plus real Three disposal events; checks exact caller state, independent failures and sticky failed-scene refusal without another operation.
+ * @evidence contracts/development/testing.md#independent-expectations Authored framebuffer/raster values, object identity and independently counted event/request lists define expectations; the opaque handle and recorded GL calls are orchestration facts, not native texture existence or GPU/kernel release proof.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts unsupported/cold/retained profiles, texture/nontexture/null attachments, query/restore/delete/reset errors, shared aliases, borrower preflight and unknown failed observation with repeated no-retry.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry uses its existing typed in-memory host and actual CPU Three resources/listeners; no native renderer, new host implementation, foreign/global method replacement, Human fixture or driver is installed.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Attachment queries restore target/face/mip, viewport, scissor and test; nontexture/null attachments and query failures restore the same...).
  */
 export function test_viewer_cube_shadow_depth_lifecycle(): void {
   const cube: THREE.WebGLCubeRenderTarget = new THREE.WebGLCubeRenderTarget(4),

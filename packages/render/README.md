@@ -12,9 +12,7 @@ npm install @automovie/render
 
 | Entry | Purpose |
 | --- | --- |
-| `@automovie/render` | Frame and sequence planning (`planSequenceRender`, `frameTimes`, `ffmpegArgs`), adapter-driven rendering (`renderVideo`, `renderSequenceVideo`), and the render-budget preflight (`assessAutoMovieRenderBudget`); safe in a browser bundle |
-| `@automovie/render/node` | `renderViewerVideo` exports a running Viewer through its completed seek hook and an installed FFmpeg executable; also provides model export and media orchestration |
-| `@automovie/render/node/chrome` | `DEFAULT_CHROME_EXECUTABLE`, the `CHROME` environment override or platform preference, without loading model export and media orchestration |
+| `@automovie/render` | Frame and sequence planning (`planSequenceRender`, `frameTimes`, `ffmpegArgs`), adapter-driven rendering (`renderVideo`, `renderSequenceVideo`), the render-budget preflight (`assessAutoMovieRenderBudget`), and the Node-side `renderViewerVideo`, model export, media orchestration and `DEFAULT_CHROME_EXECUTABLE` |
 
 ## Export a running Viewer
 
@@ -37,6 +35,6 @@ Before frame zero the runner reads every digest in one page call and plans which
 
 `createAutoMovieDirectoryArtifactStore(directory)` is the same store for any other deterministic stage: compose a key with the engine's `composeAutoMovieArtifactKey` (stage, its implementation version, toolchain identities, declared inputs), then `resolveAutoMovieArtifact(store, key, compute)` reads a verified entry or computes and stores it; `encodeAutoMovieArtifactJson` and `decodeAutoMovieArtifactJson` carry plain data exactly. Declare an upstream stage's returned `digest` as a downstream input, so an upstream recomputation that yields the same bytes leaves the downstream key unchanged. `collect` deletes unreferenced, old or oversized entries.
 
-A browser page reaches the same directory through its development server: mount `createAutoMovieArtifactMiddleware(store)` (from `@automovie/render/node`) under a prefix such as `/__automovie/artifacts`, and give the page `createAutoMovieHttpArtifactStore("/__automovie/artifacts")` (from `@automovie/render`). The headless capture browser reaches it too, so the Viewer and every render share one cache. `digestAutoMovieSourceTree([dir])` digests a package's source for the toolchain of a stage whose code changes without a version bump, for example passed to the page through a Vite `define`.
+A browser page reaches the same directory through its development server: mount `createAutoMovieArtifactMiddleware(store)` (from `@automovie/render`) under a prefix such as `/__automovie/artifacts`, and give the page `createAutoMovieHttpArtifactStore("/__automovie/artifacts")` (from `@automovie/render`). The headless capture browser reaches it too, so the Viewer and every render share one cache. `digestAutoMovieSourceTree([dir])` digests a package's source for the toolchain of a stage whose code changes without a version bump, for example passed to the page through a Vite `define`.
 
 The generated scaffold's `render.config.ts` and `scripts/render.ts` are the minimal consumer. Capture and encoding report technical observations; actual playback and sound review remain the production's responsibility.

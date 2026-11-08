@@ -47,25 +47,19 @@ function projectUnitDirection(a: Vec3, tangent: Vec3): Vec3 {
  * rotation-minimizing frame law (`u' = -(u . t') t`) at the transported value.
  * Each builder below owns its station, orientation and admission rule.
  *
- * @evidence contracts/common.md#principled-implementation Reads each declared plane law directly: affine or level origins, analytic jointed turns, or numerical minimal transport. Level plane normals need not follow the drifting origin's tangent.
- * @evidence contracts/common.md#clear-and-simple-design One axis interface and one builder per axis kind.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An inadmissible jointed axis returns its rule; the turn is never shortened to fit.
- * @evidence contracts/common.md#meaningful-documentation States each axis's frame, station and continuity.
- * @evidence contracts/performance.md#efficient-algorithms Straight frames use constant work; level queries scan their two prepared scalar splines, curved queries march bounded steps and jointed queries integrate preceding turns by fixed Gauss-Legendre panels.
- * @evidence contracts/performance.md#reuse-equivalent-work Each jointed turn's set-back is integrated once when the axis is built.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the axis's knots, splines or turns only.
+ * @evidence contracts/development/common.md#meaningful-documentation States each axis's frame, station and continuity.
+ * @evidence contracts/development/design.md#principled-representation Represents Source section planes of the view-to-section operator (`AutoMovieViewLoft`): companion namespace of 11 members (`IAxis`, `IAxisKnot`, `straight`, `horizontal`, `level`, `IAxisKnot1`, ...); units and frames named in its text: frame, world, local, frames, second. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieViewAxis` in packages/engine/src/geometry/construction/AutoMovieViewAxis.ts; its surface is the 11 members listed and the text shows 61 other files naming it, mostly packages/human (32), test (21), packages/engine (8), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieViewAxis {
   /**
    * A source section plane with optional analytic station derivatives.
    *
-   * @evidence contracts/common.md#principled-implementation at reads the actual source plane; jet, when supplied, differentiates that same source instead of a resampled frame spline.
-   * @evidence contracts/common.md#clear-and-simple-design Value-only axes remain supported and analytic owners add one explicitly optional callback.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing analytic derivatives remain absent; a numerical minimal-rotation frame does not acquire an exact jet guarantee.
-   * @evidence contracts/common.md#meaningful-documentation Callers must keep source data immutable; jet may return null at a singular or unrepresentable station.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The interface executes no evaluation; each builder states its preparation/query cost.
-   * @evidence contracts/performance.md#reuse-equivalent-work One immutable prepared source supplies both callbacks and can be retained by the loft's explicit source record.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources A retaining caller owns the axis and its prepared source dependencies; returned values belong to that caller.
+   * @evidence contracts/development/design.md#principled-representation at reads the actual source plane; jet, when supplied, differentiates that same source instead of a resampled frame spline.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Value-only axes remain supported and analytic owners add one explicitly optional callback.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing analytic derivatives remain absent; a numerical minimal-rotation frame does not acquire an exact jet guarantee.
+   * @evidence contracts/development/common.md#meaningful-documentation Callers must keep source data immutable; jet may return null at a singular or unrepresentable station.
    */
   export interface IAxis {
     /**
@@ -74,26 +68,26 @@ export namespace AutoMovieViewAxis {
      * @param station Station along the part, mm.
      * @returns Origin on the axis and orthonormal chart axes, world mm.
      *
-     * @evidence contracts/common.md#principled-implementation Evaluates the actual source plane at the requested station.
-     * @evidence contracts/common.md#clear-and-simple-design One value callback supports both analytic and numerical source owners.
-     * @evidence contracts/common.md#prohibited-implementation-shortcuts Values do not imply an available finite station jet.
-     * @evidence contracts/common.md#meaningful-documentation States source-plane output and kernel station units.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms Signature only; its builder states actual query cost.
-     * @evidence contracts/performance.md#reuse-equivalent-work Calls share the axis's immutable preparation.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources Returned vectors belong to the caller; the axis retains its prepared source.
+     * @evidence contracts/development/implementation.md#principled-implementation Evaluates the actual source plane at the requested station.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One value callback supports both analytic and numerical source owners.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Values do not imply an available finite station jet.
+     * @evidence contracts/development/common.md#meaningful-documentation States source-plane output and kernel station units.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only; its builder states actual query cost.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Calls share the axis's immutable preparation.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned vectors belong to the caller; the axis retains its prepared source.
      */
     at(station: number): AutoMovieLoftFrame.IFrame;
 
     /**
      * Analytic value and two derivatives in station or the explicitly selected coordinate, whose endpoints use kernel mm; null at a singular/nonfinite query, absent on numerical frame-value owners.
      *
-     * @evidence contracts/common.md#principled-implementation Differentiates the same source law rather than resampled frame values.
-     * @evidence contracts/common.md#clear-and-simple-design Optional support and nullable singular readings are distinct states.
-     * @evidence contracts/common.md#prohibited-implementation-shortcuts No finite derivative is invented at a parameter pole.
-     * @evidence contracts/common.md#meaningful-documentation States absence, singularity and derivative-coordinate meaning.
-     * @evidenceExclude contracts/performance.md#efficient-algorithms Signature only; the actual source chooses its analytic evaluation.
-     * @evidence contracts/performance.md#reuse-equivalent-work Shares the immutable source used by at.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources Returned jet vectors belong to the caller; the callback owns no separate cache.
+     * @evidence contracts/development/implementation.md#principled-implementation Differentiates the same source law rather than resampled frame values.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure Optional support and nullable singular readings are distinct states.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No finite derivative is invented at a parameter pole.
+     * @evidence contracts/development/common.md#meaningful-documentation States absence, singularity and derivative-coordinate meaning.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only; the actual source chooses its analytic evaluation.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the immutable source used by at.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned jet vectors belong to the caller; the callback owns no separate cache.
      */
     jet?(
       station: number,
@@ -104,13 +98,10 @@ export namespace AutoMovieViewAxis {
   /**
    * One source point of a curved axis in world mm.
    *
-   * @evidence contracts/common.md#principled-implementation A station/point pair defines an original natural-curve datum.
-   * @evidence contracts/common.md#clear-and-simple-design One scalar and one triple carry each knot.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No frame derivative is inferred by the record itself.
-   * @evidence contracts/common.md#meaningful-documentation Members state units and increasing station order.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Input data executes no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Input data schedules no work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The source caller owns its finite knot list.
+   * @evidence contracts/development/design.md#principled-representation A station/point pair defines an original natural-curve datum.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One scalar and one triple carry each knot.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No frame derivative is inferred by the record itself.
+   * @evidence contracts/development/common.md#meaningful-documentation Members state units and increasing station order.
    */
   export interface IAxisKnot {
     /** Station, mm, strictly increasing over the knots. */
@@ -128,13 +119,13 @@ export namespace AutoMovieViewAxis {
    * @param v The chart's `z` axis, unit and square to `u`.
    * @returns The axis.
    *
-   * @evidence contracts/common.md#principled-implementation Moves the origin affinely along v-cross-u with fixed supplied chart directions and their exact zero derivatives.
-   * @evidence contracts/common.md#clear-and-simple-design Value and jet callbacks share one affine frame reader.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Supplied directions are caller-admitted; no fitted plane replaces them.
-   * @evidence contracts/common.md#meaningful-documentation States mm station/origin and fixed chart directions.
-   * @evidence contracts/performance.md#efficient-algorithms Constant arithmetic and fixed output storage per read.
-   * @evidence contracts/performance.md#reuse-equivalent-work Computes the normal once for all queries.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The immutable input vectors live with the axis; returned vectors are fresh.
+   * @evidence contracts/development/implementation.md#principled-implementation Moves the origin affinely along v-cross-u with fixed supplied chart directions and their exact zero derivatives.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Value and jet callbacks share one affine frame reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Supplied directions are caller-admitted; no fitted plane replaces them.
+   * @evidence contracts/development/common.md#meaningful-documentation States mm station/origin and fixed chart directions.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic and fixed output storage per read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Computes the normal once for all queries.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The immutable input vectors live with the axis; returned vectors are fresh.
    */
   export function straight(origin: Vec3, u: Vec3, v: Vec3): IAxis {
     const w: Vec3 = cross(v, u);
@@ -165,13 +156,13 @@ export namespace AutoMovieViewAxis {
    *
    * @returns The axis.
    *
-   * @evidence contracts/common.md#principled-implementation Specializes the straight owner to world height with u=+X and v=+Z.
-   * @evidence contracts/common.md#clear-and-simple-design Delegates value and derivative ownership to straight.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the documented world frame without a source-dependent replacement.
-   * @evidence contracts/common.md#meaningful-documentation States horizontal plane directions and station meaning.
-   * @evidence contracts/performance.md#efficient-algorithms Constant builder and straight-query work.
-   * @evidence contracts/performance.md#reuse-equivalent-work One prepared straight axis serves every station.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned fixed-size axis closure is retained.
+   * @evidence contracts/development/implementation.md#principled-implementation Specializes the straight owner to world height with u=+X and v=+Z.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates value and derivative ownership to straight.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the documented world frame without a source-dependent replacement.
+   * @evidence contracts/development/common.md#meaningful-documentation States horizontal plane directions and station meaning.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant builder and straight-query work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One prepared straight axis serves every station.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned fixed-size axis closure is retained.
    */
   export function horizontal(): IAxis {
     return straight([0, 0, 0], [1, 0, 0], [0, 0, 1]);
@@ -187,13 +178,13 @@ export namespace AutoMovieViewAxis {
    * @param z The origin's `z` knots by strictly increasing height, mm.
    * @returns The axis; past the end knots each offset continues straight.
    *
-   * @evidence contracts/common.md#principled-implementation Natural scalar offsets define (x(s),s,z(s)); analytic derivatives preserve fixed world-level planes.
-   * @evidence contracts/common.md#clear-and-simple-design Two prepared source splines serve one value/jet pair.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps actual knot interpolation and explicit end-tangent extension without sampled plane fitting.
-   * @evidence contracts/common.md#meaningful-documentation States increasing mm station/offset knots and exterior tangent behavior.
-   * @evidence contracts/performance.md#efficient-algorithms Linear knot preparation; queries scan the two prepared natural sources.
-   * @evidence contracts/performance.md#reuse-equivalent-work Both callbacks share the two curvature preparations.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The axis owns its two prepared knot-sized splines; query outputs are local.
+   * @evidence contracts/development/implementation.md#principled-implementation Natural scalar offsets define (x(s),s,z(s)); analytic derivatives preserve fixed world-level planes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two prepared source splines serve one value/jet pair.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps actual knot interpolation and explicit end-tangent extension without sampled plane fitting.
+   * @evidence contracts/development/common.md#meaningful-documentation States increasing mm station/offset knots and exterior tangent behavior.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear knot preparation; queries scan the two prepared natural sources.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both callbacks share the two curvature preparations.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The axis owns its two prepared knot-sized splines; query outputs are local.
    */
   export function level(
     x: readonly IAxisKnot1[],
@@ -251,13 +242,10 @@ export namespace AutoMovieViewAxis {
   /**
    * One mm-valued source offset at a mm station.
    *
-   * @evidence contracts/common.md#principled-implementation A scalar knot specifies one original level-course offset.
-   * @evidence contracts/common.md#clear-and-simple-design Two numbers carry the scalar source datum.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The record neither validates station order nor invents derivative data.
-   * @evidence contracts/common.md#meaningful-documentation Both members state kernel mm units.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Input data executes no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The source datum coordinates no work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns its finite source knot list.
+   * @evidence contracts/development/design.md#principled-representation A scalar knot specifies one original level-course offset.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two numbers carry the scalar source datum.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record neither validates station order nor invents derivative data.
+   * @evidence contracts/development/common.md#meaningful-documentation Both members state kernel mm units.
    */
   export interface IAxisKnot1 {
     /** Station, mm, strictly increasing over the knots. */
@@ -288,13 +276,13 @@ export namespace AutoMovieViewAxis {
    * @param up The chart's first axis at the first segment, with finite norm and a normal projection longer than 1e-9 of its norm; this existing numerical conditioning policy is stricter than exact nonparallelism.
    * @returns The axis, or the broken admission rule.
    *
-   * @evidence contracts/common.md#principled-implementation Transports a frame through quintic-angle turns parameterized by arclength; exact parallel segments have no turn or setback, while atan2 of normalized cross magnitude and dot retains representable small nonzero angles that acos(dot) can lose.
-   * @evidence contracts/common.md#clear-and-simple-design Uses one admitted course for frames and published straight runs.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A nonzero turn requires positive half arclength; exact zero turns consume no length and near-parallel turns are not thresholded away.
-   * @evidence contracts/common.md#meaningful-documentation States arclength, initial frame, turn law, setback and explicit admission failure.
-   * @evidence contracts/performance.md#efficient-algorithms Course preparation is linear in centres with fixed quadrature per nonzero turn; a frame query walks preceding turns and repeats fixed quadrature for each nonzero one, including completed turns.
-   * @evidence contracts/performance.md#reuse-equivalent-work Prepares each turn's angle, axis and full setback once for all frame queries.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returned axis owns its finite course arrays; frame query vectors are local and no global cache retains an axis.
+   * @evidence contracts/development/implementation.md#principled-implementation Transports a frame through quintic-angle turns parameterized by arclength; exact parallel segments have no turn or setback, while atan2 of normalized cross magnitude and dot retains representable small nonzero angles that acos(dot) can lose.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Uses one admitted course for frames and published straight runs.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A nonzero turn requires positive half arclength; exact zero turns consume no length and near-parallel turns are not thresholded away.
+   * @evidence contracts/development/common.md#meaningful-documentation States arclength, initial frame, turn law, setback and explicit admission failure.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Course preparation is linear in centres with fixed quadrature per nonzero turn; a frame query walks preceding turns and repeats fixed quadrature for each nonzero one, including completed turns.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepares each turn's angle, axis and full setback once for all frame queries.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned axis owns its finite course arrays; frame query vectors are local and no global cache retains an axis.
    */
   export function jointed(
     centres: readonly Vec3[],
@@ -330,13 +318,10 @@ export namespace AutoMovieViewAxis {
   /**
    * One segment's straight run on a jointed axis: where along the segment the course runs on its line, and the stations there. Outside the run the course is in a turn and cuts the corner inside the segment's line.
    *
-   * @evidence contracts/common.md#principled-implementation A point at a distance along a segment's straight run stands at the run's start station plus that distance past the run's start, because the course is the segment's own line there and its station is arclength.
-   * @evidence contracts/common.md#clear-and-simple-design Four numbers: the run's two ends as distances from the segment's first centre and as stations.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A point inside a turn has no station on the segment's line; the run says where that begins rather than guessing one.
-   * @evidence contracts/common.md#meaningful-documentation States each field, its unit and what lies outside the run.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime body; `runs` builds it.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record without computed state.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Four numbers per segment, owned by the caller.
+   * @evidence contracts/development/design.md#principled-representation A point at a distance along a segment's straight run stands at the run's start station plus that distance past the run's start, because the course is the segment's own line there and its station is arclength.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four numbers: the run's two ends as distances from the segment's first centre and as stations.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A point inside a turn has no station on the segment's line; the run says where that begins rather than guessing one.
+   * @evidence contracts/development/common.md#meaningful-documentation States each field, its unit and what lies outside the run.
    */
   export interface IRun {
     /** Distance from the segment's first centre where the run starts, mm: the previous turn's set-back, 0 on the first segment. */
@@ -355,13 +340,13 @@ export namespace AutoMovieViewAxis {
   /**
    * Each segment's straight run on a jointed axis, so a caller places a site given as a share of a bone at its station: the station of the point at distance `x` along segment `i` is `start + (x - from)` for `x` in `[from, to]`.
    *
-   * @evidence contracts/common.md#principled-implementation The runs come from the same course the axis frames are read from (its turns' set-backs and arclengths), so a station placed by a run is the station `jointed` reads at that point.
-   * @evidence contracts/common.md#clear-and-simple-design One run per segment from the same centres and half lengths `jointed` takes.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An inadmissible course returns its rule exactly as `jointed` does.
-   * @evidence contracts/common.md#meaningful-documentation States the runs, the station formula and the failure.
-   * @evidence contracts/performance.md#efficient-algorithms One course build: a fixed Gauss-Legendre quadrature per turn and a linear pass over the segments.
-   * @evidence contracts/performance.md#reuse-equivalent-work Shares the course builder with `jointed` instead of repeating the set-back integral.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the runs; the course is released with the call.
+   * @evidence contracts/development/implementation.md#principled-implementation The runs come from the same course the axis frames are read from (its turns' set-backs and arclengths), so a station placed by a run is the station `jointed` reads at that point.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One run per segment from the same centres and half lengths `jointed` takes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An inadmissible course returns its rule exactly as `jointed` does.
+   * @evidence contracts/development/common.md#meaningful-documentation States the runs, the station formula and the failure.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One course build: a fixed Gauss-Legendre quadrature per turn and a linear pass over the segments.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the course builder with `jointed` instead of repeating the set-back integral.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the runs; the course is released with the call.
    * @param centres The first end, the joints and the last end, mm.
    * @param halves Each interior centre's turn half length, mm.
    * @returns The runs, or the broken admission rule.
@@ -399,13 +384,13 @@ export namespace AutoMovieViewAxis {
    * @returns The axis; stations past the end knots continue the spline's
    *   straight end tangents.
    *
-   * @evidence contracts/common.md#principled-implementation Applies Wang et al.'s double-reflection RMF to the natural component splines and their analytic tangents, with scale-safe direction/reflection arithmetic. The caller supplies increasing finite knots, a regular nonzero tangent, a usable initial normal projection and a finite positive step. This numerical transported frame is not an exact frame-jet API or a repair of inadmissible curves.
-   * @evidence contracts/common.md#clear-and-simple-design Three prepared coordinate splines and one initial projected direction define station-local frame queries; no second curve or transport registry is introduced.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the original two Householder reflections rather than a fitted frame or world-axis substitution; exceptional norm scaling preserves the same reflection plane, and only an exactly zero chord retains the prior direction.
-   * @evidence contracts/common.md#meaningful-documentation States natural station interpolation, initial projection, step, tangent extension, caller premises and the numerical frame-value limitation.
-   * @evidence contracts/performance.md#efficient-algorithms Prepares three natural splines in linear knot work; each query marches ceil(abs(station-first)/step) steps and performs constant component-spline reads per step. Independent queries repeat this march, so distant stations or tiny steps can be expensive.
-   * @evidence contracts/performance.md#reuse-equivalent-work All queries share the prepared component splines and initial projected up; each independently reconstructs its transport from the first knot, without assuming another query's trajectory is equivalent.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned axis retains three knot-sized splines and fixed initial vectors. A query holds fixed-size working vectors while allocating transient vectors per step; it retains no station cache or external resource after returning.
+   * @evidence contracts/development/implementation.md#principled-implementation Applies Wang et al.'s double-reflection RMF to the natural component splines and their analytic tangents, with scale-safe direction/reflection arithmetic. The caller supplies increasing finite knots, a regular nonzero tangent, a usable initial normal projection and a finite positive step. This numerical transported frame is not an exact frame-jet API or a repair of inadmissible curves.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three prepared coordinate splines and one initial projected direction define station-local frame queries; no second curve or transport registry is introduced.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the original two Householder reflections rather than a fitted frame or world-axis substitution; exceptional norm scaling preserves the same reflection plane, and only an exactly zero chord retains the prior direction.
+   * @evidence contracts/development/common.md#meaningful-documentation States natural station interpolation, initial projection, step, tangent extension, caller premises and the numerical frame-value limitation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Prepares three natural splines in linear knot work; each query marches ceil(abs(station-first)/step) steps and performs constant component-spline reads per step. Independent queries repeat this march, so distant stations or tiny steps can be expensive.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work All queries share the prepared component splines and initial projected up; each independently reconstructs its transport from the first knot, without assuming another query's trajectory is equivalent.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned axis retains three knot-sized splines and fixed initial vectors. A query holds fixed-size working vectors while allocating transient vectors per step; it retains no station cache or external resource after returning.
    */
   export function minimal(
     knots: readonly IAxisKnot[],
@@ -482,13 +467,13 @@ export namespace AutoMovieViewAxis {
    * @param frame The plane.
    * @returns The direction stations advance along.
    *
-   * @evidence contracts/common.md#principled-implementation Uses the declared chart orientation v-cross-u.
-   * @evidence contracts/common.md#clear-and-simple-design One shared vector cross product returns the direction.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not normalize a malformed frame into an admitted one.
-   * @evidence contracts/common.md#meaningful-documentation States orientation and unit-length premise.
-   * @evidence contracts/performance.md#efficient-algorithms Fixed triple arithmetic takes constant work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure vector reading coordinates no requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a fresh triple and retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the declared chart orientation v-cross-u.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared vector cross product returns the direction.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not normalize a malformed frame into an admitted one.
+   * @evidence contracts/development/common.md#meaningful-documentation States orientation and unit-length premise.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed triple arithmetic takes constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure vector reading coordinates no requests.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh triple and retains nothing.
    */
   export function normal(frame: AutoMovieLoftFrame.IFrame): Vec3 {
     return cross(frame.v, frame.u);

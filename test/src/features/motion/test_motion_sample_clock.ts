@@ -21,10 +21,11 @@ import { namedFacts, nclose } from "../internal/predicates";
  *
  * The existing binary64 just-above-integer window also requires a deduplicated final instant. Zero-width and malformed windows are outside this unit's unchanged case population.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls sampleTimes/windowSampleTimes on whole, fractional, sub-frame, shifted and binary64 tail cases; observes lengths, selected instants, final clamp, exact delegation equivalence and distinct final neighbours.
- * @evidence contracts/testing.md#independent-expectations Authored seconds and Hz give ceil(duration*rate) intervals with endpoint clamp: counts 25,26,2,19 and the duplicate-tail count 10. Selected values use literal i/r and shifted i/r arithmetic independently of the output. The delegation twin alone can share a wrong grid, so literal counts/points bound it; eps0 comparison preserves prior exact array equivalence.
- * @evidence contracts/testing.md#distinguishing-cases Retains whole/fractional/sub-frame durations, shifted zero/nonzero origins and [0.1,0.4] at 30 Hz, with the original numeric tolerances and exact final-neighbour distinction. Input admission, zero-width semantics and downstream use have separate owners.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns every direct clock call using scalar fixtures and local arrays; named facts register no cases and no sampling process, viewer or native artifact is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls sampleTimes/windowSampleTimes on whole, fractional, sub-frame, shifted and binary64 tail cases; observes lengths, selected instants, final clamp, exact delegation equivalence and distinct final neighbours.
+ * @evidence contracts/development/testing.md#independent-expectations Authored seconds and Hz give ceil(duration*rate) intervals with endpoint clamp: counts 25,26,2,19 and the duplicate-tail count 10. Selected values use literal i/r and shifted i/r arithmetic independently of the output. The delegation twin alone can share a wrong grid, so literal counts/points bound it; eps0 comparison preserves prior exact array equivalence.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains whole/fractional/sub-frame durations, shifted zero/nonzero origins and [0.1,0.4] at 30 Hz, with the original numeric tolerances and exact final-neighbour distinction. Input admission, zero-width semantics and downstream use have separate owners.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns every direct clock call using scalar fixtures and local arrays; named facts register no cases and no sampling process, viewer or native artifact is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A whole-frame duration (1 s at 24 Hz) yields 25 instants `i/24` with the last).
  */
 export function test_motion_sample_clock(): void {
   const whole: number[] = sampleTimes(1, 24);

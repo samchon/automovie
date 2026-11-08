@@ -17,10 +17,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * 2. `knightB` declares `attach.parent = "horse"` which nobody placed → a `type`
  *    violation on `$input.actors[1].attach.parent` carrying "horse".
  *
- * @evidence contracts/testing.md#behavioral-verification Calls stageScene with a self-mounted actor and an actor naming an unplaced horse, requiring both parent type findings and the unresolved horse value.
- * @evidence contracts/testing.md#independent-expectations A mount parent must be a different placed actor; authored parent ids and literal violation paths are independent of staging output, with path-inclusion witnesses rather than exact report equality.
- * @evidence contracts/testing.md#distinguishing-cases Preserves both refused mount branches together; the valid staging entry owns a placed distinct parent, while this entry does not prove bone compatibility or downstream motion.
- * @evidence contracts/testing.md#execution-ownership The portable named test owns its two mount-refusal inputs, calls actual staging and uses no foreign patch, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls stageScene with a self-mounted actor and an actor naming an unplaced horse, requiring both parent type findings and the unresolved horse value.
+ * @evidence contracts/development/testing.md#independent-expectations A mount parent must be a different placed actor; authored parent ids and literal violation paths are independent of staging output, with path-inclusion witnesses rather than exact report equality.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves both refused mount branches together; the valid staging entry owns a placed distinct parent, while this entry does not prove bone compatibility or downstream motion.
+ * @evidence contracts/development/testing.md#execution-ownership The portable named test owns its two mount-refusal inputs, calls actual staging and uses no foreign patch, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `knightA` declares `attach.parent = "knightA"` → a `type` violation on).
  */
 export function test_film_stage_scene_mount_invalid(): void {
   const staged: ReturnType<typeof stageScene> = stageScene(

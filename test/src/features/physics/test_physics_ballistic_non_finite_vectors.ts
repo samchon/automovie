@@ -10,10 +10,11 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. Static and moving launch solvers return null for non-finite origin, target and gravity coordinates, including a target that becomes invalid after its first evaluation.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the static and moving solvers with non-finite vector components and requires null, preventing normalization from publishing NaN launch state.
- * @evidence contracts/testing.md#independent-expectations Finite world vectors are the input contract; authored invalid components establish refusal without consulting a numeric implementation oracle. This is not an exhaustive axis permutation test.
- * @evidence contracts/testing.md#distinguishing-cases Separates origin, target and gravity failures and initial versus iterated moving-target failure; finite launches and invalid speed belong to neighboring units.
- * @evidence contracts/testing.md#execution-ownership The named exported unit entry invokes portable solvers and local callbacks directly, without real hosts or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the static and moving solvers with non-finite vector components and requires null, preventing normalization from publishing NaN launch state.
+ * @evidence contracts/development/testing.md#independent-expectations Finite world vectors are the input contract; authored invalid components establish refusal without consulting a numeric implementation oracle. This is not an exhaustive axis permutation test.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates origin, target and gravity failures and initial versus iterated moving-target failure; finite launches and invalid speed belong to neighboring units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported unit entry invokes portable solvers and local callbacks directly, without real hosts or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Static and moving launch solvers return null for non-finite origin, target and gravity coordinates, including a target that becomes...).
  */
 export function test_physics_ballistic_non_finite_vectors(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

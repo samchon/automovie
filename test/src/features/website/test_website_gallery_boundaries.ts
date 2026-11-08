@@ -13,10 +13,11 @@ import { throwsError } from "../internal/predicates";
  * 2. Singleton and multi-view navigation wrap, and a building change resets exterior; modified clicks/keys are never intercepted.
  * 3. A delayed close while currently open leaves the new lock/focus intact; a supplied close callback and disposal retire their own state and request content cleanup.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls gallery admission, selection and lifecycle owners through direct source imports and the existing owned effect port; assertions observe markup refusal, interception, native failure propagation, wrap/reset behavior and disposed authority.
- * @evidence contracts/testing.md#independent-expectations Authored element presence, plain primary click/key admission, modular navigation and the supplied native failure determine expectations; literal host observations do not derive expected values from controller output.
- * @evidence contracts/testing.md#distinguishing-cases Covers missing and present elements, unsupported modal, empty/singleton/multiple views, modified clicks and keys, failed modal entry, delayed close and disposal; image errors and independent cleanup failures belong to neighboring Gallery units.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit imports the canonical Gallery sources directly and supplies existing owned callbacks; it installs no DOM, browser, foreign replacement or asset, and cannot certify native Escape or focus behavior.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls gallery admission, selection and lifecycle owners through direct source imports and the existing owned effect port; assertions observe markup refusal, interception, native failure propagation, wrap/reset behavior and disposed authority.
+ * @evidence contracts/development/testing.md#independent-expectations Authored element presence, plain primary click/key admission, modular navigation and the supplied native failure determine expectations; literal host observations do not derive expected values from controller output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers missing and present elements, unsupported modal, empty/singleton/multiple views, modified clicks and keys, failed modal entry, delayed close and disposal; image errors and independent cleanup failures belong to neighboring Gallery units.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit imports the canonical Gallery sources directly and supplies existing owned callbacks; it installs no DOM, browser, foreign replacement or asset, and cannot certify native Escape or focus behavior.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Missing markup and an empty supported collection refuse before effects; unsupported modal keeps ordinary link behavior and has no teardown...).
  */
 export function test_website_gallery_boundaries(): void {
   for (const selector of ["#gallery", "h3"])

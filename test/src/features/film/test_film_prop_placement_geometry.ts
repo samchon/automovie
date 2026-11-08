@@ -20,10 +20,11 @@ import { namedFacts } from "../internal/predicates";
  * 4. Detect declared-footprint and ordinary occupancy overlap, blocked clearance, opening and connector.
  * 5. Distinguish floating, sinking and off-patch support, a second support, and the corresponding table-top faults.
  *
- * @evidence contracts/testing.md#behavioral-verification Invokes the existing geometry-case builder and requires every addressed multiplicity, volume, passage and bearing refusal through its real validator calls.
- * @evidence contracts/testing.md#independent-expectations The independently chosen registry mutations and literal field/message expectations describe supported placement rules; the helper returns observed predicates, while the entry supplies the independent all-true requirements.
- * @evidence contracts/testing.md#distinguishing-cases Retains every original duplicate relation, occupied-space/opening multiplicity, support cycle, invalid box/clearance, occupancy/passage and signed-bearing case; adjacent accepted or unmeasurable neighbors are in the boundary entry.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_prop_placement_geometry and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Invokes the existing geometry-case builder and requires every addressed multiplicity, volume, passage and bearing refusal through its real validator calls.
+ * @evidence contracts/development/testing.md#independent-expectations The independently chosen registry mutations and literal field/message expectations describe supported placement rules; the helper returns observed predicates, while the entry supplies the independent all-true requirements.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains every original duplicate relation, occupied-space/opening multiplicity, support cycle, invalid box/clearance, occupancy/passage and signed-bearing case; adjacent accepted or unmeasurable neighbors are in the boundary entry.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_prop_placement_geometry and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Refuse duplicate relations, second occupied spaces/openings, cross-building fills and support cycles.).
  */
 export function test_film_prop_placement_geometry(): void {
   const scenario: {

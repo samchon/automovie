@@ -13,10 +13,11 @@ const COUNT: number = 2_000;
  * 1. Sixteen fixed quaternion twins follow the hand-derived quarter-turn and 30-degree offset.
  * 2. All 2,000 axis draws stay in range, most axis pairs differ, and the uniform twin repeats exactly.
  *
- * @evidence contracts/testing.md#behavioral-verification Regenerates actual member rotations and scales, observing heading-then-offset quaternion composition, per-axis interval bounds, differing axis draws and exact uniform-scale replication.
- * @evidence contracts/testing.md#independent-expectations Hand-derived quarter-turn and 30-degree offset quaternion components determine the transform oracle. Literal axis ranges and the original >90-percent differing-axis threshold witness this fixed seeded population without proving statistical independence for every input.
- * @evidence contracts/testing.md#distinguishing-cases Preserves sixteen fixed heading/offset twins, all 2000 ranged-axis draws and the enhanced uniform twin; original qclose 1e-12 and exact uniform comparisons remain equally strong through vclose zero tolerance. Other units own layout, palette, visibility and malformed admission.
- * @evidence contracts/testing.md#execution-ownership This named synchronous entry owns placements/member arrays through existing canonical fixtures, opens no filesystem/renderer/browser/GPU and replaces no foreign method or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Regenerates actual member rotations and scales, observing heading-then-offset quaternion composition, per-axis interval bounds, differing axis draws and exact uniform-scale replication.
+ * @evidence contracts/development/testing.md#independent-expectations Hand-derived quarter-turn and 30-degree offset quaternion components determine the transform oracle. Literal axis ranges and the original >90-percent differing-axis threshold witness this fixed seeded population without proving statistical independence for every input.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves sixteen fixed heading/offset twins, all 2000 ranged-axis draws and the enhanced uniform twin; original qclose 1e-12 and exact uniform comparisons remain equally strong through vclose zero tolerance. Other units own layout, palette, visibility and malformed admission.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous entry owns placements/member arrays through existing canonical fixtures, opens no filesystem/renderer/browser/GPU and replaces no foreign method or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Sixteen fixed quaternion twins follow the hand-derived quarter-turn and 30-degree offset.).
  */
 export function test_engine_instance_transform_axes(): void {
   // 7. Rotation composes the heading, then the seeded offset.

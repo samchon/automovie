@@ -29,10 +29,11 @@ const shot: (id: string, duration: number) => IAutoMovieShot = (
  * 2. An untrimmed zero-duration shot refuses at its source duration.
  * 3. An infinite-duration source remains invalid when its entry trims to one finite second.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls cutSequence with three invalid source durations and requires a range finding at each source index, detecting unchecked source metadata and a trim that accidentally hides a nonfinite source duration.
- * @evidence contracts/testing.md#independent-expectations Source durations must be finite and positive before editorial trimming; literal Infinity and zero violate that contract independently of the cut's runtime, and the supplied array positions determine the expected source paths.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts untrimmed Infinity, zero, and trimmed Infinity in one result so all independent faults remain visible; finite positive source shots and invalid trim or transition spans have separate assembly tests.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_cut_sequence_shot_duration_gate entry owns these three authored source cases in one portable engine call, with shared lazy predicates and no consumer installation or real host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls cutSequence with three invalid source durations and requires a range finding at each source index, detecting unchecked source metadata and a trim that accidentally hides a nonfinite source duration.
+ * @evidence contracts/development/testing.md#independent-expectations Source durations must be finite and positive before editorial trimming; literal Infinity and zero violate that contract independently of the cut's runtime, and the supplied array positions determine the expected source paths.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts untrimmed Infinity, zero, and trimmed Infinity in one result so all independent faults remain visible; finite positive source shots and invalid trim or transition spans have separate assembly tests.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_cut_sequence_shot_duration_gate entry owns these three authored source cases in one portable engine call, with shared lazy predicates and no consumer installation or real host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An untrimmed infinite-duration shot refuses at its source duration.).
  */
 export function test_film_cut_sequence_shot_duration_gate(): void {
   const cut: ReturnType<typeof cutSequence> = cutSequence(

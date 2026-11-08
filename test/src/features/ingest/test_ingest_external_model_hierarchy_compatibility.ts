@@ -16,10 +16,11 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * 1. Static inspection keeps accepting a legal matrix and zero or negative TRS scale, while the same node is refused by the explicit motion profile.
  * 2. A single root and an empty node inventory are accepted by static inspection; a child reference into that one-element inventory still forms a cycle.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls static and motion byte inspection on matrix and zero/negative-scale twins, then singleton and empty static forests; imposing motion TRS restrictions on static models or accepting a singleton self-cycle fails.
- * @evidence contracts/testing.md#independent-expectations The resident mesh/node declarations and explicitly authored invalid parent relationships supply expected inventory and structural errors rather than a saved inspector result.
- * @evidence contracts/testing.md#distinguishing-cases Legal matrix and zero/negative scales are accepted by static inspection and refused by motion inspection; singleton root, self-cycle and an empty mesh-library node inventory cover boundary forests, while deep chains and scene-root choices are owned separately.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_ingest_external_model_hierarchy_compatibility entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls static and motion byte inspection on matrix and zero/negative-scale twins, then singleton and empty static forests; imposing motion TRS restrictions on static models or accepting a singleton self-cycle fails.
+ * @evidence contracts/development/testing.md#independent-expectations The resident mesh/node declarations and explicitly authored invalid parent relationships supply expected inventory and structural errors rather than a saved inspector result.
+ * @evidence contracts/development/testing.md#distinguishing-cases Legal matrix and zero/negative scales are accepted by static inspection and refused by motion inspection; singleton root, self-cycle and an empty mesh-library node inventory cover boundary forests, while deep chains and scene-root choices are owned separately.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_ingest_external_model_hierarchy_compatibility entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Static inspection keeps accepting a legal matrix and zero or negative TRS scale, while the same node is refused by the explicit motion...).
  */
 export function test_ingest_external_model_hierarchy_compatibility(): void {
   for (const transform of [

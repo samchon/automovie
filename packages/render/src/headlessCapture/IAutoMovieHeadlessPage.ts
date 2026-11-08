@@ -1,1 +1,1 @@
-export type { IAutoMovieHeadlessPage } from "@automovie/viewer/node";
+export type { IAutoMovieHeadlessPage } from "@automovie/viewer";

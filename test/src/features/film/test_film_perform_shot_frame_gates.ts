@@ -45,10 +45,11 @@ const frame: (
  * 5. Refuse an unknown move before camera compilation.
  * 6. Refuse null actor, absent target, malformed group nodes and malformed kind with located findings.
  *
- * @evidence contracts/testing.md#behavioral-verification Performs frame drafts and checks located refusals for a direction subject, overlapping and equal-start moves, unknown framing/move and malformed actor/target payloads.
- * @evidence contracts/testing.md#independent-expectations A heading has no position, one camera cannot own overlapping moves, and the closed frame vocabulary excludes the supplied unknown strings; authored paths supply the expected diagnosis independently.
- * @evidence contracts/testing.md#distinguishing-cases Covers nine existing negative requests including null actor, absent target, malformed group nodes and malformed kind; legal framing and camera domains are owned by the valid and framing_camera entries.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_frame_gates unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs frame drafts and checks located refusals for a direction subject, overlapping and equal-start moves, unknown framing/move and malformed actor/target payloads.
+ * @evidence contracts/development/testing.md#independent-expectations A heading has no position, one camera cannot own overlapping moves, and the closed frame vocabulary excludes the supplied unknown strings; authored paths supply the expected diagnosis independently.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers nine existing negative requests including null actor, absent target, malformed group nodes and malformed kind; legal framing and camera domains are owned by the valid and framing_camera entries.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_frame_gates unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Refuse a direction subject at its authored on field.).
  */
 export function test_film_perform_shot_frame_gates(): void {
   const staged: IAutoMovieStagedSet = stageScene(

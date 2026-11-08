@@ -29,10 +29,11 @@ const frame: (
  * 3. Select the incoming layer at an exact mask-pass tie.
  * 4. Keep singleton fade weight for beauty and full weight for depth.
  *
- * @evidence contracts/testing.md#behavioral-verification Selects render layers for beauty and all five structural passes, checking copy isolation, heavier-layer selection, incoming tie precedence and fade preservation/full structural weight.
- * @evidence contracts/testing.md#independent-expectations The guide contract selects the maximum weight with later-entry tie precedence; beauty preserves authored weights. Expected identities and integer source frames are authored independently, while no rendered compositing is observed.
- * @evidence contracts/testing.md#distinguishing-cases All five structural passes see both heavier-layer neighbours. Exact tie is exercised on mask, singleton fade on depth/beauty and copy mutation on beauty; empty-layer failure is not exercised here.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_production_pass_layers unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Selects render layers for beauty and all five structural passes, checking copy isolation, heavier-layer selection, incoming tie precedence and fade preservation/full structural weight.
+ * @evidence contracts/development/testing.md#independent-expectations The guide contract selects the maximum weight with later-entry tie precedence; beauty preserves authored weights. Expected identities and integer source frames are authored independently, while no rendered compositing is observed.
+ * @evidence contracts/development/testing.md#distinguishing-cases All five structural passes see both heavier-layer neighbours. Exact tie is exercised on mask, singleton fade on depth/beauty and copy mutation on beauty; empty-layer failure is not exercised here.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_production_pass_layers unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Preserve beauty blend weights after mutating the earlier returned copy.).
  */
 export function test_film_production_pass_layers(): void {
   const outgoingHeavy: IAutoMovieProductionRenderFrame = frame([

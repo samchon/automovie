@@ -74,10 +74,11 @@ const materialsOf: (mesh: THREE.Mesh) => THREE.Material[] = (
  * 4. Pose retires the observed line geometries and shared line material once; overlay removal is asserted by the render-modes and restoration units.
  * 5. Beauty creates no override and leaves original disposal counts at zero.
  *
- * @evidence contracts/testing.md#behavioral-verification Applies and restores actual guide modes on a built generic scene while observing real owned material/geometry dispose events; catches leaking temporary overrides, double retirement and disposal of borrowed source materials.
- * @evidence contracts/testing.md#independent-expectations Each observed temporary resource has one public retirement attempt and original borrowed owners have none; original background identity pins the mask restoration. Overlay departure and outline shell-material retirement are not independently asserted here, and public events do not prove physical WebGL allocations were freed.
- * @evidence contracts/testing.md#distinguishing-cases Covers depth/outline/mask/pose/beauty and repeated successful restoration, with source/background preservation; throwing listeners and sticky failed ownership are owned by the restoration unit.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit calls maintained source and existing generic fixtures, with event listeners on actual CPU-side Three resources rather than replaced foreign methods; it acquires no browser, GPU renderer or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies and restores actual guide modes on a built generic scene while observing real owned material/geometry dispose events; catches leaking temporary overrides, double retirement and disposal of borrowed source materials.
+ * @evidence contracts/development/testing.md#independent-expectations Each observed temporary resource has one public retirement attempt and original borrowed owners have none; original background identity pins the mask restoration. Overlay departure and outline shell-material retirement are not independently asserted here, and public events do not prove physical WebGL allocations were freed.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers depth/outline/mask/pose/beauty and repeated successful restoration, with source/background preservation; throwing listeners and sticky failed ownership are owned by the restoration unit.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit calls maintained source and existing generic fixtures, with event listeners on actual CPU-side Three resources rather than replaced foreign methods; it acquires no browser, GPU renderer or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Depth retires every created override once, preserves borrowed materials and repeats restore without another event.).
  */
 export function test_viewer_render_mode_dispose(): void {
   const { scene }: ReturnType<typeof buildScene> = buildOneNodeScene();

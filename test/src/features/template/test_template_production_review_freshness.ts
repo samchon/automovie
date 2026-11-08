@@ -1,7 +1,7 @@
 import {
   type IProductionConfigProps,
   createProductionClaims,
-} from "@automovie/evidence/narrative";
+} from "@automovie/evidence";
 import type {
   IEvidenceCheckAnalysis,
   IEvidenceClaim,
@@ -19,10 +19,11 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * 2. A pair naming the checker's captured fingerprint covers the current scene.
  * 3. A body annotation leaves that review current; changing action expires it.
  *
- * @evidence contracts/testing.md#behavioral-verification Evaluates the factory's real review claim against body and mirrored review documents, proving that an ordinary evidence citation cannot substitute for independent review and that authored action changes produce graph-stale-review.
- * @evidence contracts/testing.md#independent-expectations The documented native fingerprint contract excludes annotations and includes scene content. A captured public graph edge supplies the opaque hash token, while independently changed annotations and action determine the expected unchanged and stale outcomes; no literary verdict is inferred.
- * @evidence contracts/testing.md#distinguishing-cases Missing review, current paired review, annotation-only edit and action edit distinguish presence from currentness; separate relationship tests cover inherited evidence edges.
- * @evidence contracts/testing.md#execution-ownership The exported test_template_production_review_freshness entry owns four authored snapshots and a finally-cleaned temporary directory. It uses the public Markdown checker in-process without spawning a host or mocking adapters.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates the factory's real review claim against body and mirrored review documents, proving that an ordinary evidence citation cannot substitute for independent review and that authored action changes produce graph-stale-review.
+ * @evidence contracts/development/testing.md#independent-expectations The documented native fingerprint contract excludes annotations and includes scene content. A captured public graph edge supplies the opaque hash token, while independently changed annotations and action determine the expected unchanged and stale outcomes; no literary verdict is inferred.
+ * @evidence contracts/development/testing.md#distinguishing-cases Missing review, current paired review, annotation-only edit and action edit distinguish presence from currentness; separate relationship tests cover inherited evidence edges.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_template_production_review_freshness entry owns four authored snapshots and a finally-cleaned temporary directory. It uses the public Markdown checker in-process without spawning a host or mocking adapters.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A review citation without its fingerprint pair remains unapproved.).
  */
 export async function test_template_production_review_freshness(): Promise<void> {
   const root: string = ProductionWorkflowFixture.create();

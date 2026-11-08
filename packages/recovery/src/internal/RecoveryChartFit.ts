@@ -1,4 +1,4 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieCurve64 as C } from "@automovie/engine";
 
 import { RecoveryChartFitPrepare } from "./RecoveryChartFitPrepare";
 import { RecoveryChartFitReport } from "./RecoveryChartFitReport";
@@ -10,25 +10,19 @@ import { RecoveryChartReachableBox as W } from "./RecoveryChartReachableBox";
 /**
  * Joint Bernstein fitting with fixed shared coefficients and explicit box constraints.
  *
- * @evidence contracts/common.md#principled-implementation Position and signed physical-gradient Bernstein rows define a convex weighted least-squares problem; diagonal congruence preserves its original coefficient enclosure and fixed boundary controls.
- * @evidence contracts/common.md#clear-and-simple-design One control registry expresses equality constraints by identity, while patch-local observations supply sparse rows.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A coefficient constraint is part of the inverse problem, not a post-interpolation jet clamp; neither source triangles nor a fitted mesh leave this owner.
- * @evidence contracts/common.md#meaningful-documentation Records physical units, numerical termination and the distinction between observation residual and surface fidelity.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Namespace initialization performs no fit.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work There is no module cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns input and returned coefficient arrays.
+ * @evidence contracts/development/common.md#meaningful-documentation Records physical units, numerical termination and the distinction between observation residual and surface fidelity.
+ * @evidence contracts/development/design.md#principled-representation Represents Joint Bernstein fitting with fixed shared coefficients and explicit box constraints: companion namespace of 3 members (`Input`, `Result`, `fit`); units and frames named in its text: local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `RecoveryChartFit` in packages/recovery/src/internal/RecoveryChartFit.ts; its surface is the 3 members listed and the text shows 8 other files naming it, mostly packages/recovery (8), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace RecoveryChartFit {
   /**
    * One private chart coefficient problem; callers separate diagnostic observations from public geometry.
    *
-   * @evidence contracts/common.md#principled-implementation Explicit chart parameters, physical observations and a shared coefficient registry define linear Bernstein fitting with box constraints.
-   * @evidence contracts/common.md#clear-and-simple-design Null entries without affine owners are independent unknowns; repeated IDs and declared acyclic relations express positional sharing between patches.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The caller must supply the enclosure and parameter correspondence; the fitter infers neither topology nor material transport.
-   * @evidence contracts/common.md#meaningful-documentation States coefficient ordering, fixed authority, physical units and explicit work limits.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A structural record performs no numerical work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Input lifetime belongs to the caller.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record owns no handles.
+   * @evidence contracts/development/design.md#principled-representation Explicit chart parameters, physical observations and a shared coefficient registry define linear Bernstein fitting with box constraints.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Null entries without affine owners are independent unknowns; repeated IDs and declared acyclic relations express positional sharing between patches.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller must supply the enclosure and parameter correspondence; the fitter infers neither topology nor material transport.
+   * @evidence contracts/development/common.md#meaningful-documentation States coefficient ordering, fixed authority, physical units and explicit work limits.
    */
   export interface Input {
     /** Millimetre controls; non-null values remain bitwise unchanged. */
@@ -91,13 +85,10 @@ export namespace RecoveryChartFit {
   /**
    * Finite fitted coefficients with independent convergence and observation accounting.
    *
-   * @evidence contracts/common.md#principled-implementation The result retains the constrained coefficients and evaluates every original weighted observation after solving.
-   * @evidence contracts/common.md#clear-and-simple-design Numerical convergence, residual acceptance and unresolved identifiability are separate fields.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither a solved gradient nor a small sample residual is labelled an injectivity or continuous-surface certificate.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes finite display data from convergence, source coverage and actual surface quality.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no solve.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Returned controls are the sole coefficient authority for downstream patches.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns output arrays and diagnostics.
+   * @evidence contracts/development/design.md#principled-representation The result retains the constrained coefficients and evaluates every original weighted observation after solving.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Numerical convergence, residual acceptance and unresolved identifiability are separate fields.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither a solved gradient nor a small sample residual is labelled an injectivity or continuous-surface certificate.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes finite display data from convergence, source coverage and actual surface quality.
    */
   export interface Result {
     /** Millimetre registry in input order, preserving all fixed entries exactly. */
@@ -253,13 +244,13 @@ export namespace RecoveryChartFit {
    * projects unknown coefficients onto the declared box; objective increase
    * restarts momentum. No geometry is sampled or tessellated here.
    *
-   * @evidence contracts/common.md#principled-implementation Position and physical-gradient rows share exact affine coefficient identities; diagonal congruence preserves the declared least-squares objective and box, while termination evaluates the original projected-gradient mapping. Pivoted Cholesky reports numerical observation rank independently of residual and convergence; the enclosure does not create observational information.
-   * @evidence contracts/common.md#clear-and-simple-design Sparse normal-equation assembly removes observation-count work from each iteration; final residuals still evaluate the original correspondences.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No regularizer, enclosure relaxation, coefficient clipping after solving, hidden smoothing or source mesh fallback changes the declared problem.
-   * @evidence contracts/common.md#meaningful-documentation Numerical Gram rank uses a declared machine-scale pivot tolerance, not exact rank or a singular-value certificate; embedding and continuous source distance remain unproved.
-   * @evidence contracts/performance.md#efficient-algorithms For N observations and reduced stencil width W, assembly costs O(N*W squared), with W at most 16 for identity-only controls or the explicit affine row cap (128 by default). I iterations cost O(I(H+M)); storage is O(H+M) plus bounded substitution expressions. Rank diagnostics use O(M squared) memory only up to 512 unknown controls and direct QR has a separate 50000000 scalar-projection budget; unavailable diagnostics retain an unqualified finite candidate.
-   * @evidence contracts/performance.md#reuse-equivalent-work Fixed contributions, normalized weights, sparse Hessian, right-hand sides and row-sum spectral bound are assembled once and reused by every gradient iteration.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Observation arrays remain caller-owned; sparse normal equations and the bounded dense rank workspace expire on return, while coefficients, scalar diagnostics and one bounded private witness return to the caller. The public observer removes that witness into a separate private sidecar.
+   * @evidence contracts/development/implementation.md#principled-implementation Position and physical-gradient rows share exact affine coefficient identities; diagonal congruence preserves the declared least-squares objective and box, while termination evaluates the original projected-gradient mapping. Pivoted Cholesky reports numerical observation rank independently of residual and convergence; the enclosure does not create observational information.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Sparse normal-equation assembly removes observation-count work from each iteration; final residuals still evaluate the original correspondences.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No regularizer, enclosure relaxation, coefficient clipping after solving, hidden smoothing or source mesh fallback changes the declared problem.
+   * @evidence contracts/development/common.md#meaningful-documentation Numerical Gram rank uses a declared machine-scale pivot tolerance, not exact rank or a singular-value certificate; embedding and continuous source distance remain unproved.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For N observations and reduced stencil width W, assembly costs O(N*W squared), with W at most 16 for identity-only controls or the explicit affine row cap (128 by default). I iterations cost O(I(H+M)); storage is O(H+M) plus bounded substitution expressions. Rank diagnostics use O(M squared) memory only up to 512 unknown controls and direct QR has a separate 50000000 scalar-projection budget; unavailable diagnostics retain an unqualified finite candidate.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed contributions, normalized weights, sparse Hessian, right-hand sides and row-sum spectral bound are assembled once and reused by every gradient iteration.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Observation arrays remain caller-owned; sparse normal equations and the bounded dense rank workspace expire on return, while coefficients, scalar diagnostics and one bounded private witness return to the caller. The public observer removes that witness into a separate private sidecar.
    */
   export function fit(input: Input): Result {
     const prepared: ReturnType<typeof RecoveryChartFitPrepare> =

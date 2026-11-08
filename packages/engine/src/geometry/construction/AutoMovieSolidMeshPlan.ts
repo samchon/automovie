@@ -2,8 +2,8 @@ import { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
 import { AutoMovieSolidMeshIncidence } from "./AutoMovieSolidMeshIncidence";
 import { insertAutoMovieSolidMeshPoints } from "./insertAutoMovieSolidMeshPoints";
 import { legalizeAutoMovieSolidMesh } from "./legalizeAutoMovieSolidMesh";
-import { probeAutoMovieSolidMesh } from "./probeAutoMovieSolidMesh";
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
+import { probeAutoMovieSolidMesh } from "./probeAutoMovieSolidMesh";
 import { triangulateAutoMovieSolidBoundary } from "./triangulateAutoMovieSolidBoundary";
 import { witnessAutoMovieSolidChartTriangle } from "./witnessAutoMovieSolidChartTriangle";
 
@@ -42,25 +42,19 @@ interface Component {
  * proof of an invalid source or permission to omit that component. This finite
  * local-image search is not a complete solver for arbitrary spiral regions.
  *
- * @evidence contracts/common.md#principled-implementation Reads kept left boundaries from complete halfedge incidence, joins hole/periodic components by visible bridges and ear-triangulates each positive zero-winding boundary while validating every triangle's interior membership.
- * @evidence contracts/common.md#clear-and-simple-design One index-plan operation owns visibility and coverage refusal, while constraint subdivision, angular incidence, analytic evaluation and mesh writes have separate owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves every supplied index and edge; constructs no intersection, positional weld, annular embedding or guessed fan. A kept nontriangle or unrepresentable probe fails before any output plan is returned.
- * @evidence contracts/common.md#meaningful-documentation States the shortest-image search limit, kept-component failure, positive chart order and absence of surface construction.
- * @evidence contracts/performance.md#efficient-algorithms For W boundary occurrences, V points, S split edges and H bridges, bridge search costs O(H W squared (V+S+H)); cubic ear work and O(M(T+M)) insertion of M interior points add to splitting and probes. Q membership readings additionally cost Q times the caller's predicate cost.
- * @evidence contracts/performance.md#reuse-equivalent-work Reuses split constraints; each join ranks its candidate pairs once by metric length and tests visibility in that order until the first visible one, then rebuilds incidence only after an accepted join; the ranked list lives only for that join and no surface is reread.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Graph, occurrence and output storage is O(V+S+H+T+P), including total split-edge provenance length P; each bridge search holds its O(W squared) ranked candidates until it returns. All state is local and no callback/source cache survives.
+ * @evidence contracts/development/common.md#meaningful-documentation States the shortest-image search limit, kept-component failure, positive chart order and absence of surface construction.
+ * @evidence contracts/development/design.md#principled-representation Represents A finite visibility triangulation of an indexed native-chart partition: companion namespace of 3 members (`ITriangle`, `IPlan`, `triangulate`); units and frames named in its text: world, radian. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidMeshPlan` in packages/engine/src/geometry/construction/AutoMovieSolidMeshPlan.ts; its surface is the 3 members listed and the text shows 11 other files naming it, mostly packages/engine (6), test (5), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidMeshPlan {
   /**
    * An oriented triangle, with its actual native-cover occurrence at each corner.
    *
-   * @evidence contracts/common.md#principled-implementation Original IDs describe shared geometry while integer lifts retain the periodic face embedding used to prove positive chart orientation.
-   * @evidence contracts/common.md#clear-and-simple-design Two parallel triples distinguish mesh identity from cover occurrence.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not reconstruct a half-period tie from global IDs or infer shared geometry from coordinate coincidence.
-   * @evidence contracts/common.md#meaningful-documentation The first lift is zero; coordinates add lift times period before reading chart orientation.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This output record performs no work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The planner owns incidence reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Both fresh triples belong to the caller and retain no source arrays.
+   * @evidence contracts/development/design.md#principled-representation Original IDs describe shared geometry while integer lifts retain the periodic face embedding used to prove positive chart orientation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two parallel triples distinguish mesh identity from cover occurrence.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Does not reconstruct a half-period tie from global IDs or infer shared geometry from coordinate coincidence.
+   * @evidence contracts/development/common.md#meaningful-documentation The first lift is zero; coordinates add lift times period before reading chart orientation.
    */
   export interface ITriangle {
     /** Original shared mesh indices in positive native-chart order. */
@@ -73,13 +67,10 @@ export namespace AutoMovieSolidMeshPlan {
   /**
    * A completed index plan and the original constraints' subdivision history.
    *
-   * @evidence contracts/common.md#principled-implementation Triangles retain original IDs and cover lifts; split constraints retain source-edge indices so an endpoint boundary is distinguished from a trim or retained-cell boundary.
-   * @evidence contracts/common.md#clear-and-simple-design Explicit result data carries topology and provenance without a registry or repeating the split operation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Provenance does not certify world geometry or classify every unpaired edge as an endpoint.
-   * @evidence contracts/common.md#meaningful-documentation States index, lift and source-edge ownership and the endpoint-classification limit.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This result record performs no work.
-   * @evidence contracts/performance.md#reuse-equivalent-work The actual split result is returned for the face writer's boundary reading.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-owned triangles and split edges include O(T+S+P) numeric data and no source callback.
+   * @evidence contracts/development/design.md#principled-representation Triangles retain original IDs and cover lifts; split constraints retain source-edge indices so an endpoint boundary is distinguished from a trim or retained-cell boundary.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Explicit result data carries topology and provenance without a registry or repeating the split operation.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Provenance does not certify world geometry or classify every unpaired edge as an endpoint.
+   * @evidence contracts/development/common.md#meaningful-documentation States index, lift and source-edge ownership and the endpoint-classification limit.
    */
   export interface IPlan {
     /** Positive native-chart triangle occurrences. */ triangles: ITriangle[];
@@ -98,13 +89,13 @@ export namespace AutoMovieSolidMeshPlan {
    * @param scale Phase scale of the uniform metric the bridges are chosen and the free diagonals legalized in, positive and finite, length units per radian; 1 reads the chart as given.
    * @returns Positive native-chart index triples with split-source provenance, or a named construction failure.
    *
-   * @evidence contracts/common.md#principled-implementation Subdivides shared constraints, uses explicit left probes and winding to identify hole/periodic boundary components, joins them visibly and validates the indexed ears against the residual source partition.
-   * @evidence contracts/common.md#clear-and-simple-design The union result is atomic: failed coverage publishes no partial triangle population.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Tests all represented vertices and existing segment images for each diagonal; kept nonzero-winding or nontriangular components are refused rather than silently dropped. Membership must remain unchanged during the synchronous call.
-   * @evidence contracts/common.md#meaningful-documentation Names original-ID ownership, residual membership, periodic search scope and atomic failure.
-   * @evidence contracts/performance.md#efficient-algorithms Each of H joins can scan W squared boundary-occurrence pairs with O(V+S+H) visibility work; ear removal is cubic, M interior insertions cost O(M(T+M)) and legalization at most V(V-1)/2 constant-cost flips. Splitting, bounded witness probes and Q times caller predicate cost are additional. Component count decreases after each bridge.
-   * @evidence contracts/performance.md#reuse-equivalent-work Ranks each join's candidate pairs once by metric length and stops at the first visible one; original indexed positions serve incidence, visibility and ear reading.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns new triangles and the owned split records/source-index histories, including total provenance length P; input maps/segments and membership reader remain borrowed for this call and are never stored globally.
+   * @evidence contracts/development/implementation.md#principled-implementation Subdivides shared constraints, uses explicit left probes and winding to identify hole/periodic boundary components, joins them visibly and validates the indexed ears against the residual source partition.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The union result is atomic: failed coverage publishes no partial triangle population.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tests all represented vertices and existing segment images for each diagonal; kept nonzero-winding or nontriangular components are refused rather than silently dropped. Membership must remain unchanged during the synchronous call.
+   * @evidence contracts/development/common.md#meaningful-documentation Names original-ID ownership, residual membership, periodic search scope and atomic failure.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each of H joins can scan W squared boundary-occurrence pairs with O(V+S+H) visibility work; ear removal is cubic, M interior insertions cost O(M(T+M)) and legalization at most V(V-1)/2 constant-cost flips. Splitting, bounded witness probes and Q times caller predicate cost are additional. Component count decreases after each bridge.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Ranks each join's candidate pairs once by metric length and stops at the first visible one; original indexed positions serve incidence, visibility and ear reading.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns new triangles and the owned split records/source-index histories, including total provenance length P; input maps/segments and membership reader remain borrowed for this call and are never stored globally.
    */
   export function triangulate(
     vertices: ReadonlyMap<number, Point>,
@@ -135,10 +126,19 @@ export namespace AutoMovieSolidMeshPlan {
     const height: number = period ?? (top - bottom || 1);
     if (!(Number.isFinite(width) && Number.isFinite(height)))
       return "visibility chart spans are not representable";
-    let boundaries: Component[] | string = components(vertices, edges, keeps, period);
+    let boundaries: Component[] | string = components(
+      vertices,
+      edges,
+      keeps,
+      period,
+    );
     if (typeof boundaries === "string") return boundaries;
-    while (boundaries.some((component: Component): boolean => !component.outer)) {
-      const selected: number = boundaries.findIndex((component: Component): boolean => !component.outer);
+    while (
+      boundaries.some((component: Component): boolean => !component.outer)
+    ) {
+      const selected: number = boundaries.findIndex(
+        (component: Component): boolean => !component.outer,
+      );
       const joined: Candidate | string = bridge(
         vertices,
         edges,
@@ -151,58 +151,127 @@ export namespace AutoMovieSolidMeshPlan {
       );
       if (typeof joined === "string") return joined;
       edges.push(joined);
-      const next: Component[] | string = components(vertices, edges, keeps, period);
+      const next: Component[] | string = components(
+        vertices,
+        edges,
+        keeps,
+        period,
+      );
       if (typeof next === "string") return next;
-      if (next.length >= boundaries.length) return "visibility bridge did not merge kept boundary components";
+      if (next.length >= boundaries.length)
+        return "visibility bridge did not merge kept boundary components";
       boundaries = next;
     }
     const triangles: ITriangle[] = [];
     for (const component of boundaries) {
-      const made: ITriangle[] | string = triangulateAutoMovieSolidBoundary(vertices, component.walk, period, indexed, occupied);
+      const made: ITriangle[] | string = triangulateAutoMovieSolidBoundary(
+        vertices,
+        component.walk,
+        period,
+        indexed,
+        occupied,
+      );
       if (typeof made === "string") return made;
       for (const triangle of made) {
-        const points: Point[] = triangle.vertices.map((id: number, index: number): Point => [vertices.get(id)![0], vertices.get(id)![1] + triangle.lifts[index]! * (period ?? 0)]);
+        const points: Point[] = triangle.vertices.map(
+          (id: number, index: number): Point => [
+            vertices.get(id)![0],
+            vertices.get(id)![1] + triangle.lifts[index]! * (period ?? 0),
+          ],
+        );
         const probe: Point | string = centroid(points);
-        if (typeof probe === "string") return `boundary ear: ${probe}; original vertices ${triangle.vertices.join("/")}; cover ${JSON.stringify(points)}`;
-        if (!keeps(probe[0], probe[1])) return `native ear left the kept source partition; triangle ${JSON.stringify({ vertices: triangle.vertices, lifts: triangle.lifts, cover: points, probe })}`;
+        if (typeof probe === "string")
+          return `boundary ear: ${probe}; original vertices ${triangle.vertices.join("/")}; cover ${JSON.stringify(points)}`;
+        if (!keeps(probe[0], probe[1]))
+          return `native ear left the kept source partition; triangle ${JSON.stringify({ vertices: triangle.vertices, lifts: triangle.lifts, cover: points, probe })}`;
         triangles.push(triangle);
       }
     }
-    const inserted: ITriangle[] | string = insertAutoMovieSolidMeshPoints(vertices, split, triangles, keeps, period, indexed);
+    const inserted: ITriangle[] | string = insertAutoMovieSolidMeshPoints(
+      vertices,
+      split,
+      triangles,
+      keeps,
+      period,
+      indexed,
+    );
     if (typeof inserted === "string") return inserted;
-    const legal: ITriangle[] | string = legalizeAutoMovieSolidMesh(vertices, split, inserted, period, indexed, occupied, scale);
+    const legal: ITriangle[] | string = legalizeAutoMovieSolidMesh(
+      vertices,
+      split,
+      inserted,
+      period,
+      indexed,
+      occupied,
+      scale,
+    );
     if (typeof legal === "string") return legal;
     for (const triangle of legal) {
-      const points: Point[] = triangle.vertices.map((id: number, index: number): Point => [vertices.get(id)![0], vertices.get(id)![1] + triangle.lifts[index]! * (period ?? 0)]);
+      const points: Point[] = triangle.vertices.map(
+        (id: number, index: number): Point => [
+          vertices.get(id)![0],
+          vertices.get(id)![1] + triangle.lifts[index]! * (period ?? 0),
+        ],
+      );
       const probe: Point | string = centroid(points);
-      if (typeof probe === "string") return `inserted grid triangle: ${probe}; original vertices ${triangle.vertices.join("/")}; cover ${JSON.stringify(points)}`;
-      if (!keeps(probe[0], probe[1])) return `inserted triangle left the kept source partition; triangle ${JSON.stringify({ vertices: triangle.vertices, lifts: triangle.lifts, cover: points, probe })}`;
+      if (typeof probe === "string")
+        return `inserted grid triangle: ${probe}; original vertices ${triangle.vertices.join("/")}; cover ${JSON.stringify(points)}`;
+      if (!keeps(probe[0], probe[1]))
+        return `inserted triangle left the kept source partition; triangle ${JSON.stringify({ vertices: triangle.vertices, lifts: triangle.lifts, cover: points, probe })}`;
     }
     return { triangles: legal, constraints: split };
   }
 }
 
 /** Kept left boundary components; exact ray parity distinguishes finite outer walks from holes. */
-function components(vertices: ReadonlyMap<number, Point>, edges: readonly AutoMovieSolidMeshConstraints.ISegment[], keeps: (u: number, v: number) => boolean, period: number | undefined): Component[] | string {
-  const walks: AutoMovieSolidMeshIncidence.IWalk[] | string = AutoMovieSolidMeshIncidence.walks(vertices, edges, period);
+function components(
+  vertices: ReadonlyMap<number, Point>,
+  edges: readonly AutoMovieSolidMeshConstraints.ISegment[],
+  keeps: (u: number, v: number) => boolean,
+  period: number | undefined,
+): Component[] | string {
+  const walks: AutoMovieSolidMeshIncidence.IWalk[] | string =
+    AutoMovieSolidMeshIncidence.walks(vertices, edges, period);
   if (typeof walks === "string") return walks;
   const result: Component[] = [];
   for (const walk of walks) {
-    const points: Point[] = walk.vertices.map((id: number, index: number): Point => [vertices.get(id)![0], vertices.get(id)![1] + walk.lifts[index]! * (period ?? 0)]);
-    if (!points.every((point: Point): boolean => point.every(Number.isFinite))) return "visibility face cover coordinates are not representable";
-    if (walk.winding === 0 && points.length === 3 && new Set(walk.vertices).size === 3 && orientAutoMovieSolidChart(points[0]!, points[1]!, points[2]!) > 0) {
+    const points: Point[] = walk.vertices.map(
+      (id: number, index: number): Point => [
+        vertices.get(id)![0],
+        vertices.get(id)![1] + walk.lifts[index]! * (period ?? 0),
+      ],
+    );
+    if (!points.every((point: Point): boolean => point.every(Number.isFinite)))
+      return "visibility face cover coordinates are not representable";
+    if (
+      walk.winding === 0 &&
+      points.length === 3 &&
+      new Set(walk.vertices).size === 3 &&
+      orientAutoMovieSolidChart(points[0]!, points[1]!, points[2]!) > 0
+    ) {
       const strict: Point | string = centroid(points);
-      if (typeof strict === "string") return `arrangement face: ${strict}; original vertices ${walk.vertices.join("/")}; cover ${JSON.stringify(points)}`;
+      if (typeof strict === "string")
+        return `arrangement face: ${strict}; original vertices ${walk.vertices.join("/")}; cover ${JSON.stringify(points)}`;
     }
-    const probe: Point | string = probeAutoMovieSolidMesh(vertices, edges, walk, period);
+    const probe: Point | string = probeAutoMovieSolidMesh(
+      vertices,
+      edges,
+      walk,
+      period,
+    );
     if (typeof probe === "string") return probe;
     if (!keeps(probe[0], probe[1])) continue;
     let inside: boolean = false;
-    if (walk.winding === 0) for (let k: number = 0; k < points.length; k++) {
-      const a: Point = points[k]!;
-      const b: Point = points[(k + 1) % points.length]!;
-      if ((a[1] > probe[1]) !== (b[1] > probe[1]) && orientAutoMovieSolidChart(a, b, probe) * (b[1] > a[1] ? 1 : -1) > 0) inside = !inside;
-    }
+    if (walk.winding === 0)
+      for (let k: number = 0; k < points.length; k++) {
+        const a: Point = points[k]!;
+        const b: Point = points[(k + 1) % points.length]!;
+        if (
+          a[1] > probe[1] !== b[1] > probe[1] &&
+          orientAutoMovieSolidChart(a, b, probe) * (b[1] > a[1] ? 1 : -1) > 0
+        )
+          inside = !inside;
+      }
     result.push({ walk, outer: walk.winding === 0 && inside });
   }
   return result;
@@ -243,23 +312,41 @@ function bridge(
 ): Candidate | string {
   type Ranked = { candidate: Candidate; length: number };
   /** Visit every candidate with its squared metric length; a string stops the visit. */
-  const each: (visit: (ranked: Ranked) => void) => string | null = (visit: (ranked: Ranked) => void): string | null => {
+  const each: (visit: (ranked: Ranked) => void) => string | null = (
+    visit: (ranked: Ranked) => void,
+  ): string | null => {
     for (const a of boundaries[selected]!.walk.vertices)
       for (let j: number = 0; j < boundaries.length; j++) {
         if (j === selected) continue;
         for (const b of boundaries[j]!.walk.vertices) {
-          if (a === b || occupied?.has(`${Math.min(a, b)}/${Math.max(a, b)}`) === true) continue;
+          if (
+            a === b ||
+            occupied?.has(`${Math.min(a, b)}/${Math.max(a, b)}`) === true
+          )
+            continue;
           const first: Point = vertices.get(a)!;
           const last: Point = vertices.get(b)!;
-          const nearest: number = period === undefined ? 0 : Math.round((first[1] - last[1]) / period);
-          if (!Number.isSafeInteger(nearest)) return "visibility bridge cover image is not representable";
-          const turns: number[] = period === undefined ? [0] : [nearest - 1, nearest, nearest + 1];
+          const nearest: number =
+            period === undefined
+              ? 0
+              : Math.round((first[1] - last[1]) / period);
+          if (!Number.isSafeInteger(nearest))
+            return "visibility bridge cover image is not representable";
+          const turns: number[] =
+            period === undefined ? [0] : [nearest - 1, nearest, nearest + 1];
           for (const turn of turns) {
             const end: Point = [last[0], last[1] + turn * (period ?? 0)];
-            if (!Number.isSafeInteger(turn) || !end.every(Number.isFinite)) return "visibility bridge endpoint is not representable";
-            if (period !== undefined && Math.abs(end[1] - first[1]) > period / 2) continue;
-            const length: number = (end[0] - first[0]) ** 2 + (scale * (end[1] - first[1])) ** 2;
-            if (!Number.isFinite(length)) return "visibility bridge length is not representable";
+            if (!Number.isSafeInteger(turn) || !end.every(Number.isFinite))
+              return "visibility bridge endpoint is not representable";
+            if (
+              period !== undefined &&
+              Math.abs(end[1] - first[1]) > period / 2
+            )
+              continue;
+            const length: number =
+              (end[0] - first[0]) ** 2 + (scale * (end[1] - first[1])) ** 2;
+            if (!Number.isFinite(length))
+              return "visibility bridge length is not representable";
             visit({ candidate: { a, b, turn }, length });
           }
         }
@@ -267,22 +354,46 @@ function bridge(
     return null;
   };
   /** The exact total order: length, then IDs and turn. */
-  const before: (x: Ranked, y: Ranked) => number = (x: Ranked, y: Ranked): number => x.length - y.length || x.candidate.a - y.candidate.a || x.candidate.b - y.candidate.b || x.candidate.turn - y.candidate.turn;
+  const before: (x: Ranked, y: Ranked) => number = (
+    x: Ranked,
+    y: Ranked,
+  ): number =>
+    x.length - y.length ||
+    x.candidate.a - y.candidate.a ||
+    x.candidate.b - y.candidate.b ||
+    x.candidate.turn - y.candidate.turn;
   /** The first admitted bridge of a ranked list, or a refusal string, or null. */
-  const admit: (list: Ranked[]) => Ranked | string | null = (list: Ranked[]): Ranked | string | null => {
+  const admit: (list: Ranked[]) => Ranked | string | null = (
+    list: Ranked[],
+  ): Ranked | string | null => {
     list.sort(before);
     for (const ranked of list) {
       const candidate: Candidate = ranked.candidate;
       const first: Point = vertices.get(candidate.a)!;
       const last: Point = vertices.get(candidate.b)!;
       const end: Point = [last[0], last[1] + candidate.turn * (period ?? 0)];
-      const visible: boolean | string = clear(vertices, edges, candidate, period);
+      const visible: boolean | string = clear(
+        vertices,
+        edges,
+        candidate,
+        period,
+      );
       if (typeof visible === "string") return visible;
       if (!visible) continue;
       const middle: Point = midpoint(first, end);
-      if ((middle[0] === first[0] && middle[1] === first[1]) || (middle[0] === end[0] && middle[1] === end[1])) continue;
+      if (
+        (middle[0] === first[0] && middle[1] === first[1]) ||
+        (middle[0] === end[0] && middle[1] === end[1])
+      )
+        continue;
       if (!on(first, end, middle)) {
-        const witness: boolean | string = witnessAutoMovieSolidChartTriangle(vertices, edges, candidate, middle, period);
+        const witness: boolean | string = witnessAutoMovieSolidChartTriangle(
+          vertices,
+          edges,
+          candidate,
+          middle,
+          period,
+        );
         if (typeof witness === "string") return witness;
         if (!witness) continue;
       }
@@ -295,29 +406,48 @@ function bridge(
   const own: Map<number, Ranked> = new Map();
   const failed: string | null = each((ranked: Ranked): void => {
     const known: Ranked | undefined = own.get(ranked.candidate.a);
-    if (known === undefined || before(ranked, known) < 0) own.set(ranked.candidate.a, ranked);
+    if (known === undefined || before(ranked, known) < 0)
+      own.set(ranked.candidate.a, ranked);
   });
   if (failed !== null) return failed;
-  const label: (c: Candidate) => string = (c: Candidate): string => `${c.a}/${c.b}/${c.turn}`;
-  const tested: Set<string> = new Set([...own.values()].map((r: Ranked): string => label(r.candidate)));
+  const label: (c: Candidate) => string = (c: Candidate): string =>
+    `${c.a}/${c.b}/${c.turn}`;
+  const tested: Set<string> = new Set(
+    [...own.values()].map((r: Ranked): string => label(r.candidate)),
+  );
   const found: Ranked | string | null = admit([...own.values()]);
   if (typeof found === "string") return found;
 
   // Every other candidate that could still be shorter than it.
   const shorter: Ranked[] = [];
   each((ranked: Ranked): void => {
-    if ((found === null || before(ranked, found) < 0) && !tested.has(label(ranked.candidate))) shorter.push(ranked);
+    if (
+      (found === null || before(ranked, found) < 0) &&
+      !tested.has(label(ranked.candidate))
+    )
+      shorter.push(ranked);
   });
   const better: Ranked | string | null = admit(shorter);
   if (typeof better === "string") return better;
   const chosen: Ranked | null = better ?? found;
-  return chosen === null ? "visibility left a kept boundary without an admitted component bridge" : chosen.candidate;
+  return chosen === null
+    ? "visibility left a kept boundary without an admitted component bridge"
+    : chosen.candidate;
 }
 
 /** A strict represented centroid, never a silent empty-face classification at rounded boundaries. */
 function centroid(points: readonly Point[]): Point | string {
-  const point: Point = [points[0]![0] / 3 + points[1]![0] / 3 + points[2]![0] / 3, points[0]![1] / 3 + points[1]![1] / 3 + points[2]![1] / 3];
-  return point.every(Number.isFinite) && points.every((corner: Point, index: number): boolean => orientAutoMovieSolidChart(corner, points[(index + 1) % 3]!, point) > 0) ? point : "visibility triangle has no represented strict centroid";
+  const point: Point = [
+    points[0]![0] / 3 + points[1]![0] / 3 + points[2]![0] / 3,
+    points[0]![1] / 3 + points[1]![1] / 3 + points[2]![1] / 3,
+  ];
+  return point.every(Number.isFinite) &&
+    points.every(
+      (corner: Point, index: number): boolean =>
+        orientAutoMovieSolidChart(corner, points[(index + 1) % 3]!, point) > 0,
+    )
+    ? point
+    : "visibility triangle has no represented strict centroid";
 }
 
 /** Identity of an unoriented edge, including its relative cover turn. */

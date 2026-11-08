@@ -8,13 +8,13 @@ import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
 /**
  * Authored one-second hop loop with stand/crouch/apex/crouch/stand keys. Root height moves through -0.12 and +0.26 metres; apex upper-arm abduction retains the existing 210-degree overshoot. Times/roots/angles are conventional choreography, not ballistic gravity, clinical capacity or verified floor contact.
  *
- * @evidence contracts/common.md#principled-implementation Three explicit whole-body poses and metre roots form a value-closed five-frame cycle with exact authored timing and easeInOut interpolation.
- * @evidence contracts/common.md#clear-and-simple-design Stand/crouch/apex vocabulary keeps this display motion local without introducing a jump simulator or secondary body evaluator.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Legacy overhead overshoot and authored vertical displacement remain disclosed; this clip performs no ROM, ground or impulse admission.
- * @evidence contracts/common.md#meaningful-documentation The comment gives frame sequence, metre height extrema, duration and the retained 210-degree qualification limit.
- * @evidence contracts/performance.md#efficient-algorithms Three bounded pose/root records and five keys bound assembly; rendering and interpolated FK remain ordinary engine/viewer costs.
- * @evidence contracts/performance.md#reuse-equivalent-work Repeated stand/crouch frames share the same authored pose records within one clip; calls return fresh vocabulary rather than cached mutable output.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-owned frames retain shared local poses/roots, so consumers preserve those shared values; no physics task, timer or GPU handle is acquired.
+ * @evidence contracts/development/implementation.md#principled-implementation Three explicit whole-body poses and metre roots form a value-closed five-frame cycle with exact authored timing and easeInOut interpolation.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Stand/crouch/apex vocabulary keeps this display motion local without introducing a jump simulator or secondary body evaluator.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Legacy overhead overshoot and authored vertical displacement remain disclosed; this clip performs no ROM, ground or impulse admission.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment gives frame sequence, metre height extrema, duration and the retained 210-degree qualification limit.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three bounded pose/root records and five keys bound assembly; rendering and interpolated FK remain ordinary engine/viewer costs.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Repeated stand/crouch frames share the same authored pose records within one clip; calls return fresh vocabulary rather than cached mutable output.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Caller-owned frames retain shared local poses/roots, so consumers preserve those shared values; no physics task, timer or GPU handle is acquired.
  */
 export const hop: (sk: string) => IAutoMovieMotion = (
   sk: string,

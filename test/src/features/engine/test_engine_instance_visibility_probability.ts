@@ -13,10 +13,11 @@ const COUNT: number = 2_000;
  * 1. Zero hides all and one shows all; omission shows every enhanced member.
  * 2. Probability .3 stays within the original four percentage point bound.
  *
- * @evidence contracts/testing.md#behavioral-verification Regenerates all 2000 slots under zero/one/interior/omitted visibility declarations and observes the actual extended member visibility flag rather than a separate probability implementation.
- * @evidence contracts/testing.md#independent-expectations Probability endpoints independently require no/all visible members, and omission requires all visible enhanced members. The literal .3 expectation keeps the original strict .04 share bound for this fixed-seed witness without claiming exhaustive random-law or rendering proof.
- * @evidence contracts/testing.md#distinguishing-cases Covers both deterministic endpoints, an interior .3 declaration and omitted probability with an explicitly enhanced prototype table; other tests own legacy output shape, transforms and malformed admission.
- * @evidence contracts/testing.md#execution-ownership This named synchronous entry owns only placements, arrays and share callbacks through existing canonical fixtures; it opens no file, renderer, browser or GPU and replaces no foreign method or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Regenerates all 2000 slots under zero/one/interior/omitted visibility declarations and observes the actual extended member visibility flag rather than a separate probability implementation.
+ * @evidence contracts/development/testing.md#independent-expectations Probability endpoints independently require no/all visible members, and omission requires all visible enhanced members. The literal .3 expectation keeps the original strict .04 share bound for this fixed-seed witness without claiming exhaustive random-law or rendering proof.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers both deterministic endpoints, an interior .3 declaration and omitted probability with an explicitly enhanced prototype table; other tests own legacy output shape, transforms and malformed admission.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous entry owns only placements, arrays and share callbacks through existing canonical fixtures; it opens no file, renderer, browser or GPU and replaces no foreign method or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Zero hides all and one shows all; omission shows every enhanced member.).
  */
 export function test_engine_instance_visibility_probability(): void {
   // 6. Visibility.

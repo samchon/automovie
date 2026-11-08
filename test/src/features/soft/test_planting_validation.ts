@@ -58,10 +58,10 @@ const structure: (
  * direction vector, or a branching law larger than the cap the recipe set for
  * itself are all refused rather than quietly clamped.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs recipe/cluster admission on selected header, structure, growth, envelope, foliage and budget defects plus a real over-cap grow call; requested kind/path and cap-error assertions expose ignored authoring constraints.
- * @evidence contracts/testing.md#independent-expectations Authored ranges, reference paths and the complete binary tree/density counts provide expectations independently of validator output; hasViolation checks presence rather than exactly one finding, and success does not assert absence of warnings.
- * @evidence contracts/testing.md#distinguishing-cases Preserves all seven groups, including zero/nonfinite vectors, duplicate children, unreachable versus .49 reachable onset, exact eight-leaf budget, enormous depth, fractional cap without secondary range findings, and cluster attempt/count/scale boundaries; the suite does not enumerate every possible invalid record or measure iteration counts.
- * @evidence contracts/testing.md#execution-ownership The named discoverable portable unit runs early cases directly and delegates the original later groups to assertPlantingValidationLimits with its same refusal callbacks, without dynamic registration, native artifacts or a browser/GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs recipe/cluster admission on selected header, structure, growth, envelope, foliage and budget defects plus a real over-cap grow call; requested kind/path and cap-error assertions expose ignored authoring constraints.
+ * @evidence contracts/development/testing.md#independent-expectations Authored ranges, reference paths and the complete binary tree/density counts provide expectations independently of validator output; hasViolation checks presence rather than exactly one finding, and success does not assert absence of warnings.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves all seven groups, including zero/nonfinite vectors, duplicate children, unreachable versus .49 reachable onset, exact eight-leaf budget, enormous depth, fractional cap without secondary range findings, and cluster attempt/count/scale boundaries; the suite does not enumerate every possible invalid record or measure iteration counts.
+ * @evidence contracts/development/testing.md#execution-ownership The named discoverable portable unit runs early cases directly and delegates the original later groups to assertPlantingValidationLimits with its same refusal callbacks, without dynamic registration, native artifacts or a browser/GPU.
  *
  * Scenarios:
  *
@@ -91,6 +91,8 @@ const structure: (
  *    a non-finite anchor, a negative extent, a fractional seed, a negative
  *    spacing, an attempt count outside its range, a non-positive minimum scale,
  *    and a maximum below its minimum. Yaw-jitter admission is not asserted here.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The complete recipe and cluster validate clean.).
  */
 export function test_planting_validation(): void {
   TestValidator.equals(

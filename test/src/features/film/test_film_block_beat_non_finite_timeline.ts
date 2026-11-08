@@ -16,10 +16,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * 1. `duration = Infinity` yields `range` on `$input.duration`.
  * 2. `anchor.t = NaN` yields `range` on `$input.actors[0].anchors[0].t`.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls blockBeat on separately infinite-duration and NaN-anchor plans after valid staging and requires located range refusals, catching comparison-only timeline checks that admit nonfinite operands.
- * @evidence contracts/testing.md#independent-expectations Beat duration and cue time must be finite under the blocking contract; literal Infinity and NaN violate that premise independently of any emitted performance. Expected fields follow the authored duration and first anchor locations.
- * @evidence contracts/testing.md#distinguishing-cases Isolates positive Infinity in beat duration from NaN in an otherwise finite beat's anchor; zero duration and finite outside or reversed anchors are covered by test_film_block_beat_invalid, and finite admitted anchors by the valid-plan test.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_block_beat_non_finite_timeline entry owns the portable staging call and both direct blocking cases, using existing fixtures without a consumer installation, native artifact or running host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls blockBeat on separately infinite-duration and NaN-anchor plans after valid staging and requires located range refusals, catching comparison-only timeline checks that admit nonfinite operands.
+ * @evidence contracts/development/testing.md#independent-expectations Beat duration and cue time must be finite under the blocking contract; literal Infinity and NaN violate that premise independently of any emitted performance. Expected fields follow the authored duration and first anchor locations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Isolates positive Infinity in beat duration from NaN in an otherwise finite beat's anchor; zero duration and finite outside or reversed anchors are covered by test_film_block_beat_invalid, and finite admitted anchors by the valid-plan test.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_block_beat_non_finite_timeline entry owns the portable staging call and both direct blocking cases, using existing fixtures without a consumer installation, native artifact or running host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `duration = Infinity` yields `range` on `$input.duration`.).
  */
 export function test_film_block_beat_non_finite_timeline(): void {
   const staged: ReturnType<typeof stageScene> = stageScene(

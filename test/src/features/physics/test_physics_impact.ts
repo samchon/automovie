@@ -39,10 +39,11 @@ const body: (over: Partial<IAutoMovieImpactBody>) => IAutoMovieImpactBody = (
  * 5. Deflect (final): a slow, non-bouncy, non-penetrable hit → `deflect` with an
  *    inelastic impulse.
  *
- * @evidence contracts/testing.md#behavioral-verification Resolves bounce, embed, through and separating/closing deflection, asserting family, closing speed and momentum transfer; wrong material selection or restitution/transfer behavior fails.
- * @evidence contracts/testing.md#independent-expectations Equal-mass restitution arithmetic gives bounce speeds 0.95/9.05 and inelastic speed 2; authored material policy and physical speed bounds distinguish embed/through. These bounded checks do not establish exact penetration physics or every threshold equality.
- * @evidence contracts/testing.md#distinguishing-cases Covers hard bounce, soft embed, faster very-soft through, the existing moderately-fast embed twin, separating no-impulse and closing inelastic deflection; invalid fields belong to the dedicated admission units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit calls resolveImpact with authored bodies and owns every assertion directly, without a collision host or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves bounce, embed, through and separating/closing deflection, asserting family, closing speed and momentum transfer; wrong material selection or restitution/transfer behavior fails.
+ * @evidence contracts/development/testing.md#independent-expectations Equal-mass restitution arithmetic gives bounce speeds 0.95/9.05 and inelastic speed 2; authored material policy and physical speed bounds distinguish embed/through. These bounded checks do not establish exact penetration physics or every threshold equality.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers hard bounce, soft embed, faster very-soft through, the existing moderately-fast embed twin, separating no-impulse and closing inelastic deflection; invalid fields belong to the dedicated admission units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit calls resolveImpact with authored bodies and owns every assertion directly, without a collision host or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Bounce: a hard, bouncy pair (e≈0.81) closing at 10 m/s → `bounce`; the).
  */
 export function test_physics_impact(): void {
   // 1. bounce

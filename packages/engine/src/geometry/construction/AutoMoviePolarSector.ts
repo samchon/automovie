@@ -23,25 +23,19 @@
  * Angles are radians and run counter-clockwise in the section's own
  * `(x, z)` chart: the point at `phi` is `rho (cos phi, sin phi)`.
  *
- * @evidence contracts/common.md#principled-implementation Between guides a section is the quintic polar Hermite of the guides' exact polar jets, so it touches its box at the guides with matching curvature.
- * @evidence contracts/common.md#clear-and-simple-design One guide record and one sector evaluation in polar form.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the supplied guide jets and fullness directly; the caller owns their geometric derivation and validity.
- * @evidence contracts/common.md#meaningful-documentation States the guide's jet, the Hermite basis and the angle convention.
- * @evidence contracts/performance.md#efficient-algorithms Binary search finds one guide interval, then fixed-size Horner basis arithmetic evaluates the radius jet.
- * @evidence contracts/performance.md#reuse-equivalent-work Each radius reading shares the selected pair and basis powers across all three jet orders; no pair coefficients are cached.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Radius/point results are fresh fixed-size arrays; guides and computed coefficients are not retained by this module.
+ * @evidence contracts/development/common.md#meaningful-documentation States the guide's jet, the Hermite basis and the angle convention.
+ * @evidence contracts/development/design.md#principled-representation Represents A closed section about an axis point as a radius in the polar angle, built from guides and the sectors between them (rule J2's sector fill): companion namespace of 6 members (`IGuide`, `Jet`, `radius`, `fullnessAt`, `point`, `sector`); units and frames named in its text: second, radians, radian, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMoviePolarSector` in packages/engine/src/geometry/construction/AutoMoviePolarSector.ts; its surface is the 6 members listed and the text shows 22 other files naming it, mostly packages/engine (10), packages/human (7), test (5), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMoviePolarSector {
   /**
    * A guide: a fixed angle owning the radius and its two angle derivatives.
    *
-   * @evidence contracts/common.md#principled-implementation Value, first derivative and second derivative at one polar angle supply the endpoint data of a quintic sector.
-   * @evidence contracts/common.md#clear-and-simple-design Four scalar fields keep the interpolation boundary independent of the source conic or seam that produced it.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The record does not prove positive radius, ordered angles or conic origin; those are producer premises.
-   * @evidence contracts/common.md#meaningful-documentation Names radians and both angular derivative orders; radius units follow the owning section, normally mm.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The guide is interpolation data and executes no search or evaluation.
-   * @evidence contracts/performance.md#reuse-equivalent-work The same endpoint jet can be used by the two adjacent sectors while its values stay unchanged.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Each guide contains four numbers; the section owner controls the guide array's lifetime, with no module cache.
+   * @evidence contracts/development/design.md#principled-representation Value, first derivative and second derivative at one polar angle supply the endpoint data of a quintic sector.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four scalar fields keep the interpolation boundary independent of the source conic or seam that produced it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record does not prove positive radius, ordered angles or conic origin; those are producer premises.
+   * @evidence contracts/development/common.md#meaningful-documentation Names radians and both angular derivative orders; radius units follow the owning section, normally mm.
    */
   export interface IGuide {
     /** Polar angle, radians. */
@@ -60,13 +54,10 @@ export namespace AutoMoviePolarSector {
   /**
    * Radius and its first/second angular derivatives, in radius units per radian order.
    *
-   * @evidence contracts/common.md#principled-implementation The three-tuple carries rho, rho-prime and rho-double-prime for analytic polar-to-Cartesian differentiation.
-   * @evidence contracts/common.md#clear-and-simple-design Positional derivative order matches the radius and point readers without another stateful object.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The tuple itself performs no finite-value, positivity or curvature validation.
-   * @evidence contracts/common.md#meaningful-documentation States derivative order and units relative to the section radius.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This alias contains no numeric algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A returned value tuple coordinates no cached work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Its owner retains exactly three numbers and no resource handle.
+   * @evidence contracts/development/design.md#principled-representation The three-tuple carries rho, rho-prime and rho-double-prime for analytic polar-to-Cartesian differentiation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Positional derivative order matches the radius and point readers without another stateful object.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The tuple itself performs no finite-value, positivity or curvature validation.
+   * @evidence contracts/development/common.md#meaningful-documentation States derivative order and units relative to the section radius.
    */
   export type Jet = [number, number, number];
 
@@ -78,13 +69,13 @@ export namespace AutoMoviePolarSector {
    * @param fullness One per guide: sector j follows guide j.
    * @param phi Angle, any real value.
    *
-   * @evidence contracts/common.md#principled-implementation Wraps finite phi into one turn, binary-searches increasing guides and evaluates the selected quintic endpoint-jet interpolation plus its C2-zero fullness bump.
-   * @evidence contracts/common.md#clear-and-simple-design One guide search delegates only the fixed-size span polynomial to sector.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects too few guides, mismatched fullness and a nonpositive selected span; full angle order/finiteness/positive-radius admission remains the caller's responsibility.
-   * @evidence contracts/common.md#meaningful-documentation Gives guide order, cyclic last sector and fullness indexing, with derivative convention in Jet.
-   * @evidence contracts/performance.md#efficient-algorithms O(log G) guide lookup plus constant polynomial work and a three-number result for G ordered guides.
-   * @evidence contracts/performance.md#reuse-equivalent-work One selected guide pair, width and basis-power evaluation serves radius and both angular derivatives; repeated calls are not cached.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one fresh jet and retains neither guide/fullness arrays nor span preparation.
+   * @evidence contracts/development/implementation.md#principled-implementation Wraps finite phi into one turn, binary-searches increasing guides and evaluates the selected quintic endpoint-jet interpolation plus its C2-zero fullness bump.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One guide search delegates only the fixed-size span polynomial to sector.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rejects too few guides, mismatched fullness and a nonpositive selected span; full angle order/finiteness/positive-radius admission remains the caller's responsibility.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives guide order, cyclic last sector and fullness indexing, with derivative convention in Jet.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(log G) guide lookup plus constant polynomial work and a three-number result for G ordered guides.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One selected guide pair, width and basis-power evaluation serves radius and both angular derivatives; repeated calls are not cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh jet and retains neither guide/fullness arrays nor span preparation.
    */
   export function radius(
     guides: readonly IGuide[],
@@ -122,13 +113,13 @@ export namespace AutoMoviePolarSector {
    * The fullness that puts a sector's middle at a radius: the inverse of the
    * sector rule at `xi = 1/2`, where `B` is 1.
    *
-   * @evidence contracts/common.md#principled-implementation At xi=1/2 the fullness basis equals one, so subtracting the zero-fullness radius gives the unique additive fullness for that midpoint.
-   * @evidence contracts/common.md#clear-and-simple-design One base-sector reading and subtraction implement the inverse of the existing forward rule.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves the requested middle radius without clamping fullness or claiming the resulting whole sector is convex or positive.
-   * @evidence contracts/common.md#meaningful-documentation States the midpoint parameter and unit-height bump premise; width must be positive as for sector evaluation.
-   * @evidence contracts/performance.md#efficient-algorithms Constant span-polynomial work; this path also computes the two unused derivative entries of its local sector result.
-   * @evidence contracts/performance.md#reuse-equivalent-work Uses the same forward sector basis instead of a second independent interpolation formula; no persistent prepared pair is owned.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The temporary jet is call-local and only a scalar fullness is returned.
+   * @evidence contracts/development/implementation.md#principled-implementation At xi=1/2 the fullness basis equals one, so subtracting the zero-fullness radius gives the unique additive fullness for that midpoint.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One base-sector reading and subtraction implement the inverse of the existing forward rule.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the requested middle radius without clamping fullness or claiming the resulting whole sector is convex or positive.
+   * @evidence contracts/development/common.md#meaningful-documentation States the midpoint parameter and unit-height bump premise; width must be positive as for sector evaluation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant span-polynomial work; this path also computes the two unused derivative entries of its local sector result.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same forward sector basis instead of a second independent interpolation formula; no persistent prepared pair is owned.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The temporary jet is call-local and only a scalar fullness is returned.
    */
   export function fullnessAt(
     a: IGuide,
@@ -144,13 +135,13 @@ export namespace AutoMoviePolarSector {
    * in the section's `(x, z)` chart, for a radius jet: `p = rho e`,
    * `p' = rho' e + rho e_perp`, `p'' = (rho'' - rho) e + 2 rho' e_perp`.
    *
-   * @evidence contracts/common.md#principled-implementation Applies the analytic product rule to rho(phi)*(cos(phi),sin(phi)) for the supplied finite radius jet.
-   * @evidence contracts/common.md#clear-and-simple-design One reading returns Cartesian point and both derivatives in a fixed derivative-order array.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the given polar jet without finite differences, radius fitting or normalization.
-   * @evidence contracts/common.md#meaningful-documentation Gives the section X/Z chart and all three conversion equations.
-   * @evidence contracts/performance.md#efficient-algorithms Constant arithmetic, one sine/cosine pair and three two-component output arrays.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the same sine, cosine and radius derivatives for the point and both derivative orders.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh outer array and three pairs; no guide or jet state is retained.
+   * @evidence contracts/development/implementation.md#principled-implementation Applies the analytic product rule to rho(phi)*(cos(phi),sin(phi)) for the supplied finite radius jet.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading returns Cartesian point and both derivatives in a fixed derivative-order array.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the given polar jet without finite differences, radius fitting or normalization.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives the section X/Z chart and all three conversion equations.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic, one sine/cosine pair and three two-component output arrays.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same sine, cosine and radius derivatives for the point and both derivative orders.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the fresh outer array and three pairs; no guide or jet state is retained.
    */
   export function point(jet: Jet, phi: number): [number[], number[], number[]] {
     const [r, r1, r2] = jet;

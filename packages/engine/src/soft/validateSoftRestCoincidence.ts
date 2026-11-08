@@ -5,13 +5,13 @@ import { ViolationCollector } from "../validation/ViolationCollector";
 /**
  * Report a structural rest edge whose squared displacement vanishes.
  *
- * @evidence contracts/common.md#principled-implementation The original sum of squared coordinate differences decides zero length for dense admitted particle triples; underflow can also erase tiny nonzero displacement, an unresolved arithmetic limit.
- * @evidence contracts/common.md#clear-and-simple-design Soft-domain validation calls this owner only for right/down structural edges; it does not certify all particle pairs or shear/bend directions.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No tolerance or fixture exception changes the original squared expression, and the reported pair/path are preserved rather than silently moved apart.
- * @evidence contracts/common.md#meaningful-documentation States flat triple indexing, structural-edge scope, squared arithmetic limitation and append-only type violation.
- * @evidence contracts/performance.md#efficient-algorithms Six coordinate reads and fixed arithmetic take constant time/space for each visited structural edge.
- * @evidence contracts/performance.md#reuse-equivalent-work The domain traversal owns which edges to inspect; this helper stores no repeated displacement or rest-geometry cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The domain array is read and unretained; only the caller collector owns any finding and its particle-index pair.
+ * @evidence contracts/development/implementation.md#principled-implementation The original sum of squared coordinate differences decides zero length for dense admitted particle triples; underflow can also erase tiny nonzero displacement, an unresolved arithmetic limit.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Soft-domain validation calls this owner only for right/down structural edges; it does not certify all particle pairs or shear/bend directions.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance or fixture exception changes the original squared expression, and the reported pair/path are preserved rather than silently moved apart.
+ * @evidence contracts/development/common.md#meaningful-documentation States flat triple indexing, structural-edge scope, squared arithmetic limitation and append-only type violation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Six coordinate reads and fixed arithmetic take constant time/space for each visited structural edge.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The domain traversal owns which edges to inspect; this helper stores no repeated displacement or rest-geometry cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The domain array is read and unretained; only the caller collector owns any finding and its particle-index pair.
  */
 export const validateSoftRestCoincidence: (
   out: ViolationCollector,

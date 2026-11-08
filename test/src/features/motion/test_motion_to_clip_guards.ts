@@ -29,10 +29,11 @@ import { nclose, throwsError } from "../internal/predicates";
  * 5. A motion articulating a bone missing from the skeleton throws, naming the
  *    bone.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls motionToClip on valid input, checks track identity/order, node count/root id, exact final time and null name, then requires diagnostic fragments for empty keys, bad rate/duration and absent leftToes articulation.
- * @evidence contracts/testing.md#independent-expectations The local rig/clip authors two articulated bones whose skeleton order is upper then lower, plus one synthetic root; literal names/count/name and final time 1 bound the output. Error fragments independently identify the refusal causes, and nclose eps0 retains the original exact final-clock requirement.
- * @evidence contracts/testing.md#distinguishing-cases Retains valid conversion, empty keys, zero/NaN rate, zero/Infinity duration and an absent articulated bone. The source guard domain is broader than this preserved input table; full motion admission and geometry parity are separate units.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns each direct bridge call, including refusals, using existing in-memory fixtures. Helpers register no cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls motionToClip on valid input, checks track identity/order, node count/root id, exact final time and null name, then requires diagnostic fragments for empty keys, bad rate/duration and absent leftToes articulation.
+ * @evidence contracts/development/testing.md#independent-expectations The local rig/clip authors two articulated bones whose skeleton order is upper then lower, plus one synthetic root; literal names/count/name and final time 1 bound the output. Error fragments independently identify the refusal causes, and nclose eps0 retains the original exact final-clock requirement.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains valid conversion, empty keys, zero/NaN rate, zero/Infinity duration and an absent articulated bone. The source guard domain is broader than this preserved input table; full motion admission and geometry parity are separate units.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns each direct bridge call, including refusals, using existing in-memory fixtures. Helpers register no cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A valid two-bone motion bakes: one rotation track per articulated bone in).
  */
 export function test_motion_to_clip_guards(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

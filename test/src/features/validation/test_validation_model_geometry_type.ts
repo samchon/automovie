@@ -16,10 +16,11 @@ import { hasViolation } from "../internal/predicates";
  * Scenarios:
  * 1. Replacing the existing part geometry with a forged spline record fails at geometry.type.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual model validation with an unsupported runtime variant and requires failed admission plus its discriminant finding, catching exhaustive-switch assumptions at a JSON boundary.
- * @evidence contracts/testing.md#independent-expectations The authoring geometry union supports primitive and mesh, not spline; literal type/path expectations are independent of the implementation's default branch.
- * @evidence contracts/testing.md#distinguishing-cases Owns unsupported geometry refusal; supported primitive/mesh, their malformed fields and valid-model admission have separate entries. The forged cast is the input under test, not an acceptance bypass.
- * @evidence contracts/testing.md#execution-ownership The named portable entry copies existing model records and calls engine admission without constructing geometry, loading an asset or starting a renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual model validation with an unsupported runtime variant and requires failed admission plus its discriminant finding, catching exhaustive-switch assumptions at a JSON boundary.
+ * @evidence contracts/development/testing.md#independent-expectations The authoring geometry union supports primitive and mesh, not spline; literal type/path expectations are independent of the implementation's default branch.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns unsupported geometry refusal; supported primitive/mesh, their malformed fields and valid-model admission have separate entries. The forged cast is the input under test, not an acceptance bypass.
+ * @evidence contracts/development/testing.md#execution-ownership The named portable entry copies existing model records and calls engine admission without constructing geometry, loading an asset or starting a renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Replacing the existing part geometry with a forged spline record fails at geometry.type.).
  */
 export function test_validation_model_geometry_type(): void {
   const unknownGeometry: IAutoMovieGeometry = {

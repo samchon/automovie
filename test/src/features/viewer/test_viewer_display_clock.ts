@@ -1,4 +1,4 @@
-import { createViewerDisplayClock } from "@automovie/viewer/createViewerDisplayClock";
+import { createViewerDisplayClock } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";
@@ -11,10 +11,11 @@ import { nclose } from "../internal/predicates";
  * 3. Nested production restores its enclosing request on success or refusal.
  * 4. Invalid seconds refuse before production/state mutation; zero is valid.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the production clock directly and asserts completed seconds, callback admission and request restoration; idle requests cannot advance displayed time and producer failures must retain the enclosing scope.
- * @evidence contracts/testing.md#independent-expectations Authored seconds and finite nonnegative admission define the oracle independently of returned state. Exact scalar comparisons are appropriate because the clock assigns timestamps without numerical integration; no async producer timing is measured.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts requested versus completed time, explicit zero versus inherited time, nested success versus refusal, and each nonfinite or negative input against the supported zero boundary. Renderer completion and asynchronous timestamp delivery belong to consumers.
- * @evidence contracts/testing.md#execution-ownership The discoverable named unit invokes the portable synchronous coordinator through its producer callback, with no timer, browser or renderer. All cases execute in this entry and do not register a second harness.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the production clock directly and asserts completed seconds, callback admission and request restoration; idle requests cannot advance displayed time and producer failures must retain the enclosing scope.
+ * @evidence contracts/development/testing.md#independent-expectations Authored seconds and finite nonnegative admission define the oracle independently of returned state. Exact scalar comparisons are appropriate because the clock assigns timestamps without numerical integration; no async producer timing is measured.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts requested versus completed time, explicit zero versus inherited time, nested success versus refusal, and each nonfinite or negative input against the supported zero boundary. Renderer completion and asynchronous timestamp delivery belong to consumers.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable named unit invokes the portable synchronous coordinator through its producer callback, with no timer, browser or renderer. All cases execute in this entry and do not register a second harness.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Initial zero, an idle request, scoped completion and manual guide redraw.).
  */
 export function test_viewer_display_clock(): void {
   const clock: ReturnType<typeof createViewerDisplayClock> =

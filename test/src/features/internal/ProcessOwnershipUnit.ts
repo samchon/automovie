@@ -1,9 +1,11 @@
-import type { ProcessOwnership } from "@automovie/viewer/process/ProcessOwnership";
-import { ProcessOwnershipController } from "@automovie/viewer/process/internal/ProcessOwnershipController";
-import { decodeLinuxProcessIdentity } from "@automovie/viewer/process/internal/decodeLinuxProcessIdentity";
-import { decodePosixProcessIdentity } from "@automovie/viewer/process/internal/decodePosixProcessIdentity";
-import { decodeWindowsProcessResult } from "@automovie/viewer/process/internal/decodeWindowsProcessResult";
-import { resolveProcessIdentityReadError } from "@automovie/viewer/process/internal/resolveProcessIdentityReadError";
+import {
+  type ProcessOwnership,
+  ProcessOwnershipController,
+  decodeLinuxProcessIdentity,
+  decodePosixProcessIdentity,
+  decodeWindowsProcessResult,
+  resolveProcessIdentityReadError,
+} from "@automovie/viewer";
 import type { ChildProcess, SpawnSyncReturns } from "node:child_process";
 
 import type { createProcessOwnershipHostFacts } from "./createProcessOwnershipHostFacts";

@@ -24,10 +24,11 @@ import { boxModel, material, sceneFixture } from "../internal/renderFixtures";
  * 2. Repeated part references share the same material/upload and a null or
  *    missing material follows the Viewer's supported default PBR path.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises inventory selection from actual model-part bindings and checks material count, raw image upload deduplication and default-PBR lookup accounting.
- * @evidence contracts/testing.md#independent-expectations The unused declaration expects one material and the fixed 1024-byte lookup; binding a 4-by-4 RGBA8 image independently adds 64 bytes, and repeated bindings expect one image row.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts unused and used textured declarations, repeated part bindings and null versus unresolved material references on the same scene.
- * @evidence contracts/testing.md#execution-ownership Owns synchronous portable metadata fixtures and invokes the real semantic-mask and inventory functions; the test runner owns execution, and no Viewer draw or native texture upload is observed.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises inventory selection from actual model-part bindings and checks material count, raw image upload deduplication and default-PBR lookup accounting.
+ * @evidence contracts/development/testing.md#independent-expectations The unused declaration expects one material and the fixed 1024-byte lookup; binding a 4-by-4 RGBA8 image independently adds 64 bytes, and repeated bindings expect one image row.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts unused and used textured declarations, repeated part bindings and null versus unresolved material references on the same scene.
+ * @evidence contracts/development/testing.md#execution-ownership Owns synchronous portable metadata fixtures and invokes the real semantic-mask and inventory functions; the test runner owns execution, and no Viewer draw or native texture upload is observed.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A used plain material and an unused textured declaration retain only the).
  */
 export function test_render_texture_used_bindings(): void {
   const plain: IAutoMovieMaterial = material("plain");

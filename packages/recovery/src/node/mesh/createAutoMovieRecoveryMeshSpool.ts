@@ -1,4 +1,4 @@
-import type { tessellateAutoMovieLocalHermite64 as T } from "@automovie/engine/geometry/curve";
+import type { tessellateAutoMovieLocalHermite64 as T } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import fs from "node:fs";
 import path from "node:path";
@@ -15,13 +15,13 @@ import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecove
  * global index across chunks and runs. Source-free chunk ownership maps generated
  * triangles back to run, interval and patch records without carrying source faces.
  *
- * @evidence contracts/common.md#principled-implementation Sequential vertex suffixes and already-declared global indices preserve the engine's shared boundary contract; byte-bound array fragments assemble the interface mesh without regenerating geometry.
- * @evidence contracts/common.md#clear-and-simple-design One closure owns generated mesh placeholders, bounded pending arrays, fragment bindings and prefix publication.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source mesh, coordinate weld, numeric rounding, chunk-local duplicated boundary or replacement of existing output is permitted.
- * @evidence contracts/common.md#meaningful-documentation States units, append-only indices, generated ownership and immutable prefix semantics.
- * @evidence contracts/performance.md#efficient-algorithms Appending and final serialization are linear in generated values. Each frontier serializes only new fragment bindings plus its caller-supplied context; repeated context has its own cumulative cost. Each standalone prefix rereads its immutable fragments to verify bytes and assemble the artifact.
- * @evidence contracts/performance.md#reuse-equivalent-work The same generated fragments serve successive explicit prefixes and final output; shared vertices are written once rather than copied into separate mesh parts.
- * @evidence contracts/performance.md#bound-retention-and-release-resources All seven pending channels flush at 8192 items or a one-MiB encoded-size upper estimate, plus one indivisible admitted record. Fragment and frontier descriptors grow with persisted output. Publication owns temporary descriptors through the writer; immutable spool and journal files remain lineage artifacts.
+ * @evidence contracts/development/implementation.md#principled-implementation Sequential vertex suffixes and already-declared global indices preserve the engine's shared boundary contract; byte-bound array fragments assemble the interface mesh without regenerating geometry.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One closure owns generated mesh placeholders, bounded pending arrays, fragment bindings and prefix publication.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source mesh, coordinate weld, numeric rounding, chunk-local duplicated boundary or replacement of existing output is permitted.
+ * @evidence contracts/development/common.md#meaningful-documentation States units, append-only indices, generated ownership and immutable prefix semantics.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Appending and final serialization are linear in generated values. Each frontier serializes only new fragment bindings plus its caller-supplied context; repeated context has its own cumulative cost. Each standalone prefix rereads its immutable fragments to verify bytes and assemble the artifact.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The same generated fragments serve successive explicit prefixes and final output; shared vertices are written once rather than copied into separate mesh parts.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All seven pending channels flush at 8192 items or a one-MiB encoded-size upper estimate, plus one indivisible admitted record. Fragment and frontier descriptors grow with persisted output. Publication owns temporary descriptors through the writer; immutable spool and journal files remain lineage artifacts.
  */
 export function createAutoMovieRecoveryMeshSpool(
   directory: string,

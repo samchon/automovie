@@ -3,13 +3,10 @@ import type { IAutoMovieRecoveryEventCurveCoefficients } from "./IAutoMovieRecov
 /**
  * One immutable native cubic and the oriented interval used by an occurrence.
  *
- * @evidence contracts/common.md#principled-implementation Parent P0/P3 names refer to native endpoints even when start exceeds end.
- * @evidence contracts/common.md#clear-and-simple-design One complete curve owns native coefficients and phase width; occurrences retain only oriented normalized intervals.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Interior parameters do not borrow endpoint names.
- * @evidence contracts/common.md#meaningful-documentation Parent positions use millimetres; start and end use normalized native phase.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A record performs no arithmetic.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller owns parent sharing.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This type owns no runtime cache.
+ * @evidence contracts/development/design.md#principled-representation Parent P0/P3 names refer to native endpoints even when start exceeds end.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One complete curve owns native coefficients and phase width; occurrences retain only oriented normalized intervals.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Interior parameters do not borrow endpoint names.
+ * @evidence contracts/development/common.md#meaningful-documentation Parent positions use millimetres; start and end use normalized native phase.
  */
 export interface IAutoMovieRecoveryEventCurveSource {
   /** Stable owner of all four native coefficients. */

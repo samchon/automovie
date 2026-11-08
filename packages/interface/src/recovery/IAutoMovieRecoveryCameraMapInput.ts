@@ -12,10 +12,10 @@ import type { IAutoMovieRecoveryCameraView } from "./IAutoMovieRecoveryCameraVie
  * refined with the first pose and seed baseline scale fixed. Intrinsics remain
  * supplied assertions; this operation neither estimates them nor recovers a surface.
  *
- * @evidence contracts/common.md#principled-implementation A common rigid scene and corrected pinhole charts define calibrated seed/resection geometry. Automatic feature identities provide tentative tracks, while independent point and reprojection gates qualify fitting evidence.
- * @evidence contracts/common.md#clear-and-simple-design Shared view and pair policies keep existing semantics; map policy and budgets own new reprojection, track and joint-optimization work. Exactly three views delimit the first supported registration loop.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No manual correspondence, source mesh, truth pose, metric scale, inferred calibration or invisible-region completion enters the contract.
- * @evidence contracts/common.md#meaningful-documentation States borrowed RGB lifetime, explicit seed ordering, three-view support, known calibration, unknown physical scale and separate seed versus map budgets.
+ * @evidence contracts/development/design.md#principled-representation A common rigid scene and corrected pinhole charts define calibrated seed/resection geometry. Automatic feature identities provide tentative tracks, while independent point and reprojection gates qualify fitting evidence.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Shared view and pair policies keep existing semantics; map policy and budgets own new reprojection, track and joint-optimization work. Exactly three views delimit the first supported registration loop.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No manual correspondence, source mesh, truth pose, metric scale, inferred calibration or invisible-region completion enters the contract.
+ * @evidence contracts/development/common.md#meaningful-documentation States borrowed RGB lifetime, explicit seed ordering, three-view support, known calibration, unknown physical scale and separate seed versus map budgets.
  */
 export interface IAutoMovieRecoveryCameraMapInput {
   /** Versioned three-view resident input. */

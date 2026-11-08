@@ -16,13 +16,13 @@ import { readWorld } from "./readWorld";
 /**
  * Advance non-root spring joints with Verlet inertia, gravity, stiffness and length projection, then sphere collision projection. Caller state and world positions mutate in place; joint rotation/scale remain unchanged. Each centre/ordered-chain tuple transports its own previous translation, and collision projection can stretch the length projected earlier in the step.
  *
- * @evidence contracts/common.md#principled-implementation Advance non-root joints by Verlet inertia/gravity/stiffness, project length, then push outside inflated spheres; centre/ordered-chain keys independently transport shared-centre translation.
- * @evidence contracts/common.md#clear-and-simple-design One numerical stepper owns history/collision order with shared map readers and explicit caller state rather than a hidden clock.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Zero collision separation uses fixed upward direction; transport is translation-only, collisions can stretch segments and later lookup failure can follow earlier state mutation.
- * @evidence contracts/common.md#meaningful-documentation Docs state positive seconds, metre radii, kinematic root, unchanged rotation/scale and in-place effects without visual quality claims.
- * @evidence contracts/performance.md#efficient-algorithms J joints and C spheres need O(J*C+J) arithmetic plus chain-key text; state grows with visited joint and centre/chain identities.
- * @evidence contracts/performance.md#reuse-equivalent-work History recovers velocity and frame reseeding preserves prior sprung positions; separate centre records prevent another chain consuming a translation delta.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns persistent maps/world updates and resets removed-driver history explicitly; no automatic population bound, worker or native handle exists.
+ * @evidence contracts/development/implementation.md#principled-implementation Advance non-root joints by Verlet inertia/gravity/stiffness, project length, then push outside inflated spheres; centre/ordered-chain keys independently transport shared-centre translation.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One numerical stepper owns history/collision order with shared map readers and explicit caller state rather than a hidden clock.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Zero collision separation uses fixed upward direction; transport is translation-only, collisions can stretch segments and later lookup failure can follow earlier state mutation.
+ * @evidence contracts/development/common.md#meaningful-documentation Docs state positive seconds, metre radii, kinematic root, unchanged rotation/scale and in-place effects without visual quality claims.
+ * @evidence contracts/development/implementation.md#efficient-algorithms J joints and C spheres need O(J*C+J) arithmetic plus chain-key text; state grows with visited joint and centre/chain identities.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work History recovers velocity and frame reseeding preserves prior sprung positions; separate centre records prevent another chain consuming a translation delta.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns persistent maps/world updates and resets removed-driver history explicitly; no automatic population bound, worker or native handle exists.
  */
 export const stepSpring: (
   d: IAutoMovieSpringDriver,

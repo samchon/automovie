@@ -102,10 +102,11 @@ const still: (target: IAutoMovieSkeleton) => IAutoMovieMotion = (
  * 5. A capsule on a detached endpoint is a `type` error (not reachable), not a
  *    silent skip or a crash: the totality contract the point check lacks.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual ground validation with foot checks disabled and reads capsule warnings, clear/intent-suppressed reports and a detached-endpoint type error, catching a skipped low hand or unchecked unreachable bone.
- * @evidence contracts/testing.md#independent-expectations Existing rest offsets place the hand at 0.1m and the capsule's lower surface at 0.1-0.2=-0.1m; hips-to-chest stays at least 0.8m above ground. Reversing endpoints preserves that minimum, and an undeclared ancestor makes the foot unreachable. The test observes located warnings rather than their exact numerical depth.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts low/clear capsules, reversed endpoint order, intentional motion and detached topology; ordinary foot-point and surface-ground cases have separate entries. No continuous collision or curved-heightfield proof is claimed.
- * @evidence contracts/testing.md#execution-ownership The named synchronous entry owns its existing generic rig/clip/capsule records and invokes portable sampling/FK without adding a Human asset, geometry case, renderer or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual ground validation with foot checks disabled and reads capsule warnings, clear/intent-suppressed reports and a detached-endpoint type error, catching a skipped low hand or unchecked unreachable bone.
+ * @evidence contracts/development/testing.md#independent-expectations Existing rest offsets place the hand at 0.1m and the capsule's lower surface at 0.1-0.2=-0.1m; hips-to-chest stays at least 0.8m above ground. Reversing endpoints preserves that minimum, and an undeclared ancestor makes the foot unreachable. The test observes located warnings rather than their exact numerical depth.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts low/clear capsules, reversed endpoint order, intentional motion and detached topology; ordinary foot-point and surface-ground cases have separate entries. No continuous collision or curved-heightfield proof is claimed.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous entry owns its existing generic rig/clip/capsule records and invokes portable sampling/FK without adding a Human asset, geometry case, renderer or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A hips→hand capsule whose radius sinks its lowest point below the ground).
  */
 export function test_validation_ground_contact_capsule(): void {
   const sunk: IAutoMovieValidation = validateGroundContact({

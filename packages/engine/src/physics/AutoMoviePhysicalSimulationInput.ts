@@ -9,9 +9,23 @@ import type {
 
 import type { advancePhysicalBalance as AdvanceBalance } from "./advancePhysicalBalance";
 
-/** Explicit fixed-step inputs can be serialized or transferred to a Worker. */
+/**
+ * Explicit fixed-step inputs can be serialized or transferred to a Worker.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Explicit fixed-step inputs can be serialized or transferred to a Worker) and documents 4 documented members as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents Explicit fixed-step inputs can be serialized or transferred to a Worker: companion namespace of 4 members (`ITarget`, `IBody`, `IInput`, `IDiagnostic`); units and frames named in its text: world, frames, seconds, metres, radians. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMoviePhysicalSimulationInput` in packages/engine/src/physics/AutoMoviePhysicalSimulationInput.ts; its surface is the 4 members listed and the text shows 3 other files naming it, mostly packages/engine (3), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ */
 export namespace AutoMoviePhysicalSimulationInput {
-  /** Continuous pose sample at step/rate. Discrete ownership, relationship and strength fields at step k own the preceding interval [(k-1)/rate,k/rate); sample zero initializes native ownership. Tracking withdrawal is strength zero. */
+  /**
+   * Continuous pose sample at step/rate. Discrete ownership, relationship and strength fields at step k own the preceding interval [(k-1)/rate,k/rate); sample zero initializes native ownership. Tracking withdrawal is strength zero.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Continuous pose sample at step/rate.
+   * @evidence contracts/development/design.md#principled-representation Represents Continuous pose sample at step/rate: interface of 9 members (`segments`, `dynamicSegments`, `strength`, `jointStrength`, `releasedJointStrength`, `supportStrength`, ...); units and frames named in its text: world. Optional members `dynamicSegments`, `jointStrength`, `releasedJointStrength`, `supportStrength`, `unavailableSupports` express documented absence, and the ranges its member docs state are left to runtime validation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `ITarget` in packages/engine/src/physics/AutoMoviePhysicalSimulationInput.ts; its surface is the 9 members listed and the text shows 48 other files naming it, mostly packages/engine (18), packages/human (11), movies (10), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; 7 optional members (`dynamicSegments`, `jointStrength`, `releasedJointStrength`, `supportStrength`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface ITarget {
     /** Desired world bone origins and rotations. */ segments: Record<
       string,
@@ -33,7 +47,14 @@ export namespace AutoMoviePhysicalSimulationInput {
     /** Bone-relative projection intervals sharing relationship, coordinate and residual budgets with collider bindings. */
     pointBounds?: IAutoMoviePhysicalPointBound[];
   }
-  /** One generic provider's body and sampled authored performance. */
+  /**
+   * One generic provider's body and sampled authored performance.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: One generic provider's body and sampled authored performance.
+   * @evidence contracts/development/design.md#principled-representation Represents One generic provider's body and sampled authored performance: interface of 20 members (`id`, `profile`, `mode`, `targets`, `handoffSeconds`, `handoffLimits`, ...); units and frames named in its text: frames, seconds, metres, radians, world. Optional members `handoffSeconds`, `handoffLimits`, `maximumBindings`, `balance`, `rootTorque` express documented absence, and the ranges its member docs state are left to runtime validation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IBody` in packages/engine/src/physics/AutoMoviePhysicalSimulationInput.ts; its surface is the 20 members listed and the text shows 97 other files naming it, mostly packages/engine (42), test (42), packages/human (12), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; 11 optional members (`handoffSeconds`, `handoffLimits`, `maximumBindings`, `balance`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IBody {
     /** Unique scene id. */ id: string;
     /** Admitted SI profile. */ profile: P;
@@ -94,7 +115,14 @@ export namespace AutoMoviePhysicalSimulationInput {
       /** Metre IK early-out residual; defaults to 0.001. */ tolerance?: number;
     };
   }
-  /** All bounded work settings are part of content identity. */
+  /**
+   * All bounded work settings are part of content identity.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: All bounded work settings are part of content identity.
+   * @evidence contracts/development/design.md#principled-representation Represents All bounded work settings are part of content identity: interface of 16 members (`duration`, `rate`, `substeps`, `contactTolerance`, `contactFrequency`, `gravity`, ...); units and frames named in its text: seconds, second, metres, world. Optional members `substeps`, `contactTolerance`, `contactFrequency`, `internalIterations` express documented absence, and the ranges its member docs state are left to runtime validation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IInput` in packages/engine/src/physics/AutoMoviePhysicalSimulationInput.ts; its surface is the 16 members listed and the text shows 227 other files naming it, mostly packages/human (131), test (44), packages/engine (42), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; 4 optional members (`substeps`, `contactTolerance`, `contactFrequency`, `internalIterations`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IInput {
     /** Exact film duration in seconds. */ duration: number;
     /** Fixed integration steps per second. */ rate: number;
@@ -129,7 +157,14 @@ export namespace AutoMoviePhysicalSimulationInput {
     /** Refuse an unbounded film allocation before creating WASM objects. */ maximumSteps: number;
     /** Maximum total profile segments. */ maximumSegments: number;
   }
-  /** Only saturated or materially nonzero tracking errors allocate a row. */
+  /**
+   * Only saturated or materially nonzero tracking errors allocate a row.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Only saturated or materially nonzero tracking errors allocate a row.
+   * @evidence contracts/development/design.md#principled-representation Represents Only saturated or materially nonzero tracking errors allocate a row: interface of 5 members (`seconds`, `body`, `joint`, `error`, `saturated`); units and frames named in its text: second, seconds, radians. It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IDiagnostic` in packages/engine/src/physics/AutoMoviePhysicalSimulationInput.ts; its surface is the 5 members listed and the text shows 79 other files naming it, mostly packages/human (53), packages/engine (15), test (11), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IDiagnostic {
     /** Film second. */
     seconds: number;

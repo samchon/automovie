@@ -1,7 +1,7 @@
 import {
   type IAutoMovieCurve64 as C,
   tessellateAutoMovieLocalHermite64 as T,
-} from "@automovie/engine/geometry/curve";
+} from "@automovie/engine";
 import { createHash } from "node:crypto";
 import path from "node:path";
 
@@ -27,13 +27,13 @@ import { createAutoMovieRecoveryMeshSpool } from "../mesh/createAutoMovieRecover
  * even when repeated standalone open checkpoints are disabled. Joint spool frontiers
  * persist channel bindings and source-free run cursors independently of rendering.
  *
- * @evidence contracts/common.md#principled-implementation One analytic realization owns its declared closed and open occurrences; the closed adapter dispatches tensor families and retained curve-only domains. Declared ordinary open-arc transport fixes maximal runs and orientation; cubic controls feed the local Hermite engine, whose shared global indices are appended unchanged.
- * @evidence contracts/common.md#clear-and-simple-design Graph admission, run ownership, engine streaming and immutable artifact publication are separate stages. Generated triangle ranges retain run, saved curves and local patch ownership.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source geometry, positional weld, hidden closure, hand-selected station, nonlinear limiter or sample reduction enters reconstruction. Analytic domains own explicitly delegated occurrences; all other unsupported branches remain graph records.
- * @evidence contracts/common.md#meaningful-documentation States the changed operator, coefficient authority, approximation budget, streamed indexing and independent qualification of coverage, regularity and source fidelity.
- * @evidence contracts/performance.md#efficient-algorithms Graph admission is O(P+A); each supported arc belongs to one maximal run. The engine uses local four-course partitions, while disk assembly is linear in emitted data per publication; checkpoints explicitly incur rereads of earlier chunks.
- * @evidence contracts/performance.md#reuse-equivalent-work Each shared station edge and its analytic normal are generated once. The same immutable engine fragments supply unfinished checkpoints and final model, without repeated fitting or reconstruction for camera changes.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Source-free bundle and graph remain caller-owned. Open output retention is bounded by plans, one chunk and spool staging; closed, analytic and tensor meshes and scalar reports remain retained until publication. Completed open chunks transfer to disk, and cancellation releases local state on exceptions.
+ * @evidence contracts/development/implementation.md#principled-implementation One analytic realization owns its declared closed and open occurrences; the closed adapter dispatches tensor families and retained curve-only domains. Declared ordinary open-arc transport fixes maximal runs and orientation; cubic controls feed the local Hermite engine, whose shared global indices are appended unchanged.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Graph admission, run ownership, engine streaming and immutable artifact publication are separate stages. Generated triangle ranges retain run, saved curves and local patch ownership.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source geometry, positional weld, hidden closure, hand-selected station, nonlinear limiter or sample reduction enters reconstruction. Analytic domains own explicitly delegated occurrences; all other unsupported branches remain graph records.
+ * @evidence contracts/development/common.md#meaningful-documentation States the changed operator, coefficient authority, approximation budget, streamed indexing and independent qualification of coverage, regularity and source fidelity.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Graph admission is O(P+A); each supported arc belongs to one maximal run. The engine uses local four-course partitions, while disk assembly is linear in emitted data per publication; checkpoints explicitly incur rereads of earlier chunks.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each shared station edge and its analytic normal are generated once. The same immutable engine fragments supply unfinished checkpoints and final model, without repeated fitting or reconstruction for camera changes.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source-free bundle and graph remain caller-owned. Open output retention is bounded by plans, one chunk and spool staging; closed, analytic and tensor meshes and scalar reports remain retained until publication. Completed open chunks transfer to disk, and cancellation releases local state on exceptions.
  */
 export function reconstructAutoMovieRecoveryLocal(
   bundle: IAutoMovieRecoveryTensorFamiliesInput,

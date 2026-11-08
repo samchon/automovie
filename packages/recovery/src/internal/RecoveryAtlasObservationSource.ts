@@ -1,4 +1,4 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieCurve64 as C } from "@automovie/engine";
 
 import type { RecoveryAtlasObservationTypes } from "./RecoveryAtlasObservationTypes";
 import { RecoveryEventRegion } from "./RecoveryEventRegion";
@@ -10,13 +10,13 @@ type Input = RecoveryAtlasObservationTypes["Input"];
 /**
  * Admit the immutable source and prepare the selected scalar interval index.
  *
- * @evidence contracts/common.md#principled-implementation Original policy validation, scalar reduction, exact aliases and event-region construction remain ordered before chart allocation.
- * @evidence contracts/common.md#clear-and-simple-design This phase retains its original arithmetic and ordered state transitions while its caller owns orchestration.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Extraction introduces no input correction, geometry fallback, reordered reduction or changed admission condition.
- * @evidence contracts/common.md#meaningful-documentation States the phase responsibility, shared-state ownership and numerical limits inherited from the calling algorithm.
- * @evidence contracts/performance.md#efficient-algorithms Visits source vertices and triangles once and uses the original selection and indexing operations.
- * @evidence contracts/performance.md#reuse-equivalent-work All later intervals share this prepared region and scalar index.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Source metadata lives for this observation call; returned references are private and never become engine geometry.
+ * @evidence contracts/development/implementation.md#principled-implementation Original policy validation, scalar reduction, exact aliases and event-region construction remain ordered before chart allocation.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This phase retains its original arithmetic and ordered state transitions while its caller owns orchestration.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Extraction introduces no input correction, geometry fallback, reordered reduction or changed admission condition.
+ * @evidence contracts/development/common.md#meaningful-documentation States the phase responsibility, shared-state ownership and numerical limits inherited from the calling algorithm.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Visits source vertices and triangles once and uses the original selection and indexing operations.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All later intervals share this prepared region and scalar index.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source metadata lives for this observation call; returned references are private and never become engine geometry.
  */
 export function RecoveryAtlasObservationSource(input: Input): {
   order: readonly number[];

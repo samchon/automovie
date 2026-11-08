@@ -2,7 +2,7 @@ import {
   AutoMovieBernstein64 as B,
   type IAutoMovieCurve64 as C,
   AutoMovieCurveMath64 as M,
-} from "@automovie/engine/geometry/curve";
+} from "@automovie/engine";
 
 /** Shared engine vector arithmetic retains the physical coefficient chart. */
 const add: typeof M.add = M.add,
@@ -14,25 +14,19 @@ const add: typeof M.add = M.add,
  * Schneider's original Graphics Gems implementation is the algorithmic reference:
  * https://github.com/erich666/GraphicsGems/blob/master/gems/FitCurves.c .
  *
- * @evidence contracts/common.md#principled-implementation Schneider's two-handle least squares is extended to three coordinates; Bernstein restriction bounds the matched input polyline between observations.
- * @evidence contracts/common.md#clear-and-simple-design One stateless namespace owns fitting and its input/output records; existing engine Bernstein operations own evaluation and restriction.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source-specific coordinates or edge-per-span representation is assumed; callers receive span count and unresolved tolerance explicitly.
- * @evidence contracts/common.md#meaningful-documentation States physical millimetres, declared corners, G1 versus C1 and the finite-polyline scope of the bound.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Namespace initialization performs no fitting; fit documents its cost.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work No cross-request owner exists.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No state or handles survive a call.
+ * @evidence contracts/development/common.md#meaningful-documentation States physical millimetres, declared corners, G1 versus C1 and the finite-polyline scope of the bound.
+ * @evidence contracts/development/design.md#principled-representation Represents Fits physical ordered observations with adaptive tangent-constrained cubics: companion namespace of 8 members (`Input`, `Result`, `fit`, `solve`, `error`, `dot`, ...); units and frames named in its text: local, newton. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `RecoveryBezierFit` in packages/recovery/src/internal/RecoveryBezierFit.ts; its surface is the 8 members listed and the text shows 7 other files naming it, mostly packages/recovery (7), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace RecoveryBezierFit {
   /**
    * Ordered observations in one physical millimetre chart.
    *
-   * @evidence contracts/common.md#principled-implementation A sequence, explicit corner indices and physical tolerance define the approximation problem without a source mesh dependency.
-   * @evidence contracts/common.md#clear-and-simple-design The caller owns feature semantics; numerical fitting owns only admitted point order.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No inferred smoothing removes source observations.
-   * @evidence contracts/common.md#meaningful-documentation Properties state closure, units, budgets and parameterization.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A record performs no arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller owns immutable inputs during one fit.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This record owns no resources.
+   * @evidence contracts/development/design.md#principled-representation A sequence, explicit corner indices and physical tolerance define the approximation problem without a source mesh dependency.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The caller owns feature semantics; numerical fitting owns only admitted point order.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No inferred smoothing removes source observations.
+   * @evidence contracts/development/common.md#meaningful-documentation Properties state closure, units, budgets and parameterization.
    */
   export interface Input {
     /** Semantic curve name carried into engine construction. */
@@ -54,13 +48,10 @@ export namespace RecoveryBezierFit {
   /**
    * Complete curve coefficients and honest finite-observation error accounting.
    *
-   * @evidence contracts/common.md#principled-implementation Each accepted span retains the maximum correspondence sample residual and convex-hull upper estimate over all matched polyline intervals.
-   * @evidence contracts/common.md#clear-and-simple-design One coefficient authority accompanies aggregate diagnostics rather than a duplicate display curve.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Binary64 convex-hull estimates are not outward-rounded certificates or bounds against the unknown continuous source surface.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes sample residual, polyline bound, compactness and unresolved tolerance.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A result record computes nothing.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The same curve is consumed by reconstruction and construction inspection.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns coefficient arrays and diagnostics; the fitter retains nothing.
+   * @evidence contracts/development/design.md#principled-representation Each accepted span retains the maximum correspondence sample residual and convex-hull upper estimate over all matched polyline intervals.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One coefficient authority accompanies aggregate diagnostics rather than a duplicate display curve.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Binary64 convex-hull estimates are not outward-rounded certificates or bounds against the unknown continuous source surface.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes sample residual, polyline bound, compactness and unresolved tolerance.
    */
   export interface Result {
     /** Actual fitted coefficients, physical widths and shared endpoints. */
@@ -84,13 +75,13 @@ export namespace RecoveryBezierFit {
    * An optional observer receives accepted span-local parameters and private input-point
    * ranges without changing coefficients or adding source addresses to the result.
    *
-   * @evidence contracts/common.md#principled-implementation Physical-arclength-weighted two-by-two normal equations solve positive handle distances along fixed endpoint tangents; four safeguarded Newton updates improve correspondence before adaptive splitting. Closed input starts with two arcs, and coincident arc endpoints receive the same adaptive error assessment.
-   * @evidence contracts/common.md#clear-and-simple-design An explicit work stack avoids recursive call-stack growth; local closures share the admitted point chart and output budgets.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No corner is invented, no observation is dropped and unsatisfied terminal spans remain marked. A singular or negative handle solution falls back to one-third chord handles and is subjected to the same error calculation.
-   * @evidence contracts/common.md#meaningful-documentation Names the algorithm, tangent continuity, millimetre errors, fallback and finite-polyline limitation.
-   * @evidence contracts/performance.md#efficient-algorithms For N observations and S spans, balanced splits cost O(N log S), worst-case O(N squared), with constant four Newton rounds per candidate and O(N+S) live storage.
-   * @evidence contracts/performance.md#reuse-equivalent-work Each candidate reuses its parameters, derivative nets and endpoint tangents across evaluation; there is no mutable-input cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The work stack and observation copies expire on return or throw; only S coefficient spans and scalar diagnostics escape.
+   * @evidence contracts/development/implementation.md#principled-implementation Physical-arclength-weighted two-by-two normal equations solve positive handle distances along fixed endpoint tangents; four safeguarded Newton updates improve correspondence before adaptive splitting. Closed input starts with two arcs, and coincident arc endpoints receive the same adaptive error assessment.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure An explicit work stack avoids recursive call-stack growth; local closures share the admitted point chart and output budgets.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No corner is invented, no observation is dropped and unsatisfied terminal spans remain marked. A singular or negative handle solution falls back to one-third chord handles and is subjected to the same error calculation.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the algorithm, tangent continuity, millimetre errors, fallback and finite-polyline limitation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For N observations and S spans, balanced splits cost O(N log S), worst-case O(N squared), with constant four Newton rounds per candidate and O(N+S) live storage.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each candidate reuses its parameters, derivative nets and endpoint tangents across evaluation; there is no mutable-input cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The work stack and observation copies expire on return or throw; only S coefficient spans and scalar diagnostics escape.
    */
   export function fit(
     input: Input,

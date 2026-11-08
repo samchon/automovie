@@ -16,10 +16,11 @@ import { screenplayNode } from "../internal/screenplayNode";
  * 3. `tree: []` renders an empty document body with one newline.
  * 4. Zero beats throw: there is no screenplay to render.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises real flat-script fallback, ghost beat naming, empty-tree output and zero-beat refusal, distinguishing omitted tree from an explicit empty tree.
- * @evidence contracts/testing.md#independent-expectations Authored flat logline/theme and beat summaries supply literal fragments; a ghost remains its raw id, an empty tree yields one newline and zero beats violate the serializer contract. Commit validation, not this serializer, owns ghost-reference admission.
- * @evidence contracts/testing.md#distinguishing-cases Null tree, ghost join, explicit empty tree and no beats retain the original positive and refusal twins; five-kind tree output and dialogue formatting belong to the main screenplay unit.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_screenplay_fallback owns its cases. Portable string output from the canonical screenplay input leaves, without writing a document or launching a production.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises real flat-script fallback, ghost beat naming, empty-tree output and zero-beat refusal, distinguishing omitted tree from an explicit empty tree.
+ * @evidence contracts/development/testing.md#independent-expectations Authored flat logline/theme and beat summaries supply literal fragments; a ghost remains its raw id, an empty tree yields one newline and zero beats violate the serializer contract. Commit validation, not this serializer, owns ghost-reference admission.
+ * @evidence contracts/development/testing.md#distinguishing-cases Null tree, ghost join, explicit empty tree and no beats retain the original positive and refusal twins; five-kind tree output and dialogue formatting belong to the main screenplay unit.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_screenplay_fallback owns its cases. Portable string output from the canonical screenplay input leaves, without writing a document or launching a production.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A treeless script renders the flat fallback: header from the flat logline/theme, each beat as name over summary.).
  */
 export function test_render_screenplay_fallback(): void {
   const flat: IAutoMovieScript = { ...TREE_SCRIPT, tree: null };

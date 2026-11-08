@@ -5,13 +5,10 @@ import type { IAutoMovieRecoverySceneLandmark } from "../image/IAutoMovieRecover
 /**
  * Complete detached scene transaction outcome, not an automatic publication.
  *
- * @evidence contracts/common.md#principled-implementation Joint/final qualification controls whether proposed poses and points can transfer; failed geometry arrays are empty while completed diagnostics retain their own population.
- * @evidence contracts/common.md#clear-and-simple-design One internal result lets the coordinator atomically commit or preserve its old checkpoint.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A nonconverged or partly qualified proposal cannot expose accepted geometry.
- * @evidence contracts/common.md#meaningful-documentation Members distinguish accepted arrays, failed reasons, proposed counts and final-only metrics.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no refinement.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The coordinator consumes the already completed numerical proposal without refitting.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Call-owned bounded geometry transfers only on acceptance; no RGB or external handle is retained.
+ * @evidence contracts/development/design.md#principled-representation Joint/final qualification controls whether proposed poses and points can transfer; failed geometry arrays are empty while completed diagnostics retain their own population.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One internal result lets the coordinator atomically commit or preserve its old checkpoint.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A nonconverged or partly qualified proposal cannot expose accepted geometry.
+ * @evidence contracts/development/common.md#meaningful-documentation Members distinguish accepted arrays, failed reasons, proposed counts and final-only metrics.
  */
 export interface IAutoMovieRecoverySceneCheckpoint {
   /** All transaction qualification gates passed. */

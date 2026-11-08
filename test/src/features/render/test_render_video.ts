@@ -45,10 +45,11 @@ const rejectsError: (
  * with its time and index, in order) and encodes once to the requested output;
  * the result reports the frame count, the schedule, and the output path.
  *
- * @evidence contracts/testing.md#behavioral-verification Invokes the actual renderVideo orchestration through its declared capture/encode ports and checks count, endpoint artifacts, returned paths, exact ffmpeg arguments and zero-frame refusal before either port runs.
- * @evidence contracts/testing.md#independent-expectations A one-second 24-fps clip expects 24 frames and endpoint times 0 and 23/24, checked with zero-tolerance nclose; literal paths and encoder arguments come directly from the authored spec, not another planner.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts a valid schedule with zero fps and records capture count plus endpoint indices; intermediate capture ordering and exactly-one successful encode are not separately counted by these assertions.
- * @evidence contracts/testing.md#execution-ownership Owns asynchronous callbacks through the public supported I/O seam, records arguments in memory and awaits both render/refusal paths; no frame file, ffmpeg process or video pixels are produced, and the portable runner owns execution.
+ * @evidence contracts/development/testing.md#behavioral-verification Invokes the actual renderVideo orchestration through its declared capture/encode ports and checks count, endpoint artifacts, returned paths, exact ffmpeg arguments and zero-frame refusal before either port runs.
+ * @evidence contracts/development/testing.md#independent-expectations A one-second 24-fps clip expects 24 frames and endpoint times 0 and 23/24, checked with zero-tolerance nclose; literal paths and encoder arguments come directly from the authored spec, not another planner.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a valid schedule with zero fps and records capture count plus endpoint indices; intermediate capture ordering and exactly-one successful encode are not separately counted by these assertions.
+ * @evidence contracts/development/testing.md#execution-ownership Owns asynchronous callbacks through the public supported I/O seam, records arguments in memory and awaits both render/refusal paths; no frame file, ffmpeg process or video pixels are produced, and the portable runner owns execution.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (The render orchestration over injected I/O: it captures one frame per scheduled instant in order, then encodes the sequence: pure control flow, so a fake capture/encode pair drives it deterministically) as stated in this comment.
  */
 export async function test_render_video(): Promise<void> {
   const captured: Array<{ t: number; i: number }> = [];

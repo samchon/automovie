@@ -19,10 +19,11 @@ import { withoutArraySlot } from "../internal/withoutArraySlot";
  * 2. Non-cubic easing with stray controls fails while a dense [0,0,1,1] tuple remains valid.
  * 3. Each X control outside [0,1] fails with a range fault, while Y controls outside that interval remain valid.
  *
- * @evidence contracts/testing.md#behavioral-verification Call validateMotion on existing valid clips with one changed keyframe control tuple, checking failure paths and preserved dense/Y-overshoot success so hole-skipping cannot pass malformed controls.
- * @evidence contracts/testing.md#independent-expectations A cubic-bezier keyframe requires four actual finite controls and X coordinates in inclusive [0,1]; an absent array property is not a numeric control, while Y is unconstrained.
- * @evidence contracts/testing.md#distinguishing-cases Preserve missing/short/nonfinite/stray tuples and both X-bound directions, then add one absent Y slot and four absent slots with valid dense and Y-overshoot controls; easing inversion accuracy is owned by the sampler tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable exported unit uses portable validateMotion plus existing canonical rig/clip fixtures and the shared local sparse-array helper, without loading a host or creating an asset.
+ * @evidence contracts/development/testing.md#behavioral-verification Call validateMotion on existing valid clips with one changed keyframe control tuple, checking failure paths and preserved dense/Y-overshoot success so hole-skipping cannot pass malformed controls.
+ * @evidence contracts/development/testing.md#independent-expectations A cubic-bezier keyframe requires four actual finite controls and X coordinates in inclusive [0,1]; an absent array property is not a numeric control, while Y is unconstrained.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserve missing/short/nonfinite/stray tuples and both X-bound directions, then add one absent Y slot and four absent slots with valid dense and Y-overshoot controls; easing inversion accuracy is owned by the sampler tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable exported unit uses portable validateMotion plus existing canonical rig/clip fixtures and the shared local sparse-array helper, without loading a host or creating an asset.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Missing, short, nonfinite, sparse and entirely absent control tuples fail at the bezier field.).
  */
 export function test_validation_motion_keyframe_bezier(): void {
   const makeMotion: (

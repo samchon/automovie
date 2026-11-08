@@ -36,10 +36,11 @@ const find: (bones: IAutoMovieBone[], bone: string) => IAutoMovieBone = (
  * 9. UE-mannequin naming maps in-chain: `pelvis → spine_01 → spine_02 → spine_03` land on hips/spine/chest/upperChest (#1042's amplifier: an unmapped spine chain made dropped helper offsets the common case).
  * 10. A joint named `constructor`, an `Object.prototype` member, maps to no slot, so the skeleton keeps only the hips it really names.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls naming-based skeleton mapping and forward kinematics, observing mapped hierarchy/rest transforms and null cases; lost helper translation/rotation or inherited alias keys fails.
- * @evidence contracts/testing.md#independent-expectations Authored helper offsets and a 90-degree Z rotation determine local/world positions by independent rigid-transform arithmetic; naming expectations follow the declared alias vocabulary rather than anatomical inference.
- * @evidence contracts/testing.md#distinguishing-cases No skin/hips, duplicates/unmapped helpers, root armature exclusion, translated/rotated helpers, mannequin chains and constructor-name refusal are retained; multi-skin selection has a separate unit and noncommuting scale/shear is outside these rigid cases.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_ingest_humanoid_skeleton entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls naming-based skeleton mapping and forward kinematics, observing mapped hierarchy/rest transforms and null cases; lost helper translation/rotation or inherited alias keys fails.
+ * @evidence contracts/development/testing.md#independent-expectations Authored helper offsets and a 90-degree Z rotation determine local/world positions by independent rigid-transform arithmetic; naming expectations follow the declared alias vocabulary rather than anatomical inference.
+ * @evidence contracts/development/testing.md#distinguishing-cases No skin/hips, duplicates/unmapped helpers, root armature exclusion, translated/rotated helpers, mannequin chains and constructor-name refusal are retained; multi-skin selection has a separate unit and noncommuting scale/shear is outside these rigid cases.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_ingest_humanoid_skeleton entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 10 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A document with no skin yields `null`.).
  */
 export function test_ingest_humanoid_skeleton(): void {
   // 1. no skin

@@ -1,4 +1,8 @@
-import { type IAutoMovieViewerVideoOptions, type IAutoMovieViewerVideoResult, renderViewerVideo } from "@automovie/render/node";
+import {
+  type IAutoMovieViewerVideoOptions,
+  type IAutoMovieViewerVideoResult,
+  renderViewerVideo,
+} from "@automovie/render";
 import { mkdir, writeFile } from "node:fs/promises";
 
 import config from "../render.config";
@@ -21,17 +25,26 @@ export async function renderOpeningProbe(): Promise<void> {
     timeoutMs: 300000,
     maxFrames: 144,
     maxFrameBytes: 128 * 1024 * 1024,
-    prepare: async (page: Parameters<NonNullable<IAutoMovieViewerVideoOptions["prepare"]>>[0]): Promise<Record<string, never>> => {
+    prepare: async (
+      page: Parameters<NonNullable<IAutoMovieViewerVideoOptions["prepare"]>>[0],
+    ): Promise<Record<string, never>> => {
       await page.evaluate(async (_argument: null): Promise<void> => {
         const ready: unknown = Reflect.get(window, "__afPrepare");
-        if (typeof ready !== "function") throw new Error("Actual motion preparation hook is unavailable");
+        if (typeof ready !== "function")
+          throw new Error("Actual motion preparation hook is unavailable");
         await ready();
       }, null);
       return {};
     },
   });
-  await writeFile("output/probes/opening-integration-capture.json", JSON.stringify(result, null, 2) + "\n");
-  console.log({ frames: result.captures.length, output: "output/probes/opening-integration.mp4" });
+  await writeFile(
+    "output/probes/opening-integration-capture.json",
+    JSON.stringify(result, null, 2) + "\n",
+  );
+  console.log({
+    frames: result.captures.length,
+    output: "output/probes/opening-integration.mp4",
+  });
 }
 
 void renderOpeningProbe().catch((error: unknown): void => {

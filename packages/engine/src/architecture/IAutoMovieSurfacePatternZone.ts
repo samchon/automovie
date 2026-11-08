@@ -9,13 +9,10 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * shared border that the neighbour scan measures across. An occurrence of this
  * zone is identified as `<zone id>/<module id>`.
  *
- * @evidence contracts/common.md#principled-implementation A zone is a convex clip region plus a lattice whose enumeration is widened by the declared reach, so every cell whose modules could touch the region is visited and the generator's output is clipped rather than trusted to stay inside.
- * @evidence contracts/common.md#clear-and-simple-design Holds only what is per zone: id, region, lattice origin and pitch, reach, material and generator; joint and neighbour rules are pattern-wide and live on the pattern.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A module beyond its declared reach is refused with a throw rather than silently clipped away, and the lattice cell cap is a contract constant that applies to every zone.
- * @evidence contracts/common.md#meaningful-documentation States what clipping to the region means for ownership, the occurrence id form, the convexity and overlap rules of the region, the metre units, why the reach must be stated, the refusals, the cell cap, and the null material.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A declaration without behavior; the lattice enumeration it drives is answered on `generateAutoMovieSurfacePattern`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure input record; the generator is called once per lattice cell per run and nothing is cached between runs.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns its region points and a reference to the author's generator; the pattern owns the zone, and each run visits at most `AUTOMOVIE_MAX_PATTERN_CELLS` cells.
+ * @evidence contracts/development/design.md#principled-representation A zone is a convex clip region plus a lattice whose enumeration is widened by the declared reach, so every cell whose modules could touch the region is visited and the generator's output is clipped rather than trusted to stay inside.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Holds only what is per zone: id, region, lattice origin and pitch, reach, material and generator; joint and neighbour rules are pattern-wide and live on the pattern.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A module beyond its declared reach is refused with a throw rather than silently clipped away, and the lattice cell cap is a contract constant that applies to every zone.
+ * @evidence contracts/development/common.md#meaningful-documentation States what clipping to the region means for ownership, the occurrence id form, the convexity and overlap rules of the region, the metre units, why the reach must be stated, the refusals, the cell cap, and the null material.
  */
 export interface IAutoMovieSurfacePatternZone {
   /** Stable, non-blank zone id, unique inside one pattern. */

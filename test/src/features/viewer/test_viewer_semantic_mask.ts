@@ -38,10 +38,11 @@ import {
  * 5. A scene with too few top-level children refuses semantic resolution.
  * 6. Existing soft-body, planting and water projections receive their palette entries while an unclaimed mesh receives background.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls Engine palette derivation and the actual viewer painter, checking nearest-root colors, unclaimed membership, repeated slots, node reordering, short-scene refusal and restoration.
- * @evidence contracts/testing.md#independent-expectations The palette is an Engine-produced viewer input; literal populations and retained material/attribute identities independently judge its projection. Color multiplication and the cycle key are CPU metadata, not pixels, shader deformation or rendered bounds.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts addressed/unclaimed and hidden meshes, slotted/bare/unslotted batches, reordered nodes, simulated drawable roots and repeated restore without replacing the existing inputs.
- * @evidence contracts/testing.md#execution-ownership The named portable entry owns its existing Three objects and disposes simulated projections; its route-only cycle record exercises material key inheritance without a renderer, Human asset or new driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Engine palette derivation and the actual viewer painter, checking nearest-root colors, unclaimed membership, repeated slots, node reordering, short-scene refusal and restoration.
+ * @evidence contracts/development/testing.md#independent-expectations The palette is an Engine-produced viewer input; literal populations and retained material/attribute identities independently judge its projection. Color multiplication and the cycle key are CPU metadata, not pixels, shader deformation or rendered bounds.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts addressed/unclaimed and hidden meshes, slotted/bare/unslotted batches, reordered nodes, simulated drawable roots and repeated restore without replacing the existing inputs.
+ * @evidence contracts/development/testing.md#execution-ownership The named portable entry owns its existing Three objects and disposes simulated projections; its route-only cycle record exercises material key inheritance without a renderer, Human asset or new driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Nearest semantic roots determine mesh colors and painted/unaddressed populations while helper and atmosphere state is suspended; the...).
  */
 export function test_viewer_semantic_mask(): void {
   const subject: (design: IAutoMovieScene) => IAutoMovieRenderSubject = (

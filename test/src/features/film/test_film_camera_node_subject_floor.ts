@@ -253,10 +253,11 @@ const allRead: (graded: ReturnType<typeof grade>) => boolean = (
  *    itself: neither a rig span nor `DEFAULT_SUBJECT_HEIGHT` states a floor, so
  *    there is none to carry and a camera framed on the placement still reads.
  *
- * @evidence contracts/testing.md#behavioral-verification Measures the canopy's model-space floor and composes compileCameraMove with realizeShotContract to check one required node at the contract's opening, review, and closing samples.
- * @evidence contracts/testing.md#independent-expectations The fixture's four-metre box is centred ten metres above the origin, independently giving the 8..12 extent. Fixed readability counts and diagnostics expectations follow the deliberately matched or mismatched camera floor, not a reused grader result.
- * @evidence contracts/testing.md#distinguishing-cases All four shot sizes must read the raised model; close framing on floor zero must resolve but fail to read it. A grounded model and an absent compiled model distinguish carried geometric floors from zero-floor and stand-in behavior.
- * @evidence contracts/testing.md#execution-ownership Uses local model, scene, camera, and contract records in synchronous engine operations without a renderer, filesystem, process state, clocks, or dependency replacement; the test checks sampled numerical grading and diagnostics only.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures the canopy's model-space floor and composes compileCameraMove with realizeShotContract to check one required node at the contract's opening, review, and closing samples.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's four-metre box is centred ten metres above the origin, independently giving the 8..12 extent. Fixed readability counts and diagnostics expectations follow the deliberately matched or mismatched camera floor, not a reused grader result.
+ * @evidence contracts/development/testing.md#distinguishing-cases All four shot sizes must read the raised model; close framing on floor zero must resolve but fail to read it. A grounded model and an absent compiled model distinguish carried geometric floors from zero-floor and stand-in behavior.
+ * @evidence contracts/development/testing.md#execution-ownership Uses local model, scene, camera, and contract records in synchronous engine operations without a renderer, filesystem, process state, clocks, or dependency replacement; the test checks sampled numerical grading and diagnostics only.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The fixture draws where it claims to: the model's rest extent runs 8 … 12,).
  */
 export function test_film_camera_node_subject_floor(): void {
   const framings: readonly ["wide", "full", "medium", "close"] = [

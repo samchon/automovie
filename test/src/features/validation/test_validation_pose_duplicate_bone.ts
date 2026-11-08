@@ -13,10 +13,11 @@ import { makePose } from "../internal/makePose";
  * Scenarios:
  * 1. A pose listing leftLowerArm twice at 30 and 60 degrees fails with a type violation on bone.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validatePoseResult and requires duplicate-bone refusal, catching silent acceptance or arbitrary resolution of competing joint records.
- * @evidence contracts/testing.md#independent-expectations A pose lists each bone at most once; equal literal bone identities violate uniqueness even though both angles satisfy the default elbow interval.
- * @evidence contracts/testing.md#distinguishing-cases Owns a duplicate declared bone with supported angles; pose_valid owns distinct joints and pose_unknown_bone owns an undeclared reference.
- * @evidence contracts/testing.md#execution-ownership This named unit uses portable pose admission and existing factories without constructing a Human figure or evaluating an FK pose.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validatePoseResult and requires duplicate-bone refusal, catching silent acceptance or arbitrary resolution of competing joint records.
+ * @evidence contracts/development/testing.md#independent-expectations A pose lists each bone at most once; equal literal bone identities violate uniqueness even though both angles satisfy the default elbow interval.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns a duplicate declared bone with supported angles; pose_valid owns distinct joints and pose_unknown_bone owns an undeclared reference.
+ * @evidence contracts/development/testing.md#execution-ownership This named unit uses portable pose admission and existing factories without constructing a Human figure or evaluating an FK pose.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A pose listing leftLowerArm twice at 30 and 60 degrees fails with a type violation on bone.).
  */
 export function test_validation_pose_duplicate_bone(): void {
   const result: IAutoMovieValidation = validatePoseResult(

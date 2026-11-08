@@ -3,7 +3,7 @@ import {
   type IAutoMovieContourLoftEmission64,
   type IAutoMovieContourLoft64 as L,
   generateAutoMovieContourLoft64,
-} from "@automovie/engine/geometry/curve";
+} from "@automovie/engine";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -21,13 +21,13 @@ import { createRecoveryFileVectorTable } from "../internal/createRecoveryFileVec
  * rings, reports and identity maps still have their actual input/output bounds;
  * this is not a constant-memory claim for the whole kernel.
  *
- * @evidence contracts/common.md#principled-implementation The shared indexed kernel supplies every original vertex and face. Binary64 file round trips preserve values and reduction order before one metre conversion and normalization.
- * @evidence contracts/common.md#clear-and-simple-design One sink owns file-backed coordinates and normal accumulation, then returns exact fragment bindings for the ordinary artifact writer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source surface or normal, coordinate weld, omitted face, changed triangulation or placeholder validation substitutes for actual generation.
- * @evidence contracts/common.md#meaningful-documentation Separates bounded channel buffers from retained kernel metadata and canonical validation deferred status.
- * @evidence contracts/performance.md#efficient-algorithms Channel and normal passes cost O(V+T+K) scalar work and O(V+T+K) persisted bytes, in addition to unchanged kernel preparation and strip search. Table misses transfer at most one valid page plus a dirty victim; nonlocal access can still cause repeated page I/O.
- * @evidence contracts/performance.md#reuse-equivalent-work Each original face contributes one cross product to all three original corner accumulators; immutable fragments serve model and sidecar publication.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Scalar channel buffers retain at most 8192 numbers each. Every structured generating ring flushes immediately, so at most one indivisible ring's copied points/phases are pending; its size is bounded by the original retained ring, independently of emitted-mesh limits. Each table owns at most three 65520-byte pages, totaling 393120 bytes across both tables, plus bounded headers and per-face triples. Dirty victims flush before reuse and both tables finish before success. Fragment descriptors and kernel reports grow with actual admitted output. Every acquired descriptor closes independently without replacing a primary failure.
+ * @evidence contracts/development/implementation.md#principled-implementation The shared indexed kernel supplies every original vertex and face. Binary64 file round trips preserve values and reduction order before one metre conversion and normalization.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One sink owns file-backed coordinates and normal accumulation, then returns exact fragment bindings for the ordinary artifact writer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source surface or normal, coordinate weld, omitted face, changed triangulation or placeholder validation substitutes for actual generation.
+ * @evidence contracts/development/common.md#meaningful-documentation Separates bounded channel buffers from retained kernel metadata and canonical validation deferred status.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Channel and normal passes cost O(V+T+K) scalar work and O(V+T+K) persisted bytes, in addition to unchanged kernel preparation and strip search. Table misses transfer at most one valid page plus a dirty victim; nonlocal access can still cause repeated page I/O.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each original face contributes one cross product to all three original corner accumulators; immutable fragments serve model and sidecar publication.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Scalar channel buffers retain at most 8192 numbers each. Every structured generating ring flushes immediately, so at most one indivisible ring's copied points/phases are pending; its size is bounded by the original retained ring, independently of emitted-mesh limits. Each table owns at most three 65520-byte pages, totaling 393120 bytes across both tables, plus bounded headers and per-face triples. Dirty victims flush before reuse and both tables finish before success. Fragment descriptors and kernel reports grow with actual admitted output. Every acquired descriptor closes independently without replacing a primary failure.
  */
 export function createAutoMovieRecoveryContourFileMesh(
   input: L,

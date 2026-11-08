@@ -26,10 +26,11 @@ const rest: IAutoMoviePose = makePose([joint("leftLowerArm", { flexion: 0 })]);
  * 2. Happy(1) → neutral: the intensity fades out symmetrically (0.5 at t=0.5).
  * 3. Neutral → neutral: no expression is sampled (null).
  *
- * @evidence contracts/testing.md#behavioral-verification Samples the existing ramp-in, fade-out and unauthored clips, observing preset identity, low early/late intensities, midpoint 0.5 and null-null output. This catches holding a present endpoint at full strength.
- * @evidence contracts/testing.md#independent-expectations The local linear endpoints neutral 0 and happy 1 determine midpoint 0.5, while the preserved <0.2 inequalities distinguish the 0.1/0.9 clock sides from a full-strength hold. Literal names/null and existing tolerances come from authored semantics rather than interpolateExpression output.
- * @evidence contracts/testing.md#distinguishing-cases Retains null-to-present, present-to-null and null-to-null, early/mid/late samples and preset identity. Different-preset switching and detailed channel weights belong to separate existing units.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns every direct sample call using existing in-memory fixture constructors. Named facts register no additional cases and no viewer, process or native artifact is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the existing ramp-in, fade-out and unauthored clips, observing preset identity, low early/late intensities, midpoint 0.5 and null-null output. This catches holding a present endpoint at full strength.
+ * @evidence contracts/development/testing.md#independent-expectations The local linear endpoints neutral 0 and happy 1 determine midpoint 0.5, while the preserved <0.2 inequalities distinguish the 0.1/0.9 clock sides from a full-strength hold. Literal names/null and existing tolerances come from authored semantics rather than interpolateExpression output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains null-to-present, present-to-null and null-to-null, early/mid/late samples and preset identity. Different-preset switching and detailed channel weights belong to separate existing units.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns every direct sample call using existing in-memory fixture constructors. Named facts register no additional cases and no viewer, process or native artifact is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Neutral to happy(1) retains happy, is below 0.2 at t=0.1 and samples 0.5 at t=0.5; near-end ramp intensity is not asserted.).
  */
 export function test_motion_sample_expression_neutral(): void {
   // 1. an expression authored only at the FAR keyframe ramps in from neutral

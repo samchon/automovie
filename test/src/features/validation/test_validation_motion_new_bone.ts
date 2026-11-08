@@ -17,10 +17,11 @@ import { makePose } from "../internal/makePose";
  * Scenarios:
  * 1. A one-second clip moves its elbow from 0 to 30 degrees and introduces a shoulder at 20 degrees in the second key; the clip validates.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateMotion and requires success for an admitted partial-joint clip, catching a gate that rejects first-appearing joints outright.
- * @evidence contracts/testing.md#independent-expectations Joints need not repeat in every keyframe and the authored angles satisfy default constraints. A mistaken zero baseline would also pass this low-speed input, so it does not prove that every synthetic-baseline calculation is absent.
- * @evidence contracts/testing.md#distinguishing-cases Retains a shared moving elbow and newly listed shoulder; angular_speed owns excessive shared-axis motion and motion_valid owns an unchanged joint population.
- * @evidence contracts/testing.md#execution-ownership This named portable unit uses existing factories and no sampled movement, Human asset, host or dynamic cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateMotion and requires success for an admitted partial-joint clip, catching a gate that rejects first-appearing joints outright.
+ * @evidence contracts/development/testing.md#independent-expectations Joints need not repeat in every keyframe and the authored angles satisfy default constraints. A mistaken zero baseline would also pass this low-speed input, so it does not prove that every synthetic-baseline calculation is absent.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains a shared moving elbow and newly listed shoulder; angular_speed owns excessive shared-axis motion and motion_valid owns an unchanged joint population.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit uses existing factories and no sampled movement, Human asset, host or dynamic cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A one-second clip moves its elbow from 0 to 30 degrees and introduces a shoulder at 20 degrees in the second key; the clip validates.).
  */
 export function test_validation_motion_new_bone(): void {
   const motion: IAutoMovieMotion = makeMotion(

@@ -1,6 +1,14 @@
-import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node/chrome";
+import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render";
 import { createHash } from "node:crypto";
-import { type Browser, type CDPSession, type ConsoleMessage, type Page, type Request, type Response, chromium } from "playwright-core";
+import {
+  type Browser,
+  type CDPSession,
+  type ConsoleMessage,
+  type Page,
+  type Request,
+  type Response,
+  chromium,
+} from "playwright-core";
 
 import { HUMAN_DEBUG_ROUTES } from "../contracts/HUMAN_DEBUG_ROUTES";
 import { HumanDebugOptions } from "../contracts/HumanDebugOptions";
@@ -76,7 +84,10 @@ export class HumanDebugCaptureSession {
   private closed: boolean = false;
   private running: HumanDebugCaptureMonitor.IWork | null = null;
   private readonly waiting: Set<HumanDebugCaptureMonitor.IWork> = new Set();
-  private readonly frames: Map<string, IHumanDebugFrame & { nonce: string | null }> = new Map();
+  private readonly frames: Map<
+    string,
+    IHumanDebugFrame & { nonce: string | null }
+  > = new Map();
   private readonly pending: Set<string> = new Set();
   private readonly failures: HumanDebugCaptureMonitor.IStatus.IFailure[] = [];
   private broken: string[] = [];
@@ -92,13 +103,18 @@ export class HumanDebugCaptureSession {
   public constructor(
     private readonly environment: IHumanDebugEnvironment,
     private readonly origin: () => string,
-    private readonly stacks: (text: string) => Promise<string> = (text: string): Promise<string> => Promise.resolve(text),
+    private readonly stacks: (text: string) => Promise<string> = (
+      text: string,
+    ): Promise<string> => Promise.resolve(text),
   ) {}
 
   /** Admitted work, without acquiring anything: the running frame's stage and the queued requests in order. */
   public status(): HumanDebugCaptureMonitor.IStatus {
     const now: number = Date.now();
-    const report: (work: HumanDebugCaptureMonitor.IWork, from: number) => HumanDebugCaptureMonitor.IStatus.IWork = (
+    const report: (
+      work: HumanDebugCaptureMonitor.IWork,
+      from: number,
+    ) => HumanDebugCaptureMonitor.IStatus.IWork = (
       work: HumanDebugCaptureMonitor.IWork,
       from: number,
     ): HumanDebugCaptureMonitor.IStatus.IWork => ({
@@ -109,8 +125,16 @@ export class HumanDebugCaptureSession {
     });
     return {
       admitted: this.admitted,
-      running: this.running === null ? null : report(this.running, this.running.started ?? this.running.admitted),
-      queued: [...this.waiting].map((work: HumanDebugCaptureMonitor.IWork): HumanDebugCaptureMonitor.IStatus.IWork => report(work, work.admitted)),
+      running:
+        this.running === null
+          ? null
+          : report(this.running, this.running.started ?? this.running.admitted),
+      queued: [...this.waiting].map(
+        (
+          work: HumanDebugCaptureMonitor.IWork,
+        ): HumanDebugCaptureMonitor.IStatus.IWork =>
+          report(work, work.admitted),
+      ),
       source: this.source ?? null,
       subject: this.subject ?? null,
       frames: this.frames.size,
@@ -135,29 +159,47 @@ export class HumanDebugCaptureSession {
   ): Promise<IHumanDebugFrame> {
     if (nonce !== null && !/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(nonce))
       throw new Error("fresh needs one to sixty-four letters, digits, _ or -");
-    if (this.closed || this.admitted >= QUEUE) throw new Error("Human debug capture queue is closed or full");
+    if (this.closed || this.admitted >= QUEUE)
+      throw new Error("Human debug capture queue is closed or full");
     const query: string = HumanDebugOptions.write({
       ...options,
       ui: false,
       w: options.w === 0 ? 1200 : options.w,
       h: options.h === 0 ? 1200 : options.h,
     });
-    const work: HumanDebugCaptureMonitor.IWork = { query, stage: "queued", admitted: Date.now(), started: null };
+    const work: HumanDebugCaptureMonitor.IWork = {
+      query,
+      stage: "queued",
+      admitted: Date.now(),
+      started: null,
+    };
     this.admitted++;
     this.waiting.add(work);
     if (this.running !== null)
       console.log(
-        "[human-debug] queued " + query + " behind " + this.running.query + " (" + this.running.stage + "), " +
-          (this.waiting.size - 1) + " more ahead",
+        "[human-debug] queued " +
+          query +
+          " behind " +
+          this.running.query +
+          " (" +
+          this.running.stage +
+          "), " +
+          (this.waiting.size - 1) +
+          " more ahead",
       );
-    const drawn: Promise<IHumanDebugFrame> = this.queue.then(async (): Promise<IHumanDebugFrame> => {
-      this.waiting.delete(work);
-      if (left()) throw new Error("Human debug request left before its frame started: " + query);
-      work.started = Date.now();
-      work.stage = "starting";
-      this.running = work;
-      return this.attempts(work, options, nonce, keep);
-    });
+    const drawn: Promise<IHumanDebugFrame> = this.queue.then(
+      async (): Promise<IHumanDebugFrame> => {
+        this.waiting.delete(work);
+        if (left())
+          throw new Error(
+            "Human debug request left before its frame started: " + query,
+          );
+        work.started = Date.now();
+        work.stage = "starting";
+        this.running = work;
+        return this.attempts(work, options, nonce, keep);
+      },
+    );
     this.queue = drawn
       .then((): void => {})
       .catch((): void => {})
@@ -169,9 +211,17 @@ export class HumanDebugCaptureSession {
     } catch (error) {
       // The failure's page stack is mapped to the TypeScript sources once, here, so the answer,
       // the server log and the status route all name the same file and line.
-      const failure: Error = error instanceof Error ? error : new Error(String(error));
-      failure.message = await this.stacks(failure.message).catch((): string => failure.message);
-      this.failures.unshift({ failedUtc: new Date().toISOString(), query, stage: work.stage, error: failure.message });
+      const failure: Error =
+        error instanceof Error ? error : new Error(String(error));
+      failure.message = await this.stacks(failure.message).catch(
+        (): string => failure.message,
+      );
+      this.failures.unshift({
+        failedUtc: new Date().toISOString(),
+        query,
+        stage: work.stage,
+        error: failure.message,
+      });
       this.failures.splice(FAILURES);
       throw failure;
     } finally {
@@ -199,11 +249,24 @@ export class HumanDebugCaptureSession {
   ): Promise<IHumanDebugFrame> {
     for (let attempt: number = 1; ; ++attempt)
       try {
-        return { ...(await this.draw(work, options, nonce, keep)), attempts: attempt };
+        return {
+          ...(await this.draw(work, options, nonce, keep)),
+          attempts: attempt,
+        };
       } catch (error) {
-        if (attempt >= ATTEMPTS || !(error instanceof Error) || !/^Human source changed/.test(error.message)) throw error;
+        if (
+          attempt >= ATTEMPTS ||
+          !(error instanceof Error) ||
+          !/^Human source changed/.test(error.message)
+        )
+          throw error;
         this.source = undefined;
-        work.stage = "waiting to retry after a source change (attempt " + (attempt + 1) + " of " + ATTEMPTS + ")";
+        work.stage =
+          "waiting to retry after a source change (attempt " +
+          (attempt + 1) +
+          " of " +
+          ATTEMPTS +
+          ")";
         await delay(attempt * BACKOFF * 1000);
       }
   }
@@ -219,18 +282,35 @@ export class HumanDebugCaptureSession {
     const query: string = work.query;
     work.stage = "hashing the source";
     const disk: string =
-      keep && this.source !== undefined ? this.source : await HumanDebugSourceHash(this.environment);
+      keep && this.source !== undefined
+        ? this.source
+        : await HumanDebugSourceHash(this.environment);
     const key: string = disk + "?" + query;
-    const kept: (IHumanDebugFrame & { nonce: string | null }) | undefined = this.frames.get(key);
-    if (kept !== undefined && this.source === disk && (nonce === null || kept.nonce === nonce))
+    const kept: (IHumanDebugFrame & { nonce: string | null }) | undefined =
+      this.frames.get(key);
+    if (
+      kept !== undefined &&
+      this.source === disk &&
+      (nonce === null || kept.nonce === nonce)
+    )
       return { ...kept, cache: "existing-png" };
 
     const subject: string = JSON.stringify([options.person, options.piece]);
-    const generating: boolean = this.source !== disk || this.subject !== subject;
-    const naming: string = "person " + (options.person ?? "(first)") + (options.piece === null ? ", whole figure" : ", piece " + options.piece);
-    work.stage = generating ? "waiting for a generation slot" : "applying options";
+    const generating: boolean =
+      this.source !== disk || this.subject !== subject;
+    const naming: string =
+      "person " +
+      (options.person ?? "(first)") +
+      (options.piece === null ? ", whole figure" : ", piece " + options.piece);
+    work.stage = generating
+      ? "waiting for a generation slot"
+      : "applying options";
     const slot: HumanDebugGenerationSlot | null = generating
-      ? await HumanDebugGenerationSlot.acquire(this.environment.slotRoot, this.environment.slots, "debug viewer " + query)
+      ? await HumanDebugGenerationSlot.acquire(
+          this.environment.slotRoot,
+          this.environment.slots,
+          "debug viewer " + query,
+        )
       : null;
     let snapshot: IHumanDebugSnapshot;
     try {
@@ -238,21 +318,49 @@ export class HumanDebugCaptureSession {
       snapshot = await this.guarded(
         page,
         work,
-        (signal: AbortSignal): Promise<IHumanDebugSnapshot> => this.source === disk
-          ? this.apply(work, query, generating ? "generating " + naming + " in the loaded page" : "applying options", signal)
-          : this.load(work, query, disk, "loading the page's modules and mounting on source " + disk.slice(0, 12), signal),
+        (signal: AbortSignal): Promise<IHumanDebugSnapshot> =>
+          this.source === disk
+            ? this.apply(
+                work,
+                query,
+                generating
+                  ? "generating " + naming + " in the loaded page"
+                  : "applying options",
+                signal,
+              )
+            : this.load(
+                work,
+                query,
+                disk,
+                "loading the page's modules and mounting on source " +
+                  disk.slice(0, 12),
+                signal,
+              ),
       );
     } finally {
       slot?.release();
     }
-    this.subject = snapshot.subject === null ? undefined : JSON.stringify([snapshot.subject.person, snapshot.subject.piece]);
+    this.subject =
+      snapshot.subject === null
+        ? undefined
+        : JSON.stringify([snapshot.subject.person, snapshot.subject.piece]);
     if (snapshot.subject === null)
-      throw new Error("Human debug subject failed to load:\n" + snapshot.notices.join("\n"));
+      throw new Error(
+        "Human debug subject failed to load:\n" + snapshot.notices.join("\n"),
+      );
     if (/swiftshader|llvmpipe|software/i.test(snapshot.canvas.gpu))
-      throw new Error("Human debug capture needs a hardware renderer; got " + snapshot.canvas.gpu);
+      throw new Error(
+        "Human debug capture needs a hardware renderer; got " +
+          snapshot.canvas.gpu,
+      );
 
     work.stage = "taking the screenshot";
-    const png: Buffer = await this.guarded(this.page!, work, (): Promise<Buffer> => this.page!.locator("#viewport").screenshot({ type: "png" }));
+    const png: Buffer = await this.guarded(
+      this.page!,
+      work,
+      (): Promise<Buffer> =>
+        this.page!.locator("#viewport").screenshot({ type: "png" }),
+    );
     const frame: IHumanDebugFrame & { nonce: string | null } = {
       png,
       source: disk,
@@ -269,7 +377,13 @@ export class HumanDebugCaptureSession {
   }
 
   /** Load the page on the current source and draw the query's first frame. */
-  private async load(work: HumanDebugCaptureMonitor.IWork, query: string, before: string, stage: string, signal: AbortSignal): Promise<IHumanDebugSnapshot> {
+  private async load(
+    work: HumanDebugCaptureMonitor.IWork,
+    query: string,
+    before: string,
+    stage: string,
+    signal: AbortSignal,
+  ): Promise<IHumanDebugSnapshot> {
     signal.throwIfAborted();
     this.source = undefined;
     this.subject = undefined;
@@ -282,7 +396,10 @@ export class HumanDebugCaptureSession {
     work.stage = "navigating";
     this.broken = [];
     this.reads = [];
-    await page.goto(this.origin() + HUMAN_DEBUG_ROUTES.page + "?" + query, { waitUntil: "commit", timeout: MOUNT });
+    await page.goto(this.origin() + HUMAN_DEBUG_ROUTES.page + "?" + query, {
+      waitUntil: "commit",
+      timeout: MOUNT,
+    });
     signal.throwIfAborted();
 
     // Observe the handle or the boot/mount error string after module evaluation, independently of painting.
@@ -294,32 +411,61 @@ export class HumanDebugCaptureSession {
         (): string | null => {
           if ("__humanDebug" in window) return "mounted";
           if (!("__humanDebugFailed" in window)) return null;
-          const failure: unknown = (window as unknown as { __humanDebugFailed: unknown }).__humanDebugFailed;
-          if (typeof failure === "object" && failure !== null && "kind" in failure && failure.kind === "mount" && "detail" in failure)
+          const failure: unknown = (
+            window as unknown as { __humanDebugFailed: unknown }
+          ).__humanDebugFailed;
+          if (
+            typeof failure === "object" &&
+            failure !== null &&
+            "kind" in failure &&
+            failure.kind === "mount" &&
+            "detail" in failure
+          )
             return "mount-failed:\n" + String(failure.detail);
           return String(failure);
         },
         null,
         { timeout: 0, polling: 100 },
       )
-      .then((handle: { jsonValue(): Promise<string | null> }): Promise<string | null> => handle.jsonValue())
+      .then(
+        (handle: {
+          jsonValue(): Promise<string | null>;
+        }): Promise<string | null> => handle.jsonValue(),
+      )
       .then((value: string | null): string => value ?? "missing")
       .catch((error: unknown): string => "failed: " + String(error));
     signal.throwIfAborted();
     if (mounted.startsWith("mount-failed:\n"))
-      throw new Error("Human debug page initialization failed:\n" + mounted.slice("mount-failed:\n".length));
+      throw new Error(
+        "Human debug page initialization failed:\n" +
+          mounted.slice("mount-failed:\n".length),
+      );
     if (mounted !== "mounted") {
       // The modules the server refused (a missing import, a syntax error) name the cause.
-      await Promise.race([Promise.all(this.reads), delay(HumanDebugCaptureMonitor.GRACE)]);
+      await Promise.race([
+        Promise.all(this.reads),
+        delay(HumanDebugCaptureMonitor.GRACE),
+      ]);
       throw new Error(
-        "Human source changed: the page did not mount (" + mounted + ")" +
-          (this.broken.length === 0 ? "" : "; refused modules:\n" + this.broken.slice(0, 8).join("\n")),
+        "Human source changed: the page did not mount (" +
+          mounted +
+          ")" +
+          (this.broken.length === 0
+            ? ""
+            : "; refused modules:\n" + this.broken.slice(0, 8).join("\n")),
       );
     }
-    work.stage = "loading the mounted page's first subject on source " + before.slice(0, 12);
+    work.stage =
+      "loading the mounted page's first subject on source " +
+      before.slice(0, 12);
     const snapshot: IHumanDebugSnapshot = await this.watched(
       page.evaluate(
-        (): Promise<IHumanDebugSnapshot> => (window as unknown as { __humanDebug: { ready: Promise<IHumanDebugSnapshot> } }).__humanDebug.ready,
+        (): Promise<IHumanDebugSnapshot> =>
+          (
+            window as unknown as {
+              __humanDebug: { ready: Promise<IHumanDebugSnapshot> };
+            }
+          ).__humanDebug.ready,
       ),
       signal,
     );
@@ -328,19 +474,34 @@ export class HumanDebugCaptureSession {
     // The page read the hash after its modules loaded; a save since `before` means its modules
     // may mix two sources.
     if (snapshot.source !== before)
-      throw new Error("Human source changed while the page loaded its modules (" + String(snapshot.source) + ")");
+      throw new Error(
+        "Human source changed while the page loaded its modules (" +
+          String(snapshot.source) +
+          ")",
+      );
     this.source = before;
     return snapshot;
   }
 
   /** Apply a query on the loaded page. */
-  private async apply(work: HumanDebugCaptureMonitor.IWork, query: string, stage: string, signal: AbortSignal): Promise<IHumanDebugSnapshot> {
+  private async apply(
+    work: HumanDebugCaptureMonitor.IWork,
+    query: string,
+    stage: string,
+    signal: AbortSignal,
+  ): Promise<IHumanDebugSnapshot> {
     signal.throwIfAborted();
     work.stage = stage;
     return this.watched(
       this.page!.evaluate(
         (search: string): Promise<IHumanDebugSnapshot> =>
-          (window as unknown as { __humanDebug: { apply(search: string): Promise<IHumanDebugSnapshot> } }).__humanDebug.apply(search),
+          (
+            window as unknown as {
+              __humanDebug: {
+                apply(search: string): Promise<IHumanDebugSnapshot>;
+              };
+            }
+          ).__humanDebug.apply(search),
         query,
       ),
       signal,
@@ -348,13 +509,29 @@ export class HumanDebugCaptureSession {
   }
 
   /** Bound one page operation through the shared monitor; this session still owns its disposal. */
-  private guarded<T>(page: Page, work: HumanDebugCaptureMonitor.IWork, job: (signal: AbortSignal) => Promise<T>): Promise<T> {
-    return HumanDebugCaptureMonitor.guarded(page, this.browser, work, job, (failed: Page): Promise<void> => this.discard(failed));
+  private guarded<T>(
+    page: Page,
+    work: HumanDebugCaptureMonitor.IWork,
+    job: (signal: AbortSignal) => Promise<T>,
+  ): Promise<T> {
+    return HumanDebugCaptureMonitor.guarded(
+      page,
+      this.browser,
+      work,
+      job,
+      (failed: Page): Promise<void> => this.discard(failed),
+    );
   }
 
   /** Observe only mounted-page ready/apply work through the existing task-time policy. */
   private watched<T>(work: Promise<T>, signal: AbortSignal): Promise<T> {
-    return HumanDebugCaptureMonitor.watched(this.page!, this.pending, work, HumanDebugCaptureMonitor.GRACE, signal);
+    return HumanDebugCaptureMonitor.watched(
+      this.page!,
+      this.pending,
+      work,
+      HumanDebugCaptureMonitor.GRACE,
+      signal,
+    );
   }
 
   /** Forget a failed page and close it, closing Chrome as well when the page does not close in time. */
@@ -374,7 +551,10 @@ export class HumanDebugCaptureSession {
     const browser: Browser = this.browser;
     this.browser = undefined;
     this.page = undefined;
-    await Promise.race([browser.close().catch((): void => {}), delay(HumanDebugCaptureMonitor.GRACE)]);
+    await Promise.race([
+      browser.close().catch((): void => {}),
+      delay(HumanDebugCaptureMonitor.GRACE),
+    ]);
   }
 
   /** The resident page has HTTP caching disabled before navigation; source/PNG reuse is separate. WebSockets stay unconnected. */
@@ -390,14 +570,22 @@ export class HumanDebugCaptureSession {
     this.browser ??= await chromium.launch({
       executablePath: DEFAULT_CHROME_EXECUTABLE,
       headless: true,
-      args: ["--ignore-gpu-blocklist", "--enable-gpu", ...(process.platform === "win32" ? ["--use-angle=d3d11"] : [])],
+      args: [
+        "--ignore-gpu-blocklist",
+        "--enable-gpu",
+        ...(process.platform === "win32" ? ["--use-angle=d3d11"] : []),
+      ],
     });
-    const page: Page = await this.browser.newPage({ viewport: { width: 1600, height: 1300 } });
+    const page: Page = await this.browser.newPage({
+      viewport: { width: 1600, height: 1300 },
+    });
     try {
       // Keep this protocol session attached for the page lifetime: detaching it
       // early would remove the page's cache policy. Target closure releases it.
       const network: CDPSession = await page.context().newCDPSession(page);
-      page.once("close", (): void => { void network.detach().catch((): void => {}); });
+      page.once("close", (): void => {
+        void network.detach().catch((): void => {});
+      });
       await network.send("Network.setCacheDisabled", { cacheDisabled: true });
       console.info("[human-debug] resident page HTTP cache disabled (CDP)");
     } catch (error) {
@@ -406,13 +594,24 @@ export class HumanDebugCaptureSession {
     }
     page.setDefaultTimeout(HumanDebugCaptureMonitor.FRAME);
     await page.routeWebSocket(/.*/, (): void => {});
-    page.on("pageerror", (error: Error): void => console.error("[human-debug page]", error.stack ?? error.message));
+    page.on("pageerror", (error: Error): void =>
+      console.error("[human-debug page]", error.stack ?? error.message),
+    );
 
     // The requests the page still waits on, named when a frame stalls.
     this.pending.clear();
-    page.on("request", (request: Request): void => void this.pending.add(request.url()));
-    page.on("requestfinished", (request: Request): void => void this.pending.delete(request.url()));
-    page.on("requestfailed", (request: Request): void => void this.pending.delete(request.url()));
+    page.on(
+      "request",
+      (request: Request): void => void this.pending.add(request.url()),
+    );
+    page.on(
+      "requestfinished",
+      (request: Request): void => void this.pending.delete(request.url()),
+    );
+    page.on(
+      "requestfailed",
+      (request: Request): void => void this.pending.delete(request.url()),
+    );
 
     // A module the server refuses answers with Vite's error page, whose error names the file and line.
     page.on("response", (response: Response): void => {
@@ -423,21 +622,31 @@ export class HumanDebugCaptureSession {
           .text()
           .catch((): string => "")
           .then((body: string): void => {
-            if (this.broken.length < 16) this.broken.push(address + " " + response.status() + HumanDebugCaptureMonitor.refusal(body));
+            if (this.broken.length < 16)
+              this.broken.push(
+                address +
+                  " " +
+                  response.status() +
+                  HumanDebugCaptureMonitor.refusal(body),
+              );
           }),
       );
     });
 
     // The page logs every failed load with its stack; the server log is where a frame's cause is read.
     page.on("console", (message: ConsoleMessage): void => {
-      if (message.type() === "error") console.error("[human-debug page]", message.text());
+      if (message.type() === "error")
+        console.error("[human-debug page]", message.text());
     });
     this.page = page;
     return page;
   }
 
   /** Keep a frame, dropping the oldest while the kept PNG bytes exceed the budget. */
-  private keep(key: string, frame: IHumanDebugFrame & { nonce: string | null }): void {
+  private keep(
+    key: string,
+    frame: IHumanDebugFrame & { nonce: string | null },
+  ): void {
     this.frames.delete(key);
     this.frames.set(key, frame);
     let bytes: number = 0;

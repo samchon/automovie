@@ -75,10 +75,11 @@ const materialsOf: (root: THREE.Object3D) => THREE.Material[] = (
  * 5. Two planes preserve declaration order and advance version for the changed count.
  * 6. An empty declaration clears material planes to null and disables local clipping; pixel equality with an earlier frame is not asserted.
  *
- * @evidence contracts/testing.md#behavioral-verification Applies and releases actual section planes on scalar/array native material populations and reads plane signs, identity and version counters; catches reversed halfspaces, skipped material slots and recompilation requested for value-only movement.
- * @evidence contracts/testing.md#independent-expectations Hand geometry gives ceiling distance 3-y and the negated west normal; Engine keep-point is the canonical boundary reference. Plane-count changes define version increments, while CPU signs/version counters do not prove GPU fragment precision or pixel equality.
- * @evidence contracts/testing.md#distinguishing-cases Covers below/on/above boundaries, nonunit normal, material-less child, scalar/array materials, unchanged/changed count and empty release; arbitrary prior clipping policy and native capture are outside this owner.
- * @evidence contracts/testing.md#execution-ownership This named portable unit invokes maintained Engine/Viewer source with real CPU-side planes/materials and a supplied clipping flag, acquiring no renderer, browser, GPU or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies and releases actual section planes on scalar/array native material populations and reads plane signs, identity and version counters; catches reversed halfspaces, skipped material slots and recompilation requested for value-only movement.
+ * @evidence contracts/development/testing.md#independent-expectations Hand geometry gives ceiling distance 3-y and the negated west normal; Engine keep-point is the canonical boundary reference. Plane-count changes define version increments, while CPU signs/version counters do not prove GPU fragment precision or pixel equality.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers below/on/above boundaries, nonunit normal, material-less child, scalar/array materials, unchanged/changed count and empty release; arbitrary prior clipping policy and native capture are outside this owner.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit invokes maintained Engine/Viewer source with real CPU-side planes/materials and a supplied clipping flag, acquiring no renderer, browser, GPU or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: One plane enables local clipping and shares its plane array across scalar and array materials with clipIntersection false; a material-less...).
  */
 export function test_viewer_section_planes(): void {
   // 1. one plane reaches every material, and only the ones that exist

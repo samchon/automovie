@@ -13,10 +13,11 @@ import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture
  *
  * 1. Absent texture facts report not-run; an unmeasured water body reports unsupported fluid metrics.
  *
- * @evidence contracts/testing.md#behavioral-verification Measures and evaluates the supplied subject after withholding texture facts and then water-domain counts, asserting null totals, ordered gap/finding statuses, incomplete reports and the existing texture recovery wording.
- * @evidence contracts/testing.md#independent-expectations Missing decoded storage observations are unknown rather than zero, while a water body with no domain/cell/particle measurement cannot yield supported fluid counts. Literal null/not-run/unsupported/incomplete expectations follow those contracts without estimating GPU use.
- * @evidence contracts/testing.md#distinguishing-cases Preserves separate absent-texture and unresolved-water cases; populated measurement, malformed refusal and an intentionally undeclared budget are covered by adjacent tests.
- * @evidence contracts/testing.md#execution-ownership The named test_render_budget_incomplete_resources owns both portable CPU inventory/report cases through existing fixtures; no texture upload, fluid solver host, browser or GPU runs.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures and evaluates the supplied subject after withholding texture facts and then water-domain counts, asserting null totals, ordered gap/finding statuses, incomplete reports and the existing texture recovery wording.
+ * @evidence contracts/development/testing.md#independent-expectations Missing decoded storage observations are unknown rather than zero, while a water body with no domain/cell/particle measurement cannot yield supported fluid counts. Literal null/not-run/unsupported/incomplete expectations follow those contracts without estimating GPU use.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves separate absent-texture and unresolved-water cases; populated measurement, malformed refusal and an intentionally undeclared budget are covered by adjacent tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_render_budget_incomplete_resources owns both portable CPU inventory/report cases through existing fixtures; no texture upload, fluid solver host, browser or GPU runs.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Absent texture facts report not-run; an unmeasured water body reports unsupported fluid metrics.).
  */
 export function test_render_budget_incomplete_resources(): void {
   const target: ReturnType<typeof renderBudgetTargetFixture> =

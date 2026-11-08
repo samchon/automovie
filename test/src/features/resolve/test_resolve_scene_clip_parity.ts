@@ -55,10 +55,11 @@ import { vclose } from "../internal/vclose";
  *    match: the per-placement prefixes really keep the two actors' subtrees
  *    distinct (the knights stand 0.7 m apart, facing opposite ways).
  *
- * @evidence contracts/testing.md#behavioral-verification Executes forge/stage/perform, lowers the resulting two-actor graph and motion clips, and compares every resolved bone with specialized FK at the endpoint-inclusive bake clock, including an actor-prefix negative twin.
- * @evidence contracts/testing.md#independent-expectations Specialized resolvePose/sampleMotion plus placement multiplication provides a separate execution path, not an independent external kinematics oracle; shared quaternion/matrix defects may cancel and inter-sample clinical easing is not proven.
- * @evidence contracts/testing.md#distinguishing-cases Both actor prefixes, all returned bones, shorter-motion hold time and the crossed hips lookup distinguish naming/time errors from parity; arbitrary rigs, clinical truth and continuous-time equality are outside this existing duel fixture.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_scene_clip_parity entry owns portable synchronous engine pipeline execution with the existing injected fixture synthesizer; it renders no Human asset or frame and replaces no product implementation.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes forge/stage/perform, lowers the resulting two-actor graph and motion clips, and compares every resolved bone with specialized FK at the endpoint-inclusive bake clock, including an actor-prefix negative twin.
+ * @evidence contracts/development/testing.md#independent-expectations Specialized resolvePose/sampleMotion plus placement multiplication provides a separate execution path, not an independent external kinematics oracle; shared quaternion/matrix defects may cancel and inter-sample clinical easing is not proven.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both actor prefixes, all returned bones, shorter-motion hold time and the crossed hips lookup distinguish naming/time errors from parity; arbitrary rigs, clinical truth and continuous-time equality are outside this existing duel fixture.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_scene_clip_parity entry owns portable synchronous engine pipeline execution with the existing injected fixture synthesizer; it renders no Human asset or frame and replaces no product implementation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The merge precondition: every compiled motion fits the shot and at least one).
  */
 export function test_resolve_scene_clip_parity(): void {
   const script: IAutoMovieScript = makeScriptWrite();

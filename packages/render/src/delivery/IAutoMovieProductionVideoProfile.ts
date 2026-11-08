@@ -12,13 +12,10 @@ import type {
  * deliverable; brands, matrix, pixel aspect and color are fixed literals of the
  * one profile the normalizer writes.
  *
- * @evidence contracts/common.md#principled-implementation The profile states facts in the MP4 file's own terms, such as ISO brands, the 16.16 and 2.30 fixed-point track matrix and ITU-T H.273 color code points, so the checker compares them directly with the probe without unit conversion.
- * @evidence contracts/common.md#clear-and-simple-design Only the facts the checker needs from the author are variable, and container and codec identity stay inside the checker because no profile may differ there.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The literal color code points and brand are the sRGB and ISO base media identities the normalizer writes, shared through `AUTOMOVIE_MP4_SRGB_COLOUR` and the unity matrix constant, not values picked for a test file.
- * @evidence contracts/common.md#meaningful-documentation The prose names producer and checker and which fields vary; each member gives its unit, fixed-point form or code-point meaning.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This interface declares expected video facts and computes nothing; the checking cost belongs to `assertProductionVideoProfile`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A video profile is a value passed to checks and coordinates no work between them.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The profile is a fixed-size record and owns no handle, buffer or task.
+ * @evidence contracts/development/design.md#principled-representation The profile states facts in the MP4 file's own terms, such as ISO brands, the 16.16 and 2.30 fixed-point track matrix and ITU-T H.273 color code points, so the checker compares them directly with the probe without unit conversion.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only the facts the checker needs from the author are variable, and container and codec identity stay inside the checker because no profile may differ there.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The literal color code points and brand are the sRGB and ISO base media identities the normalizer writes, shared through `AUTOMOVIE_MP4_SRGB_COLOUR` and the unity matrix constant, not values picked for a test file.
+ * @evidence contracts/development/common.md#meaningful-documentation The prose names producer and checker and which fields vary; each member gives its unit, fixed-point form or code-point meaning.
  */
 export interface IAutoMovieProductionVideoProfile {
   /** Coded and displayed picture width in pixels. */

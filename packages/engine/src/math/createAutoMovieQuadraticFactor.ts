@@ -9,7 +9,6 @@
  * Original source: src/qdldl/qdldl.rs; src/solver/core/kktsolvers/direct/quasidef/directldlkktsolver.rs
  * License: ../../vendor/clarabel/licenses/clarabel-0.11.1/LICENSE.md
  */
-
 import { IAutoMovieQuadraticConicProgram } from "./IAutoMovieQuadraticConicProgram";
 import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
 import { orderAutoMovieQuadraticMatrix } from "./orderAutoMovieQuadraticMatrix";
@@ -28,15 +27,17 @@ import { orderAutoMovieQuadraticMatrix } from "./orderAutoMovieQuadraticMatrix";
  * Finite refinement is not a convergence proof: the interior-point owner must
  * still establish the original primal/dual residual and objective-gap tests.
  *
- * @evidence contracts/common.md#principled-implementation Sparse symmetric permutation and elimination-tree LDL factor the quasi-definite stabilized KKT. Signed 1e-8 static shifts and signed 2e-7 dynamic pivots below 1e-13 are confined to factors; up to ten corrections use the unchanged KKT residual, following the preceding Clarabel configuration and Davis's sparse LDL algorithm.
- * @evidence contracts/common.md#clear-and-simple-design The factor owns ordering, symbolic fill, numeric updates and original-system refinement; it knows no homogeneous scalars, caller geometry or termination status.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No coefficient is thresholded or copied into a modified authored objective. Nonfinite factors or solves refuse, and finite factor output alone never becomes solved status.
- * @evidence contracts/common.md#meaningful-documentation Documents the matrix, equality diagonal, reuse, factor-only stabilization, original-system refinement and finite-precision limitation.
- * @evidence contracts/performance.md#efficient-algorithms For N=n+m and L actual factor nonzeros, storage is O(N+nnz(A)+L); symbolic work follows elimination paths, numeric work follows factor column intersections and each triangular solve costs O(N+L). No dense N-by-N array is created.
- * @evidence contracts/performance.md#reuse-equivalent-work Permutation, elimination tree, column pointers and numeric/refinement workspaces serve all updates of one immutable sparse structure; changing only H requires numeric refactorization.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned call-owned closure retains only its sparse structure and bounded work vectors; no cross-call factor, module, host handle or native instance is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Sparse symmetric permutation and elimination-tree LDL factor the quasi-definite stabilized KKT. Signed 1e-8 static shifts and signed 2e-7 dynamic pivots below 1e-13 are confined to factors; up to ten corrections use the unchanged KKT residual, following the preceding Clarabel configuration and Davis's sparse LDL algorithm.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The factor owns ordering, symbolic fill, numeric updates and original-system refinement; it knows no homogeneous scalars, caller geometry or termination status.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No coefficient is thresholded or copied into a modified authored objective. Nonfinite factors or solves refuse, and finite factor output alone never becomes solved status.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents the matrix, equality diagonal, reuse, factor-only stabilization, original-system refinement and finite-precision limitation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For N=n+m and L actual factor nonzeros, storage is O(N+nnz(A)+L); symbolic work follows elimination paths, numeric work follows factor column intersections and each triangular solve costs O(N+L). No dense N-by-N array is created.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Permutation, elimination tree, column pointers and numeric/refinement workspaces serve all updates of one immutable sparse structure; changing only H requires numeric refactorization.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned call-owned closure retains only its sparse structure and bounded work vectors; no cross-call factor, module, host handle or native instance is retained.
  */
-export function createAutoMovieQuadraticFactor(data: IAutoMovieQuadraticConicProgram): {
+export function createAutoMovieQuadraticFactor(
+  data: IAutoMovieQuadraticConicProgram,
+): {
   update(h: Float64Array): boolean;
   solve(rhs: Float64Array): Float64Array | undefined;
   nonzeros: number;
@@ -45,12 +46,22 @@ export function createAutoMovieQuadraticFactor(data: IAutoMovieQuadraticConicPro
   const order: Int32Array = orderAutoMovieQuadraticMatrix(data);
   const inverse: Int32Array = new Int32Array(size);
   for (let at: number = 0; at < size; at++) inverse[order[at]!] = at;
-  const entries: { row: number; value: number }[][] = Array.from({ length: size }, (): { row: number; value: number }[] => []);
+  const entries: { row: number; value: number }[][] = Array.from(
+    { length: size },
+    (): { row: number; value: number }[] => [],
+  );
   for (let column: number = 0; column < data.n; column++)
-    for (let at: number = data.columns[column]!; at < data.columns[column + 1]!; at++) {
+    for (
+      let at: number = data.columns[column]!;
+      at < data.columns[column + 1]!;
+      at++
+    ) {
       const a: number = inverse[column]!;
       const b: number = inverse[data.n + data.rows[at]!]!;
-      entries[Math.max(a, b)]!.push({ row: Math.min(a, b), value: data.values[at]! });
+      entries[Math.max(a, b)]!.push({
+        row: Math.min(a, b),
+        value: data.values[at]!,
+      });
     }
   const ap: Int32Array = new Int32Array(size + 1);
   const ai: Int32Array = new Int32Array(size + data.values.length);
@@ -58,7 +69,9 @@ export function createAutoMovieQuadraticFactor(data: IAutoMovieQuadraticConicPro
   const diagonal: Int32Array = new Int32Array(size);
   let cursor: number = 0;
   for (let column: number = 0; column < size; column++) {
-    entries[column]!.sort((a: { row: number }, b: { row: number }): number => a.row - b.row);
+    entries[column]!.sort(
+      (a: { row: number }, b: { row: number }): number => a.row - b.row,
+    );
     for (const entry of entries[column]!) {
       ai[cursor] = entry.row;
       av[cursor++] = entry.value;
@@ -89,7 +102,8 @@ export function createAutoMovieQuadraticFactor(data: IAutoMovieQuadraticConicPro
   let fill: number = 0;
   for (let column: number = 0; column < size; column++) {
     fill += counts[column]!;
-    if (fill > 0x7fffffff) throw new Error("Quadratic sparse factor exceeds int32 storage.");
+    if (fill > 0x7fffffff)
+      throw new Error("Quadratic sparse factor exceeds int32 storage.");
     lp[column + 1] = fill;
   }
   const li: Int32Array = new Int32Array(fill);
@@ -108,7 +122,10 @@ export function createAutoMovieQuadraticFactor(data: IAutoMovieQuadraticConicPro
   let valid: boolean = false;
 
   /** Solve the currently stabilized factors in permuted coordinates. */
-  const substitute: (target: Float64Array, rhs: Float64Array) => void = (target: Float64Array, rhs: Float64Array): void => {
+  const substitute: (target: Float64Array, rhs: Float64Array) => void = (
+    target: Float64Array,
+    rhs: Float64Array,
+  ): void => {
     sums.fill(0);
     for (let at: number = 0; at < size; at++) sums[2 * at] = rhs[at]!;
     for (let column: number = 0; column < size; column++) {
@@ -126,7 +143,10 @@ export function createAutoMovieQuadraticFactor(data: IAutoMovieQuadraticConicPro
   };
 
   /** Residual uses av's true diagonal, never its factor stabilization. */
-  const residual: (rhs: Float64Array, x: Float64Array) => number = (rhs: Float64Array, x: Float64Array): number => {
+  const residual: (rhs: Float64Array, x: Float64Array) => number = (
+    rhs: Float64Array,
+    x: Float64Array,
+  ): number => {
     residualSums.fill(0);
     for (let at: number = 0; at < size; at++) residualSums[2 * at] = rhs[at]!;
     for (let column: number = 0; column < size; column++)
@@ -151,11 +171,13 @@ export function createAutoMovieQuadraticFactor(data: IAutoMovieQuadraticConicPro
       let maxDiagonal: number = 0;
       for (let column: number = 0; column < size; column++) {
         const original: number = order[column]!;
-        const value: number = original < data.n ? data.p[original]! : -h[original - data.n]!;
+        const value: number =
+          original < data.n ? data.p[original]! : -h[original - data.n]!;
         av[diagonal[column]!] = value;
         maxDiagonal = Math.max(maxDiagonal, Math.abs(value));
       }
-      const shift: number = 1e-8 + Number.EPSILON * Number.EPSILON * maxDiagonal;
+      const shift: number =
+        1e-8 + Number.EPSILON * Number.EPSILON * maxDiagonal;
       counts.fill(0);
       marks.fill(-1);
       y.fill(0);
@@ -211,9 +233,14 @@ export function createAutoMovieQuadraticFactor(data: IAutoMovieQuadraticConicPro
       substitute(solution, permuted);
       let norm: number = residual(permuted, solution);
       if (!Number.isFinite(norm)) return undefined;
-      for (let pass: number = 0; pass < 10 && norm > 1e-12 + 1e-13 * normb; pass++) {
+      for (
+        let pass: number = 0;
+        pass < 10 && norm > 1e-12 + 1e-13 * normb;
+        pass++
+      ) {
         substitute(correction, error);
-        for (let at: number = 0; at < size; at++) trial[at] = solution[at]! + correction[at]!;
+        for (let at: number = 0; at < size; at++)
+          trial[at] = solution[at]! + correction[at]!;
         const next: number = residual(permuted, trial);
         if (!Number.isFinite(next)) return undefined;
         if (next < norm) solution.set(trial);

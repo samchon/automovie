@@ -35,10 +35,11 @@ import { throwsError } from "../internal/throwsError";
  *    and reshaped categories.
  * 5. Invalid negative and non-finite tolerances are rejected.
  *
- * @evidence contracts/testing.md#behavioral-verification Diffs authored revisions and checks disjoint add/remove, independent move/reshape, stable summaries and tolerance refusal; conflating reusable geometry with placement or omitting environment-only models fails.
- * @evidence contracts/testing.md#independent-expectations Explicit before/after ids, translated chair, changed height and unchanged model fix the expected categories and revision labels; changing both compact anchor and spacing independently requires both categories. The literal default tolerance is checked through a scalar predicate, not diff-generated expected output.
- * @evidence contracts/testing.md#distinguishing-cases Keeps additions/removals, simultaneous element move and prototype reshape, unchanged subjects, environment-only ownership, a doubly changed set, newly added-set fan-out and negative/infinite tolerance; exact inclusive boundaries are owned by diff_tolerance.
- * @evidence contracts/testing.md#execution-ownership This discoverable exported CPU entry directly imports the diff owner and local code fixtures, with no renderer, browser or native artifact; structural classifications do not certify visible material or geometry quality.
+ * @evidence contracts/development/testing.md#behavioral-verification Diffs authored revisions and checks disjoint add/remove, independent move/reshape, stable summaries and tolerance refusal; conflating reusable geometry with placement or omitting environment-only models fails.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit before/after ids, translated chair, changed height and unchanged model fix the expected categories and revision labels; changing both compact anchor and spacing independently requires both categories. The literal default tolerance is checked through a scalar predicate, not diff-generated expected output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps additions/removals, simultaneous element move and prototype reshape, unchanged subjects, environment-only ownership, a doubly changed set, newly added-set fan-out and negative/infinite tolerance; exact inclusive boundaries are owned by diff_tolerance.
+ * @evidence contracts/development/testing.md#execution-ownership This discoverable exported CPU entry directly imports the diff owner and local code fixtures, with no renderer, browser or native artifact; structural classifications do not certify visible material or geometry quality.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Models and their parts added or removed are exclusive additions and).
  */
 export function test_inspection_subject_structural_diff(): void {
   const chairBefore: IAutoMovieModel = box("chair", 1);

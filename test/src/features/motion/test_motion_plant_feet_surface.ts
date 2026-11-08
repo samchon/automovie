@@ -85,10 +85,11 @@ const rising: (x: number) => number = (x: number): number => 0.2 * x;
  *    the scalar `groundY: 0` plant: the widened parameter preserved the scalar
  *    behavior.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls planting with rising, scalar-zero and callback-zero ground, then observes one sloped run with its literal local pin and equivalent complete compact plant fields for both zero-ground forms.
- * @evidence contracts/testing.md#independent-expectations The authored root x=1 and rest foot x offset 0.1 give x=1.1; h(x)=0.2*x gives y=0.22 independently of pin construction. The unchanged scalar/callback comparison uses nclose/vclose eps=0 to preserve the previous exact numeric requirement; equivalent metadata alone does not prove exact achieved correction.
- * @evidence contracts/testing.md#distinguishing-cases Retains nonconstant slope versus zero plane, scalar versus constant callback, 0.25 stance tolerance and one stationary half-second clip. Ground refusal and achieved contact have separate owning units.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns its three planting calls and pure local ground callbacks. Fixture helpers register no cases, retain no terrain resource and start no viewer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls planting with rising, scalar-zero and callback-zero ground, then observes one sloped run with its literal local pin and equivalent complete compact plant fields for both zero-ground forms.
+ * @evidence contracts/development/testing.md#independent-expectations The authored root x=1 and rest foot x offset 0.1 give x=1.1; h(x)=0.2*x gives y=0.22 independently of pin construction. The unchanged scalar/callback comparison uses nclose/vclose eps=0 to preserve the previous exact numeric requirement; equivalent metadata alone does not prove exact achieved correction.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains nonconstant slope versus zero plane, scalar versus constant callback, 0.25 stance tolerance and one stationary half-second clip. Ground refusal and achieved contact have separate owning units.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns its three planting calls and pure local ground callbacks. Fixture helpers register no cases, retain no terrain resource and start no viewer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: On the rising slope the stance is detected against the local height and the).
  */
 export function test_motion_plant_feet_surface(): void {
   const sloped: ReturnType<typeof plantStanceFeet> = plantStanceFeet({

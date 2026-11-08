@@ -40,10 +40,11 @@ const NORMAL: number = 1;
  * 3. Heights of the wrong count, a height that is not finite, and a height
  *    that turns the cylinder inside out are refused.
  *
- * @evidence contracts/testing.md#behavioral-verification Displaces a subdivided cylinder with `displaceAutoMovieSurface` using heights from `locateAutoMovieSurfaceVertices`; a step along anything but the normal, a wrong sign, unchanged normals or a normal that over- or under-turns fails, while any normal displacement with a perturbed normal accurate to the mesh passes.
- * @evidence contracts/testing.md#independent-expectations The axis distance of a cylinder grows by the height along its radial normal; the expected normal is the cross product of central differences of the sweep plus the field times the sweep's normal, computed in this test from `compileAutoMovieSweep`; the undisplaced normals' error is measured beside it, so the bound is shown to distinguish.
- * @evidence contracts/testing.md#distinguishing-cases Covers a relief whose slope tilts the normal by about 7 degrees, the zero field, and each refusal; locations on sweep, transition and Coons patches are owned by the surface location test.
- * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_displacement` entry with no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Displaces a subdivided cylinder with `displaceAutoMovieSurface` using heights from `locateAutoMovieSurfaceVertices`; a step along anything but the normal, a wrong sign, unchanged normals or a normal that over- or under-turns fails, while any normal displacement with a perturbed normal accurate to the mesh passes.
+ * @evidence contracts/development/testing.md#independent-expectations The axis distance of a cylinder grows by the height along its radial normal; the expected normal is the cross product of central differences of the sweep plus the field times the sweep's normal, computed in this test from `compileAutoMovieSweep`; the undisplaced normals' error is measured beside it, so the bound is shown to distinguish.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers a relief whose slope tilts the normal by about 7 degrees, the zero field, and each refusal; locations on sweep, transition and Coons patches are owned by the surface location test.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_displacement` entry with no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A straight cylinder of radius 0.05 m at the medium tier, subdivided).
  */
 export function test_geometry_sweep_displacement(): void {
   const network: IAutoMovieSurfaceNetwork = sweepTransitionTube({

@@ -59,10 +59,11 @@ const DEGREE: number = Math.PI / 180;
  * 7. The default range of motion admits a horizontal gaze on the eyes' twist
  *    and refuses an eye roll on their abduction.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs resolveLookAt on sampled poses and resolves them, asserting eye joint angles, world gaze directions, the stripped expression and identity returns, plus validatePose on the default eye rows; a swapped eye, axis, sign or inner/outer range, a lost blendshape override or a gaze left on the morphs fails.
- * @evidence contracts/testing.md#independent-expectations Expected angles are the declared ranges times the channel weights, and directions follow from right-hand turns of +Z about +X (down) and +Y (toward +X); ROM expectations come from the default eye row's twist and null abduction. The ranges are arbitrary test inputs, not anatomy.
- * @evidence contracts/testing.md#distinguishing-cases Covers all four directions on both eyes, partial intensity, blendshape override, authored eye angles, every identity return and the zero-weight boundary, and ROM admission positive and negative; morph application and lookAt admission belong to the viewer and model-validation entries.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous kinematics unit entry over an in-memory rig, calling engine source without a viewer, GPU or installed asset.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs resolveLookAt on sampled poses and resolves them, asserting eye joint angles, world gaze directions, the stripped expression and identity returns, plus validatePose on the default eye rows; a swapped eye, axis, sign or inner/outer range, a lost blendshape override or a gaze left on the morphs fails.
+ * @evidence contracts/development/testing.md#independent-expectations Expected angles are the declared ranges times the channel weights, and directions follow from right-hand turns of +Z about +X (down) and +Y (toward +X); ROM expectations come from the default eye row's twist and null abduction. The ranges are arbitrary test inputs, not anatomy.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers all four directions on both eyes, partial intensity, blendshape override, authored eye angles, every identity return and the zero-weight boundary, and ROM admission positive and negative; morph application and lookAt admission belong to the viewer and model-validation entries.
+ * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous kinematics unit entry over an in-memory rig, calling engine source without a viewer, GPU or installed asset.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `lookLeft` at full intensity turns the left eye 30 degrees outward and the).
  */
 export function test_kinematics_look_at(): void {
   // 1. look left: left eye outward 30, right eye inward 20, both to +X

@@ -27,10 +27,11 @@ const at: (times: readonly number[]) => (i: number) => number =
  * 2. A two-key sequence returns zero, exact interior keys choose their preceding
  *    segment, and strict-interior first/last midpoints select their straddling segment.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls segmentIndex through its actual accessor and compares indices with a front-to-back inclusive scan, then asserts literal endpoint-tie and midpoint indices. A lower-bound tie that chooses the following segment fails even when interpolated values might coincide.
- * @evidence contracts/testing.md#independent-expectations The local linear oracle implements the stated first inclusive straddling interval independently of the binary algorithm; literal key-1/key-2 expectations are indices zero/one. This establishes lookup parity on sampled strict-interior times, not sampler output byte identity.
- * @evidence contracts/testing.md#distinguishing-cases Preserves four increasing populations, every segment midpoint, every interior key, two off-grid queries and explicit two-key/first/last/tie checks. Empty, singleton, unsorted and exterior queries are outside this helper's caller preconditions; sampler owners handle endpoint clamping.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns the query loops and calls portable search source with a local accessor, without consumer installation, native compilation, host startup or dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls segmentIndex through its actual accessor and compares indices with a front-to-back inclusive scan, then asserts literal endpoint-tie and midpoint indices. A lower-bound tie that chooses the following segment fails even when interpolated values might coincide.
+ * @evidence contracts/development/testing.md#independent-expectations The local linear oracle implements the stated first inclusive straddling interval independently of the binary algorithm; literal key-1/key-2 expectations are indices zero/one. This establishes lookup parity on sampled strict-interior times, not sampler output byte identity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves four increasing populations, every segment midpoint, every interior key, two off-grid queries and explicit two-key/first/last/tie checks. Empty, singleton, unsorted and exterior queries are outside this helper's caller preconditions; sampler owners handle endpoint clamping.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns the query loops and calls portable search source with a local accessor, without consumer installation, native compilation, host startup or dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Length-2, length-3, irregular and 200-key increasing arrays agree with a).
  */
 export function test_math_segment_index(): void {
   const arrays: number[][] = [

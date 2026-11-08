@@ -19,25 +19,19 @@ const dist: (a: M.V, b: M.V) => number = (a: M.V, b: M.V): number =>
  * Curve sampling and oriented slit construction for a generic closed-section loft.
  * The input cubic coefficients remain authoritative; emitted polygons are downstream tessellation.
  *
- * @evidence contracts/common.md#principled-implementation Physical arclength correspondence and exact Bernstein subdivision compose the contour-loft helper operations.
- * @evidence contracts/common.md#clear-and-simple-design One stateless namespace groups only the curve operations needed by contour lofting.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No Human or reference-source dependency enters the engine.
- * @evidence contracts/common.md#meaningful-documentation Member comments state physical units, sampling and slit behavior.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The namespace computes nothing; members state their costs.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The namespace owns no memoization table.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No state survives a helper call.
+ * @evidence contracts/development/common.md#meaningful-documentation Member comments state physical units, sampling and slit behavior.
+ * @evidence contracts/development/design.md#principled-representation Represents Curve sampling and oriented slit construction for a generic closed-section loft: companion namespace of 14 members (`Curve`, `curve`, `at`, `sample`, `centroid`, `join`, ...); units and frames named in its text: frame, local, degree. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieContourLoftCurves64` in packages/engine/src/geometry/curve/AutoMovieContourLoftCurves64.ts; its surface is the 14 members listed and the text shows 11 other files naming it, mostly packages/engine (9), packages/recovery (1), test (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieContourLoftCurves64 {
   /**
    * A closed polygon's physical arclength chart, in millimetres.
    *
-   * @evidence contracts/common.md#principled-implementation This record preserves the closed polygon arclength or evaluated parameter chart consumed by the helper namespace.
-   * @evidence contracts/common.md#clear-and-simple-design Fields separate physical points from their cumulative or normalized parameters.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts This type performs no fitting or geometry validity certification.
-   * @evidence contracts/common.md#meaningful-documentation States physical point units and parameter meaning.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A record type performs no arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Runtime storage belongs to the caller.
+   * @evidence contracts/development/design.md#principled-representation This record preserves the closed polygon arclength or evaluated parameter chart consumed by the helper namespace.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Fields separate physical points from their cumulative or normalized parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts This type performs no fitting or geometry validity certification.
+   * @evidence contracts/development/common.md#meaningful-documentation States physical point units and parameter meaning.
    */
   export interface Curve {
     /** Ordered closed polygon samples in millimetres; the caller keeps them stable during evaluation. */
@@ -53,13 +47,13 @@ export namespace AutoMovieContourLoftCurves64 {
   /**
    * Builds the cyclic arclength chart without rescaling any physical coordinate.
    *
-   * @evidence contracts/common.md#principled-implementation Cyclic chord accumulation preserves a closed polygon in its supplied millimetre frame.
-   * @evidence contracts/common.md#clear-and-simple-design This helper owns the named curve operation and composes only the shared vector and Bernstein owners.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
-   * @evidence contracts/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
-   * @evidence contracts/performance.md#efficient-algorithms One linear pass over N points uses N+1 cumulative values.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
+   * @evidence contracts/development/implementation.md#principled-implementation Cyclic chord accumulation preserves a closed polygon in its supplied millimetre frame.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This helper owns the named curve operation and composes only the shared vector and Bernstein owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
+   * @evidence contracts/development/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One linear pass over N points uses N+1 cumulative values.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
   export function curve(points: M.V[]): Curve {
     const cumulative: number[] = [0];
@@ -73,13 +67,13 @@ export namespace AutoMovieContourLoftCurves64 {
   /**
    * Evaluates one periodic, normalized arclength phase on a closed polygon.
    *
-   * @evidence contracts/common.md#principled-implementation Binary search selects one cyclic arclength interval and interpolates its two endpoints.
-   * @evidence contracts/common.md#clear-and-simple-design This helper owns the named curve operation and composes only the shared vector and Bernstein owners.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
-   * @evidence contracts/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
-   * @evidence contracts/performance.md#efficient-algorithms The interval search is O(log N) with constant-size vector output.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
+   * @evidence contracts/development/implementation.md#principled-implementation Binary search selects one cyclic arclength interval and interpolates its two endpoints.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This helper owns the named curve operation and composes only the shared vector and Bernstein owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
+   * @evidence contracts/development/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The interval search is O(log N) with constant-size vector output.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
   export function at(c: Curve, phase: number): M.V {
     const target: number = (((phase % 1) + 1) % 1) * c.length;
@@ -101,13 +95,13 @@ export namespace AutoMovieContourLoftCurves64 {
   /**
    * Samples equal physical arclengths for geometric correspondence, not curve fitting.
    *
-   * @evidence contracts/common.md#principled-implementation Equal normalized arclength phases call the same polygon evaluator.
-   * @evidence contracts/common.md#clear-and-simple-design This helper owns the named curve operation and composes only the shared vector and Bernstein owners.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
-   * @evidence contracts/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
-   * @evidence contracts/performance.md#efficient-algorithms M samples require O(M log N) interval queries and O(M) output vectors.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
+   * @evidence contracts/development/implementation.md#principled-implementation Equal normalized arclength phases call the same polygon evaluator.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This helper owns the named curve operation and composes only the shared vector and Bernstein owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
+   * @evidence contracts/development/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms M samples require O(M log N) interval queries and O(M) output vectors.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
   export function sample(c: Curve, count: number, offset: number = 0): M.V[] {
     return Array.from(
@@ -119,13 +113,13 @@ export namespace AutoMovieContourLoftCurves64 {
   /**
    * Returns the arithmetic centre of the supplied samples in their common frame.
    *
-   * @evidence contracts/common.md#principled-implementation Component sums divided by the supplied sample count define their arithmetic centre.
-   * @evidence contracts/common.md#clear-and-simple-design This helper owns the named curve operation and composes only the shared vector and Bernstein owners.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
-   * @evidence contracts/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
-   * @evidence contracts/performance.md#efficient-algorithms One O(N) traversal creates only a three-component accumulator.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
+   * @evidence contracts/development/implementation.md#principled-implementation Component sums divided by the supplied sample count define their arithmetic centre.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This helper owns the named curve operation and composes only the shared vector and Bernstein owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
+   * @evidence contracts/development/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(N) traversal creates only a three-component accumulator.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
   export function centroid(points: M.V[]): M.V {
     const sum: M.V = points.reduce(
@@ -141,13 +135,10 @@ export namespace AutoMovieContourLoftCurves64 {
   /**
    * An evaluated curve point and its inherited source phase, distinct from a control.
    *
-   * @evidence contracts/common.md#principled-implementation This record preserves the closed polygon arclength or evaluated parameter chart consumed by the helper namespace.
-   * @evidence contracts/common.md#clear-and-simple-design Fields separate physical points from their cumulative or normalized parameters.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts This type performs no fitting or geometry validity certification.
-   * @evidence contracts/common.md#meaningful-documentation States physical point units and parameter meaning.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A record type performs no arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Runtime storage belongs to the caller.
+   * @evidence contracts/development/design.md#principled-representation This record preserves the closed polygon arclength or evaluated parameter chart consumed by the helper namespace.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Fields separate physical points from their cumulative or normalized parameters.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts This type performs no fitting or geometry validity certification.
+   * @evidence contracts/development/common.md#meaningful-documentation States physical point units and parameter meaning.
    */
   export interface Knot {
     /** Evaluated point in millimetres, distinct from an authored control. */
@@ -163,13 +154,10 @@ export namespace AutoMovieContourLoftCurves64 {
   /**
    * An exact algebraic Bernstein restriction before binary64 rounding.
    *
-   * @evidence contracts/common.md#principled-implementation An immutable original span and recorded half path, or a materialized child net, preserve the generating restriction independently of its display chord.
-   * @evidence contracts/common.md#clear-and-simple-design One leaf is shared by initial sampling and interaction-driven refinement.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts This record is not a fitted control table or a source mesh witness.
-   * @evidence contracts/common.md#meaningful-documentation Fields state source orientation, inherited phase and arithmetic scope.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller owns source-restriction reuse.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The invocation owns the descriptor and any materialized copy; the caller keeps referenced original controls immutable.
+   * @evidence contracts/development/design.md#principled-representation An immutable original span and recorded half path, or a materialized child net, preserve the generating restriction independently of its display chord.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One leaf is shared by initial sampling and interaction-driven refinement.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts This record is not a fitted control table or a source mesh witness.
+   * @evidence contracts/development/common.md#meaningful-documentation Fields state source orientation, inherited phase and arithmetic scope.
    */
   export interface Leaf {
     /** Materialized positive source restriction; absent until needed for a compact half-path leaf. */
@@ -189,13 +177,13 @@ export namespace AutoMovieContourLoftCurves64 {
   /**
    * Materialize a compact source leaf through its original De Casteljau half path.
    *
-   * @evidence contracts/common.md#principled-implementation Original controls and the exact recorded left/right half path reproduce the restriction's subdivision arithmetic; an explicitly supplied child net is reused.
-   * @evidence contracts/common.md#clear-and-simple-design All leaf consumers resolve one coefficient authority through this accessor.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No sampled fit, source mesh or new coefficient definition replaces the saved cubic.
-   * @evidence contracts/common.md#meaningful-documentation States lazy ownership and the retained arithmetic path.
-   * @evidence contracts/performance.md#efficient-algorithms A previously unmaterialized leaf takes O(depth) constant-degree splits, with depth at most thirty for original sampling.
-   * @evidence contracts/performance.md#reuse-equivalent-work Contacted leaves cache their resolved net; ordinary leaves retain only the original span reference and half-path metadata.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only contacted leaf nets remain materialized in the invocation; immutable caller controls are never mutated.
+   * @evidence contracts/development/implementation.md#principled-implementation Original controls and the exact recorded left/right half path reproduce the restriction's subdivision arithmetic; an explicitly supplied child net is reused.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure All leaf consumers resolve one coefficient authority through this accessor.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sampled fit, source mesh or new coefficient definition replaces the saved cubic.
+   * @evidence contracts/development/common.md#meaningful-documentation States lazy ownership and the retained arithmetic path.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A previously unmaterialized leaf takes O(depth) constant-degree splits, with depth at most thirty for original sampling.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Contacted leaves cache their resolved net; ordinary leaves retain only the original span reference and half-path metadata.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only contacted leaf nets remain materialized in the invocation; immutable caller controls are never mutated.
    */
   export function controls(leaf: Leaf): M.V[] {
     if (leaf.net !== undefined) return leaf.net;
@@ -224,13 +212,13 @@ export namespace AutoMovieContourLoftCurves64 {
    * ancestry without requiring another adaptive half subdivision. The thirty-level
    * limit still refuses additional adaptive work, not an already satisfied bound.
    *
-   * @evidence contracts/common.md#principled-implementation Exact De Casteljau children retain their source phases and controls; nonconstant zero-chord restrictions split even under a coarse physical tolerance.
-   * @evidence contracts/common.md#clear-and-simple-design Initial tessellation and later geometric interaction refinement use the same adaptive owner.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No minimum population, changed tolerance, fitted child or positional snap supplies a restriction.
-   * @evidence contracts/common.md#meaningful-documentation Separates exact-restriction ancestry from additional adaptive work; compressed half-path addresses retain their thirty-level representation limit.
-   * @evidence contracts/performance.md#efficient-algorithms Constant-degree tests visit K retained leaves. Adaptive half subdivision stops at depth thirty; deeper explicit restrictions can only be retained when their current physical bound already passes.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each restriction is evaluated once by this recursive partition.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returned child nets transfer to the caller; recursive scratch expires on return.
+   * @evidence contracts/development/implementation.md#principled-implementation Exact De Casteljau children retain their source phases and controls; nonconstant zero-chord restrictions split even under a coarse physical tolerance.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Initial tessellation and later geometric interaction refinement use the same adaptive owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No minimum population, changed tolerance, fitted child or positional snap supplies a restriction.
+   * @evidence contracts/development/common.md#meaningful-documentation Separates exact-restriction ancestry from additional adaptive work; compressed half-path addresses retain their thirty-level representation limit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant-degree tests visit K retained leaves. Adaptive half subdivision stops at depth thirty; deeper explicit restrictions can only be retained when their current physical bound already passes.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each restriction is evaluated once by this recursive partition.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned child nets transfer to the caller; recursive scratch expires on return.
    */
   export function partition(leaf: Leaf, toleranceMm: number): Leaf[] {
     if (
@@ -304,13 +292,13 @@ export namespace AutoMovieContourLoftCurves64 {
   /**
    * Whether physical samples span an affine plane rather than one line or point.
    *
-   * @evidence contracts/common.md#principled-implementation A nonzero chord and a nonzero cross product establish affine rank at least two under binary64 arithmetic; nonfinite arithmetic rejects rather than certifies a rank.
-   * @evidence contracts/common.md#clear-and-simple-design One linear rank check is shared by cubic boundary representation and downstream tile admission.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate merge, distance epsilon or sample population floor establishes area.
-   * @evidence contracts/common.md#meaningful-documentation States affine-rank meaning and numerical scope; this does not establish simple-curve embedding or nonzero signed area.
-   * @evidence contracts/performance.md#efficient-algorithms Two linear scans use constant extra vector storage for N points.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This pure per-boundary query retains no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only a boolean escapes; vector scratch expires on return.
+   * @evidence contracts/development/implementation.md#principled-implementation A nonzero chord and a nonzero cross product establish affine rank at least two under binary64 arithmetic; nonfinite arithmetic rejects rather than certifies a rank.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One linear rank check is shared by cubic boundary representation and downstream tile admission.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No coordinate merge, distance epsilon or sample population floor establishes area.
+   * @evidence contracts/development/common.md#meaningful-documentation States affine-rank meaning and numerical scope; this does not establish simple-curve embedding or nonzero signed area.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two linear scans use constant extra vector storage for N points.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure per-boundary query retains no cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only a boolean escapes; vector scratch expires on return.
    */
   export function hasArea(points: readonly M.V[]): boolean {
     if (points.length < 3) return false;
@@ -336,13 +324,13 @@ export namespace AutoMovieContourLoftCurves64 {
   /**
    * De Casteljau subdivision bounds chord error and retains a two-dimensional closed boundary.
    *
-   * @evidence contracts/common.md#principled-implementation C0-closed coefficients are split by Bernstein subdivision until control-hull chord error meets tolerance. Exact constant leaf intervals are quotiented from the cyclic trace; a wholly constant source retains one diagnostic knot. A nonconstant zero-chord leaf must split; a rank-one closed graph is refined at a source leaf carrying omitted transverse extent. Collinear sources remain rank deficient for local diagnostics.
-   * @evidence contracts/common.md#clear-and-simple-design This helper owns the named curve operation and composes only the shared vector and Bernstein owners.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact source subdivision supplies every new knot with its inherited phase. No minimum sampling density, tolerance change, artificial point, coordinate weld or source coefficient change repairs a collapsed cyclic polygon.
-   * @evidence contracts/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
-   * @evidence contracts/performance.md#efficient-algorithms Each cubic subproblem has constant degree; K retained leaves use O(K) storage and at most 30 recursive levels. R topology refinements inspect O(RK) leaf data and use the same adaptive chord test on exact children.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
+   * @evidence contracts/development/implementation.md#principled-implementation C0-closed coefficients are split by Bernstein subdivision until control-hull chord error meets tolerance. Exact constant leaf intervals are quotiented from the cyclic trace; a wholly constant source retains one diagnostic knot. A nonconstant zero-chord leaf must split; a rank-one closed graph is refined at a source leaf carrying omitted transverse extent. Collinear sources remain rank deficient for local diagnostics.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This helper owns the named curve operation and composes only the shared vector and Bernstein owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact source subdivision supplies every new knot with its inherited phase. No minimum sampling density, tolerance change, artificial point, coordinate weld or source coefficient change repairs a collapsed cyclic polygon.
+   * @evidence contracts/development/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each cubic subproblem has constant degree; K retained leaves use O(K) storage and at most 30 recursive levels. R topology refinements inspect O(RK) leaf data and use the same adaptive chord test on exact children.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
   export function tessellate(primitive: C.Cubic, toleranceMm: number): Knot[] {
     assertAutoMovieCurve64(primitive);
@@ -470,13 +458,13 @@ export namespace AutoMovieContourLoftCurves64 {
   /**
    * Start away from duplicated branch slits, whose nearest seam has two sheets.
    *
-   * @evidence contracts/common.md#principled-implementation The farthest sampled-boundary point from its arclength centre avoids an ambiguous doubled branch slit.
-   * @evidence contracts/common.md#clear-and-simple-design This helper owns the named curve operation and composes only the shared vector and Bernstein owners.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
-   * @evidence contracts/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
-   * @evidence contracts/performance.md#efficient-algorithms Sixty-four logarithmic arclength queries and one O(N) scan choose the seam.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
+   * @evidence contracts/development/implementation.md#principled-implementation The farthest sampled-boundary point from its arclength centre avoids an ambiguous doubled branch slit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This helper owns the named curve operation and composes only the shared vector and Bernstein owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
+   * @evidence contracts/development/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Sixty-four logarithmic arclength queries and one O(N) scan choose the seam.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
   export function exterior(points: M.V[]): M.V[] {
     const centre: M.V = centroid(sample(curve(points), 64));

@@ -1,1 +1,1 @@
-export type { AutoMovieHeadlessCaptureErrorCode } from "@automovie/viewer/node";
+export type { AutoMovieHeadlessCaptureErrorCode } from "@automovie/viewer";

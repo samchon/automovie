@@ -20,13 +20,13 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @param joint Clinical angles of one joint; `null` axes are at rest.
  * @param constraint The joint's resolved ROM, or `null` when unconstrained.
  *
- * @evidence contracts/common.md#principled-implementation Reduces the gate's own per-axis and swing-cone violations to one comparable sum, so ordering by it is ordering by the gate's distances; a violation without a measured distance is a non-finite angle, which the sum treats as infinitely far instead of free.
- * @evidence contracts/common.md#clear-and-simple-design Wraps `validateJointRom` instead of restating its limits, so `decomposeJointRotation`'s chart choice and `reachPose`'s candidate scoring read exactly the rule `validatePose` enforces.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no tolerance and no special case for any bone or axis; the `Infinity` score is the stated meaning of an unmeasurable violation, not a compensation.
- * @evidence contracts/common.md#meaningful-documentation States the unit, the zero answer, that the gate's check is reused and why, the `Infinity` case, and what `null` means for the constraint and for an axis.
- * @evidence contracts/performance.md#efficient-algorithms Three axis checks plus at most one swing-cone check and a sum over at most four violations, constant per call; the short-lived collector is the gate's own message-building path, accepted so the score cannot drift from the gate.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one joint and constraint that coordinates no work across calls.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Owns one `ViolationCollector` holding at most four violations for the duration of the call; it is unreachable after the sum returns, and nothing is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Reduces the gate's own per-axis and swing-cone violations to one comparable sum, so ordering by it is ordering by the gate's distances; a violation without a measured distance is a non-finite angle, which the sum treats as infinitely far instead of free.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Wraps `validateJointRom` instead of restating its limits, so `decomposeJointRotation`'s chart choice and `reachPose`'s candidate scoring read exactly the rule `validatePose` enforces.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no tolerance and no special case for any bone or axis; the `Infinity` score is the stated meaning of an unmeasurable violation, not a compensation.
+ * @evidence contracts/development/common.md#meaningful-documentation States the unit, the zero answer, that the gate's check is reused and why, the `Infinity` case, and what `null` means for the constraint and for an axis.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three axis checks plus at most one swing-cone check and a sum over at most four violations, constant per call; the short-lived collector is the gate's own message-building path, accepted so the score cannot drift from the gate.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one joint and constraint that coordinates no work across calls.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns one `ViolationCollector` holding at most four violations for the duration of the call; it is unreachable after the sum returns, and nothing is retained.
  */
 export const jointRomOvershoot: (
   joint: IAutoMovieJointPose,

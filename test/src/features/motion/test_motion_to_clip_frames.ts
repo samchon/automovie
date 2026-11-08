@@ -32,10 +32,11 @@ import { vclose } from "../internal/predicates";
  * 2. Negative twin: the remap is not a no-op; the left hand's world position baked
  *    with the rest frames differs from the bake without them.
  *
- * @evidence contracts/testing.md#behavioral-verification clipWorldParity invokes the actual bridge and compares every resolved fixture bone's position/rotation against clinical sampling/FK at bakeTimes(1); separate framed/plain bakes resolve the left hand at 0.5 and require a position difference.
- * @evidence contracts/testing.md#independent-expectations The unchanged both-shoulder abduction keys and HUMANOID tables define the semantic fixture. The FK-versus-bridge comparison is a metamorphic representation law at default 1e-6 tolerances, while the 1e-3 negative twin prevents an ignored remap from passing both paths unnoticed. No independent body-coordinate literal or visual result is asserted.
- * @evidence contracts/testing.md#distinguishing-cases Retains both shoulders, 90-to-130 degree motion, the nonempty default 24 Hz bake clock and supplied-versus-omitted clinical tables. Between-sample error bounds, node prefixes and invalid inputs belong to other bridge units.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns the parity helper invocation and both additional bakes/frame resolutions. The existing helper owns the queried call tree and registers no extra tests; no viewer, process or GPU artifact is started.
+ * @evidence contracts/development/testing.md#behavioral-verification clipWorldParity invokes the actual bridge and compares every resolved fixture bone's position/rotation against clinical sampling/FK at bakeTimes(1); separate framed/plain bakes resolve the left hand at 0.5 and require a position difference.
+ * @evidence contracts/development/testing.md#independent-expectations The unchanged both-shoulder abduction keys and HUMANOID tables define the semantic fixture. The FK-versus-bridge comparison is a metamorphic representation law at default 1e-6 tolerances, while the 1e-3 negative twin prevents an ignored remap from passing both paths unnoticed. No independent body-coordinate literal or visual result is asserted.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains both shoulders, 90-to-130 degree motion, the nonempty default 24 Hz bake clock and supplied-versus-omitted clinical tables. Between-sample error bounds, node prefixes and invalid inputs belong to other bridge units.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns the parity helper invocation and both additional bakes/frame resolutions. The existing helper owns the queried call tree and registers no extra tests; no viewer, process or GPU artifact is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A both-shoulders abduction motion baked with `HUMANOID_JOINT_AXES` +).
  */
 export function test_motion_to_clip_frames(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

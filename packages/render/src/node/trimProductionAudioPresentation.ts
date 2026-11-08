@@ -24,13 +24,13 @@ import { residentMp4Box } from "./residentMp4Box";
  * and `Audio presentation trim requires a movie header.`, each before the file
  * is changed.
  *
- * @evidence contracts/common.md#principled-implementation An ISO edit list maps a movie-time segment onto media time, so one rate-1 edit at the priming offset is exactly RFC 7845's presentation of an Opus stream; the movie duration is computed as an exact BigInt product and remainder, because the floating-point product of two safe integers can round past 2^53 into an integer the exact value is not.
- * @evidence contracts/common.md#clear-and-simple-design The feature mux and the Opus test fixture both trim through this one function, which owns the edit and the two header durations it implies, while the mux owns the runtime proof.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The edit and its two boxes are mp4box's own `edts` and `elst` classes added through `addBox`, and a duration that does not land exactly is refused rather than rounded.
- * @evidence contracts/common.md#meaningful-documentation The doc states the edit's start, length and unit conversion, the header durations it sets and the obligation that puts on the caller, what is left unchecked, and every refusal with its message.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The function performs a fixed number of field checks, one BigInt division and two box insertions, choosing no algorithm or data structure.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The call mutates the caller's file once, and a second call is refused, so there is nothing to share.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The two new boxes and their one edit entry become part of the caller's file and live as long as it; nothing else is retained or opened.
+ * @evidence contracts/development/implementation.md#principled-implementation An ISO edit list maps a movie-time segment onto media time, so one rate-1 edit at the priming offset is exactly RFC 7845's presentation of an Opus stream; the movie duration is computed as an exact BigInt product and remainder, because the floating-point product of two safe integers can round past 2^53 into an integer the exact value is not.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The feature mux and the Opus test fixture both trim through this one function, which owns the edit and the two header durations it implies, while the mux owns the runtime proof.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The edit and its two boxes are mp4box's own `edts` and `elst` classes added through `addBox`, and a duration that does not land exactly is refused rather than rounded.
+ * @evidence contracts/development/common.md#meaningful-documentation The doc states the edit's start, length and unit conversion, the header durations it sets and the obligation that puts on the caller, what is left unchecked, and every refusal with its message.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The function performs a fixed number of field checks, one BigInt division and two box insertions, choosing no algorithm or data structure.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The call mutates the caller's file once, and a second call is refused, so there is nothing to share.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The two new boxes and their one edit entry become part of the caller's file and live as long as it; nothing else is retained or opened.
  */
 export const trimProductionAudioPresentation: (props: {
   file: ReturnType<typeof createFile>;

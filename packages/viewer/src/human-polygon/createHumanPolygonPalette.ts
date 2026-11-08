@@ -19,13 +19,13 @@ import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRet
  * @param partMeshes Existing meshes indexed by their actual emitted bone names.
  * @returns Colour replacement and the drawing owner's retirement hooks.
  *
- * @evidence contracts/common.md#principled-implementation Validates RGB overrides and assigns matching original meshes without modifying geometry, bone placements or body dimensions.
- * @evidence contracts/common.md#clear-and-simple-design Palette ownership stays separate from shape selection, display mesh assembly and joint annotations; the drawing retains the outer disposal guard.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomy correction, shader, palette preset or new cleanup collector is introduced; the existing retirement reporter attempts independent owned materials.
- * @evidence contracts/common.md#meaningful-documentation States borrowed defaults, new-pool ownership before old retirement, sticky replacement failure and the caller's guarded fan-out responsibility.
- * @evidence contracts/performance.md#efficient-algorithms Each replacement scans emitted parts once and constructs at most one material per matched RGB value.
- * @evidence contracts/performance.md#reuse-equivalent-work Equal current RGB overrides share one material; omitted parts reuse borrowed clay and every original geometry remains unchanged.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The current pool replaces the old pool; one failed replacement retains bounded uncertain owners and its original cause, while the caller's completed retirement releases pool references without retries.
+ * @evidence contracts/development/implementation.md#principled-implementation Validates RGB overrides and assigns matching original meshes without modifying geometry, bone placements or body dimensions.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Palette ownership stays separate from shape selection, display mesh assembly and joint annotations; the drawing retains the outer disposal guard.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No anatomy correction, shader, palette preset or new cleanup collector is introduced; the existing retirement reporter attempts independent owned materials.
+ * @evidence contracts/development/common.md#meaningful-documentation States borrowed defaults, new-pool ownership before old retirement, sticky replacement failure and the caller's guarded fan-out responsibility.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each replacement scans emitted parts once and constructs at most one material per matched RGB value.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Equal current RGB overrides share one material; omitted parts reuse borrowed clay and every original geometry remains unchanged.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The current pool replaces the old pool; one failed replacement retains bounded uncertain owners and its original cause, while the caller's completed retirement releases pool references without retries.
  */
 export function createHumanPolygonPalette(
   material: THREE.MeshStandardMaterial,
@@ -136,13 +136,10 @@ export function createHumanPolygonPalette(
 
 /** Colour input semantics shared by admission and later replacements.
  *
- * @evidence contracts/common.md#principled-implementation The namespace validator admits undefined or supplied integer RGB values in [0, 0xffffff], including entries whose names do not match emitted parts.
- * @evidence contracts/common.md#clear-and-simple-design Colour admission is separate from material allocation and part matching, and serves construction and later replacements.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No channel clamping, missing-value invention or anatomical interpretation of unmatched keys occurs; invalid values throw before allocation.
- * @evidence contracts/common.md#meaningful-documentation States the optional clay default, inclusive RGB domain, unmatched-entry policy and refusal behavior.
- * @evidence contracts/performance.md#efficient-algorithms Object.values copies P entries and some checks at most P values before success or refusal.
- * @evidence contracts/performance.md#reuse-equivalent-work Initial construction and replacement call this same validator; the namespace keeps one colour admission rule.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The temporary values array is call-owned; validation retains no input map, geometry, material or cleanup task.
+ * @evidence contracts/development/common.md#meaningful-documentation States the optional clay default, inclusive RGB domain, unmatched-entry policy and refusal behavior.
+ * @evidence contracts/development/design.md#principled-representation Represents Colour input semantics shared by admission and later replacements: companion namespace of 1 member (`validate`). It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `createHumanPolygonPalette` in packages/viewer/src/human-polygon/createHumanPolygonPalette.ts; its surface is the 1 member listed and the text shows 1 other file naming it, mostly packages/viewer (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace createHumanPolygonPalette {
   /**

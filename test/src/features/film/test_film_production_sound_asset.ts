@@ -12,10 +12,11 @@ import { nclose } from "../internal/predicates";
  * 1. A two-frame decoded cue at 24 fps reads the identity-bearing native ramp at offset 1000 with authored gain 0.5.
  * 2. Absent PCM uses an audible distinct stand-in; longer-source trims stay at unit rate, and a cue ending at film frame 6 remains supported.
  *
- * @evidence contracts/testing.md#behavioral-verification Mixes supplied mono asset ramps and an absent-asset stand-in, asserting exact unit-rate trim reads, authored gain and film-end admission.
- * @evidence contracts/testing.md#independent-expectations The authored ramp sample and gain determine each expected PCM value with nclose; the absent-asset comparison proves a distinct audible fallback but does not independently specify its complete procedural spectrum.
- * @evidence contracts/testing.md#distinguishing-cases Keeps ordinary playback, absent asset, longer complete source, offset ending at source extent and a cue ending at film extent; malformed spans and supplied PCM belong to the cue-admission and ingress entries.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_production_sound_asset and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Mixes supplied mono asset ramps and an absent-asset stand-in, asserting exact unit-rate trim reads, authored gain and film-end admission.
+ * @evidence contracts/development/testing.md#independent-expectations The authored ramp sample and gain determine each expected PCM value with nclose; the absent-asset comparison proves a distinct audible fallback but does not independently specify its complete procedural spectrum.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps ordinary playback, absent asset, longer complete source, offset ending at source extent and a cue ending at film extent; malformed spans and supplied PCM belong to the cue-admission and ingress entries.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_production_sound_asset and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A two-frame decoded cue at 24 fps reads the identity-bearing native ramp at offset 1000 with authored gain 0.5.).
  */
 export function test_film_production_sound_asset(): void {
   const {

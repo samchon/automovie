@@ -1,8 +1,8 @@
 import {
   applyAutoMovieRecoveryAnalyticPublication,
   realizeAutoMovieRecoveryAnalyticDomains,
+  reconstructAutoMovieRecoveryLocal,
 } from "@automovie/recovery";
-import { reconstructAutoMovieRecoveryLocal } from "@automovie/recovery/node";
 import { TestValidator } from "@nestia/e2e";
 import fs from "node:fs";
 import path from "node:path";
@@ -20,10 +20,11 @@ import { nclose } from "../internal/nclose";
  * 5. Exact input hashes and unique finite C0 overrides bind one registry without mutating original reports.
  * 6. A base publication exposes generated analytic parts before retained open work and remains explicitly unfinished.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls analytic admission, the native realizer, pure publication admission and complete local reconstruction. Actual retained area, ownership maps, partial reports and published pair counts expose duplicate execution, global loss or falsely completed processing.
- * @evidence contracts/testing.md#independent-expectations Each degree-elevated 3 by 3 millimetre square has area 9e-6 square metres. Disjoint saved pair addresses require two independent owners; a changed handle cannot equal its original raw coefficients. One explicitly shared corner with two different coordinates must omit its incident patch while an independent square remains finite. Delegated pairs require no legacy open generation.
- * @evidence contracts/testing.md#distinguishing-cases Covers absent extension, valid disjoint pairs, missing port, raw coefficient mismatch, duplicate claim, finite partial atlas, exact input-hash refusal, immutable overrides and final-only publication. Companion atlas tests own general tessellation bounds, periodic sampling and geometry conditioning.
- * @evidence contracts/testing.md#execution-ownership This named portable CPU test imports the maintained recovery and engine seams, starts no host or process and performs no source observation or fit. Its owned working-directory scratch tree is removed in finally; no fixture or Human asset is read.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls analytic admission, the native realizer, pure publication admission and complete local reconstruction. Actual retained area, ownership maps, partial reports and published pair counts expose duplicate execution, global loss or falsely completed processing.
+ * @evidence contracts/development/testing.md#independent-expectations Each degree-elevated 3 by 3 millimetre square has area 9e-6 square metres. Disjoint saved pair addresses require two independent owners; a changed handle cannot equal its original raw coefficients. One explicitly shared corner with two different coordinates must omit its incident patch while an independent square remains finite. Delegated pairs require no legacy open generation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers absent extension, valid disjoint pairs, missing port, raw coefficient mismatch, duplicate claim, finite partial atlas, exact input-hash refusal, immutable overrides and final-only publication. Companion atlas tests own general tessellation bounds, periodic sampling and geometry conditioning.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable CPU test imports the maintained recovery and engine seams, starts no host or process and performs no source observation or fit. Its owned working-directory scratch tree is removed in finally; no fixture or Human asset is read.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two disjoint affine squares each own one declared open pair and retain both finite meshes.).
  */
 export function test_geometry_recovery_analytic_domains(): void {
   type Input = Parameters<typeof reconstructAutoMovieRecoveryLocal>[0];

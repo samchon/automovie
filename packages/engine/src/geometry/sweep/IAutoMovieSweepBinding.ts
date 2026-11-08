@@ -11,13 +11,10 @@ import { AutoMovieHumanoidBone } from "@automovie/interface";
  * orientation of its two links (Hyun et al. 2005, The Visual Computer
  * 21(8-10):542-550, Section 4.1); halfway is this engine's choice of that function.
  *
- * @evidence contracts/common.md#principled-implementation Key sections either ride a link rigidly or sit at a joint and turn with both links, the two binding kinds of sweep-based deformation.
- * @evidence contracts/common.md#clear-and-simple-design Bone names aligned with the sweep's own points and stations; no weights, because the sweep's interpolation spreads each motion between stations.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Misaligned bindings are refused by the poser, not padded.
- * @evidence contracts/common.md#meaningful-documentation States what each binding kind does, the halfway choice and its basis.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A record.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record owned by its caller.
+ * @evidence contracts/development/design.md#principled-representation Key sections either ride a link rigidly or sit at a joint and turn with both links, the two binding kinds of sweep-based deformation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Bone names aligned with the sweep's own points and stations; no weights, because the sweep's interpolation spreads each motion between stations.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Misaligned bindings are refused by the poser, not padded.
+ * @evidence contracts/development/common.md#meaningful-documentation States what each binding kind does, the halfway choice and its basis.
  */
 export interface IAutoMovieSweepBinding {
   /** Bone each spine point follows, aligned with `spine.points`. */

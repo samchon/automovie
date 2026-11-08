@@ -1,8 +1,8 @@
 import {
   type IAutoMovieQuadraticRow,
+  refineAutoMovieQuadraticProgram,
   solveAutoMovieQuadraticProgram,
 } from "@automovie/engine";
-import { refineAutoMovieQuadraticProgram } from "@automovie/engine/math/refineAutoMovieQuadraticProgram";
 
 import type { AutoMovieHumanGrounding } from "./AutoMovieHumanGrounding";
 

@@ -35,10 +35,11 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
  * 1. Body `a` rejects invalid material coefficients.
  * 2. Body `b` rejects invalid material coefficients.
  *
- * @evidence contracts/testing.md#behavioral-verification Resolves impacts with invalid restitution, hardness and penetrability on each body and requires throws, catching out-of-range or non-finite coefficients silently steering a response kind.
- * @evidence contracts/testing.md#independent-expectations The finite closed interval [0,1] is the coefficient contract; authored adjacent out-of-range and non-finite values determine refusal independently of the heuristic. Only exception presence is asserted.
- * @evidence contracts/testing.md#distinguishing-cases Crosses all three fields and both bodies with -0.1, 1.1, NaN and infinity; valid interior coefficients and response families belong to the impact unit. Exact valid coefficient endpoints are not established by these cases.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns every loop-generated assertion directly and invokes resolveImpact with local records; no dynamic test registration or host is used.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves impacts with invalid restitution, hardness and penetrability on each body and requires throws, catching out-of-range or non-finite coefficients silently steering a response kind.
+ * @evidence contracts/development/testing.md#independent-expectations The finite closed interval [0,1] is the coefficient contract; authored adjacent out-of-range and non-finite values determine refusal independently of the heuristic. Only exception presence is asserted.
+ * @evidence contracts/development/testing.md#distinguishing-cases Crosses all three fields and both bodies with -0.1, 1.1, NaN and infinity; valid interior coefficients and response families belong to the impact unit. Exact valid coefficient endpoints are not established by these cases.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit owns every loop-generated assertion directly and invokes resolveImpact with local records; no dynamic test registration or host is used.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Body `a` rejects invalid material coefficients.).
  */
 export function test_physics_impact_material_coefficients(): void {
   const moving: IAutoMovieImpactBody = { ...BODY, velocity: v(0, 0, 10) };

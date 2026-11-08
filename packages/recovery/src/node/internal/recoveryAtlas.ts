@@ -7,8 +7,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { compileAutoMovieRecoveryAtlas } from "../../reconstruction/compileAutoMovieRecoveryAtlas";
-import { observeRecoveryAtlas } from "./observeRecoveryAtlas";
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
+import { observeRecoveryAtlas } from "./observeRecoveryAtlas";
 
 /**
  * Compile a source-free public atlas recipe into independently generated geometry.
@@ -19,13 +19,13 @@ import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecove
  * Compile opens only the resulting public atlas and cannot infer replacements
  * for absent coefficients; an engine invocation never receives source incidence.
  *
- * @evidence contracts/common.md#principled-implementation The public bicubic geometry contract drives its canonical engine realizer; the recipe model and compiled mesh model retain one input-byte identity and separate actual processing qualification.
- * @evidence contracts/common.md#clear-and-simple-design Separate recipe, generated geometry and compile manifests expose both viewer recipe consumption and independent evaluation without duplicating coefficient authority.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Original mesh input is confined to the explicit observation command; compile reads only public coefficients and preserves its actual engine mesh without source fallback or quality-driven face deletion.
- * @evidence contracts/common.md#meaningful-documentation States the source-free input boundary, command, frozen epoch requirement, units, immutable files and qualification limits.
- * @evidence contracts/performance.md#efficient-algorithms Compile admission and hashing are linear in publication bytes; one engine call performs adaptive generation. The separate observation owner documents fitting costs, and bounded artifact serialization avoids a whole output string.
- * @evidence contracts/performance.md#reuse-equivalent-work The single engine result supplies generated mesh, primitive ownership and processing findings; camera changes consume the same recipe or compiled artifact.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One input publication and explicitly vertex-bounded engine output remain live for the command; synchronous handles close, immutable output belongs to the caller and no process is spawned.
+ * @evidence contracts/development/implementation.md#principled-implementation The public bicubic geometry contract drives its canonical engine realizer; the recipe model and compiled mesh model retain one input-byte identity and separate actual processing qualification.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Separate recipe, generated geometry and compile manifests expose both viewer recipe consumption and independent evaluation without duplicating coefficient authority.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original mesh input is confined to the explicit observation command; compile reads only public coefficients and preserves its actual engine mesh without source fallback or quality-driven face deletion.
+ * @evidence contracts/development/common.md#meaningful-documentation States the source-free input boundary, command, frozen epoch requirement, units, immutable files and qualification limits.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Compile admission and hashing are linear in publication bytes; one engine call performs adaptive generation. The separate observation owner documents fitting costs, and bounded artifact serialization avoids a whole output string.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The single engine result supplies generated mesh, primitive ownership and processing findings; camera changes consume the same recipe or compiled artifact.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One input publication and explicitly vertex-bounded engine output remain live for the command; synchronous handles close, immutable output belongs to the caller and no process is spawned.
  */
 export function recoveryAtlas(args: string[], sourceEpoch: string): void {
   const [command, inputFile, outputDirectory]: string[] = args;

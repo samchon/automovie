@@ -20,13 +20,10 @@
  * Every check throws; none clamps, so a broken producer is named where it
  * broke the contract.
  *
- * @evidence contracts/common.md#principled-implementation The contracts a chain's producers meet (station spacing, finite jets, ring shape) are checked where data enters the kernel, so a later operator can rely on them.
- * @evidence contracts/common.md#clear-and-simple-design One diagnostic record and one checker per contract.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts These checkers throw on a failed check instead of clamping; the separately exported diagnostic record lets higher-level operations publish their own failures.
- * @evidence contracts/common.md#meaningful-documentation States each contract, its bound and why the bound has that size.
- * @evidence contracts/performance.md#efficient-algorithms Every check is linear in the values it reads.
- * @evidence contracts/performance.md#reuse-equivalent-work A checked station list is returned for the caller to keep using.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Successful checks return their borrowed arrays without retaining them globally; failures allocate thrown errors, and callers own separately constructed diagnostics.
+ * @evidence contracts/development/common.md#meaningful-documentation States each contract, its bound and why the bound has that size.
+ * @evidence contracts/development/design.md#principled-representation Represents Checked values chains and seams exchange; failed checks throw a message naming the producer and the violated local premise: companion namespace of 11 members (`IDiagnostic`, `Stations`, `Jet`, `Ring`, `stations`, `jet`, ...); units and frames named in its text: local, second, metre. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieLoftContract` in packages/engine/src/geometry/construction/AutoMovieLoftContract.ts; its surface is the 11 members listed and the text shows 79 other files naming it, mostly packages/human (55), packages/engine (13), test (11), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftContract {
   /**
@@ -34,13 +31,10 @@ export namespace AutoMovieLoftContract {
    * figure: the piece is replaced by its base (no piece over the base
    * envelope; an aperture that cannot close one loop leaves the mouth closed).
    *
-   * @evidence contracts/common.md#principled-implementation A producer, construction level, contract name and detail identify a rejected local construction for the realization's rollback/reporting path.
-   * @evidence contracts/common.md#clear-and-simple-design Four plain fields carry the failure without coupling the record to an exception class or renderer.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The record reports a failure rather than treating partial geometry as successful; it does not itself enforce rollback.
-   * @evidence contracts/common.md#meaningful-documentation Names the failed piece, construction level and explanatory numerical detail, with fallback owned by the producing operation.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A diagnostic is data, not a checking or rollback algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Failure records coordinate no cache or equivalent successful work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned result owns its diagnostic list; each entry has four fields with caller-sized strings and no acquired handle.
+   * @evidence contracts/development/design.md#principled-representation A producer, construction level, contract name and detail identify a rejected local construction for the realization's rollback/reporting path.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four plain fields carry the failure without coupling the record to an exception class or renderer.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record reports a failure rather than treating partial geometry as successful; it does not itself enforce rollback.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the failed piece, construction level and explanatory numerical detail, with fallback owned by the producing operation.
    */
   export interface IDiagnostic {
     /** The piece that broke the contract, such as `human.mouth`. */
@@ -59,39 +53,30 @@ export namespace AutoMovieLoftContract {
   /**
    * Borrowed stations checked for finiteness and the constructor's minimum rise, mm.
    *
-   * @evidence contracts/common.md#principled-implementation The intersection brand identifies the stations checker boundary on a read-only number array.
-   * @evidence contracts/common.md#clear-and-simple-design The original array remains the value rather than gaining a runtime wrapper or duplicate table.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The brand neither freezes storage nor prevents an explicit cast; callers must preserve the checked ordering and values.
-   * @evidence contracts/common.md#meaningful-documentation States physical units, the minimum-rise check and borrowed ownership.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This alias runs no check; stations owns the scan.
-   * @evidence contracts/performance.md#reuse-equivalent-work Consumers can share the checked array while its original contents remain unchanged.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The brand adds no runtime storage; the input's owner controls the O(N) array's lifetime.
+   * @evidence contracts/development/design.md#principled-representation The intersection brand identifies the stations checker boundary on a read-only number array.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The original array remains the value rather than gaining a runtime wrapper or duplicate table.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The brand neither freezes storage nor prevents an explicit cast; callers must preserve the checked ordering and values.
+   * @evidence contracts/development/common.md#meaningful-documentation States physical units, the minimum-rise check and borrowed ownership.
    */
   export type Stations = readonly number[] & { readonly contract: "stations" };
 
   /**
    * Borrowed numbers checked against the caller's magnitude bound, finite when that bound is finite.
    *
-   * @evidence contracts/common.md#principled-implementation The jet brand marks an array that passed elementwise magnitude comparisons with a supplied bound.
-   * @evidence contracts/common.md#clear-and-simple-design A type intersection preserves the numerical array layout used by interpolation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts This type does not record the bound or prevent later alias mutation/casting; it cannot independently certify finiteness.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes a finite caller bound from a guarantee supplied by the alias itself.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The alias chooses no algorithm; jet owns magnitude checking.
-   * @evidence contracts/performance.md#reuse-equivalent-work The same checked array can feed consumers without a representation conversion, provided its contents stay unchanged.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the original array is retained by its owner; the erased brand allocates no storage or handle.
+   * @evidence contracts/development/design.md#principled-representation The jet brand marks an array that passed elementwise magnitude comparisons with a supplied bound.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A type intersection preserves the numerical array layout used by interpolation.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts This type does not record the bound or prevent later alias mutation/casting; it cannot independently certify finiteness.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes a finite caller bound from a guarantee supplied by the alias itself.
    */
   export type Jet = readonly number[] & { readonly contract: "jet" };
 
   /**
    * Borrowed finite points whose X/Z shoelace sum is nonzero, in mm.
    *
-   * @evidence contracts/common.md#principled-implementation The ring brand names the finite-coordinate and nonzero projected-sum check performed by ring.
-   * @evidence contracts/common.md#clear-and-simple-design The point sequence remains a plain read-only tuple array used directly by loft producers.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The brand does not certify simplicity, planarity, orientation or a finite accumulated area, and aliases/casts can invalidate its intended premise.
-   * @evidence contracts/common.md#meaningful-documentation Names the horizontal projection and units rather than implying a complete geometric ring validator.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This alias executes no ring traversal.
-   * @evidence contracts/performance.md#reuse-equivalent-work Downstream readers share the checked original point array while the producer preserves it.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The owner retains O(N) borrowed triples; this type adds no runtime state.
+   * @evidence contracts/development/design.md#principled-representation The ring brand names the finite-coordinate and nonzero projected-sum check performed by ring.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The point sequence remains a plain read-only tuple array used directly by loft producers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The brand does not certify simplicity, planarity, orientation or a finite accumulated area, and aliases/casts can invalidate its intended premise.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the horizontal projection and units rather than implying a complete geometric ring validator.
    */
   export type Ring = readonly (readonly [number, number, number])[] & {
     readonly contract: "ring";
@@ -106,13 +91,13 @@ export namespace AutoMovieLoftContract {
    * @returns The same values, branded.
    * @throws When fewer than two, one is not finite, or one rises by less than `least`.
    *
-   * @evidence contracts/common.md#principled-implementation Checks positive least rise, at least two stations, finite entries and every adjacent difference before returning the original array with its intended brand.
-   * @evidence contracts/common.md#clear-and-simple-design One pass owns the station admission messages so downstream spline failures can identify the producer.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not sort, merge or clamp bad stations; minimum-step and difference arithmetic rely on caller-scale premises.
-   * @evidence contracts/common.md#meaningful-documentation Gives minimum count, rise units, same-array return and thrown failure effects.
-   * @evidence contracts/performance.md#efficient-algorithms O(N) time and O(1) successful working storage inspect every required adjacent pair.
-   * @evidence contracts/performance.md#reuse-equivalent-work Returns the exact checked array for subsequent reads, without copying or caching a second station population.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Owns no retained array; the caller keeps its input and a thrown error's lifetime belongs to its catcher.
+   * @evidence contracts/development/implementation.md#principled-implementation Checks positive least rise, at least two stations, finite entries and every adjacent difference before returning the original array with its intended brand.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass owns the station admission messages so downstream spline failures can identify the producer.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not sort, merge or clamp bad stations; minimum-step and difference arithmetic rely on caller-scale premises.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives minimum count, rise units, same-array return and thrown failure effects.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(N) time and O(1) successful working storage inspect every required adjacent pair.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns the exact checked array for subsequent reads, without copying or caching a second station population.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns no retained array; the caller keeps its input and a thrown error's lifetime belongs to its catcher.
    */
   export function stations(
     producer: string,
@@ -150,13 +135,13 @@ export namespace AutoMovieLoftContract {
    * @returns The same values, branded.
    * @throws When an entry is not finite or exceeds `bound`.
    *
-   * @evidence contracts/common.md#principled-implementation Accepts each entry only when abs(value)<=bound; callers such as SeamStation pass finite FINITE, making accepted entries finite under that premise.
-   * @evidence contracts/common.md#clear-and-simple-design A single scan and first-failure error implement one magnitude checking boundary.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not clamp entries; bound is not independently validated, so an infinite bound would also admit infinite entries.
-   * @evidence contracts/common.md#meaningful-documentation States borrowed return, caller-supplied bound and element failure; the finite-bound premise is explicit here.
-   * @evidence contracts/performance.md#efficient-algorithms O(N) comparisons and O(1) successful temporary storage, stopping at the first failing entry.
-   * @evidence contracts/performance.md#reuse-equivalent-work Returns the same array after checking; no second numerical representation or cross-call cache is built.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Retains no input after return; failures throw one error owned by the caller's error path.
+   * @evidence contracts/development/implementation.md#principled-implementation Accepts each entry only when abs(value)<=bound; callers such as SeamStation pass finite FINITE, making accepted entries finite under that premise.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A single scan and first-failure error implement one magnitude checking boundary.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not clamp entries; bound is not independently validated, so an infinite bound would also admit infinite entries.
+   * @evidence contracts/development/common.md#meaningful-documentation States borrowed return, caller-supplied bound and element failure; the finite-bound premise is explicit here.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(N) comparisons and O(1) successful temporary storage, stopping at the first failing entry.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns the same array after checking; no second numerical representation or cross-call cache is built.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no input after return; failures throw one error owned by the caller's error path.
    */
   export function jet(
     producer: string,
@@ -181,13 +166,13 @@ export namespace AutoMovieLoftContract {
    * @returns The same points, branded.
    * @throws When a coordinate is not finite or the ring encloses no area.
    *
-   * @evidence contracts/common.md#principled-implementation Scans all three coordinates for finiteness and accumulates the ordered X/Z shoelace sum, rejecting when its absolute value is not positive.
-   * @evidence contracts/common.md#clear-and-simple-design Coordinate admission and projected-sum checking share one pass and one producer/layer error boundary.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not reorder or repair points; nonzero signed sum is not a simplicity, planarity or finite-area certificate, and extreme product overflow is not separately checked.
-   * @evidence contracts/common.md#meaningful-documentation Gives projection, units, borrowed return and reported coordinate/area failures.
-   * @evidence contracts/performance.md#efficient-algorithms O(N) point visits and a scalar area accumulator avoid a copied or triangulated polygon.
-   * @evidence contracts/performance.md#reuse-equivalent-work Each edge contributes once while its current point is admitted; successful output is the caller's original point array.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources No temporary point population or global state survives; errors and the original array remain caller-owned.
+   * @evidence contracts/development/implementation.md#principled-implementation Scans all three coordinates for finiteness and accumulates the ordered X/Z shoelace sum, rejecting when its absolute value is not positive.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Coordinate admission and projected-sum checking share one pass and one producer/layer error boundary.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not reorder or repair points; nonzero signed sum is not a simplicity, planarity or finite-area certificate, and extreme product overflow is not separately checked.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives projection, units, borrowed return and reported coordinate/area failures.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(N) point visits and a scalar area accumulator avoid a copied or triangulated polygon.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each edge contributes once while its current point is admitted; successful output is the caller's original point array.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No temporary point population or global state survives; errors and the original array remain caller-owned.
    */
   export function ring(
     producer: string,
@@ -241,13 +226,13 @@ export namespace AutoMovieLoftContract {
    * @param values The stations, increasing, at least two.
    * @returns {@link SPLINE_GAP_SHARE} of their span, mm.
    *
-   * @evidence contracts/common.md#principled-implementation Multiplies the absolute endpoint span by the named relative spacing policy; callers must still admit finite increasing stations and representable subtraction/product.
-   * @evidence contracts/common.md#clear-and-simple-design One shared scalar formula keeps the station-gap policy at the contract boundary.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no absolute floor or hidden cap; it does not itself validate count, ordering, zero span or extreme-scale arithmetic.
-   * @evidence contracts/common.md#meaningful-documentation States input ordering/count, output units and the policy's numerical limitation beside SPLINE_GAP_SHARE.
-   * @evidence contracts/performance.md#efficient-algorithms Reads the two endpoints and performs constant arithmetic without scanning interior stations.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The scalar policy computation coordinates no shared request or numerical solve.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a number and retains no array or resource.
+   * @evidence contracts/development/implementation.md#principled-implementation Multiplies the absolute endpoint span by the named relative spacing policy; callers must still admit finite increasing stations and representable subtraction/product.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared scalar formula keeps the station-gap policy at the contract boundary.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no absolute floor or hidden cap; it does not itself validate count, ordering, zero span or extreme-scale arithmetic.
+   * @evidence contracts/development/common.md#meaningful-documentation States input ordering/count, output units and the policy's numerical limitation beside SPLINE_GAP_SHARE.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reads the two endpoints and performs constant arithmetic without scanning interior stations.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The scalar policy computation coordinates no shared request or numerical solve.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a number and retains no array or resource.
    */
   export function splineGap(values: readonly number[]): number {
     return SPLINE_GAP_SHARE * Math.abs(values[values.length - 1]! - values[0]!);

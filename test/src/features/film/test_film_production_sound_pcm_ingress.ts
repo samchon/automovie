@@ -15,10 +15,11 @@ import { namedFacts, throwsError } from "../internal/predicates";
  * 1. Referenced NaN/Infinity and empty supplied PCM refuse by source identity and index; unused invalid entries remain outside ingress.
  * 2. The three-sample finite source includes its near-Float32-limit value in the actual mix; gain 4 overflows at independently derived sample index 0 and refuses before limiting.
  *
- * @evidence contracts/testing.md#behavioral-verification Mixes referenced and unreferenced supplied PCM and requires located refusals for non-finite, empty and Float32-overflowing adopted or generated samples.
- * @evidence contracts/testing.md#independent-expectations Literal NaN/Infinity, the empty buffer and gain-four overflow of a finite near-Float32-limit sample determine expected refusal identities/indices; observing the returned master as finite does not authenticate asset bytes.
- * @evidence contracts/testing.md#distinguishing-cases Keeps referenced asset/dialogue faults, an unused invalid asset beside a finite generation, an empty supplied generation and a mix overflowing at its first sample; cue span admission is separate.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_production_sound_pcm_ingress and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Mixes referenced and unreferenced supplied PCM and requires located refusals for non-finite, empty and Float32-overflowing adopted or generated samples.
+ * @evidence contracts/development/testing.md#independent-expectations Literal NaN/Infinity, the empty buffer and gain-four overflow of a finite near-Float32-limit sample determine expected refusal identities/indices; observing the returned master as finite does not authenticate asset bytes.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps referenced asset/dialogue faults, an unused invalid asset beside a finite generation, an empty supplied generation and a mix overflowing at its first sample; cue span admission is separate.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_production_sound_pcm_ingress and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Referenced NaN/Infinity and empty supplied PCM refuse by source identity and index; unused invalid entries remain outside ingress.).
  */
 export function test_film_production_sound_pcm_ingress(): void {
   const {

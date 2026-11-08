@@ -33,39 +33,32 @@ interface Cap {
 /**
  * Original scalar preparation retained for a direct view-generated field.
  *
- * @evidence contracts/common.md#principled-implementation Admits the same signed outlines, direct fullness and pole parameters as ViewLoft, retaining actual prepared scalar functions rather than principal phase samples.
- * @evidence contracts/common.md#clear-and-simple-design Admission and plain source data are separate from station reading and geometry evaluation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not fit, resample, alter knots or invent station derivatives; generic girth remains the explicitly separate existing producer mode.
- * @evidence contracts/common.md#meaningful-documentation States signed quarter order, source ownership, cap spans and absent girth support.
- * @evidence contracts/performance.md#efficient-algorithms Each original outline is prepared once; cap spans inspect the original knot stations once per declared end.
- * @evidence contracts/performance.md#reuse-equivalent-work The returned scalar preparations serve every station and phase through their reader.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-owned plain arrays retain only original scalar preparations and at most two cap records; no module cache is created.
+ * @evidence contracts/development/common.md#meaningful-documentation States signed quarter order, source ownership, cap spans and absent girth support.
+ * @evidence contracts/development/design.md#principled-representation Represents Original scalar preparation retained for a direct view-generated field: companion namespace of 4 members (`IInput`, `ISource`, `IResult`, `create`); units and frames named in its text: frame, frames. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieLoftViewSource` in packages/engine/src/geometry/construction/AutoMovieLoftViewSource.ts; its surface is the 4 members listed and the text shows 34 other files naming it, mostly packages/human (22), packages/engine (7), test (5), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftViewSource {
   /**
    * Borrowed original scalar/domain data, without a completed part or frame.
    *
-   * @evidence contracts/common.md#principled-implementation Picks exactly the original fields create reads: physical station bounds, signed scalar parameters, direct fullness and pole declarations. Existing full parts and the shared scalar-control producer supply the same values.
-   * @evidence contracts/common.md#clear-and-simple-design Separates native scalar preparation from anatomical frames, names, display density and part publication, which this factory never reads.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Changes no runtime access order, numeric admission, derivative availability or failed-source meaning; omitted metadata never substitutes geometry.
-   * @evidence contracts/common.md#meaningful-documentation The borrowed fields retain IAutoMovieViewPart's calibration-mm stations, signed chart units, normalized scalar jets and cap semantics; producers keep them immutable during use.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This structural input type runs no algorithm; create owns actual scalar preparation and diagnostics.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type schedules no reuse; the caller owns the declaration and create returns its actual prepared coefficients.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources References follow the producer's original knot populations and lifetime; the type allocates no copied curves, cache, geometry or external resource.
+   * @evidence contracts/development/design.md#principled-representation Picks exactly the original fields create reads: physical station bounds, signed scalar parameters, direct fullness and pole declarations. Existing full parts and the shared scalar-control producer supply the same values.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Separates native scalar preparation from anatomical frames, names, display density and part publication, which this factory never reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Changes no runtime access order, numeric admission, derivative availability or failed-source meaning; omitted metadata never substitutes geometry.
+   * @evidence contracts/development/common.md#meaningful-documentation The borrowed fields retain IAutoMovieViewPart's calibration-mm stations, signed chart units, normalized scalar jets and cap semantics; producers keep them immutable during use.
    */
-  export type IInput = Pick<IAutoMovieViewPart, "stations" | "front" | "side" | "fullness" | "pole">;
-
+  export type IInput = Pick<
+    IAutoMovieViewPart,
+    "stations" | "front" | "side" | "fullness" | "pole"
+  >;
 
   /**
    * Value-copyable original scalar definition of a direct view field.
    *
-   * @evidence contracts/common.md#principled-implementation Explicit prepared sources retain their actual interpolation parameters, scalar jets and cap law.
-   * @evidence contracts/common.md#clear-and-simple-design Four extremes, one direct fullness owner and cap records determine a station's inputs.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No emitted row or object-registration identity selects the scalar geometry.
-   * @evidence contracts/common.md#meaningful-documentation Members give quarter signs, physical station units and the cap's constant case.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Source reading owns reuse of its prepared curves.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Storage follows the original knot populations and two cap records; no layer-squared table is retained.
+   * @evidence contracts/development/design.md#principled-representation Explicit prepared sources retain their actual interpolation parameters, scalar jets and cap law.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four extremes, one direct fullness owner and cap records determine a station's inputs.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No emitted row or object-registration identity selects the scalar geometry.
+   * @evidence contracts/development/common.md#meaningful-documentation Members give quarter signs, physical station units and the cap's constant case.
    */
   export interface ISource {
     /** Explicit source discriminator; a malformed present source is not legacy absence. */
@@ -87,13 +80,10 @@ export namespace AutoMovieLoftViewSource {
   /**
    * Scalar admission with all independent source failures preserved.
    *
-   * @evidence contracts/common.md#principled-implementation Separates original source admission failures from an available field definition.
-   * @evidence contracts/common.md#clear-and-simple-design One nullable source and its collected diagnostics avoid partial hidden success.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Failed curves are never replaced by another curve or a zero derivative.
-   * @evidence contracts/common.md#meaningful-documentation States diagnostic ownership and the null-source meaning.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Result data performs no admission.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Admission owns source preparation.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the successful source or diagnostic list.
+   * @evidence contracts/development/design.md#principled-representation Separates original source admission failures from an available field definition.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One nullable source and its collected diagnostics avoid partial hidden success.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Failed curves are never replaced by another curve or a zero derivative.
+   * @evidence contracts/development/common.md#meaningful-documentation States diagnostic ownership and the null-source meaning.
    */
   export interface IResult {
     /** Null when any scalar admission premise failed. */
@@ -106,13 +96,13 @@ export namespace AutoMovieLoftViewSource {
   /**
    * Prepare direct shoulder/top ownership; null explicitly leaves generic girth unchanged.
    *
-   * @evidence contracts/common.md#principled-implementation Uses original signed outlines and the existing pole parameter, while direct fullness retains its own scalar parameter.
-   * @evidence contracts/common.md#clear-and-simple-design One exhaustive ownership branch follows shared curve admission and cap preparation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Collects all independent failures without sorting or changing inputs; no incomplete girth derivative provider is attached.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes explicit generic-girth absence from a failed direct source and states immutable borrowed input.
-   * @evidence contracts/performance.md#efficient-algorithms Linear original-outline preparation plus fixed end/quarter traversal; no native phase inverse or girth solve occurs.
-   * @evidence contracts/performance.md#reuse-equivalent-work Each admitted scalar spline is retained once for subsequent station reads.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns copied scalar preparations and cap metadata; inputs and temporary arrays are not globally retained.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses original signed outlines and the existing pole parameter, while direct fullness retains its own scalar parameter.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One exhaustive ownership branch follows shared curve admission and cap preparation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Collects all independent failures without sorting or changing inputs; no incomplete girth derivative provider is attached.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes explicit generic-girth absence from a failed direct source and states immutable borrowed input.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear original-outline preparation plus fixed end/quarter traversal; no native phase inverse or girth solve occurs.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each admitted scalar spline is retained once for subsequent station reads.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns copied scalar preparations and cap metadata; inputs and temporary arrays are not globally retained.
    */
   export function create(part: IInput): IResult | null {
     if (part.fullness.kind === "girth") return null;

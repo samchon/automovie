@@ -73,10 +73,11 @@ const meshesOf: (root: THREE.Object3D) => THREE.Mesh[] = (
  * 6. Pose hides meshes and adds bone-to-child lines in a named overlay; restore removes it and unhides the meshes.
  * 7. An unknown mode is a caller bug and throws.
  *
- * @evidence contracts/testing.md#behavioral-verification Applies each actual guide mode to a generic built scene and an InstancedMesh, reading temporary materials, generated shader fields, overlays and restored state; catches omitted instancing/skinning support and overrides left on borrowed sources.
- * @evidence contracts/testing.md#independent-expectations Supported mode classes, authored depth/edge values, original object identities and the fixture's 22 bone edges define expectations. The public mask palette is a delegation reference, while shader strings and CPU fields do not establish observed guide pixels.
- * @evidence contracts/testing.md#distinguishing-cases Covers beauty, default/custom depth and edge width, normal, per-node mask distinction, pose hide/overlay/restoration and unknown-mode refusal; failure retirement and scene atmosphere have separate units.
- * @evidence contracts/testing.md#execution-ownership This named portable unit calls maintained Viewer source and existing generic fixtures with real CPU-side Three graph/material objects, restores every temporary pass and starts no renderer, browser or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies each actual guide mode to a generic built scene and an InstancedMesh, reading temporary materials, generated shader fields, overlays and restored state; catches omitted instancing/skinning support and overrides left on borrowed sources.
+ * @evidence contracts/development/testing.md#independent-expectations Supported mode classes, authored depth/edge values, original object identities and the fixture's 22 bone edges define expectations. The public mask palette is a delegation reference, while shader strings and CPU fields do not establish observed guide pixels.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers beauty, default/custom depth and edge width, normal, per-node mask distinction, pose hide/overlay/restoration and unknown-mode refusal; failure retirement and scene atmosphere have separate units.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit calls maintained Viewer source and existing generic fixtures with real CPU-side Three graph/material objects, restores every temporary pass and starts no renderer, browser or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `beauty` is a no-op: materials keep their exact instances.).
  */
 export function test_viewer_render_modes(): void {
   const { scene }: ReturnType<typeof buildScene> = buildTwoNodeScene();

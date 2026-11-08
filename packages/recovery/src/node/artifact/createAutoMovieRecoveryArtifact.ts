@@ -11,13 +11,13 @@ import type { IAutoMovieRecoveryArtifactInput } from "../../structures/node/IAut
  * Tensor, contour and open completion remain separate; construction and ownership
  * come from the same engine outputs. This operation changes no geometry or report.
  *
- * @evidence contracts/common.md#principled-implementation Saved input hashes, actual engine reports and current publication counters expose the same generated artifact and partial status without inferring source fidelity.
- * @evidence contracts/common.md#clear-and-simple-design Artifact shape and provenance have one owner; source observation, generation and disk-spool writing remain separate.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No copied source geometry, quality promotion, geometry filtering or missing-region substitution enters metadata assembly.
- * @evidence contracts/common.md#meaningful-documentation States current-report ownership and the separate tensor, open, source and geometry qualifications.
- * @evidence contracts/performance.md#efficient-algorithms Assembly visits interval diagnostics and tensor reports in linear passes; exact declared and reported family-ID binding uses O(F) transient storage. Bulk geometry and report arrays are referenced rather than copied. The publication writer owns serialization costs.
- * @evidence contracts/performance.md#reuse-equivalent-work The existing model, spool construction and ownership arrays feed checkpoints and final publication without regeneration.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One returned plain record belongs to the publication invocation. This helper owns no handles, cache or retained geometry beyond its caller's arrays.
+ * @evidence contracts/development/implementation.md#principled-implementation Saved input hashes, actual engine reports and current publication counters expose the same generated artifact and partial status without inferring source fidelity.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Artifact shape and provenance have one owner; source observation, generation and disk-spool writing remain separate.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No copied source geometry, quality promotion, geometry filtering or missing-region substitution enters metadata assembly.
+ * @evidence contracts/development/common.md#meaningful-documentation States current-report ownership and the separate tensor, open, source and geometry qualifications.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Assembly visits interval diagnostics and tensor reports in linear passes; exact declared and reported family-ID binding uses O(F) transient storage. Bulk geometry and report arrays are referenced rather than copied. The publication writer owns serialization costs.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing model, spool construction and ownership arrays feed checkpoints and final publication without regeneration.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One returned plain record belongs to the publication invocation. This helper owns no handles, cache or retained geometry beyond its caller's arrays.
  */
 export function createAutoMovieRecoveryArtifact(
   input: IAutoMovieRecoveryArtifactInput,

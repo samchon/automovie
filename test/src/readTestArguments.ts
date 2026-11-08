@@ -4,10 +4,10 @@ import { parseScenarioSelection } from "./parseScenarioSelection";
 /**
  * Read one optional Human population value while preserving the existing scenario grammar at every option boundary. This pure reader imports no person registry and writes no environment or shared selection state.
  *
- * @evidence contracts/testing.md#behavioral-verification The workspace Human selection question exercises this reader through direct requests, fixture selection and public preflight, catching lost scenario terms or a Human option that silently widens execution.
- * @evidence contracts/testing.md#independent-expectations Literal include/exclude lists and the declared single Human value grammar supply the oracle; this reader does not manufacture expected person names or scenario matches.
- * @evidence contracts/testing.md#distinguishing-cases The owning question covers space/equals values, groups on both sides, duplicate/missing/blank/positional/unknown options and valueless groups. The existing scenario selection question owns the generic grammar and matching cases.
- * @evidence contracts/testing.md#execution-ownership This portable synchronous helper is shared by actual preflight and Human fixture names; its discoverable workspace question needs no process, browser, generated person or environment mutation.
+ * @evidence contracts/development/testing.md#behavioral-verification The workspace Human selection question exercises this reader through direct requests, fixture selection and public preflight, catching lost scenario terms or a Human option that silently widens execution.
+ * @evidence contracts/development/testing.md#independent-expectations Literal include/exclude lists and the declared single Human value grammar supply the oracle; this reader does not manufacture expected person names or scenario matches.
+ * @evidence contracts/development/testing.md#distinguishing-cases The owning question covers space/equals values, groups on both sides, duplicate/missing/blank/positional/unknown options and valueless groups. The existing scenario selection question owns the generic grammar and matching cases.
+ * @evidence contracts/development/testing.md#execution-ownership This portable synchronous helper is shared by actual preflight and Human fixture names; its discoverable workspace question needs no process, browser, generated person or environment mutation.
  */
 export function readTestArguments(argv: readonly string[]): {
   selection: IScenarioSelection;

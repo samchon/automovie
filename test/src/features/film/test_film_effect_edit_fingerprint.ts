@@ -16,10 +16,11 @@ import { filmEffectCue, filmEffectTimeline } from "./filmEffectRuntimeFixtures";
  * 2. Changing builder provenance preserves the digest.
  * 3. Changing edit length, segment source, effect intensity or rational rate changes it.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls productionFilmEffectEditFingerprint and compares protocol hashing plus equal/different digest outcomes, catching included provenance or omitted executable edit fields.
- * @evidence contracts/testing.md#independent-expectations A hand-authored canonical JSON record and Node crypto determine the baseline hash; chosen edits change fields declared by the edit protocol. Observed different digests are witnesses, not a proof that SHA-256 is collision-free.
- * @evidence contracts/testing.md#distinguishing-cases Pairs unchanged executable state with changed provenance and four executable edits; runtime population staleness and malformed effect admission are checked by the neighbouring effect tests.
- * @evidence contracts/testing.md#execution-ownership This synchronous discoverable entry owns portable engine/Node digest parity in one process; it neither runs a browser nor proves a cross-host byte replay or rendered effect.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls productionFilmEffectEditFingerprint and compares protocol hashing plus equal/different digest outcomes, catching included provenance or omitted executable edit fields.
+ * @evidence contracts/development/testing.md#independent-expectations A hand-authored canonical JSON record and Node crypto determine the baseline hash; chosen edits change fields declared by the edit protocol. Observed different digests are witnesses, not a proof that SHA-256 is collision-free.
+ * @evidence contracts/development/testing.md#distinguishing-cases Pairs unchanged executable state with changed provenance and four executable edits; runtime population staleness and malformed effect admission are checked by the neighbouring effect tests.
+ * @evidence contracts/development/testing.md#execution-ownership This synchronous discoverable entry owns portable engine/Node digest parity in one process; it neither runs a browser nor proves a cross-host byte replay or rendered effect.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Compare a literal canonical edit record with the engine digest using Node SHA-256.).
  */
 export function test_film_effect_edit_fingerprint(): void {
   const nodeProtocolDigest: (timeline: IAutoMovieFilmTimeline) => string = (

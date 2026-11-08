@@ -3,13 +3,10 @@ import { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetAssess
 /**
  * One caller-supplied tier's budget evidence over its supplied shot assessments. The record itself proves neither complete shot coverage nor actual rendering or publication.
  *
- * @evidence contracts/common.md#principled-implementation A versioned tier envelope sorts shot assessments, names declared tiers and orders over, not-run, incomplete and within outcomes, with empty populations reported not-run.
- * @evidence contracts/common.md#clear-and-simple-design The document is the stable publication unit for job-level budget evidence and delegates measurements to its shot assessments.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An undeclared tier remains explicitly unbudgeted, and no assessment population is treated as a successful measurement when empty.
- * @evidence contracts/common.md#meaningful-documentation Members state protocol identity, severity order, tier ordering, empty-population behavior and verdict-based digest scope.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The versioned budget publication shape declares data and chooses no runtime algorithm; its producer documents construction cost.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The tier verdict publication identity describes an identity boundary and performs no request coordination or result caching.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased publication envelope opens no renderer; autoMovieRenderBudgetEvidence shares assessment references into sorted output whose lifetime belongs to the evidence caller.
+ * @evidence contracts/development/design.md#principled-representation A versioned tier envelope sorts shot assessments, names declared tiers and orders over, not-run, incomplete and within outcomes, with empty populations reported not-run.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The document is the stable publication unit for job-level budget evidence and delegates measurements to its shot assessments.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts An undeclared tier remains explicitly unbudgeted, and no assessment population is treated as a successful measurement when empty.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state protocol identity, severity order, tier ordering, empty-population behavior and verdict-based digest scope.
  */
 export interface IAutoMovieRenderBudgetEvidence {
   /**

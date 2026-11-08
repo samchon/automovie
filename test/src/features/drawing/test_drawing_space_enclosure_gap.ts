@@ -21,10 +21,11 @@ import { namedFacts } from "../internal/predicates";
  *    boundaries, they *are* the separation or the passage, and widening the gap
  *    to every subject would file a gap nothing could ever close.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls deriveAutoMovieDrawingSchedule for space/opening/connector subjects and checks space-enclosure presence/status versus absence for the other two subjects. This catches a missing gap, incorrect not-run status or applying the space policy to every schedule.
- * @evidence contracts/testing.md#independent-expectations The expected unsupported status and subject-specific presence are explicit reporting policy, not calculated from schedule output. The authored atelier fixture supplies admitted subject populations; no inferred ceiling kind or rendered enclosure supplies the answer.
- * @evidence contracts/testing.md#distinguishing-cases Space must expose the gap while opening and connector must not. This test observes the selected gap only and does not check its reason/remedy text, uniqueness, other gap entries or actual boundary derivation.
- * @evidence contracts/testing.md#execution-ownership Uses the existing local drawing fixture and synchronous schedule derivation with no artifact publication, renderer, process, clock, global replacement or additional test host. Its observations do not reproduce historical production failures or certify enclosure completeness.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls deriveAutoMovieDrawingSchedule for space/opening/connector subjects and checks space-enclosure presence/status versus absence for the other two subjects. This catches a missing gap, incorrect not-run status or applying the space policy to every schedule.
+ * @evidence contracts/development/testing.md#independent-expectations The expected unsupported status and subject-specific presence are explicit reporting policy, not calculated from schedule output. The authored atelier fixture supplies admitted subject populations; no inferred ceiling kind or rendered enclosure supplies the answer.
+ * @evidence contracts/development/testing.md#distinguishing-cases Space must expose the gap while opening and connector must not. This test observes the selected gap only and does not check its reason/remedy text, uniqueness, other gap entries or actual boundary derivation.
+ * @evidence contracts/development/testing.md#execution-ownership Uses the existing local drawing fixture and synchronous schedule derivation with no artifact publication, renderer, process, clock, global replacement or additional test host. Its observations do not reproduce historical production failures or certify enclosure completeness.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A room schedule declares the enclosure gap, as `unsupported` rather than).
  */
 export function test_drawing_space_enclosure_gap(): void {
   const gapOf: (

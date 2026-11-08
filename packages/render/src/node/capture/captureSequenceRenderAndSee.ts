@@ -7,7 +7,7 @@ import {
 import {
   type IViewerCaptureSession,
   createViewerCaptureSession,
-} from "@automovie/viewer/node";
+} from "@automovie/viewer";
 import * as HME from "h264-mp4-encoder";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -42,13 +42,13 @@ interface SequenceCaptureSession {
  *
  *
  *
- * @evidence contracts/common.md#principled-implementation Canonical sequence planning supplies shot-local samples and blends to the Viewer capture session; saved mixed frames and isolated samples feed the existing dissolve heuristic.
- * @evidence contracts/common.md#clear-and-simple-design Viewer owns seek/screenshot/close, while Render owns metadata admission, sequence planning, PNG writing, H264 encoding and diagnostics.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The caller receives failed dissolve observations with reasons; the implementation does not fake healthy geometry or replace the canonical compositor.
- * @evidence contracts/common.md#meaningful-documentation The comment identifies MP4, PNG and JSON outputs and distinguishes heuristic observations from compositor or model-health proof.
- * @evidence contracts/performance.md#efficient-algorithms For F frames of W by H pixels and T transitions, encoding scans O(FWH) pixels; diagnostics scan frames per transition and decode three PNGs per selected transition.
- * @evidence contracts/performance.md#reuse-equivalent-work One browser page and metadata snapshot serve the sequence; saved mixed-frame PNGs are reused by encoding and diagnostics instead of recapturing mixed frames.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Browser, page/session and encoder release in finally paths preserve operation and cleanup causes. Output files persist; frame-path maps grow O(F), and each diagnostic releases its decoded images after use.
+ * @evidence contracts/development/implementation.md#principled-implementation Canonical sequence planning supplies shot-local samples and blends to the Viewer capture session; saved mixed frames and isolated samples feed the existing dissolve heuristic.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Viewer owns seek/screenshot/close, while Render owns metadata admission, sequence planning, PNG writing, H264 encoding and diagnostics.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The caller receives failed dissolve observations with reasons; the implementation does not fake healthy geometry or replace the canonical compositor.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment identifies MP4, PNG and JSON outputs and distinguishes heuristic observations from compositor or model-health proof.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For F frames of W by H pixels and T transitions, encoding scans O(FWH) pixels; diagnostics scan frames per transition and decode three PNGs per selected transition.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One browser page and metadata snapshot serve the sequence; saved mixed-frame PNGs are reused by encoding and diagnostics instead of recapturing mixed frames.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Browser, page/session and encoder release in finally paths preserve operation and cleanup causes. Output files persist; frame-path maps grow O(F), and each diagnostic releases its decoded images after use.
  */
 export const captureSequenceRenderAndSee: (
   options: IAutoMoviePageSequenceRenderOptions,

@@ -63,10 +63,11 @@ const NAILS: IAutoMovieMaterialOverlay = {
  * 3. Generated programs carry transformed UVs and insert color, roughness and tangent-normal operations at their declared boundaries, after an earlier detail patch where applicable.
  * 4. Validation refuses malformed or oversized lists, non-record entries, missing images, unknown blends, invalid factors/strength/roughness/scales and wrong texture color spaces, while admitting the authored pair.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds real overlay materials, reads published texture/factor records and generated shader programs, and validates authored declarations; catches dropped fields, wrong patch order and malformed layers admitted to projection.
- * @evidence contracts/testing.md#independent-expectations Authored scalar factors, multiply-versus-replace composition and native shader-stage boundaries define expected output. Generated shader text is product output but does not establish compiled GLSL or observed colors/normals.
- * @evidence contracts/testing.md#distinguishing-cases Covers ordered layer shapes, optional normal/roughness fields, flat normal fallback, missing resolver and malformed/count-limit declarations with admitted twins; disposal and unsupported shader boundaries have separate cases.
- * @evidence contracts/testing.md#execution-ownership This named portable unit reuses existing generic model data and actual CPU-side Three textures/materials through maintained shader/validator entries, creating no browser, GPU, process or new Human driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds real overlay materials, reads published texture/factor records and generated shader programs, and validates authored declarations; catches dropped fields, wrong patch order and malformed layers admitted to projection.
+ * @evidence contracts/development/testing.md#independent-expectations Authored scalar factors, multiply-versus-replace composition and native shader-stage boundaries define expected output. Generated shader text is product output but does not establish compiled GLSL or observed colors/normals.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers ordered layer shapes, optional normal/roughness fields, flat normal fallback, missing resolver and malformed/count-limit declarations with admitted twins; disposal and unsupported shader boundaries have separate cases.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit reuses existing generic model data and actual CPU-side Three textures/materials through maintained shader/validator entries, creating no browser, GPU, process or new Human driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Tint/normal and replacement/roughness overlays preserve their images, factors and strengths, image listing order and generated program-key...).
  */
 export function test_viewer_material_overlay(): void {
   const base: IAutoMovieMaterial = createModel().materials[0]!;

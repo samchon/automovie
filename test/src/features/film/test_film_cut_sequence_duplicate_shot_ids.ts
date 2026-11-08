@@ -27,10 +27,11 @@ const shot: (id: string, duration: number) => IAutoMovieShot = (
  *
  * 1. Two supplied shots share shot:beat-1; assembly refuses the duplicate source id at $shots[1].id rather than implicitly choosing either duration.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls cutSequence with colliding source shot ids and requires unsuccessful assembly plus a type violation at the duplicate source path, detecting silent map overwrite even if choosing the later three-second shot would admit the trim.
- * @evidence contracts/testing.md#independent-expectations The two literal ids are identical and occupy source indices zero and one, so the second is the duplicate independently of duration arithmetic; the assertion checks kind and path fragment rather than the full explanatory text.
- * @evidence contracts/testing.md#distinguishing-cases Uses one- and three-second duplicate shots with a 2.5-second trim, distinguishing duplicate rejection from an accidental successful last-write winner; unique source reuse belongs to test_film_cut_sequence_valid.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_cut_sequence_duplicate_shot_ids entry owns one portable admission case and calls the engine directly; namedFacts owns no dynamic registration and no process or render host is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls cutSequence with colliding source shot ids and requires unsuccessful assembly plus a type violation at the duplicate source path, detecting silent map overwrite even if choosing the later three-second shot would admit the trim.
+ * @evidence contracts/development/testing.md#independent-expectations The two literal ids are identical and occupy source indices zero and one, so the second is the duplicate independently of duration arithmetic; the assertion checks kind and path fragment rather than the full explanatory text.
+ * @evidence contracts/development/testing.md#distinguishing-cases Uses one- and three-second duplicate shots with a 2.5-second trim, distinguishing duplicate rejection from an accidental successful last-write winner; unique source reuse belongs to test_film_cut_sequence_valid.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_cut_sequence_duplicate_shot_ids entry owns one portable admission case and calls the engine directly; namedFacts owns no dynamic registration and no process or render host is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Two supplied shots share shot:beat-1; assembly refuses the duplicate source id at $shots[1].id rather than implicitly choosing either...).
  */
 export function test_film_cut_sequence_duplicate_shot_ids(): void {
   const cut: ReturnType<typeof cutSequence> = cutSequence(

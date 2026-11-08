@@ -33,25 +33,19 @@ type Layer = IAutoMovieLoftChain.ILayer & {
 /**
  * Explicit original scalar ownership and numeric binding snapshots.
  *
- * @evidence contracts/common.md#principled-implementation Original plain scalar data and independent compatibility-row snapshots preserve immutable source ownership and expose changed boundary families.
- * @evidence contracts/common.md#clear-and-simple-design Native source retention and endpoint retention share one explicit validation owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No WeakMap registration changes geometry; stale coefficient rewrites and broken present metadata throw instead of choosing a legacy curve.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes finite value admission, physical source2 availability, compatibility arrays and explicit endpoint functions.
- * @evidence contracts/performance.md#efficient-algorithms One source2 query and O(N) snapshot per principal row precede binary snapshot lookup and O(N) selected-row comparison on cold station preparation.
- * @evidence contracts/performance.md#reuse-equivalent-work Retained original scalar preparations and explicit endpoint data are shared by immutable chain copies and station plans.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Source knots plus O(LN) numeric binding data and fixed endpoint records are caller-owned; no module cache retains them.
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes finite value admission, physical source2 availability, compatibility arrays and explicit endpoint functions.
+ * @evidence contracts/development/design.md#principled-representation Represents Explicit original scalar ownership and numeric binding snapshots: companion namespace of 7 members (`ISource`, `IEndpoint`, `retain`, `validate`, `endpoint`, `bind`, ...); units and frames named in its text: frame. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieLoftSectionSource` in packages/engine/src/geometry/construction/AutoMovieLoftSectionSource.ts; its surface is the 7 members listed and the text shows 16 other files naming it, mostly packages/engine (9), test (5), packages/human (2), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftSectionSource {
   /**
    * Original scalar field and the compatibility rows published beside it.
    *
-   * @evidence contracts/common.md#principled-implementation Retains the actual prepared scalar functions independently of their approximate principal coefficient projection.
-   * @evidence contracts/common.md#clear-and-simple-design One discriminator, scalar source and ordered binding list define admission.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing physical jet is a diagnostic status rather than a fabricated tuple or lost finite value.
-   * @evidence contracts/common.md#meaningful-documentation Data is immutable and value-copyable; the frame owner's callable serialization limit is separate.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no interpolation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Readers own station-plan reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Its plain original sources and linear binding rows belong to its containing chain.
+   * @evidence contracts/development/design.md#principled-representation Retains the actual prepared scalar functions independently of their approximate principal coefficient projection.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One discriminator, scalar source and ordered binding list define admission.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing physical jet is a diagnostic status rather than a fabricated tuple or lost finite value.
+   * @evidence contracts/development/common.md#meaningful-documentation Data is immutable and value-copyable; the frame owner's callable serialization limit is separate.
    */
   export interface ISource {
     /** A broken present discriminator never means source absence. */
@@ -67,13 +61,10 @@ export namespace AutoMovieLoftSectionSource {
   /**
    * Actual endpoint family with an independent transformed-layer binding.
    *
-   * @evidence contracts/common.md#principled-implementation Complete native scalar2 or actual basis coefficient2 determines the endpoint's whole phase function.
-   * @evidence contracts/common.md#clear-and-simple-design Family and transformed numeric layer snapshot remain explicit plain records.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A composed non-native function is not fitted into eight native scalars, and no missing derivative row is supplied as zero.
-   * @evidence contracts/common.md#meaningful-documentation Station direction and chart reflection are applied before binding this record to its new layer.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This endpoint record evaluates no curve.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Endpoint construction and station preparation own reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Two fixed scalar/basis snapshots and one layer binding are retained only by their resulting immutable chain.
+   * @evidence contracts/development/design.md#principled-representation Complete native scalar2 or actual basis coefficient2 determines the endpoint's whole phase function.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Family and transformed numeric layer snapshot remain explicit plain records.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A composed non-native function is not fitted into eight native scalars, and no missing derivative row is supplied as zero.
+   * @evidence contracts/development/common.md#meaningful-documentation Station direction and chart reflection are applied before binding this record to its new layer.
    */
   export interface IEndpoint {
     /** Explicit boundary discriminator. */
@@ -92,13 +83,13 @@ export namespace AutoMovieLoftSectionSource {
   /**
    * Bind original scalar ownership after ordinary/frame coefficient preparation.
    *
-   * @evidence contracts/common.md#principled-implementation Retains the original scalar definition and snapshots the emitted compatibility rows without using them as native geometry.
-   * @evidence contracts/common.md#clear-and-simple-design One pass records actual source2 availability separately from row values.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An unavailable physical source2 is recorded without rejecting the original finite Point0 definition.
-   * @evidence contracts/common.md#meaningful-documentation The returned chain owns immutable source/binding data; inputs are never modified.
-   * @evidence contracts/performance.md#efficient-algorithms O(L) original scalar queries with their knot lookup costs, plus O(LN) numeric copies.
-   * @evidence contracts/performance.md#reuse-equivalent-work Shared original scalar preparations serve all principal and later station queries.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one shallow chain copy and linear snapshots, with no global source registry.
+   * @evidence contracts/development/implementation.md#principled-implementation Retains the original scalar definition and snapshots the emitted compatibility rows without using them as native geometry.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass records actual source2 availability separately from row values.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unavailable physical source2 is recorded without rejecting the original finite Point0 definition.
+   * @evidence contracts/development/common.md#meaningful-documentation The returned chain owns immutable source/binding data; inputs are never modified.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(L) original scalar queries with their knot lookup costs, plus O(LN) numeric copies.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared original scalar preparations serve all principal and later station queries.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one shallow chain copy and linear snapshots, with no global source registry.
    */
   export function retain(
     chain: Chain,
@@ -117,13 +108,13 @@ export namespace AutoMovieLoftSectionSource {
   /**
    * Validate retained original ownership at the two rows of one station bracket.
    *
-   * @evidence contracts/common.md#principled-implementation Independent numeric snapshots distinguish an unchanged native definition from a stale coefficient rewrite.
-   * @evidence contracts/common.md#clear-and-simple-design Explicit absence returns null; present source and selected endpoint records are validated before use.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A malformed or mismatched source throws and never selects legacy geometry; value validation does not require a physical station2.
-   * @evidence contracts/common.md#meaningful-documentation lo/hi identify the existing chain bracket; dense finite numeric rows must match twice the actual spline order and remain immutable.
-   * @evidence contracts/performance.md#efficient-algorithms Binary source-row lookup and O(N) comparison for each selected ordinary row; explicit endpoint comparison follows its fixed/basis data size.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Pure validation creates no registration or cached geometry decision.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains no chain or query after returning.
+   * @evidence contracts/development/implementation.md#principled-implementation Independent numeric snapshots distinguish an unchanged native definition from a stale coefficient rewrite.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Explicit absence returns null; present source and selected endpoint records are validated before use.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A malformed or mismatched source throws and never selects legacy geometry; value validation does not require a physical station2.
+   * @evidence contracts/development/common.md#meaningful-documentation lo/hi identify the existing chain bracket; dense finite numeric rows must match twice the actual spline order and remain immutable.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Binary source-row lookup and O(N) comparison for each selected ordinary row; explicit endpoint comparison follows its fixed/basis data size.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure validation creates no registration or cached geometry decision.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no chain or query after returning.
    */
   export function validate(
     chain: Chain,
@@ -161,13 +152,13 @@ export namespace AutoMovieLoftSectionSource {
   /**
    * Read a changed endpoint's explicit family or its genuine absence.
    *
-   * @evidence contracts/common.md#principled-implementation Field data and its copied admission snapshot bind to the same transformed layer values and physical jets.
-   * @evidence contracts/common.md#clear-and-simple-design One nullable endpoint owner serves readers, continuation and kept neck boundaries.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Present malformed endpoint data throws instead of becoming ordinary basis absence.
-   * @evidence contracts/common.md#meaningful-documentation Binding validation is independent of the separate frame source owner; an optional expectedWidth lets the actual chain bracket enforce its output density without rereading row properties.
-   * @evidence contracts/performance.md#efficient-algorithms Fixed native data or O(N) complete basis data comparison follows O(N) layer snapshot comparison.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The validation owns no cross-call result.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a borrowed immutable record and retains nothing globally.
+   * @evidence contracts/development/implementation.md#principled-implementation Field data and its copied admission snapshot bind to the same transformed layer values and physical jets.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One nullable endpoint owner serves readers, continuation and kept neck boundaries.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Present malformed endpoint data throws instead of becoming ordinary basis absence.
+   * @evidence contracts/development/common.md#meaningful-documentation Binding validation is independent of the separate frame source owner; an optional expectedWidth lets the actual chain bracket enforce its output density without rereading row properties.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed native data or O(N) complete basis data comparison follows O(N) layer snapshot comparison.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The validation owns no cross-call result.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a borrowed immutable record and retains nothing globally.
    */
   export function endpoint(
     layer: Layer,
@@ -191,13 +182,13 @@ export namespace AutoMovieLoftSectionSource {
   /**
    * Attach actual oriented endpoint data to a newly transformed layer.
    *
-   * @evidence contracts/common.md#principled-implementation Copies the actual complete family and the new layer's independent numeric binding after coordinate re-expression.
-   * @evidence contracts/common.md#clear-and-simple-design One record combines the oriented generating data and its explicit layer ownership.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses incomplete families; no callback registration or inferred geometry is introduced.
-   * @evidence contracts/common.md#meaningful-documentation The caller owns the station/phase sign transform and actual physical source2 availability.
-   * @evidence contracts/performance.md#efficient-algorithms Fixed native copies or linear complete basis copies plus one O(N) layer snapshot.
-   * @evidence contracts/performance.md#reuse-equivalent-work The retained endpoint is shared by both adjoining field readers.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns independent plain data and retains no host chain or callable owner.
+   * @evidence contracts/development/implementation.md#principled-implementation Copies the actual complete family and the new layer's independent numeric binding after coordinate re-expression.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record combines the oriented generating data and its explicit layer ownership.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses incomplete families; no callback registration or inferred geometry is introduced.
+   * @evidence contracts/development/common.md#meaningful-documentation The caller owns the station/phase sign transform and actual physical source2 availability.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed native copies or linear complete basis copies plus one O(N) layer snapshot.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The retained endpoint is shared by both adjoining field readers.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent plain data and retains no host chain or callable owner.
    */
   export function bind(layer: Layer, field: Family): IEndpoint {
     if (!family(field))
@@ -215,13 +206,13 @@ export namespace AutoMovieLoftSectionSource {
   /**
    * Presence/recorded availability of native physical2 at retained layer boundaries.
    *
-   * @evidence contracts/common.md#principled-implementation Preserves recorded missing source2 status while changed endpoint records already contain complete actual family2.
-   * @evidence contracts/common.md#clear-and-simple-design This predicate complements existing frame-presence checks without evaluating phase geometry.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is not a certificate of an arbitrary interior station; every actual native jet query still checks its source2.
-   * @evidence contracts/common.md#meaningful-documentation Ordinary source absence keeps existing legacy admission; unavailable native physical2 remains distinct from finite values.
-   * @evidence contracts/performance.md#efficient-algorithms One layer scan with direct aligned-row lookup, using binary lookup only for clipped/reordered row indices.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The pure predicate creates no cached availability authority.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains no input or result.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserves recorded missing source2 status while changed endpoint records already contain complete actual family2.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This predicate complements existing frame-presence checks without evaluating phase geometry.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts It is not a certificate of an arbitrary interior station; every actual native jet query still checks its source2.
+   * @evidence contracts/development/common.md#meaningful-documentation Ordinary source absence keeps existing legacy admission; unavailable native physical2 remains distinct from finite values.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One layer scan with direct aligned-row lookup, using binary lookup only for clipped/reordered row indices.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The pure predicate creates no cached availability authority.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or result.
    */
   export function regular(chain: Chain): boolean {
     const source: ISource | undefined = chain.nativeSource;

@@ -23,6 +23,12 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  * 1. Both collider insertion orders admit top-floor contacts and refuse underside contacts.
  * 2. A tilted box with touching and predictive points admits only the touching points.
  * 3. A native Max friction rule survives collection instead of becoming a guessed average.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `Quaternion`, `collectPhysicalSupports`, `physicalNativeShape` on in-memory inputs and asserts the returned observations through 1x TestValidator.equals; 3 numbered scenarios (first: Both collider insertion orders admit top-floor contacts and refuse underside contacts.; last: A native Max friction rule survives collection instead of becoming a guessed average.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
+ * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contributes 3 numbered scenarios (first: Both collider insertion orders admit top-floor contacts and refuse underside contacts.; last: A native Max friction rule survives collection instead of becoming a guessed average.), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
+ * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_support_witnesses`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Both collider insertion orders admit top-floor contacts and refuse underside contacts.).
  */
 export async function test_physical_support_witnesses(): Promise<void> {
   await RAPIER.init();

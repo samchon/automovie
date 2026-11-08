@@ -19,10 +19,11 @@ import { nclose } from "../internal/predicates";
  * 2. A translating quarter turn resolves half-distance and half-angle at its midpoint using the supplied derived stride.
  * 3. Seeded phases and opposite seek order preserve the wrapped sample; culling hides the tier and returning restores its visibility.
  *
- * @evidence contracts/testing.md#behavioral-verification Updates the established formation through movement, turn, near/far camera and away/back views, reading native batch visibility, cycle values and depth/distance material state; catches stale turned transforms and shadow cycle cells detached from their visible tier.
- * @evidence contracts/testing.md#independent-expectations Literal camera positions and authored one-metre travel/quarter turn distinguish admission and LOD transitions; modulo phase arithmetic uses the supplied Engine stride/cadence premise and therefore does not independently establish gait derivation or conservative geometric coverage.
- * @evidence contracts/testing.md#distinguishing-cases Covers moving/turned near and far tiers, culling away and return with shadow synchronization; chunk boundary populations and independent release failures remain separate cases.
- * @evidence contracts/testing.md#execution-ownership This named asynchronous unit uses existing source and the original generic formation fixture with actual CPU-side Three camera/batch objects, releases the owner and starts no browser, GPU, native process or new Human figure.
+ * @evidence contracts/development/testing.md#behavioral-verification Updates the established formation through movement, turn, near/far camera and away/back views, reading native batch visibility, cycle values and depth/distance material state; catches stale turned transforms and shadow cycle cells detached from their visible tier.
+ * @evidence contracts/development/testing.md#independent-expectations Literal camera positions and authored one-metre travel/quarter turn distinguish admission and LOD transitions; modulo phase arithmetic uses the supplied Engine stride/cadence premise and therefore does not independently establish gait derivation or conservative geometric coverage.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers moving/turned near and far tiers, culling away and return with shadow synchronization; chunk boundary populations and independent release failures remain separate cases.
+ * @evidence contracts/development/testing.md#execution-ownership This named asynchronous unit uses existing source and the original generic formation fixture with actual CPU-side Three camera/batch objects, releases the owner and starts no browser, GPU, native process or new Human figure.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Near and far tiers own distinct table cells and depth/distance materials; camera selection changes the existing mesh visibility.).
  */
 export async function test_viewer_formation_shadow_lod_turn(): Promise<void> {
   const THREE: typeof ThreeTypes = await import("three");

@@ -11,13 +11,13 @@ import type { IViewerCaptureSession } from "./IViewerCaptureSession.js";
  *
  * Creation failures leave the page with the caller; a returned session owns it until close. Captures must not overlap. Seek and pass hooks finish before screenshots, including asynchronous completion; fulfilled hook values are discarded inside the page. Each pass supplies its PNG bytes to an awaited writer without retaining previous frames. Writer and close failures propagate unchanged; page failures carry a capture-step code.
  *
- * @evidence contracts/common.md#principled-implementation One awaited explicit seek followed by awaited ordered pass switches and screenshots observes completed hooks; the page wrapper discards fulfilled hook values before the driver boundary, while hook rejection retains its capture-step classification. The caller supplies admitted pass names and owns output naming.
- * @evidence contracts/common.md#clear-and-simple-design Page lifecycle and pixel transport live here while scheduling, file paths and encoding remain with consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The same hook and selector options drive every route; beauty-only capture requires no pass hook.
- * @evidence contracts/common.md#meaningful-documentation States admission premises, hook overrides, failure ownership and non-overlapping use.
- * @evidence contracts/performance.md#efficient-algorithms Initialization navigates once; each capture seeks once and performs one screenshot and awaited write per requested pass, O(P) browser calls.
- * @evidence contracts/performance.md#reuse-equivalent-work The loaded page, checked hooks and locator are shared across samples; distinct screenshots and effectful writes are never cached.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One caller-supplied page transfers on successful creation and closes explicitly; non-overlapping calls retain at most one screenshot buffer plus whatever the writer retains. Failed creation leaves release with the caller.
+ * @evidence contracts/development/implementation.md#principled-implementation One awaited explicit seek followed by awaited ordered pass switches and screenshots observes completed hooks; the page wrapper discards fulfilled hook values before the driver boundary, while hook rejection retains its capture-step classification. The caller supplies admitted pass names and owns output naming.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Page lifecycle and pixel transport live here while scheduling, file paths and encoding remain with consumers.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same hook and selector options drive every route; beauty-only capture requires no pass hook.
+ * @evidence contracts/development/common.md#meaningful-documentation States admission premises, hook overrides, failure ownership and non-overlapping use.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Initialization navigates once; each capture seeks once and performs one screenshot and awaited write per requested pass, O(P) browser calls.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The loaded page, checked hooks and locator are shared across samples; distinct screenshots and effectful writes are never cached.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One caller-supplied page transfers on successful creation and closes explicitly; non-overlapping calls retain at most one screenshot buffer plus whatever the writer retains. Failed creation leaves release with the caller.
  */
 export const createViewerCaptureSession: (
   options: IViewerCaptureOptions,

@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryCameraSceneInput } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryCameraSceneInput } from "@automovie/interface";
 
 import type { extractRecoveryImageFeatures } from "../../../../packages/recovery/src/internal/extractRecoveryImageFeatures";
 import type { linkRecoveryCameraTracks } from "../../../../packages/recovery/src/internal/linkRecoveryCameraTracks";

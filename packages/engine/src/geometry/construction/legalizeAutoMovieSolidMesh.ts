@@ -60,13 +60,13 @@ interface Side {
  * @param scale Phase scale of the uniform metric, positive and finite, in length units per radian.
  * @returns New positive triangle occurrences over the same region and vertices, or the broken premise.
  *
- * @evidence contracts/common.md#principled-implementation Lawson's flip algorithm reaches the constrained Delaunay triangulation by exact lifted in-circle and orientation signs on one scaled chart that carries the length unit; the planner's own representability rules admit each flip.
- * @evidence contracts/common.md#clear-and-simple-design One index-only pass follows interior insertion; the planner keeps visibility and coverage, the in-circle predicate its arithmetic and the grid its metric.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Moves no point, removes no vertex and flips no source constraint; an inconsistent incidence or a flip count past Lawson's bound is a named failure, never a partial result.
- * @evidence contracts/common.md#meaningful-documentation States why rail ears survive insertion, why their diagonals flip, the metric and its exactness, termination, fixed constraints, admission and visiting order.
- * @evidence contracts/performance.md#efficient-algorithms One adjacency map and a work queue; each in-circle test is constant work, and at most `n (n - 1) / 2` flips each queue four sides.
- * @evidence contracts/performance.md#reuse-equivalent-work Reads the planner's indexed positions and split constraints; no surface jet is evaluated and no point constructed.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Adjacency, pair counts and the queue are call-local O(T) storage; returned triangle triples are fresh and caller-owned.
+ * @evidence contracts/development/implementation.md#principled-implementation Lawson's flip algorithm reaches the constrained Delaunay triangulation by exact lifted in-circle and orientation signs on one scaled chart that carries the length unit; the planner's own representability rules admit each flip.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One index-only pass follows interior insertion; the planner keeps visibility and coverage, the in-circle predicate its arithmetic and the grid its metric.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Moves no point, removes no vertex and flips no source constraint; an inconsistent incidence or a flip count past Lawson's bound is a named failure, never a partial result.
+ * @evidence contracts/development/common.md#meaningful-documentation States why rail ears survive insertion, why their diagonals flip, the metric and its exactness, termination, fixed constraints, admission and visiting order.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One adjacency map and a work queue; each in-circle test is constant work, and at most `n (n - 1) / 2` flips each queue four sides.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the planner's indexed positions and split constraints; no surface jet is evaluated and no point constructed.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Adjacency, pair counts and the queue are call-local O(T) storage; returned triangle triples are fresh and caller-owned.
  */
 export function legalizeAutoMovieSolidMesh(
   vertices: ReadonlyMap<number, Point>,
@@ -82,13 +82,17 @@ export function legalizeAutoMovieSolidMesh(
   if (period !== undefined && !(Number.isFinite(period) && period > 0))
     return "legalization needs a finite positive period";
   const result: AutoMovieSolidMeshPlan.ITriangle[] = triangles.map(
-    (triangle: AutoMovieSolidMeshPlan.ITriangle): AutoMovieSolidMeshPlan.ITriangle => ({
+    (
+      triangle: AutoMovieSolidMeshPlan.ITriangle,
+    ): AutoMovieSolidMeshPlan.ITriangle => ({
       vertices: [...triangle.vertices],
       lifts: [...triangle.lifts],
     }),
   );
   const fixed: Set<string> = new Set(
-    constraints.map((edge: AutoMovieSolidMeshConstraints.ISegment): string => key(edge.a, edge.b, edge.turn)),
+    constraints.map((edge: AutoMovieSolidMeshConstraints.ISegment): string =>
+      key(edge.a, edge.b, edge.turn),
+    ),
   );
   const pairs: Map<string, number> = new Map();
   const count = (a: number, b: number, change: number): void => {
@@ -113,7 +117,8 @@ export function legalizeAutoMovieSolidMesh(
         count(t.vertices[corner]!, t.vertices[(corner + 1) % 3]!, 1);
       }
       owners.push({ triangle, corner });
-      if (owners.length > 2) return "legalization needs manifold diagonal incidence";
+      if (owners.length > 2)
+        return "legalization needs manifold diagonal incidence";
       sides.set(name, owners);
     }
     return undefined;
@@ -121,7 +126,9 @@ export function legalizeAutoMovieSolidMesh(
   const detach = (triangle: number): void => {
     for (let corner: number = 0; corner < 3; corner++) {
       const name: string = edge(result[triangle]!, corner);
-      const owners: Side[] = (sides.get(name) ?? []).filter((side: Side): boolean => side.triangle !== triangle);
+      const owners: Side[] = (sides.get(name) ?? []).filter(
+        (side: Side): boolean => side.triangle !== triangle,
+      );
       if (owners.length === 0) {
         sides.delete(name);
         if (!fixed.has(name)) {
@@ -144,8 +151,13 @@ export function legalizeAutoMovieSolidMesh(
     queue.push(name);
   };
   for (let triangle: number = 0; triangle < result.length; triangle++)
-    for (let corner: number = 0; corner < 3; corner++) enqueue(edge(result[triangle]!, corner));
-  const distinct: number = new Set(result.flatMap((t: AutoMovieSolidMeshPlan.ITriangle): number[] => t.vertices)).size;
+    for (let corner: number = 0; corner < 3; corner++)
+      enqueue(edge(result[triangle]!, corner));
+  const distinct: number = new Set(
+    result.flatMap(
+      (t: AutoMovieSolidMeshPlan.ITriangle): number[] => t.vertices,
+    ),
+  ).size;
   const limit: number = (distinct * (distinct - 1)) / 2;
   let flips: number = 0;
   for (let cursor: number = 0; cursor < queue.length; cursor++) {
@@ -153,11 +165,23 @@ export function legalizeAutoMovieSolidMesh(
     queued.delete(name);
     const owners: Side[] | undefined = sides.get(name);
     if (owners === undefined || owners.length !== 2) continue;
-    const made: [AutoMovieSolidMeshPlan.ITriangle, AutoMovieSolidMeshPlan.ITriangle] | null = flip(vertices, result, owners[0]!, owners[1]!, period, indexed, scale);
+    const made:
+      | [AutoMovieSolidMeshPlan.ITriangle, AutoMovieSolidMeshPlan.ITriangle]
+      | null = flip(
+      vertices,
+      result,
+      owners[0]!,
+      owners[1]!,
+      period,
+      indexed,
+      scale,
+    );
     if (made === null) continue;
     const apart: string = pair(made[0].vertices[1], made[0].vertices[2]);
-    if (occupied?.has(apart) === true || (pairs.get(apart) ?? 0) !== 0) continue;
-    if (++flips > limit) return `legalization exceeded Lawson's ${limit} flips for ${distinct} vertices; the incidence is inconsistent`;
+    if (occupied?.has(apart) === true || (pairs.get(apart) ?? 0) !== 0)
+      continue;
+    if (++flips > limit)
+      return `legalization exceeded Lawson's ${limit} flips for ${distinct} vertices; the incidence is inconsistent`;
     const first: number = owners[0]!.triangle;
     const second: number = owners[1]!.triangle;
     detach(first);
@@ -194,7 +218,10 @@ function flip(
 ): [AutoMovieSolidMeshPlan.ITriangle, AutoMovieSolidMeshPlan.ITriangle] | null {
   const t1: AutoMovieSolidMeshPlan.ITriangle = triangles[one.triangle]!;
   const t2: AutoMovieSolidMeshPlan.ITriangle = triangles[two.triangle]!;
-  const at = (t: AutoMovieSolidMeshPlan.ITriangle, corner: number): [number, number] => [t.vertices[corner % 3]!, t.lifts[corner % 3]!];
+  const at = (
+    t: AutoMovieSolidMeshPlan.ITriangle,
+    corner: number,
+  ): [number, number] => [t.vertices[corner % 3]!, t.lifts[corner % 3]!];
   const [p, lp] = at(t1, one.corner);
   const [q, lq] = at(t1, one.corner + 1);
   const [r, lr] = at(t1, one.corner + 2);
@@ -215,13 +242,21 @@ function flip(
     const stored: Point = vertices.get(id)!;
     return [stored[0], stored[1] + (lifts[k]! - base) * (period ?? 0)];
   });
-  if (!points.every((point: Point): boolean => point.every(Number.isFinite))) return null;
-  const scaled: Point[] = points.map((point: Point): Point => [point[0], point[1] * scale]);
-  if (!scaled.every((point: Point): boolean => point.every(Number.isFinite))) return null;
+  if (!points.every((point: Point): boolean => point.every(Number.isFinite)))
+    return null;
+  const scaled: Point[] = points.map(
+    (point: Point): Point => [point[0], point[1] * scale],
+  );
+  if (!scaled.every((point: Point): boolean => point.every(Number.isFinite)))
+    return null;
   const [P, Q, R, S] = scaled as [Point, Point, Point, Point];
   if (incircleAutoMovieSolidChart(P, Q, R, S) <= 0) return null;
   const [cp, cq, cr, cs] = points as [Point, Point, Point, Point];
-  if (!represented([cp, cs, cr], period, indexed) || !represented([cs, cq, cr], period, indexed)) return null;
+  if (
+    !represented([cp, cs, cr], period, indexed) ||
+    !represented([cs, cq, cr], period, indexed)
+  )
+    return null;
   return [
     { vertices: [p, s, r], lifts: [0, ls - lp, lr - lp] },
     { vertices: [s, q, r], lifts: [0, lq - ls, lr - ls] },
@@ -229,26 +264,51 @@ function flip(
 }
 
 /** The planner's rule: positive, a represented strict centroid and a sub-half-period span. */
-function represented(points: Point[], period: number | undefined, indexed: boolean): boolean {
+function represented(
+  points: Point[],
+  period: number | undefined,
+  indexed: boolean,
+): boolean {
   const phases: number[] = points.map((point: Point): number => point[1]);
   const span: number = Math.max(...phases) - Math.min(...phases);
-  if (period !== undefined && (span > period / 2 || (indexed && span === period / 2))) return false;
+  if (
+    period !== undefined &&
+    (span > period / 2 || (indexed && span === period / 2))
+  )
+    return false;
   const center: Point = [
     points[0]![0] / 3 + points[1]![0] / 3 + points[2]![0] / 3,
     points[0]![1] / 3 + points[1]![1] / 3 + points[2]![1] / 3,
   ];
-  return center.every(Number.isFinite) && points.every((point: Point, index: number): boolean => orientAutoMovieSolidChart(point, points[(index + 1) % 3]!, center) > 0);
+  return (
+    center.every(Number.isFinite) &&
+    points.every(
+      (point: Point, index: number): boolean =>
+        orientAutoMovieSolidChart(point, points[(index + 1) % 3]!, center) > 0,
+    )
+  );
 }
 
 /** A triangle side's identity with its relative cover turn. */
-function edge(triangle: AutoMovieSolidMeshPlan.ITriangle, corner: number): string {
+function edge(
+  triangle: AutoMovieSolidMeshPlan.ITriangle,
+  corner: number,
+): string {
   const next: number = (corner + 1) % 3;
-  return key(triangle.vertices[corner]!, triangle.vertices[next]!, triangle.lifts[next]! - triangle.lifts[corner]!);
+  return key(
+    triangle.vertices[corner]!,
+    triangle.vertices[next]!,
+    triangle.lifts[next]! - triangle.lifts[corner]!,
+  );
 }
 
 /** Canonical indexed edge identity retaining the relative period turn, as the insertion owner reads it. */
 function key(a: number, b: number, turn: number): string {
-  return a === b ? `${a}/${b}/${Math.abs(turn)}` : a < b ? `${a}/${b}/${turn}` : `${b}/${a}/${-turn}`;
+  return a === b
+    ? `${a}/${b}/${Math.abs(turn)}`
+    : a < b
+      ? `${a}/${b}/${turn}`
+      : `${b}/${a}/${-turn}`;
 }
 
 /** Unoriented global endpoint pair, as the face's occupied set names it. */

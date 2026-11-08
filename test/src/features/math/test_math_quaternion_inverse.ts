@@ -17,10 +17,11 @@ import { qclose, qunit } from "../internal/predicates";
  * 3. A non-unit input still yields a unit quaternion (the normalization keeps a
  *    near-unit rotation valid); nonfinite inputs are outside this test.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls inverse and multiplies its result with the original Y rotation, checking neutral composition, opposite angle and unit length for (1,2,3,4). It catches conjugate-sign and normalization errors on these inputs.
- * @evidence contracts/testing.md#independent-expectations A rotation composed with its inverse is neutral and the inverse of a Y quarter-turn has angle -90 degrees. Unit magnitude is measured independently with hypot, while angle/product comparisons reuse other Quaternion methods and cannot rule out a shared convention error.
- * @evidence contracts/testing.md#distinguishing-cases Preserves the supported unit Y rotation and finite nonunit input. Zero and extreme normalization are owned by quaternion-normalize; arbitrary axis, malformed and nonfinite inverses are not covered here.
- * @evidence contracts/testing.md#execution-ownership The named math function runs these synchronous portable runtime calls without a consumer install, native build, process, browser, GPU or dynamic case registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls inverse and multiplies its result with the original Y rotation, checking neutral composition, opposite angle and unit length for (1,2,3,4). It catches conjugate-sign and normalization errors on these inputs.
+ * @evidence contracts/development/testing.md#independent-expectations A rotation composed with its inverse is neutral and the inverse of a Y quarter-turn has angle -90 degrees. Unit magnitude is measured independently with hypot, while angle/product comparisons reuse other Quaternion methods and cannot rule out a shared convention error.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves the supported unit Y rotation and finite nonunit input. Zero and extreme normalization are owned by quaternion-normalize; arbitrary axis, malformed and nonfinite inverses are not covered here.
+ * @evidence contracts/development/testing.md#execution-ownership The named math function runs these synchronous portable runtime calls without a consumer install, native build, process, browser, GPU or dynamic case registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: For a unit quaternion `q`, `q * inverse(q) = identity` (the defining property).
  */
 export function test_math_quaternion_inverse(): void {
   const y90: IAutoMovieQuaternion = Quaternion.fromAxisAngle(

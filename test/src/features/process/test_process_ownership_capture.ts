@@ -19,10 +19,11 @@ import { throwsError } from "../internal/predicates";
  *    discovery preserves its exact Error and leaves the child unstamped.
  * 3. Missing PID, code-ended and signal-ended observations request no effects.
  *
- * @evidence contracts/testing.md#behavioral-verification Executes the production controller against the existing fact recorder and asserts discovery, capture-object authority and requested signals; ended own/stop operations must produce no host call.
- * @evidence contracts/testing.md#independent-expectations Creation identity and original child-object ownership define the expected permission, independently of controller output; recorded requests prove portable admission semantics, not native process termination or atomic PID reuse protection.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts first/repeated capture, another object with the same PID, changed birth, absent-then-present discovery, original thrown discovery failure, missing PID and code/signal-ended observations. Platform transport and decoder cases belong to the neighboring process tests.
- * @evidence contracts/testing.md#execution-ownership The named exported unit entry reaches production source through the existing ProcessOwnershipUnit loader and supplied fact records; it starts no real child, OS host, browser or GPU and registers no dynamic cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes the production controller against the existing fact recorder and asserts discovery, capture-object authority and requested signals; ended own/stop operations must produce no host call.
+ * @evidence contracts/development/testing.md#independent-expectations Creation identity and original child-object ownership define the expected permission, independently of controller output; recorded requests prove portable admission semantics, not native process termination or atomic PID reuse protection.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts first/repeated capture, another object with the same PID, changed birth, absent-then-present discovery, original thrown discovery failure, missing PID and code/signal-ended observations. Platform transport and decoder cases belong to the neighboring process tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported unit entry reaches production source through the existing ProcessOwnershipUnit loader and supplied fact records; it starts no real child, OS host, browser or GPU and registers no dynamic cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Re-capture performs no new discovery; another object with the same PID).
  */
 export function test_process_ownership_capture(): void {
   const { facts, host }: ReturnType<typeof createProcessOwnershipHostFacts> =

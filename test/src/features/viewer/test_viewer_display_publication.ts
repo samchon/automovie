@@ -1,4 +1,4 @@
-import { createViewerDisplayPublication } from "@automovie/viewer/createViewerDisplayPublication";
+import { createViewerDisplayPublication } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -9,10 +9,11 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Active changes and direct commitments copy before starting their identity.
  * 4. Candidate rejection disposes once and forbids every later publication.
  *
- * @evidence contracts/testing.md#behavioral-verification Invokes the production publication coordinator and records its copy, start and release effects. A refusal must not start a generation; prepared admission must reuse the copy and disposal must close further publication.
- * @evidence contracts/testing.md#independent-expectations Explicit session/generation pairs, authored copy acceptance and independently counted port calls define the expected sequence. These ports observe coordination, not pixels, successful upload or persistence, so no bitmap or IO correctness is inferred.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts refused and accepted copies, provisional and committed changes, direct and prepared commitment, repeated disposal and later rejected calls. A later refused staging copy must preserve the earlier accepted snapshot; encoder and release failures belong to caller-owned resource tests.
- * @evidence contracts/testing.md#execution-ownership This named unit directly exercises portable lifecycle semantics through the coordinator's supplied ports. Its local counters register no browser, renderer, worker or filesystem host; all cases belong to this entry.
+ * @evidence contracts/development/testing.md#behavioral-verification Invokes the production publication coordinator and records its copy, start and release effects. A refusal must not start a generation; prepared admission must reuse the copy and disposal must close further publication.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit session/generation pairs, authored copy acceptance and independently counted port calls define the expected sequence. These ports observe coordination, not pixels, successful upload or persistence, so no bitmap or IO correctness is inferred.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts refused and accepted copies, provisional and committed changes, direct and prepared commitment, repeated disposal and later rejected calls. A later refused staging copy must preserve the earlier accepted snapshot; encoder and release failures belong to caller-owned resource tests.
+ * @evidence contracts/development/testing.md#execution-ownership This named unit directly exercises portable lifecycle semantics through the coordinator's supplied ports. Its local counters register no browser, renderer, worker or filesystem host; all cases belong to this entry.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Refused copies and uncommitted changes start no upload.).
  */
 export function test_viewer_display_publication(): void {
   let accepts: boolean = false;

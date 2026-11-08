@@ -11,10 +11,11 @@ import { planViewerVideo } from "../../../../packages/render/src/node/planViewer
  * 2. Silent output maps video only; sound maps its first audio stream and pads it.
  * 3. Fractional extents, unsafe clocks, bad rasters and exhausted budgets refuse.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual portable planning and checks frame admission, stream input ordering, explicit duration/frame limits and invalid-request rejection.
- * @evidence contracts/testing.md#independent-expectations Counts follow duration multiplied by rate; literal FFmpeg mapping/padding options express the supported one-video optional-one-audio contract, without comparing to another implementation helper.
- * @evidence contracts/testing.md#distinguishing-cases Covers singleton, fractional rate, silent/sound paths, fractional extent, NaN/infinity/zero clocks, odd raster and frame/byte/timeout limits. Existing headless-capture tests own completed seek and page lifecycle; actual host export remains root integration validation.
- * @evidence contracts/testing.md#execution-ownership Portable test calls planning only and starts no process, browser, GPU, installation or filesystem work.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual portable planning and checks frame admission, stream input ordering, explicit duration/frame limits and invalid-request rejection.
+ * @evidence contracts/development/testing.md#independent-expectations Counts follow duration multiplied by rate; literal FFmpeg mapping/padding options express the supported one-video optional-one-audio contract, without comparing to another implementation helper.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers singleton, fractional rate, silent/sound paths, fractional extent, NaN/infinity/zero clocks, odd raster and frame/byte/timeout limits. Existing headless-capture tests own completed seek and page lifecycle; actual host export remains root integration validation.
+ * @evidence contracts/development/testing.md#execution-ownership Portable test calls planning only and starts no process, browser, GPU, installation or filesystem work.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: One frame and a fractional rate with integral extent retain exact counts.).
  */
 export function test_viewer_video_plan(): void {
   const options: IAutoMovieViewerVideoOptions = {

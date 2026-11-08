@@ -3,10 +3,10 @@
  *
  * Every field is derived from the domain record alone, so a production can be refused for an unaffordable panel before a single step is integrated.
  *
- * @evidence contracts/common.md#principled-implementation softBodyBudget counts row/column, diagonal and second-neighbour constraints from lattice dimensions, then derives two gathers per constraint per iteration and step; travel uses the shortest authored structural rest edge, excluding diagonal and second-neighbour lengths.
- * @evidence contracts/common.md#clear-and-simple-design The report separates raster triangles, solver constraints and declared seek work so equal counts do not imply equal responsibilities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts stateBytes counts six Float64 components per particle only; it excludes working buffers, JavaScript array overhead and device allocations and is not total process memory.
- * @evidence contracts/common.md#meaningful-documentation Fields identify counts, bytes, maximum absolute step and the dimensionless travel admission estimate.
+ * @evidence contracts/development/design.md#principled-representation softBodyBudget counts row/column, diagonal and second-neighbour constraints from lattice dimensions, then derives two gathers per constraint per iteration and step; travel uses the shortest authored structural rest edge, excluding diagonal and second-neighbour lengths.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The report separates raster triangles, solver constraints and declared seek work so equal counts do not imply equal responsibilities.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts stateBytes counts six Float64 components per particle only; it excludes working buffers, JavaScript array overhead and device allocations and is not total process memory.
+ * @evidence contracts/development/common.md#meaningful-documentation Fields identify counts, bytes, maximum absolute step and the dimensionless travel admission estimate.
  */
 export interface IAutoMovieSoftBodyBudget {
   /** Identity of the measured domain. */

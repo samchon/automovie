@@ -35,10 +35,10 @@ import { softPanel } from "../internal/softFixtures";
  * `3·4 + 5·2 = 22` bend, `2·4·3 = 24` triangles, and `travel = (1/64)·4/0.25 =
  * 0.25`.
  *
- * @evidence contracts/testing.md#behavioral-verification Measures budgets/travel, derives a time-zero surface and validates ordinary, over-travel, empty-edge and huge mismatched lattices; topology totals, triangle output and named refusals expose incorrect declared cost or admission.
- * @evidence contracts/testing.md#independent-expectations Authored lattice formulas yield 20 particles, 31/24/22 constraints, 24 triangles, 960 final-state bytes and travel .25; Object.is retains exact dyadic travel witnesses and nclose checks travel four/overshoot three. stateBytes is not all solver memory, and timing/allocation counts are not measured.
- * @evidence contracts/testing.md#distinguishing-cases Covers a 5-by-4 panel, one-column cord, thin strip, over-travel solver, mismatched billion-by-billion declaration and lone particle; the travel ratio is an authored heuristic rather than a stability or tunnelling proof, and integration dynamics belong elsewhere.
- * @evidence contracts/testing.md#execution-ownership The named discoverable portable unit owns all six scenarios, calls CPU semantics directly and requires no renderer, native artifact or real host.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures budgets/travel, derives a time-zero surface and validates ordinary, over-travel, empty-edge and huge mismatched lattices; topology totals, triangle output and named refusals expose incorrect declared cost or admission.
+ * @evidence contracts/development/testing.md#independent-expectations Authored lattice formulas yield 20 particles, 31/24/22 constraints, 24 triangles, 960 final-state bytes and travel .25; Object.is retains exact dyadic travel witnesses and nclose checks travel four/overshoot three. stateBytes is not all solver memory, and timing/allocation counts are not measured.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers a 5-by-4 panel, one-column cord, thin strip, over-travel solver, mismatched billion-by-billion declaration and lone particle; the travel ratio is an authored heuristic rather than a stability or tunnelling proof, and integration dynamics belong elsewhere.
+ * @evidence contracts/development/testing.md#execution-ownership The named discoverable portable unit owns all six scenarios, calls CPU semantics directly and requires no renderer, native artifact or real host.
  *
  * Scenarios:
  *
@@ -59,6 +59,8 @@ import { softPanel } from "../internal/softFixtures";
  * 6. A billion-by-billion declaration with only four rest particles returns the
  *    no-edge travel sentinel and reports both lattice budget and rest-length
  *    defects. This case observes results, not an iteration count.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every count, the state size and the worst-case gather total match the hand).
  */
 export function test_soft_body_budget_report(): void {
   const domain: IAutoMovieSoftBodyDomain = softPanel({

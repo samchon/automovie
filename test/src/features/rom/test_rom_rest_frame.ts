@@ -21,10 +21,11 @@ const CLINICAL: IAutoMovieJointConstraint = {
  * 4. `HUMANOID_REST_FRAME` mirrors the two shoulders' abduction.
  * 5. The existing rest-relative swingDeg policy carries through unchanged: numeric, null and absent values retain their meaning. This does not establish clinical swing-metric invariance under arbitrary neutral shifts.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls interval reconciliation for opposite frame signs and cone states, catching wrong endpoint ordering, changed unframed/null axes or loss of the rest-deviation cap.
- * @evidence contracts/testing.md#independent-expectations Inverting clinical = sign * pose + 90 yields the literal shifted/mirrored endpoints; null and absent axes follow the declared contract. The frame-table assertion pins a conventional T-pose baseline, not a clinical measurement.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts positive/negative signs, unframed and immobile axes, both shoulders and numeric/null/absent cone fields; malformed frame refusal and actual coupled projection have separate entries.
- * @evidence contracts/testing.md#execution-ownership The named synchronous entry owns local degree records and calls portable reconciliation without loading a Human asset, native artifact, browser or renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls interval reconciliation for opposite frame signs and cone states, catching wrong endpoint ordering, changed unframed/null axes or loss of the rest-deviation cap.
+ * @evidence contracts/development/testing.md#independent-expectations Inverting clinical = sign * pose + 90 yields the literal shifted/mirrored endpoints; null and absent axes follow the declared contract. The frame-table assertion pins a conventional T-pose baseline, not a clinical measurement.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts positive/negative signs, unframed and immobile axes, both shoulders and numeric/null/absent cone fields; malformed frame refusal and actual coupled projection have separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous entry owns local degree records and calls portable reconciliation without loading a Human asset, native artifact, browser or renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Left-arm frame (sign +1, neutral 90): clinical abduction [-30,180] becomes rest-relative [-120,90].).
  */
 export function test_rom_rest_frame(): void {
   // 1. sign +1

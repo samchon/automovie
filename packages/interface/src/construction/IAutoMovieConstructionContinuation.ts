@@ -9,10 +9,10 @@ import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
  *
  * Engine admission: `hostFace` a view part of the host's subtree and `partFace` one of the part's; `name` unique in the tree.
  *
- * @evidence contracts/common.md#principled-implementation One owner publishes the shared section and its station jets and the neighbour copies them, so the two chains are C2 across the ring by the station rule both use.
- * @evidence contracts/common.md#clear-and-simple-design Two faces and their ends are the whole record; the shared ring needs no curve, rail or blend.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Equal-order boundaries use the explicit whole-field replacement; different-order native boundaries require original full scalar2/frame2/lift2 equivalence and a sufficient regularity certificate, preserving all rows and intervals without fitting or coarsening.
- * @evidence contracts/common.md#meaningful-documentation States the meeting, what is copied and in which direction, the shared ring, the failure effects and the admission.
+ * @evidence contracts/development/design.md#principled-representation One owner publishes the shared section and its station jets and the neighbour copies them, so the two chains are C2 across the ring by the station rule both use.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two faces and their ends are the whole record; the shared ring needs no curve, rail or blend.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Equal-order boundaries use the explicit whole-field replacement; different-order native boundaries require original full scalar2/frame2/lift2 equivalence and a sufficient regularity certificate, preserving all rows and intervals without fitting or coarsening.
+ * @evidence contracts/development/common.md#meaningful-documentation States the meeting, what is copied and in which direction, the shared ring, the failure effects and the admission.
  */
 export interface IAutoMovieConstructionContinuation {
   /** Discriminator. */

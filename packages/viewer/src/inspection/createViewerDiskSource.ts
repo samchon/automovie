@@ -7,13 +7,13 @@ import path from "node:path";
  *
  * Refresh reads current bytes before publishing a revision. Files outside the supplied scope, including browser-transformed responses, are not certified by this witness. Callers must still check the revision after candidate load.
  *
- * @evidence contracts/common.md#principled-implementation Refreshes actual declared file bytes and missing membership into a sorted SHA-256 receipt, following symlink directories with real-path cycle protection.
- * @evidence contracts/common.md#clear-and-simple-design The existing disk owner separates current revision/input/error state from application-supplied source, emitted and data scopes; it creates no new watcher service.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Changing source does not certify rebuilt output or browser response bytes, outside-scope files are unclaimed and a null-prototype input map preserves arbitrary relative filename keys.
- * @evidence contracts/common.md#meaningful-documentation Documentation identifies declared scope, missing outputs, current-byte refresh and source-versus-emitted limitations before candidate load.
- * @evidence contracts/performance.md#efficient-algorithms Refresh walks declared membership, sorts F paths and reads/hashes total B bytes, costing O(F log F+B) plus filesystem traversal with O(F) witnesses and one full file buffer at a time.
- * @evidence contracts/performance.md#reuse-equivalent-work Identical sorted byte/membership receipts keep the revision but every refresh reads actual bytes; no mtime/size shortcut certifies unchanged content.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The owner retains only its latest input-digest/error receipt and declared paths; walk sets and byte buffers leave each refresh, file count/individual bytes are uncapped and synchronous reads leave no open handles.
+ * @evidence contracts/development/implementation.md#principled-implementation Refreshes actual declared file bytes and missing membership into a sorted SHA-256 receipt, following symlink directories with real-path cycle protection.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The existing disk owner separates current revision/input/error state from application-supplied source, emitted and data scopes; it creates no new watcher service.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changing source does not certify rebuilt output or browser response bytes, outside-scope files are unclaimed and a null-prototype input map preserves arbitrary relative filename keys.
+ * @evidence contracts/development/common.md#meaningful-documentation Documentation identifies declared scope, missing outputs, current-byte refresh and source-versus-emitted limitations before candidate load.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Refresh walks declared membership, sorts F paths and reads/hashes total B bytes, costing O(F log F+B) plus filesystem traversal with O(F) witnesses and one full file buffer at a time.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Identical sorted byte/membership receipts keep the revision but every refresh reads actual bytes; no mtime/size shortcut certifies unchanged content.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owner retains only its latest input-digest/error receipt and declared paths; walk sets and byte buffers leave each refresh, file count/individual bytes are uncapped and synchronous reads leave no open handles.
  */
 export function createViewerDiskSource(props: {
   /** Checkout root used to name retained source receipts. */

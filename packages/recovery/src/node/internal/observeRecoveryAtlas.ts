@@ -3,8 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { observeAutoMovieRecoveryAtlas as O } from "../../observation/observeAutoMovieRecoveryAtlas";
-import { readRecoveryFixedReference as read } from "./readRecoveryFixedReference";
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
+import { readRecoveryFixedReference as read } from "./readRecoveryFixedReference";
 
 /**
  * Publish fitted atlas coefficients and a separate private source-ownership ledger.
@@ -18,13 +18,13 @@ import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecove
  * scalarWindowMm restricts work to complete slabs with positive window overlap;
  * declared bounds and the conservative whole-slab extent are published separately.
  *
- * @evidence contracts/common.md#principled-implementation Hash-admitted observations are clipped at saved automatic levels or an explicitly declared physical-spacing subsequence. Private topology, harmonic mapping and constrained joint Bernstein fitting publish independent coefficients.
- * @evidence contracts/common.md#clear-and-simple-design Fixed input admission, private ownership publication and public coefficient publication remain separate from engine realization, which opens only atlas.json.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source arrays and incidence remain in this process and the private ledger; neither source triangle arrays, normals nor mesh references enter the public geometry contract.
- * @evidence contracts/common.md#meaningful-documentation States fixed-byte admission, new-fit comparison scope, deterministic work priority, incomplete chart coverage and explicit C0/external-jet limitations.
- * @evidence contracts/performance.md#efficient-algorithms Each fixed file is read and hashed once; source assembly is linear in bytes and faces. Observation helpers own indexed clipping and bounded chart solves, while publication streams JSON without a whole serialized string.
- * @evidence contracts/performance.md#reuse-equivalent-work Saved station levels and open-event addresses define one work order; admitted source arrays serve topology and fitting without another extraction or hidden geometry fallback.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Source and curve publications remain live for one observation command and are released on return; explicit interval/chart/patch/iteration budgets bound retained fitted output and immutable files belong to the caller.
+ * @evidence contracts/development/implementation.md#principled-implementation Hash-admitted observations are clipped at saved automatic levels or an explicitly declared physical-spacing subsequence. Private topology, harmonic mapping and constrained joint Bernstein fitting publish independent coefficients.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed input admission, private ownership publication and public coefficient publication remain separate from engine realization, which opens only atlas.json.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Source arrays and incidence remain in this process and the private ledger; neither source triangle arrays, normals nor mesh references enter the public geometry contract.
+ * @evidence contracts/development/common.md#meaningful-documentation States fixed-byte admission, new-fit comparison scope, deterministic work priority, incomplete chart coverage and explicit C0/external-jet limitations.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each fixed file is read and hashed once; source assembly is linear in bytes and faces. Observation helpers own indexed clipping and bounded chart solves, while publication streams JSON without a whole serialized string.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Saved station levels and open-event addresses define one work order; admitted source arrays serve topology and fitting without another extraction or hidden geometry fallback.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source and curve publications remain live for one observation command and are released on return; explicit interval/chart/patch/iteration budgets bound retained fitted output and immutable files belong to the caller.
  */
 export function observeRecoveryAtlas(
   inputFile: string,

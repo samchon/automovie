@@ -18,10 +18,11 @@ import { sweepBranchedBody } from "../internal/sweepBranchedBody";
  * 1. The branched body with its breadth and branch size changed, at the
  *    lowest and high tiers.
  *
- * @evidence contracts/testing.md#behavioral-verification Samples two shapes of one layout with `sampleAutoMovieSurfaceNetwork` and compares their topology; shape-dependent welding or counts change the faces, while a layout-determined sampling passes.
- * @evidence contracts/testing.md#independent-expectations Both samplings come from the same layout, so their topology must agree exactly; the targets must differ, ruling out comparing one shape with itself.
- * @evidence contracts/testing.md#distinguishing-cases Covers the coarsest and finest tiers and a shape change across every patch kind; symmetry is owned by the network mirror test and closure by the network cage test.
- * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_network_topology` entry with no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples two shapes of one layout with `sampleAutoMovieSurfaceNetwork` and compares their topology; shape-dependent welding or counts change the faces, while a layout-determined sampling passes.
+ * @evidence contracts/development/testing.md#independent-expectations Both samplings come from the same layout, so their topology must agree exactly; the targets must differ, ruling out comparing one shape with itself.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers the coarsest and finest tiers and a shape change across every patch kind; symmetry is owned by the network mirror test and closure by the network cage test.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_network_topology` entry with no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: The branched body with its breadth and branch size changed, at the).
  */
 export function test_geometry_sweep_network_topology(): void {
   const body: IAutoMovieSurfaceNetwork = sweepBranchedBody();

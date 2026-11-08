@@ -5,13 +5,10 @@ import type { IAutoMovieRecoveryRegularizationReport } from "./IAutoMovieRecover
 /**
  * Local joint-refinement diagnostics on one fixed observation population.
  *
- * @evidence contracts/common.md#principled-implementation Actual vector-wise soft-L1 pixel cost, independent undamped point/camera design ratios and explicit local termination distinguish descent from observability and convergence.
- * @evidence contracts/common.md#clear-and-simple-design One owned report accompanies the joint camera/point result without numerical scratch or expected values.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A lower objective does not imply physical truth, metric scale, covariance, global optimum or success after dropping measurements.
- * @evidence contracts/common.md#meaningful-documentation Fields give population, cost normalization, units, actual/selected counts and local-convergence limits. Optional fit-local regularization metadata reports computed accepted-step reactions independently of rank, normal KKT and accuracy.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The report performs no fitting work.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work It defines no result cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Plain reports retain no geometry or handle. A complete feasible report has at most102 properties and9 fixed objects; its camera/checkpoint/scene owner admits current overlap and accumulated attempt/trace copies under unchanged ceilings.
+ * @evidence contracts/development/design.md#principled-representation Actual vector-wise soft-L1 pixel cost, independent undamped point/camera design ratios and explicit local termination distinguish descent from observability and convergence.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One owned report accompanies the joint camera/point result without numerical scratch or expected values.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A lower objective does not imply physical truth, metric scale, covariance, global optimum or success after dropping measurements.
+ * @evidence contracts/development/common.md#meaningful-documentation Fields give population, cost normalization, units, actual/selected counts and local-convergence limits. Optional fit-local regularization metadata reports computed accepted-step reactions independently of rank, normal KKT and accuracy.
  */
 export interface IAutoMovieRecoveryMapJointFit {
   /** Local numerical stopping condition, not global accuracy or uncertainty. */

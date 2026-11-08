@@ -16,10 +16,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  *    knights properly placed) → a `type` violation on `$input.actors[2].node`
  *    carrying "ghost".
  *
- * @evidence contracts/testing.md#behavioral-verification Adds a ghost placement beside both valid cast placements and requires staging failure with the actor-node type finding and ghost value, catching an unplanned actor silently entering the scene.
- * @evidence contracts/testing.md#independent-expectations The explicit script cast excludes ghost, so its literal placement address and id define the refusal independently; the report helper checks kind and path inclusion.
- * @evidence contracts/testing.md#distinguishing-cases Keeps all planned actors placed while adding one unknown actor, isolating the inverse reference gate; absent planned actors and successful cast composition are separate entries.
- * @evidence contracts/testing.md#execution-ownership This named portable unit owns the unknown-placement case through actual stageScene and record fixtures; it starts no process, browser, renderer or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Adds a ghost placement beside both valid cast placements and requires staging failure with the actor-node type finding and ghost value, catching an unplanned actor silently entering the scene.
+ * @evidence contracts/development/testing.md#independent-expectations The explicit script cast excludes ghost, so its literal placement address and id define the refusal independently; the report helper checks kind and path inclusion.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps all planned actors placed while adding one unknown actor, isolating the inverse reference gate; absent planned actors and successful cast composition are separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit owns the unknown-placement case through actual stageScene and record fixtures; it starts no process, browser, renderer or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Staging places a third node `ghost` the cast never mentions (both cast).
  */
 export function test_film_stage_scene_unknown_placement(): void {
   const base: ReturnType<typeof makeStagingWrite> = makeStagingWrite();

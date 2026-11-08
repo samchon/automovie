@@ -36,10 +36,11 @@ const pointer: (
  * 4. Unknown node `path` and pointer `valueType` tags reject instead of being
  *    keyed or treated as non-rotation data.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls channelKey and channelIsRotation on authored node/pointer records; asserts address namespaces, rotation classification and refusal of forged discriminators, paths and value types.
- * @evidence contracts/testing.md#independent-expectations Literal node:id:path and ptr:pointer spellings and the declared rotation/quaternion kinds supply expectations independently of the helpers' results; this does not establish target existence or pointer syntax.
- * @evidence contracts/testing.md#distinguishing-cases Node rotation/translation and quaternion/scalar pointers distinguish both outcomes in each channel family, while forged kind/path/type neighbors must throw; other supported paths/types and numerical sampling are not exhaustive here.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_channel entry executes portable synchronous address/classification semantics through direct product imports, without installing a scene host or replacing foreign methods.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls channelKey and channelIsRotation on authored node/pointer records; asserts address namespaces, rotation classification and refusal of forged discriminators, paths and value types.
+ * @evidence contracts/development/testing.md#independent-expectations Literal node:id:path and ptr:pointer spellings and the declared rotation/quaternion kinds supply expectations independently of the helpers' results; this does not establish target existence or pointer syntax.
+ * @evidence contracts/development/testing.md#distinguishing-cases Node rotation/translation and quaternion/scalar pointers distinguish both outcomes in each channel family, while forged kind/path/type neighbors must throw; other supported paths/types and numerical sampling are not exhaustive here.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_channel entry executes portable synchronous address/classification semantics through direct product imports, without installing a scene host or replacing foreign methods.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A node channel keys to `node:{id}:{path}`; a pointer channel keys to).
  */
 export function test_resolve_channel(): void {
   // 1. keys

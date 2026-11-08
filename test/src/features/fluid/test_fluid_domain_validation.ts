@@ -112,10 +112,11 @@ const spray: (
  *    seed; and a direction that is non-finite or zero, while a finite axis too
  *    small to square is still accepted.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs the actual domain validator across schema, grid, solver, array, boundary, flow and spray cases and checks located kind/path witnesses, catching admitted malformed fields and rejecting sound adjacent inputs.
- * @evidence contracts/testing.md#independent-expectations Closed schema spellings, explicit cell/face counts and scalar domains provide the refusal basis; the independent Courant formula distinguishes exactly stable, unstable, nonfinite-input and finite-input-overflow cases. Path witnesses do not certify the entire report population.
- * @evidence contracts/testing.md#distinguishing-cases Preserves the original nine scenario groups, valid basin, finite/safe-integer limits, array cardinality/values, solid occupancy, boundary vocabularies, source/drain windows and spray caps; physical integration and water-space binding remain separate tests.
- * @evidence contracts/testing.md#execution-ownership This named portable entry owns all admission cases, including cases delegated to its internal population helper, through validateFluidDomain and existing fixtures; it starts no solver host, process or renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the actual domain validator across schema, grid, solver, array, boundary, flow and spray cases and checks located kind/path witnesses, catching admitted malformed fields and rejecting sound adjacent inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Closed schema spellings, explicit cell/face counts and scalar domains provide the refusal basis; the independent Courant formula distinguishes exactly stable, unstable, nonfinite-input and finite-input-overflow cases. Path witnesses do not certify the entire report population.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves the original nine scenario groups, valid basin, finite/safe-integer limits, array cardinality/values, solid occupancy, boundary vocabularies, source/drain windows and spray caps; physical integration and water-space binding remain separate tests.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable entry owns all admission cases, including cases delegated to its internal population helper, through validateFluidDomain and existing fixtures; it starts no solver host, process or renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A well-formed basin with a source, a drain and a spray validates clean.).
  */
 export function test_fluid_domain_validation(): void {
   const clean: ReturnType<typeof validateFluidDomain> = validateFluidDomain({

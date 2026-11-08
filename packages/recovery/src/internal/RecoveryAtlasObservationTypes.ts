@@ -36,13 +36,10 @@ type Inventory = {
 /**
  * Internal observation records retain prepared-chart and private source ownership.
  *
- * @evidence contracts/common.md#principled-implementation The original pending record keeps its shared outcomes array and all source-free preparation fields.
- * @evidence contracts/common.md#clear-and-simple-design This phase retains its original arithmetic and ordered state transitions while its caller owns orchestration.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Extraction introduces no input correction, geometry fallback, reordered reduction or changed admission condition.
- * @evidence contracts/common.md#meaningful-documentation States the phase responsibility, shared-state ownership and numerical limits inherited from the calling algorithm.
- * @evidence contracts/performance.md#efficient-algorithms Erased declarations perform no fitting or observation.
- * @evidence contracts/performance.md#reuse-equivalent-work All extracted phases use the same pending and observation record shapes.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Types own no runtime handles or retained arrays.
+ * @evidence contracts/development/design.md#principled-representation The original pending record keeps its shared outcomes array and all source-free preparation fields.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface This phase retains its original arithmetic and ordered state transitions while its caller owns orchestration.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Extraction introduces no input correction, geometry fallback, reordered reduction or changed admission condition.
+ * @evidence contracts/development/common.md#meaningful-documentation States the phase responsibility, shared-state ownership and numerical limits inherited from the calling algorithm.
  */
 export type RecoveryAtlasObservationTypes = {
   /** Immutable source observations, automatic levels and explicit fit/work budgets. */

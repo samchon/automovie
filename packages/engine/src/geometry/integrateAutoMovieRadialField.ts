@@ -5,13 +5,13 @@
  *
  * The caller supplies the actual convex domain, rather than an extrapolation from a smaller domain. This operation neither enumerates sites nor chooses an application-specific field scale or eligibility. At most 512 sites bound quadratic cell clipping; larger requests fail explicitly. Floating-point cancellation near tangent circles or nearly coincident sites remains finite precision, not a directed-rounding certificate. Degenerate footprints return zero after input admission.
  *
- * @evidence contracts/common.md#principled-implementation Equal radii turn strongest q^power support into a power-diagram half-plane partition including signed site-plane distances; Green's theorem and radial divergence primitives integrate each cell boundary, with four-node Gauss exact for interior degree-six polynomials in real arithmetic and angular exterior flux. Convexity and well-scaled finite arithmetic remain premises.
- * @evidence contracts/common.md#clear-and-simple-design One pure field integral returns scalar and gradient area integrals; site enumeration, physical domains, materials and image normalization remain caller responsibilities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses actual polygon/site coordinates and no fixed point-sampling grid, per-consumer constants or expected-output tables; a 512-site work cap rejects explicitly and finite scalar roundoff is clamped to its analytic [0,area] range.
- * @evidence contracts/common.md#meaningful-documentation Defines common coordinate units, site-plane offset, q^power strongest-site meaning, area/gradient units, degeneracies, precision limits and the explicit work cap.
- * @evidence contracts/performance.md#efficient-algorithms With S sites and V input vertices, conservative O(S²(V+S)) clipping time and O(V+S) per-cell live polygon storage bound this direct nearest-site partition; actual callers prefilter sphere bounds before this at-most-512-site operation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This pure operation coordinates no persistent requests; caller-owned prepared site lists may be reused without changing the integral.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Working cell polygons and quadrature closures are call-local; the caller owns only the returned scalar/gradient record.
+ * @evidence contracts/development/implementation.md#principled-implementation Equal radii turn strongest q^power support into a power-diagram half-plane partition including signed site-plane distances; Green's theorem and radial divergence primitives integrate each cell boundary, with four-node Gauss exact for interior degree-six polynomials in real arithmetic and angular exterior flux. Convexity and well-scaled finite arithmetic remain premises.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure field integral returns scalar and gradient area integrals; site enumeration, physical domains, materials and image normalization remain caller responsibilities.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses actual polygon/site coordinates and no fixed point-sampling grid, per-consumer constants or expected-output tables; a 512-site work cap rejects explicitly and finite scalar roundoff is clamped to its analytic [0,area] range.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines common coordinate units, site-plane offset, q^power strongest-site meaning, area/gradient units, degeneracies, precision limits and the explicit work cap.
+ * @evidence contracts/development/implementation.md#efficient-algorithms With S sites and V input vertices, conservative O(S²(V+S)) clipping time and O(V+S) per-cell live polygon storage bound this direct nearest-site partition; actual callers prefilter sphere bounds before this at-most-512-site operation.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure operation coordinates no persistent requests; caller-owned prepared site lists may be reused without changing the integral.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Working cell polygons and quadrature closures are call-local; the caller owns only the returned scalar/gradient record.
  */
 export function integrateAutoMovieRadialField(props: {
   /** Convex finite footprint in the supplied orthonormal plane; either winding is accepted. */
@@ -123,13 +123,10 @@ export function integrateAutoMovieRadialField(props: {
 /**
  * Result types in physical planar units; this namespace performs no field evaluation or resource retention.
  *
- * @evidence contracts/common.md#principled-implementation Stores the pure radial field integral, planar gradient integral and actual polygon area in their common coordinate units.
- * @evidence contracts/common.md#clear-and-simple-design Keeps unnormalized integrals together so callers choose their area-weighting without a material representation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Carries computed numbers, never sampling, clinical, geometric containment or material acceptance flags.
- * @evidence contracts/common.md#meaningful-documentation Members state the scalar integral, planar derivative integral and actual area units.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased record performs no clipping or integration.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no cache or requests.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Its numbers own no resource or retained solver state.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state the scalar integral, planar derivative integral and actual area units.
+ * @evidence contracts/development/design.md#principled-representation Represents Result types in physical planar units; this namespace performs no field evaluation or resource retention: companion namespace of 1 member (`IOutput`). It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `integrateAutoMovieRadialField` in packages/engine/src/geometry/integrateAutoMovieRadialField.ts; its surface is the 1 member listed and the text shows 2 other files naming it, mostly packages/engine (1), test (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace integrateAutoMovieRadialField {
   /** Area integrals before any image quantization or material layering; fields retain the caller's coordinate units.

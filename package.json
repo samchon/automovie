@@ -9,7 +9,11 @@
     "test": "pnpm --filter @automovie/test start",
     "format": "prettier --write \"**/*.{ts,cts,mts}\"",
     "format:check": "prettier --check \"**/*.{ts,cts,mts}\"",
-    "evidence": "pnpm --filter=./packages/** --filter=./test --no-bail --no-sort -r evidence"
+    "evidence": "pnpm --filter=./packages/** --filter=./test --no-bail --no-sort -r evidence",
+    "package:latest": "pnpm --filter=./packages/* -r publish --tag latest --access public",
+    "package:next": "pnpm --filter=./packages/* -r publish --tag next --access public",
+    "package:rc": "pnpm --filter=./packages/* -r publish --tag rc --access public",
+    "release": "bumpp -r"
   },
   "keywords": [
     "coding-agent",
@@ -30,6 +34,7 @@
     "@ttsc/lint": "catalog:samchon",
     "@types/node": "catalog:utils",
     "@wrtnlabs/evidence": "catalog:samchon",
+    "bumpp": "catalog:utils",
     "prettier": "catalog:typescript",
     "rimraf": "catalog:utils",
     "ttsc": "catalog:samchon",

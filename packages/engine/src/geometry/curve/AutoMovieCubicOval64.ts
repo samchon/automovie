@@ -1,12 +1,9 @@
 /** Four-quarter affine cubic-oval sizing in consistent caller units. The quarter-circle handle ratio is 4/3*tan(pi/8); independent anatomical admissibility remains with consumers.
  *
- * @evidence contracts/common.md#principled-implementation Eight-point Gauss-Legendre and composite Simpson paths integrate four affine quarter-circle cubics with their retained derivative formulas; each inverse bisects its own perimeter owner.
- * @evidence contracts/common.md#clear-and-simple-design One scalar geometry owner shares the exact quarter-circle handle convention between integration and inversion.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomy, ellipse analytic perimeter approximation or tolerance-driven early termination changes the cubic equation.
- * @evidence contracts/common.md#meaningful-documentation Input/output lengths use the same arbitrary unit; the inverse retains its strict positive feasibility premise and fixed iteration count.
- * @evidence contracts/performance.md#efficient-algorithms The Gauss path uses eight samples and exactly 64 inverse iterations; the separately exposed Simpson path uses its declared interval count and midpoint-stagnation stop.
- * @evidence contracts/performance.md#reuse-equivalent-work Inverse queries use this one perimeter owner and retain their current bracket between iterations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only local scalar brackets and quadrature arrays are retained during a call; no model or global cache exists.
+ * @evidence contracts/development/common.md#meaningful-documentation Input/output lengths use the same arbitrary unit; the inverse retains its strict positive feasibility premise and fixed iteration count.
+ * @evidence contracts/development/design.md#principled-representation Represents Four-quarter affine cubic-oval sizing in consistent caller units: companion namespace of 6 members (`rounding`, `perimeter`, `otherDiameter`, `perimeterBySimpson`, `axesBySimpson`, `otherDiameterBySimpson`); units and frames named in its text: local, second. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieCubicOval64` in packages/engine/src/geometry/curve/AutoMovieCubicOval64.ts; its surface is the 6 members listed and the text shows 1 other file naming it, mostly packages/engine (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieCubicOval64 {
   /** Symmetric quarter-circle cubic handle/radius ratio. */
@@ -14,13 +11,13 @@ export namespace AutoMovieCubicOval64 {
 
   /** Approximate the perimeter of the affine cubic oval with eight-point Gauss-Legendre quadrature. Nonfinite or negative diameters reject.
    *
-   * @evidence contracts/common.md#principled-implementation Each quadrature sample evaluates the original cubic derivative and adds its weighted Euclidean norm.
-   * @evidence contracts/common.md#clear-and-simple-design Diameter halving, quarter symmetry and interval mapping are explicit in one operation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The actual cubic perimeter is integrated instead of replacing the curve by a true ellipse or pi times a diameter.
-   * @evidence contracts/common.md#meaningful-documentation Diameters are finite nonnegative values in one unit, and the returned length uses that unit.
-   * @evidence contracts/performance.md#efficient-algorithms Eight fixed quadrature nodes give constant work per perimeter query.
-   * @evidence contracts/performance.md#reuse-equivalent-work A call shares one diameter pair and handle ratio across its eight samples.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Nodes and weights are local fixed arrays; only the scalar perimeter escapes.
+   * @evidence contracts/development/implementation.md#principled-implementation Each quadrature sample evaluates the original cubic derivative and adds its weighted Euclidean norm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Diameter halving, quarter symmetry and interval mapping are explicit in one operation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The actual cubic perimeter is integrated instead of replacing the curve by a true ellipse or pi times a diameter.
+   * @evidence contracts/development/common.md#meaningful-documentation Diameters are finite nonnegative values in one unit, and the returned length uses that unit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Eight fixed quadrature nodes give constant work per perimeter query.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A call shares one diameter pair and handle ratio across its eight samples.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Nodes and weights are local fixed arrays; only the scalar perimeter escapes.
    */
   export function perimeter(diameterU: number, diameterV: number): number {
     const nodes: readonly number[] = [
@@ -57,13 +54,13 @@ export namespace AutoMovieCubicOval64 {
 
   /** Resolve the other diameter with 64 bisections while preserving the supplied fixed diameter; no aspect bound is imposed here.
    *
-   * @evidence contracts/common.md#principled-implementation A positive feasible circumference brackets the unknown diameter in [0,circumference/2], then 64 bisections use the same cubic perimeter.
-   * @evidence contracts/common.md#clear-and-simple-design The inverse retains one monotone scalar bracket with no solver object.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomical aspect bound or replacement fixed diameter is imposed by the generic solve.
-   * @evidence contracts/common.md#meaningful-documentation Requires finite fixedDiameter>0 and circumference>2*fixedDiameter; returned diameter uses the same unit.
-   * @evidence contracts/performance.md#efficient-algorithms Exactly 64 iterations each perform eight-point quadrature.
-   * @evidence contracts/performance.md#reuse-equivalent-work Each iteration preserves and narrows the prior bracket rather than restarting an independent search.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only scalar bracket endpoints and the returned diameter survive within the call.
+   * @evidence contracts/development/implementation.md#principled-implementation A positive feasible circumference brackets the unknown diameter in [0,circumference/2], then 64 bisections use the same cubic perimeter.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The inverse retains one monotone scalar bracket with no solver object.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No anatomical aspect bound or replacement fixed diameter is imposed by the generic solve.
+   * @evidence contracts/development/common.md#meaningful-documentation Requires finite fixedDiameter>0 and circumference>2*fixedDiameter; returned diameter uses the same unit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Exactly 64 iterations each perform eight-point quadrature.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each iteration preserves and narrows the prior bracket rather than restarting an independent search.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only scalar bracket endpoints and the returned diameter survive within the call.
    */
   export function otherDiameter(
     circumference: number,
@@ -93,13 +90,13 @@ export namespace AutoMovieCubicOval64 {
 
   /** Approximate the four-quarter cubic perimeter by composite Simpson quadrature with the retained sqrt(2) handle formula. Positive finite millimetre diameters and an even interval count of at least two are required; default count is 256 per quarter.
    *
-   * @evidence contracts/common.md#principled-implementation The cubic derivative norm is summed with alternating Simpson weights and the original accumulation order.
-   * @evidence contracts/common.md#clear-and-simple-design The Simpson sizing path is explicit and separate from the eight-point quadrature path; consumers retain their numerical contract.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The original handle formula, accumulation order and stopping policy remain explicit; anatomical admission is outside this operation.
-   * @evidence contracts/common.md#meaningful-documentation Approximate the four-quarter cubic perimeter by composite Simpson quadrature with the retained sqrt(2) handle formula. Positive finite millimetre diameters and an even interval count of at least two are required; default count is 256 per quarter.
-   * @evidence contracts/performance.md#efficient-algorithms O(N) quadrature samples and constant scalar storage for N intervals.
-   * @evidence contracts/performance.md#reuse-equivalent-work The current bracket or unit-aspect perimeter is reused within one solve without cross-request result retention.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only returned scalar dimensions escape; no geometry owner, input object or work arrays are cached.
+   * @evidence contracts/development/implementation.md#principled-implementation The cubic derivative norm is summed with alternating Simpson weights and the original accumulation order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The Simpson sizing path is explicit and separate from the eight-point quadrature path; consumers retain their numerical contract.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original handle formula, accumulation order and stopping policy remain explicit; anatomical admission is outside this operation.
+   * @evidence contracts/development/common.md#meaningful-documentation Approximate the four-quarter cubic perimeter by composite Simpson quadrature with the retained sqrt(2) handle formula. Positive finite millimetre diameters and an even interval count of at least two are required; default count is 256 per quarter.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(N) quadrature samples and constant scalar storage for N intervals.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The current bracket or unit-aspect perimeter is reused within one solve without cross-request result retention.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only returned scalar dimensions escape; no geometry owner, input object or work arrays are cached.
    */
   export function perimeterBySimpson(
     breadth: number,
@@ -134,13 +131,13 @@ export namespace AutoMovieCubicOval64 {
 
   /** Resolve breadthMm/depthMm at a fixed positive breadth/depth ratio using the same Simpson perimeter. Both inputs must be positive finite values; circumference and returned diameters are in millimetres.
    *
-   * @evidence contracts/common.md#principled-implementation Uniform scaling by target circumference divided by the unit-aspect cubic perimeter preserves the supplied aspect.
-   * @evidence contracts/common.md#clear-and-simple-design The Simpson sizing path is explicit and separate from the eight-point quadrature path; consumers retain their numerical contract.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The original handle formula, accumulation order and stopping policy remain explicit; anatomical admission is outside this operation.
-   * @evidence contracts/common.md#meaningful-documentation Resolve breadthMm/depthMm at a fixed positive breadth/depth ratio using the same Simpson perimeter. Both inputs must be positive finite values; circumference and returned diameters are in millimetres.
-   * @evidence contracts/performance.md#efficient-algorithms One default 256-interval quadrature and fixed scalar scaling.
-   * @evidence contracts/performance.md#reuse-equivalent-work The current bracket or unit-aspect perimeter is reused within one solve without cross-request result retention.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only returned scalar dimensions escape; no geometry owner, input object or work arrays are cached.
+   * @evidence contracts/development/implementation.md#principled-implementation Uniform scaling by target circumference divided by the unit-aspect cubic perimeter preserves the supplied aspect.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The Simpson sizing path is explicit and separate from the eight-point quadrature path; consumers retain their numerical contract.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original handle formula, accumulation order and stopping policy remain explicit; anatomical admission is outside this operation.
+   * @evidence contracts/development/common.md#meaningful-documentation Resolve breadthMm/depthMm at a fixed positive breadth/depth ratio using the same Simpson perimeter. Both inputs must be positive finite values; circumference and returned diameters are in millimetres.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One default 256-interval quadrature and fixed scalar scaling.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The current bracket or unit-aspect perimeter is reused within one solve without cross-request result retention.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only returned scalar dimensions escape; no geometry owner, input object or work arrays are cached.
    */
   export function axesBySimpson(
     girthMm: number,
@@ -164,13 +161,13 @@ export namespace AutoMovieCubicOval64 {
 
   /** Resolve the second diameter from circumference and a fixed first diameter using Simpson quadrature. Inputs are finite millimetre lengths with circumference greater than twice the positive fixed diameter; at most 64 bisections stop when the bracket cannot refine in binary64.
    *
-   * @evidence contracts/common.md#principled-implementation A monotone diameter bracket is narrowed with the same perimeter owner; midpoint stagnation stops without changing the fixed diameter.
-   * @evidence contracts/common.md#clear-and-simple-design The Simpson sizing path is explicit and separate from the eight-point quadrature path; consumers retain their numerical contract.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The original handle formula, accumulation order and stopping policy remain explicit; anatomical admission is outside this operation.
-   * @evidence contracts/common.md#meaningful-documentation Resolve the second diameter from circumference and a fixed first diameter using Simpson quadrature. Inputs are finite millimetre lengths with circumference greater than twice the positive fixed diameter; at most 64 bisections stop when the bracket cannot refine in binary64.
-   * @evidence contracts/performance.md#efficient-algorithms At most 64 default-quadrature evaluations and constant scalar bracket storage.
-   * @evidence contracts/performance.md#reuse-equivalent-work The current bracket or unit-aspect perimeter is reused within one solve without cross-request result retention.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only returned scalar dimensions escape; no geometry owner, input object or work arrays are cached.
+   * @evidence contracts/development/implementation.md#principled-implementation A monotone diameter bracket is narrowed with the same perimeter owner; midpoint stagnation stops without changing the fixed diameter.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The Simpson sizing path is explicit and separate from the eight-point quadrature path; consumers retain their numerical contract.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original handle formula, accumulation order and stopping policy remain explicit; anatomical admission is outside this operation.
+   * @evidence contracts/development/common.md#meaningful-documentation Resolve the second diameter from circumference and a fixed first diameter using Simpson quadrature. Inputs are finite millimetre lengths with circumference greater than twice the positive fixed diameter; at most 64 bisections stop when the bracket cannot refine in binary64.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most 64 default-quadrature evaluations and constant scalar bracket storage.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The current bracket or unit-aspect perimeter is reused within one solve without cross-request result retention.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only returned scalar dimensions escape; no geometry owner, input object or work arrays are cached.
    */
   export function otherDiameterBySimpson(
     girthMm: number,

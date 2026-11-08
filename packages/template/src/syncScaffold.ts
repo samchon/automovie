@@ -7,13 +7,13 @@ import { publishFiles } from "./publishFiles";
 /**
  * Applies an explicit, conflict-free generated-instruction update.
  *
- * @evidence contracts/common.md#principled-implementation A complete fresh plan precedes any write; current-generation preconditions bind replacements, and the baseline is published only after all content succeeds.
- * @evidence contracts/common.md#clear-and-simple-design This coordinator reuses the existing publication receipts and native file ownership checks rather than implement another writer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Dry runs and any conflict write nothing; partial publication retains its truthful receipt and is never retried or rolled back.
- * @evidence contracts/common.md#meaningful-documentation The result distinguishes conflicted, planned, unchanged and actual publication outcomes, including every retained retired path.
- * @evidence contracts/performance.md#efficient-algorithms Planning dominates byte scans; publication writes/readbacks only changed files and the final state.
- * @evidence contracts/performance.md#reuse-equivalent-work Unchanged instructions are omitted from the candidate; effectful publication and filesystem planning are never reused across calls.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller receives the plan and optional receipt; mature publication owners attempt descriptor release and preserve close/partial failures.
+ * @evidence contracts/development/implementation.md#principled-implementation A complete fresh plan precedes any write; current-generation preconditions bind replacements, and the baseline is published only after all content succeeds.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This coordinator reuses the existing publication receipts and native file ownership checks rather than implement another writer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Dry runs and any conflict write nothing; partial publication retains its truthful receipt and is never retried or rolled back.
+ * @evidence contracts/development/common.md#meaningful-documentation The result distinguishes conflicted, planned, unchanged and actual publication outcomes, including every retained retired path.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Planning dominates byte scans; publication writes/readbacks only changed files and the final state.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged instructions are omitted from the candidate; effectful publication and filesystem planning are never reused across calls.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller receives the plan and optional receipt; mature publication owners attempt descriptor release and preserve close/partial failures.
  */
 export function syncScaffold(props: IScaffoldSyncProps): {
   status:

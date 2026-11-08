@@ -18,10 +18,11 @@ import { tourSceneFixture } from "../internal/websiteTourSceneFixture";
  * 2. Native mirrors release their offscreen render targets on teardown.
  * 3. An image failure propagates to the host instead of showing an incomplete tour.
  *
- * @evidence contracts/testing.md#behavioral-verification Awaits modern tour loading, observing one load for a shared texture path, capability-limited anisotropy, authored exposure, a reflector target disposal event and propagated image rejection; redundant image decoding or skipped target cleanup fails.
- * @evidence contracts/testing.md#independent-expectations Two authored items cite one texture path, the supplied renderer reports anisotropy four, and payload exposure is independently set to 1.25; disposal listeners count attempts on the returned target, and an authored Error supplies the rejection identity independently of the loader.
- * @evidence contracts/testing.md#distinguishing-cases Covers repeated native image identity, ordinary plus mirror items, successful teardown and failed image loading; missing physical lighting, material projection and cleanup failures have separate units.
- * @evidence contracts/testing.md#execution-ownership The async test_website_tour_modern_scene entry owns awaited loading through existing supplied texture/daylight/upload callbacks with CPU Three resources; no network, browser or WebGL renderer runs, and a dispose event does not establish GPU release.
+ * @evidence contracts/development/testing.md#behavioral-verification Awaits modern tour loading, observing one load for a shared texture path, capability-limited anisotropy, authored exposure, a reflector target disposal event and propagated image rejection; redundant image decoding or skipped target cleanup fails.
+ * @evidence contracts/development/testing.md#independent-expectations Two authored items cite one texture path, the supplied renderer reports anisotropy four, and payload exposure is independently set to 1.25; disposal listeners count attempts on the returned target, and an authored Error supplies the rejection identity independently of the loader.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers repeated native image identity, ordinary plus mirror items, successful teardown and failed image loading; missing physical lighting, material projection and cleanup failures have separate units.
+ * @evidence contracts/development/testing.md#execution-ownership The async test_website_tour_modern_scene entry owns awaited loading through existing supplied texture/daylight/upload callbacks with CPU Three resources; no network, browser or WebGL renderer runs, and a dispose event does not establish GPU release.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Multiple items sharing one native image trigger one image load.).
  */
 export async function test_website_tour_modern_scene(): Promise<void> {
   const f: ReturnType<typeof tourSceneFixture> = tourSceneFixture(),

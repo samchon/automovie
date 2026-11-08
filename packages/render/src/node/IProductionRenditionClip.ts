@@ -15,13 +15,10 @@ import type { Sample, Track } from "mp4box";
  * `conformProductionVisualDeliveryVideoMp4` keeps the parent's bytes, probe
  * and track and narrows `samples` and both origins to its range.
  *
- * @evidence contracts/common.md#principled-implementation The record keeps the parser's own `Track` and `Sample` objects and the source bytes, so a splice copies each sample's exact byte range and re-times it from the two origins rather than re-deriving anything from decoded pictures.
- * @evidence contracts/common.md#clear-and-simple-design One record per clip carries the facts every splice path reads together, so the parser computes the origins and sample duration once instead of each consumer recomputing them.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The fields are parser observations; no field is defaulted or adjusted for a particular clip, and a slice changes only the sample range and its origins.
- * @evidence contracts/common.md#meaningful-documentation The doc names the producer and readers, the time unit, the guarantees a parsed record carries, how a deterministic slice differs, and each member states what it holds.
- * @evidenceExclude contracts/performance.md#efficient-algorithms An interface holds parsed values and runs no algorithm; parsing cost is answered on its producer.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record is itself the shared parse result that the splice writer and proofs read, so it declares no further work to reuse.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The record retains the whole clip byte array, its probe and the parser's sample table for as long as a splice holds the record; it opens no file handle or task.
+ * @evidence contracts/development/design.md#principled-representation The record keeps the parser's own `Track` and `Sample` objects and the source bytes, so a splice copies each sample's exact byte range and re-times it from the two origins rather than re-deriving anything from decoded pictures.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record per clip carries the facts every splice path reads together, so the parser computes the origins and sample duration once instead of each consumer recomputing them.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The fields are parser observations; no field is defaulted or adjusted for a particular clip, and a slice changes only the sample range and its origins.
+ * @evidence contracts/development/common.md#meaningful-documentation The doc names the producer and readers, the time unit, the guarantees a parsed record carries, how a deterministic slice differs, and each member states what it holds.
  */
 export interface IProductionRenditionClip {
   /** The clip's exact MP4 bytes, which every copied sample is read out of. */

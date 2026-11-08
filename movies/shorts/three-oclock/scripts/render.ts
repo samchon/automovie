@@ -1,7 +1,7 @@
 import {
   type IAutoMovieViewerVideoResult,
   renderViewerVideo,
-} from "@automovie/render/node";
+} from "@automovie/render";
 import { writeFile } from "node:fs/promises";
 
 import config from "../render.config";

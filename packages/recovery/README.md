@@ -20,7 +20,7 @@ const {
   convertAutoMovieRecoveryCurves,
   reconstructAutoMovieRecoveryModel,
 } = require("@automovie/recovery");
-const { publishAutoMovieRecoveryArtifact } = require("@automovie/recovery/node");
+const { publishAutoMovieRecoveryArtifact } = require("@automovie/recovery");
 
 const curves = JSON.parse(fs.readFileSync("curves.json", "utf8"));
 const hermite = convertAutoMovieRecoveryCurves(curves, "hermite");
@@ -73,7 +73,7 @@ The extraction specification contains `units: "mm"`, `frame`, `pose`, `meshes` w
 
 ## Public API
 
-The root entrypoint exports observation, fitting, reconstruction, compilation and curve conversion functions, together with named data contracts and closed type unions. Filesystem publication and command dispatch belong to `@automovie/recovery/node`; registration input contracts belong to `@automovie/interface/recovery`.
+The only entrypoint exports observation, fitting, reconstruction, compilation and curve conversion functions, together with named data contracts and closed type unions. Filesystem publication and command dispatch are exported beside them; registration input contracts belong to `@automovie/interface`.
 
 | Function | Purpose |
 | --- | --- |

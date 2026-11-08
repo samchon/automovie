@@ -1,4 +1,4 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieCurve64 as C } from "@automovie/engine";
 
 type Row = { a: number; b: number; face: number };
 type Topology = {
@@ -15,13 +15,13 @@ type Topology = {
 /**
  * Create the feature-cut topology observer with its original failure and edge-key policy.
  *
- * @evidence contracts/common.md#principled-implementation Triangle admission, geometric normals, links, components and boundary cycles retain the original traversal.
- * @evidence contracts/common.md#clear-and-simple-design This phase retains its original arithmetic and ordered state transitions while its caller owns orchestration.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Extraction introduces no input correction, geometry fallback, reordered reduction or changed admission condition.
- * @evidence contracts/common.md#meaningful-documentation States the phase responsibility, shared-state ownership and numerical limits inherited from the calling algorithm.
- * @evidence contracts/performance.md#efficient-algorithms Each invocation visits its supplied vertices, triangles and incidence graphs.
- * @evidence contracts/performance.md#reuse-equivalent-work The same observer validates the original, subdivided and fan-materialized populations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned closure retains only failure and key functions; each topology result belongs to its caller.
+ * @evidence contracts/development/implementation.md#principled-implementation Triangle admission, geometric normals, links, components and boundary cycles retain the original traversal.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This phase retains its original arithmetic and ordered state transitions while its caller owns orchestration.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Extraction introduces no input correction, geometry fallback, reordered reduction or changed admission condition.
+ * @evidence contracts/development/common.md#meaningful-documentation States the phase responsibility, shared-state ownership and numerical limits inherited from the calling algorithm.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each invocation visits its supplied vertices, triangles and incidence graphs.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The same observer validates the original, subdivided and fan-materialized populations.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure retains only failure and key functions; each topology result belongs to its caller.
  */
 export function RecoveryFeatureChartCutsTopology(
   fail: (reason: string) => never,

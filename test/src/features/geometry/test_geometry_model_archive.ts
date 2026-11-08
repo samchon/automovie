@@ -1,4 +1,4 @@
-import { archiveAutoMovieRecoveryModel } from "@automovie/recovery/node";
+import { archiveAutoMovieRecoveryModel } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
@@ -15,10 +15,11 @@ import { gunzipSync } from "node:zlib";
  * 5. An output root that does not own the model refuses before creating storage files.
  * 6. Existing staging or receipt files remain immutable and the raw model survives both failures.
  *
- * @evidence contracts/testing.md#behavioral-verification Reads actual gzip and receipt bytes, independently decodes and hashes the complete publication, and exercises hash, immutable-output, spool-ownership and output-root failures through the maintained storage function. It checks preservation of raw and unrelated files and cleanup of unpublished staging.
- * @evidence contracts/testing.md#independent-expectations Independently authored UTF-8 bytes define the logical oracle; Node gunzip and SHA-256 define the stored-byte oracle. Only a verified model and its enumerated recognized spool may be retired. Failed admission cannot authorize deletion or replacement.
- * @evidence contracts/testing.md#distinguishing-cases Covers unicode, a multi-chunk publication, recognized array spool, wrong hash, occupied archive/staging/receipt, unknown spool file and a foreign model root. Process termination, filesystem crash durability and geometry quality are outside these assertions.
- * @evidence contracts/testing.md#execution-ownership The test owns one temporary directory beneath its current workspace and removes it in finally. It performs only generic storage operations and starts no reconstruction, fitting, source observation, process, GPU, browser or build.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads actual gzip and receipt bytes, independently decodes and hashes the complete publication, and exercises hash, immutable-output, spool-ownership and output-root failures through the maintained storage function. It checks preservation of raw and unrelated files and cleanup of unpublished staging.
+ * @evidence contracts/development/testing.md#independent-expectations Independently authored UTF-8 bytes define the logical oracle; Node gunzip and SHA-256 define the stored-byte oracle. Only a verified model and its enumerated recognized spool may be retired. Failed admission cannot authorize deletion or replacement.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers unicode, a multi-chunk publication, recognized array spool, wrong hash, occupied archive/staging/receipt, unknown spool file and a foreign model root. Process termination, filesystem crash durability and geometry quality are outside these assertions.
+ * @evidence contracts/development/testing.md#execution-ownership The test owns one temporary directory beneath its current workspace and removes it in finally. It performs only generic storage operations and starts no reconstruction, fitting, source observation, process, GPU, browser or build.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: UTF-8 model bytes reverse-decode exactly; the receipt binds both hashes, and only the served model and recognized spool are retired.).
  */
 export async function test_geometry_model_archive(): Promise<void> {
   const workspace: string = fs.realpathSync(process.cwd());

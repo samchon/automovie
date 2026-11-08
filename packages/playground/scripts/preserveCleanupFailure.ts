@@ -1,1 +1,1 @@
-export { preserveCleanupFailure } from "@automovie/render/node";
+export { preserveCleanupFailure } from "@automovie/render";

@@ -12,13 +12,10 @@ import { IAutoMovieQuadraticRefinementNativeCall } from "./IAutoMovieQuadraticRe
  * when `status` is 1 and the three residuals are within its tolerance. All
  * arrays are new and owned by the caller.
  *
- * @evidence contracts/common.md#principled-implementation Reports the KKT residuals of the original program at the returned point, primal feasibility, stationarity of `H·x + q + Aᵀ·y` and complementarity, so admission reads the actual conditions rather than the solver's normalized measures or status alone.
- * @evidence contracts/common.md#clear-and-simple-design The solution, the three admission residuals and the diagnostics a failed solve's error message prints, the native report, row groups and the polishing attempt, in one record.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Polishing can replace the solution only through full-row admission and never changes `status`, so no residual or status is massaged into success.
- * @evidence contracts/common.md#meaningful-documentation States when the solution is the native one or the polished candidate, that the status is never promoted, the caller's admission rule, ownership, and each residual's formula and unit.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A result record with no algorithm; the cost is answered on `refineAutoMovieQuadraticProgram`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The refinement report carries one native call and its optional polishing trace, all measured against the same original coefficients; it coordinates no solver sharing across programs.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owned by the caller: vectors of the variable and row counts, one ordinal per row in `rowGroups`, and the optional polishing traces bounded by the budget.
+ * @evidence contracts/development/design.md#principled-representation Reports the KKT residuals of the original program at the returned point, primal feasibility, stationarity of `H·x + q + Aᵀ·y` and complementarity, so admission reads the actual conditions rather than the solver's normalized measures or status alone.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The solution, the three admission residuals and the diagnostics a failed solve's error message prints, the native report, row groups and the polishing attempt, in one record.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Polishing can replace the solution only through full-row admission and never changes `status`, so no residual or status is massaged into success.
+ * @evidence contracts/development/common.md#meaningful-documentation States when the solution is the native one or the polished candidate, that the status is never promoted, the caller's admission rule, ownership, and each residual's formula and unit.
  */
 export interface IAutoMovieQuadraticRefinementResult {
   /** Returned primal, one value per program variable. */

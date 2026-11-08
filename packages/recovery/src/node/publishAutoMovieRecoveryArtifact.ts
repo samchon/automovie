@@ -12,13 +12,13 @@ import { writeAutoMovieRecoveryArtifact } from "./artifact/writeAutoMovieRecover
  * file. A process crash can leave an unpublished temporary file, as documented by
  * the writer. Cancellation does not delete a completed immutable publication.
  *
- * @evidence contracts/common.md#principled-implementation The bounded JSON writer closes a same-directory temporary file before nonoverwriting hard-link publication and hashes the exact written bytes.
- * @evidence contracts/common.md#clear-and-simple-design One Node host wraps publication lifecycle; portable workflows neither open paths nor own output files.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No geometry filtering, rounding, source fallback, output replacement or claimed asynchronous cancellation changes the artifact.
- * @evidence contracts/common.md#meaningful-documentation States byte identity, immutable effects, cancellation granularity and temporary-file cleanup limits.
- * @evidence contracts/performance.md#efficient-algorithms Serialization and hashing are O(B) in emitted bytes with fixed shallow-array staging and O(depth) ancestor tracking; the largest string is not separately bounded.
- * @evidence contracts/performance.md#reuse-equivalent-work Each emitted chunk feeds both the file and hash once; no complete output reread or regenerated geometry is required.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The delegated writer closes file descriptors and removes its private temporary file on return or exception; the caller retains input data and the completed output.
+ * @evidence contracts/development/implementation.md#principled-implementation The bounded JSON writer closes a same-directory temporary file before nonoverwriting hard-link publication and hashes the exact written bytes.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One Node host wraps publication lifecycle; portable workflows neither open paths nor own output files.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No geometry filtering, rounding, source fallback, output replacement or claimed asynchronous cancellation changes the artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation States byte identity, immutable effects, cancellation granularity and temporary-file cleanup limits.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Serialization and hashing are O(B) in emitted bytes with fixed shallow-array staging and O(depth) ancestor tracking; the largest string is not separately bounded.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each emitted chunk feeds both the file and hash once; no complete output reread or regenerated geometry is required.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The delegated writer closes file descriptors and removes its private temporary file on return or exception; the caller retains input data and the completed output.
  */
 export function publishAutoMovieRecoveryArtifact(
   output: string,

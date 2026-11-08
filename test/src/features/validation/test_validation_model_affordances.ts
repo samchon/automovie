@@ -70,10 +70,11 @@ const withAffordances: (
  * 9. A non-finite frame scalar is a `range` violation via the shared transform
  *    check.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateModel with omitted, null and populated affordances and requires accepted controls or located type/range findings, catching lost optional-state compatibility, duplicate IDs, invalid support extents and nonfinite frame scalars.
- * @evidence contracts/testing.md#independent-expectations Literal IDs and diagnostic addresses follow authored ownership; the square spans XZ area, two points and a collinear triple cannot define a support face, and NaN/Infinity are nonfinite. Success checks admission only and does not establish byte identity or geometric display quality.
- * @evidence contracts/testing.md#distinguishing-cases Preserves omitted/null/valid stack-top-plus-handle controls and all eight malformed variations, including duplicate/blank IDs, absent/short/collinear/nonfinite extents, a point-like handle with an extent and an invalid frame. Broader transform and mesh admission have separate entries.
- * @evidence contracts/testing.md#execution-ownership The discoverable named unit uses the existing model fixture and local affordance records to exercise portable engine validation without building a figure, launching a host or loading assets.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateModel with omitted, null and populated affordances and requires accepted controls or located type/range findings, catching lost optional-state compatibility, duplicate IDs, invalid support extents and nonfinite frame scalars.
+ * @evidence contracts/development/testing.md#independent-expectations Literal IDs and diagnostic addresses follow authored ownership; the square spans XZ area, two points and a collinear triple cannot define a support face, and NaN/Infinity are nonfinite. Success checks admission only and does not establish byte identity or geometric display quality.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves omitted/null/valid stack-top-plus-handle controls and all eight malformed variations, including duplicate/blank IDs, absent/short/collinear/nonfinite extents, a point-like handle with an extent and an invalid frame. Broader transform and mesh admission have separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable named unit uses the existing model fixture and local affordance records to exercise portable engine validation without building a figure, launching a host or loading assets.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A model without the field and one with `affordances: null` both).
  */
 export function test_validation_model_affordances(): void {
   TestValidator.equals(

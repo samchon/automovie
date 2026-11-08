@@ -13,10 +13,11 @@ import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture
  *
  * 1. Two rows for the same lantern combine into one contributor without losing either cost.
  *
- * @evidence contracts/testing.md#behavioral-verification Evaluates an inventory whose two lantern rows differ only by absent versus explicit own kind, asserting one combined contributor and its unchanged editable source path.
- * @evidence contracts/testing.md#independent-expectations The legacy absent-kind contract means own, so authored costs seven and five add to the literal twelve without duplicate contributor identities; no measured total is used to derive that expectation.
- * @evidence contracts/testing.md#distinguishing-cases Preserves the absent/explicit-kind twin at one owner address; pass rows, multiple dominant owners and contributor truncation are owned by adjacent tests.
- * @evidence contracts/testing.md#execution-ownership The named test_render_budget_legacy_owner owns one portable CPU report case over caller-built inventory rows and acquires no renderer, file or native host.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates an inventory whose two lantern rows differ only by absent versus explicit own kind, asserting one combined contributor and its unchanged editable source path.
+ * @evidence contracts/development/testing.md#independent-expectations The legacy absent-kind contract means own, so authored costs seven and five add to the literal twelve without duplicate contributor identities; no measured total is used to derive that expectation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves the absent/explicit-kind twin at one owner address; pass rows, multiple dominant owners and contributor truncation are owned by adjacent tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_render_budget_legacy_owner owns one portable CPU report case over caller-built inventory rows and acquires no renderer, file or native host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Two rows for the same lantern combine into one contributor without losing either cost.).
  */
 export function test_render_budget_legacy_owner(): void {
   const target: ReturnType<typeof renderBudgetTargetFixture> =

@@ -13,13 +13,13 @@ import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
  * @param transport An updated transport with frames, retained.
  * @returns The path.
  *
- * @evidence contracts/common.md#principled-implementation An adapter from the array interface to vector records over the same computation.
- * @evidence contracts/common.md#clear-and-simple-design Four closures sharing one twelve-number scratch.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is cached beyond the length, which is stated.
- * @evidence contracts/common.md#meaningful-documentation States what follows an update and what does not.
- * @evidence contracts/performance.md#efficient-algorithms Each query is the transport's plus one returned record per vector.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work An adapter; the transport is the reuse.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the transport and twelve scratch numbers.
+ * @evidence contracts/development/implementation.md#principled-implementation An adapter from the array interface to vector records over the same computation.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Four closures sharing one twelve-number scratch.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is cached beyond the length, which is stated.
+ * @evidence contracts/development/common.md#meaningful-documentation States what follows an update and what does not.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each query is the transport's plus one returned record per vector.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work An adapter; the transport is the reuse.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the transport and twelve scratch numbers.
  */
 export const pathAutoMovieSweepTransport: (
   transport: IAutoMovieSweepTransport,

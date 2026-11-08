@@ -1,5 +1,7 @@
-import type { IAutoMovieViewerVideoOptions } from "@automovie/render/node";
-import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node/chrome";
+import {
+  DEFAULT_CHROME_EXECUTABLE,
+  type IAutoMovieViewerVideoOptions,
+} from "@automovie/render";
 import ffmpeg from "ffmpeg-static";
 
 import { durationSeconds } from "./src/durationSeconds";

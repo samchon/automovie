@@ -54,10 +54,11 @@ const undisturbed: () => IAutoMovieSoftBodyDomain =
  *    gravity moves.
 
  *
- * @evidence contracts/testing.md#behavioral-verification Static solver positions/velocities and rest-target precedence are observed directly; a changed canonical distance expression, lost anchor/state override or accidental no-op fails preserved assertions.
- * @evidence contracts/testing.md#independent-expectations Authored rest coordinates, exact zero velocities/measurements and explicitly authored anchor targets supply the expectations. Repeated digest equality is only an auxiliary collision-prone diagnostic, not independent proof of whole-state identity.
- * @evidence contracts/testing.md#distinguishing-cases The preserved 256-step rest, null target, gravity control, explicit target, named override and missing-state refusal cases distinguish integration from boundary setup; moving boundaries belong to the wearable owning tests.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_soft_body_rest_exactness; fixture builders supply only authored records and no browser, native solver artifact or live host is installed.
+ * @evidence contracts/development/testing.md#behavioral-verification Static solver positions/velocities and rest-target precedence are observed directly; a changed canonical distance expression, lost anchor/state override or accidental no-op fails preserved assertions.
+ * @evidence contracts/development/testing.md#independent-expectations Authored rest coordinates, exact zero velocities/measurements and explicitly authored anchor targets supply the expectations. Repeated digest equality is only an auxiliary collision-prone diagnostic, not independent proof of whole-state identity.
+ * @evidence contracts/development/testing.md#distinguishing-cases The preserved 256-step rest, null target, gravity control, explicit target, named override and missing-state refusal cases distinguish integration from boundary setup; moving boundaries belong to the wearable owning tests.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_soft_body_rest_exactness; fixture builders supply only authored records and no browser, native solver artifact or live host is installed.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two hundred and fifty-six steps of an undisturbed panel leave every position).
  */
 export function test_soft_body_rest_exactness(): void {
   const domain: IAutoMovieSoftBodyDomain = undisturbed();

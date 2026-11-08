@@ -29,10 +29,11 @@ import {
  * 4. Growth zero has no stem/card volume to reject, and semantic-only space
  *    has no geometric containment claim to enforce.
  *
- * @evidence contracts/testing.md#behavioral-verification The real installation validator joins authored room, domain and cluster records; cluster-path refusal catches endpoint-only canopy measurement while the adjacent admitted cases catch unconditional rejection.
- * @evidence contracts/testing.md#independent-expectations A vertical cylinder's X radius is its authored radius, and an identity unit XY card's half-width is authored width/2. Comparing these quantities to the independent room half-width 1/5 requires no call to the canopy measurement under test.
- * @evidence contracts/testing.md#distinguishing-cases Thick/thin stems, wide/narrow cards, unit/doubled X member scale, zero growth and semantic-only space distinguish actual visible extent from centreline/origin containment; pruning and general reference admission remain in their owning tests.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_planting_canopy_clearance; existing authored-record fixtures and the product validator own all cases, without a viewer, browser, mock geometry or GPU process.
+ * @evidence contracts/development/testing.md#behavioral-verification The real installation validator joins authored room, domain and cluster records; cluster-path refusal catches endpoint-only canopy measurement while the adjacent admitted cases catch unconditional rejection.
+ * @evidence contracts/development/testing.md#independent-expectations A vertical cylinder's X radius is its authored radius, and an identity unit XY card's half-width is authored width/2. Comparing these quantities to the independent room half-width 1/5 requires no call to the canopy measurement under test.
+ * @evidence contracts/development/testing.md#distinguishing-cases Thick/thin stems, wide/narrow cards, unit/doubled X member scale, zero growth and semantic-only space distinguish actual visible extent from centreline/origin containment; pruning and general reference admission remain in their owning tests.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_planting_canopy_clearance; existing authored-record fixtures and the product validator own all cases, without a viewer, browser, mock geometry or GPU process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A vertical stem of radius 1/4 crosses a room's X/Z half-width 1/5;).
  */
 export function test_planting_canopy_clearance(): void {
   const base: IAutoMoviePlantingDomain = plantingRecipe();

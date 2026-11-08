@@ -35,13 +35,13 @@ import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
  * @param props.restFrames Per-node rest frames the renderer uses, when supplied.
  * @returns One entry per planted actor, plants in world metres.
  *
- * @evidence contracts/common.md#principled-implementation Ground contact is solved in the actor's model frame by `plantStanceFeet`, and positions cross between frames by the inverse and forward rigid transform of the staged node, which is exact for the unit-scale yaw-only transform staging emits; ground height is sampled in world space and carried into the model frame point by point.
- * @evidence contracts/common.md#clear-and-simple-design The stance stage of `performShot` in one place; the solve is `plantStanceFeet` and the world ground is `spaceGround`, so this function owns only the frame conversions and the choice of which actors to plant.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every actor meeting the stated conditions is planted the same way; a rig without recognized feet is left as authored rather than given invented contacts.
- * @evidence contracts/common.md#meaningful-documentation States which actors are planted and which are left alone, the frame conversions and their premise, the ground source, the effect on `motions`, the footless-rig rule and why, and the order of the result.
- * @evidence contracts/performance.md#efficient-algorithms Sorts A motion entries in O(A log A), scans staged nodes per qualifying actor and runs one delegated plantStanceFeet solve per such actor; that solve's motion sampling, FK and IK costs depend on rig and clip populations, rather than sample count alone.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each actor's clip is planted once per call; the prior plants are indexed once by node.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The prior-plant index is dropped on return; planted clips are stored into the caller's `motions`, and the caller owns the returned entries.
+ * @evidence contracts/development/implementation.md#principled-implementation Ground contact is solved in the actor's model frame by `plantStanceFeet`, and positions cross between frames by the inverse and forward rigid transform of the staged node, which is exact for the unit-scale yaw-only transform staging emits; ground height is sampled in world space and carried into the model frame point by point.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The stance stage of `performShot` in one place; the solve is `plantStanceFeet` and the world ground is `spaceGround`, so this function owns only the frame conversions and the choice of which actors to plant.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actor meeting the stated conditions is planted the same way; a rig without recognized feet is left as authored rather than given invented contacts.
+ * @evidence contracts/development/common.md#meaningful-documentation States which actors are planted and which are left alone, the frame conversions and their premise, the ground source, the effect on `motions`, the footless-rig rule and why, and the order of the result.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Sorts A motion entries in O(A log A), scans staged nodes per qualifying actor and runs one delegated plantStanceFeet solve per such actor; that solve's motion sampling, FK and IK costs depend on rig and clip populations, rather than sample count alone.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each actor's clip is planted once per call; the prior plants are indexed once by node.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The prior-plant index is dropped on return; planted clips are stored into the caller's `motions`, and the caller owns the returned entries.
  */
 export function plantPerformShotStanceFeet(props: {
   staged: IAutoMovieStagedSet.ISuccess;

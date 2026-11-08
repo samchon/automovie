@@ -1,12 +1,11 @@
-import type { IAutoMovieRecoveryTensorFamiliesInput } from "../../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
-import type { IAutoMovieRecoveryOpenContinuation } from "../../structures/curve/IAutoMovieRecoveryOpenContinuation";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
 import { restoreRecoveryCurveBasis } from "../../internal/restoreRecoveryCurveBasis";
-
 import { applyAutoMovieRecoveryAnalyticPublication } from "../../reconstruction/applyAutoMovieRecoveryAnalyticPublication";
+import type { IAutoMovieRecoveryOpenContinuation } from "../../structures/curve/IAutoMovieRecoveryOpenContinuation";
+import type { IAutoMovieRecoveryTensorFamiliesInput } from "../../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
 import { archiveAutoMovieRecoveryModel } from "../artifact/archiveAutoMovieRecoveryModel";
 import { reconstructAutoMovieRecoveryLocal } from "../reconstruction/reconstructAutoMovieRecoveryLocal";
 
@@ -17,13 +16,13 @@ import { reconstructAutoMovieRecoveryLocal } from "../reconstruction/reconstruct
  * Default prefixes favor the longest open-only declared interval family. Final-only avoids repeated prefix serialization. Final-only-gzip also reverse-verifies a lossless archive before retiring the served raw model and spool; its output must be named model.json. The optional source-free extension binds both original byte hashes, replaces named coefficients once and declares analytic ownership.
  * The final log's file, bytes and sha256 describe the served publication; gzip also reports logicalBytes and logicalSha256 for the decompressed model.
  *
- * @evidence contracts/common.md#principled-implementation Complete-byte hashes admit the saved coefficient authority and its explicit graph before the engine creates independent indexed geometry through its public cubic and streaming contracts.
- * @evidence contracts/common.md#clear-and-simple-design One CLI owns input admission and epoch binding; reconstruction owns graph transport, the engine owns mathematics, and spool publication owns bounded file assembly.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source vertices, indices, normals, selected hand-authored planes or external mesh substitution enter this command.
- * @evidence contracts/common.md#meaningful-documentation States changed operator entry, immutable generating inputs, publication ordering and explicit unfinished checkpoints.
- * @evidence contracts/performance.md#efficient-algorithms Each input is read and hashed once; generating and output costs are delegated to the source-free local engine and spool consumer. Optional gzip storage encodes the logical model once and fully reverse-decodes the compressed stream before raw retirement.
- * @evidence contracts/performance.md#reuse-equivalent-work Existing coefficients and endpoint graph are reused without observation or fitting. Actual emitted fragments serve checkpoint and final output.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Parsed bundle and graph are call-owned. Read buffers expire after admission; the consumer releases emitted chunks to bounded disk staging. File handles close synchronously and existing publications remain immutable.
+ * @evidence contracts/development/implementation.md#principled-implementation Complete-byte hashes admit the saved coefficient authority and its explicit graph before the engine creates independent indexed geometry through its public cubic and streaming contracts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One CLI owns input admission and epoch binding; reconstruction owns graph transport, the engine owns mathematics, and spool publication owns bounded file assembly.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source vertices, indices, normals, selected hand-authored planes or external mesh substitution enter this command.
+ * @evidence contracts/development/common.md#meaningful-documentation States changed operator entry, immutable generating inputs, publication ordering and explicit unfinished checkpoints.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each input is read and hashed once; generating and output costs are delegated to the source-free local engine and spool consumer. Optional gzip storage encodes the logical model once and fully reverse-decodes the compressed stream before raw retirement.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing coefficients and endpoint graph are reused without observation or fitting. Actual emitted fragments serve checkpoint and final output.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Parsed bundle and graph are call-owned. Read buffers expire after admission; the consumer releases emitted chunks to bounded disk staging. File handles close synchronously and existing publications remain immutable.
  */
 export async function recoveryLocal(
   args: string[],
@@ -78,10 +77,11 @@ export async function recoveryLocal(
   };
   const saved: ReturnType<typeof read> = read(curves),
     topology: ReturnType<typeof read> = read(continuation);
-  const graph: IAutoMovieRecoveryOpenContinuation & { provenance: { curveBundleSha256: string } } =
-    topology.value as IAutoMovieRecoveryOpenContinuation & {
-      provenance: { curveBundleSha256: string };
-    };
+  const graph: IAutoMovieRecoveryOpenContinuation & {
+    provenance: { curveBundleSha256: string };
+  } = topology.value as IAutoMovieRecoveryOpenContinuation & {
+    provenance: { curveBundleSha256: string };
+  };
   if (graph.provenance.curveBundleSha256 !== saved.sha256)
     throw new Error(
       "Continuation does not bind this exact coefficient publication",
@@ -96,8 +96,9 @@ export async function recoveryLocal(
       elapsedMs: performance.now() - started,
     }),
   );
-  let bundle: IAutoMovieRecoveryTensorFamiliesInput =
-    restoreRecoveryCurveBasis(saved.value) as IAutoMovieRecoveryTensorFamiliesInput;
+  let bundle: IAutoMovieRecoveryTensorFamiliesInput = restoreRecoveryCurveBasis(
+    saved.value,
+  ) as IAutoMovieRecoveryTensorFamiliesInput;
   let analyticPublicationSha256: string | undefined;
   if (analytic) {
     if (fs.statSync(analytic).size > 256 * 1024 * 1024)

@@ -1,17 +1,14 @@
-import type { IAutoMovieCurve64 } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieCurve64 } from "@automovie/engine";
 
 import type { IAutoMovieRecoverySourceLineage } from "./IAutoMovieRecoverySourceLineage";
 
 /**
  * Acquisition-only source incidence for a finite observed slab. Input face ordinals and slab-local occurrence identities bind measured ports and source topology; this record is not engine generation input. Source positions, triangle arrays and normals are absent except for measured critical positions. Critical brackets identify source intervals rather than fitted curves at those brackets.
  *
- * @evidence contracts/common.md#principled-implementation Actual cutter-emitted face provenance binds published curves to the maintained clipped-cell topology owner; copied raw nodes, declared incidence aliases and halfedge occurrences preserve its exact address graph without interpreting IDs. The same scalar chart supplies PL lower/upper-link classification and physical critical brackets.
- * @evidence contracts/common.md#clear-and-simple-design One typed callback record separates source acquisition evidence from source-free curve coefficients and generated skin.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Endpoint-star supersets never become exact port support; unresolved components, failed curves and ambiguous ports remain explicit without source mesh or normal fallback.
- * @evidence contracts/common.md#meaningful-documentation States physical units, input triangle and vertex ordinal spaces, slab-local opaque IDs, raw versus incidence node joins, copied registry ownership, topology qualification and the distinction between measured critical points and cap or transverse-jet authorization.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased record performs no computation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record owns no cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The observer owns copied metadata and measured critical positions; no borrowed source arrays transfer.
+ * @evidence contracts/development/design.md#principled-representation Actual cutter-emitted face provenance binds published curves to the maintained clipped-cell topology owner; copied raw nodes, declared incidence aliases and halfedge occurrences preserve its exact address graph without interpreting IDs. The same scalar chart supplies PL lower/upper-link classification and physical critical brackets.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One typed callback record separates source acquisition evidence from source-free curve coefficients and generated skin.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Endpoint-star supersets never become exact port support; unresolved components, failed curves and ambiguous ports remain explicit without source mesh or normal fallback.
+ * @evidence contracts/development/common.md#meaningful-documentation States physical units, input triangle and vertex ordinal spaces, slab-local opaque IDs, raw versus incidence node joins, copied registry ownership, topology qualification and the distinction between measured critical points and cap or transverse-jet authorization.
  */
 export interface IAutoMovieRecoverySlabObservation {
   /** Spatial and scalar coordinate unit for this acquisition record. */

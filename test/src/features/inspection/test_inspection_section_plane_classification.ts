@@ -54,10 +54,11 @@ function box(
  * 9. An empty plane list keeps a valid box.
  * 10. Inverted and nonfinite bounds on every axis are refused even without planes.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls plane distance, point keep and box classification directly; reversed signs, skipped normalization, incorrect intersection/support corners or admitted malformed bounds fail.
- * @evidence contracts/testing.md#independent-expectations Horizontal y=3 and west-facing x=0 planes determine distances and finite box support states by hand geometry; exact contact uses zero-tolerance nclose.
- * @evidence contracts/testing.md#distinguishing-cases Positive/negative and non-unit/invalid normals, finite plane points, kept/cut/crossed boxes, contact on either face, intersecting/empty planes and invalid bounds on every axis are retained; displayed clipping belongs to hardware inspection.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_inspection_section_plane_classification entry owns these synchronous portable half-space and box calculations; resident planes and points require no production installation, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls plane distance, point keep and box classification directly; reversed signs, skipped normalization, incorrect intersection/support corners or admitted malformed bounds fail.
+ * @evidence contracts/development/testing.md#independent-expectations Horizontal y=3 and west-facing x=0 planes determine distances and finite box support states by hand geometry; exact contact uses zero-tolerance nclose.
+ * @evidence contracts/development/testing.md#distinguishing-cases Positive/negative and non-unit/invalid normals, finite plane points, kept/cut/crossed boxes, contact on either face, intersecting/empty planes and invalid bounds on every axis are retained; displayed clipping belongs to hardware inspection.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_inspection_section_plane_classification entry owns these synchronous portable half-space and box calculations; resident planes and points require no production installation, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 10 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Signed distances below, above and on y=3 are -1, +1 and zero.).
  */
 export function test_inspection_section_plane_classification(): void {
   // 1. signed distance, including the boundary

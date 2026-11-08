@@ -1,6 +1,8 @@
-import type { IAutoMovieQuadraticRow } from "@automovie/engine/math/IAutoMovieQuadraticRow";
-import { refineAutoMovieQuadraticProgram } from "@automovie/engine/math/refineAutoMovieQuadraticProgram";
-import { solveAutoMovieQuadraticProgram } from "@automovie/engine/math/solveAutoMovieQuadraticProgram";
+import {
+  type IAutoMovieQuadraticRow,
+  refineAutoMovieQuadraticProgram,
+  solveAutoMovieQuadraticProgram,
+} from "@automovie/engine";
 
 import type { IAutoMovieHumanPose } from "../structures/pose/IAutoMovieHumanPose";
 import type { AutoMovieHumanClinicalIkInput as AutoMovieHumanClinicalIk } from "./AutoMovieHumanClinicalIkInput";

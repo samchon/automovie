@@ -20,10 +20,11 @@ import { throwsError } from "../internal/throwsError";
  * 3. A second coplanar incident face remains legal when both original supports
  *    of the sampled edge are supplied.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the separation query with registered plane-root fans, asserting certification for valid support metadata and named refusals for malformed metadata or an incomplete fan; an adjacent two-face support remains legal.
- * @evidence contracts/testing.md#independent-expectations Triangle ordinal zero and barycentric weights identify the authored root, and the edge fan requires both incident triangle ordinals. These admission facts follow the supplied mesh and support contract, not a recorded query result; certification here does not prove a general embedded surface or rendered contact.
- * @evidence contracts/testing.md#distinguishing-cases Covers dense and incomplete fans, fractional/absent/unrelated/sparse support fields, and a valid coplanar incident pair. Numerical source-to-Float32 contact extent and unrelated piercing obstacles belong to the attachment-contact and representation tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable named test invokes portable separation source and the existing exception observer directly, using only its existing synthetic plane data. It requires no process, consumer installation, native build, browser or GPU and dynamically registers no cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the separation query with registered plane-root fans, asserting certification for valid support metadata and named refusals for malformed metadata or an incomplete fan; an adjacent two-face support remains legal.
+ * @evidence contracts/development/testing.md#independent-expectations Triangle ordinal zero and barycentric weights identify the authored root, and the edge fan requires both incident triangle ordinals. These admission facts follow the supplied mesh and support contract, not a recorded query result; certification here does not prove a general embedded surface or rendered contact.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers dense and incomplete fans, fractional/absent/unrelated/sparse support fields, and a valid coplanar incident pair. Numerical source-to-Float32 contact extent and unrelated piercing obstacles belong to the attachment-contact and representation tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable named test invokes portable separation source and the existing exception observer directly, using only its existing synthetic plane data. It requires no process, consumer installation, native build, browser or GPU and dynamically registers no cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A source plane's dense original barycentric fan is admitted unchanged.).
  */
 export function test_geometry_attachment_admission(): void {
   const mesh: IAutoMovieMesh = {

@@ -13,13 +13,13 @@ import { V3 } from "./V3";
  * A supplied scalar chart shares the exact height samples used for PL topology;
  * its signs and edge fractions use height minus level without reprojecting an origin.
  *
- * @evidence contracts/common.md#principled-implementation Signed linear interpolation and canonical source-edge incidence build the plane intersection multigraph. Only two opposite coplanar incidences whose triangles lie on opposite sides of their edge cancel as a patch interior; edge visitation preserves every remaining contribution. Equal-position canonical aliases must already be qualified by registration.
- * @evidence contracts/common.md#clear-and-simple-design The operator owns source observation only and returns the existing Polyline contract; callers own source registration and generated-surface reconstruction.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No distance epsilon, positional weld, invented closure, component selection or generated surface is introduced. Canonical identities must already be supplied by registration.
- * @evidence contracts/common.md#meaningful-documentation States exact-zero convention, coplanar boundaries, isolated contacts, maximal chains and binary64 predicate limits.
- * @evidence contracts/performance.md#efficient-algorithms For V positions and T triangles, signed distances, edge incidence and graph walks require expected O(V+T) time and O(V+T) temporary storage.
- * @evidence contracts/performance.md#reuse-equivalent-work Direct calls admit one source chart and reuse each visited vertex's signed difference and each canonical crossing within intersection. Repeated planes can share prepare admission for one immutable source; no global cache exists.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Graph maps and visited edges expire on return; only ordered physical observations with private source support addresses escape.
+ * @evidence contracts/development/implementation.md#principled-implementation Signed linear interpolation and canonical source-edge incidence build the plane intersection multigraph. Only two opposite coplanar incidences whose triangles lie on opposite sides of their edge cancel as a patch interior; edge visitation preserves every remaining contribution. Equal-position canonical aliases must already be qualified by registration.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The operator owns source observation only and returns the existing Polyline contract; callers own source registration and generated-surface reconstruction.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No distance epsilon, positional weld, invented closure, component selection or generated surface is introduced. Canonical identities must already be supplied by registration.
+ * @evidence contracts/development/common.md#meaningful-documentation States exact-zero convention, coplanar boundaries, isolated contacts, maximal chains and binary64 predicate limits.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For V positions and T triangles, signed distances, edge incidence and graph walks require expected O(V+T) time and O(V+T) temporary storage.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Direct calls admit one source chart and reuse each visited vertex's signed difference and each canonical crossing within intersection. Repeated planes can share prepare admission for one immutable source; no global cache exists.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Graph maps and visited edges expire on return; only ordered physical observations with private source support addresses escape.
  */
 export function cutExact(
   skin: IAutoMovieRecoveryIndexedMesh,
@@ -48,13 +48,10 @@ export function cutExact(
  * Reusable admission for deterministic source-plane observations.
  * Prepared queries consume one immutable source and scalar chart, with optional complete face candidates.
  *
- * @evidence contracts/common.md#principled-implementation Admission validates finite aligned positions and heights plus source addresses. Queries use the same scalar differences, face order, incidence graph and maximal-chain walk as direct calls. An external immutable interval index supplies complete inclusive candidates; completeness is a caller premise, not inferred from output.
- * @evidence contracts/common.md#clear-and-simple-design A closure retains one admitted source and lazily computes signed differences only at candidate vertices. There is one shared intersection implementation for indexed and complete traversal.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Candidate order and addresses are checked; no largest component, epsilon, source-specific omission or global cache is introduced. Callers must supply every intersecting face and qualified canonical aliases.
- * @evidence contracts/common.md#meaningful-documentation Documents source immutability, scalar authority, inclusive candidate completeness, default traversal and binary64 predicate limits inherited from cutExact.
- * @evidence contracts/performance.md#efficient-algorithms Admission checks V positions and T faces once. Default queries visit A active faces with memoized differences and graph traversal. Ordered mode adds per-point witness duplicate scans, worst O(W squared) for W visits, and per-segment emitting-face sorting; points, witnesses and face incidences determine additional memory. No separate metadata byte ceiling is provided.
- * @evidence contracts/performance.md#reuse-equivalent-work Finite source and address admission is reused only for the same immutable source and height chart. Each query owns its signed-difference cache; another source requires another closure.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the closure borrowing immutable source/scalar arrays. Query point/segment/witness/face maps expire on return or throw; copied optional observations transfer with the polylines and grow with active source incidence, without an aggregate byte ceiling. No handle, listener, task or cross-query result cache survives.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents source immutability, scalar authority, inclusive candidate completeness, default traversal and binary64 predicate limits inherited from cutExact.
+ * @evidence contracts/development/design.md#principled-representation Represents Reusable admission for deterministic source-plane observations: companion namespace of 1 member (`prepare`). It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `cutExact` in packages/recovery/src/internal/mesh-observations/cutExact.ts; its surface is the 1 member listed and the text shows 9 other files naming it, mostly packages/recovery (9), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace cutExact {
   /**

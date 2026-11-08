@@ -28,13 +28,13 @@ const GUARD: IAutoMovieJointPose[] = [
 /**
  * Assemble the existing looping kickboxing choreography from fixed guarded strikes, defence poses, footwork and kick chamber/strike pairs. Authored joint angles are degrees and local root displacements are metres; sparse beat durations are seconds. Technique names describe choreography, not measured fighter ability, admitted clinical ROM, impact or ground-contact simulation.
  *
- * @evidence contracts/common.md#principled-implementation Bone-keyed guard merging forms each pose, fixed beat builders state every return to guard and canonical sequenceMotion concatenates their exact timing while preserving seam easing.
- * @evidence contracts/common.md#clear-and-simple-design Named pose/beat vocabulary keeps the authored sequence visible in one producer; engine interpolation and the page's humanoid axes/rest-frame/optional clamp remain separate consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Conventional technique angles, timing fractions and roots are not physiological observations or contact proof; no solver tolerance or fixture-specific replacement makes the choreography valid.
- * @evidence contracts/common.md#meaningful-documentation The comment identifies angular/root/time units, guarded beat composition and the limits of technique labels.
- * @evidence contracts/performance.md#efficient-algorithms The fixed technique/beat population bounds guard-Map construction and total key generation; sequencing traverses all k keys in O(k) time/storage, with later model FK and rendering retained by consumers.
- * @evidence contracts/performance.md#reuse-equivalent-work Guard records and named technique poses are reused by multiple local beats, while sequencing copies shifted keys and borrows pose data; each call independently assembles its authored motion.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One fixed module guard vocabulary persists and returned keys borrow local/shared joint and root records, which consumers must not mutate through one beat. No physics task, playback clock, worker or GPU handle is acquired.
+ * @evidence contracts/development/implementation.md#principled-implementation Bone-keyed guard merging forms each pose, fixed beat builders state every return to guard and canonical sequenceMotion concatenates their exact timing while preserving seam easing.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Named pose/beat vocabulary keeps the authored sequence visible in one producer; engine interpolation and the page's humanoid axes/rest-frame/optional clamp remain separate consumers.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Conventional technique angles, timing fractions and roots are not physiological observations or contact proof; no solver tolerance or fixture-specific replacement makes the choreography valid.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment identifies angular/root/time units, guarded beat composition and the limits of technique labels.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The fixed technique/beat population bounds guard-Map construction and total key generation; sequencing traverses all k keys in O(k) time/storage, with later model FK and rendering retained by consumers.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Guard records and named technique poses are reused by multiple local beats, while sequencing copies shifted keys and borrows pose data; each call independently assembles its authored motion.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One fixed module guard vocabulary persists and returned keys borrow local/shared joint and root records, which consumers must not mutate through one beat. No physics task, playback clock, worker or GPU handle is acquired.
  */
 export const shadowbox: (sk: string) => IAutoMovieMotion = (
   sk: string,

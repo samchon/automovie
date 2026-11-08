@@ -142,10 +142,11 @@ const inner: IPlanarPoint[] = [
  *    triangulates, covering short, non-finite, repeated, spiked, empty,
  *    self-crossing, touching, escaped, and nested rings.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls triangulateAutoMovieRegion for concavity and holes, including a sheltered first hole; positive triangle winding and boundary-chain conservation catch filled holes or inconsistent coverage as well as declaration-order bridge failure.
- * @evidence contracts/testing.md#independent-expectations Authored dimensions give outer-minus-hole areas independently, and oriented-edge cancellation expresses the triangulation boundary contract without using the ear algorithm. Positive triangle areas and the known total retain 1e-12 absolute area agreement; this numerical chain check is not an exact-arithmetic or rendered proof, and separate source-identity tests own each canonical point's provenance.
- * @evidence contracts/testing.md#distinguishing-cases Covers concavity, multiple/sheltered holes, reversed winding, deterministic rebuilds and short/nonfinite/repeated/spiked/crossing/touching/escaped/nested rings; source-identity tests own point provenance.
- * @evidence contracts/testing.md#execution-ownership The discoverable geometry entry runs portable triangulation and ordinary assertion helpers directly; all cases belong to this function without host startup.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls triangulateAutoMovieRegion for concavity and holes, including a sheltered first hole; positive triangle winding and boundary-chain conservation catch filled holes or inconsistent coverage as well as declaration-order bridge failure.
+ * @evidence contracts/development/testing.md#independent-expectations Authored dimensions give outer-minus-hole areas independently, and oriented-edge cancellation expresses the triangulation boundary contract without using the ear algorithm. Positive triangle areas and the known total retain 1e-12 absolute area agreement; this numerical chain check is not an exact-arithmetic or rendered proof, and separate source-identity tests own each canonical point's provenance.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers concavity, multiple/sheltered holes, reversed winding, deterministic rebuilds and short/nonfinite/repeated/spiked/crossing/touching/escaped/nested rings; source-identity tests own point provenance.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable geometry entry runs portable triangulation and ordinary assertion helpers directly; all cases belong to this function without host startup.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A concave contour triangulates to `points - 2` counter-clockwise triangles).
  */
 export function test_geometry_region_triangulation(): void {
   const concave: IAutoMovieRegionTriangulation = triangulateAutoMovieRegion({

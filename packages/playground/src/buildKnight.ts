@@ -47,13 +47,13 @@ const mat: (
  *
  * The returned model and top-level skeleton share one knight-identified skeleton wrapper and borrow the fresh stick figure's bone array. Armour consists of overlapping primitives rather than continuous shared-boundary surfaces.
  *
- * @evidence contracts/common.md#principled-implementation The canonical stick figure supplies rest bones/base parts; authored rigid attachments place props on head/right hand/left forearm and the lance flag filters exactly its three named parts.
- * @evidence contracts/common.md#clear-and-simple-design One model producer adds explicit prop parts/materials, leaving attachment resolution, motion and GPU lifetime to the existing pages and viewer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Fixed prop dimensions, steel palette and approximate shield quaternion are demonstration choices rather than physical observations; primitive overlaps remain disclosed and both consumers receive the same actual skeleton identity.
- * @evidence contracts/common.md#meaningful-documentation The comment defines metre prop construction, optional lance, separate placement/render ownership and rigid representation limits.
- * @evidence contracts/performance.md#efficient-algorithms A fixed stick figure and ten extras bound assembly/filter work; primitive tessellation, animation and upload occur in the viewer and retain their full cost.
- * @evidence contracts/performance.md#reuse-equivalent-work One fresh stick figure per call supplies all base geometry and eye/pupil materials; added model shells borrow those arrays' members and no numerical build is cached across calls.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned model and shared skeleton data belong to the page or GLB exporter, with no producer-owned worker/GPU/timer. Viewer consumers own upload disposal.
+ * @evidence contracts/development/implementation.md#principled-implementation The canonical stick figure supplies rest bones/base parts; authored rigid attachments place props on head/right hand/left forearm and the lance flag filters exactly its three named parts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One model producer adds explicit prop parts/materials, leaving attachment resolution, motion and GPU lifetime to the existing pages and viewer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Fixed prop dimensions, steel palette and approximate shield quaternion are demonstration choices rather than physical observations; primitive overlaps remain disclosed and both consumers receive the same actual skeleton identity.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment defines metre prop construction, optional lance, separate placement/render ownership and rigid representation limits.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A fixed stick figure and ten extras bound assembly/filter work; primitive tessellation, animation and upload occur in the viewer and retain their full cost.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One fresh stick figure per call supplies all base geometry and eye/pupil materials; added model shells borrow those arrays' members and no numerical build is cached across calls.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned model and shared skeleton data belong to the page or GLB exporter, with no producer-owned worker/GPU/timer. Viewer consumers own upload disposal.
  */
 export const buildKnight: (opts?: {
   /** Include the three-part lance unless explicitly false; helmet, plume and shield remain present. */

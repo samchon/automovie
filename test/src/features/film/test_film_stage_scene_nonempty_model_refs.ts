@@ -12,10 +12,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * Scenarios:
  * 1. A whitespace-only cast model reference fails before scene composition.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs stageScene with one whitespace-only non-null cast modelRef and requires refusal at the script model field, catching bypass of the nonblank asset-key gate.
- * @evidence contracts/testing.md#independent-expectations A non-null authored model reference must be nonblank rather than invoke the null fallback; the literal script path and type kind provide the expectation.
- * @evidence contracts/testing.md#distinguishing-cases Keeps the second actor's null modelRef while refusing the first actor's blank reference; successful explicit and null fallback resolution belongs to the valid staging case.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns this portable cast-reference case and directly calls staging with existing records, without loading model assets or launching a consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs stageScene with one whitespace-only non-null cast modelRef and requires refusal at the script model field, catching bypass of the nonblank asset-key gate.
+ * @evidence contracts/development/testing.md#independent-expectations A non-null authored model reference must be nonblank rather than invoke the null fallback; the literal script path and type kind provide the expectation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps the second actor's null modelRef while refusing the first actor's blank reference; successful explicit and null fallback resolution belongs to the valid staging case.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns this portable cast-reference case and directly calls staging with existing records, without loading model assets or launching a consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A whitespace-only cast model reference fails before scene composition.).
  */
 export function test_film_stage_scene_nonempty_model_refs(): void {
   const base: ReturnType<typeof makeScriptWrite> = makeScriptWrite();

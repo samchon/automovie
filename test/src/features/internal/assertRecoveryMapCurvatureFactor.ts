@@ -1,4 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieSimplexAtom } from "../../../../packages/engine/src/math/IAutoMovieSimplexAtom";
 import { createRecoveryMapTriangularMetric } from "../../../../packages/recovery/src/internal/createRecoveryMapTriangularMetric";
 import { differentiateRecoveryMapProjection } from "../../../../packages/recovery/src/internal/differentiateRecoveryMapProjection";
@@ -16,10 +17,10 @@ import { nclose } from "../internal/nclose";
  * 2. Point, camera and fixed-row arithmetic refusals precede a distinct post-return inverse overflow.
  * 3. Malformed rows, scales, factors and chart holes throw even when a later pivot would refuse optional arithmetic.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises factor construction, whitening and both triangular actions plus chart ownership through their actual source functions.
- * @evidence contracts/testing.md#independent-expectations The separately authored upper factor defines dense R-transpose-R and physical D scaling; explicit malformed counts and stage reasons distinguish ownership from arithmetic absence.
- * @evidence contracts/testing.md#distinguishing-cases Includes offdiagonal coupling, nonunit D, indefinite point and Schur blocks, finite overflow, sparse holes and error precedence. The calling entry owns local derivative values, assembly, seed copying and actual camera lifecycle cases.
- * @evidence contracts/testing.md#execution-ownership Called once by portable test_recovery_lagged_curvature in its existing sequence. It has no discoverable test entry or process, filesystem, image or GPU access and retains no borrowed chart input after return.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises factor construction, whitening and both triangular actions plus chart ownership through their actual source functions.
+ * @evidence contracts/development/testing.md#independent-expectations The separately authored upper factor defines dense R-transpose-R and physical D scaling; explicit malformed counts and stage reasons distinguish ownership from arithmetic absence.
+ * @evidence contracts/development/testing.md#distinguishing-cases Includes offdiagonal coupling, nonunit D, indefinite point and Schur blocks, finite overflow, sparse holes and error precedence. The calling entry owns local derivative values, assembly, seed copying and actual camera lifecycle cases.
+ * @evidence contracts/development/testing.md#execution-ownership Called once by portable test_recovery_lagged_curvature in its existing sequence. It has no discoverable test entry or process, filesystem, image or GPU access and retains no borrowed chart input after return.
  */
 export function assertRecoveryMapCurvatureFactor(
   pose: IAutoMovieRecoveryMapPose,

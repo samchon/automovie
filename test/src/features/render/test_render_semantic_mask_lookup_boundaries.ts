@@ -19,10 +19,11 @@ import { createSemanticMaskTestInputs } from "../internal/createSemanticMaskTest
  * 1. An unknown colour returns null and lowercase input resolves the actual door leaf.
  * 2. A dangling owner yields no ancestor; a two-node ownership cycle stops after the one distinct ancestor.
  *
- * @evidence contracts/testing.md#behavioral-verification Resolves actual and authored exceptional masks, checking unknown/lowercase colour handling and finite ancestor prefixes for missing owners or cycles.
- * @evidence contracts/testing.md#independent-expectations The declared absent owner yields zero ancestors and the two-entry a/b cycle yields only b; the actual leaf's lowercase spelling must resolve its declared id. Exceptional masks are deliberately unverified and do not certify digest/schema admission.
- * @evidence contracts/testing.md#distinguishing-cases Unknown and case-normalized colour, dangling owner and a two-node cycle retain distinct lookup branches; palette derivation and evidence admission belong to other units.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_semantic_mask_lookup_boundaries owns its cases. Portable direct lookup over resident mask records, with no sampled pixel, renderer or dynamic test registry.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves actual and authored exceptional masks, checking unknown/lowercase colour handling and finite ancestor prefixes for missing owners or cycles.
+ * @evidence contracts/development/testing.md#independent-expectations The declared absent owner yields zero ancestors and the two-entry a/b cycle yields only b; the actual leaf's lowercase spelling must resolve its declared id. Exceptional masks are deliberately unverified and do not certify digest/schema admission.
+ * @evidence contracts/development/testing.md#distinguishing-cases Unknown and case-normalized colour, dangling owner and a two-node cycle retain distinct lookup branches; palette derivation and evidence admission belong to other units.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_semantic_mask_lookup_boundaries owns its cases. Portable direct lookup over resident mask records, with no sampled pixel, renderer or dynamic test registry.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An unknown colour returns null and lowercase input resolves the actual door leaf.).
  */
 export function test_render_semantic_mask_lookup_boundaries(): void {
   const {

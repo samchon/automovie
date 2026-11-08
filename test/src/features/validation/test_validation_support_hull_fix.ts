@@ -18,10 +18,11 @@ const v: (x: number, z: number) => IAutoMovieVector3 = (
  *    classify a centered COM as stable.
  * 2. An overhanging COM with the crossed corner order emits one advisory warning.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls support-toppling detection with ordered and crossed representations of one square. A centered COM must remain stable in both, while an overhanging crossed input must retain physical advice instead of accepting a self-crossing polygon interpretation.
- * @evidence contracts/testing.md#independent-expectations The four corners enclose (1,1) in XZ and exclude (5,1), independently of input order. Authored convex geometry supplies this oracle; the test does not infer actual mass distribution or simulate a physical body falling.
- * @evidence contracts/testing.md#distinguishing-cases The same centered COM contrasts ordered/crossed points, then an exterior COM distinguishes the crossed input's warning branch. Margin, degenerate support and fall-event details belong to support-topple cases; this unit isolates order independence.
- * @evidence contracts/testing.md#execution-ownership This named unit directly invokes portable geometric classification with local vectors. It creates no rigid-body host, Human geometry or renderer and registers no additional harness cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls support-toppling detection with ordered and crossed representations of one square. A centered COM must remain stable in both, while an overhanging crossed input must retain physical advice instead of accepting a self-crossing polygon interpretation.
+ * @evidence contracts/development/testing.md#independent-expectations The four corners enclose (1,1) in XZ and exclude (5,1), independently of input order. Authored convex geometry supplies this oracle; the test does not infer actual mass distribution or simulate a physical body falling.
+ * @evidence contracts/development/testing.md#distinguishing-cases The same centered COM contrasts ordered/crossed points, then an exterior COM distinguishes the crossed input's warning branch. Margin, degenerate support and fall-event details belong to support-topple cases; this unit isolates order independence.
+ * @evidence contracts/development/testing.md#execution-ownership This named unit directly invokes portable geometric classification with local vectors. It creates no rigid-body host, Human geometry or renderer and registers no additional harness cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A CCW square and the same four corners in a self-crossing "bowtie" order both).
  */
 export function test_validation_support_hull_fix(): void {
   const ordered: IAutoMovieVector3[] = [v(0, 0), v(2, 0), v(2, 2), v(0, 2)];

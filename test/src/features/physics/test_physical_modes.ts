@@ -9,6 +9,12 @@ import { PhysicalFixtures as Fixtures } from "../internal/PhysicalFixtures";
  * 1. A kinematic moving collider transfers momentum to a simulated receiver.
  * 2. A declared three-times impulse policy changes the first actual response.
  * 3. A fully kinematic scene performs no dynamics steps and retains authored poses.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMoviePhysicalSimulation` on in-memory inputs and asserts the returned observations through 3x TestValidator.predicate; 3 numbered scenarios (first: A kinematic moving collider transfers momentum to a simulated receiver.; last: A fully kinematic scene performs no dynamics steps and retains authored poses.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
+ * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (3 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contributes 3 numbered scenarios (first: A kinematic moving collider transfers momentum to a simulated receiver.; last: A fully kinematic scene performs no dynamics steps and retains authored poses.), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
+ * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_modes`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A kinematic moving collider transfers momentum to a simulated receiver.).
  */
 export async function test_physical_modes(): Promise<void> {
   const velocities: number[] = [];

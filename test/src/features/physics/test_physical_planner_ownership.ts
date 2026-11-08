@@ -10,6 +10,12 @@ import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
  * 1. Caller edits to height and exposed step records do not change queries.
  * 2. Zero declared pitch stays zero; a supplied peak is retained exactly.
  * 3. Reordered reads preserve both planted and swinging samples.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMovieStepPlanner` on in-memory inputs and asserts the returned observations through 1x TestValidator.equals, 2x TestValidator.predicate; 3 numbered scenarios (first: Caller edits to height and exposed step records do not change queries.; last: Reordered reads preserve both planted and swinging samples.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
+ * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (2 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contributes 3 numbered scenarios (first: Caller edits to height and exposed step records do not change queries.; last: Reordered reads preserve both planted and swinging samples.), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
+ * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_planner_ownership`, which owns the cases delegated to `PhysicalModelFixtures`, `PhysicalSupportFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Caller edits to height and exposed step records do not change queries.).
  */
 export function test_physical_planner_ownership(): void {
   const pattern: Planner.IInput["pattern"] = PhysicalSupportFixtures.body(

@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryImageLoft } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryImageLoft } from "@automovie/interface";
 
 import type { IAutoMovieRecoveryImageDirectionRank } from "./IAutoMovieRecoveryImageDirectionRank";
 import type { IAutoMovieRecoveryImageFitCounts } from "./IAutoMovieRecoveryImageFitCounts";
@@ -10,13 +10,10 @@ import type { IAutoMovieRecoveryImageSource } from "./IAutoMovieRecoveryImageSou
  * correspondence, surface distance or a rigidity proof. The QR diagonal ratio
  * is an operational rank diagnostic, not a covariance or certified condition.
  *
- * @evidence contracts/common.md#principled-implementation Separate source-free coefficients, actual compared support populations and directional/fitting rank diagnostics expose what the inverse problem identified conditionally on its family and cameras.
- * @evidence contracts/common.md#clear-and-simple-design This report joins one recipe to its numerical and provenance receipt without making dense measurements generation dependencies.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No residual, coefficient count or supplied-camera success is promoted to an observed hidden surface or estimated camera result.
- * @evidence contracts/common.md#meaningful-documentation States pixel residual meaning, conditional rank, free-scalar count and separate analytic-versus-photograph cohorts.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This result contract performs no fitting or traversal.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record owns no factorization or cross-request cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returned recipe and report arrays belong to the caller and acquire no resource handle.
+ * @evidence contracts/development/design.md#principled-representation Separate source-free coefficients, actual compared support populations and directional/fitting rank diagnostics expose what the inverse problem identified conditionally on its family and cameras.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface This report joins one recipe to its numerical and provenance receipt without making dense measurements generation dependencies.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No residual, coefficient count or supplied-camera success is promoted to an observed hidden surface or estimated camera result.
+ * @evidence contracts/development/common.md#meaningful-documentation States pixel residual meaning, conditional rank, free-scalar count and separate analytic-versus-photograph cohorts.
  */
 export interface IAutoMovieRecoveryImageFit {
   /** Source-independent recipe with unresolved regions preserved. */

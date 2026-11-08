@@ -23,10 +23,11 @@ import { hasViolation, nclose } from "../internal/predicates";
  * 5. All authored radius channels remain exact CPU material metadata under the subsurface hook; opaque material omits it.
  * 6. Negative/nonfinite radii refuse while the authored nonnegative radius is admitted, then locally owned materials are disposed.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual lookup/fragment/material/validation owners; judges clamped cosine, terminator transport and integrated mean with independent numeric predicates.
- * @evidence contracts/testing.md#independent-expectations An independently integrated clamped-cosine mean and authored radius values define expectations; quadrature error is bounded by stated tolerances rather than a copied table or clinical tissue model.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts no/wide/intermediate blur, translucent/opaque metadata and negative/nonfinite/admitted radii; returned source/key checks do not prove successful GPU compilation or rendered translucency.
- * @evidence contracts/testing.md#execution-ownership The named entry uses existing model records and CPU Three shader strings/materials, mutates no SDK registry and leaves shared lookup lifetime with its actual product owner.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual lookup/fragment/material/validation owners; judges clamped cosine, terminator transport and integrated mean with independent numeric predicates.
+ * @evidence contracts/development/testing.md#independent-expectations An independently integrated clamped-cosine mean and authored radius values define expectations; quadrature error is bounded by stated tolerances rather than a copied table or clinical tissue model.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts no/wide/intermediate blur, translucent/opaque metadata and negative/nonfinite/admitted radii; returned source/key checks do not prove successful GPU compilation or rendered translucency.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry uses existing model records and CPU Three shader strings/materials, mutates no SDK registry and leaves shared lookup lifetime with its actual product owner.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The no-blur table row matches clamped cosine at every tabulated coordinate.).
  */
 export function test_viewer_subsurface_shading(): void {
   const table: number[][] = subsurfaceTable();

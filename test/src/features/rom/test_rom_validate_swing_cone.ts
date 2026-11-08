@@ -40,10 +40,11 @@ const coneItems: (
  * 2. A 30/30-degree corner stays inside the cone and produces no fault.
  * 3. Each single 50-degree axis passes with its partner at rest; 150-degree flexion fails identically with null and zero abduction.
  *
- * @evidence contracts/testing.md#behavioral-verification Validates combined and single-axis swing under a declared 100-degree cap, requiring the corner's one located fault and preserving accepted modest poses and null/zero parity.
- * @evidence contracts/testing.md#independent-expectations Two orthogonal 90-degree rotations give 120-degree swing from their half-angle cosine product, so overshoot is 20; a single 150-degree axis exceeds the cap and rest contributes zero. Comparing null and explicit-zero reports is a consistency check, supplemented by the independently required one-fault verdict.
- * @evidence contracts/testing.md#distinguishing-cases Covers coupled corner refusal, modest coupled acceptance, each accepted single axis and an over-limit single axis with both omitted and explicit-zero partner; interval and immobile-axis faults are separate entries.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns each local collector and uses the existing joint fixture; no process, native artifact, viewer or dynamic registration participates.
+ * @evidence contracts/development/testing.md#behavioral-verification Validates combined and single-axis swing under a declared 100-degree cap, requiring the corner's one located fault and preserving accepted modest poses and null/zero parity.
+ * @evidence contracts/development/testing.md#independent-expectations Two orthogonal 90-degree rotations give 120-degree swing from their half-angle cosine product, so overshoot is 20; a single 150-degree axis exceeds the cap and rest contributes zero. Comparing null and explicit-zero reports is a consistency check, supplemented by the independently required one-fault verdict.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers coupled corner refusal, modest coupled acceptance, each accepted single axis and an over-limit single axis with both omitted and explicit-zero partner; interval and immobile-axis faults are separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns each local collector and uses the existing joint fixture; no process, native artifact, viewer or dynamic registration participates.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A 90/90-degree corner has 120-degree swing and one swing fault, 20 degrees beyond the cap.).
  */
 export function test_rom_validate_swing_cone(): void {
   // 1. past the cone

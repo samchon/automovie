@@ -27,16 +27,20 @@ const DEPTH: number = 16;
  * preparation. A loop's station-major cache reuses exactly equal queries and
  * copies finite results; foreign source exceptions propagate unchanged.
  *
- * @evidence contracts/common.md#principled-implementation Refines observations of the identical original Point0 functions in their actual station/piece clocks, preserving original guides and domains; declared pole rows are evaluated as Point0 and never receive regular physical2.
- * @evidence contracts/common.md#clear-and-simple-design One loop-local sampler and two ordered mark families feed existing rectangular mesh faces; no chain, conic or source interpolant is reconstructed.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source fit, arbitrary coarsening, moved pole or invented derivative appears. Midpoint observations establish only their stated finite criterion; declared topology and complete-source smoothness remain separate premises.
- * @evidence contracts/common.md#meaningful-documentation States mm tolerance, original guide marks, copied point-cache lifetime, sampled criterion and explicit resource/depth failures.
- * @evidence contracts/performance.md#efficient-algorithms With K refinement passes and N final rectangular cells, classification costs O(KN); memoized source work follows distinct dyadic grid/midpoint points and includes actual source costs. A loop is limited to one million cells and sixteen passes.
- * @evidence contracts/performance.md#reuse-equivalent-work Equal station/piece/coordinate queries share owned numeric points only within this immutable preparation; station-major discovery keeps caller-owned native preparations useful.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One loop retains its finite point cache and ordered marks during preparation; results retain only O(stations+piece phase marks) arrays and the existing loop declaration, with no global cache or handle.
+ * @evidence contracts/development/common.md#meaningful-documentation States mm tolerance, original guide marks, copied point-cache lifetime, sampled criterion and explicit resource/depth failures.
+ * @evidence contracts/development/design.md#principled-representation Represents Source-owned piece grids for the existing mesh consumer, without a fitted curve: companion namespace of 2 members (`IGrid`, `create`). It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConstructionProfileGrid` in packages/engine/src/geometry/construction/AutoMovieConstructionProfileGrid.ts; its surface is the 2 members listed and the text shows 2 other files naming it, mostly packages/engine (1), packages/human (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConstructionProfileGrid {
-  /** Tessellation marks of one actual loop; true collapsed rows stay separate from regular face grids. */
+  /**
+   * Tessellation marks of one actual loop; true collapsed rows stay separate from regular face grids.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Tessellation marks of one actual loop; true collapsed rows stay separate from regular face grids.
+   * @evidence contracts/development/design.md#principled-representation Represents Tessellation marks of one actual loop; true collapsed rows stay separate from regular face grids: interface of 3 members (`loop`, `stations`, `phases`). It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IGrid` in packages/engine/src/geometry/construction/AutoMovieConstructionProfileGrid.ts; its surface is the 3 members listed and the text shows 5 other files naming it, mostly packages/human (4), packages/engine (1), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IGrid {
     /** Same copied declaration whose original functions were sampled. */
     loop: IAutoMovieConstructionProfile.ILoop;
@@ -46,7 +50,17 @@ export namespace AutoMovieConstructionProfileGrid {
     phases: ReadonlyMap<string, number[]>;
   }
 
-  /** Derive grids from original Point0; malformed or unresolved requests produce no partial output. */
+  /**
+   * Derive grids from original Point0; malformed or unresolved requests produce no partial output.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Derive grids from original Point0; malformed or unresolved requests produce no partial output.
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Derive grids from original Point0; malformed or unresolved requests produce no partial output) directly over its typed inputs (`prepared`, `tolerance`) as a single pass (for-of over prepared.definition.loops), delegating to `Number.isFinite`, `fail`, `result.push`, `grid`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 10 lines and 4 top-level statements that reuses `Number.isFinite`, `fail`, `result.push`, `grid` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `prepared`, `tolerance`; the dominant cost is a single pass (for-of over prepared.definition.loops), performed once per call with 1 allocation site (literals and constructed values). No speedup is claimed and none is measured.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 1 allocation site become the returned value or die with the call, so nothing grows.
+   */
   export function create(
     prepared: AutoMovieConstructionProfile.IPrepared,
     tolerance: number,

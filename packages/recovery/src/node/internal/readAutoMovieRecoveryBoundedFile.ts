@@ -6,13 +6,13 @@ import fs from "node:fs";
  * Concurrent replacement or mutation is not an immutable-source guarantee; callers
  * bind complete returned bytes to their expected hash before using them.
  *
- * @evidence contracts/common.md#principled-implementation Descriptor metadata admits a finite regular-file size before allocation, exact reads detect truncation and a one-byte probe detects appended content before transfer.
- * @evidence contracts/common.md#clear-and-simple-design This host helper owns only bounded file acquisition and cleanup while format and hash admission remain with command callers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No unbounded readFile, partial prefix acceptance, retry on changed content or fallback path supplies bytes.
- * @evidence contracts/common.md#meaningful-documentation States regular-file and byte-budget admission, concurrent-mutation limitation, complete-byte caller hashing and guaranteed descriptor cleanup.
- * @evidence contracts/performance.md#efficient-algorithms Reads B admitted bytes once with O(B) caller-owned output and a one-byte probe; allocation never follows an unadmitted growing file size.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each explicit file acquisition has its own byte effect and is not cached.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One descriptor is acquired after budget validation and closed in finally on success or failure; at most maxBytes plus one probe byte is allocated by this helper.
+ * @evidence contracts/development/implementation.md#principled-implementation Descriptor metadata admits a finite regular-file size before allocation, exact reads detect truncation and a one-byte probe detects appended content before transfer.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This host helper owns only bounded file acquisition and cleanup while format and hash admission remain with command callers.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unbounded readFile, partial prefix acceptance, retry on changed content or fallback path supplies bytes.
+ * @evidence contracts/development/common.md#meaningful-documentation States regular-file and byte-budget admission, concurrent-mutation limitation, complete-byte caller hashing and guaranteed descriptor cleanup.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Reads B admitted bytes once with O(B) caller-owned output and a one-byte probe; allocation never follows an unadmitted growing file size.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each explicit file acquisition has its own byte effect and is not cached.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One descriptor is acquired after budget validation and closed in finally on success or failure; at most maxBytes plus one probe byte is allocated by this helper.
  */
 export function readAutoMovieRecoveryBoundedFile(
   file: string,

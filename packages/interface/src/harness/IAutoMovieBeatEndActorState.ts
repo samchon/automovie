@@ -16,10 +16,10 @@ import { IAutoMovieMountBinding } from "./IAutoMovieMountBinding";
  *
  * The state also carries gait phase, estimated root velocity, stance targets and persistent mount. These are resumption inputs, not proof of physically continuous motion: the reference synthesizer resumes horizontal speed magnitude, retaining authored speed at or below 1e-6 m/s, and the sampled ground-IK solve can retain contact residual. Each absent fact is `null`, allowing static props and walkers to share the shape.
  *
- * @evidence contracts/common.md#principled-implementation `resolveBeatSnapshot` samples the motions the shot actually plays, folds the pose root through the staged transform with `foldRoot` or takes a baked object clip's transform, rotates `+z` by the result for `facing`, and derives phase, velocity and plants with `gaitPhaseOf`, `rootVelocityOf` and `plantsAtEnd`.
- * @evidence contracts/common.md#clear-and-simple-design One record per scene node holds the placement, the articulation and the four resumable facts, with `null` for an inapplicable fact rather than separate record shapes for props, walkers and riders.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The state is measured from the compiled shot rather than copied from the authored program, so a prop left in a hand ends where the baked clip put it; the pose root is cleared instead of being applied a second time by the next beat.
- * @evidence contracts/common.md#meaningful-documentation States the two producers and instants, the root folding and clearing, and the null convention; members give each value's frame, unit, sampling rule and window, and when each is null.
+ * @evidence contracts/development/design.md#principled-representation `resolveBeatSnapshot` samples the motions the shot actually plays, folds the pose root through the staged transform with `foldRoot` or takes a baked object clip's transform, rotates `+z` by the result for `facing`, and derives phase, velocity and plants with `gaitPhaseOf`, `rootVelocityOf` and `plantsAtEnd`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record per scene node holds the placement, the articulation and the four resumable facts, with `null` for an inapplicable fact rather than separate record shapes for props, walkers and riders.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The state is measured from the compiled shot rather than copied from the authored program, so a prop left in a hand ends where the baked clip put it; the pose root is cleared instead of being applied a second time by the next beat.
+ * @evidence contracts/development/common.md#meaningful-documentation States the two producers and instants, the root folding and clearing, and the null convention; members give each value's frame, unit, sampling rule and window, and when each is null.
  */
 export interface IAutoMovieBeatEndActorState {
   /** Scene node and cast id of the actor. */

@@ -1,5 +1,7 @@
-import type { IAutoMovieRecoveryInput, IAutoMovieRecoveryRegistration } from "@automovie/interface/recovery";
-import type { IAutoMovieRecoveryMeshSections } from "../../structures/mesh/IAutoMovieRecoveryMeshSections";
+import type {
+  IAutoMovieRecoveryInput,
+  IAutoMovieRecoveryRegistration,
+} from "@automovie/interface";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -8,6 +10,7 @@ import { convertAutoMovieRecoveryCurves } from "../../curves/convertAutoMovieRec
 import { observeAutoMovieRecovery } from "../../observation/observeAutoMovieRecovery";
 import { prepareAutoMovieRecoveryInput } from "../../observation/prepareAutoMovieRecoveryInput";
 import { reconstructAutoMovieRecoveryModel } from "../../reconstruction/reconstructAutoMovieRecoveryModel";
+import type { IAutoMovieRecoveryMeshSections } from "../../structures/mesh/IAutoMovieRecoveryMeshSections";
 import type { AutoMovieRecoveryCurveFormat } from "../../typings/AutoMovieRecoveryCurveFormat";
 import type { IAutoMovieRecoveryResult } from "../../typings/IAutoMovieRecoveryResult";
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
@@ -21,13 +24,13 @@ import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecove
  * source epoch argument identifies a frozen source commit. curveFormat selects all
  * saved cubic occurrences; reconstruction admits either saved cubic basis.
  *
- * @evidence contracts/common.md#principled-implementation Complete-byte hashes admit each fixed input; independent extract and reconstruct commands make source-free geometry consumption observable.
- * @evidence contracts/common.md#clear-and-simple-design The CLI owns byte admission and atomic publication, public recovery operations own terminal states and orchestration, and existing engine operations retain shared curve and surface computation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject name, rig field, source control table or normal field is read. Existing output bytes are never overwritten.
- * @evidence contracts/common.md#meaningful-documentation States full extraction, explicit incomplete prefix extraction and curve-only reconstruction, with input structure, physical units and pre-execution source epoch requirement.
- * @evidence contracts/performance.md#efficient-algorithms JSON parsing and mesh assembly are linear in input bytes and geometry; downstream operators document extraction and tessellation costs.
- * @evidence contracts/performance.md#reuse-equivalent-work Each input is read and hashed once; the generated model and construction share one completed engine result.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Synchronous reads close their handles; arrays live for one command and immutable outputs are caller-owned.
+ * @evidence contracts/development/implementation.md#principled-implementation Complete-byte hashes admit each fixed input; independent extract and reconstruct commands make source-free geometry consumption observable.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The CLI owns byte admission and atomic publication, public recovery operations own terminal states and orchestration, and existing engine operations retain shared curve and surface computation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No subject name, rig field, source control table or normal field is read. Existing output bytes are never overwritten.
+ * @evidence contracts/development/common.md#meaningful-documentation States full extraction, explicit incomplete prefix extraction and curve-only reconstruction, with input structure, physical units and pre-execution source epoch requirement.
+ * @evidence contracts/development/implementation.md#efficient-algorithms JSON parsing and mesh assembly are linear in input bytes and geometry; downstream operators document extraction and tessellation costs.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each input is read and hashed once; the generated model and construction share one completed engine result.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Synchronous reads close their handles; arrays live for one command and immutable outputs are caller-owned.
  */
 export function recovery(
   args: string[],
@@ -109,7 +112,11 @@ export function recovery(
         elapsedMs: loaded - started,
       }),
     );
-    let admittedInput: IAutoMovieRecoveryInput = { ...spec.policy, verticesMm, triangles };
+    let admittedInput: IAutoMovieRecoveryInput = {
+      ...spec.policy,
+      verticesMm,
+      triangles,
+    };
     if (spec.registration !== undefined) {
       const admitted: ReturnType<typeof prepareAutoMovieRecoveryInput> =
         prepareAutoMovieRecoveryInput({
@@ -180,7 +187,9 @@ export function recovery(
     };
     console.log(JSON.stringify(bundle.summary));
   } else {
-    const bundle: IAutoMovieRecoveryMeshSections = JSON.parse(bytes.toString("utf8"));
+    const bundle: IAutoMovieRecoveryMeshSections = JSON.parse(
+      bytes.toString("utf8"),
+    );
     const reconstructed: ReturnType<typeof reconstructAutoMovieRecoveryModel> =
       reconstructAutoMovieRecoveryModel(bundle, { observeWork: true });
     if (!("value" in reconstructed))

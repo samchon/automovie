@@ -19,10 +19,11 @@ type Vertex = [number, readonly [number, number]];
  *    missing endpoint, invalid cover turn and nonfinite point fail explicitly.
  * 4. Inputs remain unchanged and repeated results do not borrow mutable arrays.
  *
- * @evidence contracts/testing.md#behavioral-verification Reads original vertex IDs, directed incidence counts, cover lifts and winding from the internal walker; it does not infer production triangulation or face membership from those walks.
- * @evidence contracts/testing.md#independent-expectations Elementary planar geometry gives four area-4 triangles and one area-minus-16 exterior square; a 4-by-3 half-period band gives two area-12 rectangles and exterior windings plus/minus one. Every undirected edge contributes two incidences.
- * @evidence contracts/testing.md#distinguishing-cases Exercises degree four, disconnected exterior components, periodic identification, three units, a dangling branch, empty input, malformed subdivision and output ownership without removing an expected edge.
- * @evidence contracts/testing.md#execution-ownership Discoverable synchronous CPU unit reached by --include construction_chart_incidence; starts no Human generation, host, renderer or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads original vertex IDs, directed incidence counts, cover lifts and winding from the internal walker; it does not infer production triangulation or face membership from those walks.
+ * @evidence contracts/development/testing.md#independent-expectations Elementary planar geometry gives four area-4 triangles and one area-minus-16 exterior square; a 4-by-3 half-period band gives two area-12 rectangles and exterior windings plus/minus one. Every undirected edge contributes two incidences.
+ * @evidence contracts/development/testing.md#distinguishing-cases Exercises degree four, disconnected exterior components, periodic identification, three units, a dangling branch, empty input, malformed subdivision and output ownership without removing an expected edge.
+ * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU unit reached by --include construction_chart_incidence; starts no Human generation, host, renderer or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A square with both diagonals split at their shared centre has four triangular).
  */
 export function test_construction_chart_incidence(): void {
   const failures: string[] = [];

@@ -103,10 +103,11 @@ const inspect: (bytes: Uint8Array, path?: string) => void = (
  * 3. Trailing chunks: a truncated header, an unaligned length, a chunk that is not BIN, and a second BIN chunk.
  * 4. Payload and profile: JSON that is not valid UTF-8, an unsupported profile, and a path whose extension names no container at all.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls static byte inspection first on a real mesh-bearing positive control and then on individually malformed container fields, requiring their owning diagnostics; an invalid baseline or unrelated profile error cannot validate the negative cases.
- * @evidence contracts/testing.md#independent-expectations Authored GLB magic/version/length/alignment/chunk types and explicit glTF mesh POSITION storage define independent accepted and refused boundaries, including invalid UTF-8.
- * @evidence contracts/testing.md#distinguishing-cases The positive mesh control accompanies short/wrong header fields, zero/unaligned JSON, truncated/unaligned/wrong/duplicate trailing chunks, invalid UTF-8, unsupported profile and unsupported extension; payload/rig semantics are owned by the byte and matrix units.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_inspect_external_model_container entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls static byte inspection first on a real mesh-bearing positive control and then on individually malformed container fields, requiring their owning diagnostics; an invalid baseline or unrelated profile error cannot validate the negative cases.
+ * @evidence contracts/development/testing.md#independent-expectations Authored GLB magic/version/length/alignment/chunk types and explicit glTF mesh POSITION storage define independent accepted and refused boundaries, including invalid UTF-8.
+ * @evidence contracts/development/testing.md#distinguishing-cases The positive mesh control accompanies short/wrong header fields, zero/unaligned JSON, truncated/unaligned/wrong/duplicate trailing chunks, invalid UTF-8, unsupported profile and unsupported extension; payload/rig semantics are owned by the byte and matrix units.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_inspect_external_model_container entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Header: bytes shorter than the mandatory header, a wrong magic, a version other than 2, and a declared length that disagrees with the...).
  */
 export function test_inspect_external_model_container(): void {
   const accepted: ReturnType<typeof inspectAutoMovieExternalModelBytes> =

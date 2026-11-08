@@ -23,10 +23,11 @@ import {
  * 3. A connector landing in either of those spaces is named once.
  * 4. Two building units each answer for their own envelope only, in building-id order, and neither claims the other's face.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls builtEnvironmentBuildingCensus and compares projected building/face/corner/entrance/space/connector ids in declared expected order. Missing envelope members, including an extent-free zone as a volumetric room, duplicate stair membership or cross-unit face ownership would change the observed rows.
- * @evidence contracts/testing.md#independent-expectations The rectangular fixture declares four walls, one roof/slab/opening and two volumetric spaces; a named extent-free zone contributes no room, and two independent units determine separate code-unit-ordered rows without copying the census output.
- * @evidence contracts/testing.md#distinguishing-cases One unit, a stair serving two spaces, an extent-free zone and two units distinguish envelope ownership from room contents; geometric corner locations belong to the corner test.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_building_census imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls builtEnvironmentBuildingCensus and compares projected building/face/corner/entrance/space/connector ids in declared expected order. Missing envelope members, including an extent-free zone as a volumetric room, duplicate stair membership or cross-unit face ownership would change the observed rows.
+ * @evidence contracts/development/testing.md#independent-expectations The rectangular fixture declares four walls, one roof/slab/opening and two volumetric spaces; a named extent-free zone contributes no room, and two independent units determine separate code-unit-ordered rows without copying the census output.
+ * @evidence contracts/development/testing.md#distinguishing-cases One unit, a stair serving two spaces, an extent-free zone and two units distinguish envelope ownership from room contents; geometric corner locations belong to the corner test.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit test_architecture_building_census imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The rectangular hall reports its four facades, its roof, its ground slab, its four corners and the one opening cut through its envelope.).
  */
 export function test_architecture_building_census(): void {
   const census: IAutoMovieBuildingObservationCensus[] =

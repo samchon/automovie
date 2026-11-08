@@ -7,34 +7,55 @@ import { IAutoMovieQuadraticConicProgram } from "./IAutoMovieQuadraticConicProgr
  * without allocating a dense N-by-N matrix. Dense fill is still possible for
  * intrinsically dense graphs; the factor's actual nonzeros own that cost.
  *
- * @evidence contracts/common.md#principled-implementation Exact minimum-degree graph elimination selects a symmetric permutation that preserves the KKT system, using structural entries even when their numeric coefficient is zero.
- * @evidence contracts/common.md#clear-and-simple-design This owner handles ordering only; numerical factorization independently derives its elimination tree and reuses the permutation for the whole solve.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Tie breaking uses input ordinal and no numerical value, fixture or consumer controls the order; no authored coefficient is removed.
- * @evidence contracts/common.md#meaningful-documentation States tie breaking, induced fill, sparse storage and the limitation that dense fill can remain unavoidable.
- * @evidence contracts/performance.md#efficient-algorithms N=n+m vertices and Z edges use adjacency sets plus one N-entry indexed heap. Work is O(sum of elimination-degree squared plus neighbor heap updates times log N), and peak graph memory follows actual filled edges rather than N squared by default.
- * @evidence contracts/performance.md#reuse-equivalent-work One order serves every barrier update within the immutable conic structure; heap positions prevent unbounded stale heap entries.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Eliminated adjacency sets are cleared immediately; heap, graph and positions are call-local and only the N-entry permutation escapes.
+ * @evidence contracts/development/implementation.md#principled-implementation Exact minimum-degree graph elimination selects a symmetric permutation that preserves the KKT system, using structural entries even when their numeric coefficient is zero.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This owner handles ordering only; numerical factorization independently derives its elimination tree and reuses the permutation for the whole solve.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tie breaking uses input ordinal and no numerical value, fixture or consumer controls the order; no authored coefficient is removed.
+ * @evidence contracts/development/common.md#meaningful-documentation States tie breaking, induced fill, sparse storage and the limitation that dense fill can remain unavoidable.
+ * @evidence contracts/development/implementation.md#efficient-algorithms N=n+m vertices and Z edges use adjacency sets plus one N-entry indexed heap. Work is O(sum of elimination-degree squared plus neighbor heap updates times log N), and peak graph memory follows actual filled edges rather than N squared by default.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One order serves every barrier update within the immutable conic structure; heap positions prevent unbounded stale heap entries.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Eliminated adjacency sets are cleared immediately; heap, graph and positions are call-local and only the N-entry permutation escapes.
  */
-export function orderAutoMovieQuadraticMatrix(data: IAutoMovieQuadraticConicProgram): Int32Array {
+export function orderAutoMovieQuadraticMatrix(
+  data: IAutoMovieQuadraticConicProgram,
+): Int32Array {
   const size: number = data.n + data.m;
-  const graph: Set<number>[] = Array.from({ length: size }, (): Set<number> => new Set<number>());
+  const graph: Set<number>[] = Array.from(
+    { length: size },
+    (): Set<number> => new Set<number>(),
+  );
   for (let column: number = 0; column < data.n; column++)
-    for (let at: number = data.columns[column]!; at < data.columns[column + 1]!; at++) {
+    for (
+      let at: number = data.columns[column]!;
+      at < data.columns[column + 1]!;
+      at++
+    ) {
       const row: number = data.n + data.rows[at]!;
       graph[column]!.add(row);
       graph[row]!.add(column);
     }
-  const heap: number[] = Array.from({ length: size }, (_: unknown, i: number): number => i);
-  const degrees: Int32Array = Int32Array.from(graph, (neighbors: Set<number>): number => neighbors.size);
+  const heap: number[] = Array.from(
+    { length: size },
+    (_: unknown, i: number): number => i,
+  );
+  const degrees: Int32Array = Int32Array.from(
+    graph,
+    (neighbors: Set<number>): number => neighbors.size,
+  );
   const positions: Int32Array = Int32Array.from(heap);
   const order: Int32Array = new Int32Array(size);
 
   /** Compare live graph degrees, with an explicit stable ordinal tie. */
-  const precedes: (a: number, b: number) => boolean = (a: number, b: number): boolean =>
+  const precedes: (a: number, b: number) => boolean = (
+    a: number,
+    b: number,
+  ): boolean =>
     degrees[a]! < degrees[b]! || (degrees[a] === degrees[b] && a < b);
 
   /** Repair one key; construction only descends because parent heaps do not yet exist. */
-  const repair: (start: number, rise: boolean) => void = (start: number, rise: boolean): void => {
+  const repair: (start: number, rise: boolean) => void = (
+    start: number,
+    rise: boolean,
+  ): void => {
     let at: number = start;
     const id: number = heap[at]!;
     while (rise && at > 0) {
@@ -46,7 +67,8 @@ export function orderAutoMovieQuadraticMatrix(data: IAutoMovieQuadraticConicProg
     }
     while (2 * at + 1 < heap.length) {
       let child: number = 2 * at + 1;
-      if (child + 1 < heap.length && precedes(heap[child + 1]!, heap[child]!)) child++;
+      if (child + 1 < heap.length && precedes(heap[child + 1]!, heap[child]!))
+        child++;
       if (!precedes(heap[child]!, id)) break;
       heap[at] = heap[child]!;
       positions[heap[at]!] = at;

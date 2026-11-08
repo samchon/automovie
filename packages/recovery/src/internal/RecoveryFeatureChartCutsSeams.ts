@@ -1,4 +1,4 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieCurve64 as C } from "@automovie/engine";
 
 import type { RecoveryFeatureChartCuts } from "./RecoveryFeatureChartCuts";
 
@@ -19,13 +19,13 @@ type Feature = Input["featureEdges"][number];
 /**
  * Publish maximal feature arcs with their two actual coherent boundary banks.
  *
- * @evidence contracts/common.md#principled-implementation Lexical traversal, junction-return anchors and directed bank checks retain the original order and identities.
- * @evidence contracts/common.md#clear-and-simple-design This phase retains its original arithmetic and ordered state transitions while its caller owns orchestration.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Extraction introduces no input correction, geometry fallback, reordered reduction or changed admission condition.
- * @evidence contracts/common.md#meaningful-documentation States the phase responsibility, shared-state ownership and numerical limits inherited from the calling algorithm.
- * @evidence contracts/performance.md#efficient-algorithms Visits expanded feature edges and validates each bank against already materialized topology.
- * @evidence contracts/performance.md#reuse-equivalent-work Uses the existing chart and fan maps without rebuilding or welding vertices.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only returned charts, seams and diagnostics escape; traversal sets and arcs are local.
+ * @evidence contracts/development/implementation.md#principled-implementation Lexical traversal, junction-return anchors and directed bank checks retain the original order and identities.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This phase retains its original arithmetic and ordered state transitions while its caller owns orchestration.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Extraction introduces no input correction, geometry fallback, reordered reduction or changed admission condition.
+ * @evidence contracts/development/common.md#meaningful-documentation States the phase responsibility, shared-state ownership and numerical limits inherited from the calling algorithm.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Visits expanded feature edges and validates each bank against already materialized topology.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the existing chart and fan maps without rebuilding or welding vertices.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only returned charts, seams and diagnostics escape; traversal sets and arcs are local.
  */
 export function RecoveryFeatureChartCutsSeams(
   context: {

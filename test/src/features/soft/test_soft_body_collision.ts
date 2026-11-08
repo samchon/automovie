@@ -56,10 +56,11 @@ const dropped: (
  *    not touched at all and reports zero contacts.
 
  *
- * @evidence contracts/testing.md#behavioral-verification Solver positions and final-step contact counts expose changed analytic escape, centre fallback or least-face policy; the untouched distant box distinguishes real projection from unconditional clamping, without tracing every intermediate contact or independently isolating collider order.
- * @evidence contracts/testing.md#independent-expectations Normalized plane equations, authored sphere radius and explicit box faces provide independent geometry expectations. The buried-centre fallback is intentionally also rejected by domain admission; tests do not certify continuous collision freedom.
- * @evidence contracts/testing.md#distinguishing-cases Preserve nonunit/tilted planes, radial and centre spheres, top/underside box faces and a missed box, with contact counts beside positions; moving capsules belong to wearable tests.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_soft_body_collision; domain admission and solver output are direct seams, without a browser, mock renderer or real contact host.
+ * @evidence contracts/development/testing.md#behavioral-verification Solver positions and final-step contact counts expose changed analytic escape, centre fallback or least-face policy; the untouched distant box distinguishes real projection from unconditional clamping, without tracing every intermediate contact or independently isolating collider order.
+ * @evidence contracts/development/testing.md#independent-expectations Normalized plane equations, authored sphere radius and explicit box faces provide independent geometry expectations. The buried-centre fallback is intentionally also rejected by domain admission; tests do not certify continuous collision freedom.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserve nonunit/tilted planes, radial and centre spheres, top/underside box faces and a missed box, with contact counts beside positions; moving capsules belong to wearable tests.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_soft_body_collision; domain admission and solver output are direct seams, without a browser, mock renderer or real contact host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A half-space with a **non-unit** normal `(0, 2, 0)` and offset `−0.5` holds).
  */
 export function test_soft_body_collision(): void {
   const floor: IAutoMovieSoftBodyState = simulateSoftBody(

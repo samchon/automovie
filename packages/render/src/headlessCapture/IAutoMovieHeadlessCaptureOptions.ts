@@ -11,13 +11,10 @@ import type { IAutoMovieHeadlessPage } from "./IAutoMovieHeadlessPage";
  * Optional fields fall back to the reference viewer's names: `#view`,
  * `#clips`, `__afSeek`, `__afPass`, `["beauty"]` and `load`.
  *
- * @evidence contracts/common.md#principled-implementation Each option is a value the adapter forwards to the page or uses to name files, and the defaults are the names the reference viewers define, so the common case needs only a page, a URL and a writer.
- * @evidence contracts/common.md#clear-and-simple-design One flat options record carries the whole session configuration, and every optional member has one default applied in one place by the adapter.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The defaults are the reference viewer's published hook and element names rather than values for a particular test, and every one can be overridden.
- * @evidence contracts/common.md#meaningful-documentation The doc lists every default, and each member says what it controls, its default, and for `passes` the folding, ordering, file naming, return path and frame-size obligations.
- * @evidenceExclude contracts/performance.md#efficient-algorithms An options record holds values and runs no computation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record is read once at session creation and coordinates nothing to share.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The session closures keep this record, including `page` and `writeFrame`, for as long as the caller keeps the session; the page is released by the session's `close`.
+ * @evidence contracts/development/design.md#principled-representation Each option is a value the adapter forwards to the page or uses to name files, and the defaults are the names the reference viewers define, so the common case needs only a page, a URL and a writer.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One flat options record carries the whole session configuration, and every optional member has one default applied in one place by the adapter.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The defaults are the reference viewer's published hook and element names rather than values for a particular test, and every one can be overridden.
+ * @evidence contracts/development/common.md#meaningful-documentation The doc lists every default, and each member says what it controls, its default, and for `passes` the folding, ordering, file naming, return path and frame-size obligations.
  */
 export interface IAutoMovieHeadlessCaptureOptions {
   /** The page to drive; the session owns it once creation succeeds. */

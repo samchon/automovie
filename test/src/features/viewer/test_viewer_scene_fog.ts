@@ -65,10 +65,11 @@ const shaderTransmittance: (fog: THREE.FogExp2, depth: number) => number = (
  * 4. Predicted transmittance decreases across the selected increasing depths, including the far sample.
  * 5. Structural modes suspend and restore fog, while beauty retains the same native fog object; palette pixels are not measured.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds/clears real FogExp2 scene values, evaluates Engine transmittance and applies/restores guide modes; catches retained absent fog, altered density/color and atmosphere left suspended after a structural pass.
- * @evidence contracts/testing.md#independent-expectations The squared-depth law gives unit transmission at zero, half at sqrt(ln2)/density and one sixteenth at twice that depth; a JavaScript transcription is explicitly a shared-law comparison, not shader arithmetic or pixel proof.
- * @evidence contracts/testing.md#distinguishing-cases Covers omission/null clearing an existing object, selected depths, monotonic distant decay and mask-versus-beauty state identity; malformed fog admission and actual GPU appearance belong elsewhere.
- * @evidence contracts/testing.md#execution-ownership This named portable unit calls maintained Engine/Viewer source and existing generic scene fixtures with CPU-side fog objects, restores pass state and starts no browser, renderer, worker or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds/clears real FogExp2 scene values, evaluates Engine transmittance and applies/restores guide modes; catches retained absent fog, altered density/color and atmosphere left suspended after a structural pass.
+ * @evidence contracts/development/testing.md#independent-expectations The squared-depth law gives unit transmission at zero, half at sqrt(ln2)/density and one sixteenth at twice that depth; a JavaScript transcription is explicitly a shared-law comparison, not shader arithmetic or pixel proof.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers omission/null clearing an existing object, selected depths, monotonic distant decay and mask-versus-beauty state identity; malformed fog admission and actual GPU appearance belong elsewhere.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit calls maintained Engine/Viewer source and existing generic scene fixtures with CPU-side fog objects, restores pass state and starts no browser, renderer, worker or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Absence and null leave a fresh scene without fog and clear an existing fog object. The engine returns unit transmittance; no historical...).
  */
 export function test_viewer_scene_fog(): void {
   // 1. Absence clears an existing fog object.

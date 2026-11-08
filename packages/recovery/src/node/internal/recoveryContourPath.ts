@@ -1,4 +1,4 @@
-import { tessellateAutoMovieContourPath64 as T } from "@automovie/engine/geometry/curve";
+import { tessellateAutoMovieContourPath64 as T } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
@@ -12,13 +12,13 @@ import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecove
  * The input supplies ordered evaluated curves and path instructions, never faces.
  * Each subject receives independently generated geometry and actual boundary lines.
  *
- * @evidence contracts/common.md#principled-implementation The fuchs1977-pair-path-v1 publication supplies only physical polygons and combinatorial path instructions; tessellateAutoMovieContourPath64 owns every new vertex, index and normal.
- * @evidence contracts/common.md#clear-and-simple-design One bounded CLI admits and hashes the immutable publication, compiles each declared subject and publishes its model and generation report in a fresh directory.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source path, source geometry, external triangle list, optimizer replacement or failed-quality geometry filtering enters generation; unsupported-pair counts remain explicit.
- * @evidence contracts/common.md#meaningful-documentation States command, source epoch, source-free publication boundary, bounded file admission and the distinction between path consumption and successful source recovery.
- * @evidence contracts/performance.md#efficient-algorithms File admission is linear in at most 32 MiB input; subjects compile sequentially with engine O(V+T) work and incremental output serialization.
- * @evidence contracts/performance.md#reuse-equivalent-work The input bytes provide one hash for every output; each subject invokes the engine once and reuses that exact result for geometry, construction and ownership reports.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Input bytes and parsed polygons remain live for the bounded command; each generated subject transfers to immutable files before the next iteration. Synchronous handles close and no child process or cache is created.
+ * @evidence contracts/development/implementation.md#principled-implementation The fuchs1977-pair-path-v1 publication supplies only physical polygons and combinatorial path instructions; tessellateAutoMovieContourPath64 owns every new vertex, index and normal.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One bounded CLI admits and hashes the immutable publication, compiles each declared subject and publishes its model and generation report in a fresh directory.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source path, source geometry, external triangle list, optimizer replacement or failed-quality geometry filtering enters generation; unsupported-pair counts remain explicit.
+ * @evidence contracts/development/common.md#meaningful-documentation States command, source epoch, source-free publication boundary, bounded file admission and the distinction between path consumption and successful source recovery.
+ * @evidence contracts/development/implementation.md#efficient-algorithms File admission is linear in at most 32 MiB input; subjects compile sequentially with engine O(V+T) work and incremental output serialization.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The input bytes provide one hash for every output; each subject invokes the engine once and reuses that exact result for geometry, construction and ownership reports.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Input bytes and parsed polygons remain live for the bounded command; each generated subject transfers to immutable files before the next iteration. Synchronous handles close and no child process or cache is created.
  */
 export function recoveryContourPath(args: string[], sourceEpoch: string): void {
   const [inputFile, outputDirectory]: string[] = args;

@@ -33,10 +33,11 @@ const body: (centerOfMass: IAutoMovieBody["centerOfMass"]) => IAutoMovieBody = (
  * 3. No body at all also derives from geometry.
  * 4. No body and no primitive volume (a plane) → null.
  *
- * @evidence contracts/testing.md#behavioral-verification Resolves model centers through bodyCenterOfMass, requiring authored override precedence, geometric fallback and null when no volume exists; a wrapper that always derives or always requires a body fails.
- * @evidence contracts/testing.md#independent-expectations The authored offset and a symmetric unit box's origin are explicit expectations, independent of deriveCenterOfMass output. The fixture does not prove reference identity or arbitrary articulated density.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts non-null override, null center, absent body and plane-only absence; aggregate volume weighting and primitive formulas belong to neighboring physics units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit calls the engine with existing in-memory prop fixtures and owns all assertions without hosts or dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves model centers through bodyCenterOfMass, requiring authored override precedence, geometric fallback and null when no volume exists; a wrapper that always derives or always requires a body fails.
+ * @evidence contracts/development/testing.md#independent-expectations The authored offset and a symmetric unit box's origin are explicit expectations, independent of deriveCenterOfMass output. The fixture does not prove reference identity or arbitrary articulated density.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts non-null override, null center, absent body and plane-only absence; aggregate volume weighting and primitive formulas belong to neighboring physics units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit calls the engine with existing in-memory prop fixtures and owns all assertions without hosts or dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An explicit body.centerOfMass is returned as-is (overrides geometry).).
  */
 export function test_physics_body_center_of_mass(): void {
   TestValidator.predicate(

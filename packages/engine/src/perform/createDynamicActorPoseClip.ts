@@ -28,13 +28,13 @@ const boneTargetTimes: (
 /**
  * Bake a live pose callback at 24 Hz plus exact caller landmarks over a positive second duration. Return null if any callback sample cannot resolve; successful samples form a non-looping linear clinical-pose clip.
  *
- * @evidence contracts/common.md#principled-implementation Uses an endpoint-inclusive grid with at least two samples, deduplicates and sorts landmark times, then samples each instant once; admitted finite duration and in-span landmarks come from the reference synthesis envelopes.
- * @evidence contracts/common.md#clear-and-simple-design One sampling primitive serves animated gaze, extension and jab envelopes so their null propagation and keyframe timing agree.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The 24 Hz bake is an approximation between samples and does not prove continuous contact or ROM safety; a callback exception propagates rather than producing a partial clip.
- * @evidence contracts/common.md#meaningful-documentation States 24 Hz, exact landmarks, linear output, whole-clip null refusal, propagated callback errors and inter-key approximation.
- * @evidence contracts/performance.md#efficient-algorithms For F grid plus landmark instants, sorting costs O(F log F), callback cost is summed once per distinct instant, and storage is O(F) plus the returned poses.
- * @evidence contracts/performance.md#reuse-equivalent-work Duplicate landmarks are collapsed before callback evaluation; no cache spans actions because live target and actor-frame callbacks may depend on different shot times.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The invocation owns the grid and keyframes, releases partial output on null/throw, and returns successful callback poses by reference; no external handle or task is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses an endpoint-inclusive grid with at least two samples, deduplicates and sorts landmark times, then samples each instant once; admitted finite duration and in-span landmarks come from the reference synthesis envelopes.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One sampling primitive serves animated gaze, extension and jab envelopes so their null propagation and keyframe timing agree.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 24 Hz bake is an approximation between samples and does not prove continuous contact or ROM safety; a callback exception propagates rather than producing a partial clip.
+ * @evidence contracts/development/common.md#meaningful-documentation States 24 Hz, exact landmarks, linear output, whole-clip null refusal, propagated callback errors and inter-key approximation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For F grid plus landmark instants, sorting costs O(F log F), callback cost is summed once per distinct instant, and storage is O(F) plus the returned poses.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Duplicate landmarks are collapsed before callback evaluation; no cache spans actions because live target and actor-frame callbacks may depend on different shot times.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The invocation owns the grid and keyframes, releases partial output on null/throw, and returns successful callback poses by reference; no external handle or task is retained.
  */
 export const createDynamicActorPoseClip: (props: {
   /** Caller-selected output motion identity. */ id: string;

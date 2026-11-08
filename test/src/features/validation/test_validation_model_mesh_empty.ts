@@ -44,10 +44,11 @@ const modelWithMesh: (mesh: IAutoMovieMesh) => IAutoMovieModel = (
  * 3. A single-vertex mesh (the minimum) still validates: the check is "at least
  *    one", not "at least a triangle".
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateModel for empty position buffers with absent or empty dependent buffers and requires a positions type finding, then admits the single-vertex neighbor. The empty-dependent case rejects any finding at another path, catching both missing emptiness admission and spurious buffer-length faults.
- * @evidence contracts/testing.md#independent-expectations A mesh requires at least one vertex; zero-length dependent arrays match zero vertices but cannot supply the missing position. Literal paths and the one-vertex control follow that admission contract; the test does not demand an exact duplicate-finding count or a renderable triangle.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts empty positions with null versus zero-length normals/UVs/indices and the smallest nonempty position triple. Malformed numeric tuples, topology and skin packing are owned by other mesh validation entries.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit supplies the existing skeleton-free model fixture and local numeric buffers to portable validation, with no export process, decoder, renderer or filesystem fixture.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateModel for empty position buffers with absent or empty dependent buffers and requires a positions type finding, then admits the single-vertex neighbor. The empty-dependent case rejects any finding at another path, catching both missing emptiness admission and spurious buffer-length faults.
+ * @evidence contracts/development/testing.md#independent-expectations A mesh requires at least one vertex; zero-length dependent arrays match zero vertices but cannot supply the missing position. Literal paths and the one-vertex control follow that admission contract; the test does not demand an exact duplicate-finding count or a renderable triangle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts empty positions with null versus zero-length normals/UVs/indices and the smallest nonempty position triple. Malformed numeric tuples, topology and skin packing are owned by other mesh validation entries.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit supplies the existing skeleton-free model fixture and local numeric buffers to portable validation, with no export process, decoder, renderer or filesystem fixture.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty positions, all optional buffers null: a positions type violation (the).
  */
 export function test_validation_model_mesh_empty(): void {
   const bare: IAutoMovieValidation = validateModel({

@@ -1,9 +1,9 @@
-import { decodeAutoMoviePpmImage } from "@automovie/ingest/ppm";
+import { decodeAutoMoviePpmImage } from "@automovie/ingest";
 import type {
   AutoMovieRecoveryImageRecipe,
   IAutoMovieRecoveryImageInput,
   IAutoMovieRecoveryImageObservation,
-} from "@automovie/interface/recovery";
+} from "@automovie/interface";
 import { createHash } from "node:crypto";
 import path from "node:path";
 
@@ -13,8 +13,8 @@ import { fitAutoMovieRecoveryImageLoft } from "../../fitting/fitAutoMovieRecover
 import { fitAutoMovieRecoveryImageSupportLoft } from "../../fitting/fitAutoMovieRecoveryImageSupportLoft";
 import { observeAutoMovieRecoveryImages } from "../../observation/observeAutoMovieRecoveryImages";
 import type { IAutoMovieRecoveryImageFiles } from "../../structures/image/IAutoMovieRecoveryImageFiles";
-import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
+import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
 
 /**
  * Run fixed-image observation, qualified fitting or recipe-only compilation.
@@ -24,13 +24,13 @@ import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecove
  * evidence separate from recipe coefficients. Realize reads only its supplied
  * recipe document; no source path or acquisition cache is consulted.
  *
- * @evidence contracts/common.md#principled-implementation Bounded complete-byte acquisition and SHA-256 image verification precede deterministic P6 decoding and public resident operations. Independent commands expose the observation-to-recipe-to-source-free-model boundaries.
- * @evidence contracts/common.md#clear-and-simple-design This Node host owns explicit paths, codec dispatch, provenance and immutable publication while recovery library operations own observation/fitting and the engine owns geometry.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No directory scan, unknown-format fallback, unverified image bytes, source mesh, trained estimator, changed budget or output overwrite is used; a refused operation publishes nothing.
- * @evidence contracts/common.md#meaningful-documentation States command input structures, explicit per-file byte bound, raw P6 colour convention, separate evidence/recipe files, source epoch and recipe-only consumption.
- * @evidence contracts/performance.md#efficient-algorithms Reading and hashing are O(B) in admitted bytes, RGB copies O(P) in bounded pixels, and serialization O(O) in output size. Delegated observation/fitting costs retain their declared budgets; image sources are acquired once and aggregate pixels are checked before accumulating decoded arrays.
- * @evidence contracts/performance.md#reuse-equivalent-work One command invokes one public operation and publishes its completed value once; exact source hashes and operation/source-epoch provenance identify that effect without a hidden resume cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Bounded reads close descriptors synchronously. Decoded arrays grow only to the manifest pixel/view budget, expire after observation and never enter recipe-only compilation; the atomic writer owns and cleans its staging file.
+ * @evidence contracts/development/implementation.md#principled-implementation Bounded complete-byte acquisition and SHA-256 image verification precede deterministic P6 decoding and public resident operations. Independent commands expose the observation-to-recipe-to-source-free-model boundaries.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This Node host owns explicit paths, codec dispatch, provenance and immutable publication while recovery library operations own observation/fitting and the engine owns geometry.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No directory scan, unknown-format fallback, unverified image bytes, source mesh, trained estimator, changed budget or output overwrite is used; a refused operation publishes nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation States command input structures, explicit per-file byte bound, raw P6 colour convention, separate evidence/recipe files, source epoch and recipe-only consumption.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Reading and hashing are O(B) in admitted bytes, RGB copies O(P) in bounded pixels, and serialization O(O) in output size. Delegated observation/fitting costs retain their declared budgets; image sources are acquired once and aggregate pixels are checked before accumulating decoded arrays.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One command invokes one public operation and publishes its completed value once; exact source hashes and operation/source-epoch provenance identify that effect without a hidden resume cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Bounded reads close descriptors synchronously. Decoded arrays grow only to the manifest pixel/view budget, expire after observation and never enter recipe-only compilation; the atomic writer owns and cleans its staging file.
  */
 export function recoveryImages(args: string[], sourceEpoch: string): void {
   const [command, inputPath, outputPath, byteText]: string[] = args;

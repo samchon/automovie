@@ -3,10 +3,10 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * One authored child-branch direction and emergence point in its parent's deterministic local frame.
  *
- * @evidence contracts/common.md#principled-implementation Nonzero direction is normalized in the parent's axis frame, whose perpendicular basis follows the shared stable vector construction; offset selects a fraction of the parent's growth-extended length before pruning, and children beyond the clipped length are omitted.
- * @evidence contracts/common.md#clear-and-simple-design Child identity and two placement inputs form the reusable branching law without species-specific angles or hierarchy objects.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Zero vectors and out-of-range offsets refuse; direction need not already be unit and no named plant selects a hidden branching preset.
- * @evidence contracts/common.md#meaningful-documentation Defines stable child id, parent-axis coordinate convention and closed-unit emergence fraction.
+ * @evidence contracts/development/design.md#principled-representation Nonzero direction is normalized in the parent's axis frame, whose perpendicular basis follows the shared stable vector construction; offset selects a fraction of the parent's growth-extended length before pruning, and children beyond the clipped length are omitted.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Child identity and two placement inputs form the reusable branching law without species-specific angles or hierarchy objects.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Zero vectors and out-of-range offsets refuse; direction need not already be unit and no named plant selects a hidden branching preset.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines stable child id, parent-axis coordinate convention and closed-unit emergence fraction.
  */
 export interface IAutoMoviePlantingChild {
   /** Stable child identity within the structure. */

@@ -18,10 +18,11 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  * 3. Large coupled requests never worsen endpoint error at a one-step budget.
  * 4. Already satisfied requests use no updates; invalid paths/budgets refuse.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the public clinical solver and checks endpoint distance, fitted angles, untouched controls, unchanged seed and update counts. A solver returning its seed or hiding unreachable errors fails.
- * @evidence contracts/testing.md#independent-expectations A radius-0.7 spherical FK fixture and elementary sine/cosine at authored 30/20-degree angles define reachable coordinates independently of the fitting implementation; the radius gives the unreachable lower bound.
- * @evidence contracts/testing.md#distinguishing-cases Exercises active and already-satisfied targets, finite unreachable geometry, two-update budget, registered/unregistered channels, empty channels, nonfinite targets and an invalid maximum iteration count. Production consumer inspection owns actual Human skeleton axes, support and skin contacts.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous root-harness unit uses only arithmetic FK, Human solver and portable assertions; it starts no model generation, process, host, browser or renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public clinical solver and checks endpoint distance, fitted angles, untouched controls, unchanged seed and update counts. A solver returning its seed or hiding unreachable errors fails.
+ * @evidence contracts/development/testing.md#independent-expectations A radius-0.7 spherical FK fixture and elementary sine/cosine at authored 30/20-degree angles define reachable coordinates independently of the fitting implementation; the radius gives the unreachable lower bound.
+ * @evidence contracts/development/testing.md#distinguishing-cases Exercises active and already-satisfied targets, finite unreachable geometry, two-update budget, registered/unregistered channels, empty channels, nonfinite targets and an invalid maximum iteration count. Production consumer inspection owns actual Human skeleton axes, support and skin contacts.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous root-harness unit uses only arithmetic FK, Human solver and portable assertions; it starts no model generation, process, host, browser or renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two admitted angular channels recover a known nonzero reachable point.).
  */
 export function test_human_clinical_ik(): void {
   const seed: IAutoMovieHumanPose = {

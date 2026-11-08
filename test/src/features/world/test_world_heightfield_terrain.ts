@@ -96,10 +96,11 @@ const hillHeight: (point: { x: number; z: number }) => number = (point: {
  *    available sample remains readable; this is a local fallback rather than
  *    admission of an incomplete lattice.
  *
- * @evidence contracts/testing.md#behavioral-verification Actual world heightfield construction and surface/ground queries read lattice points, cell blends, clamped edges, stored samples and first-containing-surface selection; malformed constructor inputs throw and incomplete samples retain their documented fallback.
- * @evidence contracts/testing.md#independent-expectations The authored hill formula supplies nine row-major sample values, bilinear corner means supply between-sample expectations, and explicit ramp endpoints and declaration order supply the other answers. These CPU numeric observations do not prove callback purity or cross-platform bit identity.
- * @evidence contracts/testing.md#distinguishing-cases Sample points, midpoint/edge blends, outside clamps, ordinary constant/plane surfaces, first-surface order, exact rims and no ground contrast blank ids, invalid lattice pitch/dimensions, nonfinite origin/height and missing stored samples.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_world_heightfield_terrain; this function owns every sampler/query assertion and existing malformed-input callback, without installing terrain rendering, a native artifact or a browser/GPU host.
+ * @evidence contracts/development/testing.md#behavioral-verification Actual world heightfield construction and surface/ground queries read lattice points, cell blends, clamped edges, stored samples and first-containing-surface selection; malformed constructor inputs throw and incomplete samples retain their documented fallback.
+ * @evidence contracts/development/testing.md#independent-expectations The authored hill formula supplies nine row-major sample values, bilinear corner means supply between-sample expectations, and explicit ramp endpoints and declaration order supply the other answers. These CPU numeric observations do not prove callback purity or cross-platform bit identity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Sample points, midpoint/edge blends, outside clamps, ordinary constant/plane surfaces, first-surface order, exact rims and no ground contrast blank ids, invalid lattice pitch/dimensions, nonfinite origin/height and missing stored samples.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_world_heightfield_terrain; this function owns every sampler/query assertion and existing malformed-input callback, without installing terrain rendering, a native artifact or a browser/GPU host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every lattice point reads back exactly the height its sampler authored, so a).
  */
 export function test_world_heightfield_terrain(): void {
   const field: IAutoMovieWorldSurface = hill();

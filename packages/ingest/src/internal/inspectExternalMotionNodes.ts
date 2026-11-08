@@ -7,13 +7,13 @@ import { object } from "./object";
  *
  * The caller supplies a validated acyclic parent table. Omitted translation, rotation and scale use glTF defaults; present tuples must be finite, scales positive and quaternion magnitude within 1e-4 of one before normalization. Matrix transforms throw instead of being decomposed. Records use source-index ids, null for absent/empty names or root parents, and fresh transform objects.
  *
- * @evidence contracts/common.md#principled-implementation Three/four-component tuples use glTF defaults; positive scale and unit-quaternion tolerance precede rotation normalization.
- * @evidence contracts/common.md#clear-and-simple-design Node interpretation owns stable index ids, parent ids and local transforms, separate from animation channel decoding.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Matrix transforms are refused rather than decomposed; rig names do not invent skeletal semantics.
- * @evidence contracts/common.md#meaningful-documentation Prose states defaults, matrix refusal, positive scale, quaternion normalization and absent name/parent meaning.
- * @evidence contracts/performance.md#efficient-algorithms N nodes require O(N) time and output records, with fixed-size tuple work per node.
- * @evidence contracts/performance.md#reuse-equivalent-work The admitted parent table is reused from structural hierarchy checks; each node transform is interpreted once per inspection.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned node records own new fixed-size transforms; source JSON arrays and tuple temporaries are not retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Three/four-component tuples use glTF defaults; positive scale and unit-quaternion tolerance precede rotation normalization.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Node interpretation owns stable index ids, parent ids and local transforms, separate from animation channel decoding.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Matrix transforms are refused rather than decomposed; rig names do not invent skeletal semantics.
+ * @evidence contracts/development/common.md#meaningful-documentation Prose states defaults, matrix refusal, positive scale, quaternion normalization and absent name/parent meaning.
+ * @evidence contracts/development/implementation.md#efficient-algorithms N nodes require O(N) time and output records, with fixed-size tuple work per node.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The admitted parent table is reused from structural hierarchy checks; each node transform is interpreted once per inspection.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned node records own new fixed-size transforms; source JSON arrays and tuple temporaries are not retained.
  */
 export const inspectExternalMotionNodes: (
   values: unknown[],

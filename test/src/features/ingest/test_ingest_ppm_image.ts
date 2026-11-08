@@ -1,4 +1,4 @@
-import { decodeAutoMoviePpmImage } from "@automovie/ingest/ppm";
+import { decodeAutoMoviePpmImage } from "@automovie/ingest";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -9,10 +9,11 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A whitespace/'#' raster prefix is retained and returned storage is detached.
  * 3. Unsupported magic/maxval, malformed/truncated headers, trailing bytes and resource exhaustion refuse.
  *
- * @evidence contracts/testing.md#behavioral-verification Executes the byte decoder, asserts exact decoded integer channels and detached ownership, and observes thrown errors for unsupported formats and budgets.
- * @evidence contracts/testing.md#independent-expectations The Netpbm P6 specification defines ASCII decimal dimensions, one post-maxval whitespace byte and exactly width times height RGB triplets; the handwritten six raster bytes are independent of the decoder.
- * @evidence contracts/testing.md#distinguishing-cases Covers comments, tabs, raster whitespace/hash, source mutation, P3, 16-bit maxval, malformed numeric tokens, zero/oversized dimensions, truncation, trailing bytes, header limits and invalid transfer. Calibration and multiview fitting belong to recovery tests.
- * @evidence contracts/testing.md#execution-ownership The portable test_ingest_ppm_image entry reaches resident byte semantics directly and uses no file, installation, native artifact, browser, GPU or foreign-method replacement.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes the byte decoder, asserts exact decoded integer channels and detached ownership, and observes thrown errors for unsupported formats and budgets.
+ * @evidence contracts/development/testing.md#independent-expectations The Netpbm P6 specification defines ASCII decimal dimensions, one post-maxval whitespace byte and exactly width times height RGB triplets; the handwritten six raster bytes are independent of the decoder.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers comments, tabs, raster whitespace/hash, source mutation, P3, 16-bit maxval, malformed numeric tokens, zero/oversized dimensions, truncation, trailing bytes, header limits and invalid transfer. Calibration and multiview fitting belong to recovery tests.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_ingest_ppm_image entry reaches resident byte semantics directly and uses no file, installation, native artifact, browser, GPU or foreign-method replacement.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A two-pixel P6 image with header comments preserves RGB bytes and transfer.).
  */
 export function test_ingest_ppm_image(): void {
   const make: (header: string, pixels?: number[]) => Uint8Array = (

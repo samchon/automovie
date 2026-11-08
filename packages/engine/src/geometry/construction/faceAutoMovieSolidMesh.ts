@@ -16,13 +16,13 @@ import { openAutoMovieSolidMesh } from "./openAutoMovieSolidMesh";
  * required; diagnostic callbacks must not mutate or reenter this mesh. Hostile
  * array proxies and allocation failure are not transactional.
  *
- * @evidence contracts/common.md#principled-implementation Retains untouched full cells, triangulates the remaining native constrained region with original shared IDs, validates exposed domain boundaries and emits one declared orientation for the complete face.
- * @evidence contracts/common.md#clear-and-simple-design Grid/source preparation, index planning, open-boundary reading and final writes have explicit owners; one commit point follows all fallible geometry preparation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not omit a missing-grid source, weld boundary vertices, zip unrelated cycles or use foreign owner coordinates as this face's chart. Named failure without a callback throws rather than silently returning an empty skin.
- * @evidence contracts/common.md#meaningful-documentation States named versus thrown failure, buffer/owner atomicity, partial endpoint diagnostics, chart orientation and the ordinary-array/coherent-source premise.
- * @evidence contracts/performance.md#efficient-algorithms Includes O(T_existing) scanning of prior global triangles, grid O(G(S+L)), constraint/bridge/ear/insertion/legalization work, every membership query's cost and O(T log T) ordering of T staged triples. Occupied pairs exclude new interior bridges/ears; full cells or inserted cavities conflicting with prior incidence are refused without an alternative search.
- * @evidence contracts/performance.md#reuse-equivalent-work Reuses copied station-major jets, original boundary indices and returned split provenance; each committed new vertex is inserted once on its first actual use.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local state includes O(E_existing) occupied/directed prefix maps, grid G, triangles T, split edges S and provenance P; only actual mesh owners, vertex/index numbers and caller-owned open records survive. No global geometry registry/cache is introduced.
+ * @evidence contracts/development/implementation.md#principled-implementation Retains untouched full cells, triangulates the remaining native constrained region with original shared IDs, validates exposed domain boundaries and emits one declared orientation for the complete face.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Grid/source preparation, index planning, open-boundary reading and final writes have explicit owners; one commit point follows all fallible geometry preparation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not omit a missing-grid source, weld boundary vertices, zip unrelated cycles or use foreign owner coordinates as this face's chart. Named failure without a callback throws rather than silently returning an empty skin.
+ * @evidence contracts/development/common.md#meaningful-documentation States named versus thrown failure, buffer/owner atomicity, partial endpoint diagnostics, chart orientation and the ordinary-array/coherent-source premise.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Includes O(T_existing) scanning of prior global triangles, grid O(G(S+L)), constraint/bridge/ear/insertion/legalization work, every membership query's cost and O(T log T) ordering of T staged triples. Occupied pairs exclude new interior bridges/ears; full cells or inserted cavities conflicting with prior incidence are refused without an alternative search.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses copied station-major jets, original boundary indices and returned split provenance; each committed new vertex is inserted once on its first actual use.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local state includes O(E_existing) occupied/directed prefix maps, grid G, triangles T, split edges S and provenance P; only actual mesh owners, vertex/index numbers and caller-owned open records survive. No global geometry registry/cache is introduced.
  */
 export function faceAutoMovieSolidMesh(
   mesh: AutoMovieSolidMesh.IMesh,
@@ -48,15 +48,22 @@ export function faceAutoMovieSolidMesh(
   for (let index: number = 0; index < mesh.indices.length; index += 3)
     for (let corner: number = 0; corner < 3; corner++) {
       const a: number = mesh.indices[index + corner]!;
-      const b: number = mesh.indices[index + (corner + 1) % 3]!;
+      const b: number = mesh.indices[index + ((corner + 1) % 3)]!;
       occupied.add(`${Math.min(a, b)}/${Math.max(a, b)}`);
       const key: string = `${a}/${b}`;
       directed.set(key, (directed.get(key) ?? 0) + 1);
     }
 
   /** Last actual predicate reading; recording it neither changes nor repeats successful queries. */
-  const reading: { u: number; v: number; kept: boolean } = { u: NaN, v: NaN, kept: false };
-  const keeps: (u: number, v: number) => boolean = (u: number, v: number): boolean => {
+  const reading: { u: number; v: number; kept: boolean } = {
+    u: NaN,
+    v: NaN,
+    kept: false,
+  };
+  const keeps: (u: number, v: number) => boolean = (
+    u: number,
+    v: number,
+  ): boolean => {
     const kept: boolean = prepared.residual(u, v);
     reading.u = u;
     reading.v = v;
@@ -74,9 +81,10 @@ export function faceAutoMovieSolidMesh(
       prepared.metric,
     );
   if (typeof plan === "string") {
-    const detail: string = plan.includes("left the kept source partition") && !reading.kept
-      ? `${plan}; membership ${membership(input, prepared.source, reading.u, reading.v)}`
-      : plan;
+    const detail: string =
+      plan.includes("left the kept source partition") && !reading.kept
+        ? `${plan}; membership ${membership(input, prepared.source, reading.u, reading.v)}`
+        : plan;
     return refuse(input, detail);
   }
   const triangles: AutoMovieSolidMeshPlan.ITriangle[] = [
@@ -95,17 +103,25 @@ export function faceAutoMovieSolidMesh(
         !phases.every(Number.isFinite) ||
         Math.max(...phases) - Math.min(...phases) >= period / 2
       )
-        return refuse(input, "indexed triangle has no unique sub-half-period cover");
+        return refuse(
+          input,
+          "indexed triangle has no unique sub-half-period cover",
+        );
     }
     for (let k: number = 0; k < 3; k++) {
-    const next: number = (k + 1) % 3;
-    const a: number = triangle.vertices[k]!;
-    const b: number = triangle.vertices[next]!;
-    const pair: string = `${Math.min(a, b)}/${Math.max(a, b)}`;
-    const turn: number = (triangle.lifts[next]! - triangle.lifts[k]!) * (a < b ? 1 : -1);
-    const known: number | undefined = projected.get(pair);
-    if (known !== undefined && known !== turn) return refuse(input, "distinct cover edges project onto one straight global mesh edge");
-    projected.set(pair, turn);
+      const next: number = (k + 1) % 3;
+      const a: number = triangle.vertices[k]!;
+      const b: number = triangle.vertices[next]!;
+      const pair: string = `${Math.min(a, b)}/${Math.max(a, b)}`;
+      const turn: number =
+        (triangle.lifts[next]! - triangle.lifts[k]!) * (a < b ? 1 : -1);
+      const known: number | undefined = projected.get(pair);
+      if (known !== undefined && known !== turn)
+        return refuse(
+          input,
+          "distinct cover edges project onto one straight global mesh edge",
+        );
+      projected.set(pair, turn);
     }
   }
   const opened: ReturnType<typeof openAutoMovieSolidMesh> =
@@ -174,14 +190,18 @@ export function faceAutoMovieSolidMesh(
       vertices: cycle.vertices.map(resolve),
     }),
   );
-  const positive: boolean = input.surface.orientation * (input.inverted === true ? -1 : 1) > 0;
+  const positive: boolean =
+    input.surface.orientation * (input.inverted === true ? -1 : 1) > 0;
   for (const triangle of indices)
     for (let corner: number = 0; corner < 3; corner++) {
       const a: number = triangle[corner]!;
       const b: number = triangle[(corner + 1) % 3]!;
       const key: string = positive ? `${a}/${b}` : `${b}/${a}`;
       if ((directed.get(key) ?? 0) !== 0)
-        return refuse(input, "published global edge already has this directed incidence");
+        return refuse(
+          input,
+          "published global edge already has this directed incidence",
+        );
       directed.set(key, 1);
     }
   for (const id of added)
@@ -211,13 +231,68 @@ export function faceAutoMovieSolidMesh(
 }
 
 /** Explain a failed reading against the unchanged polyline source, without another surface jet or altered admission. */
-function membership(input: AutoMovieSolidMesh.IFace, source: (u: number, v: number) => boolean, u: number, v: number): string {
-  const loops: { index: number; kind: AutoMovieSolidMesh.ILoop["kind"]; kept: boolean; centre: [number, number]; foot: AutoMovieSolidCycle.IFoot | null; edge: [number, number][] }[] = input.loops.map((loop: AutoMovieSolidMesh.ILoop, index: number): { index: number; kind: AutoMovieSolidMesh.ILoop["kind"]; kept: boolean; centre: [number, number]; foot: AutoMovieSolidCycle.IFoot | null; edge: [number, number][] } => {
-    const kept: boolean = AutoMovieSolidCycle.kept(loop, u, v, input.surface.period);
-    const foot: AutoMovieSolidCycle.IFoot | null = kept ? null : AutoMovieSolidCycle.foot(loop, u, v, input.surface.period);
-    return { index, kind: loop.kind, kept, centre: AutoMovieSolidCycle.centre(loop), foot, edge: foot === null ? [] : [loop.chart[foot.segment]!, loop.chart[(foot.segment + 1) % loop.chart.length]!] };
+function membership(
+  input: AutoMovieSolidMesh.IFace,
+  source: (u: number, v: number) => boolean,
+  u: number,
+  v: number,
+): string {
+  const loops: {
+    index: number;
+    kind: AutoMovieSolidMesh.ILoop["kind"];
+    kept: boolean;
+    centre: [number, number];
+    foot: AutoMovieSolidCycle.IFoot | null;
+    edge: [number, number][];
+  }[] = input.loops.map(
+    (
+      loop: AutoMovieSolidMesh.ILoop,
+      index: number,
+    ): {
+      index: number;
+      kind: AutoMovieSolidMesh.ILoop["kind"];
+      kept: boolean;
+      centre: [number, number];
+      foot: AutoMovieSolidCycle.IFoot | null;
+      edge: [number, number][];
+    } => {
+      const kept: boolean = AutoMovieSolidCycle.kept(
+        loop,
+        u,
+        v,
+        input.surface.period,
+      );
+      const foot: AutoMovieSolidCycle.IFoot | null = kept
+        ? null
+        : AutoMovieSolidCycle.foot(loop, u, v, input.surface.period);
+      return {
+        index,
+        kind: loop.kind,
+        kept,
+        centre: AutoMovieSolidCycle.centre(loop),
+        foot,
+        edge:
+          foot === null
+            ? []
+            : [
+                loop.chart[foot.segment]!,
+                loop.chart[(foot.segment + 1) % loop.chart.length]!,
+              ],
+      };
+    },
+  );
+  return JSON.stringify({
+    query: [u, v],
+    source: source(u, v),
+    residual: false,
+    stationDomain: [
+      input.stations[0],
+      input.stations[input.stations.length - 1],
+    ],
+    phaseDomain: [input.phases[0], input.phases[input.phases.length - 1]],
+    period: input.surface.period,
+    loops,
   });
-  return JSON.stringify({ query: [u, v], source: source(u, v), residual: false, stationDomain: [input.stations[0], input.stations[input.stations.length - 1]], phaseDomain: [input.phases[0], input.phases[input.phases.length - 1]], period: input.surface.period, loops });
 }
 
 /** Named planning refusal differs from arbitrary user/source callback exceptions. */

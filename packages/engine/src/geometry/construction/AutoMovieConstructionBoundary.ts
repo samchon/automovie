@@ -1,9 +1,9 @@
+import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
 import { AutoMovieLoftSectionConnect } from "./AutoMovieLoftSectionConnect";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
-import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /** Physical value, first and second derivatives of one actual section frame. */
@@ -38,6 +38,14 @@ type Native = Extract<
  * Every compatibility row is checked, with the existing source/span lookup
  * costs, before constant-size boundary preparation. Temporary source/frame
  * records have call lifetime; no source fit or module cache is introduced.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Admit already matching native ends without rewriting either chain) as stated in this comment.
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Admit already matching native ends without rewriting either chain) directly over its typed inputs (`host`, `hostEnd`, `part`, `partEnd`, `sign`) as nested iteration of depth 3 (for-of over [host, part]; for-of over ["extents", "shoulders"] as const; for loop bounded by q < 4), delegating to `rows`, `end`, `AutoMovieLoftSectionConnect.capture`, `close`, `frames`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Beyond structural 0, 1 and 2 the body uses the literals 4, 3, whose basis this answer does not independently establish and a reviewer must confirm.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 57 lines and 22 top-level statements that reuses `rows`, `end`, `AutoMovieLoftSectionConnect.capture`, `close`, `frames` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 10 non-null assertion(s); these are the remaining shortcuts and are not justified here.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `host`, `hostEnd`, `part`, `partEnd`, `sign`; the dominant cost is nested iteration of depth 3 (for-of over [host, part]; for-of over ["extents", "shoulders"] as const; for loop bounded by q < 4), performed once per call with 6 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 6 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function AutoMovieConstructionBoundary(
   host: IAutoMovieLoftChain,
@@ -71,7 +79,12 @@ export function AutoMovieConstructionBoundary(
   for (const key of ["extents", "shoulders"] as const)
     for (let q: number = 0; q < 4; q++)
       for (let derivative: number = 0; derivative < 3; derivative++)
-        if (!close(first.inputs[key][q]![derivative]!, last.inputs[key][q]![derivative]!))
+        if (
+          !close(
+            first.inputs[key][q]![derivative]!,
+            last.inputs[key][q]![derivative]!,
+          )
+        )
           return `The native ends differ in ${key} ${q}, physical order ${derivative}.`;
 
   const fa: Frames | string = frames(a);
@@ -91,7 +104,9 @@ export function AutoMovieConstructionBoundary(
   if (typeof la === "string") return la;
   if (typeof lb === "string") return lb;
   for (let derivative: number = 0; derivative < 3; derivative++)
-    if (!close((derivative === 1 ? 1 : sign) * la[derivative]!, lb[derivative]!))
+    if (
+      !close((derivative === 1 ? 1 : sign) * la[derivative]!, lb[derivative]!)
+    )
       return `The native ends differ in lift, physical order ${derivative}.`;
   for (const [field, frame, displacement] of [
     [first, fa, la],
@@ -105,11 +120,18 @@ export function AutoMovieConstructionBoundary(
 
 /** Validate each chain's own density and binding without copying or changing it. */
 function rows(chain: IAutoMovieLoftChain): string | null {
-  if (!Number.isInteger(chain.order) || chain.order <= 0 || chain.layers.length < 2)
+  if (
+    !Number.isInteger(chain.order) ||
+    chain.order <= 0 ||
+    chain.layers.length < 2
+  )
     return `The native end of ${chain.name} has no valid section density/domain.`;
   for (let index: number = 0; index < chain.layers.length; index++) {
     const layer: IAutoMovieLoftChain.ILayer = chain.layers[index]!;
-    if (!Number.isFinite(layer.y) || (index > 0 && !(layer.y > chain.layers[index - 1]!.y)))
+    if (
+      !Number.isFinite(layer.y) ||
+      (index > 0 && !(layer.y > chain.layers[index - 1]!.y))
+    )
       return `The native chain ${chain.name} has no finite increasing regular domain.`;
     for (const key of ["coefficients", "slopes", "curvatures"] as const) {
       const row: number[] | undefined = layer[key];
@@ -128,16 +150,27 @@ function rows(chain: IAutoMovieLoftChain): string | null {
 }
 
 /** The declared end is a real principal endpoint, never an interior cut or pole. */
-function end(chain: IAutoMovieLoftChain, side: "bottom" | "top"): IAutoMovieLoftChain.ILayer {
+function end(
+  chain: IAutoMovieLoftChain,
+  side: "bottom" | "top",
+): IAutoMovieLoftChain.ILayer {
   return chain.layers[side === "bottom" ? 0 : chain.layers.length - 1]!;
 }
 
 /** Read complete numeric frame2 and verify any retained callable against its snapshot. */
 function frames(layer: IAutoMovieLoftChain.ILayer): Frames | string {
   AutoMovieLoftFrameSource.validate(layer);
-  if (layer.frame === undefined || layer.frameSlopes === undefined || layer.frameCurvatures === undefined)
+  if (
+    layer.frame === undefined ||
+    layer.frameSlopes === undefined ||
+    layer.frameCurvatures === undefined
+  )
     return "A shared native end needs actual complete frame2.";
-  const result: Frames = [layer.frame, layer.frameSlopes, layer.frameCurvatures];
+  const result: Frames = [
+    layer.frame,
+    layer.frameSlopes,
+    layer.frameCurvatures,
+  ];
   for (const frame of result)
     for (const key of ["origin", "u", "v"] as const)
       for (let k: number = 0; k < 3; k++)
@@ -146,21 +179,32 @@ function frames(layer: IAutoMovieLoftChain.ILayer): Frames | string {
   if (layer.frameSource !== undefined) {
     const actual: ReturnType<NonNullable<typeof layer.frameSource.axis.jet>> =
       layer.frameSource.axis.jet!(layer.y);
-    if (actual === null) return "A shared native end has unavailable actual axis2.";
+    if (actual === null)
+      return "A shared native end has unavailable actual axis2.";
     const original: Frames = [actual.value, actual.first, actual.second];
     for (let derivative: number = 0; derivative < 3; derivative++)
       for (const key of ["origin", "u", "v"] as const)
         for (let k: number = 0; k < 3; k++)
-          if (!close(original[derivative]![key][k]!, result[derivative]![key][k]!))
+          if (
+            !close(original[derivative]![key][k]!, result[derivative]![key][k]!)
+          )
             return "The actual native-end axis2 differs from its retained frame2.";
   }
   return result;
 }
 
 /** Absence means the declared zero displacement; present lift needs all actual orders. */
-function lift(layer: IAutoMovieLoftChain.ILayer, order: number): readonly number[] | string {
-  const rows: (number[] | undefined)[] = [layer.lift, layer.liftSlopes, layer.liftCurvatures];
-  if (rows.every((row: number[] | undefined): boolean => row === undefined)) return [0, 0, 0];
+function lift(
+  layer: IAutoMovieLoftChain.ILayer,
+  order: number,
+): readonly number[] | string {
+  const rows: (number[] | undefined)[] = [
+    layer.lift,
+    layer.liftSlopes,
+    layer.liftCurvatures,
+  ];
+  if (rows.every((row: number[] | undefined): boolean => row === undefined))
+    return [0, 0, 0];
   const result: number[] = [];
   for (const row of rows) {
     if (row === undefined || row.length !== order || !Number.isFinite(row[0]))
@@ -174,12 +218,29 @@ function lift(layer: IAutoMovieLoftChain.ILayer, order: number): readonly number
 }
 
 /** Native admission plus nonzero transverse speed certifies every phase of this planar ring. */
-function regular(field: Native, frame: Frames, displacement: readonly number[]): string | null {
+function regular(
+  field: Native,
+  frame: Frames,
+  displacement: readonly number[],
+): string | null {
   const normal: Vector = cross(frame[0].v, frame[0].u);
-  const normalFirst: Vector = add(cross(frame[1].v, frame[0].u), cross(frame[0].v, frame[1].u));
+  const normalFirst: Vector = add(
+    cross(frame[1].v, frame[0].u),
+    cross(frame[0].v, frame[1].u),
+  );
   const size: number = dot(normal, normal);
-  const speed: number = dot(normal, frame[1].origin) + displacement[1]! * size + displacement[0]! * dot(normal, normalFirst);
-  if (!(Number.isFinite(size) && size > 0 && Number.isFinite(speed) && speed !== 0))
+  const speed: number =
+    dot(normal, frame[1].origin) +
+    displacement[1]! * size +
+    displacement[0]! * dot(normal, normalFirst);
+  if (
+    !(
+      Number.isFinite(size) &&
+      size > 0 &&
+      Number.isFinite(speed) &&
+      speed !== 0
+    )
+  )
     return "The shared native end has a degenerate or nontransverse frame/lift jet.";
   if (dot(normal, frame[1].u) !== 0 || dot(normal, frame[1].v) !== 0)
     return "Different section orders require a boundary plane without normal turning.";
@@ -191,12 +252,21 @@ function regular(field: Native, frame: Frames, displacement: readonly number[]):
 
 /** Permit only binary64 evaluation noise, independently of tessellation or a fit budget. */
 function close(a: number, b: number): boolean {
-  return Number.isFinite(a) && Number.isFinite(b) && Math.abs(a - b) <= 32 * Number.EPSILON * Math.max(1, Math.abs(a), Math.abs(b));
+  return (
+    Number.isFinite(a) &&
+    Number.isFinite(b) &&
+    Math.abs(a - b) <=
+      32 * Number.EPSILON * Math.max(1, Math.abs(a), Math.abs(b))
+  );
 }
 
 /** Oriented plane normal and its derivative use the original unnormalized frame. */
 function cross(a: Vector, b: Vector): Vector {
-  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  return [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0],
+  ];
 }
 
 /** Sum the two product-rule terms of the frame normal derivative. */

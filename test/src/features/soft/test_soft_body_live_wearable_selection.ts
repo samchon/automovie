@@ -72,10 +72,11 @@ const still: (id: string) => Boundary = (id: string): Boundary => ({
  * 5. An all-hole list and a trailing hole refuse their missing slot instead
  *    of enlarging the live-subject ceiling with an unselected phantom row.
  *
- * @evidence contracts/testing.md#behavioral-verification Actual list admission, moving-boundary declaration and shot selection outputs catch lost order, ambiguous identities, sparse-slot acceptance and static/live contradictions; no cloth solve or host installation is inferred.
- * @evidence contracts/testing.md#independent-expectations Authored list order gives slots 0 and 2 with ceiling3 when ghost is absent from the shot; every selected slot must contain a trimmed string, so holes must refuse at their own index. Expected messages and ids come from declared admission rules.
- * @evidence contracts/testing.md#distinguishing-cases Bound/capsule/static domains, ordered/empty lists, malformed/duplicate ids, absent shot selections, contradictory live declarations and whole/trailing holes distinguish declaration admission from ordinary selected slots.
- * @evidence contracts/testing.md#execution-ownership The normal runner discovers test_soft_body_live_wearable_selection as a portable CPU unit; authored metadata and actual selector functions own all assertions. Browser adoption, GPU behavior and cross-OS execution remain unproven here.
+ * @evidence contracts/development/testing.md#behavioral-verification Actual list admission, moving-boundary declaration and shot selection outputs catch lost order, ambiguous identities, sparse-slot acceptance and static/live contradictions; no cloth solve or host installation is inferred.
+ * @evidence contracts/development/testing.md#independent-expectations Authored list order gives slots 0 and 2 with ceiling3 when ghost is absent from the shot; every selected slot must contain a trimmed string, so holes must refuse at their own index. Expected messages and ids come from declared admission rules.
+ * @evidence contracts/development/testing.md#distinguishing-cases Bound/capsule/static domains, ordered/empty lists, malformed/duplicate ids, absent shot selections, contradictory live declarations and whole/trailing holes distinguish declaration admission from ordinary selected slots.
+ * @evidence contracts/development/testing.md#execution-ownership The normal runner discovers test_soft_body_live_wearable_selection as a portable CPU unit; authored metadata and actual selector functions own all assertions. Browser adoption, GPU behavior and cross-OS execution remain unproven here.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A bound anchor and a body capsule are moving boundaries; a static anchor).
  */
 export function test_soft_body_live_wearable_selection(): void {
   TestValidator.equals(

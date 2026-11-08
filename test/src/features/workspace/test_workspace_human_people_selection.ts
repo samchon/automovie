@@ -17,10 +17,11 @@ import { HumanPeople } from "../internal/HumanPeople";
  *
  * Every population observation reads names and typed inputs only; no person is generated.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs the actual CLI reader, registry fixture and public preflight, asserting population names, unchanged scenario lists, refusal before discovery and exact returned filter membership; the real invocation's fixture names are also reported.
- * @evidence contracts/testing.md#independent-expectations Literal f1/m2 order, ten core and sixty-six extended people, and the authored alpha/beta scenario set are the oracles. The supplied discovery callback does not prove real DynamicExecutor imports, and name selection does not establish figure geometry.
- * @evidence contracts/testing.md#distinguishing-cases Space/equals forms, CLI precedence, old named/default/extended behavior, duplicates, malformed options, unknown/empty person names and valueless scenario groups distinguish admission boundaries. Existing workspace selection cases own general matching and discovery-error propagation.
- * @evidence contracts/testing.md#execution-ownership This discoverable portable workspace unit exercises real helper seams with a supplied callback; it launches no process/browser/native artifact, generates no person and mutates no environment or global selection state.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the actual CLI reader, registry fixture and public preflight, asserting population names, unchanged scenario lists, refusal before discovery and exact returned filter membership; the real invocation's fixture names are also reported.
+ * @evidence contracts/development/testing.md#independent-expectations Literal f1/m2 order, ten core and sixty-six extended people, and the authored alpha/beta scenario set are the oracles. The supplied discovery callback does not prove real DynamicExecutor imports, and name selection does not establish figure geometry.
+ * @evidence contracts/development/testing.md#distinguishing-cases Space/equals forms, CLI precedence, old named/default/extended behavior, duplicates, malformed options, unknown/empty person names and valueless scenario groups distinguish admission boundaries. Existing workspace selection cases own general matching and discovery-error propagation.
+ * @evidence contracts/development/testing.md#execution-ownership This discoverable portable workspace unit exercises real helper seams with a supplied callback; it launches no process/browser/native artifact, generates no person and mutates no environment or global selection state.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Space and equals Human values preserve the original include/exclude lists and named people's registry order.).
  */
 export async function test_workspace_human_people_selection(): Promise<void> {
   const defects: string[] = [];

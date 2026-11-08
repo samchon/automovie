@@ -16,10 +16,11 @@ import { nclose } from "../internal/predicates";
  * 2. A flexed knee retains an admitted rotation and the input stays independent.
  * 3. Both solvers retreat inward from either conditional tibial endpoint to a reachable target.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls public ClinicalIk with a conditional evaluator and observes returned selected scalar, matching endpoint, clamp rows and unchanged seed. Returning an unapplied requested scalar, or hiding the endpoint residual, fails.
- * @evidence contracts/testing.md#independent-expectations The fixture explicitly scales the canonical -25/35-degree tibial bounds by knee flexion divided by90; full extension permits exactly zero rotation. Metre endpoint X is that applied rotation divided by1000, independent of the solver's path writer and final normalization.
- * @evidence contracts/testing.md#distinguishing-cases Covers zero-update satisfied conditional clamp, admitted input, selected normalization, inward retreat from both flexion-conditioned endpoints in ClinicalIk/Grounding and input ownership. Broader units own unreachable and malformed requests; arithmetic endpoint fixtures do not establish actual production stance reach.
- * @evidence contracts/testing.md#execution-ownership A synchronous discoverable root unit invokes only the portable public solver and an arithmetic FK fixture; no body preparation, process, browser or rendering occurs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public ClinicalIk with a conditional evaluator and observes returned selected scalar, matching endpoint, clamp rows and unchanged seed. Returning an unapplied requested scalar, or hiding the endpoint residual, fails.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture explicitly scales the canonical -25/35-degree tibial bounds by knee flexion divided by90; full extension permits exactly zero rotation. Metre endpoint X is that applied rotation divided by1000, independent of the solver's path writer and final normalization.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers zero-update satisfied conditional clamp, admitted input, selected normalization, inward retreat from both flexion-conditioned endpoints in ClinicalIk/Grounding and input ownership. Broader units own unreachable and malformed requests; arithmetic endpoint fixtures do not establish actual production stance reach.
+ * @evidence contracts/development/testing.md#execution-ownership A synchronous discoverable root unit invokes only the portable public solver and an arithmetic FK fixture; no body preparation, process, browser or rendering occurs.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A satisfied extended knee consumes its zero tibial-rotation allowance.).
  */
 export function test_human_clinical_ik_conditioned_pose(): void {
   const seed: IAutoMovieHumanPose = {

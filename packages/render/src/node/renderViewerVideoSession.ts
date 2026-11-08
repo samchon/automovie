@@ -9,13 +9,13 @@ import { preserveCleanupFailure } from "./capture/preserveCleanupFailure";
 /**
  * Prepare and consume one owned capture session, then release it on every outcome.
  *
- * @evidence contracts/common.md#principled-implementation Optional preparation completes once before the existing renderVideo schedule serializes captures and encoding; finally awaits session release, preserving the operation and release causes when both fail. Cancellation is checked before and after preparation and at every frame/encode boundary.
- * @evidence contracts/common.md#clear-and-simple-design This portable coordinator owns transferred session lifetime; browser creation and frame-byte writing stay with the Node runner and Viewer adapter.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Supplied capture and encode ports execute directly, with no substituted timestamps, retries or swallowed cleanup failure.
- * @evidence contracts/common.md#meaningful-documentation States session ownership transfer, preparation order, sequential schedule, cancellation boundaries and failure propagation. Preparation rejection or cancellation produces no capture or encoding.
- * @evidence contracts/performance.md#efficient-algorithms Delegates O(F) scheduling and metadata to renderVideo, adding fixed checks and one duration measurement per frame.
- * @evidence contracts/performance.md#reuse-equivalent-work One transferred session serves every distinct frame once; effectful capture and encoding are not cached.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Exactly one transferred session closes once on success, capture/encode/progress failure or cancellation; no native browser is acquired here.
+ * @evidence contracts/development/implementation.md#principled-implementation Optional preparation completes once before the existing renderVideo schedule serializes captures and encoding; finally awaits session release, preserving the operation and release causes when both fail. Cancellation is checked before and after preparation and at every frame/encode boundary.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This portable coordinator owns transferred session lifetime; browser creation and frame-byte writing stay with the Node runner and Viewer adapter.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Supplied capture and encode ports execute directly, with no substituted timestamps, retries or swallowed cleanup failure.
+ * @evidence contracts/development/common.md#meaningful-documentation States session ownership transfer, preparation order, sequential schedule, cancellation boundaries and failure propagation. Preparation rejection or cancellation produces no capture or encoding.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Delegates O(F) scheduling and metadata to renderVideo, adding fixed checks and one duration measurement per frame.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One transferred session serves every distinct frame once; effectful capture and encoding are not cached.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Exactly one transferred session closes once on success, capture/encode/progress failure or cancellation; no native browser is acquired here.
  */
 export async function renderViewerVideoSession(options: {
   session: IAutoMovieHeadlessCaptureSession;

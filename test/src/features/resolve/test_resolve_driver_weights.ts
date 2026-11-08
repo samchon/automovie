@@ -68,10 +68,11 @@ const driven: (
  *    the narrowing.
  * 4. Negative twin: a TRS output still rejects with the NaN-poisoning rationale.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs resolveDrivers and resolveFrame, observing scalar weights creation/replacement and refusal of narrowing a three-weight channel or writing one scalar into TRS.
- * @evidence contracts/testing.md#independent-expectations An absent source uses the authored lower input endpoint, which maps to outRange[0]=0.6; a width-one morph channel can carry that scalar while three-component scale cannot.
- * @evidence contracts/testing.md#distinguishing-cases Unsampled and sampled singleton weights are positive neighbors to existing three-weight and scale-output refusals; general curve mapping and dependency ordering belong to their driver tests.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_driver_weights entry directly executes portable value-driving and frame output semantics; it checks numerical morph weights without asserting rendered deformation.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs resolveDrivers and resolveFrame, observing scalar weights creation/replacement and refusal of narrowing a three-weight channel or writing one scalar into TRS.
+ * @evidence contracts/development/testing.md#independent-expectations An absent source uses the authored lower input endpoint, which maps to outRange[0]=0.6; a width-one morph channel can carry that scalar while three-component scale cannot.
+ * @evidence contracts/development/testing.md#distinguishing-cases Unsampled and sampled singleton weights are positive neighbors to existing three-weight and scale-output refusals; general curve mapping and dependency ordering belong to their driver tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_driver_weights entry directly executes portable value-driving and frame output semantics; it checks numerical morph weights without asserting rendered deformation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: End-to-end: a driven driver writing `node:k:weights` with no sampled weights).
  */
 export function test_resolve_driver_weights(): void {
   // 1. unsampled weights: the driver creates the scalar channel and it folds

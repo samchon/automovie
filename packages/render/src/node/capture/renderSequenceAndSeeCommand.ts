@@ -11,13 +11,13 @@ const DEFAULT_BASE: string = process.env.BASE ?? "http://127.0.0.1:5173";
  * Parse this existing capture CLI's arguments and print its completed artifact summary. Help returns before capture; invalid numeric options or capture failures reject. Relative destinations resolve against the existing repository-root convention, and the default base URL is read once when this module loads.
  *
  *
- * @evidence contracts/common.md#principled-implementation CLI flags configure the canonical sequence capture, with finite positive fps and positive even dimensions checked before loading the page.
- * @evidence contracts/common.md#clear-and-simple-design The command handles CLI input and summary output while captureSequenceRenderAndSee owns metadata, browser capture and encoding.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Help performs no capture, invalid numbers reject, and null target resolves from the actual page metadata.
- * @evidence contracts/common.md#meaningful-documentation The help states defaults, destinations and sequence target behavior; cwd resolution is documented on the command.
- * @evidence contracts/performance.md#efficient-algorithms Argument parsing is O(A); sequence capture and encoding dominate subsequent work.
- * @evidence contracts/performance.md#reuse-equivalent-work The command parses once and prints the completed artifact including its existing dissolve observations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Parsed values and the artifact reference live through this invocation; the delegated capture owns resource teardown and persistent output files.
+ * @evidence contracts/development/implementation.md#principled-implementation CLI flags configure the canonical sequence capture, with finite positive fps and positive even dimensions checked before loading the page.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The command handles CLI input and summary output while captureSequenceRenderAndSee owns metadata, browser capture and encoding.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Help performs no capture, invalid numbers reject, and null target resolves from the actual page metadata.
+ * @evidence contracts/development/common.md#meaningful-documentation The help states defaults, destinations and sequence target behavior; cwd resolution is documented on the command.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Argument parsing is O(A); sequence capture and encoding dominate subsequent work.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The command parses once and prints the completed artifact including its existing dissolve observations.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Parsed values and the artifact reference live through this invocation; the delegated capture owns resource teardown and persistent output files.
  */
 export const renderSequenceAndSeeCommand: (
   argv?: string[],

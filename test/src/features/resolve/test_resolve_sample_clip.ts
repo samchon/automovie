@@ -107,10 +107,11 @@ const close: (a: number[], b: number[], eps?: number) => boolean = (
  * 16. Duplicate track channel keys reject instead of silently overwriting the
  *     earlier sampled value.
  *
- * @evidence contracts/testing.md#behavioral-verification Samples real clips and observes linear/step/cubic values, rotation norm, key/timeline behavior, variable weights width and refusal of malformed tracks, duplicate channels and invalid clocks.
- * @evidence contracts/testing.md#independent-expectations Authored endpoints determine linear means and STEP holds; zero-tangent Hermite gives5 halfway from0 to10, while sine/cosine give the rotation midpoint. That symmetric midpoint alone cannot distinguish slerp from normalized lerp over the whole arc.
- * @evidence contracts/testing.md#distinguishing-cases Existing before/at/after keys, singleton/interior segments, wrapped negative/positive queries, zero duration and invalid mode/width/value/time neighbors cover this sampler seam; nonzero cubic tangents and broad quaternion trajectories are outside these examples.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_sample_clip entry owns portable synchronous numerical sampler/refusal cases through direct source imports; no renderer clock, browser or Human asset is created.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples real clips and observes linear/step/cubic values, rotation norm, key/timeline behavior, variable weights width and refusal of malformed tracks, duplicate channels and invalid clocks.
+ * @evidence contracts/development/testing.md#independent-expectations Authored endpoints determine linear means and STEP holds; zero-tangent Hermite gives5 halfway from0 to10, while sine/cosine give the rotation midpoint. That symmetric midpoint alone cannot distinguish slerp from normalized lerp over the whole arc.
+ * @evidence contracts/development/testing.md#distinguishing-cases Existing before/at/after keys, singleton/interior segments, wrapped negative/positive queries, zero duration and invalid mode/width/value/time neighbors cover this sampler seam; nonzero cubic tangents and broad quaternion trajectories are outside these examples.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_sample_clip entry owns portable synchronous numerical sampler/refusal cases through direct source imports; no renderer clock, browser or Human asset is created.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 16 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Linear interpolation of a vec3 translation: 0→(10,20,30) at t=0.5 is).
  */
 export function test_resolve_sample_clip(): void {
   // 1. linear vec3

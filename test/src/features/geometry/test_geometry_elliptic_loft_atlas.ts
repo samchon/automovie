@@ -1,5 +1,7 @@
-import { createAutoMovieEllipticLoftAtlas } from "@automovie/engine/geometry/createAutoMovieEllipticLoftAtlas";
-import { realizeAutoMovieBicubicAtlas64 } from "@automovie/engine/geometry/realizeAutoMovieBicubicAtlas64";
+import {
+  createAutoMovieEllipticLoftAtlas,
+  realizeAutoMovieBicubicAtlas64,
+} from "@automovie/engine";
 import type { IAutoMovieEllipticLoft } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -14,10 +16,11 @@ import { nclose } from "../internal/nclose";
  * 3. Positive controls, physical ordering and exact C0 ownership are required; C0 creases retain both analytic normal limits.
  * 4. Explicit tessellation exhaustion stays distinct from finite recipe construction.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs the public loft producer and actual atlas realization and asserts shared output coefficient indices, emitted geometric fidelity, outward normals and refusal/incomplete outcomes.
- * @evidence contracts/testing.md#independent-expectations The cylinder satisfies (x/0.02)^2+(z/0.01)^2=1 with positive outward radial normals and open Y ends. The standard cubic circle deviation is bounded independently by the producer's documented 0.000273 relative bound; endpoint identity is mandated by the public shared-atlas contract.
- * @evidence contracts/testing.md#distinguishing-cases Covers two spans, angular wrap, axial seam, distinct one-sided C0 normals, constant positive radii, zero radius, interval gap/reversal, unequal boundary coefficients, sparse control arrays, invalid budgets and deliberately incomplete tessellation. Image inference and semantic edits belong to recovery tests.
- * @evidence contracts/testing.md#execution-ownership The portable test_geometry_elliptic_loft_atlas entry generates a bounded numerical CPU mesh from analytic coefficients, without a real host, native build, browser, GPU or Human source.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the public loft producer and actual atlas realization and asserts shared output coefficient indices, emitted geometric fidelity, outward normals and refusal/incomplete outcomes.
+ * @evidence contracts/development/testing.md#independent-expectations The cylinder satisfies (x/0.02)^2+(z/0.01)^2=1 with positive outward radial normals and open Y ends. The standard cubic circle deviation is bounded independently by the producer's documented 0.000273 relative bound; endpoint identity is mandated by the public shared-atlas contract.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers two spans, angular wrap, axial seam, distinct one-sided C0 normals, constant positive radii, zero radius, interval gap/reversal, unequal boundary coefficients, sparse control arrays, invalid budgets and deliberately incomplete tessellation. Image inference and semantic edits belong to recovery tests.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_geometry_elliptic_loft_atlas entry generates a bounded numerical CPU mesh from analytic coefficients, without a real host, native build, browser, GPU or Human source.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two constant-profile spans share both angular and axial coefficient owners.).
  */
 export function test_geometry_elliptic_loft_atlas(): void {
   const make: () => Parameters<

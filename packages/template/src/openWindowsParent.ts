@@ -78,13 +78,13 @@ const STATUS_OBJECT_NAME_COLLISION: number = 0xc0000035 | 0;
 /**
  * Open a Windows directory without following its final reparse point and return held-parent child operations; the publication coordinator owns closing the parent and each child.
  *
- * @evidence contracts/common.md#principled-implementation CreateFileW opens the non-followed parent, and NtCreateFile uses its RootDirectory with FILE_CREATE or FILE_OPEN for child operations.
- * @evidence contracts/common.md#clear-and-simple-design The Windows adapter retains raw HANDLEs and supplies the same parent/child contract as POSIX without introducing a CRT descriptor conversion.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A collision is a no-slot refusal, while a successful create with an unusable handle remains partial; no cleanup or pathname retry hides either effect.
- * @evidence contracts/common.md#meaningful-documentation The comment states final-reparse handling, parent-relative operations and coordinator release ownership.
- * @evidence contracts/performance.md#efficient-algorithms Parent opening and each child operation use a fixed number of native calls; byte transfers remain proportional to the requested slice.
- * @evidence contracts/performance.md#reuse-equivalent-work The native ABI bindings are shared through the lazy loader, while every parent and child HANDLE represents a separate unshared open effect.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The parent HANDLE and returned child HANDLEs transfer to the publication coordinator for closing; native errors before a child exists retain no child handle.
+ * @evidence contracts/development/implementation.md#principled-implementation CreateFileW opens the non-followed parent, and NtCreateFile uses its RootDirectory with FILE_CREATE or FILE_OPEN for child operations.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The Windows adapter retains raw HANDLEs and supplies the same parent/child contract as POSIX without introducing a CRT descriptor conversion.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A collision is a no-slot refusal, while a successful create with an unusable handle remains partial; no cleanup or pathname retry hides either effect.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states final-reparse handling, parent-relative operations and coordinator release ownership.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Parent opening and each child operation use a fixed number of native calls; byte transfers remain proportional to the requested slice.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The native ABI bindings are shared through the lazy loader, while every parent and child HANDLE represents a separate unshared open effect.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The parent HANDLE and returned child HANDLEs transfer to the publication coordinator for closing; native errors before a child exists retain no child handle.
  */
 export const openWindowsParent: (parentPath: string) => IBoundParent = (
   parentPath: string,

@@ -22,13 +22,13 @@ import { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
  * @returns The face's parameter, with `corner` null because every face is a quad.
  * @throws Error when the patch index is out of range or `s` or `t` lies outside 0 to 1, or a coordinate of a non-grid patch lies on none of its faces.
  *
- * @evidence contracts/common.md#principled-implementation Inverting the even grid map of a structured block is exact: column and row are the integer parts of the scaled coordinates and the local coordinates their fractional parts; a non-grid band inverts each face's bilinear corner map, the map `mapAutoMovieSurfaceTier` applies, by Newton's method.
- * @evidence contracts/common.md#clear-and-simple-design Reads the per-patch grids the sampler publishes; only a non-grid band searches its own faces.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Coordinates outside a patch are refused instead of clamped onto its edge.
- * @evidence contracts/common.md#meaningful-documentation States the face rule, the boundary case, the local coordinate convention and the refusals.
- * @evidence contracts/performance.md#efficient-algorithms Constant time on a grid: two products, two floors and one array read; on a band, at most 30 Newton steps per face of that band.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure lookup.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#principled-implementation Inverting the even grid map of a structured block is exact: column and row are the integer parts of the scaled coordinates and the local coordinates their fractional parts; a non-grid band inverts each face's bilinear corner map, the map `mapAutoMovieSurfaceTier` applies, by Newton's method.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the per-patch grids the sampler publishes; only a non-grid band searches its own faces.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Coordinates outside a patch are refused instead of clamped onto its edge.
+ * @evidence contracts/development/common.md#meaningful-documentation States the face rule, the boundary case, the local coordinate convention and the refusals.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant time on a grid: two products, two floors and one array read; on a band, at most 30 Newton steps per face of that band.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure lookup.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export const locateAutoMovieSurfaceCoordinate: (props: {
   cage: IAutoMovieSurfaceCage;

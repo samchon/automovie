@@ -8,13 +8,13 @@ import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
 /**
  * Authored 1.4-second three-key dance loop alternating signed torso twist, lateral root sway of 0.06 metres and yaw of 14 degrees. Alternating overhead arms retain the existing 210-degree abduction. These conventional display values are not clinically admitted movement; the page's optional clamp may change playback.
  *
- * @evidence contracts/common.md#principled-implementation A signed beat factory couples the explicitly authored torso/arm/root values, and equal -1 endpoint beats close the sparse cycle by value.
- * @evidence contracts/common.md#clear-and-simple-design One fixed beat recipe supplies current choreography without introducing a body optimizer or dance simulation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Coupled authored sway/twist is not inferred physiology, and the legacy overhead overshoot remains explicit rather than reported as valid shoulder capacity.
- * @evidence contracts/common.md#meaningful-documentation The comment states timing, metre/degree sway values and the preserved overshoot/optional clamp qualification.
- * @evidence contracts/performance.md#efficient-algorithms Three bounded pose/root/key constructions require constant work; engine sampling, FK and renderer cost remain with actual consumers.
- * @evidence contracts/performance.md#reuse-equivalent-work One beat formula governs both directions while calls create independent mutable records; no cached model or motion result crosses calls.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains this clip and its records for its player lifetime; no timer, worker or GPU resource is allocated by the producer.
+ * @evidence contracts/development/implementation.md#principled-implementation A signed beat factory couples the explicitly authored torso/arm/root values, and equal -1 endpoint beats close the sparse cycle by value.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed beat recipe supplies current choreography without introducing a body optimizer or dance simulation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Coupled authored sway/twist is not inferred physiology, and the legacy overhead overshoot remains explicit rather than reported as valid shoulder capacity.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states timing, metre/degree sway values and the preserved overshoot/optional clamp qualification.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three bounded pose/root/key constructions require constant work; engine sampling, FK and renderer cost remain with actual consumers.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One beat formula governs both directions while calls create independent mutable records; no cached model or motion result crosses calls.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller retains this clip and its records for its player lifetime; no timer, worker or GPU resource is allocated by the producer.
  */
 export const dance: (sk: string) => IAutoMovieMotion = (
   sk: string,

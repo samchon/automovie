@@ -20,10 +20,11 @@ import { makePose } from "../internal/makePose";
  * 1. An empty keyframe list is a temporal validation failure.
  * 2. A single keyframe is also a temporal validation failure.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateMotion for empty and singleton keyframe arrays, requiring temporal refusal at keyframes instead of accepting an interval with fewer than two keys.
- * @evidence contracts/testing.md#independent-expectations A motion clip declares an interpolated interval with at least two keys; literal cardinalities zero and one violate that requirement without using sampler output.
- * @evidence contracts/testing.md#distinguishing-cases Owns empty and singleton populations; motion_valid supplies a supported two-key neighbor and ordering/duration entries own timeline limits.
- * @evidence contracts/testing.md#execution-ownership The named unit uses the existing portable rig and keyframe factories; no sampler task, host or dynamic case registration runs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateMotion for empty and singleton keyframe arrays, requiring temporal refusal at keyframes instead of accepting an interval with fewer than two keys.
+ * @evidence contracts/development/testing.md#independent-expectations A motion clip declares an interpolated interval with at least two keys; literal cardinalities zero and one violate that requirement without using sampler output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns empty and singleton populations; motion_valid supplies a supported two-key neighbor and ordering/duration entries own timeline limits.
+ * @evidence contracts/development/testing.md#execution-ownership The named unit uses the existing portable rig and keyframe factories; no sampler task, host or dynamic case registration runs.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An empty keyframe list is a temporal validation failure.).
  */
 export function test_validation_motion_keyframe_count(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

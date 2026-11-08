@@ -4,26 +4,20 @@
  * Authority IDs belong to partition and its caller; phase/local carry no such ID.
  * No position, normal, source topology or generated geometry enters this helper.
  *
- * @evidence contracts/common.md#principled-implementation Exact integer dyadics identify affine phases; rational nearest-even rounding supplies numeric views. An endpoint sweep reports incidence separately on each authority's open atoms.
- * @evidence contracts/common.md#clear-and-simple-design One stateless namespace owns phase identity, inverse coordinates and interval incidence; geometry and authority admission remain caller responsibilities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No tolerance, positional weld, hidden phase correction or geometric nonmanifold inference is used.
- * @evidence contracts/common.md#meaningful-documentation Documents normalized units, exact versus rounded identity, oriented walks, explicit gaps and the missing authority channel in phase/local.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A namespace performs no computation; its functions state their costs.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The namespace holds no result cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No namespace state or native resource is retained.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents normalized units, exact versus rounded identity, oriented walks, explicit gaps and the missing authority channel in phase/local.
+ * @evidence contracts/development/design.md#principled-representation Represents Exact normalized boundary phases and atomic interval incidence in binary64: companion namespace of 16 members (`Interval`, `Dyadic`, `phase`, `local`, `compare`, `inverse`, ...); units and frames named in its text: rational, local, byte, frames, bytes. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieCanonicalBoundary64` in packages/engine/src/geometry/curve/AutoMovieCanonicalBoundary64.ts; its surface is the 16 members listed and the text shows 7 other files naming it, mostly packages/engine (7), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieCanonicalBoundary64 {
   /**
    * One authority's directed normalized interval; finite endpoints lie in [0,1]
    * and differ. Authority is a nonempty caller-owned identity, not a position.
    *
-   * @evidence contracts/common.md#principled-implementation Two normalized endpoints describe an oriented restriction of one named boundary.
-   * @evidence contracts/common.md#clear-and-simple-design This structural record separates authority identity from phase arithmetic.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Numeric coincidence supplies no authority identity.
-   * @evidence contracts/common.md#meaningful-documentation States endpoint range, directed order and caller-owned identity.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A type performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A type schedules no work.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A type owns no runtime storage.
+   * @evidence contracts/development/design.md#principled-representation Two normalized endpoints describe an oriented restriction of one named boundary.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface This structural record separates authority identity from phase arithmetic.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Numeric coincidence supplies no authority identity.
+   * @evidence contracts/development/common.md#meaningful-documentation States endpoint range, directed order and caller-owned identity.
    */
   export type Interval = {
     /** Nonempty caller-owned boundary identity, independent of numeric coincidence. */
@@ -50,13 +44,13 @@ export namespace AutoMovieCanonicalBoundary64 {
    * their input value, including signed zero; interior numeric views may round
    * onto an endpoint while their exact key remains distinct. Inputs are immutable.
    *
-   * @evidence contracts/common.md#principled-implementation Binary64 decoding, exact aligned subtraction and integer multiplication compute the affine dyadic; integer quotient/remainder rounding implements nearest-even.
-   * @evidence contracts/common.md#clear-and-simple-design One exact result supplies both identity and its numeric view; endpoint authority is retained directly.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No rounded subtraction, decimal identity, phase clamp or epsilon comparison changes the exact affine result.
-   * @evidence contracts/common.md#meaningful-documentation States key encoding, normalized inputs, signed-zero endpoints and possible rounded endpoint coincidence.
-   * @evidence contracts/performance.md#efficient-algorithms A fixed number of BigInt shifts, products and divisions operate on O(W) bits, W at most 2149 for binary64 affine phases; normalization visits trailing zero bits and key formatting visits result bits.
-   * @evidence contracts/performance.md#reuse-equivalent-work The same normalized exact result supplies the key and rounded value.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only a scalar/string result escapes; DataViews and BigInts are call-local and no cache or native handle is acquired.
+   * @evidence contracts/development/implementation.md#principled-implementation Binary64 decoding, exact aligned subtraction and integer multiplication compute the affine dyadic; integer quotient/remainder rounding implements nearest-even.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One exact result supplies both identity and its numeric view; endpoint authority is retained directly.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rounded subtraction, decimal identity, phase clamp or epsilon comparison changes the exact affine result.
+   * @evidence contracts/development/common.md#meaningful-documentation States key encoding, normalized inputs, signed-zero endpoints and possible rounded endpoint coincidence.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of BigInt shifts, products and divisions operate on O(W) bits, W at most 2149 for binary64 affine phases; normalization visits trailing zero bits and key formatting visits result bits.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same normalized exact result supplies the key and rounded value.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a scalar/string result escapes; DataViews and BigInts are call-local and no cache or native handle is acquired.
    */
   export function phase(
     start: number,
@@ -90,13 +84,13 @@ export namespace AutoMovieCanonicalBoundary64 {
    * A rounded inverse need not reproduce that key through phase; retain the
    * canonical input key across restrictions rather than reconstructing identity.
    *
-   * @evidence contracts/common.md#principled-implementation Exact dyadic subtraction forms (q-start)/(end-start); integer rational rounding preserves endpoint tests before numeric conversion.
-   * @evidence contracts/common.md#clear-and-simple-design Exact-key admission precedes interval admission and one inverse rounding; authority selection stays outside the numeric ABI.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No numeric reconstruction from rounded q, clamping, tolerance or authority inference substitutes for the supplied key.
-   * @evidence contracts/common.md#meaningful-documentation States exact range checking, endpoint collapse refusal, numeric/key consistency and caller authority responsibility.
-   * @evidence contracts/performance.md#efficient-algorithms Key parsing visits at most 550 characters; fixed aligned BigInt operations and one rational division process O(W) bits from bounded binary64 phase keys.
-   * @evidence contracts/performance.md#reuse-equivalent-work Parsed exact q serves consistency, range and inverse checks without another interpolation.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the inverse scalar escapes; key parsing and rational buffers are call-local with no retained cache or handles.
+   * @evidence contracts/development/implementation.md#principled-implementation Exact dyadic subtraction forms (q-start)/(end-start); integer rational rounding preserves endpoint tests before numeric conversion.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Exact-key admission precedes interval admission and one inverse rounding; authority selection stays outside the numeric ABI.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No numeric reconstruction from rounded q, clamping, tolerance or authority inference substitutes for the supplied key.
+   * @evidence contracts/development/common.md#meaningful-documentation States exact range checking, endpoint collapse refusal, numeric/key consistency and caller authority responsibility.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Key parsing visits at most 550 characters; fixed aligned BigInt operations and one rational division process O(W) bits from bounded binary64 phase keys.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Parsed exact q serves consistency, range and inverse checks without another interpolation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the inverse scalar escapes; key parsing and rational buffers are call-local with no retained cache or handles.
    */
   export function local(
     start: number,
@@ -134,13 +128,13 @@ export namespace AutoMovieCanonicalBoundary64 {
    * Order admitted exact phase keys without using their rounded numeric views.
    * Distinct dyadics can have the same view; their identity and order remain distinct.
    *
-   * @evidence contracts/common.md#principled-implementation Validated dyadics are aligned and subtracted exactly before taking their sign.
-   * @evidence contracts/common.md#clear-and-simple-design One scalar comparison serves schedule sorting and directed interval membership.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Rounded-value coincidence does not merge or reorder canonical addresses.
-   * @evidence contracts/common.md#meaningful-documentation States exact-key ordering and the distinction from numeric views.
-   * @evidence contracts/performance.md#efficient-algorithms Two bounded key parses and O(W)-bit aligned subtraction determine one sign.
-   * @evidence contracts/performance.md#reuse-equivalent-work Each key is parsed once per comparison.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only a signed scalar escapes; parsed BigInts are call-local.
+   * @evidence contracts/development/implementation.md#principled-implementation Validated dyadics are aligned and subtracted exactly before taking their sign.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar comparison serves schedule sorting and directed interval membership.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rounded-value coincidence does not merge or reorder canonical addresses.
+   * @evidence contracts/development/common.md#meaningful-documentation States exact-key ordering and the distinction from numeric views.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two bounded key parses and O(W)-bit aligned subtraction determine one sign.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each key is parsed once per comparison.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a signed scalar escapes; parsed BigInts are call-local.
    */
   export function compare(
     a: { value: number; key: string },
@@ -165,13 +159,13 @@ export namespace AutoMovieCanonicalBoundary64 {
    * A reversed map, inconsistent anchor, out-of-range target or unrepresentable
    * interior inverse throws rather than moving an authored local coordinate.
    *
-   * @evidence contracts/common.md#principled-implementation Exact phase comparisons bracket the same callback used for forward transport; ordered IEEE bit bisection terminates on its finite local domain.
-   * @evidence contracts/common.md#clear-and-simple-design One forward callback and its immutable authored anchors define both transports, avoiding an independently rounded inverse formula.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No phase epsilon, coordinate rounding, shape resampling, special address override or endpoint clamp changes canonical identity or authored locals.
-   * @evidence contracts/common.md#meaningful-documentation States directed anchors, finite inverse semantics, unattainable phases and explicit refusal cases.
-   * @evidence contracts/performance.md#efficient-algorithms A anchors cost O(A) forward evaluations and exact comparisons; at most 62 additional callback evaluations bisect the positive unit binary64 bit range, in addition to caller callback cost.
-   * @evidence contracts/performance.md#reuse-equivalent-work Caller-owned forward anchors are reused for interval selection and exact authored hits; each bisection evaluates its midpoint once.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only one local scalar escapes; the fixed eight-byte DataView and phase brackets are call-local, with no retained callback or cache.
+   * @evidence contracts/development/implementation.md#principled-implementation Exact phase comparisons bracket the same callback used for forward transport; ordered IEEE bit bisection terminates on its finite local domain.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One forward callback and its immutable authored anchors define both transports, avoiding an independently rounded inverse formula.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No phase epsilon, coordinate rounding, shape resampling, special address override or endpoint clamp changes canonical identity or authored locals.
+   * @evidence contracts/development/common.md#meaningful-documentation States directed anchors, finite inverse semantics, unattainable phases and explicit refusal cases.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A anchors cost O(A) forward evaluations and exact comparisons; at most 62 additional callback evaluations bisect the positive unit binary64 bit range, in addition to caller callback cost.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Caller-owned forward anchors are reused for interval selection and exact authored hits; each bisection evaluates its midpoint once.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only one local scalar escapes; the fixed eight-byte DataView and phase brackets are call-local, with no retained callback or cache.
    */
   export function inverse(
     forward: (local: number) => ReturnType<typeof phase>,
@@ -263,13 +257,13 @@ export namespace AutoMovieCanonicalBoundary64 {
    * Three global uses can describe coarse1+fine2 with exactly two uses per atom.
    * Duplicate IDs, empty authority/ID, invalid walks and invalid intervals throw.
    *
-   * @evidence contracts/common.md#principled-implementation An endpoint event sweep admits exact numeric endpoint order and records the active uses on each open atomic interval, with directed local-to-canonical transport.
-   * @evidence contracts/common.md#clear-and-simple-design Authority grouping, endpoint events and atom publication separate identity, interval coverage and caller topology decisions.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate matching, interval epsilon, global incident-count shortcut or hidden gap removal changes declared coverage.
-   * @evidence contracts/common.md#meaningful-documentation States open atoms, deterministic order, input/output walk frames, gap semantics and the limited meaning of incidence diagnostics.
-   * @evidence contracts/performance.md#efficient-algorithms For U uses and A atoms, sorting events costs O(U log U) comparisons; sorting each atom's M active IDs costs O(M log M), with O(U+sum M) storage including returned coverage. String comparison visits key bytes; explicit multiplicity can make output quadratic.
-   * @evidence contracts/performance.md#reuse-equivalent-work One endpoint event map and active-use map per authority serve every atom without rescanning all input intervals.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Local maps expire on return or failure; returned atoms/diagnostics scale with declared interval incidences and are caller-owned, with no global cache or native resource.
+   * @evidence contracts/development/implementation.md#principled-implementation An endpoint event sweep admits exact numeric endpoint order and records the active uses on each open atomic interval, with directed local-to-canonical transport.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Authority grouping, endpoint events and atom publication separate identity, interval coverage and caller topology decisions.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No coordinate matching, interval epsilon, global incident-count shortcut or hidden gap removal changes declared coverage.
+   * @evidence contracts/development/common.md#meaningful-documentation States open atoms, deterministic order, input/output walk frames, gap semantics and the limited meaning of incidence diagnostics.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For U uses and A atoms, sorting events costs O(U log U) comparisons; sorting each atom's M active IDs costs O(M log M), with O(U+sum M) storage including returned coverage. String comparison visits key bytes; explicit multiplicity can make output quadratic.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One endpoint event map and active-use map per authority serve every atom without rescanning all input intervals.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local maps expire on return or failure; returned atoms/diagnostics scale with declared interval incidences and are caller-owned, with no global cache or native resource.
    */
   export function partition(
     uses: readonly {

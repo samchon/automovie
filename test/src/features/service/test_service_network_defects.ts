@@ -51,10 +51,10 @@ const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
  * branch that was run and then orphaned. Reporting either as the other would
  * point at the wrong end of the mistake.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs actual network validation and directional load measurement over selected header, identity, vocabulary, medium/unit, stub, capacity, root, spatial, operating-state and numeric defects; kind/path, selected exact counts and overshoots expose missing or unrelated findings.
- * @evidence contracts/testing.md#independent-expectations Authored graph references and schema tables supply diagnostic paths; inlet .0002, waste outlet .001 and capacities .01/.0005 yield independent load/overshoot expectations through nclose. Presence-only assertions permit additional findings where no count is asserted.
- * @evidence contracts/testing.md#distinguishing-cases Preserves all fifteen numbered groups, both data/control tables, supply/drain direction, branch deletion, nonfinite placement without extra room accusation and unmeasurable capacity without load comparison; clean-network admission and detailed run/seal geometry belong to adjacent service tests.
- * @evidence contracts/testing.md#execution-ownership The named discoverable portable unit owns early cases and calls assertServiceNetworkSpatialDefects for the original later groups with the same clean network and refusal closure; no extra registration, renderer, native host or hydraulic/electrical simulation runs.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs actual network validation and directional load measurement over selected header, identity, vocabulary, medium/unit, stub, capacity, root, spatial, operating-state and numeric defects; kind/path, selected exact counts and overshoots expose missing or unrelated findings.
+ * @evidence contracts/development/testing.md#independent-expectations Authored graph references and schema tables supply diagnostic paths; inlet .0002, waste outlet .001 and capacities .01/.0005 yield independent load/overshoot expectations through nclose. Presence-only assertions permit additional findings where no count is asserted.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves all fifteen numbered groups, both data/control tables, supply/drain direction, branch deletion, nonfinite placement without extra room accusation and unmeasurable capacity without load comparison; clean-network admission and detailed run/seal geometry belong to adjacent service tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named discoverable portable unit owns early cases and calls assertServiceNetworkSpatialDefects for the original later groups with the same clean network and refusal closure; no extra registration, renderer, native host or hydraulic/electrical simulation runs.
  *
  * Scenarios:
  *
@@ -92,6 +92,8 @@ const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
  * 15. Non-finite and negative numbers are refused wherever a position, a demand or
  *     a section is required, and a point nobody can read is not additionally
  *     accused of standing in the wrong room.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 15 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The record's own header is checked: schema version, units, the environment it).
  */
 export function test_service_network_defects(): void {
   const clean: IAutoMovieServiceNetwork = serviceNetwork();

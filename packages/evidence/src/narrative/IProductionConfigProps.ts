@@ -7,13 +7,10 @@ import type { NarrativeScope } from "./NarrativeScope";
 /**
  * Selects narrative claim families, their stages and additional native claims.
  *
- * @evidence contracts/common.md#principled-implementation The route, absolute location, authored scope and stage maps select native narrative respondents; extra claims and engineering support remain ordinary native claims.
- * @evidence contracts/common.md#clear-and-simple-design One configuration object groups the options needed by the shared claim collector.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Stages select structural evidence and never certify creative completion; native Evidence evaluates the resulting graph.
- * @evidence contracts/common.md#meaningful-documentation Members explain route, location, scope, stages and additive claims; the production owns independent creative review.
- * @evidence contracts/performance.md#efficient-algorithms This erased interface performs no computation; its collector accounts for discovery and allocation.
- * @evidence contracts/performance.md#reuse-equivalent-work This erased interface owns no cache or coordinated computation.
- * @evidence contracts/performance.md#bound-retention-and-release-resources This erased interface acquires no handles or background tasks.
+ * @evidence contracts/development/design.md#principled-representation The route, absolute location, authored scope and stage maps select native narrative respondents; extra claims and engineering support remain ordinary native claims.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One configuration object groups the options needed by the shared claim collector.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Stages select structural evidence and never certify creative completion; native Evidence evaluates the resulting graph.
+ * @evidence contracts/development/common.md#meaningful-documentation Members explain route, location, scope, stages and additive claims; the production owns independent creative review.
  */
 export interface IProductionConfigProps {
   /** Chooses four-layer long work, direct short screenplay, compact settings plus screenplay, or standalone assets. */

@@ -5,10 +5,10 @@ import { IAutoMovieShotContract } from "../production/IAutoMovieShotContract";
  *
  * id and source are removed because the registration owns identity and the compiler owns the pointer: compileDefinedShot restores them as the registration id and a synthetic `<defineShot:id>` module with the same id as export before measuring.
  *
- * @evidence contracts/common.md#principled-implementation Derives the type with `Omit` over `IAutoMovieShotContract`, so every other contract field keeps its single definition and documentation, and a field added to the contract reaches registrations without a second edit.
- * @evidence contracts/common.md#clear-and-simple-design A type alias rather than a copied interface, because the registration differs from the full contract only by the two fields another owner supplies.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The removed fields are restored from the registration at compile time rather than defaulted, so a registration cannot claim another shot's identity or source module.
- * @evidence contracts/common.md#meaningful-documentation States which two fields are removed, who owns each instead, and the exact values `compileDefinedShot` restores before measurement.
+ * @evidence contracts/development/design.md#principled-representation Derives the type with `Omit` over `IAutoMovieShotContract`, so every other contract field keeps its single definition and documentation, and a field added to the contract reaches registrations without a second edit.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface A type alias rather than a copied interface, because the registration differs from the full contract only by the two fields another owner supplies.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The removed fields are restored from the registration at compile time rather than defaulted, so a registration cannot claim another shot's identity or source module.
+ * @evidence contracts/development/common.md#meaningful-documentation States which two fields are removed, who owns each instead, and the exact values `compileDefinedShot` restores before measurement.
  */
 export type IAutoMovieDefinedShotContract = Omit<
   IAutoMovieShotContract,

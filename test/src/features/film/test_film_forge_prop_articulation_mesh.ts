@@ -70,10 +70,11 @@ function drives(index: number, part: string): IAutoMoviePropSpec {
  * 4. Every joint leaving `mesh` null still forges, which is the contract every
  *    prop authored before the reference existed was written against.
  *
- * @evidence contracts/testing.md#behavioral-verification Forges joint-to-part references and observes sceneToNodes output; accepted panel identity, missing-part paths and second-claim diagnostics catch invisible or multiply-owned articulated parts.
- * @evidence contracts/testing.md#independent-expectations The authored model contains exactly one panel part; one joint may claim it, an absent sash cannot be claimed and a second claim must name the first. Expected placement/hinge identity follows the placement child naming contract, with no sampled render or geometry oracle implied.
- * @evidence contracts/testing.md#distinguishing-cases Covers valid ownership, unknown mesh, duplicate ownership and the adjacent all-null legacy joint case; exact one-error counting checks that an unrelated joint is not blamed. Numeric travel, binding and hierarchy defects belong to the other forge tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test owns four in-memory forge/lowering cases and reaches portable engine source without a process, browser or asset installation.
+ * @evidence contracts/development/testing.md#behavioral-verification Forges joint-to-part references and observes sceneToNodes output; accepted panel identity, missing-part paths and second-claim diagnostics catch invisible or multiply-owned articulated parts.
+ * @evidence contracts/development/testing.md#independent-expectations The authored model contains exactly one panel part; one joint may claim it, an absent sash cannot be claimed and a second claim must name the first. Expected placement/hinge identity follows the placement child naming contract, with no sampled render or geometry oracle implied.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers valid ownership, unknown mesh, duplicate ownership and the adjacent all-null legacy joint case; exact one-error counting checks that an unrelated joint is not blamed. Numeric travel, binding and hierarchy defects belong to the other forge tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test owns four in-memory forge/lowering cases and reaches portable engine source without a process, browser or asset installation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The hinge driving the model's own `panel` part forges, and the lowered scene).
  */
 export function test_film_forge_prop_articulation_mesh(): void {
   const driven: IAutoMoviePropSpec = drives(1, "panel");

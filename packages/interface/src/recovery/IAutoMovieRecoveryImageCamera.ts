@@ -3,10 +3,10 @@
  * Positive image U projects cos(azimuth) X + sin(azimuth) Z;
  * positive image V projects negative Y. Pixel centres have half-integer coordinates.
  *
- * @evidence contracts/common.md#principled-implementation An azimuth, square-pixel pitch and principal point define the supplied orthographic chart without estimating calibration or admitting perspective distortion.
- * @evidence contracts/common.md#clear-and-simple-design Captures and saved support observations share one named camera contract.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No camera inference, specimen-specific projection or silent rectification is represented.
- * @evidence contracts/common.md#meaningful-documentation States projection signs, radians, positive millimetres per pixel, origin coordinates and supplied-calibration meaning.
+ * @evidence contracts/development/design.md#principled-representation An azimuth, square-pixel pitch and principal point define the supplied orthographic chart without estimating calibration or admitting perspective distortion.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Captures and saved support observations share one named camera contract.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No camera inference, specimen-specific projection or silent rectification is represented.
+ * @evidence contracts/development/common.md#meaningful-documentation States projection signs, radians, positive millimetres per pixel, origin coordinates and supplied-calibration meaning.
  */
 export interface IAutoMovieRecoveryImageCamera {
   /** Horizontal orthographic projection; perspective and distortion are unsupported. */

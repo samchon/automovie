@@ -3,10 +3,10 @@ import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 /**
  * Six signed half-space planes for the caller's axis-aligned box bounds.
  *
- * @evidence contracts/testing.md#behavioral-verification Existing room-visibility cases exercise interior, exterior and overlapping cells built with these planes; assertions belong to those cases, not this input helper.
- * @evidence contracts/testing.md#independent-expectations Each maximum uses the positive unit-axis normal and each minimum its negative, so containment follows directly from the supplied axis bounds.
- * @evidence contracts/testing.md#distinguishing-cases Returns all six planes unchanged for any numeric input, including reversed or malformed bounds; it performs no geometry admission or repair, leaving refusal semantics to consumers.
- * @evidence contracts/testing.md#execution-ownership Numerical fixture construction only, with fresh plane objects and no native mesh, host, file or discovered test registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Existing room-visibility cases exercise interior, exterior and overlapping cells built with these planes; assertions belong to those cases, not this input helper.
+ * @evidence contracts/development/testing.md#independent-expectations Each maximum uses the positive unit-axis normal and each minimum its negative, so containment follows directly from the supplied axis bounds.
+ * @evidence contracts/development/testing.md#distinguishing-cases Returns all six planes unchanged for any numeric input, including reversed or malformed bounds; it performs no geometry admission or repair, leaving refusal semantics to consumers.
+ * @evidence contracts/development/testing.md#execution-ownership Numerical fixture construction only, with fresh plane objects and no native mesh, host, file or discovered test registration.
  */
 export const boxCell: (props: {
   id: string;

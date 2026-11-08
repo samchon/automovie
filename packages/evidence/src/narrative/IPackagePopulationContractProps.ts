@@ -6,13 +6,10 @@ import type { ProductionStage } from "./ProductionStage";
 /**
  * Describes one work-specific duty answered once per complete layer.
  *
- * @evidence contracts/common.md#principled-implementation The object represents one exact work obligation document and its owning populations, with pilot-only deferral separate from pass activation.
- * @evidence contracts/common.md#clear-and-simple-design One duty document and layer-stage map express once-per-layer obligations separately from per-H2 checklists.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts createPackagePopulationContract enforces exact obligation paths and pilot-only deferral; the interface adds no bypass.
- * @evidence contracts/common.md#meaningful-documentation Members state tracked obligation addressing, complete-population ownership, final-pass working roots and pilot-only deferral.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Whole-population contract inputs is erased at runtime; producing and consuming functions account for concrete traversal and allocation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Whole-population contract inputs declares data and coordinates no reusable effects; consumers own equivalence and invalidation.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Whole-population contract inputs acquires no resource or retained state; concrete owners determine instance bytes and lifetimes.
+ * @evidence contracts/development/design.md#principled-representation The object represents one exact work obligation document and its owning populations, with pilot-only deferral separate from pass activation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One duty document and layer-stage map express once-per-layer obligations separately from per-H2 checklists.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts createPackagePopulationContract enforces exact obligation paths and pilot-only deferral; the interface adds no bypass.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state tracked obligation addressing, complete-population ownership, final-pass working roots and pilot-only deferral.
  */
 export interface IPackagePopulationContractProps {
   /** One tracked work-contract document containing population H2 duties. */

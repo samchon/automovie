@@ -31,10 +31,11 @@ import { namedFacts } from "../internal/predicates";
  * Scenarios:
  * 1. Retains rest and excessive keys and checks the refused compiled branch; valid ROM behavior is exercised by perform_shot_valid.
  *
- * @evidence contracts/testing.md#behavioral-verification Performs an elbow clip with 200-degree flexion and checks a ROM refusal remapped to the compiled knight clip with positive overshoot.
- * @evidence contracts/testing.md#independent-expectations The elbow's supported 150-degree flexion limit makes 200 excessive; the expected compiled path and positive excess are independent of the validator's emitted numerical magnitude.
- * @evidence contracts/testing.md#distinguishing-cases Retains rest and excessive keys and checks the refused compiled branch; valid ROM behavior is exercised by perform_shot_valid.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_rom_gate unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs an elbow clip with 200-degree flexion and checks a ROM refusal remapped to the compiled knight clip with positive overshoot.
+ * @evidence contracts/development/testing.md#independent-expectations The elbow's supported 150-degree flexion limit makes 200 excessive; the expected compiled path and positive excess are independent of the validator's emitted numerical magnitude.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains rest and excessive keys and checks the refused compiled branch; valid ROM behavior is exercised by perform_shot_valid.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_rom_gate unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Retains rest and excessive keys and checks the refused compiled branch; valid ROM behavior is exercised by perform_shot_valid.).
  */
 export function test_film_perform_shot_rom_gate(): void {
   const staged: IAutoMovieStagedSet = stageScene(

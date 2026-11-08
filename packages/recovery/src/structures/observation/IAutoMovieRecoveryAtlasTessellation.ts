@@ -1,13 +1,10 @@
 /**
  * Physical display tessellation limits for an observed coefficient atlas.
  *
- * @evidence contracts/common.md#principled-implementation A millimetre tolerance and finite cell/vertex budgets retain the existing tessellation policy independently of source observation and fitting limits.
- * @evidence contracts/common.md#clear-and-simple-design One named record owns the existing atlas tessellation options without changing their values or admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The explicit unresolved-cell policy does not claim a surface-error guarantee for a retained coarse cell.
- * @evidence contracts/common.md#meaningful-documentation States physical tolerance, count budgets and optional unresolved-cell choices.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased policy performs no tessellation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration owns no runtime cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The containing observation input owns this policy record.
+ * @evidence contracts/development/design.md#principled-representation A millimetre tolerance and finite cell/vertex budgets retain the existing tessellation policy independently of source observation and fitting limits.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One named record owns the existing atlas tessellation options without changing their values or admission.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The explicit unresolved-cell policy does not claim a surface-error guarantee for a retained coarse cell.
+ * @evidence contracts/development/common.md#meaningful-documentation States physical tolerance, count budgets and optional unresolved-cell choices.
  */
 export interface IAutoMovieRecoveryAtlasTessellation {
   /** Physical tessellation tolerance, millimetres. */

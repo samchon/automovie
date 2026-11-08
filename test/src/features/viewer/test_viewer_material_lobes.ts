@@ -21,10 +21,11 @@ const material: (patch: Partial<IAutoMovieMaterial>) => IAutoMovieMaterial = (
  * 1. Strength 0.6 at 90 degrees with a direction map, a tinted sheen of roughness 0.3, specular intensity 0.25 and a thickness map lower to anisotropy 0.6, rotation pi/2, a linear anisotropy map, sheen 1 with that colour and roughness, specular intensity 0.25 and a linear thickness map; the binding list names both maps after the emissive slot.
  * 2. Omitting every lobe gives anisotropy 0, sheen 0, specular intensity 1 and no anisotropy or thickness map, and a declared black sheen keeps sheen 1 with a black tint.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds real physical materials through buildMaterial and reads their Three.js properties and resolved maps, catching a dropped lobe, a degree-radian slip, a wrong colour space or a missing map binding.
- * @evidence contracts/testing.md#independent-expectations The expected properties come from the glTF extension parameters and Three.js MeshPhysicalMaterial documentation: radians, sheen intensity one for a declared glTF sheen, linear data maps and the documented defaults.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts every declared lobe with every omitted lobe and a black sheen whose colour, not intensity, removes it; admission domains and carried-image decoding are owned by other tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable exported unit builds CPU-side Three.js materials with a local resolver and starts no renderer, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds real physical materials through buildMaterial and reads their Three.js properties and resolved maps, catching a dropped lobe, a degree-radian slip, a wrong colour space or a missing map binding.
+ * @evidence contracts/development/testing.md#independent-expectations The expected properties come from the glTF extension parameters and Three.js MeshPhysicalMaterial documentation: radians, sheen intensity one for a declared glTF sheen, linear data maps and the documented defaults.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts every declared lobe with every omitted lobe and a black sheen whose colour, not intensity, removes it; admission domains and carried-image decoding are owned by other tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable exported unit builds CPU-side Three.js materials with a local resolver and starts no renderer, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Strength 0.6 at 90 degrees with a direction map, a tinted sheen of roughness 0.3, specular intensity 0.25 and a thickness map lower to...).
  */
 export function test_viewer_material_lobes(): void {
   const resolved: string[] = [];

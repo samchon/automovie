@@ -8,13 +8,10 @@
  * family protected. `fingerprints` owns only the structural hash token in a
  * review header, never an identical token in its target or reason.
  *
- * @evidence contracts/common.md#principled-implementation A closed union limits mutations to comments, acknowledgements, reviews or fingerprint tokens.
- * @evidence contracts/common.md#clear-and-simple-design This vocabulary is shared by runtime validation and projection.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts These alternatives are structural protocol regions, not consumer exceptions.
- * @evidence contracts/common.md#meaningful-documentation The comment defines delimiters, reasons and surrounding bytes protected for each ownership.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased type chooses no runtime algorithm; producing and consuming functions own processing costs.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This erased data shape coordinates no work or cache; concrete runtime owners decide value equivalence.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased declaration acquires no resources; producers and consumers own concrete value lifetimes.
+ * @evidence contracts/development/design.md#principled-representation A closed union limits mutations to comments, acknowledgements, reviews or fingerprint tokens.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface This vocabulary is shared by runtime validation and projection.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts These alternatives are structural protocol regions, not consumer exceptions.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment defines delimiters, reasons and surrounding bytes protected for each ownership.
  */
 export type EvidenceMetadataRewriteOwnership =
   | "comments"

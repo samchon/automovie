@@ -6,13 +6,10 @@ import { IAutoMovieSequenceRenderFrame } from "./sequenceRenderPlan";
  *
  * A host can capture and encode one chunk at a time to limit each window's frame files; this declaration and the planner do not execute or bound that host's processes.
  *
- * @evidence contracts/common.md#principled-implementation A chunk is a half-open range `[frameStart, frameEnd)` of global output indices with chunk-local file indices, so concatenating chunks in `index` order reproduces the whole schedule and every chunk's frame files start at `frame_00000`.
- * @evidence contracts/common.md#clear-and-simple-design The chunk repeats the whole plan's per-render fields (frame directory, first and last frame, input pattern, output path, ffmpeg arguments) so a host renders it with the same code path as an unchunked plan.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every sample field of a chunk frame is copied from the whole plan rather than recomputed, so a chunk cannot render differently from the same frames of the unchunked plan, and no chunk position is special-cased.
- * @evidence contracts/common.md#meaningful-documentation The prose states what a chunk is for; members give the inclusive and exclusive bounds, the global and chunk-local frames of reference, and when the guide-pass field is present.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This interface only types one chunk's manifest and executes nothing; the slicing cost is answered on `planChunkedSequenceRender`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A chunk manifest is inert data and coordinates no work between phases or consumers.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased chunk interface acquires no file, handle or task. planChunkedSequenceRender constructs its relabelled frame list inside the caller-owned chunk plan; actual frame files and encoding processes belong to the supplied host.
+ * @evidence contracts/development/design.md#principled-representation A chunk is a half-open range `[frameStart, frameEnd)` of global output indices with chunk-local file indices, so concatenating chunks in `index` order reproduces the whole schedule and every chunk's frame files start at `frame_00000`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The chunk repeats the whole plan's per-render fields (frame directory, first and last frame, input pattern, output path, ffmpeg arguments) so a host renders it with the same code path as an unchunked plan.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every sample field of a chunk frame is copied from the whole plan rather than recomputed, so a chunk cannot render differently from the same frames of the unchunked plan, and no chunk position is special-cased.
+ * @evidence contracts/development/common.md#meaningful-documentation The prose states what a chunk is for; members give the inclusive and exclusive bounds, the global and chunk-local frames of reference, and when the guide-pass field is present.
  */
 export interface IAutoMovieRenderChunk {
   /** Zero-based chunk ordinal in capture and concatenation order. */

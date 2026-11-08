@@ -7,13 +7,13 @@ import { productionLayers } from "../productionLayers";
 /**
  * Checks supported narrative routes and stage option shapes before graph creation.
  *
- * @evidence contracts/common.md#principled-implementation Routes admit only their authored layers, long work alone admits an outline, and each supported stage is disabled or evidence.
- * @evidence contracts/common.md#clear-and-simple-design A single shape check precedes graph expansion; native Evidence owns claim and reference evaluation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The same route and stage vocabulary applies to every production; it does not inspect graph results or confer approval.
- * @evidence contracts/common.md#meaningful-documentation Errors identify unsupported routes, layers, outline choices and stage values.
- * @evidence contracts/performance.md#efficient-algorithms The closed four-layer vocabulary bounds validation to constant time and storage.
- * @evidence contracts/performance.md#reuse-equivalent-work The fixed vocabularies are reused within one call; there is no expensive computation or cross-call cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only local scalar values and the route array are allocated; no file handle or task is acquired.
+ * @evidence contracts/development/implementation.md#principled-implementation Routes admit only their authored layers, long work alone admits an outline, and each supported stage is disabled or evidence.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure A single shape check precedes graph expansion; native Evidence owns claim and reference evaluation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same route and stage vocabulary applies to every production; it does not inspect graph results or confer approval.
+ * @evidence contracts/development/common.md#meaningful-documentation Errors identify unsupported routes, layers, outline choices and stage values.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The closed four-layer vocabulary bounds validation to constant time and storage.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed vocabularies are reused within one call; there is no expensive computation or cross-call cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only local scalar values and the route array are allocated; no file handle or task is acquired.
  */
 export function assertProductionEvidenceSources(
   props: IProductionConfigProps,

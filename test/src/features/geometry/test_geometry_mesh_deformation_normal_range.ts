@@ -16,10 +16,11 @@ import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
  * 1. Adjacent 1e150 and 1e155 X stretches both retain all three unit-Z normals.
  * 2. A normal-free input remains normal-free at the same extreme geometry.
  *
- * @evidence contracts/testing.md#behavioral-verification Executes extreme X-stretch deformation, checking retained unit-Z normals, finite positions and absence of invented normals. It catches normalization that squares a finite cofactor into overflow while allowing representable geometry.
- * @evidence contracts/testing.md#independent-expectations Stretching an XY face along X leaves its normal direction +Z regardless of positive magnitude. The adjacent 1e150/1e155 stretches bracket squared-magnitude overflow while radius 1e160 keeps the existing inputs supported; exact retained normal components are numerical expectations, not rendered shading evidence.
- * @evidence contracts/testing.md#distinguishing-cases Preserves both large stretches and the matching normal-present/normal-absent inputs. Malformed fields, local reflection, scale underflow and face orientation are owned by the other deformation tests; these two samples do not prove arbitrary extreme arithmetic.
- * @evidence contracts/testing.md#execution-ownership The discoverable named entry calls portable deformation source on its existing triangle records without a consumer install, native build, process, browser or GPU. It registers no extra tests or Human geometry cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes extreme X-stretch deformation, checking retained unit-Z normals, finite positions and absence of invented normals. It catches normalization that squares a finite cofactor into overflow while allowing representable geometry.
+ * @evidence contracts/development/testing.md#independent-expectations Stretching an XY face along X leaves its normal direction +Z regardless of positive magnitude. The adjacent 1e150/1e155 stretches bracket squared-magnitude overflow while radius 1e160 keeps the existing inputs supported; exact retained normal components are numerical expectations, not rendered shading evidence.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves both large stretches and the matching normal-present/normal-absent inputs. Malformed fields, local reflection, scale underflow and face orientation are owned by the other deformation tests; these two samples do not prove arbitrary extreme arithmetic.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable named entry calls portable deformation source on its existing triangle records without a consumer install, native build, process, browser or GPU. It registers no extra tests or Human geometry cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Adjacent 1e150 and 1e155 X stretches both retain all three unit-Z normals.).
  */
 export function test_geometry_mesh_deformation_normal_range(): void {
   const mesh: {

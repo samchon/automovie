@@ -27,10 +27,11 @@ const close: (a: number[], b: number[], eps?: number) => boolean = (
  * 5. A non-trivial product `T · S` (translate ∘ scale) scales the basis and keeps
  *    the translation, confirming row/column indexing is consistent.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls Matrix4.identity/compose/multiply and observes every coefficient for identity, translation/scale, quarter-turn Y rotation and ordered translation-times-scale products.
- * @evidence contracts/testing.md#independent-expectations Column-major affine algebra gives diagonal scales, a final translation column and positive-X mapping to negative-Z under a right-handed quarter-turn; the product expectation is literal arithmetic, not three.js output.
- * @evidence contracts/testing.md#distinguishing-cases Identity and nontrivial translation/scale/rotation distinguish operand order and row/column mistakes; decomposition, collapse, shear and arbitrary nonfinite input are outside these finite examples.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_matrix4 entry executes the real portable synchronous arithmetic directly and compares numbers with predicates, without creating a renderer matrix or native host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Matrix4.identity/compose/multiply and observes every coefficient for identity, translation/scale, quarter-turn Y rotation and ordered translation-times-scale products.
+ * @evidence contracts/development/testing.md#independent-expectations Column-major affine algebra gives diagonal scales, a final translation column and positive-X mapping to negative-Z under a right-handed quarter-turn; the product expectation is literal arithmetic, not three.js output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Identity and nontrivial translation/scale/rotation distinguish operand order and row/column mistakes; decomposition, collapse, shear and arbitrary nonfinite input are outside these finite examples.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_matrix4 entry executes the real portable synchronous arithmetic directly and compares numbers with predicates, without creating a renderer matrix or native host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `identity()` is the 16-element identity, ones on the diagonal.).
  */
 export function test_resolve_matrix4(): void {
   // 1. identity

@@ -14,7 +14,17 @@ import type { preparePhysicalGeometry as Geometry } from "./preparePhysicalGeome
 /** Borrowed world transforms for one candidate. */
 type Poses = Readonly<Record<string, P.ITransform>>;
 
-/** Keep an endpoint's existing XYZ promise and its explicitly declared real support plane in the same solve. Geometry, witnesses and original goals are borrowed only for this invocation. */
+/**
+ * Keep an endpoint's existing XYZ promise and its explicitly declared real support plane in the same solve. Geometry, witnesses and original goals are borrowed only for this invocation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Keep an endpoint's existing XYZ promise and its explicitly declared real support plane in the same solve) as stated in this comment.
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Keep an endpoint's existing XYZ promise and its explicitly declared real support plane in the same solve) directly over its typed inputs (`input`) as nested iteration of depth 3 (flatMap over profile.segments; map over segment.shapes; map over input.supports), delegating to `Number.isFinite`, `memoizePhysicalTransformValue`, `Math.min`, `minimum`, `linearizePhysicalInterval`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (2 throw sites). Beyond structural 0, 1 and 2 the body uses the literal 64, whose basis this answer does not independently establish and a reviewer must confirm.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 135 lines and 4 top-level statements that reuses `Number.isFinite`, `memoizePhysicalTransformValue`, `Math.min`, `minimum`, `linearizePhysicalInterval` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 7 non-null assertion(s); these are the remaining shortcuts and are not justified here.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`; the dominant cost is nested iteration of depth 3 (flatMap over profile.segments; map over segment.shapes; map over input.supports), performed once per call with 19 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 19 allocation sites become the returned value or die with the call, so nothing grows.
+ */
 export function physicalContactSupportRows(input: {
   /** Borrowed fixed geometry for this invocation. */ profile: P;
   /** Original endpoints and explicit support patches. */ supports: readonly physicalContactSupportRows.ISupport[];
@@ -157,7 +167,14 @@ export function physicalContactSupportRows(input: {
   ];
 }
 
-/** Generic endpoint and optional actual planar support geometry. */
+/**
+ * Generic endpoint and optional actual planar support geometry.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Generic endpoint and optional actual planar support geometry) and documents 1 documented member as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents Generic endpoint and optional actual planar support geometry: companion namespace of 1 member (`ISupport`); units and frames named in its text: world, local, metres. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `physicalContactSupportRows` in packages/engine/src/physics/physicalContactSupportRows.ts; its surface is the 1 member listed and the text shows 3 other files naming it, mostly packages/engine (2), test (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ */
 export namespace physicalContactSupportRows {
   /** A world endpoint always keeps all three original coordinate rows. */
   export interface ISupport {

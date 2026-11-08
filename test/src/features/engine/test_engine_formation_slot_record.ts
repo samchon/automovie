@@ -25,10 +25,11 @@ const AT: IAutoMovieVector3 = { x: 1, y: 2.5, z: -3 };
  * 3. Slot 0 pads to six digits and slot 1234567 keeps all seven.
  * 4. The selected neighbouring slot and changed seed draw different phases, while another actor, position, model or heading at the same slot and seed leaves the phase unchanged within [0, 1).
  *
- * @evidence contracts/testing.md#behavioral-verification Invokes the actual record owner and observes actor-or-padded-slot identity, carried model/position/heading and phase laws; wrong carrier fields, padding, actor override or seed/slot dependence changes the result.
- * @evidence contracts/testing.md#independent-expectations Literal node names and supplied record fields define the carrier oracle. The phase is read once from the owner to isolate carrier consistency, then checked by repeatability, selected seed/slot differences, unrelated-input invariance and interval bounds; this does not independently certify its exact seeded numeric value.
- * @evidence contracts/testing.md#distinguishing-cases Keeps anonymous/promoted members, slot zero, six-digit padding, a seven-digit slot, adjacent-slot/seed twins and changed actor/position/model/heading; placement admission and malformed/out-of-range slots belong to the owning slot-placement suites.
- * @evidence contracts/testing.md#execution-ownership The named synchronous test_engine_formation_slot_record directly imports its portable source owner, owns every named fact and starts no renderer, process or native build.
+ * @evidence contracts/development/testing.md#behavioral-verification Invokes the actual record owner and observes actor-or-padded-slot identity, carried model/position/heading and phase laws; wrong carrier fields, padding, actor override or seed/slot dependence changes the result.
+ * @evidence contracts/development/testing.md#independent-expectations Literal node names and supplied record fields define the carrier oracle. The phase is read once from the owner to isolate carrier consistency, then checked by repeatability, selected seed/slot differences, unrelated-input invariance and interval bounds; this does not independently certify its exact seeded numeric value.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps anonymous/promoted members, slot zero, six-digit padding, a seven-digit slot, adjacent-slot/seed twins and changed actor/position/model/heading; placement admission and malformed/out-of-range slots belong to the owning slot-placement suites.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous test_engine_formation_slot_record directly imports its portable source owner, owns every named fact and starts no renderer, process or native build.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An anonymous slot is named by the formation id and six-digit slot and carries the base model, heading, supplied position and phase...).
  */
 export function test_engine_formation_slot_record(): void {
   const phase: number = formationSlotRecord(UNIT, 7, {

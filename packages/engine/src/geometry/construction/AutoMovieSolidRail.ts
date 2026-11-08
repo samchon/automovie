@@ -19,25 +19,19 @@ const { combine, cross, dot, norm, unit }: typeof AutoMovieSolidVector =
  *
  * Merge keeps the part outside the host; diff keeps its cutter inside. The host remains outside the part. Offset signs come from the other surface's oriented normal, so a tangent or degenerate direction can return null. Local Newton convergence and multiple-face boundary placement are not globally certified.
  *
- * @evidence contracts/common.md#principled-implementation A rail point is where the surface meets the normal section through the curve point at the declared chord, so a width reads in millimetres of skin whatever the chart.
- * @evidence contracts/common.md#clear-and-simple-design One rail record and one evaluator select the kept side and part-offset mode, with local direction/chord/section helpers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Where the directions are tangent to the other surface no rail exists and null returns.
- * @evidence contracts/common.md#meaningful-documentation States the square offset, the normal section, the modes and the kept sides.
- * @evidence contracts/performance.md#efficient-algorithms First-order starts feed bounded 40-step offset/section solves, with at most twenty host trials per step and four accepted chart changes; each atlas query's own cost remains part of the operation.
- * @evidence contracts/performance.md#reuse-equivalent-work The square direction's jet seeds both the offset and the section solve.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one record per point and retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation States the square offset, the normal section, the modes and the kept sides.
+ * @evidence contracts/development/design.md#principled-representation Represents The two rails at one intersection point, where each surface is trimmed back on its kept side: companion namespace of 12 members (`IRail`, `Keep`, `Mode`, `STEPS`, `ROUNDING`, `SWITCHES`, ...); units and frames named in its text: world, newton, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidRail` in packages/engine/src/geometry/construction/AutoMovieSolidRail.ts; its surface is the 12 members listed and the text shows 13 other files naming it, mostly packages/engine (8), test (5), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidRail {
   /**
    * The two rail chart/world readings and offset directions at one traced point.
    *
-   * @evidence contracts/common.md#principled-implementation Links both trimmed endpoints to one contact point and its kept-side chart directions, with host-face identity after atlas traversal.
-   * @evidence contracts/common.md#clear-and-simple-design A plain record exposes coordinates, positions and directions needed by ribbons and clipping without another surface model.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type does not certify normal-section convergence or domain/kept-region membership; sigma uses a positive tie when a square direction's station component is zero.
-   * @evidence contracts/common.md#meaningful-documentation Gives mm positions, chart coordinates, phase/mode meaning and where unit-world-speed directions are evaluated.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The record executes no offset or face search.
-   * @evidence contracts/performance.md#reuse-equivalent-work Ribbons and clipping can share the same computed chart/world readings; this record owns no cache policy.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources A retaining caller owns fixed-size rail fields and a borrowed curve point; a join's separate per-parameter Map controls how many such records remain live.
+   * @evidence contracts/development/design.md#principled-representation Links both trimmed endpoints to one contact point and its kept-side chart directions, with host-face identity after atlas traversal.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A plain record exposes coordinates, positions and directions needed by ribbons and clipping without another surface model.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not certify normal-section convergence or domain/kept-region membership; sigma uses a positive tie when a square direction's station component is zero.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives mm positions, chart coordinates, phase/mode meaning and where unit-world-speed directions are evaluated.
    */
   export interface IRail {
     /** The curve point the rails are read from. */
@@ -74,26 +68,20 @@ export namespace AutoMovieSolidRail {
   /**
    * Which side of the host the part keeps: merge outside, cutter diff inside.
    *
-   * @evidence contracts/common.md#principled-implementation The closed choice determines the part offset's sign against the host's outward normal.
-   * @evidence contracts/common.md#clear-and-simple-design One literal union shares the same side convention across merge/diff and rail evaluation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Selects a side without inferring it from a fixture or a sampled mesh.
-   * @evidence contracts/common.md#meaningful-documentation Names which solid's kept side changes and the merge/diff mapping.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This mode type executes no geometry algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A literal side choice coordinates no repeated work.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The string value acquires no retained collection or resource.
+   * @evidence contracts/development/design.md#principled-representation The closed choice determines the part offset's sign against the host's outward normal.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One literal union shares the same side convention across merge/diff and rail evaluation.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Selects a side without inferring it from a fixture or a sampled mesh.
+   * @evidence contracts/development/common.md#meaningful-documentation Names which solid's kept side changes and the merge/diff mapping.
    */
   export type Keep = "outside" | "inside";
 
   /**
    * Part-offset mode: fixed-phase station line or metric-square normal section.
    *
-   * @evidence contracts/common.md#principled-implementation Station mode preserves a phase column; square mode uses the inverse first fundamental form to define a transverse world direction.
-   * @evidence contracts/common.md#clear-and-simple-design A closed discriminator selects only the part strategy; the host keeps its metric-square strategy.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A fixed station width is accepted only in station mode, without silently converting it to a chord.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes chart-station and world-square offset semantics.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The type itself runs no offset solve.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Mode selection owns no reusable surface preparation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The mode value owns no handle, task or growing state.
+   * @evidence contracts/development/design.md#principled-representation Station mode preserves a phase column; square mode uses the inverse first fundamental form to define a transverse world direction.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A closed discriminator selects only the part strategy; the host keeps its metric-square strategy.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A fixed station width is accepted only in station mode, without silently converting it to a chord.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes chart-station and world-square offset semantics.
    */
   export type Mode = "station" | "square";
 
@@ -121,13 +109,13 @@ export namespace AutoMovieSolidRail {
    * @param mode How the part's rail leaves the curve; absent, `station`.
    * @returns Rails, or null on the checked direction, solve or atlas-transition failures.
    *
-   * @evidence contracts/common.md#principled-implementation Orients kept-side directions from surface normals, solves chord offsets and square-mode normal sections, then maps host offsets across atlas faces under regular, representable chart arithmetic.
-   * @evidence contracts/common.md#clear-and-simple-design One evaluator composes direction, scalar offset and two-equation section helpers while retaining explicit station/square part behavior.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Jets are admitted to actual owned domains before evaluation. Host boundary feet are only Newton initializers and a published rail must solve the unchanged plane/chord equations on a kept actual face; local branch convergence remains a premise.
-   * @evidence contracts/common.md#meaningful-documentation Gives kept side, offset modes, chord/station units, nullable failures and the remaining multiple-hop/numerical validation limits.
-   * @evidence contracts/performance.md#efficient-algorithms Part offsets retain the bounded scalar/section solves; one host normal-section solve uses at most forty iterations, twenty trial halvings per iteration and four accepted chart changes. Surface/atlas callback costs are additional.
-   * @evidence contracts/performance.md#reuse-equivalent-work Initial jets supply normals, metric directions and the normal-section plane; this function owns no cache, while its join caller caches returned rails by parameter.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Iterates, jets and directions are call-local; only the fixed rail record/borrowed curve point escapes, with population retention delegated to its caller's cache.
+   * @evidence contracts/development/implementation.md#principled-implementation Orients kept-side directions from surface normals, solves chord offsets and square-mode normal sections, then maps host offsets across atlas faces under regular, representable chart arithmetic.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One evaluator composes direction, scalar offset and two-equation section helpers while retaining explicit station/square part behavior.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Jets are admitted to actual owned domains before evaluation. Host boundary feet are only Newton initializers and a published rail must solve the unchanged plane/chord equations on a kept actual face; local branch convergence remains a premise.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives kept side, offset modes, chord/station units, nullable failures and the remaining multiple-hop/numerical validation limits.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Part offsets retain the bounded scalar/section solves; one host normal-section solve uses at most forty iterations, twenty trial halvings per iteration and four accepted chart changes. Surface/atlas callback costs are additional.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Initial jets supply normals, metric directions and the normal-section plane; this function owns no cache, while its join caller caches returned rails by parameter.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Iterates, jets and directions are call-local; only the fixed rail record/borrowed curve point escapes, with population retention delegated to its caller's cache.
    */
   export function at(
     part: IAutoMovieSolidSurface,

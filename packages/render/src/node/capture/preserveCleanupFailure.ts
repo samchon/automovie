@@ -5,13 +5,13 @@ import type { IAutoMoviePageOperationFailure } from "./IAutoMoviePageOperationFa
  *
  *
  *
- * @evidence contracts/common.md#principled-implementation Awaited cleanup preserves a single cleanup failure unchanged and aggregates operation then cleanup causes when both fail.
- * @evidence contracts/common.md#clear-and-simple-design One helper centralizes resource-error ordering for browser, page, session and encoder teardown.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Thrown undefined remains representable in the wrapper, and neither failure is silently discarded.
- * @evidence contracts/common.md#meaningful-documentation The comment states cause ordering, cleanup-only propagation and successful-cleanup behavior.
- * @evidence contracts/performance.md#efficient-algorithms The helper awaits exactly one cleanup and allocates an AggregateError only when both causes exist, O(1) work.
- * @evidence contracts/performance.md#reuse-equivalent-work Effectful cleanup runs once per call and is never cached or merged.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the resource; this helper awaits release and retains its two causes only in the thrown aggregate when release fails.
+ * @evidence contracts/development/implementation.md#principled-implementation Awaited cleanup preserves a single cleanup failure unchanged and aggregates operation then cleanup causes when both fail.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One helper centralizes resource-error ordering for browser, page, session and encoder teardown.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Thrown undefined remains representable in the wrapper, and neither failure is silently discarded.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states cause ordering, cleanup-only propagation and successful-cleanup behavior.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The helper awaits exactly one cleanup and allocates an AggregateError only when both causes exist, O(1) work.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Effectful cleanup runs once per call and is never cached or merged.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the resource; this helper awaits release and retains its two causes only in the thrown aggregate when release fails.
  */
 export const preserveCleanupFailure: (
   failure: IAutoMoviePageOperationFailure | undefined,

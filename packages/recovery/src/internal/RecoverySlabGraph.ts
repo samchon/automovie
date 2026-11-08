@@ -1,25 +1,19 @@
 /**
  * Source observation graph for explicit continuation between adjacent plane cuts.
  *
- * @evidence contracts/common.md#principled-implementation Clipped triangle preimages connect across source edges or vertices intersecting the open physical slab; boundary support assigns saved curves to those components. Coordinates are not used to weld distinct source identities.
- * @evidence contracts/common.md#clear-and-simple-design One stateless helper owns connectivity observation and returns local boundary and optional probe ordinals, never source addresses.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No proximity matching, largest-component choice or reconstructed source topology is emitted.
- * @evidence contracts/common.md#meaningful-documentation Inputs distinguish private transient triangle support from source-independent curve-graph output.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Namespace initialization traverses nothing.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work No module cache exists.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Namespace initialization retains nothing; the caller owns preparation closures and each query's returned groups.
+ * @evidence contracts/development/common.md#meaningful-documentation Inputs distinguish private transient triangle support from source-independent curve-graph output.
+ * @evidence contracts/development/design.md#principled-representation Represents Source observation graph for explicit continuation between adjacent plane cuts: companion namespace of 3 members (`Group`, `observe`, `prepare`); units and frames named in its text: local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `RecoverySlabGraph` in packages/recovery/src/internal/RecoverySlabGraph.ts; its surface is the 3 members listed and the text shows 4 other files naming it, mostly packages/recovery (4), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace RecoverySlabGraph {
   /**
    * Local curve indices in one observed source-preimage component.
    *
-   * @evidence contracts/common.md#principled-implementation Disjoint index sets state indexed-source continuation under the supplied binary64 scalar comparisons instead of a geometric-nearest guess.
-   * @evidence contracts/common.md#clear-and-simple-design Support and a reason distinguish displayable matched loops from missing or ambiguous source sheets.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Source triangle, vertex and edge addresses are absent from this record.
-   * @evidence contracts/common.md#meaningful-documentation Before/after are local boundary-support indices, used as saved curve numbers by publication; optional observation probes have a distinct ordinal list. Unsupported groups remain open.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A record computes no graph.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record owns no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns its small index arrays.
+   * @evidence contracts/development/design.md#principled-representation Disjoint index sets state indexed-source continuation under the supplied binary64 scalar comparisons instead of a geometric-nearest guess.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Support and a reason distinguish displayable matched loops from missing or ambiguous source sheets.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Source triangle, vertex and edge addresses are absent from this record.
+   * @evidence contracts/development/common.md#meaningful-documentation Before/after are local boundary-support indices, used as saved curve numbers by publication; optional observation probes have a distinct ordinal list. Unsupported groups remain open.
    */
   export interface Group {
     /** Local boundary-support indices at the lower cut. */
@@ -38,13 +32,13 @@ export namespace RecoverySlabGraph {
    * Derive closed-loop continuation and isolate source defects by clipped-slab connectivity.
    * Triangle and edge addresses are transient observation evidence and never leave the result.
    *
-   * @evidence contracts/common.md#principled-implementation Union-find joins active triangle preimages across edges and vertices in the open scalar slab of the indexed complex. Boundary loops map through supplied supporting source faces; nonmanifold edge multiplicity, degenerate incidence and components without boundary observations remain unsupported. This observes connectivity, not geometric embedding or exact predicates.
-   * @evidence contracts/common.md#clear-and-simple-design One helper owns active triangle components and boundary assignment; source cutting, fitting and engine tessellation retain their existing owners.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A loop with missing or multi-component support is marked unsupported, and source-open or unrepresented contours invalidate only their connected preimage component.
-   * @evidence contracts/common.md#meaningful-documentation Defines physical scalar bounds, canonical incidence, support ownership and local output index meaning.
-   * @evidence contracts/performance.md#efficient-algorithms For V scalar positions, T triangles and Q boundary records plus their face addresses, validation and indexed incidence cost expected O(V+(T+Q) alpha(T)) time and O(T+Q) storage per slab. Every active triangle is scanned because an unobserved internal component must remain a reported omission.
-   * @evidence contracts/performance.md#reuse-equivalent-work Active triangle roots are reused for both boundary cuts and defect supports within one slab; no mutable source cache survives.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Union-find, edge owners and support-root maps expire on return; only curve indices and reason strings escape.
+   * @evidence contracts/development/implementation.md#principled-implementation Union-find joins active triangle preimages across edges and vertices in the open scalar slab of the indexed complex. Boundary loops map through supplied supporting source faces; nonmanifold edge multiplicity, degenerate incidence and components without boundary observations remain unsupported. This observes connectivity, not geometric embedding or exact predicates.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One helper owns active triangle components and boundary assignment; source cutting, fitting and engine tessellation retain their existing owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A loop with missing or multi-component support is marked unsupported, and source-open or unrepresented contours invalidate only their connected preimage component.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines physical scalar bounds, canonical incidence, support ownership and local output index meaning.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For V scalar positions, T triangles and Q boundary records plus their face addresses, validation and indexed incidence cost expected O(V+(T+Q) alpha(T)) time and O(T+Q) storage per slab. Every active triangle is scanned because an unobserved internal component must remain a reported omission.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Active triangle roots are reused for both boundary cuts and defect supports within one slab; no mutable source cache survives.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Union-find, edge owners and support-root maps expire on return; only curve indices and reason strings escape.
    */
   export function observe(input: {
     triangles: readonly [number, number, number][];
@@ -69,13 +63,13 @@ export namespace RecoverySlabGraph {
    * Optional private probes query those same components with a separate ordinal namespace;
    * a probe never supplies a missing physical boundary or makes a hidden component supported.
    *
-   * @evidence contracts/common.md#principled-implementation One-time finite scalar and source-address admission precedes the same clipped-source union-find used by observe. Candidate-local slots preserve original face order and incidence; all active components remain represented even when absent from saved boundaries.
-   * @evidence contracts/common.md#clear-and-simple-design The closure owns source admission while query-local compact arrays and a face-to-slot map own slab connectivity. Source IDs remain private; outputs separate boundary indices, optional probe ordinals and omission reasons.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The caller must supply every face meeting strict open-slab overlap; query validation checks ordering and addresses without replacing that completeness premise. There is no geometric proximity match, source repair or whole-mesh cache.
-   * @evidence contracts/common.md#meaningful-documentation States immutable input lifetime, strict candidate inclusion, original face support IDs, independent probe ordinals, complete default traversal and hidden-component retention.
-   * @evidence contracts/performance.md#efficient-algorithms Admission costs O(V+T) time and constant extra storage. A query with A candidates and Q boundary records plus face addresses costs expected O((A+Q) alpha(A)) time and O(A+Q) storage. Compact arrays and final component discovery use A entries; no V or T scan occurs with candidates.
-   * @evidence contracts/performance.md#reuse-equivalent-work Finite scalar and address checks are reused by queries on the same immutable source. Each query reuses its roots for both boundary cuts and defects, then releases all query maps.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The extraction owns the closure and source references until finished. Compact union-find and support maps expire per query, and only curve index arrays and reason strings escape.
+   * @evidence contracts/development/implementation.md#principled-implementation One-time finite scalar and source-address admission precedes the same clipped-source union-find used by observe. Candidate-local slots preserve original face order and incidence; all active components remain represented even when absent from saved boundaries.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The closure owns source admission while query-local compact arrays and a face-to-slot map own slab connectivity. Source IDs remain private; outputs separate boundary indices, optional probe ordinals and omission reasons.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The caller must supply every face meeting strict open-slab overlap; query validation checks ordering and addresses without replacing that completeness premise. There is no geometric proximity match, source repair or whole-mesh cache.
+   * @evidence contracts/development/common.md#meaningful-documentation States immutable input lifetime, strict candidate inclusion, original face support IDs, independent probe ordinals, complete default traversal and hidden-component retention.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Admission costs O(V+T) time and constant extra storage. A query with A candidates and Q boundary records plus face addresses costs expected O((A+Q) alpha(A)) time and O(A+Q) storage. Compact arrays and final component discovery use A entries; no V or T scan occurs with candidates.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Finite scalar and address checks are reused by queries on the same immutable source. Each query reuses its roots for both boundary cuts and defects, then releases all query maps.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The extraction owns the closure and source references until finished. Compact union-find and support maps expire per query, and only curve index arrays and reason strings escape.
    */
   export function prepare(source: {
     triangles: readonly [number, number, number][];

@@ -6,13 +6,13 @@ import { object } from "./object";
  *
  * The caller has admitted declared counts, lengths, views and URI shapes. Only buffer zero in a GLB/VRM container may borrow BIN, with at most three pad bytes; URI buffers require exact declared lengths, and views must fit declared and resident extents. Each external URI entry invokes the caller resolver independently, without network access here; data URIs decode locally and URI images need nonempty bytes. Returned buffer references live with the synchronous inspector, while image formats and sparse contents remain uninspected.
  *
- * @evidence contracts/common.md#principled-implementation GLB buffer zero owns BIN with at most three pad bytes; URI buffers require exact lengths and views fit declared and resident bounds.
- * @evidence contracts/common.md#clear-and-simple-design One payload owner sequences buffer binding, orphan-BIN checks, view bounds and image presence before profile decoding.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing sidecars throw; resolver effects occur per declared entry and are not silently deduplicated or replaced.
- * @evidence contracts/common.md#meaningful-documentation Comments state read-only resident bytes, URI resolver responsibility, padding limits and no network fetch.
- * @evidence contracts/performance.md#efficient-algorithms Work follows buffer/view/image counts and encoded data-URI bytes, plus the caller's complete resolver work for each declared external URI entry; repeated URIs repeat callback effects, borrowed payloads avoid copies, and data URIs allocate decoded arrays.
- * @evidence contracts/performance.md#reuse-equivalent-work Each resolved buffer is reused by its accessors inside the call; callback effects prohibit caching by URI without caller guarantees.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The inspector owns the temporary payload list and decoded data-URI arrays only for the call; sidecar buffers remain borrowed.
+ * @evidence contracts/development/implementation.md#principled-implementation GLB buffer zero owns BIN with at most three pad bytes; URI buffers require exact lengths and views fit declared and resident bounds.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One payload owner sequences buffer binding, orphan-BIN checks, view bounds and image presence before profile decoding.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing sidecars throw; resolver effects occur per declared entry and are not silently deduplicated or replaced.
+ * @evidence contracts/development/common.md#meaningful-documentation Comments state read-only resident bytes, URI resolver responsibility, padding limits and no network fetch.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Work follows buffer/view/image counts and encoded data-URI bytes, plus the caller's complete resolver work for each declared external URI entry; repeated URIs repeat callback effects, borrowed payloads avoid copies, and data URIs allocate decoded arrays.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each resolved buffer is reused by its accessors inside the call; callback effects prohibit caching by URI without caller guarantees.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The inspector owns the temporary payload list and decoded data-URI arrays only for the call; sidecar buffers remain borrowed.
  */
 export const validatePayloadClosure: (props: {
   format: "gltf" | "glb" | "vrm";

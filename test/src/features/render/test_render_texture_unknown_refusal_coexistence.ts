@@ -18,10 +18,11 @@ import { boxModel, material, sceneFixture } from "../internal/renderFixtures";
  * 2. One shot that is both over and unknown reports both conditions.
  * 3. Separate over and unknown shots keep each shot/asset identity in one refusal.
  *
- * @evidence contracts/testing.md#behavioral-verification Composes the actual compiled-shot assessment, evidence reduction and refusal formatter to verify that an over-budget verdict preserves an independent unknown-texture diagnostic.
- * @evidence contracts/testing.md#independent-expectations A nonempty box exceeds the explicit zero-triangle limit; expected null admission, over status and shot/asset/message fragments come from the authored cases rather than another formatter.
- * @evidence contracts/testing.md#distinguishing-cases Preserves supported, over-only, unknown-only, same-shot combined and separate-shot combined cases so either verdict precedence or dropped diagnostic scope is visible.
- * @evidence contracts/testing.md#execution-ownership Owns synchronous metadata assessment of a deliberately partial compiled-shot fixture; the portable runner executes it, and supplied renderer identity does not establish native drawing or automatic render-job refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes the actual compiled-shot assessment, evidence reduction and refusal formatter to verify that an over-budget verdict preserves an independent unknown-texture diagnostic.
+ * @evidence contracts/development/testing.md#independent-expectations A nonempty box exceeds the explicit zero-triangle limit; expected null admission, over status and shot/asset/message fragments come from the authored cases rather than another formatter.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves supported, over-only, unknown-only, same-shot combined and separate-shot combined cases so either verdict precedence or dropped diagnostic scope is visible.
+ * @evidence contracts/development/testing.md#execution-ownership Owns synchronous metadata assessment of a deliberately partial compiled-shot fixture; the portable runner executes it, and supplied renderer identity does not establish native drawing or automatic render-job refusal.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Supported, over-only and unknown-only shots retain their existing outcomes.).
  */
 export function test_render_texture_unknown_refusal_coexistence(): void {
   const model: ReturnType<typeof boxModel> = boxModel({

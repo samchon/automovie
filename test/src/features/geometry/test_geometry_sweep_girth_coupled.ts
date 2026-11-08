@@ -23,10 +23,11 @@ const HELD: number = 0.0005;
  *    at the medium tier, 16 columns, where the rings are a row apart, every
  *    subdivided limit perimeter lies within 0.5 mm of its declaration.
  *
- * @evidence contracts/testing.md#behavioral-verification Samples the network with `sampleAutoMovieSurfaceNetwork` and measures the subdivided limit along each ring; solving each ring's factor alone, which crawls or oscillates when the factors couple, fails to converge and throws, while any joint solve that meets every declaration passes.
- * @evidence contracts/testing.md#independent-expectations Each declaration is the sweep's own section perimeter at its ring, a dense polyline of `compileAutoMovieSweep`, times a stated ratio; each measurement is a Richardson-extrapolated polyline through subdivided limit positions.
- * @evidence contracts/testing.md#distinguishing-cases Covers three coupled rings pulled in opposite directions; column counts and a single ring are owned by the girth and girth corners tests and the refusals by the girth refusal test.
- * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_girth_coupled` entry with no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the network with `sampleAutoMovieSurfaceNetwork` and measures the subdivided limit along each ring; solving each ring's factor alone, which crawls or oscillates when the factors couple, fails to converge and throws, while any joint solve that meets every declaration passes.
+ * @evidence contracts/development/testing.md#independent-expectations Each declaration is the sweep's own section perimeter at its ring, a dense polyline of `compileAutoMovieSweep`, times a stated ratio; each measurement is a Richardson-extrapolated polyline through subdivided limit positions.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers three coupled rings pulled in opposite directions; column counts and a single ring are owned by the girth and girth corners tests and the refusals by the girth refusal test.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_girth_coupled` entry with no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: The elliptic tube with girth rings at `u` 0.375, 0.5 and 0.625,).
  */
 export function test_geometry_sweep_girth_coupled(): void {
   const sweep: IAutoMovieSweepSurface = compileAutoMovieSweep(
