@@ -73,4 +73,4 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 
 Package upgrades leave this project unchanged. `automovie sync <directory> --check` previews generated instruction updates, and omitting `--check` applies a conflict-free plan that preserves contracts, project decisions, README, configuration, authored content and proof. Keep `.automovie/scaffold-state.json` with the project; [ownership and customization](.agents/skills/production/customization.md) covers baselines, retired paths and approvals. Installed package READMEs, public types and JSDoc own API behavior.
 
-The production skills and story contracts adapt [wrtnlabs/novels](https://github.com/wrtnlabs/novels/tree/13c60af339cc6f97dda67e40be055c94aa9bb144/packages/template/scaffold/.agents/skills). Video realization replaces final prose with image, sound, performance and editing decisions; installed `@automovie/evidence` owns the adapted graph and its separate source notice.
+Video realization turns the screenplay into image, sound, performance and editing decisions; the installed `@automovie/evidence` owns the evidence graph.

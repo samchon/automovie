@@ -15,7 +15,7 @@ This document retains earlier source-edition inspections and their original anno
 
 ## 조사한 범위와 채택 결과 {#adopted-requirements}
 
-지정 revision의 지시 9개와 settings 237개 전체를 읽었다. 인물 119개 파일, 세계 15개, 사회 17개, 운용 39개, 장소 27개, 물건 17개, 작품 2개와 개요 1개다. 원본의 다른 창작 계층은 읽지 않았다. 실제 target의 AGENTS·README·production guide와 instructions·discovery·settings·review·production·storytelling·contracts·documentation을 읽고, 공유 discovery·settings·narrative 질문을 비교했다. 소스 계열과 파일별 identity는 `docs/references/intake-manifest.json`이 소유한다.
+지정 revision의 지시 9개와 settings 237개 전체를 읽었다. 인물 119개 파일, 세계 15개, 사회 17개, 운용 39개, 장소 27개, 물건 17개, 작품 2개와 개요 1개다. 원본의 다른 창작 계층은 읽지 않았다. 실제 target의 AGENTS·README·production guide와 instructions·discovery·settings·review·production·storytelling·contracts·documentation을 읽고, 공유 discovery·settings·narrative 질문을 비교했다.
 
 원본은 소설 첫 권 우선 제작과 전체 생애 정전을 함께 갖고 있었다. 영상에서는 전범위 본편이 위임되었으므로 원매체 분량과 영상 편성을 분리한다. 연개소문의 결전이 성공한 이유와 사후 실패를 같은 국력·협력의 역사로 잇는 약속은 work 정전에, 사실과 창작의 지위는 각 대상의 정전에 둔다. 원본의 옛 계약과 미집필 권별 treatments를 active owner로 삼는 경로는 영상의 현재 owner로 바꾼다.
 

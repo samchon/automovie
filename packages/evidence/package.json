@@ -31,7 +31,6 @@
     "src",
     "package.json",
     "LICENSE",
-    "LICENSE.novels",
     "README.md"
   ],
   "publishConfig": {

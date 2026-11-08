@@ -26,6 +26,6 @@ When adopting, changing, merging, or retiring a question, update its owners and 
 
 ## Retain provenance
 
-The production workflow and story contracts adapt [`wrtnlabs/novels` skills](https://github.com/wrtnlabs/novels/tree/13c60af339cc6f97dda67e40be055c94aa9bb144/packages/template/scaffold/.agents/skills) at commit `13c60af339cc6f97dda67e40be055c94aa9bb144`; retain their MIT notice in [LICENSE.novels](../LICENSE.novels). The installed `@automovie/evidence` package owns the reusable adapted graph, checking implementation, and its source notice.
+The installed `@automovie/evidence` package owns the reusable graph and its checking implementation.
 
 Video realization replaces final prose with image, sound, performance, and editing decisions; actual performance and delivery promises replace novel length recommendations. The upstream reader-book exporter and central baseline migration commands belong to that distribution system. Installed production instructions, contracts, configuration, and authored files remain project property. These distribution choices waive no creative pass or check; short direct entry and standalone assets keep their explicit routes.
