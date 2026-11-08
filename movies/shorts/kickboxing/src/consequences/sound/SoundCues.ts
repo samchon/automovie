@@ -9,28 +9,29 @@ import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
 import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
 import { OfficiatingAction } from "../../laws/officiating/OfficiatingAction";
 import { SoundAssets } from "./SoundAssets";
+import { SoundBed } from "./SoundBed";
+import { SoundBreath } from "./SoundBreath";
+import { SoundConcurrency } from "./SoundConcurrency";
 
 /**
  * The film's sound cues from what actually happened, each bounded to its
- * event and decay: the bell when it rings, the referee's words when he
- * speaks them, an impact for every measured contact (heavier for kicks and
- * the finish, softer for blocks), one effort exhale on each kick, footfalls
- * on the fighters' steps, the canvas landings of the fall, air past the head
- * of an evaded punch, and the crowd as a continuous bed ducked under every
- * spoken word. Effects are capped as game engines cap concurrency: one
- * instance per sound and fighter at a time and a fixed number of
- * foreground cues at once, dropping the least important first. Nothing
+ * event and audible decay: the bell when it rings, the referee's words when
+ * he speaks them, an impact for every measured contact (heavier for kicks
+ * and the finish, softer for blocks), footfalls on the fighters' steps, the
+ * canvas landings of the fall, air past the head of an evaded strike, the
+ * motivated breaths of {@link SoundBreath}, and the crowd bed of
+ * {@link SoundBed}, ducked under every word and raised for the knockout and
+ * the celebration. {@link SoundConcurrency} caps the one-shots. Nothing
  * sounds for a feint or for a decided contact the bodies did not make.
  *
  * ```ts
- * SoundCues.of(filmSeed, schedule, receipts, 180); // [{ asset: "crowd", seconds: 0, gain: 0.3, ... }, ...]
+ * SoundCues.of(filmSeed, schedule, receipts, 180); // [{ asset: "crowd", seconds: 0, gain: 0.35, ... }, ...]
  * ```
  *
  * @evidence docs/body/settings/sound/ring-sound.md#contacts Contacts are heard only when bodies actually meet.
  * @evidence docs/body/settings/sound/ring-sound.md#bell The bell opens the round and rings after the result.
  * @evidence docs/body/settings/sound/ring-sound.md#no-music No music.
  * @evidence docs/body/settings/cast/referee.md#voice His commands and count.
- * @evidence docs/body/settings/cast/fighter-a.md#silent Effort exhales only.
  * @evidence docs/research/sound/ring-mix.md#law Cues bounded to their events, capped concurrency and the bed ducked under speech.
  */
 export namespace SoundCues {
@@ -53,30 +54,34 @@ export namespace SoundCues {
   }
 
   /** The bed asset: the arena crowd under everything. */
-  export const BED: string = "crowd";
+  export const BED: string = SoundBed.ASSET;
 
-  /** Linear gain of the bed: an arena murmur well under the contacts (film mix choice, about -9 dB). */
-  export const BED_GAIN: number = 0.35;
+  /** Gain of the bell, about -1 dB. */
+  export const BELL_GAIN: number = 0.9;
 
-  /** The bed's gain while a word sounds, as a share of its gain: -18 dB, so a word rises well over 12 dB above it (the research's audibility target). */
-  export const DUCK: number = 1 / 8;
+  /** Gain of a spoken word: the recording as made. */
+  export const WORD_GAIN: number = 1;
 
-  /** Most foreground cues sounding at once, beyond the bed: a game engine's per-group voice limit (Unreal sound concurrency) set for one ring. */
-  export const MAX_FOREGROUND: number = 4;
+  /** Gain of a landed impact, about -1 dB; a blocked one is {@link BLOCKED_GAIN}. */
+  export const LANDED_GAIN: number = 0.9;
 
-  /** The exhale excerpt of the breath recording: its third burst, from the rise out of the dip at 1.40 s to 30 dB under the file's peak at 2.00 s (measured on the file's 50 ms RMS envelope). */
-  export const EXHALE: { offset: number; seconds: number } = {
-    offset: 1.4,
-    seconds: 0.6,
-  };
+  /** Gain of a blocked impact, about -5 dB. */
+  export const BLOCKED_GAIN: number = 0.55;
 
-  /** Audible length of each effect from its onset to 30 dB under its peak, measured on the file's 50 ms RMS envelope, seconds. */
-  export const AUDIBLE: Readonly<Record<string, number>> = Object.freeze({
-    impact: 0.35,
-    step: 0.1,
-    air: 0.25,
-    fall: 0.3,
-  });
+  /** Extra share for a disguised technique such as the finish: +0.8 dB. */
+  export const DISGUISE_BOOST: number = 1.1;
+
+  /** Gain of a footfall, -12 dB: under the contacts. */
+  export const STEP_GAIN: number = 0.25;
+
+  /** Gain of a canvas landing, about -2 dB. */
+  export const FALL_GAIN: number = 0.8;
+
+  /** Gain of air past a head, about -10 dB. */
+  export const AIR_GAIN: number = 0.3;
+
+  /** Shares of a fall at which the hip, shoulder and head land. */
+  export const LANDINGS: readonly number[] = Object.freeze([0.55, 0.8, 1]);
 
   /** The asset of each spoken command. */
   const WORDS: Readonly<Record<string, string>> = {
@@ -96,7 +101,7 @@ export namespace SoundCues {
     "Ten!": "count10",
   };
 
-  /** Impact takes, lightest first: five recorded punches and pad contacts. */
+  /** Impact takes, lightest first. */
   const IMPACTS: readonly string[] = [
     "punch1",
     "punch2",
@@ -105,11 +110,8 @@ export namespace SoundCues {
     "punch5",
   ];
 
-  /** A cue before the cap: its importance (0 is never dropped) and its source, of which one instance sounds at a time. */
-  interface ICandidate extends ICue {
-    rank: number;
-    source?: string;
-  }
+  /** A cue before the cap. */
+  interface ICandidate extends ICue, SoundConcurrency.ICandidate {}
 
   /**
    * The cues.
@@ -118,7 +120,7 @@ export namespace SoundCues {
    * @param schedule The schedule.
    * @param receipts The measured contacts.
    * @param duration The film's running time, seconds, which the bed covers.
-   * @returns Cues in time order.
+   * @returns Cues in time order, none past `duration`.
    */
   export function of(
     seed: string,
@@ -132,67 +134,58 @@ export namespace SoundCues {
       seconds: number,
       gain: number,
       rank: number,
-      length: number = SoundAssets.seconds[asset]!,
       source?: string,
       offset: number = 0,
+      length: number = SoundAssets.audible[asset]!,
     ): void => {
+      if (!(seconds >= 0 && seconds < duration)) return;
       candidates.push({
         asset,
         seconds,
         gain,
         offsetSeconds: offset,
-        durationSeconds: length,
+        durationSeconds: Math.min(length, duration - seconds),
         rank,
         ...(source === undefined ? {} : { source }),
       });
     };
+    const raised: [number, number][] = [];
     for (const entry of schedule.entries) {
-      if (entry.intent.capability === "ring") add("bell", entry.start, 0.9, 0);
+      if (entry.intent.capability === "ring")
+        add("bell", entry.start, BELL_GAIN, 0);
       else if (entry.intent.capability === "signal") {
-        const action = OfficiatingAction.read(entry.intent);
+        const words: string | undefined = OfficiatingAction.read(
+          entry.intent,
+        ).words;
         const asset: string | undefined =
-          action.words === undefined ? undefined : WORDS[action.words];
-        if (asset) add(asset, entry.start, 1, 0);
-      } else if (entry.intent.capability === "strike") {
-        const action = KickboxingAction.read(entry.intent);
-        if (action.kind !== "strike") continue;
-        const spec: KickboxingTechnique.ISpec =
-          KickboxingTechnique.table[action.technique];
-        // Effort is heard on the kicks, the whole body's commitment.
-        if (!spec.shows && spec.limb === "leg")
-          add(
-            "breath",
-            entry.start,
-            0.35,
-            2,
-            EXHALE.seconds,
-            `breath/${entry.subject}`,
-            EXHALE.offset,
-          );
+          words === undefined ? undefined : WORDS[words];
+        if (asset) add(asset, entry.start, WORD_GAIN, 0);
       } else if (entry.intent.capability === "move") {
         const action = KickboxingAction.read(entry.intent);
-        if (action.kind === "move")
-          for (let k: number = 0; k < action.steps; k++)
-            add(
-              "step",
-              entry.start +
-                ((k + 1) * (entry.end - entry.start)) / action.steps,
-              0.25,
-              4,
-              AUDIBLE.step,
-              `step/${entry.subject}`,
-            );
+        if (action.kind !== "move") continue;
+        for (let k: number = 1; k <= action.steps; k++)
+          add(
+            "step",
+            entry.start + (k * (entry.end - entry.start)) / action.steps,
+            STEP_GAIN,
+            4,
+            `step/${entry.subject}`,
+          );
+        if (action.movement === "celebrate") raised.push([entry.start, entry.end]);
       } else if (entry.intent.capability === "phase") {
         const action = KickboxingAction.read(entry.intent);
-        if (action.kind === "phase" && action.phase === "fall")
-          for (const share of [0.55, 0.8, 1])
+        if (action.kind !== "phase") continue;
+        if (action.phase === "fall") {
+          for (const share of LANDINGS)
             add(
               "fall",
               entry.start + (entry.end - entry.start) * share,
-              0.8,
+              FALL_GAIN,
               1,
-              AUDIBLE.fall,
             );
+          raised.push([entry.start, entry.end + SoundBed.ROAR]);
+        } else if (action.phase === "victory")
+          raised.push([entry.start, entry.end]);
       } else if (
         entry.intent.capability === "answer" &&
         entry.outcome === "evaded"
@@ -200,9 +193,8 @@ export namespace SoundCues {
         add(
           "air",
           entry.contact ?? entry.start,
-          0.3,
+          AIR_GAIN,
           3,
-          AUDIBLE.air,
           `air/${entry.subject}`,
         );
     }
@@ -214,20 +206,40 @@ export namespace SoundCues {
         deriveAutoMovieSeed(seed, "impact", r.anchor),
       );
       const heavy: boolean = spec.limb === "leg" || spec.disguise !== undefined;
-      const landed: boolean = r.outcome === "landed";
       const take: number = heavy
         ? 3 + (random.uint32(0) % 2)
         : random.uint32(0) % 3;
       add(
         IMPACTS[take]!,
         r.seconds,
-        (landed ? 0.9 : 0.55) * (spec.disguise !== undefined ? 1.1 : 1),
+        (r.outcome === "landed" ? LANDED_GAIN : BLOCKED_GAIN) *
+          (spec.disguise !== undefined ? DISGUISE_BOOST : 1),
         1,
-        AUDIBLE.impact,
       );
     }
-    const foreground: ICue[] = cap(candidates);
-    return [...foreground, ...bed(foreground, duration)].sort(
+    const words: [number, number][] = candidates
+      .filter(spoken)
+      .map((c) => [c.seconds, c.seconds + c.durationSeconds]);
+    for (const b of SoundBreath.of(schedule, words))
+      add(
+        "breath",
+        b.seconds,
+        b.gain,
+        2,
+        `breath/${b.subject}`,
+        SoundBreath.EXHALE.offset,
+        SoundBreath.EXHALE.seconds,
+      );
+    const foreground: ICue[] = SoundConcurrency.cap(candidates).map(
+      ({ asset, seconds, gain, offsetSeconds, durationSeconds }) => ({
+        asset,
+        seconds,
+        gain,
+        offsetSeconds,
+        durationSeconds,
+      }),
+    );
+    return [...foreground, ...SoundBed.of(duration, words, raised)].sort(
       (x, y) => x.seconds - y.seconds || x.asset.localeCompare(y.asset),
     );
   }
@@ -243,7 +255,7 @@ export namespace SoundCues {
   }
 
   /**
-   * The most cues sounding at one instant.
+   * The most cues sounding at one instant, as {@link SoundConcurrency.overlap}.
    *
    * @param cues Bounded cues.
    * @returns The maximum overlap.
@@ -251,80 +263,6 @@ export namespace SoundCues {
   export function overlap(
     cues: readonly { seconds: number; durationSeconds: number }[],
   ): number {
-    const edges: [number, number][] = cues.flatMap(
-      (c): [number, number][] => [
-        [c.seconds, 1],
-        [c.seconds + c.durationSeconds, -1],
-      ],
-    );
-    // Ends sort before starts at one instant: consecutive cues do not overlap.
-    edges.sort((x, y) => x[0] - y[0] || x[1] - y[1]);
-    let now: number = 0;
-    let most: number = 0;
-    for (const [, d] of edges) {
-      now += d;
-      most = Math.max(most, now);
-    }
-    return most;
-  }
-
-  /** Keep candidates in time order, dropping a source's new instance while its last still sounds and any droppable cue past the foreground limit. */
-  function cap(candidates: ICandidate[]): ICue[] {
-    const ordered: ICandidate[] = [...candidates].sort(
-      (x, y) => x.seconds - y.seconds || x.rank - y.rank,
-    );
-    const kept: ICandidate[] = [];
-    const sounding = (t: number): ICandidate[] =>
-      kept.filter((c) => c.seconds <= t && t < c.seconds + c.durationSeconds);
-    for (const c of ordered) {
-      const now: ICandidate[] = sounding(c.seconds);
-      if (c.rank > 0) {
-        if (c.source !== undefined && now.some((k) => k.source === c.source))
-          continue;
-        if (now.length >= MAX_FOREGROUND) continue;
-      }
-      kept.push(c);
-    }
-    return kept.map(({ asset, seconds, gain, offsetSeconds, durationSeconds }) => ({
-      asset,
-      seconds,
-      gain,
-      offsetSeconds,
-      durationSeconds,
-    }));
-  }
-
-  /** The bed as consecutive segments over the film: continuing through the recording and wrapping at its end, ducked while a word sounds. */
-  function bed(cues: readonly ICue[], duration: number): ICue[] {
-    const length: number = SoundAssets.seconds[BED]!;
-    const words: [number, number][] = cues
-      .filter(spoken)
-      .map((c) => [c.seconds, c.seconds + c.durationSeconds]);
-    const cuts: number[] = [
-      0,
-      duration,
-      ...words.flat(),
-      ...Array.from(
-        { length: Math.ceil(duration / length) },
-        (_, k) => k * length,
-      ),
-    ]
-      .filter((t) => t >= 0 && t <= duration)
-      .sort((x, y) => x - y)
-      .filter((t, k, all) => k === 0 || t - all[k - 1]! > 1e-9);
-    const segments: ICue[] = [];
-    for (let k: number = 0; k + 1 < cuts.length; k++) {
-      const start: number = cuts[k]!;
-      const end: number = cuts[k + 1]!;
-      const ducked: boolean = words.some(([s, e]) => start < e && end > s);
-      segments.push({
-        asset: BED,
-        seconds: start,
-        gain: BED_GAIN * (ducked ? DUCK : 1),
-        offsetSeconds: start % length,
-        durationSeconds: end - start,
-      });
-    }
-    return segments;
+    return SoundConcurrency.overlap(cues);
   }
 }

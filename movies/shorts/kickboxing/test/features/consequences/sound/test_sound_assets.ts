@@ -9,10 +9,12 @@ import { SoundAssets } from "../../../../src/consequences/sound/SoundAssets";
  *
  * Scenarios: each asset's WAV header (the first 44 bytes, no decode) gives
  * its data bytes over its byte rate, which equals the table's seconds; every
- * id has a path.
+ * id has a path; every audible length is positive and within its file.
  */
 export async function test_sound_assets(): Promise<void> {
   const root: string = path.resolve(import.meta.dirname, "../../../..");
+  for (const [id, audible] of Object.entries(SoundAssets.audible))
+    assert.ok(audible > 0 && audible <= SoundAssets.seconds[id]!, id);
   for (const id of SoundAssets.ids) {
     const file = await open(path.join(root, SoundAssets.paths[id]!), "r");
     try {

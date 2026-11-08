@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 
+import { SoundBreath } from "../../../../src/consequences/sound/SoundBreath";
 import { SoundCues } from "../../../../src/consequences/sound/SoundCues";
 import type { ContactReceipts } from "../../../../src/interactions/kickboxing/ContactReceipts";
 import { KickboxingAction } from "../../../../src/laws/kickboxing/KickboxingAction";
@@ -12,9 +13,12 @@ import { polygonFilm } from "../../../internal/polygonFilm";
  * Scenarios, at the film's 30 fps (docs/body/settings/sound/ring-sound.md):
  * each bell cue at a ring of the bell (0 and 170.1); each spoken command at
  * the start of the signal that speaks it, the count's "One!" to "Ten!" at
- * 158 to 167; each impact at its measured contact, itself within one frame
- * of the strike's scheduled contact; each footfall at a step's landing;
- * each canvas landing inside the fall; each breath at a strike's launch;
+ * 158 to 167 and the knockout signal at 167.6; each impact at its
+ * measured contact, itself within one frame of the strike's scheduled
+ * contact; each footfall at a step's landing;
+ * each canvas landing inside the fall; each breath at a strike's end (a
+ * combination's last), the fall's end, or a breathing period of the
+ * fallen fighter's lying or the winner's celebration;
  * each rush of air at an evaded strike's contact; no cue without its event.
  */
 export function test_cue_alignment(): void {
@@ -39,23 +43,33 @@ export function test_cue_alignment(): void {
   const add = (kind: string, seconds: number): void => {
     (events[kind] ??= []).push(seconds);
   };
+  const cadence = (e: { start: number; end: number }, period: number): void => {
+    for (let t = e.start; t <= e.end + 1e-9; t += period) add("breath", t);
+  };
   for (const e of schedule.entries) {
     if (e.intent.capability === "ring") add("bell", e.start);
     else if (e.intent.capability === "signal") {
       const words = OfficiatingAction.read(e.intent).words;
       if (words !== undefined) add(`words:${words}`, e.start);
-    } else if (e.intent.capability === "strike") add("breath", e.start);
+    } else if (e.intent.capability === "strike") add("breath", e.end);
     else if (e.intent.capability === "answer" && e.outcome === "evaded")
       add("air", e.contact!);
     else if (e.intent.capability === "move") {
       const action = KickboxingAction.read(e.intent);
-      if (action.kind === "move")
+      if (action.kind === "move") {
         for (let k = 1; k <= action.steps; k++)
           add("step", e.start + (k * (e.end - e.start)) / action.steps);
+        if (action.movement === "celebrate") cadence(e, SoundBreath.EXCITED);
+      }
     } else if (e.intent.capability === "phase") {
       const action = KickboxingAction.read(e.intent);
-      if (action.kind === "phase" && action.phase === "fall")
+      if (action.kind === "phase" && action.phase === "fall") {
         for (let t = e.start; t <= e.end + 1e-9; t += frame) add("fall", t);
+        add("breath", e.end);
+      } else if (action.kind === "phase" && (action.phase === "lie" || action.phase === "attempt"))
+        cadence(e, SoundBreath.LABORED);
+      else if (action.kind === "phase" && action.phase === "victory")
+        cadence(e, SoundBreath.EXCITED);
     }
   }
   for (const r of receipts) add("impact", r.seconds);
@@ -99,6 +113,9 @@ export function test_cue_alignment(): void {
       ),
       `${words} at ${158 + k}`,
     );
+  assert.ok(
+    cues.some((c) => c.asset === "decision" && Math.abs(c.seconds - 167.6) < 1e-9),
+  );
   assert.ok(
     cues.some((c) => c.asset === "bell" && Math.abs(c.seconds - 170.1) < 1e-9),
   );
