@@ -58,7 +58,7 @@ While workers build, the supervisor's only work is this audit, run as a schedule
 Each audit runs these steps in order:
 
 1. **Liveness.** Confirm that every worker is running: its transcript grew since the last audit and its run has not ended. Resume a stopped worker at once, and relaunch it on its current brief if the resume is refused. An interrupt of the supervisor's turn can stop background workers, and only an explicit owner order stops one, so the supervisor restarts without asking; an idle campaign spends the owner's time and usage for nothing.
-2. **Violations.** Read each worker's transcript, saves and runs since the last audit, and the shared watch logs. Compare them with every applicable skill rule and every task instruction given to that worker:
+2. **Violations.** Read each worker's history since the last audit: its transcript action by action, its saves and diffs, its runs and the shared watch logs. The audit hunts wasted or wrong work in that history: work off the owner's plan, a construction that moves a line off the reference, a fix later reverted, a probe repeated without a new question, a claim the history contradicts. Time spent reading code before writing is not a violation. Compare the history with every applicable skill rule and every task instruction given to that worker:
    - each save compiles, and its watch cycle is read before the next action;
    - one batch per cause, with predicted numbers written first;
    - no edit-and-re-render loops;
