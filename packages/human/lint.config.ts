@@ -28,21 +28,32 @@ const LAYERS: Array<[string, string[]]> = [
   ["executable", ["inspection", "generation", "lofting", "structures", "typings"]],
 ];
 
-/** Classification of the generator layers and Human types. */
-const ELEMENTS: ITtscLintBoundariesElement[] = LAYERS.map(
-  ([type]: [string, string[]]): ITtscLintBoundariesElement => ({
-    type,
-    pattern: type === "api" ? "src/AutoMovieHuman.ts" : `src/${type}/**`,
-  }),
-);
+/**
+ * Classification of the generator layers and Human types. Workspace
+ * dependencies compiled from source (such as `../recovery`) are classified
+ * first as `external`, so their own folder names never borrow Human's layer
+ * rules; their own lint config governs them.
+ */
+const ELEMENTS: ITtscLintBoundariesElement[] = [
+  { type: "external", pattern: "../**" },
+  ...LAYERS.map(
+    ([type]: [string, string[]]): ITtscLintBoundariesElement => ({
+      type,
+      pattern: type === "api" ? "src/AutoMovieHuman.ts" : `src/${type}/**`,
+    }),
+  ),
+];
 
 /** Allowed imports of every classified parameter module. */
-const POLICIES: ITtscLintBoundariesElementTypesRule[] = LAYERS.map(
-  ([type, below]: [string, string[]]): ITtscLintBoundariesElementTypesRule => ({
-    from: type,
-    allow: [type, ...below],
-  }),
-);
+const POLICIES: ITtscLintBoundariesElementTypesRule[] = [
+  { from: "external", allow: ["external"] },
+  ...LAYERS.map(
+    ([type, below]: [string, string[]]): ITtscLintBoundariesElementTypesRule => ({
+      from: type,
+      allow: [type, ...below],
+    }),
+  ),
+];
 
 /**
  * Human runtime layers and pure inspection keep external reads at the Node executable boundary.
