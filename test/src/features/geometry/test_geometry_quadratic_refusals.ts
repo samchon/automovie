@@ -9,8 +9,8 @@ import { throwsError } from "../internal/predicates";
 
 /**
  * The numerical boundary refuses dimensions, sparse holes and coefficients the
- * native representation cannot retain. Adjacent valid values still solve the
- * same one-variable square, and a native setup refusal remains visible.
+ * kernel sentinel domain cannot retain. Adjacent valid values still solve the
+ * same one-variable square, and a kernel setup refusal remains visible.
  *
  * Scenarios:
  * 1. Empty/oversized dimensions, unequal vectors and sparse arrays refuse beside
@@ -23,9 +23,9 @@ import { throwsError } from "../internal/predicates";
  *    public call succeeds without retained invalid solver state.
  *
  * @evidence contracts/testing.md#behavioral-verification Sends each existing malformed QP twin through the actual public adapter, requiring a located admission diagnostic and a successful adjacent valid solve. It also admits zero curvature, below-sentinel bounds and equality/initial input, then observes direct zero-dimensional kernel setup failure and valid recovery.
- * @evidence contracts/testing.md#independent-expectations Positive int32 dimensions, dense matched vectors, nonnegative curvature, finite magnitudes below 1e30, unique resident row indices and ordered nullable endpoints define admission. Each mutation violates one authored rule; native setup failure must remain a negative transport status. Status-only positive controls establish admission/recovery, not numerical optimum or geometric validity.
+ * @evidence contracts/testing.md#independent-expectations Positive int32 dimensions, dense matched vectors, nonnegative curvature, finite magnitudes below 1e30, unique resident row indices and ordered nullable endpoints define admission. Each mutation violates one authored rule; kernel setup failure must remain a negative API status. Status-only positive controls establish admission/recovery, not numerical optimum or geometric validity.
  * @evidence contracts/testing.md#distinguishing-cases Preserves oversized/empty/mismatched/sparse dimensions, initial-vector branches, negative/nonfinite/sentinel coefficients, zero curvature, below-sentinel bounds, sparse rows/weights/indices, duplicates/fractions/outside references and reversed/infinite bounds. Analytic solutions and allocation-byte boundaries have their own QP entries.
- * @evidence contracts/testing.md#execution-ownership The discoverable named entry is CPU/WebAssembly integration: explicit rule refusals stop before assembly, while valid controls and direct setup call reach the pinned reactor. It installs no consumer, builds no native artifact and starts no process, browser or GPU; no extra cases are registered.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry is portable TypeScript numerical execution: explicit rule refusals stop before assembly, while valid controls and direct setup call reach the engine-owned homogeneous solver. It installs no consumer, builds no native artifact and starts no process, browser or GPU; no extra cases are registered.
  */
 export function test_geometry_quadratic_refusals(): void {
   const solve: typeof solveAutoMovieQuadraticProgram =

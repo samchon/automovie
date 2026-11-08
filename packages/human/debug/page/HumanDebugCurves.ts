@@ -36,6 +36,19 @@ const COLOURS: Readonly<Record<IHumanDebugOptions.CurveKind, string>> = {
  * under `xray` draw through the surface. A curve's own colour, when its document gives one, stands
  * over its kind's, and a compared part's curve (`HumanDebugViewCurves`) shows only while `part`
  * names its part and `views` its view (`axis` its axis).
+ *
+ * Through-surface tubes keep opacity 1 but enter Three.js's transparent list, after ordinary
+ * surfaces and reference clay. Opaque and transparent lists sort independently, so renderOrder
+ * alone cannot place an opaque tube above a transparent reference:
+ * https://threejs.org/docs/pages/Object3D.html#renderOrder.
+ *
+ * @evidence contracts/common.md#principled-implementation Parallel-transports eight-vertex tube rings through admitted finite metre points without refitting the centreline. Through-surface tubes use the transparent list at full opacity with depth testing/writes disabled; the Human scene's surface groups share groupOrder 0 and default renderOrder 0, below the tubes' 10.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps curve selection, tube ownership and through-surface material state in the existing Human debug display owner; the generic renderer keeps its ordinary Three.js pass ordering.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No reference opacity, source geometry, renderer method or selector is replaced. The same policy applies to source curves, ordinary construction and always-visible axes.
+ * @evidence contracts/common.md#meaningful-documentation Gives metre input, millimetre radius conversion, centreline preservation, lazy geometry rebuild and the separate transparent-list ordering premise.
+ * @evidence contracts/performance.md#efficient-algorithms Apply scans C curves and builds eight-vertex rings only for newly visible or resized point sequences; changing through-surface state adds fixed material writes and marks that material for a program update only when its queue changes. Actual drawing still follows selected geometry and overdraw.
+ * @evidence contracts/performance.md#reuse-equivalent-work Existing holders and tube geometry survive visibility, colour and xray changes when radius is equal; unchanged transparent state adds no material-version update, while Three.js owns program reuse for all renderer inputs.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Owns one material/holder per supplied curve and one geometry per constructed tube; replacement disposes the previous geometry, and dispose releases all geometry/materials and detaches the group. GPU release is not established by CPU disposal alone.
  */
 export class HumanDebugCurves {
   /** Root of every tube. */
@@ -58,7 +71,13 @@ export class HumanDebugCurves {
    * @param curves Curves in metres, ids unique.
    */
   public constructor(curves: readonly IHumanDebugDocument.ICurve[]) {
+    this.extend(curves);
+  }
+
+  /** Admit newly requested original curves to these same owned holders; known ids retain their geometry. */
+  public extend(curves: readonly IHumanDebugDocument.ICurve[]): void {
     for (const curve of curves) {
+      if (this.tubes.has(curve.id)) continue;
       const mesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial> = new THREE.Mesh(
         new THREE.BufferGeometry(),
         new THREE.MeshBasicMaterial(),
@@ -75,6 +94,14 @@ export class HumanDebugCurves {
    *
    * @param options Frame options; the curve fields are read.
    * @returns Ids of the curves now shown.
+   *
+   * @evidence contracts/common.md#principled-implementation Applies the existing view/kind/glob admission, millimetre radius and colour rules. xray curves and axes join the transparent list at opacity 1/order 10, without depth testing/writes; ordinary curves return to the opaque depth-tested list/order 5.
+   * @evidence contracts/common.md#clear-and-simple-design The existing through predicate controls queue, depth and ordering together; no second draw, new overlay scene or reference-specific branch is needed.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not lower reference opacity or alter curve points to reveal an occluded curve; hidden selections stay hidden and axes retain their existing always-through contract.
+   * @evidence contracts/common.md#meaningful-documentation States the displayed-id return, selected option scope and why queue admission is required in addition to renderOrder.
+   * @evidence contracts/performance.md#efficient-algorithms Scans the curve map once; geometry work is linear in the points of radius-changed tubes. Only a change of transparent state requests a material-program update; actual compilation/reuse belongs to Three.js.
+   * @evidence contracts/performance.md#reuse-equivalent-work Retains matching-radius geometry and existing material identity across xray toggles and display changes; a queue transition increments only that material's version for the renderer to resolve.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates the returned shown-id list and any required replacement geometry, retiring the previous geometry immediately; retained tubes remain owned by this display instance until dispose.
    */
   public apply(options: IHumanDebugOptions): string[] {
     const shown: string[] = [];
@@ -99,6 +126,13 @@ export class HumanDebugCurves {
         "#" + (HumanDebugPattern.last(id, options.curveColor, PREFIX)?.colour ?? tube.curve.colour ?? COLOURS[tube.kind]),
       );
       const through: boolean = options.xray || tube.kind === "axis";
+
+      // Transparent surfaces draw after every opaque tube, regardless of renderOrder.
+      // Keep through-surface tubes fully opaque within that later list instead.
+      if (tube.mesh.material.transparent !== through) {
+        tube.mesh.material.transparent = through;
+        tube.mesh.material.needsUpdate = true;
+      }
       tube.mesh.material.depthTest = !through;
       tube.mesh.material.depthWrite = !through;
       tube.mesh.renderOrder = through ? 10 : 5;

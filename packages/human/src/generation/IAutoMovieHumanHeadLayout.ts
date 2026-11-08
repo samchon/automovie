@@ -4,7 +4,17 @@ import type { IAutoMovieHumanHeadLandmarks } from "./IAutoMovieHumanHeadLandmark
 import type { IAutoMovieHumanHeadMandible } from "./IAutoMovieHumanHeadMandible";
 import type { IAutoMovieHumanHeadNeck } from "./IAutoMovieHumanHeadNeck";
 
-/** Stations and sizes of one person, calibration millimetres. */
+/**
+ * Stations and sizes of one person, calibration millimetres.
+ *
+ * @evidence contracts/common.md#principled-implementation Keeps public chords, shared datums, original neck sources and explicitly separate shape priors available to actual source authors.
+ * @evidence contracts/common.md#clear-and-simple-design One layout feeds head mass and regional builders before any tree realization.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Data does not certify reference fit, actual tape closure, internal overlap or final join success.
+ * @evidence contracts/common.md#meaningful-documentation Fields state calibration units and distinguish border direction, bulk relief, measurements and retained conventions.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A data interface performs no calculation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Producers own each original preparation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns numeric records and call-owned source closures; no global figure is retained.
+ */
 export interface IAutoMovieHumanHeadLayout {
   /** Calibration millimetres per world millimetre. */
   scale: number;
@@ -15,7 +25,7 @@ export interface IAutoMovieHumanHeadLayout {
   /** Fat control. */
   fat: number;
 
-  /** Neck ring's height. */
+  /** Neck section's mean height, distinct from its posterior C7 point. */
   y0: number;
 
   /** The neck ring. */
@@ -42,7 +52,7 @@ export interface IAutoMovieHumanHeadLayout {
   /** Vertex. */
   vertex: number;
 
-  /** Skull centre ahead of the origin, midway from glabella to opisthocranion. */
+  /** Retained cranial axis ahead of the origin; the chosen g/op chord need not place it at their midpoint. */
   centre: number;
 
   /** Head length, glabella to opisthocranion. */
@@ -54,27 +64,29 @@ export interface IAutoMovieHumanHeadLayout {
   /** Face height. */
   faceHeight: number;
 
-  /** Face's half width at the zygion, solved. */
+  /** Target half face width at the generating zygion, resolved from the public zy-zy caliper. */
   faceWidth: number;
 
-  /** Half the mandibular width, solved at the gonion's skin. */
+  /** Target half mandibular width at the generating gonion; source emission is checked independently. */
   mandibularWidth: number;
 
   /** Half the minimum frontal width. */
   frontalWidth: number;
 
   /**
-   * Exponent of the cranium's plan, which closes the head circumference: 2 in
-   * the layout, solved on the cranium's own outline by
-   * `AutoMovieHumanHeadVault.closing` once the layout stands, since that outline
-   * is a base envelope the layout precedes.
+   * Exponent of the retained horizontal Lame proxy at glabella, solved by
+   * AutoMovieHumanHeadVault.closing. Its conic conversion and the public
+   * oblique maximum tape are separate, unfinished closure contracts.
    */
   vault: number;
 
-  /** Head circumference the vault closes, calibration mm, with its correction. */
+  /** Actual-tape cranial diagonal-transfer power; affects native fullness above nasion only, preserving lower face/neck and all four original guides. */
+  cranialTapePower?: number;
+
+  /** Public head-tape target, calibration mm, with the retired correction. */
   tape: number;
 
-  /** The vault's reach behind its centre at the opisthocranion, solved for g-op. */
+  /** Retained posterior reach; chosen-point chord closure is not a maximum-caliper certificate. */
   reach: number;
 
   /** Half nose width: the alar lobules' half span. */
@@ -95,13 +107,13 @@ export interface IAutoMovieHumanHeadLayout {
   /** Lower vermilion height. */
   lowerLip: number;
 
-  /** Lips' forward leads over the face at the middles of their vermilions. */
+  /** Separate normal bulk shape priors, calibration mm; neither chord directions nor individual peak targets. */
   lips: [number, number];
 
-  /** Rest gap of the lips. */
+  /** Retained multiple of maximum incisal mouth-opening capacity; unused by the resting source, not a rest lip gap. */
   gap: number;
 
-  /** Fullness of the jaw joint in front of the ear. */
+  /** Retained multiple of lateral incisal excursion capacity; unused by the resting source, not measured joint fullness. */
   joint: number;
 
   /** Left eye. */

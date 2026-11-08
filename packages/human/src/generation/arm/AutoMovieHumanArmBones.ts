@@ -9,17 +9,21 @@
  * from those landmarks along the segment axis: the shoulder centre 33.7 (F) /
  * 34.5 (M) mm distal of the acromion and the elbow centre 13.9 / 14.3 mm
  * proximal of radiale, both read off acromion-radiale with the arm adducted,
- * whose Table 4 lengths are 322.7 and 330.5 mm; the wrist centre 1.5 mm distal
+ * whose reconstructed lengths are 322.7 and 330.5 mm (Table 4 joint-centre
+ * lengths plus Table 2 landmark offsets); the wrist centre 1.5 mm distal
  * of stylion. As shares of the adducted acromion-radiale both sexes agree,
  * 0.1044 and 0.0432 (33.7 / 322.7 = 0.10443, 34.5 / 330.5 = 0.10439; 13.9 /
- * 322.7 = 0.04307, 14.3 / 330.5 = 0.04327), so one proportional rule holds for
- * every person and scales to children as de Leva's offsets scale with segment
- * length (`docs/anatomy/skeleton.md`).
+ * 322.7 = 0.04307, 14.3 / 330.5 = 0.04327). These retained ratios are
+ * approximations: Table 2, Fig.1, Table 4 and the Upper arm text contain
+ * differing mean reconstructions; the Upper arm text states AR 324.1 / 331.8
+ * mm. They are not one exact individual regression
+ * (`docs/work/law-definition-audit.md`, Arm measurement closure).
  *
- * In the hanging arm acromion, shoulder centre, elbow centre and radiale are
- * collinear, so the humerus' joint-centre length is acromion-radiale less
- * both shares, `0.8524 AR`; a bone's length does not change with posture, so
- * the bind's A-pose keeps it. Radiale belongs to the radius and turns with the
+ * The active GH has its own population/frame-transfer owner. In the straight
+ * neutral measuring convention H=AR-d-e, where d is that actual downward
+ * acromion-to-GH projection and e=.0432 AR. The old .8524 AR expression applies
+ * only when d=.1044 AR. A bone's length is then carried rigidly to bind.
+ * Radiale belongs to the radius and turns with the
  * forearm: it stands `0.0432 AR` past the elbow centre along the forearm, and
  * stylion radiale-stylion past radiale along it.
  */
@@ -55,6 +59,8 @@ export namespace AutoMovieHumanArmBones {
 
     /** Acromion-radiale length the bones were placed for, mm. */
     acromionRadiale: number;
+    /** Actual acromion-to-GH downward measuring projection, calibration mm. */
+    acromionProjection: number;
   }
 
   /**
@@ -66,6 +72,7 @@ export namespace AutoMovieHumanArmBones {
    * @param lower Unit direction of the forearm in the bind.
    * @param acromionRadiale Acromion-radiale length, mm.
    * @param radialeStylion Radiale-stylion length, mm.
+   * @param acromionProjection Actual downward acromion-to-GH projection in the straight measuring convention, mm; independent of the bind humerus direction.
    */
   export function place(
     shoulder: Vec3,
@@ -73,10 +80,12 @@ export namespace AutoMovieHumanArmBones {
     lower: Vec3,
     acromionRadiale: number,
     radialeStylion: number,
+    acromionProjection: number,
   ): IBones {
-    if (!(acromionRadiale > 0) || !(radialeStylion > 0))
+    if (![acromionRadiale, radialeStylion, acromionProjection].every(Number.isFinite) || !(acromionRadiale > 0) || !(radialeStylion > 0))
       throw new Error("An arm needs positive acromion-radiale and radiale-stylion lengths");
-    const humerus: number = (1 - ACROMION - RADIALE) * acromionRadiale;
+    const humerus: number = acromionRadiale - acromionProjection - RADIALE * acromionRadiale;
+    if (!(humerus > 0)) throw new Error("The actual GH projection leaves no positive humerus in the public AR caliper");
     const elbow: Vec3 = plus(shoulder, scale(upper, humerus));
     const radiale: Vec3 = plus(elbow, scale(lower, RADIALE * acromionRadiale));
     const stylion: Vec3 = plus(radiale, scale(lower, radialeStylion));
@@ -92,12 +101,14 @@ export namespace AutoMovieHumanArmBones {
       humerus,
       forearm: RADIALE * acromionRadiale + radialeStylion + STYLION_WRIST,
       acromionRadiale,
+      acromionProjection,
     };
   }
 
   /**
    * The shoulder centre's distance below the acromion as a share of
-   * acromion-radiale (de Leva 1996 Table 2 over Table 4's adducted length).
+   * acromion-radiale (de Leva 1996 Table 2 over the reconstruction from
+   * Table 4 joint-centre lengths plus Table 2 landmark offsets).
    */
   export const ACROMION: number = 0.1044;
 

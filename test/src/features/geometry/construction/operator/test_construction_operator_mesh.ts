@@ -12,7 +12,7 @@ const { cross, cylinder, distance, dot, plane } = HumanSolidShapes;
  * @evidence contracts/testing.md#behavioral-verification Merges a 20 mm cylinder along z onto the plane z = 0 with `AutoMovieSolidMerge.create` (part and host chords 8 mm), publishes its blend as a chain with `AutoMovieSolidBlendChain.of` (64 columns), draws it with `AutoMovieSolidMesh.seam` (6 rows) and `AutoMovieSolidMesh.face` for the plane (a 3 mm grid over 120 by 120 mm) and the cylinder (2 mm stations to z = 60, 48 phases), and reads the blend chain's jets against `AutoMovieSolidBlend.jet` at four columns and the mesh's triangles, positions and coordinates alone. It catches a blend chain that is not the blend or loses a ribbon's 2-jet, a seam drawn twice (an edge used once inside the skin or more than twice), a triangle turned inward, a vertex whose coordinates name another point, a duplicate vertex at a seam, and a grid vertex left inside the cut.
  * @evidence contracts/testing.md#independent-expectations Expectations are closed forms of the configuration: the merged solid's boundary is open only along the plane's square edge and the cylinder's top at z = 60, so every other edge is used by exactly two triangles in opposite directions; the outside of every face and of the blend has a positive component along `(x / rho, y / rho, 1)` (the plane's `+z`, the cylinder's radial direction, and the blend turning between them); the host's rail is the circle of radius 28 and the part's rail the circle at z = 8, so no plane vertex lies inside radius 28 and no cylinder vertex below z = 8. Limits: the blend chain within 1e-6 mm of the blend and of its first and second cross derivatives scaled by the span (the B-spline interpolation filter truncated at 14 neighbours keeps `(2 - sqrt 3)^14`, about 1e-8, of a 30 mm column); coordinates read back within 1e-9 mm, a thousand times the rounding of a 60 mm evaluation; distinct vertices more than 1e-9 mm apart.
  * @evidence contracts/testing.md#distinguishing-cases Green: the merged mesh. Red: three made defects on copies of it must each be listed by the check they break: one host rail vertex duplicated into the blend's row (an unshared seam), one triangle turned, and one vertex's coordinate moved by 0.01 radians.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_solid_mesh`; it builds closed-form surfaces in process and starts no host, browser or GPU.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_operator_mesh`; it builds closed-form surfaces in process and starts no host, browser or GPU.
  */
 export function test_construction_operator_mesh(): void {
   const failures: string[] = [];
@@ -68,8 +68,8 @@ export function test_construction_operator_mesh(): void {
   });
   const range = (from: number, to: number, step: number): number[] =>
     Array.from({ length: Math.round((to - from) / step) + 1 }, (_: unknown, k: number): number => from + k * step);
-  const plate: number[][] = AutoMovieSolidMesh.face(mesh, { surface: host, stations: range(-60, 60, 3), phases: range(-60, 60, 3), loops: [joined.host] });
-  const tube: number[][] = AutoMovieSolidMesh.face(mesh, {
+  const plate: AutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(mesh, { surface: host, stations: range(-60, 60, 3), phases: range(-60, 60, 3), loops: [joined.host] });
+  const tube: AutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(mesh, {
     surface: part,
     stations: range(0, 60, 2),
     phases: range(0, 47, 1).map((k: number): number => (2 * Math.PI * k) / 48),
@@ -135,7 +135,7 @@ export function test_construction_operator_mesh(): void {
       const n: Vec3 = cross([b[0] - a[0], b[1] - a[1], b[2] - a[2]], [c[0] - a[0], c[1] - a[1], c[2] - a[2]]);
       const g: Vec3 = [(a[0] + b[0] + c[0]) / 3, (a[1] + b[1] + c[1]) / 3, (a[2] + b[2] + c[2]) / 3];
       const rho: number = Math.hypot(g[0], g[1]);
-      if (!(dot(n, [g[0] / rho, g[1] / rho, 1]) > 0)) out.push(`inward triangle ${t.join(", ")} at ${g.join(", ")}`);
+      if (!(dot(n, [g[0] / rho, g[1] / rho, 1]) > 0)) out.push(`inward triangle ${t.join(", ")} at ${g.join(", ")}; context ${JSON.stringify({ points: [a, b, c], normal: n, radialDot: dot(n, [g[0] / rho, g[1] / rho, 0]), combinedDot: dot(n, [g[0] / rho, g[1] / rho, 1]), evaluatingOwners: t.map((id: number): string => m.owners[m.coordinates[3 * id]!]!.name) })}`);
     }
 
     // Coordinates name their own points; no vertex twice; none in the cut.

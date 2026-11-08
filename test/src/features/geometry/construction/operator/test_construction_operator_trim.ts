@@ -1,5 +1,5 @@
 import { AutoMovieSolidBlend, type AutoMovieSolidRibbon, AutoMovieSolidTrim, type AutoMovieSolidVector, type IAutoMovieSolidSurface } from "@automovie/engine";
-import { HumanSeamObserver } from "../../../internal/HumanSeamObserver";
+import { HumanSeamObserver } from "../../../../../../packages/human/src/inspection/HumanSeamObserver";
 import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 
 type Vec3 = AutoMovieSolidVector.Vec3;

@@ -3,18 +3,9 @@
  * by one band of triangles: the edge of a face's kept grid cells nearest a
  * trim loop, and the loop's own vertices (the rail points the blend shares).
  *
- * Both sequences are read by one monotone parameter, each its own
- * normalised arclength from aligned starts (`AutoMovieSolidMesh`), which
- * holds for any simple cycle a clip leaves. Each is turned
- * to increase and started at its least parameter, and the band is the merge
- * of the two by that parameter (the zipper of contour tiling, Fuchs, Kedem
- * and Uselton, Optimal surface reconstruction from planar contours, CACM
- * 20(10), 1977, with the greedy shortest-step rule): every edge of each
- * sequence is used by exactly one triangle of the band, so with the cells on
- * one side and the blend on the other each is shared by two triangles and
- * the seam is closed with no vertex but the two sequences'.
+ * Callers provide compatible aligned cyclic parameters, usually normalized arclength from the mesh's boundary readers. The zipper orients/rotates each sequence and greedily advances one boundary by comparing the two candidate parameter gaps. With valid disjoint boundary sequences this consumes every boundary edge once and adds no vertices. Simple individual cycles alone do not prove the resulting world triangles are noncrossing, nondegenerate or globally optimal.
  *
- * @evidence contracts/common.md#principled-implementation Two vertex sequences are stitched by merging their arclength parameters, which never crosses itself on any simple pair of cycles.
+ * @evidence contracts/common.md#principled-implementation A monotone two-index zipper consumes every edge of two aligned cyclic sequences once; geometric correspondence is a caller premise, not a consequence of each cycle being simple.
  * @evidence contracts/common.md#clear-and-simple-design One zipper from two parameterised sequences to triangles.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Sequences are aligned by their starts and turns, not by nearest-vertex matching.
  * @evidence contracts/common.md#meaningful-documentation States the parameter and the merge rule.
@@ -23,12 +14,22 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the triangle list only.
  */
 export namespace AutoMovieSolidZip {
-  /** One sequence: vertex indices and their parameters, in the same order. */
+  /**
+   * Matching vertex and cyclic-parameter arrays in their boundary order.
+   *
+   * @evidence contracts/common.md#principled-implementation Vertex labels and a one-turn scalar correspondence describe one boundary for monotone zipper traversal.
+   * @evidence contracts/common.md#clear-and-simple-design Two parallel arrays preserve mesh identity without copying world positions into this operator.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type does not enforce equal lengths, finite monotone parameters, distinct vertices or compatible geometry with another boundary.
+   * @evidence contracts/common.md#meaningful-documentation Names vertex/parameter correspondence and the parameter's 2pi periodic convention.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The sequence record executes no reordering or triangulation.
+   * @evidence contracts/performance.md#reuse-equivalent-work The owning boundary reader prepares parameters once for the existing vertex order; zipper consumers can reuse them without rereading surfaces.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns O(N) index/parameter entries; the type acquires no mesh, task or global cache.
+   */
   export interface ISequence {
     /** Vertex indices of the mesh. */
     vertices: number[];
 
-    /** Each vertex's parameter, radians, any branch. */
+    /** Cyclic parameter with period 2pi, any branch; mesh callers commonly use normalized arclength. */
     angles: number[];
   }
 
@@ -39,6 +40,14 @@ export namespace AutoMovieSolidZip {
    * @param b The other, at least three vertices.
    * @returns Triangles as index triples, all of one turning sense in the
    *   parameter plane; the caller turns them outward.
+   *
+   * @evidence contracts/common.md#principled-implementation After orienting both sequences, advances one of two boundary indices per triangle using the smaller candidate parameter-gap criterion, producing a combinatorial strip between compatible cycles.
+   * @evidence contracts/common.md#clear-and-simple-design One linear two-index walk owns triangle connectivity; the mesh caller owns geometric correspondence and outward orientation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not inspect world distances, test intersections/degeneracy or prove optimal triangulation; valid aligned disjoint sequences and matching array lengths are caller premises.
+   * @evidence contracts/common.md#meaningful-documentation Gives minimum boundary size, index-only output and the caller's orientation/geometric responsibility.
+   * @evidence contracts/performance.md#efficient-algorithms O(N+M) orientation/traversal and exactly N+M triangle triples for valid N/M boundaries, with O(N+M) reordered scratch.
+   * @evidence contracts/performance.md#reuse-equivalent-work Uses already supplied cyclic parameters and vertex indices instead of recomputing arclength or evaluating geometry.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Reordered arrays are call-local; only the fresh triangle-index triples escape, retaining no input arrays or world geometry.
    */
   export function band(a: ISequence, b: ISequence): [number, number, number][] {
     const x: ISequence = increasing(a);
@@ -50,15 +59,26 @@ export namespace AutoMovieSolidZip {
     const out: [number, number, number][] = [];
     let i: number = 0;
     let j: number = 0;
-    const ax = (k: number): number => x.angles[k % n]! + Math.floor(k / n) * TWO_PI;
-    const ay = (k: number): number => y.angles[k % m]! + Math.floor(k / m) * TWO_PI;
+    const ax = (k: number): number =>
+      x.angles[k % n]! + Math.floor(k / n) * TWO_PI;
+    const ay = (k: number): number =>
+      y.angles[k % m]! + Math.floor(k / m) * TWO_PI;
     while (i < n || j < m) {
-      const advanceX: boolean = j >= m || (i < n && ax(i + 1) - ay(j) <= ay(j + 1) - ax(i));
+      const advanceX: boolean =
+        j >= m || (i < n && ax(i + 1) - ay(j) <= ay(j + 1) - ax(i));
       if (advanceX) {
-        out.push([x.vertices[i % n]!, x.vertices[(i + 1) % n]!, y.vertices[j % m]!]);
+        out.push([
+          x.vertices[i % n]!,
+          x.vertices[(i + 1) % n]!,
+          y.vertices[j % m]!,
+        ]);
         i++;
       } else {
-        out.push([x.vertices[i % n]!, y.vertices[(j + 1) % m]!, y.vertices[j % m]!]);
+        out.push([
+          x.vertices[i % n]!,
+          y.vertices[(j + 1) % m]!,
+          y.vertices[j % m]!,
+        ]);
         j++;
       }
     }
@@ -71,25 +91,39 @@ export namespace AutoMovieSolidZip {
    *
    * @param s The sequence, in either turning sense.
    * @returns The reordered copy.
+   *
+   * @evidence contracts/common.md#principled-implementation Infers turn from summed wrapped increments, chooses the least reduced start and unwraps successive parameters in that traversal order; valid one-turn correspondence is assumed.
+   * @evidence contracts/common.md#clear-and-simple-design A reversal/start index table drives one copying pass without sorting vertex geometry.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not validate length agreement, nonzero winding, duplicate parameters or finite input; zero accumulated turn uses the existing forward tie and positive remainders can be zero.
+   * @evidence contracts/common.md#meaningful-documentation States orientation/start normalization, one-turn intent and returned-copy ownership rather than an independent admission guarantee.
+   * @evidence contracts/performance.md#efficient-algorithms Three linear passes and O(N) order/output storage avoid a comparison sort.
+   * @evidence contracts/performance.md#reuse-equivalent-work The same order table is used for both vertex and parameter copying, preserving their pairing.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns new vertex/angle arrays and releases its local order table; the supplied sequence is not mutated or retained.
    */
   export function increasing(s: ISequence): ISequence {
     const n: number = s.vertices.length;
 
     // The turning sense from the summed wrapped steps.
     let turn: number = 0;
-    for (let k: number = 0; k < n; k++) turn += wrap(s.angles[(k + 1) % n]! - s.angles[k]!);
-    const order: number[] = Array.from({ length: n }, (_: unknown, k: number): number => (turn >= 0 ? k : n - 1 - k));
+    for (let k: number = 0; k < n; k++)
+      turn += wrap(s.angles[(k + 1) % n]! - s.angles[k]!);
+    const order: number[] = Array.from(
+      { length: n },
+      (_: unknown, k: number): number => (turn >= 0 ? k : n - 1 - k),
+    );
 
     // Start at the least parameter reduced to one turn.
     let start: number = 0;
     for (let k: number = 1; k < n; k++)
-      if (reduce(s.angles[order[k]!]!) < reduce(s.angles[order[start]!]!)) start = k;
+      if (reduce(s.angles[order[k]!]!) < reduce(s.angles[order[start]!]!))
+        start = k;
     const vertices: number[] = [];
     const angles: number[] = [];
     let previous: number = reduce(s.angles[order[start]!]!);
     for (let k: number = 0; k < n; k++) {
       const at: number = order[(start + k) % n]!;
-      const value: number = k === 0 ? previous : previous + positive(s.angles[at]! - previous);
+      const value: number =
+        k === 0 ? previous : previous + positive(s.angles[at]! - previous);
       vertices.push(s.vertices[at]!);
       angles.push(value);
       previous = value;
@@ -101,7 +135,7 @@ export namespace AutoMovieSolidZip {
 /** A whole turn. */
 const TWO_PI: number = 2 * Math.PI;
 
-/** An angle step reduced to `(-pi, pi]`. */
+/** An angle step reduced to `[-pi, pi)` under ordinary representable turn arithmetic. */
 function wrap(t: number): number {
   return t - TWO_PI * Math.round(t / TWO_PI);
 }

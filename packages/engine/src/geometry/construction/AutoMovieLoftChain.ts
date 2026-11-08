@@ -1,58 +1,31 @@
-import { AutoMovieLoftRelief } from "./AutoMovieLoftRelief";
 import { AutoMovieHarmonicCurve } from "./AutoMovieHarmonicCurve";
+import { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";
+import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
+import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
+import { AutoMovieLoftPoint } from "./AutoMovieLoftPoint";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /**
- * Evaluation of one tube of the body surface: a family of harmonic sections
- * indexed by a station s along the chain.
+ * Read a chain from its immutable principal values and explicit interpolation/source data.
  *
- * Each principal layer's section lies in its frame (see
- * {@link AutoMovieLoftFrame}). Without a frame the section is horizontal
- * at world height s, which is how every chain recovered from the saved
- * height-sliced loft is stored; in this note "height" therefore means the
- * station of such a chain.
+ * Ordinary coefficients and lift retain cubic/quintic physical-station Hermite interpolation.
+ * Capped coefficientSource rows instead interpolate in their declared common root/angle
+ * coordinate and carry derivatives to station. Matching frameSource rows read their actual
+ * analytic axis; ordinary/mixed boundaries retain the existing layer-plane interpolation.
+ * Explicit native sources own actual polar geometry; compatibility coefficients remain
+ * independently readable. Polar phase meaning and principal-layer domain are unchanged.
+ * Full cap-span ownership and apex G2 are not certified by this regular chart.
  *
- * ## Representation
- *
- * A chain stores only its **principal layers** ({@link IAutoMovieLoftChain}).
- * Each layer holds, at height `y` (mm), the harmonic section coefficients `c`
- * (see {@link AutoMovieHarmonicCurve}) and their height derivative
- * `m = dc/dy` (mm per mm). Principal layers sit where the observed shape
- * changes character: silhouette extrema, volume extrema, feature onsets and
- * topology events. The observation fitter chooses them by recursive
- * bisection: it starts from the chain ends, interpolates the interval and
- * inserts a principal layer only where the interpolated section misses the
- * recovered section by more than its physical tolerance.
- *
- * ## Intermediate sections
- *
- * Between adjacent principal layers `i` and `i+1` every coefficient follows
- * the cubic Hermite polynomial of its two end values and two end slopes:
- *
- * ```text
- * u    = (y - y_i) / H,   H = y_{i+1} - y_i
- * c(y) = h00(u) c_i + h10(u) H m_i + h01(u) c_{i+1} + h11(u) H m_{i+1}
- * ```
- *
- * The slope is multiplied by the interval width H because the Hermite basis
- * is written in the unit parameter u, and `dc/du = H dc/dy` by the chain
- * rule. Each layer has one slope shared by both of its intervals, so the
- * family is C1 in y across principal layers and analytic in phase.
- *
- * The constant terms `(x0(y), z0(y))` are the section centroids, so the
- * chain's central axis is the Hermite curve `(x0(y), y, z0(y))` of the same
- * function rather than a separate polyline.
- *
- * @evidence contracts/common.md#principled-implementation A chain is evaluated from its principal layers by the station Hermite rule on coefficients, lift and frame, so every station between layers is the C2 surface through them.
- * @evidence contracts/common.md#clear-and-simple-design The chain's readings (coefficients, derivatives, frame, axis, section, ring, point) are functions of one record.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A station outside the layers is reported, never clamped into them silently.
- * @evidence contracts/common.md#meaningful-documentation States the interpolation rule per field and the meaning of each reading.
- * @evidence contracts/performance.md#efficient-algorithms Each reading brackets its interval by binary search and evaluates one Hermite span.
- * @evidence contracts/performance.md#reuse-equivalent-work A sampler reads one station's section and frame once and evaluates many phases from them.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The sampler's small recent-station cache is bounded by a fixed count.
+ * @evidence contracts/common.md#principled-implementation Actual points/phase readers use explicit native/continuation generators or the legacy basis, while coefficient readers and their mean-axis statistic remain explicit compatibility operations; frames keep their actual or layer-interpolated owners.
+ * @evidence contracts/common.md#clear-and-simple-design Public chain readings delegate point/cache and frame responsibility to their single owners without changing callers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Retains the original regular-domain bounds and ordinary arithmetic; invalid present frame metadata throws rather than silently changing geometry.
+ * @evidence contracts/common.md#meaningful-documentation States interpolation modes, mm/radian units, immutable callable sources and unverified pole/phase fidelity.
+ * @evidence contracts/performance.md#efficient-algorithms Native cold preparation includes source/binding/layer/law lookup and fixed geometry, while legacy readings retain binary bracketing and local basis support; samplers reuse their prepared station work.
+ * @evidence contracts/performance.md#reuse-equivalent-work Existing point and Jet caches share immutable chain identity; actual axes and parameter jets are prepared once by their producers.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Point and Jet each retain eight weak-key station plans; external sampler closures and binder rows have independent caller lifetimes. Returned arrays/vectors are fresh.
  */
 export namespace AutoMovieLoftChain {
   /**
@@ -60,6 +33,14 @@ export namespace AutoMovieLoftChain {
    *
    * Heights outside the chain are refused rather than extrapolated, because
    * a chain's polynomial carries no shape evidence beyond its end layers.
+   *
+   * @evidence contracts/common.md#principled-implementation Reads the declared coefficient interpolant in the existing regular layer domain.
+   * @evidence contracts/common.md#clear-and-simple-design Combines endpoint arrays once; explicit capped data selects parameter weights.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves ordinary Hermite arithmetic and rejects out-of-domain stations; source curves are not claimed reproduced universally.
+   * @evidence contracts/common.md#meaningful-documentation Returns basis-layout values in mm.
+   * @evidence contracts/performance.md#efficient-algorithms O(N) output plus binary bracketing and fixed parameter weights.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses stored endpoint parameter/station derivatives.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh row and retains no query.
    */
   export function coefficients(
     chain: IAutoMovieLoftChain,
@@ -74,11 +55,16 @@ export namespace AutoMovieLoftChain {
    * The derivative of the same Hermite rule; a region calibration that trims
    * a chain uses it to give the new end layer the slope of the original
    * function, so trimming changes no shape.
+   *
+   * @evidence contracts/common.md#principled-implementation Differentiates the same coefficient interpolant by the declared physical chain rule.
+   * @evidence contracts/common.md#clear-and-simple-design Uses the same span/value owner as coefficients.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not replace a pole derivative by a finite value or change the existing regular-domain bound.
+   * @evidence contracts/common.md#meaningful-documentation Returns first coefficient derivatives per mm.
+   * @evidence contracts/performance.md#efficient-algorithms O(N) output plus binary bracketing.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses prepared endpoint derivatives and shared span weights.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh row without retained query state.
    */
-  export function derivative(
-    chain: IAutoMovieLoftChain,
-    s: number,
-  ): number[] {
+  export function derivative(chain: IAutoMovieLoftChain, s: number): number[] {
     return hermite(chain, s, true);
   }
 
@@ -87,6 +73,14 @@ export namespace AutoMovieLoftChain {
    *
    * Stations outside the chain are refused. The last interval also owns the
    * top layer itself.
+   *
+   * @evidence contracts/common.md#principled-implementation Binary-searches strictly increasing principal stations in the existing owned layer interval.
+   * @evidence contracts/common.md#clear-and-simple-design One interval convention also owns the top layer.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves the original 1e-9 boundary allowance and outside-range failure; no new pole domain is inferred.
+   * @evidence contracts/common.md#meaningful-documentation States sorted nonempty layer premises and last-interval ownership.
+   * @evidence contracts/performance.md#efficient-algorithms O(log L) comparisons and constant output storage.
+   * @evidence contracts/performance.md#reuse-equivalent-work All station readers share this bracket convention.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns two indices and retains no layer.
    */
   export function bracket(
     chain: IAutoMovieLoftChain,
@@ -113,11 +107,16 @@ export namespace AutoMovieLoftChain {
    * Out-of-plane lift of every control point at station s, by the same
    * Hermite rule as the coefficients; null for a chain whose layers carry
    * none, which then lies in its section planes.
+   *
+   * @evidence contracts/common.md#principled-implementation Interpolates actual lift data in physical station with the existing cubic/quintic rule and zero absent rows.
+   * @evidence contracts/common.md#clear-and-simple-design One nullable row separates no lift from a prepared lift.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not reparameterize lift by the capped coefficient map or invent a displacement.
+   * @evidence contracts/common.md#meaningful-documentation Returns mm lift values, null only when no layer has lift.
+   * @evidence contracts/performance.md#efficient-algorithms One layer-presence scan and O(N) interpolation/output.
+   * @evidence contracts/performance.md#reuse-equivalent-work The sampler reuses a prepared lift across phases.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returned lift rows belong to the caller; no module retention.
    */
-  export function lift(
-    chain: IAutoMovieLoftChain,
-    s: number,
-  ): number[] | null {
+  export function lift(chain: IAutoMovieLoftChain, s: number): number[] | null {
     if (
       !chain.layers.some(
         (l: IAutoMovieLoftChain.ILayer): boolean => l.lift !== undefined,
@@ -158,10 +157,20 @@ export namespace AutoMovieLoftChain {
     pick: Pick = sectionArrays,
   ): number[] {
     const layers: readonly IAutoMovieLoftChain.ILayer[] = chain.layers;
-    const [lo, hi] = bracket(chain, y);
+    const [lo, hi]: [number, number] = bracket(chain, y);
+    if (pick === sectionArrays) {
+      const source: AutoMovieLoftCoefficientSource.IControls | null =
+        AutoMovieLoftCoefficientSource.controls(chain, y);
+      if (source !== null)
+        return AutoMovieStationHermite.combine(
+          source.a,
+          source.b,
+          AutoMovieLoftCoefficientSource.weights(source, differentiate ? 1 : 0),
+        );
+    }
 
-    const [av, am] = pick(layers[lo]!);
-    const [bv, bm] = pick(layers[hi]!);
+    const [av, am]: [readonly number[], readonly number[]] = pick(layers[lo]!);
+    const [bv, bm]: [readonly number[], readonly number[]] = pick(layers[hi]!);
     const a: IAutoMovieLoftChain.ILayer = layers[lo]!;
     const b: IAutoMovieLoftChain.ILayer = layers[hi]!;
     const H: number = b.y - a.y;
@@ -169,8 +178,10 @@ export namespace AutoMovieLoftChain {
 
     // Layers that carry second derivatives (a feature chain expanded with
     // its jets) take the quintic rule; the cubic below stays as it was.
-    const ac: number[] | undefined = pick === sectionArrays ? a.curvatures : a.liftCurvatures;
-    const bc: number[] | undefined = pick === sectionArrays ? b.curvatures : b.liftCurvatures;
+    const ac: number[] | undefined =
+      pick === sectionArrays ? a.curvatures : a.liftCurvatures;
+    const bc: number[] | undefined =
+      pick === sectionArrays ? b.curvatures : b.liftCurvatures;
     if (ac !== undefined && bc !== undefined)
       return AutoMovieStationHermite.combine(
         { value: av, slope: am, curvature: ac },
@@ -201,127 +212,44 @@ export namespace AutoMovieLoftChain {
   }
 
   /**
-   * Section plane at station s.
+   * Frame of an unchanged actual-axis interval or its declared layer interpolation.
+   * Different source owners at a continuation boundary use the copied endpoint jets.
    *
-   * An interval whose two layers and their outer neighbours are unframed is
-   * horizontal and gives the horizontal frame at s exactly. Otherwise the
-   * frame interpolates the two layers' frames, an unframed layer counting as
-   * horizontal at its station. Origin tangents are Catmull-Rom differences
-   * of the neighbouring origins, and angular velocities the three-point
-   * differences of the neighbouring rotations (one-sided, exact for a
-   * quadratic turn, at the chain's ends); both are scaled from per-station
-   * to per-unit-parameter by the interval width. A layer's tangent and
-   * angular velocity are the same for both of its intervals, so the plane
-   * moves and turns C1 along the chain.
+   * @evidence contracts/common.md#principled-implementation Validated original caps and matching valid row-axis records read their actual axis; other boundaries retain the existing Hermite/rotation frame.
+   * @evidence contracts/common.md#clear-and-simple-design The frame owner holds source selection and every fallback together.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Stale/stripped source records throw; numerical fallback is not called an exact RMF jet.
+   * @evidence contracts/common.md#meaningful-documentation States original retained cap, regular-domain and copied-continuation boundary behavior; coefficient means/controls remain principal-domain statistics.
+   * @evidence contracts/performance.md#efficient-algorithms Cap ownership validates O(K+N) source/row snapshots; ordinary queries use binary bracketing and constant frame work or the actual axis query.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the immutable prepared actual axis when declared.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a caller-owned frame without a query cache here.
    */
   export function frame(
     chain: IAutoMovieLoftChain,
     s: number,
   ): AutoMovieLoftFrame.IFrame {
-    const layers: readonly IAutoMovieLoftChain.ILayer[] = chain.layers;
-    const [lo, hi] = bracket(chain, s);
-    const a: IAutoMovieLoftChain.ILayer = layers[lo]!;
-    const b: IAutoMovieLoftChain.ILayer = layers[hi]!;
-
-    // Planes carrying their station derivatives move component by component
-    // by the Hermite rule, C2 with the coefficients (the plan's section 2).
-    if (
-      AutoMovieStationHermite.framed(a) &&
-      AutoMovieStationHermite.framed(b)
-    ) {
-      const ea: AutoMovieStationHermite.IEnd =
-        AutoMovieStationHermite.frameEnd(a);
-      const eb: AutoMovieStationHermite.IEnd =
-        AutoMovieStationHermite.frameEnd(b);
-      const quintic: boolean =
-        ea.curvature !== undefined && eb.curvature !== undefined;
-      const w: number[] = AutoMovieStationHermite.weights(
-        Math.min(1, Math.max(0, (s - a.y) / (b.y - a.y))),
-        b.y - a.y,
-        0,
-        quintic,
-      );
-      return AutoMovieStationHermite.unflat(
-        AutoMovieStationHermite.combine(ea, eb, w),
-      );
-    }
-    if (
-      a.frame === undefined &&
-      b.frame === undefined &&
-      layers[lo - 1]?.frame === undefined &&
-      layers[hi + 1]?.frame === undefined
-    )
-      return AutoMovieLoftFrame.horizontal(s);
-
-    const frameOf = (k: number): AutoMovieLoftFrame.IFrame =>
-      layers[k]!.frame ?? AutoMovieLoftFrame.horizontal(layers[k]!.y);
-    const H: number = b.y - a.y;
-
-    // Catmull-Rom tangent at layer k, per unit parameter of this interval.
-    const tangent = (k: number): [number, number, number] => {
-      const p: number = Math.max(0, k - 1);
-      const n: number = Math.min(layers.length - 1, k + 1);
-      const op: [number, number, number] = frameOf(p).origin;
-      const on: [number, number, number] = frameOf(n).origin;
-      const span: number = layers[n]!.y - layers[p]!.y;
-      return [0, 1, 2].map(
-        (i: number): number => ((on[i]! - op[i]!) / span) * H,
-      ) as [number, number, number];
-    };
-
-    // Angular velocity at layer k, per unit parameter of this interval:
-    // the three-point derivative of the rotation from the constant turns of
-    // its two intervals, (h1 r0 + h0 r1) / (h0 + h1) inside the chain and
-    // r0 + (r0 - r1) h0 / (h0 + h1) at an end (r0 the end interval's turn,
-    // r1 the next one's).
-    const turn = (i: number): [number, number, number] =>
-      AutoMovieLoftFrame.rate(
-        frameOf(i),
-        frameOf(i + 1),
-        layers[i + 1]!.y - layers[i]!.y,
-      );
-    const span = (i: number): number => layers[i + 1]!.y - layers[i]!.y;
-    const velocity = (k: number): [number, number, number] => {
-      const last: number = layers.length - 1;
-      let w: [number, number, number];
-      if (last === 1) w = turn(0);
-      else if (k === 0 || k === last) {
-        const [i0, i1] = k === 0 ? [0, 1] : [last - 1, last - 2];
-        const r0: [number, number, number] = turn(i0);
-        const r1: [number, number, number] = turn(i1);
-        const f: number = span(i0) / (span(i0) + span(i1));
-        w = [0, 1, 2].map(
-          (i: number): number => r0[i]! + (r0[i]! - r1[i]!) * f,
-        ) as [number, number, number];
-      } else {
-        const r0: [number, number, number] = turn(k - 1);
-        const r1: [number, number, number] = turn(k);
-        const h0: number = span(k - 1);
-        const h1: number = span(k);
-        w = [0, 1, 2].map(
-          (i: number): number => (h1 * r0[i]! + h0 * r1[i]!) / (h0 + h1),
-        ) as [number, number, number];
-      }
-      return [w[0] * H, w[1] * H, w[2] * H];
-    };
-
-    return AutoMovieLoftFrame.interpolate(
-      frameOf(lo),
-      frameOf(hi),
-      tangent(lo),
-      tangent(hi),
-      Math.min(1, Math.max(0, (s - a.y) / H)),
-      velocity(lo),
-      velocity(hi),
-    );
+    const cap: AutoMovieLoftCapSource.ISource | null =
+      AutoMovieLoftCapSource.at(chain, s);
+    if (cap !== null) return cap.axis.at(s);
+    const [lo, hi]: [number, number] = bracket(chain, s);
+    return AutoMovieLoftFrameSource.frame(chain, s, lo, hi);
   }
 
-  /** Central-axis point `[x, y, z]` in mm at station s: the section centroid. */
+  /**
+   * Central-axis point `[x, y, z]` in mm at station s: the section centroid.
+   *
+   * @evidence contracts/common.md#principled-implementation Places the basis coefficient mean in the same frame and adds mean lift along v-cross-u.
+   * @evidence contracts/common.md#clear-and-simple-design Centroid, source frame and lift use the same station definition.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves the existing coefficient mean and unnormalized frame-normal convention.
+   * @evidence contracts/common.md#meaningful-documentation Returns the central-axis point in world mm.
+   * @evidence contracts/performance.md#efficient-algorithms O(N) coefficient/mean/lift work plus frame evaluation.
+   * @evidence contracts/performance.md#reuse-equivalent-work Uses the same coefficient and lift readers as surface points.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh world triple and retains nothing.
+   */
   export function axis(
     chain: IAutoMovieLoftChain,
     s: number,
   ): [number, number, number] {
-    const [x, z] = center(chain, coefficients(chain, s));
+    const [x, z]: [number, number] = center(chain, coefficients(chain, s));
     const f: AutoMovieLoftFrame.IFrame = frame(chain, s);
     const p: [number, number, number] = AutoMovieLoftFrame.place(f, x, z);
 
@@ -342,6 +270,14 @@ export namespace AutoMovieLoftChain {
    * @param coefficients Section coefficients, as from {@link coefficients}.
    * @param t Phase in radians.
    * @returns `[x, z, dx/dt, dz/dt]` in the section plane, mm.
+   *
+   * @evidence contracts/common.md#principled-implementation Evaluates the unchanged harmonic or periodic cubic phase basis.
+   * @evidence contracts/common.md#clear-and-simple-design One discriminant chooses the existing basis owner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Changes no phase representation, control layout or normalization.
+   * @evidence contracts/common.md#meaningful-documentation Returns in-plane value and first phase derivative in mm/radian units.
+   * @evidence contracts/performance.md#efficient-algorithms Existing basis cost follows order; cubic spline support is local.
+   * @evidence contracts/performance.md#reuse-equivalent-work Consumes supplied prepared coefficients without another station interpolation.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh fixed tuple without retained coefficients.
    */
   export function section(
     chain: IAutoMovieLoftChain,
@@ -358,6 +294,14 @@ export namespace AutoMovieLoftChain {
    *
    * The constant terms of a harmonic section; the control-point mean of a
    * spline section.
+   *
+   * @evidence contracts/common.md#principled-implementation Reads harmonic constants or the exact control mean of a periodic spline.
+   * @evidence contracts/common.md#clear-and-simple-design One basis branch owns the centroid convention.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not fit a centre to emitted points or triangles.
+   * @evidence contracts/common.md#meaningful-documentation Returns local x/z mean in mm.
+   * @evidence contracts/performance.md#efficient-algorithms O(N) spline summation or constant harmonic reads.
+   * @evidence contracts/performance.md#reuse-equivalent-work Consumes the already prepared coefficient row.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns two numbers and keeps no source.
    */
   export function center(
     chain: IAutoMovieLoftChain,
@@ -382,6 +326,14 @@ export namespace AutoMovieLoftChain {
    * Planar section coordinates of world points in the frame at station s.
    *
    * Used to give inherited ring vertices phases by the chain's own rule.
+   *
+   * @evidence contracts/common.md#principled-implementation Delegates world-to-plane coordinate reading to the existing frame convention at the same station.
+   * @evidence contracts/common.md#clear-and-simple-design One frame preparation is shared across the point list.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not renormalize a fitted frame or silently repair its metric.
+   * @evidence contracts/common.md#meaningful-documentation Inputs and returned coordinates use world/local mm; admitted-frame premises remain with its producer.
+   * @evidence contracts/performance.md#efficient-algorithms O(P) point work plus one station frame query.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses one frame for every supplied point.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns fresh local pairs and retains no point list.
    */
   export function local(
     chain: IAutoMovieLoftChain,
@@ -401,6 +353,14 @@ export namespace AutoMovieLoftChain {
    * @param chain Chain to evaluate.
    * @param s Station within the chain; world height for horizontal layers.
    * @param phases Correspondence phases in radians.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the same value sampler for every requested phase.
+   * @evidence contracts/common.md#clear-and-simple-design One station preparation feeds the ring map.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Changes neither phase correspondence nor the point definition.
+   * @evidence contracts/common.md#meaningful-documentation Stations use mm and phases radians; returns world-mm points.
+   * @evidence contracts/performance.md#efficient-algorithms One sampler preparation plus local phase support per point.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses coefficients, source frame and lift across all phases.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns fresh ring vectors; sampler lifetime ends with the call.
    */
   export function ring(
     chain: IAutoMovieLoftChain,
@@ -412,173 +372,69 @@ export namespace AutoMovieLoftChain {
   }
 
   /**
-   * World point of the chain at station s as a function of phase.
+   * Prepare the existing value-only station sampler, including actual source metadata.
    *
-   * The section, plane and lift of a station cost as much as the whole chain's
-   * order, so a caller reading a station at many separate phases takes them
-   * from here rather than through {@link ring} one phase at a time.
+   * @param chain Immutable chain whose retained sources remain unchanged.
+   * @param s Owned station in the principal interval or an explicitly retained original cap, mm.
    *
-   * @param chain Chain to evaluate.
-   * @param s Station within the chain; world height for horizontal layers.
+   * @evidence contracts/common.md#principled-implementation Delegates the same value-only point definition to its point owner.
+   * @evidence contracts/common.md#clear-and-simple-design The public API stays in LoftChain while point preparation has one owner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No alternative geometry or phase evaluator is introduced.
+   * @evidence contracts/common.md#meaningful-documentation States immutable source and physical station units; retained cap Point0 does not imply physical2 at its collapsed tip.
+   * @evidence contracts/performance.md#efficient-algorithms The point owner prepares O(N) arrays once for repeated phase calls.
+   * @evidence contracts/performance.md#reuse-equivalent-work The returned closure reuses its one station preparation.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Caller release ends the returned closure's retained station lifetime.
    */
   export function sampler(
     chain: IAutoMovieLoftChain,
     s: number,
   ): (t: number) => [number, number, number] {
-    const c: number[] = coefficients(chain, s);
-    const f: AutoMovieLoftFrame.IFrame = frame(chain, s);
-
-    // A lifted section leaves its plane along the frame normal by the
-    // spline of its lift values, evaluated as the x block of a section
-    // whose z block repeats it.
-    const l: number[] | null = lift(chain, s);
-    const lifted: number[] | null = l === null ? null : [...l, ...l];
-    const n: [number, number, number] = normal(f);
-
-    return (t: number): [number, number, number] => {
-      const p: [number, number, number, number] = section(chain, c, t);
-      const q: [number, number, number] = AutoMovieLoftFrame.place(
-        f,
-        p[0],
-        p[1],
-      );
-      if (lifted !== null) {
-        const h: number = AutoMovieSplineCurve.evaluate(
-          lifted,
-          chain.order,
-          t,
-        )[0];
-        for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
-      }
-      // Reliefs move the base point along their axes.
-      for (const relief of chain.reliefs ?? []) {
-        const d: number = AutoMovieLoftRelief.height(relief, s, t)[0];
-        if (d === 0) continue;
-        for (let k: number = 0; k < 3; k++) q[k]! += d * relief.axis[k]!;
-      }
-      return q;
-    };
+    return AutoMovieLoftPoint.sampler(chain, s);
   }
 
   /**
-   * One world point of the chain at station s and phase t. Readers of single
-   * points (a strip's columns, a trim loop's rim, a difference across a
-   * loop) meet the same few stations again and again, so the samplers of the
-   * last {@link RECENT} stations read per chain are kept; a chain is never
-   * changed once built, so a kept sampler stays its station's.
+   * Prepare actual value and phase tangent without station-jet admission.
    *
-   * @param chain Chain to evaluate.
-   * @param s Station within the chain.
-   * @param t Phase in radians.
+   * @evidence contracts/common.md#principled-implementation Delegates source/basis value and phase differentiation to the same point owner.
+   * @evidence contracts/common.md#clear-and-simple-design A thin adapter serves callers whose station derivative remains numerical.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Present source data never routes through compatibility coefficients or missing station jets.
+   * @evidence contracts/common.md#meaningful-documentation Uses principal or explicitly retained cap stations in mm and phase radians; unavailable phase derivatives still fail and world outputs are fresh.
+   * @evidence contracts/performance.md#efficient-algorithms Costs follow the point owner's actual local field/frame/lift preparation and phase reading.
+   * @evidence contracts/performance.md#reuse-equivalent-work The returned closure reuses one station preparation across phases.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Caller release ends this closure's lifetime independently of Point/Jet module caches.
    */
-  export function point(chain: IAutoMovieLoftChain, s: number, t: number): [number, number, number] {
-    let kept: { s: number; at: (t: number) => [number, number, number] }[] | undefined = SAMPLERS.get(chain);
-    if (kept === undefined) SAMPLERS.set(chain, (kept = []));
-    for (const entry of kept) if (entry.s === s) return entry.at(t);
-    const at: (t: number) => [number, number, number] = chain.basis === "spline" ? lazy(chain, s) : sampler(chain, s);
-    kept.unshift({ s, at });
-    if (kept.length > RECENT) kept.pop();
-    return at(t);
+  export function phaseSampler(
+    chain: IAutoMovieLoftChain,
+    s: number,
+  ): (t: number) => {
+    p: [number, number, number];
+    t: [number, number, number];
+  } {
+    return AutoMovieLoftPoint.phaseSampler(chain, s);
   }
 
   /**
-   * A spline chain's {@link sampler} whose section and lift controls are
-   * combined only as its phases read them: a uniform cubic B-spline reads four
-   * controls per coordinate at a phase, so a Newton step or a foot search that
-   * meets a new station at a phase or two pays for those few controls instead
-   * of the whole row. Each control is the same Hermite combination
-   * {@link coefficients} and {@link lift} write for the whole row, entry by
-   * entry, so every point is the sampler's to the bit.
+   * Read one point through the original bounded lazy sampler cache.
+   *
+   * @param chain Immutable chain/cache identity.
+   * @param s Regular station, mm.
+   * @param t Phase in radians.
+   *
+   * @evidence contracts/common.md#principled-implementation Delegates single-point evaluation to the original bounded lazy point owner.
+   * @evidence contracts/common.md#clear-and-simple-design The public chain API keeps its original signature.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves ordinary arithmetic, cache insertion/eviction and fresh vectors.
+   * @evidence contracts/common.md#meaningful-documentation States immutable chain identity, mm station and radian phase.
+   * @evidence contracts/performance.md#efficient-algorithms New spline phase visits combine at most four new controls after O(N) storage preparation.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the last eight inserted station samplers without hit promotion.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The point owner's weak-key eight-station cache bounds retention.
    */
-  function lazy(chain: IAutoMovieLoftChain, s: number): (t: number) => [number, number, number] {
-    const layers: readonly IAutoMovieLoftChain.ILayer[] = chain.layers;
-    const [lo, hi] = bracket(chain, s);
-    const a: IAutoMovieLoftChain.ILayer = layers[lo]!;
-    const b: IAutoMovieLoftChain.ILayer = layers[hi]!;
-    const H: number = b.y - a.y;
-    const u: number = Math.min(1, Math.max(0, (s - a.y) / H));
-    const f: AutoMovieLoftFrame.IFrame = frame(chain, s);
-    const n: [number, number, number] = normal(f);
-    const N: number = chain.order;
-
-    // One entry of the row, as `hermite` combines it.
-    const entry = (
-      av: (k: number) => number,
-      am: (k: number) => number,
-      ac: readonly number[] | undefined,
-      bv: (k: number) => number,
-      bm: (k: number) => number,
-      bc: readonly number[] | undefined,
-    ): ((k: number) => number) => {
-      if (ac !== undefined && bc !== undefined) {
-        const w: number[] = AutoMovieStationHermite.weights(u, H, 0, true);
-        return (k: number): number => w[0]! * av(k) + w[1]! * am(k) + w[2]! * ac[k]! + w[3]! * bc[k]! + w[4]! * bm(k) + w[5]! * bv(k);
-      }
-      const h00: number = 2 * u ** 3 - 3 * u ** 2 + 1;
-      const h10: number = u ** 3 - 2 * u ** 2 + u;
-      const h01: number = -2 * u ** 3 + 3 * u ** 2;
-      const h11: number = u ** 3 - u ** 2;
-      return (k: number): number => h00 * av(k) + h10 * H * am(k) + h01 * bv(k) + h11 * H * bm(k);
-    };
-    const section: (k: number) => number = entry(
-      (k: number): number => a.coefficients[k]!,
-      (k: number): number => a.slopes[k]!,
-      a.curvatures,
-      (k: number): number => b.coefficients[k]!,
-      (k: number): number => b.slopes[k]!,
-      b.curvatures,
-    );
-    const lifting: ((k: number) => number) | null = !layers.some((l: IAutoMovieLoftChain.ILayer): boolean => l.lift !== undefined)
-      ? null
-      : entry(
-          (k: number): number => (a.lift !== undefined ? a.lift[k]! : 0),
-          (k: number): number => (a.lift !== undefined ? a.liftSlopes![k]! : 0),
-          a.liftCurvatures,
-          (k: number): number => (b.lift !== undefined ? b.lift[k]! : 0),
-          (k: number): number => (b.lift !== undefined ? b.liftSlopes![k]! : 0),
-          b.liftCurvatures,
-        );
-
-    // The row and the doubled lift, filled where a phase reads them.
-    const c: number[] = new Array<number>(2 * N);
-    const lifted: number[] | null = lifting === null ? null : new Array<number>(2 * N);
-    const filled: Uint8Array = new Uint8Array(N);
-    const fill = (j: number): void => {
-      if (filled[j] === 1) return;
-      c[j] = section(j);
-      c[N + j] = section(N + j);
-      if (lifted !== null) {
-        const h: number = lifting!(j);
-        lifted[j] = h;
-        lifted[N + j] = h;
-      }
-      filled[j] = 1;
-    };
-    return (t: number): [number, number, number] => {
-      // The four controls `AutoMovieSplineCurve.evaluate` reads at t.
-      const i: number = Math.min(N - 1, Math.floor(((((t / (2 * Math.PI)) % 1) + 1) % 1) * N));
-      if (Number.isInteger(i)) for (let d: number = -1; d <= 2; d++) fill((i + d + N) % N);
-      const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(c, N, t);
-      const q: [number, number, number] = AutoMovieLoftFrame.place(f, p[0], p[1]);
-      if (lifted !== null) {
-        const h: number = AutoMovieSplineCurve.evaluate(lifted, N, t)[0];
-        for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
-      }
-      // Reliefs move the base point along their axes.
-      for (const relief of chain.reliefs ?? []) {
-        const d: number = AutoMovieLoftRelief.height(relief, s, t)[0];
-        if (d === 0) continue;
-        for (let k: number = 0; k < 3; k++) q[k]! += d * relief.axis[k]!;
-      }
-      return q;
-    };
+  export function point(
+    chain: IAutoMovieLoftChain,
+    s: number,
+    t: number,
+  ): [number, number, number] {
+    return AutoMovieLoftPoint.point(chain, s, t);
   }
-
-  /** Stations whose samplers {@link point} keeps per chain. */
-  const RECENT: number = 8;
-
-  /** The kept samplers, by chain. */
-  const SAMPLERS: WeakMap<IAutoMovieLoftChain, { s: number; at: (t: number) => [number, number, number] }[]> = new WeakMap();
 
   /** Unit normal `v x u` of a section frame: up for a horizontal frame. */
   function normal(f: AutoMovieLoftFrame.IFrame): [number, number, number] {

@@ -97,9 +97,18 @@ export namespace AutoMovieHumanSkinChartGrid {
    * A chart point and its row's perimeter at loft coordinates: the bilinear
    * blend of the cell's four nodes, `u` unwrapped across the cut first.
    *
-   * @param grid The chain's grid.
-   * @param station Station, mm.
-   * @param phase Phase, radians; NaN for a pole's apex, which takes its row's front.
+   * @param grid The prepared chain grid, borrowed without mutation.
+   * @param station Finite station, mm, clamped to the grid's rows.
+   * @param phase Phase, radians; NaN marks a pole's apex and takes u=0 with the row-mean meridian. The existing nonfinite-phase branch also handles infinities.
+   * @returns A fresh ordinary [u,v,perimeter] array in mm.
+   *
+   * @evidence contracts/common.md#principled-implementation Bilinearly combines the same four periodic chart nodes in row-major order, first unwrapping each u against the first corner with its own row perimeter, then wrapping by the interpolated perimeter. The producer supplies at least two rows and positive phase count; this reader does not validate arbitrary grid records.
+   * @evidence contracts/common.md#clear-and-simple-design Four scalar addresses and weights replace the temporary corner tuples; one loop retains the original lookup and accumulation order.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No resampling, precision change, person rule or cache is added. NaN remains the caller's pole marker, and strict half-perimeter comparisons and the existing nonfinite-phase branch are unchanged.
+   * @evidence contracts/common.md#meaningful-documentation States prepared-grid ownership, station/phase and result units, clamping, the intentional pole convention and fresh ordinary-array ownership.
+   * @evidence contracts/performance.md#efficient-algorithms A finite-phase query reads four corners with constant scalar scratch and one returned triple, removing the outer corner array and four pair arrays. A nonfinite phase still scans P columns for its required row mean. These are source-level allocation/work counts, not a measured heap or time improvement.
+   * @evidence contracts/performance.md#reuse-equivalent-work Borrows the caller's prepared u/v/perimeter tables rather than reevaluating the chain; no query cache, key or invalidation policy is introduced.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the fresh three-number result escapes; the query retains no grid, temporary population, task or handle after return or failure. Grid lifetime remains with its caller.
    */
   export function at(grid: IGrid, station: number, phase: number): [number, number, number] {
     const fs: number = Math.min(grid.stations - 1, Math.max(0, (station - grid.from) / grid.step));
@@ -116,16 +125,31 @@ export namespace AutoMovieHumanSkinChartGrid {
     const j: number = Math.floor(fp) % grid.phases;
     const b: number = fp - Math.floor(fp);
     const j1: number = (j + 1) % grid.phases;
-    const nodes: [number, number][] = [
-      [i * grid.phases + j, (1 - a) * (1 - b)],
-      [i * grid.phases + j1, (1 - a) * b],
-      [(i + 1) * grid.phases + j, a * (1 - b)],
-      [(i + 1) * grid.phases + j1, a * b],
-    ];
-    const first: number = grid.u[nodes[0]![0]]!;
+    /** Lower row's first corner; keep all address/weight preparation before grid-value reads. */
+    const n0: number = i * grid.phases + j;
+    /** Its original bilinear weight. */
+    const w0: number = (1 - a) * (1 - b);
+    /** Lower row's periodic successor. */
+    const n1: number = i * grid.phases + j1;
+    /** Its original weight, without reassociating either factor. */
+    const w1: number = (1 - a) * b;
+    /** Upper row's first corner. */
+    const n2: number = (i + 1) * grid.phases + j;
+    /** Its original bilinear weight. */
+    const w2: number = a * (1 - b);
+    /** Upper row's periodic successor. */
+    const n3: number = (i + 1) * grid.phases + j1;
+    /** Its original bilinear weight. */
+    const w3: number = a * b;
+    const first: number = grid.u[n0]!;
     let u: number = 0;
     let v: number = 0;
-    for (const [n, w] of nodes) {
+    /** The original lower-left, lower-right, upper-left, upper-right visit order. */
+    for (let corner: number = 0; corner < 4; corner++) {
+      /** One already prepared address; no grid property is read to select it. */
+      const n: number = corner === 0 ? n0 : corner === 1 ? n1 : corner === 2 ? n2 : n3;
+      /** The weight prepared alongside that address. */
+      const w: number = corner === 0 ? w0 : corner === 1 ? w1 : corner === 2 ? w2 : w3;
       let value: number = grid.u[n]!;
       const row: number = grid.perimeter[Math.floor(n / grid.phases)]!;
       if (value - first > row / 2) value -= row;

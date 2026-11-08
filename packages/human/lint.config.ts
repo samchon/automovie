@@ -4,26 +4,6 @@ import type {
   ITtscLintConfig,
 } from "@ttsc/lint";
 
-import shared from "../../config/lint.config";
-
-/** Modules that read files, decompress archives, load modules or reach the network. */
-const READERS: string[] = [
-  "fs",
-  "node:fs",
-  "fs/promises",
-  "node:fs/promises",
-  "zlib",
-  "node:zlib",
-  "http",
-  "node:http",
-  "https",
-  "node:https",
-  "child_process",
-  "node:child_process",
-  "module",
-  "node:module",
-];
-
 /** Public API and parameter vocabulary with their permitted dependencies. */
 const LAYERS: Array<[string, string[]]> = [
   [
@@ -44,6 +24,8 @@ const LAYERS: Array<[string, string[]]> = [
   ["lofting", []],
   ["typings", []],
   ["structures", ["typings"]],
+  ["inspection", ["generation", "lofting", "structures", "typings"]],
+  ["executable", ["inspection", "generation", "lofting", "structures", "typings"]],
 ];
 
 /** Classification of the generator layers and Human types. */
@@ -63,15 +45,12 @@ const POLICIES: ITtscLintBoundariesElementTypesRule[] = LAYERS.map(
 );
 
 /**
- * Correctness guards for the Human contracts and unimplemented generator.
- * The public API depends on structures; structures depend only on typings.
- * Source performs no external reads or runtime loading. Evidence checklists
- * remain deferred until the Human rebuild is complete.
+ * Human runtime layers and pure inspection keep external reads at the Node executable boundary.
+ * Browser/public layers cannot import the executable layer. Shared correctness guards apply to both.
  */
 export default {
-  ...shared,
+  extends: "./lint.library.config.ts",
   rules: {
-    ...shared.rules,
     "evidence/documented": [
       "error",
       { symbol: ["type", "function", "property"] },
@@ -81,43 +60,6 @@ export default {
     "boundaries/element-types": [
       "error",
       { elements: ELEMENTS, default: "disallow", rules: POLICIES },
-    ],
-    "no-restricted-imports": [
-      "error",
-      {
-        paths: READERS.map(
-          (name: string): { name: string; message: string } => ({
-            name,
-            message: "Human parameter definitions read no external data.",
-          }),
-        ),
-      },
-    ],
-    "no-restricted-syntax": [
-      "error",
-      {
-        selector: "CallExpression[callee.type='ImportKeyword']",
-        message: "Human loads no module at run time.",
-      },
-      {
-        selector:
-          "CallExpression[callee.type='Identifier'][callee.name='require']",
-        message: "Human loads no module at run time.",
-      },
-      {
-        selector:
-          "PropertyAccessExpression[object.name=/^(module|global|globalThis|window|self)$/][property.name='require']",
-        message: "Human obtains no CommonJS loader from a runtime host.",
-      },
-      {
-        selector:
-          "ElementAccessExpression[object.name=/^(module|global|globalThis|window|self)$/][property.value='require']",
-        message: "Human loads no module at run time.",
-      },
-      {
-        selector: "CallExpression[callee.name='fetch']",
-        message: "Human fetches no external data.",
-      },
     ],
   },
 } satisfies ITtscLintConfig;

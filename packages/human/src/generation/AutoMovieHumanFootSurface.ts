@@ -1,14 +1,15 @@
 import { AutoMovieLoftChain as Loft, type IAutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieHumanFootCourse } from "./AutoMovieHumanFootCourse";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
 /**
  * Source courses for the original rigid polygon foot, sampled from the same
- * final calibrated FootConstruction law as the skin. No skin mesh is built.
- * The source fan carries the ankle around the calcaneus to the ball. Its
+ * published construction curves as the skin. No skin mesh is built.
+ * The foot's material stations run from the heel toward the toes. Its
  * course at the existing Midfoot joint's longitudinal coordinate belongs to
- * both rigid modules; the forefoot continues along the canonical forefoot
- * chains. Rigid articulation can open this seam, as in the original display.
+ * both rigid modules; the forefoot continues on that same source chain.
+ * Rigid articulation can open this seam, as in the original display.
  * Named plantar samples identify anatomy, not guaranteed floor contacts.
  */
 export namespace AutoMovieHumanFootSurface {
@@ -19,12 +20,12 @@ export namespace AutoMovieHumanFootSurface {
   export type Side = "left" | "right";
 
   /** Canonical foot chains, excluding independently articulated toes. */
-  export type Chain = `foot.${Side}` | `forefoot.${Side}.${1 | 2}`;
+  export type Chain = `foot.${Side}`;
 
   /** The three anatomical plantar samples the original renderer retains. */
   export type Landmark = "plantarHeel" | "medialBall" | "lateralBall";
 
-  /** One actual source ring; scalar extents do not resize its points. */
+  /** One sampled loft course; descriptor extents do not resize its retained points. */
   export interface ICourse {
     /** Canonical chain owning every sample. */ chain: Chain;
 
@@ -32,15 +33,15 @@ export namespace AutoMovieHumanFootSurface {
 
     /** Phase-mean source centre in registered bind metres. */ centre: Vector;
 
-    /** Full source extent along its section's first axis, metres. */ depth: number;
+    /** Retained samples' extent along the section's first axis, metres. */ depth: number;
 
-    /** Full source extent along its section's second axis, metres. */ breadth: number;
+    /** Retained samples' extent along the section's second axis, metres. */ breadth: number;
 
     /** Actual evaluated source points, retained without projection. */ points: Vector[];
 
     /** Corresponding material phases in radians. */ sourcePhases: number[];
 
-    /** Monotone cyclic polygon arclength coordinates, for joining only. */ displayCoordinates: number[];
+    /** Cumulative cyclic chord length divided by polygon perimeter, times 2 pi; for display joining only. */ displayCoordinates: number[];
   }
 
   /** Courses belonging to one existing rigid joint. */
@@ -97,11 +98,19 @@ export namespace AutoMovieHumanFootSurface {
 
   /**
    * Sample final calibrated curves once without retaining body/input state.
-   * Every principal foot/forefoot station survives, with a shared source
+   * Every principal foot station survives, with a shared source
    * course at Midfoot and eight uniform phases plus named and footprint-extremum phases.
    * Source extrema use 64 phase brackets and 40 bounded golden-section steps;
    * the landmark definition is limited to these retained source courses.
    * No point is lowered to a floor, fitted to a target or inferred from girth.
+   *
+   * @evidence contracts/common.md#principled-implementation Reads the published heel-to-toe foot curve and skeleton; source stations and phases survive the one physical-unit conversion.
+   * @evidence contracts/common.md#clear-and-simple-design Partitions one source chain at the existing Midfoot joint; bounded sampling belongs to FootCourse.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No old forefoot assembly, projected point, synthetic floor contact or skin readback defines construction.
+   * @evidence contracts/common.md#meaningful-documentation Distinguishes sampled support from a whole-foot clearance claim and states retained source identity.
+   * @evidence contracts/performance.md#efficient-algorithms Uses bounded phase queries over source courses and emits small rings rather than a dense skin.
+   * @evidence contracts/performance.md#reuse-equivalent-work One frozen bilateral descriptor is shared by the prepared skeleton's evaluations.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Owns only frozen samples and addresses, without retaining the calibration or query closures.
    */
   export function derive(
     body: IAutoMovieHumanBodyCalibration,
@@ -121,22 +130,15 @@ export namespace AutoMovieHumanFootSurface {
 }
 
 /** Exact source chain and material address used before a display ring exists. */
-interface IAddress {
-  /** Source chain. */ chain: IAutoMovieLoftChain;
-
-  /** Calibration-mm station. */ station: number;
-}
+type IAddress = AutoMovieHumanFootCourse.IAddress;
 
 /** A bounded phase search result on one actual source course. */
-interface IMinimum {
-  /** Material phase, radians. */ phase: number;
+type IMinimum = AutoMovieHumanFootCourse.IMinimum;
 
-  /** Actual source point, calibration mm. */ point: AutoMovieHumanFootSurface.Vector;
+/** The display reader shares bounded searches and source ring evaluation. */
+const { minimum, course }: typeof AutoMovieHumanFootCourse = AutoMovieHumanFootCourse;
 
-  /** Value of the anatomical site objective. */ score: number;
-}
-
-/** Prepare one foot using its own measured input, never the other side's mesh. */
+/** Prepare rising source stations; each ball is the closest retained plantar sample below its own MTP. */
 function side(
   body: IAutoMovieHumanBodyCalibration,
   scale: number,
@@ -181,46 +183,29 @@ function side(
   const split: number = crossing(foot, along, along(joint("Midfoot").position));
   const hind: IAddress[] = foot.layers
     .filter(
-      (layer: IAutoMovieLoftChain.ILayer): boolean => layer.y > split,
+      (layer: IAutoMovieLoftChain.ILayer): boolean => layer.y < split,
     )
     .map(
       (layer: IAutoMovieLoftChain.ILayer): IAddress => ({
         chain: foot,
         station: layer.y,
       }),
-    )
-    .reverse();
+    );
   const seam: IAddress = { chain: foot, station: split };
   hind.push(seam);
   const front: IAddress[] = [
     seam,
     ...foot.layers
       .filter(
-        (layer: IAutoMovieLoftChain.ILayer): boolean => layer.y < split,
+        (layer: IAutoMovieLoftChain.ILayer): boolean => layer.y > split,
       )
       .map(
         (layer: IAutoMovieLoftChain.ILayer): IAddress => ({
           chain: foot,
           station: layer.y,
         }),
-      )
-      .reverse(),
+      ),
   ];
-  for (const ordinal of [1, 2] as const) {
-    const source: IAutoMovieLoftChain = chain(
-      `forefoot.${own}.${ordinal}`,
-    );
-    front.push(
-      ...source.layers
-        .map(
-          (layer: IAutoMovieLoftChain.ILayer): IAddress => ({
-            chain: source,
-            station: layer.y,
-          }),
-        )
-        .reverse(),
-    );
-  }
 
   // The heel is plantar skin posterior to the ankle, not an ankle-tube vertex.
   let heel: { course: number; result: IMinimum } | undefined;
@@ -239,33 +224,23 @@ function side(
   }
   if (heel === undefined)
     throw new Error(`Canonical ${own} foot has no posterior plantar sample`);
-  const medialCourse: number = front.length - 1;
-  const lateralCourse: number = front.findIndex(
-    (address: IAddress): boolean =>
-      address.chain === foot && address.station === foot.layers[0]!.y,
-  );
-  if (lateralCourse < 0)
-    throw new Error(`Canonical ${own} foot lacks the lateral ball course`);
-  const plantar: (
-    address: IAddress,
-    centre: AutoMovieHumanFootSurface.Vector,
-  ) => IMinimum = (
-    address: IAddress,
-    centre: AutoMovieHumanFootSurface.Vector,
-  ): IMinimum =>
-    minimum(address, (point: AutoMovieHumanFootSurface.Vector): number =>
-      point[1] <= centre[1]
-        ? dot(sub(point, centre), sub(point, centre))
-        : Infinity,
-    );
-  const medial: IMinimum = plantar(
-    front[medialCourse]!,
-    joint("HalluxProximal").position,
-  );
-  const lateral: IMinimum = plantar(
-    front[lateralCourse]!,
-    joint("Toe5Proximal").position,
-  );
+  // A ball belongs to the nearest retained plantar source point beneath its
+  // own MTP, not to an obsolete forefoot chain ordinal or reversed end ring.
+  const plantar = (centre: AutoMovieHumanFootSurface.Vector): { course: number; result: IMinimum } => {
+    let best: { course: number; result: IMinimum } | undefined;
+    for (let index: number = 0; index < front.length; index++) {
+      const result: IMinimum = minimum(front[index]!, (point: AutoMovieHumanFootSurface.Vector): number => point[1] <= centre[1] ? dot(sub(point, centre), sub(point, centre)) : Infinity);
+      if (best === undefined || result.score < best.result.score) best = { course: index, result };
+    }
+    if (best === undefined) throw new Error(`Canonical ${own} foot has no forefoot courses`);
+    return best;
+  };
+  const medialPoint: { course: number; result: IMinimum } = plantar(joint("HalluxProximal").position);
+  const lateralPoint: { course: number; result: IMinimum } = plantar(joint("Toe5Proximal").position);
+  const medialCourse: number = medialPoint.course;
+  const lateralCourse: number = lateralPoint.course;
+  const medial: IMinimum = medialPoint.result;
+  const lateral: IMinimum = lateralPoint.result;
   if (!Number.isFinite(medial.score) || !Number.isFinite(lateral.score))
     throw new Error(`Canonical ${own} foot lacks plantar metatarsal samples`);
   const heelResult: { course: number; result: IMinimum } = heel;
@@ -387,7 +362,7 @@ function side(
   };
 }
 
-/** First source-axis crossing from the ball toward the ankle; no surface is moved. */
+/** First source-axis crossing from heel toward toes; no surface is moved. */
 function crossing(
   chain: IAutoMovieLoftChain,
   along: (point: AutoMovieHumanFootSurface.Vector) => number,
@@ -408,106 +383,6 @@ function crossing(
     return (low + high) / 2;
   }
   throw new Error("Canonical foot axis does not cross its own Midfoot joint");
-}
-
-/** Sample a source objective globally in phase, then refine its best bracket. */
-function minimum(
-  address: IAddress,
-  score: (point: AutoMovieHumanFootSurface.Vector) => number,
-): IMinimum {
-  const sample: (phase: number) => AutoMovieHumanFootSurface.Vector =
-    Loft.sampler(address.chain, address.station);
-  const at: (phase: number) => IMinimum = (phase: number): IMinimum => {
-    const point: AutoMovieHumanFootSurface.Vector = sample(phase);
-    return { phase, point, score: score(point) };
-  };
-  const pitch: number = (2 * Math.PI) / 64;
-  let best: IMinimum = at(0);
-  for (let index: number = 1; index < 64; index++) {
-    const candidate: IMinimum = at(index * pitch);
-    if (candidate.score < best.score) best = candidate;
-  }
-  let low: number = best.phase - pitch;
-  let high: number = best.phase + pitch;
-  for (let step: number = 0; step < 40; step++) {
-    const a: IMinimum = at(low + ((high - low) * (3 - Math.sqrt(5))) / 2);
-    const b: IMinimum = at(low + ((high - low) * (Math.sqrt(5) - 1)) / 2);
-    if (a.score < best.score) best = a;
-    if (b.score < best.score) best = b;
-    if (a.score < b.score) high = b.phase;
-    else low = a.phase;
-  }
-  return best;
-}
-
-/** Copy an actual source ring and independently measure its physical extents. */
-function course(
-  address: IAddress,
-  phases: number[],
-  scale: number,
-): AutoMovieHumanFootSurface.ICourse {
-  const points: AutoMovieHumanFootSurface.Vector[] = Loft.ring(
-    address.chain,
-    address.station,
-    phases,
-  ).map(
-    (
-      point: AutoMovieHumanFootSurface.Vector,
-    ): AutoMovieHumanFootSurface.Vector => [
-      point[0] * scale,
-      point[1] * scale,
-      point[2] * scale,
-    ],
-  );
-  const centre: AutoMovieHumanFootSurface.Vector = Loft.axis(
-    address.chain,
-    address.station,
-  ).map(
-    (value: number): number => value * scale,
-  ) as AutoMovieHumanFootSurface.Vector;
-  const frame: ReturnType<typeof Loft.frame> = Loft.frame(
-    address.chain,
-    address.station,
-  );
-  const u: number[] = points.map(
-    (point: AutoMovieHumanFootSurface.Vector): number =>
-      dot(sub(point, centre), frame.u),
-  );
-  const v: number[] = points.map(
-    (point: AutoMovieHumanFootSurface.Vector): number =>
-      dot(sub(point, centre), frame.v),
-  );
-  const lengths: number[] = points.map(
-    (point: AutoMovieHumanFootSurface.Vector, index: number): number =>
-      Math.hypot(...sub(points[(index + 1) % points.length]!, point)),
-  );
-  const total: number = lengths.reduce(
-    (sum: number, length: number): number => sum + length,
-    0,
-  );
-  if (
-    !(total > 0) ||
-    !points.every((point: AutoMovieHumanFootSurface.Vector): boolean =>
-      point.every(Number.isFinite),
-    )
-  )
-    throw new Error("Foot source course is collapsed or nonfinite");
-  let travelled: number = 0;
-  const coordinates: number[] = lengths.map((length: number): number => {
-    const value: number = (2 * Math.PI * travelled) / total;
-    travelled += length;
-    return value;
-  });
-  return {
-    chain: address.chain.name as AutoMovieHumanFootSurface.Chain,
-    stationMm: address.station,
-    centre,
-    depth: Math.max(...u) - Math.min(...u),
-    breadth: Math.max(...v) - Math.min(...v),
-    points,
-    sourcePhases: [...phases],
-    displayCoordinates: coordinates,
-  };
 }
 
 /** Registered Euclidean vector difference. */

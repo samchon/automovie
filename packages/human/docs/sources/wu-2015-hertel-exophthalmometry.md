@@ -21,7 +21,7 @@ The paper reports no sex difference. The upper limits of normal, mean plus 2 SD 
 
 ## Use here
 
-A bound on how far the globe's corneal apex may stand in front of the lateral orbital rim, and on the difference between the two eyes. The lateral orbital rim is bone: on the skin it is read at the exocanthion's level, about where the instrument rests, so the bound is a cap, not a landmark.
+A population reference for corneal-apex projection from the actual bony lateral orbital rims and for differences between eyes. A skin exocanthion is not the instrument's bony rest. Replacing that rest with a skin landmark, or replacing the corneal apex with the globe centre, requires a separate anatomical relation; this paper does not supply one. Its values therefore do not directly set a nasion-skin recess or a margin-to-globe offset.
 
 ## Limits
 

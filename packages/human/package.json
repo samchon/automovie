@@ -12,13 +12,43 @@
     "./instance": "./src/instance/index.ts",
     "./package.json": "./package.json"
   },
-  "typesVersions": { "*": { "control": ["src/control/index.ts"], "instance": ["src/instance/index.ts"] } },
+  "typesVersions": {
+    "*": {
+      "control": [
+        "src/control/index.ts"
+      ],
+      "instance": [
+        "src/instance/index.ts"
+      ]
+    }
+  },
   "scripts": {
     "debug": "vite",
     "debug:check": "ttsc --noEmit -p tsconfig.debug.json",
     "debug:watch": "ttsc --noEmit --watch -p tsconfig.debug.json",
+    "node:canvas": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/NodeCanvasExperiment.ts",
+    "node:reference-bases": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/HumanReferenceBasis.ts",
+    "node:reference": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/HumanReferenceInspect.ts",
+    "node:six": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/NodeCanvasSix.ts",
+    "node:inspect": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/NodeCanvasInspect.ts",
+    "node:curve-cost": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/HumanCurveCost.ts",
+    "node:scalar-cost": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/HumanScalarPreparationCost.ts",
+    "node:cpu-summary": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/HumanCpuProfileSummary.ts",
+    "node:profile": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/HumanProfileCompare.ts",
     "build": "ttsc --noEmit && rimraf lib && ttsc",
-    "prepack": "pnpm run build"
+    "prepack": "pnpm run build",
+    "node:torso": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/RunHumanTorsoObservation.ts",
+    "node:arm-measure": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/NodeArmMeasure.ts",
+    "node:arm-specs": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/NodeArmSpecs.ts",
+    "node:arm-shoulder": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/NodeArmShoulder.ts",
+    "node:arm-hand": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/NodeArmHand.ts",
+    "node:arm-world": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/NodeArmWorld.ts",
+    "node:leg-specs": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/NodeLegSpecs.ts",
+    "node:trunk-specs": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/NodeTrunkSpecs.ts",
+    "node:head-specs": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/NodeHeadSpecs.ts",
+    "node:head-measure": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/NodeHeadMeasure.ts",
+    "node:capture": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/NodeCapture.ts",
+    "node:f1-body": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/NodeF1Body.ts"
   },
   "keywords": [],
   "author": "Samchon",
@@ -35,7 +65,16 @@
   ],
   "publishConfig": {
     "access": "public",
-    "typesVersions": { "*": { "control": ["lib/control/index.d.ts"], "instance": ["lib/instance/index.d.ts"] } },
+    "typesVersions": {
+      "*": {
+        "control": [
+          "lib/control/index.d.ts"
+        ],
+        "instance": [
+          "lib/instance/index.d.ts"
+        ]
+      }
+    },
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
     "exports": {
@@ -55,6 +94,8 @@
     }
   },
   "devDependencies": {
+    "@automovie/recovery": "workspace:^",
+    "@napi-rs/canvas": "1.0.1",
     "@playwright/mcp": "catalog:media",
     "@automovie/render": "workspace:^",
     "@automovie/viewer": "workspace:^",

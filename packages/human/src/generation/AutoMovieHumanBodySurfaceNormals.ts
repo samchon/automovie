@@ -1,4 +1,9 @@
-import { AutoMovieLoftChain, AutoMovieLoftFrame, AutoMovieLoftJet, AutoMovieSplineCurve, type IAutoMovieLoftChain } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  AutoMovieLoftJet,
+  type IAutoMovieLoftChain,
+} from "@automovie/engine";
+
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
 /** The skin's normals: each vertex's station jet and the blend of the normals of rings shared between chains. */
@@ -14,10 +19,12 @@ export namespace AutoMovieHumanBodySurfaceNormals {
    * one band to the next, which shaded as lines along the head rings and
    * round the hips although the surface those rings lie on is smooth
    * (profiled in fixed planes, its slope is continuous to 0.1 mm). Every
-   * vertex with loft coordinates therefore takes the normal of its chain's
-   * surface at its station and phase, `dS/dt x dS/ds`, the phase derivative
-   * exact and the station one a central difference over {@link STEP} mm
-   * (one-sided at the chain's ends), oriented with the mesh normal. A vertex
+   * regular vertex with loft coordinates takes the analytic normal when
+   * the original physical jets are available. Otherwise its actual phase
+   * derivative and the existing {@link STEP} mm station difference give
+   * `dS/dt x dS/ds`, oriented with the mesh normal. Retained cap geometry
+   * needs Point0 only, so vertices outside the principal physical2 domain
+   * keep their triangle normals without inventing missing derivatives. A vertex
    * without coordinates, or whose two normals differ by more than
    * {@link AGREE} degrees (a pinch bridge or a pole apex, where the mesh is
    * the surface), keeps the mesh normal.
@@ -37,6 +44,15 @@ export namespace AutoMovieHumanBodySurfaceNormals {
       if (!Number.isFinite(index) || !Number.isFinite(t)) continue;
       const target: IAutoMovieLoftChain = calibration.chains[index]!;
 
+      // Owned cap Point0 is sufficient for geometry, not physical2. Keep
+      // existing triangle normals outside the principal regular jet domain.
+      if (
+        (target.pole?.source !== undefined ||
+          target.opposite?.source !== undefined) &&
+        (s < target.layers[0]!.y || s > target.layers.at(-1)!.y)
+      )
+        continue;
+
       // A chain with jets has its exact normal, oriented with the mesh's.
       if (AutoMovieLoftJet.carries(target)) {
         const n: [number, number, number] | null = AutoMovieLoftJet.normal(
@@ -44,7 +60,9 @@ export namespace AutoMovieHumanBodySurfaceNormals {
         );
         if (n === null) continue;
         const c: number =
-          n[0] * mesh[3 * v]! + n[1] * mesh[3 * v + 1]! + n[2] * mesh[3 * v + 2]!;
+          n[0] * mesh[3 * v]! +
+          n[1] * mesh[3 * v + 1]! +
+          n[2] * mesh[3 * v + 2]!;
         if (Math.abs(c) < cosine) continue;
         for (let k: number = 0; k < 3; k++)
           out[3 * v + k] = (c < 0 ? -1 : 1) * n[k]!;
@@ -59,21 +77,9 @@ export namespace AutoMovieHumanBodySurfaceNormals {
         jet = stationJet(target, s);
         stations.set(s, jet);
       }
-      const p: [number, number, number, number] =
-        AutoMovieLoftChain.section(target, jet.here, t);
       const a: [number, number, number] = place(target, jet.lo, t);
       const b: [number, number, number] = place(target, jet.hi, t);
-      const dt: number[] = [0, 1, 2].map(
-        (k: number): number => jet.frame.u[k]! * p[2] + jet.frame.v[k]! * p[3],
-      );
-      if (jet.lift !== null) {
-        const l: number = AutoMovieSplineCurve.evaluate(
-          jet.lift,
-          target.order,
-          t,
-        )[2];
-        for (let k: number = 0; k < 3; k++) dt[k]! += l * jet.normal[k]!;
-      }
+      const dt: [number, number, number] = jet.here(t).t;
       const ds: number[] = [0, 1, 2].map((k: number): number => b[k]! - a[k]!);
       const n: number[] = [
         dt[1]! * ds[2]! - dt[2]! * ds[1]!,
@@ -120,10 +126,7 @@ export namespace AutoMovieHumanBodySurfaceNormals {
     // Event ring stations of every chain, by calibration index.
     const index: Map<string, number> = new Map(
       calibration.chains.map(
-        (c: IAutoMovieLoftChain, i: number): [string, number] => [
-          c.name,
-          i,
-        ],
+        (c: IAutoMovieLoftChain, i: number): [string, number] => [c.name, i],
       ),
     );
     const rings: number[][] = calibration.chains.map((): number[] => []);
@@ -216,7 +219,8 @@ export namespace AutoMovieHumanBodySurfaceNormals {
         for (let i: number = 0; i < 3; i++) values.push(b[i]! / length);
       }
       changed.forEach((v: number, j: number): void => {
-        for (let i: number = 0; i < 3; i++) current[3 * v + i] = values[3 * j + i]!;
+        for (let i: number = 0; i < 3; i++)
+          current[3 * v + i] = values[3 * j + i]!;
       });
     }
     return current;
@@ -239,17 +243,8 @@ export namespace AutoMovieHumanBodySurfaceNormals {
 
   /** A chain's sections at a station and its two difference neighbours. */
   export interface IStationJet {
-    /** The section's coefficients at the station. */
-    here: number[];
-
-    /** The section's frame at the station. */
-    frame: AutoMovieLoftFrame.IFrame;
-
-    /** The frame's normal, `v x u`, along the station. */
-    normal: [number, number, number];
-
-    /** The section's lift off its plane at the station, doubled for the spline, or null. */
-    lift: number[] | null;
+    /** Actual world value/phase tangent plan, independent of physical station2. */
+    here: ReturnType<typeof AutoMovieLoftChain.phaseSampler>;
 
     /** The station STEP mm below, clamped into the chain. */
     lo: IStationSample;
@@ -258,16 +253,10 @@ export namespace AutoMovieHumanBodySurfaceNormals {
     hi: IStationSample;
   }
 
-  /** Coefficients, frame and lift of one station, to place points from. */
+  /** Caller-owned actual world value plan of one station. */
   export interface IStationSample {
-    /** The section's coefficients. */
-    coefficients: number[];
-
-    /** The section's frame. */
-    frame: AutoMovieLoftFrame.IFrame;
-
-    /** The section's lift off its plane, doubled for the spline, or null. */
-    lift: number[] | null;
+    /** Actual world point reader retained by this normal calculation. */
+    at: ReturnType<typeof AutoMovieLoftChain.sampler>;
   }
 
   /** Sections at a station and STEP mm to either side, clamped into the chain. */
@@ -277,25 +266,11 @@ export namespace AutoMovieHumanBodySurfaceNormals {
   ): IStationJet {
     const bottom: number = target.layers[0]!.y;
     const top: number = target.layers[target.layers.length - 1]!.y;
-    const sample = (y: number): IStationSample => {
-      const l: number[] | null = AutoMovieLoftChain.lift(target, y);
-      return {
-        coefficients: AutoMovieLoftChain.coefficients(target, y),
-        frame: AutoMovieLoftChain.frame(target, y),
-        lift: l === null ? null : [...l, ...l],
-      };
-    };
-    const here: IStationSample = sample(s);
-    const f: AutoMovieLoftFrame.IFrame = here.frame;
+    const sample: (y: number) => IStationSample = (
+      y: number,
+    ): IStationSample => ({ at: AutoMovieLoftChain.sampler(target, y) });
     return {
-      here: here.coefficients,
-      frame: f,
-      normal: [
-        f.v[1] * f.u[2] - f.v[2] * f.u[1],
-        f.v[2] * f.u[0] - f.v[0] * f.u[2],
-        f.v[0] * f.u[1] - f.v[1] * f.u[0],
-      ],
-      lift: here.lift,
+      here: AutoMovieLoftChain.phaseSampler(target, s),
       lo: sample(Math.max(bottom, s - STEP)),
       hi: sample(Math.min(top, s + STEP)),
     };
@@ -307,28 +282,7 @@ export namespace AutoMovieHumanBodySurfaceNormals {
     sample: IStationSample,
     t: number,
   ): [number, number, number] {
-    const p: [number, number, number, number] = AutoMovieLoftChain.section(
-      target,
-      sample.coefficients,
-      t,
-    );
-    const q: [number, number, number] = AutoMovieLoftFrame.place(
-      sample.frame,
-      p[0],
-      p[1],
-    );
-    if (sample.lift === null) return q;
-    const h: number = AutoMovieSplineCurve.evaluate(
-      sample.lift,
-      target.order,
-      t,
-    )[0];
-    const f: AutoMovieLoftFrame.IFrame = sample.frame;
-    const n: [number, number, number] = [
-      f.v[1] * f.u[2] - f.v[2] * f.u[1],
-      f.v[2] * f.u[0] - f.v[0] * f.u[2],
-      f.v[0] * f.u[1] - f.v[1] * f.u[0],
-    ];
-    return [q[0] + h * n[0], q[1] + h * n[1], q[2] + h * n[2]];
+    void target;
+    return sample.at(t);
   }
 }

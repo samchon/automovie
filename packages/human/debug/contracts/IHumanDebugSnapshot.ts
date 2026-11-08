@@ -16,6 +16,22 @@ export interface IHumanDebugSnapshot {
   /** Producer facts of the subject. */
   provenance: Record<string, unknown> | null;
 
+  /** Actual resolved presentation demand; absent in historical receipts, whose defaults are not reconstructed. */
+  display?: {
+    /** Requested reference producer; null means none. */
+    reference: string | null;
+    /** Actual reference representation selected by the UI. */
+    referenceStyle: "clay" | "loft";
+    /** Reference crop selectors before visibility filtering. */
+    referencePart: string[];
+    /** Reference alpha in (0, 1]. CPU opaque clay does not reproduce values below 1. */
+    referenceOpacity: number;
+    /** Ordinary raw surface alpha in (0, 1]. */
+    opacity: number;
+    /** Whether non-axis source lines ignore surface depth; axes always do. */
+    xray: boolean;
+  };
+
   /** Ids shown. */
   shown: { parts: string[]; curves: string[] };
 
@@ -35,9 +51,9 @@ export interface IHumanDebugSnapshot {
   loadMilliseconds: number | null;
 
   /**
-   * Source hash the server reported when the page's modules had all loaded, before anything was
-   * generated; null when the page could not read it. Every static import has evaluated by then and
-   * the page loads no module later, so this names the bytes every frame of the page was drawn from.
+   * Server's disk source inventory hash requested during mounting before the first subject is
+   * generated; null when that read failed. Capture compares it with the pre-load disk
+   * hash. Freshness of served transformed dependencies requires separate verification.
    */
   source: string | null;
 }

@@ -1,3 +1,4 @@
+import { HumanInspectionSelection } from "../../src/inspection/HumanInspectionSelection";
 /**
  * The reader and writer of one URL variable, and the constructors of every kind the viewer uses.
  *
@@ -110,11 +111,7 @@ export namespace HumanDebugOptionField {
   export function globs(): HumanDebugOptionField<string[]> {
     return {
       read: (text: string): { value: string[] } | string => {
-        const items: string[] = split(text);
-        if (items.length === 1 && items[0] === "none") return { value: [] };
-        return items.every((item: string): boolean => GLOB.test(item))
-          ? { value: items }
-          : "comma list of globs over letters, digits and _ . - / *, or none";
+        return HumanInspectionSelection.globs(text);
       },
       write: (value: string[]): string =>
         value.length === 0 ? "none" : value.join(","),

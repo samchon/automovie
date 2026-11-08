@@ -16,12 +16,33 @@ const V: typeof HumanAnatomyVector = HumanAnatomyVector;
 /**
  * A generated person's skin as the anatomy observers read it: the closed
  * triangle mesh the surface emits at the bind, and the same skin under a pose
- * through the public rig's own binding and pose evaluator. Each skin lives on
- * the views object its caller builds ({@link HumanAnatomySkins.views}) and dies
- * with it; the name-keyed reads build fresh views each call.
+ * through the public rig's own binding and pose evaluator. A views object
+ * retains its skins until the caller releases it; a returned skin may also be
+ * held by its reader. Name-keyed reads build fresh views each call.
  * Reached through `HumanAnatomy`, which re-exports these functions.
  */
 export namespace HumanAnatomySkins {
+  /** Counts and typed-position bytes retained by one views object. */
+  export interface IStatistics {
+    /** Calls requesting a posed skin, successful or otherwise. */
+    poseRequests: number;
+
+    /** Requests served from the existing JSON-keyed pose map. */
+    poseHits: number;
+
+    /** Distinct posed skin objects retained by that map. */
+    posedSkins: number;
+
+    /** Bind and posed position-buffer bytes; shared topology is counted separately. */
+    positionBytes: number;
+
+    /** Shared bind index and triangle-chain buffer bytes, counted once. */
+    topologyBytes: number;
+
+    /** Number of binding indices and weights; JavaScript storage overhead is unknown. */
+    bindingScalars: number;
+  }
+
   /** One person's skin views, each made on its first read and kept on the object. */
   export interface IViews {
     /** The rigged person. */
@@ -38,6 +59,9 @@ export namespace HumanAnatomySkins {
 
     /** The skin under a pose. */
     posed: (pose: IAutoMovieHumanPose) => ISkin;
+
+    /** Existing retained populations; reading them generates and copies no geometry. */
+    statistics: () => IStatistics;
   }
 
   /** The rig's four influences on every bind vertex. */
@@ -56,28 +80,52 @@ export namespace HumanAnatomySkins {
    * One person's skin views, held by the caller that builds them: the bind
    * skin and its construction paths from one surface generation, the rig's
    * binding and the skin under each pose, each made on its first read and
-   * kept on this object alone, so they die with it.
+   * retained by this object. Returned skins may outlive it when a reader keeps
+   * them. Read-only statistics observe counts without changing that lifetime.
    *
    * @param who A person's name, or the rigged person the caller holds.
+   *
+   * @evidence contracts/common.md#principled-implementation Lazily generates the bind surface and binding, and memoizes pose output by JSON value; the rigged person and returned skins are immutable inputs to the observers. Read-only counters do not change that key or any query.
+   * @evidence contracts/common.md#clear-and-simple-design One caller-owned closure owns surface, binding and pose map; its statistics expose counts and typed-buffer bytes without publishing mutable caches.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts There is no person-specific cache path, fixture or dropped pose. JSON key order can distinguish equivalent differently ordered records, as before; no stronger canonicalization is claimed.
+   * @evidence contracts/common.md#meaningful-documentation Describes lazy acquisition, immutable outputs, reader ownership and the limit of the byte accounting.
+   * @evidence contracts/performance.md#efficient-algorithms A cached pose read costs JSON serialization and a map lookup; a miss skins V vertices with four influences each. Statistics visits K retained poses with scalar scratch and copies no geometry.
+   * @evidence contracts/performance.md#reuse-equivalent-work A views object fixes person, generated topology and binding. Matching serialized poses reuse the same immutable skin; a new views object generates independent state. Counters neither generate nor invalidate it.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns one bind surface and binding plus one position buffer per distinct serialized pose, with no bound on the number of poses. Releasing the views object releases its map; independently held skins remain live. Statistics report position/topology bytes and binding scalar count, excluding unknown JavaScript/container overhead.
    */
   export function views(who: string | HumanPeople.IRigged): IViews {
     const person: HumanPeople.IRigged = typeof who === "string" ? HumanPeople.rigged(who) : who;
     let surface: { skin: ISkin; construction: IAutoMovieHumanConstructionPath[] } | undefined;
     let bound: IBinding | undefined;
     const posedBy: Map<string, ISkin> = new Map();
+    let poseRequests: number = 0;
+    let poseHits: number = 0;
     const self: IViews = {
       person,
       bind: (): ISkin => (surface ??= generate(person)).skin,
       construction: (): IAutoMovieHumanConstructionPath[] => (surface ??= generate(person)).construction,
       binding: (): IBinding => (bound ??= bindingOf(person, self.bind())),
       posed: (pose: IAutoMovieHumanPose): ISkin => {
+        poseRequests++;
         const key: string = JSON.stringify(pose);
         let found: ISkin | undefined = posedBy.get(key);
         if (found === undefined) {
           found = posedOf(person, self.bind(), self.binding(), pose);
           posedBy.set(key, found);
-        }
+        } else poseHits++;
         return found;
+      },
+      statistics: (): IStatistics => {
+        let positionBytes: number = surface?.skin.P.byteLength ?? 0;
+        for (const skin of posedBy.values()) positionBytes += skin.P.byteLength;
+        return {
+          poseRequests,
+          poseHits,
+          posedSkins: posedBy.size,
+          positionBytes,
+          topologyBytes: surface === undefined ? 0 : surface.skin.I.byteLength + surface.skin.tri.byteLength,
+          bindingScalars: bound === undefined ? 0 : bound.boneIndices.length + bound.weights.length,
+        };
       },
     };
     return self;

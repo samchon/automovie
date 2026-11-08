@@ -16,16 +16,9 @@ import { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
  * union: a branch (one loop becoming two) and an overhang need no special
  * case, because neither surface is a graph over the other.
  *
- * The width laws are the consumer's: chords on the part and on the host as
- * functions of the part's phase, derived from the parts' own sizes and inputs
- * (construction.md: a blend width derived from the piece's own size), never a
- * reference's shape. A part that is a graph over its host's chart (a relief)
- * does not need this operator: `AutoMovieHumanSeamUnion` merges it G2 already.
+ * Width laws belong to the authoring construction and are read in the curve's declared parameter. This wrapper supplies no consumer-specific relief or local assembly alternative.
  *
- * Where two merges onto one host come close (the crotch's two legs, the
- * webs), their host rails must not cross; the caller caps each width at half
- * the gap between the curves, and a corner past that is a setback closed by
- * `AutoMovieHumanSeamPatch`.
+ * Nearby joins require compatible kept regions and rails. The shared join/body operators report premises they cannot keep; this wrapper does not resolve overlapping blends by a separate patch.
  *
  * @evidence contracts/common.md#principled-implementation A merge is the join that keeps the part outside the host and the host outside the part.
  * @evidence contracts/common.md#clear-and-simple-design One call into the shared join with the outside keep.
@@ -41,11 +34,19 @@ export namespace AutoMovieSolidMerge {
    *
    * @param input The part (periodic phase), the host, the seed from the
    *   contact's landmarks, the trace's limits and the width laws.
-   * @returns The join, the part kept outside the host, or null with the
-   *   diagnostics of every broken premise (no single transversal loop, a rail
-   *   that cannot be placed, a rail that crosses itself, a folded blend).
+   * @returns The shared result with an outside-kept part, or a null join and diagnostics for its detected contact/rail/blend failure.
+   *
+   * @evidence contracts/common.md#principled-implementation Selects the shared join's outside part keep, expressing the merge boundary convention through the existing trace/rail/ribbon construction.
+   * @evidence contracts/common.md#clear-and-simple-design One direct delegation keeps the merge/diff distinction at the kept-side argument.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves shared join diagnostics and null failures without retrying, shrinking widths or calling a consumer-local union path.
+   * @evidence contracts/common.md#meaningful-documentation Gives part/host roles, outside keep and the result's nullable join/diagnostic meaning.
+   * @evidence contracts/performance.md#efficient-algorithms Constant wrapper work plus the full shared join cost, including tracing, rails, repeated columns and fold checks.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the diff's common implementation and any supplied trace under the join's existing contract, without new cross-call state.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned join result and its owned/borrowed dependency graph escape; the wrapper itself retains nothing.
    */
-  export function create(input: AutoMovieSolidJoin.IInput): AutoMovieSolidJoin.IResult {
+  export function create(
+    input: AutoMovieSolidJoin.IInput,
+  ): AutoMovieSolidJoin.IResult {
     return AutoMovieSolidJoin.create(input, "outside");
   }
 }

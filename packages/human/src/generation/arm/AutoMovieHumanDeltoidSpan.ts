@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanArmPiece } from "./IAutoMovieHumanArmPiece";
-import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
+import type { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
 import { AutoMovieHumanArmRows } from "./AutoMovieHumanArmRows";
 
 /**
@@ -7,9 +7,9 @@ import { AutoMovieHumanArmRows } from "./AutoMovieHumanArmRows";
  * trunk's scye ring, to the deltoid insertion.
  *
  * Gray 1918 puts the deltoid's insertion, the deltoid tuberosity, at the middle
- * of the lateral humerus, and ISO 8559-1 takes the upper arm girth midway
- * between acromion and olecranon, which is the same level. So the span ends at
- * the biceps tape's site, and its distal row is the girth input's own station.
+ * of the lateral humerus. This legacy span instead uses an acromion-to-elbow
+ * midpoint projection; neither that convention nor the active half-AR proxy
+ * independently locates olecranon or a measured deltoid insertion.
  * The span owns two observed rows, at 0.3 and at the insertion, where the
  * reference sections first stand free of the trunk on all four references
  * (nearer the root, m1's and m2's sections still merge with the chest). Above
@@ -37,14 +37,14 @@ export namespace AutoMovieHumanDeltoidSpan {
 
   /**
    * Walk length of the insertion: midway between the acromion, which stands
-   * `ACROMION` of acromion-radiale above the shoulder centre, and the elbow
-   * centre (the olecranon's level in extension).
+   * the actual downward projection above the shoulder centre, and the elbow
+   * centre. This retained proxy is distinct from the active half-AR site.
    *
    * @param inputs The fixed inputs.
    */
   export function insertion(inputs: IAutoMovieHumanArmPiece.IInputs): number {
     const bones: AutoMovieHumanArmBones.IBones = inputs.bones;
-    const distance: number = (bones.humerus - AutoMovieHumanArmBones.ACROMION * bones.acromionRadiale) / 2;
+    const distance: number = (bones.humerus - bones.acromionProjection) / 2;
 
     return inputs.axis.upper(distance);
   }

@@ -1,80 +1,48 @@
-/**
- * Pure in-memory checks of the numerical reactor's deterministic WASI contract.
- * These invoke the actual host imported by quadraticKernelMemory, without a
- * browser, process, clock mock or source-text inspection.
- */
-import { createAutoMovieQuadraticHost } from "@automovie/engine/math/createAutoMovieQuadraticHost";
+import { assembleAutoMovieQuadraticProgram } from "@automovie/engine/math/assembleAutoMovieQuadraticProgram";
+import { createAutoMovieQuadraticConicProgram } from "@automovie/engine/math/createAutoMovieQuadraticConicProgram";
+import { createAutoMovieQuadraticFactor } from "@automovie/engine/math/createAutoMovieQuadraticFactor";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/predicates";
+import { nclose } from "../internal/nclose";
 
 /**
- * Pins the runtime services without granting access to ambient host state.
+ * The former WASI-host entry now checks the numerical state the TypeScript
+ * engine actually owns: independent sparse factors and recoverable refusal.
  *
  * Scenarios:
- * 1. Realtime/monotonic queries share an isolated logical clock; unsupported
- *    clock IDs refuse without writing or advancing the supported clocks.
- * 2. Entropy writes deterministic zeroes only to its requested interval,
- *    including empty requests and storage after actual linear-memory growth.
- * 3. An empty environment writes zero counts; file close/write are unavailable.
- * 4. Native exit becomes a caller exception and leaves another host independent.
+ * 1. Two independent owners solve the equality KKT with known multipliers.
+ * 2. Changing one cone diagonal updates its matrix, leaving the other unchanged.
+ * 3. Returned-vector mutation cannot alter either retained numeric factor.
+ * 4. A nonfinite diagonal invalidates solving until a valid update recovers.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual closed WASI import owner and observes logical nanoseconds, unsupported-clock no-write/no-tick behavior, bounded/empty zero entropy, fresh views after memory growth, empty environment, unavailable descriptors and named exit exception. An independently created host must restart its clock sequence.
- * @evidence contracts/testing.md#independent-expectations The private host contract specifies one logical nanosecond per supported clock, errno 28 for unsupported clocks, zero-filled requested bytes, no environment and errno 8 for unavailable descriptors. Hand-authored sentinels show writes remain in bounds. These import checks do not run or establish the numerical solver's result or any external WASI environment.
- * @evidence contracts/testing.md#distinguishing-cases Preserves realtime/monotonic versus unsupported clocks, nonempty/empty entropy, actual grown memory, independent host state, environment, file and exit decisions. Numerical kernel transport, allocation cleanup and solver convergence have separate owners.
- * @evidence contracts/testing.md#execution-ownership The discoverable named unit entry invokes portable import functions against an ordinary WebAssembly.Memory without instantiating the native solver or replacing ambient state. It installs no consumer, builds no native artifact and starts no process, browser or GPU; all cases are local.
+ * @evidence contracts/testing.md#behavioral-verification Calls actual conic assembly and engine-owned sparse factors, verifies independent analytic KKT solutions before/after diagonal update, copied return values, pre-update refusal, nonfinite update refusal and recovery. It reaches the current numerical owner rather than the retired WASI imports.
+ * @evidence contracts/testing.md#independent-expectations For P=diag(2,8), A=(1,1) and RHS (0,0,3), H=0 gives (2.4,.6,-4.8). H=1 gives (12/13,3/13,-24/13), derived by substituting stationarity into x+y-z=3. Every coordinate must agree within 1e-10; this tests the KKT primitive rather than whole-solver convergence.
+ * @evidence contracts/testing.md#distinguishing-cases Covers two owners, H=0 versus H=1, before-update and nonfinite refusal, mutation isolation and valid recovery. Workspace lifetime and whole-QP status/certificates retain separate test owners.
+ * @evidence contracts/testing.md#execution-ownership This named portable unit entry invokes maintained TypeScript arrays and sparse factorization without WebAssembly, installation, native build, ambient host services, process, browser or GPU; no cases are registered dynamically.
  */
 export function test_geometry_quadratic_host(): void {
-  const memory: WebAssembly.Memory = new WebAssembly.Memory({ initial: 1 });
-  const host: ReturnType<typeof createAutoMovieQuadraticHost> =
-    createAutoMovieQuadraticHost((): WebAssembly.Memory => memory);
-  const view: () => DataView = (): DataView => new DataView(memory.buffer);
-  TestValidator.equals("first logical clock", host.clock_time_get(0, 0n, 0), 0);
-  TestValidator.equals("one nanosecond", view().getBigUint64(0, true), 1n);
-  TestValidator.equals("unsupported clock", host.clock_time_get(2, 0n, 0), 28);
-  TestValidator.equals(
-    "refusal does not write",
-    view().getBigUint64(0, true),
-    1n,
-  );
-  TestValidator.equals("monotonic clock", host.clock_time_get(1, 0n, 0), 0);
-  TestValidator.equals(
-    "same logical sequence",
-    view().getBigUint64(0, true),
-    2n,
-  );
-  const bytes: Uint8Array = new Uint8Array(memory.buffer, 16, 4);
-  bytes.fill(7);
-  TestValidator.equals("entropy request", host.random_get(17, 2), 0);
-  TestValidator.equals("bounded zero fill", Array.from(bytes), [7, 0, 0, 7]);
-  TestValidator.equals("empty entropy request", host.random_get(16, 0), 0);
-  TestValidator.equals("empty leaves bytes", Array.from(bytes), [7, 0, 0, 7]);
-  memory.grow(1);
-  view().setUint32(65536, 123, true);
-  host.random_get(65536, 4);
-  TestValidator.equals(
-    "fresh memory after growth",
-    view().getUint32(65536, true),
-    0,
-  );
-  view().setUint32(24, 123, true);
-  view().setUint32(28, 456, true);
-  TestValidator.equals("environment sizes", host.environ_sizes_get(24, 28), 0);
-  TestValidator.equals("no environment entries", view().getUint32(24, true), 0);
-  TestValidator.equals("no environment bytes", view().getUint32(28, true), 0);
-  TestValidator.equals("empty environment read", host.environ_get(), 0);
-  TestValidator.equals("no file close", host.fd_close(), 8);
-  TestValidator.equals("no file write", host.fd_write(), 8);
-  TestValidator.predicate(
-    "exit propagates as exception",
-    throwsError((): never => host.proc_exit(17), "code 17"),
-  );
-  const other: ReturnType<typeof createAutoMovieQuadraticHost> =
-    createAutoMovieQuadraticHost((): WebAssembly.Memory => memory);
-  other.clock_time_get(1, 0n, 0);
-  TestValidator.equals(
-    "independent host clock",
-    view().getBigUint64(0, true),
-    1n,
-  );
+  const data: ReturnType<typeof createAutoMovieQuadraticConicProgram> = createAutoMovieQuadraticConicProgram(assembleAutoMovieQuadraticProgram({
+    diagonal: [2, 8], linear: [0, 0], rows: [{ indices: [0, 1], weights: [1, 1], lower: 3, upper: 3 }],
+  }));
+  const first: ReturnType<typeof createAutoMovieQuadraticFactor> = createAutoMovieQuadraticFactor(data);
+  const other: ReturnType<typeof createAutoMovieQuadraticFactor> = createAutoMovieQuadraticFactor(data);
+  const rhs: Float64Array = Float64Array.from([0, 0, 3]);
+  const check: (actual: Float64Array | undefined, expected: readonly number[]) => void = (actual: Float64Array | undefined, expected: readonly number[]): void => {
+    TestValidator.predicate("independent matrix solution", actual !== undefined && actual.length === expected.length && actual.every((value: number, index: number): boolean => nclose(value, expected[index]!, 1e-10) && Math.abs(value - expected[index]!) < 1e-10));
+  };
+  TestValidator.equals("unfactored owner refuses", first.solve(rhs), undefined);
+  TestValidator.equals("first factor initialized", first.update(Float64Array.from([0])), true);
+  TestValidator.equals("other factor initialized", other.update(Float64Array.from([0])), true);
+  const returned: Float64Array | undefined = first.solve(rhs);
+  check(returned, [2.4, 0.6, -4.8]);
+  check(other.solve(rhs), [2.4, 0.6, -4.8]);
+  returned![0] = 999;
+  check(first.solve(rhs), [2.4, 0.6, -4.8]);
+  TestValidator.equals("diagonal update succeeds", first.update(Float64Array.from([1])), true);
+  check(first.solve(rhs), [12 / 13, 3 / 13, -24 / 13]);
+  check(other.solve(rhs), [2.4, 0.6, -4.8]);
+  TestValidator.equals("nonfinite update refuses", first.update(Float64Array.from([NaN])), false);
+  TestValidator.equals("failed factor cannot solve", first.solve(rhs), undefined);
+  TestValidator.equals("valid update recovers", first.update(Float64Array.from([0])), true);
+  check(first.solve(rhs), [2.4, 0.6, -4.8]);
 }

@@ -4,7 +4,7 @@
  * the weakly observed coordinate must still reach the known constrained answer.
  * No portrait data, reference image or previous solver output supplies it.
  */
-import { solveAutoMovieQuadraticProgram } from "@automovie/engine";
+import { type IAutoMovieQuadraticRow, solveAutoMovieQuadraticProgram } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -20,37 +20,41 @@ import { nclose } from "../internal/nclose";
  * 2. A zero coefficient truly removes that constraint on y; the algorithm must
  *    distinguish this boundary from a tiny nonzero coefficient.
  * 3. A positive gap beyond the same caps is infeasible, not a relaxed success.
+ * 4. Contact-first and box-first row orders retain the same mathematical family.
  *
  * @evidence contracts/testing.md#behavioral-verification Solves the existing nearly parallel bounded two-variable family, requiring solved status, both coordinates near the forced corner, small original-row residual and objective/dual agreement. Zero coupling must release y to its objective centre, and a positive additional gap must retain primal-infeasible status.
- * @evidence contracts/testing.md#independent-expectations With upper bounds one, positive epsilon makes x+epsilon*y>=1+epsilon force x=y=1, whose half-weighted objective is 2.5. At epsilon zero, minimum y is zero; adding 0.1 at epsilon one is infeasible. The retained strict tolerances allow numerical approximation, and dual-gap agreement uses reported solver values rather than independently reconstructing every dual coefficient.
- * @evidence contracts/testing.md#distinguishing-cases Preserves five positive epsilon scales from one to 1e-8, the exact zero-coupling boundary and positive-gap contradiction. General dimension/coefficient admission and unrelated QP optima belong to quadratic-refusals/program.
- * @evidence contracts/testing.md#execution-ownership The discoverable named entry is CPU/WebAssembly integration through the actual admitted QP adapter and pinned Clarabel reactor. It installs no consumer, builds no native artifact and starts no external process, browser or GPU; it owns every listed numerical case without dynamic registration.
+ * @evidence contracts/testing.md#independent-expectations In the ideal real family, upper bounds one and positive epsilon force x=y=1, whose half-weighted objective is 2.5. Authored binary64 1+epsilon can round by one ulp; the unchanged 1e-7 coordinate allowance includes its amplified endpoint error at epsilon1e-8. At epsilon zero, minimum y is zero; adding 0.1 at epsilon one is infeasible. Dual-gap agreement uses reported solver values rather than independently reconstructing every dual coefficient.
+ * @evidence contracts/testing.md#distinguishing-cases Preserves five positive epsilon scales from one to 1e-8, the exact zero-coupling boundary and positive-gap contradiction, and adds both equivalent row orders across the positive family. General dimension/coefficient admission and unrelated QP optima belong to quadratic-refusals/program.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named entry is portable TypeScript numerical execution through the actual admitted QP adapter and engine-owned homogeneous solver. It installs no consumer, builds no native artifact and starts no external process, browser or GPU; it owns every listed numerical case without dynamic registration.
  */
 export function test_geometry_quadratic_degeneracy(): void {
   const solve: (
     epsilon: number,
     gap?: number,
+    contactFirst?: boolean,
   ) => ReturnType<typeof solveAutoMovieQuadraticProgram> = (
     epsilon: number,
     gap: number = 0,
-  ): ReturnType<typeof solveAutoMovieQuadraticProgram> =>
-    solveAutoMovieQuadraticProgram({
+    contactFirst: boolean = false,
+  ): ReturnType<typeof solveAutoMovieQuadraticProgram> => {
+    const bounds: IAutoMovieQuadraticRow[] = [
+      { indices: [0], weights: [1], lower: 0, upper: 1 },
+      { indices: [1], weights: [1], lower: 0, upper: 1 },
+    ];
+    const contact: IAutoMovieQuadraticRow = {
+      indices: [0, 1], weights: [1, epsilon],
+      lower: 1 + epsilon + gap, upper: null,
+    };
+    return solveAutoMovieQuadraticProgram({
       diagonal: [1, 4],
       linear: [0, 0],
-      rows: [
-        { indices: [0], weights: [1], lower: 0, upper: 1 },
-        { indices: [1], weights: [1], lower: 0, upper: 1 },
-        {
-          indices: [0, 1],
-          weights: [1, epsilon],
-          lower: 1 + epsilon + gap,
-          upper: null,
-        },
-      ],
+      rows: contactFirst ? [contact, ...bounds] : [...bounds, contact],
     });
-  for (const epsilon of [1, 1e-2, 1e-4, 1e-6, 1e-8]) {
+  };
+  for (const epsilon of [1, 1e-2, 1e-4, 1e-6, 1e-8])
+    for (const contactFirst of [false, true]) {
     const result: ReturnType<typeof solveAutoMovieQuadraticProgram> =
-      solve(epsilon);
+      solve(epsilon, 0, contactFirst);
     TestValidator.equals("feasible corner is solved", result.status, 1);
     TestValidator.predicate(
       "both coordinates reach the mathematically forced corner",

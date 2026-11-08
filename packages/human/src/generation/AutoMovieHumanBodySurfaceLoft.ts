@@ -1,6 +1,10 @@
+import {
+  AutoMovieLoftSection,
+  type IAutoMovieLoftChain,
+} from "@automovie/engine";
+
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanLoftStations } from "../lofting/AutoMovieHumanLoftStations";
-import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
 import { AutoMovieHumanBodySurfacePhases } from "./AutoMovieHumanBodySurfacePhases";
@@ -10,9 +14,22 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
 import type { IAutoMovieHumanSurfaceBoundary as IBoundary } from "./IAutoMovieHumanSurfaceBoundary";
 import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
 
-const { chain, endHeight, interval, ringVertices } = AutoMovieHumanBodySurfaceRead;
-const { boundary, cells, domeBase, pole, zipped } = AutoMovieHumanBodySurfacePoles;
-const { inheritedPhases, ownPhases } = AutoMovieHumanBodySurfacePhases;
+const {
+  chain,
+  endHeight,
+  capHeight,
+  interval,
+  ringVertices,
+}: typeof AutoMovieHumanBodySurfaceRead = AutoMovieHumanBodySurfaceRead;
+const {
+  boundary,
+  cells,
+  domeBase,
+  pole,
+  zipped,
+}: typeof AutoMovieHumanBodySurfacePoles = AutoMovieHumanBodySurfacePoles;
+const { inheritedPhases, ownPhases }: typeof AutoMovieHumanBodySurfacePhases =
+  AutoMovieHumanBodySurfacePhases;
 
 /** A chain lofted between its owned and inherited rings and poles, its holes, and the zipper that joins it to its neighbours. */
 export namespace AutoMovieHumanBodySurfaceLoft {
@@ -24,21 +41,36 @@ export namespace AutoMovieHumanBodySurfaceLoft {
    * by an ordinary band; an inherited ring joins by a zipper; a missing
    * boundary is generated at the end height, or at the dome base of a
    * rounded pole, and closed at its pole.
+   *
+   * @evidence contracts/common.md#principled-implementation Retained pole source.station extends bisection through the public original Point0 domain. Only exact zero tips are omitted as rings; every positive principal section survives.
+   * @evidence contracts/common.md#clear-and-simple-design Existing adaptive bands read both regular and retained cap values; the last tiny ring closes at its explicit pole point.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not move an original curve, sample an unpublished source domain or invent a replacement cap law.
+   * @evidence contracts/common.md#meaningful-documentation Distinguishes retained original caps, legacy calibrated domes and event-owned cut boundaries; Point0 does not promise physical2 at a zero tip.
+   * @evidence contracts/performance.md#efficient-algorithms Extends the existing bounded bisection by at most two owned cap intervals, retaining its tolerance/depth and principal knots.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reads the same chain source owner as ring generation, without another body or curve preparation.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Endpoint closures are local to this call; no source cache or mesh is retained globally here.
    */
   export function loft(context: IContext, target: IAutoMovieLoftChain): void {
     const phases: number[] = ownPhases(context, target);
     const bottom: IBoundary = boundary(context, target, "bottom");
     const top: IBoundary = boundary(context, target, "top");
-    // A rounded pole closes from its dome base instead of the chain's end.
+    // Retained caps use the actual source domain. Event-owned boundaries do
+    // not restore a cut-away end, and legacy calibrated domes stay separate.
+    const bottomTip: number | null =
+      bottom.kind === "pole" ? capHeight(target, "bottom") : null;
+    const topTip: number | null =
+      top.kind === "pole" ? capHeight(target, "top") : null;
     const bottomY: number =
+      bottomTip ??
       (bottom.kind === "pole" ? domeBase(context, target, "bottom") : null) ??
       endHeight(target, "bottom");
     const topY: number =
+      topTip ??
       (top.kind === "pole" ? domeBase(context, target, "top") : null) ??
       endHeight(target, "top");
     // Bisection stations, refined where the rings pass near an opening. A
-    // cap's sections all sit on its pole at its bottom station, so its
-    // rings start at the next station and its pole closes them by a fan.
+    // A legacy zero end can be omitted. A source-owned positive principal
+    // section is already inside its true pole and must remain in the loft.
     const bisected: number[] = AutoMovieHumanBodyApertures.detail(
       context.details,
       target,
@@ -55,12 +87,29 @@ export namespace AutoMovieHumanBodySurfaceLoft {
       ),
       phases,
     );
-    const heights: number[] =
-      target.pole?.end === "bottom" && bottom.kind === "pole"
-        ? bisected.slice(1)
-        : target.pole?.end === "top" && top.kind === "pole"
-          ? bisected.slice(0, -1)
-          : bisected;
+    const heights: number[] = bisected.filter(
+      (station: number, index: number): boolean => {
+        if (station === bottomTip || station === topTip) return false;
+        if (
+          index === 0 &&
+          bottom.kind === "pole" &&
+          bottomTip === null &&
+          (target.pole?.end === "bottom" ||
+            target.opposite?.end === "bottom") &&
+          !positiveEnd(target, "bottom")
+        )
+          return false;
+        if (
+          index === bisected.length - 1 &&
+          top.kind === "pole" &&
+          topTip === null &&
+          (target.pole?.end === "top" || target.opposite?.end === "top") &&
+          !positiveEnd(target, "top")
+        )
+          return false;
+        return true;
+      },
+    );
 
     // Ring and phase set at each station. Ends come from their boundaries
     // when inherited or owned, and are generated here when the end is a
@@ -69,7 +118,10 @@ export namespace AutoMovieHumanBodySurfaceLoft {
     const rings: number[][] = heights.map((y: number, k: number): number[] => {
       const end: IBoundary | undefined =
         k === 0 ? bottom : k === heights.length - 1 ? top : undefined;
-      if (end !== undefined && (end.kind === "own" || end.kind === "inherited")) {
+      if (
+        end !== undefined &&
+        (end.kind === "own" || end.kind === "inherited")
+      ) {
         ringPhases.push(
           end.kind === "inherited"
             ? inheritedPhases(context, target, y, end.ring)
@@ -116,19 +168,44 @@ export namespace AutoMovieHumanBodySurfaceLoft {
     // Poles close the ends that no event owns, but for a pole a root winds
     // round, whose cells the root left out; an appendage keeps its root
     // ring for its strip.
-    const wound = (end: "bottom" | "top"): boolean =>
-      target.pole?.end === end &&
-      (context.roots.get(target.name) ?? []).some((r): boolean => r.appendage?.winding !== undefined);
-    if (bottom.kind === "pole" && !wound("bottom")) pole(context, target, "bottom", rings[0]!);
+    const wound: (end: "bottom" | "top") => boolean = (
+      end: "bottom" | "top",
+    ): boolean =>
+      (target.pole?.end === end || target.opposite?.end === end) &&
+      (context.roots.get(target.name) ?? []).some(
+        (r): boolean => r.appendage?.winding !== undefined,
+      );
+    if (bottom.kind === "pole" && !wound("bottom"))
+      pole(context, target, "bottom", rings[0]!);
     if (top.kind === "pole" && !wound("top"))
       pole(context, target, "top", rings[rings.length - 1]!);
     if (bottom.kind === "root")
-      context.ends.set(target.name, { ring: rings[0]!, phases: ringPhases[0]! });
+      context.ends.set(target.name, {
+        ring: rings[0]!,
+        phases: ringPhases[0]!,
+      });
     if (top.kind === "root")
       context.ends.set(target.name, {
         ring: rings[rings.length - 1]!,
         phases: ringPhases[ringPhases.length - 1]!,
       });
+  }
+
+  /** Read the actual explicit regular section, independently of physical station jets. Native conic principal sections have distinct cardinal values. Genuine legacy absence keeps its previous endpoint policy; no retained source domain is bypassed to replay an unavailable cap. */
+  function positiveEnd(
+    target: IAutoMovieLoftChain,
+    end: "bottom" | "top",
+  ): boolean {
+    const source: ReturnType<typeof AutoMovieLoftSection.phase> =
+      AutoMovieLoftSection.phase(target, endHeight(target, end));
+    if (source === null) return false;
+    const first: readonly number[] = source(0).p;
+    return [Math.PI / 2, Math.PI, (3 * Math.PI) / 2].some(
+      (phase: number): boolean =>
+        source(phase).p.some(
+          (value: number, axis: number): boolean => value !== first[axis],
+        ),
+    );
   }
 
   /**
@@ -144,7 +221,9 @@ export namespace AutoMovieHumanBodySurfaceLoft {
     const own: IAutoMovieLoftChain = chain(context, appendage.chain);
     const end = context.ends.get(appendage.chain);
     if (end === undefined)
-      throw new Error(`Appendage ${appendage.chain} has no root on ${appendage.base}`);
+      throw new Error(
+        `Appendage ${appendage.chain} has no root on ${appendage.base}`,
+      );
     const [edge, charts] = holeEdge(
       context,
       appendage.base,
@@ -191,7 +270,11 @@ export namespace AutoMovieHumanBodySurfaceLoft {
     const distance = (loop: number[]): number =>
       winding
         ? Math.abs(
-            loop.reduce((a: number, v: number): number => a + hole.charts.get(v)![0], 0) / loop.length -
+            loop.reduce(
+              (a: number, v: number): number => a + hole.charts.get(v)![0],
+              0,
+            ) /
+              loop.length -
               centre[0],
           )
         : loop.reduce((a: number, v: number): number => {
@@ -205,8 +288,12 @@ export namespace AutoMovieHumanBodySurfaceLoft {
     const edge: number[] | undefined = loops.sort(
       (a: number[], b: number[]): number => distance(a) - distance(b),
     )[0];
-    if (edge === undefined) throw new Error(`Base ${baseName} left no hole near a loop`);
-    return [edge, edge.map((v: number): [number, number] => hole.charts.get(v)!)];
+    if (edge === undefined)
+      throw new Error(`Base ${baseName} left no hole near a loop`);
+    return [
+      edge,
+      edge.map((v: number): [number, number] => hole.charts.get(v)!),
+    ];
   }
 
   /**
@@ -215,7 +302,9 @@ export namespace AutoMovieHumanBodySurfaceLoft {
    *
    * @param cells Cells as corner vertices in ring order, quads or triangles.
    */
-  export function boundaryLoops(cells: readonly (readonly number[])[]): number[][] {
+  export function boundaryLoops(
+    cells: readonly (readonly number[])[],
+  ): number[][] {
     // Edges of the left-out region: cell edges no other left-out cell shares.
     const count: Map<string, [number, number, number]> = new Map();
     for (const c of cells)

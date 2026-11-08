@@ -53,7 +53,10 @@ export namespace AutoMovieHumanTrunkChains {
    */
   export function build(solution: IAutoMovieHumanTrunkSolution, sampling: ISampling): [IAutoMovieLoftChain, IAutoMovieLoftChain] {
     const l: IAutoMovieHumanTrunkLandmarks = solution.landmarks;
-    const top: IAutoMovieLoftChain.ILayer = AutoMovieHumanTrunkNeckSeat.layer(solution.neck);
+    const neck: IAutoMovieLoftChain | undefined = solution.neck ?? solution.rawNeck?.();
+    if (neck === undefined) throw new Error("The explicit legacy trunk loft has no actual neck supplier");
+    if (neck.basis !== "spline" || neck.order !== AutoMovieHumanTrunkQuadrant.ORDER) throw new Error("The old trunk boundary requires the same periodic spline basis and control order as its actual neck");
+    const top: IAutoMovieLoftChain.ILayer = AutoMovieHumanTrunkNeckSeat.layer(neck);
     const spacing = (): number => AutoMovieHumanTrunkRows.MAX_GAP;
 
     // Rows of each chain between its ends, the landmarks kept; the vault is
@@ -84,7 +87,10 @@ export namespace AutoMovieHumanTrunkChains {
         if (k === rows.length - 1) return top;
         const coefficients: number[] = k < vault ? torso[k]! : ring(y);
 
-        return { y, coefficients, slopes: new Array<number>(coefficients.length).fill(0) };
+        // Old coefficients are already world X/Z. Their explicit identity
+        // frame puts them in the same product-rule representation as the
+        // kept neck's local coefficients and actual translated level frame.
+        return { y, coefficients, slopes: new Array<number>(coefficients.length).fill(0), frame: { origin: [0, y, 0], u: [1, 0, 0], v: [0, 0, 1] } };
       });
 
       return AutoMovieSeamStation.continuous(

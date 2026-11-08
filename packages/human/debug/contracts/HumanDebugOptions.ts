@@ -1,3 +1,4 @@
+import { HumanInspectionSelection } from "../../src/inspection/HumanInspectionSelection";
 import { HUMAN_DEBUG_POSES } from "../poses/HUMAN_DEBUG_POSES";
 import { HUMAN_DEBUG_CAMERAS } from "./HUMAN_DEBUG_CAMERAS";
 import { HumanDebugOptionField } from "./HumanDebugOptionField";
@@ -137,14 +138,7 @@ export namespace HumanDebugOptions {
    * @returns `section` for a number, `axis`, `guide` for `g<j>`, `path` otherwise.
    */
   export function kind(id: string): IHumanDebugOptions.CurveKind {
-    const tail: string = id.slice(id.lastIndexOf("/") + 1);
-    return tail === "axis"
-      ? "axis"
-      : /^g\d+$/.test(tail)
-        ? "guide"
-        : /^\d+$/.test(tail)
-          ? "section"
-          : "path";
+    return HumanInspectionSelection.kind(id);
   }
 
   /** Every pose name of the whole figure: the neutral default first, the bind, then the other shared poses. */

@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../lib/human-parameters",
+    "plugins": [
+      {
+        "transform": "@ttsc/lint",
+        "configFile": "../../lint.config.ts"
+      }
+    ]
+  },
+  "include": ["*.ts"]
+}

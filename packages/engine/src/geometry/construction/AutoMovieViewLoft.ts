@@ -1,44 +1,43 @@
+import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+
+import { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";
+import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
-import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
+import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
+import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
+import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
+import { AutoMovieLoftViewSource } from "./AutoMovieLoftViewSource";
 import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 import { AutoMovieSeamStation } from "./AutoMovieSeamStation";
 import { AutoMovieSolidChain } from "./AutoMovieSolidChain";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
-import type { AutoMovieViewAxis } from "./AutoMovieViewAxis";
+import { AutoMovieViewLoftInputs } from "./AutoMovieViewLoftInputs";
 import { AutoMovieViewSection } from "./AutoMovieViewSection";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
+/** Existing ordered quarter layout shared with the view input owner. */
 type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
 
 /**
- * The view-to-section operator: a part lofted from its own views in its own
- * frame (campaign #3044, construction step 1).
+ * Loft a view part through its four signed source outlines and fullness owner.
+ * Direct shoulder/top fields retain their original scalar generators for final
+ * points, phase derivatives and available physical total2. Emitted uniform-polar
+ * cubic coefficients remain the explicit compatibility representation; generic
+ * girth retains that existing representation. Analytic frames keep actual source
+ * jets, while numerical axes retain their existing smooth plane fit.
  *
- * At every station of the part (`IAutoMovieViewPart.stations`) the four
- * outlines give the box about the axis, the fullness owner gives each
- * quarter's conic shoulder (solved from the girth, read from a sourced law, or
- * read from the top view), and `AutoMovieViewSection` makes the section
- * that touches the box at its four guides. The section is written as the
- * periodic cubic B-spline through its points at `order` uniform polar
- * angles, so each guide is a knot and its point is the outline's value; the
- * layers are made C2 in station by the natural spline of every coefficient
- * (`AutoMovieSeamStation.continuous`) and carry the axis's own plane
- * derivatives (`AutoMovieViewAxis.IAxis.jet`), so every layer carries the
- * jets a solid operator reads.
+ * Regular C2 requires the admitted scalar/section/frame derivative premises.
+ * Physical pole jets and geometric G2 at an apex are not supplied here. The
+ * surviving-layer domain and the original polar phase meaning stay unchanged.
  *
- * Continuity it publishes: C2 in phase (the periodic cubic B-spline) and C2
- * in station (the quintic station rule with the natural spline's curvatures),
- * so the chain is a host and a part for `AutoMovieSolidMerge` and
- * `AutoMovieSolidDiff` unchanged (`surface`).
- *
- * Totality: a station whose box is broken (an outline crossing its opposite,
- * a non-positive half extent) or whose fullness has no valid section is left
- * out of the chain with one diagnostic naming the part, the station and the
- * numbers; a girth outside the box's reach keeps the reach's end shape with
- * one diagnostic. Fewer than two surviving stations give no chain.
+ * Broken boxes/fullness omit the station with its named numeric diagnostic.
+ * A direct source with any rejected prepared station publishes only inspection
+ * sections, because skipping a row cannot remove that invalid original field.
+ * Unreachable girth keeps its reach endpoint with a diagnostic. Fewer than two
+ * surviving sections publish no final chain. Source records and inputs remain immutable.
  *
  * @evidence contracts/common.md#principled-implementation A part's sections come from its four outlines and its fullness owner at each station, lofted into one C2 chain whose layers read back the outlines at their sites.
  * @evidence contracts/common.md#clear-and-simple-design One create function from a view part to its chain, surface, sections and diagnostics.
@@ -49,12 +48,22 @@ type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the chain and the emitted sections.
  */
 export namespace AutoMovieViewLoft {
-  /** The operator's result. */
+  /**
+   * The operator's result.
+   *
+   * @evidence contracts/common.md#principled-implementation Separates the final loft chain/surface from admitted sections, source diagnostics and the declared phase/station continuity.
+   * @evidence contracts/common.md#clear-and-simple-design Nullable final geometry and retained sections/diagnostics express partial and total admission failures.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing chain remains null; surviving sections are not described as the complete original source curve.
+   * @evidence contracts/common.md#meaningful-documentation Members state null cases, section identity and continuity.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Result data has no algorithm; create owns realization cost.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Result data coordinates no requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the returned chain, sections and diagnostics.
+   */
   export interface IResult {
-    /** The chain under the part's name, or null when fewer than two stations survive. */
+    /** Bare chain, null on input/station/coefficient/frame preparation failure; regular-surface qualification is separate. */
     chain: IAutoMovieLoftChain | null;
 
-    /** The chain as a solid surface for merge and diff, or null with the chain. */
+    /** Regular surface for merge/diff, null for an absent chain, unavailable physical2 or failed anchor admission. */
     surface: IAutoMovieSolidSurface | null;
 
     /** Each surviving station's section, by station. */
@@ -63,11 +72,21 @@ export namespace AutoMovieViewLoft {
     /** Every broken premise. */
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
 
-    /** The continuity the chain carries in phase and in station. */
+    /** C2 phase and regular-station interpolation. A true pole has no finite station 2-jet; geometric G2 of the complete phase approximation is not certified by this literal. */
     continuity: { phase: "C2"; station: "C2" };
   }
 
-  /** One emitted station. */
+  /**
+   * One emitted station.
+   *
+   * @evidence contracts/common.md#principled-implementation Stores one admitted section with its station and actual input plane, before final coefficient/frame interpolation.
+   * @evidence contracts/common.md#clear-and-simple-design Station, frame and section preserve the section owner's inputs and result.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not claim an emitted section exists at a failed station or closing pole.
+   * @evidence contracts/common.md#meaningful-documentation Members distinguish source station units, plane and admitted section.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Section data has no algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Section data coordinates no requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The containing loft result owns the section and frame.
+   */
   export interface IStation {
     /** Station, mm. */
     station: number;
@@ -84,14 +103,27 @@ export namespace AutoMovieViewLoft {
    *
    * @param part The part.
    * @returns The chain, its surface, its sections and its diagnostics.
+   *
+   * @evidence contracts/common.md#principled-implementation Retains original direct scalar sources as final local authority and actual analytic frame jets; explicit compatibility coefficients keep their existing common closing coordinate or ordinary SeamStation law.
+   * @evidence contracts/common.md#clear-and-simple-design Source admission, section construction and final chain construction remain consecutive stages with explicit diagnostics.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid source/fullness/sections retain their diagnostics. A direct field with a rejected prepared station is not published through surviving compatibility rows, and no fallback section is introduced.
+   * @evidence contracts/common.md#meaningful-documentation The namespace describes ownership, totality, the pole rule and the final coefficient interpolation; source values use the value-only owner.
+   * @evidence contracts/performance.md#efficient-algorithms Each source is prepared once. An O(L+K) station-set and declared-knot coverage pass precedes section solves; each station then solves one section, and coefficient/frame preparation and ordinary field solves are linear in layer rows and component widths.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses prepared scalar sources across station values; SeamStation skips source-owned tables and reuses each ordinary curvature table for its slope solve.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned direct chain owns original scalar preparations and O(LN) compatibility bindings alongside its sections; temporary samples are call-local and no cross-part cache is added.
    */
   export function create(part: IAutoMovieViewPart): IResult {
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
     const producer: string = `view.${part.name}`;
-    const report = (contract: string, detail: string): void => {
+    /** Keep every failed input premise with the view producer that encountered it. */
+    const report: (contract: string, detail: string) => void = (
+      contract: string,
+      detail: string,
+    ): void => {
       diagnostics.push({ producer, level: 2, contract, detail });
     };
-    const empty = (): IResult => ({
+    /** A failed admission retains diagnostics without publishing partial final geometry. */
+    const empty: () => IResult = (): IResult => ({
       chain: null,
       surface: null,
       sections: [],
@@ -109,7 +141,10 @@ export namespace AutoMovieViewLoft {
       );
       return empty();
     }
-    const rising = (values: readonly number[]): boolean =>
+    /** Source stations must be ordered with the existing numerical spline-gap premise. */
+    const rising: (values: readonly number[]) => boolean = (
+      values: readonly number[],
+    ): boolean =>
       values.length >= 2 &&
       values.every(
         (v: number, i: number): boolean =>
@@ -138,156 +173,51 @@ export namespace AutoMovieViewLoft {
       end === "bottom" ? first : last,
     );
 
-    // Toward a pole an outline runs in a parameter that grows as the square
-    // root of the distance from it, so it meets the axis square to it: sigma =
-    // +-sqrt(|s - s_pole|) for one pole, and for two the angle
-    // acos(1 - 2 (s - s_0) / (s_1 - s_0)), which is 2 asin(sqrt) of the share
-    // from either end, odd in the square root there and smooth between.
-    const sigma = (s: number): number => {
-      if (closes.length === 2)
-        return Math.acos(
-          Math.min(1, Math.max(-1, 1 - (2 * (s - first)) / (last - first))),
-        );
-      if (closes.length === 1)
-        return (
-          (closes[0] === "bottom" ? 1 : -1) * Math.sqrt(Math.abs(s - tips[0]!))
-        );
-      return s;
-    };
-    // Station derivatives of sigma: 1 / (2 |sigma|) and -1 / (4 sigma^3) for
-    // one pole; (2 / L) / sqrt(1 - x^2) and -(4 / L^2) x / (1 - x^2)^(3/2)
-    // for two, with x = 1 - 2 (s - s_0) / L.
-    const sigmaJet = (s: number): [number, number] => {
-      if (closes.length === 2) {
-        const L: number = last - first;
-        const x: number = 1 - (2 * (s - first)) / L;
-        const w: number = 1 - x * x;
-        return [2 / L / Math.sqrt(w), (-4 / (L * L)) * (x / Math.pow(w, 1.5))];
-      }
-      if (closes.length === 1) {
-        const g: number = sigma(s);
-        return [1 / (2 * Math.abs(g)), -1 / (4 * g * g * g)];
-      }
-      return [1, 0];
-    };
-    const curve = (
-      name: string,
-      outline: IAutoMovieViewPart.IOutline,
-      closing: boolean = false,
-    ): ((s: number) => number) | null => {
-      const xs: number[] = outline.knots.map(
-        (k: IAutoMovieViewPart.IKnot): number => k.station,
-      );
-      if (
-        !rising(xs) ||
-        !outline.knots.every((k: IAutoMovieViewPart.IKnot): boolean =>
-          Number.isFinite(k.value),
-        )
-      ) {
-        report(
-          "outline",
-          `${name}: knots ${outline.knots.map((k: IAutoMovieViewPart.IKnot): string => `${k.site}@${k.station}=${k.value}`).join(", ")} are not finite by strictly increasing station`,
-        );
-        return null;
-      }
-      if (!closing || closes.length === 0) {
-        const spline: AutoMovieNaturalSpline.ISpline =
-          AutoMovieNaturalSpline.create(
-            xs,
-            outline.knots.map((k: IAutoMovieViewPart.IKnot): number => k.value),
-          );
-        return (s: number): number =>
-          AutoMovieNaturalSpline.evaluate(spline, s);
-      }
-      for (const end of closes) {
-        const k: IAutoMovieViewPart.IKnot =
-          end === "bottom"
-            ? outline.knots[0]!
-            : outline.knots[outline.knots.length - 1]!;
-        const tip: number = end === "bottom" ? first : last;
-        if (k.station !== tip || k.value !== 0) {
-          report(
-            "pole knot",
-            `${name}: its ${end} knot ${k.site}@${k.station}=${k.value} is not 0 at the pole's station ${tip}`,
-          );
-          return null;
-        }
-      }
-      const spline: AutoMovieNaturalSpline.ISpline =
-        AutoMovieNaturalSpline.create(
-          xs.map(sigma),
-          outline.knots.map((k: IAutoMovieViewPart.IKnot): number => k.value),
-        );
-      return (s: number): number =>
-        AutoMovieNaturalSpline.evaluate(spline, sigma(s));
-    };
-    const quarters = (
-      name: string,
-      outlines: Quarters<IAutoMovieViewPart.IOutline> | undefined,
-    ): ((s: number) => Quarters<number>) | null => {
-      if (outlines === undefined) return (): Quarters<number> => [0, 0, 0, 0];
-      const qs: (((s: number) => number) | null)[] = outlines.map(
-        (
-          o: IAutoMovieViewPart.IOutline,
-          q: number,
-        ): ((s: number) => number) | null => curve(`${name} ${q}`, o),
-      );
-      if (qs.some((q: ((s: number) => number) | null): boolean => q === null))
-        return null;
-      return (s: number): Quarters<number> =>
-        qs.map((q: ((s: number) => number) | null): number =>
-          q!(s),
-        ) as Quarters<number>;
-    };
-    const lateral: ((s: number) => number) | null = curve(
-      "front positive",
-      part.front.positive,
-      true,
-    );
-    const medial: ((s: number) => number) | null = curve(
-      "front negative",
-      part.front.negative,
-      true,
-    );
-    const ahead: ((s: number) => number) | null = curve(
-      "side positive",
-      part.side.positive,
-      true,
-    );
-    const behind: ((s: number) => number) | null = curve(
-      "side negative",
-      part.side.negative,
-      true,
-    );
+    const admitted: AutoMovieLoftViewSource.IResult | null =
+      AutoMovieLoftViewSource.create(part);
+    if (admitted !== null) {
+      for (const fault of admitted.diagnostics)
+        report(fault.contract, fault.detail);
+      if (admitted.source === null) return empty();
+    }
+    const direct: AutoMovieLoftViewSource.ISource | null =
+      admitted?.source ?? null;
+    const inputs: ReturnType<typeof AutoMovieViewLoftInputs> =
+      AutoMovieViewLoftInputs(part, direct, report);
+    if (inputs === null) return empty();
+    const { lateral, medial, ahead, behind, owner, shoulders } = inputs;
     const fullness: IAutoMovieViewPart.Fullness = part.fullness;
-    const owner: ((s: number) => number) | null =
-      fullness.kind === "girth"
-        ? curve("girth", fullness.girth, true)
-        : fullness.kind === "shoulder"
-          ? curve("shoulder", fullness.shoulder)
-          : (): number => 0;
-    const shoulders: ((s: number) => Quarters<number>) | null =
-      fullness.kind === "top"
-        ? quarters("top shoulder", fullness.shoulders)
-        : quarters("departure", fullness.departures);
-    if (
-      lateral === null ||
-      medial === null ||
-      ahead === null ||
-      behind === null ||
-      owner === null ||
-      shoulders === null
-    )
-      return empty();
+
+    // Generic girth coefficients interpolate emitted rows; direct fields keep their original continuous source.
+    const required: [string, IAutoMovieViewPart.IOutline][] = [
+      ["front positive", part.front.positive],
+      ["front negative", part.front.negative],
+      ["side positive", part.side.positive],
+      ["side negative", part.side.negative],
+    ];
+    if (fullness.kind === "top")
+      required.push(...fullness.shoulders.map((outline: IAutoMovieViewPart.IOutline, q: number): [string, IAutoMovieViewPart.IOutline] => [`top shoulder ${q}`, outline]));
+    else {
+      required.push(fullness.kind === "girth" ? ["girth", fullness.girth] : ["shoulder", fullness.shoulder]);
+      if (fullness.departures !== undefined)
+        required.push(...fullness.departures.map((outline: IAutoMovieViewPart.IOutline, q: number): [string, IAutoMovieViewPart.IOutline] => [`departure ${q}`, outline]));
+    }
+    const declared: Set<number> = new Set(part.stations);
+    let missing: boolean = false;
+    for (const [name, outline] of direct === null ? required : [])
+      for (const knot of outline.knots)
+        if (knot.station >= first && knot.station <= last && !declared.has(knot.station)) {
+          report("stations", `${name} knot ${knot.site}@${knot.station} mm lies inside the retained interval but is absent from declared stations`);
+          missing = true;
+        }
+    if (missing) return empty();
 
     // Each cap: between its pole and the given station nearest it, rings at
-    // equal steps of the root of the distance (equal arc steps on a dome,
-    // whose arc grows so from its apex), as many as the cap's mean half
-    // extent holds of the part's mean station gap. Inside the cap span (the
-    // pole to the nearest other outline knot) the shoulders reach the
-    // ellipse's at the pole by the quintic smoothstep: a dome is G2 at its
-    // apex only when its sections there tend to ellipses, the level sets of
-    // the osculating paraboloid.
+    // equal root-distance steps. Existing density uses the mean half extent
+    // over the authored station gap, not a certified physical arc spacing.
+    // Within the cap span to the nearest other outline knot, shoulders reach
+    // the ellipse by quintic smoothstep: the osculating section of a
+    // nondegenerate quadratic cap. This policy alone does not certify apex G2.
     const given: number[] = part.stations.filter(
       (s: number): boolean => !tips.includes(s),
     );
@@ -332,9 +262,14 @@ export namespace AutoMovieViewLoft {
       });
     }
     stations.sort((a: number, b: number): number => a - b);
-    const cap = (s: number): number =>
+    /** Existing cap-shoulder blend, independent of the coefficient source coordinate. */
+    const cap: (s: number) => number = (s: number): number =>
       Math.max(0, ...caps.map((c: (s: number) => number): number => c(s)));
-    const domed = (r: Quarters<number>, s: number): Quarters<number> => {
+    /** Preserve the established shoulder policy while the coefficient interpolant is repaired separately. */
+    const domed: (r: Quarters<number>, s: number) => Quarters<number> = (
+      r: Quarters<number>,
+      s: number,
+    ): Quarters<number> => {
       const w: number = cap(s);
       return w === 0
         ? r
@@ -346,15 +281,24 @@ export namespace AutoMovieViewLoft {
     const sections: IStation[] = [];
     for (const s of stations) {
       const at: string = `station ${s} mm`;
+      const actual: AutoMovieLoftViewRead.IValues | string | null =
+        direct === null ? null : AutoMovieLoftViewRead.values(direct, s);
+      if (typeof actual === "string") {
+        report("outline", actual);
+        continue;
+      }
 
       // The box: each outline on its own side of the axis, and the opposite
       // edges apart.
-      const signed: [number, number, number, number] = [
-        lateral(s),
-        ahead(s),
-        medial(s),
-        behind(s),
-      ];
+      const signed: [number, number, number, number] =
+        actual === null
+          ? [lateral(s), ahead(s), medial(s), behind(s)]
+          : [
+              actual.extents[0]!,
+              actual.extents[1]!,
+              -actual.extents[2]!,
+              -actual.extents[3]!,
+            ];
       if (!(signed[0] > signed[2]) || !(signed[1] > signed[3])) {
         report(
           "outline order",
@@ -392,12 +336,15 @@ export namespace AutoMovieViewLoft {
             ? AutoMovieViewSection.of(box, domed(solved.section.shoulders, s))
             : solved.section;
       } else {
-        const r: Quarters<number> = domed(
-          shoulders(s).map((d: number): number =>
-            fullness.kind === "top" ? d : owner(s) + d,
-          ) as Quarters<number>,
-          s,
-        );
+        const r: Quarters<number> =
+          actual === null
+            ? domed(
+                shoulders(s).map((d: number): number =>
+                  fullness.kind === "top" ? d : owner(s) + d,
+                ) as Quarters<number>,
+                s,
+              )
+            : (actual.shoulders as Quarters<number>);
         if (!r.every((x: number): boolean => x > 0 && x < 1)) {
           report(
             "shoulder",
@@ -426,7 +373,11 @@ export namespace AutoMovieViewLoft {
       return { ...empty(), sections };
     }
 
-    // Each section as the B-spline through its points at uniform angles.
+    // A skipped compatibility row does not erase the original source there.
+    // Keep the diagnosed sections for inspection without publishing that field.
+    if (direct !== null && sections.length !== stations.length)
+      return { ...empty(), sections };
+
     const N: number = part.order;
     const layers: IAutoMovieLoftChain.ILayer[] = sections.map(
       (st: IStation): IAutoMovieLoftChain.ILayer => {
@@ -466,7 +417,7 @@ export namespace AutoMovieViewLoft {
           point: [...part.axis.at(tips[k]!).origin],
         }),
       );
-    const solved: IAutoMovieLoftChain = AutoMovieSeamStation.continuous({
+    let chain: IAutoMovieLoftChain = {
       name: part.name,
       basis: "spline",
       order: N,
@@ -475,63 +426,34 @@ export namespace AutoMovieViewLoft {
       layers,
       ...(poles[0] !== undefined ? { pole: poles[0] } : {}),
       ...(poles[1] !== undefined ? { opposite: poles[1] } : {}),
-    });
-
-    // Toward a pole a section's coefficients go as the root of the distance,
-    // which no cubic in station follows; they are smooth in sigma. Their
-    // jets are the natural spline's in sigma carried to station by the chain
-    // rule, c' = c_sigma sigma' and c'' = c_sigma2 sigma'^2 + c_sigma sigma''.
-    const capped: { slopes: number[][]; curvatures: number[][] } | null =
-      closes.length === 0
-        ? null
-        : (() => {
-            const t: number[] = layers.map(
-              (l: IAutoMovieLoftChain.ILayer): number => sigma(l.y),
-            );
-            const values: number[][] = layers.map(
-              (l: IAutoMovieLoftChain.ILayer): number[] => l.coefficients,
-            );
-            const M: number[][] = AutoMovieSeamStation.curvatures(t, values);
-            const S: number[][] = AutoMovieSeamStation.slopes(t, values, M);
-            return {
-              slopes: S.map((row: number[], k: number): number[] =>
-                row.map((c: number): number => c * sigmaJet(layers[k]!.y)[0]),
-              ),
-              curvatures: M.map((row: number[], k: number): number[] => {
-                const [d1, d2]: [number, number] = sigmaJet(layers[k]!.y);
-                return row.map(
-                  (c2: number, i: number): number =>
-                    c2 * d1 * d1 + S[k]![i]! * d2,
-                );
-              }),
-            };
-          })();
-
-    // The planes move by the axis's own derivatives: a natural spline through
-    // the layer planes would ring across a jointed turn into the straight
-    // runs, where the axis is exactly linear.
-    const chain: IAutoMovieLoftChain = {
-      ...solved,
-      layers: solved.layers.map(
-        (
-          layer: IAutoMovieLoftChain.ILayer,
-          k: number,
-        ): IAutoMovieLoftChain.ILayer => {
-          const jet: AutoMovieViewAxis.IJet = part.axis.jet(layer.y);
-          return {
-            ...layer,
-            ...(capped === null
-              ? {}
-              : {
-                  slopes: capped.slopes[k]!,
-                  curvatures: capped.curvatures[k]!,
-                }),
-            frameSlopes: jet.slope,
-            frameCurvatures: jet.curvature,
-          };
-        },
-      ),
     };
+    if (closes.length !== 0) {
+      const parameter: AutoMovieConstructionOutlineParameter =
+        closes.length === 2
+          ? { type: "angle", bottom: first, top: last }
+          : { type: "root", end: closes[0]!, pole: tips[0]! };
+      const coefficients: IAutoMovieLoftChain | string =
+        AutoMovieLoftCoefficientSource.prepare(chain, parameter);
+      if (typeof coefficients === "string") {
+        report("coefficient parameter", coefficients);
+        return { ...empty(), sections };
+      }
+      chain = coefficients;
+    }
+    const source: IAutoMovieLoftChain | string =
+      AutoMovieLoftFrameSource.retain(chain, part.axis);
+    if (typeof source === "string") {
+      report("axis jet", source);
+      return { ...empty(), sections };
+    }
+    chain = AutoMovieSeamStation.continuous(source);
+    if (direct !== null)
+      chain = AutoMovieLoftSectionSource.retain(chain, direct);
+    chain = AutoMovieLoftCapSource.retain(chain, part.axis);
+    // The part's reliefs ride on the chain it returns, as its owner composes
+    // them (`{ ...chain, reliefs }`), so the surface and every reader of the
+    // chain, a realized construction face included, carry them.
+    if (part.reliefs !== undefined) chain = { ...chain, reliefs: part.reliefs };
     const surface: IAutoMovieSolidSurface | null =
       AutoMovieSolidChain.surface(chain);
     if (surface === null)

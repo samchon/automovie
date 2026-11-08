@@ -28,12 +28,22 @@
  * @evidence contracts/common.md#clear-and-simple-design One coefficient layout and evaluate, jet, interpolate and project functions.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Derivatives are the basis's own, scaled exactly by the phase's period.
  * @evidence contracts/common.md#meaningful-documentation States the layout, the knot phases and the filter's truncation.
- * @evidence contracts/performance.md#efficient-algorithms Evaluation reads four control points; interpolation is O(N) by the truncated filter.
- * @evidence contracts/performance.md#reuse-equivalent-work The filter's weights are computed once at module load.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Returns tuples or one coefficient array.
+ * @evidence contracts/performance.md#efficient-algorithms Evaluation reads four controls; knot interpolation uses a fixed-width O(N) filter, while least-squares projection uses O(M+N^2) direct Fourier work rather than an FFT.
+ * @evidence contracts/performance.md#reuse-equivalent-work The inverse-knot filter is module-constant; least-squares projections share sine/cosine tables keyed by control count, independent of sample values and cutoff.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Results are caller-owned, but TURNS retains two N-by-N Float64Arrays per encountered count until process exit with no count, byte bound or release policy; this is unresolved retention debt.
  */
 export namespace AutoMovieSplineCurve {
-  /** Offset of the z block in the coefficient array of N control points. */
+  /**
+   * Offset of the z block in the coefficient array of N control points.
+   *
+   * @evidence contracts/common.md#principled-implementation Each coordinate has N controls, so the second block starts at offset N.
+   * @evidence contracts/common.md#clear-and-simple-design The identity layout helper keeps the spline offset convention with its reader.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not round or validate the supplied count or reinterpret it as harmonic order.
+   * @evidence contracts/common.md#meaningful-documentation Distinguishes the per-coordinate offset from the 2N-entry complete layout.
+   * @evidence contracts/performance.md#efficient-algorithms Returns the count directly in constant time without allocation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This scalar layout identity coordinates no repeated work.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a number and acquires no state or resource.
+   */
   export function width(count: number): number {
     return count;
   }
@@ -45,6 +55,14 @@ export namespace AutoMovieSplineCurve {
    * @param count Number of control points N.
    * @param t Phase in radians, any real value.
    * @returns `[x, z, dx/dt, dz/dt]` in mm and mm per radian.
+   *
+   * @evidence contracts/common.md#principled-implementation Evaluates the four local uniform periodic cubic basis functions and their analytic first derivative, scaled from control parameter to radians by N/(2pi).
+   * @evidence contracts/common.md#clear-and-simple-design Both coordinate blocks share one wrapped span, basis and support-index calculation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the supplied controls and ordinary periodic wrapping without fitting, finite differences or normalization; positive integer N and complete finite controls are producer premises.
+   * @evidence contracts/common.md#meaningful-documentation Gives layout, phase periodicity and returned value/derivative units.
+   * @evidence contracts/performance.md#efficient-algorithms Constant work reads four controls per coordinate regardless of total N and allocates only the fixed-size result.
+   * @evidence contracts/performance.md#reuse-equivalent-work Value and derivative components reuse the same four support indices and local parameter; this reader owns no prepared-station cache.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a new four-number tuple without retaining the coefficient array or any query state.
    */
   export function evaluate(
     coefficients: readonly number[],
@@ -75,9 +93,16 @@ export namespace AutoMovieSplineCurve {
     const scale: number = count / (2 * Math.PI);
     return [
       w0 * c[j0]! + w1 * c[j1]! + w2 * c[j2]! + w3 * c[j3]!,
-      w0 * c[count + j0]! + w1 * c[count + j1]! + w2 * c[count + j2]! + w3 * c[count + j3]!,
+      w0 * c[count + j0]! +
+        w1 * c[count + j1]! +
+        w2 * c[count + j2]! +
+        w3 * c[count + j3]!,
       (d0 * c[j0]! + d1 * c[j1]! + d2 * c[j2]! + d3 * c[j3]!) * scale,
-      (d0 * c[count + j0]! + d1 * c[count + j1]! + d2 * c[count + j2]! + d3 * c[count + j3]!) * scale,
+      (d0 * c[count + j0]! +
+        d1 * c[count + j1]! +
+        d2 * c[count + j2]! +
+        d3 * c[count + j3]!) *
+        scale,
     ];
   }
 
@@ -92,6 +117,14 @@ export namespace AutoMovieSplineCurve {
    *
    * @param samples Points `[x, z]`, one per control point.
    * @returns Control points in the layout above.
+   *
+   * @evidence contracts/common.md#principled-implementation Convolves uniformly spaced knot samples with the inverse cubic knot filter, wrapping indices periodically; truncation at distance 32 leaves a geometric coefficient tail rather than an exact symbolic inverse.
+   * @evidence contracts/common.md#clear-and-simple-design One periodic convolution prepares both coordinate blocks with a shared fixed filter.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no point-specific corrections; valid ordered knot samples are the caller's premise, and finite filter truncation is explicit.
+   * @evidence contracts/common.md#meaningful-documentation Gives the knot equation, inverse-filter formula, truncation scale and returned layout.
+   * @evidence contracts/performance.md#efficient-algorithms Each of N samples visits 65 fixed filter offsets, giving O(N) time and O(N) output rather than a dense interpolation solve.
+   * @evidence contracts/performance.md#reuse-equivalent-work The 33 absolute-distance weights are computed once at module load and reused for every sample and both coordinates.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates one 2N-entry output; only the fixed 33-number FILTER is process-retained by this path, and no sample input is kept.
    */
   export function interpolate(
     samples: readonly (readonly [number, number])[],
@@ -120,6 +153,14 @@ export namespace AutoMovieSplineCurve {
    * @param count Number of control points N.
    * @param t Phase in radians, any real value.
    * @returns `[x, z, dx/dt, dz/dt, d2x/dt2, d2z/dt2]`.
+   *
+   * @evidence contracts/common.md#principled-implementation Differentiates the same local cubic basis twice, applying N/(2pi) and its square for first and second radian derivatives on admitted periodic controls.
+   * @evidence contracts/common.md#clear-and-simple-design One span reading returns the point and both derivative orders required by surface jets.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Computes polynomial derivatives directly without sampled differences or altered controls; valid count/layout and representable scaling remain caller premises.
+   * @evidence contracts/common.md#meaningful-documentation Specifies derivative ordering, basis second derivatives and the radian chain-rule factors.
+   * @evidence contracts/performance.md#efficient-algorithms Constant work reads eight coordinate controls and returns six numbers, independent of the whole section order.
+   * @evidence contracts/performance.md#reuse-equivalent-work Loaded controls, support indices and basis powers serve all three derivative orders in the same call.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the caller-owned six-number tuple escapes; no coefficient reference or phase cache is retained.
    */
   export function jet(
     coefficients: readonly number[],
@@ -181,12 +222,21 @@ export namespace AutoMovieSplineCurve {
    * which a sinusoid of `cutoff` cycles per section keeps half its
    * amplitude. Longer waves pass almost unchanged, shorter ones (the source
    * mesh's facets) are suppressed, and the response falls smoothly, so the
-   * filter itself cannot ring.
+   * frequency response is smooth. That response alone is not a proof against
+   * spatial overshoot or ringing in the fitted curve.
    *
    * @param samples Points `[x, z]` at phases `2pi m / M`, m = 0 .. M-1.
    * @param count Number of control points N.
    * @param cutoff Half-response frequency in cycles per section; omitted,
    *   plain least squares.
+   *
+   * @evidence contracts/common.md#principled-implementation Uniform M samples with M a multiple of positive N make the normal matrix circulant; its direct Fourier eigenbasis solves both coordinate right-hand sides, optionally adding the declared second-difference penalty.
+   * @evidence contracts/common.md#clear-and-simple-design Local normal-row/right-hand-side accumulation and one shared Fourier basis keep the ordinary and penalized fits in one solver.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects a nonmultiple sample count; count validity, finite data and nonsingular Fourier denominators remain caller premises, and cutoff is explicitly restricted to the implemented frequency range rather than an exact pass-through guarantee.
+   * @evidence contracts/common.md#meaningful-documentation States uniform phases, normal-matrix structure, cutoff half-response meaning and the limits of the smooth frequency-response claim.
+   * @evidence contracts/performance.md#efficient-algorithms O(M+N^2) accumulation/direct transforms and O(N^2) transform tables avoid a dense O(N^3) solve; the implementation does not use an FFT and is not claimed optimal for unbounded N.
+   * @evidence contracts/performance.md#reuse-equivalent-work Within a fit both coordinates share normal eigenvalues and turns; across fits TURNS shares tables by N because those tables depend only on N, with no sample/cutoff/effect reuse.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Local O(N) solve arrays and 2N output have call/result lifetimes, but each new N permanently adds two N-by-N Float64Arrays (16N^2 payload bytes) to an unbounded process Map; no eviction or release exists.
    */
   export function project(
     samples: readonly (readonly [number, number])[],
@@ -292,14 +342,17 @@ export namespace AutoMovieSplineCurve {
 
 /** Cosine and sine of `2 pi q k / N`, row q of N entries each. */
 interface ITurns {
+  /** Row-major cos(2pi*q*k/N), N entries per frequency row. */
   cos: Float64Array;
+
+  /** Matching row-major sine values, independent of fitted samples. */
   sin: Float64Array;
 }
 
-/** The transform's turns by control count: a body has only a few counts. */
+/** Process-wide transform tables by control count, with no population/byte limit or eviction. */
 const TURNS: Map<number, ITurns> = new Map();
 
-/** The turns of N control points. */
+/** Read or permanently retain two N-by-N turn arrays for a control count; sample values and cutoff do not affect them. */
 function turnsOf(count: number): ITurns {
   const found: ITurns | undefined = TURNS.get(count);
   if (found !== undefined) return found;
@@ -319,6 +372,5 @@ function turnsOf(count: number): ITurns {
 /** Weights of the inverse knot filter by distance. */
 const FILTER: number[] = Array.from(
   { length: 33 },
-  (_: unknown, k: number): number =>
-    Math.sqrt(3) * (Math.sqrt(3) - 2) ** k,
+  (_: unknown, k: number): number => Math.sqrt(3) * (Math.sqrt(3) - 2) ** k,
 );

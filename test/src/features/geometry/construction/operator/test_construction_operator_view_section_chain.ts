@@ -1,6 +1,8 @@
 import { type AutoMovieLoftContract, AutoMovieLoftChain, AutoMovieLoftFrame, AutoMovieLoftJet, AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection, type IAutoMovieLoftChain, type IAutoMovieViewPart } from "@automovie/engine";
 
+/** Four signed source extents in their existing guide order. */
 type Quarters = IAutoMovieViewPart.IQuarters<number>;
+/** World point or derivative triple; units follow its derivative order. */
 type V3 = [number, number, number];
 
 /**
@@ -19,7 +21,7 @@ type V3 = [number, number, number];
  * @evidence contracts/testing.md#behavioral-verification Calls `AutoMovieViewLoft.create` on made parts and reads the result's chain through the public chain evaluators (`AutoMovieLoftChain.sampler`, `.frame`, `AutoMovieLoftFrame.local`, `AutoMovieLoftJet.at`), its sections' girths, its surface, continuity and diagnostics. It catches a section that misses its outline at a knot, a girth knot not honoured, a chain that steps in curvature across a layer, a layer without its box, and a broken input thrown or silently built; any operator that honours its knots, is C2 in station and reports what it drops passes.
  * @evidence contracts/testing.md#independent-expectations Expectations are the part's own inputs: the outline knots' values at their stations (the outlines own the extremes) and the girth knots (the girth owns the fullness), within rounding (1e-9 mm on points, the solve's 1e-6 mm on girths); C2 in station is read by second-order extrapolation from 1 and 2 micrometres on each side, whose truncation is below 1e-9 of the chain's fourth station derivative, against 1e-7 mm per mm squared; the diagnostics' contract names are the operator's published ones (#3046 item 7). The girth knots are put mid-reach of each knot's box (`AutoMovieViewSection.range`) so the input is valid by construction. Oracle limits: between knots the outlines are the natural spline's and the girth's reach is not re-derived, so values there are read only through continuity.
  * @evidence contracts/testing.md#distinguishing-cases Positive: a valid tapering part and one closing in a pole. Negative: an outline crossing its opposite, an axis outside the box, an order not a multiple of 4, a single station, and the made copies with a moved extent or curvature. The section's shape belongs to `test_construction_operator_view_section`, the girth solve to `test_construction_operator_view_section_girth`; whole-figure section invariants to `test_human_audit_sections`.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_lofting_view_section_chain`; it builds made parts in process, generates no person and starts no host, browser or GPU.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_operator_view_section_chain`; it builds made parts in process, generates no person and starts no host, browser or GPU.
  */
 export function test_construction_operator_view_section_chain(): void {
   const failures: string[] = [];
@@ -52,12 +54,49 @@ export function test_construction_operator_view_section_chain(): void {
     // chain read below a layer and a copy with that layer's station
     // curvature moved by 0.01 read above it (a chain's layers share their
     // jets, so a real break can only be made across two chains).
-    const own = (c: IAutoMovieLoftChain): ((s: number, t: number) => AutoMovieLoftJet.IJet) => (s: number, t: number): AutoMovieLoftJet.IJet => AutoMovieLoftJet.at(c, s, t);
+    const own: (c: IAutoMovieLoftChain) => (s: number, t: number) => AutoMovieLoftJet.IJet = (c: IAutoMovieLoftChain): ((s: number, t: number) => AutoMovieLoftJet.IJet) => (s: number, t: number): AutoMovieLoftJet.IJet => AutoMovieLoftJet.at(c, s, t);
     for (let i: number = 1; i + 1 < chain.layers.length; i++) failures.push(...station(own(chain), chain.layers[i]!.y));
-    const bent: IAutoMovieLoftChain = structuredClone(chain);
+
+    // Clone numeric data independently, then explicitly retain the callable
+    // axis owner. No engine reader sees the temporary source-free records.
+    const bent: IAutoMovieLoftChain = structuredClone({
+      ...chain,
+      layers: chain.layers.map((original: IAutoMovieLoftChain.ILayer): IAutoMovieLoftChain.ILayer => {
+        const numeric: IAutoMovieLoftChain.ILayer = { ...original };
+        delete numeric.frameSource;
+        return numeric;
+      }),
+    });
+    chain.layers.forEach((original: IAutoMovieLoftChain.ILayer, index: number): void => {
+      const copied: IAutoMovieLoftChain.ILayer = bent.layers[index]!;
+      const source: IAutoMovieLoftChain.ILayer["frameSource"] = original.frameSource;
+      if (source !== undefined) {
+        const snapshot: Omit<NonNullable<IAutoMovieLoftChain.ILayer["frameSource"]>, "axis"> = structuredClone({ station: source.station, frame: source.frame, jet: source.jet });
+        copied.frameSource = { ...snapshot, axis: source.axis };
+        for (const key of ["origin", "u", "v"] as const) {
+          if (copied.frameSource.frame[key] === source.frame[key]) failures.push("copy proof: a mutable source value snapshot is shared");
+          if (source.jet !== null && copied.frameSource.jet !== null)
+            for (const order of ["value", "first", "second"] as const)
+              if (copied.frameSource.jet[order][key] === source.jet[order][key]) failures.push("copy proof: a mutable source jet snapshot is shared");
+        }
+      }
+      for (const key of ["coefficients", "slopes", "curvatures", "lift", "liftSlopes", "liftCurvatures"] as const)
+        if (original[key] !== undefined && original[key] === copied[key]) failures.push(`copy proof: mutable ${key} rows are shared`);
+      for (const key of ["frame", "frameSlopes", "frameCurvatures"] as const)
+        for (const component of ["origin", "u", "v"] as const)
+          if (original[key] !== undefined && original[key]![component] === copied[key]![component]) failures.push(`copy proof: mutable ${key}.${component} rows are shared`);
+    });
+
+    // Separate layer records keep the equivalence reader immutable when bent
+    // receives its defect; all six vectors must first equal the original.
+    const originalJet: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, 107.5, 0.37);
+    const equivalent: IAutoMovieLoftChain = { ...bent, layers: bent.layers.map((copied: IAutoMovieLoftChain.ILayer): IAutoMovieLoftChain.ILayer => ({ ...copied })) };
+    const copiedJet: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(equivalent, 107.5, 0.37);
+    for (const key of ["p", "s", "t", "ss", "st", "tt"] as const)
+      if (!originalJet[key].every((value: number, coordinate: number): boolean => Object.is(value, copiedJet[key][coordinate]))) failures.push(`copy proof: original ${key} changed before the defect`);
     const layer: IAutoMovieLoftChain.ILayer = bent.layers[5]!;
     layer.curvatures = layer.curvatures!.map((c: number, k: number): number => (k === 0 ? c + 0.01 : c));
-    const broken = (s: number, t: number): AutoMovieLoftJet.IJet => (s < layer.y ? AutoMovieLoftJet.at(chain, s, t) : AutoMovieLoftJet.at(bent, s, t));
+    const broken: (s: number, t: number) => AutoMovieLoftJet.IJet = (s: number, t: number): AutoMovieLoftJet.IJet => (s < layer.y ? AutoMovieLoftJet.at(chain, s, t) : AutoMovieLoftJet.at(bent, s, t));
     if (station(broken, layer.y).length === 0) failures.push("proof: a station curvature that steps by 0.01 at a layer passes the station reader");
   }
 
