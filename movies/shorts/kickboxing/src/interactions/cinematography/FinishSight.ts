@@ -62,7 +62,7 @@ export namespace FinishSight {
   ): Reader {
     return (entry: IAutoMovieSchedule.IEntry): SightLaw.IScene => {
       const { striker, receiver, spec, contact } = finish(cast, entry);
-      const weapons: string[] = weaponBones(spec);
+      const weapons: string[] = weaponBones(striker, spec);
       const region = receiver.body.regions[KickboxingTechnique.region(spec)]!;
       const bodies = (seconds: number): preparePhysicalGeometry.ICollider[] => {
         const fighters = performance.at(seconds);
@@ -104,7 +104,13 @@ export namespace FinishSight {
           Quaternion.rotateVector(s.rotation, local),
         );
       };
-      const carriers: string[] = weapons.map((b) => `${striker.id}.${b}`);
+      // The weapon descends over the receiver's defending arm, so that arm
+      // belongs to the watched event with the weapon itself.
+      const guarding: string[] = defending(schedule, entry, receiver, spec);
+      const carriers: string[] = [
+        ...weapons.map((b) => `${striker.id}.${b}`),
+        ...guarding.map((b) => `${receiver.id}.${b}`),
+      ];
       const watched: SightLaw.IWatched[] = descent(contact).flatMap(
         (seconds: number): SightLaw.IWatched[] =>
           [`${spec.surface}-${spec.side}`, `shin-${spec.side}`].map((id) => {
@@ -157,9 +163,11 @@ export namespace FinishSight {
   /**
    * The scene from measure-derived capsules: each body a leg capsule from
    * ankle to hip, a torso capsule whose cap reaches the shoulder line and a
-   * head-and-neck capsule from the shoulder line to the head centre; the struck region on the receiver's head on its side, and
-   * the striking surface descending onto it from a lower leg above, on the
-   * attacker's side of the receiver's head.
+   * head-and-neck capsule from the shoulder line to the head centre; the
+   * struck region on the receiver's head on its side, and the striking
+   * surface descending onto it from a lower leg above, on the attacker's
+   * side of the receiver's head. The volumes carry no arms, so the
+   * receiver's defending arm never occludes, as in `colliders`.
    *
    * @param cast The cast.
    * @param schedule The schedule.
@@ -298,11 +306,56 @@ export namespace FinishSight {
     ];
   }
 
-  /** Segments carrying a technique's striking surface and lower leg. */
-  function weaponBones(spec: KickboxingTechnique.ISpec): string[] {
-    return spec.limb === "arm"
-      ? [`${spec.side}Hand`, `${spec.side}LowerArm`]
-      : [`${spec.side}LowerLeg`, `${spec.side}Foot`, `${spec.side}Midfoot`];
+  /**
+   * The receiver's arm his answer puts in the strike's path: for a block,
+   * cover or parry, the arm on the attacked side, which the weapon meets or
+   * passes over; nothing for an evasion or a taken blow.
+   */
+  function defending(
+    schedule: IAutoMovieSchedule,
+    entry: IAutoMovieSchedule.IEntry,
+    receiver: Fighter,
+    spec: KickboxingTechnique.ISpec,
+  ): string[] {
+    const answer = schedule.entries.find((e) => {
+      if (e.intent.capability !== "answer") return false;
+      const action = KickboxingAction.read(e.intent);
+      return action.kind === "answer" && action.strike === entry.intent.anchor;
+    });
+    const action = answer ? KickboxingAction.read(answer.intent) : undefined;
+    if (
+      action?.kind !== "answer" ||
+      !["elbow-block", "cover", "parry", "high-block"].includes(action.answer)
+    )
+      return [];
+    const side: string = KickboxingTechnique.opposite(spec.side);
+    return receiver.body.profile.segments
+      .map((s: P.ISegment) => s.bone)
+      .filter(
+        (bone: string) =>
+          bone.startsWith(side) &&
+          /^(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Pinky)/.test(
+            bone.slice(side.length),
+          ),
+      );
+  }
+
+  /** Segments carrying a technique's striking surface: the limb from the elbow or knee to its tip. */
+  function weaponBones(
+    striker: Fighter,
+    spec: KickboxingTechnique.ISpec,
+  ): string[] {
+    const distal: RegExp =
+      spec.limb === "arm"
+        ? /^(LowerArm|Hand|Thumb|Index|Middle|Ring|Pinky)/
+        : /^(LowerLeg|Ankle|Subtalar|Midfoot|Foot|Toe)/;
+    return striker.body.profile.segments
+      .map((s: P.ISegment) => s.bone)
+      .filter(
+        (bone: string) =>
+          bone.startsWith(spec.side) &&
+          distal.test(bone.slice(spec.side.length)),
+      );
   }
 
   /**

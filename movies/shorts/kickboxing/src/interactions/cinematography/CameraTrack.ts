@@ -23,7 +23,7 @@ import type { FinishSight } from "./FinishSight";
  * chooses for the finishing strike: the open side's side-on view, or the
  * least turn or rise from it that keeps the striking surface, the struck
  * region and the descending path clear of every body, measured by the given
- * sight reader at the contact. It holds that view through the fall, the
+ * sight reader on the lens the track actually delivers at the contact. It holds that view through the fall, the
  * count and the celebration.
  *
  * ```ts
@@ -125,88 +125,104 @@ export namespace CameraTrack {
       };
     };
     const wide: string[] = ["a", "b", "referee"];
-    const finishing: IAutoMovieSchedule.IEntry | undefined = strike(schedule);
-    const view: SightLaw.IView | undefined = finishing
-      ? choose(cast, sight(finishing), (v: SightLaw.IView) =>
-          place(
-            cast,
-            CoverageLaw.goal("finish", wide, v.bearing, v.elevation),
-            spheres(finishing.contact!),
-          ),
-        )
-      : undefined;
-    const samples: ISample[] = [];
-    let size: CoverageLaw.Size = "wide";
-    let since: number = 0;
-    let bearing: number | undefined;
-    let elevation: number = CoverageLaw.ELEVATION;
-    let position: IAutoMovieVector3 | undefined;
-    let target: IAutoMovieVector3 | undefined;
-    for (let k: number = 0; k * STEP <= duration + 1e-9; k++) {
-      const t: number = k * STEP;
-      const state = spheres(t);
-      // The size the action asks for; it changes only after the hold.
-      const hit = landed.find(
-        (l) => t >= l.contact && t < l.contact + CoverageLaw.HOLD,
-      );
-      const wanted: CoverageLaw.Size =
-        t >= finish
-          ? "finish"
-          : hit
-            ? "close"
-            : exchanges.some((x) => t >= x.start && t < x.end)
-              ? "medium"
-              : "wide";
-      if (
-        wanted !== size &&
-        (t - since >= CoverageLaw.HOLD || wanted === "finish")
-      ) {
-        size = wanted;
-        since = t;
+    const track = (view: SightLaw.IView | undefined): ISample[] => {
+      const samples: ISample[] = [];
+      let size: CoverageLaw.Size = "wide";
+      let since: number = 0;
+      let bearing: number | undefined;
+      let elevation: number = CoverageLaw.ELEVATION;
+      let position: IAutoMovieVector3 | undefined;
+      let target: IAutoMovieVector3 | undefined;
+      for (let k: number = 0; k * STEP <= duration + 1e-9; k++) {
+        const t: number = k * STEP;
+        const state = spheres(t);
+        // The size the action asks for; it changes only after the hold.
+        const hit = landed.find(
+          (l) => t >= l.contact && t < l.contact + CoverageLaw.HOLD,
+        );
+        const wanted: CoverageLaw.Size =
+          t >= finish
+            ? "finish"
+            : hit
+              ? "close"
+              : exchanges.some((x) => t >= x.start && t < x.end)
+                ? "medium"
+                : "wide";
+        if (
+          wanted !== size &&
+          (t - since >= CoverageLaw.HOLD || wanted === "finish")
+        ) {
+          size = wanted;
+          since = t;
+        }
+        const subjects: string[] =
+          size === "wide" || size === "finish"
+            ? wide
+            : size === "close"
+              ? [
+                  hit?.receiver === cast.b.id ? "b-upper" : "a-upper",
+                  hit?.receiver === cast.b.id ? "a-upper" : "b-upper",
+                ]
+              : ["a-upper", "b-upper"];
+        // Side-on opposite the referee; from the finish, the visibility law's view.
+        const aim: SightLaw.IView =
+          size === "finish" && view !== undefined
+            ? view
+            : {
+                bearing: CoverageLaw.bearing(
+                  floor(state.a!),
+                  floor(state.b!),
+                  floor(state.referee!),
+                ),
+                elevation: CoverageLaw.ELEVATION,
+              };
+        bearing =
+          bearing === undefined
+            ? aim.bearing
+            : CoverageLaw.orbit(bearing, aim.bearing, STEP);
+        elevation = CoverageLaw.orbit(elevation, aim.elevation, STEP);
+        const wantedFrame = place(
+          cast,
+          CoverageLaw.goal(size, subjects, bearing, elevation),
+          state,
+        );
+        const follow: number = k === 0 ? 1 : CoverageLaw.follow(STEP);
+        position =
+          position === undefined
+            ? wantedFrame.position
+            : lerp(position, wantedFrame.position, follow);
+        target =
+          target === undefined
+            ? wantedFrame.target
+            : lerp(target, wantedFrame.target, follow);
+        samples.push({ position, target, size });
       }
-      const subjects: string[] =
-        size === "wide" || size === "finish"
-          ? wide
-          : size === "close"
-            ? [
-                hit?.receiver === cast.b.id ? "b-upper" : "a-upper",
-                hit?.receiver === cast.b.id ? "a-upper" : "b-upper",
-              ]
-            : ["a-upper", "b-upper"];
-      // Side-on opposite the referee; from the finish, the visibility law's view.
-      const aim: SightLaw.IView =
-        size === "finish" && view !== undefined
-          ? view
-          : {
-              bearing: CoverageLaw.bearing(
-                floor(state.a!),
-                floor(state.b!),
-                floor(state.referee!),
-              ),
-              elevation: CoverageLaw.ELEVATION,
-            };
-      bearing =
-        bearing === undefined
-          ? aim.bearing
-          : CoverageLaw.orbit(bearing, aim.bearing, STEP);
-      elevation = CoverageLaw.orbit(elevation, aim.elevation, STEP);
-      const wantedFrame = place(
+      return samples;
+    };
+    const finishing: IAutoMovieSchedule.IEntry | undefined = strike(schedule);
+    if (finishing === undefined) return track(undefined);
+    // The first candidate whose own lens is clear and whose delivered lens,
+    // after the orbit and the operator's lag, stays clear at the contact.
+    const scene: SightLaw.IScene = sight(finishing);
+    let fallback: ISample[] | undefined;
+    for (const view of candidates(cast, scene, (v: SightLaw.IView) =>
+      place(
         cast,
-        CoverageLaw.goal(size, subjects, bearing, elevation),
-        state,
-      );
-      const follow: number = k === 0 ? 1 : CoverageLaw.follow(STEP);
-      position =
-        position === undefined
-          ? wantedFrame.position
-          : lerp(position, wantedFrame.position, follow);
-      target =
-        target === undefined
-          ? wantedFrame.target
-          : lerp(target, wantedFrame.target, follow);
-      samples.push({ position, target, size });
+        CoverageLaw.goal("finish", wide, v.bearing, v.elevation),
+        spheres(finishing.contact!),
+      ),
+    )) {
+      const samples: ISample[] = track(view);
+      if (clearance(samples, scene) > 0) return samples;
+      fallback ??= samples;
     }
-    return samples;
+    return (
+      fallback ??
+      track({
+        bearing: SightLaw.open(scene.attacker, scene.receiver, scene.contact),
+        elevation: CoverageLaw.ELEVATION,
+      })
+    );
   }
 
   /**
@@ -264,20 +280,19 @@ export namespace CameraTrack {
   }
 
   /**
-   * The visibility law's view: the open side's candidates nearest the
-   * side-on view first, up to the lens height a ringside operator reaches
-   * with the camera overhead (shoulder height plus arm reach, taken from the
-   * referee's adult build), the first whose sightlines are clear, or the
-   * clearest when none is.
+   * The visibility law's candidate views whose own lens is clear: the open
+   * side's views nearest the side-on view first, up to the lens height a
+   * ringside operator reaches with the camera overhead (shoulder height plus
+   * arm reach, taken from the referee's adult build).
    */
-  function choose(
+  function* candidates(
     cast: IRingCast,
     scene: SightLaw.IScene,
     lens: (view: SightLaw.IView) => {
       position: IAutoMovieVector3;
       target: IAutoMovieVector3;
     },
-  ): SightLaw.IView {
+  ): Generator<SightLaw.IView> {
     const open: number = SightLaw.open(
       scene.attacker,
       scene.receiver,
@@ -293,7 +308,6 @@ export namespace CameraTrack {
         base.position.z - base.target.z,
       ),
     );
-    let best: { view: SightLaw.IView; clearance: number } | undefined;
     for (const view of SightLaw.views(
       open,
       CoverageLaw.ELEVATION,
@@ -302,12 +316,8 @@ export namespace CameraTrack {
     )) {
       const placed = lens(view);
       if (placed.position.y > reach) continue;
-      const clearance: number = SightLaw.clearance(placed.position, scene);
-      if (clearance > 0) return view;
-      if (best === undefined || clearance > best.clearance)
-        best = { view, clearance };
+      if (SightLaw.clearance(placed.position, scene) > 0) yield view;
     }
-    return best?.view ?? { bearing: open, elevation: CoverageLaw.ELEVATION };
   }
 
   /** A framing goal's lens, held inside the ropes at the goal's elevation from where it stands. */

@@ -206,7 +206,7 @@ export class BoutPerformance {
             receiver,
             strike.spec,
             (s: number) => this.prior(receiver.id, s).segments,
-            BoutPerformance.landing(receiver, strike),
+            BoutPerformance.landing(receiver, strike, this.queries),
           ),
         },
         seconds,
@@ -379,15 +379,18 @@ export namespace BoutPerformance {
    * The receiver's regions with the struck one moved along its surface by
    * the strike's drawn contact offset: tangent to the region's outward
    * direction, along the bone's own long axis where that axis is not the
-   * outward one, so the point stays on the region.
+   * outward one, then projected back onto the nearest of the bone's
+   * declared colliders, so the point stays on the region's surface.
    *
    * @param receiver The receiver.
    * @param strike The touching strike.
+   * @param queries The engine's geometric queries.
    * @returns The regions the relational fit reads.
    */
   export function landing(
     receiver: Fighter,
     strike: ITouch,
+    queries: preparePhysicalGeometry.IQueries,
   ): Readonly<Record<string, resolveAutoMovieRelationalGoal.IRegion>> {
     const drawn = (strike.entry.state as BoutLaws.IState | undefined)?.strike;
     const region = receiver.body.regions[strike.region];
@@ -399,15 +402,38 @@ export namespace BoutPerformance {
       Vector3.scale(out, Vector3.dot(axis, out)),
     );
     if (Vector3.length(along) < 1e-6) return receiver.body.regions;
+    const moved: IAutoMovieVector3 = Vector3.add(
+      region.localPoint,
+      Vector3.scale(Vector3.normalize(along), drawn.point),
+    );
+    const segment = receiver.body.profile.segments.find(
+      (s: P.ISegment) => s.bone === region.bone,
+    );
+    if (!segment) return receiver.body.regions;
+    let best: IAutoMovieVector3 = moved;
+    let nearest: number = Infinity;
+    for (const shape of segment.shapes) {
+      const p: IAutoMovieVector3 = queries.project(
+        {
+          body: receiver.id,
+          bone: region.bone,
+          shape,
+          pose: {
+            position: { x: 0, y: 0, z: 0 },
+            rotation: { x: 0, y: 0, z: 0, w: 1 },
+          },
+        },
+        moved,
+      );
+      const d: number = Vector3.length(Vector3.subtract(p, moved));
+      if (d < nearest) {
+        nearest = d;
+        best = p;
+      }
+    }
     return {
       ...receiver.body.regions,
-      [strike.region]: {
-        bone: region.bone,
-        localPoint: Vector3.add(
-          region.localPoint,
-          Vector3.scale(Vector3.normalize(along), drawn.point),
-        ),
-      },
+      [strike.region]: { bone: region.bone, localPoint: best },
     };
   }
 

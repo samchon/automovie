@@ -5,7 +5,7 @@ import type { IBoutPosture } from "./IBoutPosture";
 import type { IFighterMeasure } from "./IFighterMeasure";
 import { KickboxingTechnique } from "./KickboxingTechnique";
 import { KickboxingTiming } from "./KickboxingTiming";
-import { StanceShape } from "./StanceShape";
+import { PunchShape } from "./PunchShape";
 import { blendPosture } from "./blendPosture";
 
 /**
@@ -140,7 +140,7 @@ export namespace StrikeShape {
           ? ease(t / delivery)
           : 1 - ease((t - delivery) / KickboxingTiming.HAND_RECOVERY);
       if (t >= delivery + KickboxingTiming.HAND_RECOVERY) return null;
-      return punch(input, shown, Math.max(0, out));
+      return PunchShape.posture(input, shown, Math.max(0, out));
     }
     const end: number = delivery + KickboxingTiming.KICK_RECOIL;
     if (t >= end) return null;
@@ -167,7 +167,7 @@ export namespace StrikeShape {
   ): IBoutPosture {
     switch (shown.family) {
       case "punch":
-        return punch(input, shown, amount);
+        return PunchShape.posture(input, shown, amount);
       case "round-kick":
         return roundKick(input, shown, phase, progress, amount);
       case "push-kick":
@@ -177,81 +177,6 @@ export namespace StrikeShape {
       case "feint":
         throw new Error("A feint performs another technique");
     }
-  }
-
-  /** A punch at extension `out` in [0, 1]. */
-  function punch(
-    input: IInput,
-    spec: KickboxingTechnique.ISpec,
-    out: number,
-  ): IBoutPosture {
-    const { measure, guard } = input;
-    const side: "left" | "right" = spec.side;
-    const sign: 1 | -1 = side === "left" ? 1 : -1;
-    const start: IAutoMovieVector3 = guard.hands[side].point;
-    const shoulder: IAutoMovieVector3 = {
-      x: 0,
-      y: measure.shoulder - guard.drop,
-      z: sign * measure.shoulderHalfWidth,
-    };
-    const aim: IAutoMovieVector3 =
-      input.target ??
-      Vector3.add(shoulder, { x: measure.armReach, y: 0, z: 0 });
-    const direction: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(aim, shoulder),
-    );
-    // The glove centre stops a glove radius short of the target minus the landing depth.
-    const end: IAutoMovieVector3 = Vector3.subtract(
-      aim,
-      Vector3.scale(direction, measure.gloveRadius - LANDING_DEPTH),
-    );
-    const control: IAutoMovieVector3 =
-      spec.line === "arc"
-        ? Vector3.add(Vector3.lerp(start, end, 0.5), {
-            x: 0,
-            y: 0,
-            z: sign * measure.shoulderHalfWidth * 2,
-          })
-        : spec.line === "rising"
-          ? Vector3.add(Vector3.lerp(start, end, 0.5), {
-              x: 0,
-              y: -measure.headRadius * 2,
-              z: 0,
-            })
-          : Vector3.lerp(start, end, 0.5);
-    const point: IAutoMovieVector3 = bezier(start, control, end, out);
-    // Rear-side punches carry the stance turn through the trunk; lead hooks
-    // turn it back and lead straights a third of that (IBA pages 42-45,
-    // techniques section 3); positive rotation turns the front left.
-    const drive: number =
-      (spec.side === "right" ? 1 : spec.line === "arc" ? -1 : -1 / 3) *
-      toDegrees(StanceShape.TURN) *
-      out;
-    const body: number = spec.level === "body" ? measure.headRadius * out : 0;
-    return {
-      ...guard,
-      drop: guard.drop + body,
-      thoracic: {
-        ...guard.thoracic,
-        rotation: guard.thoracic.rotation + drive,
-      },
-      pelvis: { ...guard.pelvis, rotation: guard.pelvis.rotation + drive / 2 },
-      hands: {
-        ...guard.hands,
-        [side]: {
-          point,
-          ...(spec.line === "arc"
-            ? {
-                elbow: Vector3.add(shoulder, {
-                  x: 0,
-                  y: 0,
-                  z: sign * measure.shoulderHalfWidth,
-                }),
-              }
-            : {}),
-        },
-      },
-    };
   }
 
   /** A round kick, including the switch kick and the Brazilian kick. */
@@ -316,8 +241,20 @@ export namespace StrikeShape {
       reach = 0;
     } else if (phase === "out") {
       const s: number = ease((progress - chamberShare) / (1 - chamberShare));
+      // The descending kick's folded leg first carries the foot a shank above
+      // the target, then opens and drops it onto the target from above
+      // (brazilian-kick.md#law: the knee climbs, the lower leg drops).
+      const apex: IAutoMovieVector3 = Vector3.add(target, {
+        x: 0,
+        y: measure.shank,
+        z: 0,
+      });
       foot = {
-        point: Vector3.lerp(chamber.point, impact.point, s),
+        point: !turnover
+          ? Vector3.lerp(chamber.point, impact.point, s)
+          : s < 0.5
+            ? Vector3.lerp(chamber.point, apex, ease(s * 2))
+            : Vector3.lerp(apex, impact.point, ease(s * 2 - 1)),
         knee: Vector3.lerp(chamber.knee, impact.knee, s),
       };
       reach = s;
@@ -503,23 +440,9 @@ export namespace StrikeShape {
     };
   }
 
-  /** Quadratic Bezier. */
-  function bezier(
-    a: IAutoMovieVector3,
-    c: IAutoMovieVector3,
-    b: IAutoMovieVector3,
-    t: number,
-  ): IAutoMovieVector3 {
-    return Vector3.lerp(Vector3.lerp(a, c, t), Vector3.lerp(c, b, t), t);
-  }
-
   /** Smoothstep easing of a progress in [0, 1]. */
   function ease(t: number): number {
     const x: number = Math.max(0, Math.min(1, t));
     return x * x * (3 - 2 * x);
-  }
-
-  function toDegrees(radians: number): number {
-    return (radians * 180) / Math.PI;
   }
 }
