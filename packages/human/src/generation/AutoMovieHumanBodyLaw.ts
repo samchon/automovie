@@ -281,6 +281,13 @@ export namespace AutoMovieHumanBodyLaw {
     };
   }
 
+  /** Resolve the same foot dimensions as construction, in world millimetres, without generating skin. */
+  export function footDimensions(
+    params: IAutoMovieHumanParameters,
+  ): AutoMovieHumanFootConstruction.IInputs {
+    return feet(params, tapes(params, statureOf(params)));
+  }
+
   /**
    * A shape prior's coordinate, derived from the person's measures: the shape
    * priors were fitted on three coordinates with no published definition, which
