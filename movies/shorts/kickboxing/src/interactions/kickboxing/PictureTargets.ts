@@ -19,6 +19,7 @@ import { StanceShape } from "../../laws/kickboxing/StanceShape";
  * @evidence docs/research/kickboxing/ring-generalship.md#stance Stance knee flexion inside 25–45 degrees.
  * @evidence docs/research/kickboxing/techniques.md#reach Outside range a step beyond the teep; no fixed range in metres.
  * @evidence docs/research/cinematography/fight-coverage.md#targets Both fighters' feet in frame for at least 80% of the film.
+ * @evidence docs/research/kickboxing/techniques.md#kick-timing Peak metatarsal speed of the measured Muay Thai kicks.
  */
 export namespace PictureTargets {
   /** An accepted range of one measure. */
@@ -45,11 +46,14 @@ export namespace PictureTargets {
   /** Greatest share of fighter-instants with no hand or foot moving: one in ten (ring generalship targets). */
   export const IDLE_SHARE_MAX: number = 0.1;
 
-  /** Median peak wrist speed of punches, metres per second (technique punch timing, ring generalship targets). */
+  /** Median peak fist end-point speed of punches, metres per second: measured crosses to lead hooks, 7.3-12 m/s (Frontiers in Sports and Active Living 2024), around the single maximal cross's 8.22 ± 1.08 m/s (Piorkowski, Lees and Barton 2011). */
   export const PUNCH_PEAK_SPEED: readonly [number, number] = [7.3, 12];
 
-  /** Median peak ankle speed of kicks, metres per second: national taekwondo roundhouse kicks, 7.36 ± 1.02 and 8.16 ± 0.70 m/s (Detjareny et al., ISBS 2012). */
-  export const KICK_PEAK_SPEED: readonly [number, number] = [6.3, 8.9];
+  /** Median peak metatarsal (midfoot) speed of round kicks, metres per second: Muay Thai maximum linear foot velocity 13.24 ± 2.30 m/s, one standard deviation either side (Gavagan and Sayers 2017, Table 2). */
+  export const KICK_PEAK_SPEED: readonly [number, number] = [
+    13.24 - 2.3,
+    13.24 + 2.3,
+  ];
 
   /** Least share of the film showing both fighters' feet (fight-coverage targets). */
   export const FEET_IN_FRAME_MIN: number = 0.8;
@@ -121,7 +125,7 @@ export namespace PictureTargets {
       "kick-peak-speed": range(
         KICK_PEAK_SPEED[0],
         KICK_PEAK_SPEED[1],
-        `${GENERALSHIP}#targets`,
+        "docs/research/kickboxing/techniques.md#kick-timing",
       ),
       "feet-in-frame": range(
         FEET_IN_FRAME_MIN,

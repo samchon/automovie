@@ -1,11 +1,15 @@
-import type { IAutoMovieSchedule } from "@automovie/engine";
+import {
+  type IAutoMovieSchedule,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { CameraTrack } from "../cinematography/CameraTrack";
 import { CoverageLaw } from "../../laws/cinematography/CoverageLaw";
 import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
 import { KickboxingRange } from "../../laws/kickboxing/KickboxingRange";
 import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
+import { CameraTrack } from "../cinematography/CameraTrack";
 import type { BoutPerformance } from "./BoutPerformance";
 import type { IRingCast } from "./IRingCast";
 import { PictureTargets } from "./PictureTargets";
@@ -121,7 +125,11 @@ export namespace PictureMeasures {
     for (const entry of schedule.entries) {
       if (entry.start > seconds || seconds >= entry.end) continue;
       const capability: string = entry.intent.capability;
-      if (capability !== "strike" && capability !== "answer" && capability !== "move")
+      if (
+        capability !== "strike" &&
+        capability !== "answer" &&
+        capability !== "move"
+      )
         continue;
       const action = KickboxingAction.read(entry.intent);
       const here: Phase =
@@ -250,16 +258,21 @@ export namespace PictureMeasures {
     /** Both displayed fighters, in cast order, and the delivered lens at an instant. */
     read(seconds: number): Pick<ISample, "bodies" | "lens">;
 
-    /** A displayed joint of a fighter at an instant, by segment name. */
-    joint(subject: string, bone: string, seconds: number): IAutoMovieVector3;
+    /** The displayed striking point of a fighter's technique at an instant: the glove's knuckles for a punch, the midfoot for a kick. */
+    striking(
+      subject: string,
+      spec: KickboxingTechnique.ISpec,
+      seconds: number,
+    ): IAutoMovieVector3;
   }
 
   /**
    * The picture measures over the whole film: {@link measure} at
    * {@link SAMPLE_RATE}, plus the median peak speed of the evaluated limb
-   * over every punch and every kick from launch to contact at
-   * {@link SPEED_RATE}: the wrist for a punch, the ankle for a kick, the
-   * knee for a knee.
+   * over every punch and every round kick from launch to contact at
+   * {@link SPEED_RATE}: the fist's end point, the glove's knuckles, for a
+   * punch; the midfoot for a round kick, where the measured kicks carry
+   * their metatarsal markers.
    *
    * @param film The displayed film.
    * @returns Named measures.
@@ -284,16 +297,15 @@ export namespace PictureMeasures {
       if (action.kind !== "strike") continue;
       const spec: KickboxingTechnique.ISpec =
         KickboxingTechnique.table[action.technique];
-      if (spec.shows) continue;
-      const bone: string =
-        spec.limb === "arm"
-          ? `${spec.side}Hand`
-          : spec.family === "knee"
-            ? `${spec.side}LowerLeg`
-            : `${spec.side}Foot`;
+      if (spec.shows || (spec.limb !== "arm" && spec.family !== "round-kick"))
+        continue;
       const path: { seconds: number; point: IAutoMovieVector3 }[] = [];
-      for (let t: number = entry.start; t <= entry.contact + 1e-9; t += 1 / SPEED_RATE)
-        path.push({ seconds: t, point: film.joint(entry.subject, bone, t) });
+      for (
+        let t: number = entry.start;
+        t <= entry.contact + 1e-9;
+        t += 1 / SPEED_RATE
+      )
+        path.push({ seconds: t, point: film.striking(entry.subject, spec, t) });
       peaks[spec.limb === "arm" ? "punch" : "kick"].push(peak(path));
     }
     for (const [kind, list] of Object.entries(peaks))
@@ -365,7 +377,17 @@ export namespace PictureMeasures {
           lens: { position: shot.position, target: shot.target },
         };
       },
-      joint,
+      striking: (subject, spec, seconds) => {
+        if (spec.limb !== "arm")
+          return joint(subject, `${spec.side}Midfoot`, seconds);
+        const fighter = subject === cast.a.id ? cast.a : cast.b;
+        const fist = fighter.body.weapons[`knuckles-${spec.side}`]!;
+        const s = performance.at(seconds)[subject]!.segments[fist.bone]!;
+        return Vector3.add(
+          s.position,
+          Quaternion.rotateVector(s.rotation, fist.localPoint),
+        );
+      },
     });
     return PictureTargets.annotate(
       measured,
@@ -402,11 +424,10 @@ export namespace PictureMeasures {
    * @returns Degrees; 0 for a straight leg.
    */
   export function flexion(leg: ILeg): number {
-    const t: IAutoMovieVector3 = sub3(leg.knee, leg.hip);
-    const s: IAutoMovieVector3 = sub3(leg.ankle, leg.knee);
+    const t: IAutoMovieVector3 = Vector3.subtract(leg.knee, leg.hip);
+    const s: IAutoMovieVector3 = Vector3.subtract(leg.ankle, leg.knee);
     const c: number =
-      (t.x * s.x + t.y * s.y + t.z * s.z) /
-      (Math.hypot(t.x, t.y, t.z) * Math.hypot(s.x, s.y, s.z));
+      Vector3.dot(t, s) / (Vector3.length(t) * Vector3.length(s));
     return (Math.acos(Math.max(-1, Math.min(1, c))) * 180) / Math.PI;
   }
 
@@ -423,16 +444,20 @@ export namespace PictureMeasures {
     point: IAutoMovieVector3,
     limits: Pick<ILimits, "fieldOfView" | "aspect">,
   ): boolean {
-    const forward: IAutoMovieVector3 = norm(sub3(lens.target, lens.position));
-    const right: IAutoMovieVector3 = norm(cross(forward, { x: 0, y: 1, z: 0 }));
-    const up: IAutoMovieVector3 = cross(right, forward);
-    const v: IAutoMovieVector3 = sub3(point, lens.position);
-    const depth: number = dot(v, forward);
+    const forward: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(lens.target, lens.position),
+    );
+    const right: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.cross(forward, { x: 0, y: 1, z: 0 }),
+    );
+    const up: IAutoMovieVector3 = Vector3.cross(right, forward);
+    const v: IAutoMovieVector3 = Vector3.subtract(point, lens.position);
+    const depth: number = Vector3.dot(v, forward);
     if (depth <= 0) return false;
     const tan: number = Math.tan(limits.fieldOfView / 2);
     return (
-      Math.abs(dot(v, up) / depth) <= tan &&
-      Math.abs(dot(v, right) / depth) <= tan * limits.aspect
+      Math.abs(Vector3.dot(v, up) / depth) <= tan &&
+      Math.abs(Vector3.dot(v, right) / depth) <= tan * limits.aspect
     );
   }
 
@@ -450,7 +475,11 @@ export namespace PictureMeasures {
     };
   }
 
-  function speed(a: IAutoMovieVector3, b: IAutoMovieVector3, dt: number): number {
+  function speed(
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+    dt: number,
+  ): number {
     return dt > 0 ? Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z) / dt : 0;
   }
 
@@ -473,26 +502,5 @@ export namespace PictureMeasures {
   function unit(a: { x: number; z: number }): { x: number; z: number } {
     const l: number = Math.hypot(a.x, a.z);
     return l === 0 ? { x: 1, z: 0 } : { x: a.x / l, z: a.z / l };
-  }
-
-  function sub3(a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 {
-    return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
-  }
-
-  function dot(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
-    return a.x * b.x + a.y * b.y + a.z * b.z;
-  }
-
-  function cross(a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 {
-    return {
-      x: a.y * b.z - a.z * b.y,
-      y: a.z * b.x - a.x * b.z,
-      z: a.x * b.y - a.y * b.x,
-    };
-  }
-
-  function norm(a: IAutoMovieVector3): IAutoMovieVector3 {
-    const l: number = Math.hypot(a.x, a.y, a.z);
-    return { x: a.x / l, y: a.y / l, z: a.z / l };
   }
 }

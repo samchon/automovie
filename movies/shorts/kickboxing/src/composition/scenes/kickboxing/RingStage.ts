@@ -318,11 +318,11 @@ export class RingStage {
   /**
    * Human's body calibrations of the cast, read from the development
    * server's artifact store under the digest of Human's source (computed and
-   * stored on a miss), with the digest of this production's source that the
-   * frame digest carries. Outside the development server, nothing: every
-   * body calibrates itself and the page publishes no frame digest.
+   * stored on a miss), with that Human package identity the frame digest
+   * carries. Outside the development server, nothing: every body calibrates
+   * itself and the page publishes no frame digest.
    *
-   * @returns The calibrations and the production's source digest.
+   * @returns The calibrations and the Human package's source digest.
    */
   public static async calibrate(): Promise<{
     calibrations: RingStage.ICalibrations;
@@ -344,7 +344,7 @@ export class RingStage {
       resolveAutoMovieHumanCalibration(fighterA.parameters, options),
       resolveAutoMovieHumanCalibration(RefereeBody.PARAMETERS, options),
     ]);
-    return { calibrations: { fighter, referee }, source: sources.production };
+    return { calibrations: { fighter, referee }, source: sources.human };
   }
 
   /** The development server's artifact store. */

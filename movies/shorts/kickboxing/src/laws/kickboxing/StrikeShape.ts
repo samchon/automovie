@@ -37,6 +37,50 @@ export namespace StrikeShape {
   export const SHIN_SHARE: number = 0.6;
 
   /**
+   * The kicking foot's speed at impact as a share of its peak in the
+   * extension: Muay Thai linear foot velocity at impact 7.22 m/s against a
+   * maximum of 13.24 m/s, metatarsal markers (Gavagan and Sayers 2017,
+   * Table 2); the foot peaks before contact and still travels at contact.
+   */
+  export const IMPACT_SPEED_SHARE: number = 7.22 / 13.24;
+
+  /** End slope of the extension's cubic progress whose impact speed is {@link IMPACT_SPEED_SHARE} of its peak, solved once by bisection. */
+  const END_SLOPE: number = (() => {
+    // Slope u ↦ p'(u) of the Hermite p(u) = 3u² − 2u³ + k(u³ − u²): zero at
+    // the chamber key, k at impact; its peak share k / max p' rises with k.
+    const share = (k: number): number => {
+      const u: number = Math.max(0, Math.min(1, (6 - 2 * k) / (12 - 6 * k)));
+      const peak: number = Math.max(
+        k,
+        -6 * u * u + 6 * u + k * (3 * u * u - 2 * u),
+      );
+      return k / peak;
+    };
+    let low: number = 0;
+    let high: number = 1.5;
+    for (let i: number = 0; i < 60; i++) {
+      const mid: number = (low + high) / 2;
+      if (share(mid) < IMPACT_SPEED_SHARE) low = mid;
+      else high = mid;
+    }
+    return (low + high) / 2;
+  })();
+
+  /**
+   * Progress of a round kick's extension from the chamber key to impact:
+   * it leaves the chamber at rest, peaks before contact and reaches the
+   * target still travelling at {@link IMPACT_SPEED_SHARE} of its peak.
+   *
+   * @param u Time share of the extension in [0, 1].
+   * @returns Progress in [0, 1].
+   * @evidence docs/research/kickboxing/techniques.md#kick-timing Peak and impact foot speeds of the measured Muay Thai kicks.
+   */
+  export function extension(u: number): number {
+    const x: number = Math.max(0, Math.min(1, u));
+    return 3 * x * x - 2 * x * x * x + END_SLOPE * (x * x * x - x * x);
+  }
+
+  /**
    * Support-foot turn at impact, radians, read from the Chan rear-oblique
    * frames (rotated support foot, not a measured angle); the Brazilian
    * kick's heel turns toward the target as far as the head kick's.
@@ -121,7 +165,11 @@ export namespace StrikeShape {
       );
     }
     if (shown.family === "punch") {
-      const out: number = PunchShape.amount(t, delivery);
+      const out: number = PunchShape.amount(
+        t,
+        delivery,
+        PunchShape.path(input, shown),
+      );
       if (t >= delivery + KickboxingTiming.HAND_RECOVERY) return null;
       return PunchShape.posture(input, shown, Math.max(0, out));
     }
@@ -192,7 +240,7 @@ export namespace StrikeShape {
       phase === "out"
         ? progress <= chamberShare
           ? 0
-          : ease((progress - chamberShare) / (1 - chamberShare))
+          : extension((progress - chamberShare) / (1 - chamberShare))
         : progress <= 0.5
           ? 1 - ease(progress / 0.5)
           : 0;
@@ -210,16 +258,17 @@ export namespace StrikeShape {
       y: turnover ? TurnoverShape.hip(measure) - drop : measure.hip - drop,
       z: sign * measure.hipHalfWidth,
     };
-    const folded: { point: IAutoMovieVector3; knee: IAutoMovieVector3 } = StraightLegShape.fold(
-      hip,
-      StraightLegShape.CHAMBER_HIP[
-        spec.disguise
-          ? KickboxingTechnique.table[spec.disguise].level
-          : spec.level
-      ],
-      sign,
-      measure,
-    );
+    const folded: { point: IAutoMovieVector3; knee: IAutoMovieVector3 } =
+      StraightLegShape.fold(
+        hip,
+        StraightLegShape.CHAMBER_HIP[
+          spec.disguise
+            ? KickboxingTechnique.table[spec.disguise].level
+            : spec.level
+        ],
+        sign,
+        measure,
+      );
     const target: IAutoMovieVector3 =
       input.target === null ? folded.knee : local(input.target);
     // The shin crosses the target toward the kicker's other side; the
@@ -286,11 +335,7 @@ export namespace StrikeShape {
       };
     } else
       foot = {
-        point: Vector3.lerp(
-          chamber.point,
-          rest,
-          ease((progress - 0.5) / 0.5),
-        ),
+        point: Vector3.lerp(chamber.point, rest, ease((progress - 0.5) / 0.5)),
         knee: chamber.knee,
       };
     // The turnover's trunk leans only by the pelvis's tilt and hike, the
@@ -367,7 +412,8 @@ export namespace StrikeShape {
     const p: IAutoMovieVector3 = Vector3.subtract(head, shoulder);
     // |p + s·x̂| = reach, the forward root.
     const s: number =
-      -p.x + Math.sqrt(Math.max(0, p.x * p.x - Vector3.dot(p, p) + reach * reach));
+      -p.x +
+      Math.sqrt(Math.max(0, p.x * p.x - Vector3.dot(p, p) + reach * reach));
     return { x: head.x + s, y: head.y, z: head.z };
   }
 

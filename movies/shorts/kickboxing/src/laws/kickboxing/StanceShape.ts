@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { IBoutPosture } from "./IBoutPosture";
 import type { IFighterMeasure } from "./IFighterMeasure";
 
@@ -191,7 +192,7 @@ export namespace StanceShape {
     const bounce: number = Math.sin(phase) ** 2;
     const pump: number = Math.sin(phase / 2) ** 2 * bounce;
     return {
-      drop: RHYTHM_SHARE * drop(measure, KNEE_FLEXION) * bounce,
+      drop: RHYTHM_SHARE * sink(measure) * bounce,
       pump: PUMP_SHARE * measure.armReach * pump,
     };
   }
@@ -283,11 +284,14 @@ export namespace StanceShape {
   }
 
   /**
-   * The root drop that bends straight legs to the stance's knee flexion: the
-   * difference between the straight leg and the chord of the bent one.
+   * The root drop that bends the legs to a knee flexion: the straight leg's
+   * height less the height of the bent leg's chord, which leans over the
+   * floor run from its hip joint to its ankle, so a spread stance sinks
+   * further than feet under the hips for the same knee bend.
    *
    * @param measure The fighter's measure.
    * @param flexion Knee flexion, degrees.
+   * @param run Floor distance from the hip joint to the ankle, metres; 0 for feet under the hips.
    * @returns Metres.
    * @evidence docs/research/kickboxing/techniques.md#laws Lengths from the measured body.
    * @evidence contracts/development/common.md#meaningful-documentation States the geometry.
@@ -301,13 +305,47 @@ export namespace StanceShape {
    * @evidence contracts/development/behaviors.md#relational-goals No position is read.
    * @evidence contracts/development/behaviors.md#deterministic-evaluation Pure.
    */
-  export function drop(measure: IFighterMeasure, flexion: number): number {
+  export function drop(
+    measure: IFighterMeasure,
+    flexion: number,
+    run: number = 0,
+  ): number {
     const { thigh, shank } = measure;
     const knee: number = Math.PI - (flexion * Math.PI) / 180;
     const chord: number = Math.sqrt(
       thigh * thigh + shank * shank - 2 * thigh * shank * Math.cos(knee),
     );
-    return thigh + shank - chord;
+    return thigh + shank - Math.sqrt(Math.max(0, chord * chord - run * run));
+  }
+
+  /**
+   * The floor run from each hip joint to its planted ankle in the guard: the
+   * stance turn carries the lead hip forward and the rear hip back, and each
+   * ankle stands half a stance along the line on its own hip track.
+   *
+   * @param measure The fighter's measure.
+   * @returns Metres, the same for both legs.
+   * @evidence docs/research/kickboxing/ring-generalship.md#stance Stance length and the turn of the stance.
+   */
+  export function run(measure: IFighterMeasure): number {
+    const ankle: IAutoMovieVector3 = feet(measure).left;
+    const hip: IAutoMovieVector3 = turn(
+      { x: 0, y: 0, z: measure.hipHalfWidth },
+      TURN,
+    );
+    return Math.hypot(ankle.x - hip.x, ankle.z - hip.z);
+  }
+
+  /**
+   * The guard's root drop: the stance's knee flexion over the stance's
+   * floor run, so the displayed knees bend by {@link KNEE_FLEXION}.
+   *
+   * @param measure The fighter's measure.
+   * @returns Metres.
+   * @evidence docs/research/kickboxing/ring-generalship.md#stance Knees bent inside the translated range.
+   */
+  export function sink(measure: IFighterMeasure): number {
+    return drop(measure, KNEE_FLEXION, run(measure));
   }
 
   /**
@@ -331,7 +369,7 @@ export namespace StanceShape {
    * @evidence contracts/development/behaviors.md#deterministic-evaluation Pure.
    */
   export function guard(measure: IFighterMeasure): IBoutPosture {
-    const lowered: number = drop(measure, KNEE_FLEXION);
+    const lowered: number = sink(measure);
     const head: number = measure.head - lowered;
     return {
       drop: lowered,

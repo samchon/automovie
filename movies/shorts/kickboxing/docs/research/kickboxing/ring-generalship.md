@@ -61,4 +61,4 @@ Measured on the displayed bodies across the whole film (window.__afReport().meas
 - Stance knee flexion inside 25–45°.
 - Foot travel at least 20 m per fighter-minute, a third of a 0.35 s cadence of half-stance steps, with at least 30% of it lateral.
 - Idle share (no hand or foot faster than 0.1 m/s) at most 10%.
-- Median peak wrist speed of punches inside 7.3–12 m/s ([punch timing](techniques.md#punch-timing)); median peak ankle speed of kicks inside 6.3–8.9 m/s, the peak foot velocities of national taekwondo roundhouse kicks (7.36 ± 1.02 and 8.16 ± 0.70 m/s; [Detjareny et al., ISBS 2012](https://ojs.ub.uni-konstanz.de/cpa/article/view/5389)).
+- Median peak fist speed of punches, at the glove's knuckles, inside 7.3–12 m/s ([punch timing](techniques.md#punch-timing)); median peak midfoot speed of round kicks inside 10.94–15.54 m/s, the Muay Thai maximum linear foot velocity of 13.24 ± 2.30 m/s at the metatarsal markers ([kick timing](techniques.md#kick-timing)).
