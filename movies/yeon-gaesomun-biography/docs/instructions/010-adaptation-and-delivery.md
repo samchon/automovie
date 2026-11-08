@@ -2,7 +2,7 @@
 
 ## What is adopted from the source {#source-boundary}
 
-The user-designated input is nine instructions and 237 settings for The Great Magnate. The source is retained in the [intake manifest](../references/intake-manifest.json) and `docs/references/novels`. This production’s instructions adopt its creative conditions for video; they do not modify the original. Old treatments, scripts, prose, revisions, evidence, and reviews are not creative inputs.
+The user-designated input is nine instructions and 237 settings for The Great Magnate. This production’s instructions adopt its creative conditions for video; they do not modify the original. Old treatments, scripts, prose, revisions, evidence, and reviews are not creative inputs.
 
 Preserve the source’s distinctions among historical fact, record claims, theories, invented reconstruction, and unresolved matters. In particular, do not replace the choices of Yeon’s 614 birth and spring 665 death, actual royal orders in the coup, Heonchung’s accidental injury and death three days later, and Namsaeng’s responsibility and unforgiven resentment with generic history. Relevant settings disclose conflicting records together.
 

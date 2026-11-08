@@ -6,4 +6,4 @@
 
 Her loyalty to family differs from other siblings’ political calculation. Distinguish later claims of affairs from recorded actions. Select additional exact body and voice details from the individual record’s work decisions.
 
-Basis: relevant statements and work decisions in the [retained individual record](../../../references/novels/settings/050-people/012-pauline-bonaparte.md#pauline-bonaparte).
+Basis: relevant statements and work decisions in the retained individual record.

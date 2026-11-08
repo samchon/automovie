@@ -4,4 +4,4 @@
 
 ## The steward Cipriani's work {#cipriani}
 
-Cipriani is a steward involved in household management and food procurement and died in February 1818. Preserve the differing death dates in [Cipriani](../../../references/novels/settings/050-people/282-cipriani.md#cipriani) at the level of the month. Do not establish secret intelligence work, a new death scene, or last words.
+Cipriani is a steward involved in household management and food procurement and died in February 1818. Preserve the differing death dates in Cipriani at the level of the month. Do not establish secret intelligence work, a new death scene, or last words.
