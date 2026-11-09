@@ -48,7 +48,18 @@
         <div id="notices" role="alert"></div>
       </div>
     </main>
-    <!-- A module graph that fails to fetch or parse (a half-saved file) marks the page, so the capture session retries instead of waiting. -->
+    <!-- Install before module evaluation: an imported dependency can throw before the entry runs. -->
+    <script>
+      window.addEventListener("error", function (event) {
+        if ("__humanDebug" in window || "__humanDebugFailed" in window) return;
+        const detail = event.error instanceof Error
+          ? (event.error.stack ?? event.error.message)
+          : event.message + (event.filename ? "\n" + event.filename + ":" + event.lineno + ":" + event.colno : "");
+        window.__humanDebugFailed = "mount-failed:\n" + detail;
+        document.getElementById("notices").textContent = "뷰어 초기화 실패: " + detail;
+      }, { once: true });
+    </script>
+    <!-- A fetch failure keeps the transient marker; evaluation and mount failures keep their original cause. -->
     <script type="module" src="/debug/page/human-debug.ts" onerror="window.__humanDebugFailed = 'the page module graph failed to load'; document.getElementById('notices').textContent = window.__humanDebugFailed"></script>
   </body>
 </html>

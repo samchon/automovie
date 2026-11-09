@@ -54,13 +54,13 @@ catalogs:
       specifier: ^12.1.0
       version: 12.1.0
     '@ttsc/evidence':
-      specifier: ^0.36.0
+      specifier: ^0.36.3
       version: 0.36.3
     '@ttsc/lint':
-      specifier: ^0.36.0
+      specifier: ^0.36.3
       version: 0.36.3
     '@ttsc/unplugin':
-      specifier: ^0.36.0
+      specifier: ^0.36.3
       version: 0.36.3
     '@wrtnlabs/evidence':
       specifier: ^0.8.2
@@ -69,7 +69,7 @@ catalogs:
       specifier: ^3.0.0
       version: 3.0.0
     ttsc:
-      specifier: ^0.36.0
+      specifier: ^0.36.3
       version: 0.36.3
     typia:
       specifier: ^15.3.0
@@ -532,6 +532,70 @@ importers:
         specifier: ^5.4.10
         version: 5.4.21(@types/node@22.20.5)
 
+  movies/shorts/malfoy:
+    dependencies:
+      '@automovie/archetypes':
+        specifier: workspace:^
+        version: link:../../../packages/archetypes
+      '@automovie/engine':
+        specifier: workspace:^
+        version: link:../../../packages/engine
+      '@automovie/human':
+        specifier: workspace:^
+        version: link:../../../packages/human
+      '@automovie/ingest':
+        specifier: workspace:^
+        version: link:../../../packages/ingest
+      '@automovie/interface':
+        specifier: workspace:^
+        version: link:../../../packages/interface
+      '@automovie/recovery':
+        specifier: workspace:^
+        version: link:../../../packages/recovery
+      '@automovie/render':
+        specifier: workspace:^
+        version: link:../../../packages/render
+      '@automovie/viewer':
+        specifier: workspace:^
+        version: link:../../../packages/viewer
+      three:
+        specifier: catalog:three
+        version: 0.186.0
+    devDependencies:
+      '@automovie/evidence':
+        specifier: workspace:^
+        version: link:../../../packages/evidence
+      '@nestia/e2e':
+        specifier: catalog:samchon
+        version: 12.1.0
+      '@ttsc/lint':
+        specifier: catalog:samchon
+        version: 0.36.3(ttsc@0.36.3(typescript@7.0.2))
+      '@types/node':
+        specifier: catalog:utils
+        version: 22.19.20
+      '@types/three':
+        specifier: catalog:three
+        version: 0.186.0
+      '@wrtnlabs/evidence':
+        specifier: catalog:samchon
+        version: 0.8.2(ttsc@0.36.3(typescript@7.0.2))
+      ffmpeg-static:
+        specifier: ^5.2.0
+        version: 5.3.0
+      playwright:
+        specifier: catalog:media
+        version: 1.62.0
+      ttsc:
+        specifier: catalog:samchon
+        version: 0.36.3(typescript@7.0.2)
+      typescript:
+        specifier: catalog:typescript
+        version: 7.0.2
+      vite:
+        specifier: catalog:vite
+        version: 5.4.21(@types/node@22.19.20)
+
   movies/shorts/paper-crane-invitation:
     dependencies:
       '@automovie/archetypes':
@@ -836,12 +900,18 @@ importers:
         specifier: catalog:samchon
         version: 15.3.0(ttsc@0.36.3(typescript@7.0.2))
     devDependencies:
+      '@automovie/recovery':
+        specifier: workspace:^
+        version: link:../recovery
       '@automovie/render':
         specifier: workspace:^
         version: link:../render
       '@automovie/viewer':
         specifier: workspace:^
         version: link:../viewer
+      '@napi-rs/canvas':
+        specifier: 1.0.1
+        version: 1.0.1
       '@playwright/mcp':
         specifier: catalog:media
         version: 0.0.84
@@ -1983,6 +2053,76 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@napi-rs/canvas-android-arm64@1.0.1':
+    resolution: {integrity: sha512-d7ZCwJsgH4QNG50C7HQeVRsRG1gRDa1UeDUb1jEcqgLuiEJp6GVbGiZkFXPlmt0dEs2QHRQCPJoOv+bOkSQR/w==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [android]
+
+  '@napi-rs/canvas-darwin-arm64@1.0.1':
+    resolution: {integrity: sha512-ppyVSzIHsVldc3B++mdh03ed0Q0hoVR2QDG9O/wEUR0PurJKwDEEYV87uBQDpbSumJBfLEINDndsOPzQj71qEQ==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@napi-rs/canvas-darwin-x64@1.0.1':
+    resolution: {integrity: sha512-/BlXif9VOzf/WP32g9zxl612dO0KLvwqplBFqfRcyr3PyR5fhPrilTuJxSBq3zkwCKGKy82JsoPd2JeQI/HBlA==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@napi-rs/canvas-linux-arm-gnueabihf@1.0.1':
+    resolution: {integrity: sha512-JTGq93/Pje+iSNVjL+ggB0+pqEfu7nXvQGrHTvugz+Lp08wCDa5rjov4JeEljGDk16/inVBU9sp4N9f0/+o+9A==}
+    engines: {node: '>= 10'}
+    cpu: [arm]
+    os: [linux]
+
+  '@napi-rs/canvas-linux-arm64-gnu@1.0.1':
+    resolution: {integrity: sha512-i74zqEh5yFmYwHkszFo+4EH4l5ATD4bSlJG21iW2j5kpqiN2b0WN9SG/xdq2O60MjZK0ZLSu3a/Z3aQAsmDQ5A==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@napi-rs/canvas-linux-arm64-musl@1.0.1':
+    resolution: {integrity: sha512-COqBxybXcKb6gNgEhjh04rPHrpsJB+n/5+p4ySPgQWl0i+xVNYHn4rvzCtUBIFqOgY6HEJ9UaP6c4W9EMwzfpQ==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@napi-rs/canvas-linux-riscv64-gnu@1.0.1':
+    resolution: {integrity: sha512-1vdAZGpD85lMUo7K3qtEdoIWeMc0xcpUD5PagK3fVcMSdf8dkSL5bg/KE4Rwv5NF+PYx4plrgfn0KRMOqdKtwA==}
+    engines: {node: '>= 10'}
+    cpu: [riscv64]
+    os: [linux]
+
+  '@napi-rs/canvas-linux-x64-gnu@1.0.1':
+    resolution: {integrity: sha512-W/iC2qJZGqKKQJ0JrNo3QkhoAy/PvzlmdYLW8Yz5/L6XgT5d7t26dnqgP2rCbL58P3CbPw7ES0Rz8OG0gn7JeQ==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+
+  '@napi-rs/canvas-linux-x64-musl@1.0.1':
+    resolution: {integrity: sha512-a5mmIVwxF92UGUe+1c7Ap32ZRnApbRMnQC/KgYyFB0AXZShBCHVGaURq+BDkiV7jvHhVwvvAP0Q/3aWNhqgVZg==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+
+  '@napi-rs/canvas-win32-arm64-msvc@1.0.1':
+    resolution: {integrity: sha512-rVnDhVvcXlqcHMsgnxxhZgdRkRIqVBlx+FJwSAHi4VbWWwsowvV5ldFEecEHD2+Ac/IL3fNWF/LB5CZTghNwRA==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@napi-rs/canvas-win32-x64-msvc@1.0.1':
+    resolution: {integrity: sha512-UMstkP/nZHbithgdSJv1EvYVrYhdao5B5N3szMVU2i5/b6ijMcVPXOEyrk0QXl0iPjv8Hkoow+Tap+MiOxppOQ==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [win32]
+
+  '@napi-rs/canvas@1.0.1':
+    resolution: {integrity: sha512-mPD43G7pXbQhIGa7z4IpT/vXm1jbF8cBM1oY5UqjL8LSaTCNGhNi2Lidc/0+LwKbNiqbv/Tq0JlBRwKu+LW3iw==}
+    engines: {node: '>= 10'}
+
   '@nestia/e2e@12.1.0':
     resolution: {integrity: sha512-WjhNi9YGBDPEq5ik8ApgTPxI6RxezzWdvDiBx7hmqnhEKqzdHxGD5T+aleuNkJdvKYPrSdS0crDynLfe+38fMw==}
 
@@ -2420,20 +2560,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@typia/interface@15.1.0':
-    resolution: {integrity: sha512-kiKKWTAmJ8x48eUAkzTwH4AsX3CSe5AcsxGUkzkOqhqwlklxUWIACw93DXTr2F5aDIse3YBExJerWdgURsring==}
-
-  '@typia/interface@15.2.2':
-    resolution: {integrity: sha512-X0KBxTzqBP1wn5Hv6nUS0ixd6XFmew0/7TMQOigqYJwuqiZOP+6P8LYVIN1h1elgjaWUprQxriB9S64A9VYUEg==}
-
   '@typia/interface@15.3.0':
     resolution: {integrity: sha512-bVGiBz7fYXd1HiUp9Imnz63vtKLabdBfhfue5buE4EN2NnhlekmebD5YMyc5b4wC7jwOKtv7WKNwc5Zlr1Mr7w==}
-
-  '@typia/utils@15.1.0':
-    resolution: {integrity: sha512-9NLCbKI2rQOA4M9EbEx0HwXfKIUIdkvO2J+6mZQttx2CBfiIspgt0VdJSvmD0hqMKa6LvDdmeBKl13wTizVGog==}
-
-  '@typia/utils@15.2.2':
-    resolution: {integrity: sha512-Kt6eng7lHcG6EN+vGPjp8DvHtrcrsINs6J5W2QDkOrKCrqk1gX56U9U+DAXsk7+kzQlRYYFChAnwdRsk0QHPhA==}
 
   '@typia/utils@15.3.0':
     resolution: {integrity: sha512-th8jdVJs37gyDz5MqXsBLnUBpzp4nXTXwnnYCoGsE/gLsTlafUFkXd0nvw5EMGW0AzOb+0bgr6CjqsCC1Xj+0Q==}
@@ -3148,14 +3276,6 @@ packages:
     engines: {node: '>=16.20.0'}
     hasBin: true
 
-  typia@15.1.0:
-    resolution: {integrity: sha512-EW+b8jxKrRU/Q0eJXFry53vL6LFRlAMsSvfhKq3hh4pLTiswBWJMs6g4AtNlCPGCYJ0WMbSEME2qqe8DM7PnHg==}
-    peerDependencies:
-      ttsc: '>=0.19.2'
-    peerDependenciesMeta:
-      ttsc:
-        optional: true
-
   typia@15.3.0:
     resolution: {integrity: sha512-tgFX1Kcd0/wuLVtYA9xbTuKnkLJeC7TPS86WIea1K7kUQuCICuxksTddtw9F/qxUjvMZEJLNJ1V4bNm4lk/HVA==}
     peerDependencies:
@@ -3695,6 +3815,53 @@ snapshots:
   '@koromix/koffi-win32-x64@3.2.1':
     optional: true
 
+  '@napi-rs/canvas-android-arm64@1.0.1':
+    optional: true
+
+  '@napi-rs/canvas-darwin-arm64@1.0.1':
+    optional: true
+
+  '@napi-rs/canvas-darwin-x64@1.0.1':
+    optional: true
+
+  '@napi-rs/canvas-linux-arm-gnueabihf@1.0.1':
+    optional: true
+
+  '@napi-rs/canvas-linux-arm64-gnu@1.0.1':
+    optional: true
+
+  '@napi-rs/canvas-linux-arm64-musl@1.0.1':
+    optional: true
+
+  '@napi-rs/canvas-linux-riscv64-gnu@1.0.1':
+    optional: true
+
+  '@napi-rs/canvas-linux-x64-gnu@1.0.1':
+    optional: true
+
+  '@napi-rs/canvas-linux-x64-musl@1.0.1':
+    optional: true
+
+  '@napi-rs/canvas-win32-arm64-msvc@1.0.1':
+    optional: true
+
+  '@napi-rs/canvas-win32-x64-msvc@1.0.1':
+    optional: true
+
+  '@napi-rs/canvas@1.0.1':
+    optionalDependencies:
+      '@napi-rs/canvas-android-arm64': 1.0.1
+      '@napi-rs/canvas-darwin-arm64': 1.0.1
+      '@napi-rs/canvas-darwin-x64': 1.0.1
+      '@napi-rs/canvas-linux-arm-gnueabihf': 1.0.1
+      '@napi-rs/canvas-linux-arm64-gnu': 1.0.1
+      '@napi-rs/canvas-linux-arm64-musl': 1.0.1
+      '@napi-rs/canvas-linux-riscv64-gnu': 1.0.1
+      '@napi-rs/canvas-linux-x64-gnu': 1.0.1
+      '@napi-rs/canvas-linux-x64-musl': 1.0.1
+      '@napi-rs/canvas-win32-arm64-msvc': 1.0.1
+      '@napi-rs/canvas-win32-x64-msvc': 1.0.1
+
   '@nestia/e2e@12.1.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -3839,8 +4006,8 @@ snapshots:
     dependencies:
       '@prisma/prisma-schema-wasm': 7.10.0-2.d0368e25c88e68caa4d283b5f2d88d1b76ed9356
       '@ttsc/lint': 0.36.3(ttsc@0.36.3(typescript@7.0.2))
-      '@typia/interface': 15.2.2
-      '@typia/utils': 15.2.2
+      '@typia/interface': 15.3.0
+      '@typia/utils': 15.3.0
       yaml: 2.9.0
 
   '@ttsc/lint@0.35.0(ttsc@0.35.0(typescript@7.0.2))':
@@ -3989,19 +4156,7 @@ snapshots:
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
 
-  '@typia/interface@15.1.0': {}
-
-  '@typia/interface@15.2.2': {}
-
   '@typia/interface@15.3.0': {}
-
-  '@typia/utils@15.1.0':
-    dependencies:
-      '@typia/interface': 15.1.0
-
-  '@typia/utils@15.2.2':
-    dependencies:
-      '@typia/interface': 15.2.2
 
   '@typia/utils@15.3.0':
     dependencies:
@@ -4010,10 +4165,10 @@ snapshots:
   '@wrtnlabs/evidence@0.8.2(ttsc@0.35.0(typescript@7.0.2))':
     dependencies:
       '@prisma/prisma-schema-wasm': 7.10.0-2.d0368e25c88e68caa4d283b5f2d88d1b76ed9356
-      '@typia/interface': 15.1.0
-      '@typia/utils': 15.1.0
+      '@typia/interface': 15.3.0
+      '@typia/utils': 15.3.0
       tstl: 3.0.0
-      typia: 15.1.0(ttsc@0.35.0(typescript@7.0.2))
+      typia: 15.3.0(ttsc@0.35.0(typescript@7.0.2))
       web-tree-sitter: 0.27.0
       yaml: 2.9.0
     transitivePeerDependencies:
@@ -4022,10 +4177,10 @@ snapshots:
   '@wrtnlabs/evidence@0.8.2(ttsc@0.36.3(typescript@7.0.2))':
     dependencies:
       '@prisma/prisma-schema-wasm': 7.10.0-2.d0368e25c88e68caa4d283b5f2d88d1b76ed9356
-      '@typia/interface': 15.1.0
-      '@typia/utils': 15.1.0
+      '@typia/interface': 15.3.0
+      '@typia/utils': 15.3.0
       tstl: 3.0.0
-      typia: 15.1.0(ttsc@0.36.3(typescript@7.0.2))
+      typia: 15.3.0(ttsc@0.36.3(typescript@7.0.2))
       web-tree-sitter: 0.27.0
       yaml: 2.9.0
     transitivePeerDependencies:
@@ -4837,21 +4992,13 @@ snapshots:
       '@typescript/typescript-win32-arm64': 7.0.2
       '@typescript/typescript-win32-x64': 7.0.2
 
-  typia@15.1.0(ttsc@0.35.0(typescript@7.0.2)):
+  typia@15.3.0(ttsc@0.35.0(typescript@7.0.2)):
     dependencies:
-      '@typia/interface': 15.1.0
-      '@typia/utils': 15.1.0
+      '@typia/interface': 15.3.0
+      '@typia/utils': 15.3.0
       randexp: 0.5.3
     optionalDependencies:
       ttsc: 0.35.0(typescript@7.0.2)
-
-  typia@15.1.0(ttsc@0.36.3(typescript@7.0.2)):
-    dependencies:
-      '@typia/interface': 15.1.0
-      '@typia/utils': 15.1.0
-      randexp: 0.5.3
-    optionalDependencies:
-      ttsc: 0.36.3(typescript@7.0.2)
 
   typia@15.3.0(ttsc@0.36.3(typescript@7.0.2)):
     dependencies:

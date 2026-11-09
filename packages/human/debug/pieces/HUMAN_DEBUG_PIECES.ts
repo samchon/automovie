@@ -1,5 +1,6 @@
 import { HumanDebugPieceChains } from "./HumanDebugPieceChains";
 import { HumanDebugPieceRegion } from "./HumanDebugPieceRegion";
+import { HumanDebugPieceSourceParts } from "./HumanDebugPieceSourceParts";
 import { HumanDebugPieceTiming } from "./HumanDebugPieceTiming";
 import { HumanDebugPieceWeb } from "./HumanDebugPieceWeb";
 import { HumanDebugPieceBodyParts } from "./body/HumanDebugPieceBodyParts";
@@ -26,6 +27,7 @@ import type { IHumanDebugPiece } from "./IHumanDebugPiece";
 export const HUMAN_DEBUG_PIECES: readonly IHumanDebugPiece[] = [
   HumanDebugPieceChains,
   HumanDebugPieceRegion,
+  HumanDebugPieceSourceParts,
   HumanDebugPieceWeb,
   HumanDebugPieceTiming,
   HumanDebugPieceBodyParts,

@@ -1,4 +1,8 @@
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  type IAutoMovieLoftChain,
+} from "@automovie/engine";
+
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
@@ -39,7 +43,9 @@ export namespace AutoMovieHumanBodySurfacePhases {
     const refined: number[] = webPhases(context, target, spacing);
     const kept: number[] = uniform.filter(
       (t: number): boolean =>
-        pinches.every((p: number): boolean => circular(t, p) > 0.25 * spacing) &&
+        pinches.every(
+          (p: number): boolean => circular(t, p) > 0.25 * spacing,
+        ) &&
         refined.every((p: number): boolean => circular(t, p) > 0.5 * spacing),
     );
     return [...new Set([...kept, ...pinches, ...refined])].sort(
@@ -67,11 +73,13 @@ export namespace AutoMovieHumanBodySurfacePhases {
         event.direction === "down"
           ? target.layers[0]!.y
           : target.layers[target.layers.length - 1]!.y;
-      const at: (t: number) => [number, number, number] = AutoMovieLoftChain.sampler(target, s);
+      const at: (t: number) => [number, number, number] =
+        AutoMovieLoftChain.sampler(target, s);
       const pairs: Map<string, [number, number]> = new Map();
       for (const split of event.splits)
         split.arcs.forEach((arc: [number, number], k: number): void => {
-          const next: [number, number] = split.arcs[(k + 1) % split.arcs.length]!;
+          const next: [number, number] =
+            split.arcs[(k + 1) % split.arcs.length]!;
           const a: number = arc[1];
           const b: number = next[0];
           pairs.set([Math.min(a, b), Math.max(a, b)].join(":"), [a, b]);
@@ -79,11 +87,13 @@ export namespace AutoMovieHumanBodySurfacePhases {
       for (const [a, b] of pairs.values()) {
         const A: [number, number, number] = at(a);
         const B: [number, number, number] = at(b);
-        const rho: number = Math.hypot(B[0] - A[0], B[1] - A[1], B[2] - A[2]) / 2;
+        const rho: number =
+          Math.hypot(B[0] - A[0], B[1] - A[1], B[2] - A[2]) / 2;
         for (const t of [a, b]) {
           const p: [number, number, number] = at(t - 1e-4);
           const q: [number, number, number] = at(t + 1e-4);
-          const speed: number = Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]) / 2e-4;
+          const speed: number =
+            Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]) / 2e-4;
           for (let k: number = 1; ; k++) {
             const d: number = WEB_REFINE * k * k * rho;
             if (d > 0.75 * spacing * speed) break;
@@ -124,22 +134,30 @@ export namespace AutoMovieHumanBodySurfacePhases {
       ),
     );
     // Dense samples of the chain's own section at this station.
-    const c: number[] = AutoMovieLoftChain.coefficients(target, station);
+    const at: (phase: number) => [number, number, number] =
+      AutoMovieLoftChain.sampler(target, station);
     const n: number = Math.max(1024, 8 * target.order);
-    const curve: [number, number][] = Array.from(
-      { length: n },
-      (_: unknown, k: number): [number, number] => {
-        const p: [number, number, number, number] =
-          AutoMovieLoftChain.section(target, c, (2 * Math.PI * k) / n);
-        return [p[0], p[1]];
-      },
+    const curve: [number, number][] = AutoMovieLoftChain.local(
+      target,
+      station,
+      Array.from(
+        { length: n },
+        (_: unknown, k: number): [number, number, number] =>
+          at((2 * Math.PI * k) / n),
+      ),
     );
 
     // Cumulative chord length of the dense samples: a sample closes on a
     // point by no more than the curve's length to it.
     const along: number[] = [0];
     for (let k: number = 1; k < n; k++)
-      along.push(along[k - 1]! + Math.hypot(curve[k]![0] - curve[k - 1]![0], curve[k]![1] - curve[k - 1]![1]));
+      along.push(
+        along[k - 1]! +
+          Math.hypot(
+            curve[k]![0] - curve[k - 1]![0],
+            curve[k]![1] - curve[k - 1]![1],
+          ),
+      );
 
     // Nearest sample, then the nearest point on its two chords. The ring is
     // walked in order, so the last point's sample bounds the scan from the
@@ -151,7 +169,8 @@ export namespace AutoMovieHumanBodySurfacePhases {
       let distance: number = Infinity;
       if (previous >= 0) {
         best = previous;
-        distance = (curve[previous]![0] - p[0]) ** 2 + (curve[previous]![1] - p[1]) ** 2;
+        distance =
+          (curve[previous]![0] - p[0]) ** 2 + (curve[previous]![1] - p[1]) ** 2;
       }
       for (let k: number = 0; k < n; ) {
         const q: [number, number] = curve[k]!;
@@ -160,7 +179,8 @@ export namespace AutoMovieHumanBodySurfacePhases {
           distance = d;
           best = k;
         }
-        const reach: number = along[k]! + Math.sqrt(d) - Math.sqrt(distance) - 1e-9;
+        const reach: number =
+          along[k]! + Math.sqrt(d) - Math.sqrt(distance) - 1e-9;
         let low: number = k + 1;
         let high: number = n;
         while (low < high) {

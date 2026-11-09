@@ -17,6 +17,7 @@ export const HUMAN_DEBUG_ROUTES: {
   readonly status: string;
   readonly compiler: string;
   readonly headers: {
+    /** Disk source inventory hash checked around the frame's page load. */
     readonly source: string;
     readonly cache: string;
     readonly attempts: string;

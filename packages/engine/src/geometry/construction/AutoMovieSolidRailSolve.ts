@@ -1,0 +1,292 @@
+import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
+import { AutoMovieSolidTraceTrial } from "./AutoMovieSolidTraceTrial";
+import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
+import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
+import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
+
+/** World vector, in millimetres or dimensionless as used by its equation. */
+type Vec3 = AutoMovieSolidVector.Vec3;
+/** Physical chart derivatives of one admitted surface point. */
+type IJet = IAutoMovieSolidSurface.IJet;
+/** Existing vector arithmetic shared by both rail equations. */
+const { combine, dot, norm, sub }: typeof AutoMovieSolidVector =
+  AutoMovieSolidVector;
+
+/** Actual normal-section result on one retained atlas face. */
+interface AtlasSection {
+  /** Retained face index and its admitted chart point. */
+  face: number;
+  chart: [number, number];
+
+  /** Original outward direction projected into the final regular tangent plane. */
+  direction: [number, number];
+}
+
+/**
+ * Local normal-section/chord rail solves on owned surface charts.
+ *
+ * @evidence contracts/common.md#principled-implementation Preserves the rail's original two-equation Newton and scalar chord equations while rejecting infeasible or unavailable physical2 readings before evaluation.
+ * @evidence contracts/common.md#clear-and-simple-design Regional scalar/section solves and an atlas-aware host section share the same equations; the caller owns outward-side selection.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No outside Taylor map or sample substitutes for a rail; callback errors propagate and bounded failures remain null.
+ * @evidence contracts/common.md#meaningful-documentation Parameters state physical chord units and nullable local failure; regularity and branch selection remain caller premises.
+ * @evidence contracts/performance.md#efficient-algorithms Each solver has the original bounded Newton-step count; section adds at most twenty scalar feasibility halvings per update.
+ * @evidence contracts/performance.md#reuse-equivalent-work One admitted jet serves the complete local residual/system at each iterate.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only scalar/vector iterates live during the call, with no cache or process resource.
+ */
+export namespace AutoMovieSolidRailSolve {
+  /**
+   * Solve the host's normal section across explicitly adjacent owned charts.
+   *
+   * @param host Frozen host faces and their declared boundary-foot maps.
+   * @param face Face supplying the original first-order guess.
+   * @param start First-order rail chart guess; it is not a published point.
+   * @param from Original intersection position, mm.
+   * @param m Fixed normal-section plane normal.
+   * @param direction Original outward unit world direction.
+   * @param width Positive world chord, mm.
+   * @param steps Newton iteration bound.
+   * @param rounding Original relative plane/chord residual allowance.
+   * @param switches Maximum accepted chart transitions.
+   * @returns One actually retained solution, or null on numerical/open-boundary failure.
+   *
+   * @evidence contracts/common.md#principled-implementation Solves the same plane and squared-chord equations on each actual face; a declared neighbour foot initializes another chart and must satisfy the actual equations before publication.
+   * @evidence contracts/common.md#clear-and-simple-design Face, chart and admitted jet move together through bounded Newton trials; final kept-region membership is separate from original chart ownership.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No exterior surface, coordinate clamp, invented seam or tolerance change is used. Open adjacency, singular solves and exhausted budgets return null; original callback errors propagate.
+   * @evidence contracts/common.md#meaningful-documentation Distinguishes an approximate starting chart from a solved retained rail, world-mm residuals from chart coordinates, and local convergence from global branch certification.
+   * @evidence contracts/performance.md#efficient-algorithms At most steps iterations each use up to twenty backtracking trials and at most switches accepted face changes; atlas and surface callback costs remain part of this bound.
+   * @evidence contracts/performance.md#reuse-equivalent-work Each admitted trial jet supplies both plane/chord residuals and the next accepted Jacobian; no scalar full-chord solve is repeated in each face.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources All trial records and borrowed atlas references are call-local; the small returned chart/direction arrays belong to the caller, with no new cache.
+   */
+  export function atlas(
+    host: IAutoMovieSolidAtlas,
+    face: number,
+    start: readonly [number, number],
+    from: Readonly<Vec3>,
+    m: Readonly<Vec3>,
+    direction: Readonly<Vec3>,
+    width: number,
+    steps: number,
+    rounding: number,
+    switches: number,
+  ): AtlasSection | null {
+    if (!(width > 0) || !(norm(m) > 0)) return null;
+    let left: number = switches;
+    let current: ReturnType<typeof AutoMovieSolidTraceTrial> =
+      AutoMovieSolidTraceTrial(host, face, start[0], start[1], left > 0);
+    if (current === null) return null;
+    if (current.crossed) left--;
+    const scale: number = width + norm(from);
+    for (let step: number = 0; step < steps; step++) {
+      const j: IJet = current.jet;
+      const r: Vec3 = sub(j.p, from);
+      const f1: number = dot(r, m);
+      const f2: number = dot(r, r) - width * width;
+      const done: boolean =
+        Math.abs(f1) <= rounding * scale &&
+        Math.abs(f2) <= 2 * width * rounding * scale;
+      if (done) {
+        if (host.kept(current.face, current.u, current.v)) {
+          const d: [number, number] | null = project(j, direction);
+          return d === null
+            ? null
+            : {
+                face: current.face,
+                chart: [current.u, current.v],
+                direction: d,
+              };
+        }
+        if (left === 0) return null;
+        const next: ReturnType<IAutoMovieSolidAtlas["across"]> = host.across(
+          current.face,
+          current.u,
+          current.v,
+        );
+        if (next === null) return null;
+        current = AutoMovieSolidTraceTrial(
+          host,
+          next.face,
+          next.u,
+          next.v,
+          false,
+        );
+        if (current === null) return null;
+        left--;
+        continue;
+      }
+      const dx: [number, number] | null = AutoMovieSolidVector.solve2(
+        dot(j.u, m),
+        dot(j.v, m),
+        2 * dot(r, j.u),
+        2 * dot(r, j.v),
+        [-f1, -f2],
+      );
+      if (dx === null) return null;
+      const merit: number = Math.hypot(f1, f2 / (2 * width));
+      let accepted: boolean = false;
+      let k: number = 1;
+      for (let trial: number = 0; trial < 20; trial++, k /= 2) {
+        const next: ReturnType<typeof AutoMovieSolidTraceTrial> =
+          AutoMovieSolidTraceTrial(
+            host,
+            current.face,
+            current.u + k * dx[0],
+            current.v + k * dx[1],
+            left > 0,
+          );
+        if (next === null) continue;
+        const q: Vec3 = sub(next.jet.p, from);
+        if (
+          Math.hypot(dot(q, m), (dot(q, q) - width * width) / (2 * width)) <
+          merit
+        ) {
+          if (next.crossed) left--;
+          current = next;
+          accepted = true;
+          break;
+        }
+      }
+      if (!accepted) return null;
+    }
+    return null;
+  }
+
+  /** Unit-world-speed projection of the original kept-side direction. */
+  function project(j: IJet, world: Readonly<Vec3>): [number, number] | null {
+    const d: [number, number] | null = AutoMovieSolidVector.solve2(
+      dot(j.u, j.u),
+      dot(j.u, j.v),
+      dot(j.u, j.v),
+      dot(j.v, j.v),
+      [dot(j.u, world), dot(j.v, world)],
+    );
+    if (d === null || !d.every(Number.isFinite)) return null;
+    const speed: number = norm(
+      combine([
+        [d[0], j.u],
+        [d[1], j.v],
+      ]),
+    );
+    return Number.isFinite(speed) && speed > 0
+      ? [d[0] / speed, d[1] / speed]
+      : null;
+  }
+
+  /**
+   * Settle a positive-width normal section from a regional chart guess.
+   *
+   * @evidence contracts/common.md#principled-implementation Newton solves (S-from).m=0 and |S-from|²=width² using exact total2 map derivatives and pre-evaluation owned-domain safeguarding.
+   * @evidence contracts/common.md#clear-and-simple-design The caller provides the established step/rounding controls and receives only an admitted chart pair or null.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not clamp the point or certify global branch uniqueness; final accepted updates remain within the actually owned domain.
+   * @evidence contracts/common.md#meaningful-documentation Width/from use mm, m is a nonzero section normal and bounds use the source chart units.
+   * @evidence contracts/performance.md#efficient-algorithms At most steps jet/system evaluations and twenty scalar feasibility halvings per update, with constant temporary storage.
+   * @evidence contracts/performance.md#reuse-equivalent-work The same current jet supplies both residuals and both Jacobian rows.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returned chart scalars belong to the caller; no surface or iterate survives in a module cache.
+   */
+  export function section(
+    surface: IAutoMovieSolidSurface,
+    start: readonly [number, number],
+    from: Readonly<Vec3>,
+    m: Readonly<Vec3>,
+    width: number,
+    steps: number,
+    rounding: number,
+  ): [number, number] | null {
+    if (!(norm(m) > 0)) return null;
+    const scale: number = width + norm(from);
+    let x: [number, number] = [start[0], start[1]];
+    for (let step: number = 0; step < steps; step++) {
+      const j: IJet | null = AutoMovieSolidDomain.jet(surface, x[0], x[1]);
+      if (j === null) return null;
+      const r: Vec3 = sub(j.p, from);
+      const f1: number = dot(r, m);
+      const f2: number = dot(r, r) - width * width;
+      const done: boolean =
+        Math.abs(f1) <= rounding * scale &&
+        Math.abs(f2) <= 2 * width * rounding * scale;
+      const dx: [number, number] | null = AutoMovieSolidVector.solve2(
+        dot(j.u, m),
+        dot(j.v, m),
+        2 * dot(r, j.u),
+        2 * dot(r, j.v),
+        [-f1, -f2],
+      );
+      if (dx === null) return null;
+      let k: number = 1;
+      let trial: number = 0;
+      while (
+        !AutoMovieSolidDomain.contains(
+          surface,
+          x[0] + k * dx[0],
+          x[1] + k * dx[1],
+        ) &&
+        trial++ < 20
+      )
+        k /= 2;
+      if (
+        !AutoMovieSolidDomain.contains(
+          surface,
+          x[0] + k * dx[0],
+          x[1] + k * dx[1],
+        )
+      )
+        return null;
+      x = [x[0] + k * dx[0], x[1] + k * dx[1]];
+      if (done) return x;
+    }
+    return null;
+  }
+
+  /**
+   * Solve positive world chord length along a supplied owned-chart jet reader.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the unchanged scalar Newton chord/rate equation; null from the owned-domain reader rejects a nonexistent trial before geometric evaluation.
+   * @evidence contracts/common.md#clear-and-simple-design The regional along callback owns chart coordinates and admission, while this helper owns scalar chord convergence.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps original rounding, iteration budget and final Newton update; it does not invent outside geometry or a missing derivative.
+   * @evidence contracts/common.md#meaningful-documentation Width/from are world mm, direction is chart change per scalar l, and start is the optional remaining chord guess.
+   * @evidence contracts/performance.md#efficient-algorithms One initial and at most steps callback evaluations, plus one final admission reading when converged.
+   * @evidence contracts/performance.md#reuse-equivalent-work Each admitted jet supplies its current chord, speed and rate without a second query in that iteration.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The scalar iterate and callback references have call lifetime; no retained search or global cache exists.
+   */
+  export function offset(
+    along: (l: number) => IJet | null,
+    d: readonly [number, number],
+    from: Readonly<Vec3>,
+    width: number,
+    steps: number,
+    rounding: number,
+    start?: number,
+  ): number | null {
+    if (!(width > 0)) return null;
+    const j0: IJet | null = along(0);
+    if (j0 === null) return null;
+    const speed: number = norm(
+      combine([
+        [d[0], j0.u],
+        [d[1], j0.v],
+      ]),
+    );
+    if (!(speed > 0)) return null;
+    let l: number = (start ?? width) / speed;
+    for (let step: number = 0; step < steps; step++) {
+      const j: IJet | null = along(l);
+      if (j === null) return null;
+      const r: Vec3 = sub(j.p, from);
+      const chord: number = norm(r);
+      const miss: number = chord - width;
+      const rate: number =
+        dot(
+          r,
+          combine([
+            [d[0], j.u],
+            [d[1], j.v],
+          ]),
+        ) / chord;
+      if (!(rate > 0)) return null;
+      const converged: boolean =
+        Math.abs(miss) <= rounding * (width + norm(from));
+      l -= miss / rate;
+      if (converged) return along(l) === null ? null : l;
+    }
+    return null;
+  }
+}

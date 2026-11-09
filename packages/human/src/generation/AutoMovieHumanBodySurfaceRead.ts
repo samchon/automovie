@@ -1,4 +1,8 @@
-import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  type IAutoMovieLoftChain,
+} from "@automovie/engine";
+
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
 
@@ -6,8 +10,7 @@ import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHuma
 export namespace AutoMovieHumanBodySurfaceRead {
   /** Calibration chain by name; a missing chain is a calibration defect. */
   export function chain(context: IContext, name: string): IAutoMovieLoftChain {
-    const found: IAutoMovieLoftChain | undefined =
-      context.chains.get(name);
+    const found: IAutoMovieLoftChain | undefined = context.chains.get(name);
     if (found === undefined)
       throw new Error(`Calibration lacks the ${name} chain`);
     return found;
@@ -48,6 +51,22 @@ export namespace AutoMovieHumanBodySurfaceRead {
     return end === "bottom"
       ? target.layers[0]!.y
       : target.layers[target.layers.length - 1]!.y;
+  }
+
+  /** Read a retained true tip through the public Point0 owner. Stale or clipped ownership propagates its original failure; no private source domain or guessed endpoint is used. */
+  export function capHeight(
+    target: IAutoMovieLoftChain,
+    end: "bottom" | "top",
+  ): number | null {
+    const tip: IAutoMovieLoftChain["pole"] =
+      target.pole?.end === end
+        ? target.pole
+        : target.opposite?.end === end
+          ? target.opposite
+          : undefined;
+    if (tip?.source === undefined) return null;
+    AutoMovieLoftChain.point(target, tip.source.station, 0);
+    return tip.source.station;
   }
 
   /**

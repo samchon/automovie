@@ -1,11 +1,17 @@
-import { AutoMovieViewSection } from "@automovie/engine";
+import {
+  AutoMovieViewOutline,
+  AutoMovieViewSection,
+  type IAutoMovieViewPart,
+} from "@automovie/engine";
+
 import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
 import { AutoMovieHumanHeadEarFrame } from "./AutoMovieHumanHeadEarFrame";
+import { AutoMovieHumanHeadEarPlate } from "./AutoMovieHumanHeadEarPlate";
+import { AutoMovieHumanHeadEarRidge } from "./AutoMovieHumanHeadEarRidge";
 import type { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
-import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
 
 /**
  * Each auricle and the parts inside it, in the ear's own frame
@@ -14,13 +20,23 @@ import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
  * | Part | Parent | Join | Size from |
  * | --- | --- | --- | --- |
  * | auricle | head mass | merge | `ear.length` along the long axis, `ear.breadth` across, `ear.protrusion` out |
- * | helix | auricle | merge | the rim ring (`ear.helix`: height, distance in from the rim, width) along the back of the chord |
- * | antihelix | auricle | merge | its ring (`ear.antihelix`) inside the helix |
- * | concha | auricle | diff | its depth, places along the chord and the ear, and widths (`ear.concha`) |
+ * | helix | auricle | merge | curved course through the source plate's attachment, top and posterior guides; retained breadth-scaled ridge section |
+ * | antihelix and two crura | auricle | merge | three source courses with an explicit fork; retained breadth-scaled sections and inward distances |
+ * | concha | auricle | diff | Cho g-h/b-k reference means and Zhu rim-plane depth, placed in the source plate's own plane |
  *
- * The rows are the head prior's, written for a 31 mm ear and scaled with the
- * ear's length; the ear's own laws (#3056) replace them, and the helix's
- * course becomes the curve the style layer swaps. First pass: compile-only.
+ * Retained relief/course offsets use breadth/31, as their original consumer
+ * did. The source courses, oval conchal rim and along placement remain
+ * declared modelling conventions, not individual survey predictions.
+ * Zhu's female depth means are not a sex-specific law for all adults.
+ * Tragus, antitragus, canal trim and lining remain unbuilt requirements.
+ *
+ * @evidence contracts/common.md#principled-implementation Authors each side from its own public dimensions and actual source plate. The helix centreline is offset inside the declared outer rim, while the antihelix and crura retain an explicit nonzero fork. Concha size/depth keep their distinct primary definitions and stated placement conventions.
+ * @evidence contracts/common.md#clear-and-simple-design One plate per side supplies the four relief courses and conchal frame; the production tree owns their joins.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no reference fit, unused forward-centre correction, fake cartilage thickness or parent-foot relocation. Plate chords and sampled guide bounds do not certify whole-ear extrema or joined skin.
+ * @evidence contracts/common.md#meaningful-documentation Names public measurements, retained breadth scaling, normal/placement conventions and the still-unbuilt tragal/canal anatomy.
+ * @evidence contracts/performance.md#efficient-algorithms Two side assemblies retain original-head/plate scalar-admission and query costs, linear course preparation, bounded helix extrema solves and conchal source-site ordering/native contact searches; lofts remain the composer's work.
+ * @evidence contracts/performance.md#reuse-equivalent-work All courses on one side share the same plate and prepared plate guide; there is no cross-input cache or second ear assembly.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The composer owns the returned views and join metadata. Source preparations and course-solve temporaries remain call-local, with no global figure retention.
  */
 export namespace AutoMovieHumanHeadEarParts {
   /** Depth of a part's base inside its parent, mm. */
@@ -30,69 +46,328 @@ export namespace AutoMovieHumanHeadEarParts {
    * Both auricles and their parts.
    *
    * @param plan The landmark skeleton.
+   * @param mass The actual original head source shared by this composition.
    * @param ears The two auricles' inputs, world mm.
    * @param tops Each auricle's top height, calibration mm, from its published place over the tragion.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the source plate's c-j/p2/sa-sba frame for each own-side ear. The helix offset uses its existing circular section radius and an engine natural-source height bound; the conchal rim projects its long direction into its own plane.
+   * @evidence contracts/common.md#clear-and-simple-design Keeps plate placement, four ridge courses and one conchal cut together while returning their original views and explicit parents for the tree.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no anatomical radius, reference displacement, endpoint clamp, private spline or post-join relocation. Failed source preparation remains an error.
+   * @evidence contracts/common.md#meaningful-documentation Documents units, own-side inputs, original plate/relief roles, source-envelope scope and unresolved joins; helper prose explains the offset without claiming final attachment.
+   * @evidence contracts/performance.md#efficient-algorithms Per side, head/plate readers retain original knot-admission/query costs and ridges prepare linear course sources. Up to sixty-four helix-control bisections invoke scalar extrema queries; concha adds parent admission, O(n log n) site ordering and bounded native contact/plane inverses.
+   * @evidence contracts/performance.md#reuse-equivalent-work One frame/plate and prepared guide serve every relief on that side. The helix solve uses the same cumulative-chord/natural-source convention as the emitted ridge axis.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returned feature sources belong to the caller. Only their small course/source records survive; temporary preparations and callbacks have no global owner or cache.
    */
   export function of(
     plan: IAutoMovieHumanHeadLayout,
+    mass: IAutoMovieViewPart,
     ears: { left: IAutoMovieHumanEar; right: IAutoMovieHumanEar },
     tops?: { left: number; right: number },
+    attempts?: AutoMovieHumanHeadDome.IAttempt[],
   ): AutoMovieHumanHeadFeatures.IFeature[] {
-    const prior: AutoMovieHumanHeadPrior.IEar = AutoMovieHumanHeadPrior.PRIOR.ear;
+    const prior: AutoMovieHumanHeadPrior.IEar =
+      AutoMovieHumanHeadPrior.PRIOR.ear;
     const k: number = plan.scale;
     const out: AutoMovieHumanHeadFeatures.IFeature[] = [];
     for (const sign of [1, -1] as const) {
       const side: string = sign > 0 ? "left" : "right";
-      const f: AutoMovieHumanHeadEarFrame.IFrame = AutoMovieHumanHeadEarFrame.of(plan, sign, sign > 0 ? ears.left : ears.right, tops === undefined ? undefined : sign > 0 ? tops.left : tops.right);
+      const f: AutoMovieHumanHeadEarFrame.IFrame =
+        AutoMovieHumanHeadEarFrame.of(
+          plan,
+          mass,
+          sign,
+          sign > 0 ? ears.left : ears.right,
+          tops === undefined ? undefined : sign > 0 ? tops.left : tops.right,
+        );
       const s: number = f.scale * k;
-      const at = (along: number, back: number, out_: number): [number, number, number] => [
-        f.centre[0] + along * f.a[0] - back * f.b[0] + out_ * f.n[0],
-        f.centre[1] + along * f.a[1] - back * f.b[1] + out_ * f.n[1],
-        f.centre[2] + along * f.a[2] - back * f.b[2] + out_ * f.n[2],
-      ];
       const auricle: string = `auricle.${side}`;
 
-      // The auricle: a fin standing out of the head, its base along the
-      // head's side (the frame leans with it). Its base sinks by the side's
-      // fall under the footprint: along the ear the front-view outline's
-      // radius of curvature `(1 + L'^2)^(3/2) / |L''|`, across it the head's
-      // half width there, the larger sagitta of the two, written as the one
-      // radius that gives it over the ear's half length. A base square to the
-      // lateral axis instead sank as far as the head narrows to the jaw, a
-      // stem 25 mm into the head.
-      const half: number = f.length / 2;
-      const y: number = f.centre[1];
-      const L = (h: number): number => AutoMovieHumanHeadMassPart.halfWidth(plan, h);
-      const d1: number = (L(y + 1) - L(y - 1)) / 2;
-      const d2: number = Math.abs(L(y + 1) - 2 * L(y) + L(y - 1));
-      const lengthwise: number = d2 > 1e-9 ? (half * half * d2) / (2 * (1 + d1 * d1) ** 1.5) : 0;
-      const across: number = (f.breadth / 2) ** 2 / (2 * L(y));
-      const sag: number = Math.max(lengthwise, across);
-      out.push(
-        part(auricle, "head.mass", "merge", at(0, 0, -INSET), f.n, f.a, [half, f.breadth / 2, half, f.breadth / 2], INSET + f.protrusion, 4, at(0, 0, 0), sag > 0 ? (half * half) / (2 * sag) : undefined),
+      const plate: AutoMovieHumanHeadEarPlate.IOutput =
+        AutoMovieHumanHeadEarPlate.of(plan, mass, f, side);
+      out.push({
+        part: plate.part,
+        view: plate.view,
+        join: "merge",
+        seed: plate.point(plate.tragion, false),
+        contact: plate.tragion,
+        size: [f.length, f.breadth / 2],
+        parent: "head.mass",
+        elongated: true,
+      });
+      const low: number = plate.bottom;
+      const high: number = plate.top;
+      const end: number = low + (prior.lobeFrom * (high - low)) / 2;
+      const helixCourse: [number, number, number][] = insetHelix(
+        [
+          plate.point(plate.attachment, false),
+          plate.point(high, true),
+          plate.point(plate.attachment, true),
+          plate.point(plate.tragion, true),
+          plate.point((plate.tragion + end) / 2, true),
+          plate.point(end, true),
+        ],
+        plate,
+        (prior.helix[0]! * s) / 2,
+      );
+      /** A ridge follows the source course; its attachment failure remains visible to the tree. */
+      const ridge: (
+        name: string,
+        course: [number, number, number][],
+        row: readonly number[],
+        ports?: AutoMovieHumanHeadEarRidge.IPorts,
+      ) => AutoMovieHumanHeadEarRidge.IRidge = (
+        name: string,
+        course: [number, number, number][],
+        row: readonly number[],
+        ports: AutoMovieHumanHeadEarRidge.IPorts = {},
+      ): AutoMovieHumanHeadEarRidge.IRidge => {
+        const height: number = (row[0]! * s) / 2;
+        const width: number = (row[2]! * s) / 2;
+        const source: AutoMovieHumanHeadEarRidge.IRidge =
+          AutoMovieHumanHeadEarRidge.of(
+            `${name}.${side}`,
+            course,
+            plate.normal,
+            height,
+            width,
+            ports,
+          );
+        out.push({
+          part: source,
+          join: "merge",
+          seed: course[Math.floor(course.length / 2)]!,
+          contact: 0,
+          size: [height * 2, width],
+          parent: auricle,
+          elongated: true,
+        });
+        return source;
+      };
+      ridge("ear.helix", helixCourse, prior.helix);
+      /** The retained inward distance is a breadth-scaled offset from the posterior course, not a shortened straight oval. */
+      const inner: (a: number, inward: number) => [number, number, number] = (
+        a: number,
+        inward: number,
+      ): [number, number, number] =>
+        plate
+          .point(a, true)
+          .map(
+            (v: number, i: number): number => v - inward * plate.across[i]!,
+          ) as [number, number, number];
+      const offset: number = prior.antihelix[1]! * s;
+      const fork: number = (plate.tragion + plate.attachment) / 2;
+      const forkPoint: [number, number, number] = inner(fork, offset);
+      const antihelix: AutoMovieHumanHeadEarRidge.IRidge = ridge(
+        "ear.antihelix",
+        [inner(end, offset), inner(plate.tragion, offset), forkPoint],
+        prior.antihelix,
+        { end: `ear.fork.${side}` },
+      );
+      const junction: AutoMovieHumanHeadEarRidge.IPort =
+        AutoMovieHumanHeadEarRidge.port(antihelix, `ear.fork.${side}`);
+      ridge(
+        "ear.crus.superior",
+        [
+          forkPoint,
+          inner((fork + high) / 2, offset),
+          inner(high - prior.helix[1]! * s, offset),
+        ],
+        prior.antihelix,
+        { start: junction },
+      );
+      ridge(
+        "ear.crus.inferior",
+        [
+          forkPoint,
+          inner(plate.attachment, offset + prior.helix[1]! * s),
+          plate.point(plate.attachment, false),
+        ],
+        prior.antihelix,
+        { start: junction },
       );
 
-      // The rims along the chord's back, each its ring's distance in.
-      const rim = (name: string, row: readonly number[]): void => {
-        const back: number = f.breadth / 2 - row[1]! * s;
-        const half: number = Math.max(1, f.length / 2 - row[1]! * s);
-        const width: number = (row[2]! * s) / 2;
-        out.push(part(`${name}.${side}`, auricle, "merge", at(0, back, f.protrusion - INSET), f.n, f.a, [half, width, half, width], INSET + row[0]! * s, 2, at(0, back, f.protrusion)));
-      };
-      rim("ear.helix", prior.helix);
-      rim("ear.antihelix", prior.antihelix);
-
-      // The concha: cut into the auricle's face from its rim's height.
+      // The concha's rim plane belongs to this source plate. Cho's g-h/b-k
+      // dimensions are separate from ear breadth; Zhu's rim-plane-to-floor
+      // depth is separate from scalp protrusion. The oval rim and the
+      // retained along/width placement below are modelling conventions.
       const c: readonly number[] = prior.concha;
-      const along: number = c[2]! * f.length;
-      const back: number = (0.5 - c[1]!) * f.breadth;
-      const depth: number = -c[0]! * s;
+      const along: number = (low + high) / 2 + c[2]! * (high - low);
+      const front: [number, number, number] = plate.point(along, false);
+      const back: [number, number, number] = plate.point(along, true);
+      const outward: [number, number, number] = plate.normal.map(
+        (v: number): number =>
+          v *
+          (plate.normal.reduce(
+            (sum: number, x: number, i: number): number => sum + x * f.n[i]!,
+            0,
+          ) > 0
+            ? 1
+            : -1),
+      ) as [number, number, number];
+      const dot: number = f.a.reduce(
+        (sum: number, value: number, i: number): number =>
+          sum + value * outward[i]!,
+        0,
+      );
+      const projected: [number, number, number] = f.a.map(
+        (value: number, i: number): number => value - dot * outward[i]!,
+      ) as [number, number, number];
+      const norm: number = Math.hypot(...projected);
+      if (!(norm > 0 && Number.isFinite(norm)))
+        throw new Error(
+          "Concha long direction has no projection into its own rim plane",
+        );
+      const conchalAlong: [number, number, number] = projected.map(
+        (value: number): number => value / norm,
+      ) as [number, number, number];
+      const rim: [number, number, number] = front.map(
+        (v: number, i: number): number =>
+          v + c[1]! * (back[i]! - v) + prior.rim * s * outward[i]!,
+      ) as [number, number, number];
+      const feminine: boolean = plan.sex === 1;
+      const length: number = (feminine ? (sign > 0 ? 27.0 : 27.4) : 28.0) * k;
+      const breadth: number =
+        (feminine ? (sign > 0 ? 18.2 : 18.1) : sign > 0 ? 18.7 : 18.8) * k;
+      const depth: number = (sign > 0 ? 9.65 : 9.53) * k;
       out.push(
-        part(`ear.concha.${side}`, auricle, "diff", at(along, back, f.protrusion + INSET), [-f.n[0], -f.n[1], -f.n[2]], f.a,
-          [(c[3]! * f.length) / 2, (c[4]! * f.breadth) / 2, (c[3]! * f.length) / 2, (c[4]! * f.breadth) / 2], INSET + depth, 2, at(along, back, f.protrusion)),
+        ...part(
+          `ear.concha.${side}`,
+          auricle,
+          "diff",
+          rim.map(
+            (v: number, i: number): number => v + INSET * outward[i]!,
+          ) as [number, number, number],
+          outward.map((v: number): number => -v) as [number, number, number],
+          conchalAlong,
+          [length / 2, breadth / 2, length / 2, breadth / 2],
+          INSET + depth,
+          2,
+          rim,
+          plate.part,
+          attempts,
+        ),
       );
     }
     return out;
+  }
+
+  /**
+   * The plate boundary is the outside rim, not a tube centreline. Offset
+   * the retained circular helix inward by its existing radius. The upper
+   * source control then solves the exact natural-axis height bound T-R;
+   * this is a public anatomical envelope, never a reference or mesh fit.
+   * Original guide observations still judge the whole resulting course.
+   */
+  function insetHelix(
+    boundary: [number, number, number][],
+    plate: AutoMovieHumanHeadEarPlate.IOutput,
+    radius: number,
+  ): [number, number, number][] {
+    const middle: number = (plate.top + plate.bottom) / 2;
+    const front: [number, number, number] = plate.point(middle, false);
+    const back: [number, number, number] = plate.point(middle, true);
+    const inside: [number, number, number] = front.map(
+      (value: number, i: number): number => (value + back[i]!) / 2,
+    ) as [number, number, number];
+    const course: [number, number, number][] = boundary.map(
+      (
+        point: [number, number, number],
+        i: number,
+      ): [number, number, number] => {
+        if (i === 1) return [point[0], point[1] - radius, point[2]];
+        const before: [number, number, number] = boundary[Math.max(0, i - 1)]!;
+        const after: [number, number, number] =
+          boundary[Math.min(boundary.length - 1, i + 1)]!;
+        const tangent: [number, number, number] = after.map(
+          (value: number, k: number): number => value - before[k]!,
+        ) as [number, number, number];
+        const n: [number, number, number] = plate.normal;
+        const inward: [number, number, number] = [
+          n[1] * tangent[2] - n[2] * tangent[1],
+          n[2] * tangent[0] - n[0] * tangent[2],
+          n[0] * tangent[1] - n[1] * tangent[0],
+        ];
+        const length: number = Math.hypot(...inward);
+        if (!(length > 0))
+          throw new Error("Helix boundary has no inward course direction");
+        const sign: number =
+          inward.reduce(
+            (sum: number, value: number, k: number): number =>
+              sum + value * (inside[k]! - point[k]!),
+            0,
+          ) >= 0
+            ? 1
+            : -1;
+        return point.map(
+          (value: number, k: number): number =>
+            value + (sign * radius * inward[k]!) / length,
+        ) as [number, number, number];
+      },
+    );
+    const maximum: () => number = (): number => {
+      const stations: number[] = [0];
+      for (let i: number = 1; i < course.length; i++)
+        stations.push(
+          stations[i - 1]! +
+            Math.hypot(
+              ...course[i]!.map(
+                (value: number, k: number): number =>
+                  value - course[i - 1]![k]!,
+              ),
+            ),
+        );
+      const source:
+        | AutoMovieViewOutline.IOutline
+        | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({
+        knots: course.map(
+          (
+            point: [number, number, number],
+            i: number,
+          ): IAutoMovieViewPart.IKnot => ({
+            site: `helix.course.${i}`,
+            station: stations[i]!,
+            value: point[1],
+          }),
+        ),
+      });
+      if ("detail" in source)
+        throw new Error(`Helix height source: ${source.detail}`);
+      return Math.max(
+        ...[...stations, ...AutoMovieViewOutline.criticalStations(source)].map(
+          (station: number): number => {
+            const value: number | string = AutoMovieViewOutline.value(
+              source,
+              station,
+            );
+            if (typeof value === "string")
+              throw new Error(`Helix height source: ${value}`);
+            return value;
+          },
+        ),
+      );
+    };
+    const limit: number = plate.top - radius;
+    if (maximum() > limit) {
+      let high: number = course[1]![1];
+      let low: number = Math.max(
+        ...course
+          .filter((_: [number, number, number], i: number): boolean => i !== 1)
+          .map((point: [number, number, number]): number => point[1]),
+      );
+      course[1]![1] = low;
+      if (maximum() > limit)
+        throw new Error(
+          "Helix source cannot fit its declared upper envelope with the retained neighbours",
+        );
+      for (let i: number = 0; i < 64; i++) {
+        const middle: number = (low + high) / 2;
+        course[1]![1] = middle;
+        if (maximum() > limit) high = middle;
+        else low = middle;
+      }
+      course[1]![1] = low;
+    }
+    return course;
   }
 
   /** One ear part. */
@@ -107,18 +382,48 @@ export namespace AutoMovieHumanHeadEarParts {
     height: number,
     profile: number,
     seed: [number, number, number],
-    host?: number,
-  ): AutoMovieHumanHeadFeatures.IFeature {
+    host?: IAutoMovieViewPart,
+    attempts?: AutoMovieHumanHeadDome.IAttempt[],
+  ): AutoMovieHumanHeadFeatures.IFeature[] {
     const h: number = Math.max(INSET + 0.5, height);
-    const e: [number, number, number, number] = extents.map((x: number): number => Math.max(0.5, Math.abs(x))) as [number, number, number, number];
-    return {
-      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents: e, height: h, profile, shoulder: AutoMovieViewSection.ELLIPSE, ...(host === undefined ? {} : { host }) }),
-      join,
-      seed,
-      contact: INSET,
-      size: [h - INSET, Math.min(...e)],
-      parent,
-      elongated: Math.max(...e) > 2 * Math.min(...e),
-    };
+    const e: [number, number, number, number] = extents.map(
+      (x: number): number => Math.max(0.5, Math.abs(x)),
+    ) as [number, number, number, number];
+    const source: AutoMovieHumanHeadDome.IPart | null =
+      AutoMovieHumanHeadDome.attempt(
+        {
+          name,
+          origin,
+          outward,
+          along,
+          extents: e,
+          height: h,
+          profile,
+          shoulder: AutoMovieViewSection.ELLIPSE,
+        },
+        host,
+        seed,
+        attempts,
+      );
+    return source === null
+      ? []
+      : [
+          {
+            part: source,
+            join,
+            seed,
+            contact:
+              source.attachment === null || source.attachment.parameter === null
+                ? INSET
+                : source.stations.at(-1)! - h + source.attachment.parameter,
+            size: [h - INSET, Math.min(...e)],
+            parent,
+            ...(host === undefined ? {} : { material: host }),
+            ...(source.attachment === null
+              ? {}
+              : { attachment: source.attachment }),
+            elongated: Math.max(...e) > 2 * Math.min(...e),
+          },
+        ];
   }
 }

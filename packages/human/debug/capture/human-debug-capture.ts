@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
@@ -21,15 +21,18 @@ import { parseHumanDebugCaptureArguments } from "./parseHumanDebugCaptureArgumen
  * replaces its variables; `;` separates variables because the Windows shim of ttsx reads `&` as a
  * command separator. The text is checked by `HumanDebugOptions` before any request, so a typo
  * fails here; `keep=1` passes through to the route, so a series of shots is drawn on one loaded
- * source. Every shot asks a new frame (a unique `fresh` nonce unless the text gives one).
+ * source. Every shot asks a new frame (a UUID `fresh` nonce unless the text gives one).
+ * The nonce is independent of the file name: valid shot names can contain dots or exceed
+ * the frame nonce's sixty-four-character bound.
  *
  * A shot is kept only when the route answers `new-requested-frame` and the bytes received hash to
  * `x-human-png-sha256`; it is written as `<name>.png`, and `receipt.json` lists every kept shot with
  * its URL, its bytes' SHA-256 and the route's headers (source hash, capture time). A shot that
  * fails keeps no PNG and adds one line with its cause to `<person>-FAILED.txt`, named by the
  * shot's `person` variable, and the run goes on to the next shot and ends with exit code 1. While
- * the route answers 503 (a save landed while the frame's page loaded its modules) the shot is
- * asked again after the answer's `retry-after`, for up to {@link GATE_WAIT}. Requests use
+ * the route answers 503, the shot is asked again after the answer's `retry-after`, for up to
+ * {@link GATE_WAIT}. That status alone does not establish why the server could not serve it.
+ * Requests use
  * `node:http` without a timeout, because one person's generation takes minutes, longer than
  * `fetch`'s header timeout. The program draws nothing itself: the server's resident page draws
  * every frame.
@@ -44,7 +47,7 @@ async function main(): Promise<void> {
     for (const [name, value] of new URLSearchParams(shot.query)) query.set(name, value);
     const checked: { notices: string[] } = HumanDebugOptions.parse(query, ["fresh", "keep"]);
     if (checked.notices.length !== 0) throw new Error("Shot " + shot.name + ": " + checked.notices.join("; "));
-    if (!query.has("fresh")) query.set("fresh", shot.name + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2));
+    if (!query.has("fresh")) query.set("fresh", randomUUID());
     const url: string = parsed.origin + HUMAN_DEBUG_ROUTES.images + shot.name + ".png?" + query.toString();
     try {
       const row: IReceiptRow = await capture(url, path.join(parsed.out, shot.name + ".png"));
@@ -115,9 +118,9 @@ async function capture(url: string, file: string): Promise<IReceiptRow> {
 }
 
 /**
- * GET a frame, waiting while the route answers 503: a save landed while the
- * frame's page loaded its modules, so the frame is asked again after the
- * answer's `retry-after` (10 s when absent) until {@link GATE_WAIT} has passed.
+ * GET a frame, waiting while the route answers 503. Ask again after its
+ * `retry-after` (10 s when absent) until {@link GATE_WAIT} has passed; this
+ * caller does not classify the server's source, module or shutdown cause.
  *
  * @param url The frame's address.
  * @returns The first answer that is not a 503, or the last one.

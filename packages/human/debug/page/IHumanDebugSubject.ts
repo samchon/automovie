@@ -2,6 +2,7 @@ import type { IAutoMovieModel } from "@automovie/interface";
 import type { AutoMovieTextureCache } from "@automovie/viewer";
 
 import type { IHumanDebugDocument } from "../contracts/IHumanDebugDocument";
+import type { IHumanDebugOptions } from "../contracts/IHumanDebugOptions";
 
 /**
  * One loaded subject of the page, the whole figure or one piece, in the form the view draws.
@@ -21,6 +22,9 @@ export interface IHumanDebugSubject {
 
   /** Generating curves in metres, ids in the `human.construction.` namespace. */
   curves: IHumanDebugDocument.ICurve[];
+
+  /** Optional original-source reader; existing curve holders retain completed results, without another model/cache. */
+  prepareCurves?: (options: IHumanDebugOptions, known: readonly string[]) => IHumanDebugDocument.ICurve[];
 
   /** Texture cache primed with the model's carried images, owned by the subject; null for a piece. */
   textures: AutoMovieTextureCache | null;

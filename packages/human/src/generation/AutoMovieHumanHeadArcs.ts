@@ -107,23 +107,24 @@ export namespace AutoMovieHumanHeadArcs {
       return fit.a + fit.b * (ON_CIRCUMFERENCE.includes(name) ? head.circumference : head.faceWidth);
     };
     return {
-      coronal: arc("coronal"),
+      coronal: head.bitragionCoronalArc ?? arc("coronal"),
       crinion: arc("crinion"),
       minimumFrontal: arc("minimumFrontal"),
-      subnasale: arc("subnasale"),
-      menton: arc("menton"),
+      subnasale: head.bitragionSubnasaleArc ?? arc("subnasale"),
+      menton: head.bitragionMentonArc ?? arc("menton"),
       submandibular: arc("submandibular"),
     };
   }
 
   /**
-   * The tragion's drop below the vertex.
+   * The tragion's drop below the vertex: the person's own ANSUR II tragion to top of head (head in FH) when given, else the women's or men's line on the head circumference.
    *
    * @param head The person's resolved head measures.
    * @param sex The person's sex.
    * @returns Vertex to tragion, vertical, mm.
    */
   export function tragionDrop(head: IAutoMovieHumanHeadIdentity, sex: AutoMovieHumanSex): number {
+    if (head.tragionTopOfHead !== undefined) return head.tragionTopOfHead;
     const fit: ILine = TRAGION_DROP_ON_CIRCUMFERENCE[sex === AutoMovieHumanSex.Female ? 0 : 1];
     return fit.a + fit.b * head.circumference;
   }

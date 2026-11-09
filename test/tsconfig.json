@@ -14,6 +14,11 @@
       }
     ]
   },
-  "include": ["src"],
+  "include": [
+    "src",
+    "../packages/human/src/executable/NodeCanvasExperiment.ts",
+    "../packages/human/src/executable/RunHumanTorsoObservation.ts",
+    "../packages/human/src/executable/HumanCurveCost.ts"
+  ],
   "exclude": ["src/executable"]
 }

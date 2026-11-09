@@ -1,0 +1,179 @@
+import type { AutoMovieHumanSkeleton } from "@automovie/human";
+import type { IAutoMovieVector3 } from "@automovie/interface";
+import { createAutoMovieHumanPolygonFigure } from "@automovie/viewer/human-polygon";
+import * as THREE from "three";
+
+import type { IStudentProfile } from "./IStudentProfile";
+import type { StudentBody } from "./StudentBody";
+import { StudentHuman } from "./StudentHuman";
+
+/**
+ * A student's Human polygon figure posed from the production's solved joints:
+ * each mapped bone turns from its neutral direction onto the solved segment
+ * (upper arm shoulder→elbow, forearm elbow→wrist, hand wrist→hand, thigh
+ * hip→knee, shin knee→ankle, foot ankle→toe; trunk, neck and head by their
+ * solved frames), limb roots sit on the solved joints, and every unmapped
+ * bone (fingers, toes, eyes, jaw) moves rigidly with its parent.
+ *
+ * ```ts
+ * const polygon = new StudentPolygon(profile);
+ * polygon.place(body.solve(posture));
+ * ```
+ *
+ * @evidence docs/body/settings/cast/carina-malfoy.md#recognition Her skin colour on the Human body.
+ * @evidence docs/body/settings/cast/harry-potter.md#recognition His skin colour on the Human body.
+ * @evidence contracts/development/entities.md#object-shape A fragment of `StudentFigure` that owns its polygon figure.
+ * @evidence contracts/development/common.md#meaningful-documentation States the bone mapping and what moves rigidly.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns its polygon figure until `dispose`.
+ */
+export class StudentPolygon {
+  /** The polygon figure's root, scaled to the student's stature. */
+  public readonly object: THREE.Group;
+
+  private readonly figure: ReturnType<typeof createAutoMovieHumanPolygonFigure>;
+
+  private readonly human: StudentHuman.IHuman;
+
+  private readonly forward: THREE.Vector3;
+
+  /**
+   * Build the figure.
+   *
+   * @param profile The student's record.
+   */
+  public constructor(profile: IStudentProfile) {
+    this.human = StudentHuman.of(profile);
+    const neutral: AutoMovieHumanSkeleton.IOutput = this.human.neutral;
+    this.figure = createAutoMovieHumanPolygonFigure({
+      evaluate: (): AutoMovieHumanSkeleton.IOutput => neutral,
+      partColors: Object.fromEntries(
+        neutral.bones.map((b: AutoMovieHumanSkeleton.IBone): [string, number] => [b.bone, profile.skin]),
+      ),
+    });
+    this.object = this.figure.object;
+    this.object.scale.setScalar(this.human.scale);
+    const at = (bone: string): THREE.Vector3 => position(neutral, bone) ?? new THREE.Vector3();
+    const left: THREE.Vector3 = at("leftUpperLeg").sub(at("rightUpperLeg")).normalize();
+    this.forward = new THREE.Vector3().crossVectors(left, UP).normalize();
+  }
+
+  /**
+   * Pose the figure from solved joints.
+   *
+   * @param j The solved body.
+   */
+  public place(j: StudentBody.IJoints): void {
+    const neutral: AutoMovieHumanSkeleton.IOutput = this.human.neutral;
+    const s: number = this.human.scale;
+    const index: Map<string, number> = new Map(neutral.bones.map((b: AutoMovieHumanSkeleton.IBone, i: number): [string, number] => [b.bone, i]));
+    const n = (bone: string): THREE.Vector3 | undefined => position(neutral, bone);
+    const target = (bone: string): { dir: IAutoMovieVector3; ref: IAutoMovieVector3; neutralDir: THREE.Vector3; neutralRef: THREE.Vector3; anchor?: IAutoMovieVector3 } | undefined => {
+      const side: "left" | "right" = bone.startsWith("left") ? "left" : "right";
+      const arm: StudentBody.IArm = j.arms[side];
+      const leg: StudentBody.ILeg = j.legs[side];
+      const between = (a: string, b: string, fallback: THREE.Vector3): THREE.Vector3 => {
+        const pa: THREE.Vector3 | undefined = n(a);
+        const pb: THREE.Vector3 | undefined = n(b);
+        return pa && pb ? pb.clone().sub(pa) : fallback.clone();
+      };
+      const down: THREE.Vector3 = new THREE.Vector3(0, -1, 0);
+      switch (bone) {
+        case "hips":
+          return { dir: j.frame.up, ref: j.frame.forward, neutralDir: UP, neutralRef: this.forward, anchor: j.pelvis };
+        case "spine":
+        case "chest":
+        case "upperChest":
+        case "neck":
+        case "leftShoulder":
+        case "rightShoulder":
+          return { dir: j.trunk.up, ref: j.trunk.forward, neutralDir: UP, neutralRef: this.forward };
+        case "head":
+          return { dir: j.head.up, ref: j.head.forward, neutralDir: UP, neutralRef: this.forward };
+        case "leftUpperArm":
+        case "rightUpperArm":
+          return { dir: sub(arm.elbow, arm.shoulder), ref: j.trunk.forward, neutralDir: between(bone, `${side}LowerArm`, down), neutralRef: this.forward, anchor: arm.shoulder };
+        case "leftLowerArm":
+        case "rightLowerArm":
+          return { dir: sub(arm.wrist, arm.elbow), ref: j.trunk.forward, neutralDir: between(bone, `${side}Hand`, down), neutralRef: this.forward, anchor: arm.elbow };
+        case "leftHand":
+        case "rightHand":
+          return { dir: sub(arm.hand, arm.wrist), ref: j.trunk.forward, neutralDir: between(`${side}LowerArm`, bone, down), neutralRef: this.forward, anchor: arm.wrist };
+        case "leftUpperLeg":
+        case "rightUpperLeg":
+          return { dir: sub(leg.knee, leg.hip), ref: j.frame.forward, neutralDir: between(bone, `${side}LowerLeg`, down), neutralRef: this.forward, anchor: leg.hip };
+        case "leftLowerLeg":
+        case "rightLowerLeg":
+          return { dir: sub(leg.ankle, leg.knee), ref: j.frame.forward, neutralDir: between(bone, `${side}Foot`, down), neutralRef: this.forward, anchor: leg.knee };
+        case "leftFoot":
+        case "rightFoot":
+          return { dir: sub(leg.toe, leg.ankle), ref: j.frame.up, neutralDir: this.forward.clone(), neutralRef: UP, anchor: leg.ankle };
+        default:
+          return undefined;
+      }
+    };
+
+    // World turn from the neutral pose per bone, then positions from the root down.
+    const turns: THREE.Quaternion[] = [];
+    const posed: AutoMovieHumanSkeleton.IPlacement[] = [];
+    const positions: THREE.Vector3[] = [];
+    neutral.bones.forEach((bone: AutoMovieHumanSkeleton.IBone, i: number): void => {
+      const parent: number | undefined = bone.parent === null ? undefined : index.get(bone.parent);
+      const t = target(bone.bone);
+      const turn: THREE.Quaternion =
+        t === undefined
+          ? parent === undefined
+            ? new THREE.Quaternion()
+            : turns[parent]!.clone()
+          : new THREE.Quaternion().setFromRotationMatrix(
+              basis(vec(t.dir), vec(t.ref)).multiply(basis(t.neutralDir, t.neutralRef).invert()),
+            );
+      turns[i] = turn;
+      const own: THREE.Vector3 = n(bone.bone)!;
+      let at: THREE.Vector3;
+      if (t?.anchor !== undefined) at = vec(t.anchor).divideScalar(s);
+      else if (parent === undefined) at = vec(j.pelvis).divideScalar(s);
+      else at = positions[parent]!.clone().add(own.clone().sub(n(neutral.bones[parent]!.bone)!).applyQuaternion(turns[parent]!));
+      positions[i] = at;
+      const rest: AutoMovieHumanSkeleton.IPlacement = neutral.posed[i]!;
+      const q: THREE.Quaternion = turn.clone().multiply(new THREE.Quaternion(...rest.rotation));
+      posed.push({ bone: bone.bone, position: [at.x, at.y, at.z], rotation: [q.x, q.y, q.z, q.w] });
+    });
+    this.figure.place({ posed });
+  }
+
+  /** Release the figure. */
+  public dispose(): void {
+    this.figure.dispose();
+    this.object.removeFromParent();
+  }
+}
+
+/** World up. */
+const UP: THREE.Vector3 = new THREE.Vector3(0, 1, 0);
+
+/** A bone's neutral world position. */
+function position(neutral: AutoMovieHumanSkeleton.IOutput, bone: string): THREE.Vector3 | undefined {
+  const p: AutoMovieHumanSkeleton.IPlacement | undefined = neutral.posed.find(
+    (placement: AutoMovieHumanSkeleton.IPlacement): boolean => placement.bone === bone,
+  );
+  return p === undefined ? undefined : new THREE.Vector3(...p.position);
+}
+
+/** A rotation basis whose Y runs along `dir` and Z toward `ref`. */
+function basis(dir: THREE.Vector3, ref: THREE.Vector3): THREE.Matrix4 {
+  const y: THREE.Vector3 = dir.clone().normalize();
+  let z: THREE.Vector3 = ref.clone().sub(y.clone().multiplyScalar(ref.dot(y)));
+  if (z.lengthSq() < 1e-8) z = new THREE.Vector3(1, 0, 0).sub(y.clone().multiplyScalar(y.x));
+  if (z.lengthSq() < 1e-8) z = new THREE.Vector3(0, 0, 1).sub(y.clone().multiplyScalar(y.z));
+  z.normalize();
+  const x: THREE.Vector3 = new THREE.Vector3().crossVectors(y, z).normalize();
+  return new THREE.Matrix4().makeBasis(x, y, z);
+}
+
+function vec(p: IAutoMovieVector3): THREE.Vector3 {
+  return new THREE.Vector3(p.x, p.y, p.z);
+}
+
+function sub(a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 {
+  return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
+}

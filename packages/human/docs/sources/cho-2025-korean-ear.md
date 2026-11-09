@@ -8,7 +8,21 @@ CC BY-NC 4.0. Numbers are facts.
 
 ## Population and protocol
 
-631 Korean adults (331 men, 300 women), 20 to 92 years, roughly 50 per sex per decade, from facial 3D CT taken for other reasons at six hospitals; soft-tissue landmarks on CT reconstructions. Grade: measured.
+631 Korean adults (331 men, 300 women), 20 to 92 years, from facial 3D CT taken for other reasons; soft-tissue landmarks on CT reconstructions. The abstract says six hospitals; the participants and measurement methods say eight. Grade: measured.
+
+## Measurement definitions
+
+The [publisher's methods and Figure 1](https://doi.org/10.3346/jkms.2025.40.e107) define ear width as otobasion superius to the posterior contour, perpendicular to the superaurale-subaurale line (c-j). The actual public [`IAutoMovieHumanEar.breadth`](../../src/structures/head/IAutoMovieHumanEar.ts) uses this definition. An earlier version of this note incorrectly called the public measure pra-pa; that was a failure to check the declaration against the technique note. Conchal length is concha superior to intertragic notch (g-h); conchal width is porion to the strongest antihelical curvature (b-k). Protrusion is the scalp distance at superaurale or tragal level. None supplies a rolled helix course, crural fork or conchal floor depth.
+
+## Protrusion direction follow-up, campaign #3062
+
+The publisher's Measurements passage and Figure 1 caption were directly reopened, and [Figure 1A/B](https://jkms.org/ArticleImage/0063JKMS/jkms-40-e107-g001-m.jpg) was personally opened. The caption calls p1/p2 scalp distances "vertical distances" at superaurale/tragal levels. Panel B draws p2 between the scalp and auricular contours, horizontally in the image and parallel to p1. No world coordinate axes, three-dimensional measuring plane, nearest-surface algorithm or vector formula for a constructed head normal is specified there. The schematic's image direction must not silently become a world-axis or arbitrary-normal law.
+
+The plate inspected at 05:54 used `dot(posterior-attachment,n)=P`, an internal projection that did not identify both scalp/rim endpoints. The source later used in CORE99716 instead reads an actual head-source point at the tragal height and the rim point on the same world-lateral line. Its observed distances are 20.60000000000001/21.69999999999999 mm; the independent scalp-query gaps are at most 1.42e-14 mm. World lateral is an explicit construction convention, not a direction established by Cho's schematic. This is a source endpoint observation, not final-skin protrusion or whole-ear acceptance.
+
+The same snapshot still fails four head-source findings: two concha-frame basis errors and two left endpoint/chord observations. The plate's c-j lengths close at 26.20000000000011/26.300000000000008 mm, but that does not measure the complete relief envelope. Later concha-plane projection and helix-centreline changes were read as saved source, without treating the earlier result as their verification. Course offsets, carrier thickness and fork-join success remain separate from Cho's measured dimensions.
+
+The completed HEAD67779 confirmation (start 06:55:32, 2/2 in 108,382 ms) subsequently reports empty source findings. Its actual named sa/sba endpoints retain public length/top expectations and the 1e-8 mm tolerance; the earlier input-height query is kept separately, with a left 1.7033149294e-6 mm gap after the endpoint's one-ULP unit conversion. Concha basis errors fall to 2.22e-16/2.78e-17. Sampled original rolled guides have zero observed height escape, not a complete world-extrema or final-skin certificate. The 40 raw section-concavity diagnostics are text-identical to CORE99716 and remain unresolved. These source checks do not establish the full physical ear or make the world-lateral p2 convention a published vector law.
 
 ## Values, mean (SD) mm (left / right where both given)
 

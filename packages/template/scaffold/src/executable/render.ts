@@ -68,8 +68,10 @@ export async function render(): Promise<void> {
     );
   const url: URL = new URL(process.env.VIEWER_URL ?? "http://127.0.0.1:5173/");
   url.searchParams.set("capture", "1");
-  url.searchParams.set("w", "1280");
-  url.searchParams.set("h", "720");
+  const width: number = selected.film.width ?? 1280;
+  const height: number = selected.film.height ?? 720;
+  url.searchParams.set("w", String(width));
+  url.searchParams.set("h", String(height));
   url.searchParams.set("film", selected.name);
 
   // Any frame option asks for stills of those frames instead of the video.
@@ -80,8 +82,8 @@ export async function render(): Promise<void> {
   ) {
     const stills: { file: string }[] = await renderViewerFrames({
       url: url.href,
-      width: 1280,
-      height: 720,
+      width,
+      height,
       fps: selected.film.fps,
       times: planViewerFrameTimes({
         fps: selected.film.fps,
@@ -106,7 +108,7 @@ export async function render(): Promise<void> {
     url: url.href,
     spec: {
       target: "production",
-      frameFormat: { width: 1280, height: 720, fps: selected.film.fps },
+      frameFormat: { width, height, fps: selected.film.fps },
       toneMapping: "none",
       codec: "h264",
       pixelFormat: "yuv420p",

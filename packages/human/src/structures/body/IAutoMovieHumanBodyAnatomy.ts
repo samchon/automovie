@@ -72,6 +72,17 @@ export interface IAutoMovieHumanBodyAnatomy {
   /** Relaxed upper arm girth midway between acromion and olecranon, arm hanging (NHANES mid-upper arm circumference). NHANES 2015-2018, 20 to 29 years: 315 and 341 (means). */
   upperArmCircumference?: number & tags.Minimum<80> & tags.Maximum<800>;
 
+  /**
+   * Axillary arm circumference, mm: the circumference of the upper arm
+   * perpendicular to its long axis at the level of the axilla, a taut tape
+   * (ANSUR 1988 ARM CIRC-AXILLARY, Gordon et al. 1989 NATICK/TR-89/044).
+   * ANSUR 1988: women 291.6 (24.4), men 335.0 (27.1). Absent, it resolves to
+   * the upper arm circumference, which keeps the arm's documented law (the
+   * upper arm leaves its shoulder port at the mid-arm girth, flat to the
+   * mid-arm site).
+   */
+  axillaryArmCircumference?: number & tags.Minimum<80> & tags.Maximum<900>;
+
   /** Elbow girth over the olecranon, arm extended (ANSUR 1988 elbow circumference). ANSUR 1988: 238.3 (13.4) and 277.1 (15.3). */
   elbowCircumference?: number & tags.Minimum<80> & tags.Maximum<600>;
 
@@ -80,6 +91,24 @@ export interface IAutoMovieHumanBodyAnatomy {
 
   /** Wrist girth over stylion (ANSUR II wrist circumference). ANSUR II: 154.8 (7.8) and 175.9 (9.0). */
   wristCircumference?: number & tags.Minimum<50> & tags.Maximum<300>;
+
+  /**
+   * Forearm skin breadth, mm: a caliper's light-contact reading across the
+   * forearm along the epicondyle line, at Perry et al. 2021's station 0.2
+   * radiale-stylion distal of radiale, arm hanging, palm forward. Absent, it
+   * resolves to Perry's supination relation to the forearm girth (the fitted
+   * ellipse's major semi-axis 0.1749 of the girth, doubled).
+   */
+  forearmBreadth?: number & tags.Minimum<20> & tags.Maximum<200>;
+
+  /** Forearm skin depth, mm: the same caliper across the epicondyle line at the same station. Absent, Perry's minor semi-axis 0.1365 of the forearm girth, doubled. */
+  forearmDepth?: number & tags.Minimum<15> & tags.Maximum<200>;
+
+  /** Wrist skin breadth over stylion, mm: a caliper's light-contact reading along the styloid line (the skin's, not the bony bistyloid `wristBreadth`). Absent, the ellipse of the wrist girth at Perry's circularity 0.674, its breadth. */
+  wristSkinBreadth?: number & tags.Minimum<20> & tags.Maximum<120>;
+
+  /** Wrist skin depth over stylion, mm: the same caliper across the styloid line. Absent, the same ellipse's depth. */
+  wristDepth?: number & tags.Minimum<15> & tags.Maximum<120>;
 
   /** Hand circumference over metacarpals II to V, thumb excluded (ANSUR 1988 hand circumference at metacarpale). ANSUR 1988: 186.2 (8.5) and 213.8 (9.7). */
   handCircumference?: number & tags.Minimum<60> & tags.Maximum<400>;
@@ -328,6 +357,21 @@ export interface IAutoMovieHumanBodyAnatomy {
   glutealFurrowHeight?: number & tags.Minimum<350> & tags.Maximum<1200>;
 
   /**
+   * Mid-patella height: the centre of the kneecap above the standing surface,
+   * the level of the knee girth (ISO 8559-1 5.3.22; ANSUR II midpatella
+   * height). Absent, the leg takes ANSUR II's relation on stature (0.276 S
+   * women, 0.278 S men).
+   */
+  midpatellaHeight?: number & tags.Minimum<200> & tags.Maximum<800>;
+
+  /**
+   * Calf height: the level of the maximum horizontal circumference of the
+   * calf above the standing surface (ANSUR 1988 (29)); the calf girth is taken
+   * there. Absent, the leg places it by its own fibular relation.
+   */
+  calfHeight?: number & tags.Minimum<150> & tags.Maximum<700>;
+
+  /**
    * Crotch length: from the navel's level at the front midline, down over the
    * skin through the crotch and up the back midline to the same level
    * (ANSUR II crotch length, omphalion). With its posterior part it places the
@@ -343,6 +387,24 @@ export interface IAutoMovieHumanBodyAnatomy {
    * and 355.9 (29.5), 0.551 (SD 0.033) and 0.573 (0.037) of the crotch length.
    */
   posteriorCrotchLength?: number & tags.Minimum<120> & tags.Maximum<800>;
+
+  /**
+   * Thoracic kyphotic angle, degrees: the angle between the back surface's
+   * sagittal tangents at the cervicothoracic (ICT) and thoracolumbar (ITL)
+   * inflection points, standing relaxed (DIERS formetric surface topography).
+   * Reference Values for 3D Spinal Posture Based on Videorasterstereographic
+   * Analyses of Healthy Adults, Bioengineering 2022 (PMC9774435), Table 4,
+   * 201 adults aged 18 to 70: 50.1 (8.2) and 49.6 (8.6).
+   */
+  kyphoticAngle?: number & tags.Minimum<10> & tags.Maximum<100>;
+
+  /**
+   * Lumbar lordotic angle, degrees: the angle between the back surface's
+   * sagittal tangents at the thoracolumbar (ITL) and lumbosacral (ILS)
+   * inflection points, standing relaxed (DIERS formetric surface topography).
+   * Same source as the kyphotic angle: 44.0 (8.5) and 34.9 (7.3).
+   */
+  lordoticAngle?: number & tags.Minimum<5> & tags.Maximum<90>;
 
   /**
    * Thumb breadth: the maximum breadth of the thumb at its interphalangeal

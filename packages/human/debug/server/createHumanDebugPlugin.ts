@@ -44,7 +44,7 @@ export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plu
     (): string => origin,
     (text: string): Promise<string> =>
       HumanDebugStackMap(text, async (served: string): Promise<string | null> => {
-        // The client transform the page ran, cached by Vite; its map leads back to the TypeScript source.
+        // Vite's current transform map; it can differ from the page's executed module after a save.
         const map: { mappings?: string } | null | undefined = (await vite?.transformRequest(served))?.map;
         return typeof map?.mappings === "string" ? map.mappings : null;
       }),
@@ -133,7 +133,14 @@ export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plu
       const pieces: { value: string[] } | string = HumanDebugOptionField.globs().read(url.searchParams.get("pieces") ?? "*");
       if (typeof cameras === "string" || typeof pieces === "string")
         return send(response, 400, "text/plain; charset=utf-8", "cameras: " + String(cameras) + "; pieces: " + String(pieces));
-      const entries: (string | null)[] = HumanDebugBatch.select([null, ...(await index(server)).entries], pieces.value);
+
+      // Explicit subjects and an exact whole selection need no unrelated piece-registry SSR load.
+      // Keep registry/glob discovery unchanged for every other batch request.
+      const entries: (string | null)[] = parsed.options.piece !== null
+        ? []
+        : pieces.value.length === 1 && pieces.value[0] === "whole"
+          ? [null]
+          : HumanDebugBatch.select([null, ...(await index(server)).entries], pieces.value);
       const directory: string = path.join(environment.evidence, batch[1]!, round);
       const items: IHumanDebugBatchItem[] = await HumanDebugBatch(
         session,

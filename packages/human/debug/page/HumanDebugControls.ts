@@ -9,18 +9,32 @@ import type { IHumanDebugPiece } from "../pieces/IHumanDebugPiece";
 /**
  * The page's sidebar: every option as a control, each change handed back as new options.
  *
- * The controls never draw. A change writes the current options as URL text, replaces the one
- * variable and parses the text again through `HumanDebugOptions`, so a control and a typed URL
- * cannot disagree. The person and piece menus list the people registry and the piece registry
+ * The controls never draw. Fields write the current options as URL text, replace one variable
+ * and parse through `HumanDebugOptions`; row selections compose typed lists directly. Each event
+ * stores its copied intent before handing it to the page, independently of pending draws.
+ * The person and piece menus list the people registry and the piece registry
  * (each registered argument as its own entry), and the pose menu the whole figure's poses. A part or curve toggled in the lists is added to or
  * removed from `hide`/`curveHide` by its exact id, so broad `parts`/`curves` patterns stay readable.
  * {@link show} sets every control from options without reporting a change.
+ *
+ * @evidence contracts/common.md#principled-implementation Changes compose from copied latest intent before asynchronous page work; request revisions prevent older completed frames from overwriting newer selections.
+ * @evidence contracts/common.md#clear-and-simple-design Owns requested sidebar state and DOM only; mount owns actual drawn options and ordered execution.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses real parser and DOM events without dropping overlapping input or substituting a subject.
+ * @evidence contracts/common.md#meaningful-documentation Describes URL parsing, exact visibility ids and the distinction between requested intent and completed state.
+ * @evidence contracts/performance.md#efficient-algorithms An event copies O(P) option data; show visits existing fields and inventory rows, with pattern matching at each row.
+ * @evidence contracts/performance.md#reuse-equivalent-work Reuses the existing sidebar DOM and latest intent; distinct requests retain their separate page operations.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains one current option record, one revision and DOM proportional to the current inventory; list replaces earlier rows without storing request history.
  */
 export class HumanDebugControls {
   private readonly fields: Map<keyof IHumanDebugOptions, HTMLInputElement | HTMLSelectElement> = new Map();
   private readonly parts: HTMLDivElement = document.createElement("div");
   private readonly curves: HTMLDivElement = document.createElement("div");
+  /** Latest requested intent, including changes whose page jobs have not drawn yet. */
   private options: IHumanDebugOptions = HumanDebugOptions.defaults();
+  /** Latest admitted intent's monotonic revision; an older drawn completion cannot acknowledge it. */
+  private revision: number = 0;
+  /** Publishes each change only after storing its copied intent, so the next event composes from it. */
+  private readonly changed: (options: IHumanDebugOptions, notices: string[]) => void;
 
   /**
    * Build the controls into a container.
@@ -30,8 +44,12 @@ export class HumanDebugControls {
    */
   public constructor(
     root: HTMLElement,
-    private readonly changed: (options: IHumanDebugOptions, notices: string[]) => void,
+    changed: (options: IHumanDebugOptions, notices: string[]) => void,
   ) {
+    this.changed = (next: IHumanDebugOptions, notices: string[]): void => {
+      this.options = structuredClone(next);
+      changed(next, notices);
+    };
     const subject: HTMLFieldSetElement = this.group(root, "대상");
     this.select(subject, "person", "사람", HumanDebugPeople.aliases());
     this.select(subject, "piece", "조각 (비우면 전신)", [
@@ -110,12 +128,53 @@ export class HumanDebugControls {
   }
 
   /**
-   * Set every control from options without reporting a change.
+   * Admit a full requested intent before asynchronous page work starts.
    *
-   * @param options Options to show.
+   * @evidence contracts/common.md#principled-implementation Copies the actual next options and assigns a monotonic request revision; later changes derive from this intent rather than an older drawn frame.
+   * @evidence contracts/common.md#clear-and-simple-design Requested controls and actual page state have separate owners; show can acknowledge only its own current revision.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Drops no input and disables no sidebar control to conceal overlap.
+   * @evidence contracts/common.md#meaningful-documentation Names admission time, copied ownership and completion revision.
+   * @evidence contracts/performance.md#efficient-algorithms One O(P) typed-option copy per admitted request.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Distinct user intents remain distinct requests.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Retains one latest option record and one counter; earlier requests remain owned by the page tail.
    */
-  public show(options: IHumanDebugOptions): void {
-    this.options = options;
+  public request(options: IHumanDebugOptions): number {
+    this.options = structuredClone(options);
+    return ++this.revision;
+  }
+
+  /**
+   * Copy the latest admitted intent, including selections whose draw is still pending.
+   *
+   * @evidence contracts/common.md#principled-implementation Copies the typed plain options so a caller cannot mutate the state from which the next DOM event composes.
+   * @evidence contracts/common.md#clear-and-simple-design Exposes requested intent without exposing the private live record or claiming it has drawn.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads actual current intent rather than reconstructing it from an older page result.
+   * @evidence contracts/common.md#meaningful-documentation States copied ownership and pending-draw meaning.
+   * @evidence contracts/performance.md#efficient-algorithms Copies O(P) option data once for the caller.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The current intent is mutable; a caller receives its own observation instead of a cached alias.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh result; this read retains no history or additional DOM.
+   */
+  public requested(): IHumanDebugOptions {
+    return structuredClone(this.options);
+  }
+
+  /**
+   * Render controls without rolling a newer intent back to an older completed frame.
+   *
+   * @param options The completed page options.
+   * @param revision That operation's admission revision; an unversioned inventory refresh keeps current intent.
+   *
+   * @evidence contracts/common.md#principled-implementation A matching revision may acknowledge its completed options; older completions render the latest requested values instead.
+   * @evidence contracts/common.md#clear-and-simple-design Only the page owns drawn state; this method presents current requested sidebar state without emitting another change.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither matching equal values nor an older completion can discard a newer revision.
+   * @evidence contracts/common.md#meaningful-documentation Distinguishes completion acknowledgment from an unversioned list refresh.
+   * @evidence contracts/performance.md#efficient-algorithms Copies current completed options only on acknowledgment, then visits existing fields and rows.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the current DOM controls; no source or geometry is rebuilt here.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Keeps only the latest requested record and existing DOM; no completion history is retained.
+   */
+  public show(options: IHumanDebugOptions, revision?: number): void {
+    if (revision === this.revision || this.revision === 0) this.options = structuredClone(options);
+    options = this.options;
     const text: URLSearchParams = new URLSearchParams(HumanDebugOptions.write(options));
     for (const [name, field] of this.fields) {
       const value: unknown = options[name];

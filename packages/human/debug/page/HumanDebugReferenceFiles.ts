@@ -26,20 +26,31 @@ interface ICurve {
 /**
  * Read one reference person's skin sections from the checkout's private pack
  * (`.references/curves/<id>/` at the repository root, git-ignored), for the view comparison.
+ * Keep the original f1, f2, m1 and m2 collection available; the new f1 basis copies are explicit
+ * Node inspection inputs and do not replace this viewer's original source paths.
  *
  * The pack's files are listed when Vite transforms this module (`import.meta.glob`, as served
  * addresses only), so a checkout without the pack lists none and nothing of it reaches the
  * repository; each file is fetched at run time. Each region file `sections/<region>/NNN.json` holds
  * horizontal sections whose curves are cubic Hermite splines; a closed curve becomes the loop of its
  * spans' start points and midpoints (the Hermite midpoint
- * `(start + end) / 2 + h (startDerivative - endDerivative) / 8`), rounded to 0.1 mm, open arcs and
- * curves the pack's audit marks broken left out. A region keeps the lowest section of each `step`
+ * `(start + end) / 2 + h (startDerivative - endDerivative) / 8`), rounded to 0.1 mm. Valid open arcs
+ * include their final endpoint and remain open; only curves the pack's audit marks broken are left out. A region keeps the lowest section of each `step`
  * of height, so the head's event sections, thousands within a few centimetres, thin to an even
- * stack.
+ * stack. The source fit tolerance supplies no curve-to-polyline approximation bound for this
+ * sampling, rounding or thinning.
  *
  * @param id Reference id, such as `f1`.
  * @param step Least height between kept sections, mm, positive.
  * @returns The pack; a missing pack throws naming the ids present.
+ *
+ * @evidence contracts/common.md#principled-implementation Reads audited Hermite spans from the private pack, samples their starts and midpoints with the exact midpoint identity, and retains an open curve's final endpoint without closing it. The 0.1 mm rounding and height thinning are display conventions.
+ * @evidence contracts/common.md#clear-and-simple-design This loader owns file discovery and sampling; reference drawing and geometric diagnostics consume the returned pack separately.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects a missing pack, excludes only source curves marked broken and invents no skin across an opening or absent file.
+ * @evidence contracts/common.md#meaningful-documentation States source location, quality selection, endpoint treatment, sampling/thinning and failure behavior.
+ * @evidence contracts/performance.md#efficient-algorithms Parsing and sampling scale with file bytes and Hermite spans; file names and S section heights are sorted, with O(S log S) height sorting before one thinning pass. Region fetches run concurrently, files within a region sequentially.
+ * @evidence contracts/performance.md#reuse-equivalent-work The loaded module retains only the glob's served-URL functions; pack bytes are fetched with no-store for each comparison request so edited references are observed independently of cached Human construction.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources File URLs are bounded by the checkout's private pack inventory and released with the module. Parsed file records are temporary; the returned O(P) sampled pack belongs to the comparison request, with no file or GPU handle retained here.
  */
 export async function HumanDebugReferenceFiles(id: string, step: number): Promise<IHumanDebugReferencePack> {
   const index: string | undefined = Object.keys(INDEXES).find((file: string): boolean => file.endsWith(`/curves/${id}/index.json`));
@@ -65,20 +76,31 @@ export async function HumanDebugReferenceFiles(id: string, step: number): Promis
             y: section.coordinateMm,
             loops: section.curves
               .filter((c: { kind: string; quality?: { status: string } }): boolean => c.kind === "closed" && c.quality?.status !== "broken")
-              .map((c: { curve: ICurve }): number[] => loop(c.curve)),
+              .map((c: { curve: ICurve }): number[] => sample(c.curve, true)),
+            arcs: section.curves
+              .filter((c: { kind: string; quality?: { status: string } }): boolean => c.kind !== "closed" && c.quality?.status !== "broken")
+              .map((c: { curve: ICurve }): number[] => sample(c.curve, false)),
           });
       }
       sections.sort((a: IHumanDebugReferencePack.ISection, b: IHumanDebugReferencePack.ISection): number => a.y - b.y);
       const thinned: IHumanDebugReferencePack.ISection[] = [];
-      for (const s of sections) if (s.loops.length !== 0 && (thinned.length === 0 || s.y >= thinned[thinned.length - 1]!.y + step)) thinned.push(s);
+      for (const s of sections) if ((s.loops.length !== 0 || (s.arcs?.length ?? 0) !== 0) && (thinned.length === 0 || s.y >= thinned[thinned.length - 1]!.y + step)) thinned.push(s);
       return { name, sections: thinned };
     }),
   );
   return { id, stature, step, regions };
 }
 
-/** A closed curve's span starts and midpoints as flat `x, z` pairs, 0.1 mm. */
-function loop(curve: ICurve): number[] {
+/**
+ * Span starts and midpoints, plus an open curve's last endpoint, as flat `x, z` pairs rounded to 0.1 mm.
+ *
+ * Uses the Hermite midpoint identity with each span's declared phase width, or zero when absent.
+ * A closed path wraps to its first point; an open path retains its last recorded endpoint without
+ * adding a closure edge. Source coordinates are sampled directly without fitting between curves.
+ * The original fit tolerance does not certify the connecting display polygon.
+ * One O(H) pass returns two points per span and one extra open endpoint; no source span is retained.
+ */
+function sample(curve: ICurve, closed: boolean): number[] {
   const out: number[] = [];
   const round = (v: number): number => Math.round(v * 10) / 10;
   curve.spans.forEach((s: ICurve["spans"][number], i: number): void => {
@@ -89,5 +111,7 @@ function loop(curve: ICurve): number[] {
       round((s.start[2]! + s.end[2]!) / 2 + (h * (s.startDerivative[2]! - s.endDerivative[2]!)) / 8),
     );
   });
+  const last: ICurve["spans"][number] | undefined = curve.spans[curve.spans.length - 1];
+  if (!closed && last !== undefined) out.push(round(last.end[0]!), round(last.end[2]!));
   return out;
 }

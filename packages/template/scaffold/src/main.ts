@@ -76,8 +76,8 @@ const slider: HTMLInputElement =
 const clock: HTMLOutputElement =
   document.querySelector<HTMLOutputElement>("#clock")!;
 const capture: boolean = query.get("capture") === "1";
-const width: number = Number(query.get("w") ?? 1280);
-const height: number = Number(query.get("h") ?? 720);
+const width: number = Number(query.get("w") ?? film.width ?? 1280);
+const height: number = Number(query.get("h") ?? film.height ?? 720);
 if (
   ![width, height].every(
     (size: number): boolean => Number.isSafeInteger(size) && size > 0,

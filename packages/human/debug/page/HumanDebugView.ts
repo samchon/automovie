@@ -69,6 +69,11 @@ export class HumanDebugView {
    * @returns Ids of the shown parts and curves.
    */
   public apply(options: IHumanDebugOptions): { parts: string[]; curves: string[] } {
+    const extra: IHumanDebugDocument.ICurve[] = this.subject.prepareCurves?.(options, this.subject.curves.map((curve: IHumanDebugDocument.ICurve): string => curve.id)) ?? [];
+    if (extra.length !== 0) {
+      this.subject.curves.push(...extra);
+      this.curves.extend(extra);
+    }
     this.object.updateMatrixWorld(true);
     this.shown = { parts: this.shading.apply(options), curves: this.curves.apply(options) };
     return this.shown;

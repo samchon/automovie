@@ -1,6 +1,4 @@
-import { HumanInputs } from "./HumanInputs";
 import { AutoMovieHumanBodyLaw } from "../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
-import { HumanPopulation } from "./HumanPopulation";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanRig } from "../../../../packages/human/src/skeleton/AutoMovieHumanRig";
 import { AutoMovieHumanSkeleton } from "../../../../packages/human/src/skeleton/AutoMovieHumanSkeleton";
@@ -11,16 +9,20 @@ import {
   m1,
   m2,
 } from "../../../../packages/playground/src/human-parameters/index";
+import { readTestArguments } from "../../readTestArguments";
+import { HumanInputs } from "./HumanInputs";
+import { HumanPopulation } from "./HumanPopulation";
 
 /**
- * it and held only by that caller. Nothing generated here may be modified.
+ * Prepare immutable named inputs or one caller-owned generated person. Nothing
+ * generated here may be modified.
  *
  * Two sets: the core set, which every run reads, holds the four references
  * and six population ends (each sex's small and large corner, a tall light
  * woman and a short heavy man); the extended set adds every other end of
- * {@link HumanPopulation.ENDS}, 66 people in all. Set
- * `AUTOMOVIE_HUMAN_PEOPLE=extended` to run every test over the extended set,
- * locally or nightly.
+ * {@link HumanPopulation.ENDS}, 66 people in all. An explicit test CLI
+ * `--human-people` value takes precedence over the existing
+ * `AUTOMOVIE_HUMAN_PEOPLE` value; absent both, the core set remains selected.
  */
 export namespace HumanPeople {
   /** A generated person. */
@@ -47,26 +49,53 @@ export namespace HumanPeople {
     evaluate: AutoMovieHumanSkeleton.PoseEvaluator;
   }
 
-  /** The environment variable that selects the extended set. */
+  /** Existing environment selector for named people or the extended set. */
   export const SET_VARIABLE: string = "AUTOMOVIE_HUMAN_PEOPLE";
 
   /**
    * The names of the set this run reads, without generating anyone: the core
    * set; every person when {@link SET_VARIABLE} is `extended`; or, when it
    * lists names separated by commas (such as `f1` or `f1,m2`), those people
-   * only, for a diagnostic run that must not wait for the whole set.
+   * only. The test CLI's explicit `--human-people f1` takes precedence over
+   * the existing environment value. Explicit arguments permit pure selection
+   * tests; zero-argument production tests read the real invocation unchanged.
    *
-   * @throws {Error} When the variable names a person the table does not hold.
+   * @throws {Error} When the request is malformed or names a person the table does not hold.
+   *
+   * @evidence contracts/testing.md#behavioral-verification The workspace Human selection question reads this actual fixture with explicit argv/environment inputs and logs its zero-argument result from the real invocation, catching CLI precedence or default-population regressions without generating a figure.
+   * @evidence contracts/testing.md#independent-expectations Literal f1/m2 registry order, the existing ten core people and sixty-six extended people define the oracle; no generated geometry supplies it.
+   * @evidence contracts/testing.md#distinguishing-cases The owning question covers CLI over the old environment input, absent CLI with named/default/extended values, and invalid CLI preflight. Figure questions retain their geometric expectations after selecting these names.
+   * @evidence contracts/testing.md#execution-ownership This portable fixture reader shares the pure CLI grammar with actual preflight, reads only supplied or default invocation inputs and writes no environment or global selection state.
    */
-  export function names(): string[] {
-    const value: string | undefined = process.env[SET_VARIABLE];
+  export function names(
+    argv: readonly string[] = process.argv.slice(2),
+    environment: string | undefined = process.env[SET_VARIABLE],
+  ): string[] {
+    return select(readTestArguments(argv).humanPeople ?? environment);
+  }
+
+  /**
+   * Validate a supplied immutable population value and retain registry order. This reads no CLI, environment, generated figure or mutable run configuration.
+   *
+   * @evidence contracts/testing.md#behavioral-verification The workspace Human selection question exercises this actual registry admission directly and through preflight, catching accepted unknown names, reordered selections or duplicate results.
+   * @evidence contracts/testing.md#independent-expectations Literal named people, stable registry order and the existing core/extended population counts supply expectations independently of this selector.
+   * @evidence contracts/testing.md#distinguishing-cases Named/duplicate/default/extended values and unknown or empty comma-list members distinguish valid population requests; scenario option grammar belongs to the shared reader's question.
+   * @evidence contracts/testing.md#execution-ownership This synchronous portable registry query creates input records only and owns no generated person, host, environment mutation or retained selection state.
+   */
+  export function select(value?: string): string[] {
     if (value !== undefined && value !== "" && value !== "extended") {
-      const listed: string[] = value.split(",").map((s: string): string => s.trim());
+      const listed: string[] = value
+        .split(",")
+        .map((s: string): string => s.trim());
       for (const name of listed) entry(name);
-      return [...table().keys()].filter((name: string): boolean => listed.includes(name));
+      return [...table().keys()].filter((name: string): boolean =>
+        listed.includes(name),
+      );
     }
     const extended: boolean = value === "extended";
-    return [...table().values()].filter((e: IEntry): boolean => extended || e.core).map((e: IEntry): string => e.name);
+    return [...table().values()]
+      .filter((e: IEntry): boolean => extended || e.core)
+      .map((e: IEntry): string => e.name);
   }
 
   /** Every person of the extended set, whatever this run reads. */
@@ -90,7 +119,11 @@ export namespace HumanPeople {
    */
   export function person(name: string): IPerson {
     const own: IAutoMovieHumanParameters = params(name);
-    return { name, params: own, body: AutoMovieHumanBodyLaw.calibrate(own).body };
+    return {
+      name,
+      params: own,
+      body: AutoMovieHumanBodyLaw.calibrate(own).body,
+    };
   }
 
   /**
@@ -99,12 +132,15 @@ export namespace HumanPeople {
    */
   export function rigged(who: string | IPerson): IRigged {
     const own: IPerson = typeof who === "string" ? person(who) : who;
-    const scale: number = 0.001 * (HumanInputs.stature(own.params) / own.body.stature);
+    const scale: number =
+      0.001 * (HumanInputs.stature(own.params) / own.body.stature);
     return {
       ...own,
       scale,
       rig: AutoMovieHumanRig.prepare(own.body, scale),
-      evaluate: AutoMovieHumanSkeleton.prepare(own.params, { calibration: own.body }),
+      evaluate: AutoMovieHumanSkeleton.prepare(own.params, {
+        calibration: own.body,
+      }),
     };
   }
 }
@@ -136,7 +172,12 @@ function table(): Map<string, IEntry> {
     [
       ...all,
       ...HumanPopulation.ENDS.map(
-        (e: HumanPopulation.IEnd): IEntry => ({ name: e.name, sex: e.sex, core: e.core, params: HumanPopulation.params(e) }),
+        (e: HumanPopulation.IEnd): IEntry => ({
+          name: e.name,
+          sex: e.sex,
+          core: e.core,
+          params: HumanPopulation.params(e),
+        }),
       ),
     ].map((e: IEntry): [string, IEntry] => [e.name, e]),
   );
@@ -145,6 +186,7 @@ function table(): Map<string, IEntry> {
 /** One entry. */
 function entry(name: string): IEntry {
   const found: IEntry | undefined = table().get(name);
-  if (found === undefined) throw new Error(`No Human test person is named ${name}.`);
+  if (found === undefined)
+    throw new Error(`No Human test person is named ${name}.`);
   return found;
 }

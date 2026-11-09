@@ -1,5 +1,8 @@
 ﻿import type { IAutoMovieHumanTrunkLandmarks } from "./IAutoMovieHumanTrunkLandmarks";
 
+import { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
+import { AutoMovieHumanShoulderJoint } from "./AutoMovieHumanShoulderJoint";
+
 /**
  * The trunk's landmark heights and the rules that place them from the inputs.
  *
@@ -44,17 +47,11 @@ export namespace AutoMovieHumanTrunkLandmarks {
   export const ACROMION: number = 0.894;
 
   /**
-   * The glenohumeral centre's depth under the acromion as a share of the
-   * biacromial breadth: Rab, Petuskey and Bagley 2002 (Gait Posture 15:113-119,
-   * "A method for determination of upper extremity kinematics") place the
-   * shoulder joint centre 17 % of the acromion-to-acromion distance inferior
-   * to the acromion marker, a regression on the subject's own breadth. It
-   * replaces de Leva's 0.1044 of acromion-radiale, which is the joint
-   * centre's distance along the hanging humerus's axis from the acromion and
-   * so stood the centre at the shoulder's skin point, a radius above and
-   * outside the arm's own axis in the overlay (`log-body.md`). Measured.
+   * Historical longitudinal approximation retained for legacy consumers.
+   * Active placement uses ShoulderJoint; actual AR conversion reads its
+   * projection rather than combining this offset with the new generic.
    */
-  export const GLENOHUMERAL: number = 0.17;
+  export const GLENOHUMERAL: number = AutoMovieHumanArmBones.ACROMION;
 
   /**
    * The inframammary fold under the bust point, a share of the span: two
@@ -76,22 +73,21 @@ export namespace AutoMovieHumanTrunkLandmarks {
   }
 
   /**
-   * The glenohumeral centre under a shoulder point: straight below it by
-   * {@link GLENOHUMERAL} of the biacromial breadth (Rab, Petuskey and Bagley 2002), the
-   * shoulder point being the acromion projected vertically to the skin (ISO
-   * 8559-1 3.1.1). Rab and colleagues give no medial or forward offset; remaining: a
-   * medial placement (Campbell et al. 2009, or the reference curves where the
-   * source is silent).
+   * Population GH generic transferred through the authored shoulder frame.
+   * The acromion AP prior and internal neck overlap are not measured AcrLR
+   * and Acr2; ShoulderJoint names that origin/frame-transfer approximation.
    *
    * @param shoulder The shoulder point `[x, y, z]`, mm.
-   * @param biacromial The biacromial breadth, mm.
+   * @param neck Internal overlap's left lateral support, calibration mm.
+   * @param scale Calibration millimetres per publication millimetre.
    * @returns The glenohumeral centre `[x, y, z]`, mm.
    */
   export function glenohumeral(
     shoulder: readonly [number, number, number],
-    biacromial: number,
+    neck: readonly [number, number, number],
+    scale: number,
   ): [number, number, number] {
-    return [shoulder[0], shoulder[1] - GLENOHUMERAL * biacromial, shoulder[2]];
+    return AutoMovieHumanShoulderJoint.of(shoulder, neck, scale).centre;
   }
 
   /**

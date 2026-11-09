@@ -1,377 +1,354 @@
-import type { AutoMovieLoftContract } from "./AutoMovieLoftContract";
+import { AutoMovieConicArc } from "./AutoMovieConicArc";
+import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import { AutoMovieIllinois } from "./AutoMovieIllinois";
-import { AutoMoviePolarSector } from "./AutoMoviePolarSector";
+import type { AutoMovieLoftContract } from "./AutoMovieLoftContract";
+import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
+import { AutoMovieViewConic } from "./AutoMovieViewConic";
+import { AutoMovieViewSectionConic } from "./AutoMovieViewSectionConic";
+import { AutoMovieViewSectionRange } from "./AutoMovieViewSectionRange";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
+/** The four ordered support directions and their corresponding source-quarter records. */
 type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
 
+/** Internal measured source; inspection observations are attached only to public results. */
+type Measured = Pick<
+  AutoMovieViewSection.ISection,
+  "box" | "shoulders" | "guides" | "conics" | "girth"
+>;
+
 /**
- * One section of a part from its views: the box its four outlines make about
- * the axis, the section touching each side of the box at one guide, and the
- * quarters' fullness as one conic shoulder value each (Liming's conic
- * lofting), represented by the quintic polar sectors of
- * `AutoMoviePolarSector`.
+ * One source section from four exact support extents and conic shoulders.
  *
- * The box is four positive half extents from the axis, `e = [e0, e1, e2, e3]`
- * along `+u`, `+v`, `-u` and `-v`. Guide `g` stands at the angle `g pi / 2`
- * with the radius `e_g` and the angular slope 0: a polar curve meets the side
- * `x = e_0` at angle 0 tangentially exactly when `rho_phi = 0` there, since
- * `x_phi = rho_phi cos phi - rho sin phi` vanishes at `phi = 0` only then. So
- * the section's extreme along each chart axis is the outline's value.
+ * Each rational quarter touches its two support lines with zero radial slope. Its shoulder r has weight w=r/(1-r), with r=sqrt(2)-1 giving an ellipse. Adjacent quarters keep their existing shared curvature, the smaller own endpoint curvature. Incompatible ends use the convex rational G2 construction in AutoMovieViewConic, with a same-ray error bound of 1e-7 times the short extent and support vanishing with curvature contrast.
  *
- * Quarter `q` runs from guide `q` to guide `q + 1` over the box corner
- * `(a, b) = (e_q, e_{q+1})` in the quarter's own axes. Its conic shoulder `r`
- * is the share along the diagonal from the chord's middle `(a, b) / 2` to the
- * corner where the section crosses: the shoulder point
- * `S = (1 + r) (a, b) / 2`, at the radius `(1 + r) sqrt(a^2 + b^2) / 2`. The
- * conic through both touch points with that shoulder is the rational
- * quadratic Bezier of the touch points and the corner with the middle weight
- * `w = r / (1 - r)`, so `r = sqrt(2) - 1` (`w = 1 / sqrt(2)`) is the quarter
- * ellipse, `r -> 0` the chord (the rhombus) and `r -> 1` the corner (the
- * rectangle). Its curvature at the touch point of the guide of extent `a`,
- * across the extent `b`, is `kappa = a / (2 w^2 b^2)` (the end curvature of a
- * rational quadratic, `(w0 w2 / w1^2) h / (2 |P1 - P0|^2)`, with `h = a` the
- * distance of the far touch point from the guide's side and
- * `|P1 - P0| = b`), `a / b^2` for the ellipse.
+ * The conic is read directly. The knot list is a quadrature/inspection partition, not a polar Hermite replacement. Girth measures the same rational pieces with bounded native quadrature and geometric end enclosures; finite measurement belongs to reach admission and every solved result must meet its measured residual. Four exact guides and shoulder points retain their input ownership. Final periodic phase fitting and station interpolation remain separate from this source section.
  *
- * The guide's curvature law. Both quarters beside a guide meet in one
- * curvature, so the section is C2 there. Each quarter's own conic asks for
- * its `kappa`; the shared value is the smaller, the flatter quarter's. Past
- * the guide each quarter turns from the shared curvature to its own conic's
- * (its first conic guide): the rounder quarter only turns faster, which keeps
- * it convex, while a quarter given more curvature than its conic's would
- * have to straighten back out toward its own long side, a turn against
- * convexity (the first operator run found it on a box whose depths beside a
- * guide differ five to one). A symmetric box with the ellipse's shoulder in
- * every quarter gives both quarters `a / b^2`, the centred ellipse's own
- * curvature.
- *
- * The quarter's fullness. Inside its quarter the section follows its conic:
- * the conic's points at the parameters `t = j / M` of its rational
- * quadratic, `j = 1 .. M - 1`, are guides too, each with the conic's own
- * radius and its first and second derivatives in the polar angle, and
- * between any two guides the section is the quintic Hermite of their jets
- * (`AutoMoviePolarSector`, every bump zero), so it is C2 across every
- * guide. Uniform steps of the conic's parameter crowd the polar angles where
- * the radius turns fastest: near the end of a long half extent `a` over a
- * short `b` the radius varies over an angle of order `b / a`, and the
- * parameter step maps to an angle step of the same order, so the
- * interpolation error, which grows as the sixth power of the step over that
- * scale, does not grow with the box's aspect. A raw conic arc would meet its
- * neighbour only C1, a quarter superellipse of exponent above 2 has zero
- * curvature at its guide (a flat stripe along it), and one quintic with one
- * bump per quarter cannot follow a conic of aspect two or more without
- * turning concave.
- *
- * Reach. A shoulder is valid when the section stays star-shaped (a positive
- * radius), convex (the taut tape lies on it) and inside its box (the outlines
- * stay its extremes); the conic is all three for every shoulder in `(0, 1)`,
- * and the section follows it to the interpolation error. Under that, the
- * taut-tape girth is the section's length and rises with the shoulder (the
- * conics nest as the middle weight grows); the box bounds it between
- * `2 sqrt(W^2 + D^2)` (the rhombus) and `2 (W + D)` (the rectangle), `W` and
- * `D` the box's breadth and depth, and the section reaches the open part of
- * that range its valid shoulders span ({@link range}).
- *
- * @evidence contracts/common.md#principled-implementation A section touches its box at the four guides with each quarter a conic of the stated shoulder, carried between guides by the quintic polar sector, and a girth fixes the common shoulder by Illinois on the hull's perimeter.
- * @evidence contracts/common.md#clear-and-simple-design One section record and one create function per station's box and fullness.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A girth outside the reach keeps the reach's end and reports it; a section past its box is refused.
- * @evidence contracts/common.md#meaningful-documentation States the guides, the conic, the girth's reach and every check's tolerance.
- * @evidence contracts/performance.md#efficient-algorithms CONIC_SPANS sectors per quarter and a bounded Illinois solve for the girth.
- * @evidence contracts/performance.md#reuse-equivalent-work Zero fullness arrays are made once per guide count.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the section's knots and guides only.
+ * @evidence contracts/common.md#principled-implementation Exact rational quarters and admitted convex rational G2 ends preserve the four support jets, positive curvature and original shoulders; actual native validity and girth residual admit an ellipse candidate directly or select a common shoulder by bracketed Illinois.
+ * @evidence contracts/common.md#clear-and-simple-design Public sections own their complete observations; range and Illinois retain only the measured source until a public result is selected.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No input box, aspect exception, relaxed convexity threshold or sampled replacement curve hides failed source premises.
+ * @evidence contracts/common.md#meaningful-documentation States source ownership, conic parameter, correction/error proof owner, numerical girth limit and separation from final loft fitting.
+ * @evidence contracts/performance.md#efficient-algorithms Four bounded quarters/native partitions serve bounded quadrature and girth solving. Intermediate measurements omit unused inspection knots/diagonals while retaining every candidate fault observation.
+ * @evidence contracts/performance.md#reuse-equivalent-work One source and observation partition serve section validity, source sampling and girth.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only the section's O(1)-bounded source records and observations survive; quadrature scratch is invocation-local.
  */
 export namespace AutoMovieViewSection {
   /** The conic shoulder of the ellipse, `sqrt(2) - 1`. */
   export const ELLIPSE: number = Math.SQRT2 - 1;
 
-  /** The box about the axis at one station. */
+  /**
+   * The finite positive support half extents about the source axis.
+   *
+   * @evidence contracts/common.md#principled-implementation Four positive extents identify the support lines at the cardinal chart angles.
+   * @evidence contracts/common.md#clear-and-simple-design One tuple carries the four support identities.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No source extent is derived from a mesh or fitted for validity.
+   * @evidence contracts/common.md#meaningful-documentation States chart directions and millimetres.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Data has no runtime algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Data schedules no computation.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The section producer owns the tuple.
+   */
   export interface IBox {
-    /** Half extents from the axis along `+u`, `+v`, `-u` and `-v`, mm, positive. */
+    /** Half extents along +u,+v,-u,-v, millimetres, finite and positive. */
     extents: Quarters<number>;
   }
 
-  /** One section. */
+  /**
+   * One source section before periodic phase fitting.
+   *
+   * @evidence contracts/common.md#principled-implementation The box, original shoulders, shared main jets and admitted rational/corrected source describe the actual section function.
+   * @evidence contracts/common.md#clear-and-simple-design One record separates source ownership from quadrature observations and derived girth/diagonals.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Observation knots never replace the actual rational source and no failure is hidden.
+   * @evidence contracts/common.md#meaningful-documentation Members name exact inputs, evaluator, observations and derived millimetre measures.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This result record computes nothing.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Preparation and consumers own reuse.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns its bounded conic and guide records.
+   */
   export interface ISection {
-    /** Its box. */
+    /** Original source support box. */
     box: IBox;
 
-    /** Each quarter's conic shoulder. */
+    /** Original conic shoulder per quarter. */
     shoulders: Quarters<number>;
 
-    /** The four guides at 0, `pi / 2`, `pi`, `3 pi / 2`: radius, angular slope 0 and the shared curvature. */
+    /** Four exact cardinal guide jets, including shared radial second derivatives. */
     guides: Quarters<AutoMoviePolarSector.IGuide>;
 
-    /** Every guide by increasing angle: the four main guides and each quarter's conic guides between them. */
+    /** Quadrature/inspection observations of the actual source, in increasing angle; these do not define an interpolant. */
     knots: AutoMoviePolarSector.IGuide[];
 
-    /** Each quarter's bump amplitude in `AutoMoviePolarSector`'s sense: zero, the conic guides carry the fullness. */
+    /** The actual exact-conic/correction source, including an explicit admission failure. */
+    conics: AutoMovieViewConic.ICurve;
+
+    /** No extra polar bump; quarter fullness belongs to shoulders. */
     fullness: Quarters<number>;
 
-    /** The taut-tape girth, the section's length while it is convex, mm. */
+    /** Numerical taut-tape girth in millimetres; zero in bare and nonfinite on quadrature failure. */
     girth: number;
 
-    /**
-     * Radius along each quarter's corner direction, mm: the diagonals are
-     * observations, read for checks and never an owner of the shape.
-     */
+    /** Radii along the four original corner directions, derived observations in millimetres. */
     diagonals: Quarters<number>;
   }
 
-  /** The shoulders a box reaches and the girths they give. */
+  /**
+   * Finite admitted common-shoulder reach and its actual source girths.
+   *
+   * @evidence contracts/common.md#principled-implementation Valid source sections and finite actual-source quadrature define the two returned reach endpoints.
+   * @evidence contracts/common.md#clear-and-simple-design One pair for shoulder and one for girth describe the range.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not claim mathematical reach beyond finite source/quadrature admission.
+   * @evidence contracts/common.md#meaningful-documentation Members state shoulder shares and millimetre girths.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This result contains no algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The range producer owns preparation reuse.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns four scalar results.
+   */
   export interface IRange {
-    /** Least and greatest valid common shoulder, before each quarter's departure. */
+    /** Least and greatest admitted common shoulder before quarter departures. */
     shoulder: [number, number];
 
-    /** The girths at those shoulders, mm. */
+    /** Corresponding actual-source girths, millimetres. */
     girth: [number, number];
   }
 
-  /** A section solved from a girth. */
+  /**
+   * A section selected by requested girth and any explicit reach diagnostic.
+   *
+   * @evidence contracts/common.md#principled-implementation The actual source girth selects the common shoulder, while an outside request retains the admitted endpoint with a diagnostic.
+   * @evidence contracts/common.md#clear-and-simple-design One nullable section and diagnostic list represent success and named failure.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Never silently rescales a box or hides an outside-range request.
+   * @evidence contracts/common.md#meaningful-documentation States null and retained-endpoint meanings.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This result computes nothing.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The solver owns work reuse.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the section and diagnostics.
+   */
   export interface ISolved {
-    /** The section; at a range end when the girth lies outside it; null when the box admits no valid section. */
+    /** Actual source section, an admitted outside-request endpoint, or null without finite admitted reach/estimate. A nonnull result can retain an unresolved-residual diagnostic. */
     section: ISection | null;
 
-    /** One diagnostic for a girth outside the reach or a box without a valid section; empty otherwise. */
+    /** Explicit reach/source/residual diagnostic; empty only after measured residual admission. */
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
   }
 
   /**
-   * Each guide's curvature, the smaller of its two quarters' conic curvatures at
-   * its touch point.
+   * Shared positive guide curvatures, inverse millimetres.
    *
-   * @param box The box.
-   * @param shoulders Each quarter's shoulder, inside `(0, 1)`.
-   * @returns The curvature per guide, 1 per mm.
+   * @evidence contracts/common.md#principled-implementation Each guide uses the smaller of its two rational endpoint curvatures a/(2w^2*b^2), retaining the published guide law.
+   * @evidence contracts/common.md#clear-and-simple-design Delegates to the shared NUMBER quarter policy in ViewConic; ArcField owns the rational endpoint law.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No aspect or output observation changes a guide curvature.
+   * @evidence contracts/common.md#meaningful-documentation States the smaller-adjacent law and inverse-length units.
+   * @evidence contracts/performance.md#efficient-algorithms Four fixed formula pairs.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Pure scalar geometry schedules no effects.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one four-number tuple.
    */
-  export function curvatures(box: IBox, shoulders: Quarters<number>): Quarters<number> {
-    const e: Quarters<number> = box.extents;
-    const conic = (q: number, along: number, across: number): number => {
-      const w: number = shoulders[q]! / (1 - shoulders[q]!);
-      return along / (2 * w * w * across * across);
-    };
-    return [0, 1, 2, 3].map((g: number): number => {
-      const before: number = (g + 3) % 4;
-      return Math.min(conic(before, e[g]!, e[before]!), conic(g, e[g]!, e[(g + 1) % 4]!));
-    }) as Quarters<number>;
+  export function curvatures(
+    box: IBox,
+    shoulders: Quarters<number>,
+  ): Quarters<number> {
+    return AutoMovieViewConic.curvatures(
+      AutoMovieConicFieldJet.NUMBER,
+      box.extents,
+      shoulders,
+    );
   }
 
   /**
-   * The section of a box with each quarter's shoulder.
+   * Prepare the source section and its derived diagonal/girth observations.
    *
-   * @param box The box, every extent positive.
-   * @param shoulders Each quarter's shoulder, inside `(0, 1)`.
-   * @returns The section; its validity is {@link fault}'s.
+   * @evidence contracts/common.md#principled-implementation Derived diagonals and girth read the admitted actual rational/corrected source, rather than an interpolated radius.
+   * @evidence contracts/common.md#clear-and-simple-design One preparation followed by actual-source measures produces the section.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A failed conic or quadrature remains nonfinite/named for fault, never a fallback shape.
+   * @evidence contracts/common.md#meaningful-documentation States source/measure ownership and validity through fault.
+   * @evidence contracts/performance.md#efficient-algorithms Bounded preparation plus four diagonal reads and bounded quadrature.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the prepared source for every measure.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned section owns its source/observations; scratch is released.
    */
   export function of(box: IBox, shoulders: Quarters<number>): ISection {
     const section: ISection = bare(box, shoulders);
     const e: Quarters<number> = box.extents;
     section.diagonals = [0, 1, 2, 3].map(
-      (q: number): number => radius(section, section.guides[q]!.angle + Math.atan2(e[(q + 1) % 4]!, e[q]!))[0],
+      (q: number): number =>
+        radius(
+          section,
+          section.guides[q]!.angle + Math.atan2(e[(q + 1) % 4]!, e[q]!),
+        )[0],
     ) as Quarters<number>;
     section.girth = length(section);
     return section;
   }
 
   /**
-   * A section's guides alone, its girth and diagonals left at zero: what the
-   * validity check reads, so the range's bisection pays no quadrature.
+   * Prepare only the source and its observation partition; leave measures at zero.
    *
-   * @param box The box, every extent positive.
-   * @param shoulders Each quarter's shoulder, inside `(0, 1)`.
-   * @returns The section without its measures.
+   * @evidence contracts/common.md#principled-implementation Original support jets and shared geometric curvatures prepare four rational quarters with admitted convex G2 end approximations where necessary.
+   * @evidence contracts/common.md#clear-and-simple-design A source-only preparation serves value readers; of adds actual arclength for range admission.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A failed source remains the conic owner's diagnostic, without an alternate section.
+   * @evidence contracts/common.md#meaningful-documentation States that zero measures mean not yet evaluated.
+   * @evidence contracts/performance.md#efficient-algorithms Bounded quarter preparation and at most 72 retained observation guides.
+   * @evidence contracts/performance.md#reuse-equivalent-work One prepared source serves all later validity/value/girth consumers.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns all returned conic/observation records; no global cache.
    */
   export function bare(box: IBox, shoulders: Quarters<number>): ISection {
-    const e: Quarters<number> = box.extents;
-    const kappa: Quarters<number> = curvatures(box, shoulders);
-    const guides: Quarters<AutoMoviePolarSector.IGuide> = [0, 1, 2, 3].map(
-      (g: number): AutoMoviePolarSector.IGuide => ({
-        angle: (g * Math.PI) / 2,
-        value: e[g]!,
-        slope: 0,
-        curvature: e[g]! - kappa[g]! * e[g]! * e[g]!,
-      }),
-    ) as Quarters<AutoMoviePolarSector.IGuide>;
-
-    // Each quarter's conic guides between its main guides.
-    const knots: AutoMoviePolarSector.IGuide[] = [];
-    for (let q: number = 0; q < 4; q++) {
-      knots.push(guides[q]!);
-      for (let j: number = 1; j < CONIC_SPANS; j++) knots.push(conic(e[q]!, e[(q + 1) % 4]!, shoulders[q]!, turned(e[q]!, e[(q + 1) % 4]!, shoulders[q]!, j / CONIC_SPANS), guides[q]!.angle));
-    }
-
-    return { box, shoulders: [...shoulders], guides, knots, fullness: [0, 0, 0, 0], girth: 0, diagonals: [0, 0, 0, 0] };
+    return observations(AutoMovieViewSectionConic.prepare(box, shoulders));
   }
 
-  /**
-   * A conic's guide: the point of a quarter's rational quadratic at a
-   * parameter, as a polar radius with its first and second derivatives in the
-   * angle.
-   *
-   * In the quarter's own axes the conic is `C(t) = N(t) / D(t)` with
-   * `N = (1 - t)^2 P0 + 2 w t (1 - t) P1 + t^2 P2`,
-   * `D = (1 - t)^2 + 2 w t (1 - t) + t^2`, `P0 = (a, 0)`, `P1 = (a, b)`,
-   * `P2 = (0, b)` and `w = r / (1 - r)`. With `rho = |C|` and
-   * `psi = atan2(y, x)`: `rho_t = C . C_t / rho`, `psi_t = (C x C_t) / rho^2`,
-   * `rho_tt = (|C_t|^2 + C . C_tt - rho_t^2) / rho`,
-   * `psi_tt = (C x C_tt) / rho^2 - 2 psi_t rho_t / rho`, and in the angle
-   * `rho_psi = rho_t / psi_t`, `rho_psipsi = (rho_tt psi_t - rho_t psi_tt) / psi_t^3`.
-   *
-   * @param a The half extent along the quarter's first guide.
-   * @param b The half extent along its second.
-   * @param r The quarter's shoulder, inside `(0, 1)`.
-   * @param t The conic's parameter, inside `(0, 1)`.
-   * @param start The quarter's first guide angle.
-   * @returns The guide.
-   */
-  export function conic(a: number, b: number, r: number, t: number, start: number): AutoMoviePolarSector.IGuide {
-    const w: number = r / (1 - r);
-    const s: number = 1 - t;
-
-    // Numerator and denominator with their first two derivatives in t.
-    const N: [number, number] = [s * s * a + 2 * w * t * s * a, 2 * w * t * s * b + t * t * b];
-    const N1: [number, number] = [-2 * s * a + 2 * w * (1 - 2 * t) * a, 2 * w * (1 - 2 * t) * b + 2 * t * b];
-    const N2: [number, number] = [2 * a - 4 * w * a, -4 * w * b + 2 * b];
-    const D: number = s * s + 2 * w * t * s + t * t;
-    const D1: number = -2 * s + 2 * w * (1 - 2 * t) + 2 * t;
-    const D2: number = 4 - 4 * w;
-
-    // The quotient rule for C, C_t and C_tt.
-    const C: [number, number] = [N[0] / D, N[1] / D];
-    const C1: [number, number] = [(N1[0] - C[0] * D1) / D, (N1[1] - C[1] * D1) / D];
-    const C2: [number, number] = [(N2[0] - 2 * C1[0] * D1 - C[0] * D2) / D, (N2[1] - 2 * C1[1] * D1 - C[1] * D2) / D];
-
-    // Polar radius and angle with their t derivatives, then the chain rule.
-    const rho: number = Math.hypot(C[0], C[1]);
-    const rt: number = (C[0] * C1[0] + C[1] * C1[1]) / rho;
-    const pt: number = (C[0] * C1[1] - C[1] * C1[0]) / (rho * rho);
-    const rtt: number = (C1[0] * C1[0] + C1[1] * C1[1] + C[0] * C2[0] + C[1] * C2[1] - rt * rt) / rho;
-    const ptt: number = (C[0] * C2[1] - C[1] * C2[0]) / (rho * rho) - (2 * pt * rt) / rho;
+  /** Public records retain every original observation, including failed-source numbers. */
+  function observations(value: Measured): ISection {
     return {
-      angle: start + Math.atan2(C[1], C[0]),
-      value: rho,
-      slope: rt / pt,
-      curvature: (rtt * pt - rt * ptt) / (pt * pt * pt),
+      box: value.box,
+      shoulders: value.shoulders,
+      guides: value.guides,
+      conics: value.conics,
+      knots: AutoMovieViewConic.samples(value.conics),
+      fullness: [0, 0, 0, 0],
+      girth: value.girth,
+      diagonals: [0, 0, 0, 0],
     };
   }
 
-  /**
-   * The radius and its two angle derivatives at a chart angle.
-   *
-   * @param section The section.
-   * @param phi Angle from `+u` toward `+v`, radians.
-   * @returns `[rho, rho_phi, rho_phiphi]`.
-   */
-  export function radius(section: ISection, phi: number): AutoMoviePolarSector.Jet {
-    return AutoMoviePolarSector.radius(section.knots, zeros(section.knots.length), phi);
+  /** Decorate only a selected public section, retaining its already measured girth. */
+  function completed(value: Measured): ISection {
+    const section: ISection = observations(value);
+    const e: Quarters<number> = value.box.extents;
+    section.diagonals = [0, 1, 2, 3].map(
+      (q: number): number =>
+        radius(
+          section,
+          section.guides[q]!.angle + Math.atan2(e[(q + 1) % 4]!, e[q]!),
+        )[0],
+    ) as Quarters<number>;
+    return section;
   }
 
   /**
-   * The section's length, `integral sqrt(rho^2 + rho_phi^2) dphi`, by
-   * Gauss-Legendre quadrature on each knot span: the radius is one quintic
-   * inside a span and only C2 across its knots, so the rule converges
-   * spectrally per span, where panels across knots lost it (0.07 mm on a
-   * 158 mm girth once the knots follow the conic's turn).
+   * The original rational conic guide at native parameter t.
    *
-   * @param section The section.
-   * @returns Its length, mm; its taut-tape girth while it is convex.
+   * @evidence contracts/common.md#principled-implementation Delegates the original numerator/denominator derivative and polar chain rule to the common exact-conic owner.
+   * @evidence contracts/common.md#clear-and-simple-design Preserves the public conic-guide signature through one implementation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not read section observations or estimate a tangent from neighbours.
+   * @evidence contracts/common.md#meaningful-documentation States native unit parameter, local extents and angular offset.
+   * @evidence contracts/performance.md#efficient-algorithms Constant native conic arithmetic.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses one rational formula owner for guide and direct radius reads.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned fixed-size guide survives.
    */
-  export function length(section: ISection): number {
-    let sum: number = 0;
-    const angles: number[] = section.knots.map((k: AutoMoviePolarSector.IGuide): number => k.angle);
-    for (let k: number = 0; k < angles.length; k++) {
-      const a: number = angles[k]!;
-      const b: number = k + 1 < angles.length ? angles[k + 1]! : angles[0]! + 2 * Math.PI;
-      const h: number = b - a;
-      const middle: number = (a + b) / 2;
-      for (let i: number = 0; i < GAUSS_NODES.length; i++) {
-        const [r, r1] = radius(section, middle + (GAUSS_NODES[i]! * h) / 2);
-        sum += ((GAUSS_WEIGHTS[i]! * h) / 2) * Math.hypot(r, r1);
-      }
-    }
-    return sum;
+  export function conic(
+    a: number,
+    b: number,
+    r: number,
+    t: number,
+    start: number,
+  ): AutoMoviePolarSector.IGuide {
+    return AutoMovieConicArc.guide(a, b, r, t, start);
   }
 
   /**
-   * Why a section is not a valid view section, or null when it is: a radius
-   * not above zero, a turn of the outline against convexity
-   * (`rho^2 + 2 rho_phi^2 - rho rho_phiphi < 0`, the curvature's numerator),
-   * or a point past a side of its box.
+   * Actual source radius and its two angular derivatives at any periodic angle.
    *
-   * @param section The section.
-   * @returns The first fault with its angle and numbers, or null.
+   * @evidence contracts/common.md#principled-implementation Reads the rational quarter and admitted rational G2 end approximation from the prepared source.
+   * @evidence contracts/common.md#clear-and-simple-design One source evaluator serves all section consumers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No Hermite interpolation through observation guides, point clamp or aspect exception remains.
+   * @evidence contracts/common.md#meaningful-documentation States angular derivatives and nonfinite failure propagation.
+   * @evidence contracts/performance.md#efficient-algorithms One constant-work rational/correction query.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the section's prepared supports without repeating admission.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one three-number jet and retains no query state.
+   */
+  export function radius(
+    section: ISection,
+    phi: number,
+  ): AutoMoviePolarSector.Jet {
+    return AutoMovieViewConic.radius(section.conics, phi);
+  }
+
+  /**
+   * Actual native-piece arclength, optionally in a fixed diagonal metric.
+   * axisScale contains two finite nonzero dimensionless signed axis scales;
+   * magnitudes determine the norm, and omitted scales preserve ordinary length.
+   * Original sections/G2 controls stay unchanged; this returns no error bound.
+   *
+   * @evidence contracts/common.md#principled-implementation Delegates the actual quadratic/cubic speeds to the single native quadrature owner.
+   * @evidence contracts/common.md#clear-and-simple-design Public length keeps the section API while measurement mechanics remain with ViewSectionConic.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A failed integral remains NaN, never a coarse or endpoint replacement.
+   * @evidence contracts/common.md#meaningful-documentation The measurement owner documents its estimated tolerance, finite bounds and failure policy.
+   * @evidence contracts/performance.md#efficient-algorithms Interior quadrature and each of at most eight end enclosures visit at most8192 panels, to depth24.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the section's prepared native partition and G2 controls.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only one scalar survives the measurement's local scratch.
+   */
+  export function length(
+    section: ISection,
+    axisScale: readonly [number, number] = [1, 1],
+  ): number {
+    return AutoMovieViewSectionConic.length(section, axisScale);
+  }
+
+  /**
+   * Two actual native target-refinement observations of the same mapped source.
+   *
+   * @evidence contracts/common.md#principled-implementation Measures the identical source at native estimated targets1e-7 and5e-8 in source length units, returning the finer result and actual absolute difference; this observation is neither a bound nor the polar GL8 K/2K rule.
+   * @evidence contracts/common.md#clear-and-simple-design Reuses the single native quadrature/enclosure owner twice, without preparing a new section or adding an integrator.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not manufacture zero error; coincident answers can yield an observed zero. Invalid map/source or exhausted numeric admission stays NaN, and original getter exceptions propagate.
+   * @evidence contracts/common.md#meaningful-documentation The signed finite nonzero diagonal scale is dimensionless; lengths/difference retain source units, normally mm. Both targets and the observation-only meaning are explicit.
+   * @evidence contracts/performance.md#efficient-algorithms Two bounded native measurements retain the existing8192-panel/depth24 limits per measurement; no polar inverse is evaluated at quadrature nodes.
+   * @evidence contracts/performance.md#reuse-equivalent-work Both measurements share the same original prepared rational/G2 functions, partitions and controls with no source reconstruction.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only two returned scalars survive; each measurement releases its bounded local panel stacks.
+   */
+  export function measure(
+    section: ISection,
+    axisScale: readonly [number, number] = [1, 1],
+  ): {
+    /** Finer native-target measurement in source units, normally mm; NaN on numeric refusal. */
+    lengthMm: number;
+    /** Actual absolute difference of the two native estimated targets, not a bound or polar K/2K result. */
+    differenceMm: number;
+  } {
+    const coarse: number = AutoMovieViewSectionConic.length(section, axisScale);
+    const fine: number = AutoMovieViewSectionConic.length(
+      section,
+      axisScale,
+      5e-8,
+    );
+    return { lengthMm: fine, differenceMm: Math.abs(fine - coarse) };
+  }
+
+  /**
+   * The original source's finite, convexity and support diagnostic.
+   *
+   * @evidence contracts/common.md#principled-implementation Combines rational source admission with independent observations of the actual source.
+   * @evidence contracts/common.md#clear-and-simple-design Delegates one diagnostic policy to the same owner as arclength.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Retains the existing curvature/support thresholds and original failure instead of substituting geometry.
+   * @evidence contracts/common.md#meaningful-documentation Bare zero girth is unevaluated; computed nonfinite girth is a failure.
+   * @evidence contracts/performance.md#efficient-algorithms At most388 prepared polar readings.
+   * @evidence contracts/performance.md#reuse-equivalent-work Prepared quarters serve every diagnostic read.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one string or null with no retained query state.
    */
   export function fault(section: ISection): string | null {
-    const e: Quarters<number> = section.box.extents;
-    for (let q: number = 0; q < 4; q++) {
-      const start: number = (q * Math.PI) / 2;
-      for (let k: number = 0; k <= CHECKS; k++) {
-        const phi: number = start + (k * QUARTER) / CHECKS;
-        const [r, r1, r2] = radius(section, phi);
-        if (!(r > 0)) return `radius ${r} mm at angle ${phi}`;
-        const turn: number = r * r + 2 * r1 * r1 - r * r2;
-        if (turn < -CONVEX * r * r) return `concave at angle ${phi} (curvature numerator ${turn} mm^2)`;
-
-        // Projections on the quarter's two guide directions stay within
-        // their sides.
-        const along: number = r * Math.cos(phi - start);
-        const across: number = r * Math.sin(phi - start);
-        if (along > e[q]! * (1 + INSIDE)) return `past side ${q} by ${along - e[q]!} mm at angle ${phi}`;
-        if (across > e[(q + 1) % 4]! * (1 + INSIDE)) return `past side ${(q + 1) % 4} by ${across - e[(q + 1) % 4]!} mm at angle ${phi}`;
-      }
-    }
-    return null;
+    return AutoMovieViewSectionConic.fault(section);
   }
 
   /**
-   * The common shoulders a box admits with each quarter's departure, and
-   * their girths: from the ellipse's shoulder, the last valid shoulder each
-   * way by bisection on {@link fault}.
+   * Finite admitted common-shoulder reach with original quarter departures.
    *
-   * @param box The box.
-   * @param departures Each quarter's departure from the common shoulder.
-   * @returns The range, or null when the ellipse's shoulder itself is not valid.
+   * @evidence contracts/common.md#principled-implementation Bisection from the ellipse shoulder finds each finite source-admission endpoint, then actual-source quadrature measures its girth.
+   * @evidence contracts/common.md#clear-and-simple-design One nullable range separates failed admission from usable shoulder/girth bounds.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not move extents or hide invalid shoulders; nonfinite endpoint girth gives no claimed range.
+   * @evidence contracts/common.md#meaningful-documentation States finite numerical reach rather than unrestricted mathematical conic reach.
+   * @evidence contracts/performance.md#efficient-algorithms Bounded binary64 bisection with actual source and native-arclength admission on each candidate.
+   * @evidence contracts/performance.md#reuse-equivalent-work Every admitted range candidate has finite native arclength; this avoids claiming a reach whose endpoint cannot be integrated.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary measured-source records are released; the caller owns four scalar bounds.
    */
-  export function range(box: IBox, departures: Quarters<number> = [0, 0, 0, 0]): IRange | null {
-    const at = (r: number): ISection | null => {
-      const s: Quarters<number> = departures.map((d: number): number => r + d) as Quarters<number>;
-      if (!s.every((x: number): boolean => x > 0 && x < 1)) return null;
-      const section: ISection = bare(box, s);
-      return fault(section) === null ? section : null;
-    };
-    if (at(ELLIPSE) === null) return null;
-
-    // Halvings to the shoulder share whose girth change stays inside the
-    // solve's tolerance: the girth spans less than the rectangle's 2 (W + D)
-    // over the shoulders.
-    const e: Quarters<number> = box.extents;
-    const steps: number = Math.ceil(Math.log2((2 * (e[0] + e[1] + e[2] + e[3])) / GIRTH_TOLERANCE));
-    const edge = (inside: number, outside: number): number => {
-      let a: number = inside;
-      let b: number = outside;
-      for (let i: number = 0; i < steps; i++) {
-        const m: number = (a + b) / 2;
-        if (at(m) !== null) a = m;
-        else b = m;
-      }
-      return a;
-    };
-    const lo: number = edge(ELLIPSE, 0);
-    const hi: number = edge(ELLIPSE, 1);
-    const shaped = (r: number): ISection => of(box, departures.map((d: number): number => r + d) as Quarters<number>);
-    return { shoulder: [lo, hi], girth: [shaped(lo).girth, shaped(hi).girth] };
+  export function range(
+    box: IBox,
+    departures: Quarters<number> = [0, 0, 0, 0],
+  ): IRange | null {
+    return AutoMovieViewSectionRange.create(box, departures);
   }
 
   /**
-   * The section whose taut-tape girth is the given one: the common shoulder
-   * by the Illinois rule on the girth over the valid range. A girth outside
-   * the reach gives the range's end shape and one diagnostic.
+   * Actual source section of a requested finite girth, or its explicit reach diagnostic.
    *
-   * @param producer Part and station, for the diagnostic.
-   * @param box The box.
-   * @param girth The taut-tape girth, mm.
-   * @param departures Each quarter's departure from the common shoulder.
-   * @returns The section and its diagnostics.
+   * @evidence contracts/common.md#principled-implementation An actual valid ellipse candidate whose measured residual passes is accepted directly. Otherwise Illinois on an admitted local or complete-reach bracket proposes a common shoulder, whose actual source validity and original1e-6 residual are checked before success. Local refusal falls back to complete reach; an outside request retains its original endpoint and diagnostic.
+   * @evidence contracts/common.md#clear-and-simple-design One result carries a nullable actual section and named reach, shape or unresolved-residual diagnostics.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No girth scaling, null-to-endpoint success or unchecked last estimate hides a failed solve.
+   * @evidence contracts/common.md#meaningful-documentation States retained-endpoint and no-finite-range behavior.
+   * @evidence contracts/performance.md#efficient-algorithms One native ellipse measurement can complete the request; otherwise at most100 Illinois iterations follow an admitted two-candidate local bracket or the unchanged bounded complete reach search. Failed local solving permits one complete-reach retry.
+   * @evidence contracts/performance.md#reuse-equivalent-work The call-owned numeric trial map reuses identical shoulder measurements and the selected actual source; it retains no foreign algebra callbacks or cross-input state. Complete endpoint geometry remains the original range owner's result.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the selected section and diagnostics survive; rejected candidates are invocation-local.
    */
   export function solve(
     producer: string,
@@ -379,133 +356,98 @@ export namespace AutoMovieViewSection {
     girth: number,
     departures: Quarters<number> = [0, 0, 0, 0],
   ): ISolved {
-    const reach: IRange | null = range(box, departures);
     const e: Quarters<number> = box.extents;
     const W: number = e[0] + e[2];
     const D: number = e[1] + e[3];
-    const shaped = (r: number): ISection =>
-      of(box, departures.map((d: number): number => r + d) as Quarters<number>);
-    if (reach === null)
-      return {
-        section: null,
-        diagnostics: [
-          {
-            producer,
-            level: 2,
-            contract: "view section",
-            detail: `the box [${e.join(", ")}] mm with departures [${departures.join(", ")}] admits no valid section at the ellipse's shoulder`,
-          },
-        ],
-      };
-    const [lo, hi] = reach.girth;
-    if (!(girth >= lo && girth <= hi)) {
-      const end: number = girth < lo ? reach.shoulder[0] : reach.shoulder[1];
-      return {
-        section: shaped(end),
-        diagnostics: [
-          {
-            producer,
-            level: 2,
-            contract: "girth in reach",
-            detail: `girth ${girth} mm outside the reach ${lo} to ${hi} mm of the box ${W} by ${D} mm (rhombus ${2 * Math.hypot(W, D)} mm, rectangle ${2 * (W + D)} mm); the section is the shoulder ${end}`,
-          },
-        ],
-      };
-    }
-    const r: number =
-      AutoMovieIllinois.root(
-        (x: number): number => shaped(x).girth - girth,
+    const family: AutoMovieViewSectionRange.IFamily =
+      AutoMovieViewSectionRange.nearby(box, departures, girth);
+    if (family.accepted !== undefined)
+      return { section: completed(family.accepted.source), diagnostics: [] };
+    let local: boolean = family.range !== null;
+    let reach: IRange | null = family.range ?? range(box, departures);
+
+    // Only an admitted local solve may retry through the unchanged complete
+    // reach path; original callback exceptions are never caught or replaced.
+    for (;;) {
+      if (reach === null)
+        return {
+          section: null,
+          diagnostics: [
+            {
+              producer,
+              level: 2,
+              contract: "view section",
+              detail: `the box [${e.join(", ")}] mm with departures [${departures.join(", ")}] has no finite admitted source/girth reach from the ellipse's shoulder`,
+            },
+          ],
+        };
+      const [lo, hi]: [number, number] = reach.girth;
+      if (!(girth >= lo && girth <= hi)) {
+        const end: number = girth < lo ? reach.shoulder[0] : reach.shoulder[1];
+        return {
+          section: completed(family.at(end).source),
+          diagnostics: [
+            {
+              producer,
+              level: 2,
+              contract: "girth in reach",
+              detail: `girth ${girth} mm outside the reach ${lo} to ${hi} mm of the box ${W} by ${D} mm (rhombus ${2 * Math.hypot(W, D)} mm, rectangle ${2 * (W + D)} mm); the section is the shoulder ${end}`,
+            },
+          ],
+        };
+      }
+      let localRefusal: boolean = false;
+      const r: number | null = AutoMovieIllinois.root(
+        (x: number): number => {
+          const trial: AutoMovieViewSectionRange.ITrial = family.at(x);
+          if (local && trial.fault !== null) {
+            localRefusal = true;
+            return NaN;
+          }
+          return trial.source.girth - girth;
+        },
         reach.shoulder[0],
         reach.shoulder[1],
         GIRTH_TOLERANCE,
         ITERATIONS,
-      ) ?? (girth - lo < hi - girth ? reach.shoulder[0] : reach.shoulder[1]);
-    return { section: shaped(r), diagnostics: [] };
+      );
+      const value: Measured | null =
+        r === null || !Number.isFinite(r) ? null : family.at(r).source;
+      const failure: string | null =
+        value === null
+          ? "no finite bracketed shoulder estimate"
+          : AutoMovieViewSectionConic.fault(value);
+      const residual: number = value === null ? NaN : value.girth - girth;
+      const section: ISection | null = value === null ? null : completed(value);
+      const refused: boolean =
+        localRefusal ||
+        failure !== null ||
+        !Number.isFinite(residual) ||
+        Math.abs(residual) > GIRTH_TOLERANCE;
+      if (local && refused) {
+        local = false;
+        reach = range(box, departures);
+        continue;
+      }
+      if (refused)
+        return {
+          section,
+          diagnostics: [
+            {
+              producer,
+              level: 2,
+              contract: "girth solve",
+              detail: `girth ${girth} has no admitted residual within ${GIRTH_TOLERANCE}; residual ${residual}; ${failure ?? "iteration bound exhausted"}`,
+            },
+          ],
+        };
+      return { section, diagnostics: [] };
+    }
   }
 }
 
-/** A quarter turn. */
-const QUARTER: number = Math.PI / 2;
+/** Accepted measured girth residual, in source length units (kernel millimetres). */
+const GIRTH_TOLERANCE: number = AutoMovieViewSectionRange.TOLERANCE;
 
-/**
- * Spans of each quarter's conic between guides: each span takes an equal sixteenth of the conic's polar angle plus its tangent's turn, which run from 0 to a quarter turn each (`turned`), so no span covers more than a sixteenth of a quarter turn of either. The interpolation error of a quintic Hermite span grows as the sixth power of the angles it spans, so this bounds every span alike: a full conic's spans stay near `1e-7` of the short half extent (a 4.3 to 1 lip box crossed its side by 2.5 micrometres at four spans), and a nearly straight quarter (a shoulder near 0, its turn packed into an angle of order `r b / a` at each touch) gets its guides inside that corner instead of across it, where equal steps of the conic's parameter left the quintic diving by hundreds of millimetres and a 60 by 40 box measured 1373 mm round.
- */
-const CONIC_SPANS: number = 16;
-
-/** Halvings of the conic's parameter interval that place a guide by its tangent's turn, to `2^-60` of the interval. */
-const TURN_BISECTIONS: number = 60;
-
-/**
- * The conic's parameter where its polar angle plus its tangent's turn from the first touch reach a share of a half turn: the rational quadratic of `conic`, its point's angle `atan2(N_v, N_u)` and its tangent's turn `atan2(C'_v, C'_u) - pi / 2` from the quotient rule, both monotone on a convex arc, so bisection finds it.
- *
- * @param a The half extent along the quarter's first guide.
- * @param b The half extent along its second.
- * @param r The quarter's shoulder.
- * @param share The share of the half turn, inside `(0, 1)`.
- * @returns The parameter, inside `(0, 1)`.
- */
-function turned(a: number, b: number, r: number, share: number): number {
-  const w: number = r / (1 - r);
-  const target: number = share * 2 * QUARTER;
-  let low: number = 0;
-  let high: number = 1;
-  for (let k: number = 0; k < TURN_BISECTIONS; k++) {
-    const t: number = (low + high) / 2;
-    const s: number = 1 - t;
-    const D: number = s * s + 2 * w * t * s + t * t;
-    const D1: number = -2 * s + 2 * w * (1 - 2 * t) + 2 * t;
-    const N: [number, number] = [s * s * a + 2 * w * t * s * a, 2 * w * t * s * b + t * t * b];
-    const N1: [number, number] = [-2 * s * a + 2 * w * (1 - 2 * t) * a, 2 * w * (1 - 2 * t) * b + 2 * t * b];
-    const du: number = N1[0] * D - N[0] * D1;
-    const dv: number = N1[1] * D - N[1] * D1;
-    if (Math.atan2(dv, du) - QUARTER + Math.atan2(N[1], N[0]) < target) low = t;
-    else high = t;
-  }
-  return (low + high) / 2;
-}
-
-/** Zero fullness for each count of guides, made once. */
-const ZEROS: Map<number, number[]> = new Map();
-
-/** Zero fullness for a count of guides. */
-function zeros(n: number): number[] {
-  let z: number[] | undefined = ZEROS.get(n);
-  if (z === undefined) {
-    z = new Array<number>(n).fill(0);
-    ZEROS.set(n, z);
-  }
-  return z;
-}
-
-/** Gauss-Legendre nodes on `[-1, 1]`, eight points (Abramowitz and Stegun, table 25.4). */
-const GAUSS_NODES: readonly number[] = [
-  -0.9602898564975363, -0.7966664774136267, -0.525532409916329, -0.1834346424956498, 0.1834346424956498, 0.525532409916329, 0.7966664774136267,
-  0.9602898564975363,
-];
-
-/** Gauss-Legendre weights matching {@link GAUSS_NODES}. */
-const GAUSS_WEIGHTS: readonly number[] = [
-  0.1012285362903763, 0.2223810344533745, 0.3137066458778873, 0.3626837833783620, 0.3626837833783620, 0.3137066458778873, 0.2223810344533745,
-  0.1012285362903763,
-];
-
-/**
- * Angles read per quarter by the validity check. The curvature numerator of
- * a degree-6 radius is a polynomial of degree 12 in the quarter's share, so
- * it changes sign at most 12 times; 96 equal parts put eight readings in the
- * mean gap between two of its roots.
- */
-const CHECKS: number = 96;
-
-/** Relative rounding allowed on the convexity numerator, `rho^2` its scale. */
-const CONVEX: number = 1e-12;
-
-/** Excess allowed past a side, the extent its scale: ten times the sixteen-span interpolation error (`CONIC_SPANS`), since only the touch at a guide is exact and the quintic may cross the side between guides by that error. */
-const INSIDE: number = 1e-6;
-
-
-/** Accepted girth error of the solve, mm: a thousandth of a micrometre. */
-const GIRTH_TOLERANCE: number = 1e-6;
-
-/** Most Illinois steps of the girth solve. */
+/** Bounded Illinois residual evaluations. */
 const ITERATIONS: number = 100;

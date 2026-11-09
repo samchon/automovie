@@ -1,3 +1,4 @@
+import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
@@ -5,8 +6,7 @@ type Vec3 = AutoMovieSolidVector.Vec3;
 const { dot, norm, sub } = AutoMovieSolidVector;
 
 /**
- * The foot of a world point on a solid surface: the chart point whose surface
- * point is nearest, found by Newton's method on the squared distance.
+ * A stationary surface foot of a world point, found locally by Newton on squared distance from the supplied chart guess. A converged stationary point is not a global nearest-point certificate.
  *
  * The operators place their seeds and trim margins from landmarks, which are
  * world points; the foot turns each into chart parameters on the surface that
@@ -16,24 +16,28 @@ const { dot, norm, sub } = AutoMovieSolidVector;
  * the Hessian of `|r|^2 / 2`. Where that Hessian is not positive definite (a
  * point farther from the surface than its radius of curvature, on the concave
  * side) the step falls back to Gauss-Newton, the Hessian without its `r` terms,
- * which always descends. Each step moves the surface point no farther than the point's current
- * distance from the world point, so a start in the wrong basin cannot jump
- * across the part, while a Newton step near the foot, shorter than the
- * residual, is never cut. Quadratic convergence near the foot; a start farther than the
- * point's distance from the surface's medial axis can reach a local foot on
- * the other side, which the caller avoids by seeding from the landmark's own
- * region.
+ * which gives a descent direction when the metric is positive definite. A step's linearized world length is capped by the current separation (or tolerance), but the actual trial distance is not reevaluated for descent. Regional guesses and a regular local minimum remain caller premises; these local steps do not certify the globally nearest foot.
  *
  * @evidence contracts/common.md#principled-implementation A point's foot on a surface is where the residual is square to both tangents, solved by Newton on the two tangential equations.
  * @evidence contracts/common.md#clear-and-simple-design One function from a world point and a chart guess to the foot.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A solve that does not converge returns null; no nearest sample stands in.
  * @evidence contracts/common.md#meaningful-documentation States the residual, the tolerance and the failure.
- * @evidence contracts/performance.md#efficient-algorithms Quadratic convergence, at most STEPS jets.
+ * @evidence contracts/performance.md#efficient-algorithms At most 60 surface-jet readings; local quadratic convergence requires a regular minimum and a sufficiently close starting guess.
  * @evidence contracts/performance.md#reuse-equivalent-work Each step's jet serves both the residual and the Newton system.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds the iterate only.
  */
 export namespace AutoMovieSolidFoot {
-  /** A foot point. */
+  /**
+   * A locally accepted stationary foot and its world separation from the target.
+   *
+   * @evidence contracts/common.md#principled-implementation Chart parameters identify the surface point whose two normalized tangential residuals passed the local solve's criterion.
+   * @evidence contracts/common.md#clear-and-simple-design Two chart scalars, the evaluated world point and distance expose the result without duplicating a surface.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Acceptance certifies finite owned-chart membership and local stationarity, not a global minimum, a positive-definite Hessian or constrained boundary optimum.
+   * @evidence contracts/common.md#meaningful-documentation Distinguishes chart coordinates from mm world point/distance and labels the result as local.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The result interface performs no minimization.
+   * @evidence contracts/performance.md#reuse-equivalent-work Callers may reuse its chart parameters as later guesses and its already evaluated point instead of rereading that accepted surface jet.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the result record, which borrows the accepted jet's point vector; the type owns no cache or resource handle.
+   */
   export interface IFoot {
     /** Chart parameters. */
     u: number;
@@ -61,6 +65,14 @@ export namespace AutoMovieSolidFoot {
    *   `|r . S_v| / |S_v|` accepted, mm.
    * @returns The foot, or null when Newton does not converge within
    *   {@link STEPS} or the chart degenerates (a vanishing derivative).
+   *
+   * @evidence contracts/common.md#principled-implementation Solves the two tangential stationarity equations by Newton, using the metric Gauss-Newton system when the full Hessian is not positive definite and bounding the chart step's linearized world length.
+   * @evidence contracts/common.md#clear-and-simple-design One local iterate owns residual, Hessian selection, relative small-system solve and step scaling.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Only owned finite trials are evaluated; at most twenty scalar feasibility halvings preserve the actual map. Normalized tangential stationarity still does not exclude maxima/other basins or certify a constrained boundary optimum; no post-step distance-descent claim is made.
+   * @evidence contracts/common.md#meaningful-documentation Gives mm target/tolerance, the two normalized residual tests, regional-guess premise, step/iteration behavior and nullable failure.
+   * @evidence contracts/performance.md#efficient-algorithms At most 60 fixed-size jet/system evaluations and twenty scalar domain halvings per update, with constant iterate storage; callback cost and local conditioning remain relevant.
+   * @evidence contracts/performance.md#reuse-equivalent-work One current jet supplies both residuals, Hessian/metric terms and the accepted point; repeated calls do not share a prepared search.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The iterate and temporary vectors/matrices are call-local on success or null; only a small foot record with the jet's point reference escapes.
    */
   export function of(
     surface: IAutoMovieSolidSurface,
@@ -72,7 +84,12 @@ export namespace AutoMovieSolidFoot {
     let v: number = guess[1];
 
     for (let step: number = 0; step < STEPS; step++) {
-      const j: IAutoMovieSolidSurface.IJet = surface.jet(u, v);
+      const j: IAutoMovieSolidSurface.IJet | null = AutoMovieSolidDomain.jet(
+        surface,
+        u,
+        v,
+      );
+      if (j === null) return null;
       const r: Vec3 = sub(j.p, q);
       const lu: number = norm(j.u);
       const lv: number = norm(j.v);
@@ -95,14 +112,43 @@ export namespace AutoMovieSolidFoot {
         b = F;
         d = G;
       }
-      const delta: [number, number] | null = AutoMovieSolidVector.solve2(a, b, b, d, [-gu, -gv]);
+      const delta: [number, number] | null = AutoMovieSolidVector.solve2(
+        a,
+        b,
+        b,
+        d,
+        [-gu, -gv],
+      );
       if (delta === null) return null;
 
       // Bound the step: its world length under the first fundamental form at
       // most the current distance.
-      const length: number = Math.sqrt(Math.max(0, E * delta[0] ** 2 + 2 * F * delta[0] * delta[1] + G * delta[1] ** 2));
+      const length: number = Math.sqrt(
+        Math.max(
+          0,
+          E * delta[0] ** 2 + 2 * F * delta[0] * delta[1] + G * delta[1] ** 2,
+        ),
+      );
       const bound: number = Math.max(norm(r), tolerance);
-      const k: number = length > bound && length > 0 ? bound / length : 1;
+      let k: number = length > bound && length > 0 ? bound / length : 1;
+      let trial: number = 0;
+      while (
+        !AutoMovieSolidDomain.contains(
+          surface,
+          u + k * delta[0],
+          v + k * delta[1],
+        ) &&
+        trial++ < 20
+      )
+        k /= 2;
+      if (
+        !AutoMovieSolidDomain.contains(
+          surface,
+          u + k * delta[0],
+          v + k * delta[1],
+        )
+      )
+        return null;
       u += k * delta[0];
       v += k * delta[1];
     }

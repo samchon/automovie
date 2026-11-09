@@ -1,31 +1,33 @@
 import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
 
 /**
- * The head's median back profile B: the forward place of the skin on the
+ * The head's analytic median back authoring profile B: forward place on the
  * back midline at a height, from the neck ring to the vertex.
  *
- * Over the opisthocranion it is the vault's ellipse about that point: half
- * its length behind the skull's centre, reaching the vertex. Under it one
- * quintic Hermite span runs down to the neck ring's back, taking the
- * opisthocranion's jet from the vault (place, a level tangent, the ellipse's
+ * Over the retained horizontal-tangent reference it is an ellipse reaching
+ * the vertex. Under it one quintic Hermite span runs down to the neck ring's
+ * back, taking the reference's template jet (place, a level tangent,
  * curvature `reach / top^2`) and the ring's from the neck (its place and
  * slope; the neck's chain publishes no station curvature, so the seam with it
- * is G1 and the span starts straight). So the back is C2 from the ring to the
- * vertex and the nape's turn is wherever the two jets put it. A vault share held at a
- * floor under the opisthocranion had left a corner there, the skin's back
+ * is G1 and the span starts straight). The template is C2 through that
+ * reference; its Y derivative is singular at the crown pole. The emitted
+ * original curve is prepared separately by the engine. HeadCaliper closes
+ * its maximum g-to-posterior chord; that point need not be the template's
+ * horizontal tangent. A vault share held at a floor under the reference had
+ * left a corner there, the skin's back
  * stepping forward 27 mm in 30 mm and then out again to the neck, which read
  * as a ring round the back of the head.
  */
 export namespace AutoMovieHumanHeadBackProfile {
   /** The profile's owners, calibration millimetres; x forward, y up. */
   export interface IProfile {
-    /** Skull centre's forward place, midway from glabella to opisthocranion. */
+    /** Retained cranial axis's forward place; not necessarily the g/op midpoint. */
     centre: number;
 
-    /** The vault's reach behind the centre at the opisthocranion. */
+    /** Posterior reach behind the axis at the template's reference height. */
     reach: number;
 
-    /** Opisthocranion's height. */
+    /** Retained horizontal-tangent reference height, distinct from the maximizing g-to-posterior caliper point. */
     occiput: number;
 
     /** Vertex height. */

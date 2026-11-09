@@ -26,11 +26,21 @@ const LINK: number = 10;
  * reach of the axis (three times the built box's largest half extent plus 30 mm) are kept, so a
  * neighbouring limb does not enter.
  *
- * The part's own skin is the piece around the axis: the segments are joined into pieces wherever
+ * A diagnostic candidate around the axis is selected heuristically: segments are joined into pieces wherever
  * two ends lie within {@link LINK} mm, and the piece that surrounds the axis (whose points fill at
  * least 9 of 12 equal angle sectors about it, the most of any) is the part's; a part merged into a
- * larger one (a nose on the face) has none when its axis lies outside the skin, and is then read only
- * by its distances.
+ * larger one (a nose on the face) can have no candidate and is then read only by its distances.
+ * This angle-coverage and 10 mm linkage rule proves neither a closed skin nor containment. Open
+ * source arcs and slab projection leave E/B approximate or unavailable; T/R measure nearest kept
+ * projected segments, not an exact three-dimensional or anatomical error. None is acceptance.
+ *
+ * @evidence contracts/common.md#principled-implementation Projects supplied reference segments in a bounded slab into a part's own section plane; nearest-segment distances are exact only for that projected segment set. Candidate extents use the documented linkage and angle heuristic, not a closed-region proof.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps reference flattening, plane selection, candidate extents and point-to-segment diagnostics together, outside Human construction and acceptance.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no candidate-shape adjustment or fitted distance target; absent surrounding support remains null and absent distance support remains infinite.
+ * @evidence contracts/common.md#meaningful-documentation States frames, slab/reach limits, heuristic support and the distinction from true surface or anatomical error.
+ * @evidence contracts/performance.md#efficient-algorithms Each plane makes at most five scans of the selected reference segments. The linkage grid is local in 2D, with quadratic candidate comparisons in a fully crowded cell; each distance query scans its retained segments. No stronger bound is claimed.
+ * @evidence contracts/performance.md#reuse-equivalent-work Flattened region segments serve all station cuts of one comparison, and each cut serves its four touch and 48 ring queries; the loader owns request-level rebuilding.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Region buffers belong to the comparison, while slab, grid and union-find scratch are bounded by one cut's segment count and released with that cut; no global cache or handle is held.
  */
 export namespace HumanDebugReferenceCut {
   /** A region's segments, flat: `x0, y0, z0, x1, y1, z1` per segment. */
@@ -47,7 +57,7 @@ export namespace HumanDebugReferenceCut {
     /** Every kept segment in the chart, `x0, z0, x1, z1` per segment, mm. */
     segments: number[];
 
-    /** The surrounding piece's extremes `[+u, +v, -u, -v]` as half extents from the axis (the last two negated), or null without one. */
+    /** Heuristic candidate extremes `[+u, +v, -u, -v]` about the axis (last two negated), or null; not proof of a closed surrounding skin. */
     extents: [number, number, number, number] | null;
 
     /** Half slab used, mm. */
@@ -59,14 +69,23 @@ export namespace HumanDebugReferenceCut {
    *
    * @param pack The reference's sections.
    * @returns One record per region.
+   *
+   * @evidence contracts/common.md#principled-implementation Preserves every supplied closed-loop edge and each open arc's consecutive edges in pack mm; an open arc contributes no artificial return segment.
+   * @evidence contracts/common.md#clear-and-simple-design One flat six-number record per segment serves the later plane cuts independently of the display style.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads source coordinates only and does not close a source opening or use the compared figure to invent support.
+   * @evidence contracts/common.md#meaningful-documentation The region and segment declarations state labels, coordinate order, units and diagnostic ownership.
+   * @evidence contracts/performance.md#efficient-algorithms O(P) source points produce O(P) segments; one temporary numeric list per region is converted once to a Float64Array.
+   * @evidence contracts/performance.md#reuse-equivalent-work The caller shares each region's resulting segments across every built station instead of resampling Hermite spans per query.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned typed buffers, releases temporary lists after conversion and retains no pack or global cache.
    */
   export function regions(pack: IHumanDebugReferencePack): IRegion[] {
     return pack.regions.map((r: IHumanDebugReferencePack.IRegion): IRegion => {
       const out: number[] = [];
       for (const s of r.sections)
-        for (const loop of s.loops) {
+        for (const closed of [true, false])
+        for (const loop of (closed ? s.loops : (s.arcs ?? []))) {
           const n: number = loop.length / 2;
-          for (let i: number = 0; i < n; i++) {
+          for (let i: number = 0; i < (closed ? n : n - 1); i++) {
             const j: number = (i + 1) % n;
             out.push(loop[2 * i]!, s.y, loop[2 * i + 1]!, loop[2 * j]!, s.y, loop[2 * j + 1]!);
           }
@@ -131,7 +150,7 @@ export namespace HumanDebugReferenceCut {
     return best;
   }
 
-  /** The extremes of the piece that surrounds the origin, or null. */
+  /** Candidate extremes from 10 mm segment linkage and at least 9/12 occupied angle sectors, or null; this does not prove closure or containment. */
   function surround(segments: readonly number[]): [number, number, number, number] | null {
     const n: number = segments.length / 4;
     if (n === 0) return null;

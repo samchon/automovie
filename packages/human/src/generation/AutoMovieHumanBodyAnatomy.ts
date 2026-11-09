@@ -153,9 +153,16 @@ export namespace AutoMovieHumanBodyAnatomy {
       upperArmLength: t.upperArmLength,
       forearmLength: t.lowerArmLength,
       upperArmCircumference: t.bicep,
+      // Pass-through; absent, the mid-arm girth, which keeps the arm's documented law (a flat upper arm from its port).
+      axillaryArmCircumference: given.axillaryArmCircumference ?? t.bicep,
       elbowCircumference: t.elbow,
       forearmCircumference: t.forearm,
       wristCircumference: t.wrist,
+      // Forearm and wrist skin calipers: the person's, else Perry et al. 2021's relations to the same girths (supination CS2 at 0.2 RS: semi-axes 0.1749 and 0.1365 of the forearm girth; at stylion the ellipse of the wrist girth with circularity 0.674 by Ramanujan's perimeter).
+      forearmBreadth: given.forearmBreadth ?? 2 * 0.1749 * t.forearm,
+      forearmDepth: given.forearmDepth ?? 2 * 0.1365 * t.forearm,
+      wristSkinBreadth: given.wristSkinBreadth ?? (2 * t.wrist) / ellipsePerimeter(1, WRIST_CIRCULARITY),
+      wristDepth: given.wristDepth ?? (2 * WRIST_CIRCULARITY * t.wrist) / ellipsePerimeter(1, WRIST_CIRCULARITY),
       handCircumference: t.handCircumference,
       inseam: t.inseam,
       thighCircumference: t.thigh,
@@ -189,8 +196,14 @@ export namespace AutoMovieHumanBodyAnatomy {
       heelAnkleCircumference: given.heelAnkleCircumference ?? line(C.HEEL_ANKLE_ON_FOOT_LENGTH, footLength),
       instepLength: given.instepLength ?? line(C.INSTEP_ON_FOOT_LENGTH, footLength),
       glutealFurrowHeight: given.glutealFurrowHeight ?? line(GLUTEAL_FURROW_ON_CROTCH, t.inseam + ankle),
+      // Mid-patella height: ANSUR II's relation on stature, 0.276 S (women) and 0.278 S (men); the person's own reading when given.
+      midpatellaHeight: given.midpatellaHeight ?? [0.276, 0.278][k]! * stature,
+      // Calf height (ANSUR 1988 (29)): the maximum calf girth's level 22.4 % of the fibula below the fibular head (Shimura, Kubo and Nishida 2016), the head read at tibiale (ANSUR II OLS on stature: -103.6 + 0.3325 S women, -119.1 + 0.3344 S men) and the fibula's end at the lateral malleolus height; the person's own reading when given.
+      calfHeight: given.calfHeight ?? (1 - 0.224) * ([-103.6, -119.1][k]! + [0.3325, 0.3344][k]! * stature) + 0.224 * ankle,
       crotchLength,
       posteriorCrotchLength: given.posteriorCrotchLength ?? C.POSTERIOR_CROTCH_SHARE[k] * crotchLength,
+      kyphoticAngle: given.kyphoticAngle ?? KYPHOTIC_ANGLE[k],
+      lordoticAngle: given.lordoticAngle ?? LORDOTIC_ANGLE[k],
       thumbBreadth: given.thumbBreadth ?? line(THUMB_ON_HAND_BREADTH, handBreadth),
       bodyFatPercentage: fat,
     };
@@ -375,6 +388,16 @@ export namespace AutoMovieHumanBodyAnatomy {
     { a: 7.62, b: 0.1827 },
   ];
 
+  /**
+   * Thoracic kyphotic angle by sex, degrees, the default of an unknown one:
+   * the surface-topography means of Bioengineering 2022 (PMC9774435) Table 4,
+   * 50.1 (SD 8.2) women and 49.6 (8.6) men (`trunk/AutoMovieHumanTrunkBackProfile`).
+   */
+  export const KYPHOTIC_ANGLE: readonly [number, number] = [50.1, 49.6];
+
+  /** Lumbar lordotic angle by sex, degrees, the default of an unknown one: same source, 44.0 (8.5) women and 34.9 (7.3) men. */
+  export const LORDOTIC_ANGLE: readonly [number, number] = [44.0, 34.9];
+
   /** Mean stature by sex, mm, the default of an unknown height: ANSUR II, 1628.5 and 1756.2. */
   export const STATURE: readonly [number, number] = [1628.5, 1756.2];
 
@@ -492,5 +515,13 @@ export namespace AutoMovieHumanBodyAnatomy {
     | "thigh"
     | "knee"
     | "calf";
+}
+
+/** Perry et al. 2021's fitted wrist circularity at stylion (x = 1 of radiale-stylion), the polynomial 1.4204 - 3.1362 + 1.8798 + 0.5104. */
+const WRIST_CIRCULARITY: number = 1.4204 - 3.1362 + 1.8798 + 0.5104;
+
+/** Ramanujan's first approximation of the perimeter of an ellipse of semi-axes `a` and `b`. */
+function ellipsePerimeter(a: number, b: number): number {
+  return Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
 }
 

@@ -9,7 +9,7 @@ export interface IHumanDebugBatchItem {
   /** Absolute path of the saved PNG, or null when the frame failed. */
   file: string | null;
 
-  /** Source hash the frame reflects, or null when it failed. */
+  /** Disk source inventory hash recorded for the frame's page load, or null when it failed. */
   source: string | null;
 
   /** SHA-256 of the saved PNG, or null when it failed. */

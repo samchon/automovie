@@ -21,7 +21,7 @@ import type { IRecoveryFeasibleDirectionCase } from "../internal/IRecoveryFeasib
  * @evidence contracts/testing.md#behavioral-verification Calls the actual generic minimizer and recovery direction certificate, reconstructs every primal halfspace and full primal-dual gap, and observes explicit bounded termination and unchanged inputs.
  * @evidence contracts/testing.md#independent-expectations Closed-form optima give curved d=(.5,.5), normal/abnormal d=0 with distinct objective multipliers, and nonzero-bound d=-.5,gamma=-.5,objective=-.375. Existing embedded PSD solving is a separate numerical algorithm, not a replacement for those analytic expectations.
  * @evidence contracts/testing.md#distinguishing-cases Covers nonzero affine terms, simplex degeneracy, exact duplicate normals, all-empty input, finite capacity, invalid sparse ordering, all-row certificate and no budget-limited success. Nonlinear retraction and camera ranks have separate tests.
- * @evidence contracts/testing.md#execution-ownership The portable test_geometry_simplex_quadratic entry calls resident source arithmetic and the existing embedded numerical primitive only, without installation, native build, external process, browser or GPU.
+ * @evidence contracts/testing.md#execution-ownership The portable test_geometry_simplex_quadratic entry calls resident source arithmetic and the engine-owned TypeScript numerical primitive only, without installation, native build, external process, browser or GPU.
  */
 export function test_geometry_simplex_quadratic(): void {
   const problems: IRecoveryFeasibleDirectionCase[] = [
