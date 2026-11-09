@@ -24,13 +24,15 @@ import { resolvePose } from "./resolvePose";
  * the centre of the bone's colliders) and an outward direction in the rest
  * frame; its point is where a ray from the station along the direction
  * leaves the bone's colliders (exact ray exits of spheres, capsules and boxes;
- * the colliders are convex, so the union's exit is the largest), and its
+ * the colliders are convex and closed, so the union's exit is the largest and
+ * a station on a face counts as inside), and its
  * normal is the direction. This is how authored hit and touch locations are
  * placed on character physics bodies in game engines (a bone plus a local
  * offset on its collider), generalised so the offset comes from the body's
  * own shapes and fits any size. The palm, sole, heel and seat regions share
  * their sockets' points, and the index fingertip region is the exit of a ray
- * along the finger through the hand's colliders, riding the distal phalanx.
+ * along the finger through the distal phalanx's colliders (the hand's when the
+ * profile has no phalanx segment), riding the distal phalanx.
  * Sockets of the foot, seat and back are read
  * from the exact axis bounds of their segment's colliders at rest (heel at
  * the back of the sole, ball under the toe joint, toe at the front, sole at
@@ -165,7 +167,8 @@ export function resolveAutoMovieHumanoidSurfaces(
     regions[`heel${Side}` as AutoMovieHumanoidRegion] = { ...sockets[`heel${Side}` as AutoMovieHumanoidSocket] };
     const distal: IAutoMovieVector3 = at(bone("IndexDistal")).worldPosition;
     const along: IAutoMovieVector3 = Vector3.subtract(distal, at(bone("IndexIntermediate")).worldPosition);
-    regions[`indexTip${Side}` as AutoMovieHumanoidRegion] = local(bone("IndexDistal"), exit(bone("Hand"), distal, along), along);
+    const phalanx: AutoMovieHumanoidBone = profile.segments.some((x: P.ISegment): boolean => x.bone === bone("IndexDistal")) ? bone("IndexDistal") : bone("Hand");
+    regions[`indexTip${Side}` as AutoMovieHumanoidRegion] = local(bone("IndexDistal"), exit(phalanx, distal, along), along);
   }
   const thorax = bounds("chest");
   sockets.back = local("chest", { x: 0, y: (thorax.min.y + thorax.max.y) / 2, z: thorax.min.z }, { x: 0, y: 0, z: -1 }, { x: 0, y: 1, z: 0 });
@@ -254,6 +257,9 @@ const GRIP_RADIUS: number = 0.025;
 /** Radius of the third metacarpal head, the fist's striking surface ahead of the knuckle joint, metres. */
 const KNUCKLE_RADIUS: number = 0.012;
 
+/** Metres a station may sit outside a collider and still count as on it: the colliders are closed sets, so a station on a face or a cap must not miss by rounding. */
+const BOUNDARY: number = 1e-9;
+
 /** Every region's definition, both sides from one table: +X is the body's left. */
 const REGIONS: Readonly<Partial<Record<AutoMovieHumanoidRegion, IRegionDef>>> = (() => {
   const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
@@ -320,7 +326,7 @@ function shapeExit(frame: P.ITransform, shape: P.IShape, origin: IAutoMovieVecto
     const oc: IAutoMovieVector3 = Vector3.subtract(origin, c);
     const b: number = Vector3.dot(oc, d);
     const disc: number = b * b - (Vector3.dot(oc, oc) - r * r);
-    return disc < 0 ? -Infinity : -b + Math.sqrt(disc);
+    return disc < -BOUNDARY * r ? -Infinity : -b + Math.sqrt(Math.max(0, disc));
   };
   if (shape.kind === "sphere") return sphere(centre, shape.radius);
   if (shape.kind === "capsule") {
@@ -351,7 +357,7 @@ function shapeExit(frame: P.ITransform, shape: P.IShape, origin: IAutoMovieVecto
   for (const k of ["x", "y", "z"] as const) {
     const h: number = shape.halfExtents[k];
     if (Math.abs(dir[k]) < 1e-12) {
-      if (Math.abs(o[k]) > h) return -Infinity;
+      if (Math.abs(o[k]) > h + BOUNDARY) return -Infinity;
       continue;
     }
     const t1: number = (-h - o[k]) / dir[k];
