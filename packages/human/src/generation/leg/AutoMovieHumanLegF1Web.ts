@@ -164,7 +164,148 @@ export namespace AutoMovieHumanLegF1Web {
     });
     if (output.unresolved.length !== 0)
       throw new Error(`The fixed ${side} measured web has unresolved source groups: ${JSON.stringify(output.unresolved)}`);
+    // The complete transition includes the last ordinary raw row, the saved
+    // parent cubic and the original declared 1-to-2 event. Both parent curves
+    // retain four exact root-plane crossings; the error was correspondence,
+    // not loss of the negative notch. Keep the original event surface.
+    const split = observed.groups.find(({ groups }) => groups.some(group => group.before.length === 1 && group.after.length === 2));
+    const correspondence = source.info.firstBranchCorrespondence;
+    const parentIndex: number = sections.findIndex(section => section.coordinateMm === split?.beforeMm);
+    const beforeSection = sections[parentIndex - 1];
+    const rawRow = source.rows.find(row => row.station === beforeSection?.coordinateMm);
+    const rawLoops = rawRow?.loops.filter(loop => loop.closed);
+    const parentSection = observed.sections.find(section => section.coordinateMm === split?.beforeMm);
+    const from = rawLoops?.[0]?.points[correspondence?.beforeHostVertex ?? -1];
+    const to = parentSection?.loops[0]?.curve.spans[correspondence?.afterToeSpan ?? -1]?.[0];
+    if (split === undefined || correspondence === undefined || beforeSection === undefined ||
+      rawLoops?.length !== 1 || parentSection?.loops.length !== 1 || from === undefined || to === undefined)
+      throw new Error("The original F1 source passage lacks its authored physical curve correspondence");
+    const ranges = output.primitiveRanges?.filter(item => item.beforeMm === beforeSection.coordinateMm &&
+      item.afterMm === split.beforeMm);
+    if (ranges?.length !== 1) throw new Error("The original F1 passage is not a single ordinary source interval");
+    const port = (side === "left" ? left : right).ports[5]!.frame;
+    sourcePassage(skin, ranges[0]!.firstTriangle, ranges[0]!.triangleCount, n, beforeSection.coordinateMm,
+      { origin: AutoMovieCurveMath64.clone(port.origin), u: AutoMovieCurveMath64.clone(port.u), v: AutoMovieCurveMath64.clone(port.v) },
+      place(beforeSection.coordinateMm, from), AutoMovieCurveMath64.clone(to));
     return skin;
+  }
+
+  /**
+   * Match the original host and toe arcs across the raw-walk/cubic boundary.
+   * Both complete source profiles have four actual root-plane crossings.
+   * Their negative guides retain two positive sheets; a closest-area tiling
+   * can otherwise cross from the host source edge to the toe source span.
+   * Exact source indices are authored in Native.info.firstBranchCorrespondence.
+   * The offline full dual-graph receipt is codex-leg-toe5-full-lineage.json:
+   * original left faces 7292/7293 and right 7442/7443 crossed those owners.
+   * Cubic negative controls remain negative; no fit or tolerance is changed.
+   */
+  function sourcePassage(skin: Skin, first: number, count: number, n: V3, before: number, frame: Port["frame"], host: V3, toe: V3): void {
+    const original: Face[] = skin.faces.slice(first, first + count);
+    const key = (a: number, b: number): string => a < b ? `${a},${b}` : `${b},${a}`;
+    const edges: Map<string, { a: number; b: number; uses: number }> = new Map();
+    for (const face of original)
+      for (let i: number = 0; i < 3; ++i) {
+        const a: number = face[i]!, b: number = face[(i + 1) % 3]!, k: string = key(a, b);
+        const item = edges.get(k) ?? { a, b, uses: 0 };
+        ++item.uses;
+        edges.set(k, item);
+      }
+    const next: Map<number, number> = new Map();
+    for (const { a, b, uses } of edges.values())
+      if (uses === 1) {
+        if (next.has(a)) throw new Error("The measured F1 source passage has a branching generating boundary");
+        next.set(a, b);
+      }
+    const used: Set<number> = new Set(), cycles: number[][] = [];
+    for (const start of next.keys()) {
+      if (used.has(start)) continue;
+      const cycle: number[] = [];
+      let id: number | undefined = start;
+      while (id !== undefined && !used.has(id)) { cycle.push(id); used.add(id); id = next.get(id); }
+      if (id !== start) throw new Error("The measured F1 source passage has an open generating curve");
+      cycles.push(cycle);
+    }
+    const parents = cycles.filter(row => row.every(id => Math.abs(dot(skin.points[id]!, n) - before) < 1e-6));
+    if (cycles.length !== 2 || parents.length !== 1) throw new Error("The source passage is not one ordinary pair of closed curves");
+    const parent: number[] = parents[0]!;
+    const after: number[] = cycles.find(row => row !== parent)!.slice().reverse();
+    const normal: V3 = AutoMovieCurveMath64.clone(AutoMovieViewAxis.normal(frame));
+    const signed = (id: number): number => dot(AutoMovieCurveMath64.sub(skin.points[id]!, frame.origin as V3), normal);
+    const partition = (row: number[]): number[][] => {
+      const start: number = row.findIndex(id => signed(id) > 0);
+      if (start < 0) throw new Error("A source passage has no observed positive arc");
+      const negative: number[][] = [];
+      let run: number[] = [];
+      for (let k: number = 1; k <= row.length; ++k) {
+        const i: number = (start + k) % row.length;
+        if (signed(row[i]!) <= 0) run.push(i);
+        else if (run.length !== 0) { negative.push(run); run = []; }
+      }
+      if (negative.length !== 2) throw new Error("The actual F1 source curve does not retain its two separated positive arcs");
+      const guides: number[] = negative.map(items => items.reduce((best, i): number =>
+        signed(row[i]!) < signed(row[best]!) ? i : best));
+      if (guides.some(i => signed(row[i]!) >= 0)) throw new Error("A source passage guide is not strictly inside the measured negative arc");
+      const [a, b]: number[] = guides.sort((x, y): number => x - y);
+      return [row.slice(a!, b! + 1), [...row.slice(b!), ...row.slice(0, a! + 1)]];
+    };
+    const from: number[][] = partition(parent), to: number[][] = partition(after);
+    const physical = (parts: number[][], anchor: V3): number => {
+      if (dot(AutoMovieCurveMath64.sub(anchor, frame.origin as V3), normal) <= 0)
+        throw new Error("An authored source-edge anchor is outside its actual positive arc");
+      const matches: number[] = parts.flatMap((row, i): number[] =>
+        row.some(id => skin.points[id]!.every((x, j): boolean => x === anchor[j])) ? [i] : []);
+      if (matches.length !== 1) throw new Error("An actual source-edge anchor has no unique measured positive arc");
+      return matches[0]!;
+    };
+    const hostFrom: number = physical(from, host), toeTo: number = physical(to, toe);
+    const arcs: number[][] = [from[hostFrom]!, from[1 - hostFrom]!];
+    const opened: number[][] = [to[1 - toeTo]!, to[toeTo]!];
+    const distance = (a: V3, b: V3): number => Math.hypot(...AutoMovieCurveMath64.sub(a, b));
+    const pending: Face[] = [];
+    const clock = (row: number[]): number[] => {
+      let length: number = 0;
+      const result: number[] = [0];
+      for (let i: number = 1; i < row.length; ++i) {
+        length += distance(skin.points[row[i]!]!, skin.points[row[i - 1]!]!);
+        result.push(length);
+      }
+      return result.map(value => value / length);
+    };
+    for (let k: number = 0; k < 2; ++k) {
+      const from: number[] = arcs[k]!, to: number[] = opened[k]!;
+      const fa: number[] = clock(from), fb: number[] = clock(to);
+      let i: number = 0, j: number = 0;
+      while (i + 1 < from.length || j + 1 < to.length) {
+        const a: number = from[i]!, b: number = to[j]!;
+        if ((fa[i + 1] ?? Infinity) < (fb[j + 1] ?? Infinity)) pending.push([a, from[++i]!, b]);
+        else pending.push([a, to[++j]!, b]);
+      }
+    }
+    const admitted: Map<string, { a: number; b: number; uses: number; direction: number }> = new Map();
+    for (const face of pending) {
+      const [p, q, r] = face.map(id => skin.points[id]!) as [V3, V3, V3];
+      const u: V3 = AutoMovieCurveMath64.sub(q, p), v: V3 = AutoMovieCurveMath64.sub(r, p);
+      const area: number = Math.hypot(u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]);
+      if (!(area > 0)) throw new Error("An observed source passage collapses its ordinary strip");
+      for (let i: number = 0; i < 3; ++i) {
+        const a: number = face[i]!, b: number = face[(i + 1) % 3]!, k: string = key(a, b);
+        const item = admitted.get(k) ?? { a, b, uses: 0, direction: 0 };
+        ++item.uses;
+        item.direction += a < b ? 1 : -1;
+        admitted.set(k, item);
+      }
+    }
+    for (const [k, item] of admitted) {
+      const old = edges.get(k);
+      if (item.uses === 1) {
+        if (old?.uses !== 1 || old.a !== item.a || old.b !== item.b)
+          throw new Error("The source passage changed an exact generating boundary direction");
+      } else if (item.uses !== 2 || item.direction !== 0) throw new Error("The source passage has a nonreciprocal internal edge");
+    }
+    if ([...edges].some(([k, item]) => item.uses === 1 && admitted.get(k)?.uses !== 1))
+      throw new Error("The source passage lost a measured generating curve edge");
+    skin.faces.splice(first, count, ...pending);
   }
 
   function line(name: string, raw: V3[], n: V3): Loop {
