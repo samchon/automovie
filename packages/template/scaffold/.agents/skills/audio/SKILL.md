@@ -1,12 +1,10 @@
 ---
 name: audio
-description: Acquires and verifies speech, music, effects, and ambience for this production. Use when sourcing or generating audio, arranging dialogue, or checking the finished soundtrack.
+description: Describes a production's audio for the video-diffusion prompt and, only when the user asks to hear voices while reviewing the 3D hint film, makes a voice preview. Use when writing a shot's sound into a generation prompt or when the user requests a voice preview.
 ---
 
 # Audio
 
-Apply only the commissioned sound scope recorded in [project context](../production/profile.md); an instance or screenplay request does not trigger a soundtrack or provider setup. Follow [acquisition and listening](acquisition.md), [sound effects](sound-effects.md) for Foley and designed sounds, and [local speech](local-speech.md) when local speech setup is requested.
+Video diffusion produces the film's audio, voices, effects and ambience alike, from its prompt, so the production's audio work is to describe what each shot sounds like in the [generation](../production/generation.md) prompt, from the screenplay's speech and sound decisions. No stage or delivery waits on a soundtrack.
 
-Acquire audio before finalizing its timing, adopt the resulting bytes with their provenance, then connect them through the installed package APIs and this production's host. Hand accepted takes and measured timing to [editing and finishing](../production/finishing.md); recheck synchronization when that edit changes the take or picture. Source changes follow [development](../development/SKILL.md).
-
-For commissioned sound, listen to adopted takes and the actual delivered audio before claiming completion, with picture when the commission includes video. Report unavailable playback or missing delivery wiring as an unresolved check; [delivery review](../review/delivery.md) owns final assembled acceptance.
+Generate audio only when the user asks to hear the voices while reviewing the 3D hint film. Make that preview with [local speech](local-speech.md) or another speech service under [acquisition and listening](acquisition.md), adding [sound effects](sound-effects.md) only when the user asks for them too, and play it with the hint film in the Viewer. A preview is a review convenience: it is never delivered or required, and the diffusion prompt still carries the film's sound. Source changes follow [development](../development/SKILL.md).

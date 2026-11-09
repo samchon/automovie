@@ -4,7 +4,7 @@ Each exported declaration under `src/entities/` answers these items in its doc c
 
 ## Does it realize the settings facts it cites? {#settings-realization}
 
-Does the declaration build its subject from the facts it cites (dimensions, proportions, look, wardrobe and makeup state, voice, uses and habits) so that the realized subject is on-model at every view and state the scenes use, deriving each parameter of a research law from those facts within the law's range? Placements, weights, texture coordinates and measurements derive from the subject's generating definition, so changing the detail level moves none of them. A fact the settings do not establish is written there first; an entity that invents one has no basis a reviewer can check.
+Does the declaration build its subject from the facts it cites (dimensions, proportions, look, wardrobe and makeup state, voice, uses and habits) so that the realized subject is identifiable and on-model, at the [commissioned detail](../../development/entities.md#coarse-first), at every view and state the scenes use, deriving each parameter of a research law from those facts within the law's range? Placements, weights, texture coordinates and measurements derive from the subject's generating definition, so changing the detail level moves none of them. A fact the settings do not establish is written there first; an entity that invents one has no basis a reviewer can check.
 
 ## Is it an object whose capabilities emit intent? {#object-shape}
 

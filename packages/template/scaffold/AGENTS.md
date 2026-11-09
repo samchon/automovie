@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This is an AutoMovie production. It primarily turns an LLM-authored screenplay into a deterministic whole motion-video hint, and can also deliver a separately commissioned screenplay, standalone asset, or requested direct 3D or post-diffusion film. [README](README.md) lists commands and the [production skill](.agents/skills/production/SKILL.md) routes the commissioned output and its working files.
+This is an AutoMovie production. It primarily turns an LLM-authored screenplay into a deterministic whole motion-video hint, and can also deliver a separately commissioned screenplay, standalone asset, or requested direct 3D or post-diffusion film. A hint guides video-to-video diffusion, so its figures and objects need only be identifiable and its accuracy goes to performance and camera, as [entity work](.agents/skills/development/entities.md#coarse-first) sets. [README](README.md) lists commands and the [production skill](.agents/skills/production/SKILL.md) routes the commissioned output and its working files.
 
 ## Attitude
 
@@ -39,7 +39,7 @@ Read [PROJECT.md](PROJECT.md) for the adopted scope, then enter the requested ta
 - [story](.agents/skills/story/SKILL.md): researching what the film shows before writing it, and planning, writing, continuing or revising a brief, settings, treatments, scripts, final screenplay, expression pass, narrative evidence or cause-based repair. Its parts route to the needed documents.
 - [3d-modeling](.agents/skills/3d-modeling/SKILL.md): creating, importing, recovering, or inspecting asset representations, geometry, rigs, and authored controls; [entity work](.agents/skills/development/entities.md) sets what the commission needs from them.
 - [motion](.agents/skills/motion/SKILL.md): programmed performance from researched laws, staging, camera, physical responses, frame-time evaluation and motion verification.
-- [audio](.agents/skills/audio/SKILL.md): choosing or acquiring speech, music, or effects, aligning sound, and checking the final mix.
+- [audio](.agents/skills/audio/SKILL.md): describing a shot's sound for the video-diffusion prompt, or a voice preview the user asks for while reviewing the hint film.
 
 ### Implementation and evidence
 
