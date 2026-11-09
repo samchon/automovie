@@ -13,14 +13,14 @@ import { exchange } from "../../../../interactions/kickboxing/exchange";
  * and A follows,
  * clinches for one knee and releases while the referee closes; they circle
  * apart and A hops through southpaw and back in place, and A shows the drag
- * feint, B checks it and covers A's jab; they circle, B's jab feint leaves
- * A's glove home and his body shot meets A's elbow, and A's pump jab and
+ * feint, B checks it and covers A's jab; they circle, B's shoulder feint
+ * raises A's parry and his body shot meets A's elbow, and A's pump jab and
  * cross meet B's chasing glove and cover.
  *
  * Concretization: A's punishment follows B's kick without a stretch between
  * them because the screenplay has A use B's lingering beat; B's check of the
- * drag feint is the low kick's drawn answer, not a habit, and A ignores B's
- * pump jab, the outcome table's feint ignored. Both stepping back to range
+ * drag feint is the low kick's drawn answer, not a habit, and A's parry of
+ * the shoulder feint is his settings habit. Both stepping back to range
  * opens the scene before B's cut-off, one press stretch that walks A back toward the ropes
  * before B steps in. A's switch hop is two whole steps after the circling
  * stretch, before his drag feint. Pump jabs are feints, not strikes, so each
@@ -62,8 +62,8 @@ export function aWeathersIt(cast: IRingCast): AutoMovieComposition {
       exchange(
         cast,
         "s08-b04",
-        b.feintJab().bodyCross(),
-        a.take().elbowBlock(),
+        b.feintShoulder().bodyCross(),
+        a.tell("feint-shoulder").elbowBlock(),
       ),
       exchange(
         cast,

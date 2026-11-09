@@ -20,9 +20,10 @@ import { polygonFilm } from "../../../internal/polygonFilm";
  * elbow-block read; B falls from 150.000; the count's numbers land at
  * 158.000 to 167.000; the knockout signal at 167.600, the victory at 168.100
  * and the match-ending bell at 170.100; B drops his left arm to every rising
- * right knee of A after the first landed body kick and never before it;
- * resolving the same composition with the same seed twice gives the same
- * entries.
+ * right knee of A after the first landed body kick, but for his one
+ * high-guard adjustment, under which the body kick lands, and never before
+ * it; no man performs two movements at once; resolving the same composition
+ * with the same seed twice gives the same entries.
  */
 export function test_kickboxing_schedule(): void {
   const { schedule, seed } = polygonFilm();
@@ -103,14 +104,34 @@ export function test_kickboxing_schedule(): void {
       (KickboxingAction.read(e.intent) as { against: string }).against ===
         "body-kick",
   )!.start;
+  // Once, burned by the cross over the lowered arm, B keeps his guard high
+  // instead, and the body kick lands under it.
+  const adjusted: IAutoMovieSchedule.IEntry[] = [];
   for (const e of answers) {
     const action = KickboxingAction.read(e.intent);
     if (!knee(action) || e.start <= learned) continue;
+    if ((action as { answer: string }).answer === "high-block") {
+      adjusted.push(e);
+      continue;
+    }
     assert.equal(
       (action as { answer: string }).answer,
       "elbow-block",
       `tell at ${e.start}`,
     );
+  }
+  assert.equal(adjusted.length, 1, "B's one high-guard adjustment");
+  assert.equal(adjusted[0]!.outcome, "landed");
+  // No man performs two movements at once.
+  for (const subject of ["a", "b", "referee"]) {
+    const moves = schedule.entries
+      .filter((e) => e.subject === subject && e.intent.capability === "move")
+      .sort((p, q) => p.start - q.start);
+    for (let k = 1; k < moves.length; k++)
+      assert.ok(
+        moves[k]!.start >= moves[k - 1]!.end - 1e-9,
+        `${subject} moves overlap at ${moves[k]!.start}`,
+      );
   }
   assert.ok(
     !answers.some((e) => {

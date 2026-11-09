@@ -14,8 +14,9 @@ import type { IRingCast } from "../../../../interactions/kickboxing/IRingCast";
  * little, at ten he is still down.
  *
  * Concretization: the referee's "Down!" begins with the fall and "Neutral
- * corner!" when B has landed, and the second wave 1.4 s later; A walks to
- * the corner in eight steps from the second wave, arriving at 157.000; B's
+ * corner!" when B has landed, and the second wave a second later; A walks
+ * to the corner in eight walking steps from the second wave, arriving just
+ * before 157.000, and holds his guard there through the count; B's
  * attempts are a brace and push from 158.000 to 162.500 and a small move at
  * 166.000, and he lies still between them; each signal holds one second.
  *
@@ -51,10 +52,11 @@ export function downAndTheCount(cast: IRingCast): AutoMovieComposition {
     at(1.6, b.phase("lie", 6.4)),
     // A hovers over the fallen man until the referee's second wave sends him
     // off; the count starts as he reaches the corner.
-    at(1.6, referee.signal("neutral-corner", 1.4, "Neutral corner!")),
-    at(1.6, a.phase("guard", 1.4)),
-    at(3, referee.signal("neutral-corner", 1.4, "Corner! Go!")),
-    at(3, a.move("corner", 8)),
+    at(1.6, referee.signal("neutral-corner", 1, "Neutral corner!")),
+    at(1.6, a.phase("guard", 1)),
+    at(2.6, referee.signal("neutral-corner", 1, "Corner! Go!")),
+    at(2.6, a.move("corner", 8)),
+    at(7, a.phase("guard", 10)),
     at(7, referee.signal("count", 1)),
     ...words.map((word: string, k: number) =>
       at(

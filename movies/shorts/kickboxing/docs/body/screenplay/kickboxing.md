@@ -160,11 +160,11 @@ Breath back, B stops giving ground and comes in kick first: his right shin swing
 
 ### The teep is swept aside {#s02-b04}
 
-B gives ground and pushes a left teep at A's stomach to make room. A's right forearm sweeps it aside. B covers the retreat with a jab on a short step; A slips it and stays in range.
+B gives ground and pushes a left teep at A's stomach to make room. A's right forearm sweeps it aside and he stays in range.
 
 - Cast: [Fighter B](../settings/cast/fighter-b.md#weapons), [Fighter A](../settings/cast/fighter-a.md#defense)
-- Intent: B tries to reset the range with a teep and a jab; A parries and slips.
-- Outcome: Parried; evaded.
+- Intent: B tries to reset the range with a teep; A parries it.
+- Outcome: Parried.
 - Consequence: No mark.
 - Space: B gives ground on a diagonal toward his lead side; A circles after him.
 - Camera: wide as they separate.
@@ -464,11 +464,11 @@ From 75 seconds, A flicks a jab feint at B's eyes. B's right glove reacts. A tur
 
 ### B's high kick {#s06-b02}
 
-B cut-steps sideways along the ropes and out into the open ring while A gives ground, then steps in with pump jab, cross, left hook and right high kick. A's right glove stays home on the pump jab; he slips the cross, rolls under the hook and raises his left forearm and glove tight against the side of his head. The shin cracks against the arm; A's head stays behind it.
+B cut-steps sideways along the ropes and out into the open ring while A gives ground, then dips his right shoulder as if to throw the cross; A's right glove rises to parry it. B steps in behind it with cross, left hook and right high kick. A slips the cross, rolls under the hook and raises his left forearm and glove tight against the side of his head. The shin cracks against the arm; A's head stays behind it.
 
 - Cast: [Fighter B](../settings/cast/fighter-b.md#weapons), [Fighter A](../settings/cast/fighter-a.md#defense)
-- Intent: B escapes the ropes and throws pump jab, cross, hook, high kick; A ignores the feint, slips, rolls and blocks high.
-- Outcome: Ignored, evaded, evaded, blocked.
+- Intent: B escapes the ropes, shows the cross with a shoulder feint and throws cross, hook, high kick; A parries the feint, slips, rolls and blocks high.
+- Outcome: Read, evaded, evaded, blocked.
 - Consequence: No new mark.
 - Space: B escapes the rope zone sideways into the open ring; A gives ground on a diagonal.
 - Camera: medium two-shot.
@@ -490,11 +490,11 @@ They circle. A steps in behind a double jab, two quick lead hands that land on B
 
 ### Teep, slip, body shot {#s06-b03}
 
-They circle. A pushes a left teep into B's stomach to restore distance. B walks through it behind a pump jab that A ignores and a real jab; A slips the jab and steps in to drive a right straight into B's body. B exhales and his left elbow closes over the struck side.
+They circle. A pushes a left teep into B's stomach to restore distance. B walks through it, bending his knees as if to go to the body; A's left elbow drops over his ribs, and B's real jab comes high; A slips it and steps in to drive a right straight into B's body. B exhales and his left elbow closes over the struck side.
 
 - Cast: [Fighter A](../settings/cast/fighter-a.md#weapons), [Fighter B](../settings/cast/fighter-b.md#weapons)
-- Intent: A resets the range with a teep; B comes back with pump jab and jab; A ignores the feint, slips and goes to the body.
-- Outcome: Landed; ignored, evaded; landed.
+- Intent: A resets the range with a teep; B comes back with a level change and a jab; A reads the level change with his elbow, slips and goes to the body.
+- Outcome: Landed; read, evaded; landed.
 - Consequence: B's stomach and left side redden; he exhales.
 - Space: The pair circles; B steps back in after the teep; A steps in for the body shot.
 - Camera: medium, push in on B.
@@ -527,11 +527,11 @@ They circle. B lifts his right knee as if to kick the body and sets it back down
 
 ### B's longest combination {#s07-b01}
 
-From 90 seconds, after a circle toward their lead sides, B steps in and commits to his longest combination: a pump jab, a cross, a left hook to A's liver and a right low kick behind it. A ignores the pump jab, parries the cross, takes the liver hook on his lowered right elbow, his left shin already lifting before the hook has left, and checks the low kick well before it arrives. Off the check's rebound he fires back with his own pump jab and a cross, and for once B has read it: his right glove stays at his cheek, his eyes stay on A's rear shoulder, and he slips outside the cross.
+From 90 seconds, after a circle toward their lead sides, B steps in and commits to his longest combination: a dip of the right shoulder that raises A's right glove, then a cross, a left hook to A's liver and a right low kick behind it. A parries the cross, takes the liver hook on his lowered right elbow, his left shin already lifting before the hook has left, and checks the low kick well before it arrives. Off the check's rebound he fires back with his own pump jab and a cross, and for once B has read it: his right glove stays at his cheek, his eyes stay on A's rear shoulder, and he slips outside the cross.
 
 - Cast: [Fighter B](../settings/cast/fighter-b.md#weapons), [Fighter A](../settings/cast/fighter-a.md#defense)
-- Intent: B throws pump jab, cross, body hook, low kick; A ignores the feint, parries, blocks and checks early, then counters off the check with pump jab and cross; B, this once, ignores A's feint and slips the cross.
-- Outcome: Ignored, parried, blocked, checked; ignored, evaded.
+- Intent: B throws shoulder feint, cross, body hook, low kick; A parries the feint and the cross, blocks and checks early, then counters off the check with pump jab and cross; B, this once, ignores A's feint and slips the cross.
+- Outcome: Read, parried, blocked, checked; ignored, evaded.
 - Consequence: No new mark.
 - Space: The pair circles; B steps in to kicking range in the open ring.
 - Camera: medium two-shot.
@@ -579,12 +579,12 @@ Both drift back to the centre and stop there, guards high, a long step apart, ea
 
 ### B's body kick {#s07-b04}
 
-B walks A back, cutting across, and resumes the pressure with a pump jab that A ignores and a cross into A's guard, and turns a right kick into A's body. A lowers his left elbow onto the kick and the shin thuds against it. A answers with a cross on a step in; B slips it.
+B walks A back, cutting across. His lead hand flicks out exactly as the pump jab has all night, and A, who stopped reacting to it a minute ago, leaves his guard where it is; this time it is a real jab, and it pops A's head back. B's cross follows into A's guard and he turns a right kick into A's body. A lowers his left elbow onto the kick and the shin thuds against it. A answers with a cross on a step in; B slips it.
 
 - Cast: [Fighter B](../settings/cast/fighter-b.md#weapons), [Fighter A](../settings/cast/fighter-a.md#defense)
-- Intent: B presses and throws pump jab, cross, body kick; A ignores the feint, covers and blocks, then counters; B slips.
-- Outcome: Ignored, blocked, blocked; evaded.
-- Consequence: No new mark.
+- Intent: B presses and disguises a real jab as his pump jab, then throws cross and body kick; A takes the jab, covers and blocks, then counters; B slips.
+- Outcome: Landed, blocked, blocked; evaded.
+- Consequence: A's face reddens; sweat flies off his forehead.
 - Space: B presses and cuts across; A gives ground on a diagonal, then steps in for his counter; both angle out.
 - Camera: medium two-shot.
 - Sound: dialogue none; foley shin on elbow; ambience room tone; effects none; music none.
@@ -655,11 +655,11 @@ They circle apart; then A hops through southpaw and back to orthodox in place. A
 
 ### B regroups {#s08-b04}
 
-They circle. B regroups with a jab feint; A's right glove stays home. B's right straight goes to A's body on a step in and A's left elbow blocks it. A answers with a pump jab, and B's right glove, after one exchange of holding, is chasing it again; A's cross lands on B's cover.
+They circle. B regroups with a shoulder feint; A's right glove rises to parry the cross that does not come. B's right straight goes to A's body on a step in and A's left elbow blocks it. A answers with a pump jab, and B's right glove, after one exchange of holding, is chasing it again; A's cross lands on B's cover.
 
 - Cast: [Fighter B](../settings/cast/fighter-b.md#weapons), [Fighter A](../settings/cast/fighter-a.md#answers-pump)
-- Intent: B feints the jab and goes to the body; A ignores the feint, blocks and counters with pump jab and cross; B chases the feint again and covers.
-- Outcome: Ignored, blocked; read, blocked.
+- Intent: B shows the cross with a shoulder feint and goes to the body; A parries the feint, blocks and counters with pump jab and cross; B chases the feint again and covers.
+- Outcome: Read, blocked; read, blocked.
 - Consequence: No new mark.
 - Space: The pair circles; B steps in; both angle out and circle.
 - Camera: medium, then wide.
@@ -731,7 +731,7 @@ Both circle; then A steps in with pump jab, cross and right body kick. B's right
 
 ### The still read {#s09-b03a}
 
-For two and a half seconds neither man moves: both stand in guard at kicking distance, breathing, eyes on each other's hips. It is the only stillness in the round.
+For two and a half seconds neither man moves: both stand in guard at kicking distance, breathing, eyes on each other's hips. It is the longest stillness of the round.
 
 - Cast: [Fighter A](../settings/cast/fighter-a.md#stance), [Fighter B](../settings/cast/fighter-b.md#stance)
 - Intent: Both read each other before the last phase.
@@ -768,11 +768,11 @@ B breaks the stillness: he drags his rear foot as if to kick low. A lifts his ch
 
 ### Check and cross {#s10-b01}
 
-From 135 seconds, B steps in with pump jab, cross, left hook and right low kick. A's right glove stays home on the pump jab; he slips the cross, rolls under the hook and, already lifting his left shin as he comes up, checks the low kick before it arrives. Off the check's rebound A fires a cross that lands on B's face; blood sprays from B's nose. B's head snaps back, his eyes squeeze shut and his guard opens for a moment before he resets it.
+From 135 seconds, B bends his knees as if to go to the body, and A's left elbow drops over his ribs; B rises into cross, left hook and right low kick. A slips the cross, rolls under the hook and, already lifting his left shin as he comes up, checks the low kick before it arrives. Off the check's rebound A fires a cross that lands on B's face; blood sprays from B's nose. B's head snaps back, his eyes squeeze shut and his guard opens for a moment before he resets it.
 
 - Cast: [Fighter B](../settings/cast/fighter-b.md#weapons), [Fighter A](../settings/cast/fighter-a.md#defense)
-- Intent: B throws pump jab, cross, hook, low kick; A ignores the feint, slips, rolls, checks and counters off the check; B takes the cross.
-- Outcome: Ignored, evaded, evaded, checked; landed.
+- Intent: B shows a level change and throws cross, hook, low kick; A reads the level change, slips, rolls, checks and counters off the check; B takes the cross.
+- Outcome: Read, evaded, evaded, checked; landed.
 - Consequence: B's nose bleeds; his face reddens further.
 - Space: B steps in to kicking range in the open ring.
 - Camera: medium, push in on B.
@@ -861,7 +861,7 @@ B's right hip and side take the canvas before the right shoulder. His head settl
 - Consequence: B lies on his right side by 151.600, breathing.
 - Space: B falls in the open ring; A replants clear of him; the referee advances outside the falling body's path.
 - Camera: wide side-on view, held.
-- Sound: dialogue "Down!"; foley successive dull canvas landings; ambience room tone; effects none; music none.
+- Sound: dialogue "Down!"; foley successive dull canvas landings; ambience the crowd roars; effects none; music none.
 - Continuity: blood on the canvas beside B's face.
 
 ### The neutral corner {#s11-b02}
@@ -876,15 +876,15 @@ A does not go. He stands over B in his guard, breathing hard, watching the falle
 REFEREE
 Corner! Go!
 
-Now A steps clear and retreats diagonally in short supported steps, keeping B in view without walking across him. The referee holds the count until A is there: A reaches the light-padded neutral corner at 157.000 and turns toward ring centre, facing the action.
+Now A steps clear and retreats diagonally in short supported steps, keeping B in view without walking across him. The referee does not pick up the timekeeper's count until A is there: A reaches the light-padded neutral corner at 157.000 and turns toward ring centre, facing the action.
 
 - Cast: [Referee](../settings/cast/referee.md#knockdown), [Fighter A](../settings/cast/fighter-a.md#opponent)
 - Intent: The referee sends A to the farthest neutral corner and must send him twice; A obeys the second time.
 - Outcome: A stands in the corner facing centre at 157.000.
-- Consequence: The count can begin; it begins only now, as the rules require.
+- Consequence: The referee picks up the timekeeper's count only now, as the rules require.
 - Space: A hovers in the open ring near B, then walks to the farthest neutral corner; the referee walks to a point beside B that keeps the corner in view.
 - Camera: wide side-on view, held.
-- Sound: dialogue "Neutral corner!", "Corner! Go!"; foley footsteps; ambience room tone; effects none; music none.
+- Sound: dialogue "Neutral corner!", "Corner! Go!"; foley footsteps; ambience the crowd roars; effects none; music none.
 - Continuity: as before.
 
 ### The count to seven {#s11-b03}
@@ -958,7 +958,7 @@ At 167.000, the tenth full second expires. B is still down.
 - Consequence: The contest is over.
 - Space: unchanged.
 - Camera: the count's two-shot, A in the background corner, until the wide view returns after "Ten!".
-- Sound: dialogue "Eight!" at 165.000, "Nine!" at 166.000, "Ten!" at 167.000; foley breaths; ambience room tone; effects none; music none.
+- Sound: dialogue "Eight!" at 165.000, "Nine!" at 166.000, "Ten!" at 167.000; foley breaths; ambience the crowd's tension peaks; effects none; music none.
 - Continuity: as before.
 
 ## INT. KICKBOXING RING - CONTINUOUS {#s12}
@@ -1004,12 +1004,12 @@ The referee turns straight to B and lowers into a shallow supported crouch over 
 
 ### A checks on B {#s12-b03}
 
-At 172.100 A stops celebrating. He walks across to B and stands over him within arm's reach, gloves lowered, looking down at the man he knocked out, until the referee rises and turns to him.
+At about 172 the unseen ringside doctor, called by the referee's lifted hand, arrives at B's side, and the referee can leave B to him. At 172.100 A stops celebrating. He walks across to B and stands a stride from him, gloves lowered, looking down at the man he knocked out, until the referee rises and turns to him.
 
 - Cast: [Fighter A](../settings/cast/fighter-a.md#opponent), [Fighter B](../settings/cast/fighter-b.md#through-bout), [Referee](../settings/cast/referee.md#after-result)
 - Intent: A checks on his opponent.
 - Outcome: none; a gesture of sportsmanship.
-- Consequence: A stands beside B as the referee leaves B for him.
+- Consequence: A stands a stride from B; with the doctor at B's side, the referee is free to leave B.
 - Space: A walks from his side to B in the open ring.
 - Camera: wide side-on view, held.
 - Sound: dialogue none; foley footsteps, breaths; ambience the crowd's swell; effects none; music none.
@@ -1017,7 +1017,7 @@ At 172.100 A stops celebrating. He walks across to B and stands over him within 
 
 ### The raised hand {#s12-b04}
 
-From 174.000 the referee rises from B, takes A beside him and raises A's arm straight up. A lifts his free glove too and celebrates beside the fallen man, both red gloves high. The wide view holds all three men, the fallen fighter, the referee and the raised red gloves, until the image ends at 180 seconds.
+From 174.000 the referee rises from B, takes A by the wrist a step away from the fallen man and raises A's arm straight up. A lifts his free glove briefly, then lowers it and looks down at B. The wide view holds all three men, the fallen fighter, the referee and A's raised red glove, until the image ends at 180 seconds.
 
 - Cast: [Referee](../settings/cast/referee.md#signals), [Fighter A](../settings/cast/fighter-a.md#through-bout), [Fighter B](../settings/cast/fighter-b.md#through-bout)
 - Intent: The referee declares A the winner by raising his arm.

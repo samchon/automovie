@@ -11,8 +11,7 @@ import { exchange } from "../../../../interactions/kickboxing/exchange";
  * lands; B's level change draws A's elbow and he steps back in with a cross
  * that A slips, and the liver hook lands; B covers and gives ground while A
  * follows; B comes back kick first, a low kick that A checks and a cross
- * into A's guard; B gives ground and pushes a teep that A sweeps aside, and
- * A slips the covering jab; A presses B toward the ropes and steps in with
+ * into A's guard; B gives ground and pushes a teep that A sweeps aside; A presses B toward the ropes and steps in with
  * an unfeinted right straight to the body that meets B's elbows.
  *
  * Concretization: the stretches between beats alternate A's cut-off
@@ -29,7 +28,7 @@ import { exchange } from "../../../../interactions/kickboxing/exchange";
  * @evidence docs/body/screenplay/kickboxing.md#s02-b02 The cut-off and the low kick behind the hook.
  * @evidence docs/body/screenplay/kickboxing.md#s02-b03 The level change read; the liver hook; B covers and gives ground.
  * @evidence docs/body/screenplay/kickboxing.md#s02-b03a B's kick-first entry: low kick checked, cross into the guard.
- * @evidence docs/body/screenplay/kickboxing.md#s02-b04 The teep swept aside, the covering jab slipped.
+ * @evidence docs/body/screenplay/kickboxing.md#s02-b04 The teep swept aside.
  * @evidence docs/body/screenplay/kickboxing.md#s02-b05 The unfeinted body shot.
  */
 export function aFinishesWithTheLeg(cast: IRingCast): AutoMovieComposition {
@@ -60,10 +59,7 @@ export function aFinishesWithTheLeg(cast: IRingCast): AutoMovieComposition {
     RingPhase.reset([b, "give"], [a, "press"]),
     exchange(cast, "s02-b03a", b.lowKick().cross(), a.check().cover()),
     RingPhase.reset([b, "give"], [a, "circle"]),
-    then(
-      exchange(cast, "s02-b04", b.teep(), a.parry()),
-      exchange(cast, "s02-b04c", b.jab(), a.slip()),
-    ),
+    exchange(cast, "s02-b04", b.teep(), a.parry()),
     RingPhase.reset([a, "press"], [b, "give"]),
     exchange(cast, "s02-b05", a.bodyCross(), b.elbowBlock()),
   ]);

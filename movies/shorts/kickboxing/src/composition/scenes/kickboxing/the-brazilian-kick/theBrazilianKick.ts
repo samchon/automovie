@@ -5,8 +5,8 @@ import { RingPhase } from "../../../../interactions/kickboxing/RingPhase";
 import { exchange } from "../../../../interactions/kickboxing/exchange";
 
 /**
- * Scene 10, 135 to 150 s: B steps in with pump jab, cross, hook and low kick
- * into A's steady guard, slip, roll and check, and A's cross off the check
+ * Scene 10, 135 to 150 s: B changes level, then steps in with cross, hook
+ * and low kick into A's dropped elbow, slip, roll and check, and A's cross off the check
  * lands; they circle, B's
  * covering jab meets A's slip and A's body hook and low kick meet B's elbow
  * and early check, and B's jab off the check's rebound meets A's parry; A
@@ -43,8 +43,8 @@ export function theBrazilianKick(cast: IRingCast): AutoMovieComposition {
         exchange(
           cast,
           "s10-b01",
-          b.feintJab().cross().hook().lowKick(),
-          a.take().slip().roll().check(),
+          b.feintLevel().cross().hook().lowKick(),
+          a.tell("feint-level").slip().roll().check(),
         ),
         exchange(cast, "s10-b01c", a.cross(), b.take()),
       ),
