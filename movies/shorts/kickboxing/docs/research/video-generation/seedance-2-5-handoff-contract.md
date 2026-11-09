@@ -18,7 +18,7 @@ The carried record states no maximum generated-output duration and no output fra
 
 ## Reference roles and planned sound
 
-The whole deterministic render and its segments remain independent retained outputs. The supplied video carries actor mapping, contact, support, timing and camera. No appearance image is attached: no reference image of A, B or the referee exists, and the account's face-input permission is unverified. No audio reference is attached. Native generated audio is disabled; the deterministic soundtrack (bells, referee voice, contacts, breaths) remains the film's sound and is laid back at each segment's global offset during finishing.
+The whole deterministic render and its segments remain independent retained outputs. The supplied video carries actor mapping, contact, support, timing and camera. No appearance image is attached: no reference image of A, B or the referee exists, and the account's face-input permission is unverified. No audio reference is attached. Native generated audio is enabled: the deterministic film is silent, and the video model makes all of its sound.
 
 The sibling record cites the prompt guide's description of coarse rendering input: “Uses coarse-grained or fine-grained 3D clay-model videos as motion references”. This is documented support, not an observed result from this production's polygon render. Prompts map each named performer and preserve the physical causes while stating the intended visual finish. Keep English prompt text within the guide's recommended 1000 words; an undocumented hard character cap remains unknown. [Official prompting guide](https://ai.byteplus.com/ark/region:ap-southeast-1/docs/seedance-2-5-prompt-guide).
 

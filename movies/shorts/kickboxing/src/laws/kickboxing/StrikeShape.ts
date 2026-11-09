@@ -94,6 +94,9 @@ export namespace StrikeShape {
   /** Share of the arm's reach the turnover's kicking-side glove holds forward at the head line: three quarters, the extended guard read from the PLOS impact frame. */
   const GUARD_REACH: number = 0.75;
 
+  /** How far behind the hips the round kick's same-side glove sweeps, in head radii: down and back past the hip, a glove's diameter clear of it (coaching of the round kick's counter-rotation). */
+  const COUNTER_BACK: number = 2;
+
   /** Trunk lean away from a round kick at impact, degrees: the thoracic side-bend range, by level. */
   const LEAN: Readonly<Record<KickboxingTechnique.Level, number>> = {
     leg: 5,
@@ -377,7 +380,7 @@ export namespace StrikeShape {
               measure.armReach * GUARD_REACH,
             )
           : {
-              x: -measure.headRadius * 2,
+              x: -measure.headRadius * COUNTER_BACK,
               y: measure.hip - drop,
               z: sign * (measure.hipHalfWidth + measure.gloveRadius * 2),
             },

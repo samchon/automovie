@@ -518,6 +518,9 @@ importers:
       '@automovie/evidence':
         specifier: workspace:^
         version: link:../../../packages/evidence
+      '@nestia/e2e':
+        specifier: catalog:samchon
+        version: 12.1.0
       '@ttsc/lint':
         specifier: ^0.36.0
         version: 0.36.3(ttsc@0.36.3(typescript@7.0.2))
