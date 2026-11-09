@@ -1,4 +1,6 @@
-import { deflateSync } from "node:zlib";
+// A namespace import reads `deflateSync` only when encoding, so a browser
+// bundle that reaches this module through a package index still loads.
+import * as zlib from "node:zlib";
 
 import type { IAutoMovieSceneRaster } from "./IAutoMovieSceneRaster.js";
 
@@ -38,7 +40,7 @@ export function encodeAutoMovieRasterPng(raster: IAutoMovieSceneRaster): Buffer 
   return Buffer.concat([
     Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
     chunk("IHDR", header),
-    chunk("IDAT", deflateSync(rows, { level: 6 })),
+    chunk("IDAT", zlib.deflateSync(rows, { level: 6 })),
     chunk("IEND", Buffer.alloc(0)),
   ]);
 }
