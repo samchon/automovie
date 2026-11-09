@@ -39,7 +39,7 @@ export namespace GiveRoomShape {
     const trunk: number = m.shoulder - m.hip;
     const forward = PostureFrame.trunk(p).forward;
     return {
-      point: PostureFrame.onTrunk(p, 0.22, s * 0.18, trunk - 0.1),
+      point: PostureFrame.onTrunk(p, 0.3, s * 0.16, trunk - 0.12),
       elbow: PostureFrame.onTrunk(p, 0.12, s * (m.shoulderHalfWidth + 0.08), trunk - 0.4),
       palm: { x: forward.x, y: 0, z: forward.z },
     };

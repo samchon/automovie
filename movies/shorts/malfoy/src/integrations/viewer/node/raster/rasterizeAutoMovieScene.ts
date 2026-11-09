@@ -14,8 +14,10 @@ import type { IRasterizeAutoMovieSceneProps } from "./IRasterizeAutoMovieScenePr
  * as flat-shaded triangles with a per-pixel depth buffer, honouring each
  * material's side, visibility, opacity, vertex or instance colours and
  * emissive colour; lit materials take the scene's lights through three.js's
- * Lambert convention and `MeshBasicMaterial` is unlit. Lines and points are
- * drawn one pixel wide, transparent surfaces are blended back to front after
+ * Lambert convention and `MeshBasicMaterial` is unlit. Lines are drawn one
+ * pixel wide; points are squares of their `PointsMaterial` size in output
+ * pixels, attenuated by distance as three.js does when `sizeAttenuation` is
+ * on; transparent surfaces are blended back to front after
  * opaque ones, and the result is converted to sRGB. Textures, shadows, fog,
  * sprites and post-processing are not drawn; the statistics count them.
  *
@@ -82,6 +84,7 @@ export function rasterizeAutoMovieScene(
     forward: new THREE.Vector3(0, 0, -1).transformDirection(camera.matrixWorld),
     orthographic: camera instanceof THREE.OrthographicCamera,
     transparent: [],
+    factor,
   };
 
   // Opaque primitives first, in traversal order; the depth buffer resolves visibility.
@@ -120,6 +123,8 @@ interface IFrame {
   forward: THREE.Vector3;
   orthographic: boolean;
   transparent: ITransparent[];
+  /** Supersampling factor: target pixels per output pixel along each axis. */
+  factor: number;
 }
 
 /** One queued transparent triangle in screen coordinates. */
@@ -473,12 +478,20 @@ function submitPoints(frame: IFrame, points: THREE.Points): void {
     frame.viewProjection,
     points.matrixWorld,
   );
+  // three.js draws a point `size` drawing-buffer pixels wide, times half the
+  // buffer height over view depth when attenuated in perspective.
+  const size: number = material instanceof THREE.PointsMaterial ? material.size : 1;
+  const attenuate: boolean =
+    material instanceof THREE.PointsMaterial && material.sizeAttenuation && !frame.orthographic;
   const p: THREE.Vector4 = new THREE.Vector4();
   for (let k: number = 0; k < position.count; k++) {
     p.set(position.getX(k), position.getY(k), position.getZ(k), 1).applyMatrix4(matrix);
     if (p.w <= 0 || p.z < -p.w) continue;
     const s: number[] = toScreen(frame.target, [p.x, p.y, p.z, p.w]);
-    frame.target.point(s[0]!, s[1]!, s[2]!, 1, rgb, material.depthTest);
+    const width: number =
+      size * frame.factor * (attenuate ? frame.target.height / (2 * frame.factor) / p.w : 1);
+    const radius: number = Math.max(0, Math.round((width - 1) / 2));
+    frame.target.point(s[0]!, s[1]!, s[2]!, radius, rgb, material.depthTest);
     frame.statistics.points++;
   }
 }

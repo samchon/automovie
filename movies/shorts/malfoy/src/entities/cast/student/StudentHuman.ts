@@ -4,6 +4,7 @@ import {
   type IAutoMovieHumanParameters,
 } from "@automovie/human";
 
+import type { IBodyMeasure } from "../../../laws/body/IBodyMeasure";
 import type { IStudentProfile } from "./IStudentProfile";
 import { carinaMalfoy } from "./carinaMalfoy";
 import { harryPotter } from "./harryPotter";
@@ -64,6 +65,108 @@ export namespace StudentHuman {
       memo.set(template.id, neutral);
     }
     return { neutral, scale: profile.stature / template.stature };
+  }
+
+  /**
+   * The student's body measures, read from the scaled Human neutral skeleton
+   * standing on the floor, so the motion laws scale from the body that is drawn.
+   * Head height and foot length keep the segment convention, which Human's
+   * joints do not name.
+   *
+   * @param profile The student's record.
+   * @returns The measures, metres.
+   */
+  export function measure(profile: IStudentProfile): IBodyMeasure {
+    const k: ISkeletonPoints = points(profile);
+    const reach: number = k.upperArm + k.forearm + k.hand;
+    return Object.freeze({
+      stature: profile.stature,
+      hip: k.hip,
+      hipHalfWidth: k.hipHalfWidth,
+      shoulder: k.shoulder,
+      shoulderHalfWidth: k.shoulderHalfWidth,
+      head: 0.936 * profile.stature,
+      armReach: reach,
+      legLength: k.thigh + k.shank,
+      ankle: k.ankle,
+      foot: 0.152 * profile.stature,
+    });
+  }
+
+  /**
+   * Segment lengths and offsets of the scaled Human neutral skeleton, metres:
+   * what `StudentBody` solves with, so solved joints coincide with the drawn bones.
+   */
+  export interface ISkeletonPoints {
+    /** Hip joint height. */
+    hip: number;
+    /** Half the hip joint spacing. */
+    hipHalfWidth: number;
+    /** Shoulder joint height. */
+    shoulder: number;
+    /** Half the shoulder joint spacing. */
+    shoulderHalfWidth: number;
+    /** Shoulder line ahead of the hips along the body's forward. */
+    shoulderForward: number;
+    /** Neck joint above the shoulder line. */
+    neck: number;
+    /** Shoulder to elbow. */
+    upperArm: number;
+    /** Elbow to wrist. */
+    forearm: number;
+    /** Wrist to the hand's centre. */
+    hand: number;
+    /** Hip to knee. */
+    thigh: number;
+    /** Knee to ankle. */
+    shank: number;
+    /** Ankle height. */
+    ankle: number;
+  }
+
+  /**
+   * Read the scaled neutral skeleton's joints.
+   *
+   * @param profile The student's record.
+   * @returns Lengths and offsets, metres.
+   */
+  export function points(profile: IStudentProfile): ISkeletonPoints {
+    const human: IHuman = of(profile);
+    const s: number = human.scale;
+    const p = (bone: string): [number, number, number] => {
+      const found: AutoMovieHumanSkeleton.IPlacement | undefined = human.neutral.posed.find(
+        (placement: AutoMovieHumanSkeleton.IPlacement): boolean => placement.bone === bone,
+      );
+      if (found === undefined) throw new Error(`Human neutral skeleton lacks ${bone}`);
+      return [found.position[0] * s, found.position[1] * s, found.position[2] * s];
+    };
+    const d = (a: [number, number, number], b: [number, number, number]): number =>
+      Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+    const hips = p("hips");
+    const lUpLeg = p("leftUpperLeg");
+    const rUpLeg = p("rightUpperLeg");
+    const lUpArm = p("leftUpperArm");
+    const rUpArm = p("rightUpperArm");
+    const left: [number, number, number] = [lUpLeg[0] - rUpLeg[0], 0, lUpLeg[2] - rUpLeg[2]];
+    const ln: number = Math.hypot(left[0], left[2]) || 1;
+
+    // Forward is up × (left-named side), the eyes' direction, as StudentPolygon defines it: (lz, 0, -lx).
+    const forward: [number, number] = [left[2] / ln, -left[0] / ln];
+    const shoulderMid: [number, number, number] = [(lUpArm[0] + rUpArm[0]) / 2, 0, (lUpArm[2] + rUpArm[2]) / 2];
+    return {
+      hip: (lUpLeg[1] + rUpLeg[1]) / 2,
+      hipHalfWidth: d(lUpLeg, rUpLeg) / 2,
+      shoulder: (lUpArm[1] + rUpArm[1]) / 2,
+      shoulderHalfWidth: d(lUpArm, rUpArm) / 2,
+      shoulderForward: (shoulderMid[0] - hips[0]) * forward[0] + (shoulderMid[2] - hips[2]) * forward[1],
+      neck: p("neck")[1] - (lUpArm[1] + rUpArm[1]) / 2,
+      upperArm: d(lUpArm, p("leftLowerArm")),
+      forearm: d(p("leftLowerArm"), p("leftHand")),
+      hand: d(p("leftHand"), p("leftMiddleProximal")),
+      thigh: d(lUpLeg, p("leftLowerLeg")),
+      shank: d(p("leftLowerLeg"), p("leftFoot")),
+      ankle: p("leftFoot")[1],
+    };
   }
 
   /** Neutral bodies by template id. */

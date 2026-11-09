@@ -88,7 +88,7 @@ export function test_duel_rescue(): void {
   TestValidator.predicate("an unpinned fail starts at the deflected jinx's impact", Math.abs(first.masonry.struck - impact) < 1e-9 && first.masonry.struck > 1);
   const landing: number = impact + 1.5 + FallLaw.fallTime(court.cap.bottom);
   TestValidator.predicate("the cap lands after the chosen tipping and the fall", Math.abs(first.masonry.landing - landing) < 1e-9);
-  const late = duel(landing + 0.25);
+  const late = duel(landing + 0.1);
   const shield = ShieldTrack.resolve(late.resolved.schedule)[0]!;
   TestValidator.predicate("the shield finishes forming after the landing", shield.full > late.masonry.landing);
   for (const [k, fragment] of late.masonry.fragments.entries()) {
