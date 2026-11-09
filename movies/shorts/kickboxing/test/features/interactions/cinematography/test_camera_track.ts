@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 
 import { CameraTrack } from "../../../../src/interactions/cinematography/CameraTrack";
+import { CountCoverage } from "../../../../src/interactions/cinematography/CountCoverage";
+import { CoverageLaw } from "../../../../src/laws/cinematography/CoverageLaw";
 import { polygonFilm } from "../../../internal/polygonFilm";
 
 /**
@@ -9,11 +11,13 @@ import { polygonFilm } from "../../../internal/polygonFilm";
  * Scenarios, with the study's thresholds (docs/research/cinematography/
  * fight-coverage.md#targets): the camera moves for at least 60% of the film;
  * the mean interval between size changes before the finish lies between 2
- * and 8 s; the lens stays inside the ropes; from 143 s the size is the
- * finish view to the end.
+ * and 8 s; the lens never stands inside the ropes nor beyond the wide
+ * camera's distance; from 143 s the size is the
+ * finish view to the end, but for the count, covered at medium.
  */
 export function test_camera_track(): void {
-  const { camera, cast } = polygonFilm();
+  const { camera, cast, schedule } = polygonFilm();
+  const count = CountCoverage.window(schedule, cast.referee.id);
   let moving = 0;
   const changes: number[] = [];
   for (let k = 1; k < camera.length; k++) {
@@ -29,10 +33,18 @@ export function test_camera_track(): void {
       moving++;
     if (b.size !== a.size && k * CameraTrack.STEP < 143)
       changes.push(k * CameraTrack.STEP);
-    assert.ok(
-      Math.max(Math.abs(b.position.x), Math.abs(b.position.z)) < cast.ring.half,
+    const out: number = Math.max(
+      Math.abs(b.position.x),
+      Math.abs(b.position.z),
     );
-    if (k * CameraTrack.STEP >= 143.1) assert.equal(b.size, "finish");
+    assert.ok(
+      out >= cast.ring.half - 1e-9 && out <= CoverageLaw.WIDE_DISTANCE + 1e-9,
+      `lens inside the ropes or beyond the wide camera at ${k * CameraTrack.STEP}`,
+    );
+    const t: number = k * CameraTrack.STEP;
+    if (count && t >= count.start && t < count.end)
+      assert.equal(b.size, "medium", `count covered at medium at ${t}`);
+    else if (t >= 143.1) assert.equal(b.size, "finish");
   }
   assert.ok(moving / camera.length >= 0.6, `moving ${moving / camera.length}`);
   const mean =

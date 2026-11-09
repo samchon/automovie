@@ -6,7 +6,7 @@ import { DEFAULT_STICKMAN } from "../src/DEFAULT_STICKMAN";
 import { buildStickman } from "../src/buildStickman";
 
 /**
- * Serialize the default stick-figure AST to `.shots/human/stickman.glb` through `@automovie/render/node`. The exporter writes static rest geometry, with its documented skin/texture omissions; this script performs no import round trip or visual verification. Build/export/write failures reject and the CLI reports the exact cause while setting exitCode 1.
+ * Serialize the default stick-figure AST to `.shots/human/stickman.glb` through the scaffold's `src/integrations/render` copy. The exporter writes static rest geometry, with its documented skin/texture omissions; this script performs no import round trip or visual verification. Build/export/write failures reject and the CLI reports the exact cause while setting exitCode 1.
  */
 const main: () => Promise<void> = async (): Promise<void> => {
   const { model }: ReturnType<typeof buildStickman> =

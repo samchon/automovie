@@ -1,0 +1,18 @@
+# Motion verification
+
+Every motion capability the four screenplays use, the law that shapes it, the unit test on its measurable targets, the rehearsal that performs it on its set from two views, the capture folder and the verdict from looking at every sheet. Shapes are figure-independent posture goals (pelvis, angles, hand and foot points) that the figure's limb fitting realizes: the block mannequin today, the Human figure once its calibration works.
+
+Rehearsals run with `pnpm capture -- --module test/rehearsals/<discipline>/<motion>.ts --from 0 --to <s>` (5 frames a second, 20 cells a sheet), into `media/automovie/modules/<motion>/frames/capture/`.
+
+| Motion | Shape law | Unit test | Rehearsal | Capture folder | Verdict |
+| --- | --- | --- | --- | --- | --- |
+| Give room (palms, step back) | `src/laws/everyday/GiveRoomShape.ts` | `test/features/laws/everyday/test_everyday_shapes.ts` | `test/rehearsals/everyday/give-room.ts` | `media/automovie/modules/give-room/` | pending |
+| Near miss (sidestep into the path, face-to-face stop) | `src/interactions/everyday/sameGap.ts` over `WalkRoute`, `GiveRoomShape` | `test/features/interactions/everyday/test_everyday_relations.ts` | `test/rehearsals/everyday/give-room.ts` | `media/automovie/modules/give-room/` | pending |
+| Walk, walk around a person, turn into a seat | `src/laws/everyday/Gait.ts` (walk shape in `StudentMotion.walking`) | `test/features/interactions/everyday/test_everyday_relations.ts` | `test/rehearsals/everyday/walk-sit.ts` | `media/automovie/modules/walk-sit/` | pending |
+| Sit and rise | `src/laws/everyday/SitShape.ts` | `test/features/laws/everyday/test_everyday_shapes.ts` | `test/rehearsals/everyday/walk-sit.ts` | `media/automovie/modules/walk-sit/` | pending |
+| Handover (offer, receive with a tug, release) | `src/laws/everyday/ReachShape.ts` | `test/features/laws/everyday/test_everyday_shapes.ts` | `test/rehearsals/everyday/handover-bend.ts` | `media/automovie/modules/handover-bend/` | pending |
+| Bend and lean, floor pick-up | `src/laws/everyday/BendShape.ts`, `ReachShape.ts` | `test/features/laws/everyday/test_everyday_shapes.ts` | `test/rehearsals/everyday/handover-bend.ts` | `media/automovie/modules/handover-bend/` | 11:38 round: a pick-up after a full bend added its hinge to the bend's, folding the trunk past horizontal (8.0–9.5 s). Fixed: the pick-up completes the hinge from upright and never adds to a bend. Bend depths are named (`lean`, `half`, `full`). Recapture pending. |
+| Forehead touch, glasses push (standing, walking, riding) | `src/laws/everyday/FaceTouchShape.ts` | `test/features/laws/everyday/test_everyday_shapes.ts` | `test/rehearsals/flight/hang-transfer.ts` | `media/automovie/modules/hang-transfer/` | pending |
+| Grip and underarm turn | `src/laws/duelling/WandShape.ts`, `ReachShape.ts` | `test/features/laws/duelling/test_wand_shape.ts` | `test/rehearsals/duel/grip-shield.ts` | `media/automovie/modules/grip-shield/` | 11:38 round: the run-in stopped 0.6 m short, so the two bodies met at the grip (1.0–1.8 s). Fixed: run-ins stop at grip range, 0.9 m. Recapture pending. |
+| Cast, deflect, shield | `src/laws/duelling/WandShape.ts` | `test/features/laws/duelling/test_wand_shape.ts` | `test/rehearsals/duel/grip-shield.ts` | `media/automovie/modules/grip-shield/` | 11:38 round, read correctly: the flick, the deep-blue streak and its deflection, and the shield oval standing in front of her toward him (6–10 s). |
+| Hang, transfer into tandem, step-boundary attitude | `src/interactions/flight/RiderMotion.ts` (transfer keyframes), `StagePerformance` attitude easing | `test/features/interactions/flight/test_rider_transfer.ts` | `test/rehearsals/flight/hang-transfer.ts` | `media/automovie/modules/hang-transfer/` | pending |

@@ -48,8 +48,8 @@ export namespace RingFootwork {
   /** The presser's share of the receiver's lateral speed. */
   const CUT_SHARE: number = 0.5;
 
-  /** A quarter circle, the pivot's arc, radians. */
-  const PIVOT_ARC: number = Math.PI / 2;
+  /** The pivot's turn, radians: the rear foot swings 45 degrees around the planted lead foot, the smaller of the pivot's taught 45 to 90 degrees. */
+  const PIVOT_ARC: number = Math.PI / 4;
 
   /** Steps of the rope zone beyond the margin. */
   const ROPE_ZONE_STEPS: number = 2;
@@ -80,6 +80,7 @@ export namespace RingFootwork {
       movement: KickboxingAction.Movement;
       steps: number;
       range?: number;
+      side?: "left" | "right";
     },
     mover: IPoint,
     opponent: IPoint,
@@ -101,13 +102,10 @@ export namespace RingFootwork {
       case "circle":
         return clamp(orbit(mover, opponent, length, 1), ring);
       case "pivot":
+        // The pivot turns the whole body through its angle about the
+        // opponent's line, however short the stepping, so the turn reads.
         return clamp(
-          orbit(
-            mover,
-            opponent,
-            Math.min(length, PIVOT_ARC * dist(mover, opponent)),
-            1,
-          ),
+          orbit(mover, opponent, PIVOT_ARC * dist(mover, opponent), 1),
           ring,
         );
       case "escape":
@@ -150,12 +148,42 @@ export namespace RingFootwork {
           ),
           ring,
         );
+      case "switch":
+        // A switch changes the feet in place; the origin holds.
+        return clamp(mover, ring);
       case "approach":
-      case "separate":
         return clamp(
           sub(opponent, scale(toward, action.range ?? dist(mover, opponent))),
           ring,
         );
+      case "separate": {
+        // An exit steps off the opponent's line toward the side the last
+        // strike finished on, one step across: the arc whose chord is a step
+        // on the circle of the exit range.
+        const range: number = action.range ?? dist(mover, opponent);
+        // An attacker who has his opponent nearer the ropes than himself
+        // keeps the line and steps straight back, holding the cut-off
+        // (ring-generalship.md#exit); otherwise he steps off it.
+        const cutting: boolean = gap(opponent, ring) < gap(mover, ring);
+        const angle: number =
+          action.side === undefined || cutting
+            ? 0
+            : 2 * Math.asin(Math.min(1, ring.step / (2 * range)));
+        const across: number = action.side === "right" ? -1 : 1;
+        return clamp(
+          add(
+            opponent,
+            scale(
+              add(
+                scale(toward, -Math.cos(angle)),
+                scale(left, across * Math.sin(angle)),
+              ),
+              range,
+            ),
+          ),
+          ring,
+        );
+      }
       case "corner":
       case "celebrate":
         if (!target) throw new Error(`${action.movement} needs a target point`);
@@ -313,6 +341,11 @@ export namespace RingFootwork {
 
   function scale(a: IPoint, s: number): IPoint {
     return { x: a.x * s, z: a.z * s };
+  }
+
+  /** Distance from a point to the nearest rope line, metres. */
+  function gap(p: IPoint, ring: IRing): number {
+    return ring.half - Math.max(Math.abs(p.x), Math.abs(p.z));
   }
 
   function dist(a: IPoint, b: IPoint): number {

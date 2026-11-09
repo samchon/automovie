@@ -38,7 +38,7 @@ export function test_sound_cues(): void {
     receipt("x/1", "blocked", true, 70),
     receipt("x/2", "landed", false, 80),
   ];
-  const cues = SoundCues.of("seed-one", schedule, receipts);
+  const cues = SoundCues.of("seed-one", schedule, receipts, 180);
   const impacts = cues.filter((c) => c.asset.startsWith("punch"));
   assert.deepEqual(
     impacts.map((c) => c.seconds),
@@ -53,7 +53,7 @@ export function test_sound_cues(): void {
   assert.ok(
     cues.some((c) => c.asset === "count10" && Math.abs(c.seconds - 167) < 1e-9),
   );
-  const other = SoundCues.of("seed-two", schedule, receipts);
+  const other = SoundCues.of("seed-two", schedule, receipts, 180);
   const classes = (list: SoundCues.ICue[]): string[] =>
     list
       .map((c) => `${c.seconds}:${c.gain}:${c.asset.replace(/\d$/, "")}`)

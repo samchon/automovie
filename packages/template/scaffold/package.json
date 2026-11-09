@@ -16,6 +16,7 @@
     "dev": "vite",
     "build": "vite build",
     "render": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json src/executable/render.ts",
+    "capture": "ttsx --no-plugins --noCheck -P tsconfig.json src/executable/capture.ts",
     "review": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json src/executable/review.ts",
     "review:setup": "playwright install ffmpeg",
     "physics": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json src/executable/physics.ts"

@@ -4,7 +4,7 @@ Use this when delivering a motion-video hint or preparing visual controls for a 
 
 ## Choose the controls
 
-Select only the inputs the actual receiver needs, such as motion video, reference images, pose, depth, normal, outline or semantic mask, and read the installed viewer, engine and render contracts for what each really outputs. A mode name or a plausible image does not establish another tool's expected representation. If no path produces an essential control, repair the integration or report the missing capability; never rename another image to match it.
+Select only the inputs the actual receiver needs, such as motion video, reference images, pose, depth, normal, outline or semantic mask, and read the installed viewer, engine and render contracts for what each really outputs. A mode name or a plausible image does not establish another tool's expected representation. If no path produces an essential control, repair the integration or report the missing capability.
 
 ## Keep channels aligned
 

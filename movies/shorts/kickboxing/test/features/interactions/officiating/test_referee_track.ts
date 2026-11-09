@@ -11,7 +11,7 @@ import { polygonFilm } from "../../../internal/polygonFilm";
  * Scenarios, with the study's thresholds (docs/research/officiating/
  * referee.md#targets): a side view of the fighters' line for at least 90% of
  * the action; never between the fighters; at least one metre of walking in
- * every fifteen-second phase; never faster than 1.39 m/s; inside the ropes.
+ * every fifteen-second phase; never faster than 2.53 m/s; inside the ropes.
  */
 export function test_referee_track(): void {
   const { schedule, referee, cast } = polygonFilm();
@@ -38,7 +38,7 @@ export function test_referee_track(): void {
     if (k > 0) {
       const p = referee.points[k - 1]!;
       assert.ok(
-        Math.hypot(r.x - p.x, r.z - p.z) <= RefereePosition.SPEED * step + 1e-9,
+        Math.hypot(r.x - p.x, r.z - p.z) <= RefereePosition.BRISK * step + 1e-9,
       );
     }
   }

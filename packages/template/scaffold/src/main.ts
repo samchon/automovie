@@ -36,12 +36,17 @@ if (overlay) {
   production.scene.add(overlay.object);
   overlay.show(query.get("rig") === "1", query.get("contacts") === "1");
 }
-const inspection: IFilmProduction["camera"] | undefined = query.has("view")
-  ? production.camera.clone()
-  : undefined;
-if (inspection) {
-  const coordinates: number[][] = query
-    .get("view")!
+const viewName: string | null = query.get("view");
+const preset: NonNullable<IFilmProduction["views"]>[string] | undefined =
+  viewName !== null &&
+  production.views !== undefined &&
+  Object.hasOwn(production.views, viewName)
+    ? production.views[viewName]
+    : undefined;
+const inspection: IFilmProduction["camera"] | undefined =
+  viewName !== null ? production.camera.clone() : undefined;
+if (inspection && !preset) {
+  const coordinates: number[][] = viewName!
     .split(":")
     .map((part: string): number[] => part.split(",").map(Number));
   if (
@@ -51,7 +56,9 @@ if (inspection) {
         point.length !== 3 || !point.every(Number.isFinite),
     )
   )
-    throw new Error("Inspection view must be x,y,z:tx,ty,tz in metres");
+    throw new Error(
+      "Inspection view must be a named film view or x,y,z:tx,ty,tz in metres",
+    );
   inspection.position.set(
     coordinates[0]![0]!,
     coordinates[0]![1]!,
@@ -62,15 +69,15 @@ if (inspection) {
     coordinates[1]![1]!,
     coordinates[1]![2]!,
   );
-  inspection.updateProjectionMatrix();
 }
+inspection?.updateProjectionMatrix();
 const slider: HTMLInputElement =
   document.querySelector<HTMLInputElement>("#seek")!;
 const clock: HTMLOutputElement =
   document.querySelector<HTMLOutputElement>("#clock")!;
 const capture: boolean = query.get("capture") === "1";
-const width: number = Number(query.get("w") ?? 1280);
-const height: number = Number(query.get("h") ?? 720);
+const width: number = Number(query.get("w") ?? film.width ?? 1280);
+const height: number = Number(query.get("h") ?? film.height ?? 720);
 if (
   ![width, height].every(
     (size: number): boolean => Number.isSafeInteger(size) && size > 0,
@@ -135,6 +142,11 @@ const host: IAutoMovieViewerHandle = mountViewer(
  */
 function draw(): void {
   production.seek(seconds);
+  if (preset && inspection) {
+    const pose: ReturnType<NonNullable<typeof preset>> = preset(seconds);
+    inspection.position.set(...pose.position);
+    inspection.lookAt(...pose.target);
+  }
   if (overlay && production.performance)
     overlay.update(
       production.performance.frame(),

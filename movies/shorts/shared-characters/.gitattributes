@@ -1,3 +1,0 @@
-docs/prompts/images/payloads/*.json -text
-docs/prompts/images/sources/*.md -text
-docs/prompts/images/sources/*.json -text

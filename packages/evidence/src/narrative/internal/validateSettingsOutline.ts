@@ -5,7 +5,7 @@ import { readSettingsFiles } from "./readSettingsFiles";
 import { settingsEntryAnchor } from "./settingsEntryAnchor";
 
 /**
- * Checks that the outline describes the numbered canon in its actual order.
+ * Checks that the outline describes the classified canon, in domain or numbered folders, in its actual order.
  *
  * Entry anchors encode the relative file path and entry labels equal the H1. This checks
  * the authored layout, not evidence rows: the graph owns citation cardinality
@@ -24,9 +24,11 @@ export function validateSettingsOutline(location: string): void {
   const target: string = path.join(root, "outline/index.md");
   if (!fs.existsSync(target))
     throw new Error(`${target}: settings outline is required.`);
+  // Classified canon (domain or numbered folders) needs outline entries; legacy flat files do not.
   const files: string[] = readSettingsFiles(root).filter(
     (file: string): boolean =>
-      /(?:^|\/)[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/u.test(file),
+      file.includes("/") ||
+      /^[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/u.test(file),
   );
   const outline: RegExpExecArray[] = headings(fs.readFileSync(target, "utf8"));
   if (

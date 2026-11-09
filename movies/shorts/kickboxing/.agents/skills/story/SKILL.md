@@ -1,6 +1,6 @@
 ---
 name: story
-description: Authors a video's performance research, requirements, direction, settings, treatments, scripts, final audiovisual screenplay, expression revisions and narrative evidence. Use for narrative planning, writing, rewriting, inspection, repair or pass handoff.
+description: Authors a video's research, requirements, direction, settings, treatments, scripts, final audiovisual screenplay, expression revisions and narrative evidence. Use for narrative planning, writing, rewriting, inspection, repair or pass handoff.
 ---
 
 # Story
@@ -10,7 +10,7 @@ Make the commissioned audience experience and a usable handoff to the next layer
 | Part | Covers |
 | --- | --- |
 | [Workflow](workflow.md) | Routes, layer order and parents, pass steps and completion |
-| [Planning](planning/SKILL.md) | Requirements, direction, performance research and discovery |
+| [Planning](planning/SKILL.md) | Requirements, direction, research and discovery |
 | [Layers](layers/SKILL.md) | Settings, treatments, scripts, screenplay and notation |
 | [Naturalness](naturalness/SKILL.md) | The screenplay expression pass and its transfer |
 | [Correction](correction/SKILL.md) | Inspection and repair by cause |

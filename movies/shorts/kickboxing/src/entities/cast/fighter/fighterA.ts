@@ -16,6 +16,7 @@ import type { IFighterProfile } from "./IFighterProfile";
  * @evidence docs/body/settings/cast/fighter-a.md#defense Parry, catch, slip, roll, sway, elbow block and check.
  * @evidence docs/body/settings/cast/fighter-a.md#checks-drag He checks the drag feint at once, every time.
  * @evidence docs/body/settings/cast/fighter-a.md#answers-pump His right glove meets a pump jab, every time.
+ * @evidence docs/research/kickboxing/exchanges.md#feints A shoulder feint draws the parry; a level feint draws the elbow block.
  */
 export const fighterA: IFighterProfile = Object.freeze<IFighterProfile>({
   id: "a",
@@ -80,6 +81,8 @@ export const fighterA: IFighterProfile = Object.freeze<IFighterProfile>({
     "feint-jab",
     "feint-low-kick",
     "feint-body-kick",
+    "feint-shoulder",
+    "feint-level",
   ],
   defenses: [
     "parry",
@@ -98,6 +101,13 @@ export const fighterA: IFighterProfile = Object.freeze<IFighterProfile>({
       id: "checks-drag",
       sees: { families: ["feint"], limb: "leg", levels: ["leg"] },
       response: "check",
+      reliability: 1,
+    },
+    {
+      kind: "tell",
+      id: "reads-level",
+      sees: { families: ["feint"], limb: "arm", levels: ["body"] },
+      response: "elbow-block",
       reliability: 1,
     },
     {

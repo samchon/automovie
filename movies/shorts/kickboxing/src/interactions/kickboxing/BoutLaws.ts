@@ -14,6 +14,7 @@ import { KickboxingOutcome } from "../../laws/kickboxing/KickboxingOutcome";
 import { KickboxingRange } from "../../laws/kickboxing/KickboxingRange";
 import { KickboxingTiming } from "../../laws/kickboxing/KickboxingTiming";
 import { KickboxingVariation } from "../../laws/kickboxing/KickboxingVariation";
+import { KnockdownShape } from "../../laws/kickboxing/KnockdownShape";
 import { RingFootwork } from "../../laws/kickboxing/RingFootwork";
 import { StanceShape } from "../../laws/kickboxing/StanceShape";
 import { KnockdownCount } from "../../laws/officiating/KnockdownCount";
@@ -129,13 +130,12 @@ export namespace BoutLaws {
           start[opponent.id]!;
         // Walking to the corner and the victory steps are ordinary walking at a
         // comfortable speed, not the fighting stance's short steps.
-        const walking: boolean =
-          action.movement === "corner" || action.movement === "celebrate";
+        const walking: boolean = KickboxingTiming.walking(action.movement);
         const ring: RingFootwork.IRing = {
           half: cast.ring.half,
           margin: StanceShape.margin(mover.body.measure),
           step: walking
-            ? RefereePosition.SPEED * KickboxingTiming.STEP_PERIOD
+            ? RefereePosition.SPEED * KickboxingTiming.WALK_PERIOD
             : StanceShape.step(mover.body.measure),
         };
         const target: RingFootwork.IPoint | undefined =
@@ -267,10 +267,27 @@ export namespace BoutLaws {
         const dz: number = moved.z - before.z;
         const bow: number =
           (Math.tan(angle) / Math.PI) * Math.sin(Math.PI * share);
-        const p: RingFootwork.IPoint = {
+        const bowed: RingFootwork.IPoint = {
           x: straight.x - dz * bow,
           z: straight.z + dx * bow,
         };
+        // A walk after the opponent has fallen goes around his lying body a
+        // step clear of it, his feet as well as his origin.
+        const lying: KnockdownShape.IFootprint | null = KickboxingTiming.walking(
+          action.movement,
+        )
+          ? fallen(schedule, opponent, entry.start, cast)
+          : null;
+        const p: RingFootwork.IPoint =
+          lying === null
+            ? bowed
+            : RefereePosition.clear(
+                bowed,
+                lying,
+                StanceShape.step(fighter.body.measure) +
+                  fighter.body.measure.hipHalfWidth +
+                  fighter.body.measure.foot / 2,
+              );
         return {
           point: {
             x: Math.max(-limit, Math.min(limit, p.x)),
@@ -282,6 +299,56 @@ export namespace BoutLaws {
       break;
     }
     return { point: before };
+  }
+
+  /**
+   * The floor a fallen fighter's body covers once he has fallen before a
+   * second, from his origin and facing when he fell.
+   *
+   * @param schedule The resolved schedule.
+   * @param subject The fighter who may have fallen.
+   * @param seconds The second asked about.
+   * @param cast The cast.
+   * @returns His lying footprint, or null when he has not fallen.
+   */
+  export function fallen(
+    schedule: IAutoMovieSchedule,
+    subject: string,
+    seconds: number,
+    cast: IRingCast,
+  ): KnockdownShape.IFootprint | null {
+    const fall: IAutoMovieSchedule.IEntry | undefined = schedule.entries.find(
+      (e) => {
+        if (e.subject !== subject || e.start > seconds) return false;
+        if (e.intent.capability !== "phase") return false;
+        const action: KickboxingAction.IAction = KickboxingAction.read(
+          e.intent,
+        );
+        return action.kind === "phase" && action.phase === "fall";
+      },
+    );
+    if (fall === undefined) return null;
+    const down: Fighter = subject === cast.a.id ? cast.a : cast.b;
+    const other: Fighter = down === cast.a ? cast.b : cast.a;
+    const here: RingFootwork.IPoint = origin(
+      schedule,
+      subject,
+      fall.start,
+      cast,
+    ).point;
+    const there: RingFootwork.IPoint = origin(
+      schedule,
+      other.id,
+      fall.start,
+      cast,
+    ).point;
+    const dx: number = there.x - here.x;
+    const dz: number = there.z - here.z;
+    const length: number = Math.hypot(dx, dz) || 1;
+    return KnockdownShape.footprint(down.body.measure, here, {
+      x: dx / length,
+      z: dz / length,
+    });
   }
 
   /**

@@ -250,7 +250,10 @@ export namespace DefenseShape {
       case "roll":
         return {
           ...guard,
-          drop: guard.drop + measure.headRadius * 1.5,
+          // The head ducks under the hook's arc by a head's height, 20 to 30
+          // cm down with the knees and the trunk's flexion (coaching of the
+          // roll).
+          drop: guard.drop + measure.headRadius * 2,
           thoracic: {
             ...guard.thoracic,
             flexion: ROLL_FLEXION,
