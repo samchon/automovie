@@ -14,6 +14,7 @@ type Skin = { points: V3[]; faces: Face[] };
 type Edge = { a: number; b: number; uses: number; balance: number };
 type Section = { frame: Frame; points: V3[] };
 type Reading = { key: string; point: V3; t: number };
+type Arc = "posterior" | "medial" | "lateral";
 
 /**
  * Native F1 proximal skin and the measured collar to the surveyed fork.
@@ -109,8 +110,11 @@ export namespace NodeLegF1Hip {
     // and add whole original arcs only when their physical order agrees.
     const middle = posteriorRail(strip, section, fork, mesh, positions, 0.5);
     const admitted: Reading[][] = middle === null ? [] : [middle];
-    if (native) for (const [fraction, inset] of [[0, tolerance], [1 / 3, 0], [2 / 3, 0]] as const) {
-      const candidate = posteriorRail(strip, section, fork, mesh, positions, fraction, inset);
+    if (native) for (const [fraction, inset, arc] of [
+      [0, tolerance, "posterior"], [1 / 3, 0, "posterior"], [2 / 3, 0, "posterior"],
+      [2 / 3, 0, "medial"], [0.5, 0, "lateral"],
+    ] as const) {
+      const candidate = posteriorRail(strip, section, fork, mesh, positions, fraction, inset, arc);
       if (candidate !== null && admitted.every((arc): boolean => separateArcs(arc, candidate))) admitted.push(candidate);
     }
     const rails: V3[][] = [];
@@ -182,7 +186,7 @@ export namespace NodeLegF1Hip {
     return NodeLegF1Foot.skinComponents(skin.faces).length === 1 ? skin : null;
   }
 
-  /** Match an original connected posterior arc at the same signed physical Z. */
+  /** Match a connected original arc at the same physical phase on a measured cut. */
   function posteriorRail(
     strip: number[],
     section: Section,
@@ -191,6 +195,7 @@ export namespace NodeLegF1Hip {
     positions: number[],
     fraction: number,
     inset: number = 0,
+    branch: Arc = "posterior",
   ): Reading[] | null {
     const center = AutoMovieMeshCourse.centroid(section.points);
     if (center === null) return null;
@@ -205,7 +210,10 @@ export namespace NodeLegF1Hip {
     const v = Geometry.cross(u, normal);
     const cut = AutoMovieMeshExtract.outline(mesh, { origin, axes: [normal, u, v] }, [0], 0, tolerance, 0)[0]!;
     const side = (p: V3): number => fork.direction * (p[2] - fork.midline);
-    const exterior = (p: V3): boolean => side(p) > 0 && p[0] < center[0];
+    const phase = (p: V3): number => branch === "lateral" ? p[0] : side(p);
+    const exterior = (p: V3): boolean => branch === "lateral"
+      ? side(p) > side(center) && p[0] >= center[0]
+      : side(p) > 0 && p[0] < (branch === "medial" ? fork.half.centroid[0] : center[0]);
     const arcs: V3[][] = [];
     for (const loop of cut.loops) {
       const points = loop.points.map((p): V3 => place({ origin, u, v }, p));
@@ -221,22 +229,36 @@ export namespace NodeLegF1Hip {
       }
       if (arc.length > 1) arcs.push(arc);
     }
-    if (arcs.length !== 1) return null;
-    const source = arcs[0]!;
-    if (side(source[0]!) > side(source[source.length - 1]!)) source.reverse();
-    if (source.some((p, i): boolean => i > 0 && side(p) <= side(source[i - 1]!))) return null;
+    // The measured medial mismatch ends at 30 mm from the sagittal plane.
+    // Choose the posterior source arc that spans this band, including its healthy end.
+    const medialEnd = 30;
+    const sources = branch === "medial" ? arcs.filter((arc): boolean =>
+      arc.some((p): boolean => side(p) <= 20) && arc.some((p): boolean => side(p) >= medialEnd)) : arcs;
+    if (sources.length !== 1) return null;
+    let source = sources[0]!;
+    if (phase(source[0]!) > phase(source[source.length - 1]!)) source.reverse();
+    if (branch === "lateral") {
+      // X is the phase of the lateral arc while the source tangent advances
+      // farther in X than in Z. At the turn into the front, this chart ends.
+      const turn = source.findIndex((p, i): boolean =>
+        i > 0 && p[0] - source[i - 1]![0] <= Math.abs(p[2] - source[i - 1]![2]));
+      if (turn > 0) source = source.slice(0, turn);
+    }
+    if (source.some((p, i): boolean => i > 0 && phase(p) <= phase(source[i - 1]!))) return null;
     const readings = Array.from({ length: strip.length / 3 }, (_, i): Reading | null => {
       const first = strip[3 * i]!, second = strip[3 * i + 1]!;
       const a = read(positions, first), b = read(positions, second);
       const da = Geometry.dot(sub(a, origin), normal), db = Geometry.dot(sub(b, origin), normal);
-      // The shared nonplanar median rail stays on its existing strip.
-      if (side(a) <= 0 || side(b) <= 0 || da * db >= 0) return null;
-      const t = da / (da - db), at = mix(a, b, t), z = side(at);
-      if (!exterior(at) || z < side(source[0]!)) return null;
-      const end = source.findIndex((p): boolean => side(p) > z);
+      // A medial cross-edge may start on the survey, but every new reading
+      // stays strictly on this leg. No surveyed vertex or edge is subdivided.
+      const onSide = (p: V3): boolean => branch === "medial" ? side(p) >= 0 : side(p) > 0;
+      if (!onSide(a) || !onSide(b) || da * db >= 0) return null;
+      const t = da / (da - db), at = mix(a, b, t), value = phase(at);
+      if (!exterior(at) || value < phase(source[0]!) || (branch === "medial" && value > medialEnd)) return null;
+      const end = source.findIndex((p): boolean => phase(p) > value);
       if (end < 1) return null;
       const a0 = source[end - 1]!, a1 = source[end]!;
-      return { key: key(first, second), point: mix(a0, a1, (z - side(a0)) / (side(a1) - side(a0))), t };
+      return { key: key(first, second), point: mix(a0, a1, (value - phase(a0)) / (phase(a1) - phase(a0))), t };
     });
     const gap = readings.findIndex((sample): boolean => sample === null);
     if (gap < 0) return null;
@@ -244,7 +266,14 @@ export namespace NodeLegF1Hip {
     const first = ordered.findIndex((sample): boolean => sample !== null);
     if (first < 0) return null;
     const end = ordered.findIndex((sample, i): boolean => i > first && sample === null);
-    return end - first < 2 || ordered.slice(end).some((sample): boolean => sample !== null) ? null : ordered.slice(first, end).map((sample): Reading => sample!);
+    if (end - first < 2 || ordered.slice(end).some((sample): boolean => sample !== null)) return null;
+    const matched = ordered.slice(first, end).map((sample): Reading => sample!);
+    if (branch === "lateral") {
+      const direction = Math.sign(phase(matched[matched.length - 1]!.point) - phase(matched[0]!.point));
+      if (matched.some(({ point }, i): boolean =>
+        i > 0 && direction * (phase(point) - phase(matched[i - 1]!.point)) <= 0)) return null;
+    }
+    return matched;
   }
 
   function close(rim: number[], reference: V3[], points: V3[]): boolean {
