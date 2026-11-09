@@ -101,7 +101,7 @@ export namespace guard {
     const staggered: boolean = Math.abs(Vector3.dot(Vector3.subtract(context.entry.feet.left.ankle, context.entry.feet.right.ankle), forwardOf(entry.yaw))) > 0.05;
     const line: number =
       context.params.facing !== undefined
-        ? StrikingTarget.heading(StrikingTarget.line(entry.root, context.aim(context.params.facing, context.start).point, entry.yaw))
+        ? StrikingTarget.heading(StrikingTarget.line(entry.root, context.aim(context.params.facing, context.start - StrikingTarget.LOOK).point, entry.yaw))
         : staggered
           ? entry.yaw + (lead === "left" ? StrikingStance.TURN : -StrikingStance.TURN)
           : entry.yaw;

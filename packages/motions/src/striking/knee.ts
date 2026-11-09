@@ -1,4 +1,11 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  type IAutoMovieResolvedBone,
+  Vector3,
+  minimumJerk,
+  resolvePose,
+} from "@automovie/engine";
 import type { AutoMovieHumanoidBone, AutoMovieMotionTarget, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -8,7 +15,10 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBody } from "./StrikingBody";
+import { StrikingContact } from "./StrikingContact";
+import { StrikingRecord } from "./StrikingRecord";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -80,10 +90,10 @@ export namespace knee {
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const t0: number = context.start;
 
-    let built: { knee: IAutoMovieVector3; ankle: IAutoMovieVector3; thrust: IAutoMovieVector3; line: IAutoMovieVector3 } | undefined;
+    let built: { knee: IAutoMovieVector3; ankle: IAutoMovieVector3; thrust: IAutoMovieVector3; line: IAutoMovieVector3; target: IAutoMovieVector3 } | undefined;
     const geometry = () => {
       if (built !== undefined) return built;
-      const target: IAutoMovieVector3 = context.aim(p.at, t0 + impact).point;
+      const target: IAutoMovieVector3 = StrikingTarget.aim(context, p.at, t0 - StrikingTarget.LOOK, (): number => 0.8 * m.thigh);
       const line: IAutoMovieVector3 = StrikingTarget.line(entry.root, target, entry.yaw);
       const drive: IAutoMovieVector3 = Vector3.normalize(Vector3.add(Vector3.scale(line, 0.8), Vector3.scale(up, 0.6)));
       const patella: number = Vector3.length(body.surfaces.regions[side === "left" ? "kneeLeft" : "kneeRight"].point);
@@ -96,7 +106,7 @@ export namespace knee {
       const reached: IAutoMovieVector3 = Vector3.add(Vector3.add(hip, thrust), Vector3.scale(Vector3.normalize(Vector3.subtract(knee, Vector3.add(hip, thrust))), m.thigh));
       const thigh: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(reached, Vector3.add(hip, thrust)));
       const fold: IAutoMovieVector3 = Vector3.normalize(Vector3.add(Vector3.scale(thigh, Math.cos((FLEXION * Math.PI) / 180)), Vector3.scale(Vector3.normalize(Vector3.subtract(Vector3.scale(up, -1), Vector3.scale(thigh, -Vector3.dot(up, thigh)))), Math.sin((FLEXION * Math.PI) / 180))));
-      built = { knee: reached, ankle: Vector3.add(reached, Vector3.scale(fold, m.shank)), thrust, line };
+      built = { knee: reached, ankle: Vector3.add(reached, Vector3.scale(fold, m.shank)), thrust, line, target };
       return built;
     };
     const events: IAutoMovieMotionEvent[] = [
@@ -109,11 +119,40 @@ export namespace knee {
       { part: `${side}Foot`, kind: "plant", from: 1, to: 1, support: { kind: "ground" } },
       { part: `${support}Foot`, kind: "pivot", from: 0, to: 1, support: { kind: "ground" } },
     ];
-    return {
+    // The knee's contact: the first second the displayed patella touches the
+    // struck body's colliders, found once by the shared fixed-step scan. The
+    // knee's goal sits on the target, so the scan only reports the contact.
+    let found: { at: number | undefined } | undefined;
+    const kneePoint = (seconds: number): IAutoMovieVector3 => {
+      const bones = new Map(
+        resolvePose(resolveHumanPosture(body, out.posture(seconds - t0)), body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
+          (r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+        ),
+      );
+      return StrikingBody.region(body, bones, side === "left" ? "kneeLeft" : "kneeRight").point;
+    };
+    const stop = (seconds: number): number | undefined => {
+      if (p.at.kind !== "person") return undefined;
+      const struck: IHumanActionContext.IPerformer = context.performer(p.at.subject);
+      found ??= {
+        at: StrikingContact.first(
+          (s: number): number => StrikingContact.nearest(kneePoint(s), StrikingBody.colliders(struck.body, struck.bones(s)))?.distance ?? Infinity,
+          t0 + prep,
+          t0 + impact + 0.1,
+          1 / 96,
+        ),
+      };
+      return found.at !== undefined && found.at <= seconds ? found.at : undefined;
+    };
+    const out: IHumanActionPlan = {
       duration,
       events,
       contacts,
       contact: impact,
+      settle: (): void => {
+        built = undefined;
+        found = undefined;
+      },
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const g = geometry();
@@ -136,7 +175,7 @@ export namespace knee {
         const leg: "leftLeg" | "rightLeg" = side === "left" ? "leftLeg" : "rightLeg";
         const hands = StrikingStance.guard(body, posture, { lead });
         if (p.at.kind === "person") {
-          const nape: IAutoMovieVector3 = context.performer(p.at.subject).bones(t0 + t).get("neck")!.worldPosition;
+          const nape: IAutoMovieVector3 = context.performer(p.at.subject).bones(t0 + t - StrikingTarget.LOOK).get("neck")!.worldPosition;
           for (const arm of ["leftArm", "rightArm"] as const) {
             const g0: IHumanPosture.IGoal | undefined = hands[arm];
             if (g0 === undefined) continue;
@@ -154,5 +193,10 @@ export namespace knee {
         };
       },
     };
+    StrikingRecord.register(out, (): StrikingRecord.IRecord => {
+      const g = geometry();
+      return { offset: { x: 0, y: 0, z: 0 }, planned: g.target, reached: g.target, status: "reached", stop };
+    });
+    return out;
   }
 }

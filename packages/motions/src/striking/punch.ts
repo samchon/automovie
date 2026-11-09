@@ -22,6 +22,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingAim } from "./StrikingAim";
 import { StrikingBody } from "./StrikingBody";
@@ -60,7 +61,9 @@ import { StrikingTarget } from "./StrikingTarget";
  * pivots the rear foot on its ball; a lead hook turns the other way. A body
  * punch lowers the root through the knees. When the arm's band falls short,
  * the lead foot steps in by up to one stance length and the rear foot drags
- * after the contact (the IBA stepping jab); beyond that the fist extends
+ * from mid-delivery to mid-return (the IBA stepping jab), so no planted foot
+ * is left behind a travelling hip; the trunk's turn is shared by the pelvis
+ * and the lumbar and thoracic spine. Beyond that the fist extends
  * along the line at the band's reach and falls short, the declared
  * miss-at-maximum-reach rule.
  *
@@ -173,7 +176,18 @@ export namespace punch {
     // Geometry reads the target, which may only be read from postures: it is
     // built on first use and dropped when the performance settles.
     let built: IGeometry | undefined;
-    const geometry = (): IGeometry => (built ??= build(context, timing));
+    let building: boolean = false;
+    const geometry = (): IGeometry => {
+      if (built !== undefined) return built;
+      if (building) throw new Error(`${context.subject}: the punch was read back while it was being planned`);
+      building = true;
+      try {
+        built = build(context, timing);
+      } finally {
+        building = false;
+      }
+      return built;
+    };
     const out: IHumanActionPlan = {
       duration,
       events,
@@ -233,17 +247,18 @@ export namespace punch {
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const arm: "leftArm" | "rightArm" = side === "left" ? "leftArm" : "rightArm";
     const fist: "fistLeft" | "fistRight" = side === "left" ? "fistLeft" : "fistRight";
-    const aim = (seconds: number): IAutoMovieVector3 => context.aim(p.at, seconds).point;
+    const aim = (seconds: number): IAutoMovieVector3 =>
+      StrikingTarget.aim(context, p.at, seconds, (): number => 0.9 * (m.upperArm + m.forearm) + 0.5 * m.shoulderHalfWidth);
 
     // The line to the target at the launch and the trunk turn it calls for.
-    const first: IAutoMovieVector3 = aim(t0);
+    const first: IAutoMovieVector3 = aim(t0 - StrikingTarget.LOOK);
     const line: IAutoMovieVector3 = StrikingTarget.line(entry.root, first, entry.yaw);
     const turn: number = (lead === "left" ? 1 : -1) * TURN[p.technique][which] * StrikingSkill.amplitude(context.skill);
     const outward: IAutoMovieVector3 = Vector3.scale(Vector3.cross(up, line), side === "left" ? 1 : -1);
 
     // The shoulder at contact: the entry turned, lowered for a body shot so
     // the fist meets a low target from about its own level.
-    const shoulder0: IAutoMovieVector3 = StrikingBody.trunk(body, { ...entry, yaw: entry.yaw + turn }).get(
+    const shoulder0: IAutoMovieVector3 = StrikingBody.trunk(body, { ...entry, yaw: entry.yaw + 0.4 * turn, joints: { ...entry.joints, spine: [0, 0, 0.3 * turn], chest: [0, 0, 0.3 * turn] } }).get(
       `${side}UpperArm` as AutoMovieHumanoidBone,
     )!.worldPosition;
     const dip: number = Math.min(0.15 * m.hipHeight, Math.max(0, 0.5 * (shoulder0.y - first.y - 0.25 * (m.upperArm + m.forearm))));
@@ -275,7 +290,7 @@ export namespace punch {
     });
     const tracker: StrikingAim.ITracker = StrikingAim.track(
       aim,
-      { launch: t0, impact: t0 + delivery, latency: StrikingSkill.CORRECTION_LATENCY, step: 1 / 24, shortest: 0.04 },
+      { launch: t0 - StrikingTarget.LOOK, impact: t0 + delivery, latency: StrikingSkill.CORRECTION_LATENCY, step: 1 / 24, shortest: 0.04 },
       offset,
     );
 
@@ -288,8 +303,16 @@ export namespace punch {
     const along: number = Vector3.dot(relative, line);
     const across: number = Math.sqrt(Math.max(0, Vector3.dot(relative, relative) - along * along));
     const needed: number = Math.sqrt(Math.max(0, comfortable * comfortable - across * across));
-    const advance: number = p.feint === undefined ? Math.max(0, StrikingReach.advance(along, needed, StrikingStance.length(body))) : 0;
-    const shoulder: IAutoMovieVector3 = Vector3.add(lowered, Vector3.scale(line, advance));
+
+    // The rear foot drags from mid-delivery to mid-return (the IBA stepping
+    // jab: the rear foot follows at once), so by the contact the root has
+    // carried the shoulder the share `carried` of the step.
+    const dragFrom: number = 0.5 * shown;
+    const dragTo: number = shown + 0.5 * recoil;
+    const drag = (t: number): number => minimumJerk((t - dragFrom) / (dragTo - dragFrom)).s;
+    const carried: number = 0.5 * (1 + drag(shown));
+    const advance: number = p.feint === undefined ? Math.max(0, StrikingReach.advance(along, needed, carried * StrikingStance.length(body)) / carried) : 0;
+    const shoulder: IAutoMovieVector3 = Vector3.add(lowered, Vector3.scale(line, carried * advance));
     const bendToward: IAutoMovieVector3 =
       p.technique === "hook" ? Vector3.add(outward, Vector3.scale(up, 0.1)) : Vector3.add(Vector3.scale(up, -1), Vector3.scale(outward, 0.3));
     const solved: StrikingReach.ISolution = StrikingReach.chain({
@@ -328,30 +351,35 @@ export namespace punch {
     const base = (t: number): IHumanPosture => {
       const turning: number = out(t) - back(t);
       const moved: number = stepping ? advance * out(t) : 0;
-      const dragged: number = stepping ? advance * back(t) : 0;
+      const dragged: number = stepping ? advance * drag(t) : 0;
       const leadFoot: HumanFoot.IPlacement = StrikingTarget.slide(feet[lead], line, moved, stepping ? lift * 4 * out(t) * (1 - out(t)) : 0);
-      const slid: HumanFoot.IPlacement = StrikingTarget.slide(feet[rear], line, dragged, stepping ? lift * 4 * back(t) * (1 - back(t)) : 0);
+      const slid: HumanFoot.IPlacement = StrikingTarget.slide(feet[rear], line, dragged, stepping ? lift * 4 * drag(t) * (1 - drag(t)) : 0);
       const rearFoot: HumanFoot.IPlacement =
         which === "rear" ? StrikingTarget.pivot(body, rear, slid, 0.5 * turn * turning, HEEL_RAISE * turning) : slid;
       const placed: Record<"left" | "right", HumanFoot.IPlacement> =
         lead === "left" ? { left: leadFoot, right: rearFoot } : { left: rearFoot, right: leadFoot };
       const leadDown: boolean = !stepping || t >= shown;
-      const rearDown: boolean = !stepping || t <= shown || t >= shown + recoil;
-      return {
+      const rearDown: boolean = !stepping || t <= dragFrom || t >= dragTo;
+      // The trunk's turn is shared by the pelvis (two fifths) and the lumbar
+      // and thoracic spine (three tenths each, twist about the trunk's long
+      // axis, positive to the left like the heading), as the rotation of a
+      // punch runs up the spine; the pelvis alone would twist the planted hips
+      // past their range.
+      return resolveHumanPosture.lower(body, {
         root: Vector3.add({ ...entry.root, y: entry.root.y - dip * turning }, Vector3.scale(line, 0.5 * (moved + dragged))),
-        yaw: entry.yaw + turn * turning,
+        yaw: entry.yaw + 0.4 * turn * turning,
         pitch: entry.pitch,
         roll: entry.roll,
-        joints: { ...entry.joints, ...StrikingStance.joints() },
+        joints: { ...entry.joints, ...StrikingStance.joints(), spine: [0, 0, 0.3 * turn * turning], chest: [0, 0, 0.3 * turn * turning] },
         limbs: StrikingStance.legs(body, placed, lead === "left" ? { left: leadDown, right: rearDown } : { left: rearDown, right: leadDown }),
-      };
+      }, 5);
     };
 
     // The guard the hand returns to, and the stroke from the launch through
     // the contact back to it, stopping on the struck body's first surface.
     const guardEnd: IHumanPosture.IGoal = StrikingStance.guard(body, base(duration), { lead })[arm]!;
     const rotationAt = (t: number): IAutoMovieQuaternion =>
-      Quaternion.slerp(Quaternion.slerp(startRotation, rotation, out(t)), guardEnd.rotation!, back(t));
+      Quaternion.slerp(Quaternion.slerp(startRotation, rotation, out(t)), startRotation, back(t));
     const lag: number = StrikingSkill.lag(context.skill) * shown;
     const reached: IAutoMovieVector3 = p.feint === undefined ? solved.end : Vector3.lerp(origin, solved.end, minimumJerk(p.feint).s);
     const units = StrikingStroke.delivery({
@@ -378,7 +406,7 @@ export namespace punch {
               Vector3.add(end, StrikingBody.socket(body, fist, rotationAt(seconds - t0))),
             ),
           }),
-      scan: { from: t0 + lag, to: t0 + shown + 0.1, step: 1 / 96 },
+      scan: { from: t0, to: t0 + shown + 0.1, step: 1 / 96 },
     });
 
     // The feet's contact windows, as shares of the punch.
@@ -389,13 +417,13 @@ export namespace punch {
     const rearKind: "plant" | "pivot" = which === "rear" ? "pivot" : "plant";
     window(`${lead}Foot`, "plant", stepping ? shown : 0, duration);
     if (stepping) {
-      window(`${rear}Foot`, rearKind, 0, shown);
-      window(`${rear}Foot`, "plant", shown + recoil, duration);
+      window(`${rear}Foot`, rearKind, 0, dragFrom);
+      window(`${rear}Foot`, "plant", dragTo, duration);
     } else window(`${rear}Foot`, rearKind, 0, duration);
 
     return {
       contacts,
-      record: { offset, planned: tracker.planned, status: solved.status, stop: stroke.stop },
+      record: { offset, planned: tracker.planned, reached: Vector3.add(solved.end, socket), status: solved.status, stop: stroke.stop },
       posture: (t: number): IHumanPosture => {
         const posture: IHumanPosture = base(t);
         const guard = StrikingStance.guard(body, posture, { lead });

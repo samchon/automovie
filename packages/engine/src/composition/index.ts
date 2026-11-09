@@ -11,6 +11,7 @@ export type { IAutoMovieZone } from "./IAutoMovieZone";
 export * from "./measureAutoMovieContact";
 export * from "./measureAutoMovieSchedule";
 export * from "./resolveAutoMovieFraming";
+export * from "./resolveAutoMovieContactEvents";
 export * from "./resolveAutoMovieOutcome";
 export * from "./resolveAutoMovieRelationalGoal";
 export * from "./resolveAutoMovieMutualGoal";

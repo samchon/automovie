@@ -24,6 +24,13 @@ import { StrikingContact } from "./StrikingContact";
  */
 export namespace StrikingStroke {
   /**
+   * How long a weapon stays on the surface it met before it recoils,
+   * seconds: the 10 to 20 ms contact of measured punches and kicks (Pędzich et
+   * al. 2006; Gavagan and Sayers 2017), taken at its middle.
+   */
+  export const DWELL: number = 0.015;
+
+  /**
    * The share of a minimum-jerk unit at which its speed has fallen to a share
    * of its peak, after the peak: `s'(u) = 30 u^2 (1-u)^2` against the peak
    * 1.875 at the middle, solved for `u(1-u)` and the root above one half.
@@ -183,29 +190,46 @@ export namespace StrikingStroke {
     // The scan advances on a fixed grid and remembers how far it has found no
     // contact, so the found second is the same whatever order seconds are
     // evaluated in.
+    //
+    // While a scan reads the struck body, that body may read this weapon back
+    // at the same instants (two strikes thrown at once, an arm crossing an
+    // arm). Such a nested read sees the weapon on its free path, which is its
+    // real path up to the contact the scan is still looking for; resolving
+    // both contacts simultaneously would need a joint solve, which this
+    // kinematic law does not attempt.
     let clear: number = input.scan.from;
     let armed: boolean = false;
     let found: number | undefined;
+    let scanning: boolean = false;
     const stop = (seconds: number): number | undefined => {
       if (found !== undefined) return found <= seconds ? found : undefined;
       const gap = input.gap;
-      if (gap === undefined) return undefined;
-      const until: number = Math.min(seconds, input.scan.to);
-      while (clear < until - 1e-12) {
-        const next: number = Math.min(input.scan.to, clear + input.scan.step);
-        const g: number = gap(free(next), next);
+      if (gap === undefined || scanning) return undefined;
+      scanning = true;
+      try {
+        // A weapon already touching at the scan's start has met that surface
+        // at once (a kick jammed against a leg before its chamber).
         if (!armed) {
-          if (g > 0) armed = true;
+          armed = true;
+          if (gap(free(clear), clear) <= 0) {
+            found = clear;
+            return found <= seconds ? found : undefined;
+          }
+        }
+        const until: number = Math.min(seconds, input.scan.to);
+        while (clear < until - 1e-12) {
+          const next: number = Math.min(input.scan.to, clear + input.scan.step);
+          const g: number = gap(free(next), next);
+          if (g <= 0) {
+            found = StrikingContact.first((t: number): number => gap(free(t), t), clear, next, next - clear);
+            return found !== undefined && found <= seconds ? found : undefined;
+          }
           clear = next;
-          continue;
         }
-        if (g <= 0) {
-          found = StrikingContact.first((t: number): number => gap(free(t), t), clear, next, next - clear);
-          return found !== undefined && found <= seconds ? found : undefined;
-        }
-        clear = next;
+        return undefined;
+      } finally {
+        scanning = false;
       }
-      return undefined;
     };
     return {
       stop,
@@ -213,7 +237,7 @@ export namespace StrikingStroke {
         const at: number | undefined = stop(seconds);
         if (at === undefined) return free(seconds);
         const met: IAutoMovieVector3 = free(at);
-        return superposeMinimumJerk(met, recoil(met, at), seconds).position;
+        return superposeMinimumJerk(met, recoil(met, at + DWELL), seconds).position;
       },
     };
   }

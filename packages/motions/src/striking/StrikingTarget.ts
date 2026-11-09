@@ -1,5 +1,5 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -16,6 +16,15 @@ import { StrikingContact } from "./StrikingContact";
  * the struck body.
  */
 export namespace StrikingTarget {
+  /**
+   * How long before its start an action reads another performer to plan,
+   * seconds: one film frame. Perception precedes action, and the rule keeps
+   * every plan-time read in the other's earlier actions, so two performers
+   * starting at the same instant (simultaneous strikes, a guard facing a
+   * guard) never wait on each other's plans.
+   */
+  export const LOOK: number = 1 / 24;
+
   /**
    * The leading side of an entry: the foot farther ahead along the body's
    * heading, orthodox (`left`) when the feet are level.
@@ -97,6 +106,40 @@ export namespace StrikingTarget {
   export function pivot(body: IHumanBody, side: "left" | "right", foot: HumanFoot.IPlacement, turn: number, raise: number): HumanFoot.IPlacement {
     const ball: IAutoMovieVector3 = HumanFoot.point(body, side, "ball", foot);
     return HumanFoot.pivot(body, side, "ball", ball, HumanFrame.heading(foot.rotation) + turn, -raise);
+  }
+
+  /**
+   * A strike's aim at a film second: the context's aim for a person, a prop
+   * or a point; for no target, a virtual opponent's point built from the
+   * performer's own measure on the stance's line (the heading turned back by
+   * the stance turn when the feet are staggered), at the line's height (low:
+   * the thigh's upper third, middle: the chest, high: the head less half its
+   * radius) and at the technique's range unless the target names one.
+   *
+   * @param context The action's context.
+   * @param target The target.
+   * @param seconds Film seconds.
+   * @param range The technique's range from the stance centre, metres, given the line height.
+   * @returns World point.
+   */
+  export function aim(
+    context: IHumanActionContext,
+    target: AutoMovieMotionTarget,
+    seconds: number,
+    range: (height: number) => number,
+  ): IAutoMovieVector3 {
+    if (target.kind !== "none") return context.aim(target, seconds).point;
+    const m = context.body.measure;
+    const entry = context.entry;
+    const lead: "left" | "right" = StrikingTarget.lead(entry);
+    const r0: number = (entry.posture.yaw * Math.PI) / 180;
+    const staggered: boolean = Math.abs(Vector3.dot(Vector3.subtract(entry.feet.left.ankle, entry.feet.right.ankle), { x: Math.sin(r0), y: 0, z: Math.cos(r0) })) > 0.05;
+    const yaw: number = entry.posture.yaw + (staggered ? (lead === "left" ? 30 : -30) : 0);
+    const r: number = (yaw * Math.PI) / 180;
+    const height: number = target.line === "low" ? m.hipHeight - 0.3 * m.thigh : target.line === "high" ? m.headHeight - 0.5 * m.headRadius : m.chestHeight;
+    const distance: number = target.range ?? range(height);
+    const centre: IAutoMovieVector3 = { x: (entry.feet.left.ankle.x + entry.feet.right.ankle.x) / 2, y: 0, z: (entry.feet.left.ankle.z + entry.feet.right.ankle.z) / 2 };
+    return { x: centre.x + Math.sin(r) * distance, y: height, z: centre.z + Math.cos(r) * distance };
   }
 
   /**

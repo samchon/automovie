@@ -152,15 +152,32 @@ export namespace defend {
       { name: "recovered", share: 1 },
     ];
     const timing: ITiming = { region, attack, begin, movement, hold, recovery, duration, read: Math.max(context.start, decided.start) };
+    // Before the read the defender only holds the guard, and nothing reads
+    // the attacker: every read of another performer then looks back in time,
+    // so two performers reading each other never recurse at one instant.
     let built: IGeometry | undefined;
-    const geometry = (): IGeometry => (built ??= build(context, timing));
+    let building: boolean = false;
+    const geometry = (): IGeometry => {
+      if (built !== undefined) return built;
+      if (building) throw new Error(`${context.subject}: the defence against ${p.against} was read back while it was being planned`);
+      building = true;
+      try {
+        built = build(context, timing);
+      } finally {
+        building = false;
+      }
+      return built;
+    };
+    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
+    const contacts: IHumanContactWindow[] = windows(p.kind === "check" ? attacked(region, lead) : undefined, timing);
     const out: IHumanActionPlan = {
       duration,
       events,
-      get contacts(): IHumanContactWindow[] {
-        return geometry().contacts;
+      contacts,
+      posture: (seconds: number): IHumanPosture => {
+        const t: number = Math.min(duration, Math.max(0, seconds));
+        return t <= begin + 1e-9 ? idle(context, lead) : geometry().posture(t);
       },
-      posture: (seconds: number): IHumanPosture => geometry().posture(Math.min(duration, Math.max(0, seconds))),
       settle: (): void => {
         built = undefined;
       },
@@ -230,7 +247,7 @@ export namespace defend {
     const incoming: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(regionAt.point, weapon));
     const across: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(up, incoming));
     const outside: number = Vector3.dot(Vector3.subtract(weapon, regionAt.point), across) > 0 ? -1 : 1;
-    const attackedSide: "left" | "right" = /Left$/.test(timing.region) ? "left" : /Right$/.test(timing.region) ? "right" : lead;
+    const attackedSide: "left" | "right" = attacked(timing.region, lead);
     const fist: number = StrikingQuality.fist(m.hand);
 
     // The movement's share in, and out again after the strike has passed.
@@ -260,16 +277,18 @@ export namespace defend {
     const goals = (posture: IHumanPosture): Partial<IHumanPosture["limbs"]> => {
       const bones = StrikingBody.trunk(body, posture);
       const region = StrikingBody.region(body, bones, timing.region);
-      const glove = (side: "left" | "right", at: IAutoMovieVector3, palm: IAutoMovieVector3, knuckles: IAutoMovieVector3, elbow: IAutoMovieVector3): IHumanPosture.IGoal => {
-        const rotation: IAutoMovieQuaternion = StrikingBody.fist(body, side, knuckles, palm);
-        return { point: Vector3.subtract(at, StrikingBody.socket(body, side === "left" ? "fistLeft" : "fistRight", rotation)), bend: elbow, rotation };
-      };
+      const glove = (side: "left" | "right", at: IAutoMovieVector3, elbow: IAutoMovieVector3): IHumanPosture.IGoal => StrikingStance.glove(body, side, at, elbow);
       const shoulder = (side: "left" | "right"): IAutoMovieVector3 => bones.get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
+      const toward: IAutoMovieVector3 = Vector3.normalize({ x: -incoming.x, y: 0, z: -incoming.z });
+      const low = (side: "left" | "right"): IAutoMovieVector3 =>
+        Vector3.add(shoulder(side), Vector3.add(Vector3.scale(up, -0.8 * m.upperArm), Vector3.scale(toward, 0.5 * m.upperArm)));
       const out: Partial<IHumanPosture["limbs"]> = {};
       const arm = (side: "left" | "right"): "leftArm" | "rightArm" => (side === "left" ? "leftArm" : "rightArm");
       const cover = (side: "left" | "right"): void => {
-        const at: IAutoMovieVector3 = Vector3.add(region.point, Vector3.scale(region.normal, m.forearmRadius + fist));
-        out[arm(side)] = glove(side, at, Vector3.scale(incoming, -1), up, Vector3.add(shoulder(side), Vector3.scale(up, -m.upperArm)));
+        // The glove on the incoming line just in front of the region, where
+        // the weapon will pass, not merely on the region's own normal.
+        const at: IAutoMovieVector3 = Vector3.subtract(region.point, Vector3.scale(incoming, m.forearmRadius + 2 * fist));
+        out[arm(side)] = glove(side, at, low(side));
       };
       switch (p.kind) {
         case "cover":
@@ -282,20 +301,20 @@ export namespace defend {
         case "parry": {
           const side: "left" | "right" = outside > 0 ? "left" : "right";
           const meet: IAutoMovieVector3 = Vector3.add(Vector3.subtract(region.point, Vector3.scale(incoming, 0.6 * m.forearm)), Vector3.scale(across, -outside * 0.5 * fist));
-          out[arm(side)] = glove(side, meet, Vector3.scale(across, outside), up, Vector3.add(shoulder(side), Vector3.scale(up, -m.upperArm)));
+          out[arm(side)] = glove(side, meet, low(side));
           break;
         }
         case "elbowBlock": {
           const jaw = StrikingBody.region(body, bones, attackedSide === "left" ? "jawLeft" : "jawRight");
           const at: IAutoMovieVector3 = Vector3.add(jaw.point, Vector3.scale(jaw.normal, 2 * m.forearmRadius));
-          out[arm(attackedSide)] = glove(attackedSide, at, Vector3.scale(jaw.normal, -1), up, Vector3.add(region.point, Vector3.scale(region.normal, 0.5 * m.upperArm)));
+          out[arm(attackedSide)] = glove(attackedSide, at, Vector3.add(region.point, Vector3.scale(region.normal, 0.5 * m.upperArm)));
           break;
         }
         case "highBlock": {
           const temple = StrikingBody.region(body, bones, attackedSide === "left" ? "templeLeft" : "templeRight");
           const at: IAutoMovieVector3 = Vector3.add(Vector3.add(temple.point, Vector3.scale(temple.normal, 2 * m.forearmRadius)), Vector3.scale(up, 0.3 * m.forearm));
           const elbow: IAutoMovieVector3 = Vector3.add(shoulder(attackedSide), Vector3.add(Vector3.scale(temple.normal, m.upperArm), Vector3.scale(Vector3.scale(incoming, -1), 0.3 * m.upperArm)));
-          out[arm(attackedSide)] = glove(attackedSide, at, temple.normal, up, elbow);
+          out[arm(attackedSide)] = glove(attackedSide, at, elbow);
           break;
         }
         case "check": {
@@ -332,17 +351,8 @@ export namespace defend {
         limbs: StrikingStance.legs(body, feet, { left: checking !== "left", right: checking !== "right" }),
       };
     };
-    const contacts: IHumanContactWindow[] = (["left", "right"] as const).flatMap((side): IHumanContactWindow[] =>
-      side === checking
-        ? [
-            { part: `${side}Foot`, kind: "plant", from: 0, to: timing.begin / timing.duration, support: { kind: "ground" } },
-            { part: `${side}Foot`, kind: "plant", from: 1, to: 1, support: { kind: "ground" } },
-          ]
-        : [{ part: `${side}Foot`, kind: "plant", from: 0, to: 1, support: { kind: "ground" } }],
-    );
-
     return {
-      contacts,
+      contacts: windows(checking, timing),
       posture: (t: number): IHumanPosture => {
         const k: number = w(t);
         const posture: IHumanPosture = base(t);
@@ -363,6 +373,34 @@ export namespace defend {
         return { ...posture, limbs };
       },
     };
+  }
+
+  /** The defender's side a region lies on: its own side, or the lead side for a central region. */
+  function attacked(region: AutoMovieHumanoidRegion, lead: "left" | "right"): "left" | "right" {
+    return /Left$/.test(region) ? "left" : /Right$/.test(region) ? "right" : lead;
+  }
+
+  /** The feet's windows: both planted, except a checking leg off the floor from its read to its end. */
+  function windows(checking: "left" | "right" | undefined, timing: Pick<ITiming, "begin" | "duration">): IHumanContactWindow[] {
+    return (["left", "right"] as const).flatMap((side): IHumanContactWindow[] =>
+      side === checking
+        ? [
+            { part: `${side}Foot`, kind: "plant", from: 0, to: timing.begin / timing.duration, support: { kind: "ground" } },
+            { part: `${side}Foot`, kind: "plant", from: 1, to: 1, support: { kind: "ground" } },
+          ]
+        : [{ part: `${side}Foot`, kind: "plant", from: 0, to: 1, support: { kind: "ground" } }],
+    );
+  }
+
+  /** The guard held while waiting for the read: the entry's feet planted and the gloves up. */
+  function idle(context: IHumanActionContext<IParams>, lead: "left" | "right"): IHumanPosture {
+    const entry: IHumanPosture = context.entry.posture;
+    const posture: IHumanPosture = {
+      ...entry,
+      joints: { ...entry.joints, ...StrikingStance.joints() },
+      limbs: StrikingStance.legs(context.body, StrikingTarget.feet(context.entry)),
+    };
+    return { ...posture, limbs: { ...posture.limbs, ...StrikingStance.guard(context.body, posture, { lead }) } };
   }
 
   /** The roll sign that tips the body toward a horizontal direction: +1 when it lies on the body's right. */

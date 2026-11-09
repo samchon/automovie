@@ -79,7 +79,7 @@ export namespace flinch {
     let away: IAutoMovieVector3 | undefined;
     const direction = (): IAutoMovieVector3 => {
       if (away !== undefined) return away;
-      const threat: IAutoMovieVector3 = context.aim(context.params.from, context.start).point;
+      const threat: IAutoMovieVector3 = context.aim(context.params.from, context.start - StrikingTarget.LOOK).point;
       const head: IAutoMovieVector3 = StrikingBody.trunk(body, entry).get("head")!.worldPosition;
       const d: IAutoMovieVector3 = { x: head.x - threat.x, y: 0, z: head.z - threat.z };
       away = Vector3.length(d) > 1e-6 ? Vector3.normalize(d) : { x: -Math.sin((entry.yaw * Math.PI) / 180), y: 0, z: -Math.cos((entry.yaw * Math.PI) / 180) };
@@ -89,6 +89,9 @@ export namespace flinch {
       duration: DURATION,
       events,
       contacts,
+      settle: (): void => {
+        away = undefined;
+      },
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(DURATION, Math.max(0, seconds));
         const k: number = intensity * (minimumJerk(t / PEAK).s - minimumJerk((t - PEAK) / (DURATION - PEAK)).s);

@@ -88,7 +88,7 @@ export namespace stagger {
     let built: { push: IAutoMovieVector3; stepper: "left" | "right"; landing: IAutoMovieVector3 } | undefined;
     const geometry = () => {
       if (built !== undefined) return built;
-      const threat: IAutoMovieVector3 = context.aim(p.from, context.start).point;
+      const threat: IAutoMovieVector3 = context.aim(p.from, context.start - StrikingTarget.LOOK).point;
       const d: IAutoMovieVector3 = { x: entry.root.x - threat.x, y: 0, z: entry.root.z - threat.z };
       const push: IAutoMovieVector3 = Vector3.length(d) > 1e-6 ? Vector3.normalize(d) : { x: 0, y: 0, z: -1 };
       const along = (side: "left" | "right"): number => Vector3.dot(Vector3.subtract(feet[side].ankle, entry.root), push);
@@ -101,6 +101,9 @@ export namespace stagger {
     return {
       duration: DURATION,
       events,
+      settle: (): void => {
+        built = undefined;
+      },
       get contacts(): IHumanContactWindow[] {
         const { stepper } = geometry();
         const other: "left" | "right" = stepper === "left" ? "right" : "left";

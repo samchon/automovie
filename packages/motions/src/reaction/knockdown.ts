@@ -11,6 +11,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import type { StrikingContact } from "../striking/StrikingContact";
+import { StrikingTarget } from "../striking/StrikingTarget";
 
 /**
  * A knockdown: the legs give way and the body goes down away from the blow,
@@ -84,7 +85,7 @@ export namespace knockdown {
     let away: number | undefined;
     const heading = (): number => {
       if (away !== undefined) return away;
-      const threat: IAutoMovieVector3 = context.aim(context.params.from, context.start).point;
+      const threat: IAutoMovieVector3 = context.aim(context.params.from, context.start - StrikingTarget.LOOK).point;
       const d: IAutoMovieVector3 = { x: entry.root.x - threat.x, y: 0, z: entry.root.z - threat.z };
 
       // Facing the blow, the back falls away from it.
@@ -109,6 +110,9 @@ export namespace knockdown {
       duration,
       events,
       contacts,
+      settle: (): void => {
+        away = undefined;
+      },
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const yaw: number = heading();

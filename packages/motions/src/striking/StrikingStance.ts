@@ -1,5 +1,5 @@
 import { Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -174,19 +174,38 @@ export namespace StrikingStance {
       const lead: boolean = side === stance.lead;
       const jaw = StrikingBody.region(body, bones, side === "left" ? "jawLeft" : "jawRight");
       const outward: IAutoMovieVector3 = horizontal(jaw.normal);
+      // The rear fist a quarter forearm in front of the jaw and the lead fist
+      // most of a forearm ahead of the cheek: closer, the elbow would have to
+      // fold past its range to keep down by the ribs.
       const fistAt: IAutoMovieVector3 = lead
         ? Vector3.add(Vector3.add({ ...jaw.point, y: chin.y }, Vector3.scale(forward, m.forearm)), Vector3.scale(outward, -0.5 * m.forearmRadius))
-        : Vector3.add(Vector3.add(jaw.point, Vector3.scale(outward, 2 * m.forearmRadius)), Vector3.scale(forward, 2 * m.forearmRadius));
+        : Vector3.add(Vector3.add(jaw.point, Vector3.scale(outward, m.forearmRadius)), Vector3.scale(forward, 2 * m.forearmRadius + 0.25 * m.forearm));
       const sag: IAutoMovieVector3 = { ...fistAt, y: fistAt.y - (drop[side] ?? 0) };
-      const knuckles: IAutoMovieVector3 = Vector3.normalize(Vector3.add(up, Vector3.scale(forward, 0.6)));
-      const palm: IAutoMovieVector3 = Vector3.scale(outward, -1);
-      const rotation: IAutoMovieQuaternion = StrikingBody.fist(body, side, knuckles, palm);
-      const wrist: IAutoMovieVector3 = Vector3.subtract(sag, StrikingBody.socket(body, side === "left" ? "fistLeft" : "fistRight", rotation));
       const shoulder: IAutoMovieVector3 = bones.get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
-      const bend: IAutoMovieVector3 = Vector3.add(shoulder, Vector3.add(Vector3.scale(up, -m.upperArm), Vector3.scale(forward, 0.3 * m.upperArm)));
-      out[side === "left" ? "leftArm" : "rightArm"] = { point: wrist, bend, rotation };
+      const bend: IAutoMovieVector3 = Vector3.add(shoulder, Vector3.add(Vector3.scale(up, -0.8 * m.upperArm), Vector3.scale(forward, 0.5 * m.upperArm)));
+
+      out[side === "left" ? "leftArm" : "rightArm"] = glove(body, side, sag, bend);
     }
     return out;
+  }
+
+  /**
+   * An arm goal that puts the fist's knuckles on a point with the elbow
+   * bending toward a hint, the fist continuing the forearm: no wrist
+   * rotation is imposed, so the limb fit keeps the elbow on its hint and the
+   * hand follows the forearm, and the wrist lies the fist socket's distance
+   * back along the line from the hint to the point.
+   *
+   * @param body The body.
+   * @param side The arm.
+   * @param fist Where the knuckles go, world metres.
+   * @param elbow Where the elbow bends toward, world metres.
+   * @returns The arm goal.
+   */
+  export function glove(body: IHumanBody, side: "left" | "right", fist: IAutoMovieVector3, elbow: IAutoMovieVector3): IHumanPosture.IGoal {
+    const along: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(fist, elbow));
+    const reach: number = Vector3.length(body.surfaces.sockets[side === "left" ? "fistLeft" : "fistRight"].point);
+    return { point: Vector3.subtract(fist, Vector3.scale(along, reach)), bend: elbow };
   }
 
   /**

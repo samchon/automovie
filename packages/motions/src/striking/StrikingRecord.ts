@@ -22,6 +22,9 @@ export namespace StrikingRecord {
     /** The contact goal predicted at the launch, offset included, world metres. */
     planned: IAutoMovieVector3;
 
+    /** Where the weapon's surface reaches at the planned contact, world metres: the planned point, or the limb's highest or farthest reachable point when the target lies beyond it. */
+    reached: IAutoMovieVector3;
+
     /** The reach solve's status at the planned contact. */
     status: StrikingReach.ISolution["status"];
 
