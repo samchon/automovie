@@ -1,6 +1,6 @@
-# Optional local speech with VoxCPM
+# Voice preview with VoxCPM
 
-[VoxCPM](https://github.com/OpenBMB/VoxCPM) is one local speech option; its README, [installation guide](https://voxcpm.readthedocs.io/en/latest/installation.html) and [quick start](https://voxcpm.readthedocs.io/en/latest/quickstart.html) own model versions, platform requirements and interfaces. Choose against the requested language, performance and the actual machine. Foley and designed sounds follow [sound effects](sound-effects.md).
+Use this only for a voice preview the user requested under [audio](SKILL.md). [VoxCPM](https://github.com/OpenBMB/VoxCPM) is one local speech option; its README, [installation guide](https://voxcpm.readthedocs.io/en/latest/installation.html) and [quick start](https://voxcpm.readthedocs.io/en/latest/quickstart.html) own model versions, platform requirements and interfaces. Choose against the requested language, performance and the actual machine. Foley and designed sounds follow [sound effects](sound-effects.md).
 
 Before an agent-managed installation, get the user's approval for the environment location, dependencies, model downloads and storage, including downloads the first inference triggers; an existing approval covering that setup is enough. Install in an isolated environment outside the JavaScript dependencies.
 
