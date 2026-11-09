@@ -25,7 +25,14 @@ The public Render runner writes `media/automovie/<film>/videos/film.mp4` and the
 
 ## Node frame capture
 
-`npm run capture -- --film <name>` draws film frames directly in Node, with no Viewer server, browser or GPU: it mounts the film through its own `create()` and `seek()` and rasterizes each second on the CPU through the installed Viewer's Node rasterizer. By default it samples a ten-second window from `--from <s>` (0) at `--rate <n>` (5, at most 10) frames per second, so one run writes 50 frames `t<seconds>.png` with the second stamped in the corner, contact sheets of 20 captioned cells `sheet-<from>-<to>.png` with a JSON cell index, and `manifest.json`, into `media/automovie/<film>/frames/capture/<from>-<to>/`. `--to <s>` ends the half-open window, `--every <frames>` samples the film's frame grid instead, `--at <s,…>` draws exact seconds, `--width`/`--height` override the film's raster, `--supersample <1-4>` antialiases, `--view x,y,z:tx,ty,tz` substitutes a static inspection camera, `--per-sheet`/`--columns` lay out sheets, `--no-label`/`--no-sheet` drop them, `--out <dir>` redirects, and `--list` prints the films. `--module <file.ts>` (with `--export <name>` for a module with several exports) captures an unregistered film module instead, into `media/automovie/modules/<module>/`. An isolated case of the catalog film is one window, such as `npm run capture -- --film catalog --from 12 --to 14`. The script runs through `ttsx --no-plugins --noCheck`, so no type check or compiler plugin delays the drawing; the [compile checker](.agents/skills/development/SKILL.md) reports compile errors.
+`npm run capture -- --film <name>` draws film frames directly in Node, with no Viewer server, browser or GPU: it mounts the film through its own `create()` and `seek()` and rasterizes each second on the CPU through the installed Viewer's Node rasterizer. By default it samples the ten-second window from `--from <s>` (0) at 5 frames per second on the film's frame grid, so one run writes 50 frames `t<seconds>.png` with the second stamped in the corner, one 50-cell contact sheet `sheet-<from>-<to>.png` with a JSON cell index, and `manifest.json`, into `media/automovie/<film>/frames/capture/<from>-<to>/`, the same path on every run. `--to <s>` ends the half-open window, `--rate <n>` samples up to 10 per second, `--events <s,…>` adds 10 per second within half a second of each event second, such as a contact, `--every <frames>` samples the film's frame grid instead, `--at <s,…>` draws exact seconds, `--view <name>` draws through one of the film's named `IFilmProduction.views`, such as a side-on view, one behind a subject or a high 45° view, into a folder suffixed with that name, and `--view x,y,z:tx,ty,tz` through a static inspection camera in world metres. `--width`/`--height` override the film's raster, `--supersample <1-4>` antialiases, `--per-sheet`/`--columns` lay out sheets, `--no-label`/`--no-sheet` drop them, `--out <dir>` redirects, and `--list` prints the films. `--module <file.ts>` (with `--export <name>` for a module with several exports) captures an unregistered film module instead, into `media/automovie/modules/<module>/`. The script runs through `ttsx --no-plugins --noCheck`, so no type check or compiler plugin delays the drawing; the [compile checker](.agents/skills/development/SKILL.md) reports compile errors.
+
+A catalog case is one window of the catalog film, and a review segment one ten-second window of a delivered film:
+
+```bash
+npm run capture -- --film catalog --from 12 --to 14 --events 13.1 --view side
+npm run capture -- --film <name> --from 60
+```
 
 The frames are flat-shaded diagnostics of pose, contact, staging and framing under the scene's lights, without textures, shadows or post-processing; their manifest counts objects that were not drawn. Film code must therefore run in plain Node: no DOM, no URL-loaded textures and no `import.meta.env`, with any development-server request falling back when absent. Delivered pixels still come from the Viewer through `npm run render`.
 
@@ -35,13 +42,7 @@ The frames are flat-shaded diagnostics of pose, contact, staging and framing und
 
 Run `npm run review:setup` once to install Playwright's recording FFmpeg, and set `CHROME_PATH` to an installed Chrome or Chromium executable. `npm run review -- still <viewer-url> <duration-seconds>` captures one still at the URL's `at=<seconds>`; `playback <viewer-url> <observation-seconds>` records actual Play-button playback as a silent video with its displayed clock and browser errors, so listen to the soundtrack separately. Output goes to `media/automovie/<film>/frames/review/` or `media/automovie/<film>/videos/review/` unless a final directory argument names another.
 
-`npm run review -- sheet <viewer-url> [output-directory]` captures actual Viewer pixels, with the overlays and named views below, of the URL's `start`–`end` interval, the whole film when omitted, at 5 stills per second into contact sheets of 50, each with a JSON index of its cells' film seconds. `--rate <n>` samples up to 10 per second, `--events <s,…>` adds 10 per second within half a second of each event second, such as a contact, and each repeated `--view <label>=<view>` captures the same frames through that `view` parameter into its own `<label>/` folder. Other URL parameters pass through:
-
-```bash
-npm run review -- sheet "http://127.0.0.1:5173/?film=<name>&start=60&end=70" --events 63.4 --view side=side --view high=6,6,6:0,1,0
-```
-
-URL parameters `rig=1` and `contacts=1` show the review skeleton and contact force vectors, and `view` an inspection camera: a name from the film's `IFilmProduction.views`, such as a side-on view, one behind a subject or a high 45° view, or `x,y,z:tx,ty,tz` in world metres. Omit them for delivered captures. Judge a correction at the same source revision, film seconds and camera.
+In the Viewer, URL parameters `rig=1` and `contacts=1` show the review skeleton and contact force vectors, and `view` an inspection camera: a named view or `x,y,z:tx,ty,tz` in world metres, as for capture. Omit them for delivered captures. Judge a correction at the same source revision, film seconds and camera.
 
 `npm run physics -- <input-module.ts> <output.amphys> [maximum-bytes]` computes a simulated performance once from a Node module exporting `createPhysicalInput()` and writes the archive with its JSON manifest, limited to 256 MiB by default. Keep the archive as a [saved stage](.agents/skills/production/stages.md) under `.cache/` and regenerate it after changing physical inputs; playback, seeking and capture read it through the installed Engine's physical playback, which checks it against the current input's identity.
 
@@ -70,7 +71,7 @@ A separately commissioned screenplay ends with its text duties; a standalone ass
 | `npm run physics -- <input-module.ts> <output.amphys> [maximum-bytes]` | Precompute an adopted physical performance outside the browser |
 | `npm run render -- --film <name>` | Export one film of the running Viewer |
 | `npm run render -- --film <name> --from <s> --to <s> --every <frames>` | Write stills of one film's frames, or `--at <s,…>` seconds, into `--out <dir>` (default `media/automovie/<film>/frames/`) |
-| `npm run capture -- --film <name> --from <s>` | Draw a ten-second window at 5 frames per second (`--rate` up to 10) in Node, with 20-cell sheets, without a server or browser |
+| `npm run capture -- --film <name> --from <s>` | Draw a ten-second window at 5 frames per second (`--rate` up to 10, `--events` around contacts) in Node into one 50-cell sheet, without a server or browser |
 
 The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: mark type-only imports and exports with `type`, and keep each file transformable on its own.
 
