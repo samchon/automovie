@@ -2,68 +2,70 @@ import {
   AutoMovieBernstein64 as B,
   type IAutoMovieCurve64 as C,
   AutoMovieCurveMath64 as V,
-} from "@automovie/engine/geometry/curve";
+} from "@automovie/engine";
 
 import { readRecoveryEventCurveControls } from "../internal/readRecoveryEventCurveControls";
 import { readRecoveryEventCurveParent } from "../internal/readRecoveryEventCurveParent";
 import type { IAutoMovieRecoveryEventCurveArc } from "../structures/curve/IAutoMovieRecoveryEventCurveArc";
 import type { IAutoMovieRecoveryEventCurveCoefficients } from "../structures/curve/IAutoMovieRecoveryEventCurveCoefficients";
-import type { IAutoMovieRecoveryEventCurveSource } from "../structures/curve/IAutoMovieRecoveryEventCurveSource";
 import type { IAutoMovieRecoveryEventCurvePiece } from "../structures/curve/IAutoMovieRecoveryEventCurvePiece";
+import type { IAutoMovieRecoveryEventCurveSource } from "../structures/curve/IAutoMovieRecoveryEventCurveSource";
 
 /**
  * Named cubic occurrences retain native coefficient owners and oriented parameter intervals.
  * Millimetre coefficients remain independent of source topology and material correspondence.
  *
- * @evidence contracts/common.md#principled-implementation Native parent controls, positive phase widths and exact endpoint names define source-free piecewise cubic charts. Restriction delegates to maintained Bernstein arithmetic.
- * @evidence contracts/common.md#clear-and-simple-design One namespace owns occurrence algebra; observation, fitting, surface construction and serialization remain separate callers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source faces, proximity weld, endpoint averaging or parameter clamping supplies authority.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes parent endpoint identity, occurrence direction, canonical phase and physical millimetres.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Namespace initialization performs no traversal; members state their costs.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work There is no cross-request cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Members return caller-owned arrays and retain no resources.
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes parent endpoint identity, occurrence direction, canonical phase and physical millimetres.
+ * @evidence contracts/development/design.md#principled-representation Represents Named cubic occurrences retain native coefficient owners and oriented parameter intervals: companion namespace of 13 members (`controls`, `fullparentControls`, `same`, `fromCurve`, `knots`, `endpointAuthority`, ...); units and frames named in its text: degree, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieRecoveryEventCurve` in packages/recovery/src/observation/AutoMovieRecoveryEventCurve.ts; its surface is the 13 members listed and the text shows 9 other files naming it, mostly packages/recovery (5), test (4), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieRecoveryEventCurve {
   /**
    * Derive an occurrence from its original coefficient owner.
    *
-   * @evidence contracts/common.md#principled-implementation The shared reader restricts the sole native curve in its normalized chart.
-   * @evidence contracts/common.md#clear-and-simple-design Compilers and occurrence algebra use one coefficient derivation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No stored duplicate net or fallback coefficient table is consulted.
-   * @evidence contracts/common.md#meaningful-documentation The reader documents direction, width, units and optional native endpoint policy.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Fixed-degree restriction and optional native endpoint evaluation have constant cost.
-   * @evidence contracts/performance.md#reuse-equivalent-work The existing stateless reader owns coefficient derivation; this entry retains no result.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned controls transfer to the caller; no caller data is retained.
+   * @evidence contracts/development/implementation.md#principled-implementation The shared reader restricts the sole native curve in its normalized chart.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Compilers and occurrence algebra use one coefficient derivation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No stored duplicate net or fallback coefficient table is consulted.
+   * @evidence contracts/development/common.md#meaningful-documentation The reader documents direction, width, units and optional native endpoint policy.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed-degree restriction and optional native endpoint evaluation have constant cost.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing stateless reader owns coefficient derivation; this entry retains no result.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned controls transfer to the caller; no caller data is retained.
    */
-  export function controls(piece: IAutoMovieRecoveryEventCurvePiece, nativeEndpoints: boolean = false): C.Span {
+  export function controls(
+    piece: IAutoMovieRecoveryEventCurvePiece,
+    nativeEndpoints: boolean = false,
+  ): C.Span {
     return readRecoveryEventCurveControls(piece, nativeEndpoints);
   }
 
   /**
    * Read the original complete Bernstein coefficient owner.
    *
-   * @evidence contracts/common.md#principled-implementation The shared reader admits exactly one native cubic with its original physical width.
-   * @evidence contracts/common.md#clear-and-simple-design Native-parent compilers and occurrence restriction share the same admission.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No occurrence copy replaces the original coefficient tuple.
-   * @evidence contracts/common.md#meaningful-documentation The reader documents execution basis and millimetre units.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Admission reads one fixed-degree cubic and its width in constant time.
-   * @evidence contracts/performance.md#reuse-equivalent-work The shared reader returns the existing native coefficient tuple without copying.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned controls transfer to the caller; no caller data is retained.
+   * @evidence contracts/development/implementation.md#principled-implementation The shared reader admits exactly one native cubic with its original physical width.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Native-parent compilers and occurrence restriction share the same admission.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No occurrence copy replaces the original coefficient tuple.
+   * @evidence contracts/development/common.md#meaningful-documentation The reader documents execution basis and millimetre units.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Admission reads one fixed-degree cubic and its width in constant time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared reader returns the existing native coefficient tuple without copying.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned controls transfer to the caller; no caller data is retained.
    */
-  export function fullparentControls(source: IAutoMovieRecoveryEventCurveSource): C.Span {
+  export function fullparentControls(
+    source: IAutoMovieRecoveryEventCurveSource,
+  ): C.Span {
     return readRecoveryEventCurveParent(source);
   }
 
   /**
    * Compare three coefficient components exactly, accepting either signed zero.
    *
-   * @evidence contracts/common.md#principled-implementation Component equality retains strict coefficient admission without an epsilon.
-   * @evidence contracts/common.md#clear-and-simple-design One shared predicate owns positional identity checks.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unequal finite components are never averaged or snapped.
-   * @evidence contracts/common.md#meaningful-documentation This is coefficient equality, not curve or source-surface equivalence.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Three comparisons have fixed cost.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work No comparison result is cached.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No storage is allocated.
+   * @evidence contracts/development/implementation.md#principled-implementation Component equality retains strict coefficient admission without an epsilon.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared predicate owns positional identity checks.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unequal finite components are never averaged or snapped.
+   * @evidence contracts/development/common.md#meaningful-documentation This is coefficient equality, not curve or source-surface equivalence.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three comparisons have fixed cost.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No comparison result is cached.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No storage is allocated.
    */
   export const same: (a: C.Vector, b: C.Vector) => boolean = (
     a: C.Vector,
@@ -73,13 +75,13 @@ export namespace AutoMovieRecoveryEventCurve {
   /**
    * Admit saved cubic continuity and retain its original native controls and names.
    *
-   * @evidence contracts/common.md#principled-implementation Adjacent and periodic endpoints require exact C0; one native owner is emitted per original span.
-   * @evidence contracts/common.md#clear-and-simple-design Saved coefficient input becomes an occurrence chart without fitting.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No new phase, corner or surface correspondence is inferred.
-   * @evidence contracts/common.md#meaningful-documentation Optional canonical knots override width normalization but never the native controls.
-   * @evidence contracts/performance.md#efficient-algorithms Admission and construction visit N spans once, using O(N) new records.
-   * @evidence contracts/performance.md#reuse-equivalent-work Each source retains the original parent coefficient reference.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-owned records reference immutable caller inputs and retain no global state.
+   * @evidence contracts/development/implementation.md#principled-implementation Adjacent and periodic endpoints require exact C0; one native owner is emitted per original span.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Saved coefficient input becomes an occurrence chart without fitting.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No new phase, corner or surface correspondence is inferred.
+   * @evidence contracts/development/common.md#meaningful-documentation Optional canonical knots override width normalization but never the native controls.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Admission and construction visit N spans once, using O(N) new records.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each source retains the original parent coefficient reference.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Caller-owned records reference immutable caller inputs and retain no global state.
    */
   export function fromCurve(
     curve: IAutoMovieRecoveryEventCurveCoefficients,
@@ -144,13 +146,13 @@ export namespace AutoMovieRecoveryEventCurve {
   /**
    * Return the retained normalized partition or normalize the supplied positive widths.
    *
-   * @evidence contracts/common.md#principled-implementation Canonical knots require finite strict order and exact domain endpoints; otherwise cumulative positive widths define the partition.
-   * @evidence contracts/common.md#clear-and-simple-design All restriction and reversal callers use this one phase admission.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No tiny interval is merged or replaced with a handle floor.
-   * @evidence contracts/common.md#meaningful-documentation The returned fresh array spans [0,1] and certifies neither material phase nor geometric conditioning.
-   * @evidence contracts/performance.md#efficient-algorithms One O(N) width or knot pass returns O(N) values.
-   * @evidence contracts/performance.md#reuse-equivalent-work Retained knots are copied rather than recomputed from spatial positions.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned array survives the call.
+   * @evidence contracts/development/implementation.md#principled-implementation Canonical knots require finite strict order and exact domain endpoints; otherwise cumulative positive widths define the partition.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure All restriction and reversal callers use this one phase admission.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tiny interval is merged or replaced with a handle floor.
+   * @evidence contracts/development/common.md#meaningful-documentation The returned fresh array spans [0,1] and certifies neither material phase nor geometric conditioning.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(N) width or knot pass returns O(N) values.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Retained knots are copied rather than recomputed from spatial positions.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned array survives the call.
    */
   export function knots(arc: IAutoMovieRecoveryEventCurveArc): number[] {
     if (
@@ -201,13 +203,13 @@ export namespace AutoMovieRecoveryEventCurve {
   /**
    * Resolve an oriented occurrence endpoint to its exact native P0 or P3 name.
    *
-   * @evidence contracts/common.md#principled-implementation The native start/end parameter selects the parent's endpoint, and exact coefficient equality verifies the claimed alias.
-   * @evidence contracts/common.md#clear-and-simple-design Annular seams and physical endpoint bindings share one direction interpretation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Proper interior parameters return null instead of borrowing either endpoint identity.
-   * @evidence contracts/common.md#meaningful-documentation Endpoint is occurrence start or end; native phase determines the original owner.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Constant-size endpoint admission has no traversal strategy.
-   * @evidence contracts/performance.md#reuse-equivalent-work The original parent endpoint is checked directly without restriction reevaluation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function allocates and retains no arrays.
+   * @evidence contracts/development/implementation.md#principled-implementation The native start/end parameter selects the parent's endpoint, and exact coefficient equality verifies the claimed alias.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Annular seams and physical endpoint bindings share one direction interpretation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Proper interior parameters return null instead of borrowing either endpoint identity.
+   * @evidence contracts/development/common.md#meaningful-documentation Endpoint is occurrence start or end; native phase determines the original owner.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant-size endpoint admission has no traversal strategy.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The original parent endpoint is checked directly without restriction reevaluation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function allocates and retains no arrays.
    */
   export function endpointAuthority(
     piece: IAutoMovieRecoveryEventCurvePiece,
@@ -243,13 +245,13 @@ export namespace AutoMovieRecoveryEventCurve {
   /**
    * Restrict a nonempty chart interval while retaining oriented native provenance.
    *
-   * @evidence contracts/common.md#principled-implementation Maintained Bernstein restriction supplies the cubic controls; affine parameter composition retains native endpoint phase.
-   * @evidence contracts/common.md#clear-and-simple-design Each intersected original piece remains one distinct occurrence with its parent authority.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No sampling, refit, material correspondence or new endpoint alias replaces the declared field.
-   * @evidence contracts/common.md#meaningful-documentation Input [a,b] is increasing normalized chart phase; native intervals may remain reversed.
-   * @evidence contracts/performance.md#efficient-algorithms One O(N) knot scan and fixed-degree restrictions retain O(K) intersected pieces.
-   * @evidence contracts/performance.md#reuse-equivalent-work Every occurrence retains its original curve owner; restriction composes only oriented native intervals.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returned pieces reference original native curves; no derived controls are stored.
+   * @evidence contracts/development/implementation.md#principled-implementation Maintained Bernstein restriction supplies the cubic controls; affine parameter composition retains native endpoint phase.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Each intersected original piece remains one distinct occurrence with its parent authority.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sampling, refit, material correspondence or new endpoint alias replaces the declared field.
+   * @evidence contracts/development/common.md#meaningful-documentation Input [a,b] is increasing normalized chart phase; native intervals may remain reversed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(N) knot scan and fixed-degree restrictions retain O(K) intersected pieces.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every occurrence retains its original curve owner; restriction composes only oriented native intervals.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned pieces reference original native curves; no derived controls are stored.
    */
   export function portion(
     arc: IAutoMovieRecoveryEventCurveArc,
@@ -286,13 +288,13 @@ export namespace AutoMovieRecoveryEventCurve {
   /**
    * Reverse path occurrence order and native intervals without renaming parent endpoints.
    *
-   * @evidence contracts/common.md#principled-implementation Reversing Bernstein controls and swapping native interval ends represents the same geometric path in the opposite direction.
-   * @evidence contracts/common.md#clear-and-simple-design Canonical knots reverse with the path while native coefficient identity remains fixed.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reversal does not infer a winding, material side or surface normal policy.
-   * @evidence contracts/common.md#meaningful-documentation The output has fresh occurrence records and retains original parent coefficients.
-   * @evidence contracts/performance.md#efficient-algorithms O(N) piece and optional knot passes allocate O(N) records.
-   * @evidence contracts/performance.md#reuse-equivalent-work Native parents and endpoint-name pairs are reused unchanged.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned arc and no global reversal cache survives.
+   * @evidence contracts/development/implementation.md#principled-implementation Reversing Bernstein controls and swapping native interval ends represents the same geometric path in the opposite direction.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Canonical knots reverse with the path while native coefficient identity remains fixed.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reversal does not infer a winding, material side or surface normal policy.
+   * @evidence contracts/development/common.md#meaningful-documentation The output has fresh occurrence records and retains original parent coefficients.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(N) piece and optional knot passes allocate O(N) records.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Native parents and endpoint-name pairs are reused unchanged.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned arc and no global reversal cache survives.
    */
   export function reverse(
     arc: IAutoMovieRecoveryEventCurveArc,
@@ -326,13 +328,13 @@ export namespace AutoMovieRecoveryEventCurve {
   /**
    * Return exactly one original-span occurrence for a declared chart cell.
    *
-   * @evidence contracts/common.md#principled-implementation The same restriction path supplies controls and native phase, and a cell crossing a native knot is refused.
-   * @evidence contracts/common.md#clear-and-simple-design Surface compilers ask for one cubic instead of silently merging multiple spans.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Composite sides are not approximated with a replacement cubic.
-   * @evidence contracts/common.md#meaningful-documentation The caller must partition at every relevant native knot before requesting a cell.
-   * @evidence contracts/performance.md#efficient-algorithms The delegated O(N) knot scan retains only intersected pieces before the cardinality check.
-   * @evidence contracts/performance.md#reuse-equivalent-work Returned provenance uses the original parent rather than a separately fitted boundary.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned piece survives; a refused temporary portion is released normally.
+   * @evidence contracts/development/implementation.md#principled-implementation The same restriction path supplies controls and native phase, and a cell crossing a native knot is refused.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Surface compilers ask for one cubic instead of silently merging multiple spans.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Composite sides are not approximated with a replacement cubic.
+   * @evidence contracts/development/common.md#meaningful-documentation The caller must partition at every relevant native knot before requesting a cell.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The delegated O(N) knot scan retains only intersected pieces before the cardinality check.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Returned provenance uses the original parent rather than a separately fitted boundary.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned piece survives; a refused temporary portion is released normally.
    */
   export function piece(
     arc: IAutoMovieRecoveryEventCurveArc,
@@ -348,13 +350,13 @@ export namespace AutoMovieRecoveryEventCurve {
   /**
    * Evaluate one declared phase using the maintained Bernstein endpoint contract.
    *
-   * @evidence contracts/common.md#principled-implementation The admitted partition selects one cubic and an affine local phase; original knot values select exact local 0 or 1.
-   * @evidence contracts/common.md#clear-and-simple-design Evaluation delegates all polynomial arithmetic to the maintained engine.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No nearest sample, extrapolated fallback or parameter clamping changes the field.
-   * @evidence contracts/common.md#meaningful-documentation The parameter belongs to the normalized declared chart and the returned position uses millimetres.
-   * @evidence contracts/performance.md#efficient-algorithms Admission and location take O(N) time; cubic evaluation has fixed work and storage.
-   * @evidence contracts/performance.md#reuse-equivalent-work Original occurrence controls feed evaluation without reconstruction or refitting.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary controls and partition expire on return; the caller receives one fresh position.
+   * @evidence contracts/development/implementation.md#principled-implementation The admitted partition selects one cubic and an affine local phase; original knot values select exact local 0 or 1.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Evaluation delegates all polynomial arithmetic to the maintained engine.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No nearest sample, extrapolated fallback or parameter clamping changes the field.
+   * @evidence contracts/development/common.md#meaningful-documentation The parameter belongs to the normalized declared chart and the returned position uses millimetres.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Admission and location take O(N) time; cubic evaluation has fixed work and storage.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Original occurrence controls feed evaluation without reconstruction or refitting.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary controls and partition expire on return; the caller receives one fresh position.
    */
   export function evaluate(
     arc: IAutoMovieRecoveryEventCurveArc,
@@ -381,13 +383,13 @@ export namespace AutoMovieRecoveryEventCurve {
   /**
    * Concatenate exactly meeting paths while preserving every native piece boundary.
    *
-   * @evidence contracts/common.md#principled-implementation Exact occurrence endpoints admit path continuity; every native owner and positive width remains explicit.
-   * @evidence contracts/common.md#clear-and-simple-design One composite arc exposes a piecewise boundary without changing its constituent coefficients.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Equal coordinates do not rewrite native endpoint names or certify a physical attachment.
-   * @evidence contracts/common.md#meaningful-documentation The resulting chart normalizes the concatenated supplied widths; individual optional canonical charts are not implicitly composed.
-   * @evidence contracts/performance.md#efficient-algorithms O(N) validation and flattening retain all N original pieces.
-   * @evidence contracts/performance.md#reuse-equivalent-work Original piece and parent records are referenced without duplicating coefficients.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only one new piece-list array is retained by the returned composite.
+   * @evidence contracts/development/implementation.md#principled-implementation Exact occurrence endpoints admit path continuity; every native owner and positive width remains explicit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One composite arc exposes a piecewise boundary without changing its constituent coefficients.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Equal coordinates do not rewrite native endpoint names or certify a physical attachment.
+   * @evidence contracts/development/common.md#meaningful-documentation The resulting chart normalizes the concatenated supplied widths; individual optional canonical charts are not implicitly composed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(N) validation and flattening retain all N original pieces.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Original piece and parent records are referenced without duplicating coefficients.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only one new piece-list array is retained by the returned composite.
    */
   export function concatenate(
     arcs: readonly IAutoMovieRecoveryEventCurveArc[],
@@ -420,13 +422,13 @@ export namespace AutoMovieRecoveryEventCurve {
   /**
    * Construct a named straight cubic between two explicit physical endpoints.
    *
-   * @evidence contracts/common.md#principled-implementation Degree elevation places the two handles at one-third and two-thirds of the endpoint displacement.
-   * @evidence contracts/common.md#clear-and-simple-design The line uses the same named cubic admission as fitted paths.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A zero-length path is rejected rather than assigned a fabricated phase width.
-   * @evidence contracts/common.md#meaningful-documentation Input positions and the positive chord-width phase use millimetres.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Fixed-degree line construction has constant cost.
-   * @evidence contracts/performance.md#reuse-equivalent-work Endpoints remain the supplied exact coefficient values; handles are constructed once.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned one-piece arc owns its handles and retains no global state.
+   * @evidence contracts/development/implementation.md#principled-implementation Degree elevation places the two handles at one-third and two-thirds of the endpoint displacement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The line uses the same named cubic admission as fitted paths.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A zero-length path is rejected rather than assigned a fabricated phase width.
+   * @evidence contracts/development/common.md#meaningful-documentation Input positions and the positive chord-width phase use millimetres.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed-degree line construction has constant cost.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Endpoints remain the supplied exact coefficient values; handles are constructed once.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned one-piece arc owns its handles and retains no global state.
    */
   export function line(
     a: C.Vector,
@@ -452,13 +454,13 @@ export namespace AutoMovieRecoveryEventCurve {
   /**
    * Move a closed path's chart origin to an existing knot without altering native owners.
    *
-   * @evidence contracts/common.md#principled-implementation A cyclic piece permutation preserves the closed coefficient path, and optional canonical phases are translated modulo one.
-   * @evidence contracts/common.md#clear-and-simple-design The caller selects an existing knot; this owner only applies the declared phase change.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No exterior-point, nearest-bank or source-specific rule chooses the seam.
-   * @evidence contracts/common.md#meaningful-documentation The selected knot must exist and the coefficient path must close exactly; this changes chart origin rather than material correspondence.
-   * @evidence contracts/performance.md#efficient-algorithms O(N) piece permutation and optional phase translation allocate O(N) arrays.
-   * @evidence contracts/performance.md#reuse-equivalent-work All original piece records and native parent coefficients remain shared.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned arc's arrays survive; no seam-selection state is cached.
+   * @evidence contracts/development/implementation.md#principled-implementation A cyclic piece permutation preserves the closed coefficient path, and optional canonical phases are translated modulo one.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The caller selects an existing knot; this owner only applies the declared phase change.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No exterior-point, nearest-bank or source-specific rule chooses the seam.
+   * @evidence contracts/development/common.md#meaningful-documentation The selected knot must exist and the coefficient path must close exactly; this changes chart origin rather than material correspondence.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(N) piece permutation and optional phase translation allocate O(N) arrays.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work All original piece records and native parent coefficients remain shared.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned arc's arrays survive; no seam-selection state is cached.
    */
   export function rotateAtKnot(
     arc: IAutoMovieRecoveryEventCurveArc,

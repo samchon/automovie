@@ -65,10 +65,11 @@ const rotationsMatch: (
  * 4. Pure-axis recovery reads a 40° flexion back as (40, 0, 0) in the arm
  *    basis within the existing strict 1e-4 degree component tolerances.
  *
- * @evidence contracts/testing.md#behavioral-verification Decomposes and recomposes rotations under both handed axis bases, comparing their action on probe vectors and recovered pure/gimbal coordinates; wrong handedness or lost gimbal orientation fails.
- * @evidence contracts/testing.md#independent-expectations Authored angle triples and the gimbal convention define coordinate expectations, but forward/inverse round trips share jointToQuaternion and Quaternion.rotateVector and can miss coordinated errors. The pure-axis coordinate check supplies a known value without proving every rotation convention independently.
- * @evidence contracts/testing.md#distinguishing-cases Keeps six pure/mixed triples under both bases, positive/negative90 gimbals and pure40 recovery; invalid scalar/axis admission and constrained alternate charts have separate entries.
- * @evidence contracts/testing.md#execution-ownership The test runner discovers this exported CPU entry; local probe arrays and actual math/kinematics source run without a native solver, Human asset, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Decomposes and recomposes rotations under both handed axis bases, comparing their action on probe vectors and recovered pure/gimbal coordinates; wrong handedness or lost gimbal orientation fails.
+ * @evidence contracts/development/testing.md#independent-expectations Authored angle triples and the gimbal convention define coordinate expectations, but forward/inverse round trips share jointToQuaternion and Quaternion.rotateVector and can miss coordinated errors. The pure-axis coordinate check supplies a known value without proving every rotation convention independently.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps six pure/mixed triples under both bases, positive/negative90 gimbals and pure40 recovery; invalid scalar/axis admission and constrained alternate charts have separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership The test runner discovers this exported CPU entry; local probe arrays and actual math/kinematics source run without a native solver, Human asset, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Round-trip on the right-handed arm basis for a spread of angle triples (pure).
  */
 export function test_kinematics_decompose_joint(): void {
   const triples: { flexion: number; abduction: number; twist: number }[] = [

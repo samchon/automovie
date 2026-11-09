@@ -1,9 +1,11 @@
-import { AutoMovieMatrix3 } from "@automovie/engine/math/AutoMovieMatrix3";
-import { decomposeAutoMovieSingularMatrix } from "@automovie/engine/math/decomposeAutoMovieSingularMatrix";
+import {
+  AutoMovieMatrix3,
+  decomposeAutoMovieSingularMatrix,
+} from "@automovie/engine";
 import type {
   IAutoMovieRecoveryCameraMapBudget,
   IAutoMovieRecoveryCameraMapPolicy,
-} from "@automovie/interface/recovery";
+} from "@automovie/interface";
 
 import type { IAutoMovieRecoveryMapObservation } from "../structures/image/IAutoMovieRecoveryMapObservation";
 import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
@@ -16,13 +18,13 @@ import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
  * The original 2k-by-4 homogeneous design uses calibrated world-to-camera rows;
  * its finite point remains in the common seed gauge, not a new pair unit gauge.
  *
- * @evidence contracts/common.md#principled-implementation Each calibrated ray supplies two original projection equations. Third-direction rank, last-direction gap and finite division precede independent all-observation depth, acute-angle and pixel gates. Unregistered observations cannot enter the design.
- * @evidence contracts/common.md#clear-and-simple-design This helper reconstructs one candidate point; scene ownership selects registered observations and commits or rolls back complete camera/point transactions.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No target camera creates its own PnP point, no arbitrary subset hides a bad retained measurement, and no point at infinity, weak angle or damped rank is accepted.
- * @evidence contracts/common.md#meaningful-documentation States original multiview DLT, common frame, independent null/rank/point qualification and declared numerical refusal versus unexpected failure.
- * @evidence contracts/performance.md#efficient-algorithms k admitted observations require one bounded four-column SVD costing O(S*k) and delegated O(k^2) angle qualification; no scene-wide design or image data is retained.
- * @evidence contracts/performance.md#reuse-equivalent-work Existing charts and measured coordinates form the design without extraction or descriptor comparisons; one reconstructed point supplies all qualification metrics.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only an owned point or null and reasons return. Small original rows, factors and rays expire without mutation or external resources.
+ * @evidence contracts/development/implementation.md#principled-implementation Each calibrated ray supplies two original projection equations. Third-direction rank, last-direction gap and finite division precede independent all-observation depth, acute-angle and pixel gates. Unregistered observations cannot enter the design.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This helper reconstructs one candidate point; scene ownership selects registered observations and commits or rolls back complete camera/point transactions.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No target camera creates its own PnP point, no arbitrary subset hides a bad retained measurement, and no point at infinity, weak angle or damped rank is accepted.
+ * @evidence contracts/development/common.md#meaningful-documentation States original multiview DLT, common frame, independent null/rank/point qualification and declared numerical refusal versus unexpected failure.
+ * @evidence contracts/development/implementation.md#efficient-algorithms k admitted observations require one bounded four-column SVD costing O(S*k) and delegated O(k^2) angle qualification; no scene-wide design or image data is retained.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Existing charts and measured coordinates form the design without extraction or descriptor comparisons; one reconstructed point supplies all qualification metrics.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only an owned point or null and reasons return. Small original rows, factors and rays expire without mutation or external resources.
  */
 export function triangulateRecoverySceneTrack(
   observations: readonly IAutoMovieRecoveryMapObservation[],

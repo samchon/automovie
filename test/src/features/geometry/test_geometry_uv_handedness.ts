@@ -94,10 +94,11 @@ const square: (half: number) => Array<{ x: number; y: number }> = (
  * 3. Region extrusion and loft each give twelve positive triangles, and merged members retain summed counts.
  * 4. Reflecting U reverses all cylinder signs, and merging that twin retains six positive and thirty-two negative triangles.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls atlas-bearing builders and mesh merge, then counts the sign of indexed UV determinants; reversed construction or a merge that loses a member's UV correspondence fails.
- * @evidence contracts/testing.md#independent-expectations Authored quad/segment counts determine expected triangle populations, and reflecting U independently reverses determinants. Positive atlas orientation is the convention checked here; a negative sign alone does not prove incorrect GPU normal mapping.
- * @evidence contracts/testing.md#distinguishing-cases Projected, revolved and developed builders, a collapsed pole, mixed merges and an explicitly mirrored U twin are retained; visual material shading belongs to GPU inspection rather than this determinant census.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_geometry_uv_handedness entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls atlas-bearing builders and mesh merge, then counts the sign of indexed UV determinants; reversed construction or a merge that loses a member's UV correspondence fails.
+ * @evidence contracts/development/testing.md#independent-expectations Authored quad/segment counts determine expected triangle populations, and reflecting U independently reverses determinants. Positive atlas orientation is the convention checked here; a negative sign alone does not prove incorrect GPU normal mapping.
+ * @evidence contracts/development/testing.md#distinguishing-cases Projected, revolved and developed builders, a collapsed pole, mixed merges and an explicitly mirrored U twin are retained; visual material shading belongs to GPU inspection rather than this determinant census.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_geometry_uv_handedness entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Three quad faces give six positive triangles, and a sixteen-segment cylinder gives thirty-two.).
  */
 export function test_geometry_uv_handedness(): void {
   const faces: IAutoMovieMesh = buildAutoMoviePolyhedron([

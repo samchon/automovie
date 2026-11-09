@@ -9,10 +9,11 @@ import { TestValidator } from "@nestia/e2e";
  * 2. An empty list preserves the caller's state reference and edit sequence.
  * 3. A middle operation writes then throws its original Error, preserving predecessor effects and skipping the successor.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real operation composer with two operations, no operations and a throwing middle operation; observes input identity, edit order and the unreachable successor.
- * @evidence contracts/testing.md#independent-expectations Authored edit strings, the original input reference and original Error define expected ordering and failure identity independently of the composer.
- * @evidence contracts/testing.md#distinguishing-cases Empty registration contrasts ordered predecessors; a failing operation writes before throwing, distinguishing stop-on-error from rollback or continuing successors.
- * @evidence contracts/testing.md#execution-ownership The named entry owns a plain input and its callbacks, starts no compiler/renderer or native shader, and replaces no SDK/global method.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the real operation composer with two operations, no operations and a throwing middle operation; observes input identity, edit order and the unreachable successor.
+ * @evidence contracts/development/testing.md#independent-expectations Authored edit strings, the original input reference and original Error define expected ordering and failure identity independently of the composer.
+ * @evidence contracts/development/testing.md#distinguishing-cases Empty registration contrasts ordered predecessors; a failing operation writes before throwing, distinguishing stop-on-error from rollback or continuing successors.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry owns a plain input and its callbacks, starts no compiler/renderer or native shader, and replaces no SDK/global method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two operations receive the same complete mutable input in registration order and observe preceding edits.).
  */
 export function test_viewer_shader_patch_order(): void {
   const state: { rendererState: { owner: string }; edits: string[] } = {

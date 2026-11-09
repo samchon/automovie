@@ -14,10 +14,11 @@ import { hasViolation } from "../internal/predicates";
  * Scenarios:
  * 1. Unknown confused at intensity 0.5 fails with a preset type finding.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual admission on a runtime-forged preset and requires failure at its preset field, catching a validator that assumes the compile-time union admitted JSON values.
- * @evidence contracts/testing.md#independent-expectations confused is outside the closed preset menu while intensity 0.5 is inside [0,1]; the expected type kind and preset suffix come from that authoring contract.
- * @evidence contracts/testing.md#distinguishing-cases Owns unknown-preset refusal without blendshapes; valid names, unknown/duplicate channels and numeric overflow have separate expression entries.
- * @evidence contracts/testing.md#execution-ownership The named synchronous entry uses the existing expression fixture and actual engine validator without starting a consumer, native build or renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual admission on a runtime-forged preset and requires failure at its preset field, catching a validator that assumes the compile-time union admitted JSON values.
+ * @evidence contracts/development/testing.md#independent-expectations confused is outside the closed preset menu while intensity 0.5 is inside [0,1]; the expected type kind and preset suffix come from that authoring contract.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns unknown-preset refusal without blendshapes; valid names, unknown/duplicate channels and numeric overflow have separate expression entries.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous entry uses the existing expression fixture and actual engine validator without starting a consumer, native build or renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Unknown confused at intensity 0.5 fails with a preset type finding.).
  */
 export function test_validation_expression_preset_name(): void {
   const result: IAutoMovieValidation = validateExpressionResult(

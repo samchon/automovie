@@ -12,10 +12,11 @@ import { nclose } from "../internal/predicates";
  * 1. Linear, easeIn, easeOut and easeInOut return zero/one at progress zero/one.
  * 2. Each curve clamps progress -1 to zero and progress two to one.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls ease for each of four named curves at both endpoints and both exterior inputs, asserting retained endpoint values. Broken clamping or an endpoint offset fails without depending on the intermediate curve shape.
- * @evidence contracts/testing.md#independent-expectations Normalized polynomial easing fixes zero and one, and finite exterior progress is clamped to that closed interval by contract. Literal scalar endpoints are independent of product output; this entry does not prove interior boundedness or interpolated pose identity.
- * @evidence contracts/testing.md#distinguishing-cases Keeps all four continuous named curves at zero, one, -1 and two. Step/interior shape, parameterized Bezier curves and malformed input are owned by their separate easing entries.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns its four-curve loop and directly calls portable easing source, without installed consumers, native builds, host startup or dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls ease for each of four named curves at both endpoints and both exterior inputs, asserting retained endpoint values. Broken clamping or an endpoint offset fails without depending on the intermediate curve shape.
+ * @evidence contracts/development/testing.md#independent-expectations Normalized polynomial easing fixes zero and one, and finite exterior progress is clamped to that closed interval by contract. Literal scalar endpoints are independent of product output; this entry does not prove interior boundedness or interpolated pose identity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps all four continuous named curves at zero, one, -1 and two. Step/interior shape, parameterized Bezier curves and malformed input are owned by their separate easing entries.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns its four-curve loop and directly calls portable easing source, without installed consumers, native builds, host startup or dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Linear, easeIn, easeOut and easeInOut return zero/one at progress zero/one.).
  */
 export function test_motion_easing_endpoints(): void {
   const curves: AutoMovieEasing[] = [

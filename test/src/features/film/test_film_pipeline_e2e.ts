@@ -31,10 +31,11 @@ import { nclose } from "../internal/predicates";
  * 2. Preserve the shared scene join in both returned shots.
  * 3. Cut the whole first shot and trimmed second shot with the authored overlap, preserving order and runtime.
  *
- * @evidence contracts/testing.md#behavioral-verification Stages one script, performs its two beats and cuts the actual shots, checking successful admission, scene linkage, cut ordering and a three-second runtime. This catches a lost beat/scene join or incorrect assembled overlap length without claiming every refusal branch is exercised.
- * @evidence contracts/testing.md#independent-expectations The authored two-second shot plus 1.5-second trim minus 0.5-second dissolve gives three seconds; authored beat and scene references determine the joins independently.
- * @evidence contracts/testing.md#distinguishing-cases Retains the duel and celebration, whole first shot, trimmed second shot and overlap; this positive unit spine owns no LLM interaction, host render or malformed-stage coverage.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_pipeline_e2e unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages one script, performs its two beats and cuts the actual shots, checking successful admission, scene linkage, cut ordering and a three-second runtime. This catches a lost beat/scene join or incorrect assembled overlap length without claiming every refusal branch is exercised.
+ * @evidence contracts/development/testing.md#independent-expectations The authored two-second shot plus 1.5-second trim minus 0.5-second dissolve gives three seconds; authored beat and scene references determine the joins independently.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains the duel and celebration, whole first shot, trimmed second shot and overlap; this positive unit spine owns no LLM interaction, host render or malformed-stage coverage.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_pipeline_e2e unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Stage the shared duel and perform both authored beats.).
  */
 export function test_film_pipeline_e2e(): void {
   const script: IAutoMovieScript = makeScriptWrite({

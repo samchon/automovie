@@ -69,10 +69,11 @@ const SPEC: IAutoMovieRenderSpec = {
  * 4. Default frame/output paths sanitize the sequence id and produce pinned ffmpeg args; custom paths override those defaults.
  * 5. Target mismatch and zero-frame schedules reject before capture.
  *
- * @evidence contracts/testing.md#behavioral-verification Plans the actual two-shot cut and observes spans, trim offsets, blend samples, paths and target/zero-frame refusals, detecting incorrect overlap or output-clock mapping.
- * @evidence contracts/testing.md#independent-expectations One plus two seconds minus a half-second dissolve gives 2.5 seconds and ten frames at four fps; incoming start 0.5 and halfway alpha 0.5 follow hand cut arithmetic. Numeric records use nclose, and argument/path checks observe planning rather than encoding.
- * @evidence contracts/testing.md#distinguishing-cases Boundary entry, midway dissolve and past-dissolve samples, default/custom paths, target mismatch and too-short runtime preserve the original branches; actual capture/encoder delegation belongs to sequence_video.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_sequence_plan owns its cases. Portable timeline and manifest construction, with no frame capture, ffmpeg process or file output.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans the actual two-shot cut and observes spans, trim offsets, blend samples, paths and target/zero-frame refusals, detecting incorrect overlap or output-clock mapping.
+ * @evidence contracts/development/testing.md#independent-expectations One plus two seconds minus a half-second dissolve gives 2.5 seconds and ten frames at four fps; incoming start 0.5 and halfway alpha 0.5 follow hand cut arithmetic. Numeric records use nclose, and argument/path checks observe planning rather than encoding.
+ * @evidence contracts/development/testing.md#distinguishing-cases Boundary entry, midway dissolve and past-dissolve samples, default/custom paths, target mismatch and too-short runtime preserve the original branches; actual capture/encoder delegation belongs to sequence_video.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_sequence_plan owns its cases. Portable timeline and manifest construction, with no frame capture, ffmpeg process or file output.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A two-shot sequence with a 0.5 s dissolve has a 2.5 s runtime and 10 frames at render fps 4.).
  */
 export function test_render_sequence_plan(): void {
   const plan: IAutoMovieSequenceRenderPlan = planSequenceRender({

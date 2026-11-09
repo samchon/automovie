@@ -37,13 +37,13 @@ const POLE_FALLBACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * Returns `null` for a degenerate chain: a segment shorter than `1e-6`, or a
  * target within `1e-6` of the root.
  *
- * @evidence contracts/common.md#principled-implementation Places the mid joint by the law-of-cosines lift in a chosen plane, then lowers each world delta into its bone's local frame by conjugation with the rest world rotation; the premises are a resolved chain whose rest frames match the bones' current world frames and unit rotations, and the stated limitation is that without `bendNormal` the plane is a world-down heuristic that suits a knee but not every joint.
- * @evidence contracts/common.md#clear-and-simple-design Pure chain geometry for `solvePreparedChainPlant`, which owns the chain choice, bend-normal search and clinical decomposition; the triangle angles come from the shared `solveTwoBoneIK`.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No limb or rig is special-cased; the vertical-axis fallback plane is a stated degeneracy rule, and an unreachable target is extended onto the shell rather than reported as reached.
- * @evidence contracts/common.md#meaningful-documentation States what is measured from the chain, how the bend plane is chosen including both fallbacks, how deltas become bone-local, the unreachable behavior, the free-swing caveat and the hinge alternative, every `null` case with its threshold, and each input's frame.
- * @evidence contracts/performance.md#efficient-algorithms Constant time: a few vector differences, one `solveTwoBoneIK`, two `aimRotation` calls and a handful of quaternion products.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Segment lengths and rest directions are derived once for the supplied resolved chain; another pose or target changes those frames and has no reusable cached articulation here.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned rotations.
+ * @evidence contracts/development/implementation.md#principled-implementation Places the mid joint by the law-of-cosines lift in a chosen plane, then lowers each world delta into its bone's local frame by conjugation with the rest world rotation; the premises are a resolved chain whose rest frames match the bones' current world frames and unit rotations, and the stated limitation is that without `bendNormal` the plane is a world-down heuristic that suits a knee but not every joint.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pure chain geometry for `solvePreparedChainPlant`, which owns the chain choice, bend-normal search and clinical decomposition; the triangle angles come from the shared `solveTwoBoneIK`.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No limb or rig is special-cased; the vertical-axis fallback plane is a stated degeneracy rule, and an unreachable target is extended onto the shell rather than reported as reached.
+ * @evidence contracts/development/common.md#meaningful-documentation States what is measured from the chain, how the bend plane is chosen including both fallbacks, how deltas become bone-local, the unreachable behavior, the free-swing caveat and the hinge alternative, every `null` case with its threshold, and each input's frame.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant time: a few vector differences, one `solveTwoBoneIK`, two `aimRotation` calls and a handful of quaternion products.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Segment lengths and rest directions are derived once for the supplied resolved chain; another pose or target changes those frames and has no reusable cached articulation here.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned rotations.
  */
 export const twoBoneChainArticulation: (props: {
   upper: IAutoMovieChainBone;

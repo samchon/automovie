@@ -35,10 +35,11 @@ const hasFiniteViolation: (
  * 1. Primitive dimensions must be finite positive numbers.
  * 2. Material coefficients must be finite values inside `[0,1]`.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateModel with NaN width/metallic and infinite height, requiring refusal and finite range findings for all three fields.
- * @evidence contracts/testing.md#independent-expectations Primitive dimensions are finite and positive, and metallic is finite within [0,1]; the authored nonfinite values violate these numerical domains independently of rendering.
- * @evidence contracts/testing.md#distinguishing-cases Checks NaN and infinity in separate geometry/material fields; model_valid retains the finite admitted neighbor and other entries own finite endpoint limits.
- * @evidence contracts/testing.md#execution-ownership This named unit uses ordinary model records and a local finding predicate; no PBR upload, GPU operation or dynamic case registration occurs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateModel with NaN width/metallic and infinite height, requiring refusal and finite range findings for all three fields.
+ * @evidence contracts/development/testing.md#independent-expectations Primitive dimensions are finite and positive, and metallic is finite within [0,1]; the authored nonfinite values violate these numerical domains independently of rendering.
+ * @evidence contracts/development/testing.md#distinguishing-cases Checks NaN and infinity in separate geometry/material fields; model_valid retains the finite admitted neighbor and other entries own finite endpoint limits.
+ * @evidence contracts/development/testing.md#execution-ownership This named unit uses ordinary model records and a local finding predicate; no PBR upload, GPU operation or dynamic case registration occurs.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Primitive dimensions must be finite positive numbers.).
  */
 export function test_validation_model_non_finite_scalars(): void {
   const base: IAutoMovieModel = createModel();

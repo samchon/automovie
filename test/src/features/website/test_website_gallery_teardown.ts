@@ -12,10 +12,11 @@ import { createGalleryHostFacts } from "../internal/createGalleryHostFacts";
  * 1. Dispose an opening: lock and original focus restore, every late action is inert.
  * 2. Dispose before opening: existing focus remains and contents still release.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls disposal and every retained controller action, observing unlock, original focus, refused open/key admission and unchanged effect count/selection; repeated effects or revived authority after disposal fail.
- * @evidence contracts/testing.md#independent-expectations The authored opener and selected room determine saved state, and a pre-action effect count provides the no-new-effects oracle; host facts observe requested cleanup rather than native listener or dialog release.
- * @evidence contracts/testing.md#distinguishing-cases Covers disposal while open, repeated disposal, late close/navigation/backdrop/open/key calls and never-opened disposal with existing focus; native cleanup failures and current-open reconciliation have separate owners.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_website_gallery_teardown entry owns portable controller lifetime cases through the existing host fixture, without replacing DOM methods or starting a browser; no native cleanup success follows from callback returns.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls disposal and every retained controller action, observing unlock, original focus, refused open/key admission and unchanged effect count/selection; repeated effects or revived authority after disposal fail.
+ * @evidence contracts/development/testing.md#independent-expectations The authored opener and selected room determine saved state, and a pre-action effect count provides the no-new-effects oracle; host facts observe requested cleanup rather than native listener or dialog release.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers disposal while open, repeated disposal, late close/navigation/backdrop/open/key calls and never-opened disposal with existing focus; native cleanup failures and current-open reconciliation have separate owners.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_website_gallery_teardown entry owns portable controller lifetime cases through the existing host fixture, without replacing DOM methods or starting a browser; no native cleanup success follows from callback returns.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Dispose an opening: lock and original focus restore, every late action is inert.).
  */
 export function test_website_gallery_teardown(): void {
   const { host, facts }: ReturnType<typeof createGalleryHostFacts> =

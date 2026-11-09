@@ -17,13 +17,10 @@ import { IPerformShotProps } from "./IPerformShotProps";
  * an action against the same tables and reports into the same collector. The
  * lookups are read-only for the gates; only `out` is written.
  *
- * @evidence contracts/common.md#principled-implementation The tables are derived once from the staged scene and the compiled formations, the placements by `scenePlacements` and the formation points by the same cue transform the ground gate uses, so every gate reads one placement per id.
- * @evidence contracts/common.md#clear-and-simple-design One record instead of a dozen parameters per gate, holding only what more than one gate reads; values a single gate needs stay that gate's parameters.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Carries the caller's own lookups and staged scene unchanged; no gate receives a different table or a fixture-specific override.
- * @evidence contracts/common.md#meaningful-documentation States who builds it and when, who reads it, that only the collector is written, and for each field its source, frame and the meaning of an absent lookup.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A record with no runtime body; its tables are built once per shot by `performShot`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record is itself the reuse: one set of tables per shot shared by every gate, discarded with the call.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Lives for one `performShot` call; its maps hold one entry per staged placement or compiled formation.
+ * @evidence contracts/development/design.md#principled-representation The tables are derived once from the staged scene and the compiled formations, the placements by `scenePlacements` and the formation points by the same cue transform the ground gate uses, so every gate reads one placement per id.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record instead of a dozen parameters per gate, holding only what more than one gate reads; values a single gate needs stay that gate's parameters.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries the caller's own lookups and staged scene unchanged; no gate receives a different table or a fixture-specific override.
+ * @evidence contracts/development/common.md#meaningful-documentation States who builds it and when, who reads it, that only the collector is written, and for each field its source, frame and the meaning of an absent lookup.
  */
 export interface IPerformShotGateContext {
   /** Collector every gate reports into, in gate order. */

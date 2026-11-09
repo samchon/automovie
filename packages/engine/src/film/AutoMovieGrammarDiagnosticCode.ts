@@ -22,13 +22,10 @@
  * `grammar-reestablish` and `grammar-pacing`; the shot-size and
  * screen-direction families have no suppressing intent.
  *
- * @evidence contracts/common.md#principled-implementation A closed string-literal union naming one editorial rule per member, so `IAutoMovieGrammarDiagnostic.code` and the suppression table are checked exhaustively by the compiler and a consumer branches on the family without parsing text.
- * @evidence contracts/common.md#clear-and-simple-design One member per measured rule and no severity in the name, since severity is a separate field of the diagnostic; the union lives in its own file because the diagnostic record and the suppression table both import it.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No catch-all or free-form member exists, so a new grammar check must add a named family rather than reuse an unrelated code.
- * @evidence contracts/common.md#meaningful-documentation States the producer, what each family detects and the severity it is filed with, and which families a declared style intent can suppress.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime code; the grammar measurements are answered on `readFilmGrammar`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A compile-time union with no work to share.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Values are interned string literals held by the diagnostics that carry them.
+ * @evidence contracts/development/design.md#principled-representation A closed string-literal union naming one editorial rule per member, so `IAutoMovieGrammarDiagnostic.code` and the suppression table are checked exhaustively by the compiler and a consumer branches on the family without parsing text.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One member per measured rule and no severity in the name, since severity is a separate field of the diagnostic; the union lives in its own file because the diagnostic record and the suppression table both import it.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No catch-all or free-form member exists, so a new grammar check must add a named family rather than reuse an unrelated code.
+ * @evidence contracts/development/common.md#meaningful-documentation States the producer, what each family detects and the severity it is filed with, and which families a declared style intent can suppress.
  */
 export type AutoMovieGrammarDiagnosticCode =
   | "grammar-axis-crossed"

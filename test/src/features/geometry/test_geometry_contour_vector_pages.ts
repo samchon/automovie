@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { createRecoveryFileVectorTable } from "../../../../packages/recovery/src/node/internal/createRecoveryFileVectorTable";
+import { createRecoveryFileVectorTable } from "../../../../packages/template/scaffold/src/integrations/recovery/node/internal/createRecoveryFileVectorTable";
 import { nclose } from "../internal/nclose";
 
 /**
@@ -15,10 +15,11 @@ import { nclose } from "../internal/nclose";
  * 4. Failed dirty eviction latches its first thrown value, including undefined.
  * 5. Invalid rows, nonfinite updates and zero-progress reads refuse before reuse.
  *
- * @evidence contracts/testing.md#behavioral-verification Uses actual exclusive files through the product's read/write callbacks, forces eviction with 8197 rows, changes accumulators in repeated-corner order, finishes and decodes every persisted scalar. Separate owned callbacks force short transfers, failed eviction, truncation and invalid input without replacing a foreign method.
- * @evidence contracts/testing.md#independent-expectations Direct Float64Array storage and the explicit ordered cross-product/corner sum are the binary64 reference; persisted length must be exactly 8197 times 24, excluding page padding. Three times 65520 bounds actual allocated page bytes. Object.is distinguishes signed zero and nclose with zero tolerance compares finite scalars. These checks do not prove whole-model topology or universal speedup.
- * @evidence contracts/testing.md#distinguishing-cases Crosses the third-page boundary with a seven-row tail, revisits evicted pages, repeats a face corner, updates the tail, checks exact capacity and one-over refusal, copied reads, idempotent finish, operations after finish, short read/write progress, zero-progress refusal and original Symbol/undefined errors. Existing contour-file tests own public kernel geometry, normal and construction equality, prism/cavity areas and publication failures.
- * @evidence contracts/testing.md#execution-ownership This discoverable portable Node unit calls only the vector-table seam and its own synchronous temporary files/callbacks. It starts no process/browser/GPU/build and cleans only its owned temporary directory after retaining any primary failure.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses actual exclusive files through the product's read/write callbacks, forces eviction with 8197 rows, changes accumulators in repeated-corner order, finishes and decodes every persisted scalar. Separate owned callbacks force short transfers, failed eviction, truncation and invalid input without replacing a foreign method.
+ * @evidence contracts/development/testing.md#independent-expectations Direct Float64Array storage and the explicit ordered cross-product/corner sum are the binary64 reference; persisted length must be exactly 8197 times 24, excluding page padding. Three times 65520 bounds actual allocated page bytes. Object.is distinguishes signed zero and nclose with zero tolerance compares finite scalars. These checks do not prove whole-model topology or universal speedup.
+ * @evidence contracts/development/testing.md#distinguishing-cases Crosses the third-page boundary with a seven-row tail, revisits evicted pages, repeats a face corner, updates the tail, checks exact capacity and one-over refusal, copied reads, idempotent finish, operations after finish, short read/write progress, zero-progress refusal and original Symbol/undefined errors. Existing contour-file tests own public kernel geometry, normal and construction equality, prism/cavity areas and publication failures.
+ * @evidence contracts/development/testing.md#execution-ownership This discoverable portable Node unit calls only the vector-table seam and its own synchronous temporary files/callbacks. It starts no process/browser/GPU/build and cleans only its owned temporary directory after retaining any primary failure.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: More than three pages retain signed zero, finite extremes and partial tails.).
  */
 export function test_geometry_contour_vector_pages(): void {
   const directory: string = fs.mkdtempSync(

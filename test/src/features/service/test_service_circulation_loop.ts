@@ -240,10 +240,11 @@ const flowing: (flow: AutoMovieServiceFlow) => IAutoMovieServiceNetwork = (
  * 8. The tree the rest of the suite is built on has no cycle at all, so the ring
  *    is a case this fixture could not have been standing in for.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs the actual service validators, directional reach, declared load and schematic on a three-node circulation ring, observing termination, port-direction refusal, capacity overshoot and the two dangling ports after return removal.
- * @evidence contracts/testing.md#independent-expectations Authored 1.5+1.5+3-metre routes total 6 metres; inlet demands 0.0005+0.0002 total 0.0007 cubic metres per second and exceed 0.0004 by 0.0003. Literal node/edge/path lists define graph expectations independently of returned reports.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts three flow directions, bidirectional versus inlet-only fittings, full versus reduced demand, capacity sufficiency and closed/opened return topology, with existing per-system tree edge-count neighbors; edge count alone is not a general acyclicity proof.
- * @evidence contracts/testing.md#execution-ownership Owns synchronous numerical bathhouse/service records and invokes portable engine graph/declaration checks through the runner; no hydraulic circulation, installation render or performance solver is executed, and empty wet-zone success covers only that empty zone set.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the actual service validators, directional reach, declared load and schematic on a three-node circulation ring, observing termination, port-direction refusal, capacity overshoot and the two dangling ports after return removal.
+ * @evidence contracts/development/testing.md#independent-expectations Authored 1.5+1.5+3-metre routes total 6 metres; inlet demands 0.0005+0.0002 total 0.0007 cubic metres per second and exceed 0.0004 by 0.0003. Literal node/edge/path lists define graph expectations independently of returned reports.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts three flow directions, bidirectional versus inlet-only fittings, full versus reduced demand, capacity sufficiency and closed/opened return topology, with existing per-system tree edge-count neighbors; edge count alone is not a general acyclicity proof.
+ * @evidence contracts/development/testing.md#execution-ownership Owns synchronous numerical bathhouse/service records and invokes portable engine graph/declaration checks through the runner; no hydraulic circulation, installation render or performance solver is executed, and empty wet-zone success covers only that empty zone set.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The closed loop validates clean on both the graph and its (empty) wet zones,).
  */
 export function test_service_circulation_loop(): void {
   const loop: IAutoMovieServiceNetwork = circulation();

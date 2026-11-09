@@ -51,10 +51,11 @@ const ledge: (
  * 3. At steps 1, 60 and 400 the volume stays within 1e-12 m³ of the authored 0.375 m³ and every returned depth is nonnegative.
  * 4. A bed at infinity and a depth of NaN each throw a domain-naming nonfinite-state error at the first integration step.
  *
- * @evidence contracts/testing.md#behavioral-verification Simulates water above a descending bed ledge and observes lower wetting, positive lip velocity, sampled nonnegative depth and conserved volume; malformed infinite bed and NaN depth must throw a named first-step nonfinite-state error.
- * @evidence contracts/testing.md#independent-expectations The authored higher free surface and lower reachable bed require downhill movement rather than an uphill blockage; initial cell-area volume provides the independent conservation expectation.
- * @evidence contracts/testing.md#distinguishing-cases Preserves the descending ledge at steps 1, 60 and 400, initially dry lower cells, closed walls and both malformed first-step state refusals; uphill shore and open-rim loss have separate owners, and no resolved vertical waterfall physics is claimed.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns portable shallow-water CPU field/ledger observations, without a three-dimensional fluid solver, particles, renderer or real host.
+ * @evidence contracts/development/testing.md#behavioral-verification Simulates water above a descending bed ledge and observes lower wetting, positive lip velocity, sampled nonnegative depth and conserved volume; malformed infinite bed and NaN depth must throw a named first-step nonfinite-state error.
+ * @evidence contracts/development/testing.md#independent-expectations The authored higher free surface and lower reachable bed require downhill movement rather than an uphill blockage; initial cell-area volume provides the independent conservation expectation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves the descending ledge at steps 1, 60 and 400, initially dry lower cells, closed walls and both malformed first-step state refusals; uphill shore and open-rim loss have separate owners, and no resolved vertical waterfall physics is claimed.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns portable shallow-water CPU field/ledger observations, without a three-dimensional fluid solver, particles, renderer or real host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The lower basin, authored bone dry, is wet after 400 steps and the upper pool).
  */
 export function test_fluid_waterfall_ledge(): void {
   const domain: ReturnType<typeof ledge> = ledge();

@@ -3,13 +3,10 @@ import { type IBoundChild } from "./IBoundChild";
 /**
  * Result of an exclusive create relative to the held parent.
  *
- * @evidence contracts/common.md#principled-implementation A status discriminator separates an opened child, a zero-slot refusal and a successful reservation whose usable handle was lost.
- * @evidence contracts/common.md#clear-and-simple-design The create result makes the irreversible slot effect explicit before the coordinator decides refused versus partial.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unusable handle after native create cannot be reported as a clean no-slot refusal.
- * @evidence contracts/common.md#meaningful-documentation The declaration distinguishes owned child handles, original errors and the reason for a pre-create refusal.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The exclusive reservation result declaration chooses no executable algorithm.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The exclusive reservation result type coordinates no request or cached work.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The exclusive reservation result schema acquires no runtime handles, bytes or tasks.
+ * @evidence contracts/development/design.md#principled-representation A status discriminator separates an opened child, a zero-slot refusal and a successful reservation whose usable handle was lost.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The create result makes the irreversible slot effect explicit before the coordinator decides refused versus partial.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts An unusable handle after native create cannot be reported as a clean no-slot refusal.
+ * @evidence contracts/development/common.md#meaningful-documentation The declaration distinguishes owned child handles, original errors and the reason for a pre-create refusal.
  */
 export type ICreateResult =
   | {

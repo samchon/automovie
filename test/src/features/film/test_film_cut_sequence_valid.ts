@@ -32,10 +32,11 @@ const shot: (id: string, duration: number) => IAutoMovieShot = (
  * 2. Runtime = 3 + 2 + 3 − 0.5 = 7.5 s (a reused shot plays again; the dissolve
  *    overlaps the previous tail).
  *
- * @evidence contracts/testing.md#behavioral-verification Calls cutSequence on a coherent three-entry edit and checks successful admission, sequence identity, frame rate, repeated-shot order and runtime, detecting deduplication, reordered entries or omission of trim and transition arithmetic.
- * @evidence contracts/testing.md#independent-expectations The authored three- and four-second shots and two-second trim give 3 + 2 + 3 - 0.5 = 7.5 seconds; literal shot ids define order independently of the engine. The test checks this aggregate and selected metadata rather than every copied sequence member.
- * @evidence contracts/testing.md#distinguishing-cases Includes whole-shot playback, a finite interior trim, reuse of the first shot and a fitting dissolve; empty edits, duplicate source ids and invalid timing are owned by the refusal tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_cut_sequence_valid entry owns both assertion groups through one portable assembly call; no host, native build, installation or dynamically registered case is needed.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls cutSequence on a coherent three-entry edit and checks successful admission, sequence identity, frame rate, repeated-shot order and runtime, detecting deduplication, reordered entries or omission of trim and transition arithmetic.
+ * @evidence contracts/development/testing.md#independent-expectations The authored three- and four-second shots and two-second trim give 3 + 2 + 3 - 0.5 = 7.5 seconds; literal shot ids define order independently of the engine. The test checks this aggregate and selected metadata rather than every copied sequence member.
+ * @evidence contracts/development/testing.md#distinguishing-cases Includes whole-shot playback, a finite interior trim, reuse of the first shot and a fitting dissolve; empty edits, duplicate source ids and invalid timing are owned by the refusal tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_cut_sequence_valid entry owns both assertion groups through one portable assembly call; no host, native build, installation or dynamically registered case is needed.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Three entries over two built shots (the first played whole (3 s), the second).
  */
 export function test_film_cut_sequence_valid(): void {
   const cut: ReturnType<typeof cutSequence> = cutSequence(

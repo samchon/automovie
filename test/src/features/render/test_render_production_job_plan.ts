@@ -175,10 +175,11 @@ const plan: (
  *    sample count; one sample short and a missing asset are both refused, as
  *    is a shot without a source digest.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real render planner and checks exact final/proxy ranges, frame/layer membership, stable distinct chunk identities, legacy guide-pass selection and effect/audio/source-identity refusals.
- * @evidence contracts/testing.md#independent-expectations Forty-eight source frames split into 20/20/8 final chunks or 20/4 proxy chunks; factor-two raster/time sampling and 48000-Hz stereo sample counts supply independent arithmetic. Repeated ids test determinism rather than independently specifying digest bytes.
- * @evidence contracts/testing.md#distinguishing-cases Final/proxy, feature/guide/caption, explicit/default/conflicting legacy passes, complete/truncated/foreign effects, exact/short/missing audio and absent shot fingerprint preserve both admitted and refused boundaries.
- * @evidence contracts/testing.md#execution-ownership The named portable synchronous unit owns all planner cases through supplied numerical timelines and runtime-identity records; no browser, encoder, native media asset, process or production workspace is opened.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the real render planner and checks exact final/proxy ranges, frame/layer membership, stable distinct chunk identities, legacy guide-pass selection and effect/audio/source-identity refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Forty-eight source frames split into 20/20/8 final chunks or 20/4 proxy chunks; factor-two raster/time sampling and 48000-Hz stereo sample counts supply independent arithmetic. Repeated ids test determinism rather than independently specifying digest bytes.
+ * @evidence contracts/development/testing.md#distinguishing-cases Final/proxy, feature/guide/caption, explicit/default/conflicting legacy passes, complete/truncated/foreign effects, exact/short/missing audio and absent shot fingerprint preserve both admitted and refused boundaries.
+ * @evidence contracts/development/testing.md#execution-ownership The named portable synchronous unit owns all planner cases through supplied numerical timelines and runtime-identity records; no browser, encoder, native media asset, process or production workspace is opened.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A final plan of the 48-frame film at 20 frames per chunk has ranges 0-20,).
  */
 export function test_render_production_job_plan(): void {
   const final: IAutoMovieProductionRenderJobPlan = plan();

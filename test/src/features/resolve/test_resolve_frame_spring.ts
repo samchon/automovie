@@ -88,10 +88,11 @@ const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
  * 6. A non-spring driver still deferred by the world pass is untouched by the
  *    spring step: `springs` consumes only springs.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs resolveFrame with caller-carried spring history and observes hand-derived first/second-step positions, accumulated sag, deterministic replay, sphere effects and descriptor deferral/refusal.
- * @evidence contracts/testing.md#independent-expectations From rest, gravity contributes H=9.8*DT squared and unit-length projection divides (1,-H,0) by its norm; the next velocity is first position minus rest, followed by gravity and reprojection. Inflated sphere radius1.25 scales the first unit direction independently of frame output.
- * @evidence contracts/testing.md#distinguishing-cases Present/absent spring input, carried two-step history versus fresh replay, penetrating/nonpenetrating static spheres, missing collider nodes and a surviving short IK descriptor cover this frame/state seam; moving-center transport and detailed collision order belong to step-spring tests.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_frame_spring entry owns synchronous CPU state/frame composition on existing portable fixtures; it starts no Human host and establishes no hair or cloth appearance.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs resolveFrame with caller-carried spring history and observes hand-derived first/second-step positions, accumulated sag, deterministic replay, sphere effects and descriptor deferral/refusal.
+ * @evidence contracts/development/testing.md#independent-expectations From rest, gravity contributes H=9.8*DT squared and unit-length projection divides (1,-H,0) by its norm; the next velocity is first position minus rest, followed by gravity and reprojection. Inflated sphere radius1.25 scales the first unit direction independently of frame output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Present/absent spring input, carried two-step history versus fresh replay, penetrating/nonpenetrating static spheres, missing collider nodes and a surviving short IK descriptor cover this frame/state seam; moving-center transport and detailed collision order belong to step-spring tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_frame_spring entry owns synchronous CPU state/frame composition on existing portable fixtures; it starts no Human host and establishes no hair or cloth appearance.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No `springs` input → the spring driver comes back in `deferredDrivers`,).
  */
 export function test_resolve_frame_spring(): void {
   // 1. no springs input → deferred

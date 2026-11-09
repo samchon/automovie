@@ -1,13 +1,11 @@
-import {
-  createAutoMovieRecoveryArtifact,
-  writeAutoMovieRecoveryArtifact,
-} from "@automovie/recovery/node";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+import { createAutoMovieRecoveryArtifact } from "../../../../packages/template/scaffold/src/integrations/recovery/node/artifact/createAutoMovieRecoveryArtifact";
+import { writeAutoMovieRecoveryArtifact } from "../../../../packages/template/scaffold/src/integrations/recovery/node/artifact/writeAutoMovieRecoveryArtifact";
 import { createBicubicPlaneRecipe } from "../internal/createBicubicPlaneRecipe";
 
 /**
@@ -19,10 +17,11 @@ import { createBicubicPlaneRecipe } from "../internal/createBicubicPlaneRecipe";
  * 4. Bound array fragments retain their values; a wrong byte hash fails before publication and allows retry.
  * 5. Pure artifact metadata distinguishes attempted completion from missing, failed or zero generated domains and exact planned/observed tensor identity populations.
  *
- * @evidence contracts/testing.md#behavioral-verification Publishes into an owned temporary directory and reads the actual bytes, independently hashes them, attempts an immutable overwrite, triggers cycle and fragment-hash failures and successfully retries each failed destination. Pure metadata calls over a general square and empty observation ledger distinguish an ended attempt from domain completeness, including zero geometry, omissions, failed pairs, unresolved groups and missing/duplicate/extra family reports. It catches false hash or completion receipts and leaked partial publication.
- * @evidence contracts/testing.md#independent-expectations JSON.stringify of independently authored data defines encoding and order; Node SHA-256 supplies the byte oracle. A new immutable destination may be published once; failed staging must permit retry. Completion requires a nonempty generated domain, every planned pair and exactly the planned unique tensor IDs with complete reports; an ended attempt alone proves none of those facts. These assertions certify no shape or source fit and simulate no process termination.
- * @evidence contracts/testing.md#distinguishing-cases Covers UTF-8 arrays, immutable overwrite, cyclic staged failure, valid/invalid fragment hashes and retry, plus complete/checkpoint/zero/failure/omission/unresolved metadata twins and missing/duplicate/extra tensor IDs. Geometry algorithms, source isolation and filesystem crash durability are outside this test.
- * @evidence contracts/testing.md#execution-ownership The entry calls generic publication and pure artifact metadata with a mathematical square and empty curve ledger; extraction, fitting and reconstruction are never invoked. Its temporary files are removed in finally. It starts no process/browser/GPU/build and uses no Human figure or fixture.
+ * @evidence contracts/development/testing.md#behavioral-verification Publishes into an owned temporary directory and reads the actual bytes, independently hashes them, attempts an immutable overwrite, triggers cycle and fragment-hash failures and successfully retries each failed destination. Pure metadata calls over a general square and empty observation ledger distinguish an ended attempt from domain completeness, including zero geometry, omissions, failed pairs, unresolved groups and missing/duplicate/extra family reports. It catches false hash or completion receipts and leaked partial publication.
+ * @evidence contracts/development/testing.md#independent-expectations JSON.stringify of independently authored data defines encoding and order; Node SHA-256 supplies the byte oracle. A new immutable destination may be published once; failed staging must permit retry. Completion requires a nonempty generated domain, every planned pair and exactly the planned unique tensor IDs with complete reports; an ended attempt alone proves none of those facts. These assertions certify no shape or source fit and simulate no process termination.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers UTF-8 arrays, immutable overwrite, cyclic staged failure, valid/invalid fragment hashes and retry, plus complete/checkpoint/zero/failure/omission/unresolved metadata twins and missing/duplicate/extra tensor IDs. Geometry algorithms, source isolation and filesystem crash durability are outside this test.
+ * @evidence contracts/development/testing.md#execution-ownership The entry calls generic publication and pure artifact metadata with a mathematical square and empty curve ledger; extraction, fitting and reconstruction are never invoked. Its temporary files are removed in finally. It starts no process/browser/GPU/build and uses no Human figure or fixture.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A plain nested record round-trips exact UTF-8 JSON bytes with an independently computed hash.).
  */
 export function test_geometry_artifact_publication(): void {
   const directory: string = fs.mkdtempSync(

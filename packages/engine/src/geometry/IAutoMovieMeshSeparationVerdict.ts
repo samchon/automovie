@@ -8,13 +8,10 @@
  * the first resident triangle whose conservative bound falls below the target,
  * so it reports no global lower bound, closest triangle or attachment caps.
  *
- * @evidence contracts/common.md#principled-implementation `separated` copies `certified` from the same walk the full measurement runs and takes `witness` from the triangle that ended it, so the pair cannot disagree with a full measurement about acceptance.
- * @evidence contracts/common.md#clear-and-simple-design Two fields because the hair fit only accepts or rejects a row; the witness names the refuting face for diagnostics without the bound and caps that would cost a complete walk.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The witness is the face the walk actually stopped at, not the closest or the lowest-ordinal face, and the documentation says so rather than implying a global minimum.
- * @evidence contracts/common.md#meaningful-documentation States the equivalence with the full result, why no bound or caps are reported, and that the witness is the first refuting face in walk order or -1 when certified.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A two-field record; the early-exit walk is answered on `IAutoMovieMeshSeparationQuery.separated`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh record per call; the ribbon fit caches only its `certified` boolean under its own exact key.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A boolean and an ordinal with no reference to the snapshot, released with the caller's value.
+ * @evidence contracts/development/design.md#principled-representation `separated` copies `certified` from the same walk the full measurement runs and takes `witness` from the triangle that ended it, so the pair cannot disagree with a full measurement about acceptance.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two fields because the hair fit only accepts or rejects a row; the witness names the refuting face for diagnostics without the bound and caps that would cost a complete walk.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The witness is the face the walk actually stopped at, not the closest or the lowest-ordinal face, and the documentation says so rather than implying a global minimum.
+ * @evidence contracts/development/common.md#meaningful-documentation States the equivalence with the full result, why no bound or caps are reported, and that the witness is the first refuting face in walk order or -1 when certified.
  */
 export interface IAutoMovieMeshSeparationVerdict {
   /**

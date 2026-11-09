@@ -2,7 +2,7 @@ import {
   type IProductionConfigProps,
   createProductionClaims,
   createProductionConfig,
-} from "@automovie/evidence/narrative";
+} from "@automovie/evidence";
 import type {
   IEvidenceCheckAnalysis,
   IEvidenceClaim,
@@ -23,10 +23,11 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * 4. Disabled passes preserve their native selection flags; absent reviews remain an inactive population.
  * 5. Out-of-scope pilot files do not replace legacy; missing H2 coverage fails.
  *
- * @evidence contracts/testing.md#behavioral-verification Uses actual native graph evaluation to check current versus legacy review selection, unreadable captures, fingerprint staleness and missing H2 coverage, with exact selected-root assertions.
- * @evidence contracts/testing.md#independent-expectations The supported route requires either the direct current population or the largest numeric legacy round, never their union; both independent review and verdict remain necessary for approval. Literal fixture action changes and an omitted authored H2 independently require stale or incomplete review, while native fingerprints remain opaque tokens supplied by the existing certification helper.
- * @evidence contracts/testing.md#distinguishing-cases Current and legacy files distinguish exclusive selection; invalid bytes and an action edit distinguish extraction completeness from fingerprint freshness. Round 2 versus 10 distinguishes numeric ordering, and an exact pilot with a second H2 distinguishes selected population and missing coverage.
- * @evidence contracts/testing.md#execution-ownership The exported asynchronous entry owns two temporary roots, evaluates real Markdown graphs in process, changes only its fixture documents and removes both roots in finally. It starts no compiler, process, browser or installation and replaces no foreign method or global.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses actual native graph evaluation to check current versus legacy review selection, unreadable captures, fingerprint staleness and missing H2 coverage, with exact selected-root assertions.
+ * @evidence contracts/development/testing.md#independent-expectations The supported route requires either the direct current population or the largest numeric legacy round, never their union; both independent review and verdict remain necessary for approval. Literal fixture action changes and an omitted authored H2 independently require stale or incomplete review, while native fingerprints remain opaque tokens supplied by the existing certification helper.
+ * @evidence contracts/development/testing.md#distinguishing-cases Current and legacy files distinguish exclusive selection; invalid bytes and an action edit distinguish extraction completeness from fingerprint freshness. Round 2 versus 10 distinguishes numeric ordering, and an exact pilot with a second H2 distinguishes selected population and missing coverage.
+ * @evidence contracts/development/testing.md#execution-ownership The exported asynchronous entry owns two temporary roots, evaluates real Markdown graphs in process, changes only its fixture documents and removes both roots in finally. It starts no compiler, process, browser or installation and replaces no foreign method or global.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The highest numeric legacy round remains valid without current files.).
  */
 export async function test_template_production_current_review(): Promise<void> {
   const root: string = ProductionWorkflowFixture.create();

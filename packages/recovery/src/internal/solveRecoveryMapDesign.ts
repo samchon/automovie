@@ -1,22 +1,22 @@
-import { decomposeAutoMovieSingularMatrix } from "@automovie/engine/math/decomposeAutoMovieSingularMatrix";
-import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface/recovery";
+import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
+import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface";
 
-import { factorRecoveryMapDesign } from "./factorRecoveryMapDesign";
 import type { IAutoMovieRecoveryMapDesignFactor } from "../structures/internal/IAutoMovieRecoveryMapDesignFactor";
 import type { IAutoMovieRecoveryMapDesignFit } from "../structures/internal/IAutoMovieRecoveryMapDesignFit";
+import { factorRecoveryMapDesign } from "./factorRecoveryMapDesign";
 
 /**
  * Solve a column-scaled original least-squares design with optional damping.
  * Independent undamped rank is checked first; damping controls a step and never
  * supplies evidence of local observability. The right side is minus residual.
  *
- * @evidence contracts/common.md#principled-implementation Scaling columns preserves physical parameter units on back substitution. Tall original designs are compressed by orthogonal Givens QR before SVD measures the same singular spectrum. An augmented identity design implements Levenberg damping without squaring condition or changing the least-squares step.
- * @evidence contracts/common.md#clear-and-simple-design Shared original factorization serves this complete resection/joint LS operation and a separate metric-only operation; model derivatives, robust loss and actual acceptance remain with callers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No normal-equation inverse, singular floor, damped-rank claim or unconverged decomposition supplies a step.
- * @evidence contracts/common.md#meaningful-documentation States right-side sign, unscaled returned coordinates, dimensionless damping, original rank and preallocation entry bound.
- * @evidence contracts/performance.md#efficient-algorithms For m rows and n parameters, tall QR costs O(m*n^2), followed by square original-design SVDs costing O(S*n^3), with O(m*n+n^2) storage. Variable camera width remains explicitly bounded; compression supplies no measured host-speed guarantee.
- * @evidence contracts/performance.md#reuse-equivalent-work Shared original factors alias the same normalized/QR arrays for gradient and answer synthesis. Column norms restore units, and zero damping reuses the independently qualified SVD.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only an owned step and scalar diagnostics return; call-local factors expire with no mutable global cache or external resource.
+ * @evidence contracts/development/implementation.md#principled-implementation Scaling columns preserves physical parameter units on back substitution. Tall original designs are compressed by orthogonal Givens QR before SVD measures the same singular spectrum. An augmented identity design implements Levenberg damping without squaring condition or changing the least-squares step.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared original factorization serves this complete resection/joint LS operation and a separate metric-only operation; model derivatives, robust loss and actual acceptance remain with callers.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No normal-equation inverse, singular floor, damped-rank claim or unconverged decomposition supplies a step.
+ * @evidence contracts/development/common.md#meaningful-documentation States right-side sign, unscaled returned coordinates, dimensionless damping, original rank and preallocation entry bound.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For m rows and n parameters, tall QR costs O(m*n^2), followed by square original-design SVDs costing O(S*n^3), with O(m*n+n^2) storage. Variable camera width remains explicitly bounded; compression supplies no measured host-speed guarantee.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared original factors alias the same normalized/QR arrays for gradient and answer synthesis. Column norms restore units, and zero damping reuses the independently qualified SVD.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only an owned step and scalar diagnostics return; call-local factors expire with no mutable global cache or external resource.
  */
 export function solveRecoveryMapDesign(
   design: readonly (readonly number[])[],
@@ -26,8 +26,15 @@ export function solveRecoveryMapDesign(
   budget: IAutoMovieRecoveryCameraMapBudget,
 ): IAutoMovieRecoveryMapDesignFit {
   if (!(damping >= 0) || !Number.isFinite(damping))
-    throw new Error("camera-map: inadmissible local design dimensions or damping");
-  const factor: IAutoMovieRecoveryMapDesignFactor = factorRecoveryMapDesign(design, right, minimumRatio, budget);
+    throw new Error(
+      "camera-map: inadmissible local design dimensions or damping",
+    );
+  const factor: IAutoMovieRecoveryMapDesignFactor = factorRecoveryMapDesign(
+    design,
+    right,
+    minimumRatio,
+    budget,
+  );
   const width: number = factor.scales.length;
   const scales: number[] = factor.scales;
   const rows: number[][] = factor.rows;
@@ -36,7 +43,9 @@ export function solveRecoveryMapDesign(
   const rank: IAutoMovieRecoveryMapDesignFactor["rank"] = factor.rank;
   const designRatio: number = factor.designRatio;
   const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
-    maxEntries: budget.maxLinearEntries, maxSweeps: budget.maxSingularSweeps, orthogonalityTolerance: 1e-12,
+    maxEntries: budget.maxLinearEntries,
+    maxSweeps: budget.maxSingularSweeps,
+    orthogonalityTolerance: 1e-12,
   };
   let gradient: number = 0;
   for (let column: number = 0; column < width; column++)

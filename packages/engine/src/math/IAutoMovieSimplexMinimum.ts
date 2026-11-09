@@ -1,13 +1,10 @@
 /**
  * Owned convex simplex iterate with a complete Frank-Wolfe gap certificate.
  *
- * @evidence contracts/common.md#principled-implementation The convex objective is half the squared aggregate norm plus the affine term; its full simplex pricing gap bounds objective suboptimality independently of active-set rank.
- * @evidence contracts/common.md#clear-and-simple-design The result separates a finite iterate and its certificate from normal termination and consumed work.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A budget-limited or stalled iterate is not converged, and a convex gap is not nonlinear stationarity or geometric accuracy.
- * @evidence contracts/common.md#meaningful-documentation Members state simplex ownership, objective normalization, raw full gap and exact termination meaning.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no minimization.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work It defines no cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns O(width+atoms) returned scalars, without a Gram matrix, full nullspace or external resource.
+ * @evidence contracts/development/design.md#principled-representation The convex objective is half the squared aggregate norm plus the affine term; its full simplex pricing gap bounds objective suboptimality independently of active-set rank.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The result separates a finite iterate and its certificate from normal termination and consumed work.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A budget-limited or stalled iterate is not converged, and a convex gap is not nonlinear stationarity or geometric accuracy.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state simplex ownership, objective normalization, raw full gap and exact termination meaning.
  */
 export interface IAutoMovieSimplexMinimum {
   /** Nonnegative weights summing to one to floating arithmetic accuracy. */

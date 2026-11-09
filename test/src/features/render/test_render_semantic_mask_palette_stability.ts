@@ -20,10 +20,11 @@ import { sceneFixture } from "../internal/renderFixtures";
  * 1. Every colour is unique, opaque hexadecimal and distinct from reserved background; entries are ascending by ID.
  * 2. Reversing nodes preserves the digest, while the selected crate addition preserves all old colours and adds one addressable identity.
  *
- * @evidence contracts/testing.md#behavioral-verification Derives actual palettes and checks uniqueness, opaque hex/background exclusion, id ordering, node-order digest invariance and the selected added prop's retained old colours.
- * @evidence contracts/testing.md#independent-expectations The declared RGB/background convention and hand-known id population supply structural expectations; comparing reordered or extended derivations is a metamorphic consistency check, not an independent colour oracle. This particular nonconflicting addition does not prove every addition preserves existing colours when probing chains change.
- * @evidence contracts/testing.md#distinguishing-cases The original subject, reversed nodes and one authored crate addition retain count/digest and existing-colour witnesses; genuine colliding ids and FNV arithmetic belong to the collision test.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_semantic_mask_palette_stability owns its cases. Portable CPU palette metadata only, without producing or reading segmentation pixels.
+ * @evidence contracts/development/testing.md#behavioral-verification Derives actual palettes and checks uniqueness, opaque hex/background exclusion, id ordering, node-order digest invariance and the selected added prop's retained old colours.
+ * @evidence contracts/development/testing.md#independent-expectations The declared RGB/background convention and hand-known id population supply structural expectations; comparing reordered or extended derivations is a metamorphic consistency check, not an independent colour oracle. This particular nonconflicting addition does not prove every addition preserves existing colours when probing chains change.
+ * @evidence contracts/development/testing.md#distinguishing-cases The original subject, reversed nodes and one authored crate addition retain count/digest and existing-colour witnesses; genuine colliding ids and FNV arithmetic belong to the collision test.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_semantic_mask_palette_stability owns its cases. Portable CPU palette metadata only, without producing or reading segmentation pixels.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every colour is unique, opaque hexadecimal and distinct from reserved background; entries are ascending by ID.).
  */
 export function test_render_semantic_mask_palette_stability(): void {
   const {

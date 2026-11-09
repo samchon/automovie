@@ -228,10 +228,11 @@ const prototypeChanges: (
  *    weighted draw and through an explicit member's lookup alike, instead of
  *    being counted as a missing prototype.
  *
- * @evidence contracts/testing.md#behavioral-verification Compares aggregate prototype counts and reseeded selection changes with regenerated slots, then checks that only missing names are tolerated while unreadable table entries propagate failures; wrong fallback ownership or swallowed draw errors fails.
- * @evidence contracts/testing.md#independent-expectations Explicit missing-name transitions and the authored 1:2:1 weights provide independent expectations; slot-by-slot and reseed comparisons are cross-consumer parity with instanceSlot and cannot independently prove that shared generator's random law. The 0.04 share margin is this fixed-seed sampling assertion, not population validation.
- * @evidence contracts/testing.md#distinguishing-cases Keeps 24 incremental slots, the 2000-member share check, 200 reseeded slots, present-to-missing and distinct/equal missing identities, plus malformed weighted and explicit tables; geometry fan-out and numeric tolerance are separate entries.
- * @evidence contracts/testing.md#execution-ownership The runner discovers this exported CPU entry and it imports actual diff, materialization and slot source; the in-memory compiled records need no asset installation, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Compares aggregate prototype counts and reseeded selection changes with regenerated slots, then checks that only missing names are tolerated while unreadable table entries propagate failures; wrong fallback ownership or swallowed draw errors fails.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit missing-name transitions and the authored 1:2:1 weights provide independent expectations; slot-by-slot and reseed comparisons are cross-consumer parity with instanceSlot and cannot independently prove that shared generator's random law. The 0.04 share margin is this fixed-seed sampling assertion, not population validation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps 24 incremental slots, the 2000-member share check, 200 reseeded slots, present-to-missing and distinct/equal missing identities, plus malformed weighted and explicit tables; geometry fan-out and numeric tolerance are separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers this exported CPU entry and it imports actual diff, materialization and slot source; the in-memory compiled records need no asset installation, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Each of 24 members is counted as drawing the prototype its regenerated).
  */
 export function test_inspection_subject_diff_prototype_selection(): void {
   const row: IAutoMovieCompiledInstanceSet = orchard(24, 5);

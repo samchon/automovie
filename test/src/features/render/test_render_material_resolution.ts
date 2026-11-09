@@ -14,10 +14,11 @@ import { boxModel, material } from "../internal/renderFixtures";
  * 2. Repeated complete records remain one definition even when model order and nested object property insertion differ.
  * 3. Any conflicting complete record is refused, and the diagnostic lists its model population in stable code-unit order under either input order.
  *
- * @evidence contracts/testing.md#behavioral-verification Resolves actual cross-model materials and checks borrowed identity, property-order equivalence, blank/absent refusal and canonical conflict diagnostics rather than accepting whichever model is supplied first.
- * @evidence contracts/testing.md#independent-expectations The complete authored fabric record and lexically ordered alpha/beta/zeta model names supply the expected definition and error text. Equal floating-valued records are checked by selected record identity, not by exact numeric deep equality; no Three material is created.
- * @evidence contracts/testing.md#distinguishing-cases Single and repeated equal records, reversed candidate/key order, a changed roughness value and blank/missing names separate equality from conflict. Other material feature validation belongs to Engine admission tests.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_material_resolution owns its cases. Portable resolver calls over resident model records with no shader, texture upload or renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves actual cross-model materials and checks borrowed identity, property-order equivalence, blank/absent refusal and canonical conflict diagnostics rather than accepting whichever model is supplied first.
+ * @evidence contracts/development/testing.md#independent-expectations The complete authored fabric record and lexically ordered alpha/beta/zeta model names supply the expected definition and error text. Equal floating-valued records are checked by selected record identity, not by exact numeric deep equality; no Three material is created.
+ * @evidence contracts/development/testing.md#distinguishing-cases Single and repeated equal records, reversed candidate/key order, a changed roughness value and blank/missing names separate equality from conflict. Other material feature validation belongs to Engine admission tests.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_material_resolution owns its cases. Portable resolver calls over resident model records with no shader, texture upload or renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: One declaration resolves directly, while a blank or absent id is refused.).
  */
 export function test_render_material_resolution(): void {
   const fabric: IAutoMovieMaterial = {

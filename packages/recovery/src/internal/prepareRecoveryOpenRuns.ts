@@ -1,6 +1,5 @@
-import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
 import type { IAutoMovieRecoveryOpenContinuation } from "../structures/curve/IAutoMovieRecoveryOpenContinuation";
-
+import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
 
 type Node = { section: number; arc: number };
 type Edge = {
@@ -12,13 +11,13 @@ type Edge = {
 /**
  * Admit saved open continuation and prepare one-to-one ordinary run ownership.
  *
- * @evidence contracts/common.md#principled-implementation The unchanged saved-arc range, overlap, orientation and complete adjacency checks construct the same incoming and outgoing maps.
- * @evidence contracts/common.md#clear-and-simple-design Graph admission is separated from engine streaming and immutable mesh publication.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Existing arithmetic, admission, coefficient authority and explicit failure meanings remain unchanged; no source geometry fallback is added.
- * @evidence contracts/common.md#meaningful-documentation States the owned stage and immutable inputs; output qualification remains with the caller.
- * @evidence contracts/performance.md#efficient-algorithms Each saved arc and ordinary pair is visited a constant number of times, retaining O(P+A) graph maps.
- * @evidence contracts/performance.md#reuse-equivalent-work Each call reuses its prepared data for the same original lifetime without a new cross-call cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Returned maps live for one reconstruction call; source geometry is never read or retained.
+ * @evidence contracts/development/implementation.md#principled-implementation The unchanged saved-arc range, overlap, orientation and complete adjacency checks construct the same incoming and outgoing maps.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Graph admission is separated from engine streaming and immutable mesh publication.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Existing arithmetic, admission, coefficient authority and explicit failure meanings remain unchanged; no source geometry fallback is added.
+ * @evidence contracts/development/common.md#meaningful-documentation States the owned stage and immutable inputs; output qualification remains with the caller.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each saved arc and ordinary pair is visited a constant number of times, retaining O(P+A) graph maps.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call reuses its prepared data for the same original lifetime without a new cross-call cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned maps live for one reconstruction call; source geometry is never read or retained.
  */
 export function prepareRecoveryOpenRuns(
   bundle: IAutoMovieRecoveryMeshSections,
@@ -71,7 +70,8 @@ export function prepareRecoveryOpenRuns(
       );
   };
   for (let i: number = 0; i < graph.intervals.length; i++) {
-    const interval: IAutoMovieRecoveryOpenContinuation["intervals"][number] = graph.intervals[i]!;
+    const interval: IAutoMovieRecoveryOpenContinuation["intervals"][number] =
+      graph.intervals[i]!;
     if (
       interval.beforeSection !== i ||
       interval.afterSection !== i + 1 ||

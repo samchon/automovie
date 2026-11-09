@@ -125,10 +125,11 @@ const runPipeline: () => { serialized: string; motionKeyframes: number } = (): {
  * Scenarios:
  * 1. Retains two complete two-beat pipelines and the nonempty motion-output check; per-value geometry and clock tests own independent correctness.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs the same stage/perform/cut spine twice and compares serialized returned artifacts, including compiled motion samples, to detect differing repeated output.
- * @evidence contracts/testing.md#independent-expectations Reproducibility requires equality for identical inputs in this process; the second actual result is a relational oracle rather than a committed output snapshot. Both runs can share a deterministic numerical bug and establish no cross-process or cross-host equivalence.
- * @evidence contracts/testing.md#distinguishing-cases Retains two complete two-beat pipelines and the nonempty motion-output check; per-value geometry and clock tests own independent correctness.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_pipeline_determinism unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the same stage/perform/cut spine twice and compares serialized returned artifacts, including compiled motion samples, to detect differing repeated output.
+ * @evidence contracts/development/testing.md#independent-expectations Reproducibility requires equality for identical inputs in this process; the second actual result is a relational oracle rather than a committed output snapshot. Both runs can share a deterministic numerical bug and establish no cross-process or cross-host equivalence.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains two complete two-beat pipelines and the nonempty motion-output check; per-value geometry and clock tests own independent correctness.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_pipeline_determinism unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Retains two complete two-beat pipelines and the nonempty motion-output check; per-value geometry and clock tests own independent...).
  */
 export function test_film_pipeline_determinism(): void {
   const first: { serialized: string; motionKeyframes: number } = runPipeline();

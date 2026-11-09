@@ -18,13 +18,10 @@ import { IAutoMovieSubjectReviewCurrentContext } from "./IAutoMovieSubjectReview
  * objects, `verdict: "passed"`, `deliveryEvidence: false` and a target naming
  * the same subject.
  *
- * @evidence contracts/common.md#principled-implementation An intersection of the persisted observation and the verification context, the TypeScript idiom for a record that satisfies both shapes; it relies on the shared members having identical types, which both declarations keep.
- * @evidence contracts/common.md#clear-and-simple-design Composes the two owning declarations instead of restating `target` and `verdict`, so each member has one declaration and the engine's coverage fold reads one projection that production builds.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Trust is not encoded in the type: the fold re-checks each `unknown` record with a structural guard instead of casting, and no producer or fixture is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States who creates the projection and after which checks, which member the context adds over the observation, and every field the fold's guard verifies before counting a record.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A type alias with no code; checking a record costs the fold's constant-time guard per observation, answered on `foldAutoMovieSubjectReviewCoverage`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Describes one verified receipt; no operation on this type shares work, and production rebuilds the projection from the reopened artifact on every verification.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds strings and references its nested pose and runtime records; the caller's observation list owns all of them, and the type keeps no handle.
+ * @evidence contracts/development/design.md#principled-representation An intersection of the persisted observation and the verification context, the TypeScript idiom for a record that satisfies both shapes; it relies on the shared members having identical types, which both declarations keep.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Composes the two owning declarations instead of restating `target` and `verdict`, so each member has one declaration and the engine's coverage fold reads one projection that production builds.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Trust is not encoded in the type: the fold re-checks each `unknown` record with a structural guard instead of casting, and no producer or fixture is special-cased.
+ * @evidence contracts/development/common.md#meaningful-documentation States who creates the projection and after which checks, which member the context adds over the observation, and every field the fold's guard verifies before counting a record.
  */
 export type IAutoMovieCurrentSubjectReviewObservation =
   IAutoMovieSubjectReviewObservation & IAutoMovieSubjectReviewCurrentContext;

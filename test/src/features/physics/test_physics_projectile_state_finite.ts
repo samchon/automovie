@@ -28,10 +28,11 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
  * 1. Non-finite time and projectile vector components throw before evaluation.
  * 2. Finite projectile state still follows the closed-form ballistic equation.
  *
- * @evidence contracts/testing.md#behavioral-verification Evaluates invalid times and origin/velocity/gravity components expecting throws, then checks a finite two-second state so admission cannot reject every request.
- * @evidence contracts/testing.md#independent-expectations Finite-input admission supplies the refusal contract and hand substitution into constant-acceleration equations gives position (9,-8,19) and velocity (4,-15,10). The assertions establish exception presence, not type, identity or extreme-finite overflow safety.
- * @evidence contracts/testing.md#distinguishing-cases Covers NaN/infinite time and distinct invalid vector components plus a finite positive twin with acceleration on two axes; other elapsed-time/apex cases belong to the projectile unit.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit calls the evaluator with local records and owns every assertion, starting no host or dynamically registered case.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates invalid times and origin/velocity/gravity components expecting throws, then checks a finite two-second state so admission cannot reject every request.
+ * @evidence contracts/development/testing.md#independent-expectations Finite-input admission supplies the refusal contract and hand substitution into constant-acceleration equations gives position (9,-8,19) and velocity (4,-15,10). The assertions establish exception presence, not type, identity or extreme-finite overflow safety.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers NaN/infinite time and distinct invalid vector components plus a finite positive twin with acceleration on two axes; other elapsed-time/apex cases belong to the projectile unit.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit calls the evaluator with local records and owns every assertion, starting no host or dynamically registered case.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite time and projectile vector components throw before evaluation.).
  */
 export function test_physics_projectile_state_finite(): void {
   TestValidator.predicate(

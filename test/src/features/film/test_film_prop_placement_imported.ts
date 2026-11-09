@@ -166,10 +166,11 @@ const violated: (
  * 5. A chair whose sealed closure is broken does not forge, and is therefore not
  * also measured: the forge violation is reported at the prop's own path and the geometric refusal it would otherwise have earned is not.
  *
- * @evidence contracts/testing.md#behavioral-verification Validates an imported chair as supported subject, clearance neighbor and supporting host, then observes located physical refusals and suppression of geometry for an unforged appearance.
- * @evidence contracts/testing.md#independent-expectations Authored proxy dimensions, chair/seat/floor positions and the same placement rules for imported and generated props determine expected paths; in-memory sealed metadata does not prove external mesh bytes or rendered appearance.
- * @evidence contracts/testing.md#distinguishing-cases Preserves the accepted room and chair floor/space/doorway, clearance/occupancy, lamp floating/sinking/off-seat and broken-closure-with-geometric-fault cases.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_prop_placement_imported and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Validates an imported chair as supported subject, clearance neighbor and supporting host, then observes located physical refusals and suppression of geometry for an unforged appearance.
+ * @evidence contracts/development/testing.md#independent-expectations Authored proxy dimensions, chair/seat/floor positions and the same placement rules for imported and generated props determine expected paths; in-memory sealed metadata does not prove external mesh bytes or rendered appearance.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves the accepted room and chair floor/space/doorway, clearance/occupancy, lamp floating/sinking/off-seat and broken-closure-with-geometric-fault cases.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_prop_placement_imported and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The imported chair, the lamp standing on its seat, and the stool beside them).
  */
 export function test_film_prop_placement_imported(): void {
   TestValidator.equals(

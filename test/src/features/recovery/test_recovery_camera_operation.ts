@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
 import { estimateAutoMovieRecoveryCameraPair } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
@@ -11,10 +11,11 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Pre-abort, checkpoint abort and a callback exception return distinct no-value terminal outcomes.
  * 4. Malformed source/raster admission, unknown option keys and invalid abort state refuse before observer invocation, while an admitted candidate-work overflow fails without partial publication.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the exported memory API and observes its terminal envelopes, actual empty-image evidence, explicit pose absence, original metadata independence, cancellation, callback failure and preallocation admission. It does not infer behavior from exports, filenames or source text.
- * @evidence contracts/testing.md#independent-expectations Singleton constant images cannot supply a Harris window or any two-neighbour appearance correspondence, so the mathematically required outcome is zero features/matches and camera refusal. The operation contract requires no artifact on admission failure, cancellation or execution failure. Caller-owned changed scalars are independently known and must not alter the already admitted snapshot.
- * @evidence contracts/testing.md#distinguishing-cases Covers a valid minimal image, empty observed population, missing RGB bytes, enumerable/nonenumerable/symbol unknown option keys, malformed abort state, pre-start and checkpoint cancellation, callback-thrown failure, snapshot lifetime and a real admitted candidate budget violation. Positive camera accuracy and nonplanar/planar numerical distinctions belong to independent geometry/consensus tests and image experiments.
- * @evidence contracts/testing.md#execution-ownership The portable test_recovery_camera_operation entry creates only resident byte arrays, caller records and AbortControllers. It reaches the public synchronous API without files, installed consumers, subprocesses, native builds, browsers or GPU and replaces no foreign method.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the exported memory API and observes its terminal envelopes, actual empty-image evidence, explicit pose absence, original metadata independence, cancellation, callback failure and preallocation admission. It does not infer behavior from exports, filenames or source text.
+ * @evidence contracts/development/testing.md#independent-expectations Singleton constant images cannot supply a Harris window or any two-neighbour appearance correspondence, so the mathematically required outcome is zero features/matches and camera refusal. The operation contract requires no artifact on admission failure, cancellation or execution failure. Caller-owned changed scalars are independently known and must not alter the already admitted snapshot.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers a valid minimal image, empty observed population, missing RGB bytes, enumerable/nonenumerable/symbol unknown option keys, malformed abort state, pre-start and checkpoint cancellation, callback-thrown failure, snapshot lifetime and a real admitted candidate budget violation. Positive camera accuracy and nonplanar/planar numerical distinctions belong to independent geometry/consensus tests and image experiments.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_camera_operation entry creates only resident byte arrays, caller records and AbortControllers. It reaches the public synchronous API without files, installed consumers, subprocesses, native builds, browsers or GPU and replaces no foreign method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two valid singleton images complete observation with no appearance correspondences, retaining owned JSON evidence and no pose.).
  */
 export function test_recovery_camera_operation(): void {
   const makeInput: () => IAutoMovieRecoveryCameraPairInput =

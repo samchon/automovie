@@ -27,6 +27,48 @@ export namespace KnockdownShape {
   /** Share of the fall at which the knees have buckled and the limp body is down to the canvas: postural tone is lost within the first second of a knockout (fight-footage reading). */
   const HIP_DOWN: number = 0.4;
 
+  /** Arm reach share of the fencing response: both arms stiffen forward and up, nearly extended, the posturing seen at knockouts (Hosseini and Lifshitz 2009, the fencing response); the share is a staging choice. */
+  const FENCING_REACH: number = 0.8;
+
+  /** The head kick's snap, degrees: thrown back, driven to the right shoulder at the cervical side-bend limit of about 45 degrees and turned along the kick's travel; a staging choice within the cervical ranges. */
+  const SNAP = { flexion: -20, lateralFlexion: -45, rotation: -35 } as const;
+
+  /** Root drop of the buckled knees as a share of the hip height: the hips near the knees' height, about two thirds down. */
+  const BUCKLE: number = 0.65;
+
+  /** Roll toward the right of the limp drop, radians: halfway to lying on the side. */
+  const LIMP_ROLL: number = Math.PI / 4;
+
+  /** Forward pitch of the limp drop, radians: the trunk falls forward with no tone. */
+  const LIMP_PITCH: number = Math.PI / 9;
+
+  /** Trunk of the limp drop, degrees: slumped forward and to the right. */
+  const LIMP_TRUNK = { flexion: 25, lateralFlexion: -20, rotation: 0 } as const;
+
+  /** Lumbar flexion of the limp drop, degrees. */
+  const LIMP_LUMBAR = { flexion: 15, lateralFlexion: 0 } as const;
+
+  /** Neck of the limp drop, degrees: the head lolling forward and right. */
+  const LIMP_NECK = { flexion: 30, lateralFlexion: -35, rotation: -20 } as const;
+
+  /** How far the limp arms hang below the shoulder, as a share of their reach. */
+  const HANGING: number = 0.6;
+
+  /** Share of the lying roll undone by the push-up, at full effort: the shoulders off the canvas onto the forearm. */
+  const PUSH_UNROLL: number = 0.5;
+
+  /** Trunk side-bend of the push-up, degrees, at full effort: the chest raised off the canvas. */
+  const PUSH_TRUNK: number = 25;
+
+  /** Neck side-bend of the push-up, degrees, at full effort: the head lifted. */
+  const PUSH_NECK: number = 20;
+
+  /** Forward reach of the drawn-up foot, as a share of the thigh: under the hip. */
+  const DRAWN_FOOT: number = 0.3;
+
+  /** Height of the drawn knee, as a share of the hip height. */
+  const DRAWN_KNEE: number = 0.4;
+
   /** Share of the fall at which the head has snapped along the kick's travel: a tenth of the fall, about 0.16 s, inside the 0.1 to 0.3 s of the fencing response. */
   const HEAD_DRIVEN: number = 0.1;
 
@@ -52,14 +94,14 @@ export namespace KnockdownShape {
     // response.
     const fencing = (side: 1 | -1): { point: IAutoMovieVector3 } => ({
       point: {
-        x: measure.armReach * 0.8,
+        x: measure.armReach * FENCING_REACH,
         y: measure.shoulder - guard.drop + measure.headRadius,
         z: side * measure.shoulderHalfWidth,
       },
     });
     const struck: IBoutPosture = {
       ...guard,
-      cervical: { flexion: -20, lateralFlexion: -45, rotation: -35 },
+      cervical: SNAP,
       thoracic: { ...guard.thoracic, lateralFlexion: -15 },
       hands: { left: fencing(1), right: fencing(-1) },
       wince: 1,
@@ -68,25 +110,31 @@ export namespace KnockdownShape {
     // limp forward and toward the right, the arms hang without a catch.
     const folding: IBoutPosture = {
       ...struck,
-      drop: measure.hip * 0.65,
-      roll: Math.PI / 4,
-      pitch: Math.PI / 9,
-      thoracic: { flexion: 25, lateralFlexion: -20, rotation: 0 },
-      lumbar: { flexion: 15, lateralFlexion: 0 },
-      cervical: { flexion: 30, lateralFlexion: -35, rotation: -20 },
+      drop: measure.hip * BUCKLE,
+      roll: LIMP_ROLL,
+      pitch: LIMP_PITCH,
+      thoracic: LIMP_TRUNK,
+      lumbar: LIMP_LUMBAR,
+      cervical: LIMP_NECK,
       hands: {
         left: {
           point: {
             x: measure.headRadius,
-            y: measure.shoulder - measure.hip * 0.65 - measure.armReach * 0.6,
+            y:
+              measure.shoulder -
+              measure.hip * BUCKLE -
+              measure.armReach * HANGING,
             z: measure.shoulderHalfWidth,
           },
         },
         right: {
           point: {
             x: measure.headRadius,
-            y: measure.shoulder - measure.hip * 0.65 - measure.armReach * 0.6,
-            z: -measure.shoulderHalfWidth * 1.2,
+            y:
+              measure.shoulder -
+              measure.hip * BUCKLE -
+              measure.armReach * HANGING,
+            z: -measure.shoulderHalfWidth,
           },
         },
       },
@@ -193,9 +241,15 @@ export namespace KnockdownShape {
     const top = lyingPosture.feet.left;
     const pushed: IBoutPosture = {
       ...lyingPosture,
-      roll: lyingPosture.roll * (1 - 0.5 * effort),
-      thoracic: { ...lyingPosture.thoracic, lateralFlexion: 25 * effort },
-      cervical: { ...lyingPosture.cervical, lateralFlexion: 20 * effort },
+      roll: lyingPosture.roll * (1 - PUSH_UNROLL * effort),
+      thoracic: {
+        ...lyingPosture.thoracic,
+        lateralFlexion: PUSH_TRUNK * effort,
+      },
+      cervical: {
+        ...lyingPosture.cervical,
+        lateralFlexion: PUSH_NECK * effort,
+      },
       hands: {
         ...lyingPosture.hands,
         left: {
@@ -215,13 +269,13 @@ export namespace KnockdownShape {
         ...lyingPosture.feet,
         left: {
           point: {
-            x: measure.thigh * 0.3,
+            x: measure.thigh * DRAWN_FOOT,
             y: measure.ankle,
             z: top?.point.z ?? measure.hipHalfWidth,
           },
           knee: {
             x: measure.thigh,
-            y: measure.hip * 0.4,
+            y: measure.hip * DRAWN_KNEE,
             z: top?.point.z ?? measure.hipHalfWidth,
           },
         },

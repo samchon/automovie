@@ -1,5 +1,12 @@
-import { type AutoMovieConstructionRealization, type IAutoMovieSolidSurface, realizeAutoMovieConstruction } from "@automovie/engine";
-import type { AutoMovieConstructionNode, IAutoMovieConstructionPort } from "@automovie/interface";
+import {
+  type AutoMovieConstructionRealization,
+  type IAutoMovieSolidSurface,
+  realizeAutoMovieConstruction,
+} from "@automovie/engine";
+import type {
+  AutoMovieConstructionNode,
+  IAutoMovieConstructionPort,
+} from "@automovie/interface";
 
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
@@ -20,71 +27,179 @@ type V3 = [number, number, number];
  * 6. Refusal: a rail of 0.5 m leaves one diagnostic on the port, no band, no hole and no part face.
  * 7. Red: the loop check read against a port curve about station 0.04 fails.
  *
- * @evidence contracts/testing.md#behavioral-verification Realizes port trees with `realizeAutoMovieConstruction` and reads the band's, host's and part's surfaces, the published body's cycles and the skin. It catches a band off the port curve or the rail, a band whose cross jets are not the host's, a hole not shared with the band, an open skin and a refusal that leaves a partial cut.
- * @evidence contracts/testing.md#independent-expectations Port points from the cylinder's closed form on the declared chart ellipse; cross jets read on the host's realized surface along the ellipse's inward chart direction (the node contract); rail points on the part's knot circle, exact for ConstructionShapes; watertightness from the manifold edge rule.
- * @evidence contracts/testing.md#distinguishing-cases A positive port, a rail outside the part as the rollback case and a shifted curve as the red reading; the strip's scale law belongs to `test_construction_strip_law`, the split to `test_construction_split`.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_port`; it realizes made trees in process and starts no host, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Realizes port trees with `realizeAutoMovieConstruction` and reads the band's, host's and part's surfaces, the published body's cycles and the skin. It catches a band off the port curve or the rail, a band whose cross jets are not the host's, a hole not shared with the band, an open skin and a refusal that leaves a partial cut.
+ * @evidence contracts/development/testing.md#independent-expectations Port points from the cylinder's closed form on the declared chart ellipse; cross jets read on the host's realized surface along the ellipse's inward chart direction (the node contract); rail points on the part's knot circle, exact for ConstructionShapes; watertightness from the manifold edge rule.
+ * @evidence contracts/development/testing.md#distinguishing-cases A positive port, a rail outside the part as the rollback case and a shifted curve as the red reading; the strip's scale law belongs to `test_construction_strip_law`, the split to `test_construction_split`.
+ * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_port`; it realizes made trees in process and starts no host, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No diagnostic; the faces are exactly the host, the part and the band; the host carries one hole cycle.).
  */
 export function test_construction_port(): void {
   const failures: string[] = [];
   const n: number = 32;
-  const clock: (k: number) => number = (k: number): number => (2 * Math.PI * k) / n;
-  const host: AutoMovieConstructionNode = ConstructionShapes.cylinder("trunk", ConstructionShapes.DOWN, 0.02, 0.1);
-  const arm: AutoMovieConstructionNode = ConstructionShapes.cylinder("arm", { origin: { x: 0.012, y: 0, z: -0.05 }, u: { x: 0, y: 0, z: 1 }, v: { x: 0, y: 1, z: 0 } }, 0.007, 0.06, 7);
-  const port: (rail: number) => IAutoMovieConstructionPort = (rail: number): IAutoMovieConstructionPort => ({ type: "port", name: "port.arm", host, hostFace: "trunk", loop: { centre: [0.05, 0], semi: [0.01, 0.45], sense: 1 }, band: "band.port", part: arm, partFace: "arm", partEnd: "bottom", rail, count: n, rows: 4 });
-  const realize: (root: AutoMovieConstructionNode) => AutoMovieConstructionRealization.IRealization = (root: AutoMovieConstructionNode): AutoMovieConstructionRealization.IRealization => realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
-  const sub: (a: readonly number[], b: readonly number[]) => V3 = (a: readonly number[], b: readonly number[]): V3 => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
-  const len: (a: readonly number[]) => number = (a: readonly number[]): number => Math.hypot(a[0]!, a[1]!, a[2]!);
-  const scaled: (a: readonly number[], k: number) => V3 = (a: readonly number[], k: number): V3 => [a[0]! * k, a[1]! * k, a[2]! * k];
-  const angle: (a: readonly number[], b: readonly number[]) => number = (a: readonly number[], b: readonly number[]): number => len(sub(scaled(a, 1 / len(a)), scaled(b, 1 / len(b))));
+  const clock: (k: number) => number = (k: number): number =>
+    (2 * Math.PI * k) / n;
+  const host: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+    "trunk",
+    ConstructionShapes.DOWN,
+    0.02,
+    0.1,
+  );
+  const arm: AutoMovieConstructionNode = ConstructionShapes.cylinder(
+    "arm",
+    {
+      origin: { x: 0.012, y: 0, z: -0.05 },
+      u: { x: 0, y: 0, z: 1 },
+      v: { x: 0, y: 1, z: 0 },
+    },
+    0.007,
+    0.06,
+    7,
+  );
+  const port: (rail: number) => IAutoMovieConstructionPort = (
+    rail: number,
+  ): IAutoMovieConstructionPort => ({
+    type: "port",
+    name: "port.arm",
+    host,
+    hostFace: "trunk",
+    loop: { centre: [0.05, 0], semi: [0.01, 0.45], sense: 1 },
+    band: "band.port",
+    part: arm,
+    partFace: "arm",
+    partEnd: "bottom",
+    rail,
+    count: n,
+    rows: 4,
+  });
+  const realize: (
+    root: AutoMovieConstructionNode,
+  ) => AutoMovieConstructionRealization.IRealization = (
+    root: AutoMovieConstructionNode,
+  ): AutoMovieConstructionRealization.IRealization =>
+    realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
+  const sub: (a: readonly number[], b: readonly number[]) => V3 = (
+    a: readonly number[],
+    b: readonly number[],
+  ): V3 => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
+  const len: (a: readonly number[]) => number = (
+    a: readonly number[],
+  ): number => Math.hypot(a[0]!, a[1]!, a[2]!);
+  const scaled: (a: readonly number[], k: number) => V3 = (
+    a: readonly number[],
+    k: number,
+  ): V3 => [a[0]! * k, a[1]! * k, a[2]! * k];
+  const angle: (a: readonly number[], b: readonly number[]) => number = (
+    a: readonly number[],
+    b: readonly number[],
+  ): number => len(sub(scaled(a, 1 / len(a)), scaled(b, 1 / len(b))));
 
   // 1. The positive tree.
-  const real: AutoMovieConstructionRealization.IRealization = realize(port(0.02));
-  if (real.diagnostics.length !== 0) failures.push(`diagnostics: ${ConstructionRead.diagnostics(real)}`);
+  const real: AutoMovieConstructionRealization.IRealization = realize(
+    port(0.02),
+  );
+  if (real.diagnostics.length !== 0)
+    failures.push(`diagnostics: ${ConstructionRead.diagnostics(real)}`);
   const names: string = real.body.faces
     .map((f: { chain: string }): string => f.chain)
     .sort((x: string, y: string): number => (x < y ? -1 : x > y ? 1 : 0))
     .join(",");
   if (names !== "arm,band.port,trunk") failures.push(`faces: ${names}`);
-  const cycle: (face: string, kind: string) => number[] = (face: string, kind: string): number[] =>
-    real.body.faces.find((f: { chain: string }): boolean => f.chain === face)?.cycles.find((c: { kind: string }): boolean => c.kind === kind)?.points ?? [];
-  if (cycle("trunk", "hole").length !== n) failures.push(`the host's hole has ${cycle("trunk", "hole").length} points`);
+  const cycle: (face: string, kind: string) => number[] = (
+    face: string,
+    kind: string,
+  ): number[] =>
+    real.body.faces
+      .find((f: { chain: string }): boolean => f.chain === face)
+      ?.cycles.find((c: { kind: string }): boolean => c.kind === kind)
+      ?.points ?? [];
+  if (cycle("trunk", "hole").length !== n)
+    failures.push(
+      `the host's hole has ${cycle("trunk", "hole").length} points`,
+    );
 
   // 2-3. Every column.
   const trunk: IAutoMovieSolidSurface = ConstructionRead.surface(real, "trunk");
-  const loopCheck: (centre: number) => string[] = (centre: number): string[] => {
+  const loopCheck: (centre: number) => string[] = (
+    centre: number,
+  ): string[] => {
     const out: string[] = [];
-    const band: IAutoMovieSolidSurface = ConstructionRead.surface(real, "band.port");
+    const band: IAutoMovieSolidSurface = ConstructionRead.surface(
+      real,
+      "band.port",
+    );
     for (let k: number = 0; k < n; ++k) {
       const c: number = clock(k);
       const station: number = centre + 10 * Math.cos(c);
       const phi: number = 0.45 * Math.sin(c);
       const b: IAutoMovieSolidSurface.IJet = band.jet(0, c);
-      const gap: number = len(sub(b.p, [20 * Math.cos(phi), 20 * Math.sin(phi), -station]));
-      if (!(gap <= 1e-6)) out.push(`loop column ${k}: ${gap} mm off the port curve about station ${centre}`);
+      const gap: number = len(
+        sub(b.p, [20 * Math.cos(phi), 20 * Math.sin(phi), -station]),
+      );
+      if (!(gap <= 1e-6))
+        out.push(
+          `loop column ${k}: ${gap} mm off the port curve about station ${centre}`,
+        );
       const h: IAutoMovieSolidSurface.IJet = trunk.jet(station, phi);
-      const [du, dv]: [number, number] = [-10 * Math.cos(c), -0.45 * Math.sin(c)];
-      const first: V3 = [h.u[0] * du + h.v[0] * dv, h.u[1] * du + h.v[1] * dv, h.u[2] * du + h.v[2] * dv];
-      const second: V3 = [0, 1, 2].map((i: number): number => h.uu[i]! * du * du + 2 * h.uv[i]! * du * dv + h.vv[i]! * dv * dv) as V3;
-      if (!(angle(b.u, first) <= 1e-9)) out.push(`loop column ${k}: cross direction ${angle(b.u, first)} off the host's`);
-      const bend: number = len(sub(scaled(b.uu, 1 / (len(b.u) * len(b.u))), scaled(second, 1 / (len(first) * len(first)))));
-      if (!(bend <= 1e-9)) out.push(`loop column ${k}: cross curvature ${bend} mm^-1 off the host's`);
+      const [du, dv]: [number, number] = [
+        -10 * Math.cos(c),
+        -0.45 * Math.sin(c),
+      ];
+      const first: V3 = [
+        h.u[0] * du + h.v[0] * dv,
+        h.u[1] * du + h.v[1] * dv,
+        h.u[2] * du + h.v[2] * dv,
+      ];
+      const second: V3 = [0, 1, 2].map(
+        (i: number): number =>
+          h.uu[i]! * du * du + 2 * h.uv[i]! * du * dv + h.vv[i]! * dv * dv,
+      ) as V3;
+      if (!(angle(b.u, first) <= 1e-9))
+        out.push(
+          `loop column ${k}: cross direction ${angle(b.u, first)} off the host's`,
+        );
+      const bend: number = len(
+        sub(
+          scaled(b.uu, 1 / (len(b.u) * len(b.u))),
+          scaled(second, 1 / (len(first) * len(first))),
+        ),
+      );
+      if (!(bend <= 1e-9))
+        out.push(
+          `loop column ${k}: cross curvature ${bend} mm^-1 off the host's`,
+        );
     }
     return out;
   };
   failures.push(...loopCheck(50));
-  const band: IAutoMovieSolidSurface = ConstructionRead.surface(real, "band.port");
-  const L: number = real.chains.find((c: { name: string }): boolean => c.name === "band.port")?.layers[1]?.y ?? NaN;
+  const band: IAutoMovieSolidSurface = ConstructionRead.surface(
+    real,
+    "band.port",
+  );
+  const L: number =
+    real.chains.find((c: { name: string }): boolean => c.name === "band.port")
+      ?.layers[1]?.y ?? NaN;
   for (let k: number = 0; k < n; ++k) {
     const p: readonly number[] = band.jet(L, clock(k)).p;
-    const gap: number = Math.max(Math.abs(p[0]! - 32), Math.abs(Math.hypot(p[1]!, p[2]! + 50) - 7));
-    if (!(gap <= 1e-6)) failures.push(`rail column ${k}: ${gap} mm off the part's knot circle`);
+    const gap: number = Math.max(
+      Math.abs(p[0]! - 32),
+      Math.abs(Math.hypot(p[1]!, p[2]! + 50) - 7),
+    );
+    if (!(gap <= 1e-6))
+      failures.push(`rail column ${k}: ${gap} mm off the part's knot circle`);
   }
 
   // 4. Shared identity.
-  const same: (a: number[], b: number[]) => boolean = (a: number[], b: number[]): boolean => a.length === b.length && [...a].sort((x: number, z: number): number => x - z).join() === [...b].sort((x: number, z: number): number => x - z).join();
-  if (!same(cycle("band.port", "start"), cycle("trunk", "hole"))) failures.push("the band's start cycle is not the host's hole");
-  if (!same(cycle("band.port", "end"), cycle("arm", "start"))) failures.push("the band's end cycle is not the part's rail cycle");
+  const same: (a: number[], b: number[]) => boolean = (
+    a: number[],
+    b: number[],
+  ): boolean =>
+    a.length === b.length &&
+    [...a].sort((x: number, z: number): number => x - z).join() ===
+      [...b].sort((x: number, z: number): number => x - z).join();
+  if (!same(cycle("band.port", "start"), cycle("trunk", "hole")))
+    failures.push("the band's start cycle is not the host's hole");
+  if (!same(cycle("band.port", "end"), cycle("arm", "start")))
+    failures.push("the band's end cycle is not the part's rail cycle");
 
   // 5. Watertight skin.
   const uses: Map<string, number> = new Map();
@@ -99,22 +214,52 @@ export function test_construction_port(): void {
   const free: (v: number) => boolean = (v: number): boolean => {
     const x: number = real.mesh.positions[3 * v]!;
     const z: number = real.mesh.positions[3 * v + 2]!;
-    return Math.abs(z) < 1e-7 || Math.abs(z + 0.1) < 1e-7 || Math.abs(x - 0.072) < 1e-7;
+    return (
+      Math.abs(z) < 1e-7 ||
+      Math.abs(z + 0.1) < 1e-7 ||
+      Math.abs(x - 0.072) < 1e-7
+    );
   };
   let open: number = 0;
   let over: number = 0;
   for (const [key, count] of uses) {
     if (count > 2) ++over;
-    if (count === 1 && !key.split(",").every((v: string): boolean => free(Number(v)))) ++open;
+    if (
+      count === 1 &&
+      !key.split(",").every((v: string): boolean => free(Number(v)))
+    )
+      ++open;
   }
-  if (open !== 0 || over !== 0) failures.push(`skin: ${open} open edges away from the free ends, ${over} edges in more than two triangles`);
+  if (open !== 0 || over !== 0)
+    failures.push(
+      `skin: ${open} open edges away from the free ends, ${over} edges in more than two triangles`,
+    );
 
   // 6. Refusal.
-  const deep: AutoMovieConstructionRealization.IRealization = realize(port(0.5));
-  const kept: string = deep.body.faces.map((f: { chain: string }): string => f.chain).join(",");
-  if (!deep.diagnostics.some((d: { node: string }): boolean => d.node === "port.arm") || kept !== "trunk" || deep.body.faces[0]!.cycles.length !== 0) failures.push(`a rail outside the part left ${kept} with ${deep.body.faces[0]?.cycles.length} host cycles: ${ConstructionRead.diagnostics(deep)}`);
+  const deep: AutoMovieConstructionRealization.IRealization = realize(
+    port(0.5),
+  );
+  const kept: string = deep.body.faces
+    .map((f: { chain: string }): string => f.chain)
+    .join(",");
+  if (
+    !deep.diagnostics.some(
+      (d: { node: string }): boolean => d.node === "port.arm",
+    ) ||
+    kept !== "trunk" ||
+    deep.body.faces[0]!.cycles.length !== 0
+  )
+    failures.push(
+      `a rail outside the part left ${kept} with ${deep.body.faces[0]?.cycles.length} host cycles: ${ConstructionRead.diagnostics(deep)}`,
+    );
 
   // 7. Red.
-  if (loopCheck(40).length === 0) failures.push("proof: the band's loop reads equal to a port curve about station 40 mm");
-  if (failures.length !== 0) throw new Error(`${failures.length} port failures:\n${failures.join("\n")}`);
+  if (loopCheck(40).length === 0)
+    failures.push(
+      "proof: the band's loop reads equal to a port curve about station 40 mm",
+    );
+  if (failures.length !== 0)
+    throw new Error(
+      `${failures.length} port failures:\n${failures.join("\n")}`,
+    );
 }

@@ -14,10 +14,11 @@ import { tourSceneFixture } from "../internal/websiteTourSceneFixture";
  * 2. Scene teardown emits disposal events for the observed geometry and texture resources.
  * 3. Traversal or external texture addresses refuse resolution.
  *
- * @evidence contracts/testing.md#behavioral-verification Awaits temple loading and observes mount-relative image requests, independent texture sampler transforms, mounted root/environment, shadow filter and resource-disposal events; wrong URL rebasing, dropped sampler transforms or omitted cleanup fails.
- * @evidence contracts/testing.md#independent-expectations Authored binding paths and the supplied base URL determine expected destinations; offset/repeat literals and a 90-degree angle determine sampler values, and listeners count cleanup attempts on independently acquired resources without claiming native GPU release.
- * @evidence contracts/testing.md#distinguishing-cases Covers unbound, string, transformed and ordinary object texture bindings, leading-root rebasing and external/literal-parent/wrong-prefix refusals; encoded traversal admission is not asserted and upload/cleanup failure paths have separate units.
- * @evidence contracts/testing.md#execution-ownership The async test_website_tour_temple_scene entry owns awaited adapter calls through existing dependency ports and CPU Three disposal events, with no network, browser or renderer execution and no replaced foreign methods.
+ * @evidence contracts/development/testing.md#behavioral-verification Awaits temple loading and observes mount-relative image requests, independent texture sampler transforms, mounted root/environment, shadow filter and resource-disposal events; wrong URL rebasing, dropped sampler transforms or omitted cleanup fails.
+ * @evidence contracts/development/testing.md#independent-expectations Authored binding paths and the supplied base URL determine expected destinations; offset/repeat literals and a 90-degree angle determine sampler values, and listeners count cleanup attempts on independently acquired resources without claiming native GPU release.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers unbound, string, transformed and ordinary object texture bindings, leading-root rebasing and external/literal-parent/wrong-prefix refusals; encoded traversal admission is not asserted and upload/cleanup failure paths have separate units.
+ * @evidence contracts/development/testing.md#execution-ownership The async test_website_tour_temple_scene entry owns awaited adapter calls through existing dependency ports and CPU Three disposal events, with no network, browser or renderer execution and no replaced foreign methods.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Bound, unbound, transformed and plain texture references receive their own samplers.).
  */
 export async function test_website_tour_temple_scene(): Promise<void> {
   const f: ReturnType<typeof tourSceneFixture> = tourSceneFixture(),

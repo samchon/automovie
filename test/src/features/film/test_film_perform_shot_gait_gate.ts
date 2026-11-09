@@ -78,10 +78,11 @@ const run: (
  * 4. Skip vocabulary admission when its lookup is omitted.
  * 5. Skip vocabulary admission when the actor lookup returns undefined.
  *
- * @evidence contracts/testing.md#behavioral-verification Performs locomote with a supplied gait vocabulary and checks admitted names, located unknown-name messages, empty vocabulary and omitted or undefined lookup behavior.
- * @evidence contracts/testing.md#independent-expectations The callback's authored walk/run names define membership; the contract skips admission when the lookup or actor's set is undefined. Successful admission with the fixture synthesizer does not prove a real gait animates.
- * @evidence contracts/testing.md#distinguishing-cases Preserves present, absent, empty, omitted lookup and undefined actor-set cases; shipped gait synthesis has its own entry.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_gait_gate unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs locomote with a supplied gait vocabulary and checks admitted names, located unknown-name messages, empty vocabulary and omitted or undefined lookup behavior.
+ * @evidence contracts/development/testing.md#independent-expectations The callback's authored walk/run names define membership; the contract skips admission when the lookup or actor's set is undefined. Successful admission with the fixture synthesizer does not prove a real gait animates.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves present, absent, empty, omitted lookup and undefined actor-set cases; shipped gait synthesis has its own entry.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_gait_gate unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Accept a gait in the supplied vocabulary.).
  */
 export function test_film_perform_shot_gait_gate(): void {
   // (a) gait present in the supplied set → no gait violation

@@ -33,10 +33,11 @@ const gait: (period: number) => IAutoMovieGait = (
  * 1. Non-finite and non-positive periods throw before synthesis.
  * 2. A small positive period remains valid and controls the emitted duration.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls gaitMotion with invalid periods and asserts refusal, then observes the duration and both endpoint times of a valid short cycle, catching missing period admission or a duration/sample-clock mismatch.
- * @evidence contracts/testing.md#independent-expectations The authored period must be finite and positive; with one interval, the supported sample clock opens at zero and closes at the supplied 0.25 seconds. Existing nclose predicates retain their absolute tolerance, while any thrown value satisfies the malformed-input observations.
- * @evidence contracts/testing.md#distinguishing-cases Preserves NaN, positive infinity, zero and negative periods plus the valid 0.25-second cycle. Sample-count and phase admission and limb/root-bob scalar behavior have separate owning tests.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit directly owns all period cases through gaitMotion. Its local builder supplies unchanged two-limb input data, and namedFacts evaluates endpoint observations in order without starting a consumer or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls gaitMotion with invalid periods and asserts refusal, then observes the duration and both endpoint times of a valid short cycle, catching missing period admission or a duration/sample-clock mismatch.
+ * @evidence contracts/development/testing.md#independent-expectations The authored period must be finite and positive; with one interval, the supported sample clock opens at zero and closes at the supplied 0.25 seconds. Existing nclose predicates retain their absolute tolerance, while any thrown value satisfies the malformed-input observations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves NaN, positive infinity, zero and negative periods plus the valid 0.25-second cycle. Sample-count and phase admission and limb/root-bob scalar behavior have separate owning tests.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit directly owns all period cases through gaitMotion. Its local builder supplies unchanged two-limb input data, and namedFacts evaluates endpoint observations in order without starting a consumer or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite and non-positive periods throw before synthesis.).
  */
 export function test_motion_gait_period(): void {
   for (const period of [Number.NaN, Infinity, 0, -1])

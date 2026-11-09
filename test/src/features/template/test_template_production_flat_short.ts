@@ -1,7 +1,7 @@
 import {
   createNarrativeUnitFiles,
   createSettingsFiles,
-} from "@automovie/evidence/narrative";
+} from "@automovie/evidence";
 import {
   EvidenceMarkdownAdapter,
   EvidenceSourceLoader,
@@ -21,10 +21,11 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * 1. A flat screenplay and a plain settings file each contribute their actual H2.
  * 2. An exact first-part pilot excludes flat work and selects its named part.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs public selector output through actual native source capture and Markdown extraction, observing selected sources and H2 units.
- * @evidence contracts/testing.md#independent-expectations The explicitly authored flat scene and settings each contain one H2; the pilot requests only 001-bout and therefore selects no flat file.
- * @evidence contracts/testing.md#distinguishing-cases Flat and partitioned inputs distinguish complete-work selection from an exact pilot; the selected part contains one scene and no invented outline requirement.
- * @evidence contracts/testing.md#execution-ownership This exported test evaluates native Evidence in process, owns its unique temporary files and removes them in finally. It starts no installation, subprocess, browser or GPU and replaces no foreign method.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs public selector output through actual native source capture and Markdown extraction, observing selected sources and H2 units.
+ * @evidence contracts/development/testing.md#independent-expectations The explicitly authored flat scene and settings each contain one H2; the pilot requests only 001-bout and therefore selects no flat file.
+ * @evidence contracts/development/testing.md#distinguishing-cases Flat and partitioned inputs distinguish complete-work selection from an exact pilot; the selected part contains one scene and no invented outline requirement.
+ * @evidence contracts/development/testing.md#execution-ownership This exported test evaluates native Evidence in process, owns its unique temporary files and removes them in finally. It starts no installation, subprocess, browser or GPU and replaces no foreign method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A flat screenplay and a plain settings file each contribute their actual H2.).
  */
 
 export async function test_template_production_flat_short(): Promise<void> {

@@ -24,10 +24,11 @@ import { material } from "../internal/renderFixtures";
  * 2. The same table serving an authored linear map shares one raw allocation and keeps both asset and generating runtime attribution.
  * 3. Missing identity/decoding, duplicate owners and conflicting extents refuse a complete bound; runtime token renaming preserves target identity.
  *
- * @evidence contracts/testing.md#behavioral-verification Reads an actual Three DataTexture's CPU declarations into Engine closure, checking shared/split representation, material attribution, unknown facts, owner conflicts and digest sensitivity.
- * @evidence contracts/testing.md#independent-expectations 64 by six RGBA Float32 pixels cost 64 times six times 16 bytes under the declared upload contract; identical Source/state facts share that bound and independent decoding keys split it. No GPU upload, GLuint count, native retained bytes or terminal release is measured.
- * @evidence contracts/testing.md#distinguishing-cases Shared aliases, different color space, material/runtime co-use, missing metadata, duplicate/blank owners, contradictory extents and token renaming retain the original physical-accounting distinctions.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_runtime_texture_storage owns its cases. Portable Three wrapper observation and Engine metadata accounting; dispose is called on the created wrapper, without opening a renderer or checking GPU release.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads an actual Three DataTexture's CPU declarations into Engine closure, checking shared/split representation, material attribution, unknown facts, owner conflicts and digest sensitivity.
+ * @evidence contracts/development/testing.md#independent-expectations 64 by six RGBA Float32 pixels cost 64 times six times 16 bytes under the declared upload contract; identical Source/state facts share that bound and independent decoding keys split it. No GPU upload, GLuint count, native retained bytes or terminal release is measured.
+ * @evidence contracts/development/testing.md#distinguishing-cases Shared aliases, different color space, material/runtime co-use, missing metadata, duplicate/blank owners, contradictory extents and token renaming retain the original physical-accounting distinctions.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_runtime_texture_storage owns its cases. Portable Three wrapper observation and Engine metadata accounting; dispose is called on the created wrapper, without opening a renderer or checking GPU release.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A 64-by-6 RGBA32F nonmip cycle table costs 64*6*16 bytes; aliases of the same Source/state share it, while a different color-space key...).
  */
 export async function test_render_runtime_texture_storage(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

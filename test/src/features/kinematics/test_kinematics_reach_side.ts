@@ -29,10 +29,11 @@ const withRightHand: () => IAutoMovieSkeleton = (): IAutoMovieSkeleton => {
  * 1. A complete right-arm chain still solves for the valid `"right"` side.
  * 2. An unknown side value returns `null` instead of solving the right arm.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls reachPose with a complete right chain and an erased-union center string, checking nonnull versus null; accidentally treating every nonleft string as right fails.
- * @evidence contracts/testing.md#independent-expectations The supported side set is left/right, so center is invalid independently of solver output. A conventional fixture and reachable target supply the valid neighbor; a nonnull check here does not establish its hand contact or ROM legality.
- * @evidence contracts/testing.md#distinguishing-cases Keeps a valid right side and the unsupported-center negative twin with the same skeleton/target; geometric contact, shell boundaries and ROM admission are owned by reach/reach_rom.
- * @evidence contracts/testing.md#execution-ownership The exported CPU entry is discovered by the test runner and directly calls reach source; its local right-hand completion is a code fixture, with no native solver, browser, GPU or installed Human asset.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls reachPose with a complete right chain and an erased-union center string, checking nonnull versus null; accidentally treating every nonleft string as right fails.
+ * @evidence contracts/development/testing.md#independent-expectations The supported side set is left/right, so center is invalid independently of solver output. A conventional fixture and reachable target supply the valid neighbor; a nonnull check here does not establish its hand contact or ROM legality.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps a valid right side and the unsupported-center negative twin with the same skeleton/target; geometric contact, shell boundaries and ROM admission are owned by reach/reach_rom.
+ * @evidence contracts/development/testing.md#execution-ownership The exported CPU entry is discovered by the test runner and directly calls reach source; its local right-hand completion is a code fixture, with no native solver, browser, GPU or installed Human asset.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A complete right-arm chain still solves for the valid `"right"` side.).
  */
 export function test_kinematics_reach_side(): void {
   const skeleton: IAutoMovieSkeleton = withRightHand();

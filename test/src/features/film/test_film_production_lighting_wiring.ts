@@ -271,10 +271,11 @@ const compileWith: (
  * 2. Preserve staged light identity/order/count when production lighting is absent.
  * 3. Compile authored and omitted shot lightMotions, checking clip identity and pointer kind.
  *
- * @evidence contracts/testing.md#behavioral-verification Resolves story lighting from explicitly assembled context fields and compiles shot programs with or without lightMotions, checking resulting intensities, identities and clip admission.
- * @evidence contracts/testing.md#independent-expectations A source intensity ramp 3 to 1 gives 2 at half span within canonical nclose; authored pins and light ids determine expectations. The test constructs buildContext itself and does not prove production-builder context assembly. Compilation checks clip id/count and pointer kind, without independently checking its pointer text, values or rendered light animation.
- * @evidence contracts/testing.md#distinguishing-cases Retains two story moments, unchanged practical light, omitted production lighting and authored/absent shot light clips. Context assembly is test-owned; this unit exercises the portable Engine seams.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_production_lighting_wiring unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves story lighting from explicitly assembled context fields and compiles shot programs with or without lightMotions, checking resulting intensities, identities and clip admission.
+ * @evidence contracts/development/testing.md#independent-expectations A source intensity ramp 3 to 1 gives 2 at half span within canonical nclose; authored pins and light ids determine expectations. The test constructs buildContext itself and does not prove production-builder context assembly. Compilation checks clip id/count and pointer kind, without independently checking its pointer text, values or rendered light animation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains two story moments, unchanged practical light, omitted production lighting and authored/absent shot light clips. Context assembly is test-owned; this unit exercises the portable Engine seams.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_production_lighting_wiring unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Resolve two explicitly assembled story contexts and preserve practical intensity.).
  */
 export function test_film_production_lighting_wiring(): void {
   const design: IAutoMovieProductionDesign =

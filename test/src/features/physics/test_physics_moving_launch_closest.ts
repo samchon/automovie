@@ -19,10 +19,11 @@ const GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
  * 1. Four candidate times from the specified distance/speed seed have a minimum residual before the final candidate.
  * 2. A four-iteration cap returns that closest candidate rather than the final candidate.
  *
- * @evidence contracts/testing.md#behavioral-verification Solves the accelerating target with four iterations and compares its time with independently computed candidate flights, catching last-iterate selection when the earlier residual is smaller.
- * @evidence contracts/testing.md#independent-expectations Eliminating launch velocity gives a quadratic in squared flight time; its lower positive root supplies each candidate without calling solveBallisticLaunch or copying its angle solve. The declared iteration seed/update contract still determines which candidates are visited; this does not prove global interception.
- * @evidence contracts/testing.md#distinguishing-cases Requires a non-monotone residual, a closest candidate distinct from the last and both equality to closest and inequality to last; settled and invalid-cap behavior belong to neighboring moving-launch units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns its analytic candidate arithmetic and direct solver assertions, without hosts, fixtures generated on disk or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves the accelerating target with four iterations and compares its time with independently computed candidate flights, catching last-iterate selection when the earlier residual is smaller.
+ * @evidence contracts/development/testing.md#independent-expectations Eliminating launch velocity gives a quadratic in squared flight time; its lower positive root supplies each candidate without calling solveBallisticLaunch or copying its angle solve. The declared iteration seed/update contract still determines which candidates are visited; this does not prove global interception.
+ * @evidence contracts/development/testing.md#distinguishing-cases Requires a non-monotone residual, a closest candidate distinct from the last and both equality to closest and inequality to last; settled and invalid-cap behavior belong to neighboring moving-launch units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit owns its analytic candidate arithmetic and direct solver assertions, without hosts, fixtures generated on disk or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Four candidate times from the specified distance/speed seed have a minimum residual before the final candidate.).
  */
 export function test_physics_moving_launch_closest(): void {
   const speed: number = 20;

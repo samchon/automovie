@@ -7,13 +7,10 @@
  * unknown twist placement. Motion retargeting forwards each as a range violation, and
  * `normalizeJointAxes` throws the first as `<path> <expected>`.
  *
- * @evidence contracts/common.md#principled-implementation A located violation record in the same path, expectation and value form the engine's violation collector uses, so a retargeting caller forwards it field for field without rewording.
- * @evidence contracts/common.md#clear-and-simple-design Returned as plain data so the throwing normalizer and the collecting retargeter share one validator and each decides whether to stop or report.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `value` carries the offending input itself, never a corrected one, so a report shows what the author actually declared.
- * @evidence contracts/common.md#meaningful-documentation States the producer, the defect kinds and their order, both consumers, and what each field holds including the pair shape for an orthogonality issue.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A located issue record; the per-axis validation pass that fills it is constant work for three axes.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per validation call; nothing is cached.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two strings and a reference to the offending value, at most a handful per basis, released with the caller's report.
+ * @evidence contracts/development/design.md#principled-representation A located violation record in the same path, expectation and value form the engine's violation collector uses, so a retargeting caller forwards it field for field without rewording.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Returned as plain data so the throwing normalizer and the collecting retargeter share one validator and each decides whether to stop or report.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts `value` carries the offending input itself, never a corrected one, so a report shows what the author actually declared.
+ * @evidence contracts/development/common.md#meaningful-documentation States the producer, the defect kinds and their order, both consumers, and what each field holds including the pair shape for an orthogonality issue.
  */
 export interface IAutoMovieJointAxesIssue {
   /**

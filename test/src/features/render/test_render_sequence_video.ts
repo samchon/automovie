@@ -62,10 +62,11 @@ const SPEC: IAutoMovieRenderSpec = {
  * 2. Frames inside the incoming transition expose the outgoing shot tail and incoming alpha to the host adapter.
  * 3. The encode adapter receives exactly the manifest args/output path, and the returned artifact preserves the spec and sequence identity.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs real sequence orchestration through existing supplied capture/encode callbacks, checking sample order, returned paths, transition-local time and artifact metadata.
- * @evidence contracts/testing.md#independent-expectations Two plus two seconds minus a half-second fade gives fourteen frames at four fps; incoming frames six/seven carry times one/1.25 and alpha zero/0.5 by hand. Encoder-argument forwarding is consistency with the returned plan, whose literal option semantics are tested separately.
- * @evidence contracts/testing.md#distinguishing-cases First/last captures, transition entry/mid/past points, callback-returned paths, shallow spec data and encode forwarding retain the original successful orchestration cases; adapter refusal is not exercised here.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_sequence_video owns its cases. Portable async orchestration over existing callback seams; they record values and return authored strings rather than capturing images, writing files or starting an encoder.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs real sequence orchestration through existing supplied capture/encode callbacks, checking sample order, returned paths, transition-local time and artifact metadata.
+ * @evidence contracts/development/testing.md#independent-expectations Two plus two seconds minus a half-second fade gives fourteen frames at four fps; incoming frames six/seven carry times one/1.25 and alpha zero/0.5 by hand. Encoder-argument forwarding is consistency with the returned plan, whose literal option semantics are tested separately.
+ * @evidence contracts/development/testing.md#distinguishing-cases First/last captures, transition entry/mid/past points, callback-returned paths, shallow spec data and encode forwarding retain the original successful orchestration cases; adapter refusal is not exercised here.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_sequence_video owns its cases. Portable async orchestration over existing callback seams; they record values and return authored strings rather than capturing images, writing files or starting an encoder.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A two-shot sequence yields capture calls in frame order and returns the adapter-written frame paths.).
  */
 export async function test_render_sequence_video(): Promise<void> {
   const captured: Array<{

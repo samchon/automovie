@@ -11,13 +11,10 @@ import {
  * override; direct applyLightOverride calls still return a new light record.
  *
  *
- * @evidence contracts/common.md#principled-implementation Accumulate only authored light-property samples; absent members preserve staged values and rotation/position remain separate from light-kind-specific scalar properties.
- * @evidence contracts/common.md#clear-and-simple-design A sparse intermediate record separates channel sampling from the exhaustive light reconstruction in applyLightOverride.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No zero or identity value is invented for absent animation; range/cone fields cannot create those fields on unsupported light kinds.
- * @evidence contracts/common.md#meaningful-documentation Members state intensity/color, metre range/position, degree cone angle and world orientation; direct reconstruction and untouched-shot identity are distinguished.
- * @evidence contracts/performance.md#efficient-algorithms At most six supported fields occupy constant-size storage; channel population and interpolation costs belong to the shot resolver.
- * @evidence contracts/performance.md#reuse-equivalent-work A shot reuses staged references for fields absent from the override; changed time/samples require a fresh accumulation.
- * @evidence contracts/performance.md#bound-retention-and-release-resources resolveShotLighting owns the per-light override map for one call; returned light records borrow untouched nested fields and no renderer handle is held.
+ * @evidence contracts/development/design.md#principled-representation Accumulate only authored light-property samples; absent members preserve staged values and rotation/position remain separate from light-kind-specific scalar properties.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface A sparse intermediate record separates channel sampling from the exhaustive light reconstruction in applyLightOverride.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No zero or identity value is invented for absent animation; range/cone fields cannot create those fields on unsupported light kinds.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state intensity/color, metre range/position, degree cone angle and world orientation; direct reconstruction and untouched-shot identity are distinguished.
  */
 export interface IAutoMovieLightOverride {
   /** Radiant intensity, when an `intensity` track wrote one. */

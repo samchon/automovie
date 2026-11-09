@@ -23,13 +23,13 @@ import { Vector3 } from "./Vector3";
  * antiparallel takes a deterministic 180° flip about a perpendicular (the
  * `|a.x| < 0.9` axis split).
  *
- * @evidence contracts/common.md#principled-implementation Normalized directions supply cross-product sine and dot-product cosine to atan2 for a shortest arc; exact collinearity selects identity or a deterministic perpendicular half-turn without an angular deadzone.
- * @evidence contracts/common.md#clear-and-simple-design Analytic aiming and iterative world-driver paths share this primitive, giving direction scaling and antiparallel conventions one owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Only exact zero sine selects collinear branches, so small representable turns remain active; zero vectors follow the declared identity convention.
- * @evidence contracts/common.md#meaningful-documentation States finite direction magnitudes, shortest-arc construction, zero/parallel identity, deterministic antiparallel axis and binary64 precision limits.
- * @evidence contracts/performance.md#efficient-algorithms Two normalizations, one cross/dot pair and one axis-angle conversion take constant work and storage.
- * @evidence contracts/performance.md#reuse-equivalent-work Both angle coordinates reuse the normalized directions during the call; changing the target invalidates any prior turn.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Direction, cross/perpendicular and result records are bounded call-local values; no mesh, rig or driver state is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Normalized directions supply cross-product sine and dot-product cosine to atan2 for a shortest arc; exact collinearity selects identity or a deterministic perpendicular half-turn without an angular deadzone.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Analytic aiming and iterative world-driver paths share this primitive, giving direction scaling and antiparallel conventions one owner.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only exact zero sine selects collinear branches, so small representable turns remain active; zero vectors follow the declared identity convention.
+ * @evidence contracts/development/common.md#meaningful-documentation States finite direction magnitudes, shortest-arc construction, zero/parallel identity, deterministic antiparallel axis and binary64 precision limits.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two normalizations, one cross/dot pair and one axis-angle conversion take constant work and storage.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Both angle coordinates reuse the normalized directions during the call; changing the target invalidates any prior turn.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direction, cross/perpendicular and result records are bounded call-local values; no mesh, rig or driver state is retained.
  */
 export const rotationBetween: (
   a: IAutoMovieVector3,

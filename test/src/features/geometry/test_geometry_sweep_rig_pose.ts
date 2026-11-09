@@ -50,10 +50,11 @@ const largest = (a: ArrayLike<number>, b: ArrayLike<number>): number => {
  *    `poseAutoMovieSurfaceNetwork` returns, within 1e-9 m, and the pose moves
  *    the cage by more than 0.2 m.
  *
- * @evidence contracts/testing.md#behavioral-verification Compiles rigs with `rigAutoMovieSurfaceNetwork`, poses them into caller buffers and compares with the record path; a rig that missed a moved sweep, curve, node, ring or blend fails, while any implementation equal to the record path passes.
- * @evidence contracts/testing.md#independent-expectations The record path is the engine's separately implemented posing, which builds a posed network record and samples it afresh; the movement bound rules out comparing two unposed cages.
- * @evidence contracts/testing.md#distinguishing-cases Covers the coarsest and finest tiers and a pose moving every bound part kind, a sweep, a joint station, a curve, a pinned ring and the blends between them; the low and medium tiers share the same code paths with other counts, and volume preservation against the record path is owned by the rig volume test; buffer state, rings and refusals are owned by the rig state test and the volume itself by the rig volume test.
- * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_rig_pose` entry; it builds bones by hand and starts no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Compiles rigs with `rigAutoMovieSurfaceNetwork`, poses them into caller buffers and compares with the record path; a rig that missed a moved sweep, curve, node, ring or blend fails, while any implementation equal to the record path passes.
+ * @evidence contracts/development/testing.md#independent-expectations The record path is the engine's separately implemented posing, which builds a posed network record and samples it afresh; the movement bound rules out comparing two unposed cages.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers the coarsest and finest tiers and a pose moving every bound part kind, a sweep, a joint station, a curve, a pinned ring and the blends between them; the low and medium tiers share the same code paths with other counts, and volume preservation against the record path is owned by the rig volume test; buffer state, rings and refusals are owned by the rig state test and the volume itself by the rig volume test.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_rig_pose` entry; it builds bones by hand and starts no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: The branched body on its skeleton, posed with a leaning spine, a raised).
  */
 export function test_geometry_sweep_rig_pose(): void {
   const network: IAutoMovieSurfaceNetwork = sweepBranchedBody();

@@ -78,10 +78,11 @@ const leg: (overrides: {
  * 4. Degenerate: a zero-length upper segment, a zero-length lower segment, and a
  *    target coincident with the chain root each return `null`.
  *
- * @evidence contracts/testing.md#behavioral-verification Solves an isolated two-bone chain and checks unit deltas, pole-parallel fallback, different explicit bend-normal branches and degenerate null returns; invalid-length fabrication or lost branch sign fails.
- * @evidence contracts/testing.md#independent-expectations A unit rotation has component Euclidean norm 1, and opposite declared bend normals must distinguish the two branches for this noncollinear fixture. The case checks solvability/norm/branch discrimination rather than an independent end-contact oracle, which prepared contact tests supplement; arm reach uses a different hinge solver.
- * @evidence contracts/testing.md#distinguishing-cases Keeps ordinary and pole-parallel targets, both signed bend normals, zero upper/lower segment and root-coincident target; scalar shell clamping and hinge-specific ROM choices belong to their own entries.
- * @evidence contracts/testing.md#execution-ownership This exported runner entry directly invokes portable chain source and owns the conventional 0.3/0.25-metre local record; it requires no Human asset, native solver, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves an isolated two-bone chain and checks unit deltas, pole-parallel fallback, different explicit bend-normal branches and degenerate null returns; invalid-length fabrication or lost branch sign fails.
+ * @evidence contracts/development/testing.md#independent-expectations A unit rotation has component Euclidean norm 1, and opposite declared bend normals must distinguish the two branches for this noncollinear fixture. The case checks solvability/norm/branch discrimination rather than an independent end-contact oracle, which prepared contact tests supplement; arm reach uses a different hinge solver.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps ordinary and pole-parallel targets, both signed bend normals, zero upper/lower segment and root-coincident target; scalar shell clamping and hinge-specific ROM choices belong to their own entries.
+ * @evidence contracts/development/testing.md#execution-ownership This exported runner entry directly invokes portable chain source and owns the conventional 0.3/0.25-metre local record; it requires no Human asset, native solver, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An ordinary reachable target solves, and the lowered deltas are unit).
  */
 export function test_kinematics_two_bone_chain_articulation(): void {
   // 1. an ordinary solve

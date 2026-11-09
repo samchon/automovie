@@ -3,10 +3,10 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * Seeded environmental billboard emitter with explicit transport and live-instance budgets. Fog, smoke and dust share the same bounded stream representation.
  *
- * @evidence contracts/common.md#principled-implementation Seeded emission, lifetime/size ranges, transport velocities and an integer live-particle cap define the intended stream domain. sampleCompiledEffect derives state from cue time floored to the absolute step with a 1e-9 quotient allowance; the documented numeric ranges and positive step remain caller premises after whole-world gate retirement.
- * @evidence contracts/common.md#clear-and-simple-design Emission, appearance, motion and runtime budget form separate groups, with one closed effect-family discriminator and one supported alpha blend law.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Effect names select no hidden subject preset. With an admitted integer cap, sampling stops after maxParticles live outputs and far-distance thinning retains indices divisible by four; candidate arrays can exceed that cap, and the sampler does not validate malformed direct recipes.
- * @evidence contracts/common.md#meaningful-documentation States seed ownership, emission rate and duration, lifetime and metre size ranges, RGB appearance, opacity, metre-per-second transport and hard live-instance and LOD limits.
+ * @evidence contracts/development/design.md#principled-representation Seeded emission, lifetime/size ranges, transport velocities and an integer live-particle cap define the intended stream domain. sampleCompiledEffect derives state from cue time floored to the absolute step with a 1e-9 quotient allowance; the documented numeric ranges and positive step remain caller premises after whole-world gate retirement.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Emission, appearance, motion and runtime budget form separate groups, with one closed effect-family discriminator and one supported alpha blend law.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Effect names select no hidden subject preset. With an admitted integer cap, sampling stops after maxParticles live outputs and far-distance thinning retains indices divisible by four; candidate arrays can exceed that cap, and the sampler does not validate malformed direct recipes.
+ * @evidence contracts/development/common.md#meaningful-documentation States seed ownership, emission rate and duration, lifetime and metre size ranges, RGB appearance, opacity, metre-per-second transport and hard live-instance and LOD limits.
  */
 export interface IAutoMovieEffectRecipe {
   /** Stable recipe id. */

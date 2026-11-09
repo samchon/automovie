@@ -11,10 +11,11 @@ import { nclose } from "../internal/predicates";
  * 2. Independent width/height changes update CSS aspect and framebuffer size at the supplied DPR.
  * 3. Hidden viewports retain pending work until both dimensions are positive.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the tour frame callback with an owned renderer port, observing draw/finish counts, exact scene/camera identity, resize requests, CSS aspect and deferred hidden redraw; redundant static draws, swapped inputs or lost invalidation fails.
- * @evidence contracts/testing.md#independent-expectations Authored CSS/framebuffer sizes and a supplied ratio of two determine the expected resize sequence and 400/250 aspect; draw counts follow explicit invalidation and dimension changes rather than a rendered output snapshot.
- * @evidence contracts/testing.md#distinguishing-cases Covers initial/idle/invalidated frames, independent width and height changes, both zero-dimension cases and restored visibility; renderer failures, DPR changes and completion-observer publication are not asserted by this unit.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_website_tour_frames entry owns callbacks through the existing product renderer port using plain objects and resident Three scene/camera records; no foreign renderer is replaced and no browser or GPU is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the tour frame callback with an owned renderer port, observing draw/finish counts, exact scene/camera identity, resize requests, CSS aspect and deferred hidden redraw; redundant static draws, swapped inputs or lost invalidation fails.
+ * @evidence contracts/development/testing.md#independent-expectations Authored CSS/framebuffer sizes and a supplied ratio of two determine the expected resize sequence and 400/250 aspect; draw counts follow explicit invalidation and dimension changes rather than a rendered output snapshot.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers initial/idle/invalidated frames, independent width and height changes, both zero-dimension cases and restored visibility; renderer failures, DPR changes and completion-observer publication are not asserted by this unit.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_website_tour_frames entry owns callbacks through the existing product renderer port using plain objects and resident Three scene/camera records; no foreign renderer is replaced and no browser or GPU is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: First render and invalidated render draw once, then retain the frame.).
  */
 export function test_website_tour_frames(): void {
   const canvas: {

@@ -20,10 +20,11 @@ import {
  * Scenarios:
  * 1. Preserves the unknown draft actor, valid replacement and same-camera reframing with null rig; null-final and rig-checked neighbors are separate entries.
  *
- * @evidence contracts/testing.md#behavioral-verification Performs an invalid draft replaced by revise.final and checks success, the sole performing knight and one camera reused by two frame actions.
- * @evidence contracts/testing.md#independent-expectations The replacement actor exists while ghost does not, so success distinguishes final from draft evaluation; the null rig callback skips ROM without proving it would fail here. Camera identity and success admit two same-camera requests but do not independently inspect both compiled moves.
- * @evidence contracts/testing.md#distinguishing-cases Preserves the unknown draft actor, valid replacement and same-camera reframing with null rig; null-final and rig-checked neighbors are separate entries.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_revised unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs an invalid draft replaced by revise.final and checks success, the sole performing knight and one camera reused by two frame actions.
+ * @evidence contracts/development/testing.md#independent-expectations The replacement actor exists while ghost does not, so success distinguishes final from draft evaluation; the null rig callback skips ROM without proving it would fail here. Camera identity and success admit two same-camera requests but do not independently inspect both compiled moves.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves the unknown draft actor, valid replacement and same-camera reframing with null rig; null-final and rig-checked neighbors are separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_revised unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Preserves the unknown draft actor, valid replacement and same-camera reframing with null rig; null-final and rig-checked neighbors are...).
  */
 export function test_film_perform_shot_revised(): void {
   const staged: IAutoMovieStagedSet = stageScene(

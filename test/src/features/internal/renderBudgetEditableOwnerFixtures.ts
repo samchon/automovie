@@ -172,10 +172,10 @@ function shape(
 /**
  * Original editable-owner arrangements and observation projection.
  *
- * @evidence contracts/testing.md#behavioral-verification Shares the original identity transforms, model population, staging, per-metric budget, fresh sealed target and actual inventory/evaluation calls. shape observes the same verdict/accounting/contributor/recovery fields without deciding expected values.
- * @evidence contracts/testing.md#independent-expectations The owning test supplies hand-computed integer tessellation/pass counts and literal owner/source/recovery expectations. These helpers remain arrangement and observation code, never an independent oracle or a replacement budget algorithm.
- * @evidence contracts/testing.md#distinguishing-cases The existing six scenario groups consume unlit/lit/tied geometry, shadow/light counts and resident instance/fluid costs. Each factory still returns its own original fresh records, and report measures once then evaluates once in the same order.
- * @evidence contracts/testing.md#execution-ownership This single internal export is reached explicitly by test_render_budget_editable_owner; it registers no cases and opens no process, filesystem, browser or GPU. The caller owns returned records, while module function references share no mutable scenario state.
+ * @evidence contracts/development/testing.md#behavioral-verification Shares the original identity transforms, model population, staging, per-metric budget, fresh sealed target and actual inventory/evaluation calls. shape observes the same verdict/accounting/contributor/recovery fields without deciding expected values.
+ * @evidence contracts/development/testing.md#independent-expectations The owning test supplies hand-computed integer tessellation/pass counts and literal owner/source/recovery expectations. These helpers remain arrangement and observation code, never an independent oracle or a replacement budget algorithm.
+ * @evidence contracts/development/testing.md#distinguishing-cases The existing six scenario groups consume unlit/lit/tied geometry, shadow/light counts and resident instance/fluid costs. Each factory still returns its own original fresh records, and report measures once then evaluates once in the same order.
+ * @evidence contracts/development/testing.md#execution-ownership This single internal export is reached explicitly by test_render_budget_editable_owner; it registers no cases and opens no process, filesystem, browser or GPU. The caller owns returned records, while module function references share no mutable scenario state.
  */
 export const renderBudgetEditableOwnerFixtures: {
   pose: typeof pose;

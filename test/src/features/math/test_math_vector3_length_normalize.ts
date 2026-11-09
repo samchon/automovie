@@ -15,10 +15,11 @@ import { nclose, vclose } from "../internal/predicates";
  * 4. The degenerate zero vector normalizes back to zero (the divide-by-zero guard)
  *    instead of producing NaNs.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls length and normalize, checking the ordinary norm, normalized unit magnitude, axis direction and zero input. A wrong magnitude or dividing a zero direction into NaNs fails.
- * @evidence contracts/testing.md#independent-expectations The Pythagorean theorem gives sqrt(3 squared + 4 squared) = 5, and a positive X-axis vector normalizes to +X. Zero normalization follows the explicit API convention; checking normalized magnitude with the production length method can share a coherent defect, so the cardinal direction supplies a separate coordinate expectation.
- * @evidence contracts/testing.md#distinguishing-cases Keeps an ordinary nonaxis norm, exact zero length, ordinary normalized magnitude, axis direction and zero normalization. Tiny/huge/subnormal magnitudes and nonfinite propagation are owned by extreme-normalize.
- * @evidence contracts/testing.md#execution-ownership The named math function owns all synchronous assertions and calls portable Vector3 source without consumer installation, native build, process, browser, GPU or dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls length and normalize, checking the ordinary norm, normalized unit magnitude, axis direction and zero input. A wrong magnitude or dividing a zero direction into NaNs fails.
+ * @evidence contracts/development/testing.md#independent-expectations The Pythagorean theorem gives sqrt(3 squared + 4 squared) = 5, and a positive X-axis vector normalizes to +X. Zero normalization follows the explicit API convention; checking normalized magnitude with the production length method can share a coherent defect, so the cardinal direction supplies a separate coordinate expectation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps an ordinary nonaxis norm, exact zero length, ordinary normalized magnitude, axis direction and zero normalization. Tiny/huge/subnormal magnitudes and nonfinite propagation are owned by extreme-normalize.
+ * @evidence contracts/development/testing.md#execution-ownership The named math function owns all synchronous assertions and calls portable Vector3 source without consumer installation, native build, process, browser, GPU or dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The 3–4–5 right triangle pins the norm: length (3,4,0) → 5; and the zero).
  */
 export function test_math_vector3_length_normalize(): void {
   TestValidator.predicate(

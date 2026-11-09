@@ -12,10 +12,11 @@ import { createScriptTreeFixture } from "../internal/createScriptTreeFixture";
  * 2. A lone intent root joins an empty beat list.
  * 3. A long alternating group/scene chain validates without recursive traversal.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls source tree admission and requires successful admission for full, minimal and deep trees, catching accidental refusal of legal parent kinds, nullable anchors, empty beats or long acyclic chains; it does not separately inspect warning populations.
- * @evidence contracts/testing.md#independent-expectations Fixtures declare the supported parent table, one intent root, exact flat-header agreement and one node per flat beat; a chain alternating group and scene follows two permitted parent pairs independently of the traversal implementation.
- * @evidence contracts/testing.md#distinguishing-cases Covers every node kind, mutual interaction edges, temporal reference, finite and null anchors, zero beats and a 10000-node acyclic chain; malformed graphs and editorial payloads belong to the gates entry.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit entry owns these portable fixtures and assertions and calls engine source directly; no process, renderer or dynamically registered case is required.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls source tree admission and requires successful admission for full, minimal and deep trees, catching accidental refusal of legal parent kinds, nullable anchors, empty beats or long acyclic chains; it does not separately inspect warning populations.
+ * @evidence contracts/development/testing.md#independent-expectations Fixtures declare the supported parent table, one intent root, exact flat-header agreement and one node per flat beat; a chain alternating group and scene follows two permitted parent pairs independently of the traversal implementation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers every node kind, mutual interaction edges, temporal reference, finite and null anchors, zero beats and a 10000-node acyclic chain; malformed graphs and editorial payloads belong to the gates entry.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous unit entry owns these portable fixtures and assertions and calls engine source directly; no process, renderer or dynamically registered case is required.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A five-kind tree joins both flat beats with finite and null dialogue anchors.).
  */
 export function test_validation_script_tree(): void {
   const full: ReturnType<typeof validateScriptTree> = validateScriptTree(

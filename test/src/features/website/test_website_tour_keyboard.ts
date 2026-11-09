@@ -10,10 +10,11 @@ import { tourFixture } from "../internal/websiteTourFixture";
  * 1. The canvas describes keyboard flight and the desktop panel collapses.
  * 2. A missing search input refuses mounting with its required-control diagnostic.
  *
- * @evidence contracts/testing.md#behavioral-verification Mounts the tour navigator on resident DOM and observes flight accessibility instructions, panel collapse and a missing-search refusal; an inaccessible canvas, inert toggle or silently accepted missing control fails.
- * @evidence contracts/testing.md#independent-expectations The supplied canvas/panel/search controls define the host boundary, the public Shift instruction fixes the accessibility fragment, and removal of the search input independently establishes the required-control failure.
- * @evidence contracts/testing.md#distinguishing-cases Covers an initially expanded panel toggled closed and a subsequent mount without its required search input; view selection, search results and successful cleanup are observed in the navigation unit, while pre-return listener absence is not measured here.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_website_tour_keyboard entry owns JSDOM mounting and actual button-event dispatch through existing fixtures, replacing no foreign methods and starting no browser; native accessibility presentation remains unobserved.
+ * @evidence contracts/development/testing.md#behavioral-verification Mounts the tour navigator on resident DOM and observes flight accessibility instructions, panel collapse and a missing-search refusal; an inaccessible canvas, inert toggle or silently accepted missing control fails.
+ * @evidence contracts/development/testing.md#independent-expectations The supplied canvas/panel/search controls define the host boundary, the public Shift instruction fixes the accessibility fragment, and removal of the search input independently establishes the required-control failure.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers an initially expanded panel toggled closed and a subsequent mount without its required search input; view selection, search results and successful cleanup are observed in the navigation unit, while pre-return listener absence is not measured here.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_website_tour_keyboard entry owns JSDOM mounting and actual button-event dispatch through existing fixtures, replacing no foreign methods and starting no browser; native accessibility presentation remains unobserved.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The canvas describes keyboard flight and the desktop panel collapses.).
  */
 export function test_website_tour_keyboard(): void {
   const f: ReturnType<typeof tourFixture> = tourFixture();

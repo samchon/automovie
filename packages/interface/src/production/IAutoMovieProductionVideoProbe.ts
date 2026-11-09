@@ -3,10 +3,10 @@ import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
 /**
  * Parser-observed constant-duration H.264 MP4 track, clock and picture facts; delivery-profile acceptance is separate.
  *
- * @evidence contracts/common.md#principled-implementation probeVideoTrack verifies resident samples and reads coded raster, track display and matrix, aspect, edit lists, sample boundaries and color boxes; media timescale divided by constant sample duration yields the reduced rational frame rate.
- * @evidence contracts/common.md#clear-and-simple-design Convenient compatibility scalars accompany raw parsed clock and picture groups so final delivery can compare exact sample and presentation facts without reparsing the track.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Container facts are observed rather than taken from manifest claims; absent or non-sRGB color remains unresolved, and unsupported delivery transforms or clocks are rejected by the separate profile gate rather than silently normalized.
- * @evidence contracts/common.md#meaningful-documentation Defines parsed track facts, pixel and fixed-point units, rational rate, movie/media clock domains, decode/composition timestamps and observed versus resolved color identity.
+ * @evidence contracts/development/design.md#principled-representation probeVideoTrack verifies resident samples and reads coded raster, track display and matrix, aspect, edit lists, sample boundaries and color boxes; media timescale divided by constant sample duration yields the reduced rational frame rate.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Convenient compatibility scalars accompany raw parsed clock and picture groups so final delivery can compare exact sample and presentation facts without reparsing the track.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Container facts are observed rather than taken from manifest claims; absent or non-sRGB color remains unresolved, and unsupported delivery transforms or clocks are rejected by the separate profile gate rather than silently normalized.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines parsed track facts, pixel and fixed-point units, rational rate, movie/media clock domains, decode/composition timestamps and observed versus resolved color identity.
  */
 export interface IAutoMovieProductionVideoProbe {
   /** Parsed media class. */

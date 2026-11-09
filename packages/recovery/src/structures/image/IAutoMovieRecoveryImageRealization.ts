@@ -5,13 +5,10 @@ import type { IAutoMovieRecoveryConstructionLine } from "../curve/IAutoMovieReco
 /**
  * Source-free model, coefficient-derived construction and circular-to-cubic approximation bound.
  *
- * @evidence contracts/common.md#principled-implementation The model and construction derive from the same saved section coefficients and carry the circular-to-cubic approximation bound.
- * @evidence contracts/common.md#clear-and-simple-design Source-free surface data, generating lines and the arc approximation bound travel together.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The arc bound does not include image fit, downstream tessellation error or unobserved surfaces.
- * @evidence contracts/common.md#meaningful-documentation States model and construction units, shared coefficient authority and the metre arc bound.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased interface performs no computation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work It owns no runtime cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Data remain caller-owned.
+ * @evidence contracts/development/design.md#principled-representation The model and construction derive from the same saved section coefficients and carry the circular-to-cubic approximation bound.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Source-free surface data, generating lines and the arc approximation bound travel together.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The arc bound does not include image fit, downstream tessellation error or unobserved surfaces.
+ * @evidence contracts/development/common.md#meaningful-documentation States model and construction units, shared coefficient authority and the metre arc bound.
  */
 export interface IAutoMovieRecoveryImageRealization {
   /** Source-free generated model, in model metres. */

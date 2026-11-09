@@ -58,10 +58,11 @@ const localOf: (
  *    basis; omitting the table reproduces the default for the same arm and hip
  *    joints.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises default and humanoid axis mapping directly and through FK, checking arm and hip overrides, omitted knee/spine entries and the negative about-Y twin; a global override or swapped semantic axis fails.
- * @evidence contracts/testing.md#independent-expectations Authored unit Cartesian axes fix expected directions, and a local independent half-angle formula supplies 40/45-degree quaternions without calling product quaternion construction. The table's names are a conventional engine rig mapping, not independently measured anatomy.
- * @evidence contracts/testing.md#distinguishing-cases Keeps default X/Z/Y, explicit arm override, wrong-axis discrimination, arm and hip table entries, omitted knee/spine and FK with/without the table; composition order and malformed custom axes are separate entries.
- * @evidence contracts/testing.md#execution-ownership This exported runner entry owns its local unit-axis formula and code skeleton, directly calling actual joint/FK source without viewer, GPU or installed character assets.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises default and humanoid axis mapping directly and through FK, checking arm and hip overrides, omitted knee/spine entries and the negative about-Y twin; a global override or swapped semantic axis fails.
+ * @evidence contracts/development/testing.md#independent-expectations Authored unit Cartesian axes fix expected directions, and a local independent half-angle formula supplies 40/45-degree quaternions without calling product quaternion construction. The table's names are a conventional engine rig mapping, not independently measured anatomy.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps default X/Z/Y, explicit arm override, wrong-axis discrimination, arm and hip table entries, omitted knee/spine and FK with/without the table; composition order and malformed custom axes are separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership This exported runner entry owns its local unit-axis formula and code skeleton, directly calling actual joint/FK source without viewer, GPU or installed character assets.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The default basis is X/Z/Y; `jointToQuaternion` with no axes equals a pure).
  */
 export function test_kinematics_joint_axes_remap(): void {
   // 1. default basis

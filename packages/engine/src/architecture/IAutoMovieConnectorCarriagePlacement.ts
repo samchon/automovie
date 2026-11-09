@@ -10,13 +10,10 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
  * operation lacks the named state contributes none and stands at its rest
  * transform.
  *
- * @evidence contracts/common.md#principled-implementation Composes the carriage element's world affine matrix with state displacements, then decomposes translation, normalized rotation and scale. Finite representable world TRS is the premise, checked numerically by staged validation; this shape cannot preserve arbitrary affine shear.
- * @evidence contracts/common.md#clear-and-simple-design Pairs the pose with the carriage id, element, staged node id and served space, so a shot places the car and names its floor from one record; it parallels the opening panel placement and adds only `serves`, which a panel has no counterpart for.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A member without the named state, or without an entry in it, stands at rest rather than being interpolated or guessed, and `serves` is null for a counterweight or a missing entry rather than a defaulted space.
- * @evidence contracts/common.md#meaningful-documentation States the producer and order, the default state, how the pose composes displacements down the hierarchy, the rest fallback, the node id format, the world units of the pose, and both meanings of a null `serves`.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; composing every element's world matrix once per call and decomposing one per carriage is answered on `builtConnectorCarriagePlacements`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The producer builds one matrix table per call and shares it across that run's carriages; no placement is cached between states or calls.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds fresh vectors and strings only, owned by the caller's placement list; the producer's matrix table is dropped when it returns.
+ * @evidence contracts/development/design.md#principled-representation Composes the carriage element's world affine matrix with state displacements, then decomposes translation, normalized rotation and scale. Finite representable world TRS is the premise, checked numerically by staged validation; this shape cannot preserve arbitrary affine shear.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Pairs the pose with the carriage id, element, staged node id and served space, so a shot places the car and names its floor from one record; it parallels the opening panel placement and adds only `serves`, which a panel has no counterpart for.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A member without the named state, or without an entry in it, stands at rest rather than being interpolated or guessed, and `serves` is null for a counterweight or a missing entry rather than a defaulted space.
+ * @evidence contracts/development/common.md#meaningful-documentation States the producer and order, the default state, how the pose composes displacements down the hierarchy, the rest fallback, the node id format, the world units of the pose, and both meanings of a null `serves`.
  */
 export interface IAutoMovieConnectorCarriagePlacement {
   /** Carriage id inside its connector. */

@@ -46,13 +46,13 @@ type StreamSummary = tessellateAutoMovieLocalHermite64.Summary;
  * Quadratic mode C1 requires same-chart C1 input courses;
  * crease/G1 input does not acquire parametric C1 from station interpolation.
  *
- * @evidence contracts/common.md#principled-implementation Exact local Hermite tensors, Bernstein derivative bounds, adaptive binary restrictions and shared parameter-boundary triangulation preserve supplied curves and shared boundaries before binary64 rounding. Matching extruded polygons use fiber edges rather than an additional curved center.
- * @evidence contracts/common.md#clear-and-simple-design Two-interval lookahead owns station edge samples; local line registries insert hanging corners without propagating a global phase partition.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source mesh, coordinate weld, omitted source knot, hidden limiter, arbitrary run split or fallback normal supplies the result.
- * @evidence contracts/common.md#meaningful-documentation States units, append-only indexing, approximation bound, derivative authority, failure effects and separate geometric qualifications.
- * @evidence contracts/performance.md#efficient-algorithms Field admission is O(N+S); local interval construction uses at most four source partitions. For L retained cells, refinement is O(L), line sorting O(L log L), and each ordered cell perimeter triangulates in linear sample count before evaluations and logarithmic line queries, without S times global-knot storage.
- * @evidence contracts/performance.md#reuse-equivalent-work Adjacent interval plans share one station sample union and one position/normal/index owner. Local vertex identity, not coordinate equality, reuses internal boundary vertices.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The generator retains source admission, two bounded interval plans, current-interval vertices and two station edge maps, plus one vertex-bounded output chunk. Completed interval maps are released; yielded chunks belong to the consumer. Cancellation releases generator-owned state and no external handles exist.
+ * @evidence contracts/development/implementation.md#principled-implementation Exact local Hermite tensors, Bernstein derivative bounds, adaptive binary restrictions and shared parameter-boundary triangulation preserve supplied curves and shared boundaries before binary64 rounding. Matching extruded polygons use fiber edges rather than an additional curved center.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Two-interval lookahead owns station edge samples; local line registries insert hanging corners without propagating a global phase partition.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source mesh, coordinate weld, omitted source knot, hidden limiter, arbitrary run split or fallback normal supplies the result.
+ * @evidence contracts/development/common.md#meaningful-documentation States units, append-only indexing, approximation bound, derivative authority, failure effects and separate geometric qualifications.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Field admission is O(N+S); local interval construction uses at most four source partitions. For L retained cells, refinement is O(L), line sorting O(L log L), and each ordered cell perimeter triangulates in linear sample count before evaluations and logarithmic line queries, without S times global-knot storage.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Adjacent interval plans share one station sample union and one position/normal/index owner. Local vertex identity, not coordinate equality, reuses internal boundary vertices.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The generator retains source admission, two bounded interval plans, current-interval vertices and two station edge maps, plus one vertex-bounded output chunk. Completed interval maps are released; yielded chunks belong to the consumer. Cancellation releases generator-owned state and no external handles exist.
  */
 export function* tessellateAutoMovieLocalHermite64(
   input: StreamInput,
@@ -389,13 +389,10 @@ export function* tessellateAutoMovieLocalHermite64(
 /**
  * Streaming operator records; arrays in a yielded chunk transfer to its consumer.
  *
- * @evidence contracts/common.md#principled-implementation The types expose append-only global indexing and local approximation diagnostics.
- * @evidence contracts/common.md#clear-and-simple-design Function and records share one public name.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No type grants an embedding or original-source accuracy guarantee.
- * @evidence contracts/common.md#meaningful-documentation Records state units, ownership and indexing in the operator comment.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This namespace contains only types.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The types own no cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The types retain no runtime data.
+ * @evidence contracts/development/common.md#meaningful-documentation Records state units, ownership and indexing in the operator comment.
+ * @evidence contracts/development/design.md#principled-representation Represents Streaming operator records; arrays in a yielded chunk transfer to its consumer: companion namespace of 3 members (`Input`, `Chunk`, `Summary`); units and frames named in its text: local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `tessellateAutoMovieLocalHermite64` in packages/engine/src/geometry/curve/tessellateAutoMovieLocalHermite64.ts; its surface is the 3 members listed and the text shows 9 other files naming it, mostly packages/recovery (4), test (3), packages/engine (2), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace tessellateAutoMovieLocalHermite64 {
   /** Original immutable physical run contract, owned by the stream record declaration. */

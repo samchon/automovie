@@ -18,13 +18,13 @@ import { AutoMovieConstructionProfileSkin } from "../../../../../packages/engine
 /**
  * Exact original L-prism and cone function owners for actual profile realization.
  *
- * @evidence contracts/common.md#principled-implementation Straight L edges and elementary cone sin/cos equations provide independent original fields with explicit domains, clocks and derivatives.
- * @evidence contracts/common.md#clear-and-simple-design Synthetic function ownership stays separate from the test entry that observes actual Body/skin behavior.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No expected output, source fit or consumer special case is supplied; only the actual analytic cone tip returns unavailable physical2.
- * @evidence contracts/common.md#meaningful-documentation Defines mm physical source coordinates, metre pure domains, original clock intervals and real source neighborhoods.
- * @evidence contracts/performance.md#efficient-algorithms Fixture preparation is linear in declared piece count; each analytic point/jet query performs constant arithmetic.
- * @evidence contracts/performance.md#reuse-equivalent-work A cone source is shared by its exact original quarter intervals; L pieces retain their original endpoint owners.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Each call returns caller-owned pure metadata and curve closures; fixed corners are immutable borrowed numeric data and no mutable cache is global.
+ * @evidence contracts/development/implementation.md#principled-implementation Straight L edges and elementary cone sin/cos equations provide independent original fields with explicit domains, clocks and derivatives.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Synthetic function ownership stays separate from the test entry that observes actual Body/skin behavior.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No expected output, source fit or consumer special case is supplied; only the actual analytic cone tip returns unavailable physical2.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines mm physical source coordinates, metre pure domains, original clock intervals and real source neighborhoods.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Fixture preparation is linear in declared piece count; each analytic point/jet query performs constant arithmetic.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A cone source is shared by its exact original quarter intervals; L pieces retain their original endpoint owners.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each call returns caller-owned pure metadata and curve closures; fixed corners are immutable borrowed numeric data and no mutable cache is global.
  */
 export namespace ConstructionProfileRealization {
   /** The original concave L, with perimeter eight in its local millimetre plane. */

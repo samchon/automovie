@@ -108,10 +108,11 @@ const hedge: () => IAutoMovieInstanceSetDesign =
  * 5. A hand-edited set whose palette is empty refuses description with the
  *    regenerator's refusal, while its twin with a swatch is described.
  *
- * @evidence contracts/testing.md#behavioral-verification Describes every scattered/grid slot and checks discrete identity plus exact finite coordinate parity with the compiled regenerator; a neighboring transform, lost per-axis scale or divergent empty-palette admission fails.
- * @evidence contracts/testing.md#independent-expectations Slot comparisons intentionally test consumer parity with instanceSlot, so a defect shared by both paths can pass. The independent quarter-turn quaternion and distinct-neighbor assertions supplement that oracle; zero-tolerance predicates preserve the existing exact regenerated-value requirement.
- * @evidence contracts/testing.md#distinguishing-cases Keeps all 64 varied members and 12 uniform-scale members, prototype/model identity, heading, neighbor placement/scale discrimination and empty-palette refusal with a swatch twin; malformed addresses and other layouts belong to instances.
- * @evidence contracts/testing.md#execution-ownership This exported test is discovered by the runner and directly calls materialization, member generation and description source with in-memory design records; it renders no trees, launches no host and proves no GPU appearance.
+ * @evidence contracts/development/testing.md#behavioral-verification Describes every scattered/grid slot and checks discrete identity plus exact finite coordinate parity with the compiled regenerator; a neighboring transform, lost per-axis scale or divergent empty-palette admission fails.
+ * @evidence contracts/development/testing.md#independent-expectations Slot comparisons intentionally test consumer parity with instanceSlot, so a defect shared by both paths can pass. The independent quarter-turn quaternion and distinct-neighbor assertions supplement that oracle; zero-tolerance predicates preserve the existing exact regenerated-value requirement.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps all 64 varied members and 12 uniform-scale members, prototype/model identity, heading, neighbor placement/scale discrimination and empty-palette refusal with a swatch twin; malformed addresses and other layouts belong to instances.
+ * @evidence contracts/development/testing.md#execution-ownership This exported test is discovered by the runner and directly calls materialization, member generation and description source with in-memory design records; it renders no trees, launches no host and proves no GPU appearance.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every member of a scattered set with a prototype table, per-axis scale and).
  */
 export function test_inspection_subject_instance_regeneration(): void {
   const world: { routes: never[] } = { routes: [] };

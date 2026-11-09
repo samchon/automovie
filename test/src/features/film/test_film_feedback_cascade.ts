@@ -21,10 +21,11 @@ import { validationHasWarningCount } from "../internal/predicates";
  * 2. Locating it on beat-1 stamps b1, whose nearest-first ancestors are grp, scene1, act1 and root.
  * 3. The same warning remains unstamped when the tree is absent.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs detectSupportToppling, locateOnBeat and scriptAncestors in sequence and checks warning count/severity, beat identity and exact ancestry order, catching a lost or wrongly addressed physics warning.
- * @evidence contracts/testing.md#independent-expectations The center x=.5 lies beyond the support's x=.1 edge and .02 default allowance, independently requiring a warning; the authored tree's parent links determine the four ancestor ids. No agent correction or dynamic toppling is executed.
- * @evidence contracts/testing.md#distinguishing-cases Pairs located and treeless results for the same warning and pins its complete four-level chain. Support stability/margin boundaries and malformed screenplay graphs belong to their focused tests.
- * @evidence contracts/testing.md#execution-ownership This discoverable portable unit owns the three-function composition over in-memory support and the existing tree fixture; it launches no screenplay agent, physics host, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs detectSupportToppling, locateOnBeat and scriptAncestors in sequence and checks warning count/severity, beat identity and exact ancestry order, catching a lost or wrongly addressed physics warning.
+ * @evidence contracts/development/testing.md#independent-expectations The center x=.5 lies beyond the support's x=.1 edge and .02 default allowance, independently requiring a warning; the authored tree's parent links determine the four ancestor ids. No agent correction or dynamic toppling is executed.
+ * @evidence contracts/development/testing.md#distinguishing-cases Pairs located and treeless results for the same warning and pins its complete four-level chain. Support stability/margin boundaries and malformed screenplay graphs belong to their focused tests.
+ * @evidence contracts/development/testing.md#execution-ownership This discoverable portable unit owns the three-function composition over in-memory support and the existing tree fixture; it launches no screenplay agent, physics host, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A center outside a square support produces one physics warning.).
  */
 export function test_film_feedback_cascade(): void {
   const tree: IAutoMovieScriptNode[] = createScriptTree();

@@ -1,7 +1,7 @@
 import type { IAutoMovieRenderSpec } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { renderViewerVideoSession } from "../../../../packages/render/src/node/renderViewerVideoSession";
+import { renderViewerVideoSession } from "../../../../packages/template/scaffold/src/integrations/render/node/renderViewerVideoSession";
 
 /**
  * A transferred capture session closes once across success and every effect failure.
@@ -14,10 +14,11 @@ import { renderViewerVideoSession } from "../../../../packages/render/src/node/r
  * 5. Preparation runs once before frame zero; failure or cancellation captures nothing.
  * 6. Omitted preparation preserves the existing capture order; prior cancellation performs no work.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises the actual session coordinator through its supported preparation/capture/encode ports and checks full effect ordering, exact sample timestamps, release count and original failure identities. Failed or cancelled preparation prevents every capture and encode.
- * @evidence contracts/testing.md#independent-expectations A one-second 3-fps half-open clock gives literal times 0, 1/3 and 2/3; ownership requires exactly one close after successful or failed use and no encoding after capture cancellation.
- * @evidence contracts/testing.md#distinguishing-cases Covers optional preparation, preparation failure/cancellation, prior cancellation, success, capture failure, encode failure, progress cancellation and paired operation/close failure. Planning tests own numeric admission; actual browser and FFmpeg behavior require consumer validation.
- * @evidence contracts/testing.md#execution-ownership Uses in-memory implementations of the owned session and encoder ports; no process, browser, GPU, filesystem or global replacement runs.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises the actual session coordinator through its supported preparation/capture/encode ports and checks full effect ordering, exact sample timestamps, release count and original failure identities. Failed or cancelled preparation prevents every capture and encode.
+ * @evidence contracts/development/testing.md#independent-expectations A one-second 3-fps half-open clock gives literal times 0, 1/3 and 2/3; ownership requires exactly one close after successful or failed use and no encoding after capture cancellation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers optional preparation, preparation failure/cancellation, prior cancellation, success, capture failure, encode failure, progress cancellation and paired operation/close failure. Planning tests own numeric admission; actual browser and FFmpeg behavior require consumer validation.
+ * @evidence contracts/development/testing.md#execution-ownership Uses in-memory implementations of the owned session and encoder ports; no process, browser, GPU, filesystem or global replacement runs.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Three exact samples finish before one encode and one close.).
  */
 export async function test_viewer_video_session(): Promise<void> {
   const spec: IAutoMovieRenderSpec = {

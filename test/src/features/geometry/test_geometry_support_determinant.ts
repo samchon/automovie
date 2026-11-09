@@ -1,4 +1,4 @@
-import { determinantAutoMovieMatrix3 } from "@automovie/engine/math/determinantAutoMovieMatrix3";
+import { determinantAutoMovieMatrix3 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -11,10 +11,11 @@ import { nclose } from "../internal/nclose";
  * 2. Two binary increments hidden by ordinary cancellation retain determinant delta squared and its reversed sign.
  * 3. Overflowed or underflowed intermediate products retain a finite answer; unrepresentable nonzero output refuses.
  *
- * @evidence contracts/testing.md#behavioral-verification Evaluates the actual generic determinant producer and checks independently known magnitudes/signs, exact zero and thrown range/admission failures.
- * @evidence contracts/testing.md#independent-expectations Subtracting the first row from the next two rows leaves diagonal increments delta=2^-40, so the determinant is exactly delta squared. Permuting rows changes sign; a diagonal matrix has the product of its diagonal values.
- * @evidence contracts/testing.md#distinguishing-cases Covers well-separated/zero/cancellation signs, negative row permutation, overflowed and underflowed intermediate products with finite exact results, malformed sparse input and underflowed true magnitude. Geometry event tests own the actual consumer.
- * @evidence contracts/testing.md#execution-ownership This portable test_geometry_support_determinant entry exercises fixed-size CPU scalar/BigInt arithmetic only, without process, build, file, renderer or foreign replacement.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates the actual generic determinant producer and checks independently known magnitudes/signs, exact zero and thrown range/admission failures.
+ * @evidence contracts/development/testing.md#independent-expectations Subtracting the first row from the next two rows leaves diagonal increments delta=2^-40, so the determinant is exactly delta squared. Permuting rows changes sign; a diagonal matrix has the product of its diagonal values.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers well-separated/zero/cancellation signs, negative row permutation, overflowed and underflowed intermediate products with finite exact results, malformed sparse input and underflowed true magnitude. Geometry event tests own the actual consumer.
+ * @evidence contracts/development/testing.md#execution-ownership This portable test_geometry_support_determinant entry exercises fixed-size CPU scalar/BigInt arithmetic only, without process, build, file, renderer or foreign replacement.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Ordinary orientation and a dependent matrix retain their signs/zero.).
  */
 export function test_geometry_support_determinant(): void {
   const delta: number = 2 ** -40;

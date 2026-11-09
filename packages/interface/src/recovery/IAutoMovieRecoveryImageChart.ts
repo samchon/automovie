@@ -4,10 +4,10 @@ import type { IAutoMovieRecoveryImageCamera } from "./IAutoMovieRecoveryImageCam
  * Byte provenance and supplied pixel chart shared by captures and observations.
  * The record describes current pixels; it does not authorize an unstated crop or transform.
  *
- * @evidence contracts/common.md#principled-implementation Stable byte identity, current dimensions and a supplied metric camera preserve the same pixel chart when RGB data becomes support observations.
- * @evidence contracts/common.md#clear-and-simple-design One shared interface owns common view metadata while capture bytes and measured rows remain distinct extensions.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Provenance is explicit rather than guessed from a filename, inferred camera or specimen identity.
- * @evidence contracts/common.md#meaningful-documentation States unique view identity, SHA-256 responsibility, external pixel-transform history and positive integer dimensions.
+ * @evidence contracts/development/design.md#principled-representation Stable byte identity, current dimensions and a supplied metric camera preserve the same pixel chart when RGB data becomes support observations.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One shared interface owns common view metadata while capture bytes and measured rows remain distinct extensions.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Provenance is explicit rather than guessed from a filename, inferred camera or specimen identity.
+ * @evidence contracts/development/common.md#meaningful-documentation States unique view identity, SHA-256 responsibility, external pixel-transform history and positive integer dimensions.
  */
 export interface IAutoMovieRecoveryImageChart {
   /** Capture/camera identity, unique within its containing view population. */

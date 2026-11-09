@@ -1,5 +1,7 @@
 # Sound effects
 
+Use this only when the user asks for effects with a requested voice preview under [audio](SKILL.md).
+
 Define each cue by its event, source material, action, intensity, distance and acoustic space. Choose a recording, self-recorded Foley or purpose-built generator that can express those qualities. Keep close effects separate from ambience and speech so their timing and perspective remain editable.
 
 ## Acquire a sound

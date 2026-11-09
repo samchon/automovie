@@ -158,10 +158,11 @@ const ringLimit: (
  * 4. A closed cube, whose valence-3 corners are smooth, keeps the ring formula
  *    and, by symmetry, has each corner normal along its diagonal.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs `subdivideAutoMovieSurface` and asserts `limitPositions`, the face-varying `normals` and `parameters`; a wrong limit weight, a non-eigenvector tangent mask, a wrong parameter, or a flipped normal fails.
- * @evidence contracts/testing.md#independent-expectations Regular expectations are the uniform bicubic B-spline basis evaluated in the test; extraordinary expectations are the published limit mask applied to the output ring, invariance of the limit point under refinement, and rotational symmetry; tolerances are rounding-level.
- * @evidence contracts/testing.md#distinguishing-cases Covers regular faces, valences 3, 5 and 6 open and closed, symmetric and asymmetric rings, and several levels; refinement rules, boundaries, creases, UVs and refusals are owned by the other `test_geometry_subdivision_*` tests.
- * @evidence contracts/testing.md#execution-ownership A discoverable unit entry calling the portable engine function on synthetic cages; no consumer, native build, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `subdivideAutoMovieSurface` and asserts `limitPositions`, the face-varying `normals` and `parameters`; a wrong limit weight, a non-eigenvector tangent mask, a wrong parameter, or a flipped normal fails.
+ * @evidence contracts/development/testing.md#independent-expectations Regular expectations are the uniform bicubic B-spline basis evaluated in the test; extraordinary expectations are the published limit mask applied to the output ring, invariance of the limit point under refinement, and rotational symmetry; tolerances are rounding-level.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers regular faces, valences 3, 5 and 6 open and closed, symmetric and asymmetric rings, and several levels; refinement rules, boundaries, creases, UVs and refusals are owned by the other `test_geometry_subdivision_*` tests.
+ * @evidence contracts/development/testing.md#execution-ownership A discoverable unit entry calling the portable engine function on synthetic cages; no consumer, native build, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: On a non-planar 5 x 5 grid, every limit position on a face whose corners).
  */
 export function test_geometry_subdivision_limit(): void {
   const columns: number = 5;

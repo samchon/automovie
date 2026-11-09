@@ -7,10 +7,10 @@ import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
  *
  * Engine admission: `hostFace` a view part of the host's subtree and `partFace` one of the part's; the `band` name unique in the tree; `count` a multiple of 4 of at least 8; `rows` a positive integer; `rail` positive; the loop's centre finite, both semi-axes positive and the phase semi-axis under pi.
  *
- * @evidence contracts/common.md#principled-implementation A known port lies on a published landmark loop of the parent, which owns that loop (construction.md, Connections), and the band is the shared strip between each side's 2-jet across its rail, so the part meets the parent G2 without a traced intersection.
- * @evidence contracts/common.md#clear-and-simple-design One host face, one closed chart ellipse, one part with its rail and band, and the strip's sampling inputs.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Declares geometry only; the ellipse is the parent's published port, not fitted here, and a refusal leaves no partial cut.
- * @evidence contracts/common.md#meaningful-documentation States the curve, the band's sides and continuity, the units, the failure effect and the admission rules.
+ * @evidence contracts/development/design.md#principled-representation A known port lies on a published landmark loop of the parent, which owns that loop (construction.md, Connections), and the band is the shared strip between each side's 2-jet across its rail, so the part meets the parent G2 without a traced intersection.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One host face, one closed chart ellipse, one part with its rail and band, and the strip's sampling inputs.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Declares geometry only; the ellipse is the parent's published port, not fitted here, and a refusal leaves no partial cut.
+ * @evidence contracts/development/common.md#meaningful-documentation States the curve, the band's sides and continuity, the units, the failure effect and the admission rules.
  */
 export interface IAutoMovieConstructionPort {
   /** Discriminator. */
@@ -54,10 +54,10 @@ export namespace IAutoMovieConstructionPort {
   /**
    * A port curve: an ellipse on the host face's chart about a centre, run from its station-ward end at clock 0.
    *
-   * @evidence contracts/common.md#principled-implementation An ellipse in the chart is exact in clock and carries an exact chart map for the band, as the parent's published port (AutoMovieHumanTrunkPorts) is defined.
-   * @evidence contracts/common.md#clear-and-simple-design A centre, two semi-axes and a sense.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Values only.
-   * @evidence contracts/common.md#meaningful-documentation States each field's unit and the clock's direction.
+   * @evidence contracts/development/design.md#principled-representation An ellipse in the chart is exact in clock and carries an exact chart map for the band, as the parent's published port (AutoMovieHumanTrunkPorts) is defined.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A centre, two semi-axes and a sense.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only.
+   * @evidence contracts/development/common.md#meaningful-documentation States each field's unit and the clock's direction.
    */
   export interface ILoop {
     /** The centre `[station, phase]`, metres and radians. */

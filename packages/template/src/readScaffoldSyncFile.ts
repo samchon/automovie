@@ -11,13 +11,13 @@ import { missingPath } from "./missingPath";
 /**
  * Reads an ordinary single-link sync input and captures its unchanged generation.
  *
- * @evidence contracts/common.md#principled-implementation Captured ordinary root and inner directories are revalidated around strict UTF-8 reading, and file identity/written generation must survive the read.
- * @evidence contracts/common.md#clear-and-simple-design This shared input boundary handles current instructions, state and a declared prior baseline.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Linked directories/files and multi-link files refuse; only genuinely missing levels return undefined, and concurrent changes propagate.
- * @evidence contracts/common.md#meaningful-documentation The return record separates text from its later write precondition; directory and file refusals remain explicit.
- * @evidence contracts/performance.md#efficient-algorithms Parent captures scale with path depth and reading with file bytes; no directory tree is recursively enumerated.
- * @evidence contracts/performance.md#reuse-equivalent-work The root and parent captures serve the before/after ownership checks within this read; other files receive fresh observations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Synchronous reads close their descriptor; temporary directory captures hold scalar identities only and returned text/snapshot belong to the caller.
+ * @evidence contracts/development/implementation.md#principled-implementation Captured ordinary root and inner directories are revalidated around strict UTF-8 reading, and file identity/written generation must survive the read.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This shared input boundary handles current instructions, state and a declared prior baseline.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Linked directories/files and multi-link files refuse; only genuinely missing levels return undefined, and concurrent changes propagate.
+ * @evidence contracts/development/common.md#meaningful-documentation The return record separates text from its later write precondition; directory and file refusals remain explicit.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Parent captures scale with path depth and reading with file bytes; no directory tree is recursively enumerated.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The root and parent captures serve the before/after ownership checks within this read; other files receive fresh observations.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Synchronous reads close their descriptor; temporary directory captures hold scalar identities only and returned text/snapshot belong to the caller.
  */
 export function readScaffoldSyncFile(
   location: string,

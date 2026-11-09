@@ -5,13 +5,10 @@ import type { IAutoMovieRecoverySqpReport } from "./IAutoMovieRecoverySqpReport"
 /**
  * Last feasible state and explicit normal or incomplete termination.
  *
- * @evidence contracts/common.md#principled-implementation Only a positive-objective-multiplier original-coordinate KKT certificate terminates normally; feasible rejected or budget-limited states remain nonconverged.
- * @evidence contracts/common.md#clear-and-simple-design One report separates actual nonlinear trials, model work and accepted steps from retained state.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Returning initial or last feasible state is not a fallback success, and no cost/step-small heuristic substitutes for constrained stationarity.
- * @evidence contracts/common.md#meaningful-documentation Defines termination, original-unit residuals and accepted/rejected trial counts.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This report performs no fitting work.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work It defines no cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources State and scalars transfer to caller without rejected-state history or external handles.
+ * @evidence contracts/development/design.md#principled-representation Only a positive-objective-multiplier original-coordinate KKT certificate terminates normally; feasible rejected or budget-limited states remain nonconverged.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One report separates actual nonlinear trials, model work and accepted steps from retained state.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Returning initial or last feasible state is not a fallback success, and no cost/step-small heuristic substitutes for constrained stationarity.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines termination, original-unit residuals and accepted/rejected trial counts.
  */
 export interface IAutoMovieRecoveryFeasibleFit<State> {
   /** Last accepted feasible state, unchanged when no trial was accepted. */

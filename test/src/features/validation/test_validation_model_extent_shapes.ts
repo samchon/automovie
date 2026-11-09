@@ -31,10 +31,11 @@ const part: (
  * Scenarios:
  * 1. A zero-radius sphere, zero-width plane, zero-height cylinder, zero-radius cone and zero-height capsule each report their own dimension fault.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual model validation on all five existing bad parts and requires each exact dimension path in addition to the original grouped suffix checks, catching a missing shape branch masked by another part with the same field name.
- * @evidence contracts/testing.md#independent-expectations Every supplied zero violates the shape's strictly-positive dimension policy; the literal part indices and dimension names independently identify each expected range finding without tessellating expected geometry.
- * @evidence contracts/testing.md#distinguishing-cases Retains sphere/plane/cylinder/cone/capsule refusals together and resolves their formerly ambiguous grouped findings; box, positive model and nonfinite scalar cases have separate entries. No new shape or numerical case is added.
- * @evidence contracts/testing.md#execution-ownership The named portable unit owns the existing five primitive records through its local part helper and calls engine admission without a geometry builder, renderer or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual model validation on all five existing bad parts and requires each exact dimension path in addition to the original grouped suffix checks, catching a missing shape branch masked by another part with the same field name.
+ * @evidence contracts/development/testing.md#independent-expectations Every supplied zero violates the shape's strictly-positive dimension policy; the literal part indices and dimension names independently identify each expected range finding without tessellating expected geometry.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains sphere/plane/cylinder/cone/capsule refusals together and resolves their formerly ambiguous grouped findings; box, positive model and nonfinite scalar cases have separate entries. No new shape or numerical case is added.
+ * @evidence contracts/development/testing.md#execution-ownership The named portable unit owns the existing five primitive records through its local part helper and calls engine admission without a geometry builder, renderer or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A zero-radius sphere, zero-width plane, zero-height cylinder, zero-radius cone and zero-height capsule each report their own dimension...).
  */
 export function test_validation_model_extent_shapes(): void {
   const model: IAutoMovieModel = {

@@ -17,13 +17,13 @@ import { mixSeed } from "./math/mixSeed";
  * the cue is half-open. Far LOD retains indexes divisible by four, and the
  * output caps live particles rather than all candidate allocations.
  *
- * @evidence contracts/common.md#principled-implementation Absolute-step spawn times and the preserved seed/index/domain stream determine ballistic drift, lifetime and sinusoidal opacity independently of evaluation order; admitted positive step and recipe ranges are required.
- * @evidence contracts/common.md#clear-and-simple-design Viewer instanced effects and shot runtime sampling share one compiled v1 sampler while recipe compilation owns validation and source-derived budgets.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Fixed-step quotient allowance and index-quarter thinning are stated clock and LOD conventions, not fixture-specific recovery; invalid direct inputs are not silently admitted here.
- * @evidence contracts/common.md#meaningful-documentation Documents scheduling independence, half-open cue time, admitted-input premise, quotient allowance, LOD thinning and the distinction between candidate storage and output budget.
- * @evidence contracts/performance.md#efficient-algorithms Ordinary work and candidate indexes use the maximum-lifetime window; retained stains scan the complete recipe-bounded emission history. Returned records stop at maxParticles, independently of candidate storage.
- * @evidence contracts/performance.md#reuse-equivalent-work Each particle identity reuses stable random domains but each time sample recomputes its live population; no mutable recipe equivalence is assumed across frames.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Candidate and thinned index arrays are call-local; output owns its particle positions and bounded live records, and no GPU object or recipe reference is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Absolute-step spawn times and the preserved seed/index/domain stream determine ballistic drift, lifetime and sinusoidal opacity independently of evaluation order; admitted positive step and recipe ranges are required.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Viewer instanced effects and shot runtime sampling share one compiled v1 sampler while recipe compilation owns validation and source-derived budgets.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Fixed-step quotient allowance and index-quarter thinning are stated clock and LOD conventions, not fixture-specific recovery; invalid direct inputs are not silently admitted here.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents scheduling independence, half-open cue time, admitted-input premise, quotient allowance, LOD thinning and the distinction between candidate storage and output budget.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Ordinary work and candidate indexes use the maximum-lifetime window; retained stains scan the complete recipe-bounded emission history. Returned records stop at maxParticles, independently of candidate storage.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each particle identity reuses stable random domains but each time sample recomputes its live population; no mutable recipe equivalence is assumed across frames.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate and thinned index arrays are call-local; output owns its particle positions and bounded live records, and no GPU object or recipe reference is retained.
  */
 export const sampleCompiledEffect: (
   effect: IAutoMovieCompiledEffect,

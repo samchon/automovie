@@ -23,10 +23,11 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Difference overflow and an outward enclosure beyond finite range refuse.
  * 4. Invalid resident topology/coordinates and invalid query budgets refuse.
  *
- * @evidence contracts/testing.md#behavioral-verification Executes convex/projection bounds and resident mesh separation queries, asserting named refusals so malformed geometry or unrepresentable outward bounds cannot become a certificate.
- * @evidence contracts/testing.md#independent-expectations A point one metre above a triangle admits a half-metre threshold; IEEE binary64 range endpoints define overflow, while contract ranges define invalid budgets and clearances. Named refusals establish admission boundaries, not a general geometric separation or rendered validity proof; the adjacent supported fixture supplies only one positive certificate.
- * @evidence contracts/testing.md#distinguishing-cases Includes valid positive separation beside empty/nonfinite/sparse topology, invalid budgets, missing contexts and Float32 overflow; geometric distance/witness tests own general shapes.
- * @evidence contracts/testing.md#execution-ownership The exported geometry entry reaches portable numerical and typed mesh-query source with no native artifact, consumer installation or real host.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes convex/projection bounds and resident mesh separation queries, asserting named refusals so malformed geometry or unrepresentable outward bounds cannot become a certificate.
+ * @evidence contracts/development/testing.md#independent-expectations A point one metre above a triangle admits a half-metre threshold; IEEE binary64 range endpoints define overflow, while contract ranges define invalid budgets and clearances. Named refusals establish admission boundaries, not a general geometric separation or rendered validity proof; the adjacent supported fixture supplies only one positive certificate.
+ * @evidence contracts/development/testing.md#distinguishing-cases Includes valid positive separation beside empty/nonfinite/sparse topology, invalid budgets, missing contexts and Float32 overflow; geometric distance/witness tests own general shapes.
+ * @evidence contracts/development/testing.md#execution-ownership The exported geometry entry reaches portable numerical and typed mesh-query source with no native artifact, consumer installation or real host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Adjacent finite ordinary coordinates and positive targets are supported.).
  */
 export function test_geometry_separation_refusals(): void {
   const p: (x: number, y?: number, z?: number) => IAutoMovieVector3 = (

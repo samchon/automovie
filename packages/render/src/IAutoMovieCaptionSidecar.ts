@@ -5,13 +5,10 @@ import type { IAutoMovieCaptionEntry } from "./IAutoMovieCaptionEntry";
  *
  * `planCaptionSidecar` produces it for the whole render, `sliceCaptionSidecar` re-bases it to one chunk, and `renderCaptionSidecar` serializes it.
  *
- * @evidence contracts/common.md#principled-implementation Spans are addressed in output frames at the render's `fps`, the same integer clock the captured frame files use, so a consumer maps a span to files by index without time arithmetic.
- * @evidence contracts/common.md#clear-and-simple-design Four fields carry only what a consumer needs to place spans against frame files; the cut, shots and script stay with the planner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The `frameCount` is stated explicitly so a slice can refuse a window beyond coverage instead of inferring coverage from the last span.
- * @evidence contracts/common.md#meaningful-documentation The prose names the producer, slicer and serializer; members state the frame clock, how `frameCount` is computed, and the tiling guarantee of `entries`.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The sidecar type is data with no code; the cost of producing and slicing it is answered on its producer and slicer.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type coordinates no work across phases; consumers receive the value the planner returned.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased sidecar type allocates no spans; planCaptionSidecar returns at most one span per scheduled output frame, and sliceCaptionSidecar creates the overlapping subset for its caller. Frame count and caption text have no cap in this schema.
+ * @evidence contracts/development/design.md#principled-representation Spans are addressed in output frames at the render's `fps`, the same integer clock the captured frame files use, so a consumer maps a span to files by index without time arithmetic.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Four fields carry only what a consumer needs to place spans against frame files; the cut, shots and script stay with the planner.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The `frameCount` is stated explicitly so a slice can refuse a window beyond coverage instead of inferring coverage from the last span.
+ * @evidence contracts/development/common.md#meaningful-documentation The prose names the producer, slicer and serializer; members state the frame clock, how `frameCount` is computed, and the tiling guarantee of `entries`.
  */
 export interface IAutoMovieCaptionSidecar {
   /** Id of the sequence this sidecar captions. */

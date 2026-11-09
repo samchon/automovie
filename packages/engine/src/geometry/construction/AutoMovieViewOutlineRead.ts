@@ -6,25 +6,22 @@ import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 /**
  * Value and qualified scalar jets of an already admitted original outline.
  *
- * @evidence contracts/common.md#principled-implementation Reads the original natural/requested quintic polynomial under its declared parameter and exact pole rule; physical derivatives use the existing chain rule.
- * @evidence contracts/common.md#clear-and-simple-design ViewOutline retains admission and its public API; this reader owns value/jet work and the common parameter-value helper.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No new source, value clamp, implicit physical derivative, exception conversion or source cache is added.
- * @evidence contracts/common.md#meaningful-documentation Each capability states units, pole/extension status and finite-output requirements.
- * @evidence contracts/performance.md#efficient-algorithms Scalar and combined-natural queries use O(log N) lookup; requested quintic value and derivatives share one selected O(log N) span.
- * @evidence contracts/performance.md#reuse-equivalent-work Prepared source coefficients are reused; ordinary natural value/parameter jets share one selected interval.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only fresh fixed-size readings escape; no source or query is retained.
+ * @evidence contracts/development/common.md#meaningful-documentation Each capability states units, pole/extension status and finite-output requirements.
+ * @evidence contracts/development/design.md#principled-representation Represents Value and qualified scalar jets of an already admitted original outline: companion namespace of 3 members (`value`, `at`, `valueAt`); units and frames named in its text: second. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieViewOutlineRead` in packages/engine/src/geometry/construction/AutoMovieViewOutlineRead.ts; its surface is the 3 members listed and the text shows 1 other file naming it, mostly packages/engine (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieViewOutlineRead {
   /**
    * Scalar value without derivative work or a qualified-reading allocation.
    *
-   * @evidence contracts/common.md#principled-implementation The same original parameter map, exact input pole zero and natural/quintic value owner serve the public Outline.value API.
-   * @evidence contracts/common.md#clear-and-simple-design One private value helper is shared with qualified reading without a second source preparation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Outside-parameter and nonfinite-value failures preserve their original text; input getter exceptions propagate unchanged.
-   * @evidence contracts/common.md#meaningful-documentation Station uses source length units and the scalar keeps its authored value units; open ends retain parameter-tangent extension.
-   * @evidence contracts/performance.md#efficient-algorithms One O(log N) value lookup and constant parameter conversion; exact poles read their zero input directly.
-   * @evidence contracts/performance.md#reuse-equivalent-work Uses the admitted source and shared parameter-value helper, retaining no previous station.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a scalar or failure string without retaining inputs.
+   * @evidence contracts/development/implementation.md#principled-implementation The same original parameter map, exact input pole zero and natural/quintic value owner serve the public Outline.value API.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private value helper is shared with qualified reading without a second source preparation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Outside-parameter and nonfinite-value failures preserve their original text; input getter exceptions propagate unchanged.
+   * @evidence contracts/development/common.md#meaningful-documentation Station uses source length units and the scalar keeps its authored value units; open ends retain parameter-tangent extension.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(log N) value lookup and constant parameter conversion; exact poles read their zero input directly.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the admitted source and shared parameter-value helper, retaining no previous station.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar or failure string without retaining inputs.
    */
   export function value(
     outline: AutoMovieViewOutline.IOutline,
@@ -42,13 +39,13 @@ export namespace AutoMovieViewOutlineRead {
   /**
    * Original value, parameter jets and explicitly available physical station jets.
    *
-   * @evidence contracts/common.md#principled-implementation Analytic scalar derivatives and first/second parameter chain rules produce the same qualified source reading; exact pole station jets remain absent.
-   * @evidence contracts/common.md#clear-and-simple-design Natural non-pole value/derivatives share one lookup, while a pole retains its existing specialized rule.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A finite near-pole value survives unavailable/nonfinite station2; missing derivatives are not filled and getter exceptions are not intercepted.
-   * @evidence contracts/common.md#meaningful-documentation Retains parameter versus station derivative units, pole/parameter-endpoint/extension locations and explicit availability statuses.
-   * @evidence contracts/performance.md#efficient-algorithms One combined natural or requested-quintic O(log N) lookup precede fixed chain-rule and finite checks; exact poles read only parameter derivatives.
-   * @evidence contracts/performance.md#reuse-equivalent-work Shares the prepared polynomial and selected original interval, with no mutable cursor or cached output.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned fixed-size record/tuples are fresh and caller-owned; nothing persists between calls.
+   * @evidence contracts/development/implementation.md#principled-implementation Analytic scalar derivatives and first/second parameter chain rules produce the same qualified source reading; exact pole station jets remain absent.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Natural non-pole value/derivatives share one lookup, while a pole retains its existing specialized rule.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A finite near-pole value survives unavailable/nonfinite station2; missing derivatives are not filled and getter exceptions are not intercepted.
+   * @evidence contracts/development/common.md#meaningful-documentation Retains parameter versus station derivative units, pole/parameter-endpoint/extension locations and explicit availability statuses.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One combined natural or requested-quintic O(log N) lookup precede fixed chain-rule and finite checks; exact poles read only parameter derivatives.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the prepared polynomial and selected original interval, with no mutable cursor or cached output.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned fixed-size record/tuples are fresh and caller-owned; nothing persists between calls.
    */
   export function at(
     outline: AutoMovieViewOutline.IOutline,

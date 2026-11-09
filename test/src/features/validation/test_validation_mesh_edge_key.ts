@@ -1,4 +1,4 @@
-import { createMeshEdgeKey } from "@automovie/engine/math/createMeshEdgeKey";
+import { createMeshEdgeKey } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
@@ -18,10 +18,11 @@ import { throwsError } from "../internal/predicates";
  *    MAX_SAFE_INTEGER prepares exact directed keys while its next count,
  *    negative, fractional and nonfinite counts refuse preparation.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the maintained directed-edge key factory and checks exact numeric or delimited output, pair uniqueness, deterministic repeated queries and population refusals, catching binary64 key collisions without excluding valid large populations.
- * @evidence contracts/testing.md#independent-expectations BigInt base-seven and boundary arithmetic independently supplies exact integer expectations and exhibits two distinct pairs whose Number conversion collides. Literal delimited endpoints specify fallback identity; exact equality is appropriate for discrete keys rather than approximate geometry.
- * @evidence contracts/testing.md#distinguishing-cases Enumerates every ordered pair including self and reverse pairs in seven identities, then contrasts safe-square and next-population representations, zero/one/maximum counts and negative/fractional/nonfinite/unsafe counts. Welding tolerance and topology incidence have separate mesh tests.
- * @evidence contracts/testing.md#execution-ownership The named synchronous entry directly imports the real scalar key factory and owns all loops and closures, acquiring no mesh asset, native solver, renderer or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the maintained directed-edge key factory and checks exact numeric or delimited output, pair uniqueness, deterministic repeated queries and population refusals, catching binary64 key collisions without excluding valid large populations.
+ * @evidence contracts/development/testing.md#independent-expectations BigInt base-seven and boundary arithmetic independently supplies exact integer expectations and exhibits two distinct pairs whose Number conversion collides. Literal delimited endpoints specify fallback identity; exact equality is appropriate for discrete keys rather than approximate geometry.
+ * @evidence contracts/development/testing.md#distinguishing-cases Enumerates every ordered pair including self and reverse pairs in seven identities, then contrasts safe-square and next-population representations, zero/one/maximum counts and negative/fractional/nonfinite/unsafe counts. Welding tolerance and topology incidence have separate mesh tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous entry directly imports the real scalar key factory and owns all loops and closures, acquiring no mesh asset, native solver, renderer or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: All ordered pairs of seven identities, including self and reversed pairs,).
  */
 export function test_validation_mesh_edge_key(): void {
   const key: ReturnType<typeof createMeshEdgeKey> = createMeshEdgeKey(7);

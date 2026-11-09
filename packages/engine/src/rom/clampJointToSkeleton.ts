@@ -11,13 +11,13 @@ import { getConstraint } from "./getConstraint";
 /**
  * Clamp one joint using its skeleton override, otherwise the humanoid default table. Unconstrained joints return by identity. This targeted seam lets derived contact/retarget corrections leave authored neighboring joints alone.
  *
- * @evidence contracts/common.md#principled-implementation Find the skeleton bone and prefer a nonnull override over the humanoid table, returning the original unconstrained joint or a new clamped record.
- * @evidence contracts/common.md#clear-and-simple-design A one-joint seam permits selective retarget/contact correction without changing authored neighbors.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing bones retain named-default fallback; this does not establish skeleton membership, identity or physical convergence.
- * @evidence contracts/common.md#meaningful-documentation Docs state precedence, borrowed unconstrained result and targeted use, with numerical clamp limitations delegated.
- * @evidence contracts/performance.md#efficient-algorithms B-bone linear lookup plus fixed projection needs O(B) work and at most one result record.
- * @evidence contracts/performance.md#reuse-equivalent-work All consumers share getConstraint precedence; repeated standalone bone lookup remains uncached over mutable skeleton contents.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns new joints and borrows unchanged joints/constraints, with no retained index, handle or task.
+ * @evidence contracts/development/implementation.md#principled-implementation Find the skeleton bone and prefer a nonnull override over the humanoid table, returning the original unconstrained joint or a new clamped record.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure A one-joint seam permits selective retarget/contact correction without changing authored neighbors.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing bones retain named-default fallback; this does not establish skeleton membership, identity or physical convergence.
+ * @evidence contracts/development/common.md#meaningful-documentation Docs state precedence, borrowed unconstrained result and targeted use, with numerical clamp limitations delegated.
+ * @evidence contracts/development/implementation.md#efficient-algorithms B-bone linear lookup plus fixed projection needs O(B) work and at most one result record.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All consumers share getConstraint precedence; repeated standalone bone lookup remains uncached over mutable skeleton contents.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns new joints and borrows unchanged joints/constraints, with no retained index, handle or task.
  */
 export const clampJointToSkeleton: (
   joint: IAutoMovieJointPose,

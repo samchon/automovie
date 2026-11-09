@@ -10,7 +10,6 @@ The film's delivery checklist and the results observed on the actual Viewer, the
 | Every decided contact is made by the displayed colliders | `window.__afReport().findings`: the outcome audit against the measured contacts of all touching strikes, under the film seed's variation | 0 findings. The first mount of this round found 7 landed blows 0.000–0.052 m off their regions: the drawn contact offset had left the region's surface; it is now projected back onto the region's collider |
 | The finish is unoccluded from the delivered camera | `window.__afReport().measures["finish-clearance"]`: the least separation, on the displayed colliders through the engine's contact query, of the sightlines from the delivered lens at 150.000 to the instep and lower shin at every frame of the descent (149.900–150.000) and to the jaw–neck region, each sightline stopping a head radius short of its point | +0.075 m, no finding; the watched points lie inside the delivered frame by a margin of 0.396 (`finish-in-frame`), from the open side's side-on view |
 | The page reuses Human calibrations and publishes a frame digest | `.cache/artifacts` entries after the first mount; `window.__afFrameDigest(150)` twice and at 10 s | Two calibration entries (fighters, referee) stored and read on later mounts; the digest is a 64-hex SHA-256, identical for one second and different between seconds |
-| The soundtrack comes from the same preparation | `window.__afSoundtrack().cues` | 616 cues from the schedule and the measured receipts; the count words at 158.000 … 167.000, the decision at 167.600 and the bell at 170.100 exactly |
 
 ## Stills {#stills}
 
@@ -44,18 +43,6 @@ Measured on the resolved schedule and tracks (the same computations the units as
 | All three men in the finish view | A, B and the referee inside the delivered frame at the contact and every second to 180 s | The finish-sight unit asserts it on the resolved track; decoded stills at 158 and 168.5 show all three (the referee at the left edge) |
 | Brazilian kick on its turnover | knee over the receiver's sunk shoulder line; instep on the region; foot descending into the contact | Displayed bodies: knee 1.37 m over B's left shoulder line at 1.28 m; instep at B's jaw–neck point (1.44 m); foot apex 1.6–1.75 m at 149.95, the shank rising about 8° into the region at contact, where Human's hip limits (flexion 132.1°, adduction 20°, rotation 45°) bind |
 | Seeded variation | outcome classes and anchors invariant | identical starts, contacts, ends and outcomes under the film seed and two other seeds; one seed resolves identically twice |
-
-## Audio {#audio}
-
-Each cue is placed at its event by `SoundCues` and mixed by the render from the page's own cues; the alignment unit checks every cue against its event at 30 fps. The delivered audio was then measured on the complete decode.
-
-| Check | Method | Result |
-| --- | --- | --- |
-| Every cue starts within one frame of its event | Unit `test_cue_alignment`: bell, words, impacts, steps, canvas landings, breaths and air against the schedule and receipts | Worst offset ≤ 1 frame (impacts sit on the measured contact frame, at most one frame from the scheduled contact; the canvas landings fall within half a frame of the fall's frames; every other cue at 0 offset) |
-| Asset lead-in | First sample at −40 dB of each asset's peak | 0.5–9.4 ms for every asset (under a third of a frame) |
-| Count voice | Audible onset in the decoded film audio, 5 ms RMS rising over the floor of the preceding 180 ms, relative to 158.000 … 167.000 | Under the crowd bed (floor −21 to −27 dBFS) a 12 dB rise is found for six of the ten words, +40 to +340 ms; a 9 dB rise for all ten, +20 to +325 ms. The words are placed on their seconds exactly (the cue list); the measured lag is each word's soft attack against the bed |
-| Bell | The same measure relative to 170.100 | +5 ms at a 12 dB rise |
-| No clipping | Peak of the pre-encode mix and of the decoded audio; samples at full scale | Pre-encode peak 0.809, decoded peak 0.811; 0 samples at full scale |
 
 ## Full render {#render}
 

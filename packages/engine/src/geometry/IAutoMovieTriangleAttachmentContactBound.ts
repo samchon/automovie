@@ -10,13 +10,10 @@
  * collapsed support reports all zeros, and a nonpositive corner gap leaves the
  * proof false with the measured gap and deficit kept for diagnosis.
  *
- * @evidence contracts/common.md#principled-implementation The cap is delta over delta plus s, the largest non-root barycentric weight any contact can carry, times the largest corner L1 distance from the root, with every operation rounded outward, so it encloses every contact point of the complete fan rather than a sampled nearest one.
- * @evidence contracts/common.md#clear-and-simple-design The decision, the cap and the two slab quantities, so the separation query keeps only the cap while a test or diagnostic can see which quantity failed; the root and supports are not echoed because the caller passed them.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An unproved bound reports a zero cap instead of a guessed one, and the scaled projection unit is stated rather than presented as a Euclidean height, so no field claims more than the slab arithmetic proved.
- * @evidence contracts/common.md#meaningful-documentation States the producer, what proved guarantees, the meaning and true unit of the slab quantities, and the collapsed and nonpositive-gap results.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the constant-time slab computation is answered on `boundAutoMovieTriangleAttachmentContact`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Computed once per attachment support per separation query and reduced at once to an attachment cap.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One boolean and three numbers with no reference to the fan or support, released when the query reduces it.
+ * @evidence contracts/development/design.md#principled-representation The cap is delta over delta plus s, the largest non-root barycentric weight any contact can carry, times the largest corner L1 distance from the root, with every operation rounded outward, so it encloses every contact point of the complete fan rather than a sampled nearest one.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The decision, the cap and the two slab quantities, so the separation query keeps only the cap while a test or diagnostic can see which quantity failed; the root and supports are not echoed because the caller passed them.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts An unproved bound reports a zero cap instead of a guessed one, and the scaled projection unit is stated rather than presented as a Euclidean height, so no field claims more than the slab arithmetic proved.
+ * @evidence contracts/development/common.md#meaningful-documentation States the producer, what proved guarantees, the meaning and true unit of the slab quantities, and the collapsed and nonpositive-gap results.
  */
 export interface IAutoMovieTriangleAttachmentContactBound {
   /**

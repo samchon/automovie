@@ -15,13 +15,13 @@ import { scaffoldPhysicalIdentity } from "./scaffoldPhysicalIdentity";
 /**
  * Open one POSIX directory with directory, no-follow and close-on-exec flags; create and reopen children relative to its held descriptor, which the publication coordinator closes.
  *
- * @evidence contracts/common.md#principled-implementation open with directory, no-follow and close-on-exec flags holds the parent; openat creates and verifies children relative to that descriptor.
- * @evidence contracts/common.md#clear-and-simple-design One adapter lowers the common parent and child contracts to POSIX descriptors while shared publication owns sequencing.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Existing child slots and final symlinks refuse through exclusive no-follow opening; there is no absolute-child retry.
- * @evidence contracts/common.md#meaningful-documentation The comment states held-parent operations and coordinator-owned closing, and the shared interfaces document byte and failure semantics.
- * @evidence contracts/performance.md#efficient-algorithms Opening binds a fixed libc call set on first use and performs one parent open; each child operation issues its corresponding bounded syscall or stat.
- * @evidence contracts/performance.md#reuse-equivalent-work The libc binding record is reused for one process ABI; parent and child opens remain separate effects and are never shared.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned parent owns one descriptor until its coordinator closes it; child descriptors are transferred in create/reopen results, and the lazy libc binding lasts for the process.
+ * @evidence contracts/development/implementation.md#principled-implementation open with directory, no-follow and close-on-exec flags holds the parent; openat creates and verifies children relative to that descriptor.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One adapter lowers the common parent and child contracts to POSIX descriptors while shared publication owns sequencing.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Existing child slots and final symlinks refuse through exclusive no-follow opening; there is no absolute-child retry.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states held-parent operations and coordinator-owned closing, and the shared interfaces document byte and failure semantics.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Opening binds a fixed libc call set on first use and performs one parent open; each child operation issues its corresponding bounded syscall or stat.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The libc binding record is reused for one process ABI; parent and child opens remain separate effects and are never shared.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned parent owns one descriptor until its coordinator closes it; child descriptors are transferred in create/reopen results, and the lazy libc binding lasts for the process.
  */
 export const openPosixParent: (parentPath: string) => IBoundParent = (
   parentPath: string,

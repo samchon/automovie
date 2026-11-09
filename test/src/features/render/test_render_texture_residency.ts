@@ -37,10 +37,11 @@ import { material, sceneFixture } from "../internal/renderFixtures";
  * 5. Red/RG source storage does not set the RGBA background factory's width;
  *    missing output facts refuse normal admission and recovery reseals the target.
  *
- * @evidence contracts/testing.md#behavioral-verification Checks actual texture closure, binding-state identity and explicit compiled-shot assessment for shared uploads, sampler/decoding variants, environment derivatives and unknown output formats.
- * @evidence contracts/testing.md#independent-expectations Raw RGBA8 storage, 16-by-16 two-channel half-float lookup, cube color plus depth and PMREM atlas sizes are hand arithmetic; format-width and mip cases preserve their authored texel counts independently of returned rows.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts sampler and color splits with UV-only sharing, empty/default PBR contexts, missing/invalid facts, half/float widths and five raw/background format pairs under both mip policies, then unknown and recovered background format.
- * @evidence contracts/testing.md#execution-ownership Owns portable synchronous supplied upload metadata and a deliberately partial compiled-shot fixture; refusal text and target resealing are computed without native uploads, renderer execution or automatic production admission.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks actual texture closure, binding-state identity and explicit compiled-shot assessment for shared uploads, sampler/decoding variants, environment derivatives and unknown output formats.
+ * @evidence contracts/development/testing.md#independent-expectations Raw RGBA8 storage, 16-by-16 two-channel half-float lookup, cube color plus depth and PMREM atlas sizes are hand arithmetic; format-width and mip cases preserve their authored texel counts independently of returned rows.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts sampler and color splits with UV-only sharing, empty/default PBR contexts, missing/invalid facts, half/float widths and five raw/background format pairs under both mip policies, then unknown and recovered background format.
+ * @evidence contracts/development/testing.md#execution-ownership Owns portable synchronous supplied upload metadata and a deliberately partial compiled-shot fixture; refusal text and target resealing are computed without native uploads, renderer execution or automatic production admission.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two 4-by-4 RGBA8 bindings share 64 bytes with matching state, split to).
  */
 export function test_render_texture_residency(): void {
   const sampler: NonNullable<IAutoMovieTextureReference["sampler"]> = {

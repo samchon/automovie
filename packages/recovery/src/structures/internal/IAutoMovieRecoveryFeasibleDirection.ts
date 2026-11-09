@@ -1,15 +1,12 @@
-import type { IAutoMovieSimplexMinimum } from "@automovie/engine/math/IAutoMovieSimplexMinimum";
+import type { IAutoMovieSimplexMinimum } from "@automovie/engine";
 
 /**
  * Owned direction and dual certificate of the tilted feasible-direction model.
  *
- * @evidence contracts/common.md#principled-implementation The pure auxiliary-linear QP shares one tilt variable between the true objective derivative and every unweighted hard-constraint derivative; simplex dual weights retain the full authored population.
- * @evidence contracts/common.md#clear-and-simple-design The result separates model accuracy from nonlinear acceptance and normal versus abnormal stationarity, which the nonlinear owner must evaluate in physical coordinates.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither a zero step nor an exhausted convex iteration is a successful nonlinear termination, and no observation is removed.
- * @evidence contracts/common.md#meaningful-documentation Defines whitened coordinates, auxiliary sign, complete-row residuals and the special objective multiplier.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no solve.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work It defines no cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns one coordinate vector and one multiplier per objective/constraint row, without solver handles or history.
+ * @evidence contracts/development/design.md#principled-representation The pure auxiliary-linear QP shares one tilt variable between the true objective derivative and every unweighted hard-constraint derivative; simplex dual weights retain the full authored population.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The result separates model accuracy from nonlinear acceptance and normal versus abnormal stationarity, which the nonlinear owner must evaluate in physical coordinates.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither a zero step nor an exhausted convex iteration is a successful nonlinear termination, and no observation is removed.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines whitened coordinates, auxiliary sign, complete-row residuals and the special objective multiplier.
  */
 export interface IAutoMovieRecoveryFeasibleDirection {
   /** Actual convex iteration stop, independent of the numerical certificate. */

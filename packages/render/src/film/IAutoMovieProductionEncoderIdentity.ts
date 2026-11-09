@@ -10,13 +10,10 @@
  * supplied with the runtime identity by the caller of
  * `planProductionRenderJob`.
  *
- * @evidence contracts/common.md#principled-implementation Content addressing needs every input that decides output bytes, so the record names the package, its version, a digest over its installed executable closure, and each byte-affecting encoder setting, and nothing that only affects speed of the build machine.
- * @evidence contracts/common.md#clear-and-simple-design The encoder facts are grouped apart from the capture facts so the runtime identity reads as capture plus encoder, and the settings sit in one `arguments` record that maps one to one onto the encoder's options.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The codec is a closed `h264` literal because the H.264 adapter is the only encoder, and no setting is defaulted or special-cased here; the doc states that no repository code produces the record yet.
- * @evidence contracts/common.md#meaningful-documentation The doc states why the record exists, how a change propagates to chunk ids, which fields publication validates, and that no repository producer exists, and each member says what it identifies and in which unit.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Five strings and three numbers describe an encoder without running it; hashing them into every chunk id is `planProductionRenderJob`'s cost.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A plain record coordinates no phases or requests; equivalence of encodes is decided by the chunk ids that digest it.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The encoder identity names a package and digest but holds no encoder process or file; the runtime identity inside the plan owns it.
+ * @evidence contracts/development/design.md#principled-representation Content addressing needs every input that decides output bytes, so the record names the package, its version, a digest over its installed executable closure, and each byte-affecting encoder setting, and nothing that only affects speed of the build machine.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The encoder facts are grouped apart from the capture facts so the runtime identity reads as capture plus encoder, and the settings sit in one `arguments` record that maps one to one onto the encoder's options.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The codec is a closed `h264` literal because the H.264 adapter is the only encoder, and no setting is defaulted or special-cased here; the doc states that no repository code produces the record yet.
+ * @evidence contracts/development/common.md#meaningful-documentation The doc states why the record exists, how a change propagates to chunk ids, which fields publication validates, and that no repository producer exists, and each member says what it identifies and in which unit.
  */
 export interface IAutoMovieProductionEncoderIdentity {
   /** Installed encoder package name, such as `h264-mp4-encoder`. */

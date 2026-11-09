@@ -15,10 +15,11 @@ import {
  * 1. The existing part's two-channel or incomplete RGB/RGBA populations refuse before loaded-object flattening.
  * 2. Replacing only the owned malformed attribute with the existing aligned RGB triangle admits three output vertices and preserves local disposal ownership.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual building/flattening on the existing part with malformed owned color attributes, checking refusal diagnostic and valid output vertex count.
- * @evidence contracts/testing.md#independent-expectations Authored two/three/four-channel population mismatches and a separately supplied aligned triangle determine expected refusal and count.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts unsupported item size and incomplete RGB/RGBA arrays, replacing only that owned attribute with aligned RGB before the next call.
- * @evidence contracts/testing.md#execution-ownership The named entry uses existing CPU triangle geometry/attributes and disposes returned/source resources, replacing no foreign method and adding no renderer or new fixture.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual building/flattening on the existing part with malformed owned color attributes, checking refusal diagnostic and valid output vertex count.
+ * @evidence contracts/development/testing.md#independent-expectations Authored two/three/four-channel population mismatches and a separately supplied aligned triangle determine expected refusal and count.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts unsupported item size and incomplete RGB/RGBA arrays, replacing only that owned attribute with aligned RGB before the next call.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry uses existing CPU triangle geometry/attributes and disposes returned/source resources, replacing no foreign method and adding no renderer or new fixture.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The existing part's two-channel or incomplete RGB/RGBA populations refuse before loaded-object flattening.).
  */
 export function test_viewer_vertex_colour_instancing_refusals(): void {
   const built: import("@automovie/viewer").IAutoMovieModelObject = buildModel(

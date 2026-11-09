@@ -18,10 +18,11 @@ import { makePose } from "../internal/makePose";
  * Scenarios:
  * 1. A one-second clip with a keyframe at two seconds fails with a temporal time violation.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateMotion and requires refusal at time for a key beyond duration, catching omission of the upper time bound.
- * @evidence contracts/testing.md#independent-expectations Keyframe seconds must belong to [0,duration]; authored 2 exceeds 1 independently of interpolation or playback.
- * @evidence contracts/testing.md#distinguishing-cases Uses increasing finite times so the upper bound is the owned defect; motion_valid covers equality at the final duration and time_order owns repeated keys.
- * @evidence contracts/testing.md#execution-ownership This named unit uses existing rig/pose/clip factories and performs portable validation without a playback clock or dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateMotion and requires refusal at time for a key beyond duration, catching omission of the upper time bound.
+ * @evidence contracts/development/testing.md#independent-expectations Keyframe seconds must belong to [0,duration]; authored 2 exceeds 1 independently of interpolation or playback.
+ * @evidence contracts/development/testing.md#distinguishing-cases Uses increasing finite times so the upper bound is the owned defect; motion_valid covers equality at the final duration and time_order owns repeated keys.
+ * @evidence contracts/development/testing.md#execution-ownership This named unit uses existing rig/pose/clip factories and performs portable validation without a playback clock or dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A one-second clip with a keyframe at two seconds fails with a temporal time violation.).
  */
 export function test_validation_motion_time_duration(): void {
   const motion: IAutoMovieMotion = makeMotion(

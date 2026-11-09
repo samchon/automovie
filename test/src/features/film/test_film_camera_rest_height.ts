@@ -44,10 +44,11 @@ const skeleton: (bones: IAutoMovieBone[]) => IAutoMovieSkeleton = (
  * 4. A spine referencing an absent hips parent refuses that missing bone.
  * 5. A hips/spine parent cycle refuses instead of recursing indefinitely.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls computeRestHeight for the existing rig, an empty skeleton and three malformed parent graphs, checking the measured scalar and named refusal messages, catching incorrect local-only height reduction or silently skipped malformed bones.
- * @evidence contracts/testing.md#independent-expectations Identity-rest offsets independently place the highest head joint at 1.7 and lowest lower-leg joint at 0.5, giving span 1.2; an empty population gives zero. Literal duplicate positions and missing/cyclic parent names determine the Error fragments without using computed rest frames as an oracle.
- * @evidence contracts/testing.md#distinguishing-cases Preserves a nonempty multi-level rig and empty boundary plus existing duplicate, missing-parent and cycle cases; visible portable geometry extending beyond joints is measured by test_film_camera_subject_extent, and nonidentity rest rotations are outside this fixture.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_camera_rest_height entry owns its direct portable measurements and Error observations using the existing conventional rig, creating no new Human asset, installed consumer, native artifact or render host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls computeRestHeight for the existing rig, an empty skeleton and three malformed parent graphs, checking the measured scalar and named refusal messages, catching incorrect local-only height reduction or silently skipped malformed bones.
+ * @evidence contracts/development/testing.md#independent-expectations Identity-rest offsets independently place the highest head joint at 1.7 and lowest lower-leg joint at 0.5, giving span 1.2; an empty population gives zero. Literal duplicate positions and missing/cyclic parent names determine the Error fragments without using computed rest frames as an oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves a nonempty multi-level rig and empty boundary plus existing duplicate, missing-parent and cycle cases; visible portable geometry extending beyond joints is measured by test_film_camera_subject_extent, and nonidentity rest rotations are outside this fixture.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_camera_rest_height entry owns its direct portable measurements and Error observations using the existing conventional rig, creating no new Human asset, installed consumer, native artifact or render host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `createSkeleton()` → height 1.2 (oracle above, not the code's echo).).
  */
 export function test_film_camera_rest_height(): void {
   TestValidator.predicate(

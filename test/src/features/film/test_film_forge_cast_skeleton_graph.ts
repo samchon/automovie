@@ -31,10 +31,11 @@ const b: (
  * 2. A detached two-bone cycle beside one rooted chain reports both unreachable bones.
  * 3. A repeated child under one root terminates and reports only its duplicate name.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls forgeCast with three authored skeleton graphs and checks duplicate, missing-parent, root-count and reachability findings; the duplicate-child case detects spurious unreachable errors or nonterminating traversal.
- * @evidence contracts/testing.md#independent-expectations Unique bone names, one null parent and connectivity define a rooted tree. The detached cycle has no path from hips, while two declarations of spine share an otherwise reachable child; those explicit edges determine expected findings without running FK as an oracle.
- * @evidence contracts/testing.md#distinguishing-cases Distinguishes local multi-root faults, a locally resolvable detached cycle and a duplicate edge on a connected graph. Ordinary rig acceptance and transform/constraint scalar admission are covered elsewhere.
- * @evidence contracts/testing.md#execution-ownership The synchronous discoverable entry owns three portable forge/model graph cases and guarded named facts; no renderer or native rig is built and success here proves no posed appearance.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls forgeCast with three authored skeleton graphs and checks duplicate, missing-parent, root-count and reachability findings; the duplicate-child case detects spurious unreachable errors or nonterminating traversal.
+ * @evidence contracts/development/testing.md#independent-expectations Unique bone names, one null parent and connectivity define a rooted tree. The detached cycle has no path from hips, while two declarations of spine share an otherwise reachable child; those explicit edges determine expected findings without running FK as an oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes local multi-root faults, a locally resolvable detached cycle and a duplicate edge on a connected graph. Ordinary rig acceptance and transform/constraint scalar admission are covered elsewhere.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable entry owns three portable forge/model graph cases and guarded named facts; no renderer or native rig is built and success here proves no posed appearance.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Duplicate names, an unresolved parent and two roots report their local faults.).
  */
 export function test_film_forge_cast_skeleton_graph(): void {
   const broken: IAutoMovieForgedCast = forgeCast(makeScriptWrite(), {

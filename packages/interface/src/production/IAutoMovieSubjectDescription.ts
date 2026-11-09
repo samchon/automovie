@@ -7,10 +7,10 @@ import { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary
 /**
  * Renderer-independent structural description of one stable compiled subject.
  *
- * @evidence contracts/common.md#principled-implementation Subject describers project compiled model, placement, building, space and compact instance records into namespaced identity, ownership, transforms, extents, materials and bounded member pages, regenerating addressed members through the engine's exact placement law.
- * @evidence contracts/common.md#clear-and-simple-design Shared structural fields allow one inspection and diff vocabulary while semanticKind preserves the compiled domain label; formations use a separate review description because their crowd motion semantics are distinct.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown references stay null or empty where the projection contract permits them rather than guessed geometry or materials; revision is caller-qualified and instance-set bounds are positions, not a full mesh envelope.
- * @evidence contracts/common.md#meaningful-documentation Defines namespaced identity, revision, semantic role, prototype versus placement and owner relations, transform and extent basis, material ordering and bounded member population.
+ * @evidence contracts/development/design.md#principled-representation Subject describers project compiled model, placement, building, space and compact instance records into namespaced identity, ownership, transforms, extents, materials and bounded member pages, regenerating addressed members through the engine's exact placement law.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Shared structural fields allow one inspection and diff vocabulary while semanticKind preserves the compiled domain label; formations use a separate review description because their crowd motion semantics are distinct.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Unknown references stay null or empty where the projection contract permits them rather than guessed geometry or materials; revision is caller-qualified and instance-set bounds are positions, not a full mesh envelope.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines namespaced identity, revision, semantic role, prototype versus placement and owner relations, transform and extent basis, material ordering and bounded member population.
  */
 export interface IAutoMovieSubjectDescription {
   /** Description schema version. */

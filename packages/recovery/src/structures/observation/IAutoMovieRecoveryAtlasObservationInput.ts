@@ -1,17 +1,14 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieCurve64 as C } from "@automovie/engine";
 
 import type { IAutoMovieRecoveryAtlasTessellation } from "./IAutoMovieRecoveryAtlasTessellation";
 
 /**
  * Evaluated source geometry, automatic levels and bounded atlas-observation policy.
  *
- * @evidence contracts/common.md#principled-implementation Physical source coordinates, scalar levels and explicit chart/fitting limits define the same private observation domain before coefficient publication.
- * @evidence contracts/common.md#clear-and-simple-design One named public input separates source observation and fitting policy from the atlas result and its tessellation subrecord.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source priorities and windows select declared work rather than supplying authored curves, hidden caps or replacement source geometry.
- * @evidence contracts/common.md#meaningful-documentation States millimetres, borrowed source arrays, optional selections, count limits and the explicit experimental physical-gradient weight.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased input performs no observation or fitting.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration owns no runtime cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The synchronous observer borrows source arrays; its existing budgets bound selected work.
+ * @evidence contracts/development/design.md#principled-representation Physical source coordinates, scalar levels and explicit chart/fitting limits define the same private observation domain before coefficient publication.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One named public input separates source observation and fitting policy from the atlas result and its tessellation subrecord.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Source priorities and windows select declared work rather than supplying authored curves, hidden caps or replacement source geometry.
+ * @evidence contracts/development/common.md#meaningful-documentation States millimetres, borrowed source arrays, optional selections, count limits and the explicit experimental physical-gradient weight.
  */
 export interface IAutoMovieRecoveryAtlasObservationInput {
   /** Borrowed evaluated source positions, millimetres. */

@@ -10,25 +10,22 @@ import { QUATERNION_NLERP_DOT_THRESHOLD } from "../../math/constants/QUATERNION_
  * its three columns, and slerp takes the shorter arc and switches to
  * normalized linear interpolation above the shared near-parallel threshold.
  *
- * @evidence contracts/common.md#principled-implementation The Hamilton product, conjugation of unit quaternions, the trace-branch conversion from an orthonormal basis, vector rotation by `v + 2w (q x v) + 2 q x (q x v)` and Shoemake's slerp, the same formulas `Quaternion` and `quaternionFromAutoMovieBasis` use.
- * @evidence contracts/common.md#clear-and-simple-design Only the operations a posed sweep needs, each a plain function over arrays and offsets.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The slerp threshold is the shared `QUATERNION_NLERP_DOT_THRESHOLD`, not a local constant.
- * @evidence contracts/common.md#meaningful-documentation States the layout, the aliasing rule and the conventions shared with `Quaternion`.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A namespace; every member is constant time without allocation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A namespace of pure operations.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A namespace retaining nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation States the layout, the aliasing rule and the conventions shared with `Quaternion`.
+ * @evidence contracts/development/design.md#principled-representation Represents Quaternion operations on caller-owned arrays, `[x, y, z, w]` at an offset, for sweeps posed every frame without allocating: companion namespace of 6 members (`multiply`, `normalize`, `conjugate`, `fromBasis`, `rotate`, `slerp`); units and frames named in its text: quaternion, frame. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSweepRotation` in packages/engine/src/geometry/sweep/AutoMovieSweepRotation.ts; its surface is the 6 members listed and the text shows 3 other files naming it, mostly packages/engine (3), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSweepRotation {
   /**
    * Write the product `a b`.
    *
-   * @evidence contracts/common.md#principled-implementation The Hamilton product.
-   * @evidence contracts/common.md#clear-and-simple-design Reads all eight components before writing four.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The result is not renormalized; callers that need a unit result say so.
-   * @evidence contracts/common.md#meaningful-documentation States the order of application.
-   * @evidence contracts/performance.md#efficient-algorithms Sixteen products, no allocation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure operation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation The Hamilton product.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads all eight components before writing four.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The result is not renormalized; callers that need a unit result say so.
+   * @evidence contracts/development/common.md#meaningful-documentation States the order of application.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen products, no allocation.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure operation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export const multiply = (
     a: ArrayLike<number>,
@@ -55,13 +52,13 @@ export namespace AutoMovieSweepRotation {
   /**
    * Scale a quaternion to unit length in place; a zero quaternion becomes the identity.
    *
-   * @evidence contracts/common.md#principled-implementation Division by the Euclidean norm.
-   * @evidence contracts/common.md#clear-and-simple-design In place, the only use posing has.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A zero input takes the identity, as `Quaternion.normalize` does, rather than producing NaN.
-   * @evidence contracts/common.md#meaningful-documentation States the zero case.
-   * @evidence contracts/performance.md#efficient-algorithms One square root, no allocation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure operation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation Division by the Euclidean norm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure In place, the only use posing has.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A zero input takes the identity, as `Quaternion.normalize` does, rather than producing NaN.
+   * @evidence contracts/development/common.md#meaningful-documentation States the zero case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One square root, no allocation.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure operation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export const normalize = (
     q: { [index: number]: number },
@@ -81,13 +78,13 @@ export namespace AutoMovieSweepRotation {
   /**
    * Write the inverse of a unit quaternion, its conjugate.
    *
-   * @evidence contracts/common.md#principled-implementation The conjugate inverts a unit quaternion.
-   * @evidence contracts/common.md#clear-and-simple-design Callers hold unit quaternions, so no division is needed.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Only valid for unit input, which every caller normalizes first.
-   * @evidence contracts/common.md#meaningful-documentation States the unit premise.
-   * @evidence contracts/performance.md#efficient-algorithms Four assignments.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure operation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation The conjugate inverts a unit quaternion.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Callers hold unit quaternions, so no division is needed.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only valid for unit input, which every caller normalizes first.
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit premise.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four assignments.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure operation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export const conjugate = (
     q: ArrayLike<number>,
@@ -107,13 +104,13 @@ export namespace AutoMovieSweepRotation {
   /**
    * Write the unit quaternion of the rotation taking `+X`, `+Y`, `+Z` to three orthonormal columns stored at `xi`, `yi` and `zi`.
    *
-   * @evidence contracts/common.md#principled-implementation The trace-branch conversion of a rotation matrix, choosing the largest diagonal term for stability, as `quaternionFromAutoMovieBasis` does.
-   * @evidence contracts/common.md#clear-and-simple-design The columns are read from one array at three offsets, the layout of a written frame.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The result is normalized, absorbing rounding in the basis.
-   * @evidence contracts/common.md#meaningful-documentation States the mapping.
-   * @evidence contracts/performance.md#efficient-algorithms Constant time, no allocation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure operation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation The trace-branch conversion of a rotation matrix, choosing the largest diagonal term for stability, as `quaternionFromAutoMovieBasis` does.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The columns are read from one array at three offsets, the layout of a written frame.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The result is normalized, absorbing rounding in the basis.
+   * @evidence contracts/development/common.md#meaningful-documentation States the mapping.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time, no allocation.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure operation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export const fromBasis = (
     m: ArrayLike<number>,
@@ -164,13 +161,13 @@ export namespace AutoMovieSweepRotation {
   /**
    * Write a vector rotated by a unit quaternion.
    *
-   * @evidence contracts/common.md#principled-implementation `v + 2w (q x v) + 2 q x (q x v)`, the formula `Quaternion.rotateVector` uses.
-   * @evidence contracts/common.md#clear-and-simple-design Reads the vector before writing, so it may rotate in place.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Assumes a unit quaternion, as every caller supplies.
-   * @evidence contracts/common.md#meaningful-documentation States the formula.
-   * @evidence contracts/performance.md#efficient-algorithms Fifteen products, no allocation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure operation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation `v + 2w (q x v) + 2 q x (q x v)`, the formula `Quaternion.rotateVector` uses.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the vector before writing, so it may rotate in place.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Assumes a unit quaternion, as every caller supplies.
+   * @evidence contracts/development/common.md#meaningful-documentation States the formula.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fifteen products, no allocation.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure operation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export const rotate = (
     q: ArrayLike<number>,
@@ -198,13 +195,13 @@ export namespace AutoMovieSweepRotation {
   /**
    * Write the spherical interpolation from `a` to `b` at `t`, along the shorter arc.
    *
-   * @evidence contracts/common.md#principled-implementation Shoemake's slerp, with `b` negated when `a . b < 0` and normalized linear interpolation above the shared near-parallel threshold, as `Quaternion.slerp`.
-   * @evidence contracts/common.md#clear-and-simple-design Reads both inputs before writing.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The threshold is the shared constant.
-   * @evidence contracts/common.md#meaningful-documentation States the arc and the threshold.
-   * @evidence contracts/performance.md#efficient-algorithms One arccosine and three sines at most, no allocation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure operation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation Shoemake's slerp, with `b` negated when `a . b < 0` and normalized linear interpolation above the shared near-parallel threshold, as `Quaternion.slerp`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads both inputs before writing.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The threshold is the shared constant.
+   * @evidence contracts/development/common.md#meaningful-documentation States the arc and the threshold.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One arccosine and three sines at most, no allocation.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure operation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export const slerp = (
     a: ArrayLike<number>,

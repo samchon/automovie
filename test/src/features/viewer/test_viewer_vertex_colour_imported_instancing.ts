@@ -16,10 +16,11 @@ import {
  * 2. Independently authored /255 fractions and white identity channels judge every decoded channel and missing alpha.
  * 3. Original attribute identity, three-channel RGB layout, source bytes and bare absence survive lowering; merged/source owners receive disposal requests.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual model building and loaded-object flattening, checks output population/layout/numeric channels and original attribute identity/value state.
- * @evidence contracts/testing.md#independent-expectations Independently authored /255 channel fractions and white identity channels judge Float32 output with numeric tolerance, separately from output construction.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts normalized RGBA, interleaved RGB and bare parts; checks missing alpha, decoded storage and untouched original wrappers instead of a generic deep snapshot.
- * @evidence contracts/testing.md#execution-ownership The named entry reuses existing triangle inputs and real CPU attributes, disposes its owned merged/source geometry and borrowed-model materials, and observes no native shader/GPU output.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual model building and loaded-object flattening, checks output population/layout/numeric channels and original attribute identity/value state.
+ * @evidence contracts/development/testing.md#independent-expectations Independently authored /255 channel fractions and white identity channels judge Float32 output with numeric tolerance, separately from output construction.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts normalized RGBA, interleaved RGB and bare parts; checks missing alpha, decoded storage and untouched original wrappers instead of a generic deep snapshot.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry reuses existing triangle inputs and real CPU attributes, disposes its owned merged/source geometry and borrowed-model materials, and observes no native shader/GPU output.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Normalized byte RGBA, interleaved RGB and bare parts lower to Float32 RGBA.).
  */
 export function test_viewer_vertex_colour_imported_instancing(): void {
   const colored: import("@automovie/interface").IAutoMovieMesh =

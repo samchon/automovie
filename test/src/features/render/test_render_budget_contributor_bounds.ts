@@ -20,10 +20,11 @@ import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture
  *
  * 1. Fifty owners retain ranked and omitted accounting; caller bounds admit positive integers and refuse zero or fractional values.
  *
- * @evidence contracts/testing.md#behavioral-verification Measures fifty ordinary props and evaluates bounded contributor reports, asserting retained/remainder counts, conserved total cost, deterministic ranking, zero instance counts and caller-bound refusal behavior.
- * @evidence contracts/testing.md#independent-expectations Fifty unit boxes contribute fifty BOX_TRIANGLES base costs and the retained shadow pass repeats them once; omitted editable owners plus that pass must conserve twice the base total. The default maximum comes from the public contract constant, while the two-entry override and zero/fractional refusals are literal boundary expectations.
- * @evidence contracts/testing.md#distinguishing-cases Preserves fifty equal-cost owners, default/tight positive bounds, zero/fractional invalid bounds and ordinary-node versus instanced-population distinctions. Dominant-owner wording and differing resource metrics belong to adjacent report tests.
- * @evidence contracts/testing.md#execution-ownership The named test_render_budget_contributor_bounds owns these portable inventory/report calls through existing fixtures; the fifty authored records expand no native scene or GPU instance buffer.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures fifty ordinary props and evaluates bounded contributor reports, asserting retained/remainder counts, conserved total cost, deterministic ranking, zero instance counts and caller-bound refusal behavior.
+ * @evidence contracts/development/testing.md#independent-expectations Fifty unit boxes contribute fifty BOX_TRIANGLES base costs and the retained shadow pass repeats them once; omitted editable owners plus that pass must conserve twice the base total. The default maximum comes from the public contract constant, while the two-entry override and zero/fractional refusals are literal boundary expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves fifty equal-cost owners, default/tight positive bounds, zero/fractional invalid bounds and ordinary-node versus instanced-population distinctions. Dominant-owner wording and differing resource metrics belong to adjacent report tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_render_budget_contributor_bounds owns these portable inventory/report calls through existing fixtures; the fifty authored records expand no native scene or GPU instance buffer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Fifty owners retain ranked and omitted accounting; caller bounds admit positive integers and refuse zero or fractional values.).
  */
 export function test_render_budget_contributor_bounds(): void {
   const target: ReturnType<typeof renderBudgetTargetFixture> =

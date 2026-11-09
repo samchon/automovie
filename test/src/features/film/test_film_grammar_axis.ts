@@ -18,10 +18,11 @@ import { createFilmGrammarCase } from "../internal/createFilmGrammarCase";
  * 3. Reversed collection spelling and different axis subjects do not fabricate findings.
  * 4. Recovery names the axis-cross intent, which suppresses that finding and is exercised.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls readFilmGrammar on hand-authored action-axis observations and asserts hidden/visible crossing decisions, deterministic identity ordering and actionable recovery; catches a recovery omitting the supported intentional-crossing path.
- * @evidence contracts/testing.md#independent-expectations Subjects at x=-1 and x=1 define the ground-plane axis, cameras at positive/negative z lie on opposite sides and z=0 is neutral; reversing collection order preserves that same geometry rather than supplying copied expected diagnostics.
- * @evidence contracts/testing.md#distinguishing-cases Covers opposite/same/neutral half-planes, outgoing and incoming visible crossings, rotated axis endpoints, different subject pairs, collection-order invariance and intentional suppression; screen motion, eyelines and malformed fields have separate tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit entry owns every axis case and reaches portable source grammar through the shared fixture reader; no browser, GPU or process is needed.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls readFilmGrammar on hand-authored action-axis observations and asserts hidden/visible crossing decisions, deterministic identity ordering and actionable recovery; catches a recovery omitting the supported intentional-crossing path.
+ * @evidence contracts/development/testing.md#independent-expectations Subjects at x=-1 and x=1 define the ground-plane axis, cameras at positive/negative z lie on opposite sides and z=0 is neutral; reversing collection order preserves that same geometry rather than supplying copied expected diagnostics.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers opposite/same/neutral half-planes, outgoing and incoming visible crossings, rotated axis endpoints, different subject pairs, collection-order invariance and intentional suppression; screen motion, eyelines and malformed fields have separate tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous unit entry owns every axis case and reaches portable source grammar through the shared fixture reader; no browser, GPU or process is needed.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A hidden opposite-half-plane cut reports; a neutral intermediary does not.).
  */
 export function test_film_grammar_axis(): void {
   const {

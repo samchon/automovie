@@ -17,10 +17,11 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * 2. Repeating a root within one scene or selecting a child as a root fails, including when the malformed scene is not the default selection.
  * 3. Scene and default-scene references must resolve; omitting scenes or their roots stays valid, while a selected scene cannot resolve an empty inventory.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs each profile with changed scene root declarations and observes unchanged mesh instances or root-selection refusal; repeated roots, selected children or unresolved scenes fail.
- * @evidence contracts/testing.md#independent-expectations The authored three distinct node instances and unique root lists define inventory and valid selections independently of the inspector.
- * @evidence contracts/testing.md#distinguishing-cases Every profile covers shared roots across scenes, default scene omission/zero/one, unselected malformed scenes, parented roots, missing inventories, empty roots and invalid selected indices; parent-forest structure is owned by hierarchy units.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_ingest_external_model_scene_roots entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs each profile with changed scene root declarations and observes unchanged mesh instances or root-selection refusal; repeated roots, selected children or unresolved scenes fail.
+ * @evidence contracts/development/testing.md#independent-expectations The authored three distinct node instances and unique root lists define inventory and valid selections independently of the inspector.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every profile covers shared roots across scenes, default scene omission/zero/one, unselected malformed scenes, parented roots, missing inventories, empty roots and invalid selected indices; parent-forest structure is owned by hierarchy units.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_ingest_external_model_scene_roots entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every profile accepts multiple roots, a root shared across scenes, and separate nodes instancing one mesh, with either default scene...).
  */
 export function test_ingest_external_model_scene_roots(): void {
   const profiles: AutoMovieExternalModelIngestProfile[] = [

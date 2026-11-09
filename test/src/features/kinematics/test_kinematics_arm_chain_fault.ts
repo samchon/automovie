@@ -143,10 +143,11 @@ const SWEEP: number[] = [0, 15, 30, 60, 90, 150];
  * 9. A finite diagonal forearm remains nonparallel to the hinge even when its
  *    Euclidean length exceeds binary64, so normalization cannot collapse it.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls armChainFault, reachPose and forward kinematics, checking unbendable diagnosis versus valid T-pose reach and refusing misparented offsets outside the elbow frame.
- * @evidence contracts/testing.md#independent-expectations The arms-down span is 0.32+0.28 metres and the T-pose sweep follows the law of cosines; returned fault side/bone/reason identify the geometric cause.
- * @evidence contracts/testing.md#distinguishing-cases Covers both sides, conforming/unbendable twins, missing hand, collapsed/large finite forearms, missing/zero axes and broken parenting; reach tests own general targets and ROM gates.
- * @evidence contracts/testing.md#execution-ownership A discoverable kinematics entry uses numerical skeleton records and direct TypeScript source, with no Human basis, probe, GPU or external driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls armChainFault, reachPose and forward kinematics, checking unbendable diagnosis versus valid T-pose reach and refusing misparented offsets outside the elbow frame.
+ * @evidence contracts/development/testing.md#independent-expectations The arms-down span is 0.32+0.28 metres and the T-pose sweep follows the law of cosines; returned fault side/bone/reason identify the geometric cause.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers both sides, conforming/unbendable twins, missing hand, collapsed/large finite forearms, missing/zero axes and broken parenting; reach tests own general targets and ROM gates.
+ * @evidence contracts/development/testing.md#execution-ownership A discoverable kinematics entry uses numerical skeleton records and direct TypeScript source, with no Human basis, probe, GPU or external driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The degeneracy, measured: on the arms-down rig the shoulder-to-hand span is).
  */
 export function test_kinematics_arm_chain_fault(): void {
   const down: IAutoMovieSkeleton = armRig("down");

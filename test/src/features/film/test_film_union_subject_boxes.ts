@@ -17,10 +17,11 @@ import { vclose } from "../internal/predicates";
  * 4. Three hundred thousand boxes, past the argument-count limit of a spread
  *    `Math.min` call, still answer the union instead of throwing.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls `unionSubjectBoxes` and asserts the returned corners, catching a fold that drops an axis, keeps the first box, mutates its input, or throws a `RangeError` on a long list; any exact per-axis extreme passes.
- * @evidence contracts/testing.md#independent-expectations Expected corners are the hand-computed per-axis minima and maxima of boxes chosen so each axis is extended by a different box, and the long list is built with its extremes at known indices, so the oracle is the definition of an axis-aligned union and not the implementation's output.
- * @evidence contracts/testing.md#distinguishing-cases Covers the empty, singleton and multi-box cases plus the long-list limit that the spread implementation failed; framing a union inside a shot is owned by `test_film_camera_formation_subject_extent`.
- * @evidence contracts/testing.md#execution-ownership A unit test of a pure engine function, discovered by its `test_` export under `test/src/features/film`, with no host, consumer or native artifact involved.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `unionSubjectBoxes` and asserts the returned corners, catching a fold that drops an axis, keeps the first box, mutates its input, or throws a `RangeError` on a long list; any exact per-axis extreme passes.
+ * @evidence contracts/development/testing.md#independent-expectations Expected corners are the hand-computed per-axis minima and maxima of boxes chosen so each axis is extended by a different box, and the long list is built with its extremes at known indices, so the oracle is the definition of an axis-aligned union and not the implementation's output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers the empty, singleton and multi-box cases plus the long-list limit that the spread implementation failed; framing a union inside a shot is owned by `test_film_camera_formation_subject_extent`.
+ * @evidence contracts/development/testing.md#execution-ownership A unit test of a pure engine function, discovered by its `test_` export under `test/src/features/film`, with no host, consumer or native artifact involved.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An empty list answers null rather than an inverted or zero box.).
  */
 export function test_film_union_subject_boxes(): void {
   TestValidator.equals(

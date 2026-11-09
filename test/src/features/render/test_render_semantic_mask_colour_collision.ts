@@ -16,10 +16,11 @@ import { modelsFixture, sceneFixture } from "../internal/renderFixtures";
  * 2. The smaller ID keeps that colour and the other takes its arithmetic successor regardless of declaration order.
  * 3. Empty, ASCII, multibyte, astral and lone-surrogate strings match an independent UTF-8 Math.imul FNV-1a oracle.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual FNV hashing and palette derivation, detecting incorrect prime multiplication and checking deterministic id-order collision probing from independently derived expected colour.
- * @evidence contracts/testing.md#independent-expectations Node Buffer provides UTF-8 bytes and Math.imul multiplies by 0x01000193 after XOR; the documented nonbackground RGB mapping supplies the expected palette slot independently of derivation. This is a CPU byte/hash oracle, not GPU colour readback.
- * @evidence contracts/testing.md#distinguishing-cases Empty, ASCII, multibyte, astral and lone-surrogate inputs cover encoding; the genuine node:c429/node:c6250 pair authored in reverse order covers collision priority and successor assignment.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_semantic_mask_colour_collision owns its cases. Portable Engine hash and metadata calls with an independent CPU arithmetic oracle, without foreign mutation or renderer launch.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual FNV hashing and palette derivation, detecting incorrect prime multiplication and checking deterministic id-order collision probing from independently derived expected colour.
+ * @evidence contracts/development/testing.md#independent-expectations Node Buffer provides UTF-8 bytes and Math.imul multiplies by 0x01000193 after XOR; the documented nonbackground RGB mapping supplies the expected palette slot independently of derivation. This is a CPU byte/hash oracle, not GPU colour readback.
+ * @evidence contracts/development/testing.md#distinguishing-cases Empty, ASCII, multibyte, astral and lone-surrogate inputs cover encoding; the genuine node:c429/node:c6250 pair authored in reverse order covers collision priority and successor assignment.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_semantic_mask_colour_collision owns its cases. Portable Engine hash and metadata calls with an independent CPU arithmetic oracle, without foreign mutation or renderer launch.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The two authored IDs produce the same standalone palette colour.).
  */
 export function test_render_semantic_mask_colour_collision(): void {
   const oracle: (text: string) => number = (text: string): number => {

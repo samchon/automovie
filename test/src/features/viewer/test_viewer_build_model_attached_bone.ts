@@ -20,10 +20,11 @@ import { throwsError } from "../internal/predicates";
  *    (parented under it, not the group).
  * 3. `attachedBone: null` still parents the part to the model group.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds actual model graphs and observes missing-bone refusal versus native child parenting for known and absent attachment. A rigid part cannot silently fall back to the model root when its declared bone is missing.
- * @evidence contracts/testing.md#independent-expectations The existing authored twelve-bone fixture includes hips and omits rightHand; a part named sword must appear under the specified known bone or under the model group when attachment is null. These declared identities supply the oracle independently of builder output; animation and rendered placement are not measured.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts missing rightHand, present first fixture bone and explicit null attachment while retaining the same primitive part. Skinned meshes and skin-versus-rigid precedence belong to other model construction tests; this unit owns the rigid attachment decision.
- * @evidence contracts/testing.md#execution-ownership This named portable unit invokes native metadata graph construction with existing nonclinical engine fixtures. It starts no viewer, GPU or Human inspection host and all refusal/parenting cases belong to this entry.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds actual model graphs and observes missing-bone refusal versus native child parenting for known and absent attachment. A rigid part cannot silently fall back to the model root when its declared bone is missing.
+ * @evidence contracts/development/testing.md#independent-expectations The existing authored twelve-bone fixture includes hips and omits rightHand; a part named sword must appear under the specified known bone or under the model group when attachment is null. These declared identities supply the oracle independently of builder output; animation and rendered placement are not measured.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing rightHand, present first fixture bone and explicit null attachment while retaining the same primitive part. Skinned meshes and skin-versus-rigid precedence belong to other model construction tests; this unit owns the rigid attachment decision.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit invokes native metadata graph construction with existing nonclinical engine fixtures. It starts no viewer, GPU or Human inspection host and all refusal/parenting cases belong to this entry.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `attachedBone: "rightHand"` on a skeleton without that bone throws naming the).
  */
 export function test_viewer_build_model_attached_bone(): void {
   const sword: (

@@ -10,64 +10,49 @@ import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdiv
  * Function values are direct aliases; their coefficients, domains, errors and arithmetic are unchanged.
  * Internal owners depend on the algebra implementation rather than this facade, preventing import cycles.
  *
- * @evidence contracts/common.md#principled-implementation The pre-existing public function names bind directly to the same coefficient algorithms under explicit algebra, subdivision, grid and legacy quotient owners.
- * @evidence contracts/common.md#clear-and-simple-design This facade owns compatibility names and structural types; the dependency graph reaches the algebra without returning through the facade.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No public function is silently removed, numerically approximated, or replaced with a sampled fit.
- * @evidence contracts/common.md#meaningful-documentation States the preserved API surface, direct alias identity, owner responsibilities and module-initialization requirement.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Binding function references performs no numerical traversal; each implementation documents its actual cost.
- * @evidence contracts/performance.md#reuse-equivalent-work Direct aliases reuse the responsibility owner's single implementation and allocate no per-call wrapper or cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Module-level function references own no scene, model, input coefficient population or resource handle.
+ * @evidence contracts/development/common.md#meaningful-documentation States the preserved API surface, direct alias identity, owner responsibilities and module-initialization requirement.
+ * @evidence contracts/development/design.md#principled-representation Represents Preserves the existing binary64 Bernstein namespace while responsibility owners implement its operations: companion namespace of 30 members (`Vec`, `Poly`, `Grid`, `RecordV`, `RecordS`, `choose`, ...); units and frames named in its text: degree, rational, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieBernstein64` in packages/engine/src/geometry/curve/AutoMovieBernstein64.ts; its surface is the 30 members listed and the text shows 13 other files naming it, mostly packages/recovery (8), packages/engine (4), test (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieBernstein64 {
   /**
    * Three-component coefficient values; positions and derivative fields retain the units owned by their enclosing chart.
    *
-   * @evidence contracts/common.md#principled-implementation A fixed three-component mutable coefficient value.
-   * @evidence contracts/common.md#clear-and-simple-design One structural record/alias preserves the storage consumed by the neighboring algebra operations.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type does not admit finite data, positive denominators or a regular geometric surface by itself.
-   * @evidence contracts/common.md#meaningful-documentation The declaration distinguishes coefficient ordering, parameter correspondence and enclosing value units.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A coefficient type performs no arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no memoization or work coordination.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type retains no coefficient array at runtime.
+   * @evidence contracts/development/design.md#principled-representation A fixed three-component mutable coefficient value.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One structural record/alias preserves the storage consumed by the neighboring algebra operations.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not admit finite data, positive denominators or a regular geometric surface by itself.
+   * @evidence contracts/development/common.md#meaningful-documentation The declaration distinguishes coefficient ordering, parameter correspondence and enclosing value units.
    */
   export type Vec = A.Vec;
 
   /**
    * Ordered Bernstein vector coefficients, with degree equal to length minus one.
    *
-   * @evidence contracts/common.md#principled-implementation An ordered vector Bernstein coefficient array whose degree is length minus one.
-   * @evidence contracts/common.md#clear-and-simple-design One structural record/alias preserves the storage consumed by the neighboring algebra operations.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type does not admit finite data, positive denominators or a regular geometric surface by itself.
-   * @evidence contracts/common.md#meaningful-documentation The declaration distinguishes coefficient ordering, parameter correspondence and enclosing value units.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A coefficient type performs no arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no memoization or work coordination.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type retains no coefficient array at runtime.
+   * @evidence contracts/development/design.md#principled-representation An ordered vector Bernstein coefficient array whose degree is length minus one.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One structural record/alias preserves the storage consumed by the neighboring algebra operations.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not admit finite data, positive denominators or a regular geometric surface by itself.
+   * @evidence contracts/development/common.md#meaningful-documentation The declaration distinguishes coefficient ordering, parameter correspondence and enclosing value units.
    */
   export type Poly = Vec[];
 
   /**
    * Tensor coefficient rows used only to derive curve courses and first variations.
    *
-   * @evidence contracts/common.md#principled-implementation An outer-parameter array of corresponding vector Bernstein rows.
-   * @evidence contracts/common.md#clear-and-simple-design One structural record/alias preserves the storage consumed by the neighboring algebra operations.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type does not admit finite data, positive denominators or a regular geometric surface by itself.
-   * @evidence contracts/common.md#meaningful-documentation The declaration distinguishes coefficient ordering, parameter correspondence and enclosing value units.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A coefficient type performs no arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no memoization or work coordination.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type retains no coefficient array at runtime.
+   * @evidence contracts/development/design.md#principled-representation An outer-parameter array of corresponding vector Bernstein rows.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One structural record/alias preserves the storage consumed by the neighboring algebra operations.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not admit finite data, positive denominators or a regular geometric surface by itself.
+   * @evidence contracts/development/common.md#meaningful-documentation The declaration distinguishes coefficient ordering, parameter correspondence and enclosing value units.
    */
   export type Grid = Poly[];
 
   /**
    * A rational vector field N/Q; the denominator must remain positive on the evaluated chart.
    *
-   * @evidence contracts/common.md#principled-implementation A vector homogeneous numerator and scalar denominator sharing one local quotient parameter.
-   * @evidence contracts/common.md#clear-and-simple-design One structural record/alias preserves the storage consumed by the neighboring algebra operations.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type does not admit finite data, positive denominators or a regular geometric surface by itself.
-   * @evidence contracts/common.md#meaningful-documentation The declaration distinguishes coefficient ordering, parameter correspondence and enclosing value units.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A coefficient type performs no arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no memoization or work coordination.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type retains no coefficient array at runtime.
+   * @evidence contracts/development/design.md#principled-representation A vector homogeneous numerator and scalar denominator sharing one local quotient parameter.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One structural record/alias preserves the storage consumed by the neighboring algebra operations.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not admit finite data, positive denominators or a regular geometric surface by itself.
+   * @evidence contracts/development/common.md#meaningful-documentation The declaration distinguishes coefficient ordering, parameter correspondence and enclosing value units.
    */
   export interface RecordV {
     /** Homogeneous vector numerator coefficients. */
@@ -79,13 +64,10 @@ export namespace AutoMovieBernstein64 {
   /**
    * A rational scalar transition N/Q in the same local parameter as its numerator.
    *
-   * @evidence contracts/common.md#principled-implementation A scalar numerator and denominator sharing one local quotient parameter.
-   * @evidence contracts/common.md#clear-and-simple-design One structural record/alias preserves the storage consumed by the neighboring algebra operations.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type does not admit finite data, positive denominators or a regular geometric surface by itself.
-   * @evidence contracts/common.md#meaningful-documentation The declaration distinguishes coefficient ordering, parameter correspondence and enclosing value units.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A coefficient type performs no arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no memoization or work coordination.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type retains no coefficient array at runtime.
+   * @evidence contracts/development/design.md#principled-representation A scalar numerator and denominator sharing one local quotient parameter.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One structural record/alias preserves the storage consumed by the neighboring algebra operations.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not admit finite data, positive denominators or a regular geometric surface by itself.
+   * @evidence contracts/development/common.md#meaningful-documentation The declaration distinguishes coefficient ordering, parameter correspondence and enclosing value units.
    */
   export interface RecordS {
     /** Homogeneous scalar numerator coefficients. */

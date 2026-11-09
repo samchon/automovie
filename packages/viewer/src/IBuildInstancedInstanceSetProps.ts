@@ -10,13 +10,10 @@ import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
  * caller-owned; construction flattens rigid representations before making
  * the viewer's own chunk meshes, materials and per-frame accounting state.
  *
- * @evidence contracts/common.md#principled-implementation Supplies compiled compact placements/LOD and model-id registries; sources must describe rigid single-material representations because flattening rejects skin/morph/multi-material input rather than silently changing their deformation.
- * @evidence contracts/common.md#clear-and-simple-design Keeps optional loaded prototypes beside portable models so the builder can borrow a loaded object or construct a missing representation without a second scene registry.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing prototype entries use the declared model, not fixture-specific fallbacks; referenced missing models and unsupported representations are refused by the builder.
- * @evidence contracts/common.md#meaningful-documentation Documents source ownership, model/prototype lookup keys, portable-model fallback and the supported rigid representation boundary.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This input record performs no prototype flattening or population traversal.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no construction or update request; its builder owns identity-based representation reuse.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Input maps borrow sources; owning runtime construction/disposal determines retained chunk resource lifetimes.
+ * @evidence contracts/development/design.md#principled-representation Supplies compiled compact placements/LOD and model-id registries; sources must describe rigid single-material representations because flattening rejects skin/morph/multi-material input rather than silently changing their deformation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps optional loaded prototypes beside portable models so the builder can borrow a loaded object or construct a missing representation without a second scene registry.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing prototype entries use the declared model, not fixture-specific fallbacks; referenced missing models and unsupported representations are refused by the builder.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents source ownership, model/prototype lookup keys, portable-model fallback and the supported rigid representation boundary.
  */
 export interface IBuildInstancedInstanceSetProps {
   /**

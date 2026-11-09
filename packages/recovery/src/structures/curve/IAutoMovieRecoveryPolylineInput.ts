@@ -1,16 +1,13 @@
-import type { IAutoMovieCurve64 } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieCurve64 } from "@automovie/engine";
 
 /**
  * Explicitly ordered physical observations for one named polynomial approximation.
  * The caller establishes feature correspondence, order, closure and corners before fitting.
  *
- * @evidence contracts/common.md#principled-implementation Ordered millimetre observations and declared closure/corners define the existing tangent-constrained fitting problem.
- * @evidence contracts/common.md#clear-and-simple-design One input separates feature semantics owned by the caller from numerical approximation owned by recovery.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source topology, inferred closure, anatomical identity or higher-degree curve is supplied as a cubic.
- * @evidence contracts/common.md#meaningful-documentation Members state ordering, millimetre units, physical phase, finite budgets and supported parameterization.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased input performs no fitting.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller owns immutable observations during the synchronous operation.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The declaration owns no runtime resources.
+ * @evidence contracts/development/design.md#principled-representation Ordered millimetre observations and declared closure/corners define the existing tangent-constrained fitting problem.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One input separates feature semantics owned by the caller from numerical approximation owned by recovery.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No source topology, inferred closure, anatomical identity or higher-degree curve is supplied as a cubic.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state ordering, millimetre units, physical phase, finite budgets and supported parameterization.
  */
 export interface IAutoMovieRecoveryPolylineInput {
   /** Stable semantic name retained by the fitted curve. */

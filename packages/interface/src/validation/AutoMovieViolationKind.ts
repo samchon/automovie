@@ -3,10 +3,10 @@
  *
  * Validators assign the category to explain the rule that failed. The label itself neither schedules checks nor chooses severity.
  *
- * @evidence contracts/common.md#principled-implementation The closed union distinguishes structural, numeric, anatomical, physical, temporal, topology and coverage rules reported by engine validators; error versus warning is carried separately.
- * @evidence contracts/common.md#clear-and-simple-design A literal category travels in the common violation record without a class hierarchy or automatic dispatcher.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The type makes no timing benchmark or automatic correction claim; physical findings can be warnings while malformed geometry is an error according to the producer.
- * @evidence contracts/common.md#meaningful-documentation Each literal describes its rule category, and the introduction separates classification from severity and execution order.
+ * @evidence contracts/development/design.md#principled-representation The closed union distinguishes structural, numeric, anatomical, physical, temporal, topology and coverage rules reported by engine validators; error versus warning is carried separately.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface A literal category travels in the common violation record without a class hierarchy or automatic dispatcher.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The type makes no timing benchmark or automatic correction claim; physical findings can be warnings while malformed geometry is an error according to the producer.
+ * @evidence contracts/development/common.md#meaningful-documentation Each literal describes its rule category, and the introduction separates classification from severity and execution order.
  */
 export type AutoMovieViolationKind =
   /** Tier 1: wrong type, bad enum value, missing required field. */

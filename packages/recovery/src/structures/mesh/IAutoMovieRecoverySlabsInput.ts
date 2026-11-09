@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryInput } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryInput } from "@automovie/interface";
 
 import type { IAutoMovieRecoverySavedSection } from "./IAutoMovieRecoverySavedSection";
 import type { IAutoMovieRecoverySlabPair } from "./IAutoMovieRecoverySlabPair";
@@ -9,13 +9,10 @@ import type { IAutoMovieRecoverySlabPair } from "./IAutoMovieRecoverySlabPair";
  * caller verifies original bytes, registration and selection before this call.
  * Raw-cut equality cannot establish a named curve's geometric correctness.
  *
- * @evidence contracts/common.md#principled-implementation Borrowed registered triangles, a fixed physical projection and saved exact contour addresses define the same deterministic cutter and source-cell problem. Saved section frames and alias policies must match before source work.
- * @evidence contracts/common.md#clear-and-simple-design The input contains source observation and symbolic publication data only; no coefficient payload, basis selector, fit policy, surface recipe or retry capability is present.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source arrays remain private to observation. No source mesh/normal fallback, component selection, arbitrary curve trust, resampling or regenerated normal curve is introduced.
- * @evidence contracts/common.md#meaningful-documentation States coordinate units, original ordinal lifetime, caller provenance responsibility, endpoint coverage and absence of coefficient evaluation or failed-fit resume.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased contract performs no cutting or fitting.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Preparation reuse belongs to the observer rather than the type.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Source arrays remain borrowed and must stay unchanged during the synchronous call.
+ * @evidence contracts/development/design.md#principled-representation Borrowed registered triangles, a fixed physical projection and saved exact contour addresses define the same deterministic cutter and source-cell problem. Saved section frames and alias policies must match before source work.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The input contains source observation and symbolic publication data only; no coefficient payload, basis selector, fit policy, surface recipe or retry capability is present.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Source arrays remain private to observation. No source mesh/normal fallback, component selection, arbitrary curve trust, resampling or regenerated normal curve is introduced.
+ * @evidence contracts/development/common.md#meaningful-documentation States coordinate units, original ordinal lifetime, caller provenance responsibility, endpoint coverage and absence of coefficient evaluation or failed-fit resume.
  */
 export interface IAutoMovieRecoverySlabsInput extends Pick<
   IAutoMovieRecoveryInput,

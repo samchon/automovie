@@ -20,13 +20,13 @@ const TOLERANCE: number = 1e-6;
  * @param volume The posed volume at a joint factor.
  * @returns The last factor tried.
  *
- * @evidence contracts/common.md#principled-implementation The secant method on the one-dimensional volume equation, started from the area law, the rescaling step of sweep-based deformation's volume preservation.
- * @evidence contracts/common.md#clear-and-simple-design One search shared by `poseAutoMovieSweep` and posed rigs, which differ only in how they evaluate the volume.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The step count, tolerance and lower bound are fixed and stated, not tuned per caller.
- * @evidence contracts/common.md#meaningful-documentation States the starts, the stopping rules, the bound and the source.
- * @evidence contracts/performance.md#efficient-algorithms At most ten volume evaluations and no allocation of its own.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A search; the caller's volume function owns any reuse.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#principled-implementation The secant method on the one-dimensional volume equation, started from the area law, the rescaling step of sweep-based deformation's volume preservation.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One search shared by `poseAutoMovieSweep` and posed rigs, which differ only in how they evaluate the volume.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step count, tolerance and lower bound are fixed and stated, not tuned per caller.
+ * @evidence contracts/development/common.md#meaningful-documentation States the starts, the stopping rules, the bound and the source.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most ten volume evaluations and no allocation of its own.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A search; the caller's volume function owns any reuse.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export const settleAutoMovieSweepVolume: (
   target: number,

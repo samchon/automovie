@@ -3,10 +3,10 @@ import type { IScenarioSelection } from "./IScenarioSelection";
 /**
  * Admit argv before discovery: space-separated groups need at least one term per occurrence, equals forms contain one term and repeated groups accumulate in order. Unknown options, positional tokens and blank or option-like terms retain their existing refusal messages.
  *
- * @evidence contracts/testing.md#behavioral-verification The existing workspace selection entry asserts exact parsed lists and that invalid argv never reaches discovery, catching silent widening to the default full suite.
- * @evidence contracts/testing.md#independent-expectations Literal include/exclude lists and the supported option grammar provide expected requests; no filesystem names or parser output manufacture those expectations.
- * @evidence contracts/testing.md#distinguishing-cases Owning cases retain empty argv, repeated groups, multiple terms, equals forms and valueless/blank/unknown/positional/option-like refusals; name matching and discovery failure belong to the selection/filter helpers.
- * @evidence contracts/testing.md#execution-ownership This synchronous portable helper is called before the runner's discovery pass and by the existing selection test; it scans argv and stores admitted terms with no shared cache, process launch or filesystem access.
+ * @evidence contracts/development/testing.md#behavioral-verification The existing workspace selection entry asserts exact parsed lists and that invalid argv never reaches discovery, catching silent widening to the default full suite.
+ * @evidence contracts/development/testing.md#independent-expectations Literal include/exclude lists and the supported option grammar provide expected requests; no filesystem names or parser output manufacture those expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owning cases retain empty argv, repeated groups, multiple terms, equals forms and valueless/blank/unknown/positional/option-like refusals; name matching and discovery failure belong to the selection/filter helpers.
+ * @evidence contracts/development/testing.md#execution-ownership This synchronous portable helper is called before the runner's discovery pass and by the existing selection test; it scans argv and stores admitted terms with no shared cache, process launch or filesystem access.
  */
 export function parseScenarioSelection(
   argv: readonly string[],

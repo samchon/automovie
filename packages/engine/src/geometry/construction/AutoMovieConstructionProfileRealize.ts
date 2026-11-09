@@ -16,13 +16,13 @@ import type { IAutoMovieConstructionProfileSource } from "./IAutoMovieConstructi
  * leaf admission; appended body/list changes roll back to the same checkpoint.
  * Exceptions from later retained readers keep their existing operator policy.
  *
- * @evidence contracts/common.md#principled-implementation Requires equality of the full closed source declaration and realizes its actual functions through Profile/Body, preserving original clocks, planes, regions and revisions before any retained face is published.
- * @evidence contracts/common.md#clear-and-simple-design One leaf handler keeps invocation lookup, preparation and append-only rollback together; no runtime callbacks enter the pure construction union.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing/mismatched source is diagnosed, never fitted, renamed or replaced. Metadata equality identifies the intended declaration and does not prove immutable foreign functions or binding weights.
- * @evidence contracts/common.md#meaningful-documentation States lookup key, pure equality, initial versus retained exceptions and rollback ownership.
- * @evidence contracts/performance.md#efficient-algorithms Structural equality sorts object keys in O(D log D) worst-case declaration work; actual profile/grid/source evaluation dominates geometry. A checkpoint includes existing face/cycle populations, not a mesh copy.
- * @evidence contracts/performance.md#reuse-equivalent-work The prepared original readers and shared boundary indices are retained once for later atlas, skin and inspection consumers; no second source-family preparation is introduced.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Invocation context is borrowed; retained prepared readers transfer to realization on success, while failed appends and source references are released by checkpoint rollback with no global registry.
+ * @evidence contracts/development/implementation.md#principled-implementation Requires equality of the full closed source declaration and realizes its actual functions through Profile/Body, preserving original clocks, planes, regions and revisions before any retained face is published.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One leaf handler keeps invocation lookup, preparation and append-only rollback together; no runtime callbacks enter the pure construction union.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing/mismatched source is diagnosed, never fitted, renamed or replaced. Metadata equality identifies the intended declaration and does not prove immutable foreign functions or binding weights.
+ * @evidence contracts/development/common.md#meaningful-documentation States lookup key, pure equality, initial versus retained exceptions and rollback ownership.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Structural equality sorts object keys in O(D log D) worst-case declaration work; actual profile/grid/source evaluation dominates geometry. A checkpoint includes existing face/cycle populations, not a mesh copy.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The prepared original readers and shared boundary indices are retained once for later atlas, skin and inspection consumers; no second source-family preparation is introduced.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Invocation context is borrowed; retained prepared readers transfer to realization on success, while failed appends and source references are released by checkpoint rollback with no global registry.
  */
 export function AutoMovieConstructionProfileRealize(
   node: IAutoMovieConstructionProfile & { type: "profile" },

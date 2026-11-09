@@ -3,10 +3,10 @@
  *
  * Every field is derived from the records alone, so a production can be refused for an unaffordable green wall before a single branch is grown.
  *
- * @evidence contracts/common.md#principled-implementation plantingBudget walks the admitted branching depth and maximum length-jitter law, summing complete-tree branches and density-derived worst-case leaves before multiplying by requested cluster members.
- * @evidence contracts/common.md#clear-and-simple-design Derived worst-case demand remains separate from authored branch/leaf caps so validation compares a recipe's actual bound with its declared affordability.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Leaf cost is not copied from maxLeaves and bare foliage has zero leaves; admitted depth bounds are a premise so an unbounded declared tree cannot exhaust the budget computation itself.
- * @evidence contracts/common.md#meaningful-documentation Defines recipe attribution, unpruned full-growth bounds, declared caps and standalone-versus-cluster member multiplication.
+ * @evidence contracts/development/design.md#principled-representation plantingBudget walks the admitted branching depth and maximum length-jitter law, summing complete-tree branches and density-derived worst-case leaves before multiplying by requested cluster members.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Derived worst-case demand remains separate from authored branch/leaf caps so validation compares a recipe's actual bound with its declared affordability.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Leaf cost is not copied from maxLeaves and bare foliage has zero leaves; admitted depth bounds are a premise so an unbounded declared tree cannot exhaust the budget computation itself.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines recipe attribution, unpruned full-growth bounds, declared caps and standalone-versus-cluster member multiplication.
  */
 export interface IAutoMoviePlantingBudget {
   /** Identity of the measured recipe. */

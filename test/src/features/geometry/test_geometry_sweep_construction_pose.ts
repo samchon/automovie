@@ -19,10 +19,11 @@ import { sweepBranchedSkeleton } from "../internal/sweepBranchedSkeleton";
  * 1. Cold-compile the complete branched network with and without observations, then bend its arm and leg together without volume preservation and compare every emitted control and target.
  * 2. Posing moves the generated body while the observed construction retains every rest coordinate.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds and poses both real rigs inside this entry, comparing complete buffers and the retained observation snapshot. Changed frame/scale registration or observations that follow pose fail.
- * @evidence contracts/testing.md#independent-expectations The same network, bones and pose define the unobserved control; asking for construction must preserve it exactly while its snapshot remains at rest. Movement is separately required, excluding a no-op pose.
- * @evidence contracts/testing.md#distinguishing-cases Covers simultaneous arm and leg movement, observations present/absent and snapshot lifetime on the full branched network. Boundary observation owns curve/filter distinction; construction volume owns active joint rescaling on a minimal joint fixture.
- * @evidence contracts/testing.md#execution-ownership A portable synchronous test_geometry_sweep_construction_pose entry; fixture creation, both cold rig compiles and both poses are inside the measured operation, without a process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds and poses both real rigs inside this entry, comparing complete buffers and the retained observation snapshot. Changed frame/scale registration or observations that follow pose fail.
+ * @evidence contracts/development/testing.md#independent-expectations The same network, bones and pose define the unobserved control; asking for construction must preserve it exactly while its snapshot remains at rest. Movement is separately required, excluding a no-op pose.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers simultaneous arm and leg movement, observations present/absent and snapshot lifetime on the full branched network. Boundary observation owns curve/filter distinction; construction volume owns active joint rescaling on a minimal joint fixture.
+ * @evidence contracts/development/testing.md#execution-ownership A portable synchronous test_geometry_sweep_construction_pose entry; fixture creation, both cold rig compiles and both poses are inside the measured operation, without a process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Cold-compile the complete branched network with and without observations, then bend its arm and leg together without volume preservation...).
  */
 export function test_geometry_sweep_construction_pose(): void {
   const network: IAutoMovieSurfaceNetwork = sweepBranchedBody();

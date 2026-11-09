@@ -12,10 +12,11 @@ import { hasViolation } from "../internal/hasViolation";
  * Scenarios:
  * 1. A valid clip relabeled to another skeleton id fails with a type violation on its skeleton field.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateMotion with only the enclosing skeleton identity changed and requires a type finding at that field, catching a gate that checks only poses.
- * @evidence contracts/testing.md#independent-expectations A clip targets the supplied rig identity; literal skeleton-2 and skeleton-1 differ, so the expected refusal does not require a sampled pose.
- * @evidence contracts/testing.md#distinguishing-cases Retains supported per-key poses while mismatching the enclosing reference; keyframe_skeleton owns the inverse case and motion_valid owns full identity agreement.
- * @evidence contracts/testing.md#execution-ownership The named unit exercises portable admission through the existing factories, without rig binding, Human assets or a host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateMotion with only the enclosing skeleton identity changed and requires a type finding at that field, catching a gate that checks only poses.
+ * @evidence contracts/development/testing.md#independent-expectations A clip targets the supplied rig identity; literal skeleton-2 and skeleton-1 differ, so the expected refusal does not require a sampled pose.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains supported per-key poses while mismatching the enclosing reference; keyframe_skeleton owns the inverse case and motion_valid owns full identity agreement.
+ * @evidence contracts/development/testing.md#execution-ownership The named unit exercises portable admission through the existing factories, without rig binding, Human assets or a host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A valid clip relabeled to another skeleton id fails with a type violation on its skeleton field.).
  */
 export function test_validation_motion_skeleton_id(): void {
   const result: IAutoMovieValidation = validateMotion({

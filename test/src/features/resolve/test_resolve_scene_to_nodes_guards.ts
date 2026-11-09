@@ -57,10 +57,11 @@ const scene: (nodeId: string, modelRef: string) => IAutoMovieScene = (
  *    always pass both).
  * 6. Mutating one returned synthetic root cannot change another lowered root or later default roots.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual sceneToNodes/lowerSkeletonNodes/composeScene; checks registry/namespace refusal and root defaults, then mutates returned root vectors to reject escaped shared private identity storage.
- * @evidence contracts/testing.md#independent-expectations Missing registries permit placement-only output, present registries must resolve every model, and duplicate concrete ids are ambiguous. A synthetic motion root starts at zero translation, identity quaternion and unit scale; mutating one owned result must not change independently created results.
- * @evidence contracts/testing.md#distinguishing-cases Covers omitted/present/missing registry, a lowered-node collision, bare root/prefix defaults and root mutation versus sibling/future calls. Placement/pose world parity belongs to test_resolve_scene_to_nodes rather than these admission/ownership cases.
- * @evidence contracts/testing.md#execution-ownership The exported test_resolve_scene_to_nodes_guards owns portable synchronous bridge/default cases through actual output; it creates no new Human asset or inspection host and replaces no foreign methods.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual sceneToNodes/lowerSkeletonNodes/composeScene; checks registry/namespace refusal and root defaults, then mutates returned root vectors to reject escaped shared private identity storage.
+ * @evidence contracts/development/testing.md#independent-expectations Missing registries permit placement-only output, present registries must resolve every model, and duplicate concrete ids are ambiguous. A synthetic motion root starts at zero translation, identity quaternion and unit scale; mutating one owned result must not change independently created results.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers omitted/present/missing registry, a lowered-node collision, bare root/prefix defaults and root mutation versus sibling/future calls. Placement/pose world parity belongs to test_resolve_scene_to_nodes rather than these admission/ownership cases.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_resolve_scene_to_nodes_guards owns portable synchronous bridge/default cases through actual output; it creates no new Human asset or inspection host and replaces no foreign methods.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Registry omitted → placements-only lowering: no bone subtree, no throw.).
  */
 export function test_resolve_scene_to_nodes_guards(): void {
   const model: IAutoMovieModel = { ...createModel(), id: "hero" };

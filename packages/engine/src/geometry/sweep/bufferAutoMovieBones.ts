@@ -16,13 +16,13 @@ import { IAutoMovieBoneBuffer } from "./IAutoMovieBoneBuffer";
  * @param rest Bones at rest, from `resolvePose` of an empty pose; only read.
  * @returns The buffer, every motion the identity until updated.
  *
- * @evidence contracts/common.md#principled-implementation The same rigid motion `createAutoMovieBoneMotion` builds, computed into arrays.
- * @evidence contracts/common.md#clear-and-simple-design Name resolution once at creation, index access per pose.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A posed list out of step with the rest list is refused; it is not reordered.
- * @evidence contracts/common.md#meaningful-documentation States the transform and its source.
- * @evidence contracts/performance.md#efficient-algorithms O(B) to index B bones; `update` is O(B) and each point or direction constant time, none allocating.
- * @evidence contracts/performance.md#reuse-equivalent-work Each bone's rotation is computed once per pose and shared by every point and direction riding it.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains 10 B numbers and the name index, released with the buffer.
+ * @evidence contracts/development/implementation.md#principled-implementation The same rigid motion `createAutoMovieBoneMotion` builds, computed into arrays.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Name resolution once at creation, index access per pose.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A posed list out of step with the rest list is refused; it is not reordered.
+ * @evidence contracts/development/common.md#meaningful-documentation States the transform and its source.
+ * @evidence contracts/development/implementation.md#efficient-algorithms O(B) to index B bones; `update` is O(B) and each point or direction constant time, none allocating.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each bone's rotation is computed once per pose and shared by every point and direction riding it.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains 10 B numbers and the name index, released with the buffer.
  */
 export const bufferAutoMovieBones: (
   rest: readonly IAutoMovieResolvedBone[],

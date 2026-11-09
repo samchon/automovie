@@ -13,26 +13,46 @@ import { CaptureOptions } from "../../../../../packages/human/src/inspection/Cap
  * 4. Refusals: an unknown member (`originalclay`), an unknown flag, a flag without a value, a value starting with `--`, and an out-of-range size all throw.
  * 5. A plan supplies values the flags do not, and a flag overrides the plan.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls `CaptureOptions.parse` on argv arrays as `node:capture` receives them and asserts the resolved options or the thrown refusal.
- * @evidence contracts/testing.md#independent-expectations Expected lists are written by hand from the documented separator rule and the documented defaults; no parse output is copied.
- * @evidence contracts/testing.md#distinguishing-cases Commas, spaces, padding and empty members; every list flag kind; defaults; five refusals; plan versus flag precedence. Red: an unsplit and a truncated list.
- * @evidence contracts/testing.md#execution-ownership A synchronous CPU unit reached by `--include human_capture_options`; no process, file or canvas.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `CaptureOptions.parse` on argv arrays as `node:capture` receives them and asserts the resolved options or the thrown refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Expected lists are written by hand from the documented separator rule and the documented defaults; no parse output is copied.
+ * @evidence contracts/development/testing.md#distinguishing-cases Commas, spaces, padding and empty members; every list flag kind; defaults; five refusals; plan versus flag precedence. Red: an unsplit and a truncated list.
+ * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit reached by `--include human_capture_options`; no process, file or canvas.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Red proofs: the list checker rejects a parse that kept `original clay` as one member and one that dropped the second member.).
  */
 export function test_human_capture_options(): void {
   const failures: string[] = [];
   const want: string = JSON.stringify(["original", "clay"]);
 
   // 1. Red proofs.
-  if (listFinding(["original clay"], want) === null) failures.push("proof: an unsplit member read as two members");
-  if (listFinding(["original"], want) === null) failures.push("proof: a dropped member read as complete");
+  if (listFinding(["original clay"], want) === null)
+    failures.push("proof: an unsplit member read as two members");
+  if (listFinding(["original"], want) === null)
+    failures.push("proof: a dropped member read as complete");
 
   // 2. Separators.
-  for (const raw of ["original,clay", "original clay", " original , clay ", "original,,clay"]) {
-    const finding: string | null = listFinding(CaptureOptions.parse(["--stages", raw]).stages, want);
+  for (const raw of [
+    "original,clay",
+    "original clay",
+    " original , clay ",
+    "original,,clay",
+  ]) {
+    const finding: string | null = listFinding(
+      CaptureOptions.parse(["--stages", raw]).stages,
+      want,
+    );
     if (finding !== null) failures.push(`stages "${raw}": ${finding}`);
   }
-  if (JSON.stringify(CaptureOptions.parse(["--frame", "local world"]).frames) !== JSON.stringify(["local", "world"])) failures.push("frames with a space did not split");
-  if (JSON.stringify(CaptureOptions.parse(["--parts", "arm.left leg.*"]).parts) !== JSON.stringify(["arm.left", "leg.*"])) failures.push("parts with a space did not split");
+  if (
+    JSON.stringify(CaptureOptions.parse(["--frame", "local world"]).frames) !==
+    JSON.stringify(["local", "world"])
+  )
+    failures.push("frames with a space did not split");
+  if (
+    JSON.stringify(
+      CaptureOptions.parse(["--parts", "arm.left leg.*"]).parts,
+    ) !== JSON.stringify(["arm.left", "leg.*"])
+  )
+    failures.push("parts with a space did not split");
 
   // 3. Defaults.
   const d: CaptureOptions.IOptions = CaptureOptions.parse([]);
@@ -49,7 +69,8 @@ export function test_human_capture_options(): void {
     cell: 300,
     referenceCache: "rows",
   });
-  if (JSON.stringify(d) !== defaults) failures.push(`defaults ${JSON.stringify(d)}`);
+  if (JSON.stringify(d) !== defaults)
+    failures.push(`defaults ${JSON.stringify(d)}`);
 
   // 4. Refusals.
   for (const [name, argv] of [
@@ -69,13 +90,27 @@ export function test_human_capture_options(): void {
   }
 
   // 5. Plan and flag precedence.
-  const planned: CaptureOptions.IOptions = CaptureOptions.parse(["--views", "front"], { views: ["top"], stages: ["clay"] });
-  if (JSON.stringify(planned.views) !== JSON.stringify(["front"]) || JSON.stringify(planned.stages) !== JSON.stringify(["clay"])) failures.push(`plan precedence: views ${planned.views.join(",")}, stages ${planned.stages.join(",")}`);
+  const planned: CaptureOptions.IOptions = CaptureOptions.parse(
+    ["--views", "front"],
+    { views: ["top"], stages: ["clay"] },
+  );
+  if (
+    JSON.stringify(planned.views) !== JSON.stringify(["front"]) ||
+    JSON.stringify(planned.stages) !== JSON.stringify(["clay"])
+  )
+    failures.push(
+      `plan precedence: views ${planned.views.join(",")}, stages ${planned.stages.join(",")}`,
+    );
 
-  if (failures.length !== 0) throw new Error(`${failures.length} capture option findings:\n${failures.join("\n")}`);
+  if (failures.length !== 0)
+    throw new Error(
+      `${failures.length} capture option findings:\n${failures.join("\n")}`,
+    );
 }
 
 /** Null when the list equals the expected JSON, otherwise the departure. */
 function listFinding(list: readonly string[], expected: string): string | null {
-  return JSON.stringify(list) === expected ? null : `got ${JSON.stringify(list)}`;
+  return JSON.stringify(list) === expected
+    ? null
+    : `got ${JSON.stringify(list)}`;
 }

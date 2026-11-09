@@ -15,10 +15,11 @@ import { namedFacts, throwsError } from "../internal/predicates";
  * 4. The order is code-unit order rather than authored order, so two callers comparing populations compare the same list.
  * 5. A space the record does not hold is refused by name rather than answered with an empty subtree, which would read as a real room containing nothing.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls builtEnvironmentDescendantSpaces for house, upper, gallery and the missing cellar, comparing the complete sorted root list, joined middle/leaf lists and named throw fragments. A one-level walk, authored-order output or ancestor/sibling inclusion changes these observations.
- * @evidence contracts/testing.md#independent-expectations The authored parent links place wing/hall under house and attic/gallery under upper, so explicit expected root, middle and leaf lists follow the graph without calling another descendant fold.
- * @evidence contracts/testing.md#distinguishing-cases Root, intermediate and singleton leaf populations plus unknown-space refusal separate descent from authored order and ancestor/sibling inclusion; cyclic graph admission belongs to building validation.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_descendant_spaces imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls builtEnvironmentDescendantSpaces for house, upper, gallery and the missing cellar, comparing the complete sorted root list, joined middle/leaf lists and named throw fragments. A one-level walk, authored-order output or ancestor/sibling inclusion changes these observations.
+ * @evidence contracts/development/testing.md#independent-expectations The authored parent links place wing/hall under house and attic/gallery under upper, so explicit expected root, middle and leaf lists follow the graph without calling another descendant fold.
+ * @evidence contracts/development/testing.md#distinguishing-cases Root, intermediate and singleton leaf populations plus unknown-space refusal separate descent from authored order and ancestor/sibling inclusion; cyclic graph admission belongs to building validation.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit test_architecture_descendant_spaces imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A root names itself and everything beneath it, at every depth.).
  */
 export function test_architecture_descendant_spaces(): void {
   const record: IAutoMovieBuiltEnvironment = storeys();

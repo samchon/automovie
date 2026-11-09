@@ -15,13 +15,13 @@ import { materializeCompiledInstanceSet } from "./materializeCompiledInstanceSet
  * the inventory is the same whatever order the world lists its sets in. A
  * world that declares no instance sets compiles to an empty inventory.
  *
- * @evidence contracts/common.md#principled-implementation Sort instance-set ids by code units and compile each against the world route inventory and shared model group/radius maps; absent world instance sets yield an empty dictionary.
- * @evidence contracts/common.md#clear-and-simple-design This owner provides deterministic inventory order and delegates every placement/digest decision to materializeCompiledInstanceSet.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Object.fromEntries preserves arbitrary ids as own keys; no consumer or fixture chooses a different route, prototype or summary law.
- * @evidence contracts/common.md#meaningful-documentation Docs give keyed compact output, optional input inventory meaning and shared host measurement inputs, including approximate radius fallback.
- * @evidence contracts/performance.md#efficient-algorithms I sets cost O(I log I) ordering plus their complete slot/prototype/route compilation work and retained output sizes.
- * @evidence contracts/performance.md#reuse-equivalent-work Model group and radius maps are borrowed once for all entries; mutable world routes and set laws mean prior compiled results are not reusable merely by id.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller receives the inventory and compact snapshots; local sorted entries and failed partial results are collectable, with no open resource or worker.
+ * @evidence contracts/development/implementation.md#principled-implementation Sort instance-set ids by code units and compile each against the world route inventory and shared model group/radius maps; absent world instance sets yield an empty dictionary.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This owner provides deterministic inventory order and delegates every placement/digest decision to materializeCompiledInstanceSet.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Object.fromEntries preserves arbitrary ids as own keys; no consumer or fixture chooses a different route, prototype or summary law.
+ * @evidence contracts/development/common.md#meaningful-documentation Docs give keyed compact output, optional input inventory meaning and shared host measurement inputs, including approximate radius fallback.
+ * @evidence contracts/development/implementation.md#efficient-algorithms I sets cost O(I log I) ordering plus their complete slot/prototype/route compilation work and retained output sizes.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Model group and radius maps are borrowed once for all entries; mutable world routes and set laws mean prior compiled results are not reusable merely by id.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller receives the inventory and compact snapshots; local sorted entries and failed partial results are collectable, with no open resource or worker.
  */
 export const materializeCompiledInstanceSetInventory: (props: {
   /** World whose instance sets and routes are compiled. */ world: Pick<

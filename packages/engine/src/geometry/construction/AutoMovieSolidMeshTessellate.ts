@@ -28,25 +28,22 @@ const { dot, norm }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 /**
  * Published seam strips, pole fans and explicit external-ring bridges.
  *
- * @evidence contracts/common.md#principled-implementation Preserves the analytic seam grid and existing consistently oriented fan/zip populations; final writes and orientation readings belong to MeshWrite.
- * @evidence contracts/common.md#clear-and-simple-design Three topology operations remain separate from native trimmed-face region preparation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not infer construction from triangles, weld seams by position or use these explicit ring operations as a fallback for failed trim-region triangulation.
- * @evidence contracts/common.md#meaningful-documentation States each population's source/chart premise and the difference from native face arrangement.
- * @evidence contracts/performance.md#efficient-algorithms Seam work scales with columns times rows; closure scans its triangles, while bridge adds existing alignment, polyline-arc and zipper costs.
- * @evidence contracts/performance.md#reuse-equivalent-work Shared rail indices join the seam and its owning faces; no additional boundary copy or global geometry cache is introduced.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Emitted buffers/owners live with the caller's mesh; all strip, fan and bridge scratch ends with each synchronous call.
+ * @evidence contracts/development/common.md#meaningful-documentation States each population's source/chart premise and the difference from native face arrangement.
+ * @evidence contracts/development/design.md#principled-representation Represents Published seam strips, pole fans and explicit external-ring bridges: companion namespace of 3 members (`seam`, `close`, `bridge`); units and frames named in its text: local, world. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidMeshTessellate` in packages/engine/src/geometry/construction/AutoMovieSolidMeshTessellate.ts; its surface is the 3 members listed and the text shows 1 other file naming it, mostly packages/engine (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieSolidMeshTessellate {
   /**
    * Evaluate both source rails and the published blend's interior rows.
    *
-   * @evidence contracts/common.md#principled-implementation Builds one indexed strip per adjacent analytic column, shares the exact source rail indices later used by both trims and applies the blend's authoritative chart orientation to the entire triangle population.
-   * @evidence contracts/common.md#clear-and-simple-design One returned host/part pair records the new boundary indices and their original source charts.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Admits actual period, orientation and finite ordered clock columns before writes; open bands refuse. Outward sign comes from the actual blend chart, never a chord triangle or another face's normal. Original exceptions restore this call's append-only mesh changes and retain identity.
-   * @evidence contracts/common.md#meaningful-documentation Names actual clock columns, legacy default2pi, kernel transverse/clock order, shared identity and append-only rollback. Sources/callbacks must not mutate or reenter this mesh.
-   * @evidence contracts/performance.md#efficient-algorithms O(CR) jet/vertex/triangle work for C columns and R rows plus three owner-name scans; the chart sign needs no triangle-normal scan or host rereading.
-   * @evidence contracts/performance.md#reuse-equivalent-work Rail vertices are each evaluated once and the same indices serve the strip and both returned trims.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The mesh retains appended geometry and owner closures; returned loops own their index arrays but borrow the supplied charts, while grid/triangle scratch is local.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds one indexed strip per adjacent analytic column, shares the exact source rail indices later used by both trims and applies the blend's authoritative chart orientation to the entire triangle population.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One returned host/part pair records the new boundary indices and their original source charts.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Admits actual period, orientation and finite ordered clock columns before writes; open bands refuse. Outward sign comes from the actual blend chart, never a chord triangle or another face's normal. Original exceptions restore this call's append-only mesh changes and retain identity.
+   * @evidence contracts/development/common.md#meaningful-documentation Names actual clock columns, legacy default2pi, kernel transverse/clock order, shared identity and append-only rollback. Sources/callbacks must not mutate or reenter this mesh.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(CR) jet/vertex/triangle work for C columns and R rows plus three owner-name scans; the chart sign needs no triangle-normal scan or host rereading.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Rail vertices are each evaluated once and the same indices serve the strip and both returned trims.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The mesh retains appended geometry and owner closures; returned loops own their index arrays but borrow the supplied charts, while grid/triangle scratch is local.
    */
   export function seam(
     mesh: AutoMovieSolidMesh.IMesh,
@@ -178,13 +175,13 @@ export namespace AutoMovieSolidMeshTessellate {
   /**
    * Emit an endpoint fan opposite its positive native boundary traversal.
    *
-   * @evidence contracts/common.md#principled-implementation The supplied edge-next-apex fan reverses the positive native face boundary, then applies the source orientation sign and cutter inversion to the whole population.
-   * @evidence contracts/common.md#clear-and-simple-design Closure owns no pole selection or new point; the caller supplies both fan topology and source surface.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Requires the caller's fan to follow an admitted complete IOpen boundary. It neither queries foreign-owner chart coordinates nor closes arbitrary residual trim arcs.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes fan emission from endpoint/pole admission and states cutter inversion.
-   * @evidence contracts/performance.md#efficient-algorithms Linear triangle emission with no source reevaluation or largest-reference search.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the caller's indexed fan, performing no source point evaluation or tessellation again.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only appended indices persist in mesh; no fan or surface reference is newly retained by the operation.
+   * @evidence contracts/development/implementation.md#principled-implementation The supplied edge-next-apex fan reverses the positive native face boundary, then applies the source orientation sign and cutter inversion to the whole population.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Closure owns no pole selection or new point; the caller supplies both fan topology and source surface.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Requires the caller's fan to follow an admitted complete IOpen boundary. It neither queries foreign-owner chart coordinates nor closes arbitrary residual trim arcs.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes fan emission from endpoint/pole admission and states cutter inversion.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear triangle emission with no source reevaluation or largest-reference search.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the caller's indexed fan, performing no source point evaluation or tessellation again.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only appended indices persist in mesh; no fan or surface reference is newly retained by the operation.
    */
   export function close(
     mesh: AutoMovieSolidMesh.IMesh,
@@ -204,13 +201,13 @@ export namespace AutoMovieSolidMeshTessellate {
   /**
    * Join an explicit event ring to its admitted open endpoint cycle.
    *
-   * @evidence contracts/common.md#principled-implementation Preserves the existing world-polyline alignment/arclength zipper and turns its whole population against the caller's outward reference.
-   * @evidence contracts/common.md#clear-and-simple-design Returns triangles only; the Human caller adds them to buffers where its event ring already lives.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Requires compatible ring/endpoint cycles rather than applying a zipper to arbitrary trimmed regions. It reads positions only, preserving the Human positions-only view.
-   * @evidence contracts/common.md#meaningful-documentation States ring provenance, reference ownership and absence of vertex/mesh mutation.
-   * @evidence contracts/performance.md#efficient-algorithms Includes existing alignment and arc scans, a linear zipper and a scan over its resulting triangle normals.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses original ring/cycle indices and the provided reference; does not reevaluate a surface or create a duplicate boundary.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh triangle array; temporary alignment/angle/normal data expires and no mesh/surface callback is retained.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserves the existing world-polyline alignment/arclength zipper and turns its whole population against the caller's outward reference.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Returns triangles only; the Human caller adds them to buffers where its event ring already lives.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Requires compatible ring/endpoint cycles rather than applying a zipper to arbitrary trimmed regions. It reads positions only, preserving the Human positions-only view.
+   * @evidence contracts/development/common.md#meaningful-documentation States ring provenance, reference ownership and absence of vertex/mesh mutation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Includes existing alignment and arc scans, a linear zipper and a scan over its resulting triangle normals.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses original ring/cycle indices and the provided reference; does not reevaluate a surface or create a duplicate boundary.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh triangle array; temporary alignment/angle/normal data expires and no mesh/surface callback is retained.
    */
   export function bridge(
     mesh: AutoMovieSolidMesh.IMesh,

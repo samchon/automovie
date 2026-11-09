@@ -1,10 +1,10 @@
 /**
  * Caller-supplied corrected pinhole intrinsics in one integer-centre pixel chart.
  *
- * @evidence contracts/common.md#principled-implementation The upper-triangular K chart retains unequal focal scales, skew and principal offsets; physical calibration and lens correction remain assertions.
- * @evidence contracts/common.md#clear-and-simple-design One named chart is shared by resident images, fixed-file manifests and returned source evidence.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts It supplies no estimated pose, distortion solver, uncertainty covariance or inferred focal length.
- * @evidence contracts/common.md#meaningful-documentation Members state pixel units, matrix convention, positive focal values and nullable supplied uncertainty.
+ * @evidence contracts/development/design.md#principled-representation The upper-triangular K chart retains unequal focal scales, skew and principal offsets; physical calibration and lens correction remain assertions.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One named chart is shared by resident images, fixed-file manifests and returned source evidence.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts It supplies no estimated pose, distortion solver, uncertainty covariance or inferred focal length.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state pixel units, matrix convention, positive focal values and nullable supplied uncertainty.
  */
 export interface IAutoMovieRecoveryCameraCalibration {
   /** Perspective pinhole model; distortion parameters are not estimated. */

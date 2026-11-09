@@ -35,10 +35,11 @@ const shares: (
  * 1. Default/tall/short weights 1/2/1 produce 25/50/25 percent within four points.
  * 2. Compilation prepends the default once and retains the same population and law.
  *
- * @evidence contracts/testing.md#behavioral-verification Regenerates all 2000 addressed slots through the actual member owner and repeats through actual compiled instance materialization, observing weighted prototype shares, model linkage and one default entry.
- * @evidence contracts/testing.md#independent-expectations Literal weights 1/2/1 imply shares .25/.5/.25, each under the original strict four-percentage-point bound. This is one fixed-seed population witness rather than an exhaustive probability or independence proof; the share counter only summarizes observed choices.
- * @evidence contracts/testing.md#distinguishing-cases Compares direct default-first placement with a design that lists only two nondefault prototypes, preserving every slot and model association. Zero/invalid weights and explicit prototype selection belong to their dedicated admission/selection units.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns local placements, compiled records and arrays via existing canonical fixtures; it opens no file, renderer, browser or GPU and replaces no foreign method or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Regenerates all 2000 addressed slots through the actual member owner and repeats through actual compiled instance materialization, observing weighted prototype shares, model linkage and one default entry.
+ * @evidence contracts/development/testing.md#independent-expectations Literal weights 1/2/1 imply shares .25/.5/.25, each under the original strict four-percentage-point bound. This is one fixed-seed population witness rather than an exhaustive probability or independence proof; the share counter only summarizes observed choices.
+ * @evidence contracts/development/testing.md#distinguishing-cases Compares direct default-first placement with a design that lists only two nondefault prototypes, preserving every slot and model association. Zero/invalid weights and explicit prototype selection belong to their dedicated admission/selection units.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns local placements, compiled records and arrays via existing canonical fixtures; it opens no file, renderer, browser or GPU and replaces no foreign method or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Default/tall/short weights 1/2/1 produce 25/50/25 percent within four points.).
  */
 export function test_engine_instance_prototype_distribution(): void {
   // 3. Weighted table with the default first.

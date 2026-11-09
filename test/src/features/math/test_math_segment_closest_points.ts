@@ -15,10 +15,11 @@ import { nclose, vclose } from "../internal/predicates";
  * 2. A segment endpoint lying on the other segment: the pair coincides and the
  *    distance is zero (the case a contact normal must fall back from).
  *
- * @evidence contracts/testing.md#behavioral-verification Queries actual closest segment witnesses and checks the separated endpoints, unit gap and zero-distance coincident witnesses. An unbounded-line result or wrong endpoint separation fails these assertions.
- * @evidence contracts/testing.md#independent-expectations The collinear segments [0,1] and [2,3] on X have facing witnesses X=1 and X=2, one unit apart; the perpendicular segments share the origin and therefore have zero separation. Coincidence alone does not locate the touching witness independently within the segments.
- * @evidence contracts/testing.md#distinguishing-cases Keeps a positive collinear gap and exact shared-endpoint contact. Interior skew minima, tiny spans, rank degeneracies, malformed arithmetic and nonunique tie selection belong to the separate segment entries.
- * @evidence contracts/testing.md#execution-ownership This discoverable synchronous unit owns both cases and invokes portable closest-segment source, without installing a consumer, compiling a native artifact, launching a host or dynamically registering tests.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries actual closest segment witnesses and checks the separated endpoints, unit gap and zero-distance coincident witnesses. An unbounded-line result or wrong endpoint separation fails these assertions.
+ * @evidence contracts/development/testing.md#independent-expectations The collinear segments [0,1] and [2,3] on X have facing witnesses X=1 and X=2, one unit apart; the perpendicular segments share the origin and therefore have zero separation. Coincidence alone does not locate the touching witness independently within the segments.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps a positive collinear gap and exact shared-endpoint contact. Interior skew minima, tiny spans, rank degeneracies, malformed arithmetic and nonunique tie selection belong to the separate segment entries.
+ * @evidence contracts/development/testing.md#execution-ownership This discoverable synchronous unit owns both cases and invokes portable closest-segment source, without installing a consumer, compiling a native artifact, launching a host or dynamically registering tests.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two colinear, separated segments: the closest pair is the facing endpoints).
  */
 export function test_math_segment_closest_points(): void {
   const gap: ReturnType<typeof closestPointsBetweenSegments> =

@@ -22,10 +22,11 @@ import { throwsError } from "../internal/predicates";
  * 4. `planGuidePassOutputs` emits per-pass first/last/pattern paths, folding duplicates while preserving first-occurrence order.
  * 5. An unknown pass name and a non-positive frame count are caller bugs and throw.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises runtime pass admission, naming, encoder patterns and output planning, checking recognized modes, first-occurrence deduplication and explicit unknown-name/count refusal.
- * @evidence contracts/testing.md#independent-expectations The six declared guide modes and fixed five-digit PNG naming convention determine literal outputs independently of the formatter; beauty remains untagged and guide names precede the media extension. No image rendering or encoder pattern expansion occurs.
- * @evidence contracts/testing.md#distinguishing-cases Plain beauty, tagged depth/pose, custom padding/extensions, duplicates, empty requests, unknown modes and zero/fractional counts cover the owned branches; actual capture belongs to the headless adapter tests.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_guide_passes owns its cases. Portable value and filename planning with no capture host or dynamic case registry.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises runtime pass admission, naming, encoder patterns and output planning, checking recognized modes, first-occurrence deduplication and explicit unknown-name/count refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The six declared guide modes and fixed five-digit PNG naming convention determine literal outputs independently of the formatter; beauty remains untagged and guide names precede the media extension. No image rendering or encoder pattern expansion occurs.
+ * @evidence contracts/development/testing.md#distinguishing-cases Plain beauty, tagged depth/pose, custom padding/extensions, duplicates, empty requests, unknown modes and zero/fractional counts cover the owned branches; actual capture belongs to the headless adapter tests.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_guide_passes owns its cases. Portable value and filename planning with no capture host or dynamic case registry.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The runtime pass list matches the closed union and `isGuidePass` accepts exactly its members.).
  */
 export function test_render_guide_passes(): void {
   TestValidator.equals(

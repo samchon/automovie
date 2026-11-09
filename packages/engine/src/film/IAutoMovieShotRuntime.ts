@@ -35,13 +35,10 @@ import { IAutoMovieShotPhysicsAdvice } from "./IAutoMovieShotPhysicsAdvice";
  * member, when omitted, disables only the check or measurement it feeds, as
  * stated on that member.
  *
- * @evidence contracts/common.md#principled-implementation Capabilities are injected as lookups keyed by scene node id rather than imported, so the engine composes and validates motion against whatever rig, model and gait table the host actually renders with, and the same compile is deterministic for the same runtime answers.
- * @evidence contracts/common.md#clear-and-simple-design One record for everything outside the shot program, so `compileDefinedShot` keeps a three-argument signature and routes each member to the one phase that reads it; members are optional exactly where a host can lack the fact and the phase has a defined behavior without it.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No member is defaulted to an invented rig, gait list or raster: an absent `skeleton` answer skips ROM for that node by contract, an absent `gaits` lookup skips only the gait check, and a clearance-declaring camera without `cameraClearance` is a violation rather than a pass.
- * @evidence contracts/common.md#meaningful-documentation States the consumer and where each member is routed, and per member its owner, what it is measured against, what omission does, and the units or keys of its answers.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A capability record with no runtime body; the work done with each member is answered on `performShot`, `realizeShotContract` and `compileDefinedShot`.
- * @evidence contracts/performance.md#reuse-equivalent-work Built once per shot by the host and shared by every compile phase of that shot, so the model, formation and clip lists are handed over once; the engine caches no lookup answer, so a host whose rig or gait lookups are costly memoizes them itself.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The host owns every member; the compiled result copies the advice with `structuredClone` and holds no reference to the lookups, so the record is released when the host drops it after compilation.
+ * @evidence contracts/development/design.md#principled-representation Capabilities are injected as lookups keyed by scene node id rather than imported, so the engine composes and validates motion against whatever rig, model and gait table the host actually renders with, and the same compile is deterministic for the same runtime answers.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record for everything outside the shot program, so `compileDefinedShot` keeps a three-argument signature and routes each member to the one phase that reads it; members are optional exactly where a host can lack the fact and the phase has a defined behavior without it.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is defaulted to an invented rig, gait list or raster: an absent `skeleton` answer skips ROM for that node by contract, an absent `gaits` lookup skips only the gait check, and a clearance-declaring camera without `cameraClearance` is a violation rather than a pass.
+ * @evidence contracts/development/common.md#meaningful-documentation States the consumer and where each member is routed, and per member its owner, what it is measured against, what omission does, and the units or keys of its answers.
  */
 export interface IAutoMovieShotRuntime {
   /**
@@ -58,13 +55,13 @@ export interface IAutoMovieShotRuntime {
    * span from it, and a staged mount's parent must answer a rig carrying the
    * mount bone.
    *
-   * @evidence contracts/common.md#principled-implementation A pure lookup by scene node id; a `null` answer is the contract for a rig-less node, whose clip skips ROM, while a bone target or mount parent that answers `null` is reported as a violation.
-   * @evidence contracts/common.md#clear-and-simple-design One lookup shared by performance, contract measurement and mount baking, so the three phases read the same rig for a node.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The engine substitutes no default skeleton for `null`; a phase that needs a rig reports its absence instead of measuring against a stand-in rig.
-   * @evidence contracts/common.md#meaningful-documentation States the key, the meaning of `null`, and each phase that reads the rig and what it uses it for.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A host-supplied lookup signature; its cost is the host's, and the engine calls it per node per phase without iterating rigs.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The engine does not memoize answers, so a host with an expensive rig build memoizes it behind this lookup.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned rig stays host-owned and is read during the call; the compiled shot keeps no reference to it.
+   * @evidence contracts/development/implementation.md#principled-implementation A pure lookup by scene node id; a `null` answer is the contract for a rig-less node, whose clip skips ROM, while a bone target or mount parent that answers `null` is reported as a violation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup shared by performance, contract measurement and mount baking, so the three phases read the same rig for a node.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The engine substitutes no default skeleton for `null`; a phase that needs a rig reports its absence instead of measuring against a stand-in rig.
+   * @evidence contracts/development/common.md#meaningful-documentation States the key, the meaning of `null`, and each phase that reads the rig and what it uses it for.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A host-supplied lookup signature; its cost is the host's, and the engine calls it per node per phase without iterating rigs.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The engine does not memoize answers, so a host with an expensive rig build memoizes it behind this lookup.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned rig stays host-owned and is read during the call; the compiled shot keeps no reference to it.
    */
   skeleton(node: string): IAutoMovieSkeleton | null;
 
@@ -158,13 +155,13 @@ export interface IAutoMovieShotRuntime {
    * missing context, which keeps it distinct from a present actor that simply
    * has no rig. Omitted, every staged node is taken to have a context.
    *
-   * @evidence contracts/common.md#principled-implementation A membership lookup by scene node id, consulted only after the target node is known to be staged and before its rig is read, so the two failures are named in that order.
-   * @evidence contracts/common.md#clear-and-simple-design A separate optional lookup rather than a sentinel answer from `skeleton`, because `null` there already means a rig-less actor and cannot also mean an unknown one.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The engine does not infer membership from a missing rig or model; without this lookup it skips the distinction rather than guessing.
-   * @evidence contracts/common.md#meaningful-documentation States the key, the reader, the distinction it enables and the omitted behavior.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A host-supplied predicate signature; the engine calls it once per bone target.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The engine does not memoize answers; it is called once per bone target per compile.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Answers one boolean per bone target and the engine keeps neither the answer nor the predicate after compiling.
+   * @evidence contracts/development/implementation.md#principled-implementation A membership lookup by scene node id, consulted only after the target node is known to be staged and before its rig is read, so the two failures are named in that order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A separate optional lookup rather than a sentinel answer from `skeleton`, because `null` there already means a rig-less actor and cannot also mean an unknown one.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The engine does not infer membership from a missing rig or model; without this lookup it skips the distinction rather than guessing.
+   * @evidence contracts/development/common.md#meaningful-documentation States the key, the reader, the distinction it enables and the omitted behavior.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A host-supplied predicate signature; the engine calls it once per bone target.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The engine does not memoize answers; it is called once per bone target per compile.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Answers one boolean per bone target and the engine keeps neither the answer nor the predicate after compiling.
    */
   hasActorContext?(node: string): boolean;
 
@@ -172,13 +169,13 @@ export interface IAutoMovieShotRuntime {
    * Clinical joint axes of a node's rig, keyed by humanoid bone, used by ground
    * IK and attachment baking; `undefined` for a node without them.
    *
-   * @evidence contracts/common.md#principled-implementation `performShot` passes the node's answer to ground planting and to `coupleObjects`, so stance solving and attachment baking read the rig in the same anatomical basis the renderer uses.
-   * @evidence contracts/common.md#clear-and-simple-design A per-node lookup returning a partial table, because rigs carry axes for different bone subsets and a node may carry none.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing table or bone is passed as `undefined` to the consumers, which fall back to their documented rig-space behavior rather than to invented axes.
-   * @evidence contracts/common.md#meaningful-documentation States the key, the table's keying, its two consumers, why they need it, and the meaning of `undefined`.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A host-supplied lookup signature; the engine asks it once per performed actor for ground planting and again when baking that actor's attachments or mounts.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The engine keeps no axis table between compiles, so a host whose rigs are fixed memoizes the table per rig behind this lookup.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned axis table stays host-owned; ground planting and attachment baking read it during compilation and the compiled shot keeps no reference to it.
+   * @evidence contracts/development/implementation.md#principled-implementation `performShot` passes the node's answer to ground planting and to `coupleObjects`, so stance solving and attachment baking read the rig in the same anatomical basis the renderer uses.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A per-node lookup returning a partial table, because rigs carry axes for different bone subsets and a node may carry none.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing table or bone is passed as `undefined` to the consumers, which fall back to their documented rig-space behavior rather than to invented axes.
+   * @evidence contracts/development/common.md#meaningful-documentation States the key, the table's keying, its two consumers, why they need it, and the meaning of `undefined`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A host-supplied lookup signature; the engine asks it once per performed actor for ground planting and again when baking that actor's attachments or mounts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The engine keeps no axis table between compiles, so a host whose rigs are fixed memoizes the table per rig behind this lookup.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned axis table stays host-owned; ground planting and attachment baking read it during compilation and the compiled shot keeps no reference to it.
    */
   jointAxes?(
     node: string,
@@ -188,13 +185,13 @@ export interface IAutoMovieShotRuntime {
    * Clinical rest frames of a node's rig, keyed by humanoid bone, used by ground
    * IK and attachment baking; `undefined` for a node without them.
    *
-   * @evidence contracts/common.md#principled-implementation `performShot` passes the node's answer to ground planting and to `coupleObjects`, so planted feet and `attachTo` motions follow the visible pose rather than raw rig-space forward kinematics.
-   * @evidence contracts/common.md#clear-and-simple-design A per-node lookup returning a partial table, the same shape as `jointAxes`, because the two describe one rig basis for the same consumers.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing table or bone reaches the consumers as `undefined` and they use raw rig-space frames, never a guessed rest pose.
-   * @evidence contracts/common.md#meaningful-documentation States the key, the table's keying, its consumers, why the visible pose matters, and the meaning of `undefined`.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A host-supplied lookup signature; the engine asks it per performed actor for ground planting and when baking attachments, alongside `jointAxes` for the same node.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The rest-frame table is fetched afresh for each compile; a host with fixed rigs memoizes it per rig, since the engine stores none.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned rest-frame table stays host-owned and is only read while stance feet and attachment motions are computed.
+   * @evidence contracts/development/implementation.md#principled-implementation `performShot` passes the node's answer to ground planting and to `coupleObjects`, so planted feet and `attachTo` motions follow the visible pose rather than raw rig-space forward kinematics.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A per-node lookup returning a partial table, the same shape as `jointAxes`, because the two describe one rig basis for the same consumers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing table or bone reaches the consumers as `undefined` and they use raw rig-space frames, never a guessed rest pose.
+   * @evidence contracts/development/common.md#meaningful-documentation States the key, the table's keying, its consumers, why the visible pose matters, and the meaning of `undefined`.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A host-supplied lookup signature; the engine asks it per performed actor for ground planting and when baking attachments, alongside `jointAxes` for the same node.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The rest-frame table is fetched afresh for each compile; a host with fixed rigs memoizes it per rig, since the engine stores none.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned rest-frame table stays host-owned and is only read while stance feet and attachment motions are computed.
    */
   restFrames?(
     node: string,
@@ -204,13 +201,13 @@ export interface IAutoMovieShotRuntime {
    * The world point of an action target at shot-local `seconds`, or `null` to
    * let the engine resolve it from the staged placements.
    *
-   * @evidence contracts/common.md#principled-implementation `performShot` asks it first and falls back to `resolveTargetPoint` over staged node positions on `null`; an answer that is not finite is reported as an unresolved target, and a bone strike uses it as the moving intercept point.
-   * @evidence contracts/common.md#clear-and-simple-design One optional resolver for targets that move during the shot, so a host with live geometry overrides the static answer without the engine modelling that geometry.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A `null` or missing resolver falls back to the staged resolution rather than a cached or extrapolated point, and a non-finite point is reported, not clamped.
-   * @evidence contracts/common.md#meaningful-documentation States the time base, the space, the meaning of `null`, and the fallback.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A host-supplied resolver signature; the engine calls it per target query, including per sample of a moving strike.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The engine does not memoize answers, since a live target may move between queries.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned vector is read during the call; strike closures that capture the resolver live only for that shot's compilation.
+   * @evidence contracts/development/implementation.md#principled-implementation `performShot` asks it first and falls back to `resolveTargetPoint` over staged node positions on `null`; an answer that is not finite is reported as an unresolved target, and a bone strike uses it as the moving intercept point.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional resolver for targets that move during the shot, so a host with live geometry overrides the static answer without the engine modelling that geometry.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A `null` or missing resolver falls back to the staged resolution rather than a cached or extrapolated point, and a non-finite point is reported, not clamped.
+   * @evidence contracts/development/common.md#meaningful-documentation States the time base, the space, the meaning of `null`, and the fallback.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A host-supplied resolver signature; the engine calls it per target query, including per sample of a moving strike.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The engine does not memoize answers, since a live target may move between queries.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned vector is read during the call; strike closures that capture the resolver live only for that shot's compilation.
    */
   targetAt?(
     target: IAutoMovieActionTarget,
@@ -221,13 +218,13 @@ export interface IAutoMovieShotRuntime {
    * The gait names a node's actor context supplies, or `undefined` to skip the
    * check for that node.
    *
-   * @evidence contracts/common.md#principled-implementation `performShot` reports a `locomote` whose gait is not in the actor's list as a violation, because the reference synthesizer resolves gaits by name and would otherwise produce no motion for an unknown one.
-   * @evidence contracts/common.md#clear-and-simple-design A per-node lookup, because gait vocabularies belong to each actor's context rather than to the shot.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An omitted lookup or an `undefined` answer skips the check rather than assuming a default gait set, and an empty list rejects every gait.
-   * @evidence contracts/common.md#meaningful-documentation States the key, the check it feeds, the effect of `undefined` and of omission.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A host-supplied lookup signature; the engine calls it once per actor per `locomote` action.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each gait list is requested per actor per `locomote` action and compared at once; no list survives the check inside the engine.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned list stays host-owned and is read during the check only.
+   * @evidence contracts/development/implementation.md#principled-implementation `performShot` reports a `locomote` whose gait is not in the actor's list as a violation, because the reference synthesizer resolves gaits by name and would otherwise produce no motion for an unknown one.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A per-node lookup, because gait vocabularies belong to each actor's context rather than to the shot.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An omitted lookup or an `undefined` answer skips the check rather than assuming a default gait set, and an empty list rejects every gait.
+   * @evidence contracts/development/common.md#meaningful-documentation States the key, the check it feeds, the effect of `undefined` and of omission.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A host-supplied lookup signature; the engine calls it once per actor per `locomote` action.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each gait list is requested per actor per `locomote` action and compared at once; no list survives the check inside the engine.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned list stays host-owned and is read during the check only.
    */
   gaits?(node: string): readonly string[] | undefined;
 

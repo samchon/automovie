@@ -105,10 +105,11 @@ const jointsAt: (
  *    the spine but drops the leg: the documented escape hatch and the
  *    cross-region leak strip stay intact.
  *
- * @evidence contracts/testing.md#behavioral-verification Compiles actual gestureMotion content for nod/crouch/kick/jump and combined nod-wave/jump-emote, then observes literal head/knee/spine/root stops and joint presence; explicit upperBody kick must retain spine and drop its leg.
- * @evidence contracts/testing.md#independent-expectations Preserved authored stops 22,65,15,55,75,-6 and root y=0.34 are local expected literals, while named head/arm/spine/leg membership constrains mask behavior. Gesture production and compiler masking are the actual composed path; the emote fixture supplies only face content and no physical or visual oracle is claimed.
- * @evidence contracts/testing.md#distinguishing-cases Retains head versus full-body versus upper-body defaults, concurrent face/head-arm content, explicit narrowing and all original stop times/tolerances. Full population equality, all gesture kinds and downstream ROM/rendering belong to other units.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns six compile calls through its existing injected callback and direct stop readers. Helpers register no extra cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Compiles actual gestureMotion content for nod/crouch/kick/jump and combined nod-wave/jump-emote, then observes literal head/knee/spine/root stops and joint presence; explicit upperBody kick must retain spine and drop its leg.
+ * @evidence contracts/development/testing.md#independent-expectations Preserved authored stops 22,65,15,55,75,-6 and root y=0.34 are local expected literals, while named head/arm/spine/leg membership constrains mask behavior. Gesture production and compiler masking are the actual composed path; the emote fixture supplies only face content and no physical or visual oracle is claimed.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains head versus full-body versus upper-body defaults, concurrent face/head-arm content, explicit narrowing and all original stop times/tolerances. Full population equality, all gesture kinds and downstream ROM/rendering belong to other units.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns six compile calls through its existing injected callback and direct stop readers. Helpers register no extra cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A lone `nod` compiles to a clip that still drives the head (flexion 22 at the).
  */
 export function test_perform_gesture_region_content(): void {
   const nod: IAutoMovieMotion = compilePerformance([gesture("nod")], synth)

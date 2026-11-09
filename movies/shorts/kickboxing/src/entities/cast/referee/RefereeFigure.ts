@@ -4,7 +4,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { createAutoMovieHumanPolygonFigure } from "@automovie/viewer/human-polygon";
+import { createAutoMovieHumanPolygonFigure } from "@automovie/viewer";
 import * as THREE from "three";
 
 import type { RefereeBody } from "./RefereeBody";
@@ -52,12 +52,12 @@ export class RefereeFigure {
         )
           ? c.shoes
           : /^(hips|leftUpperLeg|rightUpperLeg|leftLowerLeg|rightLowerLeg)/.test(
-            b.bone,
-          )
+                b.bone,
+              )
             ? c.trousers
             : /^(head|neck|atlas)|Hand|Thumb|Index|Middle|Ring|Little/.test(
-              b.bone,
-            )
+                  b.bone,
+                )
               ? c.skin
               : c.shirt,
       ]),

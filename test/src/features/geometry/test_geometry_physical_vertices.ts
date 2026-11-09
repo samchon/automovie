@@ -1,5 +1,7 @@
-import { type IAutoMovieResolvedPhysicalVertices } from "@automovie/engine";
-import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine/math/resolveAutoMovieMeshPhysicalVertices";
+import {
+  type IAutoMovieResolvedPhysicalVertices,
+  resolveAutoMovieMeshPhysicalVertices,
+} from "@automovie/engine";
 import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -14,10 +16,11 @@ import { createPhysicalMesh } from "../internal/createPhysicalMesh";
  * 3. Null legacy vertices share current coordinate cells without aliasing source.
  * 4. Owned resolved output cannot rewrite another evaluation's correspondence.
  *
- * @evidence contracts/testing.md#behavioral-verification Resolves legacy and explicit source-point correspondence, asserting alias ordinals, separate domains and legacy cohorts, empty output and independence from mutations of a prior result. It catches coordinate-only merging of distinct authored source pairs.
- * @evidence contracts/testing.md#independent-expectations Coincident legacy coordinates occupy one declared nanometre grid cell, while equality of opaque domain/ID pairs alone determines explicit aliases. Expected ordinals follow first render occurrence and are authored directly. These discrete identities do not establish triangle area, manifoldness or rendered contact.
- * @evidence contracts/testing.md#distinguishing-cases Preserves signed zero, duplicate source rows, maximum safe IDs, similar delimiter-containing domains, null legacy references, output ownership and an empty explicit population. Invalid source admission, placement and cache invalidation belong to companion physical tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly invokes the portable product resolver through the existing physical-mesh fixture; it installs no consumer, builds no native artifact and starts no host, browser or GPU. It owns all of its cases without dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves legacy and explicit source-point correspondence, asserting alias ordinals, separate domains and legacy cohorts, empty output and independence from mutations of a prior result. It catches coordinate-only merging of distinct authored source pairs.
+ * @evidence contracts/development/testing.md#independent-expectations Coincident legacy coordinates occupy one declared nanometre grid cell, while equality of opaque domain/ID pairs alone determines explicit aliases. Expected ordinals follow first render occurrence and are authored directly. These discrete identities do not establish triangle area, manifoldness or rendered contact.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves signed zero, duplicate source rows, maximum safe IDs, similar delimiter-containing domains, null legacy references, output ownership and an empty explicit population. Invalid source admission, placement and cache invalidation belong to companion physical tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable named entry directly invokes the portable product resolver through the existing physical-mesh fixture; it installs no consumer, builds no native artifact and starts no host, browser or GPU. It owns all of its cases without dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Legacy coincidence follows the existing grid, including signed zero.).
  */
 export function test_geometry_physical_vertices(): void {
   const positions: number[] = [0, 0, 0, -0, 0, 0, 0, 0, 0, 1, 0, 0];

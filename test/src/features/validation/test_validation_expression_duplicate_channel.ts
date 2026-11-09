@@ -11,10 +11,11 @@ import { hasViolation } from "../internal/predicates";
  * Scenarios:
  * 1. Two jawOpen rows with weights 0.3 and 0.6 fail with a channel type finding.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual expression validation with a duplicate channel and requires failed admission plus its channel finding, catching silently selected or merged duplicate weights.
- * @evidence contracts/testing.md#independent-expectations One expression assigns each closed channel at most once; the two in-range weights isolate uniqueness from numeric admission. The expected kind and field follow that contract without copying a report.
- * @evidence contracts/testing.md#distinguishing-cases Owns repeated known-channel refusal; the adjacent unique-channel acceptance, unknown names and scalar limits have separate expression entries.
- * @evidence contracts/testing.md#execution-ownership The named portable entry owns this local document through the existing fixture, calls engine admission and starts no host or native build.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual expression validation with a duplicate channel and requires failed admission plus its channel finding, catching silently selected or merged duplicate weights.
+ * @evidence contracts/development/testing.md#independent-expectations One expression assigns each closed channel at most once; the two in-range weights isolate uniqueness from numeric admission. The expected kind and field follow that contract without copying a report.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns repeated known-channel refusal; the adjacent unique-channel acceptance, unknown names and scalar limits have separate expression entries.
+ * @evidence contracts/development/testing.md#execution-ownership The named portable entry owns this local document through the existing fixture, calls engine admission and starts no host or native build.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Two jawOpen rows with weights 0.3 and 0.6 fail with a channel type finding.).
  */
 export function test_validation_expression_duplicate_channel(): void {
   const result: IAutoMovieValidation = validateExpressionResult(

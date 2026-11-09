@@ -8,10 +8,11 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Absent half-float capabilities use byte format; either extension selects half-float and authored requested sample counts remain.
  * 2. Falsy viewport facts use the supplied host; structural/camera viewport facts override it and malformed truthy extents stay nonfinite.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual profile projection, comparing color fallback, requested samples and floored viewport-times-scale extents.
- * @evidence contracts/testing.md#independent-expectations Authored 7x5 host/12x8 camera viewports, half scale and four/eight sample expectations define independent bounds rather than measured native storage.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts either half-float extension, byte fallback, falsy/current/camera/invalid truthy viewport facts; malformed extents stay nonfinite instead of a guessed safe size.
- * @evidence contracts/testing.md#execution-ownership The named entry retains its existing caller-owned host callbacks and CPU camera, creates no native target/renderer/mock driver and claims no rendered or released GPU storage.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual profile projection, comparing color fallback, requested samples and floored viewport-times-scale extents.
+ * @evidence contracts/development/testing.md#independent-expectations Authored 7x5 host/12x8 camera viewports, half scale and four/eight sample expectations define independent bounds rather than measured native storage.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts either half-float extension, byte fallback, falsy/current/camera/invalid truthy viewport facts; malformed extents stay nonfinite instead of a guessed safe size.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry retains its existing caller-owned host callbacks and CPU camera, creates no native target/renderer/mock driver and claims no rendered or released GPU storage.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Absent half-float capabilities use byte format; either extension selects half-float and authored requested sample counts remain.).
  */
 export async function test_viewer_transmission_target_profile(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

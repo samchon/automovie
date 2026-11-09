@@ -27,10 +27,11 @@ const elbow: (m: IAutoMovieMotion, t: number) => number = (
  *
  * 1. Elbow flexion 0-to-120 over one second gives 0/120 at the endpoints, 60 at 0.5 and 30 at 0.25, and the sampled pose names skeleton-1.
  *
- * @evidence contracts/testing.md#behavioral-verification Samples both exact endpoints, two interior times and the midpoint skeleton id through sampleMotion, detecting wrong interpolation fraction, endpoint selection or rig identity.
- * @evidence contracts/testing.md#independent-expectations Local fixture endpoints 0/120 and linear fractions give literal 60/30 independently of sampleMotion; skeleton-1 is the unchanged fixture identity. The reader's null-axis-to-zero convention and original nclose tolerance are retained rather than claimed as axis-presence or exact-object checks.
- * @evidence contracts/testing.md#distinguishing-cases Retains endpoints versus midpoint/quarter progress on one non-looping linear fixture. Loop/clamp clocks, asymmetric axes, nonlinear easing and ownership are covered by their other existing units.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all five sample calls through its private elbow reader and direct identity observation. Fixture helpers register no extra cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples both exact endpoints, two interior times and the midpoint skeleton id through sampleMotion, detecting wrong interpolation fraction, endpoint selection or rig identity.
+ * @evidence contracts/development/testing.md#independent-expectations Local fixture endpoints 0/120 and linear fractions give literal 60/30 independently of sampleMotion; skeleton-1 is the unchanged fixture identity. The reader's null-axis-to-zero convention and original nclose tolerance are retained rather than claimed as axis-presence or exact-object checks.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains endpoints versus midpoint/quarter progress on one non-looping linear fixture. Loop/clamp clocks, asymmetric axes, nonlinear easing and ownership are covered by their other existing units.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns all five sample calls through its private elbow reader and direct identity observation. Fixture helpers register no extra cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Elbow flexion 0-to-120 over one second gives 0/120 at the endpoints, 60 at 0.5 and 30 at 0.25, and the sampled pose names skeleton-1.).
  */
 export function test_motion_sample_keyframes(): void {
   const clip: IAutoMovieMotion = createValidMotion();

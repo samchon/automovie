@@ -51,10 +51,11 @@ const skeleton: IAutoMovieSkeleton = {
  *    its ROM minimum.
  * 4. Each result passes the same pose validator that defines effective ROM.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds recoil on zero-excluding ranges and distinguishes null untouched/zeroed axes from nonzero range-clamped pushes, asserting immobile twist and ordinary validator compatibility.
- * @evidence contracts/testing.md#independent-expectations Authored 10..145 and 5..30 intervals independently give the 145/5 clamps, while the pose contract makes untouched or zeroed axes null. Validator acceptance shares effective-ROM dependencies and is supplemental compatibility evidence, not independent anatomical proof.
- * @evidence contracts/testing.md#distinguishing-cases Covers absent push axes, a pushed immobile axis, explicit zero, high and below-minimum nonzero requests and downstream falloff zero; other falloff boundaries and invalid push admission belong to neighboring units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns all cases and invokes recoil/validation on local rigs, without a Human renderer, OS host or dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds recoil on zero-excluding ranges and distinguishes null untouched/zeroed axes from nonzero range-clamped pushes, asserting immobile twist and ordinary validator compatibility.
+ * @evidence contracts/development/testing.md#independent-expectations Authored 10..145 and 5..30 intervals independently give the 145/5 clamps, while the pose contract makes untouched or zeroed axes null. Validator acceptance shares effective-ROM dependencies and is supplemental compatibility evidence, not independent anatomical proof.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers absent push axes, a pushed immobile axis, explicit zero, high and below-minimum nonzero requests and downstream falloff zero; other falloff boundaries and invalid push admission belong to neighboring units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit owns all cases and invokes recoil/validation on local rigs, without a Human renderer, OS host or dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A twist-only push leaves flexion and abduction at `null`; the immobile twist).
  */
 export function test_physics_impact_recoil_neutral_axis(): void {
   const pose: ReturnType<typeof impactRecoil> = impactRecoil(

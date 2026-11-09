@@ -10,13 +10,10 @@ import { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
  * Optional explicit intervals own ordinary continuation; absent them, legacy intervals use nearest geometric continuation. Declared events own every topology change.
  * This representation neither identifies anatomical equations nor certifies a surface without folds.
  *
- * @evidence contracts/common.md#principled-implementation Complete cubic coefficients and signed event incidence define a contour loft independently of any source mesh.
- * @evidence contracts/common.md#clear-and-simple-design Sections, event relationships and a physical chord tolerance are the input; output mesh and actual sampled construction remain separate records.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No original surface vertices, triangle indices, normals or anatomical defaults are admitted by this contract.
- * @evidence contracts/common.md#meaningful-documentation States chart units, ordering, orientation, topology ownership and the absence of a fold guarantee.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A structural contract performs no sampling or correspondence computation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no admission cache or evaluated surface.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Runtime arrays belong to the caller and the tessellator's returned result.
+ * @evidence contracts/development/design.md#principled-representation Complete cubic coefficients and signed event incidence define a contour loft independently of any source mesh.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Sections, event relationships and a physical chord tolerance are the input; output mesh and actual sampled construction remain separate records.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No original surface vertices, triangle indices, normals or anatomical defaults are admitted by this contract.
+ * @evidence contracts/development/common.md#meaningful-documentation States chart units, ordering, orientation, topology ownership and the absence of a fold guarantee.
  */
 export interface IAutoMovieContourLoft64 {
   /** Ordered physical section coordinates and their oriented closed curves. */
@@ -42,13 +39,10 @@ export namespace IAutoMovieContourLoft64 {
    * gaps, including a zero-boundary unsupported group for an active hidden component and open-contour or critical-cluster evidence retained by the
    * observation producer. A supported flag does not certify embedding or C1.
    *
-   * @evidence contracts/common.md#principled-implementation Exact saved-cut coordinates and local curve ordinals carry observed incidence without source mesh addresses or geometric rematching.
-   * @evidence contracts/common.md#clear-and-simple-design One interval partitions both boundary loop lists into independent surface groups.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported groups carry an explicit reason and are never silently assigned to a nearby contour or capped.
-   * @evidence contracts/common.md#meaningful-documentation States complete coverage, local indices, physical millimetres and the limits of a supported declaration.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A structural relationship performs no traversal.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Generation owns boundary reuse.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Input records belong to the caller and retain no source mesh.
+   * @evidence contracts/development/design.md#principled-representation Exact saved-cut coordinates and local curve ordinals carry observed incidence without source mesh addresses or geometric rematching.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One interval partitions both boundary loop lists into independent surface groups.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Unsupported groups carry an explicit reason and are never silently assigned to a nearby contour or capped.
+   * @evidence contracts/development/common.md#meaningful-documentation States complete coverage, local indices, physical millimetres and the limits of a supported declaration.
    */
   export interface IInterval {
     /** Exact lower saved-section coordinate in millimetres. */
@@ -67,13 +61,10 @@ export namespace IAutoMovieContourLoft64 {
   /**
    * One cut's independently defined cubic boundaries; outer and cavity senses use the same plane frame.
    *
-   * @evidence contracts/common.md#principled-implementation A physical coordinate groups the complete generating curves of one cut.
-   * @evidence contracts/common.md#clear-and-simple-design The coordinate and ordered loop list carry the section without a second sampled definition.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A loop index is local to this section and is not a source mesh vertex address.
-   * @evidence contracts/common.md#meaningful-documentation States coordinate units, orientation meaning and curve ownership.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A section record performs no evaluation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Sampling reuse belongs to the tessellator.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A section owns no runtime cache or handle.
+   * @evidence contracts/development/design.md#principled-representation A physical coordinate groups the complete generating curves of one cut.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The coordinate and ordered loop list carry the section without a second sampled definition.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A loop index is local to this section and is not a source mesh vertex address.
+   * @evidence contracts/development/common.md#meaningful-documentation States coordinate units, orientation meaning and curve ownership.
    */
   export interface ISection {
     /** Physical coordinate along the common cutting direction, millimetres. */
@@ -88,13 +79,10 @@ export namespace IAutoMovieContourLoft64 {
    * The before/after coordinates select saved sections; their local loop numbers encode adjacency.
    * A terminal is used only for a declared regular minimum or maximum, never to cap a finite unmatched loop.
    *
-   * @evidence contracts/common.md#principled-implementation Explicit incident-contour relationships preserve split, merge and cavity events even when loop counts do not change.
-   * @evidence contracts/common.md#clear-and-simple-design One event publishes both sides and its extremum or saddle kind.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Proximity alone does not invent a topology event, and a missing continuation is not permission to close a cavity.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes local contour indices, physical event coordinates, regularity and terminal use.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Event relationships perform no graph traversal.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work An event record schedules no repeated evaluation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record owns no source mesh or retained runtime process.
+   * @evidence contracts/development/design.md#principled-representation Explicit incident-contour relationships preserve split, merge and cavity events even when loop counts do not change.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One event publishes both sides and its extremum or saddle kind.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Proximity alone does not invent a topology event, and a missing continuation is not permission to close a cavity.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes local contour indices, physical event coordinates, regularity and terminal use.
    */
   export interface IEvent {
     /** Stable event identifier within this loft. */
@@ -129,13 +117,10 @@ export namespace IAutoMovieContourLoft64 {
    * Newly generated mesh and the evaluated section samples that actually supplied its boundaries.
    * Unresolved boundaries remain visible and are reported instead of receiving an invented cap.
    *
-   * @evidence contracts/common.md#principled-implementation The result separates emitted geometry, generating construction and unresolved topology.
-   * @evidence contracts/common.md#clear-and-simple-design One result lets rendering and provenance consume the same generation without reevaluation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Normals derive from the new mesh and no missing surface is replaced by another mesh.
-   * @evidence contracts/common.md#meaningful-documentation States metre output, construction meaning and unresolved-boundary behavior.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A result record performs no arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The tessellator transfers one completed result to its caller.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns mesh buffers, construction samples and diagnostics; no global owner retains them.
+   * @evidence contracts/development/design.md#principled-representation The result separates emitted geometry, generating construction and unresolved topology.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One result lets rendering and provenance consume the same generation without reevaluation.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Normals derive from the new mesh and no missing surface is replaced by another mesh.
+   * @evidence contracts/development/common.md#meaningful-documentation States metre output, construction meaning and unresolved-boundary behavior.
    */
   export interface IResult {
     /** Actual retained generated triangles, addressed by zero-based mesh triangle ordinal and source-free incidence group. Omission means this kernel did not publish ownership; it never authorizes inferred attribution. */

@@ -30,10 +30,11 @@ import {
  * 4. The characterization names which policy ran, and the corrected clip keeps the
  *    authored keyframe count and times rather than re-keying onto a clock.
  *
- * @evidence contracts/testing.md#behavioral-verification Checks hand-authored source ankle coordinates, retargets with correction enabled/disabled, measures both corrected feet at both authored keys and the disabled left-foot miss, then observes scale, policy labels and unchanged exact key times.
- * @evidence contracts/testing.md#independent-expectations Fixture offsets give source ankle (0.1,0.1,0.1), shifted z=0.35 and rest heights 1.65/2.025, hence the independent scale ratio. Componentwise mapped source FK supplies the existing contact target while shared FK remains a consumer, not a separate geometry oracle. Original 1e-12 scale, 5e-3 contact and 0.5 negative-twin thresholds remain unchanged.
- * @evidence contracts/testing.md#distinguishing-cases Retains 1.5 leg/0.9 torso proportions under the shipped ROM, both feet and keyframes, enabled versus disabled correction, policy labels and exact [0,1] clock. Default-ROM residual, airborne frames and hand declarations belong to separate units.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns both retarget calls and fixture FK observations. Existing shared fixture/mapping helpers register no extra cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks hand-authored source ankle coordinates, retargets with correction enabled/disabled, measures both corrected feet at both authored keys and the disabled left-foot miss, then observes scale, policy labels and unchanged exact key times.
+ * @evidence contracts/development/testing.md#independent-expectations Fixture offsets give source ankle (0.1,0.1,0.1), shifted z=0.35 and rest heights 1.65/2.025, hence the independent scale ratio. Componentwise mapped source FK supplies the existing contact target while shared FK remains a consumer, not a separate geometry oracle. Original 1e-12 scale, 5e-3 contact and 0.5 negative-twin thresholds remain unchanged.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains 1.5 leg/0.9 torso proportions under the shipped ROM, both feet and keyframes, enabled versus disabled correction, policy labels and exact [0,1] clock. Default-ROM residual, airborne frames and hand declarations belong to separate units.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns both retarget calls and fixture FK observations. Existing shared fixture/mapping helpers register no extra cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The source rest pose is the hand-checkable oracle every other number is).
  */
 export function test_motion_retarget_contact_proportions(): void {
   const source: IAutoMovieSkeleton = proportionedRig("contact-source");

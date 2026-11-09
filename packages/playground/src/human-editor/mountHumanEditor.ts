@@ -24,13 +24,13 @@ import { HumanEditorMeasureFields } from "./HumanEditorMeasureFields";
  * unpublished development application. This editor owns one displayed model,
  * its texture cache and orbit controls, releasing them before replacement.
  *
- * @evidence contracts/common.md#principled-implementation Public typed body measures (`body.anatomy`, each shown with its resolved value) update a detached draft; Apply passes it to the generator and generic model renderer, with no diagnostic construction parts.
- * @evidence contracts/common.md#clear-and-simple-design This page owns end-user edits and one displayed model; Human development diagnostics remain in the unpublished application.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Four typed examples initialize ordinary inputs; generation follows the public generator without result substitutions or person-specific geometry.
- * @evidence contracts/common.md#meaningful-documentation Documents Apply-only generation, public units and ownership of the displayed model, texture cache and controls.
- * @evidence contracts/performance.md#efficient-algorithms Each Apply runs one generator and builds one model; camera fitting traverses its objects and controls scale with body fields.
- * @evidence contracts/performance.md#reuse-equivalent-work Camera motion redraws the existing model; editing and example selection update only the draft until Apply.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Replacement retires owned model resources and textures; page disposal aborts handlers and releases controls and renderer. A synchronous generation already running must complete before page shutdown can progress.
+ * @evidence contracts/development/implementation.md#principled-implementation Public typed body measures (`body.anatomy`, each shown with its resolved value) update a detached draft; Apply passes it to the generator and generic model renderer, with no diagnostic construction parts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This page owns end-user edits and one displayed model; Human development diagnostics remain in the unpublished application.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Four typed examples initialize ordinary inputs; generation follows the public generator without result substitutions or person-specific geometry.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents Apply-only generation, public units and ownership of the displayed model, texture cache and controls.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each Apply runs one generator and builds one model; camera fitting traverses its objects and controls scale with body fields.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Camera motion redraws the existing model; editing and example selection update only the draft until Apply.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Replacement retires owned model resources and textures; page disposal aborts handlers and releases controls and renderer. A synchronous generation already running must complete before page shutdown can progress.
  */
 export function mountHumanEditor(root: HTMLElement): () => Promise<void> {
   const examples: Record<string, IAutoMovieHumanParameters> = {

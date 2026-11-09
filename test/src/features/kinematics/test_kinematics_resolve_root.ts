@@ -32,10 +32,11 @@ const at: (
  * by +1 on X: hips from (0,1,0) to (1,1,0), and the leftLowerArm from
  * (0.5,1.4,0) to (1.5,1.4,0).
  *
- * @evidence contracts/testing.md#behavioral-verification Applies a plus-X root translation and checks both root and descendant world positions; ignoring the root or applying it twice fails.
- * @evidence contracts/testing.md#independent-expectations Authored rest hips(0,1,0) and lower-arm(0.5,1.4,0) plus root(1,0,0) determine the two literal expected positions without consulting an unshifted FK result.
- * @evidence contracts/testing.md#distinguishing-cases This pure translation complements untransformed rest and rotated-parent entries; it does not independently check arbitrary root rotation/scale or every descendant.
- * @evidence contracts/testing.md#execution-ownership This exported runner entry directly calls portable FK on existing conventional code fixtures; numeric world positions are checked without a renderer, graphics context or real asset installation.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies a plus-X root translation and checks both root and descendant world positions; ignoring the root or applying it twice fails.
+ * @evidence contracts/development/testing.md#independent-expectations Authored rest hips(0,1,0) and lower-arm(0.5,1.4,0) plus root(1,0,0) determine the two literal expected positions without consulting an unshifted FK result.
+ * @evidence contracts/development/testing.md#distinguishing-cases This pure translation complements untransformed rest and rotated-parent entries; it does not independently check arbitrary root rotation/scale or every descendant.
+ * @evidence contracts/development/testing.md#execution-ownership This exported runner entry directly calls portable FK on existing conventional code fixtures; numeric world positions are checked without a renderer, graphics context or real asset installation.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (A pose's root translation seeds the hierarchy walk) as stated in this comment.
  */
 export function test_kinematics_resolve_root(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

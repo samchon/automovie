@@ -19,13 +19,10 @@ import { IAutoMovieSurfaceConstruction } from "./IAutoMovieSurfaceConstruction";
  * with the rig, and each sweep's row cache of `compileAutoMovieSweep`, which
  * the rig fills while compiling and `pose` does not touch.
  *
- * @evidence contracts/common.md#principled-implementation The pose-invariant compile and per-pose evaluation split of a deformable surface, with the posed cage equal to sampling the network `poseAutoMovieSurfaceNetwork` makes.
- * @evidence contracts/common.md#clear-and-simple-design One shared rest cage, an optional rest construction snapshot and one pose writer that fills a buffer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The fit residual is returned on every pose, so a caller can refuse a pose whose fit did not converge.
- * @evidence contracts/common.md#meaningful-documentation States what compiles once, what moves per pose, the allocation and cache guarantees and the residual.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A record; costs are on `rigAutoMovieSurfaceNetwork`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record; it is the reuse.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record whose buffers its producer sizes, stated above.
+ * @evidence contracts/development/design.md#principled-representation The pose-invariant compile and per-pose evaluation split of a deformable surface, with the posed cage equal to sampling the network `poseAutoMovieSurfaceNetwork` makes.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One shared rest cage, an optional rest construction snapshot and one pose writer that fills a buffer.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The fit residual is returned on every pose, so a caller can refuse a pose whose fit did not converge.
+ * @evidence contracts/development/common.md#meaningful-documentation States what compiles once, what moves per pose, the allocation and cache guarantees and the residual.
  */
 export interface IAutoMovieSurfaceRig {
   /** The cage at rest: topology, UVs, coordinates, rings, targets and fitted positions. */
@@ -46,13 +43,13 @@ export interface IAutoMovieSurfaceRig {
    * @returns The largest distance between a fitted vertex's limit point and its target, metres; 0 without the fit
    * @throws Error when a buffer has the wrong length, the posed bones differ from the rest bones, or a sweep or curve refuses the pose
    *
-   * @evidence contracts/common.md#principled-implementation Per-pose evaluation of a compiled surface: re-sweep, blends and limit fit written into caller memory.
-   * @evidence contracts/common.md#clear-and-simple-design One call per frame with the posed bones and the output buffers.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Wrong buffer lengths and out-of-order bones are refused, and the residual is returned for every pose.
-   * @evidence contracts/common.md#meaningful-documentation States the inputs, outputs, return value and refusals.
-   * @evidence contracts/performance.md#efficient-algorithms O(V) writers plus bound sweeps' and curves' updates and the fit, with no allocation, as `rigAutoMovieSurfaceNetwork` details.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSurfaceNetwork`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSurfaceNetwork`.
+   * @evidence contracts/development/implementation.md#principled-implementation Per-pose evaluation of a compiled surface: re-sweep, blends and limit fit written into caller memory.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call per frame with the posed bones and the output buffers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Wrong buffer lengths and out-of-order bones are refused, and the residual is returned for every pose.
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, outputs, return value and refusals.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(V) writers plus bound sweeps' and curves' updates and the fit, with no allocation, as `rigAutoMovieSurfaceNetwork` details.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSurfaceNetwork`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSurfaceNetwork`.
    */
   pose(
     posed: readonly IAutoMovieResolvedBone[],

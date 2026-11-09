@@ -1,7 +1,7 @@
 import {
   AutoMovieBernstein64 as B,
   type IAutoMovieCurve64 as C,
-} from "@automovie/engine/geometry/curve";
+} from "@automovie/engine";
 
 import type { IAutoMovieRecoveryEventCurvePiece } from "../structures/curve/IAutoMovieRecoveryEventCurvePiece";
 import { readRecoveryEventCurveParent } from "./readRecoveryEventCurveParent";
@@ -11,13 +11,13 @@ import { readRecoveryEventCurveParent } from "./readRecoveryEventCurveParent";
  * Optional native endpoint evaluation preserves the compiler's declared boundary
  * policy while every interior control uses the same original-curve restriction.
  *
- * @evidence contracts/common.md#principled-implementation Affine Bernstein restriction and control reversal represent the oriented normalized native interval without composing rounded intermediate nets.
- * @evidence contracts/common.md#clear-and-simple-design One transient derivation replaces stored occurrence coefficient copies.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No fitted point, normalized tangent, epsilon, snap or fallback net replaces native coefficients.
- * @evidence contracts/common.md#meaningful-documentation States normalized interval direction, millimetre controls and optional exact native endpoint evaluation.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Fixed-degree restriction and two optional endpoint evaluations have constant cost.
- * @evidence contracts/performance.md#reuse-equivalent-work Full forward occurrences borrow the original tuple; proper restrictions allocate one temporary four-control tuple.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Returned controls belong to the caller; no restriction cache or persistent state is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Affine Bernstein restriction and control reversal represent the oriented normalized native interval without composing rounded intermediate nets.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One transient derivation replaces stored occurrence coefficient copies.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fitted point, normalized tangent, epsilon, snap or fallback net replaces native coefficients.
+ * @evidence contracts/development/common.md#meaningful-documentation States normalized interval direction, millimetre controls and optional exact native endpoint evaluation.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed-degree restriction and two optional endpoint evaluations have constant cost.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Full forward occurrences borrow the original tuple; proper restrictions allocate one temporary four-control tuple.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned controls belong to the caller; no restriction cache or persistent state is retained.
  */
 export function readRecoveryEventCurveControls(
   piece: IAutoMovieRecoveryEventCurvePiece,

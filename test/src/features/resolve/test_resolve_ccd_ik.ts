@@ -78,10 +78,11 @@ const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
  *    takes the antiparallel 180-degree flip, via both deterministic-perpendicular
  *    selections (an X-aligned and a Y-aligned segment).
  *
- * @evidence contracts/testing.md#behavioral-verification Runs resolveWorldDrivers on actual CCD chains and checks reach residual, segment lengths, replay, influence, early-out and malformed-input refusal, including unsafe iteration budgets before an already-satisfied solve.
- * @evidence contracts/testing.md#independent-expectations Unit segments and hand-set goals establish reach/length/shell oracles; half influence uses a metamorphic fully-solved control, so that case does not independently prove the solver's optimality.
- * @evidence contracts/testing.md#distinguishing-cases Covers reachable/unreachable, unchanged goal, null/default, fractional/zero/NaN/unsafe budgets, missing/zero-length chains, invalid influence and antiparallel X/Y cases. FABRIK and ROM admission have separate owning tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_resolve_ccd_ik calls portable engine numerics and owns these cases directly without processes, native builds, a renderer or dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs resolveWorldDrivers on actual CCD chains and checks reach residual, segment lengths, replay, influence, early-out and malformed-input refusal, including unsafe iteration budgets before an already-satisfied solve.
+ * @evidence contracts/development/testing.md#independent-expectations Unit segments and hand-set goals establish reach/length/shell oracles; half influence uses a metamorphic fully-solved control, so that case does not independently prove the solver's optimality.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers reachable/unreachable, unchanged goal, null/default, fractional/zero/NaN/unsafe budgets, missing/zero-length chains, invalid influence and antiparallel X/Y cases. FABRIK and ROM admission have separate owning tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_resolve_ccd_ik calls portable engine numerics and owns these cases directly without processes, native builds, a renderer or dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A reachable goal converges: the tip lands within 1e-3 of the goal and both).
  */
 export function test_resolve_ccd_ik(): void {
   TestValidator.predicate(

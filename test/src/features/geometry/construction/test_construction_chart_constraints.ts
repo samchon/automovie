@@ -12,10 +12,11 @@ type Vertex = [number, readonly [number, number]];
  * 3. A periodic seam T junction and its three-period translation have the same indexed edges/turns. Opposite semicircles with the same endpoint IDs remain different constraints, while a full-turn self-edge retains its winding.
  * 4. Invalid period, endpoint, turn, zero span and nonfinite coordinates remain named failures. Inputs and repeated-call output ownership are checked independently.
  *
- * @evidence contracts/testing.md#behavioral-verification Reads indexed subconstraint output and provenance, distinguishing a shared-index arrangement primitive from a simple cycle Map or endpoint-pair cancellation. Production MeshPlan uses this same split owner and face tessellation consumes its plan; this question isolates subdivision rather than proving that complete consumer.
- * @evidence contracts/testing.md#independent-expectations Literal expected edges follow line order on horizontal/diagonal segments. The seam interval 5.5 to6.5 splits at6, represented by the original phase0 vertex plus one period. Opposite half-turn arcs differ by their explicit cover integer, independently of coordinate proximity.
- * @evidence contracts/testing.md#distinguishing-cases Includes collinear subdivisions, overlaps, both source directions, degree-four crossings, missing authority, periodic winding/translation, three units, empty input and explicit invalid arithmetic. It does not claim complete kept-face triangulation or f1 closure.
- * @evidence contracts/testing.md#execution-ownership Discoverable synchronous CPU unit through --include construction_chart_constraints; starts no process, Human generation, host, renderer or external fixture.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads indexed subconstraint output and provenance, distinguishing a shared-index arrangement primitive from a simple cycle Map or endpoint-pair cancellation. Production MeshPlan uses this same split owner and face tessellation consumes its plan; this question isolates subdivision rather than proving that complete consumer.
+ * @evidence contracts/development/testing.md#independent-expectations Literal expected edges follow line order on horizontal/diagonal segments. The seam interval 5.5 to6.5 splits at6, represented by the original phase0 vertex plus one period. Opposite half-turn arcs differ by their explicit cover integer, independently of coordinate proximity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Includes collinear subdivisions, overlaps, both source directions, degree-four crossings, missing authority, periodic winding/translation, three units, empty input and explicit invalid arithmetic. It does not claim complete kept-face triangulation or f1 closure.
+ * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU unit through --include construction_chart_constraints; starts no process, Human generation, host, renderer or external fixture.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A T junction, reversed partial overlap and supplied four-way crossing split into independently prescribed subedges at three units. Degree...).
  */
 export function test_construction_chart_constraints(): void {
   const failures: string[] = [];
@@ -213,14 +214,55 @@ export function test_construction_chart_constraints(): void {
     ),
     "single-period",
   );
-  const membership: Map<number, readonly [number, number]> = new Map([[0, [0, 0]], [1, [4, 0]]]);
-  for (const [point, expected] of [[[0, 0], true], [[2, 0], true], [[4, 0], true], [[5, 0], false], [[2, Number.MIN_VALUE], false]] as [readonly [number, number], boolean][]) {
-    const actual: boolean | string = AutoMovieSolidMeshConstraints.contains(membership, [{ a: 0, b: 1, turn: 0 }], point);
-    if (actual !== expected) failures.push(`constraint membership ${point.join("/")}: ${actual}, expected ${expected}`);
+  const membership: Map<number, readonly [number, number]> = new Map([
+    [0, [0, 0]],
+    [1, [4, 0]],
+  ]);
+  for (const [point, expected] of [
+    [[0, 0], true],
+    [[2, 0], true],
+    [[4, 0], true],
+    [[5, 0], false],
+    [[2, Number.MIN_VALUE], false],
+  ] as [readonly [number, number], boolean][]) {
+    const actual: boolean | string = AutoMovieSolidMeshConstraints.contains(
+      membership,
+      [{ a: 0, b: 1, turn: 0 }],
+      point,
+    );
+    if (actual !== expected)
+      failures.push(
+        `constraint membership ${point.join("/")}: ${actual}, expected ${expected}`,
+      );
   }
-  const periodic: Map<number, readonly [number, number]> = new Map([[0, [0, 0]]]);
-  if (AutoMovieSolidMeshConstraints.contains(periodic, [{ a: 0, b: 0, turn: 1 }], [0, 21], 6) !== true || AutoMovieSolidMeshConstraints.contains(periodic, [{ a: 0, b: 0, turn: 1 }], [Number.MIN_VALUE, 21], 6) !== false) failures.push("constraint membership lost its full-turn cover or exact off-edge distinction");
-  if (typeof AutoMovieSolidMeshConstraints.contains(membership, [{ a: 0, b: 1, turn: 1 }], [2, 0]) !== "string") failures.push("constraint membership admitted a nonperiodic turn");
+  const periodic: Map<number, readonly [number, number]> = new Map([
+    [0, [0, 0]],
+  ]);
+  if (
+    AutoMovieSolidMeshConstraints.contains(
+      periodic,
+      [{ a: 0, b: 0, turn: 1 }],
+      [0, 21],
+      6,
+    ) !== true ||
+    AutoMovieSolidMeshConstraints.contains(
+      periodic,
+      [{ a: 0, b: 0, turn: 1 }],
+      [Number.MIN_VALUE, 21],
+      6,
+    ) !== false
+  )
+    failures.push(
+      "constraint membership lost its full-turn cover or exact off-edge distinction",
+    );
+  if (
+    typeof AutoMovieSolidMeshConstraints.contains(
+      membership,
+      [{ a: 0, b: 1, turn: 1 }],
+      [2, 0],
+    ) !== "string"
+  )
+    failures.push("constraint membership admitted a nonperiodic turn");
   if (failures.length !== 0)
     throw new Error(`Chart constraint findings:\n${failures.join("\n")}`);
 }

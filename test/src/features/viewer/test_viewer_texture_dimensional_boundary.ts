@@ -10,10 +10,11 @@ import type { Texture, TextureEventMap, WebGLRenderTarget } from "three";
  * 2. Volume image and target attachment metadata refuse ordinary source representation while preserving diagnostic extents.
  * 3. Changing owned depth wrapping changes the upload-state key.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual texture observation over CPU image/array/volume/compressed/target objects, checking format refusal, diagnostic extents and upload-state identity.
- * @evidence contracts/testing.md#independent-expectations Authored dimensions/component layouts and a separately changed wrapR value determine expected representations without reading a GPU allocation.
- * @evidence contracts/testing.md#distinguishing-cases One/two layers and depths contrast ordinary RGBA8; target attachments and depth wrapping retain their separate owner instead of masquerading as ordinary decoded storage.
- * @evidence contracts/testing.md#execution-ownership The named entry owns and disposes actual CPU Three wrappers without a renderer, external decoder or new test driver; native allocation/release remain unobserved.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual texture observation over CPU image/array/volume/compressed/target objects, checking format refusal, diagnostic extents and upload-state identity.
+ * @evidence contracts/development/testing.md#independent-expectations Authored dimensions/component layouts and a separately changed wrapR value determine expected representations without reading a GPU allocation.
+ * @evidence contracts/development/testing.md#distinguishing-cases One/two layers and depths contrast ordinary RGBA8; target attachments and depth wrapping retain their separate owner instead of masquerading as ordinary decoded storage.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry owns and disposes actual CPU Three wrappers without a renderer, external decoder or new test driver; native allocation/release remain unobserved.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An ordinary RGBA8 image contrasts array/volume/compressed families with both one and two layers/depths.).
  */
 export async function test_viewer_texture_dimensional_boundary(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

@@ -5,13 +5,10 @@ import type { IAutoMovieRecoveryTransportedObservationRow } from "./IAutoMovieRe
 /**
  * Admitted identity-ordered geometric transport, with interpolation kept explicit.
  *
- * @evidence contracts/common.md#principled-implementation The transported row, persistent anchors, traversal direction and per-point provenance preserve the incoming geometric phase authority.
- * @evidence contracts/common.md#clear-and-simple-design One admitted result groups the row with the evidence needed to interpret transport and its limitations.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Admission explicitly does not qualify material correspondence or a longitudinal source guide.
- * @evidence contracts/common.md#meaningful-documentation Defines point counts, orientation, virtual seam, retained observations and false qualification claims.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased result performs no transport.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This declaration owns no runtime cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns all returned row, anchor and provenance arrays.
+ * @evidence contracts/development/design.md#principled-representation The transported row, persistent anchors, traversal direction and per-point provenance preserve the incoming geometric phase authority.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One admitted result groups the row with the evidence needed to interpret transport and its limitations.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Admission explicitly does not qualify material correspondence or a longitudinal source guide.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines point counts, orientation, virtual seam, retained observations and false qualification claims.
  */
 export interface IAutoMovieRecoveryObservationTransported {
   /** An ordered and representable geometric chart was admitted. */

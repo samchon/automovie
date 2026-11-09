@@ -62,10 +62,11 @@ import {
  * 6. The palette derived from that subject serializes as the sidecar the pixels
  *    travel with: pretty JSON, one trailing newline, round-tripping exactly.
  *
- * @evidence contracts/testing.md#behavioral-verification Converts supplied compiled records through the real subject adapter, checks simulation ownership/material projections and missing-recipe refusal, then derives and serializes the semantic palette.
- * @evidence contracts/testing.md#independent-expectations Literal empty lists, two bound/unbound rows per simulation kind, space identities and null unproved costs state expected projection independently. Sidecar formatting is checked directly, while round-trip digest/color expectations deliberately reuse the originating mask and do not independently prove palette assignment.
- * @evidence contracts/testing.md#distinguishing-cases Preserves empty supplemental records, bound/unbound twins, ascending/descending contested bindings, missing planting recipe and supplied/omitted textures; the absent building list is checked as empty, not as a nonempty building pass-through case.
- * @evidence contracts/testing.md#execution-ownership Owns synchronous portable fixtures with deliberately partial compiled shot/population records; the runner executes conversion and in-memory serialization without running simulations, Viewer rendering or writing pixel/sidecar files.
+ * @evidence contracts/development/testing.md#behavioral-verification Converts supplied compiled records through the real subject adapter, checks simulation ownership/material projections and missing-recipe refusal, then derives and serializes the semantic palette.
+ * @evidence contracts/development/testing.md#independent-expectations Literal empty lists, two bound/unbound rows per simulation kind, space identities and null unproved costs state expected projection independently. Sidecar formatting is checked directly, while round-trip digest/color expectations deliberately reuse the originating mask and do not independently prove palette assignment.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves empty supplemental records, bound/unbound twins, ascending/descending contested bindings, missing planting recipe and supplied/omitted textures; the absent building list is checked as empty, not as a nonempty building pass-through case.
+ * @evidence contracts/development/testing.md#execution-ownership Owns synchronous portable fixtures with deliberately partial compiled shot/population records; the runner executes conversion and in-memory serialization without running simulations, Viewer rendering or writing pixel/sidecar files.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A shot declaring no simulated domain converts to empty drawable lists and).
  */
 export function test_render_subject_compiled_shot(): void {
   const bare: IAutoMovieCompiledShotSource = {

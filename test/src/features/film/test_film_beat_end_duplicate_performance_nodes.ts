@@ -56,10 +56,11 @@ const shot: IAutoMovieShot = {
  *
  * 1. A walk performance and a held performance both target hero; resolution throws an Error naming the duplicate node and both performance source positions.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls resolveBeatEnd with conflicting performed and held entries for hero and requires the duplicate Error and both owning paths, catching input-order selection instead of refusal of ambiguous actor state.
- * @evidence contracts/testing.md#independent-expectations The literal performances share hero at indices zero and one while requesting different motion states, so their collision and source paths follow directly from the input rather than a sampled end state.
- * @evidence contracts/testing.md#distinguishing-cases Owns duplicate performance identity with a real supplied walk motion and one staged node; distinct actors, held actors and missing motion lookup belong to the ordinary beat-end tests.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_beat_end_duplicate_performance_nodes entry owns one in-process refusal, catches its Error without replacing a global or foreign method, and creates no consumer installation, native artifact or real host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolveBeatEnd with conflicting performed and held entries for hero and requires the duplicate Error and both owning paths, catching input-order selection instead of refusal of ambiguous actor state.
+ * @evidence contracts/development/testing.md#independent-expectations The literal performances share hero at indices zero and one while requesting different motion states, so their collision and source paths follow directly from the input rather than a sampled end state.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns duplicate performance identity with a real supplied walk motion and one staged node; distinct actors, held actors and missing motion lookup belong to the ordinary beat-end tests.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_beat_end_duplicate_performance_nodes entry owns one in-process refusal, catches its Error without replacing a global or foreign method, and creates no consumer installation, native artifact or real host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A walk performance and a held performance both target hero; resolution throws an Error naming the duplicate node and both performance...).
  */
 export function test_film_beat_end_duplicate_performance_nodes(): void {
   let thrown: unknown = null;

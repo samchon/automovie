@@ -21,10 +21,11 @@ import { createRecoverySceneNumericalFixture } from "../internal/createRecoveryS
  * 3. Unsafe scalar configuration remains core; valid insufficient capacity has its concrete identity. Indexed numeric gauge and original charge errors precede report-capacity refusal.
  * 4. Aggregate setup exhaustion leaves the original ledger/prefix and no context, preserving the coordinator catch contract.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises actual scope, scene and map admission owners, observing exact remaining capacities, precharges, alias reuse and error identities without running a solver.
- * @evidence contracts/testing.md#independent-expectations A20 gives22*512=11264 and250000-64-11264=238672. C5/L24/E48 has original numerical40744/entry1351/work196184, separately admitted chart64 and reporting512 resident slots. Reporting setup256 and projection2048 leave raw QP minima unchanged.
- * @evidence contracts/testing.md#distinguishing-cases Covers equality/adjacent insufficiency, unsafe and tiny caps, narrow independent fit cap, owned budget mutation, supplied-scope reuse, aggregate prefix preservation, sparse/incorrect gauge and original charge marker. Actual producer/trace and serialization have separate entries.
- * @evidence contracts/testing.md#execution-ownership The portable test_recovery_feasible_reporting_capacity entry calls admission over analytic resident data only; no numerical fit, foreign override, host, process, filesystem, compiler, GPU or photo starts.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises actual scope, scene and map admission owners, observing exact remaining capacities, precharges, alias reuse and error identities without running a solver.
+ * @evidence contracts/development/testing.md#independent-expectations A20 gives22*512=11264 and250000-64-11264=238672. C5/L24/E48 has original numerical40744/entry1351/work196184, separately admitted chart64 and reporting512 resident slots. Reporting setup256 and projection2048 leave raw QP minima unchanged.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers equality/adjacent insufficiency, unsafe and tiny caps, narrow independent fit cap, owned budget mutation, supplied-scope reuse, aggregate prefix preservation, sparse/incorrect gauge and original charge marker. Actual producer/trace and serialization have separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_feasible_reporting_capacity entry calls admission over analytic resident data only; no numerical fit, foreign override, host, process, filesystem, compiler, GPU or photo starts.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A scene with A20 reserves22*512 reporting slots once after the original64 route partition, while its original declared250000 and narrower...).
  */
 export function test_recovery_feasible_reporting_capacity(): void {
   const fixture: ReturnType<typeof createRecoverySceneNumericalFixture> =

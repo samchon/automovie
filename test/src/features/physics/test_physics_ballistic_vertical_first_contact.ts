@@ -28,10 +28,11 @@ const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  *    is the single positive root of the downward flight: the fast direct drop,
  *    not the up-and-over lob.
  *
- * @evidence contracts/testing.md#behavioral-verification Solves default-arc vertical launches and checks the first overhead contact and direct downward contact, preventing a descending re-crossing from delaying a reaction.
- * @evidence contracts/testing.md#independent-expectations Hand-derived quadratic roots and signed speed define the expected seconds and velocity. projectileAt landing is supplemental shared-dependency evidence; the independent root assertions would still reject the wrong crossing.
- * @evidence contracts/testing.md#distinguishing-cases Separates rising overhead contact from its later descending root and the single positive downward-flight root; explicit high-arc, zero-gravity and unreachable cases belong to the vertical-arc unit.
- * @evidence contracts/testing.md#execution-ownership The named exported unit entry executes portable analytic functions and owns its assertions directly, without installing consumers or starting hosts.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves default-arc vertical launches and checks the first overhead contact and direct downward contact, preventing a descending re-crossing from delaying a reaction.
+ * @evidence contracts/development/testing.md#independent-expectations Hand-derived quadratic roots and signed speed define the expected seconds and velocity. projectileAt landing is supplemental shared-dependency evidence; the independent root assertions would still reject the wrong crossing.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates rising overhead contact from its later descending root and the single positive downward-flight root; explicit high-arc, zero-gravity and unreachable cases belong to the vertical-arc unit.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported unit entry executes portable analytic functions and owns its assertions directly, without installing consumers or starting hosts.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Overhead target, fired up: hit time is the rising root `(v−√…)/g`, well).
  */
 export function test_physics_ballistic_vertical_first_contact(): void {
   // 1. Overhead: origin y=0, target y=10, speed 20, g=9.81.

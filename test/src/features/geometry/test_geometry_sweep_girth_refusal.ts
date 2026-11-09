@@ -27,10 +27,11 @@ import { throwsError } from "../internal/throwsError";
  *    a count-changing band's extraordinary corners, and two rings of one
  *    sweep at one `u` are refused.
  *
- * @evidence contracts/testing.md#behavioral-verification Samples networks with `sampleAutoMovieSurfaceNetwork`; a sampler that already met the girth would make the hold untestable, and each invalid ring must fail with its own diagnostic.
- * @evidence contracts/testing.md#independent-expectations The section's perimeter is a dense polyline of `compileAutoMovieSweep`, and the limit's is measured on the subdivided surface; each refusal names its cause.
- * @evidence contracts/testing.md#distinguishing-cases Covers the free shortfall and every refusal; the held perimeter is owned by the girth test.
- * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_girth_refusal` entry with no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples networks with `sampleAutoMovieSurfaceNetwork`; a sampler that already met the girth would make the hold untestable, and each invalid ring must fail with its own diagnostic.
+ * @evidence contracts/development/testing.md#independent-expectations The section's perimeter is a dense polyline of `compileAutoMovieSweep`, and the limit's is measured on the subdivided surface; each refusal names its cause.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers the free shortfall and every refusal; the held perimeter is owned by the girth test.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_girth_refusal` entry with no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The elliptic tube's middle ring without a perimeter, at the medium).
  */
 export function test_geometry_sweep_girth_refusal(): void {
   const sweep: IAutoMovieSweepSurface = compileAutoMovieSweep(

@@ -28,10 +28,11 @@ const UNIT: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
  * 1. A centered mass at (3,1,2) projects inside the unit-square top carried by a parent at (3,0,2), producing no warning or toppling.
  * 2. Moving that mass 0.7 metres along +X overhangs the half-metre edge and produces one physics warning with a +X fall direction.
  *
- * @evidence contracts/testing.md#behavioral-verification Converts an authored affordance face into support contacts and runs toppling admission, asserting both the stable result and the warning/fall direction for an overhang.
- * @evidence contracts/testing.md#independent-expectations The translated unit square spans X from 2.5 to 3.5 and Z from 1.5 to 2.5, so X=3 is inside and X=3.7 lies beyond its positive edge; these hand-defined positions supply the expectations.
- * @evidence contracts/testing.md#distinguishing-cases Keeps centered and overhung mass cases on the same support face, distinguishing warning-free stability from one directional toppling suggestion; support geometry tests own rotated contacts and malformed affordances.
- * @evidence contracts/testing.md#execution-ownership The exported validation unit entry owns both portable support/physics cases and calls engine source without an attachment application, renderer or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Converts an authored affordance face into support contacts and runs toppling admission, asserting both the stable result and the warning/fall direction for an overhang.
+ * @evidence contracts/development/testing.md#independent-expectations The translated unit square spans X from 2.5 to 3.5 and Z from 1.5 to 2.5, so X=3 is inside and X=3.7 lies beyond its positive edge; these hand-defined positions supply the expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps centered and overhung mass cases on the same support face, distinguishing warning-free stability from one directional toppling suggestion; support geometry tests own rotated contacts and malformed affordances.
+ * @evidence contracts/development/testing.md#execution-ownership The exported validation unit entry owns both portable support/physics cases and calls engine source without an attachment application, renderer or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A centered mass at (3,1,2) projects inside the unit-square top carried by a parent at (3,0,2), producing no warning or toppling.).
  */
 export function test_validation_affordance_stack(): void {
   const top: IAutoMovieAffordance = {

@@ -31,10 +31,11 @@ import { nclose } from "../internal/predicates";
  *    term accumulates across steps rather than restarting.
  * 4. A closed basin holds exactly 2 m³ at all three observed steps; source, drain and outflow ledger entries are exactly zero at step 2, whose domain and absolute step identity are also retained.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the shallow-water solver at steps zero, one and two and compares hand-derived depth, face velocity, volume, time and ledger values, catching wrong momentum accumulation, donor flux or closed-wall booking.
- * @evidence contracts/testing.md#independent-expectations The documented two-cell dyadic equations independently yield velocities 1 and 1.625 and depths 1.3125/0.6875 then 1.0458984375/0.9541015625; no product snapshot is the oracle, and one CPU run does not prove another platform.
- * @evidence contracts/testing.md#distinguishing-cases Keeps authored rest, first and second updates, reflecting X/Z faces and empty source/drain/outflow ledgers; drag, dry cells, source/drain windows and open rims have separate entries.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns the three portable CPU solves and strict numerical observations through engine calls, without building native artifacts or starting a process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the shallow-water solver at steps zero, one and two and compares hand-derived depth, face velocity, volume, time and ledger values, catching wrong momentum accumulation, donor flux or closed-wall booking.
+ * @evidence contracts/development/testing.md#independent-expectations The documented two-cell dyadic equations independently yield velocities 1 and 1.625 and depths 1.3125/0.6875 then 1.0458984375/0.9541015625; no product snapshot is the oracle, and one CPU run does not prove another platform.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps authored rest, first and second updates, reflecting X/Z faces and empty source/drain/outflow ledgers; drag, dry cells, source/drain windows and open rims have separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns the three portable CPU solves and strict numerical observations through engine calls, without building native artifacts or starting a process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Step 0 is the authored state at rest: the depths as written, every face).
  */
 export function test_fluid_shallow_water_hand_math(): void {
   const domain: ReturnType<typeof fluidDomain> = fluidDomain();

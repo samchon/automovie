@@ -30,10 +30,11 @@ const TIERS: AutoMovieSurfaceTier[] = ["lowest", "low", "medium", "high"];
  * 3. Tiers of different networks, a face out of range, local coordinates
  *    outside 0 to 1, and a coordinate outside its patch are refused.
  *
- * @evidence contracts/testing.md#behavioral-verification Maps points with `mapAutoMovieSurfaceTier` both ways between every tier pair and locates coordinates with `locateAutoMovieSurfaceCoordinate`; a mapping that rounded to the grid, swapped `s` and `t`, used the wrong patch or ignored a tier's counts fails the round trip, while any exact chart composition passes.
- * @evidence contracts/testing.md#independent-expectations The expected result of a round trip is the starting point itself, and a corner's coordinate is read from the cage's own published corners; neither depends on the mapping's arithmetic.
- * @evidence contracts/testing.md#distinguishing-cases Covers coarser to finer, finer to coarser and same-tier maps over sweep, Coons and bridge patches, corners, and each refusal; positions of the sampled tiers are owned by the network and rig tests.
- * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_tiers` entry with no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Maps points with `mapAutoMovieSurfaceTier` both ways between every tier pair and locates coordinates with `locateAutoMovieSurfaceCoordinate`; a mapping that rounded to the grid, swapped `s` and `t`, used the wrong patch or ignored a tier's counts fails the round trip, while any exact chart composition passes.
+ * @evidence contracts/development/testing.md#independent-expectations The expected result of a round trip is the starting point itself, and a corner's coordinate is read from the cage's own published corners; neither depends on the mapping's arithmetic.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers coarser to finer, finer to coarser and same-tier maps over sweep, Coons and bridge patches, corners, and each refusal; positions of the sampled tiers are owned by the network and rig tests.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_tiers` entry with no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: For every ordered pair of the branched body's four tiers, 60 points).
  */
 export function test_geometry_sweep_tiers(): void {
   const cages: IAutoMovieSurfaceCage[] = TIERS.map(

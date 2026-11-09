@@ -16,13 +16,13 @@ const AXES: readonly ["flexion", "abduction", "twist"] = [
 /**
  * Append axis range/ROM violations and a combined swing violation to the caller's collector. Null angles mean rest and contribute zero to swing; immobile axes admit null/zero. Field paths and degree overshoots preserve correction provenance, while constraint admission is separate.
  *
- * @evidence contracts/common.md#principled-implementation Report nonfinite, interval and immobile-axis violations in axis order, then combined swing with null as zero; the collector retains paths, actual values and degree overshoots.
- * @evidence contracts/common.md#clear-and-simple-design Axis and cone detection share projection owners' semantics/angular metric while the caller's collector owns diagnostics.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Null is rest and zero is automatically valid only for immobile axes; constraint admission and periodic multi-turn limitations are separate rather than hidden here.
- * @evidence contracts/common.md#meaningful-documentation Props state joint/constraint/path/collector roles and degree overshoots; nonfinite angles produce range diagnostics before axis comparison.
- * @evidence contracts/performance.md#efficient-algorithms Three fixed axis checks plus one swing metric use constant work and append at most four rows.
- * @evidence contracts/performance.md#reuse-equivalent-work Detector/clamps share admitted constraints/metric, while collector effects are appended anew rather than cached.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns collector rows and release lifetime; joint/constraint references are borrowed and no handle or task is acquired.
+ * @evidence contracts/development/implementation.md#principled-implementation Report nonfinite, interval and immobile-axis violations in axis order, then combined swing with null as zero; the collector retains paths, actual values and degree overshoots.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Axis and cone detection share projection owners' semantics/angular metric while the caller's collector owns diagnostics.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Null is rest and zero is automatically valid only for immobile axes; constraint admission and periodic multi-turn limitations are separate rather than hidden here.
+ * @evidence contracts/development/common.md#meaningful-documentation Props state joint/constraint/path/collector roles and degree overshoots; nonfinite angles produce range diagnostics before axis comparison.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three fixed axis checks plus one swing metric use constant work and append at most four rows.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Detector/clamps share admitted constraints/metric, while collector effects are appended anew rather than cached.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns collector rows and release lifetime; joint/constraint references are borrowed and no handle or task is acquired.
  */
 export const validateJointRom: (props: {
   joint: IAutoMovieJointPose;

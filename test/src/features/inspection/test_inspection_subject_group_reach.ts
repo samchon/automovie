@@ -47,10 +47,11 @@ import { subjectInspectionIdentityTransform } from "../internal/subjectInspectio
  * 5. The enumeration carries the groups too, so a flat survey is not smaller
  *    than the building.
  *
- * @evidence contracts/testing.md#behavioral-verification Validates and inspects a seven-element hierarchy, opening model-less groups and walking only exposed space/root/member links; refusing a transform-only group, dropping drawn descendants or exposing an unopenable member fails.
- * @evidence contracts/testing.md#independent-expectations The authored parent/space links determine exact owners, root membership and null unstaged geometry; unreached ids are taken from that input hierarchy rather than the description census. Validation acceptance checks this fixture, not every building topology.
- * @evidence contracts/testing.md#distinguishing-cases Keeps a claimed group with a drawn child, empty group, claimed and unclaimed roots, space descent, complete enumeration and missing-id refusal; crowded paging is owned by member_paging.
- * @evidence contracts/testing.md#execution-ownership The discoverable exported test owns the local queue walk and code-authored building records, directly importing inspection and graph-validation source; no builder process, renderer or GPU is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Validates and inspects a seven-element hierarchy, opening model-less groups and walking only exposed space/root/member links; refusing a transform-only group, dropping drawn descendants or exposing an unopenable member fails.
+ * @evidence contracts/development/testing.md#independent-expectations The authored parent/space links determine exact owners, root membership and null unstaged geometry; unreached ids are taken from that input hierarchy rather than the description census. Validation acceptance checks this fixture, not every building topology.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps a claimed group with a drawn child, empty group, claimed and unclaimed roots, space descent, complete enumeration and missing-id refusal; crowded paging is owned by member_paging.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable exported test owns the local queue walk and code-authored building records, directly importing inspection and graph-validation source; no builder process, renderer or GPU is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A group a space claims opens, and reports its kind, its owner, its space,).
  */
 export function test_inspection_subject_group_reach(): void {
   const record: IAutoMovieBuiltEnvironment = environment();

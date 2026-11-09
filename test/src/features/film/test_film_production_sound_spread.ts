@@ -297,10 +297,11 @@ const squaredDistance: (
  * 4. The post-mix limiter owns the headroom a crowd's own level does not: a mass
  * of four hundred at z = -2 mixes past full scale and returns within 1e-6 of the 0.95 ceiling with nothing clipped, while the same plan without it stays below that ceiling.
  *
- * @evidence contracts/testing.md#behavioral-verification Plans static, closing and combined masses and mixes a near loud crowd, asserting uniform-box/parallel-axis spread, cue-scaled extent, weighted XZ centre and limited versus quiet master behavior.
- * @evidence contracts/testing.md#independent-expectations Fixture geometry supplies box variance and the complete count-weighted parallel-axis calculation including centre displacement; the literal 0.95 ceiling is the mixer contract, and no empirical acoustic or external loudness reference is claimed.
- * @evidence contracts/testing.md#distinguishing-cases Keeps one mass, spacing-only cue motion, a displaced lone source plus mass, and loud versus quiet plans; population scaling at equal footprint remains in the density entry.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_production_sound_spread and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans static, closing and combined masses and mixes a near loud crowd, asserting uniform-box/parallel-axis spread, cue-scaled extent, weighted XZ centre and limited versus quiet master behavior.
+ * @evidence contracts/development/testing.md#independent-expectations Fixture geometry supplies box variance and the complete count-weighted parallel-axis calculation including centre displacement; the literal 0.95 ceiling is the mixer contract, and no empirical acoustic or external loudness reference is claimed.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps one mass, spacing-only cue motion, a displaced lone source plus mass, and loud versus quiet plans; population scaling at equal footprint remains in the density entry.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_production_sound_spread and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A lone mass is heard at the RMS radius of the box its compiled bounds).
  */
 export function test_film_production_sound_spread(): void {
   const plan: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({

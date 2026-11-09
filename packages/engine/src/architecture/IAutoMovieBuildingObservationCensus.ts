@@ -10,13 +10,10 @@ import { IAutoMovieBuiltEnvelopeFace } from "./IAutoMovieBuiltEnvelopeFace";
  * state a volume, while `connectors` reads every descendant space, including
  * the building's root and spaces with no volume.
  *
- * @evidence contracts/common.md#principled-implementation A per-building join of populations each derived from the record by its own function: envelope faces split by aspect, corners by building, openings on those faces, descendant spaces filtered by stated volume and connectors deduplicated through a set, each list in code-unit order so the result is deterministic.
- * @evidence contracts/common.md#clear-and-simple-design One record per building groups every population a building review counts, keeping faces and corners as resolved records rather than ids so a reviewer does not join them back to geometry.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No population is declared by the reviewer or filtered by an authored label; the asymmetry between `spaces`, which needs a stated volume, and `connectors`, which reads every descendant including the root, is the producer's rule and is documented.
- * @evidence contracts/common.md#meaningful-documentation States the producer and its order, that the three face lists partition the building's envelope faces by aspect in boundary-id order, what each id list contains and its order, and which space population `spaces` and `connectors` each read.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; the census cost, envelope derivation once per environment followed by per-building filters and descendant walks, is answered on `builtEnvironmentBuildingCensus`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The census derives faces once, passes those faces to `builtEnvelopeFaceCorners` and filters both lists per building; no census is cached across calls.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources References the face and corner records built for this call plus fresh id arrays, all owned by the caller's census list and released with it.
+ * @evidence contracts/development/design.md#principled-representation A per-building join of populations each derived from the record by its own function: envelope faces split by aspect, corners by building, openings on those faces, descendant spaces filtered by stated volume and connectors deduplicated through a set, each list in code-unit order so the result is deterministic.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record per building groups every population a building review counts, keeping faces and corners as resolved records rather than ids so a reviewer does not join them back to geometry.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No population is declared by the reviewer or filtered by an authored label; the asymmetry between `spaces`, which needs a stated volume, and `connectors`, which reads every descendant including the root, is the producer's rule and is documented.
+ * @evidence contracts/development/common.md#meaningful-documentation States the producer and its order, that the three face lists partition the building's envelope faces by aspect in boundary-id order, what each id list contains and its order, and which space population `spaces` and `connectors` each read.
  */
 export interface IAutoMovieBuildingObservationCensus {
   /** Building unit identity within its environment. */

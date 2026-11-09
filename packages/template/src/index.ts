@@ -38,3 +38,5 @@ export * from "./IScaffoldSyncPlan";
 export * from "./SCAFFOLD_SYNC_STATE_FILE";
 export * from "./planScaffoldSync";
 export * from "./syncScaffold";
+export * from "./IScaffoldPosixConstants";
+export * from "./resolveScaffoldPosixConstants";

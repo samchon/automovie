@@ -47,10 +47,11 @@ const landsOn: (
  * 5. Negative twins: an overhead target beyond `s²/2g` is out of range for BOTH
  *    arcs; zero gravity keeps the straight sightline shot for both.
  *
- * @evidence contracts/testing.md#behavioral-verification Solves direct and high vertical launches and checks direction, contact time, landing, unreachable refusal and the zero-gravity branch, catching an arc selector ignored by the vertical solve.
- * @evidence contracts/testing.md#independent-expectations Authored positive roots of the constant-acceleration equation and requested speed supply independent time and velocity expectations. Landing through projectileAt is a supplementary composition check with a shared engine dependency, not the numeric oracle.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts below/overhead direct and high arcs, above-apex refusal for both arcs and a zero-gravity high request; general oblique and moving-target cases belong to neighboring units.
- * @evidence contracts/testing.md#execution-ownership The named exported unit entry calls portable solver and state functions with local records; it owns every assertion directly and starts no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves direct and high vertical launches and checks direction, contact time, landing, unreachable refusal and the zero-gravity branch, catching an arc selector ignored by the vertical solve.
+ * @evidence contracts/development/testing.md#independent-expectations Authored positive roots of the constant-acceleration equation and requested speed supply independent time and velocity expectations. Landing through projectileAt is a supplementary composition check with a shared engine dependency, not the numeric oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts below/overhead direct and high arcs, above-apex refusal for both arcs and a zero-gravity high request; general oblique and moving-target cases belong to neighboring units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported unit entry calls portable solver and state functions with local records; it owns every assertion directly and starts no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Target 20 m straight below, speed 20, `direct` → fired straight down, `t =).
  */
 export function test_physics_ballistic_vertical_arc(): void {
   // 1./2. Below: h = −20, s = 20 → disc = 400 + 2·9.81·20 = 792.4;

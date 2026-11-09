@@ -13,13 +13,13 @@ import { resolveAutoMovieFilmBeautyComposition } from "./resolveAutoMovieFilmBea
  *
  * The sampled film inputs are explicit. Interactive display-clock updates and inspection CLI timestamp filenames remain host observations rather than deterministic delivered-frame identity.
  *
- * @evidence contracts/common.md#principled-implementation Admits sampled one/two-layer beauty composition before callbacks, dispatches direct/fade/dissolve beauty and uses the Engine full-weight dominant layer with incoming tie winner for structural passes.
- * @evidence contracts/common.md#clear-and-simple-design Layer sampling/state resolution stays with caller callbacks while canonical pass selection and beauty compositor owners retain their separate responsibilities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid weight/cardinality/complement sum refuse rather than clamp or blend structural classifications; host clock/filename observations do not become deterministic delivered-frame identity.
- * @evidence contracts/common.md#meaningful-documentation Documents opaque sampled fields, reversible source callback ownership, beauty weights, structural tie rule and pre-effect admission.
- * @evidence contracts/performance.md#efficient-algorithms One/two admitted layers give fixed dispatch work; structural selection clones the selected layer payload and compositor draws/readbacks retain their actual pixel/native costs.
- * @evidence contracts/performance.md#reuse-equivalent-work Canonical selection is reused by guide consumers and renderer-scoped beauty owners reuse their allocated copies; sampled source callbacks still execute for each actual requested frame.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The adapter acquires no scene or renderer; callbacks own reversible state and compositor owners retain/release their native display copies, including terminal failure uncertainty.
+ * @evidence contracts/development/implementation.md#principled-implementation Admits sampled one/two-layer beauty composition before callbacks, dispatches direct/fade/dissolve beauty and uses the Engine full-weight dominant layer with incoming tie winner for structural passes.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Layer sampling/state resolution stays with caller callbacks while canonical pass selection and beauty compositor owners retain their separate responsibilities.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid weight/cardinality/complement sum refuse rather than clamp or blend structural classifications; host clock/filename observations do not become deterministic delivered-frame identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents opaque sampled fields, reversible source callback ownership, beauty weights, structural tie rule and pre-effect admission.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One/two admitted layers give fixed dispatch work; structural selection clones the selected layer payload and compositor draws/readbacks retain their actual pixel/native costs.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Canonical selection is reused by guide consumers and renderer-scoped beauty owners reuse their allocated copies; sampled source callbacks still execute for each actual requested frame.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The adapter acquires no scene or renderer; callbacks own reversible state and compositor owners retain/release their native display copies, including terminal failure uncertainty.
  */
 export const renderAutoMovieFilmFrame: <Layer extends { weight: number }>(
   renderer: THREE.WebGLRenderer,

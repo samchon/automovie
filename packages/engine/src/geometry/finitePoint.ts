@@ -10,13 +10,13 @@ import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
  * @param point Point in the builder's construction plane, in metres.
  * @param label Path of the point in the diagnostic.
  *
- * @evidence contracts/common.md#principled-implementation `Number.isFinite` rejects NaN and both infinities without coercing, which is exactly the set of values that would poison every later position.
- * @evidence contracts/common.md#clear-and-simple-design One shared admission for the profile, region and wall builders, each passing its own label for the point it checks.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A non-finite coordinate throws rather than being replaced by zero or skipped.
- * @evidence contracts/common.md#meaningful-documentation States what is refused, the message shape, and that it runs before geometry is emitted.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A fixed pair of finiteness tests per point, with nothing to choose.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each authored profile corner is admitted exactly once by its builder.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps no reference to the point; a refusal allocates only its error.
+ * @evidence contracts/development/implementation.md#principled-implementation `Number.isFinite` rejects NaN and both infinities without coercing, which is exactly the set of values that would poison every later position.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared admission for the profile, region and wall builders, each passing its own label for the point it checks.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-finite coordinate throws rather than being replaced by zero or skipped.
+ * @evidence contracts/development/common.md#meaningful-documentation States what is refused, the message shape, and that it runs before geometry is emitted.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed pair of finiteness tests per point, with nothing to choose.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each authored profile corner is admitted exactly once by its builder.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps no reference to the point; a refusal allocates only its error.
  */
 export const finitePoint = (
   point: IAutoMovieProfilePoint,

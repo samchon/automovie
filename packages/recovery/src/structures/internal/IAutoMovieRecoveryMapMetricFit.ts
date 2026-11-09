@@ -4,13 +4,10 @@ import type { IAutoMovieRecoveryMapMetricScales } from "./IAutoMovieRecoveryMapM
 /**
  * Original-rank-qualified raw arrowhead metric without an LS answer.
  *
- * @evidence contracts/common.md#principled-implementation Undamped point/camera ranks and raw damped QR define the same scaled metric used by feasible physical certificates.
- * @evidence contracts/common.md#clear-and-simple-design Metric, two independent rank diagnostics and shared original D references serve current whitening and optional curvature, without fictional step or gradient members or a retained preparation closure.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Metric support never replaces actual gates or normal KKT and does not certify an uncomputed normalized damped SVD or LS solution.
- * @evidence contracts/common.md#meaningful-documentation Members separate current damped action from original undamped qualification.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased output performs no factorization.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work It defines no result cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Current factor closures and scalars transfer; preparation and original rank-factor records do not escape.
+ * @evidence contracts/development/design.md#principled-representation Undamped point/camera ranks and raw damped QR define the same scaled metric used by feasible physical certificates.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Metric, two independent rank diagnostics and shared original D references serve current whitening and optional curvature, without fictional step or gradient members or a retained preparation closure.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Metric support never replaces actual gates or normal KKT and does not certify an uncomputed normalized damped SVD or LS solution.
+ * @evidence contracts/development/common.md#meaningful-documentation Members separate current damped action from original undamped qualification.
  */
 export interface IAutoMovieRecoveryMapMetricFit extends IAutoMovieRecoveryMapMetricScales {
   /** Current raw damped metric with original physical global column scales. */

@@ -64,10 +64,11 @@ const timeline: (
  * 4. Stamp frame three at 30000/1001 fps and preserve reverse-order sampling.
  * 5. Refuse invalid frame indexes, an uncovered frame and an orphan dissolve while admitting its post-window neighbour.
  *
- * @evidence contracts/testing.md#behavioral-verification Samples a film timeline and checks fade/dissolve layers, hard-cut source frames, rational-rate timestamp, reverse-order consistency and located schedule failures.
- * @evidence contracts/testing.md#independent-expectations Integer source-in/out offsets and duration-four linear ramps determine each expected layer; timestamp is binary64 3*1001/30000 rather than exact rational storage. Reverse equality is a relational determinism check and cannot independently expose a shared sampler defect.
- * @evidence contracts/testing.md#distinguishing-cases Retains fade endpoints/interior, dissolve start/interior/end, simultaneous fades, hard cut, rational clock, forward/reverse traversal, invalid clocks, schedule gap and orphan dissolve with its post-window neighbor.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_production_frame_sampling unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples a film timeline and checks fade/dissolve layers, hard-cut source frames, rational-rate timestamp, reverse-order consistency and located schedule failures.
+ * @evidence contracts/development/testing.md#independent-expectations Integer source-in/out offsets and duration-four linear ramps determine each expected layer; timestamp is binary64 3*1001/30000 rather than exact rational storage. Reverse equality is a relational determinism check and cannot independently expose a shared sampler defect.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains fade endpoints/interior, dissolve start/interior/end, simultaneous fades, hard cut, rational clock, forward/reverse traversal, invalid clocks, schedule gap and orphan dissolve with its post-window neighbor.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_production_frame_sampling unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Sample fade-in and dissolve start/interior/end layers.).
  */
 export function test_film_production_frame_sampling(): void {
   const edit: IAutoMovieFilmTimeline = timeline(

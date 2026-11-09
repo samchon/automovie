@@ -197,10 +197,11 @@ const ANGLE = 30;
  * 1. For each joint and axis, a clinical value 30 past neutral on the left bone turns the left probe vector toward the anatomical direction of the named motion: forward for shoulder, elbow and hip flexion, up for arm raises and external rotation, toward the palm for wrist and finger flexion, outward for hip abduction, hip external rotation, eversion and toe-out.
  * 2. The same clinical value on the right bone gives the mirror image of the left rotation across the body's midplane, so the right probe turns the mirrored way and the motion is the same.
  *
- * @evidence contracts/testing.md#behavioral-verification Resolves a pose per joint, axis and side and compares the resolved world rotations; a joint whose sign differed between the sides fails the mirror check, and one whose positive angle was the opposite motion fails the direction check.
- * @evidence contracts/testing.md#independent-expectations The directions are anatomy of the VRM T-pose (front +Z, left +X, palms −Y), and the mirror of a rotation across the X = 0 plane is the quaternion with its Y and Z components negated; neither is computed by the product.
- * @evidence contracts/testing.md#distinguishing-cases Covers every axis of the shoulder, upper arm, forearm, hand, the index and ring fingers, the thumb, hip, knee, foot and toes on both sides; the eyes, which turn together rather than mirrored, and the midline bones belong to other entries.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous kinematics entry that builds its own in-memory rig and calls engine source without a viewer or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves a pose per joint, axis and side and compares the resolved world rotations; a joint whose sign differed between the sides fails the mirror check, and one whose positive angle was the opposite motion fails the direction check.
+ * @evidence contracts/development/testing.md#independent-expectations The directions are anatomy of the VRM T-pose (front +Z, left +X, palms −Y), and the mirror of a rotation across the X = 0 plane is the quaternion with its Y and Z components negated; neither is computed by the product.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers every axis of the shoulder, upper arm, forearm, hand, the index and ring fingers, the thumb, hip, knee, foot and toes on both sides; the eyes, which turn together rather than mirrored, and the midline bones belong to other entries.
+ * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous kinematics entry that builds its own in-memory rig and calls engine source without a viewer or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: For each joint and axis, a clinical value 30 past neutral on the left bone turns the left probe vector toward the anatomical direction of...).
  */
 export function test_kinematics_humanoid_side_convention(): void {
   const skeleton: IAutoMovieSkeleton = rig();

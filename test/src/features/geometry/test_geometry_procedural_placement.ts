@@ -61,10 +61,11 @@ const close: (
  *    non-finite translation or scale, a blank id, and a duplicate id are all
  *    refused by their own diagnostic.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls rigid mesh placement and assembly, checking positions, inverse-transpose normals, winding and member-owned index ranges, including reflection parity after determinant underflow. Caller-buffer mutation is not observed here.
- * @evidence contracts/testing.md#independent-expectations Quarter-turn coordinates, cross products and unit-prism volume times the absolute scale determinant are hand-derived; underflowed scales still have independently countable negative-axis parity. Numeric coordinate checks retain 1e-12 absolute tolerance, while group/range identities remain exact. The topology observer shares engine grid rules and these CPU checks do not certify arbitrary embedding or rendered appearance.
- * @evidence contracts/testing.md#distinguishing-cases Covers ordinary/mirrored/tiny scales, null attributes, nonindexed inputs, assembly order/empty input and malformed placements or member identities; correspondence tests own physical aliases.
- * @evidence contracts/testing.md#execution-ownership This exported geometry entry runs CPU source and mesh observations directly; it neither starts a renderer nor treats numerical checks as visual acceptance.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls rigid mesh placement and assembly, checking positions, inverse-transpose normals, winding and member-owned index ranges, including reflection parity after determinant underflow. Caller-buffer mutation is not observed here.
+ * @evidence contracts/development/testing.md#independent-expectations Quarter-turn coordinates, cross products and unit-prism volume times the absolute scale determinant are hand-derived; underflowed scales still have independently countable negative-axis parity. Numeric coordinate checks retain 1e-12 absolute tolerance, while group/range identities remain exact. The topology observer shares engine grid rules and these CPU checks do not certify arbitrary embedding or rendered appearance.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers ordinary/mirrored/tiny scales, null attributes, nonindexed inputs, assembly order/empty input and malformed placements or member identities; correspondence tests own physical aliases.
+ * @evidence contracts/development/testing.md#execution-ownership This exported geometry entry runs CPU source and mesh observations directly; it neither starts a renderer nor treats numerical checks as visual acceptance.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Scale (2, ½, 1), a 90° yaw, and a translation place the three corners at).
  */
 export function test_geometry_procedural_placement(): void {
   const yawed: IAutoMovieMesh = transformAutoMovieMesh(facet(), {

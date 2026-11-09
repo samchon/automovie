@@ -35,10 +35,11 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
  * 1. A zero contact normal throws before it can become a silent deflect.
  * 2. Non-finite contact normals throw before they can produce NaN impact fields.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls impact resolution with zero, NaN and infinite contact normals and requires throws, catching directionless or invalid contact admitted as a response.
- * @evidence contracts/testing.md#independent-expectations A normal must define a finite nonzero direction; authored invalid vectors establish refusal without using product response as an oracle. Exception presence does not prove evaluation order or normal normalization accuracy.
- * @evidence contracts/testing.md#distinguishing-cases Separates zero magnitude from NaN and infinity components; valid normals and quantitative response belong to the impact unit, while other input guards have their own units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit supplies local impact records and owns every assertion without a real host or dynamic cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls impact resolution with zero, NaN and infinite contact normals and requires throws, catching directionless or invalid contact admitted as a response.
+ * @evidence contracts/development/testing.md#independent-expectations A normal must define a finite nonzero direction; authored invalid vectors establish refusal without using product response as an oracle. Exception presence does not prove evaluation order or normal normalization accuracy.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates zero magnitude from NaN and infinity components; valid normals and quantitative response belong to the impact unit, while other input guards have their own units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit supplies local impact records and owns every assertion without a real host or dynamic cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A zero contact normal throws before it can become a silent deflect.).
  */
 export function test_physics_impact_contact_normal(): void {
   const moving: IAutoMovieImpactBody = { ...BODY, velocity: v(0, 0, 10) };

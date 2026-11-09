@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryCameraSceneInput } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryCameraSceneInput } from "@automovie/interface";
 import { estimateAutoMovieRecoveryCameraScene } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
@@ -12,10 +12,11 @@ import { createRecoverySceneNumericalFixture } from "../internal/createRecoveryS
  * 2. Cancellation before/at a checkpoint and observer failure return no value, including an observer message resembling a numerical refusal.
  * 3. Missing/extra fields, duplicate/fewer/over-budget views, malformed RGB/calibration and unsafe aggregate limits refuse before observation.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the public resident scene operation on actual RGB bytes and checks source-order null poses, every registration record, zero work, detached inputs and no-value terminal states.
- * @evidence contracts/testing.md#independent-expectations A singleton constant raster cannot supply a supported descriptor or camera; input preservation and explicit schemas define refusal/cancellation effects without invoking numerical fitting as an oracle.
- * @evidence contracts/testing.md#distinguishing-cases Covers five versus fewer/duplicate/over-limit views, zero features, observer mutation, spoofed numerical error messages, pre/during cancellation, unknown keys, bad pixel length, calibration and proposal ceilings. Positive geometry is the separate numerical visibility-chain seam, not a claim about photo extraction.
- * @evidence contracts/testing.md#execution-ownership The portable test_recovery_camera_scene_operation entry uses the public resident import with finite arrays, no filesystem/process/native/compiler/browser/GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public resident scene operation on actual RGB bytes and checks source-order null poses, every registration record, zero work, detached inputs and no-value terminal states.
+ * @evidence contracts/development/testing.md#independent-expectations A singleton constant raster cannot supply a supported descriptor or camera; input preservation and explicit schemas define refusal/cancellation effects without invoking numerical fitting as an oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers five versus fewer/duplicate/over-limit views, zero features, observer mutation, spoofed numerical error messages, pre/during cancellation, unknown keys, bad pixel length, calibration and proposal ceilings. Positive geometry is the separate numerical visibility-chain seam, not a claim about photo extraction.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_camera_scene_operation entry uses the public resident import with finite arrays, no filesystem/process/native/compiler/browser/GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Five actual singleton RGB inputs complete extraction and global linkage with an explicit seed refusal and detached source/policy metadata.).
  */
 export function test_recovery_camera_scene_operation(): void {
   const base: IAutoMovieRecoveryCameraSceneInput =

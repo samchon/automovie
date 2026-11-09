@@ -6,10 +6,10 @@ import { instanceSlotTestPlacement as placement } from "./instanceSlotTestPlacem
 /**
  * Preserve the original oak/elm explicit inputs and missing third slot.
  *
- * @evidence contracts/testing.md#behavioral-verification Supplies the original overrides and omitted sibling fields to actual member placement; count remains three with only two transforms so the same missing-slot refusal is observable.
- * @evidence contracts/testing.md#independent-expectations Literal authored position/scale/palette/trait/visibility facts are inputs, while the consumer separately checks their output and defaults. The supplied quarter-turn object is borrowed unchanged for the original identity relation.
- * @evidence contracts/testing.md#distinguishing-cases Keeps oak's explicit overrides, elm's inherited variation and absent slot two without adding a prototype or repairing the missing transform.
- * @evidence contracts/testing.md#execution-ownership Returns fresh placement/transform arrays but borrows the exact caller rotation object, preserving shallow override identity; it opens no file, render host, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies the original overrides and omitted sibling fields to actual member placement; count remains three with only two transforms so the same missing-slot refusal is observable.
+ * @evidence contracts/development/testing.md#independent-expectations Literal authored position/scale/palette/trait/visibility facts are inputs, while the consumer separately checks their output and defaults. The supplied quarter-turn object is borrowed unchanged for the original identity relation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps oak's explicit overrides, elm's inherited variation and absent slot two without adding a prototype or repairing the missing transform.
+ * @evidence contracts/development/testing.md#execution-ownership Returns fresh placement/transform arrays but borrows the exact caller rotation object, preserving shallow override identity; it opens no file, render host, browser or GPU.
  */
 export function instanceSlotTestExplicit(
   quarterAboutX: IAutoMovieQuaternion,

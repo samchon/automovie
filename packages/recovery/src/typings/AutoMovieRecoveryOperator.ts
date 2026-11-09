@@ -1,13 +1,10 @@
 /**
  * Closed identity of the operation that produced a recovery outcome.
  *
- * @evidence contracts/common.md#principled-implementation Explicit named fields preserve the recorded quantities and their existing units.
- * @evidence contracts/common.md#clear-and-simple-design This independently named contract is shared by producers and consumers without an anonymous object substitute.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The declaration computes no values, infers no observations and supplies no fallback.
- * @evidence contracts/common.md#meaningful-documentation Members describe quantity, identity or optional-state meaning.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased contract performs no computation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The contract owns no runtime cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Values belong to the caller; the type acquires no resources.
+ * @evidence contracts/development/design.md#principled-representation Explicit named fields preserve the recorded quantities and their existing units.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface This independently named contract is shared by producers and consumers without an anonymous object substitute.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The declaration computes no values, infers no observations and supplies no fallback.
+ * @evidence contracts/development/common.md#meaningful-documentation Members describe quantity, identity or optional-state meaning.
  */
 export type AutoMovieRecoveryOperator =
   | "legacy-contour-v1"

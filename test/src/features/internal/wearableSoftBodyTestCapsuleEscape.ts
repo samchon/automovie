@@ -8,10 +8,10 @@ import { TestValidator } from "@nestia/e2e";
 /**
  * Preserve original Scenario 9 finite outputs for coincident capsule particles.
  *
- * @evidence contracts/testing.md#behavioral-verification Replays the actual lower solver against the original point, horizontal and diagonal capsules and checks every returned position for finiteness.
- * @evidence contracts/testing.md#independent-expectations Number.isFinite determines each expected Boolean independently; finite output alone does not prove escape distance, collision freedom or repeatability despite the retained historical assertion label.
- * @evidence contracts/testing.md#distinguishing-cases Keeps all three original orientations, rest coordinates, .25 radius and two absolute boundary rows in their original order; no new case or expected position is introduced.
- * @evidence contracts/testing.md#execution-ownership The main test lends the same mutable capsule-only domain, whose rest array is reassigned in the existing order for each case; returned state is local and no file/native/render host or foreign method is used.
+ * @evidence contracts/development/testing.md#behavioral-verification Replays the actual lower solver against the original point, horizontal and diagonal capsules and checks every returned position for finiteness.
+ * @evidence contracts/development/testing.md#independent-expectations Number.isFinite determines each expected Boolean independently; finite output alone does not prove escape distance, collision freedom or repeatability despite the retained historical assertion label.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps all three original orientations, rest coordinates, .25 radius and two absolute boundary rows in their original order; no new case or expected position is introduced.
+ * @evidence contracts/development/testing.md#execution-ownership The main test lends the same mutable capsule-only domain, whose rest array is reassigned in the existing order for each case; returned state is local and no file/native/render host or foreign method is used.
  */
 export function wearableSoftBodyTestCapsuleEscape(
   capsuleOnly: IAutoMovieSoftBodyDomain,

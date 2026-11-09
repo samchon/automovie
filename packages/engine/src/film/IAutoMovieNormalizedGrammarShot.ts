@@ -14,13 +14,10 @@ import { IAutoMovieGrammarSubjectObservation } from "./IAutoMovieGrammarSubjectO
  * producer listed subjects in nor the order it named the axis can change a
  * finding.
  *
- * @evidence contracts/common.md#principled-implementation Canonical order is code-unit order from `compareCodeUnits`, a total order independent of host locale, so two observations of the same edit normalize to the same value; the index is built from the sorted list after duplicate ids were refused, so every id maps to exactly one subject.
- * @evidence contracts/common.md#clear-and-simple-design Keeps the observation's fields and replaces only the three whose input order carries no meaning, plus the index every cut and axis check reads, so the inspectors never re-sort or re-index.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject, shot or intent is special-cased; the canonical forms are the same rule for every observation.
- * @evidence contracts/common.md#meaningful-documentation States the producer, which fields are copied and which are canonicalized, the order used, and what the index guarantees.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A record with no runtime body; its sort and index cost is answered on `normalizeGrammarShot`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record is the reuse: `readFilmGrammar` builds one per shot and every inspector reads its index instead of rebuilding a map per check.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds a sorted copy of the subject array, one map entry per subject and a copy of the intents, referencing the caller's subject and camera objects; it lives only for one `readFilmGrammar` call.
+ * @evidence contracts/development/design.md#principled-representation Canonical order is code-unit order from `compareCodeUnits`, a total order independent of host locale, so two observations of the same edit normalize to the same value; the index is built from the sorted list after duplicate ids were refused, so every id maps to exactly one subject.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the observation's fields and replaces only the three whose input order carries no meaning, plus the index every cut and axis check reads, so the inspectors never re-sort or re-index.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No subject, shot or intent is special-cased; the canonical forms are the same rule for every observation.
+ * @evidence contracts/development/common.md#meaningful-documentation States the producer, which fields are copied and which are canonicalized, the order used, and what the index guarantees.
  */
 export interface IAutoMovieNormalizedGrammarShot extends Omit<
   IAutoMovieGrammarShotObservation,

@@ -83,10 +83,11 @@ const LEG_ONLY_GAIT: IAutoMovieGait = {
  * 5. Admit that wave after removing the gait's authored arm rows.
  * 6. Report both discarded arm rows under an explicit lowerBody override.
  *
- * @evidence contracts/testing.md#behavioral-verification Performs real shipped gait synthesis and checks compiled authored bone rows, all five gait successes, head layering, shared-arm refusal and custom legs-only or narrowed-region behavior.
- * @evidence contracts/testing.md#independent-expectations Shipped limb rows are the input content contract, so each named row must survive; the leg-only fixture removes the authored arm rows independently. These membership assertions cannot detect incorrect per-key joint angles.
- * @evidence contracts/testing.md#distinguishing-cases Preserves default walk, walk/run/sprint/sneak/march admission, lookAt/wave overlap neighbors, custom legs-only gait and explicit lowerBody drop; the absent ROM rig keeps this focused on masking/overlap.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_shipped_gait unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs real shipped gait synthesis and checks compiled authored bone rows, all five gait successes, head layering, shared-arm refusal and custom legs-only or narrowed-region behavior.
+ * @evidence contracts/development/testing.md#independent-expectations Shipped limb rows are the input content contract, so each named row must survive; the leg-only fixture removes the authored arm rows independently. These membership assertions cannot detect incorrect per-key joint angles.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves default walk, walk/run/sprint/sneak/march admission, lookAt/wave overlap neighbors, custom legs-only gait and explicit lowerBody drop; the absent ROM rig keeps this focused on masking/overlap.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_shipped_gait unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Admit the shipped walk under its default region.).
  */
 export function test_film_perform_shot_shipped_gait(): void {
   const staged: IAutoMovieStagedSet = stageScene(

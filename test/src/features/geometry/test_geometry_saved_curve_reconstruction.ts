@@ -17,10 +17,11 @@ import { nclose } from "../internal/nclose";
  * 2. Two-course ruled interpolation preserves its secant and refuses duplicate stations.
  * 3. Different chunk capacities retain the same finite geometry and shared station incidence.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the prepared quadratic/ruled field and actual streaming tessellator, checking physical derivatives, reversed course direction, unequal course partitions, metre output, shared station indices and retained bounded chunks.
- * @evidence contracts/testing.md#independent-expectations The exact field X=u,Y=s,Z=s*s/100 supplies values and derivatives; direct degree-three Bernstein weights independently evaluate returned coefficients. Index incidence and opposing edge orientation derive from a rectangular sheet's topology, not a generated snapshot.
- * @evidence contracts/testing.md#distinguishing-cases Nonuniform stations, unequal but equivalent course partitions, forward/reversed phase and quadratic versus two-course ruled interpolation contrast duplicate stations. Two chunk capacities must preserve the same complete positions and indices, including vertices referenced from earlier chunks.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_geometry_saved_curve_reconstruction; this function owns every assertion and invokes no filesystem, process, source mesh, browser, GPU or native artifact build.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the prepared quadratic/ruled field and actual streaming tessellator, checking physical derivatives, reversed course direction, unequal course partitions, metre output, shared station indices and retained bounded chunks.
+ * @evidence contracts/development/testing.md#independent-expectations The exact field X=u,Y=s,Z=s*s/100 supplies values and derivatives; direct degree-three Bernstein weights independently evaluate returned coefficients. Index incidence and opposing edge orientation derive from a rectangular sheet's topology, not a generated snapshot.
+ * @evidence contracts/development/testing.md#distinguishing-cases Nonuniform stations, unequal but equivalent course partitions, forward/reversed phase and quadratic versus two-course ruled interpolation contrast duplicate stations. Two chunk capacities must preserve the same complete positions and indices, including vertices referenced from earlier chunks.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_geometry_saved_curve_reconstruction; this function owns every assertion and invokes no filesystem, process, source mesh, browser, GPU or native artifact build.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Nonuniform courses and reversed phases reproduce a physical polynomial.).
  */
 export function test_geometry_saved_curve_reconstruction(): void {
   /** Exact linear-in-course sections of the independently specified polynomial. */

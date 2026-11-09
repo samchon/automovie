@@ -24,10 +24,11 @@ const shot: (id: string) => IAutoMovieShot = (id: string): IAutoMovieShot => ({
  *
  * 1. An empty sequence id and whitespace-only entry shot id refuse at their own input fields even though the supplied shot has that same whitespace id.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls cutSequence with blank artifact and reference ids and requires a type finding on each input field, detecting acceptance based solely on a successful shot lookup.
- * @evidence contracts/testing.md#independent-expectations The literal empty string and single space contain no non-whitespace character and therefore cannot serve as stable cut ids; the source shot deliberately shares the reference so absence is not the reason for refusal.
- * @evidence contracts/testing.md#distinguishing-cases Covers empty sequence identity and a whitespace reference that nevertheless resolves to a built shot; ordinary nonblank references and duplicate source identities are owned by separate cutSequence tests.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_cut_sequence_nonempty_ids entry owns one direct portable engine call and its shared predicates, with no dynamic cases, installation, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls cutSequence with blank artifact and reference ids and requires a type finding on each input field, detecting acceptance based solely on a successful shot lookup.
+ * @evidence contracts/development/testing.md#independent-expectations The literal empty string and single space contain no non-whitespace character and therefore cannot serve as stable cut ids; the source shot deliberately shares the reference so absence is not the reason for refusal.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers empty sequence identity and a whitespace reference that nevertheless resolves to a built shot; ordinary nonblank references and duplicate source identities are owned by separate cutSequence tests.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_cut_sequence_nonempty_ids entry owns one direct portable engine call and its shared predicates, with no dynamic cases, installation, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: An empty sequence id and whitespace-only entry shot id refuse at their own input fields even though the supplied shot has that same...).
  */
 export function test_film_cut_sequence_nonempty_ids(): void {
   const cut: ReturnType<typeof cutSequence> = cutSequence(

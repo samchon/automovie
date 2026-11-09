@@ -54,10 +54,11 @@ function sameSample(
  * 3. Admit a full-overlap dissolve and preserve incoming authority at equal starts.
  * 4. Sweep 200 one-second shots at 4 Hz with runtime and visitation checks.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs the forward cursor across real layouts and compares shot, local clock and blend fields with the stateless resolver, catching skipped starts, incorrect equal-start precedence and stale cursor position across long edits.
- * @evidence contracts/testing.md#independent-expectations The stateless binary search independently selects the last entry start at or before each query, so it checks cursor advancement; both readers share playbackSampleAt and cannot independently detect a common clock/blend formula bug, which the hand-calculated resolver test owns. Authored one-second spans require runtime 200 and 200 visited shots.
- * @evidence contracts/testing.md#distinguishing-cases Covers dense transitions, exact boundaries, equal starts allowed by full overlap and a long hard-cut edit under the documented monotone-clock precondition; random-access refusal and event seams belong to test_film_playback_resolver.
- * @evidence contracts/testing.md#execution-ownership This discoverable synchronous unit entry owns all clock sweeps and numerical comparisons with source functions; it starts no playback host, browser, renderer or native build.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the forward cursor across real layouts and compares shot, local clock and blend fields with the stateless resolver, catching skipped starts, incorrect equal-start precedence and stale cursor position across long edits.
+ * @evidence contracts/development/testing.md#independent-expectations The stateless binary search independently selects the last entry start at or before each query, so it checks cursor advancement; both readers share playbackSampleAt and cannot independently detect a common clock/blend formula bug, which the hand-calculated resolver test owns. Authored one-second spans require runtime 200 and 200 visited shots.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers dense transitions, exact boundaries, equal starts allowed by full overlap and a long hard-cut edit under the documented monotone-clock precondition; random-access refusal and event seams belong to test_film_playback_resolver.
+ * @evidence contracts/development/testing.md#execution-ownership This discoverable synchronous unit entry owns all clock sweeps and numerical comparisons with source functions; it starts no playback host, browser, renderer or native build.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Sweep the trimmed/dissolved edit at 240 Hz and observe both shots and a blend.).
  */
 export function test_film_playback_cursor(): void {
   // Hand-laid sequence with a trim and a dissolve: entry starts 0 / 3 / 4.5,

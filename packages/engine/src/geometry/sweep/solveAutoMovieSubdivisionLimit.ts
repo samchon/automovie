@@ -25,13 +25,13 @@ const TOLERANCE: number = 1e-10;
  * @param props.scratch A second buffer of the same length, overwritten.
  * @returns The largest remaining residual of a free vertex, in the targets' unit; 0 when none is free.
  *
- * @evidence contracts/common.md#principled-implementation Interpolating subdivision by inverting the limit stencils, as Halstead, Kass and DeRose solve for controls whose limit surface interpolates a mesh; Jacobi converges for the stencil's eigenvalue range on regular grids, and the residual is returned so a cage where it does not hold is detected. Limitation: semi-sharp creases are not modelled.
- * @evidence contracts/common.md#clear-and-simple-design A plain loop over compressed rows into two caller buffers, so a cage refitted every frame allocates nothing.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every solve starts from the targets, never from a previous frame's controls, so the result depends on this pose alone.
- * @evidence contracts/common.md#meaningful-documentation States the system, the solver, its start, its stopping rule, holding and the return value.
- * @evidence contracts/performance.md#efficient-algorithms For V vertices and S stencil terms: O(V + S) per sweep, at most 2,000 sweeps; a regular grid's slowest mode decays by 8/9 per sweep, so about 200 reach the tolerance; no allocation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The stencils are the reuse; each call solves one set of targets.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; writes only the two caller buffers.
+ * @evidence contracts/development/implementation.md#principled-implementation Interpolating subdivision by inverting the limit stencils, as Halstead, Kass and DeRose solve for controls whose limit surface interpolates a mesh; Jacobi converges for the stencil's eigenvalue range on regular grids, and the residual is returned so a cage where it does not hold is detected. Limitation: semi-sharp creases are not modelled.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure A plain loop over compressed rows into two caller buffers, so a cage refitted every frame allocates nothing.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every solve starts from the targets, never from a previous frame's controls, so the result depends on this pose alone.
+ * @evidence contracts/development/common.md#meaningful-documentation States the system, the solver, its start, its stopping rule, holding and the return value.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For V vertices and S stencil terms: O(V + S) per sweep, at most 2,000 sweeps; a regular grid's slowest mode decays by 8/9 per sweep, so about 200 reach the tolerance; no allocation.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The stencils are the reuse; each call solves one set of targets.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; writes only the two caller buffers.
  */
 export const solveAutoMovieSubdivisionLimit: (props: {
   stencil: IAutoMovieSubdivisionStencil;

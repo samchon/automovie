@@ -19,10 +19,11 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * 3. A room reports its authored volume separately from the smaller bounds of its actual assigned content.
  * 4. Enumeration is stable and omits on-demand placed parts, while a missing id fails instead of returning invented data.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls direct subject description and enumeration, observing bounds, stable addresses, ownership, material and revision; conflated prototype/placement or invented missing subjects fail.
- * @evidence contracts/testing.md#independent-expectations Resident authored mesh extrema and half-space room dimensions supply expected boxes independently of the describer; these fixtures pin numerical propagation of previously reported coordinates, not reproduced visual production content.
- * @evidence contracts/testing.md#distinguishing-cases Three mesh-coordinate cases, prototype/part/element/placed-part identities, declared versus content room bounds, sorted inventory, omitted on-demand parts and missing-address refusal are retained; transformed edge forms and building units are covered separately.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_inspection_subject_description_oracles entry owns these synchronous portable compiled-record cases and local fact callbacks; resident synthetic records require no production installation, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls direct subject description and enumeration, observing bounds, stable addresses, ownership, material and revision; conflated prototype/placement or invented missing subjects fail.
+ * @evidence contracts/development/testing.md#independent-expectations Resident authored mesh extrema and half-space room dimensions supply expected boxes independently of the describer; these fixtures pin numerical propagation of previously reported coordinates, not reproduced visual production content.
+ * @evidence contracts/development/testing.md#distinguishing-cases Three mesh-coordinate cases, prototype/part/element/placed-part identities, declared versus content room bounds, sorted inventory, omitted on-demand parts and missing-address refusal are retained; transformed edge forms and building units are covered separately.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_inspection_subject_description_oracles entry owns these synchronous portable compiled-record cases and local fact callbacks; resident synthetic records require no production installation, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The guard-rack pole, solar oriel, and south half-timber brace reproduce their reported world boxes directly from compiled mesh data...).
  */
 export function test_inspection_subject_description_oracles(): void {
   const artifact: import("@automovie/interface").IAutoMovieSubjectArtifact =

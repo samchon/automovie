@@ -11,13 +11,13 @@ import { IAutoMoviePrimitivePropProps } from "./IAutoMoviePrimitivePropProps";
  * @returns A fresh generated model with no skeleton, one part named `primitive`, and `props.material` as its only material.
  * @throws Error naming the correction when the id is blank.
  *
- * @evidence contracts/common.md#principled-implementation The typed shape union already selects the primitive and its dimensions, so the producer copies the shape into one unskinned part instead of decoding a string-keyed parameter map.
- * @evidence contracts/common.md#clear-and-simple-design One producer returns the whole `IAutoMovieModel` group films reference, with no registry, parameter plan or materializer between the author and the prop.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Dimension domains are left to engine model admission rather than restated here, and no shape or id is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States the single-part layout, the unbound root placement, who admits dimensions, material adoption and the blank-id refusal.
- * @evidence contracts/performance.md#efficient-algorithms Constant work: one shape copy, one part and one model record per call.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call must hand its caller an unshared mutable model, so equal props are rebuilt rather than served from a cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The producer retains nothing; the returned model, which references the caller's material record, transfers to the caller at return.
+ * @evidence contracts/development/implementation.md#principled-implementation The typed shape union already selects the primitive and its dimensions, so the producer copies the shape into one unskinned part instead of decoding a string-keyed parameter map.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One producer returns the whole `IAutoMovieModel` group films reference, with no registry, parameter plan or materializer between the author and the prop.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Dimension domains are left to engine model admission rather than restated here, and no shape or id is special-cased.
+ * @evidence contracts/development/common.md#meaningful-documentation States the single-part layout, the unbound root placement, who admits dimensions, material adoption and the blank-id refusal.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: one shape copy, one part and one model record per call.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call must hand its caller an unshared mutable model, so equal props are rebuilt rather than served from a cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The producer retains nothing; the returned model, which references the caller's material record, transfers to the caller at return.
  */
 export const createAutoMoviePrimitiveProp: (
   props: IAutoMoviePrimitivePropProps,

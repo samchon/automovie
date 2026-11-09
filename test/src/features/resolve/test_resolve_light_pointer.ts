@@ -40,10 +40,11 @@ const parsed: (pointer: unknown) => string | null = (
  *    `toString` are properties of every object and neither is a light
  *    property.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual light-pointer formatter/parser and property table, observing exact property names/order, literal addresses, escaped-id round trips, invalid-address refusal and rejection of inherited property names.
- * @evidence contracts/testing.md#independent-expectations RFC6901 sections3/4 encode tilde as ~0 and slash as ~1, decoding ~1 before ~0; the product's literal /lights/id/property grammar and authored six-property list determine other expectations. This does not check each property's light-kind predicate.
- * @evidence contracts/testing.md#distinguishing-cases Plain/slash/tilde ids and valid property neighbors contrast with empty ids, wrong roots/properties, extra segments and invalid escapes; scene target existence and actual light application belong to shot-lighting tests.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_light_pointer entry runs portable synchronous address/property-name semantics through direct source imports; no light is installed in a browser or native renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual light-pointer formatter/parser and property table, observing exact property names/order, literal addresses, escaped-id round trips, invalid-address refusal and rejection of inherited property names.
+ * @evidence contracts/development/testing.md#independent-expectations RFC6901 sections3/4 encode tilde as ~0 and slash as ~1, decoding ~1 before ~0; the product's literal /lights/id/property grammar and authored six-property list determine other expectations. This does not check each property's light-kind predicate.
+ * @evidence contracts/development/testing.md#distinguishing-cases Plain/slash/tilde ids and valid property neighbors contrast with empty ids, wrong roots/properties, extra segments and invalid escapes; scene target existence and actual light application belong to shot-lighting tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_light_pointer entry runs portable synchronous address/property-name semantics through direct source imports; no light is installed in a browser or native renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every table property parses on a plain id, and each round-trips back to the).
  */
 export function test_resolve_light_pointer(): void {
   // 1. every property in the table, and the round trip.

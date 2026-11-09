@@ -15,13 +15,13 @@ import { autoMovieStoryTime } from "./autoMovieStoryTime";
  * non-finite bound or pin yields a non-finite end, and an inverted window yields
  * an inverted interval, for the caller to refuse.
  *
- * @evidence contracts/common.md#principled-implementation The story map `originSeconds + t * rate` is affine, so the image of a window is the interval between the images of its two ends, computed by the same `autoMovieStoryTime` every other story-clock reader uses; order preservation requires a positive rate and finite mapped bounds.
- * @evidence contracts/common.md#clear-and-simple-design One mapping accepts an event contract's `{ from, to }` window directly instead of making callers map each bound by hand; callers own admission and diagnostics.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Bounds are neither clamped to the shot nor reordered, and no default rate other than the interface's documented `1` is applied, so a malformed window reaches the caller's own finiteness and order checks unchanged.
- * @evidence contracts/common.md#meaningful-documentation States what the interval means against the edit, the two window kinds it maps, why order is kept and under what precondition, and that invalid input passes through as non-finite or inverted output rather than throwing.
- * @evidence contracts/performance.md#efficient-algorithms Two affine evaluations and one two-field object per call, independent of shot length or event count; the caller's loop over a criterion's events is linear in those events.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure map evaluated once per addressed event; there is no completed work across calls to share.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned pair, which the caller owns, and retains neither the pin nor the window.
+ * @evidence contracts/development/implementation.md#principled-implementation The story map `originSeconds + t * rate` is affine, so the image of a window is the interval between the images of its two ends, computed by the same `autoMovieStoryTime` every other story-clock reader uses; order preservation requires a positive rate and finite mapped bounds.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One mapping accepts an event contract's `{ from, to }` window directly instead of making callers map each bound by hand; callers own admission and diagnostics.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Bounds are neither clamped to the shot nor reordered, and no default rate other than the interface's documented `1` is applied, so a malformed window reaches the caller's own finiteness and order checks unchanged.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the interval means against the edit, the two window kinds it maps, why order is kept and under what precondition, and that invalid input passes through as non-finite or inverted output rather than throwing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two affine evaluations and one two-field object per call, independent of shot length or event count; the caller's loop over a criterion's events is linear in those events.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure map evaluated once per addressed event; there is no completed work across calls to share.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates only the returned pair, which the caller owns, and retains neither the pin nor the window.
  */
 export const autoMovieStoryInterval = (
   pin: IAutoMovieShotStoryTime,

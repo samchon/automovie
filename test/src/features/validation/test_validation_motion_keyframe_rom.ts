@@ -18,10 +18,11 @@ import { makePose } from "../internal/makePose";
  * Scenarios:
  * 1. A clip whose second keyframe bends the elbow to 175 degrees fails with a rom violation beneath the keyframe path.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateMotion and requires a keyframe-rooted rom finding for excessive elbow flexion, catching a clip gate that skips its pose validator.
- * @evidence contracts/testing.md#independent-expectations The declared default elbow interval ends at 150 degrees, so 175 exceeds it; expectations concern admission and provenance, not sampled joint geometry.
- * @evidence contracts/testing.md#distinguishing-cases Retains a supported first elbow pose and unsupported second pose; motion_valid supplies supported moving keys and pose_override owns authored constraint precedence.
- * @evidence contracts/testing.md#execution-ownership This named portable unit validates the existing conventional rig and clip records without Human modeling, FK sampling or a GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateMotion and requires a keyframe-rooted rom finding for excessive elbow flexion, catching a clip gate that skips its pose validator.
+ * @evidence contracts/development/testing.md#independent-expectations The declared default elbow interval ends at 150 degrees, so 175 exceeds it; expectations concern admission and provenance, not sampled joint geometry.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains a supported first elbow pose and unsupported second pose; motion_valid supplies supported moving keys and pose_override owns authored constraint precedence.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit validates the existing conventional rig and clip records without Human modeling, FK sampling or a GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A clip whose second keyframe bends the elbow to 175 degrees fails with a rom violation beneath the keyframe path.).
  */
 export function test_validation_motion_keyframe_rom(): void {
   const motion: IAutoMovieMotion = makeMotion(

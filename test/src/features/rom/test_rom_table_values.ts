@@ -14,10 +14,11 @@ import { namedFacts, nclose } from "../internal/predicates";
  * 3. The shoulder has an abduction axis and a 180-degree conventional swing cap, preserving its pure-plane maximum and selected maximal corner.
  * 4. The hip admits pure 120-degree flexion but excludes the max-flexion plus max-abduction corner from its 120-degree cone.
  *
- * @evidence contracts/testing.md#behavioral-verification Reads public fallback values and applies the actual swing metric to pure-plane/corner poses, catching changed hinge policy or loss of the hip's coupled restriction.
- * @evidence contracts/testing.md#independent-expectations Literal hinge intervals and cap values pin the maintained policy; pure-plane half-angle geometry supplies numerical swing expectations. Table maxima combined with the product metric are not an independent derivation of an anatomical envelope.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts hinge null axes with ball-joint abduction, both sides' caps, admitted pure-plane maxima and the hip's excluded corner; override precedence, detection and malformed bounds have separate entries.
- * @evidence contracts/testing.md#execution-ownership The named portable entry owns synchronous public-value and metric observations and creates no Human asset, renderer, native artifact or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads public fallback values and applies the actual swing metric to pure-plane/corner poses, catching changed hinge policy or loss of the hip's coupled restriction.
+ * @evidence contracts/development/testing.md#independent-expectations Literal hinge intervals and cap values pin the maintained policy; pure-plane half-angle geometry supplies numerical swing expectations. Table maxima combined with the product metric are not an independent derivation of an anatomical envelope.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts hinge null axes with ball-joint abduction, both sides' caps, admitted pure-plane maxima and the hip's excluded corner; override precedence, detection and malformed bounds have separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership The named portable entry owns synchronous public-value and metric observations and creates no Human asset, renderer, native artifact or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The elbow has flexion [0,150] and no abduction axis.).
  */
 export function test_rom_table_values(): void {
   const elbow: IAutoMovieJointConstraint = DEFAULT_HUMANOID_ROM.leftLowerArm!;

@@ -9,13 +9,13 @@ import { AutoMovieGuidePass } from "@automovie/interface";
  * @param pass The render pass being drawn.
  * @returns New layers for the pass: all of them for beauty, one otherwise.
  *
- * @evidence contracts/common.md#principled-implementation Beauty composites by weight because colour is linear in the blend, while a guide pass selects the argmax-weight layer because labels and geometric fields are not; the `>=` fold makes the later layer win ties, which relies on the frame sampler's outgoing-then-incoming order.
- * @evidence contracts/common.md#clear-and-simple-design One pass-to-layers rule shared by the viewer's frame renderer, the production render job and the semantic mask evidence, so the frame drawn and the frame checked select the same shot.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every guide pass follows the same selection; nothing is special-cased by pass, shot or transition kind.
- * @evidence contracts/common.md#meaningful-documentation States the beauty rule, the guide-pass rule and why blending is wrong there, the tie rule and the ordering it relies on, the deep copy and why, and the empty-list failure.
- * @evidence contracts/performance.md#efficient-algorithms Selection visits the layer list once and deep-clones each returned layer. Work and output storage include the nested fields copied by the generic Layer input; the canonical frame sampler supplies at most two layers, while this generic helper itself imposes no count bound.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure selection for one frame and one pass that coordinates no work across calls; copies are deliberate so passes never share a mutable layer.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned copies, at most the frame's layer count.
+ * @evidence contracts/development/implementation.md#principled-implementation Beauty composites by weight because colour is linear in the blend, while a guide pass selects the argmax-weight layer because labels and geometric fields are not; the `>=` fold makes the later layer win ties, which relies on the frame sampler's outgoing-then-incoming order.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass-to-layers rule shared by the viewer's frame renderer, the production render job and the semantic mask evidence, so the frame drawn and the frame checked select the same shot.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every guide pass follows the same selection; nothing is special-cased by pass, shot or transition kind.
+ * @evidence contracts/development/common.md#meaningful-documentation States the beauty rule, the guide-pass rule and why blending is wrong there, the tie rule and the ordering it relies on, the deep copy and why, and the empty-list failure.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Selection visits the layer list once and deep-clones each returned layer. Work and output storage include the nested fields copied by the generic Layer input; the canonical frame sampler supplies at most two layers, while this generic helper itself imposes no count bound.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure selection for one frame and one pass that coordinates no work across calls; copies are deliberate so passes never share a mutable layer.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned copies, at most the frame's layer count.
  */
 export function productionRenderLayersForPass<Layer extends { weight: number }>(
   frame: { layers: readonly Layer[] },

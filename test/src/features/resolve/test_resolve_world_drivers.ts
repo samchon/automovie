@@ -95,10 +95,11 @@ const runAim: (
  * 8. Invalid influence values reject before world lookup can run.
  * 9. Invalid aim basis vectors reject before world lookup can run.
  *
- * @evidence contracts/testing.md#behavioral-verification Applies actual aim world drivers and observes aimed direction, partial roll behavior, zero influence, changed descendants, adjacency order and short-chain deferral; invalid vectors/influence and missing map inputs must throw.
- * @evidence contracts/testing.md#independent-expectations Authored target axes determine aimed directions, zero influence preserves the rest negative-Z axis and parent declarations determine child order; descendant movement and up-y>0.5 are deliberately partial oracles rather than exact full world transforms.
- * @evidence contracts/testing.md#distinguishing-cases Ordinary/vertical/parallel/antiparallel targets, degenerate up choice, zero influence, children and a short twoBone descriptor contrast aim/update/deferral branches with malformed inputs; analytic/iterative IK solutions have their own tests.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_world_drivers entry directly executes synchronous portable CPU driver/matrix semantics using existing scene records, with no live Human viewer or physical-pixel assertion.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies actual aim world drivers and observes aimed direction, partial roll behavior, zero influence, changed descendants, adjacency order and short-chain deferral; invalid vectors/influence and missing map inputs must throw.
+ * @evidence contracts/development/testing.md#independent-expectations Authored target axes determine aimed directions, zero influence preserves the rest negative-Z axis and parent declarations determine child order; descendant movement and up-y>0.5 are deliberately partial oracles rather than exact full world transforms.
+ * @evidence contracts/development/testing.md#distinguishing-cases Ordinary/vertical/parallel/antiparallel targets, degenerate up choice, zero influence, children and a short twoBone descriptor contrast aim/update/deferral branches with malformed inputs; analytic/iterative IK solutions have their own tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_world_drivers entry directly executes synchronous portable CPU driver/matrix semantics using existing scene records, with no live Human viewer or physical-pixel assertion.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Aiming `−Z` at a target on `+X` rotates the owner so its aim axis points).
  */
 export function test_resolve_world_drivers(): void {
   // 1. aim −Z at +X: aim axis → +X, up stays up

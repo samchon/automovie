@@ -1,10 +1,10 @@
-import { recordViewerPlayback } from "@automovie/render/node";
-import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node/chrome";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import type { IFilm } from "../IFilm";
 import { films } from "../composition/films";
+import { DEFAULT_CHROME_EXECUTABLE } from "../integrations/render/node/capture/DEFAULT_CHROME_EXECUTABLE";
+import { recordViewerPlayback } from "../integrations/render/node/recordViewerPlayback";
 import { selectFilm } from "../selectFilm";
 
 const USAGE: string =

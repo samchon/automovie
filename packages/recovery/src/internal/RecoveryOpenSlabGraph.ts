@@ -4,61 +4,46 @@ import { RecoverySlabGraph as G } from "./RecoverySlabGraph";
 /**
  * Observe ordinary open-arc transport without exporting source addresses.
  *
- * @evidence contracts/common.md#principled-implementation Qualified manifold incidence and clipped source-boundary paths distinguish two endpoint continuations within one critical-free slab component.
- * @evidence contracts/common.md#clear-and-simple-design Preparation owns immutable source topology; each query delegates sheet connectivity to RecoverySlabGraph and publishes only local arc ordinals and reversal.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate proximity, invented closure, component selection or copied source mesh supplies a generated surface.
- * @evidence contracts/common.md#meaningful-documentation Records private support premises, unsupported topology and source orientation qualification separately.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Namespace initialization traverses nothing.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Namespace initialization creates no cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Preparation and query callers own all retained values.
+ * @evidence contracts/development/common.md#meaningful-documentation Records private support premises, unsupported topology and source orientation qualification separately.
+ * @evidence contracts/development/design.md#principled-representation Represents Observe ordinary open-arc transport without exporting source addresses: companion namespace of 5 members (`Arc`, `Result`, `Source`, `Query`, `prepare`); units and frames named in its text: local, degrees, degree. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `RecoveryOpenSlabGraph` in packages/recovery/src/internal/RecoveryOpenSlabGraph.ts; its surface is the 5 members listed and the text shows 3 other files naming it, mostly packages/recovery (3), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace RecoveryOpenSlabGraph {
   /**
    * Saved open-arc endpoint ordinals and private observation support.
    *
-   * @evidence contracts/common.md#principled-implementation The borrowed record retains the ordinary open-slab observer contract without inferring closure or endpoint correspondence.
-   * @evidence contracts/common.md#clear-and-simple-design The existing public alias borrows the type-only owner without duplicating its structural declaration.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The alias adds no defaults, validation bypass or geometric transformation.
-   * @evidence contracts/common.md#meaningful-documentation The type owner documents physical units, input premises and returned ownership.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms An erased alias performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work An erased alias coordinates no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Runtime lifetimes remain with the original operation and its caller.
+   * @evidence contracts/development/design.md#principled-representation The borrowed record retains the ordinary open-slab observer contract without inferring closure or endpoint correspondence.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The existing public alias borrows the type-only owner without duplicating its structural declaration.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias adds no defaults, validation bypass or geometric transformation.
+   * @evidence contracts/development/common.md#meaningful-documentation The type owner documents physical units, input premises and returned ownership.
    */
   export type Arc = IRecoveryOpenSlabGraph.Arc;
   /**
    * Source-free pair transport, unresolved groups and orientation diagnostics.
    *
-   * @evidence contracts/common.md#principled-implementation The borrowed record retains the ordinary open-slab observer contract without inferring closure or endpoint correspondence.
-   * @evidence contracts/common.md#clear-and-simple-design The existing public alias borrows the type-only owner without duplicating its structural declaration.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The alias adds no defaults, validation bypass or geometric transformation.
-   * @evidence contracts/common.md#meaningful-documentation The type owner documents physical units, input premises and returned ownership.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms An erased alias performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work An erased alias coordinates no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Runtime lifetimes remain with the original operation and its caller.
+   * @evidence contracts/development/design.md#principled-representation The borrowed record retains the ordinary open-slab observer contract without inferring closure or endpoint correspondence.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The existing public alias borrows the type-only owner without duplicating its structural declaration.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias adds no defaults, validation bypass or geometric transformation.
+   * @evidence contracts/development/common.md#meaningful-documentation The type owner documents physical units, input premises and returned ownership.
    */
   export type Result = IRecoveryOpenSlabGraph.Result;
   /**
    * Immutable private source incidence and precomputed scalar heights.
    *
-   * @evidence contracts/common.md#principled-implementation The borrowed record retains the ordinary open-slab observer contract without inferring closure or endpoint correspondence.
-   * @evidence contracts/common.md#clear-and-simple-design The existing public alias borrows the type-only owner without duplicating its structural declaration.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The alias adds no defaults, validation bypass or geometric transformation.
-   * @evidence contracts/common.md#meaningful-documentation The type owner documents physical units, input premises and returned ownership.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms An erased alias performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work An erased alias coordinates no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Runtime lifetimes remain with the original operation and its caller.
+   * @evidence contracts/development/design.md#principled-representation The borrowed record retains the ordinary open-slab observer contract without inferring closure or endpoint correspondence.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The existing public alias borrows the type-only owner without duplicating its structural declaration.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias adds no defaults, validation bypass or geometric transformation.
+   * @evidence contracts/development/common.md#meaningful-documentation The type owner documents physical units, input premises and returned ownership.
    */
   export type Source = IRecoveryOpenSlabGraph.Source;
   /**
    * One critical-free slab query with complete candidate support.
    *
-   * @evidence contracts/common.md#principled-implementation The borrowed record retains the ordinary open-slab observer contract without inferring closure or endpoint correspondence.
-   * @evidence contracts/common.md#clear-and-simple-design The existing public alias borrows the type-only owner without duplicating its structural declaration.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The alias adds no defaults, validation bypass or geometric transformation.
-   * @evidence contracts/common.md#meaningful-documentation The type owner documents physical units, input premises and returned ownership.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms An erased alias performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work An erased alias coordinates no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Runtime lifetimes remain with the original operation and its caller.
+   * @evidence contracts/development/design.md#principled-representation The borrowed record retains the ordinary open-slab observer contract without inferring closure or endpoint correspondence.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The existing public alias borrows the type-only owner without duplicating its structural declaration.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The alias adds no defaults, validation bypass or geometric transformation.
+   * @evidence contracts/development/common.md#meaningful-documentation The type owner documents physical units, input premises and returned ownership.
    */
   export type Query = IRecoveryOpenSlabGraph.Query;
 
@@ -69,13 +54,13 @@ export namespace RecoveryOpenSlabGraph {
    * The producer must supply every critical-event face as a defect; this helper
    * alone does not certify a height-product structure from endpoint counts.
    *
-   * @evidence contracts/common.md#principled-implementation Link-cycle/path admission qualifies strict-interior source vertices; nonmanifold edges matter only when crossing the open slab. Candidate-local boundary segments join only at strict-interior source vertices. Two simple paths each meeting one endpoint per cut must belong to the same admitted one-to-one sheet component.
-   * @evidence contracts/common.md#clear-and-simple-design The existing slab owner supplies component/probe membership; this helper adds source-boundary transport and endpoint permutation only.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Every boundary component, invalid source face and hidden sheet survives as probe or defect evidence. No proximity correspondence, invented endpoint, normal copying or aperture closure is used.
-   * @evidence contracts/common.md#meaningful-documentation States immutable source lifetime, critical-free producer premise, strict-interior joins, source-free output and separate orientation qualification.
-   * @evidence contracts/performance.md#efficient-algorithms Preparation uses expected O(V+T) time and storage for source incidence and link traversals. A query uses only A candidate faces, their B boundary edges and Q support addresses, costing expected O((A+B+Q) alpha(A+B)) time and O(A+B+Q) storage; no full-source query scan occurs.
-   * @evidence contracts/performance.md#reuse-equivalent-work The extraction-scoped closure reuses source admission, boundary incidence, invalid-face observations and prepared sheet connectivity across slabs; changing source requires a new preparation.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Source and O(V+T) incidence live until the extraction discards the closure. Boundary union-find, probes and maps expire per query; only local ordinals and diagnostics escape.
+   * @evidence contracts/development/implementation.md#principled-implementation Link-cycle/path admission qualifies strict-interior source vertices; nonmanifold edges matter only when crossing the open slab. Candidate-local boundary segments join only at strict-interior source vertices. Two simple paths each meeting one endpoint per cut must belong to the same admitted one-to-one sheet component.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The existing slab owner supplies component/probe membership; this helper adds source-boundary transport and endpoint permutation only.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every boundary component, invalid source face and hidden sheet survives as probe or defect evidence. No proximity correspondence, invented endpoint, normal copying or aperture closure is used.
+   * @evidence contracts/development/common.md#meaningful-documentation States immutable source lifetime, critical-free producer premise, strict-interior joins, source-free output and separate orientation qualification.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation uses expected O(V+T) time and storage for source incidence and link traversals. A query uses only A candidate faces, their B boundary edges and Q support addresses, costing expected O((A+B+Q) alpha(A+B)) time and O(A+B+Q) storage; no full-source query scan occurs.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The extraction-scoped closure reuses source admission, boundary incidence, invalid-face observations and prepared sheet connectivity across slabs; changing source requires a new preparation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Source and O(V+T) incidence live until the extraction discards the closure. Boundary union-find, probes and maps expire per query; only local ordinals and diagnostics escape.
    */
   export function prepare(source: Source): (input: Query) => Result {
     const size: number = source.vertices.length;

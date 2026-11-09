@@ -17,10 +17,11 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * 2. Modern cameras retain the default lens and observation lens independently.
  * 3. Future room cameras preserve namespaced ids; null/section stations stay out of the tour.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls exportTourData for each native shape, observing usable-view filtering, authored initial ordering, camera/lens projection, namespaced ids and native object identity; swapped lenses, invented missing poses or lost source ids fail.
- * @evidence contracts/testing.md#independent-expectations Independently authored coordinates and distinct source/observation lenses determine every expected tuple; metadata labels follow separator/title rules, and the existing exact structural predicate checks each numeric leaf through zero-tolerance nclose while preserving field and array structure.
- * @evidence contracts/testing.md#distinguishing-cases Covers ancient valid/missing/section poses and absent initial view, modern exterior plus differently lensed observations and slash/dot names, and future valid/null/section stations; numeric pose admission and duplicate ids are not checked here.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_website_tour_export entry owns the actual build-time exporter calls with resident transport literals; no experimental scene producer, file, browser, renderer or GPU is executed.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls exportTourData for each native shape, observing usable-view filtering, authored initial ordering, camera/lens projection, namespaced ids and native object identity; swapped lenses, invented missing poses or lost source ids fail.
+ * @evidence contracts/development/testing.md#independent-expectations Independently authored coordinates and distinct source/observation lenses determine every expected tuple; metadata labels follow separator/title rules, and the existing exact structural predicate checks each numeric leaf through zero-tolerance nclose while preserving field and array structure.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers ancient valid/missing/section poses and absent initial view, modern exterior plus differently lensed observations and slash/dot names, and future valid/null/section stations; numeric pose admission and duplicate ids are not checked here.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_website_tour_export entry owns the actual build-time exporter calls with resident transport literals; no experimental scene producer, file, browser, renderer or GPU is executed.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Temple cameras omit unavailable and section poses and place the authored default first; empty and nonempty lists without that default...).
  */
 export function test_website_tour_export(): void {
   const p: { x: number; y: number; z: number } = { x: 1, y: 2, z: 3 },

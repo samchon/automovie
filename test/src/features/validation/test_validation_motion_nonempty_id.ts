@@ -12,10 +12,11 @@ import { hasViolation } from "../internal/hasViolation";
  * Scenarios:
  * 1. An otherwise valid clip with a whitespace-only id fails at $input.id.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateMotion with a whitespace identity and requires its type refusal, catching acceptance of an unusable stable reference.
- * @evidence contracts/testing.md#independent-expectations Motion identities require non-whitespace content; the supplied single space and literal id path determine refusal independently of export behavior.
- * @evidence contracts/testing.md#distinguishing-cases Changes only the identity of an otherwise supported clip; motion_valid owns nonblank acceptance and skeleton identity has separate tests.
- * @evidence contracts/testing.md#execution-ownership This named portable unit uses the existing clip and rig factories without export, host startup or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateMotion with a whitespace identity and requires its type refusal, catching acceptance of an unusable stable reference.
+ * @evidence contracts/development/testing.md#independent-expectations Motion identities require non-whitespace content; the supplied single space and literal id path determine refusal independently of export behavior.
+ * @evidence contracts/development/testing.md#distinguishing-cases Changes only the identity of an otherwise supported clip; motion_valid owns nonblank acceptance and skeleton identity has separate tests.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit uses the existing clip and rig factories without export, host startup or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: An otherwise valid clip with a whitespace-only id fails at $input.id.).
  */
 export function test_validation_motion_nonempty_id(): void {
   const result: IAutoMovieValidation = validateMotion({

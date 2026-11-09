@@ -95,10 +95,11 @@ const run: (steps: number) => Map<string, number[]> = (
  * 7. Spring force magnitudes allow zero but reject negative values.
  * 8. Distinct chains sharing a moving center each subtract its translation, independent of driver order.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual stepSpring with carried state and asserts sag, length, replay, input refusal and body-translation compensation; two chains sharing a center reject center memory that only compensates the first driver.
- * @evidence contracts/testing.md#independent-expectations Gravity must lower an initially horizontal unconstrained-inertia chain and unit local translations fix one-metre bones. With gravity/stiffness/drag zero, equal center/root/joint translation adds no relative velocity, so both one-metre offsets remain (1,0,0) in either driver order.
- * @evidence contracts/testing.md#distinguishing-cases Covers repeated integration/replay, null center, moving/missing center, invalid finite/range parameters, zero force neighbors and missing world/local inputs. Two separate chains with one center distinguish chain-specific history from center-global consumption; collision geometry is owned by test_resolve_spring_collision.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_resolve_spring runs portable numeric scene-node chains synchronously through the real world/state seam, without a Human asset, viewer, GPU or replaced foreign method.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual stepSpring with carried state and asserts sag, length, replay, input refusal and body-translation compensation; two chains sharing a center reject center memory that only compensates the first driver.
+ * @evidence contracts/development/testing.md#independent-expectations Gravity must lower an initially horizontal unconstrained-inertia chain and unit local translations fix one-metre bones. With gravity/stiffness/drag zero, equal center/root/joint translation adds no relative velocity, so both one-metre offsets remain (1,0,0) in either driver order.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers repeated integration/replay, null center, moving/missing center, invalid finite/range parameters, zero force neighbors and missing world/local inputs. Two separate chains with one center distinguish chain-specific history from center-global consumption; collision geometry is owned by test_resolve_spring_collision.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_resolve_spring runs portable numeric scene-node chains synchronously through the real world/state seam, without a Human asset, viewer, GPU or replaced foreign method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: After enough steps the chain laid out along +X has sagged downward: both).
  */
 export function test_resolve_spring(): void {
   const w: Map<string, number[]> = run(180);

@@ -29,10 +29,11 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
  * 2. `projectileSphereHit` inherits the same radius rejection through the sphere
  *    passed into its sampled segment checks.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls segment and sampled projectile collision with invalid sphere radii and requires throws, catching squared negative radii or invalid dimensions mistaken for hits or misses.
- * @evidence contracts/testing.md#independent-expectations A sphere radius must be positive and finite by the API contract; authored invalid values establish failure without consulting collision output. Only exception presence is checked.
- * @evidence contracts/testing.md#distinguishing-cases Covers NaN, infinity, zero and negative segment radii and a negative radius through the projectile entry; finite collisions and invalid vectors/timing belong to neighboring units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns its cases and invokes engine functions with local vectors, without hosts or dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls segment and sampled projectile collision with invalid sphere radii and requires throws, catching squared negative radii or invalid dimensions mistaken for hits or misses.
+ * @evidence contracts/development/testing.md#independent-expectations A sphere radius must be positive and finite by the API contract; authored invalid values establish failure without consulting collision output. Only exception presence is checked.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers NaN, infinity, zero and negative segment radii and a negative radius through the projectile entry; finite collisions and invalid vectors/timing belong to neighboring units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit owns its cases and invokes engine functions with local vectors, without hosts or dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `segmentSphere` rejects non-finite and non-positive radii before solving its).
  */
 export function test_physics_segment_sphere_radius(): void {
   const a: IAutoMovieVector3 = v(0, 0, 0);

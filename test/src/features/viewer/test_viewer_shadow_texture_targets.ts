@@ -18,10 +18,11 @@ import { nclose, throwsError } from "../internal/predicates";
  * 4. Matching retained products replace plans; changed extent, sample, mip, depth, color or face facts separate retained and prospective phases.
  * 5. Clearing active slots retains planned bounds; disabled policy with cleared slots reports no rows, and observation never disposes caller depth.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual shadow profile observation and Engine target accounting, comparing supported light roles, cube faces, atlas extents, color/depth representation and phase populations.
- * @evidence contracts/testing.md#independent-expectations Authored extents, six cube faces and color-plus-depth texel arithmetic independently judge reported profiles. Retained/planned rows are bounds, not observed simultaneous driver allocations.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts absent/ambient/casting/hidden/noncasting lights, PCF/VSM refusal, matching retained products and changed independent attachment facts; observation must not request disposal.
- * @evidence contracts/testing.md#execution-ownership The named entry supplies existing typed capabilities and real CPU Three target/depth objects, explicitly disposes owned wrappers and observes public events without a GPU/context or new driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual shadow profile observation and Engine target accounting, comparing supported light roles, cube faces, atlas extents, color/depth representation and phase populations.
+ * @evidence contracts/development/testing.md#independent-expectations Authored extents, six cube faces and color-plus-depth texel arithmetic independently judge reported profiles. Retained/planned rows are bounds, not observed simultaneous driver allocations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts absent/ambient/casting/hidden/noncasting lights, PCF/VSM refusal, matching retained products and changed independent attachment facts; observation must not request disposal.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry supplies existing typed capabilities and real CPU Three target/depth objects, explicitly disposes owned wrappers and observes public events without a GPU/context or new driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty and ambient scopes contrast directional/spot plans and the point plan's six square faces with a clamped X edge.).
  */
 export async function test_viewer_shadow_texture_targets(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

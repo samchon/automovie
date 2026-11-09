@@ -3,7 +3,7 @@ import {
   encodeAutoMovieRasterPng,
   rasterizeAutoMovieScene,
   stampAutoMovieRasterLabel,
-} from "@automovie/viewer/node";
+} from "../../../../packages/template/scaffold/src/integrations/viewer/node/raster";
 import { TestValidator } from "@nestia/e2e";
 import { PNG } from "pngjs";
 import * as THREE from "three";
@@ -29,10 +29,11 @@ import * as THREE from "three";
  * 7. A point of fixed size 9 covers pixels 4 away from its centre but not 6,
  *    and a default size-1 point covers only its own pixel.
  *
- * @evidence contracts/testing.md#behavioral-verification Draws actual three.js scenes through the public rasterizer and reads its RGBA output and decoded PNG bytes, so coverage, depth, clipping, skinning and encoding are observed in pixels rather than in internal state.
- * @evidence contracts/testing.md#independent-expectations Expected colours are the authored sRGB bytes of unlit materials and the background; quad placements are chosen so the centre pixel lies well inside or outside each quad, independent of the rasterizer's arithmetic.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts covered and uncovered pixels, both submission orders, fully behind and partly behind geometry, bone before and after a move, an invalid size, and a sized point against a default one.
- * @evidence contracts/testing.md#execution-ownership This named portable unit builds its own scenes and camera and starts no browser, server or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Draws actual three.js scenes through the public rasterizer and reads its RGBA output and decoded PNG bytes, so coverage, depth, clipping, skinning and encoding are observed in pixels rather than in internal state.
+ * @evidence contracts/development/testing.md#independent-expectations Expected colours are the authored sRGB bytes of unlit materials and the background; quad placements are chosen so the centre pixel lies well inside or outside each quad, independent of the rasterizer's arithmetic.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts covered and uncovered pixels, both submission orders, fully behind and partly behind geometry, bone before and after a move, an invalid size, and a sized point against a default one.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit builds its own scenes and camera and starts no browser, server or GPU.
+  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An unlit red quad filling the view's centre draws pure red at the centre).
  */
 export function test_viewer_node_raster(): void {
   const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);

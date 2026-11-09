@@ -37,13 +37,13 @@ const assertFiniteQuaternion: (
 /**
  * Repeat an admitted in-place clip a positive safe-integer number of cycles and add velocity times global seconds to its root. Velocity uses the receiving motion's metre frame, not necessarily the final staged world frame; optional facing rotates base root translation and orientation.
  *
- * @evidence contracts/common.md#principled-implementation Global-time translation keeps travel continuous across repeated seams; incoming first-segment easing replaces the retained seam easing, and optional facing composes before travel is added.
- * @evidence contracts/common.md#clear-and-simple-design One loop owns cycle repetition, root placement and stride-clock carry; the locomotion caller determines speed and cycle count.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsafe or nonpositive cycles and nonfinite velocity or facing components are rejected before baking. Unit-quaternion facing and nonempty valid base clips remain caller admission premises; output growth has no arbitrary choreography cap.
- * @evidence contracts/common.md#meaningful-documentation States motion-frame metres/second, cycle admission, facing composition, seam behavior and fallback identity ownership.
- * @evidence contracts/performance.md#efficient-algorithms For C cycles and K base keyframes, O(CK) time and output storage are required to bake every repeated keyframe; there is no continuous physics integration.
- * @evidence contracts/performance.md#reuse-equivalent-work Base articulation and authored root values remain borrowed, while fallback identity values are fresh per output root; gait metadata is carried once rather than recalculated.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the output clip and its roots; no shared mutable fallback identity escapes and no ongoing simulation task or cache is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Global-time translation keeps travel continuous across repeated seams; incoming first-segment easing replaces the retained seam easing, and optional facing composes before travel is added.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop owns cycle repetition, root placement and stride-clock carry; the locomotion caller determines speed and cycle count.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unsafe or nonpositive cycles and nonfinite velocity or facing components are rejected before baking. Unit-quaternion facing and nonempty valid base clips remain caller admission premises; output growth has no arbitrary choreography cap.
+ * @evidence contracts/development/common.md#meaningful-documentation States motion-frame metres/second, cycle admission, facing composition, seam behavior and fallback identity ownership.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For C cycles and K base keyframes, O(CK) time and output storage are required to bake every repeated keyframe; there is no continuous physics integration.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Base articulation and authored root values remain borrowed, while fallback identity values are fresh per output root; gait metadata is carried once rather than recalculated.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the output clip and its roots; no shared mutable fallback identity escapes and no ongoing simulation task or cache is retained.
  */
 export const travelMotion: (
   id: string,

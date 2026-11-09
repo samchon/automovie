@@ -2,21 +2,19 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import { createRequire } from "node:module";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { defineConfig, type ViteDevServer } from "vite";
+import { type ViteDevServer, defineConfig } from "vite";
 
 /** Scratch names belong to this production, including when its parent uses one. */
 const productionRoot: string = fileURLToPath(new URL(".", import.meta.url));
 
 /** Source tree of the installed Human package, whose calibrations the page caches. */
 const humanSource: string = join(
-  dirname(
-    createRequire(import.meta.url).resolve("@automovie/human/package.json"),
-  ),
+  dirname(createRequire(import.meta.url).resolve("@automovie/human")),
   "src",
 );
 
-/** Render's Node entry, loaded through the server's own module loader because it ships TypeScript source. */
-type RenderNode = typeof import("@automovie/render/node");
+/** The production's own Node render integration, loaded through the server's own module loader because it is TypeScript source. */
+type RenderNode = typeof import("./src/integrations/render/node/index");
 
 /**
  * The development server's artifact routes: the production's artifact store
@@ -30,7 +28,7 @@ function artifacts(server: ViteDevServer): void {
   let loaded: Promise<RenderNode> | undefined;
   const node = (): Promise<RenderNode> =>
     (loaded ??= server.ssrLoadModule(
-      "@automovie/render/node",
+      "/src/integrations/render/node/index.ts",
     ) as Promise<RenderNode>);
   let store:
     | Promise<ReturnType<RenderNode["createAutoMovieArtifactMiddleware"]>>

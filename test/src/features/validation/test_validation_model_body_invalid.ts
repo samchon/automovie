@@ -21,10 +21,11 @@ const withBody: (body: IAutoMovieBody) => ReturnType<typeof validateModel> = (
  * 4. Restitution = -0.1 (below 0) is a range violation on body.restitution.
  * 5. A non-finite center-of-mass axis is a range violation on that axis.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual model validation with one malformed body quantity per input and requires the corresponding range path, catching unvalidated metadata before physics consumers use it.
- * @evidence contracts/testing.md#independent-expectations Mass is finite and strictly positive, friction/restitution lie in inclusive [0,1], and each supplied center coordinate is finite; literal paths locate the invalid quantity without copying a product report.
- * @evidence contracts/testing.md#distinguishing-cases Covers zero/infinite mass, upper friction, lower restitution and NaN center Y; accepted/null bodies and coefficient endpoints have a separate named entry. Other axes and nonfinite coefficients are not exercised here.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns calls through a private helper and existing model fixture; no physics host, geometry builder, renderer or native artifact participates.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual model validation with one malformed body quantity per input and requires the corresponding range path, catching unvalidated metadata before physics consumers use it.
+ * @evidence contracts/development/testing.md#independent-expectations Mass is finite and strictly positive, friction/restitution lie in inclusive [0,1], and each supplied center coordinate is finite; literal paths locate the invalid quantity without copying a product report.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers zero/infinite mass, upper friction, lower restitution and NaN center Y; accepted/null bodies and coefficient endpoints have a separate named entry. Other axes and nonfinite coefficients are not exercised here.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns calls through a private helper and existing model fixture; no physics host, geometry builder, renderer or native artifact participates.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Mass = 0 (non-positive) is a range violation on body.mass.).
  */
 export function test_validation_model_body_invalid(): void {
   const zeroMass: ReturnType<typeof validateModel> = withBody({

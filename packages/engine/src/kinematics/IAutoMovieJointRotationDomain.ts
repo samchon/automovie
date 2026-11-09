@@ -14,13 +14,10 @@ import {
  * changes this domain, so a rotation no chart admits still reports its
  * overshoot downstream. The chain plant passes one domain per joint.
  *
- * @evidence contracts/common.md#principled-implementation Choosing among exact inverse charts by the caller's own ROM is a lossless choice, because every candidate reconstructs the same quaternion; the score is the gate's `jointRomOvershoot`, so the chosen reading is the one the gate judges most leniently without altering the rotation.
- * @evidence contracts/common.md#clear-and-simple-design The bone and its resolved constraint travel together because the overshoot measure needs both, and the constraint is already resolved by the caller so the inverse never consults defaults or rig tables.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The constraint only ranks readings; no angle is clamped or wrapped beyond a full-turn alias inside the declared interval, so a refused pose remains refused.
- * @evidence contracts/common.md#meaningful-documentation States the consumer, the selection rule with its tie-break, the no-clamp guarantee, what `null` means, and who supplies it.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; the two-candidate scoring cost is answered on `decomposeJointRotation`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built by the caller per joint; nothing is computed here.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A bone name and a reference to the caller's constraint.
+ * @evidence contracts/development/design.md#principled-representation Choosing among exact inverse charts by the caller's own ROM is a lossless choice, because every candidate reconstructs the same quaternion; the score is the gate's `jointRomOvershoot`, so the chosen reading is the one the gate judges most leniently without altering the rotation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The bone and its resolved constraint travel together because the overshoot measure needs both, and the constraint is already resolved by the caller so the inverse never consults defaults or rig tables.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The constraint only ranks readings; no angle is clamped or wrapped beyond a full-turn alias inside the declared interval, so a refused pose remains refused.
+ * @evidence contracts/development/common.md#meaningful-documentation States the consumer, the selection rule with its tie-break, the no-clamp guarantee, what `null` means, and who supplies it.
  */
 export interface IAutoMovieJointRotationDomain {
   /** Rig bone whose coordinates the inverse reports, used to name the scored joint. */

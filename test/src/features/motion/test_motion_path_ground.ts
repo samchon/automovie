@@ -68,10 +68,11 @@ const rootAt: (
  * 4. Default ground (omitted): root y is just the bob.
  * 5. Horizontal progress is unaffected by height: x=1 at t=1 in every case.
  *
- * @evidence contracts/testing.md#behavioral-verification Bakes the same XZ line against slope, scalar and default ground, then checks root height, bare sidecar height and unchanged horizontal progress, catching use of waypoint Y or double application of gait bob.
- * @evidence contracts/testing.md#independent-expectations The authored y=0.5*x slope, constant plane 2 and fixed 0.05-metre root bob determine literal heights independently of path baking. Four metres over four one-second cycles gives x=1 at t=1; existing absolute tolerances and sample lookup remain unchanged.
- * @evidence contracts/testing.md#distinguishing-cases Retains the callback slope at x=1/x=3, sidecar without bob, scalar plane, omitted flat ground and all three horizontal-progress twins despite waypoint y=7. Callback refusal, corners and contact correction have separate owning tests.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all three direct followPathMotion calls with in-memory fixture records and a pure slope callback. Private sample lookup registers no cases and no terrain host, process or renderer is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Bakes the same XZ line against slope, scalar and default ground, then checks root height, bare sidecar height and unchanged horizontal progress, catching use of waypoint Y or double application of gait bob.
+ * @evidence contracts/development/testing.md#independent-expectations The authored y=0.5*x slope, constant plane 2 and fixed 0.05-metre root bob determine literal heights independently of path baking. Four metres over four one-second cycles gives x=1 at t=1; existing absolute tolerances and sample lookup remain unchanged.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains the callback slope at x=1/x=3, sidecar without bob, scalar plane, omitted flat ground and all three horizontal-progress twins despite waypoint y=7. Callback refusal, corners and contact correction have separate owning tests.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns all three direct followPathMotion calls with in-memory fixture records and a pure slope callback. Private sample lookup registers no cases and no terrain host, process or renderer is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Callback slope y = 0.5·x: root y is bob + 0.5 at x=1 and bob + 1.5 at x=3,).
  */
 export function test_motion_path_ground(): void {
   const slope: ReturnType<typeof followPathMotion> = followPathMotion({

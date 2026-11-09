@@ -10,10 +10,11 @@ import { nclose } from "../internal/predicates";
  * 1. A radius-0.5 sphere has nonempty XYZ positions and equally sized normal storage.
  * 2. Every position has radius 0.5 and every normal has length one within 1e-6.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls sphere tessellation and checks a nonempty complete vertex/normal layout, radial distances and normal lengths; an empty or off-radius surface fails.
- * @evidence contracts/testing.md#independent-expectations The authored radius 0.5 and unit-vector norm define independent Euclidean expectations; these measurements establish numerical shape facts, not lighting appearance.
- * @evidence contracts/testing.md#distinguishing-cases This unit owns the finite radius-0.5 sphere and rejects vacuous empty output; watertight, winding and capsule cases belong to the adjacent tessellation units.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_geometry_tessellate_sphere entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls sphere tessellation and checks a nonempty complete vertex/normal layout, radial distances and normal lengths; an empty or off-radius surface fails.
+ * @evidence contracts/development/testing.md#independent-expectations The authored radius 0.5 and unit-vector norm define independent Euclidean expectations; these measurements establish numerical shape facts, not lighting appearance.
+ * @evidence contracts/development/testing.md#distinguishing-cases This unit owns the finite radius-0.5 sphere and rejects vacuous empty output; watertight, winding and capsule cases belong to the adjacent tessellation units.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_geometry_tessellate_sphere entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A radius-0.5 sphere has nonempty XYZ positions and equally sized normal storage.).
  */
 export function test_geometry_tessellate_sphere(): void {
   const r: number = 0.5;

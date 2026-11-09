@@ -54,10 +54,11 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
  * 1. Non-finite push axes throw before propagation.
  * 2. Finite large push axes still use the existing ROM clamp behavior.
  *
- * @evidence contracts/testing.md#behavioral-verification Rejects non-finite recoil axes, then checks all three finite saturated axes against authored ROM bounds, catching invalid push admission or a guard that suppresses valid clamping.
- * @evidence contracts/testing.md#independent-expectations Finite degree targets are the input contract; the rig's explicit maxima/minimum independently define 40/-15/20. Exception presence is asserted without claiming exact diagnostic identity or evaluation order.
- * @evidence contracts/testing.md#distinguishing-cases Separates flexion NaN, abduction infinity and twist negative infinity from a finite three-axis positive twin; omitted/zero axes, falloff and default/coupled constraints belong to neighboring recoil units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns the local loop assertions and calls impactRecoil with an in-memory rig; no host or dynamic cases are installed.
+ * @evidence contracts/development/testing.md#behavioral-verification Rejects non-finite recoil axes, then checks all three finite saturated axes against authored ROM bounds, catching invalid push admission or a guard that suppresses valid clamping.
+ * @evidence contracts/development/testing.md#independent-expectations Finite degree targets are the input contract; the rig's explicit maxima/minimum independently define 40/-15/20. Exception presence is asserted without claiming exact diagnostic identity or evaluation order.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates flexion NaN, abduction infinity and twist negative infinity from a finite three-axis positive twin; omitted/zero axes, falloff and default/coupled constraints belong to neighboring recoil units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit owns the local loop assertions and calls impactRecoil with an in-memory rig; no host or dynamic cases are installed.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite push axes throw before propagation.).
  */
 export function test_physics_impact_recoil_push_finite(): void {
   const cases: [keyof IAutoMovieRecoilPush, number][] = [

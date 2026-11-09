@@ -11,10 +11,10 @@
  *
  * compilePerformance retains expressions only for face. With one region it retains root channels; when multiple regions layer, only lowerBody and fullBody retain root. Masking reports discarded content instead of silently treating every original channel as surviving.
  *
- * @evidence contracts/common.md#principled-implementation Closed regions classify motion channels for masking and layering, while actual surviving root, bone and expression ownership determines whether concurrent content conflicts.
- * @evidence contracts/common.md#clear-and-simple-design Fixed limb/head/face groups keep channel selection explicit; fullBody combines body bones while face owns expressions, and root retention follows the compiler's layering rule.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Region names alone do not guarantee disjoint content, especially fullBody overlaps; composition must inspect the masked surviving channels rather than permit concurrency by label only.
- * @evidence contracts/common.md#meaningful-documentation Defines each region's channels and the fullBody exception requiring actual disjoint surviving content.
+ * @evidence contracts/development/design.md#principled-representation Closed regions classify motion channels for masking and layering, while actual surviving root, bone and expression ownership determines whether concurrent content conflicts.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Fixed limb/head/face groups keep channel selection explicit; fullBody combines body bones while face owns expressions, and root retention follows the compiler's layering rule.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Region names alone do not guarantee disjoint content, especially fullBody overlaps; composition must inspect the masked surviving channels rather than permit concurrency by label only.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines each region's channels and the fullBody exception requiring actual disjoint surviving content.
  */
 export type AutoMovieBodyRegion =
   | "lowerBody"

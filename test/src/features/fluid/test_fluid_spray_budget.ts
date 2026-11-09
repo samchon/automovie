@@ -95,10 +95,11 @@ const misted: (sprays: IAutoMovieFluidSpray[]) => IAutoMovieFluidDomain = (
  *    overflows or underflows, preserves the unit-axis particle count and
  *    positions within the vector predicate's `1e-6` component tolerance.
  *
- * @evidence contracts/testing.md#behavioral-verification Samples seeded spray at selected times/distances and checks lifetime, ballistic positions, deterministic repeat/order, a per-emitter particle cap, LOD density and refusal bounds; CPU particles are the observed output.
- * @evidence contracts/testing.md#independent-expectations Authored birth windows, fixed-step times, gravity and speed give ballistic expectations, while literal caps and near/far counts provide the budget oracle. Same-call seed comparisons observe reproducibility rather than independent random distribution or GPU agreement.
- * @evidence contracts/testing.md#distinguishing-cases Preserves lifecycle, empty/near/far/negative-distance and cap cases, jitter normalization, foreign-domain/nonfinite-distance refusals and huge/tiny finite direction axes; fluid conservation and rendered pixels are outside this entry.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns all portable CPU spray sampling cases through actual engine functions and existing fixtures, without a GPU, browser or native renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples seeded spray at selected times/distances and checks lifetime, ballistic positions, deterministic repeat/order, a per-emitter particle cap, LOD density and refusal bounds; CPU particles are the observed output.
+ * @evidence contracts/development/testing.md#independent-expectations Authored birth windows, fixed-step times, gravity and speed give ballistic expectations, while literal caps and near/far counts provide the budget oracle. Same-call seed comparisons observe reproducibility rather than independent random distribution or GPU agreement.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves lifecycle, empty/near/far/negative-distance and cap cases, jitter normalization, foreign-domain/nonfinite-distance refusals and huge/tiny finite direction axes; fluid conservation and rendered pixels are outside this entry.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns all portable CPU spray sampling cases through actual engine functions and existing fixtures, without a GPU, browser or native renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Eight particles are live, in ascending spawn order, and particle 6 stands at).
  */
 export function test_fluid_spray_budget(): void {
   const domain: ReturnType<typeof misted> = misted([JET]);

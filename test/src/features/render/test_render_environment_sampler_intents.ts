@@ -29,10 +29,11 @@ import { material, sceneFixture } from "../internal/renderFixtures";
  * 2. Missing or explicitly unsupported factory intent refuses before drawing; a supplied native state and known non-mip-linear legacy sampling recover.
  * 3. Generation, HDR width, independent source scopes and target sealing retain their own quantities, and non-environment materials ignore factory intent.
  *
- * @evidence contracts/testing.md#behavioral-verification Measures real texture closure and render-budget refusal from supplied configured/native sampler facts, asserting raw-state sharing, byte bounds, unknown-state refusal and target identity changes.
- * @evidence contracts/testing.md#independent-expectations RGBA mip sizes sum 16+4+1 texels, cube faces multiply by six, atlas dimensions and DFG element widths supply the declared storage totals independently. Supplied factory facts model prospective uploads and do not observe native handles or GPU retirement.
- * @evidence contracts/testing.md#distinguishing-cases Distinct, equal, nearest, missing and explicitly unsupported sampler states cover order, shared scenes, generation, HDR and non-environment twins; omitted decoded sources and allocation authority remain unknown.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_environment_sampler_intents owns its cases. Portable metadata and budget composition over authored facts, with no native upload, decoder or renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures real texture closure and render-budget refusal from supplied configured/native sampler facts, asserting raw-state sharing, byte bounds, unknown-state refusal and target identity changes.
+ * @evidence contracts/development/testing.md#independent-expectations RGBA mip sizes sum 16+4+1 texels, cube faces multiply by six, atlas dimensions and DFG element widths supply the declared storage totals independently. Supplied factory facts model prospective uploads and do not observe native handles or GPU retirement.
+ * @evidence contracts/development/testing.md#distinguishing-cases Distinct, equal, nearest, missing and explicitly unsupported sampler states cover order, shared scenes, generation, HDR and non-environment twins; omitted decoded sources and allocation authority remain unknown.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_environment_sampler_intents owns its cases. Portable metadata and budget composition over authored facts, with no native upload, decoder or renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Mip-linear material and image lighting require two raw states; a nearest material adds a third conservative state, while equal linear...).
  */
 export function test_render_environment_sampler_intents(): void {
   const mip: NonNullable<IAutoMovieTextureReference["sampler"]> = {

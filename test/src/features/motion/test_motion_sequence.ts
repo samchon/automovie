@@ -35,10 +35,11 @@ const errorMessage: (task: () => void) => string | null = (
  *
  * The existing incoming-easing twin also checks the seam and final easing labels without sampling rendered or numerical segment playback.
  *
- * @evidence contracts/testing.md#behavioral-verification Concatenates two authored clips and checks three ordered key times and total duration, skeleton and loop policy, exact malformed-input messages, then observes incoming seam and final easing labels.
- * @evidence contracts/testing.md#independent-expectations Durations 1+0.8 give 1.8, dropping the second time-zero seam gives literal [0,1,1.8], and local easeOut/step labels distinguish incoming from outgoing easing. Expected values/messages are authored independently of sequenceMotion; the helper retains existing non-Error String conversion and numeric tolerances.
- * @evidence contracts/testing.md#distinguishing-cases Retains default/explicit loop, empty and mixed-skeleton lists, NaN/zero/negative part duration, ordinary seam count and opposing incoming/final easing. Gait-cycle metadata and cumulative overflow admission are outside this unchanged case population.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns every direct sequence call, including refusal observations; local fixture and error readers register no extra cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Concatenates two authored clips and checks three ordered key times and total duration, skeleton and loop policy, exact malformed-input messages, then observes incoming seam and final easing labels.
+ * @evidence contracts/development/testing.md#independent-expectations Durations 1+0.8 give 1.8, dropping the second time-zero seam gives literal [0,1,1.8], and local easeOut/step labels distinguish incoming from outgoing easing. Expected values/messages are authored independently of sequenceMotion; the helper retains existing non-Error String conversion and numeric tolerances.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains default/explicit loop, empty and mixed-skeleton lists, NaN/zero/negative part duration, ordinary seam count and opposing incoming/final easing. Gait-cycle metadata and cumulative overflow admission are outside this unchanged case population.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns every direct sequence call, including refusal observations; local fixture and error readers register no extra cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two parts (durations 1.0 + 0.8) merge to one clip of duration 1.8 whose).
  */
 export function test_motion_sequence(): void {
   const A: IAutoMovieMotion = makeMotion(

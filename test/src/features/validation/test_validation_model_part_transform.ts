@@ -40,10 +40,11 @@ const modelWithPartTransform: (
  * 4. Finite but non-unit rotation is a range violation.
  * 5. Non-positive scale is a range violation.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateModel with one changed part transform, asserting valid acceptance and located refusals for nonfinite translation/rotation, non-unit rotation and zero scale.
- * @evidence contracts/testing.md#independent-expectations Finite components, unit quaternion norm and strictly positive scale define supported TRS; the identity rotation has norm one and w=2 has norm two independently of the validator.
- * @evidence contracts/testing.md#distinguishing-cases Retains the valid transform and all four fault families at the first part; null transforms and pose/bone transform ownership remain separate.
- * @evidence contracts/testing.md#execution-ownership This named unit validates existing model records with a local transform adapter; it creates no mesh, animation or renderer resource.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateModel with one changed part transform, asserting valid acceptance and located refusals for nonfinite translation/rotation, non-unit rotation and zero scale.
+ * @evidence contracts/development/testing.md#independent-expectations Finite components, unit quaternion norm and strictly positive scale define supported TRS; the identity rotation has norm one and w=2 has norm two independently of the validator.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains the valid transform and all four fault families at the first part; null transforms and pose/bone transform ownership remain separate.
+ * @evidence contracts/development/testing.md#execution-ownership This named unit validates existing model records with a local transform adapter; it creates no mesh, animation or renderer resource.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A valid non-null part transform still validates.).
  */
 export function test_validation_model_part_transform(): void {
   TestValidator.equals(

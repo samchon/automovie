@@ -51,13 +51,14 @@ import { validationSpaceFixtures } from "../internal/validationSpaceFixtures";
  * 15. A height rule whose `kind` is runtime junk past the closed union is refused
  *     rather than read as a lattice whose fields do not exist.
  *
- * @evidence contracts/testing.md#behavioral-verification Asserts acceptance of valid flat, ramp, concave and holed spaces and located rejection of malformed rings, anchors and references.
+ * @evidence contracts/development/testing.md#behavioral-verification Asserts acceptance of valid flat, ramp, concave and holed spaces and located rejection of malformed rings, anchors and references.
  *
- * @evidence contracts/testing.md#independent-expectations Located errors follow the authored field paths and finite complete lattice contract, independently of the validator's implementation; this does not measure rendered ground.
+ * @evidence contracts/development/testing.md#independent-expectations Located errors follow the authored field paths and finite complete lattice contract, independently of the validator's implementation; this does not measure rendered ground.
  *
- * @evidence contracts/testing.md#distinguishing-cases Retains every previous positive, malformed, touching-hole, crossing-ring and bad-anchor case; the shared height helper keeps the rule cases and adds a missing sample.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains every previous positive, malformed, touching-hole, crossing-ring and bad-anchor case; the shared height helper keeps the rule cases and adds a missing sample.
  *
- * @evidence contracts/testing.md#execution-ownership Portable engine admission runs through test_validation_space; the discoverable test_validation_space entry owns every synchronous case without a browser or native renderer.
+ * @evidence contracts/development/testing.md#execution-ownership Portable engine admission runs through test_validation_space; the discoverable test_validation_space entry owns every synchronous case without a browser or native renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 15 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A well-formed flat + ramp space validates.).
  */
 export function test_validation_space(): void {
   const { v, valid, withSurface }: ReturnType<typeof validationSpaceFixtures> =

@@ -1,4 +1,4 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieCurve64 as C } from "@automovie/engine";
 import {
   type IAutoMovieRecoveryHermiteCurve,
   type IAutoMovieRecoveryHermiteSpan,
@@ -46,10 +46,11 @@ interface RecoveryMalformedCurve {
  * 6. Nested cubic metadata has the same converted type and runtime representation.
  * 7. Sparse or inherited coefficients and accessor-backed vectors refuse without invoking a getter.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls public conversion and reconstruction, evaluates saved Hermite endpoints and derivatives, checks input nonmutation and measures generated triangle area.
- * @evidence contracts/testing.md#independent-expectations Authored coefficients encode the analytic polynomial (s²,s³,2s) over [0,2] and [2,5]; the separate square prism has perimeter 12 mm and height 2 mm, hence area 24e-6 m².
- * @evidence contracts/testing.md#distinguishing-cases Unequal widths and a horizontal ring expose unit-parameter or Y-difference mistakes; nested aliases and a cubic attached to another cubic expose incomplete publication and mismatched recursive typing. Sparse outer spans, controls, vector components, widths and Hermite derivatives, an inherited coordinate and accessor-backed coefficients expose fabricated own data or premature getter execution.
- * @evidence contracts/testing.md#execution-ownership The portable scenario owns only small generic coefficients and CPU geometry, with no Human input, renderer, filesystem, subprocess or native artifact; the central runner owns execution.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public conversion and reconstruction, evaluates saved Hermite endpoints and derivatives, checks input nonmutation and measures generated triangle area.
+ * @evidence contracts/development/testing.md#independent-expectations Authored coefficients encode the analytic polynomial (s²,s³,2s) over [0,2] and [2,5]; the separate square prism has perimeter 12 mm and height 2 mm, hence area 24e-6 m².
+ * @evidence contracts/development/testing.md#distinguishing-cases Unequal widths and a horizontal ring expose unit-parameter or Y-difference mistakes; nested aliases and a cubic attached to another cubic expose incomplete publication and mismatched recursive typing. Sparse outer spans, controls, vector components, widths and Hermite derivatives, an inherited coordinate and accessor-backed coefficients expose fabricated own data or premature getter execution.
+ * @evidence contracts/development/testing.md#execution-ownership The portable scenario owns only small generic coefficients and CPU geometry, with no Human input, renderer, filesystem, subprocess or native artifact; the central runner owns execution.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Unequal phase widths reproduce the independent polynomial (s²,s³,2s).).
  */
 export function test_recovery_curve_format(): void {
   const curve: C.Cubic = {
@@ -235,7 +236,10 @@ export function test_recovery_curve_format(): void {
   const sparseDerivative: IAutoMovieRecoveryHermiteCurve =
     structuredClone(horizontalSaved);
   Reflect.deleteProperty(sparseDerivative.spans[0]!.startDerivative, "1");
-  malformed.push({ name: "sparse Hermite derivative", value: sparseDerivative });
+  malformed.push({
+    name: "sparse Hermite derivative",
+    value: sparseDerivative,
+  });
   const missingEndpoint: IAutoMovieRecoveryHermiteCurve =
     structuredClone(horizontalSaved);
   Reflect.deleteProperty(missingEndpoint.spans[0]!, "end");
@@ -250,7 +254,10 @@ export function test_recovery_curve_format(): void {
       return 0;
     },
   });
-  malformed.push({ name: "accessor Bezier coordinate", value: accessorControl });
+  malformed.push({
+    name: "accessor Bezier coordinate",
+    value: accessorControl,
+  });
   const accessorDerivative: IAutoMovieRecoveryHermiteCurve =
     structuredClone(horizontalSaved);
   Object.defineProperty(accessorDerivative.spans[0]!.startDerivative, "0", {
@@ -261,7 +268,10 @@ export function test_recovery_curve_format(): void {
       return 3;
     },
   });
-  malformed.push({ name: "accessor Hermite derivative", value: accessorDerivative });
+  malformed.push({
+    name: "accessor Hermite derivative",
+    value: accessorDerivative,
+  });
   for (const candidate of malformed) {
     for (const format of ["hermite", "bezier"] as const) {
       let rejected: boolean = false;
@@ -273,7 +283,11 @@ export function test_recovery_curve_format(): void {
       TestValidator.predicate(`${candidate.name} refuses ${format}`, rejected);
     }
   }
-  TestValidator.equals("coefficient getters are never executed", getterReads, 0);
+  TestValidator.equals(
+    "coefficient getters are never executed",
+    getterReads,
+    0,
+  );
   const bundle: ReturnType<typeof prism.makeInput> = prism.makeInput(false);
   const generated: ReturnType<typeof reconstructAutoMovieRecoveryModel> =
     reconstructAutoMovieRecoveryModel(

@@ -18,10 +18,11 @@ import { nclose, vclose } from "../internal/predicates";
  * 3. Placing at the captured source frame reconstructs the original triangle.
  * 4. Later input and output edits cannot change another placement.
  *
- * @evidence contracts/testing.md#behavioral-verification Prepares and places the public surface frame, asserting literal transformed points, centroid, all three independently known edge lengths, source reconstruction and independent repeated outputs. Translation-only placement, anisotropic scaling or retained caller arrays fail these assertions.
- * @evidence contracts/testing.md#independent-expectations The authored right triangle has centroid zero and edges 3, 3 and sqrt(18); the right-handed destination basis maps it to the literal XY coordinates independently of the implementation's basis helper. Tight tolerances permit ordinary binary64 rounding.
- * @evidence contracts/testing.md#distinguishing-cases Covers destination translation and rotation, nonunit skew directions, source round trip and ownership after mutations; sign choice, tiny nonzero geometry and malformed inputs belong to companion tests.
- * @evidence contracts/testing.md#execution-ownership This discoverable synchronous geometry test directly calls portable Engine APIs and owns every case without starting compilers, native hosts, browsers, GPUs or dynamic test registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Prepares and places the public surface frame, asserting literal transformed points, centroid, all three independently known edge lengths, source reconstruction and independent repeated outputs. Translation-only placement, anisotropic scaling or retained caller arrays fail these assertions.
+ * @evidence contracts/development/testing.md#independent-expectations The authored right triangle has centroid zero and edges 3, 3 and sqrt(18); the right-handed destination basis maps it to the literal XY coordinates independently of the implementation's basis helper. Tight tolerances permit ordinary binary64 rounding.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers destination translation and rotation, nonunit skew directions, source round trip and ownership after mutations; sign choice, tiny nonzero geometry and malformed inputs belong to companion tests.
+ * @evidence contracts/development/testing.md#execution-ownership This discoverable synchronous geometry test directly calls portable Engine APIs and owns every case without starting compilers, native hosts, browsers, GPUs or dynamic test registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A three-metre right triangle rotates from XZ to XY with known coordinates.).
  */
 export function test_geometry_surface_frame_rigid(): void {
   const source: IAutoMovieVector3[] = [

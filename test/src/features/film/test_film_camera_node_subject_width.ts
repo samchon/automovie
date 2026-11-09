@@ -91,10 +91,11 @@ const {
  *    degenerate stand-in segment it always had, and a slab too thin to measure
  *    vertically keeps its real width while taking the stand-in height.
  *
- * @evidence contracts/testing.md#behavioral-verification Measures primitive and mesh bounds, boxes a yawed node, compiles measured and pole-only cameras, grades required-subject readability, and calls performShot through the existing facade fixture.
- * @evidence contracts/testing.md#independent-expectations Authored 60-by-24-by-2 metre dimensions fix the expected corners and half diagonal; literal full-framing fractions 1.15 and 0.5 determine independent pinhole distance and aim oracles. Fixed end probes and a remote facade distinguish the resulting views.
- * @evidence contracts/testing.md#distinguishing-cases Width must increase the solved distance beyond the height-only fit and preserve the far probe. Quarter-turn placement, an off-origin facade, mesh representation, missing geometry, rig-only height, and a thin slab distinguish transforms, measurement, and fallback policies.
- * @evidence contracts/testing.md#execution-ownership Runs synchronous engine compilation, staging, and numerical grading on local records. The facade helper injects the existing synthesizer fixture through the product seam; no renderer, filesystem, clock, or dependency replacement is involved, and sampled probe intersection establishes neither full enclosure nor rendered pixels.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures primitive and mesh bounds, boxes a yawed node, compiles measured and pole-only cameras, grades required-subject readability, and calls performShot through the existing facade fixture.
+ * @evidence contracts/development/testing.md#independent-expectations Authored 60-by-24-by-2 metre dimensions fix the expected corners and half diagonal; literal full-framing fractions 1.15 and 0.5 determine independent pinhole distance and aim oracles. Fixed end probes and a remote facade distinguish the resulting views.
+ * @evidence contracts/development/testing.md#distinguishing-cases Width must increase the solved distance beyond the height-only fit and preserve the far probe. Quarter-turn placement, an off-origin facade, mesh representation, missing geometry, rig-only height, and a thin slab distinguish transforms, measurement, and fallback policies.
+ * @evidence contracts/development/testing.md#execution-ownership Runs synchronous engine compilation, staging, and numerical grading on local records. The facade helper injects the existing synthesizer fixture through the product seam; no renderer, filesystem, clock, or dependency replacement is involved, and sampled probe intersection establishes neither full enclosure nor rendered pixels.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 10 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The fixture draws where it claims: the model's rest box runs).
  */
 export function test_film_camera_node_subject_width(): void {
   const model: IAutoMovieModel = facade("facade-model", WIDTH / 2);

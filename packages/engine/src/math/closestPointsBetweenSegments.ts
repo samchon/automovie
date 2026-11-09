@@ -32,13 +32,13 @@ import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
  *
  * @see https://www.geometrictools.com/Documentation/DistanceLine3Line3.pdf (modified September 21, 2023), sections 2 and 4.
  *
- * @evidence contracts/common.md#principled-implementation Four boundary minima and a clipped stationary-line residual minimum cover the constrained segment quadratic; local scaling avoids determinant cancellation, while unrepresentable nonzero spans and witness distances refuse.
- * @evidence contracts/common.md#clear-and-simple-design One owner supplies both separation and contact witnesses to distance and collision consumers, including deterministic parameter ties.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No absolute parallel epsilon replaces interior minima; only exact zero coefficients select degeneracies.
- * @evidence contracts/common.md#meaningful-documentation Documents metres, fresh witnesses, the stationary-line construction, finite-arithmetic refusals, tie ordering and noncertified binary64 precision.
- * @evidence contracts/performance.md#efficient-algorithms Four boundary candidates and at most one stationary-line candidate use constant-dimensional arithmetic and bounded storage.
- * @evidence contracts/performance.md#reuse-equivalent-work Local differences and scaled dot products serve every candidate once; changed endpoints require a new query.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Candidate records are temporary; only two new witness points and their scalar distance escape to the caller.
+ * @evidence contracts/development/implementation.md#principled-implementation Four boundary minima and a clipped stationary-line residual minimum cover the constrained segment quadratic; local scaling avoids determinant cancellation, while unrepresentable nonzero spans and witness distances refuse.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner supplies both separation and contact witnesses to distance and collision consumers, including deterministic parameter ties.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No absolute parallel epsilon replaces interior minima; only exact zero coefficients select degeneracies.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents metres, fresh witnesses, the stationary-line construction, finite-arithmetic refusals, tie ordering and noncertified binary64 precision.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Four boundary candidates and at most one stationary-line candidate use constant-dimensional arithmetic and bounded storage.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Local differences and scaled dot products serve every candidate once; changed endpoints require a new query.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate records are temporary; only two new witness points and their scalar distance escape to the caller.
  */
 export const closestPointsBetweenSegments: (
   a: IAutoMovieVector3,

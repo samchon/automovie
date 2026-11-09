@@ -21,10 +21,11 @@ import { nclose } from "../internal/nclose";
  * 5. A resident ceiling below the first point design refuses before triangulation or numerical linear work, retaining only the32 prepaid report-setup visits.
  * 6. An accepted seed clears its temporary seed-report alias, while a refusal before fitting exposes no completed seed report.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises the actual scene budget path and detached completion owner, asserting atomic geometric rollback, attempted-work accounting, null candidate pose and explicit nonconvergence after a numerical step.
- * @evidence contracts/testing.md#independent-expectations Analytic source poses/points define the seed checkpoint independently; a deliberately perturbed pose and strict one-step budget must not be called converged merely because cost descends. Serialized inputs prove ownership, not geometry accuracy.
- * @evidence contracts/testing.md#distinguishing-cases Covers seed success versus extension budget failure, proposed point growth, preserved seed baseline, changed candidate pose, nonconverged joint report, current source statuses and all original arrays. Global conflict and public cancellation have separate entries.
- * @evidence contracts/testing.md#execution-ownership The portable test_recovery_camera_scene_transactions entry uses resident arrays and starts no host, process, installation, compiler, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises the actual scene budget path and detached completion owner, asserting atomic geometric rollback, attempted-work accounting, null candidate pose and explicit nonconvergence after a numerical step.
+ * @evidence contracts/development/testing.md#independent-expectations Analytic source poses/points define the seed checkpoint independently; a deliberately perturbed pose and strict one-step budget must not be called converged merely because cost descends. Serialized inputs prove ownership, not geometry accuracy.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers seed success versus extension budget failure, proposed point growth, preserved seed baseline, changed candidate pose, nonconverged joint report, current source statuses and all original arrays. Global conflict and public cancellation have separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_camera_scene_transactions entry uses resident arrays and starts no host, process, installation, compiler, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The initial seed qualifies but a later fit budget expires after proposed new points; poses, points and observations all retain the old...).
  */
 export function test_recovery_camera_scene_transactions(): void {
   const fixture: ReturnType<typeof createRecoverySceneNumericalFixture> =

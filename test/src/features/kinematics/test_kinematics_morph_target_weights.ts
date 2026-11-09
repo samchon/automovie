@@ -24,10 +24,11 @@ import { nclose, vclose } from "../internal/predicates";
  * 4. An output above one is returned unclamped, and an undriven target is absent from the result.
  * 5. skinAutoMovieMesh displaces a vertex by the weighted delta in the rest frame and then rotates it with its bone; omitted weights and an unknown name leave the rest shape.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls resolveMorphTargetWeights on hand-built targets and poses and skinAutoMovieMesh on a synthetic tube; catches reading the wrong axis or the first duplicate, clamping, inventing weights for undriven targets, and applying a delta after skinning instead of before.
- * @evidence contracts/testing.md#independent-expectations Weights follow the documented piecewise-linear curve with held ends evaluated by hand, and the skinned point is the rest point plus the delta rotated 90 degrees about the joint, computed in closed form.
- * @evidence contracts/testing.md#distinguishing-cases Interior, below, above and exact curve points; listed, unlisted, null and duplicated joints; two axes; an overdriving curve; driven and undriven targets; and morph-then-skin against no weights and an unknown name. Admission belongs to the validation test, viewer writes to the viewer test.
- * @evidence contracts/testing.md#execution-ownership A portable unit over engine arithmetic and synthetic internal fixtures; it starts no browser, GPU or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolveMorphTargetWeights on hand-built targets and poses and skinAutoMovieMesh on a synthetic tube; catches reading the wrong axis or the first duplicate, clamping, inventing weights for undriven targets, and applying a delta after skinning instead of before.
+ * @evidence contracts/development/testing.md#independent-expectations Weights follow the documented piecewise-linear curve with held ends evaluated by hand, and the skinned point is the rest point plus the delta rotated 90 degrees about the joint, computed in closed form.
+ * @evidence contracts/development/testing.md#distinguishing-cases Interior, below, above and exact curve points; listed, unlisted, null and duplicated joints; two axes; an overdriving curve; driven and undriven targets; and morph-then-skin against no weights and an unknown name. Admission belongs to the validation test, viewer writes to the viewer test.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit over engine arithmetic and synthetic internal fixtures; it starts no browser, GPU or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A flexion driver with points (0, 0) and (90, 1) reads 0.5 at 45 degrees and holds 1 past 90 and 0 below 0.).
  */
 export function test_kinematics_morph_target_weights(): void {
   const driver: (

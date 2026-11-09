@@ -37,10 +37,11 @@ import { namedFacts, qclose, vclose } from "../internal/predicates";
  *    prefixed bridge equals `resolvePose ∘ sampleMotion` on every bake time:
  *    prefixing renames the graph without moving it.
  *
- * @evidence contracts/testing.md#behavioral-verification Bakes bare and knightA-prefixed graphs, checks selected bare names and all prefixed node/channel identities including root presence, then resolves the prefixed graph at every bake time and compares each fixture bone's position/rotation with clinical sampling/FK.
- * @evidence contracts/testing.md#independent-expectations Literal knightA/ and unchanged bone names independently determine graph addresses, with a bare-name twin exposing missing prefix propagation. FK/bridge equality is a metamorphic representation law using shared product math and existing default vclose/qclose tolerances; serialized bytes and prototype identity are not observed.
- * @evidence contracts/testing.md#distinguishing-cases Retains omitted versus explicit prefix, root and articulated bone tracks, mixed null/non-null root and every nonempty bake-time bone population. Two actors, prefix collisions and parent-prefix admission are outside this unchanged fixture.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns both bakes and all direct frame/FK observations. Local channel reading and existing fixture helpers register no cases and start no viewer, process or GPU artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Bakes bare and knightA-prefixed graphs, checks selected bare names and all prefixed node/channel identities including root presence, then resolves the prefixed graph at every bake time and compares each fixture bone's position/rotation with clinical sampling/FK.
+ * @evidence contracts/development/testing.md#independent-expectations Literal knightA/ and unchanged bone names independently determine graph addresses, with a bare-name twin exposing missing prefix propagation. FK/bridge equality is a metamorphic representation law using shared product math and existing default vclose/qclose tolerances; serialized bytes and prototype identity are not observed.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains omitted versus explicit prefix, root and articulated bone tracks, mixed null/non-null root and every nonempty bake-time bone population. Two actors, prefix collisions and parent-prefix admission are outside this unchanged fixture.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns both bakes and all direct frame/FK observations. Local channel reading and existing fixture helpers register no cases and start no viewer, process or GPU artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Default (no prefix): node ids and channel refs are bare, the S1 contract).
  */
 export function test_motion_to_clip_prefix(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

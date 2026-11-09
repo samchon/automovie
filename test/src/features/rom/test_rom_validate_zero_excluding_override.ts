@@ -17,10 +17,11 @@ import { namedFacts, nclose } from "../internal/predicates";
  * 1. Flexion zero against [10,90] reports one ROM fault at its axis path and clamps to ten.
  * 2. Interior flexion, immobile abduction zero and twist zero inside [-30,30] remain clean.
  *
- * @evidence contracts/testing.md#behavioral-verification Validates specified zero against a nonzero-minimum interval, checks its exact ROM address and clamps it to the minimum, contrasting a clean pose whose immobile and zero-containing axes remain zero.
- * @evidence contracts/testing.md#independent-expectations Zero is outside [10,90] and its nearest admitted endpoint is ten; zero lies inside [-30,30] and is the neutral specified value of an immobile axis. Literal kind/path/count and numeric endpoint judge the detector and clamp independently.
- * @evidence contracts/testing.md#distinguishing-cases The zero-excluding refusal contrasts accepted interior flexion, immobile zero and zero-containing twist; cone coupling and nonfinite input repair are separate ROM tests.
- * @evidence contracts/testing.md#execution-ownership The named synchronous entry owns two collectors and calls portable detector/clamp owners with the existing joint fixture, without a Human asset, native artifact or host.
+ * @evidence contracts/development/testing.md#behavioral-verification Validates specified zero against a nonzero-minimum interval, checks its exact ROM address and clamps it to the minimum, contrasting a clean pose whose immobile and zero-containing axes remain zero.
+ * @evidence contracts/development/testing.md#independent-expectations Zero is outside [10,90] and its nearest admitted endpoint is ten; zero lies inside [-30,30] and is the neutral specified value of an immobile axis. Literal kind/path/count and numeric endpoint judge the detector and clamp independently.
+ * @evidence contracts/development/testing.md#distinguishing-cases The zero-excluding refusal contrasts accepted interior flexion, immobile zero and zero-containing twist; cone coupling and nonfinite input repair are separate ROM tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous entry owns two collectors and calls portable detector/clamp owners with the existing joint fixture, without a Human asset, native artifact or host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Flexion zero against [10,90] reports one ROM fault at its axis path and clamps to ten.).
  */
 export function test_rom_validate_zero_excluding_override(): void {
   const constraint: IAutoMovieJointConstraint = {

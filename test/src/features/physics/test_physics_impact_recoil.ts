@@ -52,10 +52,11 @@ const skeleton: IAutoMovieSkeleton = {
  *    simultaneous flexion/abduction is pulled inside its live swing cone.
  * 5. The constrained contact, elbow and hip recoil poses pass the ordinary pose validator; this checks compatibility rather than independently proving their shared effective-ROM helpers.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds recoil poses and checks bounded axes, falloff, missing-bone behavior, immobile elbow response, combined hip swing and validator acceptance, catching unconstrained or incoherent produced poses.
- * @evidence contracts/testing.md#independent-expectations Authored spine limits give independent 40/15/-30 bounds and explicit twist 10; declared default chest limits and immobile elbow policy give expected values. Validator acceptance shares ROM dependencies and cannot independently certify physiology or the exact hip projection.
- * @evidence contracts/testing.md#distinguishing-cases Covers explicit/default constraints, upper/lower saturation, unchanged in-range twist, absent bone, immobile axis and a live combined swing cap; neutral zero-excluding axes and invalid input admission belong to neighboring recoil units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit calls recoil and pose validation on local skeletal records, owns all assertions and starts no figure renderer, process or dynamic cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds recoil poses and checks bounded axes, falloff, missing-bone behavior, immobile elbow response, combined hip swing and validator acceptance, catching unconstrained or incoherent produced poses.
+ * @evidence contracts/development/testing.md#independent-expectations Authored spine limits give independent 40/15/-30 bounds and explicit twist 10; declared default chest limits and immobile elbow policy give expected values. Validator acceptance shares ROM dependencies and cannot independently certify physiology or the exact hip projection.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers explicit/default constraints, upper/lower saturation, unchanged in-range twist, absent bone, immobile axis and a live combined swing cap; neutral zero-excluding axes and invalid input admission belong to neighboring recoil units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit calls recoil and pose validation on local skeletal records, owns all assertions and starts no figure renderer, process or dynamic cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Huge flexion and abduction pushes clamp to the contact bone's explicit ROM).
  */
 export function test_physics_impact_recoil(): void {
   const pose: ReturnType<typeof impactRecoil> = impactRecoil(

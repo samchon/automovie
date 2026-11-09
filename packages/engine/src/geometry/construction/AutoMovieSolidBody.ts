@@ -29,25 +29,19 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * {@link draw} tessellates every face on its own grid trimmed by its cycles
  * (`AutoMovieSolidMesh.face`), shared boundaries vertex for vertex.
  *
- * @evidence contracts/common.md#principled-implementation A merged solid is a set of trimmed faces sharing boundary vertices, and each merge traces against all faces as one atlas, so a later part can meet an earlier blend.
- * @evidence contracts/common.md#clear-and-simple-design Create, merge, draw and publish over one body record.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Returned rail/trim failures restore the original checkpoint; thrown callbacks propagate without that rollback, and no face is patched to close a gap.
- * @evidence contracts/common.md#meaningful-documentation States the faces, their cycles, the merge's steps and the published form.
- * @evidence contracts/performance.md#efficient-algorithms Includes snapshot/atlas work, join tracing or supplied-curve reuse, column publication and clipping; draw includes each face's grid and boundary matching costs.
- * @evidence contracts/performance.md#reuse-equivalent-work Boundary vertices are created once in the shared mesh and referenced by every face that meets them.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns faces, mesh and blend publications; publishing returns detached shared-boundary/face/chart records without retaining surface callbacks.
+ * @evidence contracts/development/common.md#meaningful-documentation States the faces, their cycles, the merge's steps and the published form.
+ * @evidence contracts/development/design.md#principled-representation Represents A solid built by merges and diffs, as trimmed faces that share their boundaries: the base, every blend and every part, each a surface with its trim cycles in its own chart (`AutoMovieSolidCycle`), the shared boundary vertices held once in the body's mesh: companion namespace of 12 members (`IFace`, `IBody`, `IFaceInput`, `IMerge`, `IMerged`, `create`, ...); units and frames named in its text: local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidBody` in packages/engine/src/geometry/construction/AutoMovieSolidBody.ts; its surface is the 12 members listed and the text shows 26 other files naming it, mostly packages/engine (14), test (7), packages/human (5), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidBody {
   /**
    * One face.
    *
-   * @evidence contracts/common.md#principled-implementation A borrowed surface, tessellation grid and mutable trim cycles describe one body face with an optional cutter orientation.
-   * @evidence contracts/common.md#clear-and-simple-design One record keeps source geometry and current chart boundaries together while shared vertices remain in the body's mesh.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The record validates neither grid order nor boundary correspondence, regularity or inclusive cycle ownership.
-   * @evidence contracts/common.md#meaningful-documentation Fields identify chart grids, cycle ownership and the optional inward cutter flag.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This data record performs no meshing; draw and the mesh owner execute the grid/classification algorithms.
-   * @evidence contracts/performance.md#reuse-equivalent-work Boundary cycles refer to shared mesh indices rather than independently evaluated seam copies.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The body retains its surface, grids and cycles; transitive storage follows grid/segment populations and callback dependencies.
+   * @evidence contracts/development/design.md#principled-representation A borrowed surface, tessellation grid and mutable trim cycles describe one body face with an optional cutter orientation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One record keeps source geometry and current chart boundaries together while shared vertices remain in the body's mesh.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record validates neither grid order nor boundary correspondence, regularity or inclusive cycle ownership.
+   * @evidence contracts/development/common.md#meaningful-documentation Fields identify chart grids, cycle ownership and the optional inward cutter flag.
    */
   export interface IFace {
     /** The surface. */
@@ -75,13 +69,10 @@ export namespace AutoMovieSolidBody {
   /**
    * The body.
    *
-   * @evidence contracts/common.md#principled-implementation Faces share one indexed mesh, while the original blend publications identify the surfaces later joins can use.
-   * @evidence contracts/common.md#clear-and-simple-design One mutable aggregate holds assembly order and its published geometric records.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type proves no manifoldness, closure or mutation safety; draw appends to the current buffers rather than resetting them.
-   * @evidence contracts/common.md#meaningful-documentation Members distinguish face, mesh and publication ownership.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A container chooses no transaction, trace or tessellation algorithm.
-   * @evidence contracts/performance.md#reuse-equivalent-work One mesh holds shared boundary indices and unique-name surface owners across its faces.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Faces, vertices, triangles and blends grow with caller assembly and remain until the body is dropped; no fixed population bound is enforced.
+   * @evidence contracts/development/design.md#principled-representation Faces share one indexed mesh, while the original blend publications identify the surfaces later joins can use.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One mutable aggregate holds assembly order and its published geometric records.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type proves no manifoldness, closure or mutation safety; draw appends to the current buffers rather than resetting them.
+   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish face, mesh and publication ownership.
    */
   export interface IBody {
     /** Name in diagnostics. */
@@ -100,13 +91,10 @@ export namespace AutoMovieSolidBody {
   /**
    * A face to add, before it has cycles.
    *
-   * @evidence contracts/common.md#principled-implementation A surface and two chart grids describe a face before assembly supplies its cycles.
-   * @evidence contracts/common.md#clear-and-simple-design Uses the same surface/grid meanings as the eventual face without pretending it already owns trims.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Finite ordered grids and an appropriate source surface remain caller premises, not validated by the shape.
-   * @evidence contracts/common.md#meaningful-documentation States that grid coordinates belong to the source surface chart.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The descriptor executes no tessellation or admission.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Input data schedules no computation; create performs only its original shallow record copy.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The producer owns the borrowed surface/grid arrays; body creation retains those references and creates fresh empty cycles.
+   * @evidence contracts/development/design.md#principled-representation A surface and two chart grids describe a face before assembly supplies its cycles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Uses the same surface/grid meanings as the eventual face without pretending it already owns trims.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Finite ordered grids and an appropriate source surface remain caller premises, not validated by the shape.
+   * @evidence contracts/development/common.md#meaningful-documentation States that grid coordinates belong to the source surface chart.
    */
   export interface IFaceInput {
     /** The surface. */
@@ -122,13 +110,10 @@ export namespace AutoMovieSolidBody {
   /**
    * One merge or diff onto the body.
    *
-   * @evidence contracts/common.md#principled-implementation One request names merge/diff, an existing or new part and the original join/publication grid inputs.
-   * @evidence contracts/common.md#clear-and-simple-design Separates body face ownership from the join's surfaces by omitting part/host in the borrowed join request.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Valid indices, count/rows and callbacks remain caller/operator premises; the type adds no numeric fallback.
-   * @evidence contracts/common.md#meaningful-documentation States index versus descriptor input, column/row meaning and original callback ownership.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The request performs no tracing, clipping or sampling.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no work; a supplied join curve remains available to the existing join owner.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns request records and callbacks; successful body state retains publications rather than the request as a new cache.
+   * @evidence contracts/development/design.md#principled-representation One request names merge/diff, an existing or new part and the original join/publication grid inputs.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Separates body face ownership from the join's surfaces by omitting part/host in the borrowed join request.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Valid indices, count/rows and callbacks remain caller/operator premises; the type adds no numeric fallback.
+   * @evidence contracts/development/common.md#meaningful-documentation States index versus descriptor input, column/row meaning and original callback ownership.
    */
   export interface IMerge {
     /** The blend chain's name. */
@@ -153,13 +138,10 @@ export namespace AutoMovieSolidBody {
   /**
    * A merge's outcome.
    *
-   * @evidence contracts/common.md#principled-implementation A nullable blend/join pair and ordered diagnostics report the original body operation.
-   * @evidence contracts/common.md#clear-and-simple-design Keeps failure information with the exact accepted join and publication without inferring success from empty diagnostics.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The shape does not turn a thrown callback into a returned rollback result or certify global geometry.
-   * @evidence contracts/common.md#meaningful-documentation Members distinguish nullable geometry from diagnostics.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This result runs no join or transaction algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record schedules no work; its join and blend are the original operator outputs.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The reader owns diagnostics and returned references; a retained join also retains its original potentially unbounded rail-query cache.
+   * @evidence contracts/development/design.md#principled-representation A nullable blend/join pair and ordered diagnostics report the original body operation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps failure information with the exact accepted join and publication without inferring success from empty diagnostics.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The shape does not turn a thrown callback into a returned rollback result or certify global geometry.
+   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish nullable geometry from diagnostics.
    */
   export interface IMerged {
     /** The published blend, or null when a premise broke. */
@@ -179,13 +161,13 @@ export namespace AutoMovieSolidBody {
    * @param faces The base faces.
    * @returns The body.
    *
-   * @evidence contracts/common.md#principled-implementation Shallow-copies each input face record, adds its fresh empty cycle array and creates the original empty mesh/blend list.
-   * @evidence contracts/common.md#clear-and-simple-design One factory initializes mutable assembly state without sampling geometry.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Retains input surface/grid references and performs no validation or deep-copy substitute.
-   * @evidence contracts/common.md#meaningful-documentation Documents the untrimmed starting body and borrowed inputs.
-   * @evidence contracts/performance.md#efficient-algorithms Linear in face descriptors, with fresh face/cycle records and empty mesh arrays.
-   * @evidence contracts/performance.md#reuse-equivalent-work Does not evaluate or rebuild surfaces; their existing objects remain the source identities.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned body owns its new containers and borrows original surface/grid data; no factory cache is retained.
+   * @evidence contracts/development/implementation.md#principled-implementation Shallow-copies each input face record, adds its fresh empty cycle array and creates the original empty mesh/blend list.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One factory initializes mutable assembly state without sampling geometry.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains input surface/grid references and performs no validation or deep-copy substitute.
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the untrimmed starting body and borrowed inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in face descriptors, with fresh face/cycle records and empty mesh arrays.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Does not evaluate or rebuild surfaces; their existing objects remain the source identities.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned body owns its new containers and borrows original surface/grid data; no factory cache is retained.
    */
   export function create(name: string, faces: IFaceInput[]): IBody {
     return {
@@ -204,13 +186,13 @@ export namespace AutoMovieSolidBody {
    * @param without A face index to leave out, or -1.
    * @returns The atlas and the body index of each atlas face.
    *
-   * @evidence contracts/common.md#principled-implementation Delegates to the same frozen-cycle host snapshot with live source surfaces and original body-index mapping.
-   * @evidence contracts/common.md#clear-and-simple-design Retains the public atlas API while the assembly owner keeps snapshot logic beside its transaction.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves kept/across callbacks, chart-foot ranking and open-neighbour nulls; inclusive-boundary limitations remain.
-   * @evidence contracts/common.md#meaningful-documentation States captured trim state versus borrowed surface data.
-   * @evidence contracts/performance.md#efficient-algorithms Includes O(F+S) snapshot work and later per-face cycle/segment scans in the helper.
-   * @evidence contracts/performance.md#reuse-equivalent-work One returned atlas shares its original frozen cycles and back-index map across queries.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains captured cycles/maps and surfaces until dropping the atlas; the façade adds no cache.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the same frozen-cycle host snapshot with live source surfaces and original body-index mapping.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Retains the public atlas API while the assembly owner keeps snapshot logic beside its transaction.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves kept/across callbacks, chart-foot ranking and open-neighbour nulls; inclusive-boundary limitations remain.
+   * @evidence contracts/development/common.md#meaningful-documentation States captured trim state versus borrowed surface data.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Includes O(F+S) snapshot work and later per-face cycle/segment scans in the helper.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One returned atlas shares its original frozen cycles and back-index map across queries.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller retains captured cycles/maps and surfaces until dropping the atlas; the façade adds no cache.
    */
   export function atlas(
     body: IBody,
@@ -226,13 +208,13 @@ export namespace AutoMovieSolidBody {
    * @param input The merge.
    * @returns The blend or null with observed diagnostics. Returned rail/trim failures restore face count, copied cycles and mesh populations; thrown callbacks are not caught or rolled back.
    *
-   * @evidence contracts/common.md#principled-implementation Calls the unchanged transactional assembly with the same body and input references.
-   * @evidence contracts/common.md#clear-and-simple-design Maintains the public namespace/signature while the merge owner contains the complete operation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not catch, retry, alter diagnostics or expand the checkpoint; returned failure and thrown effects remain distinct.
-   * @evidence contracts/common.md#meaningful-documentation States in-place assembly and the original returned-failure rollback scope.
-   * @evidence contracts/performance.md#efficient-algorithms Includes checkpoint, atlas, join, publication and clipping costs, not just the delegation call.
-   * @evidence contracts/performance.md#reuse-equivalent-work The helper preserves shared boundary indices and supplied trace reuse at their original owners.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Successful body data and returned join/blend references retain their original populations; no extra façade state survives.
+   * @evidence contracts/development/implementation.md#principled-implementation Calls the unchanged transactional assembly with the same body and input references.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Maintains the public namespace/signature while the merge owner contains the complete operation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not catch, retry, alter diagnostics or expand the checkpoint; returned failure and thrown effects remain distinct.
+   * @evidence contracts/development/common.md#meaningful-documentation States in-place assembly and the original returned-failure rollback scope.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Includes checkpoint, atlas, join, publication and clipping costs, not just the delegation call.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The helper preserves shared boundary indices and supplied trace reuse at their original owners.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Successful body data and returned join/blend references retain their original populations; no extra façade state survives.
    */
   export function merge(body: IBody, input: IMerge): IMerged {
     return AutoMovieSolidBodyMerge.merge(body, input);
@@ -245,13 +227,13 @@ export namespace AutoMovieSolidBody {
    * @param onFailure Optional face-name/detail receiver for named planning failures; absence preserves the throwing default.
    * @returns Each face's explicit native boundary occurrences and complete endpoint classification, by face.
    *
-   * @evidence contracts/common.md#principled-implementation Draws every face on its original grid and cycles into the existing shared mesh.
-   * @evidence contracts/common.md#clear-and-simple-design One ordered face map preserves explicit chart/winding/end records and adapts a present diagnostic callback to its actual face name.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not install a no-op callback when none was supplied; named refusal then throws. A supplied receiver can leave other faces and seams present, so its result may be partial. Repeated draws still append again.
-   * @evidence contracts/common.md#meaningful-documentation States mesh mutation, callback/default exception semantics and explicit occurrence ownership.
-   * @evidence contracts/performance.md#efficient-algorithms Includes each face's grid, constrained residual triangulation, incidence and callback costs.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reads existing shared rail vertices and surface owners instead of independently welding boundaries.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The body retains appended geometry; temporary face work expires and returned open-cycle arrays belong to the caller.
+   * @evidence contracts/development/implementation.md#principled-implementation Draws every face on its original grid and cycles into the existing shared mesh.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered face map preserves explicit chart/winding/end records and adapts a present diagnostic callback to its actual face name.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not install a no-op callback when none was supplied; named refusal then throws. A supplied receiver can leave other faces and seams present, so its result may be partial. Repeated draws still append again.
+   * @evidence contracts/development/common.md#meaningful-documentation States mesh mutation, callback/default exception semantics and explicit occurrence ownership.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Includes each face's grid, constrained residual triangulation, incidence and callback costs.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads existing shared rail vertices and surface owners instead of independently welding boundaries.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body retains appended geometry; temporary face work expires and returned open-cycle arrays belong to the caller.
    */
   export function draw(
     body: IBody,
@@ -287,13 +269,10 @@ export namespace AutoMovieSolidBody {
    * makes one vertex per point, so the faces share their boundaries as the
    * body does.
    *
-   * @evidence contracts/common.md#principled-implementation Renumbers shared cycle vertex indices into boundary point identities and names each evaluating chain/chart.
-   * @evidence contracts/common.md#clear-and-simple-design A serializable boundary projection omits surface callbacks and full interior tessellation buffers.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves domain versus cut roles through serialization; carries inversion without proving closed topology, standalone source availability or repaired geometry.
-   * @evidence contracts/common.md#meaningful-documentation States chain/chart correspondence and that faces reference shared point identifiers.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This data type performs no remapping; publish owns its linear boundary traversal.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no work; shared point identifiers avoid duplicating the same boundary vertex in its projection.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns detached face/cycle/chart arrays sized by boundary records; no body mesh or evaluator closure is retained by the produced projection.
+   * @evidence contracts/development/design.md#principled-representation Renumbers shared cycle vertex indices into boundary point identities and names each evaluating chain/chart.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A serializable boundary projection omits surface callbacks and full interior tessellation buffers.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Preserves domain versus cut roles through serialization; carries inversion without proving closed topology, standalone source availability or repaired geometry.
+   * @evidence contracts/development/common.md#meaningful-documentation States chain/chart correspondence and that faces reference shared point identifiers.
    */
   export interface IPublished {
     /** Name in diagnostics. */
@@ -337,13 +316,13 @@ export namespace AutoMovieSolidBody {
    * @param body The body, its faces' surfaces named after their chains.
    * @returns The published body.
    *
-   * @evidence contracts/common.md#principled-implementation Publishes original domain authorities and actual trim cycles into separate fields, assigning one shared point to each first-seen mesh index across both roles.
-   * @evidence contracts/common.md#clear-and-simple-design One map preserves shared boundary identity while projecting owners to chain names and chart coordinates.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not include the full mesh or certify geometry; valid owner coordinates are the current body premise.
-   * @evidence contracts/common.md#meaningful-documentation States renumbering, original-domain versus cutting roles, actual sampling bounds distinct from source ownership, chain/chart identity and detached boundary charts.
-   * @evidence contracts/performance.md#efficient-algorithms Linear in faces and boundary records, with one expected-constant map lookup per referenced vertex.
-   * @evidence contracts/performance.md#reuse-equivalent-work The same mesh index reuses its earlier published identifier across all faces.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns fresh boundary/face/chart arrays; the local index map and body reference are not retained by that projection.
+   * @evidence contracts/development/implementation.md#principled-implementation Publishes original domain authorities and actual trim cycles into separate fields, assigning one shared point to each first-seen mesh index across both roles.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One map preserves shared boundary identity while projecting owners to chain names and chart coordinates.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not include the full mesh or certify geometry; valid owner coordinates are the current body premise.
+   * @evidence contracts/development/common.md#meaningful-documentation States renumbering, original-domain versus cutting roles, actual sampling bounds distinct from source ownership, chain/chart identity and detached boundary charts.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in faces and boundary records, with one expected-constant map lookup per referenced vertex.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same mesh index reuses its earlier published identifier across all faces.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh boundary/face/chart arrays; the local index map and body reference are not retained by that projection.
    */
   export function publish(body: IBody): IPublished {
     /** Renumber each first-seen boundary vertex once. */
@@ -414,13 +393,13 @@ export namespace AutoMovieSolidBody {
    * @param v Its `v`.
    * @returns True when kept.
    *
-   * @evidence contracts/common.md#principled-implementation Delegates the same ordered conjunction of current cycle predicates using the surface's period.
-   * @evidence contracts/common.md#clear-and-simple-design Keeps the public face reader while atlas/assembly share its actual implementation owner.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no boundary tolerance or domain policy; current parity does not certify inclusive boundary ownership.
-   * @evidence contracts/common.md#meaningful-documentation States the live kept-side query and its boolean result.
-   * @evidence contracts/performance.md#efficient-algorithms Includes the helper's reached cycle/segment scans.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reads current face cycles without introducing a stale query cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a scalar without retaining the face or coordinates.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the same ordered conjunction of current cycle predicates using the surface's period.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Keeps the public face reader while atlas/assembly share its actual implementation owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no boundary tolerance or domain policy; current parity does not certify inclusive boundary ownership.
+   * @evidence contracts/development/common.md#meaningful-documentation States the live kept-side query and its boolean result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Includes the helper's reached cycle/segment scans.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads current face cycles without introducing a stale query cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar without retaining the face or coordinates.
    */
   export function kept(face: IFace, u: number, v: number): boolean {
     return AutoMovieSolidBodyMerge.kept(face, u, v);

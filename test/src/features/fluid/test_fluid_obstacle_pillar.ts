@@ -58,10 +58,11 @@ const withPillar: () => IAutoMovieFluidDomain = (): IAutoMovieFluidDomain => {
  *    diverts the flow rather than damming the pond.
  * 4. Mass balance closes around the obstacle: nothing is lost inside it.
  *
- * @evidence contracts/testing.md#behavioral-verification Simulates a fed basin with a central solid pillar at steps 1, 60 and 400, requiring zero pillar depth and all four adjacent velocities while flow reaches behind it and volume closes.
- * @evidence contracts/testing.md#independent-expectations A solid cell holds no water and every adjacent face reflects; authored depth times cell area plus booked source determines volume, with no implementation output used to manufacture the expected dry faces.
- * @evidence contracts/testing.md#distinguishing-cases Keeps the interior obstacle exposed on all four sides, the downstream wet cell and sampled mass balance; boundary walls, raised dry bed and larger channel circulation are separate entries.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns the three portable CPU simulations and field assertions through actual engine calls, without mesh generation, renderer or real host.
+ * @evidence contracts/development/testing.md#behavioral-verification Simulates a fed basin with a central solid pillar at steps 1, 60 and 400, requiring zero pillar depth and all four adjacent velocities while flow reaches behind it and volume closes.
+ * @evidence contracts/development/testing.md#independent-expectations A solid cell holds no water and every adjacent face reflects; authored depth times cell area plus booked source determines volume, with no implementation output used to manufacture the expected dry faces.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps the interior obstacle exposed on all four sides, the downstream wet cell and sampled mass balance; boundary walls, raised dry bed and larger channel circulation are separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns the three portable CPU simulations and field assertions through actual engine calls, without mesh generation, renderer or real host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The pillar holds exactly zero water at every sampled step, even while a jet).
  */
 export function test_fluid_obstacle_pillar(): void {
   const domain: ReturnType<typeof withPillar> = withPillar();

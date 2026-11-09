@@ -76,10 +76,11 @@ const meshesUnder: (root: THREE.Object3D) => THREE.Mesh[] = (
  * 3. Grid, line, points and sprite nodes retain their excluded flags.
  * 4. A later mesh receives participation while reapplication preserves prior model flags.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual model/scene builders and participation projection, checking mesh flags, semantic support exclusion and nonmesh state before and after reapplication.
- * @evidence contracts/testing.md#independent-expectations Authored model/support roles and separately retained pre-pass flags define expectations; flags alone do not certify submitted shadows, pixels or GPU depth storage.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts model/support meshes, grid/line/points/sprite nodes, a late mesh and an unchanged second projection so blanket Object3D marking fails.
- * @evidence contracts/testing.md#execution-ownership The named entry owns actual CPU Three graphs and existing portable model inputs; it creates no native renderer/browser, captures no production image and replaces no foreign method.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual model/scene builders and participation projection, checking mesh flags, semantic support exclusion and nonmesh state before and after reapplication.
+ * @evidence contracts/development/testing.md#independent-expectations Authored model/support roles and separately retained pre-pass flags define expectations; flags alone do not certify submitted shadows, pixels or GPU depth storage.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts model/support meshes, grid/line/points/sprite nodes, a late mesh and an unchanged second projection so blanket Object3D marking fails.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry owns actual CPU Three graphs and existing portable model inputs; it creates no native renderer/browser, captures no production image and replaces no foreign method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Built model meshes cast and receive shadows by their CPU participation flags.).
  */
 export async function test_viewer_shadow_participation(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

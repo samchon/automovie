@@ -24,10 +24,11 @@ import { material } from "../internal/renderFixtures";
  * 4. Inherited upload flags split a shared source; their target identity and
  *    retained runtime extents change deterministically.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises actual residency closure admission, unknown-bound propagation and texture digest identity with scoped sources, environment derivatives, retained scratch and display compositor metadata.
- * @evidence contracts/testing.md#independent-expectations Two compositors independently require six RGBA8 copies and 576 bytes; source variants cost 64 bytes each and the retained lookup costs 1024, while refusal fragments identify the violated ownership rule.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts complete and missing sharing authority, identical and contradictory scoped facts, blank/duplicate owners, invalid retained extents and order-preserving versus extent-changing digests.
- * @evidence contracts/testing.md#execution-ownership Owns synchronous supplied context metadata and invokes the actual closure and digest functions through the portable runner; compositor and retained-target records represent facts supplied by the test, not observed renderer allocations or disposal.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises actual residency closure admission, unknown-bound propagation and texture digest identity with scoped sources, environment derivatives, retained scratch and display compositor metadata.
+ * @evidence contracts/development/testing.md#independent-expectations Two compositors independently require six RGBA8 copies and 576 bytes; source variants cost 64 bytes each and the retained lookup costs 1024, while refusal fragments identify the violated ownership rule.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts complete and missing sharing authority, identical and contradictory scoped facts, blank/duplicate owners, invalid retained extents and order-preserving versus extent-changing digests.
+ * @evidence contracts/development/testing.md#execution-ownership Owns synchronous supplied context metadata and invokes the actual closure and digest functions through the portable runner; compositor and retained-target records represent facts supplied by the test, not observed renderer allocations or disposal.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Missing source/upload/environment clone identity remains unbounded beside).
  */
 export function test_render_texture_residency_refusals(): void {
   const m: ReturnType<typeof material> = material("m", "image");

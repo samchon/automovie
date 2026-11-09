@@ -29,10 +29,11 @@ import { vclose } from "../internal/predicates";
  *    and `knightB`'s `attach` becomes `mounts[0]` (parent `knightA`, bone
  *    `chest`).
  *
- * @evidence contracts/testing.md#behavioral-verification Stages both actors, two camera target spellings, a directional light and a valid mount; observes node/model identities, rotated facing/aim axes and the mount record.
- * @evidence contracts/testing.md#independent-expectations Literal cast/model fallback keys, plus/minus Z facing and authored camera displacement vectors define the expectations; normalized directions and vclose compare physical aim rather than recorded quaternions. Product normalization/rotation helpers participate in these comparisons, so shared math faults are not independently excluded.
- * @evidence contracts/testing.md#distinguishing-cases Owns successful modelRef and null fallback, zero/180-degree facing, node/point camera targets and a distinct placed mount parent; malformed identities, references, mounts and lights are separate entries.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit directly owns its scene-record and math assertions through portable engine staging; it does not run a performed shot, render pixels or establish visual quality.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages both actors, two camera target spellings, a directional light and a valid mount; observes node/model identities, rotated facing/aim axes and the mount record.
+ * @evidence contracts/development/testing.md#independent-expectations Literal cast/model fallback keys, plus/minus Z facing and authored camera displacement vectors define the expectations; normalized directions and vclose compare physical aim rather than recorded quaternions. Product normalization/rotation helpers participate in these comparisons, so shared math faults are not independently excluded.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns successful modelRef and null fallback, zero/180-degree facing, node/point camera targets and a distinct placed mount parent; malformed identities, references, mounts and lights are separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit directly owns its scene-record and math assertions through portable engine staging; it does not run a performed shot, render pixels or establish visual quality.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two placed knights → success with two nodes; `knightA` keeps its cast).
  */
 export function test_film_stage_scene_valid(): void {
   const staged: ReturnType<typeof stageScene> = stageScene(

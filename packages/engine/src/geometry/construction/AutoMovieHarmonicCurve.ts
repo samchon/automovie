@@ -24,25 +24,22 @@
  * `[x0, x1c, x1s, ..., xKc, xKs, z0, z1c, z1s, ..., zKc, zKs]`,
  * `2 * (2K + 1)` numbers in total.
  *
- * @evidence contracts/common.md#principled-implementation A section as a truncated Fourier series is the band-limited closed curve its harmonics define, with exact phase derivatives from the same coefficients.
- * @evidence contracts/common.md#clear-and-simple-design One coefficient layout, evaluated with its derivatives by one routine.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Derivatives are the series' own, never differences of sampled points.
- * @evidence contracts/common.md#meaningful-documentation States the coefficient layout, the harmonic order and the derivatives returned.
- * @evidence contracts/performance.md#efficient-algorithms Evaluation scans K harmonics; direct projection scans N samples for each harmonic, without a dense least-squares matrix.
- * @evidence contracts/performance.md#reuse-equivalent-work Each computed harmonic sine and cosine serves both coordinates and their derivatives; no cross-call cache is owned.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Evaluation returns four numbers; projection returns O(K) coefficients and retains no input or global buffer.
+ * @evidence contracts/development/common.md#meaningful-documentation States the coefficient layout, the harmonic order and the derivatives returned.
+ * @evidence contracts/development/design.md#principled-representation Represents Closed planar curve written as a truncated Fourier series per coordinate: companion namespace of 3 members (`width`, `evaluate`, `project`); units and frames named in its text: radians, radian. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieHarmonicCurve` in packages/engine/src/geometry/construction/AutoMovieHarmonicCurve.ts; its surface is the 3 members listed and the text shows 4 other files naming it, mostly packages/engine (4), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieHarmonicCurve {
   /**
    * Number of coefficients of one coordinate series of the given order.
    *
-   * @evidence contracts/common.md#principled-implementation One constant and one sine/cosine pair per harmonic give 2K+1 entries for a nonnegative integer order.
-   * @evidence contracts/common.md#clear-and-simple-design The layout arithmetic lives beside the series readers that use its offset.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Returns the supplied order's width without rounding or choosing a consumer-specific order; validation belongs to the producer.
-   * @evidence contracts/common.md#meaningful-documentation Identifies a single coordinate block rather than the two-coordinate array's total size.
-   * @evidence contracts/performance.md#efficient-algorithms One multiplication and addition take constant time and space.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This scalar layout calculation coordinates no phases or requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returning a number retains no state or handle.
+   * @evidence contracts/development/implementation.md#principled-implementation One constant and one sine/cosine pair per harmonic give 2K+1 entries for a nonnegative integer order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The layout arithmetic lives beside the series readers that use its offset.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Returns the supplied order's width without rounding or choosing a consumer-specific order; validation belongs to the producer.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies a single coordinate block rather than the two-coordinate array's total size.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One multiplication and addition take constant time and space.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This scalar layout calculation coordinates no phases or requests.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returning a number retains no state or handle.
    */
   export function width(order: number): number {
     return 2 * order + 1;
@@ -56,13 +53,13 @@ export namespace AutoMovieHarmonicCurve {
    * @param t Phase in radians.
    * @returns `[x, z, dx/dt, dz/dt]` in mm and mm per radian.
    *
-   * @evidence contracts/common.md#principled-implementation Evaluates the declared finite Fourier sum and its analytic phase derivative; the producer supplies K complete coefficient pairs in each block.
-   * @evidence contracts/common.md#clear-and-simple-design Values and first derivatives share one harmonic loop and one four-number result.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the coefficients' own derivatives without sampled differences, clipping or shape-specific terms.
-   * @evidence contracts/common.md#meaningful-documentation Gives the coefficient layout, harmonic count, phase units and returned derivative units.
-   * @evidence contracts/performance.md#efficient-algorithms O(K) arithmetic and two trigonometric calls per harmonic, with O(1) working storage; no recurrence or measured speedup is claimed.
-   * @evidence contracts/performance.md#reuse-equivalent-work Each sine/cosine pair contributes to both coordinate values and derivatives in that iteration.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the caller-owned four-number tuple escapes; coefficients are read without mutation or retention.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the declared finite Fourier sum and its analytic phase derivative; the producer supplies K complete coefficient pairs in each block.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Values and first derivatives share one harmonic loop and one four-number result.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the coefficients' own derivatives without sampled differences, clipping or shape-specific terms.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives the coefficient layout, harmonic count, phase units and returned derivative units.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(K) arithmetic and two trigonometric calls per harmonic, with O(1) working storage; no recurrence or measured speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each sine/cosine pair contributes to both coordinate values and derivatives in that iteration.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the caller-owned four-number tuple escapes; coefficients are read without mutation or retention.
    */
   export function evaluate(
     coefficients: readonly number[],
@@ -110,13 +107,13 @@ export namespace AutoMovieHarmonicCurve {
    * @param samples `[x, z]` points in mm at phases `2*pi*i/n`.
    * @param order Highest harmonic K.
    *
-   * @evidence contracts/common.md#principled-implementation Uniform phases with N>2K make the Fourier columns orthogonal, so their direct weighted projections solve the stated least-squares problem up to floating-point summation.
-   * @evidence contracts/common.md#clear-and-simple-design The two coordinate blocks accumulate together instead of constructing a general normal-equation solver.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects too few samples; uniform phase spacing and a valid nonnegative integer order remain caller premises rather than inferred geometry.
-   * @evidence contracts/common.md#meaningful-documentation States uniform sample phases, the orthogonality premise and the coefficient units/layout.
-   * @evidence contracts/performance.md#efficient-algorithms O(NK) direct projection and O(K) output avoid a dense matrix; no FFT or optimality for arbitrarily large K is claimed.
-   * @evidence contracts/performance.md#reuse-equivalent-work A sample's weighted sine/cosine serves both coordinates; completed projections are returned for the caller to reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates one 2(2K+1)-entry output; no sample or transform state remains in this module.
+   * @evidence contracts/development/implementation.md#principled-implementation Uniform phases with N>2K make the Fourier columns orthogonal, so their direct weighted projections solve the stated least-squares problem up to floating-point summation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The two coordinate blocks accumulate together instead of constructing a general normal-equation solver.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rejects too few samples; uniform phase spacing and a valid nonnegative integer order remain caller premises rather than inferred geometry.
+   * @evidence contracts/development/common.md#meaningful-documentation States uniform sample phases, the orthogonality premise and the coefficient units/layout.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(NK) direct projection and O(K) output avoid a dense matrix; no FFT or optimality for arbitrarily large K is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A sample's weighted sine/cosine serves both coordinates; completed projections are returned for the caller to reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates one 2(2K+1)-entry output; no sample or transform state remains in this module.
    */
   export function project(
     samples: readonly (readonly [number, number])[],

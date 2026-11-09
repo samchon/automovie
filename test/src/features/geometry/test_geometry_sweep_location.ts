@@ -35,10 +35,11 @@ const NEAR: number = 0.01;
  * 2. A cage of another network, a face out of range, a non-quad face and
  *    coordinates outside 0 to 1 are refused.
  *
- * @evidence contracts/testing.md#behavioral-verification Locates every subdivided vertex with `locateAutoMovieSurfaceVertices` and evaluates the sweep at each domain point; a swapped or unscaled chart, a wrong patch or a missing patch kind fails, while the chart composition passes.
- * @evidence contracts/testing.md#independent-expectations The expected point is the sweep itself from `compileAutoMovieSweep`, independent of the cage; the swapped reading is measured beside it, so the bound is shown to distinguish; the patch kinds come from the fixtures' declarations.
- * @evidence contracts/testing.md#distinguishing-cases Covers sweep, transition and Coons patches, a seam spanning a whole turn and each refusal; displacement by the located field is owned by the displacement test.
- * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_location` entry with no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Locates every subdivided vertex with `locateAutoMovieSurfaceVertices` and evaluates the sweep at each domain point; a swapped or unscaled chart, a wrong patch or a missing patch kind fails, while the chart composition passes.
+ * @evidence contracts/development/testing.md#independent-expectations The expected point is the sweep itself from `compileAutoMovieSweep`, independent of the cage; the swapped reading is measured beside it, so the bound is shown to distinguish; the patch kinds come from the fixtures' declarations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers sweep, transition and Coons patches, a seam spanning a whole turn and each refusal; displacement by the located field is owned by the displacement test.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_location` entry with no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The bottle and the tube that changes column count, at the medium tier).
  */
 export function test_geometry_sweep_location(): void {
   for (const [name, network] of [

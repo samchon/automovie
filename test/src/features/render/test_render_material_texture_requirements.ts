@@ -23,10 +23,11 @@ import { material } from "../internal/renderFixtures";
  * 2. Missing lookup roles remain unknown; supplied R16F facts give 4096 bytes once across scopes, and material removal retains that declared context storage.
  * 3. Unknown area-light facts in another PBR scope refuse, and data table order cannot change a complete context's stable allocation rows.
  *
- * @evidence contracts/testing.md#behavioral-verification Derives actual implicit texture roles and closure rows, refusing missing current lookup facts while retaining certified shared tables after material removal.
- * @evidence contracts/testing.md#independent-expectations The declared zero-radius SSS, overlay-normal fallback and PBR rectangular-light rules determine role names; 64 times 32 times two bytes gives the independent R16F table bound. These are supplied texture facts, not measurements of native allocation.
- * @evidence contracts/testing.md#distinguishing-cases Zero radius, base/detail normal presence, absent normal overlays, no PBR consumer, missing/retained-only facts, shared scopes and reversed runtime rows preserve positive and unknown twins.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_material_texture_requirements owns its cases. Portable lookup-role and storage accounting without building a table, uploading pixels or opening a GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Derives actual implicit texture roles and closure rows, refusing missing current lookup facts while retaining certified shared tables after material removal.
+ * @evidence contracts/development/testing.md#independent-expectations The declared zero-radius SSS, overlay-normal fallback and PBR rectangular-light rules determine role names; 64 times 32 times two bytes gives the independent R16F table bound. These are supplied texture facts, not measurements of native allocation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Zero radius, base/detail normal presence, absent normal overlays, no PBR consumer, missing/retained-only facts, shared scopes and reversed runtime rows preserve positive and unknown twins.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_material_texture_requirements owns its cases. Portable lookup-role and storage accounting without building a table, uploading pixels or opening a GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Zero-radius SSS still requires its table; overlay normal fallback appears only without base/detail normal, and PBR area lights require...).
  */
 export function test_render_material_texture_requirements(): void {
   const plain: IAutoMovieMaterial = material("plain");

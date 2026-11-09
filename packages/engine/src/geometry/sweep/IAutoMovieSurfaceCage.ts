@@ -14,13 +14,10 @@ import { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
  * `(patch, s, t)`, so a point bound on one tier is found on another by
  * `mapAutoMovieSurfaceTier`.
  *
- * @evidence contracts/common.md#principled-implementation Positions plus face-varying UVs make the standard subdivision cage, and the published `(patch, s, t)` corner coordinates are the shared chart that links tiers.
- * @evidence contracts/common.md#clear-and-simple-design The subdivision input is the engine's own cage record, so sampling adds only what tiers, rings and fitting need beside it.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Targets and pins are reported beside the fitted controls, so a caller can measure the fit rather than trust it.
- * @evidence contracts/common.md#meaningful-documentation States what stays fixed within a tier, what the coordinates are and how tiers are linked.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A record; sampling cost is answered on `sampleAutoMovieSurfaceNetwork`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record owned by its caller.
+ * @evidence contracts/development/design.md#principled-representation Positions plus face-varying UVs make the standard subdivision cage, and the published `(patch, s, t)` corner coordinates are the shared chart that links tiers.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The subdivision input is the engine's own cage record, so sampling adds only what tiers, rings and fitting need beside it.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Targets and pins are reported beside the fitted controls, so a caller can measure the fit rather than trust it.
+ * @evidence contracts/development/common.md#meaningful-documentation States what stays fixed within a tier, what the coordinates are and how tiers are linked.
  */
 export interface IAutoMovieSurfaceCage {
   /** The tier sampled. */
@@ -67,13 +64,10 @@ export namespace IAutoMovieSurfaceCage {
   /**
    * One patch's grid at the tier.
    *
-   * @evidence contracts/common.md#principled-implementation A patch's grid is its row and column counts and its faces in row-major order, which is all the chart inversion needs; a band that is no grid says so and is inverted face by face.
-   * @evidence contracts/common.md#clear-and-simple-design Three numbers and one index list per patch; the faces themselves live once in the cage.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Counts are the tier's declared counts, never inferred from positions.
-   * @evidence contracts/common.md#meaningful-documentation States the row-major face order and how face `(i, j)` is found.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `sampleAutoMovieSurfaceNetwork`.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
+   * @evidence contracts/development/design.md#principled-representation A patch's grid is its row and column counts and its faces in row-major order, which is all the chart inversion needs; a band that is no grid says so and is inverted face by face.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Three numbers and one index list per patch; the faces themselves live once in the cage.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Counts are the tier's declared counts, never inferred from positions.
+   * @evidence contracts/development/common.md#meaningful-documentation States the row-major face order and how face `(i, j)` is found.
    */
   export interface IPatch {
     /** The patch's name. */

@@ -78,10 +78,11 @@ const WARM: { r: number; g: number; b: number; a: null; hex: null } = {
  * 9. An unknown runtime discriminator is refused at `type`; it cannot fall through
  * to the directional default and enter a committed scene.
  *
- * @evidence contracts/testing.md#behavioral-verification Stages legacy, point and spot writes and observes lowered fields/defaults and located refusals for unsupported or missing per-kind operands, then invokes the original numeric/color/discriminator boundary group.
- * @evidence contracts/testing.md#independent-expectations Authored values, neutral-white/infinite-range/45-degree defaults and the closed per-kind rules provide expectations; role deletion is a metamorphic lowering check and all observations remain CPU scene records rather than rendered light evidence.
- * @evidence contracts/testing.md#distinguishing-cases Preserves every legacy/roleless/point/spot/default case, all eight originally malformed per-kind writes and every delegated finite/color/discriminator boundary; area and shadow-specific neighbors belong to their existing entries.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_stage_light_axis and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages legacy, point and spot writes and observes lowered fields/defaults and located refusals for unsupported or missing per-kind operands, then invokes the original numeric/color/discriminator boundary group.
+ * @evidence contracts/development/testing.md#independent-expectations Authored values, neutral-white/infinite-range/45-degree defaults and the closed per-kind rules provide expectations; role deletion is a metamorphic lowering check and all observations remain CPU scene records rather than rendered light evidence.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves every legacy/roleless/point/spot/default case, all eight originally malformed per-kind writes and every delegated finite/color/discriminator boundary; area and shadow-specific neighbors belong to their existing entries.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_stage_light_axis and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Compatibility: the pre-existing `{node, role, direction, intensity}` shape).
  */
 export function test_film_stage_light_axis(): void {
   // 1. Compatibility: the legacy four-field shape is unchanged.

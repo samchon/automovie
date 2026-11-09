@@ -7,7 +7,7 @@ import type { IAutoMovieArtifactStore } from "../../../../packages/engine/src/ca
 import { composeAutoMovieArtifactKey } from "../../../../packages/engine/src/cache/composeAutoMovieArtifactKey";
 import { resolveAutoMovieArtifact } from "../../../../packages/engine/src/cache/resolveAutoMovieArtifact";
 import { createAutoMovieHttpArtifactStore } from "../../../../packages/render/src/cache/createAutoMovieHttpArtifactStore";
-import { createAutoMovieArtifactMiddleware } from "../../../../packages/render/src/node/cache/createAutoMovieArtifactMiddleware";
+import { createAutoMovieArtifactMiddleware } from "../../../../packages/template/scaffold/src/integrations/render/node/cache/createAutoMovieArtifactMiddleware";
 
 /**
  * A page-side HTTP store and the server middleware carry verified entries.
@@ -29,8 +29,7 @@ export async function test_render_artifact_http_store(): Promise<void> {
   const backing: IAutoMovieArtifactStore = {
     read: async (
       key: string,
-    ): Promise<IAutoMovieArtifactStore.IEntry | undefined> =>
-      entries.get(key),
+    ): Promise<IAutoMovieArtifactStore.IEntry | undefined> => entries.get(key),
     write: async (
       key: string,
       entry: IAutoMovieArtifactStore.IEntry,
@@ -50,8 +49,9 @@ export async function test_render_artifact_http_store(): Promise<void> {
   });
   try {
     const base: string = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
-    const store: IAutoMovieArtifactStore =
-      createAutoMovieHttpArtifactStore(`${base}/`);
+    const store: IAutoMovieArtifactStore = createAutoMovieHttpArtifactStore(
+      `${base}/`,
+    );
     const key: string = composeAutoMovieArtifactKey({
       stage: "test",
       version: "1",
@@ -100,8 +100,9 @@ export async function test_render_artifact_http_store(): Promise<void> {
       (await fetch(`${base}/elsewhere`)).status,
       404,
     );
-    await TestValidator.error("malformed key", (): Promise<unknown> =>
-      store.read("sha256:xyz"),
+    await TestValidator.error(
+      "malformed key",
+      (): Promise<unknown> => store.read("sha256:xyz"),
     );
   } finally {
     await new Promise<unknown>((resolve: (value: unknown) => void): void => {

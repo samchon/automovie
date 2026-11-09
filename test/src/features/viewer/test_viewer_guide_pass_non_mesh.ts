@@ -89,10 +89,11 @@ const STRUCTURAL: AutoMovieGuidePass[] = [
  * 2. `beauty` leaves every non-mesh renderable visible (no override at all).
  * 3. Pose hides existing helpers while keeping its own subsequently added skeleton overlay visible.
  *
- * @evidence contracts/testing.md#behavioral-verification Applies each structural mode to a built scene carrying actual grid/line/point/sprite objects and restores it, then checks a newly created pose overlay separately; catches helper visibility bleeding into guides or suspension hiding the pass's own overlay.
- * @evidence contracts/testing.md#independent-expectations Original visibility flags and the fixed pre-existing helper population define expected hide/restore behavior; beauty preserves those flags and pose creates its own overlay after suspension. These object-state checks do not observe pixels or submitted draws.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts every structural mode with beauty and pre-existing visible helpers with the pose-owned overlay; initially hidden helper restoration, shader/material behavior and disposal have separate coverage obligations.
- * @evidence contracts/testing.md#execution-ownership This named synchronous entry uses existing generic model fixtures, maintained Viewer source and CPU-side native Three objects; it restores every pass and launches no renderer, browser, process or dynamic test registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies each structural mode to a built scene carrying actual grid/line/point/sprite objects and restores it, then checks a newly created pose overlay separately; catches helper visibility bleeding into guides or suspension hiding the pass's own overlay.
+ * @evidence contracts/development/testing.md#independent-expectations Original visibility flags and the fixed pre-existing helper population define expected hide/restore behavior; beauty preserves those flags and pose creates its own overlay after suspension. These object-state checks do not observe pixels or submitted draws.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts every structural mode with beauty and pre-existing visible helpers with the pose-owned overlay; initially hidden helper restoration, shader/material behavior and disposal have separate coverage obligations.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous entry uses existing generic model fixtures, maintained Viewer source and CPU-side native Three objects; it restores every pass and launches no renderer, browser, process or dynamic test registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Each structural pass hides the existing non-mesh renderables and restore makes them visible again.).
  */
 export function test_viewer_guide_pass_non_mesh(): void {
   // 1. every structural pass hides non-mesh renderables, restore returns them.

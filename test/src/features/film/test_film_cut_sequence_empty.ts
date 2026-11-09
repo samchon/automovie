@@ -13,10 +13,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * 1. `fps: 0` and `entries: []` in one write → a `range` violation on `$input.fps`
  *    and a `type` violation on `$input.entries`.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls cutSequence with zero frame rate and no entries and requires both range and type findings on their respective fields, catching a gate that returns success or reports only one independent cause.
- * @evidence contracts/testing.md#independent-expectations A film's positive finite frame rate and nonempty cut contract independently exclude zero and an empty list; the expected violation kinds and paths identify each failed field without reading a generated sequence.
- * @evidence contracts/testing.md#distinguishing-cases Owns the simultaneous zero-rate and empty-entry boundary with no source shots; valid nonempty assembly, nonfinite timing and malformed individual entries have separate cutSequence tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_cut_sequence_empty entry owns its single in-process gate call and lazily evaluates shared namedFacts without registering cases or starting a real host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls cutSequence with zero frame rate and no entries and requires both range and type findings on their respective fields, catching a gate that returns success or reports only one independent cause.
+ * @evidence contracts/development/testing.md#independent-expectations A film's positive finite frame rate and nonempty cut contract independently exclude zero and an empty list; the expected violation kinds and paths identify each failed field without reading a generated sequence.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns the simultaneous zero-rate and empty-entry boundary with no source shots; valid nonempty assembly, nonfinite timing and malformed individual entries have separate cutSequence tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_cut_sequence_empty entry owns its single in-process gate call and lazily evaluates shared namedFacts without registering cases or starting a real host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: `fps: 0` and `entries: []` in one write → a `range` violation on `$input.fps`).
  */
 export function test_film_cut_sequence_empty(): void {
   const cut: ReturnType<typeof cutSequence> = cutSequence(

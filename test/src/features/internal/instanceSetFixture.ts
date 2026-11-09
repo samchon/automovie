@@ -3,10 +3,10 @@ import type { IAutoMovieCompiledInstanceSet } from "@automovie/interface";
 /**
  * The existing hand-built window instance set with requested slot/chunk counts and one near tier.
  *
- * @evidence contracts/testing.md#behavioral-verification Existing semantic, instancing and render-budget cases pass this compact record through real consumers and assert their observed population behavior; no compiler result is fabricated as an expectation here.
- * @evidence contracts/testing.md#independent-expectations Grid columns equal count, chunk starts use ceil(count/chunks), and each chunk count is the remaining count capped by that size. Bounds and both repeated-character digests are authored fixtures, not measured or cryptographically sealed production evidence.
- * @evidence contracts/testing.md#distinguishing-cases The caller selects id, count, chunks and an optional model; omission selects window-model. Values retain the original unvalidated arithmetic, including partial/empty or malformed requests, and all chunk bounds share one local object.
- * @evidence contracts/testing.md#execution-ownership Portable numerical input for existing discovered units, with no model build, GPU allocation, host, worker or dynamic case registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Existing semantic, instancing and render-budget cases pass this compact record through real consumers and assert their observed population behavior; no compiler result is fabricated as an expectation here.
+ * @evidence contracts/development/testing.md#independent-expectations Grid columns equal count, chunk starts use ceil(count/chunks), and each chunk count is the remaining count capped by that size. Bounds and both repeated-character digests are authored fixtures, not measured or cryptographically sealed production evidence.
+ * @evidence contracts/development/testing.md#distinguishing-cases The caller selects id, count, chunks and an optional model; omission selects window-model. Values retain the original unvalidated arithmetic, including partial/empty or malformed requests, and all chunk bounds share one local object.
+ * @evidence contracts/development/testing.md#execution-ownership Portable numerical input for existing discovered units, with no model build, GPU allocation, host, worker or dynamic case registration.
  */
 export const instanceSetFixture: (props: {
   id: string;

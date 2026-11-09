@@ -1,16 +1,16 @@
-import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
-import type { IAutoMovieRecoveryTensorFamiliesInput } from "../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
-import type { IAutoMovieRecoveryReconstruction } from "../structures/domain/IAutoMovieRecoveryReconstruction";
-import type { IAutoMovieRecoveryTensorRealization } from "../structures/domain/IAutoMovieRecoveryTensorRealization";
-import type { IAutoMovieRecoveryAnalyticRealization } from "../structures/domain/IAutoMovieRecoveryAnalyticRealization";
 import {
   IAutoMovieContourLoft64 as L,
   tessellateAutoMovieContourLoft64,
-} from "@automovie/engine/geometry/curve";
+} from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 
 import { realizeAutoMovieRecoveryAnalyticDomains } from "../reconstruction/realizeAutoMovieRecoveryAnalyticDomains";
 import { realizeAutoMovieRecoveryTensorFamilies } from "../reconstruction/realizeAutoMovieRecoveryTensorFamilies";
+import type { IAutoMovieRecoveryAnalyticRealization } from "../structures/domain/IAutoMovieRecoveryAnalyticRealization";
+import type { IAutoMovieRecoveryReconstruction } from "../structures/domain/IAutoMovieRecoveryReconstruction";
+import type { IAutoMovieRecoveryTensorFamiliesInput } from "../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
+import type { IAutoMovieRecoveryTensorRealization } from "../structures/domain/IAutoMovieRecoveryTensorRealization";
+import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
 
 /**
  * Generate saved ordinary tensor families and retained curve-only event or legacy domains.
@@ -22,13 +22,13 @@ import { realizeAutoMovieRecoveryTensorFamilies } from "../reconstruction/realiz
  * incidence or unrepresentable primitive remains a local gap rather than a quality warning.
  * Optional work observation changes timing records only; saved generating inputs are immutable.
  *
- * @evidence contracts/common.md#principled-implementation Complete cubics, observed incidence and saved tensor recipes generate independent geometry through their engine owners. A unique group-to-family partition prevents duplicate surface ownership; tensor endpoint coefficients share the admitted curve authority.
- * @evidence contracts/common.md#clear-and-simple-design Tensor-family admission and realization have one owner; the contour invocation owns the remaining groups. This adapter combines parts and actual construction while preserving separate completion and quality reports.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source geometry, source normals or source addresses are admitted. Numerical target misses and strip topology/link/orientation warnings never remove returned finite geometry. Actual unresolved incidence remains explicit without fallback or forced closure.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes displayability from qualification, work observations, shared curve authority, actual local gaps and source-independent engine generation.
- * @evidence contracts/performance.md#efficient-algorithms Saved section and report gathering are O(K+P), and delegated-group lookup is O(G). Engine owners report tensor and contour realization costs; all retained parts and construction remain in the result.
- * @evidence contracts/performance.md#reuse-equivalent-work Each family and retained contour invocation supplies its model, construction and report once; camera changes need no regeneration.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Generated model buffers, actual construction and diagnostics transfer to the caller; the adapter retains no source mesh, cache or handle.
+ * @evidence contracts/development/implementation.md#principled-implementation Complete cubics, observed incidence and saved tensor recipes generate independent geometry through their engine owners. A unique group-to-family partition prevents duplicate surface ownership; tensor endpoint coefficients share the admitted curve authority.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Tensor-family admission and realization have one owner; the contour invocation owns the remaining groups. This adapter combines parts and actual construction while preserving separate completion and quality reports.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source geometry, source normals or source addresses are admitted. Numerical target misses and strip topology/link/orientation warnings never remove returned finite geometry. Actual unresolved incidence remains explicit without fallback or forced closure.
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes displayability from qualification, work observations, shared curve authority, actual local gaps and source-independent engine generation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Saved section and report gathering are O(K+P), and delegated-group lookup is O(G). Engine owners report tensor and contour realization costs; all retained parts and construction remain in the result.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each family and retained contour invocation supplies its model, construction and report once; camera changes need no regeneration.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Generated model buffers, actual construction and diagnostics transfer to the caller; the adapter retains no source mesh, cache or handle.
  */
 export function reconstructRecovery(
   bundle: IAutoMovieRecoveryTensorFamiliesInput,
@@ -46,7 +46,8 @@ export function reconstructRecovery(
     );
   const diagnostics: string[] = [...bundle.diagnostics];
   for (let i: number = 0; i < bundle.loft.sections.length; i++) {
-    const report: IAutoMovieRecoveryMeshSections["reports"][number] = bundle.reports[i]!;
+    const report: IAutoMovieRecoveryMeshSections["reports"][number] =
+      bundle.reports[i]!;
     const section: L.ISection = bundle.loft.sections[i]!;
     if (
       report.coordinateMm !== section.coordinateMm ||

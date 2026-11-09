@@ -13,10 +13,11 @@ import { tourSceneFixture } from "../internal/tourSceneFixture";
  * 3. A rollback texture listener throws: sky cleanup still runs and both causes survive.
  * 4. A loaded scene's geometry listener throws: material, depth material, textures and sky still receive their cleanup events once.
  *
- * @evidence contracts/testing.md#behavioral-verification Directly calls loadTourScene with the existing supplied uploader/load ports and observes actual Three dispose events; cause identity and later event counts catch lost upload failures, early cleanup interruption and repeated disposal.
- * @evidence contracts/testing.md#independent-expectations Each explicitly acquired image, sky or scene resource receives one cleanup attempt, while independently supplied upload/dispose errors retain identity; event expectations follow those owned inputs rather than a captured adapter output.
- * @evidence contracts/testing.md#distinguishing-cases Preserves temple and future upload refusal cases and adds failed rollback plus successful loading with failed final cleanup and repeated receipt; other units cover texture readiness and scene projection, and CPU events do not certify native GPU release.
- * @evidence contracts/testing.md#execution-ownership The named asynchronous unit directly imports its product owner, reuses existing in-memory fixtures and supplies owned dependency callbacks; it replaces no global or foreign method and starts no browser, renderer, network or asset acquisition.
+ * @evidence contracts/development/testing.md#behavioral-verification Directly calls loadTourScene with the existing supplied uploader/load ports and observes actual Three dispose events; cause identity and later event counts catch lost upload failures, early cleanup interruption and repeated disposal.
+ * @evidence contracts/development/testing.md#independent-expectations Each explicitly acquired image, sky or scene resource receives one cleanup attempt, while independently supplied upload/dispose errors retain identity; event expectations follow those owned inputs rather than a captured adapter output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves temple and future upload refusal cases and adds failed rollback plus successful loading with failed final cleanup and repeated receipt; other units cover texture readiness and scene projection, and CPU events do not certify native GPU release.
+ * @evidence contracts/development/testing.md#execution-ownership The named asynchronous unit directly imports its product owner, reuses existing in-memory fixtures and supplies owned dependency callbacks; it replaces no global or foreign method and starts no browser, renderer, network or asset acquisition.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A temple upload failure attempts its decoded image and native sky cleanup.).
  */
 export async function test_website_tour_scene_recovery(): Promise<void> {
   const fixture: ReturnType<typeof tourSceneFixture> = tourSceneFixture();

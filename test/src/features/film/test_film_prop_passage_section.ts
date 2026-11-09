@@ -139,10 +139,11 @@ const blocked: (bounds: IAutoMoviePropBox) => string[] = (
  * against the same route blocks it the moment a section is stated, and validation refuses the undeclared record at the field that is missing.
  * 5. A probe clear of every corridor blocks nothing.
  *
- * @evidence contracts/testing.md#behavioral-verification Queries blocked passages at wide, narrow, interior-station and unstated sections, then observes the building validator's located missing-section refusal.
- * @evidence contracts/testing.md#independent-expectations Independently authored route/section widths and probe offsets determine which conservative swept boxes overlap; the fixture isolates passage bounds and does not establish containment of a furnished building.
- * @evidence contracts/testing.md#distinguishing-cases Keeps taper segments, an internal bulge, beyond-width clearance, absent section versus the same stated route and a probe clear of every corridor.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_prop_passage_section and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Queries blocked passages at wide, narrow, interior-station and unstated sections, then observes the building validator's located missing-section refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Independently authored route/section widths and probe offsets determine which conservative swept boxes overlap; the fixture isolates passage bounds and does not establish containment of a furnished building.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps taper segments, an internal bulge, beyond-width clearance, absent section versus the same stated route and a probe clear of every corridor.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_prop_passage_section and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A probe 1.5 m off the centre line blocks the 4 m-wide first segment of a).
  */
 export function test_film_prop_passage_section(): void {
   TestValidator.equals(

@@ -51,10 +51,11 @@ const KEY: IAutoMovieLight = {
  *    field values. Untouched whole-light identity is a shot-resolver contract
  *    tested by test_resolve_shot_lighting, not this direct helper.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls applyLightOverride and checks intensity/cone values, staged shadow reference preservation, optional-key absence and all staged field values under an empty override.
- * @evidence contracts/testing.md#independent-expectations A dimmer writes only intensity, so unrelated staged shadow/cone policy remains; absent optional keys stay absent and an empty override preserves authored numerical fields. This is output semantics, not a serialization digest experiment.
- * @evidence contracts/testing.md#distinguishing-cases Shadow-enabled spot and legacy point lights distinguish preservation from inventing defaults, while an empty override checks unchanged values; untouched whole-light identity and other light kinds have separate shot/area cases.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_light_shadow_fold entry executes portable synchronous reconstruction through the real helper, without rendering a shadow map or asserting GPU occlusion.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls applyLightOverride and checks intensity/cone values, staged shadow reference preservation, optional-key absence and all staged field values under an empty override.
+ * @evidence contracts/development/testing.md#independent-expectations A dimmer writes only intensity, so unrelated staged shadow/cone policy remains; absent optional keys stay absent and an empty override preserves authored numerical fields. This is output semantics, not a serialization digest experiment.
+ * @evidence contracts/development/testing.md#distinguishing-cases Shadow-enabled spot and legacy point lights distinguish preservation from inventing defaults, while an empty override checks unchanged values; untouched whole-light identity and other light kinds have separate shot/area cases.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_light_shadow_fold entry executes portable synchronous reconstruction through the real helper, without rendering a shadow map or asserting GPU occlusion.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A shadow-casting key whose intensity a clip drives keeps `castShadow` and the).
  */
 export function test_resolve_light_shadow_fold(): void {
   const dimmed: IAutoMovieLight = applyLightOverride(KEY, { intensity: 2 });

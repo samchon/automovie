@@ -151,10 +151,11 @@ const actorOn: (
  * 2. Declared fog attenuates the far frame more than the near one using the actor's live root depth. The node stays at the origin while its clip carries the travel, so staged-depth substitution would report depth-zero transmittance on both frames.
  * 3. The built FogExp2 density and its JavaScript squared-depth expression agree with sidecar predictions at the two selected depths within 1e-12. Actual shader execution is not observed.
  *
- * @evidence contracts/testing.md#behavioral-verification Plans real fog-aware sidecars and inspects a built Three FogExp2 object, detecting staged-depth substitution, omitted density or unwanted atmosphere fields.
- * @evidence contracts/testing.md#independent-expectations The authored root depths five and 25 metres and exp(-(density times depth)^2) give selected CPU expectations within 1e-12. Engine helper agreement is a consistency check; the separate JavaScript expression and object density check do not execute a shader or certify historical/cross-host bytes.
- * @evidence contracts/testing.md#distinguishing-cases Absent and null fog contrast with near/far receding frames, including omission in JSON and the actual built fog density. Pixel appearance, shader precision and other fog profiles are not asserted.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_scene_fog owns its cases. Portable Engine sidecar and Three object construction only, with no renderer, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans real fog-aware sidecars and inspects a built Three FogExp2 object, detecting staged-depth substitution, omitted density or unwanted atmosphere fields.
+ * @evidence contracts/development/testing.md#independent-expectations The authored root depths five and 25 metres and exp(-(density times depth)^2) give selected CPU expectations within 1e-12. Engine helper agreement is a consistency check; the separate JavaScript expression and object density check do not execute a shader or certify historical/cross-host bytes.
+ * @evidence contracts/development/testing.md#distinguishing-cases Absent and null fog contrast with near/far receding frames, including omission in JSON and the actual built fog density. Pixel appearance, shader precision and other fog profiles are not asserted.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_scene_fog owns its cases. Portable Engine sidecar and Three object construction only, with no renderer, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Absent or null fog omits the sidecar field and serialized atmosphere key; this checks omission rather than comparison with a historical...).
  */
 export function test_render_scene_fog(): void {
   // 1. An absent declaration omits the field and its serialized key.

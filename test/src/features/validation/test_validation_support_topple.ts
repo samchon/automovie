@@ -31,10 +31,11 @@ const square: IAutoMovieVector3[] = [v(0, 0), v(2, 0), v(2, 2), v(0, 2)];
  * 5. A COM exactly on the hull edge is stable (distance 0 ≤ margin).
  * 6. Empty support is a type error; a negative margin is a range error.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual support classification and checks advisory warnings, fall event, tip edge/direction and physics-intent suppression. Stable inputs must yield no event or suggestion; intended unphysical motion suppresses advice while retaining the event.
- * @evidence contracts/testing.md#independent-expectations The authored [0,2] square places (1,1) inside, (2,1) on its edge and (3,1) one metre outside. Default margin 0.02 gives expected overshoot 0.98 and +X fall direction independently of detector output; this is a support proxy, not dynamic rigid-body simulation.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts centered, edge and overhanging COM, ordinary versus declared physics intent, named versus anonymous actor, empty support and negative margin. Reordered corners have a separate hull unit; actual animation response to the emitted event belongs to consumers.
- * @evidence contracts/testing.md#execution-ownership This named portable unit invokes geometric classification directly with authored vectors and observes its report/events. It starts no physics runtime, viewer or Human fixture, and all predicate callbacks execute within the local assertion helper.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual support classification and checks advisory warnings, fall event, tip edge/direction and physics-intent suppression. Stable inputs must yield no event or suggestion; intended unphysical motion suppresses advice while retaining the event.
+ * @evidence contracts/development/testing.md#independent-expectations The authored [0,2] square places (1,1) inside, (2,1) on its edge and (3,1) one metre outside. Default margin 0.02 gives expected overshoot 0.98 and +X fall direction independently of detector output; this is a support proxy, not dynamic rigid-body simulation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts centered, edge and overhanging COM, ordinary versus declared physics intent, named versus anonymous actor, empty support and negative margin. Reordered corners have a separate hull unit; actual animation response to the emitted event belongs to consumers.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit invokes geometric classification directly with authored vectors and observes its report/events. It starts no physics runtime, viewer or Human fixture, and all predicate callbacks execute within the local assertion helper.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A centered COM is stable: success, no event, no suggestion.).
  */
 export function test_validation_support_topple(): void {
   const stable: ReturnType<typeof detectSupportToppling> =

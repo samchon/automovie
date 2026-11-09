@@ -22,10 +22,11 @@ import { nclose } from "../../internal/nclose";
  * 4. A reused jet object is copied during preparation; analytic plane points
  *    and an explicit detached planar rim survive without a registry.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual Mesh.face and Body.draw with ordinary buffers, recording only public output, callback effects and thrown objects; it never replaces globals or foreign methods.
- * @evidence contracts/testing.md#independent-expectations Invalid period is outside the public contract; unchanged buffers follow atomic refusal. Plane area is 16 minus 4 and each point is independently [u,v,0], with same original source IDs.
- * @evidence contracts/testing.md#distinguishing-cases Separates missing/undefined/recording/throwing callbacks, arbitrary source exceptions, winding accessor order, first-five query order, aliased jet storage, foreign charts, fixed canonical index publication and planar non-endpoint output.
- * @evidence contracts/testing.md#execution-ownership Discoverable synchronous CPU test through construction_mesh_transaction; no person generation, viewer, server, process or foreign replacement is used.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual Mesh.face and Body.draw with ordinary buffers, recording only public output, callback effects and thrown objects; it never replaces globals or foreign methods.
+ * @evidence contracts/development/testing.md#independent-expectations Invalid period is outside the public contract; unchanged buffers follow atomic refusal. Plane area is 16 minus 4 and each point is independently [u,v,0], with same original source IDs.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates missing/undefined/recording/throwing callbacks, arbitrary source exceptions, winding accessor order, first-five query order, aliased jet storage, foreign charts, fixed canonical index publication and planar non-endpoint output.
+ * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU test through construction_mesh_transaction; no person generation, viewer, server, process or foreign replacement is used.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Omitted/undefined callback, recording callback and throwing callback observe).
  */
 export function test_construction_mesh_transaction(): void {
   const failures: string[] = [];
@@ -196,7 +197,9 @@ function windingEffects(failures: string[]): void {
       thrown = error;
     }
     if (thrown !== next || phaseReads !== 0 || stationReads !== 1)
-      failures.push("winding raw endpoint/start getter exception order changed");
+      failures.push(
+        "winding raw endpoint/start getter exception order changed",
+      );
   }
   const order: string[] = [];
   const point: [number, number] = [0, 0];
@@ -281,8 +284,10 @@ function canonicalIndices(failures: string[]): void {
       `fixed original triangles published in a different order: ${mesh.indices.join(",")}`,
     );
   if (
-    JSON.stringify({ positions: mesh.positions, coordinates: mesh.coordinates }) !==
-    before
+    JSON.stringify({
+      positions: mesh.positions,
+      coordinates: mesh.coordinates,
+    }) !== before
   )
     failures.push(
       "index publication changed an original vertex or its owner chart",
@@ -301,10 +306,10 @@ function canonicalIndices(failures: string[]): void {
       mesh.positions[3 * mesh.indices[at + 2]!]!,
       mesh.positions[3 * mesh.indices[at + 2]! + 1]!,
     ];
-    area +=
-      ((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) / 2;
+    area += ((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) / 2;
   }
-  if (area !== 4) failures.push(`fixed original triangles changed area: ${area}`);
+  if (area !== 4)
+    failures.push(`fixed original triangles changed area: ${area}`);
 }
 
 /** A square hole's source identities belong to a different evaluating chart. */
@@ -448,20 +453,71 @@ function planeJet(u: number, v: number): IAutoMovieSolidSurface.IJet {
 
 /** Shared IDs admit exact period lifts, never a nearby but different source coordinate. */
 function inspectAuthority(failures: string[]): void {
-  const source: IAutoMovieSolidSurface = HumanSolidShapes.cylinder("authority", [0, 0, 0], [0, 1, 0], [1, 0, 0], [0, 0, 1], 1);
+  const source: IAutoMovieSolidSurface = HumanSolidShapes.cylinder(
+    "authority",
+    [0, 0, 0],
+    [0, 1, 0],
+    [1, 0, 0],
+    [0, 0, 1],
+    1,
+  );
   const period: number = 2 * Math.PI;
-  for (const turns of [0, 1]) for (const noise of [0, 4 * Number.EPSILON]) {
-    const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
-    const owner: number = AutoMovieSolidMesh.owner(mesh, source);
-    const first: [number, number][] = [[1, 0.5], [2, 0.5], [2, 1], [1, 1]];
-    const firstIds: number[] = first.map(([u, v]: [number, number]): number => AutoMovieSolidMesh.vertex(mesh, source.jet(u, v).p, owner, u, v));
-    const second: [number, number][] = [[2, 1 + turns * period + noise], [3, 1 + turns * period], [3, 1.5 + turns * period], [2, 1.5 + turns * period]];
-    const secondIds: number[] = [firstIds[2]!, ...second.slice(1).map(([u, v]: [number, number]): number => AutoMovieSolidMesh.vertex(mesh, source.jet(u, v).p, owner, u, v))];
-    const before: string = JSON.stringify(mesh);
-    const reports: string[] = [];
-    AutoMovieSolidMesh.face(mesh, { surface: source, stations: [0, 1, 2, 3, 4], phases: Array.from({ length: 16 }, (_: unknown, k: number): number => period * k / 16), loops: [{ kind: "hole", vertices: firstIds, chart: first }, { kind: "hole", vertices: secondIds, chart: second }], onFailure: (detail: string): void => { reports.push(detail); } });
-    if (noise === 0) {
-      if (reports.length !== 0 || mesh.indices.length === 0) failures.push(`exact shared authority/${turns}: ${reports.join(";")}`);
-    } else if (reports.length !== 1 || !reports[0]!.includes("inconsistent face charts") || JSON.stringify(mesh) !== before) failures.push(`near-ULP shared authority/${turns}: ${reports.join(";")}`);
-  }
+  for (const turns of [0, 1])
+    for (const noise of [0, 4 * Number.EPSILON]) {
+      const mesh: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+      const owner: number = AutoMovieSolidMesh.owner(mesh, source);
+      const first: [number, number][] = [
+        [1, 0.5],
+        [2, 0.5],
+        [2, 1],
+        [1, 1],
+      ];
+      const firstIds: number[] = first.map(([u, v]: [number, number]): number =>
+        AutoMovieSolidMesh.vertex(mesh, source.jet(u, v).p, owner, u, v),
+      );
+      const second: [number, number][] = [
+        [2, 1 + turns * period + noise],
+        [3, 1 + turns * period],
+        [3, 1.5 + turns * period],
+        [2, 1.5 + turns * period],
+      ];
+      const secondIds: number[] = [
+        firstIds[2]!,
+        ...second
+          .slice(1)
+          .map(([u, v]: [number, number]): number =>
+            AutoMovieSolidMesh.vertex(mesh, source.jet(u, v).p, owner, u, v),
+          ),
+      ];
+      const before: string = JSON.stringify(mesh);
+      const reports: string[] = [];
+      AutoMovieSolidMesh.face(mesh, {
+        surface: source,
+        stations: [0, 1, 2, 3, 4],
+        phases: Array.from(
+          { length: 16 },
+          (_: unknown, k: number): number => (period * k) / 16,
+        ),
+        loops: [
+          { kind: "hole", vertices: firstIds, chart: first },
+          { kind: "hole", vertices: secondIds, chart: second },
+        ],
+        onFailure: (detail: string): void => {
+          reports.push(detail);
+        },
+      });
+      if (noise === 0) {
+        if (reports.length !== 0 || mesh.indices.length === 0)
+          failures.push(
+            `exact shared authority/${turns}: ${reports.join(";")}`,
+          );
+      } else if (
+        reports.length !== 1 ||
+        !reports[0]!.includes("inconsistent face charts") ||
+        JSON.stringify(mesh) !== before
+      )
+        failures.push(
+          `near-ULP shared authority/${turns}: ${reports.join(";")}`,
+        );
+    }
 }

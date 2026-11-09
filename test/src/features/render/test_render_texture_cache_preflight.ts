@@ -23,10 +23,11 @@ import { boxModel, material, sceneFixture } from "../internal/renderFixtures";
  * 2. Unsupported native sampling refuses with its shot and asset; a corrected
  *    actual texture recovers admission and invalidates its previous target.
  *
- * @evidence contracts/testing.md#behavioral-verification Primes the actual cache, supplies its decoded facts to compiled-shot assessment and checks storage, refusal context and target identity before and after unsupported native sampler metadata is corrected.
- * @evidence contracts/testing.md#independent-expectations A 4-by-4 RGBA8 image contributes 64 bytes and the shared PBR lookup contributes 1024; shot and asset diagnostic expectations come from the fixture rather than another assessment.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts supported, unsupported and corrected minification metadata on the same decoded source while preserving the authored image binding and requiring target invalidation.
- * @evidence contracts/testing.md#execution-ownership Owns asynchronous CPU-side Three DataTexture and cache objects, awaits prime and successful-path disposal, and uses a deliberately partial compiled-shot fixture; no WebGL renderer, actual upload or production job gate is exercised, and failure-path cleanup is not asserted here.
+ * @evidence contracts/development/testing.md#behavioral-verification Primes the actual cache, supplies its decoded facts to compiled-shot assessment and checks storage, refusal context and target identity before and after unsupported native sampler metadata is corrected.
+ * @evidence contracts/development/testing.md#independent-expectations A 4-by-4 RGBA8 image contributes 64 bytes and the shared PBR lookup contributes 1024; shot and asset diagnostic expectations come from the fixture rather than another assessment.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts supported, unsupported and corrected minification metadata on the same decoded source while preserving the authored image binding and requiring target invalidation.
+ * @evidence contracts/development/testing.md#execution-ownership Owns asynchronous CPU-side Three DataTexture and cache objects, awaits prime and successful-path disposal, and uses a deliberately partial compiled-shot fixture; no WebGL renderer, actual upload or production job gate is exercised, and failure-path cleanup is not asserted here.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: One real 4-by-4 RGBA8 source yields 64 raw bytes plus the 1024-byte PBR).
  */
 export async function test_render_texture_cache_preflight(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

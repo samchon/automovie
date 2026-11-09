@@ -11,13 +11,13 @@ import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
 /**
  * Authored one-second in-place walking loop with five quarter-second keys alternating contact and passing poses. Angles are conventional degree inputs under the page's humanoid mapping, and absent roots imply no baked travel. Named contact poses are choreography labels rather than measured foot-ground contact or validated gait physiology.
  *
- * @evidence contracts/common.md#principled-implementation Left/right contact and passing factories explicitly state both arms in every frame, and the final left-contact values match the initial cycle values.
- * @evidence contracts/common.md#clear-and-simple-design Small contact/passing/arm vocabulary supplies one sparse clip, keeping speed/travel baking, playback and contact simulation outside this producer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Fixed stride angles and labels supply no population-fit, ground force, foot-slip or ROM proof; the receiving rig and optional clamp remain caller/player premises.
- * @evidence contracts/common.md#meaningful-documentation The comment states duration, five-frame order, in-place root absence and the limits of gait labels.
- * @evidence contracts/performance.md#efficient-algorithms Five bounded poses/keys require constant construction; consumer motion sampling/FK and any rendered model complexity retain their separate costs.
- * @evidence contracts/performance.md#reuse-equivalent-work Factories consistently share the authored phase formulas within this call, while fresh mutable pose/joint arrays avoid a hidden cross-call cache. Travel wrappers reuse the resulting base clip during baking.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned clip owns local frame/pose records and acquires no timer, player, worker or GPU object; page and travel consumers own any longer-lived clips/playback.
+ * @evidence contracts/development/implementation.md#principled-implementation Left/right contact and passing factories explicitly state both arms in every frame, and the final left-contact values match the initial cycle values.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Small contact/passing/arm vocabulary supplies one sparse clip, keeping speed/travel baking, playback and contact simulation outside this producer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Fixed stride angles and labels supply no population-fit, ground force, foot-slip or ROM proof; the receiving rig and optional clamp remain caller/player premises.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states duration, five-frame order, in-place root absence and the limits of gait labels.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Five bounded poses/keys require constant construction; consumer motion sampling/FK and any rendered model complexity retain their separate costs.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Factories consistently share the authored phase formulas within this call, while fresh mutable pose/joint arrays avoid a hidden cross-call cache. Travel wrappers reuse the resulting base clip during baking.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned clip owns local frame/pose records and acquires no timer, player, worker or GPU object; page and travel consumers own any longer-lived clips/playback.
  */
 export const walk: (sk: string) => IAutoMovieMotion = (
   sk: string,

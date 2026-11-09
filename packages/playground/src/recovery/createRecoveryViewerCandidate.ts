@@ -1,6 +1,8 @@
 import { validateModel } from "@automovie/engine";
-import type { IAutoMovieModel } from "@automovie/interface";
-import type { AutoMovieRecoveryImageRecipe } from "@automovie/interface/recovery";
+import type {
+  AutoMovieRecoveryImageRecipe,
+  IAutoMovieModel,
+} from "@automovie/interface";
 import {
   compileAutoMovieRecoveryImageLoft,
   compileAutoMovieRecoverySupportLoft,
@@ -21,13 +23,13 @@ import type * as THREE from "three";
  * Source and displayed-reference hashes remain distinct. The document byte bound
  * is 16 MiB; this is an inspection admission limit, not reconstruction accuracy.
  *
- * @evidence contracts/common.md#principled-implementation Public recovery compilation, model validation and viewer builders create the displayed candidate. Exact UTF-8 document/generated/reference hashes bind its numerical identity, and separate original/neutral reference hashes disclose the appearance transform.
- * @evidence contracts/common.md#clear-and-simple-design This transactional loader owns admission, construction and hashing while the page owns request serialization, scene attachment, camera controls and replacement.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No image or source mesh supplies generated geometry; optional reference meshes remain a separate bounded subject with their own normals. Invalid input fails before transfer and no old displayed candidate is retired here.
- * @evidence contracts/common.md#meaningful-documentation States supported static reference meshes, neutral appearance, exact identity hashes, explicit document/geometry budgets and incoming-resource rollback ownership.
- * @evidence contracts/performance.md#efficient-algorithms Hashing/parsing are O(B) in bounded document bytes; reference validation is O(V+F) in bounded source geometry. One bounded recipe compilation/geometry realization and construction build create the candidate, without camera-dependent regeneration; each generating owner documents its plane/event or atlas costs.
- * @evidence contracts/performance.md#reuse-equivalent-work The returned candidate and its single retirement promise serve every page view/pass until replacement; hashing does not repeat fitting or geometry construction.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Every completed child builder transfers its actual resource identities immediately into local rollback. Failed loads attempt all accumulated retirements; success transfers one candidate and its disposer to the serializing page with no global cache or renderer acquired.
+ * @evidence contracts/development/implementation.md#principled-implementation Public recovery compilation, model validation and viewer builders create the displayed candidate. Exact UTF-8 document/generated/reference hashes bind its numerical identity, and separate original/neutral reference hashes disclose the appearance transform.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This transactional loader owns admission, construction and hashing while the page owns request serialization, scene attachment, camera controls and replacement.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No image or source mesh supplies generated geometry; optional reference meshes remain a separate bounded subject with their own normals. Invalid input fails before transfer and no old displayed candidate is retired here.
+ * @evidence contracts/development/common.md#meaningful-documentation States supported static reference meshes, neutral appearance, exact identity hashes, explicit document/geometry budgets and incoming-resource rollback ownership.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Hashing/parsing are O(B) in bounded document bytes; reference validation is O(V+F) in bounded source geometry. One bounded recipe compilation/geometry realization and construction build create the candidate, without camera-dependent regeneration; each generating owner documents its plane/event or atlas costs.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned candidate and its single retirement promise serve every page view/pass until replacement; hashing does not repeat fitting or geometry construction.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Every completed child builder transfers its actual resource identities immediately into local rollback. Failed loads attempt all accumulated retirements; success transfers one candidate and its disposer to the serializing page with no global cache or renderer acquired.
  */
 export async function createRecoveryViewerCandidate(text: string): Promise<{
   generated: THREE.Group;

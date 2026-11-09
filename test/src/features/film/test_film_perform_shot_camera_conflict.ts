@@ -28,10 +28,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * 2. Refuse a second distinct camera and name its id.
  * 3. Refuse a frame action carrying a camera list.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs performShot over staged cameras and checks located frame-actor faults and the rival camera value, catching ambiguous election or noncamera motion reaching the shot camera.
- * @evidence contracts/testing.md#independent-expectations The stage names cam-main and cam-b as cameras and knightA only as an actor; the one-live-camera/scalar-frame contract independently rejects the three authored violations at their action indices.
- * @evidence contracts/testing.md#distinguishing-cases Owns noncamera, competing camera and actor-list refusal; accepted single-camera and first-camera fallback cases are in the other camera tests, while coverage angles are separate from live election.
- * @evidence contracts/testing.md#execution-ownership This synchronous discoverable unit owns portable camera election inputs and directly calls source over existing factories; it does not create a browser camera or GPU renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs performShot over staged cameras and checks located frame-actor faults and the rival camera value, catching ambiguous election or noncamera motion reaching the shot camera.
+ * @evidence contracts/development/testing.md#independent-expectations The stage names cam-main and cam-b as cameras and knightA only as an actor; the one-live-camera/scalar-frame contract independently rejects the three authored violations at their action indices.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns noncamera, competing camera and actor-list refusal; accepted single-camera and first-camera fallback cases are in the other camera tests, while coverage angles are separate from live election.
+ * @evidence contracts/development/testing.md#execution-ownership This synchronous discoverable unit owns portable camera election inputs and directly calls source over existing factories; it does not create a browser camera or GPU renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Refuse an actor node used as a frame camera.).
  */
 export function test_film_perform_shot_camera_conflict(): void {
   const base: IAutoMovieStage = makeStagingWrite();

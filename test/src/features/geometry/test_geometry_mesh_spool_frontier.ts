@@ -1,14 +1,12 @@
-import {
-  createAutoMovieRecoveryMeshSpool,
-  readAutoMovieRecoveryMeshFrontier,
-  writeAutoMovieRecoveryArtifact,
-} from "@automovie/recovery/node";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
 import type { tessellateAutoMovieLocalHermite64 as T } from "../../../../packages/engine/src/geometry/curve/tessellateAutoMovieLocalHermite64";
+import { writeAutoMovieRecoveryArtifact } from "../../../../packages/template/scaffold/src/integrations/recovery/node/artifact/writeAutoMovieRecoveryArtifact";
+import { createAutoMovieRecoveryMeshSpool } from "../../../../packages/template/scaffold/src/integrations/recovery/node/mesh/createAutoMovieRecoveryMeshSpool";
+import { readAutoMovieRecoveryMeshFrontier } from "../../../../packages/template/scaffold/src/integrations/recovery/node/mesh/readAutoMovieRecoveryMeshFrontier";
 
 /**
  * Batched source-free channels retain one complete indexed publication frontier.
@@ -20,10 +18,11 @@ import type { tessellateAutoMovieLocalHermite64 as T } from "../../../../package
  * 4. A single large UTF-8 record remains complete instead of being dropped or truncated.
  * 5. The bounded recovery reader admits the whole committed chain and rejects a wrong source or changed fragment.
  *
- * @evidence contracts/testing.md#behavioral-verification Appends independently authored chunk values, publishes a standalone artifact, and independently reads and hashes every frontier-bound array fragment. This catches unflushed channels, duplicate or missing values, per-chunk metadata files and false predecessor publication.
- * @evidence contracts/testing.md#independent-expectations Explicit integer coordinates, indices and construction text supply the byte oracle through standard JSON encoding. Global index zero remains shared by later triangles. Every accepted chunk requires one ownership row, while fewer than 8192 small rows fit one declared batch between frontiers.
- * @evidence contracts/testing.md#distinguishing-cases Covers empty base state, multiple commits, cross-chunk indices, immutable output refusal, invalid vertex offset, Unicode byte sizing and one indivisible record above the staging target. Generator replay, source fitting and mesh quality are separate contracts.
- * @evidence contracts/testing.md#execution-ownership Portable CPU storage semantics use one owned workspace directory and no source asset, anatomical fixture, process, viewer, GPU or compile. The directory is removed in finally.
+ * @evidence contracts/development/testing.md#behavioral-verification Appends independently authored chunk values, publishes a standalone artifact, and independently reads and hashes every frontier-bound array fragment. This catches unflushed channels, duplicate or missing values, per-chunk metadata files and false predecessor publication.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit integer coordinates, indices and construction text supply the byte oracle through standard JSON encoding. Global index zero remains shared by later triangles. Every accepted chunk requires one ownership row, while fewer than 8192 small rows fit one declared batch between frontiers.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers empty base state, multiple commits, cross-chunk indices, immutable output refusal, invalid vertex offset, Unicode byte sizing and one indivisible record above the staging target. Generator replay, source fitting and mesh quality are separate contracts.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU storage semantics use one owned workspace directory and no source asset, anatomical fixture, process, viewer, GPU or compile. The directory is removed in finally.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Ordered mathematical chunks retain shared global indices and actual metadata.).
  */
 export function test_geometry_mesh_spool_frontier(): void {
   type Receipt = { path: string; sha256: string; bytes: number };

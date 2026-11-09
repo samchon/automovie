@@ -111,11 +111,13 @@ export namespace StraightLegShape {
     };
     const target: IAutoMovieVector3 =
       input.target ?? Vector3.add(hip, { x: measure.thigh, y: 0, z: 0 });
-    const kneePoint: IAutoMovieVector3 = Vector3.subtract(target, {
-      x: StrikeShape.LANDING_DEPTH,
-      y: 0,
-      z: 0,
-    });
+    // The knee joint stops a lower-leg radius short of the region, so the
+    // kneecap's surface meets it.
+    const kneePoint: IAutoMovieVector3 = StrikeShape.standoff(
+      hip,
+      target,
+      measure.shinRadius,
+    );
     const ankle: IAutoMovieVector3 = Vector3.add(kneePoint, {
       x: -measure.shank * 0.6,
       y: -measure.shank * 0.8,

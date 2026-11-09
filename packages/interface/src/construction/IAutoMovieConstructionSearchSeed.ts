@@ -5,10 +5,10 @@
  *
  * Engine admission: `from` and `to` inside `[0, 1]` and different.
  *
- * @evidence contracts/common.md#principled-implementation The crossing of one curve of the part with the host is a three-equation meeting in the station and the host's chart, solved by Newton from each step's foot, so the seed is a point of the true curve whatever the part's lofted stations turn out to be.
- * @evidence contracts/common.md#clear-and-simple-design Two face names, one phase and two shares are the whole search; the walk's direction is the order of the shares.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The search runs along one station line only, never over the whole surface or a tessellation; no meeting there is reported.
- * @evidence contracts/common.md#meaningful-documentation States why the seed is searched, the walk, the solve, the failure effect and the admission.
+ * @evidence contracts/development/design.md#principled-representation The crossing of one curve of the part with the host is a three-equation meeting in the station and the host's chart, solved by Newton from each step's foot, so the seed is a point of the true curve whatever the part's lofted stations turn out to be.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two face names, one phase and two shares are the whole search; the walk's direction is the order of the shares.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The search runs along one station line only, never over the whole surface or a tessellation; no meeting there is reported.
+ * @evidence contracts/development/common.md#meaningful-documentation States why the seed is searched, the walk, the solve, the failure effect and the admission.
  */
 export interface IAutoMovieConstructionSearchSeed {
   /** Discriminator. */

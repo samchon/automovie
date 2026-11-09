@@ -16,13 +16,10 @@ import { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
  * at either end of the range, one turn apart; give a field over such a patch
  * a period of one turn in `v` so both read alike.
  *
- * @evidence contracts/common.md#principled-implementation The network's patch chart, the one coordinate every tier shares, plus the sweep domain a sweep or transition patch is a rectangle of.
- * @evidence contracts/common.md#clear-and-simple-design The coordinate, the patch's name and an optional domain point, the least a field over the surface needs to address a vertex.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The domain point is the chart's, never snapped to a cage vertex or projected onto the sweep.
- * @evidence contracts/common.md#meaningful-documentation States chart composition, the generating/filter/display distinction, one-address ownership and seam compatibility.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A location record; the linear chart-composition pass is owned by `locateAutoMovieSurfaceVertices`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A location record; callers reuse the producer's result across poses.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A location record with no resource lifetime; its producer returns caller-owned records.
+ * @evidence contracts/development/design.md#principled-representation The network's patch chart, the one coordinate every tier shares, plus the sweep domain a sweep or transition patch is a rectangle of.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The coordinate, the patch's name and an optional domain point, the least a field over the surface needs to address a vertex.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The domain point is the chart's, never snapped to a cage vertex or projected onto the sweep.
+ * @evidence contracts/development/common.md#meaningful-documentation States chart composition, the generating/filter/display distinction, one-address ownership and seam compatibility.
  */
 export interface IAutoMovieSurfaceLocation {
   /** The vertex's patch and patch coordinates. */

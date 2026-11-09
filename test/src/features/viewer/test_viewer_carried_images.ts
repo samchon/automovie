@@ -40,10 +40,11 @@ const texels: (texture: THREE.Texture) => number[] = (
  * 3. A truncated compressed stream and a palette header reject naming the image id.
  * 4. A material library over a model that carries its base-colour image resolves that image's texels, while a carried image of an unrelated model with the same id does not conflict.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls prime, resolve and buildAutoMovieMaterialLibrary and reads decoded texel bytes, loader calls and refusals, catching a broken filter, a flipped row order, a loader fallback for carried ids and a silent id collision.
- * @evidence contracts/testing.md#independent-expectations PNG bytes come from Node's zlib with filters applied forward by an independent encoder, and the expected texels are the authored samples expanded by the PNG colour-type rules; the row order is glTF's.
- * @evidence contracts/testing.md#distinguishing-cases Covers all five filters and four colour types, carried against loaded ids, equal against different bytes, bound against unbound images, and declaring against unrelated models; admission of headers is owned by the engine image test.
- * @evidence contracts/testing.md#execution-ownership The discoverable exported async unit decodes with the platform DecompressionStream on CPU Texture objects, disposes its caches and libraries, and starts no browser, renderer or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls prime, resolve and buildAutoMovieMaterialLibrary and reads decoded texel bytes, loader calls and refusals, catching a broken filter, a flipped row order, a loader fallback for carried ids and a silent id collision.
+ * @evidence contracts/development/testing.md#independent-expectations PNG bytes come from Node's zlib with filters applied forward by an independent encoder, and the expected texels are the authored samples expanded by the PNG colour-type rules; the row order is glTF's.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers all five filters and four colour types, carried against loaded ids, equal against different bytes, bound against unbound images, and declaring against unrelated models; admission of headers is owned by the engine image test.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable exported async unit decodes with the platform DecompressionStream on CPU Texture objects, disposes its caches and libraries, and starts no browser, renderer or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An RGBA image whose rows use the Sub, Up and Paeth filters, an RGB image using Average, a greyscale-alpha image and a greyscale image...).
  */
 export async function test_viewer_carried_images(): Promise<void> {
   const loaded: string[] = [];

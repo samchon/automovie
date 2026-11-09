@@ -10,10 +10,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * Scenarios:
  * 1. Two knightA declarations with imported and generated model references yield a located duplicate-script-node violation.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs forgeCast against conflicting script declarations and checks unsuccessful admission and the second declaration's exact node path, catching a last-declaration overwrite that hides ambiguity.
- * @evidence contracts/testing.md#independent-expectations The script cast contract requires unique node ids regardless of modelRef, so the second knightA declaration is invalid at cast index one. The assertion does not depend on a generated model snapshot.
- * @evidence contracts/testing.md#distinguishing-cases Owns the conflicting duplicate script case; duplicate forge entries, ordinary unique cast acceptance and missing generated entries remain separate cases.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit owns this one case and its guarded named facts, using portable engine source and existing factories without installation or external execution.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs forgeCast against conflicting script declarations and checks unsuccessful admission and the second declaration's exact node path, catching a last-declaration overwrite that hides ambiguity.
+ * @evidence contracts/development/testing.md#independent-expectations The script cast contract requires unique node ids regardless of modelRef, so the second knightA declaration is invalid at cast index one. The assertion does not depend on a generated model snapshot.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns the conflicting duplicate script case; duplicate forge entries, ordinary unique cast acceptance and missing generated entries remain separate cases.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous unit owns this one case and its guarded named facts, using portable engine source and existing factories without installation or external execution.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Two knightA declarations with imported and generated model references yield a located duplicate-script-node violation.).
  */
 export function test_film_forge_cast_duplicate_script_nodes(): void {
   const forged: IAutoMovieForgedCast = forgeCast(

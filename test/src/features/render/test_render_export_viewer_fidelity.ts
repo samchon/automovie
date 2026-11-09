@@ -3,7 +3,6 @@ import {
   IAutoMovieModel,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { exportModelToGLB } from "@automovie/render/node";
 import {
   Accessor,
   Document,
@@ -15,6 +14,7 @@ import {
 } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
+import { exportModelToGLB } from "../../../../packages/template/scaffold/src/integrations/render/node/exportModelToGLB";
 import { nclose, vclose } from "../internal/predicates";
 
 const material: (
@@ -60,10 +60,11 @@ const model: (over: Partial<IAutoMovieModel>) => IAutoMovieModel = (
  * 3. Negative twin: a non-indexed soup still omits NORMAL; the assertion checks the absent attribute and does not compare the resulting shading.
  * 4. Alpha mode, cutoff and sidedness follow the represented export contract: an authored `mask` exports MASK with its cutoff, or 0.5 when omitted, an authored `opaque` stays OPAQUE below full opacity, the legacy derivation still gives BLEND below full opacity, and `doubleSided: true` exports a double-sided material while the default stays single-sided.
  *
- * @evidence contracts/testing.md#behavioral-verification Parses exported material alpha, cutoff and sidedness and indexed smooth normals, detecting omitted opacity or incorrect normal generation without claiming full viewer equivalence.
- * @evidence contracts/testing.md#independent-expectations Alpha follows the export contract (a or 1) times opacity; the current viewer uses opacity alone, so the authored-alpha case pins an acknowledged difference. A planar indexed quad independently has +Z normals and an unreferenced vertex has zero normal; NodeIO shares the export SDK, and no rendered pixels are compared.
- * @evidence contracts/testing.md#distinguishing-cases Null and authored alpha, opaque and masked defaults, sidedness, indexed flat geometry, an unreferenced vertex and unindexed soup distinguish the represented fields. Textures, skin, curved normal weighting and visual appearance are outside these assertions.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_export_viewer_fidelity owns its cases. Portable SDK byte parsing and numeric assertions, despite the historical fidelity name; no viewer, browser or GPU is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Parses exported material alpha, cutoff and sidedness and indexed smooth normals, detecting omitted opacity or incorrect normal generation without claiming full viewer equivalence.
+ * @evidence contracts/development/testing.md#independent-expectations Alpha follows the export contract (a or 1) times opacity; the current viewer uses opacity alone, so the authored-alpha case pins an acknowledged difference. A planar indexed quad independently has +Z normals and an unreferenced vertex has zero normal; NodeIO shares the export SDK, and no rendered pixels are compared.
+ * @evidence contracts/development/testing.md#distinguishing-cases Null and authored alpha, opaque and masked defaults, sidedness, indexed flat geometry, an unreferenced vertex and unindexed soup distinguish the represented fields. Textures, skin, curved normal weighting and visual appearance are outside these assertions.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_export_viewer_fidelity owns its cases. Portable SDK byte parsing and numeric assertions, despite the historical fidelity name; no viewer, browser or GPU is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Opacity folds into the exported alpha: the export multiplies authored alpha and `material.opacity`, so `{opacity: 0.5, a: null}` (declared...).
  */
 export async function test_render_export_viewer_fidelity(): Promise<void> {
   // 1. opacity folds into the one alpha glTF has

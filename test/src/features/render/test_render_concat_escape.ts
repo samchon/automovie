@@ -59,10 +59,11 @@ const planWith: (outputPath: string) => IAutoMovieRenderChunkPlan = (
  * 1. An apostrophe basename escapes in every concat line, while the chunk output paths themselves keep the literal apostrophe (the spawn-adapter argument vector needs no quoting).
  * 2. Negative twin: an apostrophe-free basename stays byte-identical to the unescaped form.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the whole and chunk planners and checks literal concat lines and chunk paths, detecting an unescaped apostrophe while preserving plain basenames.
- * @evidence contracts/testing.md#independent-expectations The concat token's close-quote, escaped apostrophe and reopen sequence determines the two expected lines; chunk filenames retain the original apostrophe. No ffmpeg parser or reassembly process runs.
- * @evidence contracts/testing.md#distinguishing-cases An apostrophe path and its plain adjacent twin share four frames in two chunks, distinguishing quoting from chunk naming. Chunk boundaries and pass schedules have separate owning tests.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_concat_escape owns its cases. Portable planning only; no filesystem, browser or encoder is opened.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the whole and chunk planners and checks literal concat lines and chunk paths, detecting an unescaped apostrophe while preserving plain basenames.
+ * @evidence contracts/development/testing.md#independent-expectations The concat token's close-quote, escaped apostrophe and reopen sequence determines the two expected lines; chunk filenames retain the original apostrophe. No ffmpeg parser or reassembly process runs.
+ * @evidence contracts/development/testing.md#distinguishing-cases An apostrophe path and its plain adjacent twin share four frames in two chunks, distinguishing quoting from chunk naming. Chunk boundaries and pass schedules have separate owning tests.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_concat_escape owns its cases. Portable planning only; no filesystem, browser or encoder is opened.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An apostrophe basename escapes in every concat line, while the chunk output paths themselves keep the literal apostrophe (the...).
  */
 export function test_render_concat_escape(): void {
   // 1. apostrophe basenames escape per the demuxer grammar

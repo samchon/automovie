@@ -15,10 +15,11 @@ import type * as THREE from "three";
  * 1. Multiple render passes accumulate draw calls and triangles after one frame reset, and the renderer's reset policy is restored afterward.
  * 2. Dimensions the renderer cannot measure stay null and therefore unchecked.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual frame-counter coordinator with its existing supplied info port, then audits the returned observation against a report; catches per-draw reset losing accumulated requests and guessed values for unobservable dimensions.
- * @evidence contracts/testing.md#independent-expectations Literal counter increments sum to three calls/fourteen triangles and original autoReset must survive success or failure. The local counters exercise orchestration only and do not independently confirm renderer submissions, pixels or hardware work.
- * @evidence contracts/testing.md#distinguishing-cases Covers successful accumulation, thrown drawing, restored reset policy and nullable dimensions that cannot claim report agreement; actual native counter acquisition remains a separate observation obligation.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit uses maintained Viewer/Render source and the existing local counter record without replacing an SDK instance method; it starts no browser, GPU renderer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual frame-counter coordinator with its existing supplied info port, then audits the returned observation against a report; catches per-draw reset losing accumulated requests and guessed values for unobservable dimensions.
+ * @evidence contracts/development/testing.md#independent-expectations Literal counter increments sum to three calls/fourteen triangles and original autoReset must survive success or failure. The local counters exercise orchestration only and do not independently confirm renderer submissions, pixels or hardware work.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers successful accumulation, thrown drawing, restored reset policy and nullable dimensions that cannot claim report agreement; actual native counter acquisition remains a separate observation obligation.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit uses maintained Viewer/Render source and the existing local counter record without replacing an SDK instance method; it starts no browser, GPU renderer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Multiple render passes accumulate draw calls and triangles after one frame reset, and the renderer's reset policy is restored afterward.).
  */
 export function test_viewer_render_observation_boundary(): void {
   const render: { calls: number; triangles: number } = {

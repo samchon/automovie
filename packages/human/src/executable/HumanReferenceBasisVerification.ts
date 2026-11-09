@@ -1,4 +1,4 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieCurve64 as C } from "@automovie/engine";
 import type { IAutoMovieRecoveryHermiteCurve as H } from "@automovie/recovery";
 
 /** Independent coefficient-publication checks; this observer never supplies generation or fitting. */

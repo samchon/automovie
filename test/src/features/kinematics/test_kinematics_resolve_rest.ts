@@ -35,10 +35,11 @@ const at: (
  * along +X (lower arm reaching 0.5). Every bone is resolved, and the chest's
  * local rotation is the identity.
  *
- * @evidence contracts/testing.md#behavioral-verification Resolves an undriven fixture hierarchy and checks complete count, accumulated rest coordinates and chest identity; missing descendants or failing to add a rest offset fails.
- * @evidence contracts/testing.md#independent-expectations Literal fixture translations sum to hips 1, spine 1.2, chest 1.4, head 1.7 and lower-arm X 0.5; identity components are stated directly. These conventional dimensions are not anatomical measurements, and selected coordinate checks do not prove every returned bone value.
- * @evidence contracts/testing.md#distinguishing-cases Owns the undriven baseline and representative trunk/arm accumulation; articulated descendants, root transforms and unreachable/topologically malformed rigs are owned by neighboring entries.
- * @evidence contracts/testing.md#execution-ownership The exported CPU test is discovered by the normal runner and imports actual FK plus existing code fixtures; it needs no renderer, Human asset, browser or native build.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves an undriven fixture hierarchy and checks complete count, accumulated rest coordinates and chest identity; missing descendants or failing to add a rest offset fails.
+ * @evidence contracts/development/testing.md#independent-expectations Literal fixture translations sum to hips 1, spine 1.2, chest 1.4, head 1.7 and lower-arm X 0.5; identity components are stated directly. These conventional dimensions are not anatomical measurements, and selected coordinate checks do not prove every returned bone value.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns the undriven baseline and representative trunk/arm accumulation; articulated descendants, root transforms and unreachable/topologically malformed rigs are owned by neighboring entries.
+ * @evidence contracts/development/testing.md#execution-ownership The exported CPU test is discovered by the normal runner and imports actual FK plus existing code fixtures; it needs no renderer, Human asset, browser or native build.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (With no articulation, `resolvePose` is pure rest-pose forward kinematics: it walks the bone hierarchy parent-before-child, accumulating each bone's local rest offset into a world position) as stated in this comment.
  */
 export function test_kinematics_resolve_rest(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

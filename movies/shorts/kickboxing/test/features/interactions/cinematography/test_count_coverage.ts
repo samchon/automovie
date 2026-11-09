@@ -1,25 +1,59 @@
+import type { IAutoMovieSchedule } from "@automovie/engine";
 import assert from "node:assert/strict";
 
 import { CountCoverage } from "../../../../src/interactions/cinematography/CountCoverage";
+import { KickboxingAction } from "../../../../src/laws/kickboxing/KickboxingAction";
 import { polygonCast } from "../../../internal/polygonCast";
 
 /**
  * The count's coverage from the neutral corner.
  *
- * Scenarios: the shot cuts between the referee with the fallen man and the
- * winner each hold; the camera takes the neutral corner the standing
- * fighter was not sent to; its bearing points from the framed men toward
- * that corner.
+ * Scenarios: the shot is the two-shot of the referee over whichever fighter
+ * the schedule makes fall, with the other fighter framed behind it, and no
+ * shot without a fall; the camera takes the neutral corner the
+ * standing fighter was not sent to; its bearing points from the two-shot
+ * toward that corner.
  */
 export function test_count_coverage(): void {
-  const hold: number = 2.4;
-  assert.deepEqual(CountCoverage.subjects(0, hold), ["referee", "b"]);
-  assert.deepEqual(CountCoverage.subjects(hold + 0.1, hold), ["a"]);
-  assert.deepEqual(CountCoverage.subjects(2 * hold + 0.1, hold), [
-    "referee",
-    "b",
-  ]);
   const cast = polygonCast();
+  const fall = (subject: string) => ({
+    duration: 10,
+    entries: [
+      {
+        subject,
+        start: 1,
+        end: 2,
+        intent: KickboxingAction.intent(subject, {
+          kind: "phase",
+          phase: "fall",
+          seconds: 1,
+        }),
+      },
+    ],
+  });
+  assert.deepEqual(
+    CountCoverage.shot(fall(cast.b.id) as unknown as IAutoMovieSchedule, cast),
+    {
+      counted: [cast.referee.id, cast.b.id],
+      subjects: [cast.referee.id, cast.b.id, cast.a.id],
+      winner: cast.a.id,
+    },
+  );
+  assert.deepEqual(
+    CountCoverage.shot(fall(cast.a.id) as unknown as IAutoMovieSchedule, cast),
+    {
+      counted: [cast.referee.id, cast.a.id],
+      subjects: [cast.referee.id, cast.a.id, cast.b.id],
+      winner: cast.b.id,
+    },
+  );
+  assert.equal(
+    CountCoverage.shot(
+      { duration: 10, entries: [] } as unknown as IAutoMovieSchedule,
+      cast,
+    ),
+    undefined,
+  );
   const h: number = cast.ring.half;
   const corner = CountCoverage.corner(cast, { x: h - 0.4, z: h - 0.4 });
   assert.deepEqual(corner, { x: -h, z: -h });

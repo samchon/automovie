@@ -73,25 +73,19 @@ type Vec4 = [number, number, number, number];
  * A failed solve or an observed grazing sample is reported; contacts between
  * the finite observations are not excluded by that check.
  *
- * @evidence contracts/common.md#principled-implementation Uses declared-law continuation and implicit jets under regular local-branch premises; finite observations and the current arc reference guide are not global or exact-arclength certificates.
- * @evidence contracts/common.md#clear-and-simple-design Keeps the public records, constants and entry points while Trace and Walk own original orchestration and reference preparation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reports failed solves/closure and sampled domain/grazing findings without repairing them; finite samples do not exclude intermediate contacts or domain excursions.
- * @evidence contracts/common.md#meaningful-documentation States the equations, the parameter kinds, the trace's checks and the curve's readings.
- * @evidence contracts/performance.md#efficient-algorithms C output targets include original solver/accepted-substep work and optional bounded arc walks; no constant small Newton cost is asserted.
- * @evidence contracts/performance.md#reuse-equivalent-work The curve's `at` corrects from the nearest traced point instead of retracing.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the traced points and the law for the curve's lifetime.
+ * @evidence contracts/development/common.md#meaningful-documentation States the equations, the parameter kinds, the trace's checks and the curve's readings.
+ * @evidence contracts/development/design.md#principled-representation Represents The curve where an attached part's surface meets its host's: the surface-surface intersection of the solid merge and diff, traced by a declared parameter `t` over one turn: companion namespace of 11 members (`IPoint`, `Parameter`, `ICurve`, `IInput`, `IResult`, `trace`, ...); units and frames named in its text: local, second, world, radian, radians. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidIntersection` in packages/engine/src/geometry/construction/AutoMovieSolidIntersection.ts; its surface is the 11 members listed and the text shows 27 other files naming it, mostly packages/engine (16), test (11), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidIntersection {
   /**
    * One point of the curve with both preimages and their parameter jets.
    *
-   * @evidence contracts/common.md#principled-implementation Stores a local surface meeting and its implicit first/second rates under the original nonsingular-Jacobian premise.
-   * @evidence contracts/common.md#clear-and-simple-design Named world and chart fields keep both preimages and the same parameter jet together.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The record certifies no global branch uniqueness, finite arithmetic or continuous transversality.
-   * @evidence contracts/common.md#meaningful-documentation Fields give mm world vectors, chart units, radian parameter rates and host-face identity.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A point shape executes no Newton or rate solve.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Data coordinates no work; the original solver supplies the accepted point and rates.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Computed vectors/rates and borrowed surface point data live with the result; it stores no callback or global history.
+   * @evidence contracts/development/design.md#principled-representation Stores a local surface meeting and its implicit first/second rates under the original nonsingular-Jacobian premise.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Named world and chart fields keep both preimages and the same parameter jet together.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record certifies no global branch uniqueness, finite arithmetic or continuous transversality.
+   * @evidence contracts/development/common.md#meaningful-documentation Fields give mm world vectors, chart units, radian parameter rates and host-face identity.
    */
   export interface IPoint {
     /** The parameter in radians: part phase, footprint angle, or the current normalized arc-guide phase. */
@@ -134,13 +128,10 @@ export namespace AutoMovieSolidIntersection {
   /**
    * The curve's parameter.
    *
-   * @evidence contracts/common.md#principled-implementation The closed phase/angle/arc request selects the trace's fourth equation while retaining each mode's declared geometric requirement.
-   * @evidence contracts/common.md#clear-and-simple-design Only angle stores a centre/normal/reference; phase and requested arc need no extra authored geometry.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Current arc construction is a reference-guide approximation to requested arclength, not a proof that this requirement is satisfied.
-   * @evidence contracts/common.md#meaningful-documentation Documents centre mm, direction data and mode-dependent parameter meaning.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This union runs no law or reference-walk preparation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no computation; the law builder owns its prepared basis/control data.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The curve retains the requested parameter object; angle laws borrow its original centre tuple and do not provide mutation invalidation.
+   * @evidence contracts/development/design.md#principled-representation The closed phase/angle/arc request selects the trace's fourth equation while retaining each mode's declared geometric requirement.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only angle stores a centre/normal/reference; phase and requested arc need no extra authored geometry.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Current arc construction is a reference-guide approximation to requested arclength, not a proof that this requirement is satisfied.
+   * @evidence contracts/development/common.md#meaningful-documentation Documents centre mm, direction data and mode-dependent parameter meaning.
    */
   export type Parameter =
     | { kind: "phase" }
@@ -174,13 +165,10 @@ export namespace AutoMovieSolidIntersection {
   /**
    * A traced closed loop.
    *
-   * @evidence contracts/common.md#principled-implementation Represents the original one-turn observations plus the reader that corrects from their nearest stored parameter.
-   * @evidence contracts/common.md#clear-and-simple-design One record keeps parameter/winding metadata and its original shared point array with the callable reader.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Finite samples do not certify a global intersection, exact arc length or every intermediate domain/grazing condition.
-   * @evidence contracts/common.md#meaningful-documentation States periodic shifts, source identities and the reader's local corrected result.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The record selects no numerical algorithm; trace and its reader own continuation costs.
-   * @evidence contracts/performance.md#reuse-equivalent-work The same public points array and law dependencies are used by at rather than a detached second snapshot.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The retained reader captures original surfaces/atlas/law and points for the curve lifetime; no release hook or new query map is added.
+   * @evidence contracts/development/design.md#principled-representation Represents the original one-turn observations plus the reader that corrects from their nearest stored parameter.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One record keeps parameter/winding metadata and its original shared point array with the callable reader.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Finite samples do not certify a global intersection, exact arc length or every intermediate domain/grazing condition.
+   * @evidence contracts/development/common.md#meaningful-documentation States periodic shifts, source identities and the reader's local corrected result.
    */
   export interface ICurve {
     /** The part's surface name. */
@@ -209,13 +197,13 @@ export namespace AutoMovieSolidIntersection {
      * @returns The point, its phases on the branch of the traced point it
      *   starts from, or null where Newton fails there.
      *
-     * @evidence contracts/common.md#principled-implementation Corrects from the original nearest stored parameter and restores host/part winding shifts for a finite real t.
-     * @evidence contracts/common.md#clear-and-simple-design One captured arrow reader preserves the same points array, surfaces and law.
-     * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no finite-query guard, global branch certificate or intermediate domain repair; original failure/throw behavior remains.
-     * @evidence contracts/common.md#meaningful-documentation States finite parameter input, periodic shift and nullable local correction.
-     * @evidence contracts/performance.md#efficient-algorithms Constant index selection plus original advance/solve costs; accepted substeps have no newly imposed bound.
-     * @evidence contracts/performance.md#reuse-equivalent-work Uses original traced points instead of retracing and does not memoize query outputs.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the original shifted point representation and captures only its curve's existing source dependencies.
+     * @evidence contracts/development/implementation.md#principled-implementation Corrects from the original nearest stored parameter and restores host/part winding shifts for a finite real t.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One captured arrow reader preserves the same points array, surfaces and law.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no finite-query guard, global branch certificate or intermediate domain repair; original failure/throw behavior remains.
+     * @evidence contracts/development/common.md#meaningful-documentation States finite parameter input, periodic shift and nullable local correction.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Constant index selection plus original advance/solve costs; accepted substeps have no newly imposed bound.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses original traced points instead of retracing and does not memoize query outputs.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the original shifted point representation and captures only its curve's existing source dependencies.
      */
     at(t: number): IPoint | null;
   }
@@ -223,13 +211,10 @@ export namespace AutoMovieSolidIntersection {
   /**
    * What a trace needs.
    *
-   * @evidence contracts/common.md#principled-implementation Names the periodic part, host union, seed, declared parameter and original trace limits.
-   * @evidence contracts/common.md#clear-and-simple-design One borrowed request separates source surfaces from curve output.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Valid face indices, finite regular callback data and finite integral counts are premises; current tracing checks count>=8 without adding those missing admissions.
-   * @evidence contracts/common.md#meaningful-documentation Members state parameter units, optional phase default, gap tolerance and sampled grazing threshold.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The descriptor runs no trace or admission algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work It schedules no work; the same references are passed to original law/solver owners.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns input callbacks/data; a successful curve retains its original referenced sources and parameter dependencies.
+   * @evidence contracts/development/design.md#principled-representation Names the periodic part, host union, seed, declared parameter and original trace limits.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One borrowed request separates source surfaces from curve output.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Valid face indices, finite regular callback data and finite integral counts are premises; current tracing checks count>=8 without adding those missing admissions.
+   * @evidence contracts/development/common.md#meaningful-documentation Members state parameter units, optional phase default, gap tolerance and sampled grazing threshold.
    */
   export interface IInput {
     /** The attached part, `v` periodic. */
@@ -257,13 +242,10 @@ export namespace AutoMovieSolidIntersection {
   /**
    * A trace's result: the curve, or null with the diagnostics that say why.
    *
-   * @evidence contracts/common.md#principled-implementation Carries the original nullable curve with ordered diagnostics, including possible grazing observations beside a nonnull curve.
-   * @evidence contracts/common.md#clear-and-simple-design Separates returned rejection from retained curve data without encoding thrown callbacks as results.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A result does not prove an empty diagnostic list or convert throws into recoverable nulls.
-   * @evidence contracts/common.md#meaningful-documentation Fields distinguish curve ownership, failure and diagnostics.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The result type executes no continuation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no work and holds original trace outputs.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The reader owns diagnostics and any returned curve dependencies; a null curve does not retain the trace's temporary arrays through this result.
+   * @evidence contracts/development/design.md#principled-representation Carries the original nullable curve with ordered diagnostics, including possible grazing observations beside a nonnull curve.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Separates returned rejection from retained curve data without encoding thrown callbacks as results.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A result does not prove an empty diagnostic list or convert throws into recoverable nulls.
+   * @evidence contracts/development/common.md#meaningful-documentation Fields distinguish curve ownership, failure and diagnostics.
    */
   export interface IResult {
     /** The curve; null when the seed finds no meeting or the loop does not close. */
@@ -279,13 +261,13 @@ export namespace AutoMovieSolidIntersection {
    * @param input The two surfaces, the seed, the parameter and the trace's limits.
    * @returns The curve and its diagnostics.
    *
-   * @evidence contracts/common.md#principled-implementation Delegates the original continuation/publication statements with the same input and unchanged public walk controls.
-   * @evidence contracts/common.md#clear-and-simple-design The stable public namespace retains types/constants while the trace and walk owners hold the execution responsibilities.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no numerical, solver, count, domain, callback or diagnostic policy.
-   * @evidence contracts/common.md#meaningful-documentation Preserves the original public signature and distinguishes local observations from a global geometric certificate.
-   * @evidence contracts/performance.md#efficient-algorithms Includes C output targets, original continuation accepted-substep work and optional bounded reference walks rather than only wrapper cost.
-   * @evidence contracts/performance.md#reuse-equivalent-work The same accepted points and law feed the original reader; no retracing or detached snapshot is introduced.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Successful curves retain original captures; the façade acquires no additional resource or cache.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the original continuation/publication statements with the same input and unchanged public walk controls.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The stable public namespace retains types/constants while the trace and walk owners hold the execution responsibilities.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no numerical, solver, count, domain, callback or diagnostic policy.
+   * @evidence contracts/development/common.md#meaningful-documentation Preserves the original public signature and distinguishes local observations from a global geometric certificate.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Includes C output targets, original continuation accepted-substep work and optional bounded reference walks rather than only wrapper cost.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same accepted points and law feed the original reader; no retracing or detached snapshot is introduced.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Successful curves retain original captures; the façade acquires no additional resource or cache.
    */
   export function trace(input: IInput): IResult {
     return AutoMovieSolidIntersectionTrace.create(
@@ -303,13 +285,13 @@ export namespace AutoMovieSolidIntersection {
    * @param u Its first chart parameter.
    * @returns A description with the numbers, or null inside the domain or without one.
    *
-   * @evidence contracts/common.md#principled-implementation Delegates the identical optional-u-domain comparison and original outside description.
-   * @evidence contracts/common.md#clear-and-simple-design Preserves the public range reader alongside its moved implementation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not clamp, widen a domain or change exception behavior.
-   * @evidence contracts/common.md#meaningful-documentation States null inside or absent, and the original string outside.
-   * @evidence contracts/performance.md#efficient-algorithms Constant scalar/property work in the implementation owner, with no jet query.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reads the current domain on every call rather than caching its identity.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns only null or a string and retains no source.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the identical optional-u-domain comparison and original outside description.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Preserves the public range reader alongside its moved implementation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not clamp, widen a domain or change exception behavior.
+   * @evidence contracts/development/common.md#meaningful-documentation States null inside or absent, and the original string outside.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar/property work in the implementation owner, with no jet query.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads the current domain on every call rather than caching its identity.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns only null or a string and retains no source.
    */
   export function beyond(
     surface: IAutoMovieSolidSurface,
@@ -334,13 +316,13 @@ export namespace AutoMovieSolidIntersection {
    * @param host The host.
    * @returns The atlas.
    *
-   * @evidence contracts/common.md#principled-implementation Delegates original host normalization, reusing an existing atlas or wrapping one surface.
-   * @evidence contracts/common.md#clear-and-simple-design Maintains the public host-union adapter used by Join and other solid callers.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no domain admission or boundary fallback; one-face kept/across remain true/null.
-   * @evidence contracts/common.md#meaningful-documentation States existing-atlas identity and fixed single-surface wrapper semantics.
-   * @evidence contracts/performance.md#efficient-algorithms Constant work and fixed wrapper allocation for a surface.
-   * @evidence contracts/performance.md#reuse-equivalent-work An already supplied atlas is returned by identity, without another snapshot.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The wrapper borrows the source surface and belongs to the caller; no global adapter cache is retained.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates original host normalization, reusing an existing atlas or wrapping one surface.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Maintains the public host-union adapter used by Join and other solid callers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no domain admission or boundary fallback; one-face kept/across remain true/null.
+   * @evidence contracts/development/common.md#meaningful-documentation States existing-atlas identity and fixed single-surface wrapper semantics.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and fixed wrapper allocation for a surface.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work An already supplied atlas is returned by identity, without another snapshot.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The wrapper borrows the source surface and belongs to the caller; no global adapter cache is retained.
    */
   export function atlas(
     host: IAutoMovieSolidSurface | IAutoMovieSolidAtlas,

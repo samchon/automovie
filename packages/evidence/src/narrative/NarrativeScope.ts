@@ -8,13 +8,10 @@
  * `scripts` and `screenplay` carry the part and episode partition that `scripts`
  * designs, so a pilot names the one part it authors.
  *
- * @evidence contracts/common.md#principled-implementation The discriminated union selects all authored parts or one explicitly named first part; flat treatments retain the events currently authored rather than a fictitious release partition.
- * @evidence contracts/common.md#clear-and-simple-design The discriminant selects full work or one exact first part while leaving treatments unpartitioned.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The template literal fixes only the 001 prefix; createNarrativeUnitFiles validates the remaining lower-kebab spelling.
- * @evidence contracts/common.md#meaningful-documentation The prose explains separate narrative axes, pilot treatments content and exact named script/screenplay part.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Narrative population scope is erased at runtime; producing and consuming functions account for concrete traversal and allocation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Narrative population scope declares data and coordinates no reusable effects; consumers own equivalence and invalidation.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Narrative population scope acquires no resource or retained state; concrete owners determine instance bytes and lifetimes.
+ * @evidence contracts/development/design.md#principled-representation The discriminated union selects all authored parts or one explicitly named first part; flat treatments retain the events currently authored rather than a fictitious release partition.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The discriminant selects full work or one exact first part while leaving treatments unpartitioned.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The template literal fixes only the 001 prefix; createNarrativeUnitFiles validates the remaining lower-kebab spelling.
+ * @evidence contracts/development/common.md#meaningful-documentation The prose explains separate narrative axes, pilot treatments content and exact named script/screenplay part.
  */
 export type NarrativeScope =
   | {

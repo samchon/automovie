@@ -22,10 +22,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * Scenarios:
  * 1. Retains simultaneous blank beat/actor/camera/node subjects, including space and tab spellings; nonblank positive admission belongs to perform_shot_valid.
  *
- * @evidence contracts/testing.md#behavioral-verification Performs an explicitly staged world with matching blank beat, actor, camera and frame-target ids; checks refusal at every original owning field.
- * @evidence contracts/testing.md#independent-expectations Whitespace-only references violate the nonblank identity contract even when matching staged ids exist; independent authored field paths identify each failure.
- * @evidence contracts/testing.md#distinguishing-cases Retains simultaneous blank beat/actor/camera/node subjects, including space and tab spellings; nonblank positive admission belongs to perform_shot_valid.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_nonempty_refs unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs an explicitly staged world with matching blank beat, actor, camera and frame-target ids; checks refusal at every original owning field.
+ * @evidence contracts/development/testing.md#independent-expectations Whitespace-only references violate the nonblank identity contract even when matching staged ids exist; independent authored field paths identify each failure.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains simultaneous blank beat/actor/camera/node subjects, including space and tab spellings; nonblank positive admission belongs to perform_shot_valid.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_nonempty_refs unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Retains simultaneous blank beat/actor/camera/node subjects, including space and tab spellings; nonblank positive admission belongs to...).
  */
 export function test_film_perform_shot_nonempty_refs(): void {
   const baseScript: IAutoMovieScript = makeScriptWrite();

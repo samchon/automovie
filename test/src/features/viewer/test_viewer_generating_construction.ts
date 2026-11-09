@@ -10,10 +10,11 @@ import * as THREE from "three";
  * 2. Repeated disposal emits each native disposal event once.
  * 3. Sparse/nonfinite/float32-overflow points, duplicate identities and point exhaustion refuse.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds actual native line objects, checks their position buffers and closure kinds, then listens to native disposal events without replacing methods. Invalid resident inputs must throw before creating an accepted result.
- * @evidence contracts/testing.md#independent-expectations Explicit input points and Line/LineLoop closure semantics define expected native positions and topology; two allocated geometries and their shared material each own one disposal event.
- * @evidence contracts/testing.md#distinguishing-cases Covers open versus closed polylines, shared material identity, repeat retirement, duplicate IDs, sparse coordinates, nonfinite and float32-unrepresentable values, and exact point-budget boundary. GPU appearance and pixel acceptance are real-host inspection responsibilities.
- * @evidence contracts/testing.md#execution-ownership The portable async test_viewer_generating_construction entry creates Three CPU objects and native event listeners only, with no renderer, browser, process, installation, global replacement or Human viewer.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds actual native line objects, checks their position buffers and closure kinds, then listens to native disposal events without replacing methods. Invalid resident inputs must throw before creating an accepted result.
+ * @evidence contracts/development/testing.md#independent-expectations Explicit input points and Line/LineLoop closure semantics define expected native positions and topology; two allocated geometries and their shared material each own one disposal event.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers open versus closed polylines, shared material identity, repeat retirement, duplicate IDs, sparse coordinates, nonfinite and float32-unrepresentable values, and exact point-budget boundary. GPU appearance and pixel acceptance are real-host inspection responsibilities.
+ * @evidence contracts/development/testing.md#execution-ownership The portable async test_viewer_generating_construction entry creates Three CPU objects and native event listeners only, with no renderer, browser, process, installation, global replacement or Human viewer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Closed and open generating lines retain point order and share one owned material.).
  */
 export async function test_viewer_generating_construction(): Promise<void> {
   const lines: Parameters<typeof buildAutoMovieConstruction>[0] = [

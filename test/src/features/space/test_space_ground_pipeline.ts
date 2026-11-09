@@ -123,10 +123,11 @@ const gait: IAutoMovieMotion = {
  * 4. The corrected clip also passes `validateGroundContact` judged against the
  *    space heights: the sampled foot does not penetrate beyond the tolerance.
  *
- * @evidence contracts/testing.md#behavioral-verification Composes spaceGround, followPathMotion and plantStanceFeet, checking a hand-computed mid-path height, off-surface defaults, raw foot-skate warnings, and warning-free planted motion under foot-skate and ground-penetration validators.
- * @evidence contracts/testing.md#independent-expectations The authored ramp has slope 0.4/2=0.2, so halfway along the 0.15 m path gives height 0.015. Off-surface fallback is explicitly zero or 7. A planted stance should remove horizontal skate while remaining above ground minus 0.001 m; the ground validator does not measure floating height or visible appearance.
- * @evidence contracts/testing.md#distinguishing-cases A rising path, absent-surface fallback, raw skating negative twin and corrected clip test one bent leg with reach slack. Steep/unreachable climbs, other legs, stance transitions and viewer behavior are outside this numerical composition.
- * @evidence contracts/testing.md#execution-ownership The named test_space_ground_pipeline entry owns this portable in-memory path/IK/validator composition directly, with no render host or dynamically registered cases; its numerical assertions are not visual validation.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes spaceGround, followPathMotion and plantStanceFeet, checking a hand-computed mid-path height, off-surface defaults, raw foot-skate warnings, and warning-free planted motion under foot-skate and ground-penetration validators.
+ * @evidence contracts/development/testing.md#independent-expectations The authored ramp has slope 0.4/2=0.2, so halfway along the 0.15 m path gives height 0.015. Off-surface fallback is explicitly zero or 7. A planted stance should remove horizontal skate while remaining above ground minus 0.001 m; the ground validator does not measure floating height or visible appearance.
+ * @evidence contracts/development/testing.md#distinguishing-cases A rising path, absent-surface fallback, raw skating negative twin and corrected clip test one bent leg with reach slack. Steep/unreachable climbs, other legs, stance transitions and viewer behavior are outside this numerical composition.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_space_ground_pipeline entry owns this portable in-memory path/IK/validator composition directly, with no render host or dynamically registered cases; its numerical assertions are not visual validation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `followPathMotion` with the space ground climbs the ramp: the mid-path).
  */
 export function test_space_ground_pipeline(): void {
   const ground: ReturnType<typeof spaceGround> = spaceGround(space);

@@ -18,10 +18,11 @@ import { nclose } from "../internal/nclose";
  * 2. Origin/cancellation or numeric refusal preserves the declared state.
  * 3. Registered consumers share the same admitted field.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls public network sampling/rig construction on off-origin and concave polygons and a B-spline, a translating section with a legitimate averaged origin, a varying scale, actual registry-derived network curves, and the unchanged radial circle.
- * @evidence contracts/testing.md#independent-expectations A rectangle edge has section y=1 and x=2+8v; symmetric trapezoid means reproduce these affine coordinates. Convex weights keep a concave outline inside coordinate bounds. Opposite affine translations cancel exactly. Direction-correspondence circle samples retain the radius rather than Cartesian chord attenuation.
- * @evidence contracts/testing.md#distinguishing-cases The old radius/cos/sin reconstruction violates the positive coordinate bound, while applying Cartesian averaging to radial sweeps shrinks the independent circle case. The origin case rejects blanket nonzero-input positivity guards.
- * @evidence contracts/testing.md#execution-ownership Portable synchronous scenario; real compiles and public producers are inside the timed entry, without substituted internals or foreign hooks.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public network sampling/rig construction on off-origin and concave polygons and a B-spline, a translating section with a legitimate averaged origin, a varying scale, actual registry-derived network curves, and the unchanged radial circle.
+ * @evidence contracts/development/testing.md#independent-expectations A rectangle edge has section y=1 and x=2+8v; symmetric trapezoid means reproduce these affine coordinates. Convex weights keep a concave outline inside coordinate bounds. Opposite affine translations cancel exactly. Direction-correspondence circle samples retain the radius rather than Cartesian chord attenuation.
+ * @evidence contracts/development/testing.md#distinguishing-cases The old radius/cos/sin reconstruction violates the positive coordinate bound, while applying Cartesian averaging to radial sweeps shrinks the independent circle case. The origin case rejects blanket nonzero-input positivity guards.
+ * @evidence contracts/development/testing.md#execution-ownership Portable synchronous scenario; real compiles and public producers are inside the timed entry, without substituted internals or foreign hooks.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Ordinary geometry follows its correspondence and numeric domain.).
  */
 export function test_geometry_sweep_parameter_cells(): void {
   const counts: (n: number) => IAutoMovieSurfaceNetwork.ICounts = (
@@ -128,14 +129,31 @@ export function test_geometry_sweep_parameter_cells(): void {
         outline.targets[i + 2]! <= 0.4 + 1e-14,
     );
   const spline: IAutoMovieSweepSection = { type: "bspline", points: rectangle };
-  const splineTarget: ReturnType<typeof sampleAutoMovieSurfaceNetwork> = sampleAutoMovieSurfaceNetwork({
-    network: network({ ...source, stations: [{ at: 0, section: spline }, { at: 1, section: spline }] }, [0, 1], 8, 3),
-    tier: "medium", fit: false,
-  });
+  const splineTarget: ReturnType<typeof sampleAutoMovieSurfaceNetwork> =
+    sampleAutoMovieSurfaceNetwork({
+      network: network(
+        {
+          ...source,
+          stations: [
+            { at: 0, section: spline },
+            { at: 1, section: spline },
+          ],
+        },
+        [0, 1],
+        8,
+        3,
+      ),
+      tier: "medium",
+      fit: false,
+    });
   for (let i: number = 0; i < splineTarget.targets.length; i += 3)
-    TestValidator.predicate("parameter B-spline points retain their control-hull bounds",
-      splineTarget.targets[i]! >= 1 - 1e-13 && splineTarget.targets[i]! <= 3 + 1e-13 &&
-      splineTarget.targets[i + 2]! >= 2 - 1e-13 && splineTarget.targets[i + 2]! <= 4 + 1e-13);
+    TestValidator.predicate(
+      "parameter B-spline points retain their control-hull bounds",
+      splineTarget.targets[i]! >= 1 - 1e-13 &&
+        splineTarget.targets[i]! <= 3 + 1e-13 &&
+        splineTarget.targets[i + 2]! >= 2 - 1e-13 &&
+        splineTarget.targets[i + 2]! <= 4 + 1e-13,
+    );
   const translated: IAutoMovieSweepSection.IPoint[] = rectangle.map(
     (point: IAutoMovieSweepSection.IPoint): IAutoMovieSweepSection.IPoint => ({
       x: point.x - 6,

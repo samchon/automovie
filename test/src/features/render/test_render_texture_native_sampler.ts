@@ -23,10 +23,11 @@ import { material } from "../internal/renderFixtures";
  *    lanes, and a complete supported binding sampler retains generated storage.
  * 3. Unknown-state and native-filter changes invalidate the upload digest.
  *
- * @evidence contracts/testing.md#behavioral-verification Observes actual CPU texture/clone metadata, measures native filter sharing and unsupported inheritance through the real closure, and checks upload digest changes and native key distinctions.
- * @evidence contracts/testing.md#independent-expectations Each 4-by-4 RGBA8 generated chain costs (16+4+1)*4 = 84 bytes, while disabled generation costs 64; expected null sampler state and equality/distinction relations come from authored native flags.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts two supported non-authorable native filters with matching state, invalid inherited magnification versus complete binding replacement, invalid wrap/minification fields, NaN/Infinity keys and equivalent falsy wrapR keys.
- * @evidence contracts/testing.md#execution-ownership Owns CPU Three DataTextures and clones, loads the module asynchronously and disposes every created texture on the successful path; the portable runner observes metadata only, without WebGL upload, native retirement or failure-cleanup verification.
+ * @evidence contracts/development/testing.md#behavioral-verification Observes actual CPU texture/clone metadata, measures native filter sharing and unsupported inheritance through the real closure, and checks upload digest changes and native key distinctions.
+ * @evidence contracts/development/testing.md#independent-expectations Each 4-by-4 RGBA8 generated chain costs (16+4+1)*4 = 84 bytes, while disabled generation costs 64; expected null sampler state and equality/distinction relations come from authored native flags.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts two supported non-authorable native filters with matching state, invalid inherited magnification versus complete binding replacement, invalid wrap/minification fields, NaN/Infinity keys and equivalent falsy wrapR keys.
+ * @evidence contracts/development/testing.md#execution-ownership Owns CPU Three DataTextures and clones, loads the module asynchronously and disposes every created texture on the successful path; the portable runner observes metadata only, without WebGL upload, native retirement or failure-cleanup verification.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two actual clones using nearest/linear nearest-mip filters retain two).
  */
 export async function test_render_texture_native_sampler(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

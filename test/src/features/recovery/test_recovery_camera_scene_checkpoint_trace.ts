@@ -19,10 +19,11 @@ import { nclose } from "../internal/nclose";
  * 2. An observer mutates every owned state without changing results, work counters, input geometry or previously retained snapshots.
  * 3. A numerical-looking observer error propagates unchanged and cannot become a geometric refusal or accepted checkpoint.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual completion owner with tracing disabled and enabled, compares numerical results and consumed work, and inspects both complete populations before final filtering.
- * @evidence contracts/testing.md#independent-expectations Prescribed analytic coordinates and original feature identities construct the seed. The observation-only contract requires identical ordinary results and immutable inputs; it does not assert photographic accuracy. The one-step budget independently precludes treating unfinished joint fitting as success.
- * @evidence contracts/testing.md#distinguishing-cases Covers absent observers, mutating observers, paired states of a refused fit, old and new points, compact source identity, same-population cost and thrown observer identity. Scene transaction tests own closure acceptance and rollback after aggregate budget exhaustion.
- * @evidence contracts/testing.md#execution-ownership The discoverable portable test_recovery_camera_scene_checkpoint_trace entry uses resident numerical arrays and callbacks; no file, process, compiler, installation, browser or GPU starts.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual completion owner with tracing disabled and enabled, compares numerical results and consumed work, and inspects both complete populations before final filtering.
+ * @evidence contracts/development/testing.md#independent-expectations Prescribed analytic coordinates and original feature identities construct the seed. The observation-only contract requires identical ordinary results and immutable inputs; it does not assert photographic accuracy. The one-step budget independently precludes treating unfinished joint fitting as success.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers absent observers, mutating observers, paired states of a refused fit, old and new points, compact source identity, same-population cost and thrown observer identity. Scene transaction tests own closure acceptance and rollback after aggregate budget exhaustion.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable portable test_recovery_camera_scene_checkpoint_trace entry uses resident numerical arrays and callbacks; no file, process, compiler, installation, browser or GPU starts.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An analytic seed and perturbed third camera produce complete paired states, including newly triangulated points and observations, even...).
  */
 export function test_recovery_camera_scene_checkpoint_trace(): void {
   const fixture: ReturnType<typeof createRecoverySceneNumericalFixture> =

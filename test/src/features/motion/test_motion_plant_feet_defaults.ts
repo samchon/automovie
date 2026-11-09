@@ -73,10 +73,11 @@ const skating: IAutoMovieMotion = {
  * 1. The default left leg plants (one run for leftFoot).
  * 2. The absent rightFoot (named by the default legs) produces no run.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls plantStanceFeet with omitted options and checks the emitted plant count and foot identity, observing default leg selection and missing-foot handling in the product result.
- * @evidence contracts/testing.md#independent-expectations The unchanged rig contains only leftFoot at zero height, so the authored expectation is exactly one leftFoot run with no rightFoot record. No expected value is extracted from the default chain table; exact clock, tolerance and corrected coordinates are not asserted here.
- * @evidence contracts/testing.md#distinguishing-cases Preserves present left versus absent right within the same omitted-options call and the original 0.15-metre root travel. Explicit legs, malformed chains, exact default scalar boundaries and pin geometry belong to adjacent units.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns its direct planting call with local in-memory rig and motion; the transform helper registers no cases and no renderer, viewer or native artifact is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls plantStanceFeet with omitted options and checks the emitted plant count and foot identity, observing default leg selection and missing-foot handling in the product result.
+ * @evidence contracts/development/testing.md#independent-expectations The unchanged rig contains only leftFoot at zero height, so the authored expectation is exactly one leftFoot run with no rightFoot record. No expected value is extracted from the default chain table; exact clock, tolerance and corrected coordinates are not asserted here.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves present left versus absent right within the same omitted-options call and the original 0.15-metre root travel. Explicit legs, malformed chains, exact default scalar boundaries and pin geometry belong to adjacent units.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns its direct planting call with local in-memory rig and motion; the transform helper registers no cases and no renderer, viewer or native artifact is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The default left leg plants (one run for leftFoot).).
  */
 export function test_motion_plant_feet_defaults(): void {
   const planted: ReturnType<typeof plantStanceFeet> = plantStanceFeet({

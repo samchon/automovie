@@ -2,8 +2,8 @@ import type { AutoMovieConstructionContinuity } from "./AutoMovieConstructionCon
 import type { AutoMovieConstructionJoinKind } from "./AutoMovieConstructionJoinKind";
 import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
 import type { AutoMovieConstructionParameter } from "./AutoMovieConstructionParameter";
-import type { AutoMovieConstructionWidth } from "./AutoMovieConstructionWidth";
 import type { AutoMovieConstructionSeed } from "./AutoMovieConstructionSeed";
+import type { AutoMovieConstructionWidth } from "./AutoMovieConstructionWidth";
 
 /**
  * A part joined onto a host: a merge (the union of the two solids) or a diff (the part cut from the host), along the curve where their surfaces meet, with a blend of declared continuity between a rail on each.
@@ -12,10 +12,10 @@ import type { AutoMovieConstructionSeed } from "./AutoMovieConstructionSeed";
  *
  * Engine admission: `seed.partFace` a view part of the part's subtree and `seed.hostFace` a face of the host's; a diff's part a view part, since only the cutter's wall inside the host is kept; `count` a positive multiple of 4 of at least 8; `rows` a positive integer; `tolerance` and `grazing` positive.
  *
- * @evidence contracts/common.md#principled-implementation The surface-surface intersection is traced as a function of a declared parameter by Newton's method with exact jets from the implicit function theorem, and the blend is the quintic Hermite between both surfaces' 2-jets along their rails, G2 by construction (Patrikalakis, Maekawa and Cho, Shape Interrogation, ch. 5; Vida, Martin and Varady, A survey of blending methods, 1994).
- * @evidence contracts/common.md#clear-and-simple-design One record serves the merge and the diff, which differ only in the kept sides; the host as a subtree covers branches, overhangs, corners where two blends meet, and parts merged at both ends without special cases.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No join is made along a section's rays, by a distance field or on a mesh; a failed premise leaves the join out with a diagnostic instead of a fallback shape.
- * @evidence contracts/common.md#meaningful-documentation States both kinds, the roles of host and part, what the engine computes, the kept sides, the failure effect and the admission rules.
+ * @evidence contracts/development/design.md#principled-representation The surface-surface intersection is traced as a function of a declared parameter by Newton's method with exact jets from the implicit function theorem, and the blend is the quintic Hermite between both surfaces' 2-jets along their rails, G2 by construction (Patrikalakis, Maekawa and Cho, Shape Interrogation, ch. 5; Vida, Martin and Varady, A survey of blending methods, 1994).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record serves the merge and the diff, which differ only in the kept sides; the host as a subtree covers branches, overhangs, corners where two blends meet, and parts merged at both ends without special cases.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No join is made along a section's rays, by a distance field or on a mesh; a failed premise leaves the join out with a diagnostic instead of a fallback shape.
+ * @evidence contracts/development/common.md#meaningful-documentation States both kinds, the roles of host and part, what the engine computes, the kept sides, the failure effect and the admission rules.
  */
 export interface IAutoMovieConstructionJoin {
   /** Discriminator. */

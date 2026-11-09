@@ -19,10 +19,11 @@ import { nclose } from "../internal/nclose";
  * 3. A 90 degree position morph, skeletal binding and transformed normal/detail/overlay maps retain their derivative-frame route.
  * 4. Collapsed UVs cannot publish a zero explicit tangent as a supported unit frame.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual model builder and observes tangent publication, morph/skin route preservation, material-map registrations and unchanged source arrays; no shader or renderer method is replaced.
- * @evidence contracts/testing.md#independent-expectations A planar XY strip has normal +Z, across-card +X and root-tip +Y. Unit length and orthogonality follow from this authored frame rather than an expected image.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts extreme aspect, mirrored UVs, isotropic omission, morph/skin deformation, transformed normal/detail/overlay maps and collapsed UVs. Mapped/deforming anisotropy and rendered highlight improvement remain unproven rather than covered by the rigid fix.
- * @evidence contracts/testing.md#execution-ownership Portable native Three metadata construction without a browser, texture decode or GPU. This entry owns and disposes the built geometry and material objects.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual model builder and observes tangent publication, morph/skin route preservation, material-map registrations and unchanged source arrays; no shader or renderer method is replaced.
+ * @evidence contracts/development/testing.md#independent-expectations A planar XY strip has normal +Z, across-card +X and root-tip +Y. Unit length and orthogonality follow from this authored frame rather than an expected image.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts extreme aspect, mirrored UVs, isotropic omission, morph/skin deformation, transformed normal/detail/overlay maps and collapsed UVs. Mapped/deforming anisotropy and rendered highlight improvement remain unproven rather than covered by the rigid fix.
+ * @evidence contracts/development/testing.md#execution-ownership Portable native Three metadata construction without a browser, texture decode or GPU. This entry owns and disposes the built geometry and material objects.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A very short wide strip has unit orthogonal tangent/bitangent and the authored root-tip direction.).
  */
 export function test_viewer_anisotropy_tangent(): void {
   const base: IAutoMovieModel = createModel();

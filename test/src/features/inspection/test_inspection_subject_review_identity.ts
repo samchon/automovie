@@ -31,10 +31,11 @@ import { throwsError } from "../internal/throwsError";
  * 3. A missing subject fails through the shared compiled-subject resolver
  *    rather than producing an empty review unit.
  *
- * @evidence contracts/testing.md#behavioral-verification Resolves four structural subject review targets and asserts exact identity, revision, owner/placement/prototype links and inspection-only authority; substituting another role or admitting a missing subject fails.
- * @evidence contracts/testing.md#independent-expectations Literal authored subject addresses and revision define the expected four records, rather than calling another resolver for the expected array. Filtering formation units cannot hide a wrong role because the full four-record equality still fails on a missing entry; formation review is outside this structural population.
- * @evidence contracts/testing.md#distinguishing-cases Keeps reusable prototype, placed part, compact member and logical space, with their distinct nullable ownership links and missing-id refusal; production parity separately owns the negative delivery-evidence type consumer.
- * @evidence contracts/testing.md#execution-ownership This exported inspection entry is discovered by the normal test runner and directly invokes review-unit source on an in-memory compiled artifact; it checks identity/eligibility, not actual camera coverage or delivered imagery.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves four structural subject review targets and asserts exact identity, revision, owner/placement/prototype links and inspection-only authority; substituting another role or admitting a missing subject fails.
+ * @evidence contracts/development/testing.md#independent-expectations Literal authored subject addresses and revision define the expected four records, rather than calling another resolver for the expected array. Filtering formation units cannot hide a wrong role because the full four-record equality still fails on a missing entry; formation review is outside this structural population.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps reusable prototype, placed part, compact member and logical space, with their distinct nullable ownership links and missing-id refusal; production parity separately owns the negative delivery-evidence type consumer.
+ * @evidence contracts/development/testing.md#execution-ownership This exported inspection entry is discovered by the normal test runner and directly invokes review-unit source on an in-memory compiled artifact; it checks identity/eligibility, not actual camera coverage or delivered imagery.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Prototype, placed part, compact instance, and space targets retain the).
  */
 export function test_inspection_subject_review_identity(): void {
   const artifact: IAutoMovieSubjectArtifact = subjectInspectionArtifact({

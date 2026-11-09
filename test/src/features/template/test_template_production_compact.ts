@@ -18,10 +18,11 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * 3. Removing an actual canon citation exposes missing native coverage.
  * 4. Direct screenplay mode rejects an active settings stage.
  *
- * @evidence contracts/testing.md#behavioral-verification Evaluates the public compact configuration, then changes canon and removes the actual dependency annotation; checks complete native reports and stale-review diagnostics.
- * @evidence contracts/testing.md#independent-expectations The authored one-scene fixture supplies its real settings dependency and current fingerprints. Removing that edge or changing reviewed body bytes must produce native errors.
- * @evidence contracts/testing.md#distinguishing-cases Complete, changed-parent and missing-citation cases distinguish relationship coverage from review freshness; direct short routing preserves its separate layer boundary.
- * @evidence contracts/testing.md#execution-ownership This exported test evaluates native Evidence in process, owns its unique temporary files and removes them in finally. It starts no installation, subprocess, browser or GPU and replaces no foreign method.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public compact configuration, then changes canon and removes the actual dependency annotation; checks complete native reports and stale-review diagnostics.
+ * @evidence contracts/development/testing.md#independent-expectations The authored one-scene fixture supplies its real settings dependency and current fingerprints. Removing that edge or changing reviewed body bytes must produce native errors.
+ * @evidence contracts/development/testing.md#distinguishing-cases Complete, changed-parent and missing-citation cases distinguish relationship coverage from review freshness; direct short routing preserves its separate layer boundary.
+ * @evidence contracts/development/testing.md#execution-ownership This exported test evaluates native Evidence in process, owns its unique temporary files and removes them in finally. It starts no installation, subprocess, browser or GPU and replaces no foreign method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Complete settings and screenplay need no treatment, script or outline population.).
  */
 
 export async function test_template_production_compact(): Promise<void> {

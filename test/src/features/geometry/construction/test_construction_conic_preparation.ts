@@ -28,10 +28,11 @@ type Prepared = AutoMovieViewSectionField.IPrepared;
  * 4. Owned precise coverage observes at most eight endpoint-curvature calls per
  *    successful Field.prepare, allowing fewer calls and refusing missing coverage.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual Field.prepare/read and public generic curvature/geometry/end producers; catches lost derivatives, changed admission/effects and duplicated endpoint calculation in that public field operation.
- * @evidence contracts/testing.md#independent-expectations Implicit ellipses provide independent radial six-jets and positive finite output. Generic composition is a compatibility oracle sharing primitives, not independent geometry. Four quarters have eight own endpoints, so eight curvature calls is a work ceiling; absent function observations cannot pass as zero.
- * @evidence contracts/testing.md#distinguishing-cases Covers ellipse ties, asymmetric active G2 ends, reciprocal scales, negative/periodic phases, fresh/copy data, malformed/overflow inputs, generic callback order and original Error/undefined failures. Existing conic_field/source_conic/projective questions retain general boundary and arclength coverage.
- * @evidence contracts/testing.md#execution-ownership One discoverable async CPU test owns synthetic inputs and a current-process Inspector Session, stopped/disabled/disconnected in finally with primary errors preserved. No person, browser, target attachment, CPU profile, foreign method patch or elapsed/heap budget is used.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual Field.prepare/read and public generic curvature/geometry/end producers; catches lost derivatives, changed admission/effects and duplicated endpoint calculation in that public field operation.
+ * @evidence contracts/development/testing.md#independent-expectations Implicit ellipses provide independent radial six-jets and positive finite output. Generic composition is a compatibility oracle sharing primitives, not independent geometry. Four quarters have eight own endpoints, so eight curvature calls is a work ceiling; absent function observations cannot pass as zero.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers ellipse ties, asymmetric active G2 ends, reciprocal scales, negative/periodic phases, fresh/copy data, malformed/overflow inputs, generic callback order and original Error/undefined failures. Existing conic_field/source_conic/projective questions retain general boundary and arclength coverage.
+ * @evidence contracts/development/testing.md#execution-ownership One discoverable async CPU test owns synthetic inputs and a current-process Inspector Session, stopped/disabled/disconnected in finally with primary errors preserved. No person, browser, target attachment, CPU profile, foreign method patch or elapsed/heap budget is used.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Symmetric ellipses, asymmetric active G2 ends and three scales agree with).
  */
 export async function test_construction_conic_preparation(): Promise<void> {
   const failures: string[] = [];
@@ -302,8 +303,13 @@ function effects(): void {
     [0.5, 0.5, 0.5, 0.5],
     [1000, 1000, 1000, 1000],
   );
-  if (divisions !== 4 || !refused.failure?.startsWith("quarter 0: G2 conic end needs"))
-    throw new Error("The second public end was skipped after the first end's refusal");
+  if (
+    divisions !== 4 ||
+    !refused.failure?.startsWith("quarter 0: G2 conic end needs")
+  )
+    throw new Error(
+      "The second public end was skipped after the first end's refusal",
+    );
 }
 
 /** Invalid station inputs and finite overflow keep named refusals, without a replacement shape. */

@@ -6,12 +6,12 @@ import {
   autoMovieRenderBudgetRefusal,
 } from "@automovie/render";
 import {
+  AutoMovieResourceRetirementScope,
   AutoMovieTextureCache,
   applySceneEnvironment,
   buildMaterial,
   readAutoMovieTextureSource,
 } from "@automovie/viewer";
-import { AutoMovieResourceRetirementScope } from "@automovie/viewer/AutoMovieResourceRetirementScope";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -30,10 +30,11 @@ import { boxModel, material, sceneFixture } from "../internal/renderFixtures";
  * 6. Foreign or reversed original/issued ownership refuses; genuinely new Texture/Source objects recover independent admission.
  * 7. Existing retirement scopes preserve registration identity, ordered failures, pending/reentrant settlement and close/admission ordering without claiming GPU completion.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual cache/material/environment/source observation, Engine closure, Render preflight and directly imported retirement scope; observes original causes, authority state and public disposal attempts.
- * @evidence contracts/testing.md#independent-expectations Independent 4x4 texel/mip arithmetic, authored settings, mutation schedules and original identities judge outcomes; the incomplete compiled fixture and supplied graphics strings are consumed facts, not admitted artifacts or queried hardware. Drift cases cross an actual observation boundary; a mutation fully reverted between checks is not detected or proved absent.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts normal binding, fixed/version drift, copy/binding side effects, exclusive environment transitions, detachments, foreign/live/closed ownership and pending/reentrant/failed scope settlement. The neighboring PBR unit owns failed environment-disposal recovery under the existing same-wrapper retry policy; this case adds no terminal environment contract.
- * @evidence contracts/testing.md#execution-ownership The named entry retains the existing supplied loader and retirement callbacks over real CPU Three objects, creates no renderer/new mock/driver and does not equate callback completion with native conversion or GPU release.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual cache/material/environment/source observation, Engine closure, Render preflight and directly imported retirement scope; observes original causes, authority state and public disposal attempts.
+ * @evidence contracts/development/testing.md#independent-expectations Independent 4x4 texel/mip arithmetic, authored settings, mutation schedules and original identities judge outcomes; the incomplete compiled fixture and supplied graphics strings are consumed facts, not admitted artifacts or queried hardware. Drift cases cross an actual observation boundary; a mutation fully reverted between checks is not detected or proved absent.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts normal binding, fixed/version drift, copy/binding side effects, exclusive environment transitions, detachments, foreign/live/closed ownership and pending/reentrant/failed scope settlement. The neighboring PBR unit owns failed environment-disposal recovery under the existing same-wrapper retry policy; this case adds no terminal environment contract.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry retains the existing supplied loader and retirement callbacks over real CPU Three objects, creates no renderer/new mock/driver and does not equate callback completion with native conversion or GPU release.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Fresh source-sharing bindings retain authority and independent byte bounds; controlled copy metadata exposes incomplete or changed copies.).
  */
 export async function test_viewer_texture_cache_allocation_authority(): Promise<void> {
   const make: () => THREE.DataTexture = (): THREE.DataTexture =>

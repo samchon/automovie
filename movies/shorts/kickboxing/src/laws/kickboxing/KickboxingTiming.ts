@@ -66,10 +66,11 @@ export namespace KickboxingTiming {
    * short steps.
    *
    * @param movement The movement.
-   * @returns True for walking to the corner and the celebration.
+   * @returns True for walking to the corner, the celebration and walking up
+   *   to the opponent after the bout.
    */
   export function walking(movement: KickboxingAction.Movement): boolean {
-    return movement === "corner" || movement === "celebrate";
+    return KickboxingAction.movements[movement].walking;
   }
 
   /**

@@ -283,10 +283,11 @@ const UNION_AIM: IAutoMovieVector3 = {
  * 4. Contrast one member with and without its authored two-metre model.
  * 5. Follow the authored 30-metre cue while the uncued neighbour holds one key.
  *
- * @evidence contracts/testing.md#behavioral-verification Performs camera framing of compact formations, nodes and their union, then checks bounds, camera keys and cued follow endpoints against hand-derived extents.
- * @evidence contracts/testing.md#independent-expectations Five files at two-metre spacing span -4 to 4; the documented .5-metre projection radius pads that slot footprint, while the authored two-metre box supplies vertical extent. The box's .4-metre width is not the projection-radius oracle. A 90-degree lens and the stated wide factor determine standoff within the canonical 1e-6 predicates; this proves no pixels or arbitrary lens behavior.
- * @evidence contracts/testing.md#distinguishing-cases Covers formation-only/node-only/union subjects, a singleton with and without its model, and moving versus uncued follow; malformed targets are covered separately.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_group_formation_framing unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs camera framing of compact formations, nodes and their union, then checks bounds, camera keys and cued follow endpoints against hand-derived extents.
+ * @evidence contracts/development/testing.md#independent-expectations Five files at two-metre spacing span -4 to 4; the documented .5-metre projection radius pads that slot footprint, while the authored two-metre box supplies vertical extent. The box's .4-metre width is not the projection-radius oracle. A 90-degree lens and the stated wide factor determine standoff within the canonical 1e-6 predicates; this proves no pixels or arbitrary lens behavior.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers formation-only/node-only/union subjects, a singleton with and without its model, and moving versus uncued follow; malformed targets are covered separately.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_group_formation_framing unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Frame a five-file formation from its padded width and staged bearing.).
  */
 export function test_film_perform_shot_group_formation_framing(): void {
   // 1. the unit's own extent decides.

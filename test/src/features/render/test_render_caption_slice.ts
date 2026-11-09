@@ -36,10 +36,11 @@ const whole: () => IAutoMovieCaptionSidecar = (): IAutoMovieCaptionSidecar =>
  * 5. Non-integer / negative `frameStart` and `frameEnd <= frameStart` throw.
  * 6. Non-integer frameEnd and windows starting at or beyond coverage refuse rather than producing negative frame counts.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real slicer over the caption planner's original two-span track and asserts clipped/rebased records, whole-window preservation, clamped coverage, single-span selection and every existing malformed or out-of-coverage refusal.
- * @evidence contracts/testing.md#independent-expectations Half-open interval intersection gives [0,1) and [1,4) for the [1,5) window over [0,2)/[2,10); authored fixture labels stay literal. Counts and interval endpoints remain exact, with nclose only for scalar clock leaves in whole-record comparisons.
- * @evidence contracts/testing.md#distinguishing-cases Preserves full, middle, inside-one-span and past-end windows plus fractional/negative starts, equal endpoints, fractional ends and starts at/beyond frameCount. Caption-tree joining and clock admission belong to caption_sidecar.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_render_caption_slice owns these portable synchronous interval cases and borrows canonical fixtures directly, without importing another test entry or writing/rendering files.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the real slicer over the caption planner's original two-span track and asserts clipped/rebased records, whole-window preservation, clamped coverage, single-span selection and every existing malformed or out-of-coverage refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Half-open interval intersection gives [0,1) and [1,4) for the [1,5) window over [0,2)/[2,10); authored fixture labels stay literal. Counts and interval endpoints remain exact, with nclose only for scalar clock leaves in whole-record comparisons.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves full, middle, inside-one-span and past-end windows plus fractional/negative starts, equal endpoints, fractional ends and starts at/beyond frameCount. Caption-tree joining and clock admission belong to caption_sidecar.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_render_caption_slice owns these portable synchronous interval cases and borrows canonical fixtures directly, without importing another test entry or writing/rendering files.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A middle window `[1,5)` clips both spans and re-bases them to `[0,1)` /).
  */
 export function test_render_caption_slice(): void {
   const sidecar: IAutoMovieCaptionSidecar = whole();

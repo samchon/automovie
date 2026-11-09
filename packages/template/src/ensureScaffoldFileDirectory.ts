@@ -19,13 +19,13 @@ import { missingPath } from "./missingPath";
  * @returns The capture of `directory`, or `base` when they are the same.
  * @throws When `directory` is outside the root lexically or physically, or any level fails revalidation.
  *
- * @evidence contracts/common.md#principled-implementation Containment is decided twice: lexically with `path.relative`, which rejects `..` and absolute results, and physically by comparing native real paths, because a link can make a lexically contained path resolve elsewhere; creation uses non-recursive `mkdirSync` after revalidating the parent so only a captured parent receives a new level.
- * @evidence contracts/common.md#clear-and-simple-design The function owns descendant levels and their per-publication cache, while the caller owns the cache's lifetime and the root capture.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A cached level is still revalidated before reuse, and only a missing level is created; any other capture failure propagates.
- * @evidence contracts/common.md#meaningful-documentation The comment states the per-level checks, the cache's key and ownership, the return for the root itself, and each refusal.
- * @evidence contracts/performance.md#efficient-algorithms Cost is linear in the depth of `directory` below the root, with a constant number of captures per level; a cache hit replaces the capture and creation of a level with one revalidation.
- * @evidence contracts/performance.md#reuse-equivalent-work A level captured for an earlier file of the same publication is reused from `props.cache` when its absolute path matches, and equivalence is proved by revalidating its identity and real path before use; a changed level throws rather than being recaptured.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller's cache grows by one scalar capture per distinct candidate directory and holds no descriptor; identity helpers attempt close before returning, propagating close errors without proving release. Created directories are not removed on a later failure.
+ * @evidence contracts/development/implementation.md#principled-implementation Containment is decided twice: lexically with `path.relative`, which rejects `..` and absolute results, and physically by comparing native real paths, because a link can make a lexically contained path resolve elsewhere; creation uses non-recursive `mkdirSync` after revalidating the parent so only a captured parent receives a new level.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The function owns descendant levels and their per-publication cache, while the caller owns the cache's lifetime and the root capture.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cached level is still revalidated before reuse, and only a missing level is created; any other capture failure propagates.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states the per-level checks, the cache's key and ownership, the return for the root itself, and each refusal.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cost is linear in the depth of `directory` below the root, with a constant number of captures per level; a cache hit replaces the capture and creation of a level with one revalidation.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A level captured for an earlier file of the same publication is reused from `props.cache` when its absolute path matches, and equivalence is proved by revalidating its identity and real path before use; a changed level throws rather than being recaptured.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller's cache grows by one scalar capture per distinct candidate directory and holds no descriptor; identity helpers attempt close before returning, propagating close errors without proving release. Created directories are not removed on a later failure.
  */
 export const ensureScaffoldFileDirectory: (props: {
   base: IScaffoldPhysicalDirectory;

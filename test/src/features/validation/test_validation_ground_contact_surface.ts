@@ -63,10 +63,11 @@ const rising: (x: number) => number = (x: number): number => 0.5 * x;
  * 2. The same existing glide lifted to y=0.6 succeeds; its warning population is not asserted.
  * 3. Constant zero callback and scalar zero ground both succeed on the same flat-clearing clip.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual ground sampling with a rising callback and checks a located warning, then contrasts lifted, scalar and constant-callback inputs through their success verdicts.
- * @evidence contracts/testing.md#independent-expectations At the final x=1, the ramp is 0.5m, above the low 0.1m foot and below the lifted 0.6m foot; constant zero equals the scalar surface. Only warning presence for the low glide and admission for the neighbors are observed, not byte parity, exact depth or every warning population.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts low/lifted existing clips and rising/scalar/constant surfaces; malformed clocks, flat-plane depth and capsule endpoints have separate entries. Arbitrary curved surfaces and continuous collision are outside this test.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns existing generic rig/clip data and a pure supplied ground callback, invokes portable FK sampling and starts no Human builder, renderer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual ground sampling with a rising callback and checks a located warning, then contrasts lifted, scalar and constant-callback inputs through their success verdicts.
+ * @evidence contracts/development/testing.md#independent-expectations At the final x=1, the ramp is 0.5m, above the low 0.1m foot and below the lifted 0.6m foot; constant zero equals the scalar surface. Only warning presence for the low glide and admission for the neighbors are observed, not byte parity, exact depth or every warning population.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts low/lifted existing clips and rising/scalar/constant surfaces; malformed clocks, flat-plane depth and capsule endpoints have separate entries. Arbitrary curved surfaces and continuous collision are outside this test.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns existing generic rig/clip data and a pure supplied ground callback, invokes portable FK sampling and starts no Human builder, renderer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A foot gliding at y=0.1 over h(x)=0.5x receives a physics warning at its world-Y address while admission succeeds.).
  */
 export function test_validation_ground_contact_surface(): void {
   const sunk: IAutoMovieValidation = validateGroundContact({

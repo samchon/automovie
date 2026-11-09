@@ -74,10 +74,11 @@ const built: () => { scene: THREE.Scene; patch: THREE.Mesh } = (): {
  * 3. Semantic audit/painting counts graph membership and restores support material.
  * 4. Beauty leaves that nonwriting support material installed.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls direct space/scene builders, the existing depth/normal/outline/mask modes, semantic audit/paint and healthy beauty; checks flags, membership counts and material identities.
- * @evidence contracts/testing.md#independent-expectations Authored support versus model roles define independent color/depth-write expectations; audit counts establish graph membership, not submitted or visible pixels.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts direct/embedded support, model materials, depth/normal/outline/legacy/semantic mask, repeated restore and beauty retaining the nonwriting support material.
- * @evidence contracts/testing.md#execution-ownership The named portable entry owns CPU Three graphs and pass handles, restores every installed pass and makes no browser, native renderer or physical-floor observation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls direct space/scene builders, the existing depth/normal/outline/mask modes, semantic audit/paint and healthy beauty; checks flags, membership counts and material identities.
+ * @evidence contracts/development/testing.md#independent-expectations Authored support versus model roles define independent color/depth-write expectations; audit counts establish graph membership, not submitted or visible pixels.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts direct/embedded support, model materials, depth/normal/outline/legacy/semantic mask, repeated restore and beauty retaining the nonwriting support material.
+ * @evidence contracts/development/testing.md#execution-ownership The named portable entry owns CPU Three graphs and pass handles, restores every installed pass and makes no browser, native renderer or physical-floor observation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Direct and embedded support materials disable beauty writes while model materials retain color/depth writes.).
  */
 export function test_viewer_space_ground_beauty(): void {
   const direct: { scene: THREE.Scene; patch: THREE.Mesh } = built();

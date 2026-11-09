@@ -2,16 +2,14 @@ import {
   type IAutoMovieCurve64 as C,
   type IAutoMovieContourLoft64 as L,
   tessellateAutoMovieContourLoft64,
-} from "@automovie/engine/geometry/curve";
-import {
-  createAutoMovieRecoveryContourFileMesh,
-  writeAutoMovieRecoveryArtifact,
-} from "@automovie/recovery/node";
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+import { writeAutoMovieRecoveryArtifact } from "../../../../packages/template/scaffold/src/integrations/recovery/node/artifact/writeAutoMovieRecoveryArtifact";
+import { createAutoMovieRecoveryContourFileMesh } from "../../../../packages/template/scaffold/src/integrations/recovery/node/mesh/createAutoMovieRecoveryContourFileMesh";
 import { nclose } from "../internal/nclose";
 
 /**
@@ -21,10 +19,11 @@ import { nclose } from "../internal/nclose";
  * 2. Every published coordinate, index, normal and construction sample matches memory.
  * 3. Final backing lengths exclude page padding; known lateral area is retained.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the public file and memory contour consumers on the same authored millimetre cubic banks, publishes actual fragment-backed output, then reads every resulting channel. More than 8190 vertices force table eviction and the final seven-station region includes a partial page. Canonical validation stays explicitly deferred.
- * @evidence contracts/testing.md#independent-expectations Four corners at each of 2050 stations give 8200 vertices; 2049 square strips each contribute eight triangles and lateral area 8 metres times 2.049 metres. Complete scalar/index/construction equality against the memory kernel additionally distinguishes backing changes, including normals, but does not independently prove canonical topology or visual fidelity.
- * @evidence contracts/testing.md#distinguishing-cases This entry owns public end-to-end generation across page eviction and the partial tail. The vector-page entry owns short/failing I/O, signed-zero and logical-row state; the smaller contour-file entry owns cavity, empty, exact/one-below ceiling and callback/publication failures. No source mesh, Human fixture, fit or resource-limit increase enters this case.
- * @evidence contracts/testing.md#execution-ownership The discoverable unit runs synchronous portable CPU geometry/file APIs in its own temporary directory and removes that directory after retaining the primary failure. It starts no process, native build, browser or GPU and replaces no foreign method.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public file and memory contour consumers on the same authored millimetre cubic banks, publishes actual fragment-backed output, then reads every resulting channel. More than 8190 vertices force table eviction and the final seven-station region includes a partial page. Canonical validation stays explicitly deferred.
+ * @evidence contracts/development/testing.md#independent-expectations Four corners at each of 2050 stations give 8200 vertices; 2049 square strips each contribute eight triangles and lateral area 8 metres times 2.049 metres. Complete scalar/index/construction equality against the memory kernel additionally distinguishes backing changes, including normals, but does not independently prove canonical topology or visual fidelity.
+ * @evidence contracts/development/testing.md#distinguishing-cases This entry owns public end-to-end generation across page eviction and the partial tail. The vector-page entry owns short/failing I/O, signed-zero and logical-row state; the smaller contour-file entry owns cavity, empty, exact/one-below ceiling and callback/publication failures. No source mesh, Human fixture, fit or resource-limit increase enters this case.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable unit runs synchronous portable CPU geometry/file APIs in its own temporary directory and removes that directory after retaining the primary failure. It starts no process, native build, browser or GPU and replaces no foreign method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: 2050 four-corner stations generate 8200 vertices and 16392 triangles.).
  */
 export function test_geometry_contour_paged_output(): void {
   const directory: string = fs.mkdtempSync(

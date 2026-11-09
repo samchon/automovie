@@ -19,13 +19,13 @@ let windowsLibrary: IWindowsLibrary | undefined;
 /**
  * Bind kernel32 and ntdll once, on first use.
  *
- * @evidence contracts/common.md#principled-implementation Koffi binds the declared kernel32 and ntdll ABI, including pointer-width HANDLEs and explicit native structure layouts, lazily once per module.
- * @evidence contracts/common.md#clear-and-simple-design Binding definitions stay separate from parent and child operations so loading does not create a filesystem handle.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Native methods are called through their bindings without replacing globals or foreign implementations.
- * @evidence contracts/common.md#meaningful-documentation The comment states first-use initialization; the interface documents native transfer counts, status and structure ownership.
- * @evidence contracts/performance.md#efficient-algorithms First use builds a fixed set of types and function bindings; subsequent calls read one cached binding record.
- * @evidence contracts/performance.md#reuse-equivalent-work The binding set is shared because operating-system ABI and pointer width stay fixed for the process; a failed creation is not cached.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One kernel32 and one ntdll binding set remain for the module's process lifetime; no parent or child HANDLE is retained by this cache.
+ * @evidence contracts/development/implementation.md#principled-implementation Koffi binds the declared kernel32 and ntdll ABI, including pointer-width HANDLEs and explicit native structure layouts, lazily once per module.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Binding definitions stay separate from parent and child operations so loading does not create a filesystem handle.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Native methods are called through their bindings without replacing globals or foreign implementations.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states first-use initialization; the interface documents native transfer counts, status and structure ownership.
+ * @evidence contracts/development/implementation.md#efficient-algorithms First use builds a fixed set of types and function bindings; subsequent calls read one cached binding record.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The binding set is shared because operating-system ABI and pointer width stay fixed for the process; a failed creation is not cached.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One kernel32 and one ntdll binding set remain for the module's process lifetime; no parent or child HANDLE is retained by this cache.
  */
 export const loadWindowsLibrary: () => IWindowsLibrary = (): IWindowsLibrary =>
   (windowsLibrary ??= createWindowsLibrary());

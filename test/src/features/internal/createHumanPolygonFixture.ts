@@ -1,4 +1,4 @@
-import type { AutoMovieHumanPolygon } from "@automovie/viewer/human-polygon";
+import type { AutoMovieHumanPolygon } from "@automovie/viewer";
 
 /** Synthetic rest joints for portable polygon rendering tests; the polygon reads the skeleton alone. */
 export function createHumanPolygonFixture(): AutoMovieHumanPolygon.IInput {

@@ -28,10 +28,11 @@ import { nclose } from "../../internal/nclose";
  * 5. Open or unoriented bands and malformed columns refuse before mesh writes;
  *    an actual source exception restores the existing mesh and retains identity.
  *
- * @evidence contracts/testing.md#behavioral-verification Reads closed KnownPort surface jets and Point0, then actual legacy seam plus both source-face meshes; observes each rail's two independent triangle populations and source geometry.
- * @evidence contracts/testing.md#independent-expectations Plane and unit-cylinder equations yield the explicit sixth-degree radial/vertical band polynomial. Its derivatives determine all six vectors within2e-10 arithmetic allowance. Shared mesh indices, incidence and opposite edge directions are exact combinatorial expectations.
- * @evidence contracts/testing.md#distinguishing-cases Closed periodic versus existing open port, both rails/interior, inverse transverse ownership, kernel period/order/sign, actual source addresses and both face-side strips distinguish a scalar/metadata-only pass. Existing open/null/rank/domain/foreign questions retain negative contracts.
- * @evidence contracts/testing.md#execution-ownership Discoverable synchronous CPU construction_known_port_closed question uses made original fields and existing tessellation only; no Human generation, host, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads closed KnownPort surface jets and Point0, then actual legacy seam plus both source-face meshes; observes each rail's two independent triangle populations and source geometry.
+ * @evidence contracts/development/testing.md#independent-expectations Plane and unit-cylinder equations yield the explicit sixth-degree radial/vertical band polynomial. Its derivatives determine all six vectors within2e-10 arithmetic allowance. Shared mesh indices, incidence and opposite edge directions are exact combinatorial expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Closed periodic versus existing open port, both rails/interior, inverse transverse ownership, kernel period/order/sign, actual source addresses and both face-side strips distinguish a scalar/metadata-only pass. Existing open/null/rank/domain/foreign questions retain negative contracts.
+ * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU construction_known_port_closed question uses made original fields and existing tessellation only; no Human generation, host, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The plane/cylinder original fields give radius2-w+y(w), where).
  */
 export function test_construction_known_port_closed(): void {
   const failures: string[] = [];
@@ -138,7 +139,16 @@ function admission(
     { ...seam, phases: [0, 1, 1, 2] },
     { ...seam, phases: [0, 1, 2, Infinity] },
     { ...seam, phases: [0, 1, 2, 7] },
-    { ...seam, host: { ...seam.host, jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => ({ ...seam.host.jet(u, v), p: [NaN, 0, 0] }) } },
+    {
+      ...seam,
+      host: {
+        ...seam.host,
+        jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => ({
+          ...seam.host.jet(u, v),
+          p: [NaN, 0, 0],
+        }),
+      },
+    },
   ];
   for (const input of cases) {
     const output: AutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();

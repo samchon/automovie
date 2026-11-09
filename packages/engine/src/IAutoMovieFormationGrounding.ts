@@ -16,13 +16,10 @@ import { IAutoMovieWorldSurface } from "@automovie/interface";
  * anchor's ground height per record object in a `WeakMap`, so a record must not
  * have its `anchor` or `ground` changed after members have been placed from it.
  *
- * @evidence contracts/common.md#principled-implementation Height is relief, the ground height under a member minus the ground height under the anchor, so `anchor.y` keeps its staged meaning and level terrain yields zero relief; it relies on the record object not being mutated after placement because the anchor height is remembered per object.
- * @evidence contracts/common.md#clear-and-simple-design One optional member mixed into the placement and design records, so every placement path receives terrain through the same record instead of a separate parameter some callers could omit.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No surface or formation is special-cased; absent terrain, a member off the terrain and an anchor off the terrain all give zero relief as authored facts, not as a fallback for a failed lookup.
- * @evidence contracts/common.md#meaningful-documentation States the relief rule, the snapshot's source, what an absent or empty list means, the zero-relief cases, and the immutability requirement that follows from the per-record cache.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A record field only; the ground lookup per member is `worldGroundHeight` over the listed polygons inside `formationGroundRelief`, answered there.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares nothing itself; the anchor datum reuse keyed by this record object belongs to `formationGroundRelief`, which never invalidates an entry, hence the documented rule that a placed record keeps its anchor and ground.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources References a read-only surface array owned by the compiled formation or the world design; the anchor-height cache entry keyed by it is weak and dies with the record.
+ * @evidence contracts/development/design.md#principled-representation Height is relief, the ground height under a member minus the ground height under the anchor, so `anchor.y` keeps its staged meaning and level terrain yields zero relief; it relies on the record object not being mutated after placement because the anchor height is remembered per object.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One optional member mixed into the placement and design records, so every placement path receives terrain through the same record instead of a separate parameter some callers could omit.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No surface or formation is special-cased; absent terrain, a member off the terrain and an anchor off the terrain all give zero relief as authored facts, not as a fallback for a failed lookup.
+ * @evidence contracts/development/common.md#meaningful-documentation States the relief rule, the snapshot's source, what an absent or empty list means, the zero-relief cases, and the immutability requirement that follows from the per-record cache.
  */
 export interface IAutoMovieFormationGrounding {
   /**

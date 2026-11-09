@@ -37,10 +37,11 @@ const fall: (over: {
  * 3. A zero fall duration is a range violation on `fallDuration`.
  * 4. A non-finite fall duration is a range violation on `fallDuration`.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual free-fall detection with each invalid setting and requires its located range finding, with explicit failure assertions for negative margin and zero duration.
- * @evidence contracts/testing.md#independent-expectations A distance margin must be finite and nonnegative; trajectory duration must be finite and positive. Literal setting paths distinguish admission failure from an unrelated body or support verdict.
- * @evidence contracts/testing.md#distinguishing-cases Covers negative/NaN margin and zero/infinite duration; valid proposal/support and suppression cases live in the other free-fall entries. This entry does not assert returned event or trajectory populations.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns four detector calls through a private local helper using existing numerical records, without a native artifact, process or physics host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual free-fall detection with each invalid setting and requires its located range finding, with explicit failure assertions for negative margin and zero duration.
+ * @evidence contracts/development/testing.md#independent-expectations A distance margin must be finite and nonnegative; trajectory duration must be finite and positive. Literal setting paths distinguish admission failure from an unrelated body or support verdict.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers negative/NaN margin and zero/infinite duration; valid proposal/support and suppression cases live in the other free-fall entries. This entry does not assert returned event or trajectory populations.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns four detector calls through a private local helper using existing numerical records, without a native artifact, process or physics host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A negative margin is a range violation on `margin`.).
  */
 export function test_validation_free_fall_config(): void {
   const negMargin: ReturnType<typeof detectFreeFall> = fall({ margin: -1 });

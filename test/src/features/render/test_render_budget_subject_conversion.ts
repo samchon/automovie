@@ -21,10 +21,11 @@ import {
  *
  * 1. Absent optional inputs become empty lists; supplied environment, water, cloth, planting and texture records remain reachable.
  *
- * @evidence contracts/testing.md#behavioral-verification Converts a compiled-shot projection through the real adapter and checks empty optional populations, retained instance-set count and supplied environment/water/texture/cloth/planting identities. Dropping any tested supplemental population fails its literal identity assertion.
- * @evidence contracts/testing.md#independent-expectations The authored fixtures supply tower, basin, textures/stone.png, panel and atrium-bed, while omitted inputs specify empty lists. These literal identities and one set are independent expectations; this test checks reachability and does not certify every field of each projected payload.
- * @evidence contracts/testing.md#distinguishing-cases Retains absent versus supplied supplemental arrays and a compiled instance set. Detailed geometry, residency and decoded-resource accounting belong to inventory and storage tests; this adapter case does not validate choreography.
- * @evidence contracts/testing.md#execution-ownership The named test_render_budget_subject_conversion owns portable synchronous adapter calls on in-memory records. Its reduced compiled fixture covers only fields this adapter reads and no shot execution, viewer, GPU or host is created.
+ * @evidence contracts/development/testing.md#behavioral-verification Converts a compiled-shot projection through the real adapter and checks empty optional populations, retained instance-set count and supplied environment/water/texture/cloth/planting identities. Dropping any tested supplemental population fails its literal identity assertion.
+ * @evidence contracts/development/testing.md#independent-expectations The authored fixtures supply tower, basin, textures/stone.png, panel and atrium-bed, while omitted inputs specify empty lists. These literal identities and one set are independent expectations; this test checks reachability and does not certify every field of each projected payload.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains absent versus supplied supplemental arrays and a compiled instance set. Detailed geometry, residency and decoded-resource accounting belong to inventory and storage tests; this adapter case does not validate choreography.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_render_budget_subject_conversion owns portable synchronous adapter calls on in-memory records. Its reduced compiled fixture covers only fields this adapter reads and no shot execution, viewer, GPU or host is created.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Absent optional inputs become empty lists; supplied environment, water, cloth, planting and texture records remain reachable.).
  */
 export function test_render_budget_subject_conversion(): void {
   // The compiled shot is read through one conversion, so every evidence path

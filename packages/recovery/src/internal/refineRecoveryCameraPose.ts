@@ -1,4 +1,4 @@
-import { decomposeAutoMovieSingularMatrix } from "@automovie/engine/math/decomposeAutoMovieSingularMatrix";
+import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
 
 import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 import { createRecoveryPoseModel } from "./createRecoveryPoseModel";
@@ -13,13 +13,13 @@ import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
  * damping cannot repair an unobservable local parameter direction. Accepted
  * steps update SO3 and the unit translation sphere. Termination is local only.
  *
- * @evidence contracts/common.md#principled-implementation Analytic signed Sampson derivatives and soft-L1 influence weights define a robust Gauss-Newton model. Column scaling balances its five angular/direction coordinates; original-design SVD checks local rank before Levenberg damping and solves the augmented design without squaring its condition. Decreasing actual robust cost admits a pose update.
- * @evidence contracts/common.md#clear-and-simple-design This fixed-subset optimizer owns damping, actual-cost acceptance and termination; feature matching, consensus subset changes, four-pose selection and final physical qualification remain with their owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No normal equations, finite-difference Jacobian, ridge-derived observability, unconstrained matrix or expected pose replaces the calibrated five-coordinate fit. Exhausted iteration budgets remain nonconverged, and undefined arithmetic throws.
- * @evidence contracts/common.md#meaningful-documentation States soft-L1 pixel scale, column-scaled rank test, local five-coordinate geometry, 1e-8 numerical stopping tolerances, bounded damping and absence of global or covariance guarantees.
- * @evidence contracts/performance.md#efficient-algorithms With N fixed matches and I admitted iterations, each step uses O(N) five-column algebra and bounded original-design SVD work O(S*N*5^2), with O(N) scratch. The finite caller iteration budget limits accepted and rejected trials together.
- * @evidence contracts/performance.md#reuse-equivalent-work An accepted current linearization supplies column scales, rank, gradient and step factors; a rejected trial reuses that unchanged local model on its next damping attempt, while a changed pose rebuilds it.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The synchronous owner retains only its current/trial pose, local arrays and scalar diagnostics. Returned pose and counters transfer without input observations, image buffers, processes or global cache.
+ * @evidence contracts/development/implementation.md#principled-implementation Analytic signed Sampson derivatives and soft-L1 influence weights define a robust Gauss-Newton model. Column scaling balances its five angular/direction coordinates; original-design SVD checks local rank before Levenberg damping and solves the augmented design without squaring its condition. Decreasing actual robust cost admits a pose update.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This fixed-subset optimizer owns damping, actual-cost acceptance and termination; feature matching, consensus subset changes, four-pose selection and final physical qualification remain with their owners.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No normal equations, finite-difference Jacobian, ridge-derived observability, unconstrained matrix or expected pose replaces the calibrated five-coordinate fit. Exhausted iteration budgets remain nonconverged, and undefined arithmetic throws.
+ * @evidence contracts/development/common.md#meaningful-documentation States soft-L1 pixel scale, column-scaled rank test, local five-coordinate geometry, 1e-8 numerical stopping tolerances, bounded damping and absence of global or covariance guarantees.
+ * @evidence contracts/development/implementation.md#efficient-algorithms With N fixed matches and I admitted iterations, each step uses O(N) five-column algebra and bounded original-design SVD work O(S*N*5^2), with O(N) scratch. The finite caller iteration budget limits accepted and rejected trials together.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work An accepted current linearization supplies column scales, rank, gradient and step factors; a rejected trial reuses that unchanged local model on its next damping attempt, while a changed pose rebuilds it.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous owner retains only its current/trial pose, local arrays and scalar diagnostics. Returned pose and counters transfer without input observations, image buffers, processes or global cache.
  */
 export function refineRecoveryCameraPose(
   initial: {
