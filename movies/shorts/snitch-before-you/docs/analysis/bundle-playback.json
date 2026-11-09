@@ -1,8 +1,0 @@
-{
-  "content": [
-    {
-      "type": "text",
-      "text": "### Result\n{\"origin\":1793815085997.4,\"endOrigin\":1793815085997.4,\"clocks\":[\"10.13 / 60.00 s\",\"20.18 / 60.00 s\",\"30.21 / 60.00 s\",\"40.25 / 60.00 s\",\"50.30 / 60.00 s\",\"60.00 / 60.00 s\"],\"contextLost\":false}\n### Ran Playwright code\n```js\nawait (async(page)=>{await page.evaluate(()=>window.__afSeek(0));const origin=await page.evaluate(()=>performance.timeOrigin);await page.locator(\"#play\").click();const clocks=[];for(let i=0;i<6;i++){await page.waitForTimeout(10000);clocks.push(await page.locator(\"#clock\").textContent());}await page.locator(\"#pause\").click();return {origin,endOrigin:await page.evaluate(()=>performance.timeOrigin),clocks,contextLost:await page.evaluate(()=>document.querySelector(\"canvas\").getContext(\"webgl2\").isContextLost())};})(page);\n```"
-    }
-  ]
-}

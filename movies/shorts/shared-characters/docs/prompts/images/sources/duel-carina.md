@@ -1,9 +1,0 @@
-# Carina Malfoy
-
-## Carina {#carina}
-
-Carina is an adult witch in her early twenties, an independently capable former schoolmate of Harry. She has a slim athletic build, fair skin and straight pale-blond hair cut at the jaw. At the Human polygon abstraction she reads slightly shorter than Harry, approximately 1.70 metres to his 1.78. A fitted charcoal body silhouette with a muted green torso distinguishes her without relying on tailored clothing geometry or facial detail. Her wand stays in her right hand unless the screenplay explicitly changes possession. These appearance choices are invented for this scene.
-
-She values competence and wants Harry to take her seriously. She competes directly, dislikes being handled as though she has already lost and uses a composed challenge to recover dignity after exposure. She can pivot under a raised wrist hold, redirect an approaching forearm and guide another adult through a low lateral step; none of these abilities permits carrying Harry or stopping falling masonry. Her protective limit and the resources for a shield are in [wand magic](wand-magic.md#wand-magic). Imminent injury to Harry outweighs an opening to win. Recognition of that concern embarrasses her; deliberate cruelty or indifference would contradict this threshold.
-
-Her voice is a clear adult British English voice in a medium-high range, with firm consonants, restrained volume and a measured conversational tempo. A challenge has a light rise, not a shouted sneer. After exertion she needs a breath before speech. She notices Harry's hands and shoulders during close exchange and can see a hazard over his shoulder when facing him. She cannot know damage or motion hidden from her view. Their shared history and competing interpretations live in [rivalry](rivalry.md#rivalry).

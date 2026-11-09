@@ -32,7 +32,7 @@ A source-linked `ttsx -P tsconfig.json` consumer should use an ESM compiler conf
 | Entry | Purpose |
 | --- | --- |
 | `@automovie/viewer` | Scene, model, material and light construction (`buildScene`, `buildModel`, `buildMaterial`), playback (`AutoMoviePlayer`, `applyPose`, `applyExpression`), render passes (`applyRenderMode`, `applyAutoMovieSemanticMask`), transitions (`renderAutoMovieFilmFrame`), instanced formations, effects and fluids, texture-budget facts for `@automovie/render`, subject framing and capture (`mountViewer`, `captureViewerSnapshot`) |
-| `@automovie/viewer/node` | Node-only browser capture sessions |
+| `@automovie/viewer/node` | Node-only browser capture sessions, and `rasterizeAutoMovieScene`, which draws a three.js scene through its camera on the CPU with no browser or GPU (flat-shaded, depth-buffered, lit by the scene's lights; no textures, shadows or post-processing), with `encodeAutoMovieRasterPng` and `stampAutoMovieRasterLabel` for review frames |
 | `@automovie/viewer/human-polygon` | Original rigid polygon mannequin and cartoon face over caller-supplied structural skeleton/exterior descriptors; actual bone/mesh registries, pose updates and palette ownership |
 | `@automovie/viewer/process/ProcessOwnership` | Node-only discovery and termination of the services the viewer starts |
 

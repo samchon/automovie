@@ -1,9 +1,0 @@
-{
-  "removed": true,
-  "time": "2026-11-04T19:36:08.9699680Z",
-  "method": "Remove-Item -LiteralPath -Recurse, without Force",
-  "entries": 18,
-  "reparsePoints": 0,
-  "retained": "All output/bundles, raw failed/successful reports, comparison/frozen editions, WAV/image media",
-  "target": "D:\\github\\samchon\\automovie@malfoy\\movies\\shorts\\snitch-before-you\\.cache\\motion\\tmp"
-}
