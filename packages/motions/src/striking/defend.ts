@@ -122,13 +122,18 @@ export namespace defend {
   export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
     const p: IParams = context.params;
     const attack: IHumanActionContext.IPlaced = context.action(p.against);
-    if (attack.plan.contact === undefined) throw new Error(`${p.against} has no contact to defend against`);
+
+    // A feint has no contact: the defender bites on its shown peak instead,
+    // which is how a defence started too early leaves the real strike open.
+    const shown: number | undefined = attack.plan.events.find((e) => e.name === "shown" || e.name === "chamber")?.share;
+    const decisive: number | undefined = attack.plan.contact ?? (shown === undefined ? undefined : shown * attack.plan.duration);
+    if (decisive === undefined) throw new Error(`${p.against} has no contact or shown peak to defend against`);
     const at = (attack.params as { at?: { kind: string; subject?: string; region?: AutoMovieHumanoidRegion } }).at;
     if (at === undefined || at.kind !== "person" || at.subject !== context.subject || at.region === undefined)
       throw new Error(`${p.against} does not strike ${context.subject}`);
     const region: AutoMovieHumanoidRegion = at.region;
     const launch: number = attack.start + (attack.plan.events.find((e) => e.name === "launch")?.share ?? 0) * attack.plan.duration;
-    const hit: number = attack.start + attack.plan.contact;
+    const hit: number = attack.start + decisive;
     const movement: number = StrikingSkill.defence(context.skill);
     const decided: DefenceOutcome.IDecision = DefenceOutcome.decide(
       { launch, hit, telegraph: telegraph(attack), movement, skill: context.skill },

@@ -136,29 +136,42 @@ export namespace kick {
    */
   export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
     const p: IParams = context.params;
+
+    // A redirect continues its source's clock: the kick's own time zero is
+    // the source's, and this instance shows it from the cut on.
     const source: ISource | undefined = redirected(context);
     const timing: ITiming = source?.timing ?? measure(context);
+    const t0: number = source?.start ?? context.start;
+    const offset: number = context.start - t0;
+    const duration: number = timing.duration - offset;
+    const share = (seconds: number): number => Math.min(1, Math.max(0, (seconds - offset) / duration));
     const events: IAutoMovieMotionEvent[] = [
-      { name: "launch", share: timing.prep / timing.duration },
-      { name: "chamber", share: timing.chamber / timing.duration },
-      ...(p.feint === true ? [] : [{ name: "impact", share: timing.impact / timing.duration }]),
+      ...(timing.prep >= offset ? [{ name: "launch", share: share(timing.prep) }] : []),
+      ...(timing.chamber >= offset ? [{ name: "chamber", share: share(timing.chamber) }] : []),
+      ...(p.feint === true ? [] : [{ name: "impact", share: share(timing.impact) }]),
       { name: "replant", share: 1 },
     ];
     let built: IGeometry | undefined;
-    const geometry = (): IGeometry => (built ??= source === undefined ? build(context, timing) : redirect(context, timing, source));
+    const geometry = (): IGeometry => (built ??= source === undefined ? build(context, timing, t0) : redirect(context, timing, source));
     const out: IHumanActionPlan = {
-      duration: timing.duration,
+      duration,
       events,
       get contacts(): IHumanContactWindow[] {
-        return geometry().contacts;
+        return geometry()
+          .contacts.map((c: IHumanContactWindow): IHumanContactWindow => ({
+            ...c,
+            from: share(c.from * timing.duration),
+            to: share(c.to * timing.duration),
+          }))
+          .filter((c: IHumanContactWindow): boolean => c.to > c.from || c.to === 1);
       },
-      ...(p.feint === true ? {} : { contact: timing.impact }),
-      posture: (seconds: number): IHumanPosture => geometry().posture(Math.min(timing.duration, Math.max(0, seconds))),
+      ...(p.feint === true ? {} : { contact: timing.impact - offset }),
+      posture: (seconds: number): IHumanPosture => geometry().posture(Math.min(timing.duration, Math.max(0, seconds + offset))),
       settle: (): void => {
         built = undefined;
       },
     };
-    SOURCES.set(out, { timing, geometry, params: p });
+    SOURCES.set(out, { timing, geometry, params: p, start: t0, context: source?.context ?? context });
     StrikingRecord.register(out, (): StrikingRecord.IRecord => geometry().record);
     return out;
   }
@@ -209,6 +222,10 @@ export namespace kick {
     geometry: () => IGeometry;
     /** Its parameters. */
     params: IParams;
+    /** Film second of its time zero. */
+    start: number;
+    /** The context it was planned from, its entry being the kick's own start. */
+    context: IHumanActionContext<IParams>;
   }
 
   /** Every planned kick, so a redirect can continue its source. */
@@ -217,9 +234,13 @@ export namespace kick {
   /** The kick a redirect continues, when this instance is one. */
   function redirected(context: IHumanActionContext<IParams>): ISource | undefined {
     const from = context.entry.from;
-    if (from === undefined || from.name !== "kick" || !(context.start < context.entry.seconds - 1e-9)) return undefined;
+
+    // Only a cut before the source's chamber key is a redirect: the cancel
+    // table admits no other kick-to-kick cut.
+    if (from === undefined || from.name !== "kick" || !(from.share < 1 - 1e-9)) return undefined;
     const source: ISource | undefined = SOURCES.get(from.plan);
     if (source === undefined) throw new Error("A kick redirect needs its source kick's plan");
+    if (from.share * source.timing.duration > source.timing.chamber + 1e-9) return undefined;
     if (source.params.technique !== "round" || context.params.technique !== "round") throw new Error("Only a round kick redirects into a round kick");
     return source;
   }
@@ -245,11 +266,10 @@ export namespace kick {
   }
 
   /** Build a fresh kick's geometry. */
-  function build(context: IHumanActionContext<IParams>, timing: ITiming): IGeometry {
+  function build(context: IHumanActionContext<IParams>, timing: ITiming, t0: number): IGeometry {
     const p: IParams = context.params;
     const body = context.body;
     const m = body.measure;
-    const t0: number = context.start;
     const { side, prep, chamber, impact, duration } = timing;
     const support: "left" | "right" = side === "left" ? "right" : "left";
     const entry: IHumanPosture = context.entry.posture;
@@ -422,9 +442,12 @@ export namespace kick {
   /** Build a redirect: the source's path plus one unit toward the new goal, the body moving to the new level's lean. */
   function redirect(context: IHumanActionContext<IParams>, timing: ITiming, source: ISource): IGeometry {
     const old: IGeometry = source.geometry();
-    const fresh: IGeometry = build(context, timing);
-    const t0: number = context.start;
-    const cut: number = context.entry.seconds - t0;
+
+    // The new kick planned as if thrown from the source's own entry, with
+    // this instance's parameters and draws.
+    const t0: number = source.start;
+    const fresh: IGeometry = build({ ...source.context, params: context.params, random: context.random, start: t0 }, timing, t0);
+    const cut: number = context.start - t0;
     const span: number = Math.max(1e-3, timing.impact - cut);
     const blend = (t: number): number => minimumJerk((t - cut) / span).s;
 
