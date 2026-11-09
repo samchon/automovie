@@ -66,12 +66,18 @@ export namespace NodeHeadNativeJunctions {
    * and oral rims remain the interfaces to the surrounding conic surfaces.
    */
   function replaceFoldedBand(name: "forehead" | "mouth", base: Patch, native: CaptureModel.ITriangles, clip: Clip, connect: Connect): Patch {
-    const keys = name === "forehead" ? [["0:0"], ["forehead:top"]] as const : [["mouth:first", "0:1"], ["mouth:last", "212:1"]] as const;
+    const keys = name === "forehead" ? [["0:0"], ["192:0"]] as const : [["mouth:first", "0:1"], ["mouth:last", "212:1"]] as const;
     const upper: number[] | undefined = base.rails.get(keys[1][0]);
     if (upper === undefined) throw new Error("the retained upper rail is missing");
-    const from: number = name === "forehead" ? 1598.4699249267578 : 1518.1841659545898;
-    // Use an actual source-plane intersection just inside the retained upper rail.
-    const to: number = name === "forehead" ? base.clay.positions[3 * upper[0]! + 1]! - 0.125 : 1525.7013702392578;
+    // F1 rows 2688 and 423 are the observed inner cuts next to the
+    // retained orbit and mouth rims, respectively.
+    const from: number = name === "forehead" ? 1598.3105087280273 : 1518.1841659545898;
+    // F1 row 2876 lies below the retained row 2878 with enough physical
+    // separation for the transition. Row 628 is the upper mouth cut.
+    const to: number = name === "forehead" ? 1602.3069763183594 : 1525.7013702392578;
+    if (to >= base.clay.positions[3 * upper[0]! + 1]!) throw new Error("the source cut must remain below the retained upper rail");
+    const vault: number[] | undefined = name === "forehead" ? base.rails.get("forehead:top") : undefined;
+    const retained: number[] = name === "forehead" ? upperStrip(base, upper, vault) : [];
     const plane = (station: number): AutoMovieMeshCourse.IPlane => ({ station, origin: [0, station, 0], u: [1, 0, 0], v: [0, 0, 1] });
     const points: number[] = native.positions.slice();
     const source: number[] = clip(points, clip(points, native.indices, plane(from), 1), plane(to), -1);
@@ -86,7 +92,8 @@ export namespace NodeHeadNativeJunctions {
     const measured: { old: number[]; rim: Rim; residual: number }[] = ([0, 1] as const).flatMap((side) =>
       keys[side].map((key: string) => {
         const old: number[] | undefined = base.rails.get(key);
-        if (old === undefined || NodeHeadTrace.railDirection(base.clay.indices, old) === 0) throw new Error(`missing indexed original rim ${key}`);
+        const owner: readonly number[] = side === 1 && retained.length !== 0 ? retained : base.clay.indices;
+        if (old === undefined || NodeHeadTrace.railDirection(owner, old) === 0) throw new Error(`missing indexed original rim ${key}`);
         const physical: V2[] = xz(base.clay.positions, old);
         const matches = rims.filter((rim: Rim): boolean => rim.side === side).map((rim: Rim) =>
           ({ rim, residual: ringGap(physical, xz(points, rim.rail)) })).sort((a, b): number => a.residual - b.residual);
@@ -113,7 +120,8 @@ export namespace NodeHeadNativeJunctions {
     for (const [i, { old, rim, residual }] of measured.entries()) {
       const nativeRail: number[] = rim.rail.map((id: number): number => ids.get(id)!);
       const point = (id: number): V3 => at(positions, id);
-      const faces: number[] = rim.side === 0 ? connect(reversed, core, old, nativeRail, point) : connect(core, reversed, nativeRail, old, point);
+      const faces: number[] = rim.side === 0 ? connect(reversed, core, old, nativeRail, point)
+        : connect(core, retained.length === 0 ? reversed : retained, nativeRail, old, point);
       const mid: number = (point(old[0]!)[1] + point(nativeRail[0]!)[1]) / 2;
       const error: number = midplaneGap(native, { positions, indices: faces }, mid, xz(positions, nativeRail));
       if (error > 0.5) throw new Error(`native ${name} rail ${i} midplane ${Number.isFinite(error) ? error.toFixed(3) : "unreadable"} mm`);
@@ -122,10 +130,27 @@ export namespace NodeHeadNativeJunctions {
       for (const [kind, rail] of [["retained", old], ["native", nativeRail]] as const)
         lines.push({ id: `${name}.physical.${kind}.${i}`, points: rail.map(point), closed: true, colour: "9e4c74" });
     }
-    const indices: number[] = core.concat(stitched);
+    if (vault !== undefined)
+      lines.push({ id: "forehead.physical.retained.vault", points: vault.map((id: number): V3 => at(positions, id)), closed: true, colour: "9e4c74" });
+    const indices: number[] = core.concat(stitched, retained);
     if (edgeSignature(indices) !== edgeSignature(base.clay.indices))
       throw new Error("the native strip changed an original oriented rim or created an invalid edge");
-    return { ...base, clay: { positions, indices }, lines, receipt: `${name}: ${core.length / 3} actual source skin triangles; ${measured.length} unchanged indexed rims, ordinary seams ${errors.map((v: number): string => v.toFixed(3)).join("/")} mm` };
+    return { ...base, clay: { positions, indices }, lines, receipt: `${name}: ${core.length / 3} actual source skin triangles; ${measured.length} unchanged indexed rims, ordinary seams ${errors.map((v: number): string => v.toFixed(3)).join("/")} mm; ${retained.length / 3} original vault-transition faces retained` };
+  }
+
+  /** Keep both incident rows of the original vault transition by their exact indexed ownership. */
+  function upperStrip(base: Patch, lower: number[], upper: number[] | undefined): number[] {
+    if (upper === undefined) throw new Error("the original vault boundary is missing");
+    const owners: Set<number> = new Set(lower.concat(upper));
+    const faces: number[] = [];
+    for (let i: number = 0; i < base.clay.indices.length; i += 3) {
+      const triangle: number[] = base.clay.indices.slice(i, i + 3);
+      if (triangle.every((id: number): boolean => owners.has(id))) faces.push(...triangle);
+    }
+    if (NodeHeadTrace.railDirection(faces, lower) === 0 ||
+        NodeHeadTrace.railDirection(faces, upper) !== NodeHeadTrace.railDirection(base.clay.indices, upper))
+      throw new Error("the original vault-transition faces do not own both complete rims");
+    return faces;
   }
 
   /** Read closed directed free-edge walks without forcing an open source arc into a ring. */
@@ -166,7 +191,7 @@ export namespace NodeHeadNativeJunctions {
     for (const [id, edge] of edges(faces))
       if (edge.uses === 1) free.push(`${id}:${edge.a < edge.b ? 1 : -1}`);
       else if (edge.uses !== 2 || edge.balance !== 0) throw new Error("a patch has a nonreciprocal interior edge");
-    return free.sort().join("|");
+    return free.sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0).join("|");
   }
 
   /** Continue only the forehead branch whose source traverses the change of signed winding. */
