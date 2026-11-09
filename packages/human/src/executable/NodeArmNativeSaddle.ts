@@ -45,11 +45,12 @@ export namespace NodeArmNativeSaddle {
     const vertices: Map<string, number> = new Map([...old.values()].flatMap((edge: Edge): [string, number][] => edge.map((i: number): [string, number] => [at(i).join(","), i])));
     const registry: Map<string, SourceNode> = new Map(slab!.sourceIncidence.nodes.map((node: SourceNode): [string, SourceNode] => [node.id, node]));
     const aliases: Map<string, SourceNode> = new Map(slab!.sourceIncidence.nodes.map((node: SourceNode): [string, SourceNode] => [node.incidenceId, node]));
+    const sourceAxis: V3 = [...slab!.axis];
     const point = ({ vertices: [a, b], scalar }: SourceNode): V3 => {
       const start: V3 = verticesMm[a!]!;
       if (b === undefined) return NodeArmDraw.scale(start, 0.001);
       const direction: V3 = NodeArmDraw.sub(verticesMm[b]!, start);
-      const phase: number = (scalar - NodeArmDraw.dot(start, slab!.axis)) / NodeArmDraw.dot(direction, slab!.axis);
+      const phase: number = (scalar - NodeArmDraw.dot(start, sourceAxis)) / NodeArmDraw.dot(direction, sourceAxis);
       if (!Number.isFinite(phase)) throw new Error("A native clipping node has no source edge intersection");
       return NodeArmDraw.scale(NodeArmDraw.add(start, NodeArmDraw.scale(direction, phase)), 0.001);
     };
