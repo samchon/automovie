@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import { AutoMovieContourLoftCurves64, AutoMovieMeshCourse, AutoMovieMeshExtract, type IAutoMovieContourLoft64, tessellateAutoMovieContourLoft64, tessellateAutoMovieContourStrip64 } from "@automovie/engine";
+import { AutoMovieContourLoftCurves64, AutoMovieMeshCourse, AutoMovieMeshExtract, type IAutoMovieContourLoft64, type IAutoMovieCurve64, tessellateAutoMovieContourLoft64, tessellateAutoMovieContourStrip64 } from "@automovie/engine";
 
 import { AutoMovieHumanF1Trace } from "../generation/AutoMovieHumanF1Trace";
 import { AutoMovieHumanArmCurveSpec } from "../generation/arm/AutoMovieHumanArmCurveSpec";
@@ -17,7 +17,7 @@ type ArmRoot = NodeTrunkArchive.ArmRoot;
 
 const { armRoots, insideArmRoot, observedArmRoot, archiveWorld, archiveCurve, withoutClosingMarker }: typeof NodeTrunkArchive = NodeTrunkArchive;
 
-const { armDot, armBoundaryGap, indexedTrunkReceipt, increasingPhase, edgeSense, wire, add, sub, scale, cross }: typeof NodeTrunkCaptureGeometry = NodeTrunkCaptureGeometry;
+const { armDot, armBoundaryGap, indexedTrunkReceipt, increasingPhase, edgeSense, wire, add, sub, scale, cross, STEP }: typeof NodeTrunkCaptureGeometry = NodeTrunkCaptureGeometry;
 
 /** Trace the measured F1 armscye and shared distal arm rim. */
 export namespace NodeTrunkArmscye {
@@ -76,9 +76,15 @@ export namespace NodeTrunkArmscye {
       if (Object.keys(unsupported).length !== 0) throw new Error(`armscye: the original link ${beforeMm}→${afterMm} has unresolved components`);
       return { beforeMm, afterMm, groups: groups.map(([before, after]) => ({ before, after, supported: true, reason: null })) };
     });
-    const generated: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64({ sections, events, intervals, chordToleranceMm: global.loft.chordToleranceMm });
-    const lines: CaptureModel.ILine[] = sections.flatMap(({ loops }, row: number): CaptureModel.ILine[] => loops.map(({ curve }, loop: number): CaptureModel.ILine => ({
-      id: `armscye.original.${first + row}.${loop}`,
+    // The paired front rays place the bilateral shoulder marks at world
+    // y1278.627–1307.986 mm. Archive links 252–255 bracket them between
+    // the last saddle's upper rail and section 256. Keep all those anchors
+    // and both saddle links while splitting only the four ordinary spans.
+    const refined = await shoulderObservations(mesh, sections, intervals, intervals.slice(252 - first, 256 - first));
+    const generated: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64({ sections: refined.sections, events, intervals: refined.intervals, chordToleranceMm: global.loft.chordToleranceMm });
+    const originalRows: Map<number, number> = new Map(sections.map(({ coordinateMm }, row: number): [number, number] => [coordinateMm, first + row]));
+    const lines: CaptureModel.ILine[] = refined.sections.flatMap(({ coordinateMm, loops }): CaptureModel.ILine[] => loops.map(({ curve }, loop: number): CaptureModel.ILine => ({
+      id: originalRows.has(coordinateMm) ? `armscye.original.${originalRows.get(coordinateMm)}.${loop}` : `armscye.observed.${coordinateMm}.${loop}`,
       points: AutoMovieContourLoftCurves64.tessellate(curve, global.loft.chordToleranceMm).map(({ p }): V3 => archiveWorld(p)),
       closed: true,
       colour: "9e4c74",
@@ -88,7 +94,8 @@ export namespace NodeTrunkArmscye {
     for (let i: number = 0; i < (generated.mesh.indices?.length ?? 0); i += 3)
       indices.push(generated.mesh.indices![i]!, generated.mesh.indices![i + 2]!, generated.mesh.indices![i + 1]!);
     const diagnostics: string[] = [
-      `original armscye: ${sections.length} cuts, ${events.map((event: IAutoMovieContourLoft64.IEvent): string => `${event.name} ${event.coordinateMm} mm`).join(", ")}; ${indices.length / 3} triangles, ${generated.unresolved.length} unresolved groups`,
+      `original armscye: ${sections.length} archived cuts and ${refined.sections.length - sections.length} measured post-saddle cuts, ${events.map((event: IAutoMovieContourLoft64.IEvent): string => `${event.name} ${event.coordinateMm} mm`).join(", ")}; ${indices.length / 3} triangles, ${generated.unresolved.length} unresolved groups`,
+      ...refined.diagnostics,
       ...generated.unresolved.map((problem): string => JSON.stringify(problem)),
     ];
     let skin: CaptureModel.ITriangles = { positions, indices };
@@ -177,7 +184,7 @@ export namespace NodeTrunkArmscye {
       }
     }
     const lower: TrunkRail | null = shoulderRail(skin, generated.construction, 0, from);
-    const upper: TrunkRail | null = shoulderRail(skin, generated.construction, sections.length - 1, to);
+    const upper: TrunkRail | null = shoulderRail(skin, generated.construction, refined.sections.length - 1, to);
     const rails: [TrunkRail, TrunkRail] | null = lower !== null && upper !== null && lower.direction !== upper.direction ? [lower, upper] : null;
     diagnostics.push(rails === null
       ? "The original lower and upper torso rails do not both remain exact free cycles."
@@ -204,6 +211,55 @@ export namespace NodeTrunkArmscye {
       ? { status: "unavailable", cause: diagnostics.join("; ") }
       : { status: "available", lines: overlay, clay: skin, diagnostics };
     return { part: capture, rails };
+  }
+
+  /** Split observed one-to-one links at intervening unbridged source contours. */
+  async function shoulderObservations(
+    mesh: AutoMovieMeshExtract.IMesh,
+    sections: IAutoMovieContourLoft64.ISection[],
+    intervals: IAutoMovieContourLoft64.IInterval[],
+    selected: IAutoMovieContourLoft64.IInterval[],
+  ): Promise<{ sections: IAutoMovieContourLoft64.ISection[]; intervals: IAutoMovieContourLoft64.IInterval[]; diagnostics: string[] }> {
+    const axis = NodeTrunkArchive.archiveAxis(await NodeTrunkArchive.archiveRows());
+    const stations: number[] = selected.flatMap(({ beforeMm, afterMm }): number[] => {
+      const pieces: number = Math.ceil((afterMm - beforeMm) / STEP.cut);
+      return Array.from({ length: pieces - 1 }, (_: unknown, i: number): number => beforeMm + (afterMm - beforeMm) * (i + 1) / pieces);
+    });
+    const physical: AutoMovieMeshExtract.IMesh = NodeTrunkArchive.exactReferenceVertices(mesh);
+    const cuts: AutoMovieMeshCourse.ISection[] = AutoMovieMeshCourse.cut(physical, stations.map((station: number) => ({ station, ...axis.at(station) })), AutoMovieHumanF1Trace.TOLERANCE, 0);
+    const observed: IAutoMovieContourLoft64.ISection[] = [];
+    const diagnostics: string[] = [];
+    for (const { plane: { station, origin }, loop, pieces, flags } of cuts) {
+      if (loop === null || pieces !== 1 || flags.length !== 0) {
+        diagnostics.push(`armscye y${station.toFixed(3)} rejected: ${pieces} original outer loops; ${flags.join("; ") || "no holding loop"}.`);
+        continue;
+      }
+      const points: V3[] = withoutClosingMarker(loop.map(([u, v]: V2): V3 => [origin[0] + u, station, -origin[2] - v]), "armscye source", diagnostics);
+      // The original polygon edges are straight cubic spans. Their measured
+      // vertices and chord lengths remain the authority for the strip.
+      const steps: V3[] = points.map((point: V3, i: number): V3 => sub(points[(i + 1) % points.length]!, point));
+      const phaseIntervals: number[] = steps.map((step: V3): number => Math.hypot(...step));
+      if (points.length < 3 || phaseIntervals.some((length: number): boolean => !(length > 0))) {
+        diagnostics.push(`armscye y${station.toFixed(3)} rejected: the original holding loop has a collapsed edge.`);
+        continue;
+      }
+      const curve: IAutoMovieCurve64.Cubic = {
+        type: "cubicBezier", name: `armscye.source.${station}`, closed: true, unit: "mm", phaseUnit: "mm",
+        phaseIntervals,
+        spans: points.map((point: V3, i: number): IAutoMovieCurve64.Span => [
+          point, add(point, scale(steps[i]!, 1 / 3)), add(point, scale(steps[i]!, 2 / 3)), points[(i + 1) % points.length]!,
+        ]),
+      };
+      observed.push({ coordinateMm: station, loops: [{ winding: 1, curve }] });
+    }
+    const refined: IAutoMovieContourLoft64.IInterval[] = intervals.flatMap((interval): IAutoMovieContourLoft64.IInterval[] => {
+      const { beforeMm, afterMm, groups } = interval;
+      const within: number[] = observed.map((section): number => section.coordinateMm).filter((station: number): boolean => station > beforeMm && station < afterMm);
+      if (within.length === 0) return [interval];
+      const rails: number[] = [beforeMm, ...within, afterMm];
+      return rails.slice(1).map((end: number, i: number) => ({ beforeMm: rails[i]!, afterMm: end, groups }));
+    });
+    return { sections: [...sections, ...observed].sort((a, b): number => a.coordinateMm - b.coordinateMm), intervals: refined, diagnostics };
   }
 
   /** Read one original horizontal rail back from the actual emitted index boundary. */

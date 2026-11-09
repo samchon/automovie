@@ -74,7 +74,7 @@ export namespace NodeHeadCaptureSource {
       "packages/human/src/executable/NodeTrunkReference.ts",
       "packages/human/src/executable/NodeHeadTrace.ts", "packages/human/src/executable/NodeHeadFaceSampling.ts",
       "packages/human/src/executable/NodeHeadReference.ts", "packages/human/src/executable/NodeHeadJunction.ts", "packages/human/src/executable/NodeHeadOrbit.ts",
-      "packages/human/src/executable/NodeHeadNativeJunctions.ts",
+      "packages/human/src/executable/NodeHeadNativeJunctions.ts", "packages/human/src/executable/NodeHeadSourceSkin.ts",
       "packages/human/src/executable/NodeTrunkCaptureSource.ts",
       "packages/human/src/executable/NodeTrunkArchive.ts",
       "packages/human/src/executable/NodeTrunkCaptureGeometry.ts",

@@ -20,68 +20,63 @@ type V3 = CaptureModel.Vec3;
 
 /** Read the measured arm charts and attach ordinary strips at their existing indexed contours. */
 export namespace NodeArmCaptureGeometry {
-  /** Join the original armscye rim to the first open conic ring on its next measured plane. */
-  export function attachArmscye(
+  /** Loft measured sleeve contours in world space between the shared armscye and the existing wrist ring. */
+  export function sleeve(
     clay: CaptureModel.ITriangles,
     measured: readonly V3[],
     root: IPhysicalPlane,
-    first: ReturnType<AutoMovieViewAxis.IAxis["at"]>,
-  ): string {
-    const S: typeof AutoMovieHumanArmCurveSpec = AutoMovieHumanArmCurveSpec;
-    const count: number = 72;
-    const conic: V3[] = Array.from({ length: count }, (_: unknown, i: number): V3 =>
-      clay.positions.slice(3 * i, 3 * i + 3) as V3);
-    const normal: V3 = S.cross(first.v as V3, first.u as V3);
-    const origin: V3 = first.origin as V3;
-    const rootErrors: number[] = measured.map((p: V3): number => Math.abs(S.dot(difference(p, root.origin), root.normal)));
-    const conicErrors: number[] = conic.map((p: V3): number => Math.abs(S.dot(difference(p, origin), normal)));
-    if (measured.length < 3 || Math.max(...rootErrors, ...conicErrors) > 1e-6 ||
-      measured.some((p: V3): boolean => S.dot(difference(p, origin), normal) >= 0) ||
-      conic.some((p: V3): boolean => S.dot(difference(p, root.origin), root.normal) <= 0))
-      throw new Error("the archived armscye and first conic rings are not ordered on their original planes");
-
-    const source: V3[] = orientation(measured, root) * orientation(conic, root) > 0 ? [...measured] : [...measured].reverse();
-    const start: number = clay.positions.length / 3;
-    const vertex: Map<V3, number> = new Map([
-      ...source.map((p: V3, i: number): [V3, number] => [p, start + i]),
-      ...conic.map((p: V3, i: number): [V3, number] => [p, i]),
-    ]);
-    const indices: number[] = [];
-    tessellateAutoMovieContourStrip64(source, conic, (a: V3, b: V3, c: V3): void => {
-      for (const p of [a, b, c]) {
-        const index: number | undefined = vertex.get(p);
-        if (index === undefined) throw new Error("the armscye strip added an unowned rim vertex");
-        indices.push(index);
-      }
-    }, (p: V3): string | undefined => vertex.get(p)?.toString(), ({ qualified, diagnostics }): void => {
-      if (!qualified) throw new Error(`the measured armscye strip is unqualified: ${diagnostics.join("; ")}`);
+    sections: readonly { line: CaptureModel.ILine; row: IReferenceSection }[],
+    wrist: IPhysicalPlane,
+    frame: ReturnType<AutoMovieViewAxis.IAxis["at"]>,
+  ): { clay: CaptureModel.ITriangles; lines: CaptureModel.ILine[] } {
+    const terminal: V3[] = openTerminal(clay, frame).boundary;
+    // The mesh consumes the original shoulders and wrist bit for bit. Only
+    // the intermediate rings come from the archived Bézier sections.
+    const rings: { line: CaptureModel.ILine; plane: IPhysicalPlane }[] = [
+      { line: { id: "loft:armscye", closed: true, colour: "505050", points: [...measured] }, plane: root },
+      ...sections.map(({ line, row }) => ({ line, plane: physicalPlane(row) })),
+      { line: { id: "loft:wrist", closed: true, colour: "505050", points: terminal }, plane: wrist },
+    ];
+    const sign: number = -Math.sign(orientation(terminal, wrist));
+    if (sign === 0) throw new Error("The measured wrist ring has no physical orientation");
+    const positions: number[] = [];
+    const vertex: Map<V3, number> = new Map();
+    const walks: V3[][] = rings.map(({ line, plane }): V3[] => {
+      const points: V3[] = line.points.map((p: V3): V3 => {
+        const physical: V3 = scaled(world(p), 0.001);
+        vertex.set(physical, positions.push(...p) / 3 - 1);
+        return physical;
+      });
+      return Math.sign(orientation(line.points, plane)) === sign ? points : points.reverse();
     });
+    const indices: number[] = [];
+    for (let i: number = 1; i < walks.length; ++i)
+      tessellateAutoMovieContourStrip64(walks[i - 1]!, walks[i]!, (a: V3, b: V3, c: V3): void => {
+        indices.push(vertex.get(a)!, vertex.get(b)!, vertex.get(c)!);
+      }, (p: V3): string | undefined => vertex.get(p)?.toString(), ({ qualified, diagnostics }): void => {
+        if (!qualified) throw new Error(`Measured sleeve strip ${i} is unqualified: ${diagnostics.join("; ")}`);
+      });
 
-    const rim = (triangles: readonly number[], base: number, size: number): Map<number, number> => {
+    const rim = (base: number, size: number): number => {
       const found: Map<number, number> = new Map();
-      for (let i: number = 0; i < triangles.length; i += 3)
+      for (let i: number = 0; i < indices.length; i += 3)
         for (let j: number = 0; j < 3; ++j) {
-          const a: number = triangles[i + j]! - base;
-          const b: number = triangles[i + (j + 1) % 3]! - base;
+          const a: number = indices[i + j]! - base;
+          const b: number = indices[i + (j + 1) % 3]! - base;
           if (a < 0 || a >= size || b < 0 || b >= size) continue;
           if ((a + 1) % size === b && !found.has(a)) found.set(a, 1);
           else if ((b + 1) % size === a && !found.has(b)) found.set(b, -1);
-          else throw new Error("the armscye strip changed the existing boundary edge order");
+          else throw new Error("The measured sleeve changed the existing boundary edge order");
         }
       if (found.size !== size || new Set(found.values()).size !== 1)
-        throw new Error(`the armscye strip has only ${found.size}/${size} consistently directed edges`);
-      return found;
+        throw new Error(`The measured sleeve has only ${found.size}/${size} consistently directed edges`);
+      return found.get(0)!;
     };
-    const prior: Map<number, number> = rim(clay.indices, 0, count);
-    const seam: Map<number, number> = rim(indices, 0, count);
-    rim(indices, start, source.length);
-    if (prior.get(0) === seam.get(0))
+    rim(0, measured.length);
+    if (rim(positions.length / 3 - terminal.length, terminal.length) !== 1)
       for (let i: number = 0; i < indices.length; i += 3)
         [indices[i + 1], indices[i + 2]] = [indices[i + 2]!, indices[i + 1]!];
-    clay.positions.push(...source.flat());
-    clay.indices.push(...indices);
-    const advance: number = S.dot(difference(origin, root.origin), root.normal);
-    return `Measured armscye remains open at all ${source.length} original indexed edges. The ${advance.toFixed(3)} mm strip shares all ${count} first conic edges`;
+    return { clay: { positions, indices }, lines: rings.map(({ line }): CaptureModel.ILine => line) };
   }
 
   /** One physical reference plane in capture-world millimetres. */

@@ -5,6 +5,7 @@ import { AutoMovieMeshCourse, AutoMovieMeshExtract, generateAutoMovieContourLoft
 import type { CaptureModel } from "../inspection/CaptureModel";
 import { CaptureSpecs } from "../inspection/CaptureSpecs";
 import { HumanNodePaths } from "./HumanNodePaths";
+import { NodeHeadSourceSkin } from "./NodeHeadSourceSkin";
 import { NodeHeadTrace } from "./NodeHeadTrace";
 
 type V2 = [number, number];
@@ -59,6 +60,7 @@ export namespace NodeHeadJunction {
     const lines: CaptureModel.ILine[] = [];
     const receipts: string[] = [];
     const roots: Int32Array = nativeComponents(mesh);
+    const originalGlobe = NodeHeadSourceSkin.globeReader(mesh);
     for (const [side, birth, death] of [["right", "critical.416", "critical.1378"], ["left", "critical.415", "critical.1377"]] as const) {
       const name: string = `head.globe.${side}`;
       try {
@@ -79,11 +81,21 @@ export namespace NodeHeadJunction {
         const lastY: number = maximum.coordinateMm;
         const planes: AutoMovieMeshCourse.IPlane[] = CaptureSpecs.steps(firstY + 0.0625, lastY - 0.0625, 1)
           .map((station: number): AutoMovieMeshCourse.IPlane => horizontalPlane(station, centre));
+        // The archived loft preserves the source contour wire. When the exact
+        // source is a closed shell, its own faces avoid near-pole loft folds.
+        let drawn: CaptureModel.ITriangles = result.clay;
+        let drawnSource: string;
+        try {
+          drawn = originalGlobe(world(minimum.terminal), world(maximum.terminal));
+          drawnSource = `${drawn.indices.length / 3} closed source faces`;
+        } catch (error) {
+          drawnSource = `original loft retained (${error instanceof Error ? error.message : String(error)})`;
+        }
         const offset: number = positions.length / 3;
-        for (const value of result.clay.positions) positions.push(value);
-        for (const value of result.clay.indices) indices.push(offset + value);
+        for (const value of drawn.positions) positions.push(value);
+        for (const value of drawn.indices) indices.push(offset + value);
         for (const line of result.lines) lines.push({ ...line, id: `${name}:${line.id}` });
-        receipts.push(`${result.receipt}; ${ordinals.length - 2} original closed profiles; ${topology.paired} reciprocal indexed edges, 0 free, 0 invalid; ${surfaceResidual(raw, result.clay, planes, false)}`);
+        receipts.push(`${result.receipt}; ${ordinals.length - 2} original closed profiles; ${topology.paired} reciprocal loft edges, 0 free, 0 invalid; ${drawnSource}; ${surfaceResidual(raw, drawn, planes, false)}`);
       } catch (error) {
         receipts.push(`${name} refused: ${error instanceof Error ? error.message : String(error)}`);
       }

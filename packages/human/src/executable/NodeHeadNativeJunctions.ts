@@ -4,6 +4,7 @@ import { AutoMovieMeshExtract, type AutoMovieMeshCourse, type IAutoMovieLoftChai
 import type { CaptureModel } from "../inspection/CaptureModel";
 import { HumanNodePaths } from "./HumanNodePaths";
 import { NodeHeadJunction } from "./NodeHeadJunction";
+import { NodeHeadSourceSkin } from "./NodeHeadSourceSkin";
 import { NodeHeadTrace } from "./NodeHeadTrace";
 
 type Patch = NodeHeadJunction.IResult;
@@ -15,7 +16,8 @@ type Connect = (before: readonly number[], after: readonly number[], a: number[]
 type ArchivedJoin = NodeHeadJunction.ILayout & { seams: { chain: string; end: "top" | "bottom"; rail: string }[]; replace?: string };
 type Rim = { rail: number[]; component: number; side: 0 | 1 };
 type V2 = [number, number];
-type Band = "forehead" | "mouth" | "neck" | "nose";
+type ExteriorBand = "neck" | "nose" | "midface" | "cheek";
+type Band = "forehead" | "mouth" | ExteriorBand;
 
 /** Repair exposed head cuts using the same indexed source contours on both sides. */
 export namespace NodeHeadNativeJunctions {
@@ -72,13 +74,16 @@ export namespace NodeHeadNativeJunctions {
     const upper: number[] | undefined = base.rails.get(keys[1][0]);
     if (upper === undefined) throw new Error("the retained upper rail is missing");
     // The forehead and mouth use F1 rows 2688/2876 and 423/628.
-    // The neck and nasal planes are observed midplanes between native
-    // vertex heights, just inside the measured existing outer rails.
+    // The exterior cuts are observed midplanes between native vertex
+    // heights, just inside the measured existing outer rails. The cheek
+    // starts on the exact native plane that ends the nasal patch.
     const sourceCuts: Record<Band, [number, number]> = {
       forehead: [1598.3105087280273, 1602.3069763183594],
       mouth: [1518.1841659545898, 1525.7013702392578],
       neck: [1458.4367370605469, 1517.5642395019531],
       nose: [1549.2088317871094, 1558.627700805664],
+      midface: [1526.2989807128906, 1548.5871887207031],
+      cheek: [1558.627700805664, 1584.1547393798828],
     };
     const [from, to]: [number, number] = sourceCuts[name];
     if (to >= base.clay.positions[3 * upper[0]! + 1]!) throw new Error("the source cut must remain below the retained upper rail");
@@ -110,7 +115,7 @@ export namespace NodeHeadNativeJunctions {
       }));
     if (new Set(measured.map(({ rim }): Rim => rim)).size !== measured.length) throw new Error("two original rims selected the same native rail");
     const selected: Set<number> = new Set(measured.map(({ rim }): number => rim.component));
-    if ((name === "neck" || name === "nose") && selected.size !== 1)
+    if (name !== "forehead" && name !== "mouth" && selected.size !== 1)
       throw new Error("the original exterior does not join both observed rails");
     const componentFaces: number[] = [...selected].flatMap((i: number): number[] => patches[i]!);
     const sourceEdges: Map<string, Edge> = edges(componentFaces);
@@ -119,7 +124,25 @@ export namespace NodeHeadNativeJunctions {
         [...sourceEdges.values()].some((edge: Edge): boolean => edge.uses > 2))
       throw new Error("the native slab has an additional physical opening or an invalid indexed edge");
     const positions: number[] = base.clay.positions.slice();
-    const ids: Map<number, number> = new Map([...new Set(componentFaces)].map((id: number): [number, number] => [id, positions.push(...at(points, id)) / 3 - 1]));
+    const ids: Map<number, number> = new Map();
+    // Consecutive native clips already intersect the same source edges.
+    // Reuse their exact physical indices instead of lofting a zero-width strip.
+    const shared: Set<Rim> = new Set();
+    for (const { old, rim } of measured) {
+      if (points[3 * rim.rail[0]! + 1] !== positions[3 * old[0]! + 1]) continue;
+      const existing: Map<string, number> = new Map(old.map((id: number): [string, number] => [at(positions, id).join(":"), id]));
+      const matched: number[] = rim.rail.map((id: number): number => {
+        const index: number | undefined = existing.get(at(points, id).join(":"));
+        if (index === undefined) throw new Error("the native cut has a different source crossing");
+        return index;
+      });
+      if (matched.length !== old.length || new Set(matched).size !== old.length)
+        throw new Error("the native cut does not match one complete indexed rail");
+      rim.rail.forEach((id: number, i: number): void => { ids.set(id, matched[i]!); });
+      shared.add(rim);
+    }
+    for (const id of new Set(componentFaces))
+      if (!ids.has(id)) ids.set(id, positions.push(...at(points, id)) / 3 - 1);
     const core: number[] = componentFaces.map((id: number): number => ids.get(id)!);
     const reversed: number[] = base.clay.indices.map((_, i: number): number => base.clay.indices[i % 3 === 0 ? i : i % 3 === 1 ? i + 1 : i - 1]!);
     const lines: CaptureModel.ILine[] = [];
@@ -129,10 +152,10 @@ export namespace NodeHeadNativeJunctions {
     for (const [i, { old, rim, residual }] of measured.entries()) {
       const nativeRail: number[] = rim.rail.map((id: number): number => ids.get(id)!);
       const point = (id: number): V3 => at(positions, id);
-      const faces: number[] = rim.side === 0 ? connect(reversed, core, old, nativeRail, point)
+      const faces: number[] = shared.has(rim) ? [] : rim.side === 0 ? connect(reversed, core, old, nativeRail, point)
         : connect(core, retained.length === 0 ? reversed : retained, nativeRail, old, point);
       const mid: number = (point(old[0]!)[1] + point(nativeRail[0]!)[1]) / 2;
-      const error: number = midplaneGap(native, { positions, indices: faces }, mid, xz(positions, nativeRail));
+      const error: number = shared.has(rim) ? 0 : midplaneGap(native, { positions, indices: faces }, mid, xz(positions, nativeRail));
       if (error > 0.5) throw new Error(`native ${name} rail ${i} midplane ${Number.isFinite(error) ? error.toFixed(3) : "unreadable"} mm`);
       errors.push(Math.max(error, residual));
       midpoints.push(error);
@@ -148,15 +171,17 @@ export namespace NodeHeadNativeJunctions {
     return { ...base, clay: { positions, indices }, lines, receipt: `${name}: ${core.length / 3} actual source skin triangles; ${measured.length} unchanged indexed rims, ordinary seams ${errors.map((v: number): string => v.toFixed(3)).join("/")} mm, independent midplanes ${midpoints.map((v: number): string => v.toFixed(3)).join("/")} mm; ${retained.length / 3} original vault-transition faces retained` };
   }
 
-  /** Rebuild the two proved outer spans after their neighboring neck and cavity edges are assembled. */
-  export function repairOuterSpans(capture: CaptureModel.IPart, native: CaptureModel.ITriangles, clip: Clip, connect: Connect): void {
+  /** Rebuild the proved outer spans after their neighboring neck and cavity edges are assembled. */
+  export function repairOuterSpans(capture: CaptureModel.IPart, native: CaptureModel.ITriangles, original: AutoMovieMeshExtract.IMesh, clip: Clip, connect: Connect): void {
     if (capture.loft.status !== "available") return;
     const loft: Extract<CaptureModel.ILoft, { status: "available" }> = capture.loft;
-    // Neck: canonical trunk rail to F1 mouth row 421. Nose: the two
-    // retained 512-point face rails outside the published nasal saddles.
-    const spans: readonly (readonly ["neck" | "nose", number, number])[] = [
+    // Use the retained oral, nasal and lower eye exterior rails. The cheek
+    // begins on the physical nasal cut, before its generated transition.
+    const spans: readonly (readonly [ExteriorBand, number, number])[] = [
       ["neck", 1458, 1518.0571746826172],
       ["nose", 1548.9590644836426, 1558.7013574838638],
+      ["midface", 1525.8068084716797, 1548.9590644836426],
+      ["cheek", 1558.627700805664, 1584.6522521972656],
     ];
     for (const [name, low, high] of spans) {
       let receipt: string;
@@ -182,6 +207,7 @@ export namespace NodeHeadNativeJunctions {
       loft.diagnostics.push(receipt);
       console.log(receipt);
     }
+    NodeHeadSourceSkin.attach(capture, native, original, clip);
   }
 
   /** Select only the indexed outside component between the observed rails, leaving inner walls intact. */

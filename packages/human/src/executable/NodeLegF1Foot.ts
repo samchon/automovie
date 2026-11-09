@@ -170,8 +170,12 @@ export namespace NodeLegF1Foot {
     return { skin, seed: rim!, roots: digits };
   }
 
-  /** Exact linear triangle clipping with one shared intersection per source edge. */
-  function splitSkin(skin: INativeSkin, frame: Frame): { positive: Face[]; negative: Face[] } {
+  /**
+   * Exact linear triangle clipping with one shared intersection per source edge.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Both half sheets reuse the same measured edge intersections.
+   */
+  export function splitSkin(skin: INativeSkin, frame: Frame): { positive: Face[]; negative: Face[] } {
     const origin = frame.origin as V3;
     const normal = AutoMovieViewAxis.normal(frame) as V3;
     const distance = skin.points.map((p): number => {
@@ -223,8 +227,12 @@ export namespace NodeLegF1Foot {
     return a < b ? `${a},${b}` : `${b},${a}`;
   }
 
-  /** Keep native triangle components by shared edges. */
-  function skinComponents(faces: Face[]): Face[][] {
+  /**
+   * Keep native triangle components by shared edges.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Native components are selected by actual indexed edge incidence.
+   */
+  export function skinComponents(faces: Face[]): Face[][] {
     const edgeFaces = new Map<string, number[]>();
     for (const [i, face] of faces.entries()) for (let k = 0; k < 3; ++k) {
       const key = edgeKey(face[k]!, face[(k + 1) % 3]!);

@@ -92,6 +92,12 @@ export namespace NodeArmHandSkin {
         !ordered(hostRims[i]!.points, proximal, row.originMm, whole[4]!.originMm, row.normal, whole[4]!.normal))
         throw new Error("The measured right palm sections overlap the finger-fan planes");
     }
+    if (side === "l") {
+      // Follow the original closed cut between s84 and the turned finger-fan plane.
+      const bridge = NodeArmFingerFan.between(raw, branch.host, proximal, [branch.afterOrigin, whole[4]!.originMm], [branch.normal, whole[4]!.normal], whole[4]!.u);
+      if (bridge.ring === undefined) throw new Error("The original left palm has no ordered continuation to the finger fan");
+      hostRims.push(bridge.ring);
+    }
     let hand: IIndexedMesh = joinRims(palm, fan, [...branch.host], [...proximal], [branch.normal, whole[4]!.normal], hostRims);
     const receipts: string[] = [];
     for (const digit of ["thumb", "index", "ring", "pinky"] as const) {
@@ -118,7 +124,6 @@ export namespace NodeArmHandSkin {
         [between.ring, { points: firstRing, normal: first.normal }]);
       receipts.push(`${digit} ${first.station}→${next.station}, ${sourceRim.length} indexed port edges`);
     }
-
     auditSkin(hand, input.armscye);
     // Every join appends geometry. Keep the already verified arm's exact
     // millimetre prefix, including its canonical shared armscye positions.
@@ -130,7 +135,6 @@ export namespace NodeArmHandSkin {
       diagnostics: [`Sewn native hand skin: palm ${palm.shared} indexed edges; middle source row 10 to conic 11; ${receipts.join(" | ")}. Only the ${input.armscye.length}-edge armscye remains open.`],
     };
   }
-
   /** Require a single expected free seam and reciprocal direction on every sewn edge. */
   function auditSkin(mesh: IIndexedMesh, root: readonly V3[]): void {
     const edges: Map<string, { a: number; b: number; count: number; winding: number }> = new Map();
@@ -263,7 +267,6 @@ export namespace NodeArmHandSkin {
     const afterMm: number = side === "l" ? S.dot(L.wristZero, leftAxis) + 84 : armRows[145]!.coordinateMm;
     const palm: IFreeRim = exactFreeRim(arm, origin, normal);
     const name: string = `palm_${side}`;
-
     // The original left cut splits once from s80 to s82. Both observed
     // rings continue separately from s82 to s84.
     const splitEnd: number = side === "l" ? beforeMm + 2 : afterMm;
@@ -417,7 +420,6 @@ export namespace NodeArmHandSkin {
     const fanIds: number[] = idsOf(fan, fanEdges, fanRing);
     const middleIds: number[] = idsOf(middle, middleEdges, middleRing);
     const S: typeof AutoMovieHumanArmCurveSpec = AutoMovieHumanArmCurveSpec;
-
     // Align physical perimeter directions before lofting. The indexed
     // triangle winding is normalized separately once the seams are checked.
     const physicalSigns: [number, number] = [fanRing, middleRing].map((ring, i): number =>
