@@ -39,7 +39,7 @@ Read the skill whose trigger applies.
 - [human](.agents/skills/human/SKILL.md): working on `packages/human`, a human figure, or the Human viewer.
 - [scaffold](.agents/skills/scaffold/SKILL.md): editing `packages/template`, or reading, authoring, or reviewing production content anywhere.
 - [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md): designing or revising the production skills, contracts and routers shipped by the scaffold.
-- [production-campaign](.agents/skills/production-campaign/SKILL.md): sustained writing and media execution, worker observation, blocked handoffs and production comparisons.
+- [production-campaign](.agents/skills/production-campaign/SKILL.md): sustained writing and media execution with writers and reviewers launched as CLI processes, observer-led revival of stopped runs, review connection, blocked handoffs and production comparisons.
 - [prompting](.agents/skills/prompting/SKILL.md): changing `AGENTS.md`, `CLAUDE.md`, or a skill.
 - [documentation](.agents/skills/documentation/SKILL.md): writing any document or doc comment.
 - [review](.agents/skills/review/SKILL.md): any review or self-review.
