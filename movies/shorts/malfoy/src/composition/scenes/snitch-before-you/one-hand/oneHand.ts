@@ -12,8 +12,10 @@ import type { PitchStage } from "../PitchStage";
  * Carina, behind his left shoulder, holds her open right hand beside the
  * Snitch while her eyes stay on him, then takes the hand back to her broom.
  * A medium alongside Harry for the first reach, then from 29 s one unbroken
- * three-quarter rear two-shot on Carina's side through the slip, the hang and
- * her open hand: Carina near, Harry ahead and beyond.
+ * two-shot square to their left side through the slip, the hang and her open
+ * hand: Carina behind his left shoulder reads screen left and near, Harry
+ * ahead and beyond (from her rear quarter the two stood in line with the lens
+ * and his reach was hidden behind her).
  *
  * Concretization: each reach aims at the point where the Snitch track
  * hovers then; Carina's eyes on Harry are a `lookAt` right after her hand
@@ -52,6 +54,6 @@ export function oneHand(stage: PitchStage): AutoMovieComposition {
       .lookAt(harry)
       .withdraw({ hand: "right", start: 31.2 }),
     camera.alongside([harry], { start: 24, side: "left", view: "front", distance: 3.5, size: "medium" }),
-    camera.alongside([carina, harry], { start: 29, side: "left", view: "rear", distance: 4.5 }),
+    camera.alongside([carina, harry], { start: 29, side: "left", view: "side", distance: 5 }),
   );
 }

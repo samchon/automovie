@@ -31,11 +31,11 @@ export function hangTransfer(): IFilm {
         harry
           .enter("eastSouthGap.south", { riding: "broom-harry", heading: Math.PI / 2 })
           .fly(["eastRunoff.chase"], { speed: 12 })
-          .slip({ start: 1.0 })
-          .pushGlasses({ hand: "left", start: 2.0 })
-          .transfer(carina, { contact: 6.0 })
+          .slip({ start: 4.0 })
+          .pushGlasses({ hand: "left", start: 5.0 })
+          .transfer(carina, { contact: 9.0 })
           .until(14),
-        carina.enter("eastSouthGap.north", { riding: "broom-carina", heading: Math.PI / 2 }).fly(["eastRunoff.chase"], { speed: 12 }).offerRear(harry, { start: 2.8 }).until(14),
+        carina.enter("eastSouthGap.north", { riding: "broom-carina", heading: Math.PI / 2 }).fly(["eastRunoff.chase"], { speed: 12 }).offerRear(harry, { start: 5.8 }).until(14),
         ...Array.from({ length: 14 }, (_, k) =>
           camera.alongside([harry, carina], { start: k, view: k % 2 === 0 ? "side" : "behind", side: "left", distance: k % 2 === 0 ? 5 : 6, above: 1.0 }),
         ),

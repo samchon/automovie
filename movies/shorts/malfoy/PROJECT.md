@@ -22,8 +22,7 @@ The modular standard is the `movies/shorts/kickboxing` production: every charact
 - Route: short with settings, settings → final screenplay for each film, with no treatments or scripts.
 - Output per film: a complete deterministic whole motion-video hint, programmed staging, motion and camera for every scene, assembled as one 60-second film. Vertical 9:16, 720 × 1280, 24 fps. Direct 3D render through the Viewer is the delivered picture; no diffusion generation, upload or paid call is commissioned.
 - Representation: people are production block mannequins on the Human bone names, fitted by the production's own two-bone limb law, and sets and props are coarse code-authored geometry. Human polygon figures were the first choice, but on the current tree Human calibration fails in its head law for every person tried, including the playground's reference person, after 44–65 s per attempt; the mannequin keeps the same chain API, so the Human path can return once Human calibrates again. Carina wears a Slytherin uniform and Harry a Gryffindor uniform, readable as collar, house-striped tie, charcoal knit, open black robe, school bottoms and black shoes, with hands, knees and feet left legible.
-- Sound: the films are silent motion hints; no speech or music is adopted. Dialogue lives in the screenplays.
-- All production text, titles and source are English.
+- Sound: the films are silent motion hints; no speech or music is adopted. Dialogue lives in the screenplays.- All production text, titles and source are English.
 
 ## Ownership {#ownership}
 

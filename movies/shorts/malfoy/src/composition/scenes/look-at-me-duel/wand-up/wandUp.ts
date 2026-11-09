@@ -67,6 +67,9 @@ export function wandUp(cast: CourtStage.ICast): AutoMovieComposition {
     camera
       .wide([carina, harry, "supportZone"], { start: 0, from: "southWest" })
       .next(camera.twoShot([carina, harry], { start: 4.1 }))
+      .next(camera.medium([carina], { start: 6.0 }))
+      .next(camera.shot([harry], { size: "full", start: 8.0, motion: "hold" }))
+      .next(camera.medium([carina], { start: 10.0 }))
       .next(camera.twoShot([carina, harry], { start: 11.5, from: "southWest", motion: "hold" })),
   );
 }
