@@ -9,10 +9,10 @@ import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
  *
  * Engine admission: `hostFace` a view part of the host's subtree; each `partFace` a view part of its child's subtree; the two `band` names unique in the tree; `a < b < a + 2 pi`, both finite; `count` a multiple of 4 of at least 8; `rows` a positive integer; `rail` positive and finite; a crease's bounds finite, `start <= end < start + 2 pi`, and its transition positive.
  *
- * @evidence contracts/common.md#principled-implementation An open end divided by one chord into two loops gives each child a closed port on the parent's own boundary (construction.md, Connections: end the parent open and split that end into the children's loops along a shared chord), and the bands are the existing join strip between each side's 2-jet across its rail (Hartmann 2001, parametric G^n blending), so the children meet the parent G2 without a Taylor continuation of the parent's field.
- * @evidence contracts/common.md#clear-and-simple-design One host end, a two-phase seam and two child records with their bands and rails are the whole declaration; column count and rows are the strip's existing sampling inputs.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Declares geometry only: no person, fixture or fitted coefficient; the crease is an authored window, and a refusal leaves the whole split out rather than one child with an open chord.
- * @evidence contracts/common.md#meaningful-documentation States both loops and their clocks, the band's sides and continuity, the declared creases, the failure effect, the metre and radian units and the admission rules.
+ * @evidence contracts/development/design.md#principled-representation An open end divided by one chord into two loops gives each child a closed port on the parent's own boundary (construction.md, Connections: end the parent open and split that end into the children's loops along a shared chord), and the bands are the existing join strip between each side's 2-jet across its rail (Hartmann 2001, parametric G^n blending), so the children meet the parent G2 without a Taylor continuation of the parent's field.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One host end, a two-phase seam and two child records with their bands and rails are the whole declaration; column count and rows are the strip's existing sampling inputs.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Declares geometry only: no person, fixture or fitted coefficient; the crease is an authored window, and a refusal leaves the whole split out rather than one child with an open chord.
+ * @evidence contracts/development/common.md#meaningful-documentation States both loops and their clocks, the band's sides and continuity, the declared creases, the failure effect, the metre and radian units and the admission rules.
  */
 export interface IAutoMovieConstructionSplit {
   /** Discriminator. */
@@ -45,7 +45,10 @@ export interface IAutoMovieConstructionSplit {
   rows: number;
 
   /** The two children, in the seam's order. */
-  children: [IAutoMovieConstructionSplit.IChild, IAutoMovieConstructionSplit.IChild];
+  children: [
+    IAutoMovieConstructionSplit.IChild,
+    IAutoMovieConstructionSplit.IChild,
+  ];
 }
 
 export namespace IAutoMovieConstructionSplit {
@@ -58,10 +61,10 @@ export namespace IAutoMovieConstructionSplit {
    *
    * Engine admission: at least one knot; every knot finite; `along` strictly increasing and positive (the realization refuses a last knot at or beyond the chord's length, which needs the host's geometry); `corner` finite, positive and below `pi / 2`.
    *
-   * @evidence contracts/common.md#principled-implementation A seam tangent to the host at the forks lies in the host's tangent plane there, so the arc's ribbons (the host's own 2-jet), the seam and its lateral ruling share one tangent plane at each fork, the G1 condition a straight chord in the end plane cannot meet; the clamped cubic spline is the C2 interpolant of authored knots with prescribed end tangents (de Boor 1978), and the corner turn keeps every ribbon in its side's tangent plane while giving the corner column a direction transverse to both boundaries.
-   * @evidence contracts/common.md#clear-and-simple-design A knot list and one corner width; the seam's ends, tangents and ruling come from the host and the chord.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Authored knots only, nothing fitted or searched; a seam whose knots leave the chord's span is refused, never clamped.
-   * @evidence contracts/common.md#meaningful-documentation States the plane, the curve, its end tangents, the ruling, the corner turn, the continuity it keeps and the admission rules, in metres and radians.
+   * @evidence contracts/development/design.md#principled-representation A seam tangent to the host at the forks lies in the host's tangent plane there, so the arc's ribbons (the host's own 2-jet), the seam and its lateral ruling share one tangent plane at each fork, the G1 condition a straight chord in the end plane cannot meet; the clamped cubic spline is the C2 interpolant of authored knots with prescribed end tangents (de Boor 1978), and the corner turn keeps every ribbon in its side's tangent plane while giving the corner column a direction transverse to both boundaries.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A knot list and one corner width; the seam's ends, tangents and ruling come from the host and the chord.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Authored knots only, nothing fitted or searched; a seam whose knots leave the chord's span is refused, never clamped.
+   * @evidence contracts/development/common.md#meaningful-documentation States the plane, the curve, its end tangents, the ruling, the corner turn, the continuity it keeps and the admission rules, in metres and radians.
    */
   export interface IProfile {
     /** Interior knots in the seam plane, metres: `[along, depth]`, `along` the distance from the seam's first end toward its second along the chord, `depth` along the host end's outward normal (positive out of the host). */
@@ -74,10 +77,10 @@ export namespace IAutoMovieConstructionSplit {
   /**
    * One child of a split: its subtree, the face that meets the host's end, its rail and its band.
    *
-   * @evidence contracts/common.md#principled-implementation The child's own face supplies the band's far ribbon at a declared station, so the band reaches the child's actual surface where the child keeps it.
-   * @evidence contracts/common.md#clear-and-simple-design A band name, the child's subtree and face, the end that faces the host, one rail depth and an optional crease window.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The rail is an authored depth, not searched; a rail outside the child's realized domain is a diagnostic, never clamped.
-   * @evidence contracts/common.md#meaningful-documentation States each field's role, its unit and which side of the rail the child keeps.
+   * @evidence contracts/development/design.md#principled-representation The child's own face supplies the band's far ribbon at a declared station, so the band reaches the child's actual surface where the child keeps it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A band name, the child's subtree and face, the end that faces the host, one rail depth and an optional crease window.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The rail is an authored depth, not searched; a rail outside the child's realized domain is a diagnostic, never clamped.
+   * @evidence contracts/development/common.md#meaningful-documentation States each field's role, its unit and which side of the rail the child keeps.
    */
   export interface IChild {
     /** The band's face and chain name, unique in the tree. */
@@ -104,10 +107,10 @@ export namespace IAutoMovieConstructionSplit {
    *
    * Inside `[start, end]` the band arrives at the child's rail along the straight chord from its loop (its child-side ribbon's first derivative is that chord, its second zero), so it meets the child at an angle; outside the window, over `transition` on each side, the child-side ribbon returns to the child's own 2-jet by the quintic smoothstep `10 x^3 - 15 x^4 + 6 x^5`, whose first and second derivatives vanish at both ends, so the band stays C2 along its loop. The band remains G2 to the host everywhere.
    *
-   * @evidence contracts/common.md#principled-implementation The child side is a C0 meeting by its own contract (a skin fold such as the gluteal sulcus), and the smoothstep's flat ends keep the ribbon fields C2 in the clock, as the strip requires.
-   * @evidence contracts/common.md#clear-and-simple-design Two clock bounds and one transition width; the crease's shape is the chord arrival, with no further option.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An authored window; nothing is detected from the surfaces.
-   * @evidence contracts/common.md#meaningful-documentation States the clock, the window's effect on both ribbons and the transition's law.
+   * @evidence contracts/development/design.md#principled-representation The child side is a C0 meeting by its own contract (a skin fold such as the gluteal sulcus), and the smoothstep's flat ends keep the ribbon fields C2 in the clock, as the strip requires.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two clock bounds and one transition width; the crease's shape is the chord arrival, with no further option.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An authored window; nothing is detected from the surfaces.
+   * @evidence contracts/development/common.md#meaningful-documentation States the clock, the window's effect on both ribbons and the transition's law.
    */
   export interface ICrease {
     /** The window's first clock, radians on the band's loop clock. */

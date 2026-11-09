@@ -1,6 +1,13 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
-/** One contact episode, shared by geometric and solved performance paths. */
+/**
+ * One contact episode, shared by geometric and solved performance paths.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (One contact episode, shared by geometric and solved performance paths) and documents 12 documented members as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents One contact episode, shared by geometric and solved performance paths: interface of 12 members (`id`, `source`, `seconds`, `endSeconds`, `a`, `b`, ...); units and frames named in its text: second, seconds, world, metres, local. Optional members `samples` express documented absence, and the ranges its member docs state are left to runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAutoMovieContactReceipt` in packages/interface/src/physics/IAutoMovieContactReceipt.ts; its surface is the 12 members listed and the text shows 32 other files naming it, mostly packages/engine (18), test (9), movies (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ */
 export interface IAutoMovieContactReceipt {
   /** Unique stable episode id. */
   id: string;

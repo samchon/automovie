@@ -31,10 +31,11 @@ import {
  * 4. Unknown hero and coverage framing and move are refused independently;
  *    adjacent supported medium/static intents remain accepted.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls blockBeat against a real stageScene result and asserts subject acceptance, absent-placement refusals and both camera vocabulary paths; catches a blocked hero plan that would fail only when its camera is later compiled.
- * @evidence contracts/testing.md#independent-expectations Placement membership comes from the authored fixture and framing/move expectations come from the interface's closed unions, rather than reading the runtime grammar sets; refusal assertions require the exact owning path and useful message.
- * @evidence contracts/testing.md#distinguishing-cases Covers camera, actor, set-piece and absent subjects for hero/coverage, an absent covering camera, and independently malformed framing/move pairs beside a supported pair; anchor order and carried actors belong to the other block-beat tests.
- * @evidence contracts/testing.md#execution-ownership This portable unit entry directly imports engine source and owns all scenarios synchronously through stageScene and blockBeat; it starts no process, browser or native renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls blockBeat against a real stageScene result and asserts subject acceptance, absent-placement refusals and both camera vocabulary paths; catches a blocked hero plan that would fail only when its camera is later compiled.
+ * @evidence contracts/development/testing.md#independent-expectations Placement membership comes from the authored fixture and framing/move expectations come from the interface's closed unions, rather than reading the runtime grammar sets; refusal assertions require the exact owning path and useful message.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers camera, actor, set-piece and absent subjects for hero/coverage, an absent covering camera, and independently malformed framing/move pairs beside a supported pair; anchor order and carried actors belong to the other block-beat tests.
+ * @evidence contracts/development/testing.md#execution-ownership This portable unit entry directly imports engine source and owns all scenarios synchronously through stageScene and blockBeat; it starts no process, browser or native renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Hero and coverage intents accept cameras, actors and set pieces as subjects.).
  */
 export function test_film_block_beat_camera_target(): void {
   const script: IAutoMovieScript = makeScriptWrite();

@@ -20,10 +20,11 @@ type Piece = Parameters<typeof measureAutoMovieCurveLength64>[0][number];
  * 3. Original cubic Bernstein controls retain local-parameter length despite unequal phase widths; the shared API and wrapper both meet the analytic 13/3 mm length. Legacy finite-final returns also retain subnormal rounding and finite quadrature of a curve with endpoint-only speed overflow, while strict source admission still refuses them.
  * 4. Closed-domain queries and the declared finite evaluation budget are observed. Invalid domains/subdivisions, nonfinite endpoint/interior derivatives, unrepresentable widths/nodes/contributions and callback exceptions fail explicitly.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the public source-length API, original Outline jet readers and existing cubic wrapper; verifies physical lengths, source immutability, query confinement, fixed work and explicit failure without replacing any foreign callback or global.
- * @evidence contracts/testing.md#independent-expectations A line's norm is13; a helix has constant speed. The parabola antiderivative is t*sqrt(1+4*t*t)/2+asinh(2*t)/4. The quintic derivative [1-t*t-t^4,2*t,2*t*t] has speed1+t*t+t^4 and length23/15. Total variation of the known natural source gives14; the monotone quintic height with X=2Y gives sqrt(5). Cubic PH plus a3mm line gives13/3. The large monotone cubic has exact lengthA and endpoint derivative3A beyond binary64; minimum-subnormal weighted terms round to zero by IEEE754 ties-to-even. No quadrature implementation derives these expectations.
- * @evidence contracts/testing.md#distinguishing-cases Covers zero/nonzero speeds, source cubic/quintic, nonplanarity/drift, partial and unequal charts, inverse parameter direction, units/signs, smallest/largest K, every failure boundary and untouched source data. A coarse/fine difference is observed without asserting a general error bound, convergence certificate or anatomical tape result.
- * @evidence contracts/testing.md#execution-ownership Discoverable synchronous CPU unit through --include geometry_source_curve_length; owns all assertions and starts no Human, native artifact, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public source-length API, original Outline jet readers and existing cubic wrapper; verifies physical lengths, source immutability, query confinement, fixed work and explicit failure without replacing any foreign callback or global.
+ * @evidence contracts/development/testing.md#independent-expectations A line's norm is13; a helix has constant speed. The parabola antiderivative is t*sqrt(1+4*t*t)/2+asinh(2*t)/4. The quintic derivative [1-t*t-t^4,2*t,2*t*t] has speed1+t*t+t^4 and length23/15. Total variation of the known natural source gives14; the monotone quintic height with X=2Y gives sqrt(5). Cubic PH plus a3mm line gives13/3. The large monotone cubic has exact lengthA and endpoint derivative3A beyond binary64; minimum-subnormal weighted terms round to zero by IEEE754 ties-to-even. No quadrature implementation derives these expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers zero/nonzero speeds, source cubic/quintic, nonplanarity/drift, partial and unequal charts, inverse parameter direction, units/signs, smallest/largest K, every failure boundary and untouched source data. A coarse/fine difference is observed without asserting a general error bound, convergence certificate or anatomical tape result.
+ * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU unit through --include geometry_source_curve_length; owns all assertions and starts no Human, native artifact, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Lines, helices, a parabola with its asinh antiderivative and a three-dimensional quintic Pythagorean-hodograph curve have independent...).
  */
 export function test_geometry_source_curve_length(): void {
   const failures: string[] = [];
@@ -286,19 +287,94 @@ export function test_geometry_source_curve_length(): void {
   );
 
   // Legacy finite-final admission is distinct from strict source endpoint/underflow admission.
-  const large: number = Number.MAX_VALUE / 3 * 1.01;
-  const extreme: C.Cubic = { type: "cubicBezier", name: "finite final endpoint overflow", closed: false, unit: "mm", phaseUnit: "normalized", phaseIntervals: [1], spans: [[[0, 0, 0], [large, 0, 0], [large, 0, 0], [large, 0, 0]]] };
-  near(failures, "legacy endpoint-only overflow retains finite length", measureAutoMovieCubicCurveLength64(extreme).lengthMm, large, 64 * Number.EPSILON * large);
-  refuses(failures, "legacy nonfinite interior/final still refuses", (): unknown => measureAutoMovieCubicCurveLength64(extreme, 5));
-  refuses(failures, "strict original endpoint-overflow source refuses", (): unknown => measureAutoMovieCurveLength64([{ domain: [0, 1], derivative: (t: number): C.Vector => [3 * ((1 - t) * (1 - t) * large), 0, 0] }]));
+  const large: number = (Number.MAX_VALUE / 3) * 1.01;
+  const extreme: C.Cubic = {
+    type: "cubicBezier",
+    name: "finite final endpoint overflow",
+    closed: false,
+    unit: "mm",
+    phaseUnit: "normalized",
+    phaseIntervals: [1],
+    spans: [
+      [
+        [0, 0, 0],
+        [large, 0, 0],
+        [large, 0, 0],
+        [large, 0, 0],
+      ],
+    ],
+  };
+  near(
+    failures,
+    "legacy endpoint-only overflow retains finite length",
+    measureAutoMovieCubicCurveLength64(extreme).lengthMm,
+    large,
+    64 * Number.EPSILON * large,
+  );
+  refuses(
+    failures,
+    "legacy nonfinite interior/final still refuses",
+    (): unknown => measureAutoMovieCubicCurveLength64(extreme, 5),
+  );
+  refuses(
+    failures,
+    "strict original endpoint-overflow source refuses",
+    (): unknown =>
+      measureAutoMovieCurveLength64([
+        {
+          domain: [0, 1],
+          derivative: (t: number): C.Vector => [
+            3 * ((1 - t) * (1 - t) * large),
+            0,
+            0,
+          ],
+        },
+      ]),
+  );
   let oldMessage: string = "";
-  try { measureAutoMovieCubicCurveLength64(extreme, 5); } catch (error) { oldMessage = error instanceof Error ? error.message : ""; }
-  check(failures, "legacy overflow error text retained", oldMessage === "Cubic speed integration overflow");
+  try {
+    measureAutoMovieCubicCurveLength64(extreme, 5);
+  } catch (error) {
+    oldMessage = error instanceof Error ? error.message : "";
+  }
+  check(
+    failures,
+    "legacy overflow error text retained",
+    oldMessage === "Cubic speed integration overflow",
+  );
   const tiny: number = Number.MIN_VALUE;
-  const subnormal: C.Cubic = { type: "cubicBezier", name: "legacy subnormal rounding", closed: false, unit: "mm", phaseUnit: "normalized", phaseIntervals: [1], spans: [[[0, 0, 0], [tiny, 0, 0], [2 * tiny, 0, 0], [3 * tiny, 0, 0]]] };
-  const rounded: ReturnType<typeof measureAutoMovieCubicCurveLength64> = measureAutoMovieCubicCurveLength64(subnormal);
-  near(failures, "legacy subnormal finite-final length", rounded.lengthMm, 0, 0);
-  near(failures, "legacy subnormal finite-final difference", rounded.differenceMm, 0, 0);
+  const subnormal: C.Cubic = {
+    type: "cubicBezier",
+    name: "legacy subnormal rounding",
+    closed: false,
+    unit: "mm",
+    phaseUnit: "normalized",
+    phaseIntervals: [1],
+    spans: [
+      [
+        [0, 0, 0],
+        [tiny, 0, 0],
+        [2 * tiny, 0, 0],
+        [3 * tiny, 0, 0],
+      ],
+    ],
+  };
+  const rounded: ReturnType<typeof measureAutoMovieCubicCurveLength64> =
+    measureAutoMovieCubicCurveLength64(subnormal);
+  near(
+    failures,
+    "legacy subnormal finite-final length",
+    rounded.lengthMm,
+    0,
+    0,
+  );
+  near(
+    failures,
+    "legacy subnormal finite-final difference",
+    rounded.differenceMm,
+    0,
+    0,
+  );
 
   // Query counters belong to these pure-result test callbacks, never to a foreign method.
   let reads: number = 0;

@@ -14,10 +14,11 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * 1. A two-node adjacent acyclic declaration is accepted through the same profile.
  * 2. Adding the original closing edge from node zero to node 16,383 refuses with the exact parent-cycle cause before motion inventory is returned.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs model admission on a 16,384-node cyclic declaration and requires the parent-cycle diagnostic; recursion overflow or accepting the cycle fails.
- * @evidence contracts/testing.md#independent-expectations Node zero's authored child edge to the final node closes the descending child chain, so the expected cycle is independent of the forest walker.
- * @evidence contracts/testing.md#distinguishing-cases This unit isolates deep cyclic refusal; deep accepted static/motion chains and short malformed edge/profile twins belong to the adjacent hierarchy units.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_ingest_external_model_hierarchy_deep_cycle entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs model admission on a 16,384-node cyclic declaration and requires the parent-cycle diagnostic; recursion overflow or accepting the cycle fails.
+ * @evidence contracts/development/testing.md#independent-expectations Node zero's authored child edge to the final node closes the descending child chain, so the expected cycle is independent of the forest walker.
+ * @evidence contracts/development/testing.md#distinguishing-cases This unit isolates deep cyclic refusal; deep accepted static/motion chains and short malformed edge/profile twins belong to the adjacent hierarchy units.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_ingest_external_model_hierarchy_deep_cycle entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A two-node adjacent acyclic declaration is accepted through the same profile.).
  */
 export function test_ingest_external_model_hierarchy_deep_cycle(): void {
   const accepted: import("@automovie/ingest").IAutoMovieExternalModelInspection =

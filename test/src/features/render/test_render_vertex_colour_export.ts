@@ -1,5 +1,4 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { exportModelToGLB } from "@automovie/render/node";
 import {
   type Accessor,
   type Document,
@@ -9,6 +8,7 @@ import {
 } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
+import { exportModelToGLB } from "../../../../packages/template/scaffold/src/integrations/render/node/exportModelToGLB";
 import { nclose } from "../internal/predicates";
 import {
   vertexColourMesh,
@@ -22,10 +22,11 @@ import {
  * 1. Binary round-trip carries VEC3 linear colour for the coloured part.
  * 2. The bare neighbour emits no colour attribute and remains a separate node.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs the actual static GLB exporter and independently reads its bytes with NodeIO, checking the first primitive's VEC3 COLOR_0 values and the bare neighbor's omitted color attribute.
- * @evidence contracts/testing.md#independent-expectations The authored RGB array supplies the expected component order and binary-fraction values; nclose uses zero tolerance to retain exact equality for these Float32-representable samples, and VEC3/null expectations are literals.
- * @evidence contracts/testing.md#distinguishing-cases Places colored and color-omitted triangles in one exported model so discarding RGB or manufacturing a color attribute on the bare primitive is observable; separate-node transforms are not inspected here.
- * @evidence contracts/testing.md#execution-ownership Owns an asynchronous in-memory GLB round trip through the real serializer and reader, opens no output file and creates no renderer; the portable runner owns execution, and decoded attributes do not constitute visual validation.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the actual static GLB exporter and independently reads its bytes with NodeIO, checking the first primitive's VEC3 COLOR_0 values and the bare neighbor's omitted color attribute.
+ * @evidence contracts/development/testing.md#independent-expectations The authored RGB array supplies the expected component order and binary-fraction values; nclose uses zero tolerance to retain exact equality for these Float32-representable samples, and VEC3/null expectations are literals.
+ * @evidence contracts/development/testing.md#distinguishing-cases Places colored and color-omitted triangles in one exported model so discarding RGB or manufacturing a color attribute on the bare primitive is observable; separate-node transforms are not inspected here.
+ * @evidence contracts/development/testing.md#execution-ownership Owns an asynchronous in-memory GLB round trip through the real serializer and reader, opens no output file and creates no renderer; the portable runner owns execution, and decoded attributes do not constitute visual validation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Binary round-trip carries VEC3 linear colour for the coloured part.).
  */
 export async function test_render_vertex_colour_export(): Promise<void> {
   const colored: IAutoMovieMesh = vertexColourMesh();

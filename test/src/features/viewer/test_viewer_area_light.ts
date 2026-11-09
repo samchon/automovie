@@ -52,10 +52,11 @@ const emitted: (light: THREE.Object3D) => IAutoMovieVector3 = (
  *    shadow policy, and gives it no `range`: the panel's falloff comes from its
  *    own area, so no channel writes one.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds native rectangular lights, applies light state and folds shot overrides, asserting extent, color/intensity, transform-derived aim and absence of target/range fields. A punctual native instance receives shared state without acquiring panel dimensions.
- * @evidence contracts/testing.md#independent-expectations Authored window dimensions 2.4 by 1.8, color/intensity and a 90-degree Y rotation define panel properties and world -X emission from local -Z. The independent native quaternion application checks aim; object metadata does not establish emitted radiance or BRDF installation count.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts first/second panels, direct extent rewrite, mismatched punctual instance and intensity-only override preserving area dimensions/shadow policy. This unit checks metadata and class decisions; global lookup-table lifetime and GPU area shading belong to renderer integration.
- * @evidence contracts/testing.md#execution-ownership The named unit invokes production light construction/state writers and portable override folding with Three objects. It starts no renderer, browser or GPU; namedFacts runs only the callbacks authored in this entry.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds native rectangular lights, applies light state and folds shot overrides, asserting extent, color/intensity, transform-derived aim and absence of target/range fields. A punctual native instance receives shared state without acquiring panel dimensions.
+ * @evidence contracts/development/testing.md#independent-expectations Authored window dimensions 2.4 by 1.8, color/intensity and a 90-degree Y rotation define panel properties and world -X emission from local -Z. The independent native quaternion application checks aim; object metadata does not establish emitted radiance or BRDF installation count.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts first/second panels, direct extent rewrite, mismatched punctual instance and intensity-only override preserving area dimensions/shadow policy. This unit checks metadata and class decisions; global lookup-table lifetime and GPU area shading belong to renderer integration.
+ * @evidence contracts/development/testing.md#execution-ownership The named unit invokes production light construction/state writers and portable override folding with Three objects. It starts no renderer, browser or GPU; namedFacts runs only the callbacks authored in this entry.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An area light builds a `RectAreaLight` carrying its exact width, height,).
  */
 export function test_viewer_area_light(): void {
   const built: THREE.RectAreaLight = buildLight(WINDOW) as THREE.RectAreaLight;

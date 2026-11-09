@@ -1,12 +1,11 @@
 import { planViewerFrameTimes } from "@automovie/render";
-import {
-  recordViewerPlayback,
-  renderViewerFrames,
-  writeViewerFrameSheet,
-} from "@automovie/render/node";
-import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node/chrome";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+
+import { DEFAULT_CHROME_EXECUTABLE } from "../integrations/render/node/capture/DEFAULT_CHROME_EXECUTABLE";
+import { recordViewerPlayback } from "../integrations/render/node/recordViewerPlayback";
+import { renderViewerFrames } from "../integrations/render/node/renderViewerFrames";
+import { writeViewerFrameSheet } from "../integrations/render/node/writeViewerFrameSheet";
 
 /** Shared installed review tools; captures the running production through its real host. */
 async function main(): Promise<void> {

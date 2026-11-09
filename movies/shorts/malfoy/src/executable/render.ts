@@ -1,9 +1,7 @@
 import { planViewerFrameTimes } from "@automovie/render";
-import {
-  type IAutoMovieViewerVideoResult,
-  renderViewerFrames,
-  renderViewerVideo,
-} from "@automovie/render/node";
+import { type IAutoMovieViewerVideoResult } from "../integrations/render/node/IAutoMovieViewerVideoResult";
+import { renderViewerFrames } from "../integrations/render/node/renderViewerFrames";
+import { renderViewerVideo } from "../integrations/render/node/renderViewerVideo";
 import ffmpeg from "ffmpeg-static";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";

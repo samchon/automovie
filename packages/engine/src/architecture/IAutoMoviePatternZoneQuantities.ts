@@ -6,13 +6,10 @@
  * each exclusion. Joint area, joint length and waste ratio exist only on the
  * pattern totals.
  *
- * @evidence contracts/common.md#principled-implementation Per-zone sums over that zone's placements, with net region area as the region area minus its intersection with each exclusion.
- * @evidence contracts/common.md#clear-and-simple-design Carries only figures meaningful per zone; ratios and joint figures live on the totals.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A zone that laid nothing still gets a record, rather than being omitted, so the list matches the declaration.
- * @evidence contracts/common.md#meaningful-documentation States one record per zone in declaration order, the net-area rule, which figures exist only on totals, and the units.
- * @evidenceExclude contracts/performance.md#efficient-algorithms No body; the producer folds zone placements and measures region/exclusion intersections with vertex-dependent clipping costs, as answered on `generateAutoMovieSurfacePattern`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Computed once per zone per run and reused by the pattern totals.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Numbers and one string owned by the run's quantities.
+ * @evidence contracts/development/design.md#principled-representation Per-zone sums over that zone's placements, with net region area as the region area minus its intersection with each exclusion.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Carries only figures meaningful per zone; ratios and joint figures live on the totals.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A zone that laid nothing still gets a record, rather than being omitted, so the list matches the declaration.
+ * @evidence contracts/development/common.md#meaningful-documentation States one record per zone in declaration order, the net-area rule, which figures exist only on totals, and the units.
  */
 export interface IAutoMoviePatternZoneQuantities {
   /** Zone these figures total, as declared on the pattern. */

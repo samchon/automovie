@@ -1,14 +1,12 @@
-import {
-  AutoMovieHeadlessCaptureError,
-  type IAutoMovieHeadlessLocator,
-  type IAutoMovieHeadlessPage,
-  type IViewerCaptureSession,
-  createViewerCaptureSession,
-} from "@automovie/viewer/node";
 import assert from "node:assert/strict";
 import { setImmediate } from "node:timers/promises";
 import { type Context, createContext } from "node:vm";
 
+import { AutoMovieHeadlessCaptureError } from "../../../../packages/template/scaffold/src/integrations/viewer/node/capture/AutoMovieHeadlessCaptureError";
+import { type IAutoMovieHeadlessLocator } from "../../../../packages/template/scaffold/src/integrations/viewer/node/capture/IAutoMovieHeadlessLocator";
+import { type IAutoMovieHeadlessPage } from "../../../../packages/template/scaffold/src/integrations/viewer/node/capture/IAutoMovieHeadlessPage";
+import { type IViewerCaptureSession } from "../../../../packages/template/scaffold/src/integrations/viewer/node/capture/IViewerCaptureSession";
+import { createViewerCaptureSession } from "../../../../packages/template/scaffold/src/integrations/viewer/node/capture/createViewerCaptureSession";
 import { runHeadlessPageCallback } from "../internal/runHeadlessPageCallback";
 
 /** A controllable hook settlement, without timers or a browser process. */
@@ -99,10 +97,11 @@ class HookPage implements IAutoMovieHeadlessPage {
  * 3. Synchronous circular return values remain discarded; writer rejection
  *    stays unwrapped and the caller still closes the session.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the public Viewer capture session through an isolated generic page port, holding hook promises across an event-loop turn to observe zero premature screenshot/write requests. All success, rejection and writer cases finish before collected failures propagate; no browser, native drawing or byte decoding is claimed.
- * @evidence contracts/testing.md#independent-expectations A capture requires the selected hook to finish first. Explicit gate settlement, exact original refusal identity, undefined page callback results and fixed capture/write counts provide expectations independent of the capture implementation.
- * @evidence contracts/testing.md#distinguishing-cases Both seek and pass exercise delayed fulfillment and rejection; synchronous circular values and writer rejection preserve adjacent behavior and explicit session cleanup. Existing headless capture tests own route/style/empty-byte/default/custom and repeated-pass admission.
- * @evidence contracts/testing.md#execution-ownership The normal exported test_render_headless_capture_async entry owns all finite cases. Public page callbacks execute in node:vm through the existing helper, with no browser, GPU, filesystem writer or replaced global/method.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public Viewer capture session through an isolated generic page port, holding hook promises across an event-loop turn to observe zero premature screenshot/write requests. All success, rejection and writer cases finish before collected failures propagate; no browser, native drawing or byte decoding is claimed.
+ * @evidence contracts/development/testing.md#independent-expectations A capture requires the selected hook to finish first. Explicit gate settlement, exact original refusal identity, undefined page callback results and fixed capture/write counts provide expectations independent of the capture implementation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both seek and pass exercise delayed fulfillment and rejection; synchronous circular values and writer rejection preserve adjacent behavior and explicit session cleanup. Existing headless capture tests own route/style/empty-byte/default/custom and repeated-pass admission.
+ * @evidence contracts/development/testing.md#execution-ownership The normal exported test_render_headless_capture_async entry owns all finite cases. Public page callbacks execute in node:vm through the existing helper, with no browser, GPU, filesystem writer or replaced global/method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Delayed seek and pass fulfillment precede capture and writing.).
  */
 export async function test_render_headless_capture_async(): Promise<void> {
   const failures: unknown[] = [];

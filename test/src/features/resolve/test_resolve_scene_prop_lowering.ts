@@ -46,10 +46,11 @@ const placedScene: () => IAutoMovieScene = (): IAutoMovieScene => ({
  * 3. A rigid prop (`articulation: null`) lowers only its placement group: the
  *    negative twin of the subtree.
  *
- * @evidence contracts/testing.md#behavioral-verification Lowers an existing articulated door prop and rigid neighbor through sceneToNodes, observing prefixed ids, parent references, hinge rest translation/kind and the rigid singleton count; articulated subtree cardinality is not asserted.
- * @evidence contracts/testing.md#independent-expectations Literal articulation nodes are rooted beneath their placement and other parent ids take the same prefix; a rigid prop contributes only its placement. Expected ids/counts and offsets are authored fixture facts.
- * @evidence contracts/testing.md#distinguishing-cases Articulated and rigid props contrast subtree production with no subtree, and root/child nodes distinguish direct placement parenting from prefixed internal parenting; profile animation and registry refusals have separate owners.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_scene_prop_lowering entry directly executes portable synchronous lowering of the canonical existing door fixture, without creating a new Human asset or rendering its geometry.
+ * @evidence contracts/development/testing.md#behavioral-verification Lowers an existing articulated door prop and rigid neighbor through sceneToNodes, observing prefixed ids, parent references, hinge rest translation/kind and the rigid singleton count; articulated subtree cardinality is not asserted.
+ * @evidence contracts/development/testing.md#independent-expectations Literal articulation nodes are rooted beneath their placement and other parent ids take the same prefix; a rigid prop contributes only its placement. Expected ids/counts and offsets are authored fixture facts.
+ * @evidence contracts/development/testing.md#distinguishing-cases Articulated and rigid props contrast subtree production with no subtree, and root/child nodes distinguish direct placement parenting from prefixed internal parenting; profile animation and registry refusals have separate owners.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_scene_prop_lowering entry directly executes portable synchronous lowering of the canonical existing door fixture, without creating a new Human asset or rendering its geometry.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The forged door's three joints lower as `frontDoor/root` (parent).
  */
 export function test_resolve_scene_prop_lowering(): void {
   const base: IAutoMoviePropSpec = createDoorPropSpec();

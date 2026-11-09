@@ -12,10 +12,11 @@ import * as THREE from "three";
  * 1. Mip-linear input reports a linear conversion choice while retaining its configured sampler, public version and generated storage policy.
  * 2. Other supported native filters retain their own choice, including a filter outside the authorable union; unsupported wrap/filter facts stay null.
  *
- * @evidence contracts/testing.md#behavioral-verification Applies the real scene-image owner and reads its Texture metadata, catching conversion intent confused with the configured sampler or an observer that mutates native fields.
- * @evidence contracts/testing.md#independent-expectations The supported conversion policy uses linear sampling for generated mip-linear input and preserves other admitted native filters; literal Three enum tuples pin that policy, while no assertion observes a cached GPU sampler key or native upload.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts mip-linear input, nearest/linear/nearest-mip filters, invalid wrapping and invalid filtering; the adjacent environment-owner tests cover source-sharing and retirement failures.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit uses a real CPU-side DataTexture and Scene through maintained Viewer entries and disposes its own texture, with no browser, GPU, process or dynamic cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies the real scene-image owner and reads its Texture metadata, catching conversion intent confused with the configured sampler or an observer that mutates native fields.
+ * @evidence contracts/development/testing.md#independent-expectations The supported conversion policy uses linear sampling for generated mip-linear input and preserves other admitted native filters; literal Three enum tuples pin that policy, while no assertion observes a cached GPU sampler key or native upload.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts mip-linear input, nearest/linear/nearest-mip filters, invalid wrapping and invalid filtering; the adjacent environment-owner tests cover source-sharing and retirement failures.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit uses a real CPU-side DataTexture and Scene through maintained Viewer entries and disposes its own texture, with no browser, GPU, process or dynamic cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Mip-linear input reports a linear conversion choice while retaining its configured sampler, public version and generated storage policy.).
  */
 export function test_viewer_environment_sampler_intents(): void {
   const texture: THREE.DataTexture = new THREE.DataTexture(

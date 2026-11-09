@@ -19,10 +19,11 @@ import { nclose } from "../../internal/nclose";
  * 2. Point0 remains available when chart2 is unavailable; collapsed charts,
  *    incomplete neighboring domains and foreign errors retain explicit failure.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real KnownPort surface Point0 and total2 on both original rails and interior, including actual nonlinear map Hessians and all product-rule terms.
- * @evidence contracts/testing.md#independent-expectations Elementary differentiation of the displayed closed-form polynomial gives all six vectors, independently of the operator. Absolute2e-10mm component budget covers finite polynomial arithmetic; no mesh or boundary-jet reconstruction supplies expectations.
- * @evidence contracts/testing.md#distinguishing-cases Nonlinear chart mapping and interior field curvature distinguish true whole-field pullback from a boundary Taylor strip. Includes both rails, three interior transverse values, unavailable chart2 with valid Point0, rank zero, out-of-owned-field trials and original exception identity.
- * @evidence contracts/testing.md#execution-ownership One synchronous construction_known_port CPU question owns made original functions and starts no Human construction, process, viewer or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the real KnownPort surface Point0 and total2 on both original rails and interior, including actual nonlinear map Hessians and all product-rule terms.
+ * @evidence contracts/development/testing.md#independent-expectations Elementary differentiation of the displayed closed-form polynomial gives all six vectors, independently of the operator. Absolute2e-10mm component budget covers finite polynomial arithmetic; no mesh or boundary-jet reconstruction supplies expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Nonlinear chart mapping and interior field curvature distinguish true whole-field pullback from a boundary Taylor strip. Includes both rails, three interior transverse values, unavailable chart2 with valid Point0, rank zero, out-of-owned-field trials and original exception identity.
+ * @evidence contracts/development/testing.md#execution-ownership One synchronous construction_known_port CPU question owns made original functions and starts no Human construction, process, viewer or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Original fields (a,b,a²+b²+offset*(1+a+2b+ab)) use the actual map).
  */
 export function test_construction_known_port(): void {
   const failures: string[] = [];

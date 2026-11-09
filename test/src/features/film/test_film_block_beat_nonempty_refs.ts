@@ -17,10 +17,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  *
  * 1. Whitespace-only beat, actor and node-target camera references refuse at their input fields even though matching staged/script ids exist.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls blockBeat with matching whitespace ids in the script, stage and plan and requires type findings on all three plan references, detecting admission that checks existence but omits nonblank identity.
- * @evidence contracts/testing.md#independent-expectations A single space contains no non-whitespace identity, and the deliberately matching source ids make referential absence an insufficient explanation for refusal; expected paths name the beat, actor and camera fields authored in the input.
- * @evidence contracts/testing.md#distinguishing-cases Owns whitespace references that resolve by equality, contrasted with ordinary absent ids in the invalid-plan test and valid nonblank ids in the admitted-plan test; duplicate ids and prior-state fields have separate cases.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_block_beat_nonempty_refs entry owns one portable staging prerequisite and a copied scene record with authored blank ids, replacing no module or foreign method and starting no consumer, native artifact or host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls blockBeat with matching whitespace ids in the script, stage and plan and requires type findings on all three plan references, detecting admission that checks existence but omits nonblank identity.
+ * @evidence contracts/development/testing.md#independent-expectations A single space contains no non-whitespace identity, and the deliberately matching source ids make referential absence an insufficient explanation for refusal; expected paths name the beat, actor and camera fields authored in the input.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns whitespace references that resolve by equality, contrasted with ordinary absent ids in the invalid-plan test and valid nonblank ids in the admitted-plan test; duplicate ids and prior-state fields have separate cases.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_block_beat_nonempty_refs entry owns one portable staging prerequisite and a copied scene record with authored blank ids, replacing no module or foreign method and starting no consumer, native artifact or host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Whitespace-only beat, actor and node-target camera references refuse at their input fields even though matching staged/script ids exist.).
  */
 export function test_film_block_beat_nonempty_refs(): void {
   const baseScript: ReturnType<typeof makeScriptWrite> = makeScriptWrite();

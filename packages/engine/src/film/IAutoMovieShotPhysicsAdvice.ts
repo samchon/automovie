@@ -24,13 +24,10 @@ interface IAutoMovieShotPhysicsAdviceBase {
  * list onto the compiled result, so the decision stays visible beside the
  * build.
  *
- * @evidence contracts/common.md#principled-implementation A discriminated union on `decision`, whose four states fix which of `selected` and `rationale` may be present; `compileDefinedShot` additionally requires a non-blank unique id and a non-blank rationale for every decision, and compares `selected` with `proposal` by key-sorted JSON, so `accepted` must equal the proposal and `modified` must differ from it regardless of key order.
- * @evidence contracts/common.md#clear-and-simple-design The shared id and proposal live once in a base, and each state adds only the two fields whose meaning changes, so no state carries a field it cannot use; the record is a decision log, with applying a selected response left to the author's own motion.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The compiler never folds `selected` into motion and never fills a missing rationale, so an accepted proposal still reaches the shot only through what the author wrote, and a pending item stays pending.
- * @evidence contracts/common.md#meaningful-documentation States that the response is advice never applied by the engine, who supplies it and through which field, each decision state and what its `selected` and `rationale` must be, and that the compiler validates and copies the list.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape with no runtime body; validation is one pass with a canonical JSON comparison per item, answered on `compileDefinedShot`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Supplied once per shot compilation and deep-cloned onto its result; the engine computes no advice for this record and caches none.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the input items; the compiled result owns its own `structuredClone` of them, including any recoil pose, so neither aliases the other.
+ * @evidence contracts/development/design.md#principled-representation A discriminated union on `decision`, whose four states fix which of `selected` and `rationale` may be present; `compileDefinedShot` additionally requires a non-blank unique id and a non-blank rationale for every decision, and compares `selected` with `proposal` by key-sorted JSON, so `accepted` must equal the proposal and `modified` must differ from it regardless of key order.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The shared id and proposal live once in a base, and each state adds only the two fields whose meaning changes, so no state carries a field it cannot use; the record is a decision log, with applying a selected response left to the author's own motion.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The compiler never folds `selected` into motion and never fills a missing rationale, so an accepted proposal still reaches the shot only through what the author wrote, and a pending item stays pending.
+ * @evidence contracts/development/common.md#meaningful-documentation States that the response is advice never applied by the engine, who supplies it and through which field, each decision state and what its `selected` and `rationale` must be, and that the compiler validates and copies the list.
  */
 export type IAutoMovieShotPhysicsAdvice =
   | (IAutoMovieShotPhysicsAdviceBase & {

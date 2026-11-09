@@ -23,6 +23,12 @@ import { vclose } from "../internal/vclose";
  * 3. A checkpoint inside return and binary replay preserve exact frames and ownership metadata.
  * 4. Positive solver contact activates the complete receiving body irreversibly; a miss does not.
  * 5. A blocked return refuses instead of teleporting through its receiver.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `Quaternion`, `Vector3`, `AutoMoviePhysicalPlayback` on in-memory inputs and asserts the returned observations through 9x TestValidator.equals, 11x TestValidator.predicate; 5 numbered scenarios (first: A moving parent remains authored while an impacted child simulates, returns and reactivates.; last: A blocked return refuses instead of teleporting through its receiver.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
+ * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (13 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contributes 5 numbered scenarios (first: A moving parent remains authored while an impacted child simulates, returns and reactivates.; last: A blocked return refuses instead of teleporting through its receiver.), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
+ * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_ownership_handoff`, which owns the cases delegated to `PhysicalFixtures`, `nclose`, `qclose`, `vclose`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A moving parent remains authored while an impacted child simulates, returns and reactivates.).
  */
 export async function test_physical_ownership_handoff(): Promise<void> {
   const body: Simulation.IBody = movingBody(1);

@@ -16,10 +16,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  *    violation on `$input.actors` naming the unplaced `knightB`, and no scene
  *    is composed.
  *
- * @evidence contracts/testing.md#behavioral-verification Stages only knightA from a two-actor script and requires refusal naming knightB under the actors path, catching silently dropped planned cast.
- * @evidence contracts/testing.md#independent-expectations The literal two-member cast and one-member placement establish the missing knightB expectation; no composed scene is used to derive expected membership.
- * @evidence contracts/testing.md#distinguishing-cases Owns one absent cast member while retaining a valid placed actor; the inverse unknown-placement refusal and fully placed success belong to their respective entries.
- * @evidence contracts/testing.md#execution-ownership The synchronous named entry owns this in-memory script/stage join case through actual staging without loading assets or starting a native or browser host.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages only knightA from a two-actor script and requires refusal naming knightB under the actors path, catching silently dropped planned cast.
+ * @evidence contracts/development/testing.md#independent-expectations The literal two-member cast and one-member placement establish the missing knightB expectation; no composed scene is used to derive expected membership.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns one absent cast member while retaining a valid placed actor; the inverse unknown-placement refusal and fully placed success belong to their respective entries.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous named entry owns this in-memory script/stage join case through actual staging without loading assets or starting a native or browser host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Staging places only `knightA` while the script casts two knights → a `type`).
  */
 export function test_film_stage_scene_unplaced_cast(): void {
   const staged: ReturnType<typeof stageScene> = stageScene(

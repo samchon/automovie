@@ -173,10 +173,11 @@ const composed: (
  * 2. Refuse persistent/per-beat cycles and a rigless intermediate parent.
  * 3. Read a late parent's staged placement before its coupling and baked path afterward.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs performShot and samples follow clips, checking every coupling id, composed endpoints, root displacement, cycle/mount faults and late-start authority; detects a bake attached to stale staged parents.
- * @evidence contracts/testing.md#independent-expectations The two-metre root travel and distinct staged decoys independently distinguish a moving composed path. Endpoint reference composition reuses resolveAttachment/Quaternion, so it checks graph composition rather than independently proving FK/rotation primitives.
- * @evidence contracts/testing.md#distinguishing-cases Keeps three-depth composition, stale-placement exclusion, mount cycle, mutual attach cycle, rigless parent and before/after late-start samples; disjoint handoffs and id-independent beat-end choice remain in attach.
- * @evidence contracts/testing.md#execution-ownership This synchronous discoverable unit owns portable compilation/sampling cases and starts no rig renderer, browser or native host; sampled double-precision points prove no displayed coupling appearance.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs performShot and samples follow clips, checking every coupling id, composed endpoints, root displacement, cycle/mount faults and late-start authority; detects a bake attached to stale staged parents.
+ * @evidence contracts/development/testing.md#independent-expectations The two-metre root travel and distinct staged decoys independently distinguish a moving composed path. Endpoint reference composition reuses resolveAttachment/Quaternion, so it checks graph composition rather than independently proving FK/rotation primitives.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps three-depth composition, stale-placement exclusion, mount cycle, mutual attach cycle, rigless parent and before/after late-start samples; disjoint handoffs and id-independent beat-end choice remain in attach.
+ * @evidence contracts/development/testing.md#execution-ownership This synchronous discoverable unit owns portable compilation/sampling cases and starts no rig renderer, browser or native host; sampled double-precision points prove no displayed coupling appearance.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Bake a three-deep sword/rider/horse/dragon chain and its two-metre displacement, distinct from staged decoys.).
  */
 export function test_film_perform_shot_coupling_chain(): void {
   const staged: IAutoMovieStagedSet = stageScene(scriptOf(), stagingOf());

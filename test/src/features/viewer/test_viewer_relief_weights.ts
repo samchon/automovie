@@ -41,10 +41,11 @@ import {
  * 4. Validation refuses wrong length, negative and nonfinite weights; merging pads bare neighbours with ones, transformation copies weights and topology counts a nonfinite entry.
  * 5. Render-budget arithmetic charges four bytes per weighted vertex, including padded bare vertices in a flattened mixed model.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds weighted/bare material variants, generates shader output, flattens/merges/transforms mesh values and measures inventory; catches missing relief attributes, wrong stage ordering, lost unit padding and omitted buffer-byte charges.
- * @evidence contracts/testing.md#independent-expectations Authored zero/half/one values, unit padding for bare vertices and four bytes per Float32 vertex define expectations; generated shader output checks supported tangent-stage composition without proving GLSL compilation or observed surface relief.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts weighted/bare shared materials and missing normal maps, detail-first composition, malformed/negative/nonfinite values and mixed instanced padding; material disposal and native pixel inspection are separate obligations.
- * @evidence contracts/testing.md#execution-ownership This named portable unit reuses the existing vertex-color and render fixtures and maintained source with CPU-side Three objects, retires flattened resources and starts no browser, GPU, process or hidden case registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds weighted/bare material variants, generates shader output, flattens/merges/transforms mesh values and measures inventory; catches missing relief attributes, wrong stage ordering, lost unit padding and omitted buffer-byte charges.
+ * @evidence contracts/development/testing.md#independent-expectations Authored zero/half/one values, unit padding for bare vertices and four bytes per Float32 vertex define expectations; generated shader output checks supported tangent-stage composition without proving GLSL compilation or observed surface relief.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts weighted/bare shared materials and missing normal maps, detail-first composition, malformed/negative/nonfinite values and mixed instanced padding; material disposal and native pixel inspection are separate obligations.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit reuses the existing vertex-color and render fixtures and maintained source with CPU-side Three objects, retires flattened resources and starts no browser, GPU, process or hidden case registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A weighted part receives a reliefWeight material variant, a bare sharing part retains the plain material and absence of a normal map...).
  */
 export function test_viewer_relief_weights(): void {
   const weighted: IAutoMovieMesh = {

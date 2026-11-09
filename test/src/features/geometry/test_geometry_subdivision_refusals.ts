@@ -59,10 +59,11 @@ const refuses: (
  * 8. A vanishing limit normal, at the valence-2 interior vertices of a cage
  *    made of one quad and its reverse, is refused after refinement.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls `subdivideAutoMovieSurface` on each malformed cage and asserts a synchronous Error naming the defect; a guard that is missing, misplaced or silently repairs the input fails.
- * @evidence contracts/testing.md#independent-expectations Each refusal follows from the documented cage contract (manifold, consistent winding, vertex-owned UVs, sharpness range, integer level from one to six, the cap that bounds the fourfold growth per level) and the expected message fragment names the offending index, not an implementation detail.
- * @evidence contracts/testing.md#distinguishing-cases Every negative case is one property away from the valid cage, and the valid cage, both sharpness range ends and the six-level cap prove the guards do not over-reach; rules, limits, boundaries, creases and UVs are owned by the other `test_geometry_subdivision_*` tests.
- * @evidence contracts/testing.md#execution-ownership A discoverable unit entry calling the portable engine function on synthetic cages; no consumer, native build, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `subdivideAutoMovieSurface` on each malformed cage and asserts a synchronous Error naming the defect; a guard that is missing, misplaced or silently repairs the input fails.
+ * @evidence contracts/development/testing.md#independent-expectations Each refusal follows from the documented cage contract (manifold, consistent winding, vertex-owned UVs, sharpness range, integer level from one to six, the cap that bounds the fourfold growth per level) and the expected message fragment names the offending index, not an implementation detail.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every negative case is one property away from the valid cage, and the valid cage, both sharpness range ends and the six-level cap prove the guards do not over-reach; rules, limits, boundaries, creases and UVs are owned by the other `test_geometry_subdivision_*` tests.
+ * @evidence contracts/development/testing.md#execution-ownership A discoverable unit entry calling the portable engine function on synthetic cages; no consumer, native build, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The valid two-quad cage with UVs and a semi-sharp crease subdivides, and).
  */
 export function test_geometry_subdivision_refusals(): void {
   TestValidator.predicate(

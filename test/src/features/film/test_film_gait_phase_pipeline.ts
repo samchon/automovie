@@ -111,10 +111,11 @@ const shotOf: (motionId: string, duration: number) => IAutoMovieShot = (
  * 2. Compare the composite leg pose with the source cycle at that phase.
  * 3. Preserve the single cycle through locomotion/lookAt layering and return null for a gesture-only performance.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs makeActorSynthesizer, compilePerformance, resolveBeatEnd and sampleMotion, checking cycle metadata, phase and leg flexion consistency, catching a dropped clock in non-looping arranged or layered output.
- * @evidence contracts/testing.md#independent-expectations The authored one-second walk makes 3.5 seconds a .5-second phase. Comparing composite and source samples checks composition consistency with shared sampling, not independent gait geometry; gesture-only input declares no cycle.
- * @evidence contracts/testing.md#distinguishing-cases Distinguishes one locomotion region, layered locomotion/lookAt and noncyclic gesture, with an explicit phase resample; malformed carried scalars and period boundaries remain in gait_phase_degenerate.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit owns the portable synthesis/compile/snapshot composition. It does not call performShot itself or run the render ladder, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs makeActorSynthesizer, compilePerformance, resolveBeatEnd and sampleMotion, checking cycle metadata, phase and leg flexion consistency, catching a dropped clock in non-looping arranged or layered output.
+ * @evidence contracts/development/testing.md#independent-expectations The authored one-second walk makes 3.5 seconds a .5-second phase. Comparing composite and source samples checks composition consistency with shared sampling, not independent gait geometry; gesture-only input declares no cycle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes one locomotion region, layered locomotion/lookAt and noncyclic gesture, with an explicit phase resample; malformed carried scalars and period boundaries remain in gait_phase_degenerate.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous unit owns the portable synthesis/compile/snapshot composition. It does not call performShot itself or run the render ladder, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Compile locomotion and read half-stride phase at 3.5 seconds.).
  */
 export function test_film_gait_phase_pipeline(): void {
   const synthesize: IAutoMovieActionSynthesizer = makeActorSynthesizer(

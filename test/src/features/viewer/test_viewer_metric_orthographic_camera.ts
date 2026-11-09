@@ -12,10 +12,11 @@ import { nclose } from "../internal/nclose";
  * 2. Native inverse projection returns the same pixel and parallel viewing direction at different depths.
  * 3. Invalid pitch, sparse principal points, collapsed native inverses and unordered depth limits refuse.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds actual native orthographic cameras and uses native project/unproject transforms to assert pixel coordinates and inverse-ray consistency, rather than comparing implementation matrices to themselves.
- * @evidence contracts/testing.md#independent-expectations The declared affine chart independently fixes U=u0+(cos(a)X+sin(a)Z)/pitch and V=v0-Y/pitch. Parallel rays and equality of projected pixels at different depths follow from orthographic image formation.
- * @evidence contracts/testing.md#distinguishing-cases Covers cardinal/opposite/oblique angles, off-centre principal point, physical offsets, unequal viewport sides, inverse near/far samples, sparse/nonfinite/zero numeric admission, finite-frustum overflow and a finite projection whose native inverse collapses at an extreme gauge. GPU pixel alignment is qualified separately on the actual host.
- * @evidence contracts/testing.md#execution-ownership This portable test_viewer_metric_orthographic_camera entry uses CPU native camera/vector algebra without a renderer, browser, GPU, file, native artifact or Human source.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds actual native orthographic cameras and uses native project/unproject transforms to assert pixel coordinates and inverse-ray consistency, rather than comparing implementation matrices to themselves.
+ * @evidence contracts/development/testing.md#independent-expectations The declared affine chart independently fixes U=u0+(cos(a)X+sin(a)Z)/pitch and V=v0-Y/pitch. Parallel rays and equality of projected pixels at different depths follow from orthographic image formation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers cardinal/opposite/oblique angles, off-centre principal point, physical offsets, unequal viewport sides, inverse near/far samples, sparse/nonfinite/zero numeric admission, finite-frustum overflow and a finite projection whose native inverse collapses at an extreme gauge. GPU pixel alignment is qualified separately on the actual host.
+ * @evidence contracts/development/testing.md#execution-ownership This portable test_viewer_metric_orthographic_camera entry uses CPU native camera/vector algebra without a renderer, browser, GPU, file, native artifact or Human source.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Multiple azimuths, noncentral principal points and unequal image dimensions project independent world points correctly at ordinary and...).
  */
 export function test_viewer_metric_orthographic_camera(): void {
   const base: Parameters<typeof createAutoMovieMetricOrthographicCamera>[0] = {

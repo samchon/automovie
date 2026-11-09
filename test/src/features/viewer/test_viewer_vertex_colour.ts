@@ -15,10 +15,11 @@ import {
  * 1. Colored and bare neighboring parts retain exact CPU RGB/base-color inputs and independent attribute/vertexColors variants while sharing materials within each kind.
  * 2. Null/missing materials and primitive geometry retain their appropriate fallback variants, then actual local geometry/material owners are disposed.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls real model construction and reads CPU attribute values, vertexColors flags, material identity and unchanged base-color coefficients.
- * @evidence contracts/testing.md#independent-expectations Authored triangle RGB arrays and independently stated variant flags define expectations through numeric predicates and identity comparisons, not copied shader output.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts shared colored/bare variants, null/missing material fallback and primitive geometry; attribute presence and flags do not prove visible modulation or native allocation.
- * @evidence contracts/testing.md#execution-ownership The named entry uses existing portable triangle/model inputs and disposes its actual CPU geometries/materials without a renderer, import loader or new fixture.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls real model construction and reads CPU attribute values, vertexColors flags, material identity and unchanged base-color coefficients.
+ * @evidence contracts/development/testing.md#independent-expectations Authored triangle RGB arrays and independently stated variant flags define expectations through numeric predicates and identity comparisons, not copied shader output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts shared colored/bare variants, null/missing material fallback and primitive geometry; attribute presence and flags do not prove visible modulation or native allocation.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry uses existing portable triangle/model inputs and disposes its actual CPU geometries/materials without a renderer, import loader or new fixture.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Colored and bare neighboring parts retain exact CPU RGB/base-color inputs and independent attribute/vertexColors variants while sharing...).
  */
 export function test_viewer_vertex_colour(): void {
   const colored: import("@automovie/interface").IAutoMovieMesh =

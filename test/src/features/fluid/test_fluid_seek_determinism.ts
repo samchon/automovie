@@ -62,10 +62,11 @@ const seekable: () => IAutoMovieFluidDomain = (): IAutoMovieFluidDomain => {
  *    negative step, a step past the declared budget, and a non-finite sample
  *    time each throw with the domain named.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs scrambled and ascending absolute seeks, repeated step-40 field comparisons, time snapping and invalid seeks; catches retained call-order state, changed floor semantics and missing budget/time refusals.
- * @evidence contracts/testing.md#independent-expectations Literal scramble order and fixed dt define seek/time expectations; step-40 strict field/ledger equality tests repeatability, while step-0-through-16 hash agreement has the documented 32-bit collision limitation and is not a full-field oracle.
- * @evidence contracts/testing.md#distinguishing-cases Retains zero-through-16 order samples, repeated step 40, inside/boundary/negative/zero time, fractional/negative/over-budget steps, accepted exact budget and NaN time; physics accuracy belongs to hand-math and conservation entries.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns portable absolute CPU calls and refusal-message fragments, without a frame loop, worker process, GPU or cross-platform execution.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs scrambled and ascending absolute seeks, repeated step-40 field comparisons, time snapping and invalid seeks; catches retained call-order state, changed floor semantics and missing budget/time refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Literal scramble order and fixed dt define seek/time expectations; step-40 strict field/ledger equality tests repeatability, while step-0-through-16 hash agreement has the documented 32-bit collision limitation and is not a full-field oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains zero-through-16 order samples, repeated step 40, inside/boundary/negative/zero time, fractional/negative/over-budget steps, accepted exact budget and NaN time; physics accuracy belongs to hand-math and conservation entries.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns portable absolute CPU calls and refusal-message fragments, without a frame loop, worker process, GPU or cross-platform execution.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Steps 0..16 requested in the selected scrambled order have matching).
  */
 export function test_fluid_seek_determinism(): void {
   const domain: ReturnType<typeof seekable> = seekable();

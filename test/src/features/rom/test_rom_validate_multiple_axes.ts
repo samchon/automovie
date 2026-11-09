@@ -14,10 +14,11 @@ import { joint } from "../internal/fixtures";
  * Scenarios:
  * 1. A shoulder at 999-degree flexion and twist produces exactly flexion, swing and twist paths; null abduction contributes zero to the coupled metric, whose periodic representative is 279 degrees.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual ROM validation and compares the complete sorted path population, catching collapsed axis faults, an exempted null swing axis or an extra diagnostic.
- * @evidence contracts/testing.md#independent-expectations Both 999-degree axes exceed the default shoulder intervals; the half-angle cosine representative of 999-degree flexion with zero abduction is 279 degrees, beyond the 180-degree cone. Literal field paths specify the report independently of collector order.
- * @evidence contracts/testing.md#distinguishing-cases This entry owns simultaneous independent-axis and coupled-cone faults with a resting partner; accepted, single-axis and immobile-zero cases are separate ROM tests.
- * @evidence contracts/testing.md#execution-ownership The named synchronous entry uses the existing joint fixture and a local collector; no pose renderer, process, native artifact or dynamically registered case participates.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual ROM validation and compares the complete sorted path population, catching collapsed axis faults, an exempted null swing axis or an extra diagnostic.
+ * @evidence contracts/development/testing.md#independent-expectations Both 999-degree axes exceed the default shoulder intervals; the half-angle cosine representative of 999-degree flexion with zero abduction is 279 degrees, beyond the 180-degree cone. Literal field paths specify the report independently of collector order.
+ * @evidence contracts/development/testing.md#distinguishing-cases This entry owns simultaneous independent-axis and coupled-cone faults with a resting partner; accepted, single-axis and immobile-zero cases are separate ROM tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous entry uses the existing joint fixture and a local collector; no pose renderer, process, native artifact or dynamically registered case participates.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A shoulder at 999-degree flexion and twist produces exactly flexion, swing and twist paths; null abduction contributes zero to the coupled...).
  */
 export function test_rom_validate_multiple_axes(): void {
   const collector: ViolationCollector = new ViolationCollector();

@@ -12,10 +12,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * 1. A generated knightB with null skeleton reports its skeleton field.
  * 2. Its part's undeclared material reports the corresponding entry model path in the same result.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls forgeCast on one two-defect entry and checks both skeleton and remapped material violations, catching a lost delegated model fault or an unposable accepted performer.
- * @evidence contracts/testing.md#independent-expectations Performers require a skeleton, and no-such-mat is absent from the fixture's material ids. The original part index and forge entry index independently determine the remapped paths; no pose or appearance is measured.
- * @evidence contracts/testing.md#distinguishing-cases Keeps both independent defects together so collecting the performer fault must not suppress model validation. Rigged acceptance and props with no skeleton are owned by cast-valid and forge-prop tests.
- * @evidence contracts/testing.md#execution-ownership The portable synchronous entry owns its named facts; their lazy evaluation stops within each group at a false guard. It calls real forge/model validation over existing data without a host or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls forgeCast on one two-defect entry and checks both skeleton and remapped material violations, catching a lost delegated model fault or an unposable accepted performer.
+ * @evidence contracts/development/testing.md#independent-expectations Performers require a skeleton, and no-such-mat is absent from the fixture's material ids. The original part index and forge entry index independently determine the remapped paths; no pose or appearance is measured.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps both independent defects together so collecting the performer fault must not suppress model validation. Rigged acceptance and props with no skeleton are owned by cast-valid and forge-prop tests.
+ * @evidence contracts/development/testing.md#execution-ownership The portable synchronous entry owns its named facts; their lazy evaluation stops within each group at a false guard. It calls real forge/model validation over existing data without a host or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A generated knightB with null skeleton reports its skeleton field.).
  */
 export function test_film_forge_cast_boneless(): void {
   const entry: IAutoMovieForgeEntry = forgeEntry("knightB", { skeleton: null });

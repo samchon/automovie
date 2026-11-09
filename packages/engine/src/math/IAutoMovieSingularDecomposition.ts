@@ -4,13 +4,10 @@
  * matrix's nullspace. Nonzero left columns have unit length; orthogonality below
  * the reported relative cutoff is unresolved. Exact zero columns are zero.
  *
- * @evidence contracts/common.md#principled-implementation Separates original-design singular factors from an operational numerical-rank cutoff; small singular values are retained rather than replaced by eigenvalues of a squared-condition normal matrix.
- * @evidence contracts/common.md#clear-and-simple-design Column storage matches the rotations and lets consumers use right null vectors without transposition or a separate factorization.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No covariance, full relative-accuracy guarantee or exact algebraic rank is inferred from a floating cutoff.
- * @evidence contracts/common.md#meaningful-documentation Gives factor orientation, ordering, unresolved small-column orthogonality and the meaning of the measured residual.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This owned result performs no decomposition.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work It defines no cache or coordination.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns n singular values, n left columns of length m and n right columns of length n; there is no external handle.
+ * @evidence contracts/development/design.md#principled-representation Separates original-design singular factors from an operational numerical-rank cutoff; small singular values are retained rather than replaced by eigenvalues of a squared-condition normal matrix.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Column storage matches the rotations and lets consumers use right null vectors without transposition or a separate factorization.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No covariance, full relative-accuracy guarantee or exact algebraic rank is inferred from a floating cutoff.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives factor orientation, ordering, unresolved small-column orthogonality and the meaning of the measured residual.
  */
 export interface IAutoMovieSingularDecomposition {
   /** Nonnegative descending values in the original matrix's units. */

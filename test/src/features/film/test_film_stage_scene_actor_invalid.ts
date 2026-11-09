@@ -14,10 +14,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * 2. `knightB` declares a non-finite facing angle, yielding `range` on
  * `$input.actors[1].facingDeg`.
  *
- * @evidence contracts/testing.md#behavioral-verification Stages two actors with non-finite position and facing operands and requires both addressed range violations rather than a successful scene.
- * @evidence contracts/testing.md#independent-expectations Literal Infinity violates the finite metre-position and degree-angle contract; expected paths identify each independently faulty authored actor and do not use returned diagnostic snapshots.
- * @evidence contracts/testing.md#distinguishing-cases Keeps both simultaneous actor faults; positive actor placement and other staging/reference gates remain in the established staging entries.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_stage_scene_actor_invalid and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages two actors with non-finite position and facing operands and requires both addressed range violations rather than a successful scene.
+ * @evidence contracts/development/testing.md#independent-expectations Literal Infinity violates the finite metre-position and degree-angle contract; expected paths identify each independently faulty authored actor and do not use returned diagnostic snapshots.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps both simultaneous actor faults; positive actor placement and other staging/reference gates remain in the established staging entries.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_stage_scene_actor_invalid and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `knightA` declares a non-finite position, yielding `range` on).
  */
 export function test_film_stage_scene_actor_invalid(): void {
   const staged: IAutoMovieStagedSet = stageScene(

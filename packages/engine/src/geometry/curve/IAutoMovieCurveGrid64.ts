@@ -5,25 +5,19 @@ import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
 /**
  * Contracts for an open cubic course family interpolated across physical stations. Input positions use millimetres; generated mesh and construction positions use metres.
  *
- * @evidence contracts/common.md#principled-implementation Complete cubic controls, station coordinates and explicit periodicity preserve coefficient authority and topology ownership.
- * @evidence contracts/common.md#clear-and-simple-design One erased namespace groups the operator's input and result contracts.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source mesh, anatomy defaults or inferred aperture closure enters the contract.
- * @evidence contracts/common.md#meaningful-documentation Each record states units, correspondence and qualification limits.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This namespace contains types only.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Types own no computation or cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Types retain no runtime arrays.
+ * @evidence contracts/development/common.md#meaningful-documentation Each record states units, correspondence and qualification limits.
+ * @evidence contracts/development/design.md#principled-representation Represents Contracts for an open cubic course family interpolated across physical stations: companion namespace of 2 members (`Input`, `Result`); units and frames named in its text: metre, metres. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAutoMovieCurveGrid64` in packages/engine/src/geometry/curve/IAutoMovieCurveGrid64.ts; its surface is the 2 members listed and the text shows 2 other files naming it, mostly packages/engine (2), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace IAutoMovieCurveGrid64 {
   /**
    * Corresponding open cubic courses with a common normalized parameter and increasing station coordinates. The caller supplies correspondence; interpolation cannot establish it.
    *
-   * @evidence contracts/common.md#principled-implementation Ordered complete cubic courses and an optional explicit station period define a tensor family without sampled through-point substitution.
-   * @evidence contracts/common.md#clear-and-simple-design Sampling policy, topology identity and curve data remain explicit input properties.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Equal contact coordinates do not declare a shared physical vertex; the caller assigns a unique instance domain.
-   * @evidence contracts/common.md#meaningful-documentation States normalized course units, station units, metre output and the distinction between requested spacing and an error bound.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This input interface performs no interpolation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reuse belongs to the operator.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased interface owns no runtime arrays.
+   * @evidence contracts/development/design.md#principled-representation Ordered complete cubic courses and an optional explicit station period define a tensor family without sampled through-point substitution.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Sampling policy, topology identity and curve data remain explicit input properties.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Equal contact coordinates do not declare a shared physical vertex; the caller assigns a unique instance domain.
+   * @evidence contracts/development/common.md#meaningful-documentation States normalized course units, station units, metre output and the distinction between requested spacing and an error bound.
    */
   export interface Input {
     /** Stable construction identifier. */
@@ -57,13 +51,10 @@ export namespace IAutoMovieCurveGrid64 {
   /**
    * Newly generated mesh, actual generating construction and complexity diagnostics. Coefficientwise station PCHIP is bounded in each control coordinate; this does not certify injectivity, correspondence or surface approximation error.
    *
-   * @evidence contracts/common.md#principled-implementation Mesh buffers and construction are generated from the same tensor coefficient representation, with distinct numeric diagnostics.
-   * @evidence contracts/common.md#clear-and-simple-design One result carries the reusable mesh and the actual construction needed for inspection.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Counts and degenerate-face diagnostics do not imply visual, topology or anatomical acceptance.
-   * @evidence contracts/common.md#meaningful-documentation States metre positions, geometric normals and explicit mathematical limits.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This result interface performs no work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The operator owns representation reuse.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased interface owns no resources.
+   * @evidence contracts/development/design.md#principled-representation Mesh buffers and construction are generated from the same tensor coefficient representation, with distinct numeric diagnostics.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One result carries the reusable mesh and the actual construction needed for inspection.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Counts and degenerate-face diagnostics do not imply visual, topology or anatomical acceptance.
+   * @evidence contracts/development/common.md#meaningful-documentation States metre positions, geometric normals and explicit mathematical limits.
    */
   export interface Result {
     /** Engine-generated metre mesh with triangle-derived unit normals where accumulation is resolved, zero normals otherwise, and explicit physical identities. */

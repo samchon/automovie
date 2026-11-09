@@ -20,10 +20,11 @@ import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture
  *
  * 1. Negative and fractional limits, absent models, missing LOD and invalid particle caps name their refusal.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real budget evaluator and inventory measurer on six malformed inputs, requiring an exception containing each violated-boundary message rather than a plausible partial inventory/report.
- * @evidence contracts/testing.md#independent-expectations Resource limits are nonnegative safe integers, particle populations are positive safe integers and every referenced model/prototype needs measurable representation. Authored -1, 1.5, zero, absent-model and empty-LOD inputs violate those contracts independently of returned values; wording checks identify the refused boundary without comparing complete stacks.
- * @evidence contracts/testing.md#distinguishing-cases Retains negative/fractional budget limits, missing model, prototype with no LOD and zero/fractional particle caps. Valid subjects and inclusive budget equality are covered by report and compact-population tests.
- * @evidence contracts/testing.md#execution-ownership The named test_render_budget_invalid_inputs owns six portable synchronous refusal cases through shared measurement/evaluation fixtures, with no actual renderer, allocation, browser or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the real budget evaluator and inventory measurer on six malformed inputs, requiring an exception containing each violated-boundary message rather than a plausible partial inventory/report.
+ * @evidence contracts/development/testing.md#independent-expectations Resource limits are nonnegative safe integers, particle populations are positive safe integers and every referenced model/prototype needs measurable representation. Authored -1, 1.5, zero, absent-model and empty-LOD inputs violate those contracts independently of returned values; wording checks identify the refused boundary without comparing complete stacks.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains negative/fractional budget limits, missing model, prototype with no LOD and zero/fractional particle caps. Valid subjects and inclusive budget equality are covered by report and compact-population tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_render_budget_invalid_inputs owns six portable synchronous refusal cases through shared measurement/evaluation fixtures, with no actual renderer, allocation, browser or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Negative and fractional limits, absent models, missing LOD and invalid particle caps name their refusal.).
  */
 export function test_render_budget_invalid_inputs(): void {
   const target: ReturnType<typeof renderBudgetTargetFixture> =

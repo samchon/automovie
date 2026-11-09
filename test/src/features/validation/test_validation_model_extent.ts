@@ -15,10 +15,11 @@ import { hasViolation } from "../internal/predicates";
  * Scenarios:
  * 1. A zero-width box fails with a width range finding.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual model validation with the existing box's width set to zero and requires failed admission plus a located width finding, catching unchecked collapsed primitive input.
- * @evidence contracts/testing.md#independent-expectations Box dimensions are finite and strictly positive, so zero violates the documented width domain while unchanged height/depth remain valid; expected kind/path are contract facts.
- * @evidence contracts/testing.md#distinguishing-cases Owns the zero-width box boundary; nonfinite scalar inputs have a separate entry, while other primitive dimension branches are outside this case. This does not construct geometry or prove all width values.
- * @evidence contracts/testing.md#execution-ownership The named synchronous entry copies existing model records and calls portable engine admission without a builder, renderer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual model validation with the existing box's width set to zero and requires failed admission plus a located width finding, catching unchecked collapsed primitive input.
+ * @evidence contracts/development/testing.md#independent-expectations Box dimensions are finite and strictly positive, so zero violates the documented width domain while unchanged height/depth remain valid; expected kind/path are contract facts.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns the zero-width box boundary; nonfinite scalar inputs have a separate entry, while other primitive dimension branches are outside this case. This does not construct geometry or prove all width values.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous entry copies existing model records and calls portable engine admission without a builder, renderer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A zero-width box fails with a width range finding.).
  */
 export function test_validation_model_extent(): void {
   const base: IAutoMovieModel = createModel();

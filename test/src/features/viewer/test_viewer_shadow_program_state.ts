@@ -13,10 +13,11 @@ import * as THREE from "three";
  * 2. Changed enablement and filtering update both apply/restore boundaries; unchanged policy sends no update.
  * 3. An actual owned material subclass rejects updates, preserving both failure causes and restoring renderer policy.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls real scene invalidation and pass coordination on shared/array/override/nonmesh materials; observes unique version increments, apply/restore policy and original update failures.
- * @evidence contracts/testing.md#independent-expectations Captured material versions plus independently authored increment counts and original Error identities define expectations; version changes are update requests, not observed native program recompilation.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts empty/shared material populations, unchanged enable/filter, changed enable/filter and a real material subclass rejecting its supported needsUpdate setter.
- * @evidence contracts/testing.md#execution-ownership The named portable entry uses the existing caller-owned renderer field/draw facts and actual Three materials; it starts no WebGL renderer and replaces no foreign/global implementation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls real scene invalidation and pass coordination on shared/array/override/nonmesh materials; observes unique version increments, apply/restore policy and original update failures.
+ * @evidence contracts/development/testing.md#independent-expectations Captured material versions plus independently authored increment counts and original Error identities define expectations; version changes are update requests, not observed native program recompilation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts empty/shared material populations, unchanged enable/filter, changed enable/filter and a real material subclass rejecting its supported needsUpdate setter.
+ * @evidence contracts/development/testing.md#execution-ownership The named portable entry uses the existing caller-owned renderer field/draw facts and actual Three materials; it starts no WebGL renderer and replaces no foreign/global implementation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty scenes are accepted and shared/array/override materials each receive one version update.).
  */
 export function test_viewer_shadow_program_state(): void {
   const empty: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();

@@ -36,10 +36,11 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
  * 2. Non-finite, non-integer, or less-than-one step counts throw before hit
  *    sampling starts.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls sampled sphere collision with invalid windows or step counts and requires an exception, catching skipped or unbounded sampling from an invalid loop clock.
- * @evidence contracts/testing.md#independent-expectations Positive finite windows and positive integer subdivision counts are the API admission contract; exception presence is expected independently of product arithmetic. The assertions do not establish exception identity or that no internal arithmetic occurred.
- * @evidence contracts/testing.md#distinguishing-cases Covers NaN, infinity and zero windows plus NaN, infinity, zero and fractional steps; collision success and collider admission belong to neighboring units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns all cases and calls the engine with authored projectile/sphere records; it starts no host or dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls sampled sphere collision with invalid windows or step counts and requires an exception, catching skipped or unbounded sampling from an invalid loop clock.
+ * @evidence contracts/development/testing.md#independent-expectations Positive finite windows and positive integer subdivision counts are the API admission contract; exception presence is expected independently of product arithmetic. The assertions do not establish exception identity or that no internal arithmetic occurred.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers NaN, infinity and zero windows plus NaN, infinity, zero and fractional steps; collision success and collider admission belong to neighboring units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit owns all cases and calls the engine with authored projectile/sphere records; it starts no host or dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite/non-positive windows throw before hit sampling starts.).
  */
 export function test_physics_projectile_hit_sampling_timing(): void {
   TestValidator.predicate(

@@ -17,10 +17,11 @@ import { makeRng, randomUnitQuaternion } from "../internal/random";
  * 1. A fixed seed supplies 256 unit rotations for the default proximal basis.
  * 2. Both twist placements preserve signed turns at 89.95, 89.999 and 90 degrees.
  *
- * @evidence contracts/testing.md#behavioral-verification Recomposes decomposed rotations and compares quaternion rotations, catching the former 0.999999 sine threshold that snapped a resolvable near-gimbal turn to ninety degrees.
- * @evidence contracts/testing.md#independent-expectations Seeded input rotations and explicitly authored clinical rotations are the unchanged expected orientations; quaternion sign equivalence is allowed, with a tighter dot-product tolerance for the named gimbal boundaries. The authored boundary rotations use the shared forward converter, so replay alone cannot independently prove that converter's angle convention.
- * @evidence contracts/testing.md#distinguishing-cases Random orientations complement both signed gimbals and their resolvable neighbors for proximal and distal placement; joint ROM tests own equivalent-chart selection under constraints.
- * @evidence contracts/testing.md#execution-ownership This exported unit entry owns its deterministic sweep and boundary cases and calls portable kinematics source without a rig application, process or renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Recomposes decomposed rotations and compares quaternion rotations, catching the former 0.999999 sine threshold that snapped a resolvable near-gimbal turn to ninety degrees.
+ * @evidence contracts/development/testing.md#independent-expectations Seeded input rotations and explicitly authored clinical rotations are the unchanged expected orientations; quaternion sign equivalence is allowed, with a tighter dot-product tolerance for the named gimbal boundaries. The authored boundary rotations use the shared forward converter, so replay alone cannot independently prove that converter's angle convention.
+ * @evidence contracts/development/testing.md#distinguishing-cases Random orientations complement both signed gimbals and their resolvable neighbors for proximal and distal placement; joint ROM tests own equivalent-chart selection under constraints.
+ * @evidence contracts/development/testing.md#execution-ownership This exported unit entry owns its deterministic sweep and boundary cases and calls portable kinematics source without a rig application, process or renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A fixed seed supplies 256 unit rotations for the default proximal basis.).
  */
 export function test_kinematics_joint_rotation_roundtrip(): void {
   const rng: () => number = makeRng(0x2f9a10c3);

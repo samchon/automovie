@@ -18,10 +18,11 @@ import { softPanel } from "../internal/softFixtures";
  * 2. dt 1/2 is a finite overshoot, while the largest finite dt overflows division by 1/4; both refuse the timestep path.
  * 3. Largest finite dt and speed overflow their product and remain refused, with no invented finite overshoot measurement.
  *
- * @evidence contracts/testing.md#behavioral-verification The real domain validator decides success and the timestep-path range finding; finite and overflow overshoots catch the skipped-Infinity branch while adjacent admitted inputs preserve the limit's boundary.
- * @evidence contracts/testing.md#independent-expectations The existing fixture places two particles exactly 1/4 metre apart. At unit reference speed, dt 1/8 travels half that edge, dt 1/4 equals it, and dt 1/2 exceeds it; the largest finite dt exceeds the same edge independently of a ratio calculation's representability.
- * @evidence contracts/testing.md#distinguishing-cases Below/equal/above travel limits and division/product overflow distinguish comparison admission from finiteness of an intermediate; broader lattice, collider and reference cases remain in test_soft_body_validation.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_soft_body_travel_admission, using the existing softPanel authored-record fixture and actual validator without simulation history, a viewer or a host process.
+ * @evidence contracts/development/testing.md#behavioral-verification The real domain validator decides success and the timestep-path range finding; finite and overflow overshoots catch the skipped-Infinity branch while adjacent admitted inputs preserve the limit's boundary.
+ * @evidence contracts/development/testing.md#independent-expectations The existing fixture places two particles exactly 1/4 metre apart. At unit reference speed, dt 1/8 travels half that edge, dt 1/4 equals it, and dt 1/2 exceeds it; the largest finite dt exceeds the same edge independently of a ratio calculation's representability.
+ * @evidence contracts/development/testing.md#distinguishing-cases Below/equal/above travel limits and division/product overflow distinguish comparison admission from finiteness of an intermediate; broader lattice, collider and reference cases remain in test_soft_body_validation.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_soft_body_travel_admission, using the existing softPanel authored-record fixture and actual validator without simulation history, a viewer or a host process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A quarter-metre structural edge admits dt 1/8 and exact-boundary dt 1/4 at reference speed 1.).
  */
 export function test_soft_body_travel_admission(): void {
   const base: IAutoMovieSoftBodyDomain = softPanel({

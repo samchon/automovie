@@ -30,10 +30,11 @@ const TWO_BONES: IAutoMovieSkeleton = {
  * 1. An unresolved scene model refuses with both supplied node and model ids.
  * 2. The existing partial imported skeleton reports its missing head; a complete existing bone map reports none, without adding a Human case.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual scene construction, imported-object adaptation and pose application; checks offending ids and only the missing semantic bone list.
- * @evidence contracts/testing.md#independent-expectations Authored unresolved ids and the existing two-bone skeleton with deliberately partial or complete mapping independently define refusal/report expectations.
- * @evidence contracts/testing.md#distinguishing-cases Missing model contrasts partial and complete maps; this preserves the existing skeleton case and adds no Human test, pose, figure or probe.
- * @evidence contracts/testing.md#execution-ownership The named entry uses existing portable records and CPU Object3D values without a renderer, process or worker, and replaces no solver or foreign method.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual scene construction, imported-object adaptation and pose application; checks offending ids and only the missing semantic bone list.
+ * @evidence contracts/development/testing.md#independent-expectations Authored unresolved ids and the existing two-bone skeleton with deliberately partial or complete mapping independently define refusal/report expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Missing model contrasts partial and complete maps; this preserves the existing skeleton case and adds no Human test, pose, figure or probe.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry uses existing portable records and CPU Object3D values without a renderer, process or worker, and replaces no solver or foreign method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An unresolved scene model refuses with both supplied node and model ids.).
  */
 export function test_viewer_silent_skip_guards(): void {
   // 1. unresolvable scene node throws instead of shifting the mask palette

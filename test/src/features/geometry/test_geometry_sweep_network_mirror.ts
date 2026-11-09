@@ -71,10 +71,11 @@ function canonical(q: number[]): string {
  *    targets and controls within 1e-9, through one involution that carries
  *    every face onto a face of opposite winding. Points shared by strips of
  *    different spacing are where an order-dependent rule would break it.
- * @evidence contracts/testing.md#behavioral-verification Samples the branched body with `sampleAutoMovieSurfaceNetwork` and matches each point to its mirror image; a rule that depends on patch order or on a sweep's handedness breaks the map, while any symmetric sampling passes.
- * @evidence contracts/testing.md#independent-expectations The mirror image is computed in this test by negating `x`, and the face map by reversing each quad through the vertex map.
- * @evidence contracts/testing.md#distinguishing-cases Covers every tier, targets and fitted controls and every patch kind of the body; shape invariance is owned by the network topology test and closure by the network cage test.
- * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_network_mirror` entry with no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the branched body with `sampleAutoMovieSurfaceNetwork` and matches each point to its mirror image; a rule that depends on patch order or on a sweep's handedness breaks the map, while any symmetric sampling passes.
+ * @evidence contracts/development/testing.md#independent-expectations The mirror image is computed in this test by negating `x`, and the face map by reversing each quad through the vertex map.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers every tier, targets and fitted controls and every patch kind of the body; shape invariance is owned by the network topology test and closure by the network cage test.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_network_mirror` entry with no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: The branched body, built as a mirror image across `x = 0`, samples at).
  */
 export function test_geometry_sweep_network_mirror(): void {
   const body: IAutoMovieSurfaceNetwork = sweepBranchedBody();

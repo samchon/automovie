@@ -26,13 +26,13 @@ interface IBuiltShot {
  *
  * `runtime` is in seconds: the sum of each entry's played span (its trim's duration, else the whole shot) minus each transition's duration, since a transition overlaps the previous entry's tail. A clean plan whose accumulated clock is non-finite is refused at entries instead of publishing an unusable runtime. Outer records and populated entry objects are typed premises; an absent array slot is reported explicitly. The sequence copies the plan's id, name, frame rate and entries in order, sharing each trim and transition object by reference.
  *
- * @evidence contracts/common.md#principled-implementation One ordered pass that carries the previous entry's played span and incoming transition, which is all an OpenTimelineIO-style end-to-end track needs to check overlaps and accumulate runtime; a later check is skipped when an earlier fault leaves its operand undefined, such as an unknown shot or an invalid trim, so one cause is not reported twice.
- * @evidence contracts/common.md#clear-and-simple-design Validates and assembles in one function because every check reads the same running timeline state; per-instant timing is left to `sequenceTimeline`, which derives it from the sequence this returns.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no shot or fixture, and refuses an out-of-range trim or transition with its overshoot rather than clamping it into range.
- * @evidence contracts/common.md#meaningful-documentation States every gate with its bound, which transitions are compared with which played spans, the runtime formula and unit, and what the sequence copies or shares.
- * @evidence contracts/performance.md#efficient-algorithms Linear in shots plus entries: shots are indexed by id once and each entry is a map lookup with constant bookkeeping.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure gate over one edit plan and shot list that coordinates no work across calls or consumers.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after return; the result owns a new sequence and entry list, or a violation list bounded by a few violations per shot and entry.
+ * @evidence contracts/development/implementation.md#principled-implementation One ordered pass that carries the previous entry's played span and incoming transition, which is all an OpenTimelineIO-style end-to-end track needs to check overlaps and accumulate runtime; a later check is skipped when an earlier fault leaves its operand undefined, such as an unknown shot or an invalid trim, so one cause is not reported twice.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates and assembles in one function because every check reads the same running timeline state; per-instant timing is left to `sequenceTimeline`, which derives it from the sequence this returns.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Names no shot or fixture, and refuses an out-of-range trim or transition with its overshoot rather than clamping it into range.
+ * @evidence contracts/development/common.md#meaningful-documentation States every gate with its bound, which transitions are compared with which played spans, the runtime formula and unit, and what the sequence copies or shares.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in shots plus entries: shots are indexed by id once and each entry is a map lookup with constant bookkeeping.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure gate over one edit plan and shot list that coordinates no work across calls or consumers.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after return; the result owns a new sequence and entry list, or a violation list bounded by a few violations per shot and entry.
  */
 export function cutSequence(
   assemble: IAutoMovieEditPlan,

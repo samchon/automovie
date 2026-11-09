@@ -8,16 +8,18 @@ import { nclose } from "../internal/predicates";
  * only adjacent sorted points or the production's nine neighboring grid cells.
  * Authored distances preserve exact equality and the ground-only spacing law.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the independent spacing predicate on authored pairs and an unsorted list; expected admissions, refusals and preserved order expose missed nonadjacent pairs or caller mutation.
- * @evidence contracts/testing.md#independent-expectations Axial distances and the 0.6/0.8 unit triangle supply hand-computed boundaries; expected booleans do not use production placement output, and preserved coordinates use zero-tolerance nclose.
- * @evidence contracts/testing.md#distinguishing-cases Covers empty/singleton/disabled spacing, exact and below-limit axial/diagonal distances, negative coordinates, a nonadjacent violating pair and input order; finite coordinates and nonnegative spacing remain helper premises.
- * @evidence contracts/testing.md#execution-ownership This named discoverable portable unit test owns the table locally without dynamic registration or a browser/GPU; it tests the oracle supporting cluster tests rather than running production arrangement itself.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the independent spacing predicate on authored pairs and an unsorted list; expected admissions, refusals and preserved order expose missed nonadjacent pairs or caller mutation.
+ * @evidence contracts/development/testing.md#independent-expectations Axial distances and the 0.6/0.8 unit triangle supply hand-computed boundaries; expected booleans do not use production placement output, and preserved coordinates use zero-tolerance nclose.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers empty/singleton/disabled spacing, exact and below-limit axial/diagonal distances, negative coordinates, a nonadjacent violating pair and input order; finite coordinates and nonnegative spacing remain helper premises.
+ * @evidence contracts/development/testing.md#execution-ownership This named discoverable portable unit test owns the table locally without dynamic registration or a browser/GPU; it tests the oracle supporting cluster tests rather than running production arrangement itself.
  *
  * Scenarios:
  * 1. Empty, singleton and zero-spacing inputs admit; exact axial/diagonal
  *    distances at the minimum admit, and nearby positive/negative coordinates fail.
  * 2. A violating pair with a far-away intervening z-coordinate is still found.
  * 3. Sorting a caller's unsorted list cannot mutate its original order.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty, singleton and zero-spacing inputs admit; exact axial/diagonal).
  */
 export function test_planting_spacing_oracle(): void {
   const points: (

@@ -1,4 +1,4 @@
-import { AutoMovieMatrix3 } from "@automovie/engine/math/AutoMovieMatrix3";
+import { AutoMovieMatrix3 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -11,10 +11,11 @@ import { nclose } from "../internal/nclose";
  * 2. A cross-product matrix has the prescribed left-operand order and magnitude.
  * 3. Sparse, short, nonfinite and overflowing operands throw without altering the next valid call or borrowed inputs.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls all four actual matrix methods and observes numeric actions, composition order, borrowed-array stability and rejection of sparse arrays as well as ordinary malformed values. A hole is an absent coordinate, not a zero or a finite entry.
- * @evidence contracts/testing.md#independent-expectations Literal row-dot products give [8,17,30] for the nonsymmetric matrix acting on [2,-3,4], and [8,29,54] after the prescribed shear. The Cartesian cross product [1,2,3] cross [2,-3,4] is [17,2,-7]. Expected entries are scalar arithmetic, not another matrix method's output or a saved snapshot.
- * @evidence contracts/testing.md#distinguishing-cases Exercises nonsymmetric row/column storage, noncommuting factors, unchanged third-coordinate magnitude, cross handedness, fully and partly sparse arrays, invalid dimensions, NaN, Infinity, finite-operand overflow and recovery after refusal. Camera and renderer coordinate conversions remain separate owners.
- * @evidence contracts/testing.md#execution-ownership The portable test_geometry_matrix3 entry owns tiny CPU arrays and synchronous assertions only; it starts no process or renderer, opens no source/data file and replaces no method or global.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls all four actual matrix methods and observes numeric actions, composition order, borrowed-array stability and rejection of sparse arrays as well as ordinary malformed values. A hole is an absent coordinate, not a zero or a finite entry.
+ * @evidence contracts/development/testing.md#independent-expectations Literal row-dot products give [8,17,30] for the nonsymmetric matrix acting on [2,-3,4], and [8,29,54] after the prescribed shear. The Cartesian cross product [1,2,3] cross [2,-3,4] is [17,2,-7]. Expected entries are scalar arithmetic, not another matrix method's output or a saved snapshot.
+ * @evidence contracts/development/testing.md#distinguishing-cases Exercises nonsymmetric row/column storage, noncommuting factors, unchanged third-coordinate magnitude, cross handedness, fully and partly sparse arrays, invalid dimensions, NaN, Infinity, finite-operand overflow and recovery after refusal. Camera and renderer coordinate conversions remain separate owners.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_geometry_matrix3 entry owns tiny CPU arrays and synchronous assertions only; it starts no process or renderer, opens no source/data file and replaces no method or global.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Independent scalar products pin a nonsymmetric transpose, noncommuting composition and retained homogeneous coordinate.).
  */
 export function test_geometry_matrix3(): void {
   const left: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 10];

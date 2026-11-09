@@ -3,10 +3,10 @@ import { AutoMovieDerivedArtifactEncoding } from "./AutoMovieDerivedArtifactEnco
 /**
  * One current derived artifact projected into deterministic source context.
  *
- * @evidence contracts/common.md#principled-implementation A host supplies digest, encoding and payload through ShotBuildContext. The production artifact inspector/decoder is retired; current-byte verification and faithful encoding remain host premises rather than checks performed by this record. UTF-8 text and base64 bytes have distinct transport meanings and a declared digest does not independently verify either payload.
- * @evidence contracts/common.md#clear-and-simple-design Source context receives an explicit host-prepared value without a filesystem or generator API; arbitrary subject code still has its ordinary ambient capabilities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No surviving coordinator automatically regenerates or refuses stale artifacts through this type. Hosts must preserve binary payloads with base64 rather than lossy text decoding and verify the bytes they declare; the context is no sandbox.
- * @evidence contracts/common.md#meaningful-documentation Defines intended current-output identity, the two encoding meanings and host ownership of payload preparation and verification.
+ * @evidence contracts/development/design.md#principled-representation A host supplies digest, encoding and payload through ShotBuildContext. The production artifact inspector/decoder is retired; current-byte verification and faithful encoding remain host premises rather than checks performed by this record. UTF-8 text and base64 bytes have distinct transport meanings and a declared digest does not independently verify either payload.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Source context receives an explicit host-prepared value without a filesystem or generator API; arbitrary subject code still has its ordinary ambient capabilities.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No surviving coordinator automatically regenerates or refuses stale artifacts through this type. Hosts must preserve binary payloads with base64 rather than lossy text decoding and verify the bytes they declare; the context is no sandbox.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines intended current-output identity, the two encoding meanings and host ownership of payload preparation and verification.
  */
 export interface IAutoMovieDerivedArtifactSource {
   /** Current output digest verified before context publication. */

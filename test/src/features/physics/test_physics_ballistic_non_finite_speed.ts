@@ -11,10 +11,11 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. Static and moving launch solvers reject `NaN` and both infinities.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls both launch solvers with non-finite speed and requires null, catching fabricated non-finite launch results.
- * @evidence contracts/testing.md#independent-expectations A physical speed must be finite; null is the admission contract and does not depend on another solver's output. This case does not establish finite-speed reachability.
- * @evidence contracts/testing.md#distinguishing-cases Covers NaN and both infinity signs in static and moving entry points; neighboring launch tests own finite, vertical and out-of-range cases.
- * @evidence contracts/testing.md#execution-ownership The named exported unit entry calls portable engine functions with an authored target callback; it starts no host or dynamic cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls both launch solvers with non-finite speed and requires null, catching fabricated non-finite launch results.
+ * @evidence contracts/development/testing.md#independent-expectations A physical speed must be finite; null is the admission contract and does not depend on another solver's output. This case does not establish finite-speed reachability.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers NaN and both infinity signs in static and moving entry points; neighboring launch tests own finite, vertical and out-of-range cases.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported unit entry calls portable engine functions with an authored target callback; it starts no host or dynamic cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Static and moving launch solvers reject `NaN` and both infinities.).
  */
 export function test_physics_ballistic_non_finite_speed(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

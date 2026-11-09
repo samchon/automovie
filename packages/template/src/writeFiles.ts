@@ -13,13 +13,13 @@ import { publishFiles } from "./publishFiles";
  * @param options `force` admits a populated directory and in-place replacement.
  * @returns Absolute paths of every file written, sorted.
  *
- * @evidence contracts/common.md#principled-implementation The comparator uses the string relational operators, which compare UTF-16 code units independent of locale, so the returned order is the same on every host; `localeCompare` would vary with the host's ICU data.
- * @evidence contracts/common.md#clear-and-simple-design The function adds only the throw and the sort to `publishFiles`, so validation and writing have one implementation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Files written before a failure are not deleted, because removal through a pathname could reach a different file; the receipt in the thrown error says what remains.
- * @evidence contracts/common.md#meaningful-documentation The comment states the relation to `publishFiles`, the thrown error, that earlier files stay on failure, the sort order, and the meaning of each parameter.
- * @evidence contracts/performance.md#efficient-algorithms Beyond `publishFiles`, the cost is one map and one comparison sort of the written paths, n log n in file count.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This wrapper performs one publication per call; repeating a call repeats its writes as the effects require.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The receipt is released when the function returns unless it travels inside the thrown error; only the path array is returned, and `publishFiles` owns every descriptor.
+ * @evidence contracts/development/implementation.md#principled-implementation The comparator uses the string relational operators, which compare UTF-16 code units independent of locale, so the returned order is the same on every host; `localeCompare` would vary with the host's ICU data.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The function adds only the throw and the sort to `publishFiles`, so validation and writing have one implementation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Files written before a failure are not deleted, because removal through a pathname could reach a different file; the receipt in the thrown error says what remains.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states the relation to `publishFiles`, the thrown error, that earlier files stay on failure, the sort order, and the meaning of each parameter.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Beyond `publishFiles`, the cost is one map and one comparison sort of the written paths, n log n in file count.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This wrapper performs one publication per call; repeating a call repeats its writes as the effects require.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The receipt is released when the function returns unless it travels inside the thrown error; only the path array is returned, and `publishFiles` owns every descriptor.
  */
 export const writeFiles: (
   location: string,

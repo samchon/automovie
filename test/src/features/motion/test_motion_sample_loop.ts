@@ -27,10 +27,11 @@ const elbow: (m: IAutoMovieMotion, t: number) => number = (
  *
  * 1. On the one-second 0-to-120 elbow ramp, t=1.5 wraps to 0.5 for 60 and t=2.25 wraps to 0.25 for 30.
  *
- * @evidence contracts/testing.md#behavioral-verification Samples the authored looping motion at two later clocks and observes elbow flexion, distinguishing modulo replay from non-looping end clamp.
- * @evidence contracts/testing.md#independent-expectations Remainders 1.5 modulo 1=0.5 and 2.25 modulo 1=0.25 determine literal linear values 60/30 independently of normalizeTime. Original nclose tolerance and null-axis-to-zero reader behavior remain unchanged.
- * @evidence contracts/testing.md#distinguishing-cases Retains one-cycle and two-cycle overflow clocks on the same looping fixture. Exact duration ties, negative clocks, seam closure and malformed duration have separate existing owners.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns both sample calls through its local elbow reader and existing fixture constructors. No helper registers cases or starts a viewer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the authored looping motion at two later clocks and observes elbow flexion, distinguishing modulo replay from non-looping end clamp.
+ * @evidence contracts/development/testing.md#independent-expectations Remainders 1.5 modulo 1=0.5 and 2.25 modulo 1=0.25 determine literal linear values 60/30 independently of normalizeTime. Original nclose tolerance and null-axis-to-zero reader behavior remain unchanged.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains one-cycle and two-cycle overflow clocks on the same looping fixture. Exact duration ties, negative clocks, seam closure and malformed duration have separate existing owners.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns both sample calls through its local elbow reader and existing fixture constructors. No helper registers cases or starts a viewer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: On the one-second 0-to-120 elbow ramp, t=1.5 wraps to 0.5 for 60 and t=2.25 wraps to 0.25 for 30.).
  */
 export function test_motion_sample_loop(): void {
   const looped: IAutoMovieMotion = makeMotion(

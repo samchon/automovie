@@ -20,10 +20,11 @@ import { nclose } from "../internal/nclose";
  * 2. Resolve its first, interior and final encoded instants in reverse order.
  * 3. Repeated samples own their records and preserve the authored local clock.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls public cutSequence, sequenceTimeline and resolveFromTimeline, checking admitted runtime, shot identity, local time, absent blend and independently owned samples. The engine-node profile also compiles this real public consumer without browser declarations.
- * @evidence contracts/testing.md#independent-expectations The authored two-second shot at four fps has encoded instants i/4 for i from zero through seven, and an untrimmed continuous shot keeps output time as its local time. Hand-authored instants 0, 0.75 and 1.75 supply the oracle without deriving it from the resolver.
- * @evidence contracts/testing.md#distinguishing-cases Covers the opening, an interior instant, the final encoded instant, reverse-order access and repeated-sample ownership. Existing playback tests own trims, transitions and invalid clocks; quadratic workspace/program tests run beside this entry in the Node-only profile.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_engine_node_clock entry invokes portable Engine source without installing a consumer, building a native artifact or starting a process, browser or GPU. The tracked engineNode executable also calls it under the Node-only compiler profile.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public cutSequence, sequenceTimeline and resolveFromTimeline, checking admitted runtime, shot identity, local time, absent blend and independently owned samples. The engine-node profile also compiles this real public consumer without browser declarations.
+ * @evidence contracts/development/testing.md#independent-expectations The authored two-second shot at four fps has encoded instants i/4 for i from zero through seven, and an untrimmed continuous shot keeps output time as its local time. Hand-authored instants 0, 0.75 and 1.75 supply the oracle without deriving it from the resolver.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers the opening, an interior instant, the final encoded instant, reverse-order access and repeated-sample ownership. Existing playback tests own trims, transitions and invalid clocks; quadratic workspace/program tests run beside this entry in the Node-only profile.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_engine_node_clock entry invokes portable Engine source without installing a consumer, building a native artifact or starting a process, browser or GPU. The tracked engineNode executable also calls it under the Node-only compiler profile.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Admit a two-second continuous performance at four frames per second.).
  */
 export function test_engine_node_clock(): void {
   const shot: IAutoMovieShot = {
@@ -60,7 +61,10 @@ export function test_engine_node_clock(): void {
       seconds,
     );
     TestValidator.equals("continuous shot", sample.shot, shot.id);
-    TestValidator.predicate("untrimmed local clock", nclose(sample.time, seconds));
+    TestValidator.predicate(
+      "untrimmed local clock",
+      nclose(sample.time, seconds),
+    );
     TestValidator.equals("no transition", sample.blend, null);
   }
 

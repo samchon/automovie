@@ -11,13 +11,10 @@
  * displacement must keep them clear. Arrays are fresh per witness, independent
  * of the resident mesh, and may be retained by the visitor.
  *
- * @evidence contracts/common.md#principled-implementation Depth difference is affine on each triangle-pair intersection polygon, so its minimum lies at a clipped polygon vertex and one witness per vertex with the front triangle's barycentric weights expresses the gap as a linear function of the front vertices' travel.
- * @evidence contracts/common.md#clear-and-simple-design Carries exactly the linear constraint a solver needs, the pair, the front vertex ordinals, their weights and the current gap, so the minimizer builds its rows without re-clipping.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Weights are not clamped or renormalized to hide roundoff, and already clear witnesses are not filtered, so the solver sees every inequality its displacement must keep.
- * @evidence contracts/common.md#meaningful-documentation States the ordinal space, the order and roundoff of weights, the sign and unit of `gap`, the linear sensitivity, and that the arrays may be retained.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; clipping cost is answered on `measureAutoMovieMeshClearance`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per overlap vertex and handed to the visitor; nothing is cached.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns two three-element arrays; a visitor that retains witnesses holds one per overlap vertex, bounded by the overlapping triangle pairs times the clipped polygon size.
+ * @evidence contracts/development/design.md#principled-representation Depth difference is affine on each triangle-pair intersection polygon, so its minimum lies at a clipped polygon vertex and one witness per vertex with the front triangle's barycentric weights expresses the gap as a linear function of the front vertices' travel.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Carries exactly the linear constraint a solver needs, the pair, the front vertex ordinals, their weights and the current gap, so the minimizer builds its rows without re-clipping.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Weights are not clamped or renormalized to hide roundoff, and already clear witnesses are not filtered, so the solver sees every inequality its displacement must keep.
+ * @evidence contracts/development/common.md#meaningful-documentation States the ordinal space, the order and roundoff of weights, the sign and unit of `gap`, the linear sensitivity, and that the arrays may be retained.
  */
 export interface IAutoMovieMeshClearanceWitness {
   /** Front triangle ordinal, before any spatial indexing. */

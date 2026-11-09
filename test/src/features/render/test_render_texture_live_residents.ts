@@ -30,10 +30,11 @@ import { material } from "../internal/renderFixtures";
  * 4. Opaque token renaming preserves the target; source/texture sharing changes
  *    invalidate it, while irrelevant retained assets change no identity.
  *
- * @evidence contracts/testing.md#behavioral-verification Uses actual cache loading and resolved clone identities with the real residency closure and digest to check source sharing, environment derivative ownership, alias attribution and retained scratch accounting.
- * @evidence contracts/testing.md#independent-expectations Each raw 4-by-4 RGBA8 source costs 64 bytes; expected source/derivative counts, literal resident/asset lists and 336-by-4 half-float scratch arithmetic are authored independently of closure output.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts independent decoded sources, shared-source wrappers, separate versus identical environment textures, opaque token renaming, unused assets and mixed PBR/background aliases in both resident orders, then supplied scope removal with retained scratch.
- * @evidence contracts/testing.md#execution-ownership Owns asynchronous CPU Three texture/cache objects, awaits prime and successful-path disposal, and supplies residency records itself; no GPU derivative creation or native release is measured, and removing a disposed scope from the next record is explicit caller input rather than automatic disposal observation.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses actual cache loading and resolved clone identities with the real residency closure and digest to check source sharing, environment derivative ownership, alias attribution and retained scratch accounting.
+ * @evidence contracts/development/testing.md#independent-expectations Each raw 4-by-4 RGBA8 source costs 64 bytes; expected source/derivative counts, literal resident/asset lists and 336-by-4 half-float scratch arithmetic are authored independently of closure output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts independent decoded sources, shared-source wrappers, separate versus identical environment textures, opaque token renaming, unused assets and mixed PBR/background aliases in both resident orders, then supplied scope removal with retained scratch.
+ * @evidence contracts/development/testing.md#execution-ownership Owns asynchronous CPU Three texture/cache objects, awaits prime and successful-path disposal, and supplies residency records itself; no GPU derivative creation or native release is measured, and removing a disposed scope from the next record is explicit caller input rather than automatic disposal observation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two real caches independently decode one 4-by-4 asset and charge two raw).
  */
 export async function test_render_texture_live_residents(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

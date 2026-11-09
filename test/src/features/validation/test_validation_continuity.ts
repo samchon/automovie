@@ -73,10 +73,11 @@ const saddle: IAutoMovieMountBinding = { parent: "horse", bone: "spine" };
  * 7. A negative position tolerance and an out-of-band facing tolerance are each
  *    range errors at their option paths.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateContinuity on boundary records and checks clean success, advisory physics findings at actor-qualified translation/facing/mount paths, a missing-actor warning, tolerance suppression, and invalid-option range findings.
- * @evidence contracts/testing.md#independent-expectations An unchanged rider is continuous, metre-scale displacement exceeds the default 0.05 m, a quarter turn exceeds 5 degrees, and a persistent mount requires equal parent and bone. Explicit tolerance 5 admits drift 3; negative metres and facing 400 violate the tolerance domain. Warning predicates check severity and paths, not exact magnitude or every emitted row.
- * @evidence contracts/testing.md#distinguishing-cases Seven scenarios cover unchanged state, separate spatial/angular drift, each mount identity component and null, absence, an accepting override, and two invalid tolerance fields. Exact threshold equality, new actors, and film-wide continuity are outside this pairwise test.
- * @evidence contracts/testing.md#execution-ownership The named test_validation_continuity entry compares portable in-memory beat snapshots through the public validator, with no rendering host or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateContinuity on boundary records and checks clean success, advisory physics findings at actor-qualified translation/facing/mount paths, a missing-actor warning, tolerance suppression, and invalid-option range findings.
+ * @evidence contracts/development/testing.md#independent-expectations An unchanged rider is continuous, metre-scale displacement exceeds the default 0.05 m, a quarter turn exceeds 5 degrees, and a persistent mount requires equal parent and bone. Explicit tolerance 5 admits drift 3; negative metres and facing 400 violate the tolerance domain. Warning predicates check severity and paths, not exact magnitude or every emitted row.
+ * @evidence contracts/development/testing.md#distinguishing-cases Seven scenarios cover unchanged state, separate spatial/angular drift, each mount identity component and null, absence, an accepting override, and two invalid tolerance fields. Exact threshold equality, new actors, and film-wide continuity are outside this pairwise test.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_validation_continuity entry compares portable in-memory beat snapshots through the public validator, with no rendering host or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A clean resume (same position, same facing, mount preserved) passes with no).
  */
 export function test_validation_continuity(): void {
   // 1. clean resume with a preserved mount: no warnings.

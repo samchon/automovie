@@ -104,10 +104,11 @@ const S05_VALUES: number[] = Array.from({ length: 195 }, (): number => 0);
  * 6. The width fault, reachable only on a WHOLE stride, states the total the
  *    payload must hold beside the width it got.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises artifact admission and sampleClip's refusal of malformed dense tracks, asserting the values-field location, actionable arithmetic fragments, and compact length payload rather than merely checking that an error exists.
- * @evidence contracts/testing.md#independent-expectations Hand arithmetic gives 67*3=201 and 67*9=603; 3/2 is fractional, 2/1 is not a cubic triplet, and translation width 4/2=2 must be 3. A weights channel has no prescribed width. The substring oracle permits other diagnostic wording and does not assert a full violation population.
- * @evidence contracts/testing.md#distinguishing-cases Six cases separate nonintegral stride, sampler parity, unknown weights width, cubic tripling, cubic divisibility, and integral-but-wrong width. Valid interpolation and other malformed shapes belong to the clip-shape contract tests.
- * @evidence contracts/testing.md#execution-ownership The named test_validation_clip_stride_diagnostic entry runs portable admission and sampling directly; it does not replay the historical commitShot session or start a production host, and owns no dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises artifact admission and sampleClip's refusal of malformed dense tracks, asserting the values-field location, actionable arithmetic fragments, and compact length payload rather than merely checking that an error exists.
+ * @evidence contracts/development/testing.md#independent-expectations Hand arithmetic gives 67*3=201 and 67*9=603; 3/2 is fractional, 2/1 is not a cubic triplet, and translation width 4/2=2 must be 3. A weights channel has no prescribed width. The substring oracle permits other diagnostic wording and does not assert a full violation population.
+ * @evidence contracts/development/testing.md#distinguishing-cases Six cases separate nonintegral stride, sampler parity, unknown weights width, cubic tripling, cubic divisibility, and integral-but-wrong width. Valid interpolation and other malformed shapes belong to the clip-shape contract tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_validation_clip_stride_diagnostic entry runs portable admission and sampling directly; it does not replay the historical commitShot session or start a production host, and owns no dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The reproduction: 195 values over 67 keyframe times on a `translation` track).
  */
 export function test_validation_clip_stride_diagnostic(): void {
   // 1. the reproduction, with every number the author needed.

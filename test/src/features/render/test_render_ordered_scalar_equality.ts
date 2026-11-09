@@ -1,4 +1,4 @@
-import { equalOrderedScalars } from "@automovie/render/film/equalOrderedScalars";
+import { equalOrderedScalars } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /** The two shapes the planned audio identity actually compares. */
@@ -24,10 +24,11 @@ const STEREO_MATRIX: readonly [readonly [0.5, 0.5]] = [[0.5, 0.5]] as const;
  * 5. Records are outside the domain and are refused rather than compared: two objects carrying the same entries in different key order return false, so an object cannot pass by having no `length`.
  * 6. `Object.is` decides each scalar, so `NaN` equals `NaN` and `+0` differs from `-0`, which is what the replaced predicate did for these values.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real ordered-array predicate to distinguish speaker order, coefficient type/cardinality, record refusal, NaN and signed zero under its exact Object.is contract.
- * @evidence contracts/testing.md#independent-expectations Mono/stereo channel labels and downmix coefficients are authored comparands; deliberate same/different positions and Object.is rules supply booleans rather than deriving a snapshot from the predicate. This exact identity relation is distinct from approximate physical float verification.
- * @evidence contracts/testing.md#distinguishing-cases Outer and nested missing/extra entries, swapped speakers, numeric-versus-string leaves, non-array records, NaN and positive/negative zero retain the domain witnesses; deeper arbitrary structures are outside the typed caller contract.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_ordered_scalar_equality owns its cases. Portable direct-source scalar comparison, without loading WAVE assets or installing an audio consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the real ordered-array predicate to distinguish speaker order, coefficient type/cardinality, record refusal, NaN and signed zero under its exact Object.is contract.
+ * @evidence contracts/development/testing.md#independent-expectations Mono/stereo channel labels and downmix coefficients are authored comparands; deliberate same/different positions and Object.is rules supply booleans rather than deriving a snapshot from the predicate. This exact identity relation is distinct from approximate physical float verification.
+ * @evidence contracts/development/testing.md#distinguishing-cases Outer and nested missing/extra entries, swapped speakers, numeric-versus-string leaves, non-array records, NaN and positive/negative zero retain the domain witnesses; deeper arbitrary structures are outside the typed caller contract.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_ordered_scalar_equality owns its cases. Portable direct-source scalar comparison, without loading WAVE assets or installing an audio consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The real comparands agree with themselves: both speaker layouts and both downmix matrices, nested one level.).
  */
 export function test_render_ordered_scalar_equality(): void {
   TestValidator.predicate(

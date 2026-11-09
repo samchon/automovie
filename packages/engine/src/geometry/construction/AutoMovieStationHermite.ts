@@ -21,25 +21,19 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * end on a neighbour's derivatives (a shared key, a cap's end key), which
  * the redesign plan's section 2 requires for C2 joins.
  *
- * @evidence contracts/common.md#principled-implementation Between layers a value moves by the cubic or quintic Hermite of its values and station jets, C1 or C2 by construction.
- * @evidence contracts/common.md#clear-and-simple-design One basis per order and one interval evaluation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The quintic is used only where both layers carry second jets.
- * @evidence contracts/common.md#meaningful-documentation States both bases and when each applies.
- * @evidence contracts/performance.md#efficient-algorithms Constant work per value from precomputed weights.
- * @evidence contracts/performance.md#reuse-equivalent-work The weights of one station are shared by every coefficient of the interval.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Returns weights or values and holds nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation States both bases and when each applies.
+ * @evidence contracts/development/design.md#principled-representation Represents Interpolation of a chain's values between two principal layers from their values and station derivatives: companion namespace of 6 members (`IEnd`, `weights`, `combine`, `framed`, `frameEnd`, `unflat`); units and frames named in its text: second, degree, local, frame. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieStationHermite` in packages/engine/src/geometry/construction/AutoMovieStationHermite.ts; its surface is the 6 members listed and the text shows 16 other files naming it, mostly packages/engine (11), packages/human (3), test (2), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieStationHermite {
   /**
    * A layer's value, station slope and optional station curvature for one equally sized array.
    *
-   * @evidence contracts/common.md#principled-implementation Endpoint value/first jet and optional second jet determine the cubic or quintic station interpolant.
-   * @evidence contracts/common.md#clear-and-simple-design One record serves section, lift and flattened plane arrays without per-field interpolators.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Optional curvature marks available data; equal widths and finite entries are caller premises, not guaranteed by this structure.
-   * @evidence contracts/common.md#meaningful-documentation Names per-station derivative units and the absent-curvature meaning.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This endpoint record executes no interpolation.
-   * @evidence contracts/performance.md#reuse-equivalent-work Multiple derivative readings may share these immutable endpoint arrays and choose their own weights.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The record borrows two or three O(W) arrays for the retaining caller's lifetime; the type acquires no handle.
+   * @evidence contracts/development/design.md#principled-representation Endpoint value/first jet and optional second jet determine the cubic or quintic station interpolant.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One record serves section, lift and flattened plane arrays without per-field interpolators.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional curvature marks available data; equal widths and finite entries are caller premises, not guaranteed by this structure.
+   * @evidence contracts/development/common.md#meaningful-documentation Names per-station derivative units and the absent-curvature meaning.
    */
   export interface IEnd {
     /** Values at the layer. */
@@ -66,13 +60,13 @@ export namespace AutoMovieStationHermite {
    * @param order 0 for the value, 1 or 2 for the station derivative.
    * @param quintic Whether both layers carry curvatures.
    *
-   * @evidence contracts/common.md#principled-implementation Evaluates the cubic/quintic Hermite basis and its first/second derivatives with H and 1/H chain-rule factors; H must be nonzero and numerically representable.
-   * @evidence contracts/common.md#clear-and-simple-design One six-entry order serves values, slopes and curvatures, with zero curvature weights for the cubic rule.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the requested order and basis directly without clamping u, H or derivative magnitudes; valid interval admission stays with the chain.
-   * @evidence contracts/common.md#meaningful-documentation Specifies six-array order, interval units, supported derivative orders and pre-applied chain-rule scaling.
-   * @evidence contracts/performance.md#efficient-algorithms Fixed-degree formulas take constant time and fixed-size temporary/result arrays.
-   * @evidence contracts/performance.md#reuse-equivalent-work Returns weights once for a station/order so the owning reader can share them across every coefficient of that interval.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns six returned numbers; intermediate cubic/quintic arrays are call-local and no interval cache is owned.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the cubic/quintic Hermite basis and its first/second derivatives with H and 1/H chain-rule factors; H must be nonzero and numerically representable.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One six-entry order serves values, slopes and curvatures, with zero curvature weights for the cubic rule.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the requested order and basis directly without clamping u, H or derivative magnitudes; valid interval admission stays with the chain.
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies six-array order, interval units, supported derivative orders and pre-applied chain-rule scaling.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-degree formulas take constant time and fixed-size temporary/result arrays.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns weights once for a station/order so the owning reader can share them across every coefficient of that interval.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns six returned numbers; intermediate cubic/quintic arrays are call-local and no interval cache is owned.
    */
   export function weights(
     u: number,
@@ -151,13 +145,13 @@ export namespace AutoMovieStationHermite {
    * @param b Upper layer's end.
    * @param w Weights from {@link weights}.
    *
-   * @evidence contracts/common.md#principled-implementation Applies the six Hermite weights componentwise to endpoint values/jets, treating each absent curvature as zero as required by the cubic encoding.
-   * @evidence contracts/common.md#clear-and-simple-design One array map keeps the summation order identical for section, plane and lift consumers.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not fit or normalize values; equal endpoint widths and six compatible weights are caller premises, and missing non-curvature entries are not repaired.
-   * @evidence contracts/common.md#meaningful-documentation Identifies lower/upper endpoints and the weights producer; IEnd documents optional curvature.
-   * @evidence contracts/performance.md#efficient-algorithms O(W) work and output for W components, with constant arithmetic per component.
-   * @evidence contracts/performance.md#reuse-equivalent-work Every output component uses the supplied common weights instead of recomputing basis polynomials.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh W-entry array; no endpoint or weight reference is retained by the module.
+   * @evidence contracts/development/implementation.md#principled-implementation Applies the six Hermite weights componentwise to endpoint values/jets, treating each absent curvature as zero as required by the cubic encoding.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One array map keeps the summation order identical for section, plane and lift consumers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not fit or normalize values; equal endpoint widths and six compatible weights are caller premises, and missing non-curvature entries are not repaired.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies lower/upper endpoints and the weights producer; IEnd documents optional curvature.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(W) work and output for W components, with constant arithmetic per component.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every output component uses the supplied common weights instead of recomputing basis polynomials.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh W-entry array; no endpoint or weight reference is retained by the module.
    */
   export function combine(a: IEnd, b: IEnd, w: readonly number[]): number[] {
     return a.value.map(
@@ -174,13 +168,13 @@ export namespace AutoMovieStationHermite {
   /**
    * Whether a layer has both a frame and first frame derivatives; second derivatives remain optional.
    *
-   * @evidence contracts/common.md#principled-implementation Checks field presence to select componentwise plane interpolation in the chain reader.
-   * @evidence contracts/common.md#clear-and-simple-design One two-field predicate separates interpolation-mode selection from arithmetic.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Presence does not validate orthonormality, numeric values or frame curvatures and does not certify a full surface jet.
-   * @evidence contracts/common.md#meaningful-documentation States exactly which two fields are required and which derivative order stays optional.
-   * @evidence contracts/performance.md#efficient-algorithms Two property-presence comparisons use constant time with no allocation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This predicate coordinates no shared interval preparation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returning a boolean retains no layer or resource.
+   * @evidence contracts/development/implementation.md#principled-implementation Checks field presence to select componentwise plane interpolation in the chain reader.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One two-field predicate separates interpolation-mode selection from arithmetic.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Presence does not validate orthonormality, numeric values or frame curvatures and does not certify a full surface jet.
+   * @evidence contracts/development/common.md#meaningful-documentation States exactly which two fields are required and which derivative order stays optional.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two property-presence comparisons use constant time with no allocation.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This predicate coordinates no shared interval preparation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returning a boolean retains no layer or resource.
    */
   export function framed(layer: IAutoMovieLoftChain.ILayer): boolean {
     return layer.frame !== undefined && layer.frameSlopes !== undefined;
@@ -190,13 +184,13 @@ export namespace AutoMovieStationHermite {
    * A layer's plane as one array `[origin, u, v]` of nine numbers, with its
    * slopes and curvatures, for interpolation component by component.
    *
-   * @evidence contracts/common.md#principled-implementation Flattens the layer's frame and first/optional second derivative records into identically ordered nine-component endpoint arrays.
-   * @evidence contracts/common.md#clear-and-simple-design One adapter connects frame-shaped storage to the common Hermite array representation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Requires frame and frameSlopes from the caller; an absent frame curvature remains absent, without fabricated axes or derivative estimates.
-   * @evidence contracts/common.md#meaningful-documentation Gives the origin/u/v order and optional curvature relationship used by interval selection.
-   * @evidence contracts/performance.md#efficient-algorithms Copies two or three nine-entry arrays in constant work and space.
-   * @evidence contracts/performance.md#reuse-equivalent-work The returned endpoint can serve multiple station derivative orders with their shared interval weights; this adapter owns no cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The new endpoint owns its flattened arrays without retaining the original layer or its tuples.
+   * @evidence contracts/development/implementation.md#principled-implementation Flattens the layer's frame and first/optional second derivative records into identically ordered nine-component endpoint arrays.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One adapter connects frame-shaped storage to the common Hermite array representation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Requires frame and frameSlopes from the caller; an absent frame curvature remains absent, without fabricated axes or derivative estimates.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives the origin/u/v order and optional curvature relationship used by interval selection.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Copies two or three nine-entry arrays in constant work and space.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned endpoint can serve multiple station derivative orders with their shared interval weights; this adapter owns no cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The new endpoint owns its flattened arrays without retaining the original layer or its tuples.
    */
   export function frameEnd(layer: IAutoMovieLoftChain.ILayer): IEnd {
     const flat = (f: AutoMovieLoftFrame.IFrame): number[] => [
@@ -216,13 +210,13 @@ export namespace AutoMovieStationHermite {
   /**
    * Plane of nine `[origin, u, v]` numbers; interpolated axes are preserved without renormalization.
    *
-   * @evidence contracts/common.md#principled-implementation Regroups interpolated components into the same affine basis and derivative record layout used by the chain.
-   * @evidence contracts/common.md#clear-and-simple-design Three literal triples expose the fixed flattening convention.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not claim component interpolation preserves orthonormality or modify its axes; nine valid entries are a caller premise.
-   * @evidence contracts/common.md#meaningful-documentation States layout and the absence of renormalization, which matters to analytic station derivatives.
-   * @evidence contracts/performance.md#efficient-algorithms Constant nine-component copying and fixed output storage.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This one record conversion owns no coordinated or cached work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns three fresh tuples; no reference to the input component array survives.
+   * @evidence contracts/development/implementation.md#principled-implementation Regroups interpolated components into the same affine basis and derivative record layout used by the chain.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three literal triples expose the fixed flattening convention.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not claim component interpolation preserves orthonormality or modify its axes; nine valid entries are a caller premise.
+   * @evidence contracts/development/common.md#meaningful-documentation States layout and the absence of renormalization, which matters to analytic station derivatives.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant nine-component copying and fixed output storage.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This one record conversion owns no coordinated or cached work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns three fresh tuples; no reference to the input component array survives.
    */
   export function unflat(x: readonly number[]): AutoMovieLoftFrame.IFrame {
     return {

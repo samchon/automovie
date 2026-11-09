@@ -8,13 +8,10 @@ import type { ProductionStage } from "./ProductionStage";
 /**
  * Describes one contract this work adopted, and the layers that answer it.
  *
- * @evidence contracts/common.md#principled-implementation The object groups one adopted document set with owning layer stages; explicit symbol/checklist options preserve the distinction between per-unit and distributed duties.
- * @evidence contracts/common.md#clear-and-simple-design A document set and layer-stage map avoid repeated per-layer declarations while retaining explicit host/checklist granularity.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts createPackageContract validates owning layers and delegates path/host constraints; the type suppresses no evidence.
- * @evidence contracts/common.md#meaningful-documentation Members state citation paths, layer ownership, defaults, pilot scope and per-host versus distributed answering.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Adopted contract expansion inputs is erased at runtime; producing and consuming functions account for concrete traversal and allocation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Adopted contract expansion inputs declares data and coordinates no reusable effects; consumers own equivalence and invalidation.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Adopted contract expansion inputs acquires no resource or retained state; concrete owners determine instance bytes and lifetimes.
+ * @evidence contracts/development/design.md#principled-representation The object groups one adopted document set with owning layer stages; explicit symbol/checklist options preserve the distinction between per-unit and distributed duties.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface A document set and layer-stage map avoid repeated per-layer declarations while retaining explicit host/checklist granularity.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts createPackageContract validates owning layers and delegates path/host constraints; the type suppresses no evidence.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state citation paths, layer ownership, defaults, pilot scope and per-host versus distributed answering.
  */
 export interface IPackageContractProps {
   /**

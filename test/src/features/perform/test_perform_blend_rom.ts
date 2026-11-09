@@ -25,10 +25,11 @@ import { hasViolation } from "../internal/predicates";
  *    flexion axis: the blend did not clamp it.
  * 2. A blend well inside ROM validates cleanly (the negative twin).
  *
- * @evidence contracts/testing.md#behavioral-verification Blends the authored elbow layers, packages two-stop motions and invokes validateMotion, requiring failed admission with a flexion ROM violation for the overshot case and successful admission for the in-range twin.
- * @evidence contracts/testing.md#independent-expectations Equal 300/300 layers remain 300 beyond the shipped elbow range, while equal 40/80 layers average to 60 within it. Literal success states and the ROM/flexion diagnostic fragment constrain the downstream result independently of blendPoses; shared validation policy is the consumer under observation, not a biological oracle.
- * @evidence contracts/testing.md#distinguishing-cases Retains out-of-range versus in-range equal-weight layers on the same existing rig and one-second constant-pose clips. Exact blend numeric output, custom ROM and mixed-axis composition belong to other units.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns both blend-to-motion-to-validation call chains using existing in-memory fixtures. Helpers register no cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Blends the authored elbow layers, packages two-stop motions and invokes validateMotion, requiring failed admission with a flexion ROM violation for the overshot case and successful admission for the in-range twin.
+ * @evidence contracts/development/testing.md#independent-expectations Equal 300/300 layers remain 300 beyond the shipped elbow range, while equal 40/80 layers average to 60 within it. Literal success states and the ROM/flexion diagnostic fragment constrain the downstream result independently of blendPoses; shared validation policy is the consumer under observation, not a biological oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains out-of-range versus in-range equal-weight layers on the same existing rig and one-second constant-pose clips. Exact blend numeric output, custom ROM and mixed-axis composition belong to other units.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns both blend-to-motion-to-validation call chains using existing in-memory fixtures. Helpers register no cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two layers whose blended elbow flexion (300°) exceeds the joint's range).
  */
 export function test_perform_blend_rom(): void {
   const overshot: IAutoMoviePose = blendPoses([

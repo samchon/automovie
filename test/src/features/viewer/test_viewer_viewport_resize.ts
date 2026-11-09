@@ -13,10 +13,11 @@ import { nclose } from "../internal/predicates";
  * 2. Identical dimensions are idle; DPR-only and externally changed projection are repaired independently.
  * 3. Fractional DPR is retained and invalid/overflowing extents refuse before mutation.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual public viewport adapter with a declared renderer port and real PerspectiveCamera; observes native-size calls, retained logical dimensions/ratio, aspect and native projection after layout/DPR/projection changes.
- * @evidence contracts/testing.md#independent-expectations Authored 1100-by-619 CSS dimensions define aspect and the renderer call independently; a fresh native PerspectiveCamera with those authored dimensions supplies the projection reference. Identical inputs require no resize, and invalid requests require no side effects.
- * @evidence contracts/testing.md#distinguishing-cases Covers CSS-only, unchanged, DPR-only, projection-only and fractional-ratio updates plus zero, negative, noninteger, NaN and overflowing/zero physical extents. Browser layout observation, actual backing pixels, paused/frozen redraw and renderer retirement remain operator validation.
- * @evidence contracts/testing.md#execution-ownership Portable named unit invokes actual source through a declared controlled renderer seam and native CPU camera objects; no browser, renderer context, filesystem, global or foreign method replacement runs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual public viewport adapter with a declared renderer port and real PerspectiveCamera; observes native-size calls, retained logical dimensions/ratio, aspect and native projection after layout/DPR/projection changes.
+ * @evidence contracts/development/testing.md#independent-expectations Authored 1100-by-619 CSS dimensions define aspect and the renderer call independently; a fresh native PerspectiveCamera with those authored dimensions supplies the projection reference. Identical inputs require no resize, and invalid requests require no side effects.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers CSS-only, unchanged, DPR-only, projection-only and fractional-ratio updates plus zero, negative, noninteger, NaN and overflowing/zero physical extents. Browser layout observation, actual backing pixels, paused/frozen redraw and renderer retirement remain operator validation.
+ * @evidence contracts/development/testing.md#execution-ownership Portable named unit invokes actual source through a declared controlled renderer seam and native CPU camera objects; no browser, renderer context, filesystem, global or foreign method replacement runs.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A CSS-only resize updates drawing-buffer dimensions and camera projection.).
  */
 export function test_viewer_viewport_resize(): void {
   let width: number = 1280;

@@ -17,13 +17,13 @@ const assertFiniteVector: (label: string, vector: IAutoMovieVector3) => void = (
 /**
  * Carry an admitted gait over a positive metre distance in a finite nonzero direction at a requested positive speed. Whole cycles determine duration; a trip shorter than half a nominal stride compresses one cycle, and optional faceTravel aligns model +Z with the horizontal heading.
  *
- * @evidence contracts/common.md#principled-implementation Normalizes direction, rounds nominal cycle count with a one-cycle minimum, compresses the short-trip cycle when needed, and derives velocity from exact distance over baked duration; travelMotion preserves gait seam interpolation and continuous root travel.
- * @evidence contracts/common.md#clear-and-simple-design This function owns distance/speed sizing and optional heading, while timeScaleMotion owns clip-clock compression and travelMotion owns cycle repetition and root placement.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid scalar/vector admission throws; the half-speed floor is an explicit locomotion sizing policy rather than a named-body adjustment, and faceTravel only yaws so vertical direction components do not pitch the rig.
- * @evidence contracts/common.md#meaningful-documentation States distance/speed units, exact-arrival sizing, short-trip compression, default strafe behavior and the horizontal-only facing rule.
- * @evidence contracts/performance.md#efficient-algorithms Sizing is constant work; delegated baking scales with chosen cycle count C times gait keyframes K, plus one O(K) clock copy for short-trip compression, with no additional trajectory sampling.
- * @evidence contracts/performance.md#reuse-equivalent-work The normalized heading serves velocity and facing; unchanged gait data are passed directly unless the one-cycle short-trip policy requires a new clock.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the baked clip and keyframes; intermediate compressed clips are call-local and no gait cache, physics handle or task is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Normalizes direction, rounds nominal cycle count with a one-cycle minimum, compresses the short-trip cycle when needed, and derives velocity from exact distance over baked duration; travelMotion preserves gait seam interpolation and continuous root travel.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This function owns distance/speed sizing and optional heading, while timeScaleMotion owns clip-clock compression and travelMotion owns cycle repetition and root placement.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid scalar/vector admission throws; the half-speed floor is an explicit locomotion sizing policy rather than a named-body adjustment, and faceTravel only yaws so vertical direction components do not pitch the rig.
+ * @evidence contracts/development/common.md#meaningful-documentation States distance/speed units, exact-arrival sizing, short-trip compression, default strafe behavior and the horizontal-only facing rule.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Sizing is constant work; delegated baking scales with chosen cycle count C times gait keyframes K, plus one O(K) clock copy for short-trip compression, with no additional trajectory sampling.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The normalized heading serves velocity and facing; unchanged gait data are passed directly unless the one-cycle short-trip policy requires a new clock.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the baked clip and keyframes; intermediate compressed clips are call-local and no gait cache, physics handle or task is retained.
  */
 export const locomoteMotion: (
   id: string,

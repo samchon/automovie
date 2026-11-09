@@ -18,10 +18,11 @@ import { makePose } from "../internal/makePose";
  * Scenarios:
  * 1. The first keyframe pose names skeleton-2 while the motion and target rig name skeleton-1; validation fails beneath that keyframe pose.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateMotion with a mismatched first pose identity and requires the exact keyframe pose.skeleton type finding, catching validation of only the enclosing clip identity.
- * @evidence contracts/testing.md#independent-expectations Each pose must reference the supplied target rig; literal unequal identities and the first-key address determine the expected refusal without sampling.
- * @evidence contracts/testing.md#distinguishing-cases Retains matching clip/target identities and a matching second pose; motion_skeleton_id owns the enclosing identity mismatch and motion_valid owns complete admission.
- * @evidence contracts/testing.md#execution-ownership The named unit uses existing portable pose/keyframe/rig factories, with no rig binding host or dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateMotion with a mismatched first pose identity and requires the exact keyframe pose.skeleton type finding, catching validation of only the enclosing clip identity.
+ * @evidence contracts/development/testing.md#independent-expectations Each pose must reference the supplied target rig; literal unequal identities and the first-key address determine the expected refusal without sampling.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains matching clip/target identities and a matching second pose; motion_skeleton_id owns the enclosing identity mismatch and motion_valid owns complete admission.
+ * @evidence contracts/development/testing.md#execution-ownership The named unit uses existing portable pose/keyframe/rig factories, with no rig binding host or dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: The first keyframe pose names skeleton-2 while the motion and target rig name skeleton-1; validation fails beneath that keyframe pose.).
  */
 export function test_validation_motion_keyframe_skeleton(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

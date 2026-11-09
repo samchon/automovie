@@ -1,5 +1,7 @@
-import { evaluateAutoMovieSupportSection } from "@automovie/engine/geometry/evaluateAutoMovieSupportSection";
-import { realizeAutoMovieConvexSupportLoft } from "@automovie/engine/geometry/realizeAutoMovieConvexSupportLoft";
+import {
+  evaluateAutoMovieSupportSection,
+  realizeAutoMovieConvexSupportLoft,
+} from "@automovie/engine";
 import type { IAutoMovieConvexSupportLoft } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -15,10 +17,11 @@ import { nclose } from "../internal/nclose";
  * 4. A cubic diagonal is redundant at both ends but active inside, creating two independently known boundary events.
  * 5. Sparse/nonunit/unbounded fields, weak feasible intersections including an isolated interior tie, complete collapse and exhausted budgets refuse.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs the public engine producer, checks actual output positions against their independent face equations, analytical normals, triangle winding, physical alias equality and event diagnostics. Invalid inputs throw without an accepted partial mesh.
- * @evidence contracts/testing.md#independent-expectations Constant half-axes .02/.01 metres fix the box boundary. A fifth plane with offset (a+b)/sqrt(2)+.004(t-.5) meets the positive corner at t=.5, so one feasible event occurs at Y=.05 metres. For a unit-half-axis square, h(t)=2-6t(1-t) crosses sqrt(2) twice despite being redundant at both ends. Two positive-diagonal bounds h(t)=3(1-2t)^2/256 are redundant on [-1,0] squared, but their weak nonparallel intersection touches exactly at the origin only at t=.5 and must receive the same refusal as a direct section. Analytic plane gradients determine outward normals independently of emitted triangles.
- * @evidence contracts/testing.md#distinguishing-cases Covers no events, one vanishing face, interior-only face activation with two events, adjacent spans, exact physical aliases and distinct analytic normal fans, open ends, positive triangle orientation, nonunit/sparse/reversed/unbounded fields, a feasible near-parallel pair hidden by ordinary cancellation, an isolated interior weak tie versus the same strictly lifted redundant bounds, complete interior collapse and event/cell/vertex budget refusals.
- * @evidence contracts/testing.md#execution-ownership This portable test_geometry_convex_support_loft entry owns bounded engine CPU arrays only; it builds no native artifact, starts no process/browser/GPU and replaces no foreign method.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the public engine producer, checks actual output positions against their independent face equations, analytical normals, triangle winding, physical alias equality and event diagnostics. Invalid inputs throw without an accepted partial mesh.
+ * @evidence contracts/development/testing.md#independent-expectations Constant half-axes .02/.01 metres fix the box boundary. A fifth plane with offset (a+b)/sqrt(2)+.004(t-.5) meets the positive corner at t=.5, so one feasible event occurs at Y=.05 metres. For a unit-half-axis square, h(t)=2-6t(1-t) crosses sqrt(2) twice despite being redundant at both ends. Two positive-diagonal bounds h(t)=3(1-2t)^2/256 are redundant on [-1,0] squared, but their weak nonparallel intersection touches exactly at the origin only at t=.5 and must receive the same refusal as a direct section. Analytic plane gradients determine outward normals independently of emitted triangles.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers no events, one vanishing face, interior-only face activation with two events, adjacent spans, exact physical aliases and distinct analytic normal fans, open ends, positive triangle orientation, nonunit/sparse/reversed/unbounded fields, a feasible near-parallel pair hidden by ordinary cancellation, an isolated interior weak tie versus the same strictly lifted redundant bounds, complete interior collapse and event/cell/vertex budget refusals.
+ * @evidence contracts/development/testing.md#execution-ownership This portable test_geometry_convex_support_loft entry owns bounded engine CPU arrays only; it builds no native artifact, starts no process/browser/GPU and replaces no foreign method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A rectangular section has outward triangle winding, unit normals and shared physical vertices with separate normal fans.).
  */
 export function test_geometry_convex_support_loft(): void {
   const make: (

@@ -26,10 +26,11 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * 5. Heading and camera pose application precede resolution/draw and supplied encoding for planned/ad-hoc observations; malformed clips refuse and repeated requests retain borrowed labels.
  * 6. All inspection records declare deliveryEvidence=false and the existing type-level consumer refuses them.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls real key/plan/pose/capture APIs and observes ids, numerical camera fields, resolution-before-draw callbacks and inspection metadata.
- * @evidence contracts/testing.md#independent-expectations Authored keys/centers/headings and independent numeric comparisons define pose expectations; the existing supplied encoder returns fixed bytes, so equal records do not prove actual image determinism.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts malformed keys/plans/lenses/clips, small/large/degenerate boxes, landscape/portrait framing, planned/ad-hoc capture and deliveryEvidence=false without weakening refusal cases.
- * @evidence contracts/testing.md#execution-ownership The named entry owns CPU cameras and existing typed snapshot callbacks, uses no browser/WebGL renderer/new driver, and leaves current source, native encoding and visible-frame proof unobserved.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls real key/plan/pose/capture APIs and observes ids, numerical camera fields, resolution-before-draw callbacks and inspection metadata.
+ * @evidence contracts/development/testing.md#independent-expectations Authored keys/centers/headings and independent numeric comparisons define pose expectations; the existing supplied encoder returns fixed bytes, so equal records do not prove actual image determinism.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts malformed keys/plans/lenses/clips, small/large/degenerate boxes, landscape/portrait framing, planned/ad-hoc capture and deliveryEvidence=false without weakening refusal cases.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry owns CPU cameras and existing typed snapshot callbacks, uses no browser/WebGL renderer/new driver, and leaves current source, native encoding and visible-frame proof unobserved.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Subject keys round-trip, preserve an id's internal at-sign before a revision and refuse malformed keys.).
  */
 export function test_viewer_subject_viewpoint(): void {
   //----

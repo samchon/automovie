@@ -40,10 +40,11 @@ const modelWithBoneRest: (rest: IAutoMovieTransform) => IAutoMovieModel = (
  * 4. Finite but non-unit rest rotation is a range violation.
  * 5. Non-positive rest scale is a range violation.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls model validation with a valid rest transform and four malformed variants, requiring failure and exact component or norm addresses so bad rest metadata cannot silently seed FK.
- * @evidence contracts/testing.md#independent-expectations Identity TRS is valid, NaN/infinity are not finite, quaternion [0,0,0,2] has norm two and zero scale is not positive. Literal paths distinguish scalar faults from the quaternion's joint norm rule.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts accepted identity, nonfinite translation/rotation, finite nonunit rotation and collapsed scale; graph reachability and part/root transforms have separate entries. No rendered rig or all-axis exhaustive claim follows from these samples.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns record copies of the existing model/rig fixture and invokes portable admission without a Human asset, FK host, renderer or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls model validation with a valid rest transform and four malformed variants, requiring failure and exact component or norm addresses so bad rest metadata cannot silently seed FK.
+ * @evidence contracts/development/testing.md#independent-expectations Identity TRS is valid, NaN/infinity are not finite, quaternion [0,0,0,2] has norm two and zero scale is not positive. Literal paths distinguish scalar faults from the quaternion's joint norm rule.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts accepted identity, nonfinite translation/rotation, finite nonunit rotation and collapsed scale; graph reachability and part/root transforms have separate entries. No rendered rig or all-axis exhaustive claim follows from these samples.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns record copies of the existing model/rig fixture and invokes portable admission without a Human asset, FK host, renderer or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A valid explicit rest transform still validates.).
  */
 export function test_validation_model_bone_rest_transform(): void {
   TestValidator.equals(

@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine/math/Quaternion";
+import { Quaternion } from "@automovie/engine";
 import {
   IAutoMovieModel,
   IAutoMovieModelPart,
@@ -16,13 +16,13 @@ import { IAutoMovieStickmanProps } from "./IAutoMovieStickmanProps";
  * @returns A fresh generated model whose skeleton id equals its model id and whose only material is `props.material`.
  * @throws Error naming the correction when the id is blank or a dimension is non-finite or outside its documented range.
  *
- * @evidence contracts/common.md#principled-implementation Height scales every bone offset and most part dimensions, while the head and limb radii set thickness and lower-bound the torso and limb lengths through `max`, so a thick limb never exceeds its own segment. The inclusive ranges are the ones the retired parameter schema admitted, checked before any geometry is built.
- * @evidence contracts/common.md#clear-and-simple-design One producer returns the whole `IAutoMovieModel` group, the type films already reference, so no registry, parameter plan or materializer stands between an author and the figure; placement, LOD and profiles stay with their owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Range refusals apply to every figure and throw before output instead of clamping, and no id or production is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States the part and bone inventory, metre units, schematic proportions, the skeleton id rule, material adoption and the refusal behavior.
- * @evidence contracts/performance.md#efficient-algorithms Constant work: three range checks, thirteen bones and thirteen parts with their transforms, allocated once per call.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call must hand its caller an unshared mutable model, so equal props are rebuilt rather than served from a cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The producer retains nothing; the returned model, which references the caller's material record, transfers to the caller at return.
+ * @evidence contracts/development/implementation.md#principled-implementation Height scales every bone offset and most part dimensions, while the head and limb radii set thickness and lower-bound the torso and limb lengths through `max`, so a thick limb never exceeds its own segment. The inclusive ranges are the ones the retired parameter schema admitted, checked before any geometry is built.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One producer returns the whole `IAutoMovieModel` group, the type films already reference, so no registry, parameter plan or materializer stands between an author and the figure; placement, LOD and profiles stay with their owners.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Range refusals apply to every figure and throw before output instead of clamping, and no id or production is special-cased.
+ * @evidence contracts/development/common.md#meaningful-documentation States the part and bone inventory, metre units, schematic proportions, the skeleton id rule, material adoption and the refusal behavior.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: three range checks, thirteen bones and thirteen parts with their transforms, allocated once per call.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call must hand its caller an unshared mutable model, so equal props are rebuilt rather than served from a cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The producer retains nothing; the returned model, which references the caller's material record, transfers to the caller at return.
  */
 export const createAutoMovieStickman: (
   props: IAutoMovieStickmanProps,

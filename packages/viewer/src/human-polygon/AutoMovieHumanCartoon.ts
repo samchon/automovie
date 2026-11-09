@@ -2,25 +2,19 @@
  * Generator-independent inputs consumed by the original cartoon face drawing.
  * These marks express selected action units; they are not anatomical skin.
  *
- * @evidence contracts/common.md#principled-implementation Structural action intensities and admitted gaze/jaw values preserve the original renderer's input semantics without importing a generator schema.
- * @evidence contracts/common.md#clear-and-simple-design Contains only expression and head-pose fields that the drawing reads.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No named emotion, likeness or authored motion enters these inputs; unsupported requested actions are reported by the builder.
- * @evidence contracts/common.md#meaningful-documentation States drawing-only expression, intensity, angle and displacement units.
- * @evidenceExclude contracts/performance.md#efficient-algorithms These erased input contracts perform no computation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work These types coordinate no cache or effects.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller-owned records acquire no native resources.
+ * @evidence contracts/development/common.md#meaningful-documentation States drawing-only expression, intensity, angle and displacement units.
+ * @evidence contracts/development/design.md#principled-representation Represents Generator-independent inputs consumed by the original cartoon face drawing: companion namespace of 2 members (`IExpression`, `IHeadPose`); units and frames named in its text: degrees. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieHumanCartoon` in packages/viewer/src/human-polygon/AutoMovieHumanCartoon.ts; its surface is the 2 members listed and the text shows 4 other files naming it, mostly packages/viewer (3), movies (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieHumanCartoon {
   /**
    * Sided FACS intensities and optional named mouth actions.
    *
-   * @evidence contracts/common.md#principled-implementation Unit names remain strings so unsupported requests survive to explicit reporting; sided activations and named lip values have the same [0,1] intensity semantics.
-   * @evidence contracts/common.md#clear-and-simple-design Exposes the consumed structural expression rather than depending on Human runtime enums or its skin deformation implementation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Tongue and viseme values are retained only for unsupported-field reporting, never claimed as drawn articulation.
-   * @evidence contracts/common.md#meaningful-documentation States sided activation, neutral omission, duplicate-unit refusal and unsupported mouth fields.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This interface performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Explicit face construction owns input processing, not this record.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Expression records own no geometry or native resources.
+   * @evidence contracts/development/design.md#principled-representation Unit names remain strings so unsupported requests survive to explicit reporting; sided activations and named lip values have the same [0,1] intensity semantics.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the consumed structural expression rather than depending on Human runtime enums or its skin deformation implementation.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Tongue and viseme values are retained only for unsupported-field reporting, never claimed as drawn articulation.
+   * @evidence contracts/development/common.md#meaningful-documentation States sided activation, neutral omission, duplicate-unit refusal and unsupported mouth fields.
    */
   export interface IExpression {
     /** Omitted units are neutral; overlapping unit/side activations refuse. */
@@ -73,13 +67,10 @@ export namespace AutoMovieHumanCartoon {
   /**
    * Already admitted finite eye and jaw articulation for face marks.
    *
-   * @evidence contracts/common.md#principled-implementation Gaze remains degrees and jaw displacement millimetres, converted once by the original face formulas; skeletal head orientation stays on the parent.
-   * @evidence contracts/common.md#clear-and-simple-design Separates facial mark articulation from evaluator-owned neck/head transforms.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts This drawing contract introduces no clinical clamp, solver or anatomical motion claim.
-   * @evidence contracts/common.md#meaningful-documentation Gives angle/displacement units, axis signs and neutral omission.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This pose shape computes nothing.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller decides when an expression needs rebuilding.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Pose records own no native resource.
+   * @evidence contracts/development/design.md#principled-representation Gaze remains degrees and jaw displacement millimetres, converted once by the original face formulas; skeletal head orientation stays on the parent.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Separates facial mark articulation from evaluator-owned neck/head transforms.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts This drawing contract introduces no clinical clamp, solver or anatomical motion claim.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives angle/displacement units, axis signs and neutral omission.
    */
   export interface IHeadPose {
     /** Gaze of each eye; omitted coordinates are zero degrees. */

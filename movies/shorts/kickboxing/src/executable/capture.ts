@@ -1,11 +1,9 @@
 import { planViewerFrameTimes } from "@automovie/render";
-import {
-  AutoMovieRasterSheet,
-  type IAutoMovieSceneRaster,
-  encodeAutoMovieRasterPng,
-  rasterizeAutoMovieScene,
-  stampAutoMovieRasterLabel,
-} from "@automovie/viewer/node";
+import { AutoMovieRasterSheet } from "../integrations/viewer/node/raster/AutoMovieRasterSheet";
+import { type IAutoMovieSceneRaster } from "../integrations/viewer/node/raster/IAutoMovieSceneRaster";
+import { encodeAutoMovieRasterPng } from "../integrations/viewer/node/raster/encodeAutoMovieRasterPng";
+import { rasterizeAutoMovieScene } from "../integrations/viewer/node/raster/rasterizeAutoMovieScene";
+import { stampAutoMovieRasterLabel } from "../integrations/viewer/node/raster/stampAutoMovieRasterLabel";
 import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";

@@ -26,10 +26,11 @@ const rest: IAutoMoviePose = makePose([joint("leftLowerArm", { flexion: 0 })]);
  *
  * 1. On the unchanged one-second happy clip, jawOpen 1-to-0 samples 0.5 and start-only mouthSmileLeft 0.4 samples 0.2 at t=0.5.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls sampleMotion, checks expression/channel presence and observes the two named midpoint weights from its returned blendshape population.
- * @evidence contracts/testing.md#independent-expectations Local endpoints give (1+0)/2=0.5 and 0.4*(1-0.5)=0.2 without reading expected values from blendChannels. Existing nclose tolerance and the missing-channel sentinel -1 remain unchanged.
- * @evidence contracts/testing.md#distinguishing-cases Retains a both-present channel versus a start-only channel in one same-preset segment. End-only population, null expressions, nonlinear easing, duplicate channel admission and exact output ordering are outside these unchanged assertions.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns one direct sample call and local map observation with existing fixture constructors. No helper registers additional cases or starts a viewer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls sampleMotion, checks expression/channel presence and observes the two named midpoint weights from its returned blendshape population.
+ * @evidence contracts/development/testing.md#independent-expectations Local endpoints give (1+0)/2=0.5 and 0.4*(1-0.5)=0.2 without reading expected values from blendChannels. Existing nclose tolerance and the missing-channel sentinel -1 remain unchanged.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains a both-present channel versus a start-only channel in one same-preset segment. End-only population, null expressions, nonlinear easing, duplicate channel admission and exact output ordering are outside these unchanged assertions.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns one direct sample call and local map observation with existing fixture constructors. No helper registers additional cases or starts a viewer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: On the unchanged one-second happy clip, jawOpen 1-to-0 samples 0.5 and start-only mouthSmileLeft 0.4 samples 0.2 at t=0.5.).
  */
 export function test_motion_sample_expression_blendshapes(): void {
   const clip: IAutoMovieMotion = makeMotion(

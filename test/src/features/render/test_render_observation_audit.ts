@@ -109,10 +109,11 @@ const observation: (
  * 4. Metrics the live scene observation does not expose do not masquerade as runtime checks.
  * 5. Duplicate, non-finite, and negative report or renderer values stay unchecked instead of passing or manufacturing a breach.
  *
- * @evidence contracts/testing.md#behavioral-verification Audits real supplied report/observation pairs, distinguishing bounds, breaches and unchecked metrics so missing or malformed evidence cannot become agreement.
- * @evidence contracts/testing.md#independent-expectations Hand-authored counts 8/9 and 1/2 determine two ordered breaches, and the seven exposed observation roles determine which report fields can be checked. Supplied counts are not an actual renderer observation and no digest authenticity is asserted.
- * @evidence contracts/testing.md#distinguishing-cases Exact bound, below/above bounds, null or duplicate report rows, negative/nonfinite values and preflight-only metrics cover the audit's classification boundary.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_observation_audit owns its cases. Portable report classification over resident records, with no scene traversal or native renderer counter read.
+ * @evidence contracts/development/testing.md#behavioral-verification Audits real supplied report/observation pairs, distinguishing bounds, breaches and unchecked metrics so missing or malformed evidence cannot become agreement.
+ * @evidence contracts/development/testing.md#independent-expectations Hand-authored counts 8/9 and 1/2 determine two ordered breaches, and the seven exposed observation roles determine which report fields can be checked. Supplied counts are not an actual renderer observation and no digest authenticity is asserted.
+ * @evidence contracts/development/testing.md#distinguishing-cases Exact bound, below/above bounds, null or duplicate report rows, negative/nonfinite values and preflight-only metrics cover the audit's classification boundary.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_observation_audit owns its cases. Portable report classification over resident records, with no scene traversal or native renderer counter read.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every observed metric at or below its preflight report bound agrees.).
  */
 export function test_render_observation_audit(): void {
   TestValidator.equals(

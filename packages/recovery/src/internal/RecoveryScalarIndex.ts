@@ -1,13 +1,10 @@
 /**
  * Immutable face-height interval queries for one admitted observation mesh.
  *
- * @evidence contracts/common.md#principled-implementation A balanced range-maximum tree over triangle minimum heights prunes disjoint intervals without changing scalar comparisons or source face identities.
- * @evidence contracts/common.md#clear-and-simple-design One call owns immutable interval arrays and returns separate inclusive plane and strict open-slab queries.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every intersecting face is returned, including flat faces and hidden slab components; no specimen metadata or geometric approximation is used.
- * @evidence contracts/common.md#meaningful-documentation Queries document equality conventions, face order and the caller's immutable mesh lifetime.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Namespace initialization performs no work.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work No module cache exists.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Namespace initialization retains no state.
+ * @evidence contracts/development/common.md#meaningful-documentation Queries document equality conventions, face order and the caller's immutable mesh lifetime.
+ * @evidence contracts/development/design.md#principled-representation Represents Immutable face-height interval queries for one admitted observation mesh: companion namespace of 1 member (`create`). It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `RecoveryScalarIndex` in packages/recovery/src/internal/RecoveryScalarIndex.ts; its surface is the 1 member listed and the text shows 8 other files naming it, mostly packages/recovery (8), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace RecoveryScalarIndex {
   /**
@@ -15,13 +12,13 @@ export namespace RecoveryScalarIndex {
    * Results contain original face IDs in ascending order. Plane queries include both endpoints;
    * slab queries require positive overlap with the open interval, retaining internal components.
    *
-   * @evidence contracts/common.md#principled-implementation Each triangle's exact binary64 minimum and maximum define necessary and sufficient scalar intersection tests. Tree bounds only reject subtrees that cannot satisfy those same comparisons.
-   * @evidence contracts/common.md#clear-and-simple-design The returned closure hides copied interval data; consumers receive only transient source face candidates.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Flat and tangent faces remain in inclusive plane queries, and every component with open-slab overlap remains in slab queries. No curve fitting or surface generation occurs here.
-   * @evidence contracts/common.md#meaningful-documentation States source immutability, inclusive versus strict boundaries and stable output ordering.
-   * @evidence contracts/performance.md#efficient-algorithms For T faces and V heights, preparation costs O(V+T log T) time and O(T) retained storage. A query visits intersecting tree bounds and sorts A matches in O(A log A); worst case O(T+A log A), while disjoint subtrees are skipped.
-   * @evidence contracts/performance.md#reuse-equivalent-work Copied face intervals and tree bounds are reused by every plane and slab in one extraction. The caller creates a new index for another mesh or scalar chart; no mutable-input cache exists.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The extraction call owns O(T) interval/tree arrays and each query's O(A+log T) result/stack. These become unreachable after extraction; original source positions and topology never escape through query results.
+   * @evidence contracts/development/implementation.md#principled-implementation Each triangle's exact binary64 minimum and maximum define necessary and sufficient scalar intersection tests. Tree bounds only reject subtrees that cannot satisfy those same comparisons.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The returned closure hides copied interval data; consumers receive only transient source face candidates.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Flat and tangent faces remain in inclusive plane queries, and every component with open-slab overlap remains in slab queries. No curve fitting or surface generation occurs here.
+   * @evidence contracts/development/common.md#meaningful-documentation States source immutability, inclusive versus strict boundaries and stable output ordering.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For T faces and V heights, preparation costs O(V+T log T) time and O(T) retained storage. A query visits intersecting tree bounds and sorts A matches in O(A log A); worst case O(T+A log A), while disjoint subtrees are skipped.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Copied face intervals and tree bounds are reused by every plane and slab in one extraction. The caller creates a new index for another mesh or scalar chart; no mutable-input cache exists.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The extraction call owns O(T) interval/tree arrays and each query's O(A+log T) result/stack. These become unreachable after extraction; original source positions and topology never escape through query results.
    */
   export function create(
     triangles: readonly (readonly [number, number, number])[],

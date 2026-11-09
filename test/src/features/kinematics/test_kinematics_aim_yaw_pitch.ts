@@ -31,10 +31,11 @@ const at: (x: number, y: number, z: number) => IAutoMovieVector3 = (
  * 4. Huge finite headings and overflowing finite endpoint differences preserve direction.
  * 5. A subnormal target retains its heading-relative angle rather than rounding a rotated component away.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls aimYawPitch on cardinal, tilted, zero and extreme represented targets, checking both returned angles and named nonfinite refusals.
- * @evidence contracts/testing.md#independent-expectations Cardinal geometry supplies zero, signed right-angle and diagonal expectations; a two-to-one endpoint direction supplies atan2(1,2), and MAX_VALUE heading has binary64 remainder 128 degrees modulo 360.
- * @evidence contracts/testing.md#distinguishing-cases Covers ordinary heading inversion beside huge periodic heading, overflowing subtraction and subnormal rotation, plus invalid origin, target and heading; aimRotation tests own quaternion output.
- * @evidence contracts/testing.md#execution-ownership The exported unit entry reaches the portable yaw/pitch source directly and owns each assertion without a Human fixture, renderer or application process.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls aimYawPitch on cardinal, tilted, zero and extreme represented targets, checking both returned angles and named nonfinite refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Cardinal geometry supplies zero, signed right-angle and diagonal expectations; a two-to-one endpoint direction supplies atan2(1,2), and MAX_VALUE heading has binary64 remainder 128 degrees modulo 360.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers ordinary heading inversion beside huge periodic heading, overflowing subtraction and subnormal rotation, plus invalid origin, target and heading; aimRotation tests own quaternion output.
+ * @evidence contracts/development/testing.md#execution-ownership The exported unit entry reaches the portable yaw/pitch source directly and owns each assertion without a Human fixture, renderer or application process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A target on the origin (zero-length aim) → both angles zero.).
  */
 export function test_kinematics_aim_yaw_pitch(): void {
   // 1. degenerate

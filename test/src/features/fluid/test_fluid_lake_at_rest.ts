@@ -70,10 +70,11 @@ const restingPond: (depth?: number[]) => IAutoMovieFluidDomain = (
  *    and one single step already moves both the surface and the velocity
  *    field.
  *
- * @evidence contracts/testing.md#behavioral-verification Simulates the authored level pond over stepped bed at step 300 and requires unchanged depth, zero velocities, exact volume and zero source/drain/outflow ledgers; raising the first wet cell distinguishes depth and both velocity-axis changes after one step.
- * @evidence contracts/testing.md#independent-expectations Bed plus wet depth equals the authored half-metre level, with dry tie/above-level shore and hand-summed volume 0.5625; literal dyadic values and strict identity avoid output snapshots, without proving unbounded future stability.
- * @evidence contracts/testing.md#distinguishing-cases Preserves wet cells, above-level and exact-tie dry shore, the 300-step fixed point and one-cell 0.0625 disturbance at step 1; reachable wetting and other wall/flow decisions have separate entries.
- * @evidence contracts/testing.md#execution-ownership This named portable unit owns both absolute CPU solves and field/ledger assertions; it does not run another platform, a GPU solver, browser or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Simulates the authored level pond over stepped bed at step 300 and requires unchanged depth, zero velocities, exact volume and zero source/drain/outflow ledgers; raising the first wet cell distinguishes depth and both velocity-axis changes after one step.
+ * @evidence contracts/development/testing.md#independent-expectations Bed plus wet depth equals the authored half-metre level, with dry tie/above-level shore and hand-summed volume 0.5625; literal dyadic values and strict identity avoid output snapshots, without proving unbounded future stability.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves wet cells, above-level and exact-tie dry shore, the 300-step fixed point and one-cell 0.0625 disturbance at step 1; reachable wetting and other wall/flow decisions have separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit owns both absolute CPU solves and field/ledger assertions; it does not run another platform, a GPU solver, browser or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: After 300 steps every depth is bit-identical to the authored one.).
  */
 export function test_fluid_lake_at_rest(): void {
   const domain: ReturnType<typeof restingPond> = restingPond();

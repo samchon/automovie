@@ -27,10 +27,11 @@ const limb: IAutoMovieGaitLimb = {
  * 1. Invalid period, phase, duty, amplitude, and neutral values throw.
  * 2. Boundary-adjacent duty values inside `(0, 1)` remain valid.
  *
- * @evidence contracts/testing.md#behavioral-verification Invokes gaitLimbFlexion for each invalid scalar and asserts synchronous refusal, then checks finite output for two duties inside the open interval, catching missing admission or rejection of valid nearby values.
- * @evidence contracts/testing.md#independent-expectations The gait-limb contract requires a finite positive period, finite phase/amplitude/neutral and duty strictly between zero and one. Literal malformed values and interior duties supply expectations without evaluating the production formula; the refusal helper accepts any thrown value and does not establish a message or error class.
- * @evidence contracts/testing.md#distinguishing-cases Preserves NaN/zero period, NaN phase/duty/amplitude/neutral, duty zero/one and valid 0.01/0.99 duties. Time admission, easing controls and clip-level sample/phase/root-bob behavior remain outside this unit.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns the scalar table and both valid duty evaluations directly through the engine export. The local helper records thrown status only; no host, process or native artifact is needed.
+ * @evidence contracts/development/testing.md#behavioral-verification Invokes gaitLimbFlexion for each invalid scalar and asserts synchronous refusal, then checks finite output for two duties inside the open interval, catching missing admission or rejection of valid nearby values.
+ * @evidence contracts/development/testing.md#independent-expectations The gait-limb contract requires a finite positive period, finite phase/amplitude/neutral and duty strictly between zero and one. Literal malformed values and interior duties supply expectations without evaluating the production formula; the refusal helper accepts any thrown value and does not establish a message or error class.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves NaN/zero period, NaN phase/duty/amplitude/neutral, duty zero/one and valid 0.01/0.99 duties. Time admission, easing controls and clip-level sample/phase/root-bob behavior remain outside this unit.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns the scalar table and both valid duty evaluations directly through the engine export. The local helper records thrown status only; no host, process or native artifact is needed.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Invalid period, phase, duty, amplitude, and neutral values throw.).
  */
 export function test_motion_gait_limb_scalars(): void {
   const invalids: [string, IAutoMovieGaitLimb, number][] = [

@@ -3,13 +3,10 @@ import type { IAutoMovieRecoveryEventCurveArc } from "../curve/IAutoMovieRecover
 /**
  * Four oriented cubic boundary paths and optional periodic seam identification.
  *
- * @evidence contracts/common.md#principled-implementation The ordered bottom, top, left and right paths retain exact corner authority and original curve phase charts.
- * @evidence contracts/common.md#clear-and-simple-design Each boundary is named by its local chart side rather than hidden in an anonymous object.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Periodic seam identity does not imply material correspondence or an outward normal field.
- * @evidence contracts/common.md#meaningful-documentation Members document physical units, ownership and optional-state meaning.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This interface performs no computation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The declaration owns no runtime cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the declared records and arrays.
+ * @evidence contracts/development/design.md#principled-representation The ordered bottom, top, left and right paths retain exact corner authority and original curve phase charts.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Each boundary is named by its local chart side rather than hidden in an anonymous object.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Periodic seam identity does not imply material correspondence or an outward normal field.
+ * @evidence contracts/development/common.md#meaningful-documentation Members document physical units, ownership and optional-state meaning.
  */
 export interface IAutoMovieRecoveryEventChart {
   /** Boundary at v=0, traversed from u=0 to u=1. */

@@ -16,10 +16,11 @@ import {
  * 2. All-colored and all-bare populations preserve their distinct output attribute rules.
  * 3. Ordered input values, numeric fields and original geometry/mesh identities remain unchanged; returned geometries/materials are retired.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual generated flattening and reads output RGB population, group spans, material flags and the caller's unchanged input projection.
- * @evidence contracts/testing.md#independent-expectations Existing authored RGB values, neutral white channels and literal material/index spans independently judge lowering; floats use numeric predicates rather than deep snapshots.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts mixed/all-colored/all-bare populations and separately retained caller input identities/values, so blanket color insertion or input mutation cannot pass.
- * @evidence contracts/testing.md#execution-ownership The named entry reuses canonical triangle/model inputs and owns returned CPU geometries/materials, retires them and starts no renderer or new asset/driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual generated flattening and reads output RGB population, group spans, material flags and the caller's unchanged input projection.
+ * @evidence contracts/development/testing.md#independent-expectations Existing authored RGB values, neutral white channels and literal material/index spans independently judge lowering; floats use numeric predicates rather than deep snapshots.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts mixed/all-colored/all-bare populations and separately retained caller input identities/values, so blanket color insertion or input mutation cannot pass.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry reuses canonical triangle/model inputs and owns returned CPU geometries/materials, retires them and starts no renderer or new asset/driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Mixed colored/bare parts lower authored RGB and white identity channels into independently specified material spans.).
  */
 export function test_viewer_vertex_colour_instancing(): void {
   const colored: import("@automovie/interface").IAutoMovieMesh =

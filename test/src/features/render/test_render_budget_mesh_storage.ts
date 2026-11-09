@@ -17,10 +17,11 @@ import { skinnedMeshModelFixture as skinnedMesh } from "../internal/skinnedMeshM
  *
  * 1. Raw positions, indexed skin attributes and shared or mixed LOD citations retain their independent costs.
  *
- * @evidence contracts/testing.md#behavioral-verification Measures authored raw/skinned meshes and shared instance prototypes, asserting complete model-cost records and shared-versus-mixed tier labels, catching omitted attributes, repeated prototype storage or last-citation tier takeover.
- * @evidence contracts/testing.md#independent-expectations Six loose vertices carry only 12-byte positions; the indexed skin block carries four 56-byte vertices plus six four-byte indices and the original box cost. Literal part/vertex/triangle/material counts and near/null tier meanings derive from the authored fixture representation, not measured output.
- * @evidence contracts/testing.md#distinguishing-cases Preserves unindexed raw, indexed skinned plus primitive, two shared prototype sets and a model cited both by a staged node and an LOD tier; other tests own ground/texture storage and budget limits.
- * @evidence contracts/testing.md#execution-ownership The named test_render_budget_mesh_storage owns these portable inventory calls through numerical fixtures and starts no model loader, renderer, native geometry upload or GPU context.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures authored raw/skinned meshes and shared instance prototypes, asserting complete model-cost records and shared-versus-mixed tier labels, catching omitted attributes, repeated prototype storage or last-citation tier takeover.
+ * @evidence contracts/development/testing.md#independent-expectations Six loose vertices carry only 12-byte positions; the indexed skin block carries four 56-byte vertices plus six four-byte indices and the original box cost. Literal part/vertex/triangle/material counts and near/null tier meanings derive from the authored fixture representation, not measured output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves unindexed raw, indexed skinned plus primitive, two shared prototype sets and a model cited both by a staged node and an LOD tier; other tests own ground/texture storage and budget limits.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_render_budget_mesh_storage owns these portable inventory calls through numerical fixtures and starts no model loader, renderer, native geometry upload or GPU context.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Raw positions, indexed skin attributes and shared or mixed LOD citations retain their independent costs.).
  */
 export function test_render_budget_mesh_storage(): void {
   const meshed: ReturnType<typeof measure> = measure({

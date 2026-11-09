@@ -22,10 +22,11 @@ import { instanceSetFixture } from "../internal/renderFixtures";
  * 1. All 12 window slots have distinct colours, including a resolved seventh slot.
  * 2. A 65536-slot set cannot fit beside its entity claims and keeps one set-level colour with the original actionable gap.
  *
- * @evidence contracts/testing.md#behavioral-verification Derives real compact-set metadata and resolves slot seven, checking unique slot colours when the set fits and explicit set-level fallback with an actionable gap when it does not.
- * @evidence contracts/testing.md#independent-expectations The authored twelve windows supply the expected slot population and index; 65536 slots plus existing entity claims exceed the same declared entry bound, so no partial slot palette is expected. Derived colours serve lookup keys and are not independent RGB expectations.
- * @evidence contracts/testing.md#distinguishing-cases Small fitting and oversized complete sets preserve per-slot versus set-level behaviour, distinct colours, bounded gap count and split remedy; raw entity capacity and general owner chains are separate units.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_semantic_mask_instance_fallback owns its cases. Portable compact metadata derivation, with no 65536-object scene construction, instanced drawing or GPU readback.
+ * @evidence contracts/development/testing.md#behavioral-verification Derives real compact-set metadata and resolves slot seven, checking unique slot colours when the set fits and explicit set-level fallback with an actionable gap when it does not.
+ * @evidence contracts/development/testing.md#independent-expectations The authored twelve windows supply the expected slot population and index; 65536 slots plus existing entity claims exceed the same declared entry bound, so no partial slot palette is expected. Derived colours serve lookup keys and are not independent RGB expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Small fitting and oversized complete sets preserve per-slot versus set-level behaviour, distinct colours, bounded gap count and split remedy; raw entity capacity and general owner chains are separate units.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_semantic_mask_instance_fallback owns its cases. Portable compact metadata derivation, with no 65536-object scene construction, instanced drawing or GPU readback.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: All 12 window slots have distinct colours, including a resolved seventh slot.).
  */
 export function test_render_semantic_mask_instance_fallback(): void {
   const {

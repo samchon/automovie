@@ -9,13 +9,13 @@ import { object } from "./object";
  *
  * The source inventories and byte ranges are already admitted. The requested SCALAR, VEC3 or VEC4 shape must match an accessor with a buffer view, FLOAT components and no sparse overrides. Every component is copied in element order and checked finite; a mismatch or non-finite value throws with the supplied path.
  *
- * @evidence contracts/common.md#principled-implementation Shape and FLOAT storage are checked before stride-aware component reads; every copied numeric value must be finite.
- * @evidence contracts/common.md#clear-and-simple-design Motion-specific shape admission stays here while shared reader code owns buffer view, stride and little-endian decoding.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Sparse or normalized integer motion data is not coerced into the profile's exact FLOAT interpretation.
- * @evidence contracts/common.md#meaningful-documentation Comments state source admission premises, permitted shapes, finite-value refusal and flat element/component order.
- * @evidence contracts/performance.md#efficient-algorithms Count times shape width drives time and output space; one reader and DataView serve the entire accessor copy.
- * @evidence contracts/performance.md#reuse-equivalent-work The inspector caches this complete decoded accessor by index and expected shape within one immutable input revision.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The output array belongs to its caller; the reader's borrowed payload reference ends when decoding completes.
+ * @evidence contracts/development/implementation.md#principled-implementation Shape and FLOAT storage are checked before stride-aware component reads; every copied numeric value must be finite.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Motion-specific shape admission stays here while shared reader code owns buffer view, stride and little-endian decoding.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sparse or normalized integer motion data is not coerced into the profile's exact FLOAT interpretation.
+ * @evidence contracts/development/common.md#meaningful-documentation Comments state source admission premises, permitted shapes, finite-value refusal and flat element/component order.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Count times shape width drives time and output space; one reader and DataView serve the entire accessor copy.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The inspector caches this complete decoded accessor by index and expected shape within one immutable input revision.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The output array belongs to its caller; the reader's borrowed payload reference ends when decoding completes.
  */
 export const readMotionAccessor: (
   source: IAccessorSource,

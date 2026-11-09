@@ -29,25 +29,19 @@
  *   touch: the contact point is passed twice, and a polar angle would give
  *   both passes the same phase while arclength separates them.
  *
- * @evidence contracts/common.md#principled-implementation Phase correspondence between sections follows the declared rule (polar angle, arclength or anchored halves), so the same phase names corresponding points along the chain.
- * @evidence contracts/common.md#clear-and-simple-design One rule union and one mapping per rule.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Near-zero projected area uses a vertex-mean reference; anchored rules reject fewer than two crossings and floor half-length divisors at 1e-12. These are explicit numerical fallbacks, not complete outline admission.
- * @evidence contracts/common.md#meaningful-documentation States each rule and what it keeps fixed.
- * @evidence contracts/performance.md#efficient-algorithms Each mapping is linear in the outline's points.
- * @evidence contracts/performance.md#reuse-equivalent-work Anchored rules construct one cumulative edge-length table and reuse direct/fractional edge reads for anchors and vertex phases.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Holds one cumulative array per mapped outline for the call.
+ * @evidence contracts/development/common.md#meaningful-documentation States each rule and what it keeps fixed.
+ * @evidence contracts/development/design.md#principled-representation Represents Correspondence rules that assign a phase to each point of a closed section: companion namespace of 5 members (`Rule`, `phases`, `centroid`, `polar`, `anchored`); units and frames named in its text: radians, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieLoftParameter` in packages/engine/src/geometry/construction/AutoMovieLoftParameter.ts; its surface is the 5 members listed and the text shows 9 other files naming it, mostly packages/human (5), packages/engine (3), test (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftParameter {
   /**
    * Correspondence selected for the polygon's geometric premises described above.
    *
-   * @evidence contracts/common.md#principled-implementation The closed union distinguishes polar angles, front-anchored whole arclength and separately anchored front/back half arclength.
-   * @evidence contracts/common.md#clear-and-simple-design One literal choice drives phases without independent mode flags that could disagree.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type selects a rule without proving star shape or anchor suitability; those remain caller geometry premises.
-   * @evidence contracts/common.md#meaningful-documentation The namespace explains each rule's phase origin, orientation and admissible section shape.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The union contains no runtime mapping algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A rule name owns no shared outline computation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A string literal acquires no resource or retained collection.
+   * @evidence contracts/development/design.md#principled-representation The closed union distinguishes polar angles, front-anchored whole arclength and separately anchored front/back half arclength.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One literal choice drives phases without independent mode flags that could disagree.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type selects a rule without proving star shape or anchor suitability; those remain caller geometry premises.
+   * @evidence contracts/development/common.md#meaningful-documentation The namespace explains each rule's phase origin, orientation and admissible section shape.
    */
   export type Rule = "polar" | "sagittal" | "arclength";
 
@@ -68,13 +62,13 @@ export namespace AutoMovieLoftParameter {
    * @param polygon Closed polygon `[x, z]` in mm, front-to-+Z orientation, without a repeated last point.
    * @returns Phase in radians of every polygon vertex.
    *
-   * @evidence contracts/common.md#principled-implementation Uses an area-centroid reference and dispatches to polar unwrapping or oriented edge arclength; simple oriented polygons with the selected rule's anchors/star shape are caller premises.
-   * @evidence contracts/common.md#clear-and-simple-design One entry point keeps the rule and reference-point calculation common to fitted and inherited section correspondences.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Retains centroid's near-zero-area mean fallback, anchored crossing failure and 1e-12 length divisors; it does not independently validate a simple or nondegenerate polygon.
-   * @evidence contracts/common.md#meaningful-documentation Gives input orientation, no repeated endpoint, returned phase convention and the reference point's sampling-density rationale.
-   * @evidence contracts/performance.md#efficient-algorithms On the stated simple section workload, centroid and rule mapping traverse N vertices in O(N) time with O(N) phase/crossing/length storage.
-   * @evidence contracts/performance.md#reuse-equivalent-work Computes one reference point; anchored mapping shares its crossing list and cumulative arclength table across all returned phases.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the N-entry phase array escapes; polygon references and intermediate crossings/lengths are call-local, with no module cache.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses an area-centroid reference and dispatches to polar unwrapping or oriented edge arclength; simple oriented polygons with the selected rule's anchors/star shape are caller premises.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One entry point keeps the rule and reference-point calculation common to fitted and inherited section correspondences.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains centroid's near-zero-area mean fallback, anchored crossing failure and 1e-12 length divisors; it does not independently validate a simple or nondegenerate polygon.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives input orientation, no repeated endpoint, returned phase convention and the reference point's sampling-density rationale.
+   * @evidence contracts/development/implementation.md#efficient-algorithms On the stated simple section workload, centroid and rule mapping traverse N vertices in O(N) time with O(N) phase/crossing/length storage.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Computes one reference point; anchored mapping shares its crossing list and cumulative arclength table across all returned phases.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the N-entry phase array escapes; polygon references and intermediate crossings/lengths are call-local, with no module cache.
    */
   export function phases(
     rule: Rule,
@@ -93,13 +87,13 @@ export namespace AutoMovieLoftParameter {
    * magnitude below 1e-9 squared input units falls back to the vertex mean;
    * an empty polygon returns the zero pair.
    *
-   * @evidence contracts/common.md#principled-implementation The polygon shoelace first moment divided by signed area gives its centroid for a simple nonzero-area outline, assuming representable coordinate products.
-   * @evidence contracts/common.md#clear-and-simple-design One edge loop accumulates area and both first moments, with a separate mean fallback.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An absolute twice-area magnitude below 1e-9 in squared input units uses the vertex mean; this sampling-dependent fallback and empty-input zero result are not geometric centroid certificates.
-   * @evidence contracts/common.md#meaningful-documentation States X/Z coordinates, area method and fallback; the evidence identifies the actual numerical threshold and its units.
-   * @evidence contracts/performance.md#efficient-algorithms O(N) time and constant accumulator storage; the fallback makes one additional linear pass only for the near-zero-area branch.
-   * @evidence contracts/performance.md#reuse-equivalent-work Area and both first moments share each edge's signed cross product.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh pair and retains no polygon or auxiliary table.
+   * @evidence contracts/development/implementation.md#principled-implementation The polygon shoelace first moment divided by signed area gives its centroid for a simple nonzero-area outline, assuming representable coordinate products.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One edge loop accumulates area and both first moments, with a separate mean fallback.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An absolute twice-area magnitude below 1e-9 in squared input units uses the vertex mean; this sampling-dependent fallback and empty-input zero result are not geometric centroid certificates.
+   * @evidence contracts/development/common.md#meaningful-documentation States X/Z coordinates, area method and fallback; the evidence identifies the actual numerical threshold and its units.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(N) time and constant accumulator storage; the fallback makes one additional linear pass only for the near-zero-area branch.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Area and both first moments share each edge's signed cross product.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh pair and retains no polygon or auxiliary table.
    */
   export function centroid(
     polygon: readonly (readonly [number, number])[],

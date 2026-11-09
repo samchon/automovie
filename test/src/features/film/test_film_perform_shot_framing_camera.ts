@@ -200,10 +200,11 @@ const clipValues: (result: IAutoMoviePerformedShot) => number[] = (
  * 5. Refuse nonfinite rotation for hero/coverage whip moves, accept their non-whip twins and require finite values from a valid hero whip.
  * 6. Accept unused degenerate cameras and a frameless locked-off fallback.
  *
- * @evidence contracts/testing.md#behavioral-verification Performs elected and coverage camera moves and checks finite compiled values, field-of-view/placement refusals, whip-only rotation admission and unused-camera counterexamples.
- * @evidence contracts/testing.md#independent-expectations The pinhole solve requires finite placement and 0 < fovY < 180; whip consumes staged rotation while other moves derive it. Finiteness is checked on returned keys without comparing captured pixels.
- * @evidence contracts/testing.md#distinguishing-cases Retains both camera roles, zero/negative/NaN/upper-bound fields, legal extreme lenses, malformed whip rotations and non-whip/unused/locked-off neighbors.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_framing_camera unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs elected and coverage camera moves and checks finite compiled values, field-of-view/placement refusals, whip-only rotation admission and unused-camera counterexamples.
+ * @evidence contracts/development/testing.md#independent-expectations The pinhole solve requires finite placement and 0 < fovY < 180; whip consumes staged rotation while other moves derive it. Finiteness is checked on returned keys without comparing captured pixels.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains both camera roles, zero/negative/NaN/upper-bound fields, legal extreme lenses, malformed whip rotations and non-whip/unused/locked-off neighbors.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_framing_camera unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Require nonempty finite values from the valid hero camera.).
  */
 export function test_film_perform_shot_framing_camera(): void {
   // 1. the positive floor, and the invariant itself.

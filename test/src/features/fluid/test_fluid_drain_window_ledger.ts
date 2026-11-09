@@ -12,10 +12,11 @@ import { nclose } from "../internal/predicates";
  * 1. The unchanged 6 x 6 basin books an open drain before the one-second closing step.
  * 2. At step 400 its booked volume is bit-identical; a drain starting at 1,000 seconds books exactly zero removal.
  *
- * @evidence contracts/testing.md#behavioral-verification Seeks a one-second closing drain at its closing step and step 400, and a not-yet-open drain at step 400; observes positive prior booking, unchanged closed booking and positive zero before opening.
- * @evidence contracts/testing.md#independent-expectations The half-open authored window and fixed dyadic dt determine the closing step; exact post-close ledger identity and zero before a 1000-second start catch out-of-window removal.
- * @evidence contracts/testing.md#distinguishing-cases Preserves open-before-close, later-after-close and later-than-sample start cases; source windows, sill gating and positivity exhaustion have separate ledger entries.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns its three portable absolute CPU seeks with existing fountain records and no timer, process, renderer or real-time host.
+ * @evidence contracts/development/testing.md#behavioral-verification Seeks a one-second closing drain at its closing step and step 400, and a not-yet-open drain at step 400; observes positive prior booking, unchanged closed booking and positive zero before opening.
+ * @evidence contracts/development/testing.md#independent-expectations The half-open authored window and fixed dyadic dt determine the closing step; exact post-close ledger identity and zero before a 1000-second start catch out-of-window removal.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves open-before-close, later-after-close and later-than-sample start cases; source windows, sill gating and positivity exhaustion have separate ledger entries.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns its three portable absolute CPU seeks with existing fountain records and no timer, process, renderer or real-time host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The unchanged 6 x 6 basin books an open drain before the one-second closing step.).
  */
 export function test_fluid_drain_window_ledger(): void {
   const steps: number = 400;

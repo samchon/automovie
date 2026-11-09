@@ -10,13 +10,10 @@ import type { IAutoMovieRenderTextureTarget } from "./IAutoMovieRenderTextureTar
  * Omission describes a fresh context containing only the assessed shot.
  *
  *
- * @evidence contracts/common.md#principled-implementation Describe actual live scopes and renderer-retained lookup, PMREM, display and framebuffer allocations so closure includes storage that survives source disposal; omitted residency means a fresh context only.
- * @evidence contracts/common.md#clear-and-simple-design One host fact record distinguishes live source owners from context-owned scratch and target storage rather than folding all resources into asset counts.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Opaque actual object facts and host-observed dimensions are required; author-entered byte estimates or lifetime allocation counters cannot certify current residency.
- * @evidence contracts/common.md#meaningful-documentation Members document owner uniqueness, disposed-scope removal, environment clones, retained lookups, compositor copies and context-release boundaries.
- * @evidence contracts/performance.md#efficient-algorithms R residents, runtime rows, compositors and targets require proportional fact storage; closure groups allocation-equivalent records instead of multiplying by consumers.
- * @evidence contracts/performance.md#reuse-equivalent-work Allocation sharing depends on observed Source/Texture identity and upload state; retention is reused only while actual host ownership remains live and equivalent.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The host removes disposed scopes, retains context-owned scratch until replacement/release and reports target disposal; the interface owns no native disposer and cannot certify a missing release observation.
+ * @evidence contracts/development/design.md#principled-representation Describe actual live scopes and renderer-retained lookup, PMREM, display and framebuffer allocations so closure includes storage that survives source disposal; omitted residency means a fresh context only.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One host fact record distinguishes live source owners from context-owned scratch and target storage rather than folding all resources into asset counts.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Opaque actual object facts and host-observed dimensions are required; author-entered byte estimates or lifetime allocation counters cannot certify current residency.
+ * @evidence contracts/development/common.md#meaningful-documentation Members document owner uniqueness, disposed-scope removal, environment clones, retained lookups, compositor copies and context-release boundaries.
  */
 export interface IAutoMovieRenderTextureResidency {
   /** Stable owner of the current shot, distinct from other live residents. */

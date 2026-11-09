@@ -17,10 +17,11 @@ import { hasViolation } from "../internal/hasViolation";
  * Scenarios:
  * 1. An otherwise valid two-keyframe clip uses unknown bounce easing on its first keyframe and fails with a type violation at easing.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateMotion after replacing only the first easing name, requiring refusal at easing and catching acceptance of an unsupported evaluator variant.
- * @evidence contracts/testing.md#independent-expectations The supported easing union excludes bounce; its rejection and field address are literal menu expectations rather than evaluated easing samples.
- * @evidence contracts/testing.md#distinguishing-cases Owns an unknown easing on an otherwise supported clip; motion_valid retains linear acceptance and keyframe_bezier owns cubic control domains.
- * @evidence contracts/testing.md#execution-ownership This named portable unit uses the existing clip/rig factories and creates no evaluator host or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateMotion after replacing only the first easing name, requiring refusal at easing and catching acceptance of an unsupported evaluator variant.
+ * @evidence contracts/development/testing.md#independent-expectations The supported easing union excludes bounce; its rejection and field address are literal menu expectations rather than evaluated easing samples.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns an unknown easing on an otherwise supported clip; motion_valid retains linear acceptance and keyframe_bezier owns cubic control domains.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit uses the existing clip/rig factories and creates no evaluator host or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: An otherwise valid two-keyframe clip uses unknown bounce easing on its first keyframe and fails with a type violation at easing.).
  */
 export function test_validation_motion_keyframe_easing(): void {
   const base: IAutoMovieMotion = createValidMotion();

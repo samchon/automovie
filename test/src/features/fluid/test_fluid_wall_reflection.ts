@@ -40,10 +40,11 @@ const sloshingBasin: () => IAutoMovieFluidDomain =
  * 4. The wave really did move — the depth field at step 40 differs from the
  *    authored one — so the symmetry above is not the symmetry of a still pond.
  *
- * @evidence contracts/testing.md#behavioral-verification Simulates the disturbed walled basin and checks zero external X/Z face velocities, conserved volume and zero ledgers, exact mirrored depths at steps 40/160/400 and changed depth at step 40; a motion-direction reversal is not observed here.
- * @evidence contracts/testing.md#independent-expectations Reflecting wall boundaries independently forbid normal edge velocity while the authored perturbation must drive an interior gradient; initial depth times cell area supplies the volume oracle.
- * @evidence contracts/testing.md#distinguishing-cases Preserves the two X edges and all Z faces of the one-row grid, mirrored depth equality at steps 40, 160 and 400 and the changed-depth twin; open outflow, solid interior obstacles and raised dry shore are separate entries.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns its portable absolute CPU solves and field observations with existing fixtures, without running another platform, native host or renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Simulates the disturbed walled basin and checks zero external X/Z face velocities, conserved volume and zero ledgers, exact mirrored depths at steps 40/160/400 and changed depth at step 40; a motion-direction reversal is not observed here.
+ * @evidence contracts/development/testing.md#independent-expectations Reflecting wall boundaries independently forbid normal edge velocity while the authored perturbation must drive an interior gradient; initial depth times cell area supplies the volume oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves the two X edges and all Z faces of the one-row grid, mirrored depth equality at steps 40, 160 and 400 and the changed-depth twin; open outflow, solid interior obstacles and raised dry shore are separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns its portable absolute CPU solves and field observations with existing fixtures, without running another platform, native host or renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Both outermost x faces are pinned to exactly zero at every sampled step:).
  */
 export function test_fluid_wall_reflection(): void {
   const domain: ReturnType<typeof sloshingBasin> = sloshingBasin();

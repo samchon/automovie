@@ -1,7 +1,7 @@
 import {
   type IProductionConfigProps,
   createProductionConfig,
-} from "@automovie/evidence/narrative";
+} from "@automovie/evidence";
 import {
   EvidenceFingerprint,
   type IEvidenceCheckAnalysis,
@@ -23,10 +23,11 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * 2. Moving checklist answers below H3 leaves the actual H2 unanswered.
  * 3. Changing an H3 action changes the owning H2 fingerprint and expires its review.
  *
- * @evidence contracts/testing.md#behavioral-verification Evaluates a real long-form native graph, inspects actual selected units and parent IDs, moves an annotation and changes a scripted action.
- * @evidence contracts/testing.md#independent-expectations H2 scene selection remains one unit despite a subordinate H3. An action change must alter its ancestor fingerprint; existing current reviews must then fail.
- * @evidence contracts/testing.md#distinguishing-cases Unchanged scenes with different H3 labels distinguish grouping from inherited scene identity; moved answers and changed action distinguish annotation ownership from body freshness.
- * @evidence contracts/testing.md#execution-ownership This exported test evaluates native Evidence in process, owns its unique temporary files and removes them in finally. It starts no installation, subprocess, browser or GPU and replaces no foreign method.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates a real long-form native graph, inspects actual selected units and parent IDs, moves an annotation and changes a scripted action.
+ * @evidence contracts/development/testing.md#independent-expectations H2 scene selection remains one unit despite a subordinate H3. An action change must alter its ancestor fingerprint; existing current reviews must then fail.
+ * @evidence contracts/development/testing.md#distinguishing-cases Unchanged scenes with different H3 labels distinguish grouping from inherited scene identity; moved answers and changed action distinguish annotation ownership from body freshness.
+ * @evidence contracts/development/testing.md#execution-ownership This exported test evaluates native Evidence in process, owns its unique temporary files and removes them in finally. It starts no installation, subprocess, browser or GPU and replaces no foreign method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Different H3 labels across scripts and screenplay keep one H2 scene respondent.).
  */
 
 export async function test_template_production_action_groups(): Promise<void> {

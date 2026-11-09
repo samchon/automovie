@@ -85,10 +85,10 @@ const bathFloor: (
  * that domain's declared drains, at the lattice cells they stand over. A floor
  * gully's sill is the bed of its own cell, which is what a floor gully is.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs wet-zone admission and actual drainage lowering; identity/reference/coverage/grade/slope/drain findings and emitted ordered fluid sources/drains expose incorrect waterproofing joins or hydraulic projection.
- * @evidence contracts/testing.md#independent-expectations Authored room boundaries and grade order define diagnostic paths/counts; floor(x), floor(z) give valve (3,1), basin (1,1), gully (2,3), authored rates .0002/.0006 and bed .125 provide numerical expectations through nclose. Success allows warnings, grade comparison checks ids only, and lattice preservation checks only the original weak grid-identity-or-four-columns condition.
- * @evidence contracts/testing.md#distinguishing-cases Preserves all eleven groups, unresolved-space early exit, missing/duplicate/foreign membrane and foreign threshold, equal versus immersed/wet grades, dry versus tanked slope/drain obligations, stranded system references, lattice edges/nonfinite coordinates and source/drain id collisions; no fluid trajectory, continuous drainage or unasserted full-object identity is claimed.
- * @evidence contracts/testing.md#execution-ownership The named discoverable portable unit runs zone cases directly and calls assertWetZoneDrainageLowering with the original clean/immersed networks and floor constructor for the later groups; the helper registers no extra test and starts no native fluid solver, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs wet-zone admission and actual drainage lowering; identity/reference/coverage/grade/slope/drain findings and emitted ordered fluid sources/drains expose incorrect waterproofing joins or hydraulic projection.
+ * @evidence contracts/development/testing.md#independent-expectations Authored room boundaries and grade order define diagnostic paths/counts; floor(x), floor(z) give valve (3,1), basin (1,1), gully (2,3), authored rates .0002/.0006 and bed .125 provide numerical expectations through nclose. Success allows warnings, grade comparison checks ids only, and lattice preservation checks only the original weak grid-identity-or-four-columns condition.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves all eleven groups, unresolved-space early exit, missing/duplicate/foreign membrane and foreign threshold, equal versus immersed/wet grades, dry versus tanked slope/drain obligations, stranded system references, lattice edges/nonfinite coordinates and source/drain id collisions; no fluid trajectory, continuous drainage or unasserted full-object identity is claimed.
+ * @evidence contracts/development/testing.md#execution-ownership The named discoverable portable unit runs zone cases directly and calls assertWetZoneDrainageLowering with the original clean/immersed networks and floor constructor for the later groups; the helper registers no extra test and starts no native fluid solver, browser or GPU.
  *
  * Scenarios:
  *
@@ -120,6 +120,8 @@ const bathFloor: (
  * 11. It refuses rather than repairs: an unknown zone, an unknown drain node, a
  *     node off the lattice on either side, a non-finite position, and a derived
  *     id that would shadow an authored source or drain.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 11 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The fixture's wet room and damp plant room validate successfully together.).
  */
 export function test_service_wet_zone_drainage(): void {
   const clean: IAutoMovieServiceNetwork = serviceNetwork();

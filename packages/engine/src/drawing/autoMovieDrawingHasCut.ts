@@ -12,13 +12,13 @@ import { AutoMovieDrawingProjection } from "@automovie/interface";
  * @param projection The view's projection.
  * @returns `true` for every projection other than `elevation`.
  *
- * @evidence contracts/common.md#principled-implementation Decides from the closed `AutoMovieDrawingProjection` union by its one non-cutting member, which is the drafting meaning of an elevation as an uncut projection.
- * @evidence contracts/common.md#clear-and-simple-design One predicate owns the cut rule that line drafting, clipping and region sectioning all read, so the three cannot disagree about whether a view cuts.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No view or consumer is special-cased; the only distinction is the contract's own projection value.
- * @evidence contracts/common.md#meaningful-documentation The comment states what cutting means for a drawing, which projections cut, and how a future projection would be classified.
- * @evidenceExclude contracts/performance.md#efficient-algorithms One string comparison, so there is no algorithm to choose.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A constant-time pure predicate evaluated once per derivation; there is no work to share.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Compares one string and returns a boolean, so no object, handle or task exists to release.
+ * @evidence contracts/development/implementation.md#principled-implementation Decides from the closed `AutoMovieDrawingProjection` union by its one non-cutting member, which is the drafting meaning of an elevation as an uncut projection.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One predicate owns the cut rule that line drafting, clipping and region sectioning all read, so the three cannot disagree about whether a view cuts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No view or consumer is special-cased; the only distinction is the contract's own projection value.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states what cutting means for a drawing, which projections cut, and how a future projection would be classified.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One string comparison, so there is no algorithm to choose.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A constant-time pure predicate evaluated once per derivation; there is no work to share.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Compares one string and returns a boolean, so no object, handle or task exists to release.
  */
 export const autoMovieDrawingHasCut = (
   projection: AutoMovieDrawingProjection,

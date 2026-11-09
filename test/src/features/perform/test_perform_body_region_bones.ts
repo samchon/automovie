@@ -28,10 +28,11 @@ const disjoint: (
  * 3. `fullBody` is exactly their concatenation, element for element. Nothing here
  *    asserts independent vocabulary completeness; the unique population is additionally fixed at 55.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls bodyRegionBones for all five regions and inspects literal lengths, selected membership, pairwise disjointness, concatenation order and the unique fullBody size. This observes the product's mask vocabulary, not only test fixture arrangement.
- * @evidence contracts/testing.md#independent-expectations Literal counts 9/41/5/0/55 and named hips/foot/spine/hand/finger/neck/jaw expectations independently constrain the returned lists. Concatenation agreement alone can share an omitted vocabulary member, so no complete union enumeration or current compiler exhaustiveness check is claimed.
- * @evidence contracts/testing.md#distinguishing-cases Retains lower/upper/head/face/full regions, all three pairwise intersections, concatenation order and unique count. Unknown runtime region admission, list mutation ownership and future bone-union completeness are outside this unchanged unit.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all direct region reads and local set observations. The private intersection helper registers no extra cases and starts no viewer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls bodyRegionBones for all five regions and inspects literal lengths, selected membership, pairwise disjointness, concatenation order and the unique fullBody size. This observes the product's mask vocabulary, not only test fixture arrangement.
+ * @evidence contracts/development/testing.md#independent-expectations Literal counts 9/41/5/0/55 and named hips/foot/spine/hand/finger/neck/jaw expectations independently constrain the returned lists. Concatenation agreement alone can share an omitted vocabulary member, so no complete union enumeration or current compiler exhaustiveness check is claimed.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains lower/upper/head/face/full regions, all three pairwise intersections, concatenation order and unique count. Unknown runtime region admission, list mutation ownership and future bone-union completeness are outside this unchanged unit.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns all direct region reads and local set observations. The private intersection helper registers no extra cases and starts no viewer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Each region owns the expected bones (lower = hips+legs, upper = torso+arms+).
  */
 export function test_perform_body_region_bones(): void {
   const lower: readonly AutoMovieHumanoidBone[] = bodyRegionBones("lowerBody");

@@ -1,7 +1,7 @@
-import type { IRecoveryOpenContinuationRow } from "../internal/IRecoveryOpenContinuationRow";
-import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
-import type { IAutoMovieRecoveryInput } from "@automovie/interface/recovery";
+import type { IAutoMovieCurve64 as C } from "@automovie/engine";
+import type { IAutoMovieRecoveryInput } from "@automovie/interface";
 
+import type { IRecoveryOpenContinuationRow } from "../internal/IRecoveryOpenContinuationRow";
 import { RecoveryOpenSlabGraph as O } from "../internal/RecoveryOpenSlabGraph";
 import { RecoveryScalarIndex as S } from "../internal/RecoveryScalarIndex";
 import type { IAutoMovieRecoveryIndexedMesh } from "../internal/mesh-observations/IAutoMovieRecoveryIndexedMesh";
@@ -14,26 +14,23 @@ import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMov
 /**
  * Source observation of open-curve continuation without repeating numerical fitting.
  *
- * @evidence contracts/common.md#principled-implementation Registered source incidence and immutable scalar cuts recover endpoint transport for already published cubic observations. The separate graph contains only local curve ordinals and orientation witnesses.
- * @evidence contracts/common.md#clear-and-simple-design The existing cutter and open-slab observer own geometry; this adapter binds their observations to saved coefficient authority.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source addresses, source mesh or normal arrays leave observation, and no individual station or control is authored here.
- * @evidence contracts/common.md#meaningful-documentation States observation-only source use, saved-fit reuse and the distinction between orientation qualification and topology.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Namespace initialization computes nothing.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work No module cache exists.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No persistent resources exist.
+ * @evidence contracts/development/common.md#meaningful-documentation States observation-only source use, saved-fit reuse and the distinction between orientation qualification and topology.
+ * @evidence contracts/development/design.md#principled-representation Represents Source observation of open-curve continuation without repeating numerical fitting: companion namespace of 1 member (`observe`); units and frames named in its text: bytes, local, frame. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieRecoveryOpenContinuation` in packages/recovery/src/reconstruction/AutoMovieRecoveryOpenContinuation.ts; its surface is the 1 member listed and the text shows 2 other files naming it, mostly packages/recovery (2), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieRecoveryOpenContinuation {
   /**
    * Reobserve automatically saved stations, preserving their complete cubic coefficients.
    * The command caller must bind both the fixed source bytes and the original bundle hash.
    *
-   * @evidence contracts/common.md#principled-implementation Exact-coordinate registration, the existing scalar index and exact-zero cutter reconstruct private face supports. Strict PL critical events and closed or unrepresented contours remain local defects; the open-slab observer proves endpoint transport before publication.
-   * @evidence contracts/common.md#clear-and-simple-design One streaming adjacent-row cache binds source observations to saved open curve names and exact endpoints, then discards every source address.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No fit, control alteration, source-specific station table, positional weld, inferred closure or source mesh fallback occurs. Orientation uncertainty becomes a diagnostic, not a geometry gate.
-   * @evidence contracts/common.md#meaningful-documentation States fixed-input admission ownership, observation reuse, private address lifetime and local unsupported results.
-   * @evidence contracts/performance.md#efficient-algorithms Preparation is O(V+T log T). Per station work visits indexed cut candidates and per interval indexed slab candidates plus local supports; saved coefficients are neither refitted nor duplicated. Critical lookup uses a monotone cursor over sorted events.
-   * @evidence contracts/performance.md#reuse-equivalent-work Immutable source admission, scalar intervals, cutter and open-slab closures are prepared once. Only adjacent cut rows remain live, while all output pairs refer to the original saved cubics.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Observation maps and adjacent-row source supports expire on return; only curve ordinals, signs and diagnostics escape.
+   * @evidence contracts/development/implementation.md#principled-implementation Exact-coordinate registration, the existing scalar index and exact-zero cutter reconstruct private face supports. Strict PL critical events and closed or unrepresented contours remain local defects; the open-slab observer proves endpoint transport before publication.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One streaming adjacent-row cache binds source observations to saved open curve names and exact endpoints, then discards every source address.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fit, control alteration, source-specific station table, positional weld, inferred closure or source mesh fallback occurs. Orientation uncertainty becomes a diagnostic, not a geometry gate.
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed-input admission ownership, observation reuse, private address lifetime and local unsupported results.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation is O(V+T log T). Per station work visits indexed cut candidates and per interval indexed slab candidates plus local supports; saved coefficients are neither refitted nor duplicated. Critical lookup uses a monotone cursor over sorted events.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Immutable source admission, scalar intervals, cutter and open-slab closures are prepared once. Only adjacent cut rows remain live, while all output pairs refer to the original saved cubics.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Observation maps and adjacent-row source supports expire on return; only curve ordinals, signs and diagnostics escape.
    */
   export function observe(
     input: IAutoMovieRecoveryInput,

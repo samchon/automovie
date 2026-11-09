@@ -14,10 +14,11 @@ import { nclose, throwsError } from "../internal/predicates";
  * 2. A non-finite gain throws.
  * 3. A negative gain throws.
  *
- * @evidence contracts/testing.md#behavioral-verification Converts an impulse to recoil flexion and rejects invalid gains with diagnostic fragments, catching a missing magnitude/gain factor or non-finite/negative gain admission.
- * @evidence contracts/testing.md#independent-expectations The 3-4-5 Euclidean norm at gain 2 independently gives 10 degrees; finite nonnegative gain and diagnostic concepts define refusal. This fixture does not establish impulse-vector admission, zero gain or full directional pose response.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts a finite positive conversion, NaN gain and negative gain; impact impulse production and joint-bound recoil projection belong to neighboring units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit calls the bridge directly with authored vectors and owns its assertions, without hosts or dynamic test registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Converts an impulse to recoil flexion and rejects invalid gains with diagnostic fragments, catching a missing magnitude/gain factor or non-finite/negative gain admission.
+ * @evidence contracts/development/testing.md#independent-expectations The 3-4-5 Euclidean norm at gain 2 independently gives 10 degrees; finite nonnegative gain and diagnostic concepts define refusal. This fixture does not establish impulse-vector admission, zero gain or full directional pose response.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a finite positive conversion, NaN gain and negative gain; impact impulse production and joint-bound recoil projection belong to neighboring units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit calls the bridge directly with authored vectors and owns its assertions, without hosts or dynamic test registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A (3,4,0) impulse (magnitude 5) at gain 2 yields flexion 10.).
  */
 export function test_physics_impulse_to_recoil_push(): void {
   TestValidator.predicate(

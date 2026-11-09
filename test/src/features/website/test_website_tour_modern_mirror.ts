@@ -12,10 +12,11 @@ import { modernItem } from "../internal/websiteTourFixture";
  * 1. A plane facing world +X remains at its original vertices after local rebasing.
  * 2. An inspection face or section uses its opaque native finish instead of reflection.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the website native mesh alias, verifies the reflector arm and independently reconstructs each world vertex after rebasing; incorrect local-plane rotation/translation or reflective inspection surfaces fail.
- * @evidence contracts/testing.md#independent-expectations The independently authored +X triangle and item translation determine expected world vertices by addition, not by reading rebased output; nclose compares the resulting distance to zero at the existing 1e-6 tolerance, and reflector identity distinguishes display policy.
- * @evidence contracts/testing.md#distinguishing-cases Covers an ordinary mirror and its inspection-face/inspection-section negative twins, preserving all three triangle vertices; other plane normals, closed thickness, native reflections and cleanup failures are not exercised.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_website_tour_modern_mirror entry owns CPU geometry/matrix and reflector-construction observations through the website seam; no renderer/GPU or browser runs, and disposal is a resource request rather than observed native target release.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the website native mesh alias, verifies the reflector arm and independently reconstructs each world vertex after rebasing; incorrect local-plane rotation/translation or reflective inspection surfaces fail.
+ * @evidence contracts/development/testing.md#independent-expectations The independently authored +X triangle and item translation determine expected world vertices by addition, not by reading rebased output; nclose compares the resulting distance to zero at the existing 1e-6 tolerance, and reflector identity distinguishes display policy.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers an ordinary mirror and its inspection-face/inspection-section negative twins, preserving all three triangle vertices; other plane normals, closed thickness, native reflections and cleanup failures are not exercised.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_website_tour_modern_mirror entry owns CPU geometry/matrix and reflector-construction observations through the website seam; no renderer/GPU or browser runs, and disposal is a resource request rather than observed native target release.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A plane facing world +X remains at its original vertices after local rebasing.).
  */
 export function test_website_tour_modern_mirror(): void {
   const item: ReturnType<typeof modernItem> = modernItem();

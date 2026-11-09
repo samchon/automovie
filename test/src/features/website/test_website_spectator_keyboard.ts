@@ -11,10 +11,11 @@ import { websiteSpectatorFixture as spectatorFixture } from "../internal/website
  * 2. Either Shift gives 2 m/s and releasing it immediately restores 8 m/s.
  * 3. Reset is single-shot; unrelated, modified, handled and form keys preserve browser behavior.
  *
- * @evidence contracts/testing.md#behavioral-verification Dispatches key events through mounted spectator controls and observes default prevention, camera displacement, held-key cancellation, reset counts and cleared travel after focus/reset changes; wrong key axes, repeated reset or sticky input fails.
- * @evidence contracts/testing.md#independent-expectations Authored key/axis pairs and 8/2-meter-per-second public speeds over 100 milliseconds determine expected vectors independently; counts and event default state observe callbacks and JSDOM dispatch, not native pointer-lock success.
- * @evidence contracts/testing.md#distinguishing-cases Covers both key families, both Shift keys and release, opposite holds, repeat/modified/prevented/unmapped keys, form focus and touch reset; pointer routing and asynchronous capture completion have separate units.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_website_spectator_keyboard entry owns its cases, but spectatorFixture currently replaces foreign pointer-lock/capture methods and document lock state. This unresolved harness violation prevents treating these observations as compliant native-input verification.
+ * @evidence contracts/development/testing.md#behavioral-verification Dispatches key events through mounted spectator controls and observes default prevention, camera displacement, held-key cancellation, reset counts and cleared travel after focus/reset changes; wrong key axes, repeated reset or sticky input fails.
+ * @evidence contracts/development/testing.md#independent-expectations Authored key/axis pairs and 8/2-meter-per-second public speeds over 100 milliseconds determine expected vectors independently; counts and event default state observe callbacks and JSDOM dispatch, not native pointer-lock success.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers both key families, both Shift keys and release, opposite holds, repeat/modified/prevented/unmapped keys, form focus and touch reset; pointer routing and asynchronous capture completion have separate units.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_website_spectator_keyboard entry owns its cases, but spectatorFixture currently replaces foreign pointer-lock/capture methods and document lock state. This unresolved harness violation prevents treating these observations as compliant native-input verification.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Both key families travel on the expected axes; opposite keys cancel.).
  */
 export function test_website_spectator_keyboard(): void {
   const f: ReturnType<typeof spectatorFixture> = spectatorFixture();

@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoverySceneSeedReportObserver } from "../../../../packages/recovery/src/internal/createRecoverySceneSeedReportObserver";
@@ -15,10 +15,11 @@ import type { IAutoMovieRecoverySceneWork } from "../../../../packages/recovery/
  * 3. A second closure before phase receives a nonnull previous report and still prepays; its after phase replaces one reference without mutating either report.
  * 4. Insufficient setup or first-pair work creates no target field or fictitious completed report.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual report observer and aggregate ledger with before/after notifications, inspecting report identity, distinct phase work and preserved refusal prefixes. It starts no numerical fit.
- * @evidence contracts/testing.md#independent-expectations Authored fixed reports supply distinct populations and nonconverged/converged outcomes. Declared32+64=96 and32+2*64=160 boundaries independently distinguish prepayment from a post-fit charge; frozen inputs detect mutation.
- * @evidence contracts/testing.md#distinguishing-cases Covers absent reports, exact-cap post transfer, later nonnull before phase, previous-report preservation, replacement, insufficient constructor/pair capacity and the original distinguished budget error. Scene transaction tests and the fixed seed experiment own producer integration rather than this state-transfer unit.
- * @evidence contracts/testing.md#execution-ownership The portable test_recovery_scene_seed_report entry uses plain records and the real metadata observer, with no foreign replacement, fit, file, process, compiler, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual report observer and aggregate ledger with before/after notifications, inspecting report identity, distinct phase work and preserved refusal prefixes. It starts no numerical fit.
+ * @evidence contracts/development/testing.md#independent-expectations Authored fixed reports supply distinct populations and nonconverged/converged outcomes. Declared32+64=96 and32+2*64=160 boundaries independently distinguish prepayment from a post-fit charge; frozen inputs detect mutation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers absent reports, exact-cap post transfer, later nonnull before phase, previous-report preservation, replacement, insufficient constructor/pair capacity and the original distinguished budget error. Scene transaction tests and the fixed seed experiment own producer integration rather than this state-transfer unit.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_scene_seed_report entry uses plain records and the real metadata observer, with no foreign replacement, fit, file, process, compiler, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Setup needs32 visits and a before/after pair needs64, paid before any completed report is transferred.).
  */
 export function test_recovery_scene_seed_report(): void {
   const budget: IAutoMovieRecoveryCameraSceneBudget = {

@@ -5,13 +5,10 @@ import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.
 /**
  * Metadata and encoded image returned by one inspection capture, explicitly marked outside delivery-frame evidence. Identity, pose and revision are supplied labels, not independently verified source correspondence.
  *
- * @evidence contracts/common.md#principled-implementation Carries subject, nullable plan id, pose and snapshot together; literal false prevents assignment to a delivery-evidence true contract without a type escape.
- * @evidence contracts/common.md#clear-and-simple-design Uses the existing snapshot representation rather than introducing another image or delivery artifact format.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A returned image does not certify current source, visible subject, hardware rendering or anatomical validity; those require actual observation.
- * @evidence contracts/common.md#meaningful-documentation Documents planned versus ad-hoc identity and the structural delivery-evidence boundary.
- * @evidence contracts/performance.md#efficient-algorithms This shape chooses no rendering strategy; synchronous draw/encoding and image-sized storage belong to the capture operation.
- * @evidence contracts/performance.md#reuse-equivalent-work Subject and pose references are borrowed and can be mutated later; the returned record is not an immutable provenance snapshot.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The consumer retains the encoded data URL and borrowed metadata references; the shape owns no browser or GPU lifetime.
+ * @evidence contracts/development/design.md#principled-representation Carries subject, nullable plan id, pose and snapshot together; literal false prevents assignment to a delivery-evidence true contract without a type escape.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Uses the existing snapshot representation rather than introducing another image or delivery artifact format.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A returned image does not certify current source, visible subject, hardware rendering or anatomical validity; those require actual observation.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents planned versus ad-hoc identity and the structural delivery-evidence boundary.
  */
 export interface IAutoMovieViewerSubjectView {
   /**

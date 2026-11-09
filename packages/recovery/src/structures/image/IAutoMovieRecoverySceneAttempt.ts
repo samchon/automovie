@@ -4,13 +4,10 @@ import type { IAutoMovieRecoveryMapResection } from "./IAutoMovieRecoveryMapRese
 /**
  * One candidate transaction against an immutable accepted component revision.
  *
- * @evidence contracts/common.md#principled-implementation Distinct support, independent resection and proposed point/observation/joint populations remain visible even when a transaction rolls back.
- * @evidence contracts/common.md#clear-and-simple-design This record separates attempted work and stage refusal from the last accepted scene evidence.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A failed candidate never becomes a published accepted pose, and rollback never erases consumed work or failed qualifications.
- * @evidence contracts/common.md#meaningful-documentation Members state revision, source identity, proposed population and null-before-attempt metrics.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased ledger performs no fitting.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The coordinator retries only after accepted revision changes.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns plain bounded evidence without handles.
+ * @evidence contracts/development/design.md#principled-representation Distinct support, independent resection and proposed point/observation/joint populations remain visible even when a transaction rolls back.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface This record separates attempted work and stage refusal from the last accepted scene evidence.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A failed candidate never becomes a published accepted pose, and rollback never erases consumed work or failed qualifications.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state revision, source identity, proposed population and null-before-attempt metrics.
  */
 export interface IAutoMovieRecoverySceneAttempt {
   /** Source-order image being registered. */

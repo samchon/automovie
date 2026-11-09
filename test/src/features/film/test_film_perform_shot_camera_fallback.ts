@@ -30,10 +30,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * 2. Refuse an empty chosen id while ignoring an unused empty second id.
  * 3. Refuse a scene with no cameras.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls performShot and observes camera id/null motion and located fallback errors, catching an unchecked blank artifact address or overbroad validation of an unused camera.
- * @evidence contracts/testing.md#independent-expectations The fallback contract chooses the first scene camera and requires a nonblank chosen artifact id; an explicit staged success value supplies malformed ids that stageScene itself would refuse. The expected camera name is authored data.
- * @evidence contracts/testing.md#distinguishing-cases Pairs usable first camera, blank first camera, blank unused second camera and empty camera population; frame-action election, animated follow and coverage have separate cases.
- * @evidence contracts/testing.md#execution-ownership The synchronous discoverable entry owns portable staged-data fallback cases without opening a viewer or host; the explicit success-shaped staged input exercises the public in-process gate rather than transport schema validation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls performShot and observes camera id/null motion and located fallback errors, catching an unchecked blank artifact address or overbroad validation of an unused camera.
+ * @evidence contracts/development/testing.md#independent-expectations The fallback contract chooses the first scene camera and requires a nonblank chosen artifact id; an explicit staged success value supplies malformed ids that stageScene itself would refuse. The expected camera name is authored data.
+ * @evidence contracts/development/testing.md#distinguishing-cases Pairs usable first camera, blank first camera, blank unused second camera and empty camera population; frame-action election, animated follow and coverage have separate cases.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable entry owns portable staged-data fallback cases without opening a viewer or host; the explicit success-shaped staged input exercises the public in-process gate rather than transport schema validation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Accept a frameless shot using cam-main with no camera motion.).
  */
 export function test_film_perform_shot_camera_fallback(): void {
   const performance: IAutoMoviePerformance = makePerformanceWrite({

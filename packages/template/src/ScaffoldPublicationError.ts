@@ -5,13 +5,10 @@ import { type IScaffoldPublicationReceipt } from "./IScaffoldPublicationReceipt"
  *
  * The message lists the completed relative paths and the stopping entry with its status, refusal reason or partial byte count, and parent identity. The stopping outcome's own error becomes `cause`.
  *
- * @evidence contracts/common.md#principled-implementation The error is built from the frozen receipt after publication stopped, so the throwing form loses none of the observed effect; `cause` uses the standard `ErrorOptions` chaining for the native error.
- * @evidence contracts/common.md#clear-and-simple-design One error class serves both throwing callers, `writeFiles` and the CLI, and holds the receipt instead of copying its fields onto the error.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The constructor accepts a completed receipt and then reports a failure without a stopping entry instead of refusing; it is constructed only after a `status` check in both callers.
- * @evidence contracts/common.md#meaningful-documentation The comment states what the message contains, where the native cause goes, and that `receipt` is kept for recovery.
- * @evidence contracts/performance.md#efficient-algorithms Building the message visits the completed list once and serializes its paths and parent identities plus the stopping details; work and allocated text depend on their total string lengths, with runtime-dependent Error stack capture.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each failed publication raises its own error; there is no repeated work for the constructor to share.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The error keeps the receipt, and with it every planned file's bytes, alive for as long as the error object is held; it holds no descriptor.
+ * @evidence contracts/development/design.md#principled-representation The error is built from the frozen receipt after publication stopped, so the throwing form loses none of the observed effect; `cause` uses the standard `ErrorOptions` chaining for the native error.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One error class serves both throwing callers, `writeFiles` and the CLI, and holds the receipt instead of copying its fields onto the error.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The constructor accepts a completed receipt and then reports a failure without a stopping entry instead of refusing; it is constructed only after a `status` check in both callers.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states what the message contains, where the native cause goes, and that `receipt` is kept for recovery.
  */
 export class ScaffoldPublicationError extends Error {
   /** Receipt of the publication that did not complete. */

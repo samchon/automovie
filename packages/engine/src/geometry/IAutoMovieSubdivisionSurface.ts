@@ -19,13 +19,10 @@ import { IAutoMovieSubdivisionParameter } from "./IAutoMovieSubdivisionParameter
  * and `normals` instead of recomputing normals from triangles, which would
  * split shading at UV seams.
  *
- * @evidence contracts/common.md#principled-implementation Packed glTF-style buffers with face-varying index arrays, the representation OpenSubdiv uses for refined surfaces, so attributes that are discontinuous only at seams or creases stay shared elsewhere.
- * @evidence contracts/common.md#clear-and-simple-design Refined control positions, limit positions, quads, face-varying normals and UVs and per-vertex parameters, each a distinct product a caller asks for; no mesh conversion is imposed because seam splitting depends on which attributes the caller keeps.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Sharp features get one normal per sector instead of one averaged normal that would be wrong on every side.
- * @evidence contracts/common.md#meaningful-documentation States the vertex, edge and face ordering, the face-varying layout of normals and UVs, when a vertex has several normals, and how to turn the result into a render mesh.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the refinement cost is answered on `subdivideAutoMovieSurface`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh result per call; nothing is cached on it.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Owns its arrays, which grow by four times the face count per level: about `F * 4^L` quads for `F` cage faces at level `L`.
+ * @evidence contracts/development/design.md#principled-representation Packed glTF-style buffers with face-varying index arrays, the representation OpenSubdiv uses for refined surfaces, so attributes that are discontinuous only at seams or creases stay shared elsewhere.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Refined control positions, limit positions, quads, face-varying normals and UVs and per-vertex parameters, each a distinct product a caller asks for; no mesh conversion is imposed because seam splitting depends on which attributes the caller keeps.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Sharp features get one normal per sector instead of one averaged normal that would be wrong on every side.
+ * @evidence contracts/development/common.md#meaningful-documentation States the vertex, edge and face ordering, the face-varying layout of normals and UVs, when a vertex has several normals, and how to turn the result into a render mesh.
  */
 export interface IAutoMovieSubdivisionSurface {
   /** Packed refined control positions `[x, y, z, ...]` in metres. */

@@ -12,10 +12,11 @@ import { createModel } from "../internal/fixtures";
  * 2. A fully-specified valid body with an explicit center of mass succeeds.
  * 3. A valid body may leave centerOfMass null and use coefficient endpoints zero and one.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual model validation for null body, finite explicit center and null center with endpoint coefficients, requiring success so body metadata remains opt-in and valid boundaries are not refused.
- * @evidence contracts/testing.md#independent-expectations Positive masses, finite supplied center coordinates and inclusive [0,1] coefficients meet the declared scalar contract; null center means unspecified metadata rather than proof that derivation occurred.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts null/present body, explicit/omitted center and interior/endpoint coefficients; invalid masses, coefficients and center coordinates have a separate entry.
- * @evidence contracts/testing.md#execution-ownership The named portable entry owns three existing-fixture model records and reads actual engine admission, with no physics host, renderer or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual model validation for null body, finite explicit center and null center with endpoint coefficients, requiring success so body metadata remains opt-in and valid boundaries are not refused.
+ * @evidence contracts/development/testing.md#independent-expectations Positive masses, finite supplied center coordinates and inclusive [0,1] coefficients meet the declared scalar contract; null center means unspecified metadata rather than proof that derivation occurred.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts null/present body, explicit/omitted center and interior/endpoint coefficients; invalid masses, coefficients and center coordinates have a separate entry.
+ * @evidence contracts/development/testing.md#execution-ownership The named portable entry owns three existing-fixture model records and reads actual engine admission, with no physics host, renderer or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The default model (body: null) succeeds.).
  */
 export function test_validation_model_body_valid(): void {
   TestValidator.equals(

@@ -21,13 +21,13 @@ import { createContractRoot } from "../utilities/createContractRoot";
  * would claim a result it never had; a duty that states what every work owes
  * has no such negative, and a host that cannot assert it is defective.
  *
- * @evidence contracts/common.md#principled-implementation Shared family documents are anchored H2 targets under the effective local contract root; checklist selects per-host duty and exclusion determines whether a truthful negative is permitted.
- * @evidence contracts/common.md#clear-and-simple-design One builder expresses the shared address and two orthogonal relation flags used throughout the claim factories.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No shared file is conditionally replaced or given a fixture allowance; family-qualified addresses keep equally named language/work documents distinct.
- * @evidence contracts/common.md#meaningful-documentation The prose explains address ownership, per-host versus population coverage and the semantic basis for allowing exclusions.
- * @evidence contracts/performance.md#efficient-algorithms A fixed-size object and one selector are constructed with path work proportional to location/file text; no filesystem contents or populations are traversed.
- * @evidence contracts/performance.md#reuse-equivalent-work createContractRoot is reused for all shared references, while each caller receives an independent relation object so differing checklist/exclusion flags cannot contaminate another claim.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The one-selector returned object belongs to the caller; only transient path strings are local and no handle, task or growing module state is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Shared family documents are anchored H2 targets under the effective local contract root; checklist selects per-host duty and exclusion determines whether a truthful negative is permitted.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One builder expresses the shared address and two orthogonal relation flags used throughout the claim factories.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No shared file is conditionally replaced or given a fixture allowance; family-qualified addresses keep equally named language/work documents distinct.
+ * @evidence contracts/development/common.md#meaningful-documentation The prose explains address ownership, per-host versus population coverage and the semantic basis for allowing exclusions.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A fixed-size object and one selector are constructed with path work proportional to location/file text; no filesystem contents or populations are traversed.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work createContractRoot is reused for all shared references, while each caller receives an independent relation object so differing checklist/exclusion flags cannot contaminate another claim.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The one-selector returned object belongs to the caller; only transient path strings are local and no handle, task or growing module state is retained.
  */
 export function createSharedReference(props: {
   location: string;

@@ -15,10 +15,11 @@ import { nclose } from "../internal/nclose";
  * 3. Initial KKT and refused trials make no notification. A true request without an owner refuses before evaluation.
  * 4. Wrapper charge and callback marker errors propagate before a second model or committed notification can occur.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real generic direction, Arc and selector through a one-coordinate physical quadratic; observes callback argument count, original row metadata, null versus empty and fixed precommit charging.
- * @evidence contracts/testing.md#independent-expectations F=(x-.1)^2/2 and g=x-1 give an interior affine minimizer .1 with zero constraint dual. A horizon of one skips Arc by contract, while a requested selected update adds exactly32 generic visits to the otherwise identical absent-request run.
- * @evidence contracts/testing.md#distinguishing-cases Separates selected T from auxiliary qualification, qualified empty from unavailable null, absent from requested reactions, initial KKT/refusal from updates, and original charge/callback errors. Camera-owned copying, chart derivatives and curvature factors have separate tests.
- * @evidence contracts/testing.md#execution-ownership Portable test_recovery_feasible_estimate uses source routines and resident authored arrays without filesystem, process, compiler, installation, image, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the real generic direction, Arc and selector through a one-coordinate physical quadratic; observes callback argument count, original row metadata, null versus empty and fixed precommit charging.
+ * @evidence contracts/development/testing.md#independent-expectations F=(x-.1)^2/2 and g=x-1 give an interior affine minimizer .1 with zero constraint dual. A horizon of one skips Arc by contract, while a requested selected update adds exactly32 generic visits to the otherwise identical absent-request run.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates selected T from auxiliary qualification, qualified empty from unavailable null, absent from requested reactions, initial KKT/refusal from updates, and original charge/callback errors. Camera-owned copying, chart derivatives and curvature factors have separate tests.
+ * @evidence contracts/development/testing.md#execution-ownership Portable test_recovery_feasible_estimate uses source routines and resident authored arrays without filesystem, process, compiler, installation, image, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An inactive original inequality gives a qualified empty untilted estimate, even when the earlier T candidate wins a tie.).
  */
 export function test_recovery_feasible_estimate(): void {
   let argumentsCount: number = 0,

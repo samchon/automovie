@@ -11,25 +11,22 @@ const dist: (a: M.V, b: M.V) => number = (a: M.V, b: M.V): number =>
 /**
  * Continuous closest-segment slit construction for declared contour walks.
  *
- * @evidence contracts/common.md#principled-implementation Endpoint projections and the interior segment-pair solution retain the original closest-slit objective and stable traversal order.
- * @evidence contracts/common.md#clear-and-simple-design The contour facade retains its public names while one owner handles slit geometry.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The original admission, arithmetic order, identities and local failure policy are preserved; no source geometry substitutes for engine output.
- * @evidence contracts/common.md#meaningful-documentation States its ownership boundary, unchanged numerical contract and caller-owned inputs.
- * @evidence contracts/performance.md#efficient-algorithms Two polygons with N and M segments require O(NM) candidate comparisons and O(N+M) returned walk storage.
- * @evidence contracts/performance.md#reuse-equivalent-work The caller reuses this operation for its declared preparation or query lifetime; no new cross-call cache is introduced.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only the joined walk and inserted points escape; per-call candidate state is released.
+ * @evidence contracts/development/common.md#meaningful-documentation States its ownership boundary, unchanged numerical contract and caller-owned inputs.
+ * @evidence contracts/development/design.md#principled-representation Represents Continuous closest-segment slit construction for declared contour walks: companion namespace of 2 members (`join`, `closest`); units and frames named in its text: local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieContourSlit64` in packages/engine/src/geometry/curve/AutoMovieContourSlit64.ts; its surface is the 2 members listed and the text shows 1 other file naming it, mostly packages/engine (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieContourSlit64 {
   /**
    * Open oriented loops along one closest continuous segment-to-segment slit.
    *
-   * @evidence contracts/common.md#principled-implementation Endpoint projections and the interior segment-pair solution locate a continuous closest slit; oriented boundary walks traverse it in opposite directions. Exact endpoint parameters reuse the existing endpoint object and its cyclic incidence instead of inserting a zero-length walk edge.
-   * @evidence contracts/common.md#clear-and-simple-design This helper owns the named curve operation and composes only the shared vector owner.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
-   * @evidence contracts/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
-   * @evidence contracts/performance.md#efficient-algorithms N by M segment pairs are examined once; the returned joined walk has O(N+M) points.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
+   * @evidence contracts/development/implementation.md#principled-implementation Endpoint projections and the interior segment-pair solution locate a continuous closest slit; oriented boundary walks traverse it in opposite directions. Exact endpoint parameters reuse the existing endpoint object and its cyclic incidence instead of inserting a zero-length walk edge.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This helper owns the named curve operation and composes only the shared vector owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
+   * @evidence contracts/development/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms N by M segment pairs are examined once; the returned joined walk has O(N+M) points.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
   export function join(
     a: M.V[],
@@ -93,13 +90,13 @@ export namespace AutoMovieContourSlit64 {
   /**
    * Projects onto a finite segment; a zero-length segment remains its endpoint.
    *
-   * @evidence contracts/common.md#principled-implementation Clamped orthogonal projection gives the nearest point of a finite segment, retaining its endpoint for zero length.
-   * @evidence contracts/common.md#clear-and-simple-design This helper owns the named curve operation and composes only the shared vector owner.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
-   * @evidence contracts/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
-   * @evidence contracts/performance.md#efficient-algorithms A fixed number of three-component dot products and affine operations is used.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
+   * @evidence contracts/development/implementation.md#principled-implementation Clamped orthogonal projection gives the nearest point of a finite segment, retaining its endpoint for zero length.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This helper owns the named curve operation and composes only the shared vector owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
+   * @evidence contracts/development/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of three-component dot products and affine operations is used.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
   export function closest(
     p: M.V,

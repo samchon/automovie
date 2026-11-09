@@ -38,10 +38,11 @@ import { screenplayNode } from "../internal/screenplayNode";
  * 7. Non-finite / zero fps throw.
  * 8. A 0.1-second trim at four fps rounds to zero frames and refuses instead of publishing an empty sidecar.
  *
- * @evidence contracts/testing.md#behavioral-verification Plans the real caption track and serializes it, asserting complete span records, authored text/slug joins, null and absent-tree states, bare shot ids, scene-less beats, deterministic JSON and clock/zero-frame refusals.
- * @evidence contracts/testing.md#independent-expectations The original trim lengths give 1+2-0.5=2.5 seconds and ten four-fps samples, with the incoming shot beginning at frame two. Authored fixture captions and scene payloads determine expected labels; explicit nulls and hand-derived half-open intervals are asserted without copying planner output.
- * @evidence contracts/testing.md#distinguishing-cases Preserves both captioned and caption-less spans, null/absent/empty trees, prefixed and bare ids, a beat without a scene, serialization and invalid/zero-output clocks. Slicing boundaries belong to caption_slice and actor motion/projection to pose-keypoint tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_render_caption_sidecar owns these synchronous portable planning/serialization cases over the shared original fixtures; it writes no sidecar file and captures or encodes no frame.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans the real caption track and serializes it, asserting complete span records, authored text/slug joins, null and absent-tree states, bare shot ids, scene-less beats, deterministic JSON and clock/zero-frame refusals.
+ * @evidence contracts/development/testing.md#independent-expectations The original trim lengths give 1+2-0.5=2.5 seconds and ten four-fps samples, with the incoming shot beginning at frame two. Authored fixture captions and scene payloads determine expected labels; explicit nulls and hand-derived half-open intervals are asserted without copying planner output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves both captioned and caption-less spans, null/absent/empty trees, prefixed and bare ids, a beat without a scene, serialization and invalid/zero-output clocks. Slicing boundaries belong to caption_slice and actor motion/projection to pose-keypoint tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_render_caption_sidecar owns these synchronous portable planning/serialization cases over the shared original fixtures; it writes no sidecar file and captures or encodes no frame.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two spans: `[0,2)` beat "duel", `[2,10)` beat "aftermath"; the incoming shot).
  */
 export function test_render_caption_sidecar(): void {
   const sidecar: IAutoMovieCaptionSidecar = planCaptionSidecar({

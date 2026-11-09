@@ -46,10 +46,11 @@ const passesCone: (j: ReturnType<typeof joint>) => boolean = (
  *    box and validates. Pulling toward the origin dropped it below its own
  *    `min` (#1245). Both directions: `min > 0` and `max < 0`.
  *
- * @evidence contracts/testing.md#behavioral-verification Clamps actual coupled swing constraints, checks reduced/equal components and null/immobile preservation, and feeds results to the real validator to detect residual cone/box violations.
- * @evidence contracts/testing.md#independent-expectations Symmetric90/90 input must retain a1:1 direction when reduced; a lone150-degree axis must fit the authored100-degree cone, and convex boxes excluding neutral must keep their nearest-neutral bound. Shared clamp/validator angular math is a parity limitation rather than an external clinical oracle.
- * @evidence contracts/testing.md#distinguishing-cases Outside/inside cones, null versus explicit-zero resting axes, immobile axes and positive/negative zero-excluding boxes distinguish coupled projection from axis-only or origin-directed repair; unrestricted multi-turn and infeasible-anchor cases are not certified.
- * @evidence contracts/testing.md#execution-ownership The named test_rom_clamp_swing_cone entry owns portable synchronous CPU clamp/validator cases using existing joint fixtures and a caller-owned collector, without creating or rendering a Human asset.
+ * @evidence contracts/development/testing.md#behavioral-verification Clamps actual coupled swing constraints, checks reduced/equal components and null/immobile preservation, and feeds results to the real validator to detect residual cone/box violations.
+ * @evidence contracts/development/testing.md#independent-expectations Symmetric90/90 input must retain a1:1 direction when reduced; a lone150-degree axis must fit the authored100-degree cone, and convex boxes excluding neutral must keep their nearest-neutral bound. Shared clamp/validator angular math is a parity limitation rather than an external clinical oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Outside/inside cones, null versus explicit-zero resting axes, immobile axes and positive/negative zero-excluding boxes distinguish coupled projection from axis-only or origin-directed repair; unrestricted multi-turn and infeasible-anchor cases are not certified.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_rom_clamp_swing_cone entry owns portable synchronous CPU clamp/validator cases using existing joint fixtures and a caller-owned collector, without creating or rendering a Human asset.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: 90° + 90° (120° of swing, past the 100° cone) is scaled down equally, the).
  */
 export function test_rom_clamp_swing_cone(): void {
   // 1. past the cone → scaled back onto it, ratio preserved, now valid

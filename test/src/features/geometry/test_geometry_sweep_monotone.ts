@@ -74,10 +74,11 @@ const scan = (
  * 4. A single knot is constant; empty, short, unsorted, non-finite and
  *    out-of-period knots are refused by their own diagnostics.
  *
- * @evidence contracts/testing.md#behavioral-verification Evaluates `interpolateAutoMovieMonotone` densely on open and periodic data and asserts range, monotonicity, knot passage, flat extrapolation, linear reproduction, C1 joins, periodicity and refusals; an interpolant with unrestricted slopes, a non-zero slope at an extremum, a missing wrap segment or a silent sort fails them, while any monotone C1 cubic through the knots passes.
- * @evidence contracts/testing.md#independent-expectations The bounds are the knot values themselves, the Fritsch-Carlson guarantee; the overshooting reference is a Catmull-Rom curve computed in this test; linear data has the exact linear answer; C1 is checked by one-sided difference quotients, an oracle accurate to the step used.
- * @evidence contracts/testing.md#distinguishing-cases Covers rising, falling, near-level and extremum segments, uneven spacing, both ends, the periodic wrap, one knot, and each malformed input; the sweep's use of these profiles is owned by the Gordon and loft tests.
- * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_monotone` entry, calling the engine function directly with no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates `interpolateAutoMovieMonotone` densely on open and periodic data and asserts range, monotonicity, knot passage, flat extrapolation, linear reproduction, C1 joins, periodicity and refusals; an interpolant with unrestricted slopes, a non-zero slope at an extremum, a missing wrap segment or a silent sort fails them, while any monotone C1 cubic through the knots passes.
+ * @evidence contracts/development/testing.md#independent-expectations The bounds are the knot values themselves, the Fritsch-Carlson guarantee; the overshooting reference is a Catmull-Rom curve computed in this test; linear data has the exact linear answer; C1 is checked by one-sided difference quotients, an oracle accurate to the step used.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers rising, falling, near-level and extremum segments, uneven spacing, both ends, the periodic wrap, one knot, and each malformed input; the sweep's use of these profiles is owned by the Gordon and loft tests.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_monotone` entry, calling the engine function directly with no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: On a rising-and-falling profile with a near-level step and uneven knots,).
  */
 export function test_geometry_sweep_monotone(): void {
   const f: (x: number) => number = interpolateAutoMovieMonotone({

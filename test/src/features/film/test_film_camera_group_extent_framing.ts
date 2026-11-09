@@ -111,10 +111,11 @@ const horizontal: (radius: number, aspect?: number) => number = (
  *    itself got wider; a raster that describes nothing (absent, zero) falls
  *    back to the square-frame assumption.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls compileCameraMove on figure and crowd subjects and reads the solved position key, checking vertical, horizontal, growth, and delivery-aspect distance behavior.
- * @evidence contracts/testing.md#independent-expectations The 90-degree pinhole fixture has unit half-angle tangent; the literal 3.4, 80, and 160 metre distances independently anchor the declared four-span wide framing, alongside arithmetic using the exported framing fraction.
- * @evidence contracts/testing.md#distinguishing-cases Zero radius preserves the figure distance; radii 20 and 40 distinguish width-sensitive framing from a fixed figure distance; 16:9 distinguishes aspect-aware fitting, and absent versus zero aspect checks the square fallback.
- * @evidence contracts/testing.md#execution-ownership Runs synchronous camera compilation on local records without a renderer, filesystem, clocks, process state, or replacement of product dependencies; this observes the solved distance, not rendered enclosure or the complete clip.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls compileCameraMove on figure and crowd subjects and reads the solved position key, checking vertical, horizontal, growth, and delivery-aspect distance behavior.
+ * @evidence contracts/development/testing.md#independent-expectations The 90-degree pinhole fixture has unit half-angle tangent; the literal 3.4, 80, and 160 metre distances independently anchor the declared four-span wide framing, alongside arithmetic using the exported framing fraction.
+ * @evidence contracts/development/testing.md#distinguishing-cases Zero radius preserves the figure distance; radii 20 and 40 distinguish width-sensitive framing from a fixed figure distance; 16:9 distinguishes aspect-aware fitting, and absent versus zero aspect checks the square fallback.
+ * @evidence contracts/development/testing.md#execution-ownership Runs synchronous camera compilation on local records without a renderer, filesystem, clocks, process state, or replacement of product dependencies; this observes the solved distance, not rendered enclosure or the complete clip.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: One figure is the vertical fit exactly, with or without a raster, and a).
  */
 export function test_film_camera_group_extent_framing(): void {
   TestValidator.equals(

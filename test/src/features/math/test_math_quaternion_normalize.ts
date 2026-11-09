@@ -17,10 +17,11 @@ import { qclose, qunit } from "../internal/predicates";
  * 4. Equal components at tiny, huge and subnormal magnitudes normalize to the
  *    independently known four-component direction (0.5,0.5,0.5,0.5).
  *
- * @evidence contracts/testing.md#behavioral-verification Calls Quaternion.normalize and checks identity, unit magnitude and equal-component direction, catching overflow or underflow that loses a finite quaternion orientation.
- * @evidence contracts/testing.md#independent-expectations Four equal nonzero components have norm twice their magnitude and therefore normalize to four halves; zero quaternion follows the declared identity convention.
- * @evidence contracts/testing.md#distinguishing-cases Covers scaled identity, ordinary unequal values, exact zero and tiny/huge/subnormal equal components; inverse and interpolation tests own their separate compositions.
- * @evidence contracts/testing.md#execution-ownership The discoverable math entry directly imports pure quaternion source and owns local scalar cases without a real host or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Quaternion.normalize and checks identity, unit magnitude and equal-component direction, catching overflow or underflow that loses a finite quaternion orientation.
+ * @evidence contracts/development/testing.md#independent-expectations Four equal nonzero components have norm twice their magnitude and therefore normalize to four halves; zero quaternion follows the declared identity convention.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers scaled identity, ordinary unequal values, exact zero and tiny/huge/subnormal equal components; inverse and interpolation tests own their separate compositions.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable math entry directly imports pure quaternion source and owns local scalar cases without a real host or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A pure-scale quaternion (0,0,0,2) normalizes onto the identity.).
  */
 export function test_math_quaternion_normalize(): void {
   TestValidator.predicate(

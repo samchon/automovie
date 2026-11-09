@@ -12,13 +12,10 @@ import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
  * it, both from 0 to 1; `u` outside its range is clamped and `v` wraps. Every query is deterministic. Angular linear reconstruction and a local
  * feature nearest-branch change limit the smoothness guarantees.
  *
- * @evidence contracts/common.md#principled-implementation The queries a sampler, a bridge and a measurement need from a parametric surface: position, radius and its split into shape and scale, section frame, outward normal and the derivative along the spine.
- * @evidence contracts/common.md#clear-and-simple-design One record of closures over the compiled tables, so callers never repeat the compile.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Out-of-range `u` clamps to the ends instead of extrapolating sections no station declared.
- * @evidence contracts/common.md#meaningful-documentation States the producer, parameter ranges, clamping and wrapping, and each query's unit and direction.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A record; costs are answered on `compileAutoMovieSweep`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record; it is the reuse.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record whose closures retain what their producer states.
+ * @evidence contracts/development/design.md#principled-representation The queries a sampler, a bridge and a measurement need from a parametric surface: position, radius and its split into shape and scale, section frame, outward normal and the derivative along the spine.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record of closures over the compiled tables, so callers never repeat the compile.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Out-of-range `u` clamps to the ends instead of extrapolating sections no station declared.
+ * @evidence contracts/development/common.md#meaningful-documentation States the producer, parameter ranges, clamping and wrapping, and each query's unit and direction.
  */
 export interface IAutoMovieSweepSurface {
   /** The sweep this surface was compiled from, unchanged. */
@@ -41,13 +38,13 @@ export interface IAutoMovieSweepSurface {
    * @returns u along the spine and v in unwrapped turns
    * @throws Error when the feature index does not exist
    *
-   * @evidence contracts/common.md#principled-implementation Reads the exact domain spline the compiled displacement field uses.
-   * @evidence contracts/common.md#clear-and-simple-design One query without another feature compile.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The input polyline is never substituted for the smooth course.
-   * @evidence contracts/common.md#meaningful-documentation Gives the index, knot parameter, units and refusal.
-   * @evidence contracts/performance.md#efficient-algorithms Two O(log n) segment searches and cubic evaluations for n feature points; returns one domain record.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The surface retains the shared feature coefficients.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; the compiled surface owns the coefficients.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the exact domain spline the compiled displacement field uses.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One query without another feature compile.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The input polyline is never substituted for the smooth course.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives the index, knot parameter, units and refusal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two O(log n) segment searches and cubic evaluations for n feature points; returns one domain record.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The surface retains the shared feature coefficients.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; the compiled surface owns the coefficients.
    */
   feature(index: number, t: number): { u: number; v: number };
 
@@ -60,13 +57,13 @@ export interface IAutoMovieSweepSurface {
    * @returns Unscaled section-plane coordinates in metres; parameter correspondence may pass through its origin
    * @throws Error for an unknown loop or a non-finite generated shape
    *
-   * @evidence contracts/common.md#principled-implementation Reads the same unscaled section operator used by section, avoiding a scale followed by a lossy division in rig compilation.
-   * @evidence contracts/common.md#clear-and-simple-design One source for a full section-plane point before scaling, including non-radial parameter correspondence.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no reconstructed point, clamp on shape values or consumer-specific coordinate.
-   * @evidence contracts/common.md#meaningful-documentation States scale ordering, frame, units, loop numbering and valid authored zero.
-   * @evidence contracts/performance.md#efficient-algorithms Uses the existing cached-row and feature evaluator, or the parameter-correspondence coordinate profiles; returns one point record.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; the compiled surface owns the cached shape data.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature returning a caller-owned point.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the same unscaled section operator used by section, avoiding a scale followed by a lossy division in rig compilation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One source for a full section-plane point before scaling, including non-radial parameter correspondence.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no reconstructed point, clamp on shape values or consumer-specific coordinate.
+   * @evidence contracts/development/common.md#meaningful-documentation States scale ordering, frame, units, loop numbering and valid authored zero.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Uses the existing cached-row and feature evaluator, or the parameter-correspondence coordinate profiles; returns one point record.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; the compiled surface owns the cached shape data.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature returning a caller-owned point.
    */
   shape(u: number, v: number, loop?: number): IAutoMovieSweepSection.IPoint;
 
@@ -79,13 +76,13 @@ export interface IAutoMovieSweepSurface {
    * @returns Metres along the plane's first and second axes
    * @throws Error for a non-finite scaled result or a nonzero section point lost to arithmetic underflow
    *
-   * @evidence contracts/common.md#principled-implementation The section point before the plane is placed, scaled by the profile.
-   * @evidence contracts/common.md#clear-and-simple-design One query per loop point.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A loop the sweep lacks is refused.
-   * @evidence contracts/common.md#meaningful-documentation States the loop numbering and unit.
-   * @evidence contracts/performance.md#efficient-algorithms A cached-row read plus the features whose band reaches `u`.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
+   * @evidence contracts/development/implementation.md#principled-implementation The section point before the plane is placed, scaled by the profile.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One query per loop point.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A loop the sweep lacks is refused.
+   * @evidence contracts/development/common.md#meaningful-documentation States the loop numbering and unit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A cached-row read plus the features whose band reaches `u`.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
    */
   section(u: number, v: number, loop?: number): IAutoMovieSweepSection.IPoint;
 
@@ -96,13 +93,13 @@ export interface IAutoMovieSweepSurface {
    * @param v Around it
    * @returns Metres, positive for direction correspondence; parameter correspondence permits zero at an authored origin point
    *
-   * @evidence contracts/common.md#principled-implementation The outer loop's radius, the scale times the shape.
-   * @evidence contracts/common.md#clear-and-simple-design One query.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Values outside the domain clamp or wrap as the surface states.
-   * @evidence contracts/common.md#meaningful-documentation States the unit.
-   * @evidence contracts/performance.md#efficient-algorithms A cached-row read plus the features whose band reaches `u`.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
+   * @evidence contracts/development/implementation.md#principled-implementation The outer loop's radius, the scale times the shape.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One query.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Values outside the domain clamp or wrap as the surface states.
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A cached-row read plus the features whose band reaches `u`.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
    */
   radius(u: number, v: number): number;
 
@@ -113,13 +110,13 @@ export interface IAutoMovieSweepSurface {
    * @param v Around it
    * @returns Metres, positive for direction correspondence; parameter correspondence permits zero at an authored origin point
    *
-   * @evidence contracts/common.md#principled-implementation The radius before the scale profile, the pose-invariant shape posing reuses.
-   * @evidence contracts/common.md#clear-and-simple-design One query.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No scale is folded in.
-   * @evidence contracts/common.md#meaningful-documentation States the relation to `radius`.
-   * @evidence contracts/performance.md#efficient-algorithms A cached-row read plus the features whose band reaches `u`.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
+   * @evidence contracts/development/implementation.md#principled-implementation The radius before the scale profile, the pose-invariant shape posing reuses.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One query.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No scale is folded in.
+   * @evidence contracts/development/common.md#meaningful-documentation States the relation to `radius`.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A cached-row read plus the features whose band reaches `u`.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
    */
   profile(u: number, v: number): number;
 
@@ -129,13 +126,13 @@ export interface IAutoMovieSweepSurface {
    * @param u Along the spine
    * @returns A positive factor
    *
-   * @evidence contracts/common.md#principled-implementation The scale profile's monotone interpolant.
-   * @evidence contracts/common.md#clear-and-simple-design One query.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A sweep without a profile reads 1.
-   * @evidence contracts/common.md#meaningful-documentation States the default.
-   * @evidence contracts/performance.md#efficient-algorithms A binary search and a cubic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
+   * @evidence contracts/development/implementation.md#principled-implementation The scale profile's monotone interpolant.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One query.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A sweep without a profile reads 1.
+   * @evidence contracts/development/common.md#meaningful-documentation States the default.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A binary search and a cubic.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
    */
   scale(u: number): number;
 
@@ -145,13 +142,13 @@ export interface IAutoMovieSweepSurface {
    * @param u Along the spine
    * @returns The frame
    *
-   * @evidence contracts/common.md#principled-implementation The carried frame turned by the interpolated station rotations.
-   * @evidence contracts/common.md#clear-and-simple-design One query.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Parameters clamp to the spine.
-   * @evidence contracts/common.md#meaningful-documentation States what the frame includes.
-   * @evidence contracts/performance.md#efficient-algorithms One transport frame and one orientation step.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
+   * @evidence contracts/development/implementation.md#principled-implementation The carried frame turned by the interpolated station rotations.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One query.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Parameters clamp to the spine.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the frame includes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One transport frame and one orientation step.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
    */
   frame(u: number): IAutoMovieSweepFrame;
 
@@ -163,13 +160,13 @@ export interface IAutoMovieSweepSurface {
    * @param loop 0 for the section, `k` for hole `k - 1`; omitted, 0
    * @returns Metres
    *
-   * @evidence contracts/common.md#principled-implementation The section point placed in its frame.
-   * @evidence contracts/common.md#clear-and-simple-design One query.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No smoothing is applied.
-   * @evidence contracts/common.md#meaningful-documentation States the unit.
-   * @evidence contracts/performance.md#efficient-algorithms A frame and a section query.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
+   * @evidence contracts/development/implementation.md#principled-implementation The section point placed in its frame.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One query.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No smoothing is applied.
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A frame and a section query.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
    */
   point(u: number, v: number, loop?: number): IAutoMovieVector3;
 
@@ -181,13 +178,13 @@ export interface IAutoMovieSweepSurface {
    * @param loop 0 for the section, `k` for hole `k - 1`; omitted, 0
    * @returns Unit vector
    *
-   * @evidence contracts/common.md#principled-implementation The unit normal from central differences of the surface.
-   * @evidence contracts/common.md#clear-and-simple-design One query.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The step is the stated `step`, the same one posed rigs use.
-   * @evidence contracts/common.md#meaningful-documentation States the orientation of the normal.
-   * @evidence contracts/performance.md#efficient-algorithms Four point queries.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
+   * @evidence contracts/development/implementation.md#principled-implementation The unit normal from central differences of the surface.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One query.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step is the stated `step`, the same one posed rigs use.
+   * @evidence contracts/development/common.md#meaningful-documentation States the orientation of the normal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four point queries.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
    */
   normal(u: number, v: number, loop?: number): IAutoMovieVector3;
 
@@ -199,13 +196,13 @@ export interface IAutoMovieSweepSurface {
    * @param loop 0 for the section, `k` for hole `k - 1`; omitted, 0
    * @returns Metres per unit of `u`
    *
-   * @evidence contracts/common.md#principled-implementation The derivative along the spine by central difference.
-   * @evidence contracts/common.md#clear-and-simple-design One query.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The difference clamps at the spine's ends.
-   * @evidence contracts/common.md#meaningful-documentation States the unit.
-   * @evidence contracts/performance.md#efficient-algorithms Two point queries.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
+   * @evidence contracts/development/implementation.md#principled-implementation The derivative along the spine by central difference.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One query.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The difference clamps at the spine's ends.
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two point queries.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `compileAutoMovieSweep`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `compileAutoMovieSweep`.
    */
   along(u: number, v: number, loop?: number): IAutoMovieVector3;
 }

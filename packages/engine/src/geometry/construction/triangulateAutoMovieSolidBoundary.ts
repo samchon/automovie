@@ -46,13 +46,13 @@ interface Corner {
  * original boundary links retain their declared source identity. This does not
  * certify vertex manifoldness or repair inconsistent source correspondence.
  *
- * @evidence contracts/common.md#principled-implementation Uses convex-ear removal ordered by original occurrence arc, tip ID and lift. Periodic sampling locality is bounded by two adjacent original-walk phase primitives, while exact positive orientation, the consumer's half-period cover rule and represented strict interiors remain required. A new diagonal cannot strand a boxed original occurrence in an unrepresentable triangle; distinct cover edges cannot alias one global mesh edge.
- * @evidence contracts/common.md#clear-and-simple-design One boundary-to-triangles function follows incidence/bridge preparation; it constructs neither points nor source curves.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Changes no point or exact sign predicate and introduces no near-length tolerance. A distinct index is never ignored by positional equality and no tiny ear is removed without using its vertex. Locality remains a heuristic, not a completeness or world-normal certificate; unavailable represented cuts fail atomically.
- * @evidence contracts/common.md#meaningful-documentation States weakly simple positive input, cover identity, exact sign semantics, half-period search bound and failure behavior.
- * @evidence contracts/performance.md#efficient-algorithms One O(N) pass prepares periodic sampling locality. Each removal ranks N diagonals by fixed integer comparisons and checks improving candidates against remaining points, with cubic worst-case work and O(N) storage; no coordinate sorting, all-pair population or shortest-edge/Delaunay/continuous surface-error guarantee is claimed.
- * @evidence contracts/performance.md#reuse-equivalent-work One occurrence table serves every removal; original chart values and cover coordinates are prepared once and no surface jet is reevaluated.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The working ring and output have linear size, expire with the call except caller-owned fresh triangle triples, and retain no source map or callback.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses convex-ear removal ordered by original occurrence arc, tip ID and lift. Periodic sampling locality is bounded by two adjacent original-walk phase primitives, while exact positive orientation, the consumer's half-period cover rule and represented strict interiors remain required. A new diagonal cannot strand a boxed original occurrence in an unrepresentable triangle; distinct cover edges cannot alias one global mesh edge.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One boundary-to-triangles function follows incidence/bridge preparation; it constructs neither points nor source curves.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Changes no point or exact sign predicate and introduces no near-length tolerance. A distinct index is never ignored by positional equality and no tiny ear is removed without using its vertex. Locality remains a heuristic, not a completeness or world-normal certificate; unavailable represented cuts fail atomically.
+ * @evidence contracts/development/common.md#meaningful-documentation States weakly simple positive input, cover identity, exact sign semantics, half-period search bound and failure behavior.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One O(N) pass prepares periodic sampling locality. Each removal ranks N diagonals by fixed integer comparisons and checks improving candidates against remaining points, with cubic worst-case work and O(N) storage; no coordinate sorting, all-pair population or shortest-edge/Delaunay/continuous surface-error guarantee is claimed.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One occurrence table serves every removal; original chart values and cover coordinates are prepared once and no surface jet is reevaluated.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The working ring and output have linear size, expire with the call except caller-owned fresh triangle triples, and retain no source map or callback.
  */
 export function triangulateAutoMovieSolidBoundary(
   vertices: ReadonlyMap<number, Point>,
@@ -130,23 +130,43 @@ export function triangulateAutoMovieSolidBoundary(
       const score: readonly number[] = [arc, b.id, b.lift];
       if (
         (best !== undefined && !precedes(score, best)) ||
-        !ear(corners, working, index, period, links, indexed, phaseLimit, occupied)
+        !ear(
+          corners,
+          working,
+          index,
+          period,
+          links,
+          indexed,
+          phaseLimit,
+          occupied,
+        )
       )
         continue;
       at = index;
       best = score;
     }
     if (at < 0)
-      return `kept boundary has no admitted native-chart ear; state ${JSON.stringify({
-        remaining: working.map((index: number): { occurrence: number; id: number; lift: number; point: Point } => ({
-          occurrence: index,
-          id: corners[index]!.id,
-          lift: corners[index]!.lift,
-          point: corners[index]!.point,
-        })),
-        links: [...links],
-        period,
-      })}`;
+      return `kept boundary has no admitted native-chart ear; state ${JSON.stringify(
+        {
+          remaining: working.map(
+            (
+              index: number,
+            ): {
+              occurrence: number;
+              id: number;
+              lift: number;
+              point: Point;
+            } => ({
+              occurrence: index,
+              id: corners[index]!.id,
+              lift: corners[index]!.lift,
+              point: corners[index]!.point,
+            }),
+          ),
+          links: [...links],
+          period,
+        },
+      )}`;
     const a: Corner =
       corners[working[(at + working.length - 1) % working.length]!]!;
     const b: Corner = corners[working[at]!]!;
@@ -159,7 +179,11 @@ export function triangulateAutoMovieSolidBoundary(
     if (!lifts.every(Number.isSafeInteger))
       return "kept boundary triangle cover is not representable";
     triangles.push({ vertices: [a.id, b.id, c.id], lifts });
-    for (const edge of [[a, b], [b, c], [c, a]]) {
+    for (const edge of [
+      [a, b],
+      [b, c],
+      [c, a],
+    ]) {
       const [key, turn]: [string, number] = identity(edge[0]!, edge[1]!);
       links.set(key, turn);
     }
@@ -191,7 +215,9 @@ function ear(
     orientAutoMovieSolidChart(a.point, b.point, c.point) <= 0
   )
     return false;
-  const span: number = Math.max(a.point[1], b.point[1], c.point[1]) - Math.min(a.point[1], b.point[1], c.point[1]);
+  const span: number =
+    Math.max(a.point[1], b.point[1], c.point[1]) -
+    Math.min(a.point[1], b.point[1], c.point[1]);
   if (
     span > phaseLimit ||
     (period !== undefined &&
@@ -294,7 +320,9 @@ function represented(
   ];
   if (!points.every((point: Point): boolean => point.every(Number.isFinite)))
     return false;
-  const span: number = Math.max(points[0]![1], points[1]![1], points[2]![1]) - Math.min(points[0]![1], points[1]![1], points[2]![1]);
+  const span: number =
+    Math.max(points[0]![1], points[1]![1], points[2]![1]) -
+    Math.min(points[0]![1], points[1]![1], points[2]![1]);
   if (
     span > phaseLimit ||
     (period !== undefined &&
@@ -305,8 +333,11 @@ function represented(
     points[0]![0] / 3 + points[1]![0] / 3 + points[2]![0] / 3,
     points[0]![1] / 3 + points[1]![1] / 3 + points[2]![1] / 3,
   ];
-  return center.every(Number.isFinite) && points.every(
-    (point: Point, index: number): boolean =>
-      orientAutoMovieSolidChart(point, points[(index + 1) % 3]!, center) > 0,
+  return (
+    center.every(Number.isFinite) &&
+    points.every(
+      (point: Point, index: number): boolean =>
+        orientAutoMovieSolidChart(point, points[(index + 1) % 3]!, center) > 0,
+    )
   );
 }

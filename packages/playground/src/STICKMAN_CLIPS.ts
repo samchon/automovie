@@ -17,13 +17,13 @@ import { wave } from "./wave";
 /**
  * Construct the existing thirteen-name selectable motion catalogue for one compatible stick-rig identity. All clips are built eagerly, including composed and traveling routines; selecting one later does not imply the unused ones avoided construction. The catalogue supplies choreography rather than clinical or visual admission.
  *
- * @evidence contracts/common.md#principled-implementation Closed authored catalogue names map to their actual clip producers with the same skeleton identity, preserving the page's supported selection set.
- * @evidence contracts/common.md#clear-and-simple-design One map binds the current selectable examples while each clip owns its construction and the page owns selection, player and renderer lifetime.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No unsupported selection is invented here and catalogue availability does not prove every component's ROM, contact, imported-rig compatibility or observed appearance.
- * @evidence contracts/common.md#meaningful-documentation The comment states the exact catalogue population, eager construction and admission limits.
- * @evidence contracts/performance.md#efficient-algorithms Construction includes every producer's total key/pose work, repeated component builds and travel/sequence passes, requiring O(k) resulting data for the fixed catalogue's total key population; actual rendering cost belongs to the selected player.
- * @evidence contracts/performance.md#reuse-equivalent-work All entries share the supplied skeleton name and each producer's documented local vocabulary; separate entry construction retains independent mutable clip records rather than a hidden global catalogue cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The page retains twelve clip records while its selector/player needs them; externally retained maps remain caller-owned. The catalogue starts no clock, worker or GPU allocation and has no cross-call retained history.
+ * @evidence contracts/development/implementation.md#principled-implementation Closed authored catalogue names map to their actual clip producers with the same skeleton identity, preserving the page's supported selection set.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One map binds the current selectable examples while each clip owns its construction and the page owns selection, player and renderer lifetime.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unsupported selection is invented here and catalogue availability does not prove every component's ROM, contact, imported-rig compatibility or observed appearance.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states the exact catalogue population, eager construction and admission limits.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Construction includes every producer's total key/pose work, repeated component builds and travel/sequence passes, requiring O(k) resulting data for the fixed catalogue's total key population; actual rendering cost belongs to the selected player.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All entries share the supplied skeleton name and each producer's documented local vocabulary; separate entry construction retains independent mutable clip records rather than a hidden global catalogue cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The page retains twelve clip records while its selector/player needs them; externally retained maps remain caller-owned. The catalogue starts no clock, worker or GPU allocation and has no cross-call retained history.
  */
 export const STICKMAN_CLIPS: (
   sk: string,

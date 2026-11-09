@@ -31,16 +31,37 @@ export interface IAutoMoviePhysicalProfile {
   provenance: string;
 }
 
-/** Descriptors shared by providers, simulation, audit and inspection. */
+/**
+ * Descriptors shared by providers, simulation, audit and inspection.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Descriptors shared by providers, simulation, audit and inspection) and documents 6 documented members as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents Descriptors shared by providers, simulation, audit and inspection: companion namespace of 6 members (`ITransform`, `ISegment`, `IShape`, `IAxis`, `IJoint`, `IMaterial`); units and frames named in its text: metres, quaternion, world, metre, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAutoMoviePhysicalProfile` in packages/interface/src/physics/IAutoMoviePhysicalProfile.ts; its surface is the 6 members listed and the text shows 166 other files naming it, mostly packages/engine (85), test (56), packages/human (11), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ */
 export namespace IAutoMoviePhysicalProfile {
-  /** Position and orientation of a bone origin, metres and a unit quaternion. */
+  /**
+   * Position and orientation of a bone origin, metres and a unit quaternion.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Position and orientation of a bone origin, metres and a unit quaternion.
+   * @evidence contracts/development/design.md#principled-representation Represents Position and orientation of a bone origin, metres and a unit quaternion: interface of 2 members (`position`, `rotation`); units and frames named in its text: world, metre, local. It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `ITransform` in packages/interface/src/physics/IAutoMoviePhysicalProfile.ts; its surface is the 2 members listed and the text shows 149 other files naming it, mostly packages/engine (64), packages/human (42), test (36), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface ITransform {
     /** Parent/world metre translation, as the containing field specifies. */
     position: IAutoMovieVector3;
     /** Local-to-parent/world orientation. */
     rotation: IAutoMovieQuaternion;
   }
-  /** Principal inertia is positive and obeys the rigid-body triangle inequalities. */
+  /**
+   * Principal inertia is positive and obeys the rigid-body triangle inequalities.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Principal inertia is positive and obeys the rigid-body triangle inequalities.
+   * @evidence contracts/development/design.md#principled-representation Represents Principal inertia is positive and obeys the rigid-body triangle inequalities: interface of 7 members (`bone`, `neutral`, `mass`, `centerOfMass`, `inertia`, `inertiaRotation`, ...); units and frames named in its text: frame, kilograms, local, metre. It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `ISegment` in packages/interface/src/physics/IAutoMoviePhysicalProfile.ts; its surface is the 7 members listed and the text shows 124 other files naming it, mostly packages/engine (54), test (43), packages/human (18), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface ISegment {
     /** Arbitrary skeleton bone id, not a humanoid vocabulary. */
     bone: string;
@@ -57,7 +78,14 @@ export namespace IAutoMoviePhysicalProfile {
     /** At least one finite solid collider, including optional equipment shapes. */
     shapes: IShape[];
   }
-  /** Shape local placement is relative to its segment's bone origin. */
+  /**
+   * Shape local placement is relative to its segment's bone origin.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Shape local placement is relative to its segment's bone origin.
+   * @evidence contracts/development/design.md#principled-representation Represents Shape local placement is relative to its segment's bone origin: type alias of 0 members (); units and frames named in its text: local, metres. It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IShape` in packages/interface/src/physics/IAutoMoviePhysicalProfile.ts; its surface is the 0 members listed and the text shows 65 other files naming it, mostly packages/human (26), packages/engine (22), test (11), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export type IShape = {
     /** Unique within its segment. */
     id: string;
@@ -80,7 +108,14 @@ export namespace IAutoMoviePhysicalProfile {
         /** Positive local half-extents, metres. */ halfExtents: IAutoMovieVector3;
       }
   );
-  /** Angular axis is in the parent joint frame; limits are radians. */
+  /**
+   * Angular axis is in the parent joint frame; limits are radians.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Angular axis is in the parent joint frame; limits are radians.
+   * @evidence contracts/development/design.md#principled-representation Represents Angular axis is in the parent joint frame; limits are radians: interface of 10 members (`axis`, `minimum`, `maximum`, `stiffness`, `damping`, `passiveDamping`, ...); units and frames named in its text: frame, radians. Optional members `passiveDamping`, `coordinateSign`, `sourceDomain` express documented absence, and the ranges its member docs state are left to runtime validation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAxis` in packages/interface/src/physics/IAutoMoviePhysicalProfile.ts; its surface is the 10 members listed and the text shows 70 other files naming it, mostly packages/human (30), packages/engine (21), test (19), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; 3 optional members (`passiveDamping`, `coordinateSign`, `sourceDomain`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IAxis {
     /** Unique angular coordinate in the joint frame. */
     axis: "x" | "y" | "z";
@@ -106,7 +141,14 @@ export namespace IAutoMoviePhysicalProfile {
       /** Upper source radians. */ maximum: number;
     };
   }
-  /** A fixed joint has no free axes; otherwise each listed axis is limited. */
+  /**
+   * A fixed joint has no free axes; otherwise each listed axis is limited.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: A fixed joint has no free axes; otherwise each listed axis is limited.
+   * @evidence contracts/development/design.md#principled-representation Represents A fixed joint has no free axes; otherwise each listed axis is limited: interface of 6 members (`id`, `parent`, `child`, `parentFrame`, `childFrame`, `axes`); units and frames named in its text: local, frame. It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IJoint` in packages/interface/src/physics/IAutoMoviePhysicalProfile.ts; its surface is the 6 members listed and the text shows 60 other files naming it, mostly packages/engine (31), packages/human (15), test (14), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IJoint {
     /** Unique profile-local id. */
     id: string;
@@ -121,7 +163,14 @@ export namespace IAutoMoviePhysicalProfile {
     /** Distinct free angular axes; all translations and unlisted axes are locked. */
     axes: IAxis[];
   }
-  /** Material pair response uses mean friction and restitution. */
+  /**
+   * Material pair response uses mean friction and restitution.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Material pair response uses mean friction and restitution.
+   * @evidence contracts/development/design.md#principled-representation Represents Material pair response uses mean friction and restitution: interface of 6 members (`id`, `friction`, `restitution`, `compliance`, `maximumCompression`, `damping`); units and frames named in its text: local, metres, newton, seconds. Optional members `maximumCompression` express documented absence, and the ranges its member docs state are left to runtime validation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IMaterial` in packages/interface/src/physics/IAutoMoviePhysicalProfile.ts; its surface is the 6 members listed and the text shows 8 other files naming it, mostly packages/engine (7), packages/human (1), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IMaterial {
     /** Nonblank profile-local id. */
     id: string;

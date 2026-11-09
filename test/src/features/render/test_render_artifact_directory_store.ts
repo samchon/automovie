@@ -3,11 +3,11 @@ import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { composeAutoMovieArtifactKey } from "../../../../packages/engine/src/cache/composeAutoMovieArtifactKey";
 import type { IAutoMovieArtifactResolution } from "../../../../packages/engine/src/cache/IAutoMovieArtifactResolution";
+import { composeAutoMovieArtifactKey } from "../../../../packages/engine/src/cache/composeAutoMovieArtifactKey";
 import { resolveAutoMovieArtifact } from "../../../../packages/engine/src/cache/resolveAutoMovieArtifact";
-import type { IAutoMovieDirectoryArtifactStore } from "../../../../packages/render/src/node/cache/IAutoMovieDirectoryArtifactStore";
-import { createAutoMovieDirectoryArtifactStore } from "../../../../packages/render/src/node/cache/createAutoMovieDirectoryArtifactStore";
+import type { IAutoMovieDirectoryArtifactStore } from "../../../../packages/template/scaffold/src/integrations/render/node/cache/IAutoMovieDirectoryArtifactStore";
+import { createAutoMovieDirectoryArtifactStore } from "../../../../packages/template/scaffold/src/integrations/render/node/cache/createAutoMovieDirectoryArtifactStore";
 
 /**
  * The directory store persists verified entries across opens and collects garbage.
@@ -54,11 +54,17 @@ export async function test_render_artifact_directory_store(): Promise<void> {
     const listed: Set<string> = await store.keys();
     TestValidator.equals(
       "listed after reopen",
-      [listed.size, ["a", "b", "c"].every((name: string) => listed.has(key(name)))],
+      [
+        listed.size,
+        ["a", "b", "c"].every((name: string) => listed.has(key(name))),
+      ],
       [3, true],
     );
-    const reused: IAutoMovieArtifactResolution =
-      await resolveAutoMovieArtifact(store, key("a"), bytes(99));
+    const reused: IAutoMovieArtifactResolution = await resolveAutoMovieArtifact(
+      store,
+      key("a"),
+      bytes(99),
+    );
     TestValidator.equals("reused", reused.outcome, "reused");
 
     await writeFile(
@@ -102,8 +108,9 @@ export async function test_render_artifact_directory_store(): Promise<void> {
     await writeFile(path.join(directory, "store.json"), '{"format":"old"}');
     store = await createAutoMovieDirectoryArtifactStore(directory);
     TestValidator.equals("layout invalidation", (await store.keys()).size, 0);
-    await TestValidator.error("malformed key", (): Promise<unknown> =>
-      store.read("sha256:xyz"),
+    await TestValidator.error(
+      "malformed key",
+      (): Promise<unknown> => store.read("sha256:xyz"),
     );
   } finally {
     await rm(directory, { recursive: true, force: true });

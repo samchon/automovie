@@ -39,13 +39,13 @@ import { passRoot } from "../utilities/passRoot";
  * reviewer has not yet written current files or a legacy round under
  * `docs/review/<pass>/<layer>`, has no review claims for that pass.
  *
- * @evidence contracts/common.md#principled-implementation Actual in-scope direct review files or a verdict select the canonical population exclusively; otherwise the highest numeric legacy round supplies exact current-review lineage and a separate file-level verdict obligation, with stages preserved.
- * @evidence contracts/common.md#clear-and-simple-design One root selector keeps current-versus-legacy admission separate from the unchanged unit bijection, freshness and whole-population verdict claims.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Older contract families and not-yet-created review roots yield no claims; native inactive populations do not establish that independent review occurred.
- * @evidence contracts/common.md#meaningful-documentation The prose states canonical admission, exclusive legacy fallback, current-review invalidation, H2 bijection, verdict ownership and optional roots/contracts.
- * @evidence contracts/performance.md#efficient-algorithms Up to two editions scan entries only as deep as their actual selectors; directory entries and native glob matching dominate, with a linear root scan for legacy selection when no canonical file exists.
- * @evidence contracts/performance.md#reuse-equivalent-work Each edition reuses its resolved files, selected root and lineage for both claims; filesystem observation repeats per config build so new current files replace legacy selection.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Directory arrays are transient and bounded by visited entries; returned claims belong to the config, and synchronous scans retain no history, handle or task.
+ * @evidence contracts/development/implementation.md#principled-implementation Actual in-scope direct review files or a verdict select the canonical population exclusively; otherwise the highest numeric legacy round supplies exact current-review lineage and a separate file-level verdict obligation, with stages preserved.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One root selector keeps current-versus-legacy admission separate from the unchanged unit bijection, freshness and whole-population verdict claims.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Older contract families and not-yet-created review roots yield no claims; native inactive populations do not establish that independent review occurred.
+ * @evidence contracts/development/common.md#meaningful-documentation The prose states canonical admission, exclusive legacy fallback, current-review invalidation, H2 bijection, verdict ownership and optional roots/contracts.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Up to two editions scan entries only as deep as their actual selectors; directory entries and native glob matching dominate, with a linear root scan for legacy selection when no canonical file exists.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each edition reuses its resolved files, selected root and lineage for both claims; filesystem observation repeats per config build so new current files replace legacy selection.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Directory arrays are transient and bounded by visited entries; returned claims belong to the config, and synchronous scans retain no history, handle or task.
  */
 export function createReviewClaims(
   props: IProductionConfigProps,

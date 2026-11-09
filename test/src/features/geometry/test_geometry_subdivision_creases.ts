@@ -121,10 +121,11 @@ const axisOf: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
  *    smooth point while the sharp edge takes its midpoint, and its limit
  *    position and normal are the same at levels 1 to 4.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs `subdivideAutoMovieSurface` with creases and asserts refined points, limit positions, normal counts and face-varying normals; a wrong crease, corner or fractional rule, a sharpness that decays wrongly, a crease limit treated as infinite, or a normal on the wrong side fails.
- * @evidence contracts/testing.md#independent-expectations Expectations are the published crease, midpoint and smooth rules written in the test, the rule-sequence identities of the semi-sharp model (sharp for `floor(s)` steps, linear blend for the fraction), the flatness and axis normals that infinitely sharp cube edges imply, and invariance of the limit under refinement.
- * @evidence contracts/testing.md#distinguishing-cases Covers infinite, integer, fractional and zero sharpness, crease, corner and dart vertices, and negative twins where one more level or a finite sharpness must change the result; boundaries, smooth limits, UVs, parameters and refusals are owned by the other `test_geometry_subdivision_*` tests.
- * @evidence contracts/testing.md#execution-ownership A discoverable unit entry calling the portable engine function on synthetic cages; no consumer, native build, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `subdivideAutoMovieSurface` with creases and asserts refined points, limit positions, normal counts and face-varying normals; a wrong crease, corner or fractional rule, a sharpness that decays wrongly, a crease limit treated as infinite, or a normal on the wrong side fails.
+ * @evidence contracts/development/testing.md#independent-expectations Expectations are the published crease, midpoint and smooth rules written in the test, the rule-sequence identities of the semi-sharp model (sharp for `floor(s)` steps, linear blend for the fraction), the flatness and axis normals that infinitely sharp cube edges imply, and invariance of the limit under refinement.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers infinite, integer, fractional and zero sharpness, crease, corner and dart vertices, and negative twins where one more level or a finite sharpness must change the result; boundaries, smooth limits, UVs, parameters and refusals are owned by the other `test_geometry_subdivision_*` tests.
+ * @evidence contracts/development/testing.md#execution-ownership A discoverable unit entry calling the portable engine function on synthetic cages; no consumer, native build, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An infinitely sharp loop around a cube's top face: its vertices take the).
  */
 export function test_geometry_subdivision_creases(): void {
   const cage: IAutoMovieSubdivisionCage = cube(topLoop(10));

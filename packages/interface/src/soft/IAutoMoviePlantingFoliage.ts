@@ -5,10 +5,10 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  *
  * Leaves retain translation, quaternion rotation and independent axis scale as full TRS occurrences. The recipe does not replace that representation with yaw-only or uniform scale; downstream Float32 and GPU conversion still has its own precision limits.
  *
- * @evidence contracts/common.md#principled-implementation Bearing branch length and positive density determine leaf count above minLevel, with seeded scale and roll perturbations yielding unit-quaternion full-TRS occurrences.
- * @evidence contracts/common.md#clear-and-simple-design The foliage law stays separate from branch recursion and material binding so one recipe can become bare without another growth implementation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Positive size and jitter below one target positive scales in representable arithmetic; very small products can underflow without a generated-scale gate. Output retains every local axis instead of substituting uniform scale or yaw-only orientation, while the viewer's planar XY leaf card has no thickness from local Z scale.
- * @evidence contracts/common.md#meaningful-documentation Defines leaves-per-meter density, minimum bearing level, local-meter prototype size and bounded seeded jitter.
+ * @evidence contracts/development/design.md#principled-representation Bearing branch length and positive density determine leaf count above minLevel, with seeded scale and roll perturbations yielding unit-quaternion full-TRS occurrences.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The foliage law stays separate from branch recursion and material binding so one recipe can become bare without another growth implementation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Positive size and jitter below one target positive scales in representable arithmetic; very small products can underflow without a generated-scale gate. Output retains every local axis instead of substituting uniform scale or yaw-only orientation, while the viewer's planar XY leaf card has no thickness from local Z scale.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines leaves-per-meter density, minimum bearing level, local-meter prototype size and bounded seeded jitter.
  */
 export interface IAutoMoviePlantingFoliage {
   /** Leaves per metre of bearing branch; strictly positive. */

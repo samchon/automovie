@@ -23,10 +23,11 @@ import { sceneFixture } from "../internal/renderFixtures";
  * 3. A host upload digest seals a version-two target; legacy targets remain
  *    version one, and digest/protocol drift makes the same report stale.
  *
- * @evidence contracts/testing.md#behavioral-verification Checks upload-fact canonicalization, conflicting descriptor refusal and sealed-target freshness using the actual digest, target sealing, report and comparison functions.
- * @evidence contracts/testing.md#independent-expectations Expected protocol strings and ordered drift fields are literals; equivalent and distinct descriptor relations form metamorphic expectations without reproducing the digest algorithm, while the empty inventory is explicitly supplied.
- * @evidence contracts/testing.md#distinguishing-cases Covers reordering and duplicate equivalence against conflicting identities, nine upload changes including nonfinite and missing facts, malformed digest input, legacy protocol and changed upload digest.
- * @evidence contracts/testing.md#execution-ownership Owns synchronous supplied metadata and an empty inventory fixture; execution belongs to the portable test runner, and renderer identity strings do not demonstrate an actual upload or draw.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks upload-fact canonicalization, conflicting descriptor refusal and sealed-target freshness using the actual digest, target sealing, report and comparison functions.
+ * @evidence contracts/development/testing.md#independent-expectations Expected protocol strings and ordered drift fields are literals; equivalent and distinct descriptor relations form metamorphic expectations without reproducing the digest algorithm, while the empty inventory is explicitly supplied.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers reordering and duplicate equivalence against conflicting identities, nine upload changes including nonfinite and missing facts, malformed digest input, legacy protocol and changed upload digest.
+ * @evidence contracts/development/testing.md#execution-ownership Owns synchronous supplied metadata and an empty inventory fixture; execution belongs to the portable test runner, and renderer identity strings do not demonstrate an actual upload or draw.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Asset and property order, and identical duplicate facts, preserve identity.).
  */
 export function test_render_texture_target_identity(): void {
   const a: IAutoMovieRenderTextureSource = {

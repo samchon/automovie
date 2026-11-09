@@ -200,10 +200,11 @@ const worldOf: (root: THREE.Object3D, name: string) => THREE.Vector3 = (
  * 5. Missing parts, placement groups, models and declared joint parents refuse.
  * 6. Unclaimed placements, rigid props and repeated registration create no extra articulation.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds existing generic gate articulation, applies a keyed joint turn and restores it, observing object names, parents and world positions; catches a missing joint projection, reparenting that changes placement and a stale rest pose.
- * @evidence contracts/testing.md#independent-expectations A half-metre hinge offset and quarter-turn geometry define literal leaf/pivot positions; Engine-lowered names pin canonical identity but do not independently establish Engine lowering. No assertion observes a rendered door or profile-driver evaluation.
- * @evidence contracts/testing.md#distinguishing-cases Covers claimed/unclaimed parts, turn/restoration, missing part/host/parent refusals and rigid/unclaimed/repeated registrations; partial setup rollback and authored profile drivers remain documented producer limitations.
- * @evidence contracts/testing.md#execution-ownership This named portable unit calls maintained Engine/Viewer source with the existing two-box record and CPU-side Three graph, acquiring no renderer, browser, worker, process or new production asset.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds existing generic gate articulation, applies a keyed joint turn and restores it, observing object names, parents and world positions; catches a missing joint projection, reparenting that changes placement and a stale rest pose.
+ * @evidence contracts/development/testing.md#independent-expectations A half-metre hinge offset and quarter-turn geometry define literal leaf/pivot positions; Engine-lowered names pin canonical identity but do not independently establish Engine lowering. No assertion observes a rendered door or profile-driver evaluation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers claimed/unclaimed parts, turn/restoration, missing part/host/parent refusals and rigid/unclaimed/repeated registrations; partial setup rollback and authored profile drivers remain documented producer limitations.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit calls maintained Engine/Viewer source with the existing two-box record and CPU-side Three graph, acquiring no renderer, browser, worker, process or new production asset.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Constructed joint names match sceneToNodes lowering.).
  */
 export function test_viewer_prop_articulation(): void {
   const spec: IAutoMoviePropSpec = gateSpec();

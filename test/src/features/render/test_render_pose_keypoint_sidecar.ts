@@ -155,10 +155,11 @@ const hipsX: (
  * 6. Serialization is deterministic bytes and round-trips via JSON.parse.
  * 7. Zero/non-finite fps and a zero-frame runtime throw, aligned with the render/caption planners.
  *
- * @evidence contracts/testing.md#behavioral-verification Plans real per-frame keypoints and serialization, checking centered roots, travel, delayed clips, crop inclusion, missing-reference skips and zero-frame refusal.
- * @evidence contracts/testing.md#independent-expectations A camera facing -Z and a root on its optical axis give x=0.5; cropping the right half maps that point to zero, while motion and delay supply the hand-derived sample decisions. Vertical crop parity and JSON roundtrip are consistency checks, not independent full FK or perspective oracles.
- * @evidence contracts/testing.md#distinguishing-cases Still/moving/delayed actors, exact crop edge, missing scene/camera/node/motion/skeleton, null motion, bare shot id and invalid clocks preserve their branches; no blended-image or occlusion claim is made.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_pose_keypoint_sidecar owns its cases. Portable timeline, Engine sampling/projection and JSON output through this discoverable unit, without a viewport, image capture or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans real per-frame keypoints and serialization, checking centered roots, travel, delayed clips, crop inclusion, missing-reference skips and zero-frame refusal.
+ * @evidence contracts/development/testing.md#independent-expectations A camera facing -Z and a root on its optical axis give x=0.5; cropping the right half maps that point to zero, while motion and delay supply the hand-derived sample decisions. Vertical crop parity and JSON roundtrip are consistency checks, not independent full FK or perspective oracles.
+ * @evidence contracts/development/testing.md#distinguishing-cases Still/moving/delayed actors, exact crop edge, missing scene/camera/node/motion/skeleton, null motion, bare shot id and invalid clocks preserve their branches; no blended-image or occlusion claim is made.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_pose_keypoint_sidecar owns its cases. Portable timeline, Engine sampling/projection and JSON output through this discoverable unit, without a viewport, image capture or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A still actor 5 m down −Z yields 2 frames of beat "b1", one actor "hero", hips centered (x = 0.5) on both frames.).
  */
 export function test_render_pose_keypoint_sidecar(): void {
   // 1. still actor.

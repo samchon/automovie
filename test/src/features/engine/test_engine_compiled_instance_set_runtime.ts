@@ -2,8 +2,8 @@ import {
   AUTOMOVIE_INSTANCE_CHUNK_SIZE,
   canonicalizeAutoMovieJson,
   materializeCompiledInstanceSet,
+  summarizeCompiledSlotChunks,
 } from "@automovie/engine";
-import { summarizeCompiledSlotChunks } from "@automovie/engine/populationRuntime/summarizeCompiledSlotChunks";
 import {
   IAutoMovieCompiledFormationLod,
   IAutoMovieCompiledInstancePrototype,
@@ -104,10 +104,11 @@ const nodeDigest: (value: unknown) => string = (value: unknown): string =>
  * 7. Five points are visited once in ascending order, yielding three chunks
  *    with independent centroids and a whole bounds/centroid summary.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs materializeCompiledInstanceSet and the actual shared chunk/global summary seam; asserts compact laws, geometry, prototype/radius policy, refusal and canonical digest, while a callback visit log rejects duplicated slot regeneration.
- * @evidence contracts/testing.md#independent-expectations The authored 1025-point row spans x=-512..512 with first chunk mean -0.5 and final point 512. The five-point callback has positions (s,2s,-s), hence whole mean (2,4,-2) and chunk means (0.5,1,-0.5),(2.5,5,-2.5),(4,8,-4). Literal prototype order/weights and measured/fallback radii anchor policy. Node SHA independently checks hashing, while canonical text is shared and neither fallback enclosure nor every canonicalization decision is independently certified.
- * @evidence contracts/testing.md#distinguishing-cases Covers one past a chunk boundary, prototype default/weights, declared versus undeclared prototype tiers, a supplied versus an absent group digest, present/missing routes, zero-length refusal, copied laws, digest repeat/seed change and explicit missing-radius policy; the odd five-point range distinguishes chunk/global ownership from a second callback traversal. Individual slot variation is owned by the instance-slot tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_engine_compiled_instance_set_runtime owns synchronous local records/maps and a callback visit log supplied through the real summary seam, without foreign-method replacement. Node crypto hashes shared canonical bytes independently; no graphics, publication, clock or production consumer is launched. Copy guards concern these selected route/layout/variation records, not every compiled prototype subtree.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs materializeCompiledInstanceSet and the actual shared chunk/global summary seam; asserts compact laws, geometry, prototype/radius policy, refusal and canonical digest, while a callback visit log rejects duplicated slot regeneration.
+ * @evidence contracts/development/testing.md#independent-expectations The authored 1025-point row spans x=-512..512 with first chunk mean -0.5 and final point 512. The five-point callback has positions (s,2s,-s), hence whole mean (2,4,-2) and chunk means (0.5,1,-0.5),(2.5,5,-2.5),(4,8,-4). Literal prototype order/weights and measured/fallback radii anchor policy. Node SHA independently checks hashing, while canonical text is shared and neither fallback enclosure nor every canonicalization decision is independently certified.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers one past a chunk boundary, prototype default/weights, declared versus undeclared prototype tiers, a supplied versus an absent group digest, present/missing routes, zero-length refusal, copied laws, digest repeat/seed change and explicit missing-radius policy; the odd five-point range distinguishes chunk/global ownership from a second callback traversal. Individual slot variation is owned by the instance-slot tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_engine_compiled_instance_set_runtime owns synchronous local records/maps and a callback visit log supplied through the real summary seam, without foreign-method replacement. Node crypto hashes shared canonical bytes independently; no graphics, publication, clock or production consumer is launched. Copy guards concern these selected route/layout/variation records, not every compiled prototype subtree.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: One member past a chunk makes two chunks with exact bounds and centroids.).
  */
 export function test_engine_compiled_instance_set_runtime(): void {
   // 1. Chunks.

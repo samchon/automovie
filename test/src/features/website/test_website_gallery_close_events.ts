@@ -12,10 +12,11 @@ import { createGalleryHostFacts } from "../internal/createGalleryHostFacts";
  * 3. Dispose an open gallery: closure and release are synchronous and idempotent.
  * 4. Close, unlock, focus and contents each throw: all are attempted once and authority stays retired.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises actual GalleryController close observations and disposal through its supplied effect port; assertions catch stale close unlocks, skipped later cleanup, repeated attempts and lost failure causes.
- * @evidence contracts/testing.md#independent-expectations A newer observed opening keeps its lock, while disposal ends the owner and attempts all four independent cleanups once; expected cause identities are test-owned values in callback order.
- * @evidence contracts/testing.md#distinguishing-cases Covers explicit and duplicate close observations, close/reopen races, successful repeated disposal and four concurrent cleanup failures with refused later activation; native Escape, focus containment and listener release are not observed here.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit directly imports GalleryController and uses the existing owned host-facts seam, with no browser, DOM host, foreign method replacement or new fixture.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises actual GalleryController close observations and disposal through its supplied effect port; assertions catch stale close unlocks, skipped later cleanup, repeated attempts and lost failure causes.
+ * @evidence contracts/development/testing.md#independent-expectations A newer observed opening keeps its lock, while disposal ends the owner and attempts all four independent cleanups once; expected cause identities are test-owned values in callback order.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers explicit and duplicate close observations, close/reopen races, successful repeated disposal and four concurrent cleanup failures with refused later activation; native Escape, focus containment and listener release are not observed here.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit directly imports GalleryController and uses the existing owned host-facts seam, with no browser, DOM host, foreign method replacement or new fixture.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Close, reopen, then deliver the old notification: the new lock remains.).
  */
 export function test_website_gallery_close_events(): void {
   const { host, facts }: ReturnType<typeof createGalleryHostFacts> =

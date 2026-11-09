@@ -35,10 +35,11 @@ import { createHash } from "node:crypto";
  * 4. A refused container and a non-finite scalar throw the canonical error
  *    class with distinct categories, while an unrelated `TypeError` is not that class.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual engine canonicalization/pure hashing, checking exact canonical text, UTF-8 lengths, agreement with Node hashing, omitted/changed members and domain-error classification.
- * @evidence contracts/testing.md#independent-expectations Three literal standard SHA-256 vectors and thirteen hand-written canonical/byte-length cases provide external expectations; Node crypto independently checks the engine hash over those literal bytes.
- * @evidence contracts/testing.md#distinguishing-cases Preserves block/padding boundaries, multibyte and astral strings, non-ASCII member order, nested numbers including negative zero/exponent, omitted/changed members and Date/NaN versus unrelated TypeError refusals; cycles/accessors and all refusal categories are not exercised here.
- * @evidence contracts/testing.md#execution-ownership Owns synchronous Node-side portable values, Buffers and crypto operations through the runner; the engine and Node hash paths are compared in one runtime, without launching a browser or proving every runtime independently.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual engine canonicalization/pure hashing, checking exact canonical text, UTF-8 lengths, agreement with Node hashing, omitted/changed members and domain-error classification.
+ * @evidence contracts/development/testing.md#independent-expectations Three literal standard SHA-256 vectors and thirteen hand-written canonical/byte-length cases provide external expectations; Node crypto independently checks the engine hash over those literal bytes.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves block/padding boundaries, multibyte and astral strings, non-ASCII member order, nested numbers including negative zero/exponent, omitted/changed members and Date/NaN versus unrelated TypeError refusals; cycles/accessors and all refusal categories are not exercised here.
+ * @evidence contracts/development/testing.md#execution-ownership Owns synchronous Node-side portable values, Buffers and crypto operations through the runner; the engine and Node hash paths are compared in one runtime, without launching a browser or proving every runtime independently.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The pure digest reproduces the FIPS 180-4 example digests for the empty).
  */
 export function test_text_canonical_json_runtime_parity(): void {
   const nodeDigest: (text: string) => `sha256:${string}` = (

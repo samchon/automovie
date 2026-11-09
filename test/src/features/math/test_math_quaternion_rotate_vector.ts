@@ -16,10 +16,11 @@ import { vclose } from "../internal/predicates";
  * 3. The identity rotation leaves the vector unchanged.
  * 4. Tiny, huge and subnormal nonzero +Y axes give the same quarter-turn.
  *
- * @evidence contracts/testing.md#behavioral-verification Composes axis-angle quaternions with rotateVector and checks cardinal directions, catching incorrect handedness and axis-magnitude normalization failure.
- * @evidence contracts/testing.md#independent-expectations The right-hand rule sends +X to -Z for a +Y quarter-turn and to -X for a half-turn; positive axis scaling cannot change either direction.
- * @evidence contracts/testing.md#distinguishing-cases Covers quarter-turn, half-turn, identity and tiny/huge/subnormal nonzero axis magnitudes; quaternion-normalize tests own arbitrary four-component scaling.
- * @evidence contracts/testing.md#execution-ownership This exported math entry uses portable quaternion source directly, with no renderer, GPU, process or dynamically registered consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes axis-angle quaternions with rotateVector and checks cardinal directions, catching incorrect handedness and axis-magnitude normalization failure.
+ * @evidence contracts/development/testing.md#independent-expectations The right-hand rule sends +X to -Z for a +Y quarter-turn and to -X for a half-turn; positive axis scaling cannot change either direction.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers quarter-turn, half-turn, identity and tiny/huge/subnormal nonzero axis magnitudes; quaternion-normalize tests own arbitrary four-component scaling.
+ * @evidence contracts/development/testing.md#execution-ownership This exported math entry uses portable quaternion source directly, with no renderer, GPU, process or dynamically registered consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A +90° turn about +Y sends +X to −Z (the right-hand rule).).
  */
 export function test_math_quaternion_rotate_vector(): void {
   const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };

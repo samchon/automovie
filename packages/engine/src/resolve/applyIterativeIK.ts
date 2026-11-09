@@ -37,13 +37,13 @@ const FALLBACK_DIR: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 /**
  * Solve an admitted world-space chain by CCD or FABRIK with a positive safe-integer iteration budget, default 10, and a 1e-6 metre residual early-out. Blend positions and shortest-arc rotations by influence, then recompose the tip subtree. Iterative solvers ignore pole and apply no anatomical ROM; failed later writes may follow earlier mutations.
  *
- * @evidence contracts/common.md#principled-implementation Solve finite nondegenerate world-space chains by deterministic CCD or FABRIK, then write shortest-arc rotations and influence-blended positions under a positive safe-integer iteration budget; TRS decomposition remains a supported-input premise.
- * @evidence contracts/common.md#clear-and-simple-design One world-driver owner handles solver choice, influence and descendant recomposition; iterative solvers ignore pole as their driver contract states, while analytic twoBone owns it.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Degenerate directions use deterministic numerical fallbacks, not fixture goals; this solver does not apply anatomical ROM, and extreme overflow/deep recursion remain unsupported numerical/stack limits.
- * @evidence contracts/common.md#meaningful-documentation Docs give chain/goal roles, metre residual threshold, fixed default budget and in-place world-map effects; partial mutation on later failure is not transactional rollback.
- * @evidence contracts/performance.md#efficient-algorithms For C chain nodes and I iterations, CCD can rotate suffixes in O(I*C*C), FABRIK uses O(I*C), plus descendant recomposition; snapshots and solver positions use O(C) temporary storage.
- * @evidence contracts/performance.md#reuse-equivalent-work Read chain positions once per solve and reuse them during iteration; changed goals/world transforms require a fresh solve, with no persistent convergence cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns mutated world/local maps; iteration arrays and rotations are call-local, with no solver worker, native handle or future task retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Solve finite nondegenerate world-space chains by deterministic CCD or FABRIK, then write shortest-arc rotations and influence-blended positions under a positive safe-integer iteration budget; TRS decomposition remains a supported-input premise.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One world-driver owner handles solver choice, influence and descendant recomposition; iterative solvers ignore pole as their driver contract states, while analytic twoBone owns it.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Degenerate directions use deterministic numerical fallbacks, not fixture goals; this solver does not apply anatomical ROM, and extreme overflow/deep recursion remain unsupported numerical/stack limits.
+ * @evidence contracts/development/common.md#meaningful-documentation Docs give chain/goal roles, metre residual threshold, fixed default budget and in-place world-map effects; partial mutation on later failure is not transactional rollback.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For C chain nodes and I iterations, CCD can rotate suffixes in O(I*C*C), FABRIK uses O(I*C), plus descendant recomposition; snapshots and solver positions use O(C) temporary storage.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Read chain positions once per solve and reuse them during iteration; changed goals/world transforms require a fresh solve, with no persistent convergence cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns mutated world/local maps; iteration arrays and rotations are call-local, with no solver worker, native handle or future task retained.
  */
 export const applyIterativeIK: (
   d: IAutoMovieIKDriver,

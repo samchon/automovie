@@ -18,6 +18,12 @@ const SWEEP: number = 0.08;
  * Scenarios:
  * 1. An unequal-mass primitive lever bends and returns while its third coordinate sweeps.
  * 2. Interior and boundary transverse targets preserve the same 0.01 rad tolerance.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `Quaternion`, `AutoMoviePhysicalSimulation`, `measurePhysicalJointLimits` on in-memory inputs and asserts the returned observations through 1x TestValidator.equals; 2 numbered scenarios (first: An unequal-mass primitive lever bends and returns while its third coordinate sweeps.; last: Interior and boundary transverse targets preserve the same 0.01 rad tolerance.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
+ * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contributes 2 numbered scenarios (first: An unequal-mass primitive lever bends and returns while its third coordinate sweeps.; last: Interior and boundary transverse targets preserve the same 0.01 rad tolerance.), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
+ * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_compound_motor`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An unequal-mass primitive lever bends and returns while its third coordinate sweeps.).
  */
 export async function test_physical_compound_motor(): Promise<void> {
   const findings: string[] = [];

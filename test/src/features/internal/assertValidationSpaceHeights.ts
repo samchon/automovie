@@ -15,13 +15,13 @@ import { withoutArraySlot } from "./withoutArraySlot";
  * 3. Every invalid rule term, lattice dimension, pitch, length and sample is located.
  * 4. A missing lattice sample is refused at its stored slot; its dense twin still passes.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs the existing height-rule admission cases and detects missing lattice samples that forEach previously skipped.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the existing height-rule admission cases and detects missing lattice samples that forEach previously skipped.
  *
- * @evidence contracts/testing.md#independent-expectations Located errors follow the authored field paths and finite complete lattice contract, independently of the validator's implementation; this does not measure rendered ground.
+ * @evidence contracts/development/testing.md#independent-expectations Located errors follow the authored field paths and finite complete lattice contract, independently of the validator's implementation; this does not measure rendered ground.
  *
- * @evidence contracts/testing.md#distinguishing-cases Keeps all existing constant, plane, lattice and unknown-kind cases; malformed geometry and hole relationships remain in the parent test.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps all existing constant, plane, lattice and unknown-kind cases; malformed geometry and hole relationships remain in the parent test.
  *
- * @evidence contracts/testing.md#execution-ownership Portable engine admission runs through assertValidationSpaceHeights; the discoverable test_validation_space entry owns every synchronous case without a browser or native renderer.
+ * @evidence contracts/development/testing.md#execution-ownership Portable engine admission runs through assertValidationSpaceHeights; the discoverable test_validation_space entry owns every synchronous case without a browser or native renderer.
  */
 export function assertValidationSpaceHeights(): void {
   const {

@@ -16,10 +16,11 @@ import { throwsError } from "../internal/throwsError";
  * 2. Non-finite custom axis components throw.
  * 3. A valid custom axis still composes as before.
  *
- * @evidence contracts/testing.md#behavioral-verification Passes nonfinite joint/axis inputs and invalid bases to direct composition, asserting explicit failures and valid30-degree custom-axis rotation; silently emitting nonfinite quaternions or accepting collinear bases fails.
- * @evidence contracts/testing.md#independent-expectations Finite nonzero orthogonal axes and finite authored angles are the supported premise. A half-angle sine/cosine quaternion for Y30 defines the valid expectation; invalid inputs are chosen independently of any generated output.
- * @evidence contracts/testing.md#distinguishing-cases Keeps NaN flexion, positive-infinite abduction, negative-infinite twist, nonfinite/zero/collinear/oblique axes, ordinary and scaled orthogonal bases; default/mixed order and inverse decomposition are separate entries.
- * @evidence contracts/testing.md#execution-ownership This exported runner entry directly imports portable composition source and calls the existing synchronous error predicate; it has no external asset, consumer installation, native build or graphical host.
+ * @evidence contracts/development/testing.md#behavioral-verification Passes nonfinite joint/axis inputs and invalid bases to direct composition, asserting explicit failures and valid30-degree custom-axis rotation; silently emitting nonfinite quaternions or accepting collinear bases fails.
+ * @evidence contracts/development/testing.md#independent-expectations Finite nonzero orthogonal axes and finite authored angles are the supported premise. A half-angle sine/cosine quaternion for Y30 defines the valid expectation; invalid inputs are chosen independently of any generated output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps NaN flexion, positive-infinite abduction, negative-infinite twist, nonfinite/zero/collinear/oblique axes, ordinary and scaled orthogonal bases; default/mixed order and inverse decomposition are separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership This exported runner entry directly imports portable composition source and calls the existing synchronous error predicate; it has no external asset, consumer installation, native build or graphical host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite flexion/abduction/twist values throw.).
  */
 export function test_kinematics_joint_to_quaternion_inputs(): void {
   const base: { flexion: null; abduction: null; twist: null } = {

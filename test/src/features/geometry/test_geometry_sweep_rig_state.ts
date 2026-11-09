@@ -68,10 +68,11 @@ const rotate = (
  * 3. A buffer of the wrong length, posed bones out of order, bindings
  *    without rest bones and a binding naming nothing are refused.
  *
- * @evidence contracts/testing.md#behavioral-verification Poses a rig repeatedly into caller buffers and reads pinned vertices and the rest cage; a rig that fitted pinned vertices, moved them by the wrong bone, cached a previous pose or diverged from sampling at rest fails, and each refusal must name its fault.
- * @evidence contracts/testing.md#independent-expectations Pinned positions come from the ring declaration and from the rigid bone motion computed in this test; repeated poses are compared with a fresh rig's.
- * @evidence contracts/testing.md#distinguishing-cases Covers rest and posed pins, interleaved poses, a fresh rig, and each malformed buffer, bone list and binding; equality with the record path is owned by the rig pose test and the volume by the rig volume test.
- * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_rig_state` entry with no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Poses a rig repeatedly into caller buffers and reads pinned vertices and the rest cage; a rig that fitted pinned vertices, moved them by the wrong bone, cached a previous pose or diverged from sampling at rest fails, and each refusal must name its fault.
+ * @evidence contracts/development/testing.md#independent-expectations Pinned positions come from the ring declaration and from the rigid bone motion computed in this test; repeated poses are compared with a fresh rig's.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers rest and posed pins, interleaved poses, a fresh rig, and each malformed buffer, bone list and binding; equality with the record path is owned by the rig pose test and the volume by the rig volume test.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_rig_state` entry with no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Pinned ring vertices take their given positions exactly at rest and,).
  */
 export function test_geometry_sweep_rig_state(): void {
   const network: IAutoMovieSurfaceNetwork = sweepBranchedBody();

@@ -1,6 +1,6 @@
 # Human facade control
 
-`@automovie/human/control` exports `AutoMovieHumanController`, the renderer-free owner of motion selection and time. Human imports no Three.js; a renderer binds the controller's state to its drawing. The five development motions are authoring examples, not a shipped motion catalogue or engine humanoid adapter.
+`@automovie/human` exports `AutoMovieHumanController`, the renderer-free owner of motion selection and time. Human imports no Three.js; a renderer binds the controller's state to its drawing. The five development motions are authoring examples, not a shipped motion catalogue or engine humanoid adapter.
 
 ## Prepare and bind one character
 

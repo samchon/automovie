@@ -45,10 +45,11 @@ function chunks(file: Buffer): IChunk[] {
  * 3. A 1 by 1 grey image takes colour type 0, and the base64 decodes with Node's decoder to the same file.
  * 4. A zero width, a fractional height, five channels and a short pixel buffer are refused.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls encodeAutoMoviePng and decodes its output with Node's Buffer base64, zlib.inflateSync and zlib.crc32, so a wrong chunk layout, checksum, block header, Adler-32 or row filter fails decoding or the pixel comparison.
- * @evidence contracts/testing.md#independent-expectations Expected bytes are the input pixels with a zero filter byte per row and the header fields the W3C PNG specification assigns to each channel count; Node's zlib is an independent inflater and CRC implementation, not the encoder under test.
- * @evidence contracts/testing.md#distinguishing-cases Covers RGBA, RGB across a stored-block boundary, the 1 by 1 singleton in grey, and four malformed inputs; viewer decoding of model images is owned by the viewer's texture tests.
- * @evidence contracts/testing.md#execution-ownership Unit test test_render_png_encoding runs portable synchronous encoding and Node's built-in zlib, without a browser, GPU or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls encodeAutoMoviePng and decodes its output with Node's Buffer base64, zlib.inflateSync and zlib.crc32, so a wrong chunk layout, checksum, block header, Adler-32 or row filter fails decoding or the pixel comparison.
+ * @evidence contracts/development/testing.md#independent-expectations Expected bytes are the input pixels with a zero filter byte per row and the header fields the W3C PNG specification assigns to each channel count; Node's zlib is an independent inflater and CRC implementation, not the encoder under test.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers RGBA, RGB across a stored-block boundary, the 1 by 1 singleton in grey, and four malformed inputs; viewer decoding of model images is owned by the viewer's texture tests.
+ * @evidence contracts/development/testing.md#execution-ownership Unit test test_render_png_encoding runs portable synchronous encoding and Node's built-in zlib, without a browser, GPU or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A 3 by 2 RGBA image round-trips: signature, IHDR fields (size, depth 8, colour type 6, no interlace), valid CRCs, and the inflated...).
  */
 export function test_render_png_encoding(): void {
   const decode = (

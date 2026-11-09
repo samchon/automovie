@@ -19,10 +19,11 @@ import {
  *    static camera on knightA) → success carrying the plan unchanged.
  * 2. Multiple anchors in ascending order (0.5 then 1.5) → still coherent.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls blockBeat for the standard admitted plan and an ascending two-anchor variant, checking success, beat identity and preservation of the first plan object, catching a gate that refuses valid causal order or substitutes a different plan.
- * @evidence contracts/testing.md#independent-expectations The script declares beat-1 and the stage places both knights; cue times one, or 0.5 then 1.5, lie within two seconds in listed order and the camera targets a placed knight. Exact returned object identity pins borrowed-plan ownership without deep-comparing numerical fields.
- * @evidence contracts/testing.md#distinguishing-cases Owns a singleton anchor and a strictly increasing two-anchor plan with medium/static framing; reversed or out-of-range anchors, nonfinite clocks and unknown references are covered by the refusal tests.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_block_beat_valid entry owns one portable stageScene result and both in-process blockBeat calls through existing fixtures, without installed consumers, native artifacts or a running host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls blockBeat for the standard admitted plan and an ascending two-anchor variant, checking success, beat identity and preservation of the first plan object, catching a gate that refuses valid causal order or substitutes a different plan.
+ * @evidence contracts/development/testing.md#independent-expectations The script declares beat-1 and the stage places both knights; cue times one, or 0.5 then 1.5, lie within two seconds in listed order and the camera targets a placed knight. Exact returned object identity pins borrowed-plan ownership without deep-comparing numerical fields.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns a singleton anchor and a strictly increasing two-anchor plan with medium/static framing; reversed or out-of-range anchors, nonfinite clocks and unknown references are covered by the refusal tests.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_block_beat_valid entry owns one portable stageScene result and both in-process blockBeat calls through existing fixtures, without installed consumers, native artifacts or a running host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The duel blocking (strike anchored at t = 1 inside a 2-second beat, medium).
  */
 export function test_film_block_beat_valid(): void {
   const staged: ReturnType<typeof stageScene> = stageScene(

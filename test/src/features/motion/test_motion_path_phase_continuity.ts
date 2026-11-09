@@ -53,10 +53,11 @@ const flexionAt: (motion: IAutoMovieMotion, time: number) => number = (
  * 3. The same phase sampled in the first cycle (t=0.25) matches the phase sampled
  *    after the corner (t=2.25): cycle N and cycle N+2 agree.
  *
- * @evidence contracts/testing.md#behavioral-verification Bakes the path and samples lower-arm flexion either side of the corner, at the later peak and at equal phases in different cycles, detecting phase restart or clock displacement during root steering.
- * @evidence contracts/testing.md#independent-expectations The unchanged linear triangle 0 to 120 to 0 over one second gives literal 60 at phases 0.25 and 0.75 and 120 at phase 0.5. The cross-cycle comparison alone could share a wrong value, so the literal samples independently constrain it; sampleMotion is the consumer under observation, not a separate oracle.
- * @evidence contracts/testing.md#distinguishing-cases Preserves pre-corner 1.75, post-corner 2.25, exact later key 2.5 and first-cycle 0.25 with the original tolerances. Root geometry, corner heading and contact are owned by the adjacent path and planting units.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns its direct path bake and sample calls with an in-memory cycle. Private keyframe/flexion readers register no cases and start no renderer, viewer or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Bakes the path and samples lower-arm flexion either side of the corner, at the later peak and at equal phases in different cycles, detecting phase restart or clock displacement during root steering.
+ * @evidence contracts/development/testing.md#independent-expectations The unchanged linear triangle 0 to 120 to 0 over one second gives literal 60 at phases 0.25 and 0.75 and 120 at phase 0.5. The cross-cycle comparison alone could share a wrong value, so the literal samples independently constrain it; sampleMotion is the consumer under observation, not a separate oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves pre-corner 1.75, post-corner 2.25, exact later key 2.5 and first-cycle 0.25 with the original tolerances. Root geometry, corner heading and contact are owned by the adjacent path and planting units.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns its direct path bake and sample calls with an in-memory cycle. Private keyframe/flexion readers register no cases and start no renderer, viewer or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Just before the corner (t=1.75, phase 0.75) the flexion equals the base).
  */
 export function test_motion_path_phase_continuity(): void {
   const path: ReturnType<typeof followPathMotion> = followPathMotion({

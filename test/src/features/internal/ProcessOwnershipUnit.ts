@@ -1,11 +1,11 @@
-import type { ProcessOwnership } from "@automovie/viewer/process/ProcessOwnership";
-import { ProcessOwnershipController } from "@automovie/viewer/process/internal/ProcessOwnershipController";
-import { decodeLinuxProcessIdentity } from "@automovie/viewer/process/internal/decodeLinuxProcessIdentity";
-import { decodePosixProcessIdentity } from "@automovie/viewer/process/internal/decodePosixProcessIdentity";
-import { decodeWindowsProcessResult } from "@automovie/viewer/process/internal/decodeWindowsProcessResult";
-import { resolveProcessIdentityReadError } from "@automovie/viewer/process/internal/resolveProcessIdentityReadError";
 import type { ChildProcess, SpawnSyncReturns } from "node:child_process";
 
+import { type ProcessOwnership } from "../../../../packages/template/scaffold/src/integrations/viewer/process/ProcessOwnership";
+import { ProcessOwnershipController } from "../../../../packages/template/scaffold/src/integrations/viewer/process/internal/ProcessOwnershipController";
+import { decodeLinuxProcessIdentity } from "../../../../packages/template/scaffold/src/integrations/viewer/process/internal/decodeLinuxProcessIdentity";
+import { decodePosixProcessIdentity } from "../../../../packages/template/scaffold/src/integrations/viewer/process/internal/decodePosixProcessIdentity";
+import { decodeWindowsProcessResult } from "../../../../packages/template/scaffold/src/integrations/viewer/process/internal/decodeWindowsProcessResult";
+import { resolveProcessIdentityReadError } from "../../../../packages/template/scaffold/src/integrations/viewer/process/internal/resolveProcessIdentityReadError";
 import type { createProcessOwnershipHostFacts } from "./createProcessOwnershipHostFacts";
 
 type ChildObservation = Pick<ChildProcess, "pid" | "exitCode" | "signalCode">;

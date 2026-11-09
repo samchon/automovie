@@ -24,10 +24,11 @@ const RIGHT: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  * 5. A zero direction states no aim and answers the identity, the level rest
  *    orientation, instead of a camera rolled upside down.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls lookRotation for eight ordinary aims, two vertical aims and zero, checking unit norm, forward mapping, nonvertical horizon and identity, catching a shortest-arc solution that aims correctly but rolls the camera.
- * @evidence contracts/testing.md#independent-expectations The authored direction divided by its independently computed Math.hypot norm defines the requested forward vector, local X must have zero world Y for a level horizon, and zero or negative-Z aim has the stated identity behavior. Quaternion.rotateVector observes the returned rotation, so these are numerical orientation checks rather than rendered pixels.
- * @evidence contracts/testing.md#distinguishing-cases Preserves straight ahead/behind, both pure sides, four compound diagonals, exact up/down and zero; vertical cases constrain forward mapping without promising a unique roll. Near-vertical thresholds and nonfinite inputs are outside this set.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_camera_look_rotation entry owns every in-process direction and shared numerical predicate, without installing a consumer or starting a process, native artifact, viewer or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls lookRotation for eight ordinary aims, two vertical aims and zero, checking unit norm, forward mapping, nonvertical horizon and identity, catching a shortest-arc solution that aims correctly but rolls the camera.
+ * @evidence contracts/development/testing.md#independent-expectations The authored direction divided by its independently computed Math.hypot norm defines the requested forward vector, local X must have zero world Y for a level horizon, and zero or negative-Z aim has the stated identity behavior. Quaternion.rotateVector observes the returned rotation, so these are numerical orientation checks rather than rendered pixels.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves straight ahead/behind, both pure sides, four compound diagonals, exact up/down and zero; vertical cases constrain forward mapping without promising a unique roll. Near-vertical thresholds and nonfinite inputs are outside this set.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_camera_look_rotation entry owns every in-process direction and shared numerical predicate, without installing a consumer or starting a process, native artifact, viewer or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Straight ahead (−Z) → identity.).
  */
 export function test_film_camera_look_rotation(): void {
   const level: IAutoMovieVector3[] = [

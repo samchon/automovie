@@ -29,13 +29,13 @@ import { passRoot } from "../utilities/passRoot";
  * checklists never select, so a population duty cannot leak into a per-unit
  * checklist. A package whose contract predates the folder has no such claim.
  *
- * @evidence contracts/common.md#principled-implementation Only expression-bearing layers receive file-level obligation claims in their finished edition; installed shared and language files are selected separately, each requiring exactly one respondent for every population item.
- * @evidence contracts/common.md#clear-and-simple-design Expression population questions have their own file-level family; scripts use construction and screenplay uses naturalness without leaking whole-population duties into unit checklists.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts An absent optional obligation document produces no claim under the supported older-contract layout; settings/treatments have no independent naturalness stage by contract.
- * @evidence contracts/common.md#meaningful-documentation The prose identifies finished-text respondents, file-level population semantics, layer-specific activation and optional older contract families.
- * @evidence contracts/performance.md#efficient-algorithms layerFiles supplies at most four candidate documents per scope; a bounded number of synchronous existence probes and path constructions dominate, and returned claims/references are fixed in count.
- * @evidence contracts/performance.md#reuse-equivalent-work Both scopes reuse layerFiles and shared reference constructors; existence is refreshed for each config build because installed contract files can change between builds.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only bounded claim arrays and reference objects survive under caller ownership; fs.existsSync calls retain no exposed descriptor and there is no process-wide family cache.
+ * @evidence contracts/development/implementation.md#principled-implementation Only expression-bearing layers receive file-level obligation claims in their finished edition; installed shared and language files are selected separately, each requiring exactly one respondent for every population item.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Expression population questions have their own file-level family; scripts use construction and screenplay uses naturalness without leaking whole-population duties into unit checklists.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An absent optional obligation document produces no claim under the supported older-contract layout; settings/treatments have no independent naturalness stage by contract.
+ * @evidence contracts/development/common.md#meaningful-documentation The prose identifies finished-text respondents, file-level population semantics, layer-specific activation and optional older contract families.
+ * @evidence contracts/development/implementation.md#efficient-algorithms layerFiles supplies at most four candidate documents per scope; a bounded number of synchronous existence probes and path constructions dominate, and returned claims/references are fixed in count.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Both scopes reuse layerFiles and shared reference constructors; existence is refreshed for each config build because installed contract files can change between builds.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only bounded claim arrays and reference objects survive under caller ownership; fs.existsSync calls retain no exposed descriptor and there is no process-wide family cache.
  */
 export function createExpressionObligationClaims(
   props: IProductionConfigProps,

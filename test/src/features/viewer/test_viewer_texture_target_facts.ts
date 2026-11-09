@@ -9,10 +9,11 @@ import type { Texture, TextureEventMap, WebGLRenderTarget } from "three";
  * 1. Multiple color attachments retain component formats, integer extents, requested samples and generated/explicit mip metadata; supported short/float/stencil depth retains conservative widths.
  * 2. Unsupported or disabled depth retains unknown/zero width respectively; cube faces remain six while array/volume/3D textures refuse ordinary 2D formats, followed by owned-wrapper disposal requests.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual target observation and checks color populations, integer extents, samples, mip requests, supported custom depth and face metadata.
- * @evidence contracts/testing.md#independent-expectations Authored attachment formats and conservative depth byte widths independently judge returned profiles; observed declarations are not physical framebuffer measurements.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts byte/half/float colors, disabled/short/float/stencil/unknown depth, explicit chains and 2D/cube/array/volume targets while preserving original caller ownership.
- * @evidence contracts/testing.md#execution-ownership The named entry owns real CPU Three target/depth objects and requests their disposal without drawing, querying a GPU or starting a new driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual target observation and checks color populations, integer extents, samples, mip requests, supported custom depth and face metadata.
+ * @evidence contracts/development/testing.md#independent-expectations Authored attachment formats and conservative depth byte widths independently judge returned profiles; observed declarations are not physical framebuffer measurements.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts byte/half/float colors, disabled/short/float/stencil/unknown depth, explicit chains and 2D/cube/array/volume targets while preserving original caller ownership.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry owns real CPU Three target/depth objects and requests their disposal without drawing, querying a GPU or starting a new driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Multiple color attachments retain component formats, integer extents, requested samples and generated/explicit mip metadata; supported...).
  */
 export async function test_viewer_texture_target_facts(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

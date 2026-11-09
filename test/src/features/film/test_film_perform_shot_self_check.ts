@@ -57,10 +57,11 @@ const perform: (
  * 2. Catch an explicitly staged empty scene id through the producer self-check.
  * 3. Admit its nonempty scene-id neighbour.
  *
- * @evidence contracts/testing.md#behavioral-verification Performs valid output and an explicit staged empty scene id, checking the product's artifact self-check throws a located engine-defect diagnosis and a nonempty neighbor succeeds.
- * @evidence contracts/testing.md#independent-expectations A shot artifact needs a nonblank scene identity; the explicit staged input bypasses stage admission so the producer's final check must catch the gap. The expected error fragments establish diagnosis, not all possible self-check failures.
- * @evidence contracts/testing.md#distinguishing-cases Retains valid fixture, empty scene-id defect and one-property nonempty counterexample; ordinary authored input refusals belong to other entries.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_self_check unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs valid output and an explicit staged empty scene id, checking the product's artifact self-check throws a located engine-defect diagnosis and a nonempty neighbor succeeds.
+ * @evidence contracts/development/testing.md#independent-expectations A shot artifact needs a nonblank scene identity; the explicit staged input bypasses stage admission so the producer's final check must catch the gap. The expected error fragments establish diagnosis, not all possible self-check failures.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains valid fixture, empty scene-id defect and one-property nonempty counterexample; ordinary authored input refusals belong to other entries.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_self_check unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Admit the original valid fixture.).
  */
 export function test_film_perform_shot_self_check(): void {
   // 1. valid output passes the check silently.

@@ -5,9 +5,9 @@ import { refineRecoveryFeasibleState } from "../../../../packages/recovery/src/i
 import type { IAutoMovieRecoveryFeasibleFit } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleFit";
 import type { IAutoMovieRecoveryFeasibleModel } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleModel";
 import type { IAutoMovieRecoveryFeasibleProblem } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleProblem";
-import { nclose } from "../internal/nclose";
-import type { IRecoveryFeasibleSpecification } from "../internal/IRecoveryFeasibleSpecification";
 import type { IRecoveryFeasibleObservation } from "../internal/IRecoveryFeasibleObservation";
+import type { IRecoveryFeasibleSpecification } from "../internal/IRecoveryFeasibleSpecification";
+import { nclose } from "../internal/nclose";
 
 /**
  * Feasible nonlinear descent separates boundary KKT, outward stalling and curvature.
@@ -19,10 +19,11 @@ import type { IRecoveryFeasibleObservation } from "../internal/IRecoveryFeasible
  * 4. The singleton constraint x^2<=0 at zero with objective -x has only abnormal zero duals and must remain nonconverged; exhausting one actual trial also cannot certify convergence.
  * 5. The same three normal problems exercise optional complete-affine-QP mixing/curvature and same-base full/half selection with the original100 actual trials, population, gates and expected optima. A selected-step notification receives the actual Euclidean chart increment and matching original robust costs once per selected update, including the curved SOC case.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises the source-owned feasible nonlinear controller and bounded direction solver with actual complete-population norm-at-most-two checks on every accepted/rejected trial. Normal termination requires original-coordinate KKT, while abnormality and insufficient trial budget remain incomplete.
- * @evidence contracts/testing.md#independent-expectations Convex scalar derivatives give exact endpoints (2) and (0,1). On the circle, independent bisection of the authored objective restricted to x=2*cos(theta),y=2*sin(theta) gives the unique boundary optimum. No source output supplies expected states; source certificate checks supplement rather than replace these expectations.
- * @evidence contracts/testing.md#distinguishing-cases Runs baseline and optional SQP/curvature on the same three authored problems, separates QP/mixed/normal status, nonlinear curved feasibility, abnormal zero and actual outer exhaustion. This is analytic method evidence, not photographic registration or point accuracy.
- * @evidence contracts/testing.md#execution-ownership The portable test_recovery_feasible_nonlinear entry uses resident scalar arrays and source numerical helpers only, with no host, native build, image, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises the source-owned feasible nonlinear controller and bounded direction solver with actual complete-population norm-at-most-two checks on every accepted/rejected trial. Normal termination requires original-coordinate KKT, while abnormality and insufficient trial budget remain incomplete.
+ * @evidence contracts/development/testing.md#independent-expectations Convex scalar derivatives give exact endpoints (2) and (0,1). On the circle, independent bisection of the authored objective restricted to x=2*cos(theta),y=2*sin(theta) gives the unique boundary optimum. No source output supplies expected states; source certificate checks supplement rather than replace these expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Runs baseline and optional SQP/curvature on the same three authored problems, separates QP/mixed/normal status, nonlinear curved feasibility, abnormal zero and actual outer exhaustion. This is analytic method evidence, not photographic registration or point accuracy.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_feasible_nonlinear entry uses resident scalar arrays and source numerical helpers only, with no host, native build, image, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Vector soft-L1 with residuals x and three copies of x-3 starts at 1.5 and converges to the constrained endpoint x=2, whose raw objective...).
  */
 export function test_recovery_feasible_nonlinear(): void {
   const specifications: IRecoveryFeasibleSpecification[] = [
@@ -71,19 +72,44 @@ export function test_recovery_feasible_nonlinear(): void {
   const observed: IRecoveryFeasibleObservation[] = [];
   const notifications: number[] = new Array<number>(6).fill(0);
   const notificationChecks: boolean[] = [];
-  const notify: (at: number) => NonNullable<IAutoMovieRecoveryFeasibleProblem<number[]>["accepted"]> =
-    (at: number): NonNullable<IAutoMovieRecoveryFeasibleProblem<number[]>["accepted"]> => (
-      base: number[], increment: readonly number[], oldCost: number, newCost: number,
+  const notify: (
+    at: number,
+  ) => NonNullable<IAutoMovieRecoveryFeasibleProblem<number[]>["accepted"]> =
+    (
+      at: number,
+    ): NonNullable<IAutoMovieRecoveryFeasibleProblem<number[]>["accepted"]> =>
+    (
+      base: number[],
+      increment: readonly number[],
+      oldCost: number,
+      newCost: number,
     ): void => {
       notifications[at]!++;
-      const objective: (q: readonly number[]) => number = (q: readonly number[]): number =>
-        specifications[at % 3]!.residuals(q).reduce((sum: number, row: number[]): number => {
-          const norm: number = Math.hypot(...row);
-          return sum + norm * (norm / (Math.hypot(1, norm) + 1));
-        }, 0);
-      notificationChecks.push(increment.length === base.length && increment.every(Number.isFinite) &&
-        nclose(oldCost, objective(base), 1e-12) &&
-        nclose(newCost, objective(base.map((value: number, axis: number): number => value + increment[axis]!)), 1e-12));
+      const objective: (q: readonly number[]) => number = (
+        q: readonly number[],
+      ): number =>
+        specifications[at % 3]!.residuals(q).reduce(
+          (sum: number, row: number[]): number => {
+            const norm: number = Math.hypot(...row);
+            return sum + norm * (norm / (Math.hypot(1, norm) + 1));
+          },
+          0,
+        );
+      notificationChecks.push(
+        increment.length === base.length &&
+          increment.every(Number.isFinite) &&
+          nclose(oldCost, objective(base), 1e-12) &&
+          nclose(
+            newCost,
+            objective(
+              base.map(
+                (value: number, axis: number): number =>
+                  value + increment[axis]!,
+              ),
+            ),
+            1e-12,
+          ),
+      );
     };
   const problems: IAutoMovieRecoveryFeasibleProblem<number[]>[] =
     specifications.map(
@@ -143,22 +169,30 @@ export function test_recovery_feasible_nonlinear(): void {
             physicalRows: rows,
             width: state.length,
             fromMetric: (step: readonly number[]): number[] => step.slice(),
-            toPhysicalCovector: (value: readonly number[]): number[] => value.slice(),
+            toPhysicalCovector: (value: readonly number[]): number[] =>
+              value.slice(),
           };
         },
         retract: (state: number[], step: readonly number[]): number[] =>
           state.map(
             (value: number, axis: number): number => value + step[axis]!,
           ),
-        constraintValues: (state: number[], selected: readonly number[]): number[] => {
+        constraintValues: (
+          state: number[],
+          selected: readonly number[],
+        ): number[] => {
           const residuals: number[][] = specification.residuals(state);
-          return selected.map((row: number): number => Math.hypot(...residuals[row - 1]!) ** 2 / 4 - 1);
+          return selected.map(
+            (row: number): number =>
+              Math.hypot(...residuals[row - 1]!) ** 2 / 4 - 1,
+          );
         },
       }),
     );
   const results: IAutoMovieRecoveryFeasibleFit<number[]>[] = problems.map(
     (
-      problem: IAutoMovieRecoveryFeasibleProblem<number[]>, at: number,
+      problem: IAutoMovieRecoveryFeasibleProblem<number[]>,
+      at: number,
     ): IAutoMovieRecoveryFeasibleFit<number[]> => {
       const row: (typeof observed)[number] = {
         work: 0,
@@ -180,13 +214,31 @@ export function test_recovery_feasible_nonlinear(): void {
     },
   );
   const accelerated: IAutoMovieRecoveryFeasibleFit<number[]>[] = problems.map(
-    (problem: IAutoMovieRecoveryFeasibleProblem<number[]>, at: number): IAutoMovieRecoveryFeasibleFit<number[]> => {
+    (
+      problem: IAutoMovieRecoveryFeasibleProblem<number[]>,
+      at: number,
+    ): IAutoMovieRecoveryFeasibleFit<number[]> => {
       const row: IRecoveryFeasibleObservation = { work: 0, checkpoints: 0 };
       observed.push(row);
-      return refineRecoveryFeasibleState({ ...problem, accepted: notify(3 + at) }, 100, 1e-8,
+      return refineRecoveryFeasibleState(
+        { ...problem, accepted: notify(3 + at) },
+        100,
+        1e-8,
         { maxIterations: 10000, maxEntries: 10000, maxWork: 10000000 },
-        (): void => { row.checkpoints++; }, (work: number): void => { row.work += work; },
-        { maxSweeps: 64, minimumSingularRatio: 1e-8, maxEntries: 10000, maxResidentEntries: 10000, retainedEntries: 0, maxWork: 10000000 },
+        (): void => {
+          row.checkpoints++;
+        },
+        (work: number): void => {
+          row.work += work;
+        },
+        {
+          maxSweeps: 64,
+          minimumSingularRatio: 1e-8,
+          maxEntries: 10000,
+          maxResidentEntries: 10000,
+          retainedEntries: 0,
+          maxWork: 10000000,
+        },
       );
     },
   );
@@ -209,22 +261,31 @@ export function test_recovery_feasible_nonlinear(): void {
   ];
   const normalChecks: boolean[] = [...results, ...accelerated].map(
     (result: IAutoMovieRecoveryFeasibleFit<number[]>, at: number): boolean =>
-        result.converged &&
-          result.normalKktQualified &&
-          result.termination === "kkt" &&
-          result.state.every((value: number, axis: number): boolean =>
-            nclose(value, expected[at % 3]![axis]!, 1e-5),
-          ) &&
-          problems[at % 3]!.evaluate(result.state) !== null &&
-          result.finalCost < result.initialCost &&
-          result.stationarity !== null &&
-          result.complementarity !== null &&
-          result.complementarity <= 1e-8 &&
-          result.iterations === observed[at]!.checkpoints &&
-          result.acceptedSteps === notifications[at] &&
-          result.directionWork + result.trials.work === observed[at]!.work &&
-          result.trials.baseline + result.trials.nominal + result.trials.numerical + result.trials.corrected + result.trials.half === result.iterations &&
-          result.trials.qualifiedUnselected + result.trials.infeasible + result.trials.nondecreasing + result.trials.armijo === result.iterations - result.acceptedSteps,
+      result.converged &&
+      result.normalKktQualified &&
+      result.termination === "kkt" &&
+      result.state.every((value: number, axis: number): boolean =>
+        nclose(value, expected[at % 3]![axis]!, 1e-5),
+      ) &&
+      problems[at % 3]!.evaluate(result.state) !== null &&
+      result.finalCost < result.initialCost &&
+      result.stationarity !== null &&
+      result.complementarity !== null &&
+      result.complementarity <= 1e-8 &&
+      result.iterations === observed[at]!.checkpoints &&
+      result.acceptedSteps === notifications[at] &&
+      result.directionWork + result.trials.work === observed[at]!.work &&
+      result.trials.baseline +
+        result.trials.nominal +
+        result.trials.numerical +
+        result.trials.corrected +
+        result.trials.half ===
+        result.iterations &&
+      result.trials.qualifiedUnselected +
+        result.trials.infeasible +
+        result.trials.nondecreasing +
+        result.trials.armijo ===
+        result.iterations - result.acceptedSteps,
   );
   const abnormalRows: IAutoMovieSimplexAtom[] = [
     { indices: [0], values: [-1], offset: 0 },
@@ -262,21 +323,23 @@ export function test_recovery_feasible_nonlinear(): void {
     );
   const incompleteCheck: boolean =
     !abnormal.converged &&
-      abnormal.termination === "abnormal-or-stalled" &&
-      !abnormal.normalKktQualified &&
-      abnormal.acceptedSteps === 0 &&
-      abnormal.stationarity === null &&
-      !exhausted.converged &&
-      exhausted.termination === "iteration-budget";
-  const tangentCheck: boolean =
-    [0.25, 0.5, 1].every(
-      (step: number): boolean =>
-        problems[1]!.evaluate([step, step]) === null &&
-        problems[2]!.evaluate([2, step]) === null,
-    );
+    abnormal.termination === "abnormal-or-stalled" &&
+    !abnormal.normalKktQualified &&
+    abnormal.acceptedSteps === 0 &&
+    abnormal.stationarity === null &&
+    !exhausted.converged &&
+    exhausted.termination === "iteration-budget";
+  const tangentCheck: boolean = [0.25, 0.5, 1].every(
+    (step: number): boolean =>
+      problems[1]!.evaluate([step, step]) === null &&
+      problems[2]!.evaluate([2, step]) === null,
+  );
   TestValidator.predicate(
     `complete analytic cases: ${JSON.stringify({ normal: results, accelerated, abnormal, exhausted })}`,
-    normalChecks.every((value: boolean): boolean => value) && incompleteCheck && tangentCheck &&
-      notificationChecks.every((value: boolean): boolean => value) && accelerated[2]!.trials.corrected > 0,
+    normalChecks.every((value: boolean): boolean => value) &&
+      incompleteCheck &&
+      tangentCheck &&
+      notificationChecks.every((value: boolean): boolean => value) &&
+      accelerated[2]!.trials.corrected > 0,
   );
 }

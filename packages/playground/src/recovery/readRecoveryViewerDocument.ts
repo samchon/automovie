@@ -5,13 +5,13 @@
  * Fatal UTF-8 decoding preserves a BOM as data, so parsing and hashing never
  * silently replace malformed original bytes.
  *
- * @evidence contracts/common.md#principled-implementation A decoded-byte cap admits known sizes before allocation and checks each streamed population before copying. Fatal UTF-8 decoding preserves the exact text-to-byte identity later hashed by the candidate loader.
- * @evidence contracts/common.md#clear-and-simple-design File and HTTP reads share one browser byte reader; JSON parsing, recipe admission and display retain their owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No unbounded text read, silent UTF-8 replacement, discarded prefix or ignored extra byte supplies an accepted document.
- * @evidence contracts/common.md#meaningful-documentation States decoded-byte limits, trusted-size conditions, UTF-8/BOM behavior, bounded storage and stream cancellation/lock ownership.
- * @evidence contracts/performance.md#efficient-algorithms One O(B) stream copy/decode uses an at-most-16-MiB buffer, without retained chunks or repeated concatenation. Known uncompressed lengths allocate their actual size.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each explicit file/response is consumed once without a cross-request result cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One reader is acquired, cancelled on failure and unlocked in finally; only decoded text escapes while bounded bytes and the current chunk expire.
+ * @evidence contracts/development/implementation.md#principled-implementation A decoded-byte cap admits known sizes before allocation and checks each streamed population before copying. Fatal UTF-8 decoding preserves the exact text-to-byte identity later hashed by the candidate loader.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure File and HTTP reads share one browser byte reader; JSON parsing, recipe admission and display retain their owners.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No unbounded text read, silent UTF-8 replacement, discarded prefix or ignored extra byte supplies an accepted document.
+ * @evidence contracts/development/common.md#meaningful-documentation States decoded-byte limits, trusted-size conditions, UTF-8/BOM behavior, bounded storage and stream cancellation/lock ownership.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One O(B) stream copy/decode uses an at-most-16-MiB buffer, without retained chunks or repeated concatenation. Known uncompressed lengths allocate their actual size.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each explicit file/response is consumed once without a cross-request result cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader is acquired, cancelled on failure and unlocked in finally; only decoded text escapes while bounded bytes and the current chunk expire.
  */
 export async function readRecoveryViewerDocument(
   source: File | Response,

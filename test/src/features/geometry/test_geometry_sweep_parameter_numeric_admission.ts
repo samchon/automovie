@@ -15,10 +15,11 @@ import { throwsError } from "../internal/throwsError";
  * 2. Origin/cancellation or numeric refusal preserves the declared state.
  * 3. Registered consumers share the same admitted field.
  *
- * @evidence contracts/testing.md#behavioral-verification Registers the real parameter rig's writer/probe, then applies positive subnormal and overflowing finite scales; checks actual buffers after refusal.
- * @evidence contracts/testing.md#independent-expectations A rectangle with both local coordinates at least two times MIN_VALUE must retain a positive component. Coordinates below half a subnormal cannot be represented. Failed probe admission must preserve every previous scale and normal exactly, and failed writes must preserve the output buffer.
- * @evidence contracts/testing.md#distinguishing-cases Separates legal Cartesian origin cancellation in parameter_cells from representational underflow here, and tests dynamic staged probe evaluation rather than only scalar factor admission.
- * @evidence contracts/testing.md#execution-ownership Real private producer imported directly, no replaced methods or foreign hooks; every compile and mutation occurs inside this synchronous scenario.
+ * @evidence contracts/development/testing.md#behavioral-verification Registers the real parameter rig's writer/probe, then applies positive subnormal and overflowing finite scales; checks actual buffers after refusal.
+ * @evidence contracts/development/testing.md#independent-expectations A rectangle with both local coordinates at least two times MIN_VALUE must retain a positive component. Coordinates below half a subnormal cannot be represented. Failed probe admission must preserve every previous scale and normal exactly, and failed writes must preserve the output buffer.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates legal Cartesian origin cancellation in parameter_cells from representational underflow here, and tests dynamic staged probe evaluation rather than only scalar factor admission.
+ * @evidence contracts/development/testing.md#execution-ownership Real private producer imported directly, no replaced methods or foreign hooks; every compile and mutation occurs inside this synchronous scenario.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Ordinary geometry follows its correspondence and numeric domain.).
  */
 export function test_geometry_sweep_parameter_numeric_admission(): void {
   function make(size: number): IAutoMovieSweepRig {
@@ -97,21 +98,21 @@ export function test_geometry_sweep_parameter_numeric_admission(): void {
   );
   TestValidator.predicate(
     "probe refusal preserves scales and normals",
-    probing.scales.every(
-      (value: number, index: number): boolean => nclose(value, scales[index]!, 0),
+    probing.scales.every((value: number, index: number): boolean =>
+      nclose(value, scales[index]!, 0),
     ) &&
-      probing.probes.every(
-        (value: number, index: number): boolean => nclose(value, probes[index]!, 0),
+      probing.probes.every((value: number, index: number): boolean =>
+        nclose(value, probes[index]!, 0),
       ),
   );
   probing.pose(null);
   TestValidator.predicate(
     "the previous valid rest state remains usable",
-    probing.scales.every(
-      (value: number, index: number): boolean => nclose(value, scales[index]!, 0),
+    probing.scales.every((value: number, index: number): boolean =>
+      nclose(value, scales[index]!, 0),
     ) &&
-      probing.probes.every(
-        (value: number, index: number): boolean => nclose(value, probes[index]!, 0),
+      probing.probes.every((value: number, index: number): boolean =>
+        nclose(value, probes[index]!, 0),
       ),
   );
   const invalid: IAutoMovieSweepRig = make(1);

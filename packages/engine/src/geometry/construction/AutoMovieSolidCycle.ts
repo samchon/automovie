@@ -14,26 +14,20 @@
  * cycle turns back in phase. The separate station reader returns only its
  * first crossing and is not a general inverse of that predicate.
  *
- * @evidence contracts/common.md#principled-implementation Hole/island parity reads the stored polygon on its mean-phase query branch; winding parity moves original segment endpoints to the unchanged query's cover, with shared raw endpoints and integer turns. The half-open comparisons do not establish inclusive boundary ownership.
- * @evidence contracts/common.md#clear-and-simple-design One cycle record and its readings: kept, station, foot, centre and shift.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A cycle that turns back in phase is counted by parity, not by an assumed monotone order.
- * @evidence contracts/common.md#meaningful-documentation States the four kinds and which side each keeps.
- * @evidence contracts/performance.md#efficient-algorithms Kept, station, foot and centre scan S vertices; shift is constant time and preparation stores O(S) values.
- * @evidence contracts/performance.md#reuse-equivalent-work Raw readings compute the centre per query; prepared readings reuse invariant centre/endpoints for one unchanged cycle.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Raw readings retain nothing; prepared closures capture the original unchanged cycle and O(S) prepared values until their caller drops them, with no global cache.
+ * @evidence contracts/development/common.md#meaningful-documentation States the four kinds and which side each keeps.
+ * @evidence contracts/development/design.md#principled-representation Represents A trim cycle of a face in its own chart: the closed boundary of the face's kept region, a sequence of shared vertices with their charts on this face and, per segment, the neighbour face across it with the segment's ends in the neighbour's chart: companion namespace of 12 members (`ICycle`, `INeighbour`, `IFoot`, `kept`, `prepare`, `IPrepared`, ...); units and frames named in its text: second, world, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidCycle` in packages/engine/src/geometry/construction/AutoMovieSolidCycle.ts; its surface is the 12 members listed and the text shows 17 other files naming it, mostly packages/engine (14), test (3), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidCycle {
   /**
    * One mutable face boundary, with coindexed chart/mesh vertices and one
    * neighbour mapping per closing polygon segment.
    *
-   * @evidence contracts/common.md#principled-implementation Parallel vertex/chart/segment arrays represent a face's boundary and its shared neighbour correspondence without deriving geometry from a rendered mesh.
-   * @evidence contracts/common.md#clear-and-simple-design Four fields separate kept-side kind, shared mesh identity, this chart and the adjacent chart's endpoint maps.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type does not validate array lengths, winding, simplicity or inclusive boundary classification; prepared readers require unchanged kind/chart data during their lifetime.
-   * @evidence contracts/common.md#meaningful-documentation States coindexing, closing-segment ownership, chart phase unwrapping and which face keeps each side.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A cycle record chooses no classifier or boundary search.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record schedules no work; after mutation callers create fresh prepared readers rather than reuse stale numerical data.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The owning body retains O(S) vertices, chart points and neighbour maps for S segments; snapshots/atlases copy these records, with no record-owned global cache.
+   * @evidence contracts/development/design.md#principled-representation Parallel vertex/chart/segment arrays represent a face's boundary and its shared neighbour correspondence without deriving geometry from a rendered mesh.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four fields separate kept-side kind, shared mesh identity, this chart and the adjacent chart's endpoint maps.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type does not validate array lengths, winding, simplicity or inclusive boundary classification; prepared readers require unchanged kind/chart data during their lifetime.
+   * @evidence contracts/development/common.md#meaningful-documentation States coindexing, closing-segment ownership, chart phase unwrapping and which face keeps each side.
    */
   export interface ICycle {
     /** Which side the face keeps. */
@@ -54,13 +48,10 @@ export namespace AutoMovieSolidCycle {
    * A body face index of -1 marks an open boundary; Body.atlas translates
    * included body indices to its own face indices before returning across.
    *
-   * @evidence contracts/common.md#principled-implementation An adjacent face identity and two corresponding chart endpoints let Body.atlas linearly map a boundary foot's segment share into that face.
-   * @evidence contracts/common.md#clear-and-simple-design One fixed record keeps neighbour identity and directed endpoint correspondence together.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A negative or excluded neighbour is not replaced by another face; the record alone does not prove that both surfaces meet along the segment.
-   * @evidence contracts/common.md#meaningful-documentation Gives body-index ownership, the open sentinel and endpoint order before atlas-index translation.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This correspondence record contains no search or numerical mapping implementation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no queries; its owning cycle provides the correspondence to later readers.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Stores one face number and two chart-point references per cycle segment; their mutable storage belongs to the cycle producer and its copied snapshots.
+   * @evidence contracts/development/design.md#principled-representation An adjacent face identity and two corresponding chart endpoints let Body.atlas linearly map a boundary foot's segment share into that face.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One fixed record keeps neighbour identity and directed endpoint correspondence together.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A negative or excluded neighbour is not replaced by another face; the record alone does not prove that both surfaces meet along the segment.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives body-index ownership, the open sentinel and endpoint order before atlas-index translation.
    */
   export interface INeighbour {
     /** Neighbour index in the owning body, or -1 for an open boundary. */
@@ -77,13 +68,10 @@ export namespace AutoMovieSolidCycle {
    * A nearest polygon-segment foot in Euclidean chart coordinates, not in
    * the surface metric or world millimetres when the parameters differ.
    *
-   * @evidence contracts/common.md#principled-implementation A segment index and clamped affine share identify the chart foot consumed by Clip and Body.atlas's neighbour map.
-   * @evidence contracts/common.md#clear-and-simple-design Three scalars distinguish where the foot lies from the chart distance used to rank it.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The record certifies no analytic-curve or world-distance minimum; foot on an empty chart returns segment/share zero with infinite distance, not an admitted correspondence.
-   * @evidence contracts/common.md#meaningful-documentation States polygon meaning, share range, distance space and the empty-chart sentinel limitation.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A result shape contains no segment search.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no work or query cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns three scalar fields, with no reference to the cycle or query point retained in the result.
+   * @evidence contracts/development/design.md#principled-representation A segment index and clamped affine share identify the chart foot consumed by Clip and Body.atlas's neighbour map.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Three scalars distinguish where the foot lies from the chart distance used to rank it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record certifies no analytic-curve or world-distance minimum; foot on an empty chart returns segment/share zero with infinite distance, not an admitted correspondence.
+   * @evidence contracts/development/common.md#meaningful-documentation States polygon meaning, share range, distance space and the empty-chart sentinel limitation.
    */
   export interface IFoot {
     /** The segment, `k` to `k + 1`. */
@@ -105,13 +93,13 @@ export namespace AutoMovieSolidCycle {
    * @param period The face's phase period; absent for a face that is not periodic.
    * @returns True on the kept side.
    *
-   * @evidence contracts/common.md#principled-implementation Uses crossing parity in the existing chart branches for all four cycle kinds.
-   * @evidence contracts/common.md#clear-and-simple-design Delegates to the same predicate as the prepared reader, without retained state.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps every original inequality and half-period tie; no curve or boundary is moved.
-   * @evidence contracts/common.md#meaningful-documentation The inclusive 'on cycle' wording has an existing strict-parity boundary gap, recorded separately; preparation does not claim to fix it.
-   * @evidence contracts/performance.md#efficient-algorithms Scans S edges, plus the hole/island centre scan, in O(S) time.
-   * @evidence contracts/performance.md#reuse-equivalent-work This live reading caches nothing; prepare is the face-local repeated-query path.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a boolean and retains no input or scratch after the call.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses crossing parity in the existing chart branches for all four cycle kinds.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to the same predicate as the prepared reader, without retained state.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original inequality and half-period tie; no curve or boundary is moved.
+   * @evidence contracts/development/common.md#meaningful-documentation The inclusive 'on cycle' wording has an existing strict-parity boundary gap, recorded separately; preparation does not claim to fix it.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Scans S edges, plus the hole/island centre scan, in O(S) time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work This live reading caches nothing; prepare is the face-local repeated-query path.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a boolean and retains no input or scratch after the call.
    */
   export function kept(
     cycle: Pick<ICycle, "kind" | "chart">,
@@ -127,13 +115,13 @@ export namespace AutoMovieSolidCycle {
    * Polygon boundary ties are exactly kept's existing strict comparisons;
    * this does not establish the documented inclusive-boundary contract.
    *
-   * @evidence contracts/common.md#principled-implementation Reuses only cycle-invariant centre/endpoints; the shared reader retains the existing parity comparisons.
-   * @evidence contracts/common.md#clear-and-simple-design One preparation and one shared predicate serve repeated chart queries without a spatial index.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps the period fallback, Math.round ties and strict crossing tests; the existing exact-boundary contract gap is not repaired here.
-   * @evidence contracts/common.md#meaningful-documentation States the unchanged-input lifetime and the existing boundary-tie limitation.
-   * @evidence contracts/performance.md#efficient-algorithms O(S) preparation and O(S) per query for S edges; cached endpoints avoid per-query tuple allocation.
-   * @evidence contracts/performance.md#reuse-equivalent-work The caller keeps cycle kind/chart and period unchanged while using the reader; a new face creates a new reader after edits or rollback.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned closure owns O(S) endpoint scratch, with no global cache; dropping the reader releases those references.
+   * @evidence contracts/development/implementation.md#principled-implementation Reuses only cycle-invariant centre/endpoints; the shared reader retains the existing parity comparisons.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One preparation and one shared predicate serve repeated chart queries without a spatial index.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the period fallback, Math.round ties and strict crossing tests; the existing exact-boundary contract gap is not repaired here.
+   * @evidence contracts/development/common.md#meaningful-documentation States the unchanged-input lifetime and the existing boundary-tie limitation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(S) preparation and O(S) per query for S edges; cached endpoints avoid per-query tuple allocation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller keeps cycle kind/chart and period unchanged while using the reader; a new face creates a new reader after edits or rollback.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure owns O(S) endpoint scratch, with no global cache; dropping the reader releases those references.
    */
   export function prepare(
     cycle: Pick<ICycle, "kind" | "chart">,
@@ -255,13 +243,13 @@ export namespace AutoMovieSolidCycle {
    *   first crossing wins; if none is found, the first vertex's station is
    *   returned. Multiple crossings are not resolved into a unique station.
    *
-   * @evidence contracts/common.md#principled-implementation Reduces the query into the winding direction inferred from the endpoint phase span, then linearly interpolates the first segment bracketing that phase.
-   * @evidence contracts/common.md#clear-and-simple-design A single scan implements this first-crossing utility separately from kept's multi-crossing parity; no production caller currently requires it as an inverse.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Leaves first-match and first-vertex fallback observable; a turnback cycle does not acquire a unique inverse and malformed empty input is not admitted here.
-   * @evidence contracts/common.md#meaningful-documentation Gives period/nonempty premises, first-crossing behavior and the no-match fallback in chart-station units.
-   * @evidence contracts/performance.md#efficient-algorithms Scans at most S segments with constant working storage, stopping at its first nonhorizontal crossing.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure one-query scan coordinates no work; no station lookup table is retained between calls.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a scalar and retains no cycle, query history or temporary closing-endpoint tuple.
+   * @evidence contracts/development/implementation.md#principled-implementation Reduces the query into the winding direction inferred from the endpoint phase span, then linearly interpolates the first segment bracketing that phase.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A single scan implements this first-crossing utility separately from kept's multi-crossing parity; no production caller currently requires it as an inverse.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Leaves first-match and first-vertex fallback observable; a turnback cycle does not acquire a unique inverse and malformed empty input is not admitted here.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives period/nonempty premises, first-crossing behavior and the no-match fallback in chart-station units.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Scans at most S segments with constant working storage, stopping at its first nonhorizontal crossing.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure one-query scan coordinates no work; no station lookup table is retained between calls.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains no cycle, query history or temporary closing-endpoint tuple.
    */
   export function station(
     cycle: Pick<ICycle, "chart">,
@@ -297,13 +285,13 @@ export namespace AutoMovieSolidCycle {
    *   nearest foot. Equal distances keep the earlier segment; a degenerate
    *   segment uses share zero, and an empty chart leaves distance infinite.
    *
-   * @evidence contracts/common.md#principled-implementation Projects onto each polygon segment by a clamped dot-product share in chart space, respecting the implemented closing-edge/query phase branches, and keeps the strict smallest distance.
-   * @evidence contracts/common.md#clear-and-simple-design One candidate record contains segment/share/distance, directly supporting Clip's split and Body.atlas's neighbour interpolation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses chart distance without claiming a surface-metric or analytic-curve minimum; zero-length segments and the empty-chart sentinel preserve their explicit existing behavior.
-   * @evidence contracts/common.md#meaningful-documentation States finite-arithmetic premises, periodic branch handling, tie order and degenerate/empty output.
-   * @evidence contracts/performance.md#efficient-algorithms Compares all S segment projections to find the polygon's chart minimum without a spatial index; live candidate storage is constant, with a new small record on each improved minimum.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work One independent nearest-foot scan coordinates no shared work; repeated callers rescan the polygon.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns only the final three-scalar foot; earlier candidates and per-edge tuples are call-local and no cycle reference is retained afterward.
+   * @evidence contracts/development/implementation.md#principled-implementation Projects onto each polygon segment by a clamped dot-product share in chart space, respecting the implemented closing-edge/query phase branches, and keeps the strict smallest distance.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One candidate record contains segment/share/distance, directly supporting Clip's split and Body.atlas's neighbour interpolation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses chart distance without claiming a surface-metric or analytic-curve minimum; zero-length segments and the empty-chart sentinel preserve their explicit existing behavior.
+   * @evidence contracts/development/common.md#meaningful-documentation States finite-arithmetic premises, periodic branch handling, tie order and degenerate/empty output.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Compares all S segment projections to find the polygon's chart minimum without a spatial index; live candidate storage is constant, with a new small record on each improved minimum.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One independent nearest-foot scan coordinates no shared work; repeated callers rescan the polygon.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns only the final three-scalar foot; earlier candidates and per-edge tuples are call-local and no cycle reference is retained afterward.
    */
   export function foot(
     cycle: Pick<ICycle, "chart">,
@@ -335,13 +323,13 @@ export namespace AutoMovieSolidCycle {
    * The arithmetic mean of the cycle's stored chart points, with no phase
    * reduction. Empty charts yield two NaNs; this is not an area centroid.
    *
-   * @evidence contracts/common.md#principled-implementation A coordinatewise mean supplies the periodic reference branch for hole/island parity, using the chart's already unwrapped vertex phases.
-   * @evidence contracts/common.md#clear-and-simple-design One scan and two accumulators produce the only centre needed by the cycle reader.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not infer an interior point, polygon-area centroid or alternate phase branch; empty/overflowing arithmetic remains observable.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes stored-coordinate mean, geometric centroid and empty-chart NaNs.
-   * @evidence contracts/performance.md#efficient-algorithms O(S) additions and one two-entry result; no polygon triangulation or pairwise work is performed.
-   * @evidence contracts/performance.md#reuse-equivalent-work Live kept calls recompute this mean, while prepare retains the same value only for unchanged cycle kind/chart/period dependencies.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh two-number tuple and retains neither the chart nor any prior centre globally.
+   * @evidence contracts/development/implementation.md#principled-implementation A coordinatewise mean supplies the periodic reference branch for hole/island parity, using the chart's already unwrapped vertex phases.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan and two accumulators produce the only centre needed by the cycle reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not infer an interior point, polygon-area centroid or alternate phase branch; empty/overflowing arithmetic remains observable.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes stored-coordinate mean, geometric centroid and empty-chart NaNs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(S) additions and one two-entry result; no polygon triangulation or pairwise work is performed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Live kept calls recompute this mean, while prepare retains the same value only for unchanged cycle kind/chart/period dependencies.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh two-number tuple and retains neither the chart nor any prior centre globally.
    */
   export function centre(cycle: Pick<ICycle, "chart">): [number, number] {
     let u: number = 0;
@@ -363,13 +351,13 @@ export namespace AutoMovieSolidCycle {
    *   A defined period must be finite and positive for the nearest-period
    *   interpretation; Math.round retains its existing half-period tie rule.
    *
-   * @evidence contracts/common.md#principled-implementation Adds period times the rounded displacement to select a phase representative nearest reference under finite representable arithmetic and a positive period.
-   * @evidence contracts/common.md#clear-and-simple-design One scalar formula shares the same branch convention across parity, chart feet and mesh metric distances.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An absent period is identity; defined invalid periods/nonfinite arithmetic are not repaired, and Math.round ties are not replaced by modulo normalization.
-   * @evidence contracts/common.md#meaningful-documentation States nearest-reference semantics, positive finite-period premise, identity omission and the preserved tie rule.
-   * @evidence contracts/performance.md#efficient-algorithms Constant scalar arithmetic without a loop over possible turns.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure scalar branch calculation coordinates no requests or effects.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one number and owns no retained state, handle or task.
+   * @evidence contracts/development/implementation.md#principled-implementation Adds period times the rounded displacement to select a phase representative nearest reference under finite representable arithmetic and a positive period.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar formula shares the same branch convention across parity, chart feet and mesh metric distances.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An absent period is identity; defined invalid periods/nonfinite arithmetic are not repaired, and Math.round ties are not replaced by modulo normalization.
+   * @evidence contracts/development/common.md#meaningful-documentation States nearest-reference semantics, positive finite-period premise, identity omission and the preserved tie rule.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar arithmetic without a loop over possible turns.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure scalar branch calculation coordinates no requests or effects.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number and owns no retained state, handle or task.
    */
   export function shift(
     v: number,

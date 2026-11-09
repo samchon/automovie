@@ -31,10 +31,11 @@ const bodyAt: (mass: number, vx: number) => IAutoMovieImpactBody = (
  * 3. With a chain + skeleton, the flinch pose deflects the struck bone by 10°.
  * 4. Without a chain, the recoil pose is null.
  *
- * @evidence contracts/testing.md#behavioral-verification Composes collision, impulse-to-push and optional recoil, asserting impulse, speed, gain, struck bone and pose omission, catching a lost bridge or unconditional flinch generation.
- * @evidence contracts/testing.md#independent-expectations Equal 2 kg bodies closing at 1 m/s give impulse 1 by momentum balance, gain 10 gives flexion 10 and the supplied head chain defines bone identity. This fixture does not independently prove every helper or rendered directional response.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts a supplied chain plus skeleton with neither supplied while preserving identical body/gain inputs; detailed mechanics, invalid inputs and ROM bounds belong to neighboring helper units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit invokes the composer with the existing skeletal fixture and owns its assertions without hosts, rendered assets or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes collision, impulse-to-push and optional recoil, asserting impulse, speed, gain, struck bone and pose omission, catching a lost bridge or unconditional flinch generation.
+ * @evidence contracts/development/testing.md#independent-expectations Equal 2 kg bodies closing at 1 m/s give impulse 1 by momentum balance, gain 10 gives flexion 10 and the supplied head chain defines bone identity. This fixture does not independently prove every helper or rendered directional response.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a supplied chain plus skeleton with neither supplied while preserving identical body/gain inputs; detailed mechanics, invalid inputs and ROM bounds belong to neighboring helper units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit invokes the composer with the existing skeletal fixture and owns its assertions without hosts, rendered assets or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The impulse is (1,0,0) (jn = closing / (1/mₐ + 1/m_b) = 1) and speed 1.).
  */
 export function test_physics_suggest_collision_response(): void {
   const withChain: ReturnType<typeof suggestCollisionResponse> =

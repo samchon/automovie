@@ -3,13 +3,10 @@
  * `equalities` and nonnegative slacks afterwards. P is diagonal. Scaling means
  * original x=D*xhat and original z=E*zhat/c; authored data remains separate.
  *
- * @evidence contracts/common.md#principled-implementation Represents precisely the diagonal PSD, equality and interval problem after signed conic expansion and reversible diagonal equilibration.
- * @evidence contracts/common.md#clear-and-simple-design This private numerical record joins conic assembly, factors, directions and residuals without exposing cone construction to callers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Every stored coefficient, including zero and tiny nonzero values, remains represented; scaling records invert the coordinate change.
- * @evidence contracts/common.md#meaningful-documentation Documents standard form, cone partition, diagonal objective, dual sign mapping and inverse scaling.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A numerical data record; its producers and numerical owners answer their traversal costs.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record owns one solve and provides no cross-call cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Arrays belong to the synchronous solve and become unreachable on return; sizes follow variables, expanded rows and expanded nonzeros.
+ * @evidence contracts/development/design.md#principled-representation Represents precisely the diagonal PSD, equality and interval problem after signed conic expansion and reversible diagonal equilibration.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface This private numerical record joins conic assembly, factors, directions and residuals without exposing cone construction to callers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every stored coefficient, including zero and tiny nonzero values, remains represented; scaling records invert the coordinate change.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents standard form, cone partition, diagonal objective, dual sign mapping and inverse scaling.
  */
 export interface IAutoMovieQuadraticConicProgram {
   /** Number of primal variables. */

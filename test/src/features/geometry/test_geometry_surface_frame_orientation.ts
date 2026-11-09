@@ -17,10 +17,11 @@ import { nclose, vclose } from "../internal/predicates";
  * 3. A 1e-180 metre triangle remains noncollinear despite squared-area underflow.
  * 4. Near-parallel, extreme-length destination directions retain their plane.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises normal-sign selection, a second source plane and axis, a tiny triangle and nearly parallel target directions, asserting literal point placements and source normal. Wrong cross order, ignoring the reference or a fixed degeneracy threshold fails these cases.
- * @evidence contracts/testing.md#independent-expectations Axis-aligned source coordinates determine their normal and centroid analytically; reversing the chosen normal reflects the triangle about its forward axis. Small-scale expectations divide output by the authored scale before comparing literal coordinates, independent of implementation thresholds or output snapshots.
- * @evidence contracts/testing.md#distinguishing-cases Separates positive and negative reference signs, non-X source heading, tiny nonzero geometry and a finite nearly parallel target from the exact zero/parallel refusals in the admission test.
- * @evidence contracts/testing.md#execution-ownership This portable named geometry unit owns its loops and numerical assertions without spawning a process, renderer, browser, compiler or runtime host.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises normal-sign selection, a second source plane and axis, a tiny triangle and nearly parallel target directions, asserting literal point placements and source normal. Wrong cross order, ignoring the reference or a fixed degeneracy threshold fails these cases.
+ * @evidence contracts/development/testing.md#independent-expectations Axis-aligned source coordinates determine their normal and centroid analytically; reversing the chosen normal reflects the triangle about its forward axis. Small-scale expectations divide output by the authored scale before comparing literal coordinates, independent of implementation thresholds or output snapshots.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates positive and negative reference signs, non-X source heading, tiny nonzero geometry and a finite nearly parallel target from the exact zero/parallel refusals in the admission test.
+ * @evidence contracts/development/testing.md#execution-ownership This portable named geometry unit owns its loops and numerical assertions without spawning a process, renderer, browser, compiler or runtime host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Opposite normal references select opposite sides about the same heading.).
  */
 export function test_geometry_surface_frame_orientation(): void {
   const source: IAutoMovieVector3[] = [

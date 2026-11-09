@@ -20,10 +20,11 @@ import { nclose, validationHasWarningCount } from "../internal/predicates";
  * 4. The `violation` builder defaults to `"error"` and stamps `"warning"` when
  *    asked, preserving `overshoot`; an empty list is a clean success.
  *
- * @evidence contracts/testing.md#behavioral-verification Constructs actual collector findings and converts their arrays, checking warning-only success, mixed failure with both rows, default error severity and explicit warning/overshoot fields. Advisory feedback cannot silently block correction or disappear beside an error.
- * @evidence contracts/testing.md#independent-expectations The declared error-versus-warning contract supplies expected severity and envelope outcomes; authored one/two-row inputs supply counts independently of conversion output. This unit does not judge whether a caller chose the appropriate physical severity.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts empty, warning-only, error-only and mixed populations, plus default and explicit builder severity. Located field admission belongs to validators; this unit owns envelope consequence and preservation of coexistence.
- * @evidence contracts/testing.md#execution-ownership The named portable unit invokes collector/builder/conversion APIs directly using local records. No filesystem, consumer installation or render host participates, and no external harness registers these cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Constructs actual collector findings and converts their arrays, checking warning-only success, mixed failure with both rows, default error severity and explicit warning/overshoot fields. Advisory feedback cannot silently block correction or disappear beside an error.
+ * @evidence contracts/development/testing.md#independent-expectations The declared error-versus-warning contract supplies expected severity and envelope outcomes; authored one/two-row inputs supply counts independently of conversion output. This unit does not judge whether a caller chose the appropriate physical severity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts empty, warning-only, error-only and mixed populations, plus default and explicit builder severity. Located field admission belongs to validators; this unit owns envelope consequence and preservation of coexistence.
+ * @evidence contracts/development/testing.md#execution-ownership The named portable unit invokes collector/builder/conversion APIs directly using local records. No filesystem, consumer installation or render host participates, and no external harness registers these cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `warn` pushes a `"warning"`-severity violation; a warning-only collector).
  */
 export function test_validation_severity_envelope(): void {
   const warnOnly: ViolationCollector = new ViolationCollector();

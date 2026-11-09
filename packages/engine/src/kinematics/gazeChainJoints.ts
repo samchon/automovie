@@ -69,13 +69,13 @@ const shareOf: (need: number, range: IAutoMovieAngleRange | null) => number = (
  * @returns The joints of the aim pose, parent first; abduction is always
  *   `null`, and a neck axis that carries nothing is `null`.
  *
- * @evidence contracts/common.md#principled-implementation A greedy head-first split per axis bounded by each declared range, where `shareOf` never overshoots or flips sign; it relies on angles about the same default-basis axis adding along a parent-child chain, which is exact for one axis when the head rests unrotated under the neck, and the stated limitation is that a simultaneous flexion and twist split composes non-commuting rotations.
- * @evidence contracts/common.md#clear-and-simple-design The actor synthesizer solves the aim angles with `aimYawPitch` and this function only decides which joints carry them; ROM lookup goes through the shared `getConstraint`, so the split and the gate read the same ranges.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The residual is left on the head for the gate to report instead of being clamped, and the single-bone fallbacks follow from the rig's structure, not from a named rig or shot.
- * @evidence contracts/common.md#meaningful-documentation States the head-first order, the unclamped residual and why, the additivity premise and its limitation, every fallback to the single head joint including the parent requirement, the ROM fallback, and each parameter's unit and sign.
- * @evidence contracts/performance.md#efficient-algorithms Two linear searches of the rig's bones and constant arithmetic for two axes; it allocates only the returned joints.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one aim and rig that coordinates no work across calls.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned joints.
+ * @evidence contracts/development/implementation.md#principled-implementation A greedy head-first split per axis bounded by each declared range, where `shareOf` never overshoots or flips sign; it relies on angles about the same default-basis axis adding along a parent-child chain, which is exact for one axis when the head rests unrotated under the neck, and the stated limitation is that a simultaneous flexion and twist split composes non-commuting rotations.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The actor synthesizer solves the aim angles with `aimYawPitch` and this function only decides which joints carry them; ROM lookup goes through the shared `getConstraint`, so the split and the gate read the same ranges.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The residual is left on the head for the gate to report instead of being clamped, and the single-bone fallbacks follow from the rig's structure, not from a named rig or shot.
+ * @evidence contracts/development/common.md#meaningful-documentation States the head-first order, the unclamped residual and why, the additivity premise and its limitation, every fallback to the single head joint including the parent requirement, the ROM fallback, and each parameter's unit and sign.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two linear searches of the rig's bones and constant arithmetic for two axes; it allocates only the returned joints.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one aim and rig that coordinates no work across calls.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned joints.
  */
 export const gazeChainJoints: (props: {
   rig: IAutoMovieSkeleton | null;

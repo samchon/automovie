@@ -8,13 +8,10 @@ import {
  *
  * The shape union carries exactly the dimensions each primitive reads, so a dimension the shape ignores cannot be written at all; the retired parameter plan had to refuse such keys at runtime.
  *
- * @evidence contracts/common.md#principled-implementation Reuses the interface `AutoMoviePrimitiveShape` discriminated union, so the compiler admits each shape's own dimensions and engine model admission owns their numeric domains.
- * @evidence contracts/common.md#clear-and-simple-design Carries only the id, shape and material the producer writes into its single part; placement and LOD stay with the scene and population that own them.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No field exists for a particular production or fixture, and no shape is special-cased.
- * @evidence contracts/common.md#meaningful-documentation Members give the id's role, metre units through the shape union, and the material's adoption by reference.
- * @evidenceExclude contracts/performance.md#efficient-algorithms An input record selects no algorithm; the constant build it feeds is costed on `createAutoMoviePrimitiveProp`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A plain argument record coordinates no work across calls or consumers.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the record; the producer keeps only the shape copy and material reference inside the returned model.
+ * @evidence contracts/development/design.md#principled-representation Reuses the interface `AutoMoviePrimitiveShape` discriminated union, so the compiler admits each shape's own dimensions and engine model admission owns their numeric domains.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Carries only the id, shape and material the producer writes into its single part; placement and LOD stay with the scene and population that own them.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No field exists for a particular production or fixture, and no shape is special-cased.
+ * @evidence contracts/development/common.md#meaningful-documentation Members give the id's role, metre units through the shape union, and the material's adoption by reference.
  */
 export interface IAutoMoviePrimitivePropProps {
   /** Non-blank model id that scene nodes and populations cite. */

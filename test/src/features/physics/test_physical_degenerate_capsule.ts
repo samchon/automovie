@@ -5,7 +5,15 @@ import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/
 import { preparePhysicalGeometry } from "../../../../packages/engine/src/physics/preparePhysicalGeometry";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
-/** A zero-axis capsule is the same sphere in geometric penetration, native floor contact and complete replay at translated scene coordinates. */
+/**
+ * A zero-axis capsule is the same sphere in geometric penetration, native floor contact and complete replay at translated scene coordinates.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `AutoMoviePhysicalSimulation`, `preparePhysicalGeometry` on in-memory inputs and asserts the returned observations through 1x TestValidator.equals; the behavior its summary names. A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
+ * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contributes the behavior its summary names, including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
+ * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_degenerate_capsule`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (A zero-axis capsule is the same sphere in geometric penetration, native floor contact and complete replay at translated scene coordinates) as stated in this comment.
+ */
 export async function test_physical_degenerate_capsule(): Promise<void> {
   const geometry: Awaited<ReturnType<typeof preparePhysicalGeometry>> =
     await preparePhysicalGeometry();

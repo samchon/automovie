@@ -94,10 +94,11 @@ const reflected: (values: number[]) => boolean = (
  *    proves the check can fail.
 
  *
- * @evidence contracts/testing.md#behavioral-verification Mirror partners and the centre column expose changed neighbour/fold ordering; motion and contact facts prevent untouched rest from satisfying the property, while an asymmetric anchor must break it.
- * @evidence contracts/testing.md#independent-expectations Geometric reflection x->-x with equal y/z follows the authored symmetric field independently of computed trajectory values. Zero-tolerance nclose preserves exact finite numeric equality, with Object.is additionally distinguishing centre-column signed zero; this 128-step witness proves neither every duration nor cross-host bit identity.
- * @evidence contracts/testing.md#distinguishing-cases Odd-width centre particles, gravity/drag/gust, paired anchors and symmetric contacts exercise the active fold; the asymmetric-anchor control distinguishes intended preserved symmetry from a forced output mirror.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_soft_body_mirror_symmetry; the exported test owns both symmetric and broken-symmetry cases and installs no visual/GPU consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Mirror partners and the centre column expose changed neighbour/fold ordering; motion and contact facts prevent untouched rest from satisfying the property, while an asymmetric anchor must break it.
+ * @evidence contracts/development/testing.md#independent-expectations Geometric reflection x->-x with equal y/z follows the authored symmetric field independently of computed trajectory values. Zero-tolerance nclose preserves exact finite numeric equality, with Object.is additionally distinguishing centre-column signed zero; this 128-step witness proves neither every duration nor cross-host bit identity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Odd-width centre particles, gravity/drag/gust, paired anchors and symmetric contacts exercise the active fold; the asymmetric-anchor control distinguishes intended preserved symmetry from a forced output mirror.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_soft_body_mirror_symmetry; the exported test owns both symmetric and broken-symmetry cases and installs no visual/GPU consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: After 128 steps every particle's position is the exact negation in `x`, and).
  */
 export function test_soft_body_mirror_symmetry(): void {
   const domain: IAutoMovieSoftBodyDomain = symmetric();

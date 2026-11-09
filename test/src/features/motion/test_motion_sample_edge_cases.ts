@@ -57,10 +57,11 @@ const flex: (
  *
  * The existing empty-keyframe refusal additionally pins the sampler's own diagnostic; it is not a whole clip-validation test.
  *
- * @evidence contracts/testing.md#behavioral-verification Samples the authored Bézier midpoint, zero-duration first pose, negative looping time, opposite sparse-bone directions and one-sided channel weights, then requires the exact empty-key diagnostic fragment.
- * @evidence contracts/testing.md#independent-expectations The diagonal Bézier has x(s)=y(s), linear 0-to-100 gives 50, negative -0.25 wraps to 0.75 for value 90, and neutral-to-40 or one-sided weight 1 gives midpoint 20/0.5. All expected values are authored independently of the sampler, and the original Bézier tolerance 0.5 is preserved rather than overstated as exact inversion.
- * @evidence contracts/testing.md#distinguishing-cases Retains Bézier versus named-linear paths, duration zero versus positive loop, negative clock, absent-start/absent-end bone and channel cases, and empty keys. Admission of malformed clips and complete expression laws belong to their separate units.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns direct sample calls over existing fixture constructors; private flexion and channel readers register no cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the authored Bézier midpoint, zero-duration first pose, negative looping time, opposite sparse-bone directions and one-sided channel weights, then requires the exact empty-key diagnostic fragment.
+ * @evidence contracts/development/testing.md#independent-expectations The diagonal Bézier has x(s)=y(s), linear 0-to-100 gives 50, negative -0.25 wraps to 0.75 for value 90, and neutral-to-40 or one-sided weight 1 gives midpoint 20/0.5. All expected values are authored independently of the sampler, and the original Bézier tolerance 0.5 is preserved rather than overstated as exact inversion.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains Bézier versus named-linear paths, duration zero versus positive loop, negative clock, absent-start/absent-end bone and channel cases, and empty keys. Admission of malformed clips and complete expression laws belong to their separate units.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns direct sample calls over existing fixture constructors; private flexion and channel readers register no cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A keyframe whose easing is `cubicBezier` with control points routes through).
  */
 export function test_motion_sample_edge_cases(): void {
   // 1. cubicBezier easing keyframe

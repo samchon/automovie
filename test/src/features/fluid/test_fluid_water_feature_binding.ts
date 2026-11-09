@@ -77,10 +77,11 @@ const placed: (props: {
  *    because drawing another lattice's water under this feature's name is a
  *    silent wrong frame.
  *
- * @evidence contracts/testing.md#behavioral-verification Validates feature/environment/space/domain/rim joins and bed-point containment, then lowers static, simulated and flowing frames and observes shared step/state/surface/spray fields plus foreign-domain refusal.
- * @evidence contracts/testing.md#independent-expectations Literal identities and basin halfspaces independently require valid joins and in-volume bed centres; the same 3-by-3 lattice changes only its interior bed height for the convex refusal regression. Mode clocks and authored zero-bed heights determine lowering expectations.
- * @evidence contracts/testing.md#distinguishing-cases Retains original missing/duplicate/blank identities, kind/mode/material refusals, domain re-pathing and overshoot, semantic skip, outside/notched/seated/unsound geometry and frame modes; the interior-bed twin requires refusal of a height excursion despite inside corner beds. No visual result is claimed.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns every existing binding/lowering case and the approved same-shape interior-bed twin through engine calls; internal fixture helpers only supply records and no renderer, browser or GPU starts.
+ * @evidence contracts/development/testing.md#behavioral-verification Validates feature/environment/space/domain/rim joins and bed-point containment, then lowers static, simulated and flowing frames and observes shared step/state/surface/spray fields plus foreign-domain refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Literal identities and basin halfspaces independently require valid joins and in-volume bed centres; the same 3-by-3 lattice changes only its interior bed height for the convex refusal regression. Mode clocks and authored zero-bed heights determine lowering expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains original missing/duplicate/blank identities, kind/mode/material refusals, domain re-pathing and overshoot, semantic skip, outside/notched/seated/unsound geometry and frame modes; the interior-bed twin requires refusal of a height excursion despite inside corner beds. No visual result is claimed.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns every existing binding/lowering case and the approved same-shape interior-bed twin through engine calls; internal fixture helpers only supply records and no renderer, browser or GPU starts.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A pond bound to a real space, with a rim that really bounds it and a valid).
  */
 export function test_fluid_water_feature_binding(): void {
   const environment: ReturnType<typeof basinEnvironment> = basinEnvironment();

@@ -49,10 +49,11 @@ const axis: (
  *    layer does not clear it).
  * 7. An empty layer list is rejected.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls blending for identity, equal/biased means, disjoint axes/joints and root-authority twins, then observes scalar/null results, first bone/count/skeleton and root X; an empty list must refuse.
- * @evidence contracts/testing.md#independent-expectations Authored 20/60 values average to 40 or (3*20+60)/4=30, while per-axis missing values must not dilute 20/40. Literal root X values 5/2/7, first bone and skeleton identity are independent expectations; existing tolerances remain and full root object identity is not asserted.
- * @evidence contracts/testing.md#distinguishing-cases Retains single versus equal/biased layers, unset axes, disjoint joints, an explicit owner before a later rooted layer and null-first/no-owner fallback, plus empty input. Multiple root owners, bad weights and ROM admission belong to other boundaries.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all direct blend calls with existing fixture constructors. Private root/axis readers register no extra cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls blending for identity, equal/biased means, disjoint axes/joints and root-authority twins, then observes scalar/null results, first bone/count/skeleton and root X; an empty list must refuse.
+ * @evidence contracts/development/testing.md#independent-expectations Authored 20/60 values average to 40 or (3*20+60)/4=30, while per-axis missing values must not dilute 20/40. Literal root X values 5/2/7, first bone and skeleton identity are independent expectations; existing tolerances remain and full root object identity is not asserted.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains single versus equal/biased layers, unset axes, disjoint joints, an explicit owner before a later rooted layer and null-first/no-owner fallback, plus empty input. Multiple root owners, bad weights and ROM admission belong to other boundaries.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns all direct blend calls with existing fixture constructors. Private root/axis readers register no extra cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A single layer at weight 1 reproduces its own axes exactly; unset axes stay).
  */
 export function test_perform_blend_poses(): void {
   // 1. identity at weight 1

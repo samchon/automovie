@@ -17,25 +17,19 @@ interface Inverse {
 /**
  * The positive rational quadratic from (a,0) through corner (a,b) to (0,b), with middle weight w=r/(1-r). It is evaluated as that conic, without a polar polynomial approximation.
  *
- * @evidence contracts/common.md#principled-implementation Uses the rational quadratic and its analytic native-to-polar chain rule. The positive ray intersection is solved by a cancellation-avoiding quadratic in t/(1-t), with reflected evaluation near the other endpoint.
- * @evidence contracts/common.md#clear-and-simple-design Numeric point and full-ray adapters share one nearest-end inverse; ArcField owns their identical point and the full reader's positive velocity arithmetic.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No aspect-specific shape, sampled fitting or reversed triangle is used; finite representability remains a caller admission premise.
- * @evidence contracts/common.md#meaningful-documentation States source weight, endpoints, angle units, derivatives and the difference between exact conic formulas and binary64 observations.
- * @evidence contracts/performance.md#efficient-algorithms Native/ray evaluation and bounds take constant arithmetic, with no iterative ray search.
- * @evidence contracts/performance.md#reuse-equivalent-work Each ray shares one normalized point/tangent evaluation with its guide; the section owner retains prepared rational ends.
- * @evidence contracts/performance.md#bound-retention-and-release-resources All temporary pairs and returned fixed-size readings are invocation-local; no global data is retained.
+ * @evidence contracts/development/common.md#meaningful-documentation States source weight, endpoints, angle units, derivatives and the difference between exact conic formulas and binary64 observations.
+ * @evidence contracts/development/design.md#principled-representation Represents The positive rational quadratic from (a,0) through corner (a,b) to (0,b), with middle weight w=r/(1-r): companion namespace of 13 members (`IRay`, `curvature`, `parameter`, `guide`, `interiorGuide`, `radius`, ...); units and frames named in its text: rational, second, local, radians. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConicArc` in packages/engine/src/geometry/construction/AutoMovieConicArc.ts; its surface is the 13 members listed and the text shows 10 other files naming it, mostly packages/engine (6), test (4), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConicArc {
   /**
    * One numeric ray location shared with source derivative readers.
    *
-   * @evidence contracts/common.md#principled-implementation One selected native/projective clock and its geometric reading identify the actual source point.
-   * @evidence contracts/common.md#clear-and-simple-design Quadratic and G2 adapters share one location record.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A descriptor does not claim source derivatives or retain a source callback.
-   * @evidence contracts/common.md#meaningful-documentation Point and tangent use the original quarter chart; radial derivatives increase polar angle; reverse identifies the chosen end chart.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Its consumer reuses the supplied inverse result.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fixed numeric arrays without cached sources.
+   * @evidence contracts/development/design.md#principled-representation One selected native/projective clock and its geometric reading identify the actual source point.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Quadratic and G2 adapters share one location record.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A descriptor does not claim source derivatives or retain a source callback.
+   * @evidence contracts/development/common.md#meaningful-documentation Point and tangent use the original quarter chart; radial derivatives increase polar angle; reverse identifies the chosen end chart.
    */
   export interface IRay {
     /** Physical point in the original quarter chart. */
@@ -66,13 +60,13 @@ export namespace AutoMovieConicArc {
   /**
    * Endpoint geometric curvature at extent a across extent b.
    *
-   * @evidence contracts/common.md#principled-implementation The rational quadratic's endpoint curvature is a/(2w^2 b^2), with w=r/(1-r).
-   * @evidence contracts/common.md#clear-and-simple-design One formula is shared by guide ownership and curvature corrections.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads the declared extents/shoulder, without fitting or a fallback curvature.
-   * @evidence contracts/common.md#meaningful-documentation States the geometric rather than radial curvature and inverse-length unit.
-   * @evidence contracts/performance.md#efficient-algorithms Constant arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A scalar formula has no effectful work to share.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one number and retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation The rational quadratic's endpoint curvature is a/(2w^2 b^2), with w=r/(1-r).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One formula is shared by guide ownership and curvature corrections.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the declared extents/shoulder, without fitting or a fallback curvature.
+   * @evidence contracts/development/common.md#meaningful-documentation States the geometric rather than radial curvature and inverse-length unit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A scalar formula has no effectful work to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number and retains nothing.
    */
   export function curvature(a: number, b: number, r: number): number {
     return AutoMovieConicArcField.curvature(
@@ -86,13 +80,13 @@ export namespace AutoMovieConicArc {
   /**
    * Native parameter of a ray at angle phi in [0,pi/2].
    *
-   * @evidence contracts/common.md#principled-implementation Solves B*u^2+2w(B-A)u-A=0 for nonnegative u=t/(1-t), A=a*sin(phi), B=b*cos(phi), reflecting the smaller ratio to avoid cancellation.
-   * @evidence contracts/common.md#clear-and-simple-design One closed form replaces an iterative ray inversion.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Endpoints are their exact source identities; no interior angle or radius is clamped.
-   * @evidence contracts/common.md#meaningful-documentation States admitted quadrant and dimensionless result.
-   * @evidence contracts/performance.md#efficient-algorithms Two trigonometric reads and constant scalar arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure ray inversion schedules no effectful work.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains no input or result state.
+   * @evidence contracts/development/implementation.md#principled-implementation Solves B*u^2+2w(B-A)u-A=0 for nonnegative u=t/(1-t), A=a*sin(phi), B=b*cos(phi), reflecting the smaller ratio to avoid cancellation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed form replaces an iterative ray inversion.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Endpoints are their exact source identities; no interior angle or radius is clamped.
+   * @evidence contracts/development/common.md#meaningful-documentation States admitted quadrant and dimensionless result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two trigonometric reads and constant scalar arithmetic.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure ray inversion schedules no effectful work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or result state.
    */
   export function parameter(
     a: number,
@@ -114,13 +108,13 @@ export namespace AutoMovieConicArc {
   /**
    * Native conic point as a polar guide, including its analytic first/second angle derivatives.
    *
-   * @evidence contracts/common.md#principled-implementation Differentiates the rational numerator/denominator twice, then applies rho_t and phi_t chain rules; normalized extents reduce unit-scale overflow.
-   * @evidence contracts/common.md#clear-and-simple-design Preserves the former conic-guide API through one formula owner.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no neighbour differences or sampled interpolant; unrepresentable arithmetic remains nonfinite for section admission.
-   * @evidence contracts/common.md#meaningful-documentation States native parameter, angular offset and the radial jet meaning.
-   * @evidence contracts/performance.md#efficient-algorithms Constant quotient/chain-rule arithmetic.
-   * @evidence contracts/performance.md#reuse-equivalent-work The internal guide formula consumes the same normalized point that a ray location uses for its physical point and tangent.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary fixed-size pairs and the returned guide belong to this query.
+   * @evidence contracts/development/implementation.md#principled-implementation Differentiates the rational numerator/denominator twice, then applies rho_t and phi_t chain rules; normalized extents reduce unit-scale overflow.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Preserves the former conic-guide API through one formula owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses no neighbour differences or sampled interpolant; unrepresentable arithmetic remains nonfinite for section admission.
+   * @evidence contracts/development/common.md#meaningful-documentation States native parameter, angular offset and the radial jet meaning.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant quotient/chain-rule arithmetic.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The internal guide formula consumes the same normalized point that a ray location uses for its physical point and tangent.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary fixed-size pairs and the returned guide belong to this query.
    */
   export function guide(
     a: number,
@@ -207,13 +201,13 @@ export namespace AutoMovieConicArc {
   /**
    * Exact-conic polar radius and two derivatives on one quarter, with reflected native evaluation near its second endpoint.
    *
-   * @evidence contracts/common.md#principled-implementation Reads the rational arc at its closed-form ray intersection; reflection changes only the sign of the first polar derivative.
-   * @evidence contracts/common.md#clear-and-simple-design One radius owner serves sections and their local correction bounds.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No polar polynomial replaces the conic, and no aspect or specimen branch changes its shape.
-   * @evidence contracts/common.md#meaningful-documentation States local angle and radial derivative order.
-   * @evidence contracts/performance.md#efficient-algorithms Constant ray and native-guide work; no iteration or source sampling grid.
-   * @evidence contracts/performance.md#reuse-equivalent-work Shares native guide arithmetic instead of maintaining another conic formula.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a three-number jet and retains no query state.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the rational arc at its closed-form ray intersection; reflection changes only the sign of the first polar derivative.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One radius owner serves sections and their local correction bounds.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No polar polynomial replaces the conic, and no aspect or specimen branch changes its shape.
+   * @evidence contracts/development/common.md#meaningful-documentation States local angle and radial derivative order.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant ray and native-guide work; no iteration or source sampling grid.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares native guide arithmetic instead of maintaining another conic formula.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a three-number jet and retains no query state.
    */
   export function radius(
     a: number,
@@ -227,13 +221,13 @@ export namespace AutoMovieConicArc {
   /**
    * Cartesian-to-polar analytic chain rule on a regular positive ray.
    *
-   * @evidence contracts/common.md#principled-implementation Differentiates rho=|C| and phi=atan2(y,x) twice and divides by the positive native angular speed.
-   * @evidence contracts/common.md#clear-and-simple-design One standalone conversion supports explicit native-jet inspection; production G2 rays use projective geometric readings.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A nonpositive/nonfinite angular speed produces a nonfinite jet rather than a replacement derivative.
-   * @evidence contracts/common.md#meaningful-documentation The input is [x,y,x_t,y_t,x_tt,y_tt]; the output differentiates radius in radians.
-   * @evidence contracts/performance.md#efficient-algorithms Constant scalar arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure conversion schedules no work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns three numbers and retains no native curve.
+   * @evidence contracts/development/implementation.md#principled-implementation Differentiates rho=|C| and phi=atan2(y,x) twice and divides by the positive native angular speed.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One standalone conversion supports explicit native-jet inspection; production G2 rays use projective geometric readings.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A nonpositive/nonfinite angular speed produces a nonfinite jet rather than a replacement derivative.
+   * @evidence contracts/development/common.md#meaningful-documentation The input is [x,y,x_t,y_t,x_tt,y_tt]; the output differentiates radius in radians.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar arithmetic.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure conversion schedules no work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns three numbers and retains no native curve.
    */
   export function polar(
     c: readonly [number, number, number, number, number, number],
@@ -283,13 +277,13 @@ export namespace AutoMovieConicArc {
   /**
    * Native rational-quadratic speed, in source length per unit parameter.
    *
-   * @evidence contracts/common.md#principled-implementation Uses x_t=-2at(s+wt)/D^2 and y_t=2bs(t+ws)/D^2, avoiding a polar singular turn in arclength quadrature.
-   * @evidence contracts/common.md#clear-and-simple-design One native speed serves actual conic lengths.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Computes the declared rational curve without a sampled replacement or aspect exemption.
-   * @evidence contracts/common.md#meaningful-documentation Extents use one length unit, r is the shoulder and t is the original unit parameter.
-   * @evidence contracts/performance.md#efficient-algorithms Constant scalar arithmetic and one hypot.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure speed query schedules no work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one number and retains no source.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses x_t=-2at(s+wt)/D^2 and y_t=2bs(t+ws)/D^2, avoiding a polar singular turn in arclength quadrature.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One native speed serves actual conic lengths.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Computes the declared rational curve without a sampled replacement or aspect exemption.
+   * @evidence contracts/development/common.md#meaningful-documentation Extents use one length unit, r is the shoulder and t is the original unit parameter.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar arithmetic and one hypot.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure speed query schedules no work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number and retains no source.
    */
   export function speed(a: number, b: number, r: number, t: number): number {
     const velocity: readonly [number, number] = AutoMovieConicArcField.velocity(
@@ -312,13 +306,13 @@ export namespace AutoMovieConicArc {
   /**
    * Locate a rational-quadratic ray once for numeric and source readers.
    *
-   * @evidence contracts/common.md#principled-implementation The cancellation-avoiding native inverse selects the nearest endpoint; positive rational velocity fixes tangent and curvature.
-   * @evidence contracts/common.md#clear-and-simple-design Returns the existing phase jet and the identical fixed native clock.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No sampled curve or clock derivative supplies source partials.
-   * @evidence contracts/common.md#meaningful-documentation Local phi is in[0,pi/2]; invalid numerical geometry returns null.
-   * @evidence contracts/performance.md#efficient-algorithms Constant inverse and native geometry arithmetic.
-   * @evidence contracts/performance.md#reuse-equivalent-work One normalized point/tangent evaluation serves the guide and physical geometry; the source reader consumes its descriptor without another ray solve.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed-size numeric data escapes.
+   * @evidence contracts/development/implementation.md#principled-implementation The cancellation-avoiding native inverse selects the nearest endpoint; positive rational velocity fixes tangent and curvature.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Returns the existing phase jet and the identical fixed native clock.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sampled curve or clock derivative supplies source partials.
+   * @evidence contracts/development/common.md#meaningful-documentation Local phi is in[0,pi/2]; invalid numerical geometry returns null.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant inverse and native geometry arithmetic.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One normalized point/tangent evaluation serves the guide and physical geometry; the source reader consumes its descriptor without another ray solve.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only fixed-size numeric data escapes.
    */
   export function locate(
     a: number,
@@ -386,13 +380,13 @@ export namespace AutoMovieConicArc {
   /**
    * Same inverse and physical point, without tangent or polar derivatives.
    *
-   * @evidence contracts/common.md#principled-implementation Shares the stable reflected quadratic inverse and ArcField point arithmetic with locate.
-   * @evidence contracts/common.md#clear-and-simple-design One value capability omits full-ray geometry after selecting the same native clock.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves physical normalization and sign/swap; does not substitute a guide coordinate or promise uncomputed derivatives.
-   * @evidence contracts/common.md#meaningful-documentation Angles use radians and returned coordinates use source lengths; nonfinite points or invalid angles return null.
-   * @evidence contracts/performance.md#efficient-algorithms Constant inverse and point work, without velocity, polar2 or logarithmic curvature.
-   * @evidence contracts/performance.md#reuse-equivalent-work Uses the same inverse and generic point owner as the full reader.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources One local inverse record and a fresh coordinate pair have no retained cache.
+   * @evidence contracts/development/implementation.md#principled-implementation Shares the stable reflected quadratic inverse and ArcField point arithmetic with locate.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One value capability omits full-ray geometry after selecting the same native clock.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves physical normalization and sign/swap; does not substitute a guide coordinate or promise uncomputed derivatives.
+   * @evidence contracts/development/common.md#meaningful-documentation Angles use radians and returned coordinates use source lengths; nonfinite points or invalid angles return null.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant inverse and point work, without velocity, polar2 or logarithmic curvature.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same inverse and generic point owner as the full reader.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One local inverse record and a fresh coordinate pair have no retained cache.
    */
   export function point(
     a: number,
@@ -418,13 +412,13 @@ export namespace AutoMovieConicArc {
   /**
    * Radius value in the identical native inverse and normalization as locate.
    *
-   * @evidence contracts/common.md#principled-implementation Reads the same normalized rational point and computes hypot(point)*scale, or the exact nearest guide extent, as the full radial reader.
-   * @evidence contracts/common.md#clear-and-simple-design Separates a scalar value from unused tangent and polar derivatives.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No physical-point renormalization, sampled approximation or invalid inverse fallback changes the original value arithmetic.
-   * @evidence contracts/common.md#meaningful-documentation Returns source length or NaN for an invalid query/value; it makes no phase-derivative availability claim.
-   * @evidence contracts/performance.md#efficient-algorithms Constant original inverse, rational point and norm work omit velocity and curvature work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure query retains no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only a scalar escapes the call.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the same normalized rational point and computes hypot(point)*scale, or the exact nearest guide extent, as the full radial reader.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Separates a scalar value from unused tangent and polar derivatives.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No physical-point renormalization, sampled approximation or invalid inverse fallback changes the original value arithmetic.
+   * @evidence contracts/development/common.md#meaningful-documentation Returns source length or NaN for an invalid query/value; it makes no phase-derivative availability claim.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant original inverse, rational point and norm work omit velocity and curvature work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure query retains no work across calls.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only a scalar escapes the call.
    */
   export function value(a: number, b: number, r: number, phi: number): number {
     const selected: Inverse | null = inverse(a, b, r, phi);

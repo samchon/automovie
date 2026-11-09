@@ -104,10 +104,11 @@ function says(
  * 4. Refuse an unbalancing camera hit before coupling or event output.
  * 5. Accept point/group flights without onHit and refuse the same aims with a requested reaction.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs stageScene and performShot with launch drafts; verifies a camera can be aimed at without performing, an actor receives its injected reaction, and camera/point/group onHit requests receive a located refusal instead of silently omitting or misassigning the recoil.
- * @evidence contracts/testing.md#independent-expectations Authored target kinds and the staged node/camera lists determine which ids may perform, and the launch contract requires an identified struck actor for onHit. Membership assertions show the injected actor reaches compilation; they do not independently measure recoil pose or contact timing, and no runtime gate set supplies the expected ids.
- * @evidence contracts/testing.md#distinguishing-cases Pairs the same launch with and without onHit for cameras, points and groups, retains the valid staged actor recoil, and covers unbalance before a camera fall could be emitted; unreachable flights and timing bounds belong to the broader perform-shot launch test.
- * @evidence contracts/testing.md#execution-ownership The unit entry owns every scenario through portable stage and performance functions with the shared deterministic fixture synthesizer; it opens no host or renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs stageScene and performShot with launch drafts; verifies a camera can be aimed at without performing, an actor receives its injected reaction, and camera/point/group onHit requests receive a located refusal instead of silently omitting or misassigning the recoil.
+ * @evidence contracts/development/testing.md#independent-expectations Authored target kinds and the staged node/camera lists determine which ids may perform, and the launch contract requires an identified struck actor for onHit. Membership assertions show the injected actor reaches compilation; they do not independently measure recoil pose or contact timing, and no runtime gate set supplies the expected ids.
+ * @evidence contracts/development/testing.md#distinguishing-cases Pairs the same launch with and without onHit for cameras, points and groups, retains the valid staged actor recoil, and covers unbalance before a camera fall could be emitted; unreachable flights and timing bounds belong to the broader perform-shot launch test.
+ * @evidence contracts/development/testing.md#execution-ownership The unit entry owns every scenario through portable stage and performance functions with the shared deterministic fixture synthesizer; it opens no host or renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Aim at the camera without injecting a camera performance.).
  */
 export function test_film_perform_shot_launch_camera(): void {
   const perform: (draft: IAutoMovieActionCall[]) => IAutoMoviePerformedShot =

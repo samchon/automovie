@@ -58,10 +58,11 @@ const MINUS_X_DIGIT: IAutoMovieJointAxes = {
  * 4. A baked clip of a flexing motion reproduces the forward kinematics of the
  *    declared rig at every bake time.
  *
- * @evidence contracts/testing.md#behavioral-verification Resolves poses on a rig with and without bone-declared axes and bakes a clip of it, asserting tip world positions and clip/FK parity; a resolver or baker that ignored the declaration, or let the host table win, moves the tips elsewhere or breaks parity.
- * @evidence contracts/testing.md#independent-expectations A 90-degree right-hand turn about −Z (+Z) carries +X (−X) to −Y, so each tip lands 0.05 m below its digit; an X-axis roll leaves an X-aligned tip in place. Clip parity compares two product paths and only shows they agree.
- * @evidence contracts/testing.md#distinguishing-cases Covers both mirrored sides, the declaration against the humanoid table, no table and a conflicting table entry, the undeclared negative on the default basis, the identity and empty table returns and bake parity; malformed declared axes belong to the model validation entry and the inverse paths to the declared-axes inverse entry.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous kinematics unit entry that builds its own in-memory rig and calls engine source without a viewer, GPU or installed asset.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves poses on a rig with and without bone-declared axes and bakes a clip of it, asserting tip world positions and clip/FK parity; a resolver or baker that ignored the declaration, or let the host table win, moves the tips elsewhere or breaks parity.
+ * @evidence contracts/development/testing.md#independent-expectations A 90-degree right-hand turn about −Z (+Z) carries +X (−X) to −Y, so each tip lands 0.05 m below its digit; an X-axis roll leaves an X-aligned tip in place. Clip parity compares two product paths and only shows they agree.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers both mirrored sides, the declaration against the humanoid table, no table and a conflicting table entry, the undeclared negative on the default basis, the identity and empty table returns and bake parity; malformed declared axes belong to the model validation entry and the inverse paths to the declared-axes inverse entry.
+ * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous kinematics unit entry that builds its own in-memory rig and calls engine source without a viewer, GPU or installed asset.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: With declared axes, digit flexion 90 carries both tips 0.05 m straight).
  */
 export function test_kinematics_bone_declared_axes(): void {
   const declared: IAutoMovieSkeleton = rig(true);

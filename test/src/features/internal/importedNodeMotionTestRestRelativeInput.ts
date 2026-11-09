@@ -15,10 +15,10 @@ import { importedNodeMotionTestSkeleton as skeleton } from "./importedNodeMotion
 /**
  * Preserve the existing nonidentity-rest input for the final lowering scenario.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds the same thirty-degree spine rest rotation and two matching absolute rotation keys, leaving actual lowering and assertions in the consumer.
- * @evidence contracts/testing.md#independent-expectations The authored rest/absolute keys are inputs; the consumer independently requires zero relative root/joint angles rather than using a computed expected motion.
- * @evidence contracts/testing.md#distinguishing-cases Moves only the existing fourth scenario's input group, retaining skeleton/rotation/clip construction order and both repeated key tuples.
- * @evidence contracts/testing.md#execution-ownership Returns fresh clip/skeleton records and borrows the original mapping array unchanged; no file, native importer, renderer, browser or GPU is opened and no foreign method is replaced.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the same thirty-degree spine rest rotation and two matching absolute rotation keys, leaving actual lowering and assertions in the consumer.
+ * @evidence contracts/development/testing.md#independent-expectations The authored rest/absolute keys are inputs; the consumer independently requires zero relative root/joint angles rather than using a computed expected motion.
+ * @evidence contracts/development/testing.md#distinguishing-cases Moves only the existing fourth scenario's input group, retaining skeleton/rotation/clip construction order and both repeated key tuples.
+ * @evidence contracts/development/testing.md#execution-ownership Returns fresh clip/skeleton records and borrows the original mapping array unchanged; no file, native importer, renderer, browser or GPU is opened and no foreign method is replaced.
  */
 export function importedNodeMotionTestRestRelativeInput(
   mapping: Parameters<typeof importedNodeClipToAutoMovieMotion>[0]["mapping"],

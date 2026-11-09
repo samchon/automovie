@@ -2,17 +2,18 @@ import type { IAutoMovieModel } from "@automovie/interface";
 import { Document, NodeIO, Primitive } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
-import { exportModelToGLB } from "../../../../packages/render/src/node/exportModelToGLB";
+import { exportModelToGLB } from "../../../../packages/template/scaffold/src/integrations/render/node/exportModelToGLB";
 import { createBicubicPlaneRecipe } from "../internal/createBicubicPlaneRecipe";
 import { nclose } from "../internal/nclose";
 
 /**
  * Export a polynomial unit square through the public model union and GLB writer.
  *
- * @evidence contracts/testing.md#behavioral-verification Reads actual exported GLB positions and indices and measures their positive triangle area, exercising atlas dispatch in the existing static model exporter.
- * @evidence contracts/testing.md#independent-expectations The degree-elevated affine square independently occupies [0,1] metres in x and y with z=0 and area one. Bounds and signed area are computed from serialized attributes, not from the engine's reported counts.
- * @evidence contracts/testing.md#distinguishing-cases A valid atlas recipe has no mesh property, so the former primitive-versus-mesh branch cannot consume it. Existing export regressions retain primitive, indexed/unindexed mesh, normal and material cases. This case does not certify arbitrary curved fields or appearance.
- * @evidence contracts/testing.md#execution-ownership The discoverable async test owns one portable algebraic fixture and SDK byte round trip. It reads no assets and starts no process, viewer, browser or GPU. The SDK is also used by the writer; numeric square expectations remain independently stated.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads actual exported GLB positions and indices and measures their positive triangle area, exercising atlas dispatch in the existing static model exporter.
+ * @evidence contracts/development/testing.md#independent-expectations The degree-elevated affine square independently occupies [0,1] metres in x and y with z=0 and area one. Bounds and signed area are computed from serialized attributes, not from the engine's reported counts.
+ * @evidence contracts/development/testing.md#distinguishing-cases A valid atlas recipe has no mesh property, so the former primitive-versus-mesh branch cannot consume it. Existing export regressions retain primitive, indexed/unindexed mesh, normal and material cases. This case does not certify arbitrary curved fields or appearance.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable async test owns one portable algebraic fixture and SDK byte round trip. It reads no assets and starts no process, viewer, browser or GPU. The SDK is also used by the writer; numeric square expectations remain independently stated.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Export a polynomial unit square through the public model union and GLB writer) as stated in this comment.
  */
 export async function test_geometry_bicubic_atlas_export(): Promise<void> {
   const model: IAutoMovieModel = {

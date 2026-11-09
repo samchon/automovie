@@ -21,13 +21,13 @@ import { publishNativeScaffoldFile } from "./publishNativeScaffoldFile";
  * @param props.parent Captured parent directory of `existing.path`.
  * @returns The frozen outcome.
  *
- * @evidence contracts/common.md#principled-implementation Replacing an entry by renaming a verified sibling over it changes only that name; every other hard link keeps its inode, so no other name observes the write.
- * @evidence contracts/common.md#clear-and-simple-design Native exclusive creation, generation checks and one rename compose the replacement; in-place rewriting stays with overwriteScaffoldFile for single-link files.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The link-count safety is kept rather than weakened: a shared file is never truncated, a changed target refuses the rename, and failures are reported, never cleaned up or retried. A writer changing the target between the last check and the rename is the documented remaining race.
- * @evidence contracts/common.md#meaningful-documentation The comment states the sibling name, both generation checks, what other names observe and what each outcome leaves on disk.
- * @evidence contracts/performance.md#efficient-algorithms One native create with write and readback, linear in the file size, plus a constant number of lstats and one rename.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every call writes one file and re-observes it, which is an effect that must not be shared.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Handles belong to publishNativeScaffoldFile, which releases them before returning; this owner holds only scalar snapshots.
+ * @evidence contracts/development/implementation.md#principled-implementation Replacing an entry by renaming a verified sibling over it changes only that name; every other hard link keeps its inode, so no other name observes the write.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Native exclusive creation, generation checks and one rename compose the replacement; in-place rewriting stays with overwriteScaffoldFile for single-link files.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The link-count safety is kept rather than weakened: a shared file is never truncated, a changed target refuses the rename, and failures are reported, never cleaned up or retried. A writer changing the target between the last check and the rename is the documented remaining race.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states the sibling name, both generation checks, what other names observe and what each outcome leaves on disk.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One native create with write and readback, linear in the file size, plus a constant number of lstats and one rename.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Every call writes one file and re-observes it, which is an effect that must not be shared.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Handles belong to publishNativeScaffoldFile, which releases them before returning; this owner holds only scalar snapshots.
  */
 export const replaceSharedScaffoldFile: (props: {
   base: IScaffoldPhysicalDirectory;

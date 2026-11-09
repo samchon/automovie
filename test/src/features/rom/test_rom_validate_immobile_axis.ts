@@ -32,10 +32,11 @@ const romItems: (
  * 1. Twenty-degree elbow abduction reports one abduction fault and a 20-degree overshoot.
  * 2. Zero on the same immobile axis produces no violation.
  *
- * @evidence contracts/testing.md#behavioral-verification Validates specified motion on the default elbow's immobile abduction axis and reads count, axis path and overshoot; zero must remain accepted.
- * @evidence contracts/testing.md#independent-expectations An immobile axis permits rest or zero, so a 20-degree input is 20 degrees from its only admitted specified angle. This pins table policy rather than measuring anatomy.
- * @evidence contracts/testing.md#distinguishing-cases The nonzero refusal contrasts its zero neighbor under the same constraint; ordinary bounded-axis and coupled-swing faults are covered by other ROM entries.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns its two collector populations through a private local helper and existing joint fixture, with no native artifact or host.
+ * @evidence contracts/development/testing.md#behavioral-verification Validates specified motion on the default elbow's immobile abduction axis and reads count, axis path and overshoot; zero must remain accepted.
+ * @evidence contracts/development/testing.md#independent-expectations An immobile axis permits rest or zero, so a 20-degree input is 20 degrees from its only admitted specified angle. This pins table policy rather than measuring anatomy.
+ * @evidence contracts/development/testing.md#distinguishing-cases The nonzero refusal contrasts its zero neighbor under the same constraint; ordinary bounded-axis and coupled-swing faults are covered by other ROM entries.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns its two collector populations through a private local helper and existing joint fixture, with no native artifact or host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Twenty-degree elbow abduction reports one abduction fault and a 20-degree overshoot.).
  */
 export function test_rom_validate_immobile_axis(): void {
   const items: IAutoMovieConstraintViolation[] = romItems({ abduction: 20 });

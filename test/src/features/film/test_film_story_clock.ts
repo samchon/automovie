@@ -80,10 +80,11 @@ const sync: (
  *    overflowed story time — refuses the claim and names which operand it was,
  *    and an empty claim is refused because it addresses no event.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises affine story point/interval mapping and story-sync pin comparisons, observing satisfied inclusive tolerance, mismatch, unresolved reasons and empty-pin refusal.
- * @evidence contracts/testing.md#independent-expectations Authored offsets/rates, literal mapped seconds and story pin residuals provide the independent arithmetic oracle; comparison boundaries are selected around the stated tolerance rather than copied output.
- * @evidence contracts/testing.md#distinguishing-cases Preserves default and half-speed rate, whole/event interval mapping, equal and apart story moments, inclusive tolerance, missing pin/realization, NaN realization, overflowing mapped time and empty input; negative/zero rates and shot/narration compilation are not established by these cases.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns these portable clock and callback cases through engine functions, without an audio decoder, process, GPU or real-time clock host.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises affine story point/interval mapping and story-sync pin comparisons, observing satisfied inclusive tolerance, mismatch, unresolved reasons and empty-pin refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Authored offsets/rates, literal mapped seconds and story pin residuals provide the independent arithmetic oracle; comparison boundaries are selected around the stated tolerance rather than copied output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves default and half-speed rate, whole/event interval mapping, equal and apart story moments, inclusive tolerance, missing pin/realization, NaN realization, overflowing mapped time and empty input; negative/zero rates and shot/narration compilation are not established by these cases.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns these portable clock and callback cases through engine functions, without an audio decoder, process, GPU or real-time clock host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A pin maps shot-local seconds onto the clock, honouring an explicit rate, and).
  */
 export function test_film_story_clock(): void {
   const defaultTime: number = autoMovieStoryTime({ originSeconds: 10 }, 4);

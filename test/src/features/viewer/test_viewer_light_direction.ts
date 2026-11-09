@@ -105,10 +105,11 @@ const unit: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
  * 2. A translated spot preserves its authored direction independently of the world origin.
  * 3. A point light has no aiming target and preserves its position and range.
  *
- * @evidence contracts/testing.md#behavioral-verification Stages and builds aimed/point lights, updates world matrices and reads the target-minus-light vector; catches discarded authored direction, an unparented origin target or adding an aim target to an omnidirectional point light.
- * @evidence contracts/testing.md#independent-expectations Normalized authored vectors and literal point position/range define finite numerical expectations independently of the Viewer aim writer; SDK object vectors are observed without claiming rendered lighting, shadow pixels or a hardware frame.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts upward/downward/diagonal directional aims, an off-origin spot aimed away from the origin, and a point light retaining position/range without a target; animated interpolation is owned by the parity test.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit calls existing Engine staging and Viewer factories with CPU-side Three lights and scene graphs, starting no GPU, browser, worker or process and adding no runtime host.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages and builds aimed/point lights, updates world matrices and reads the target-minus-light vector; catches discarded authored direction, an unparented origin target or adding an aim target to an omnidirectional point light.
+ * @evidence contracts/development/testing.md#independent-expectations Normalized authored vectors and literal point position/range define finite numerical expectations independently of the Viewer aim writer; SDK object vectors are observed without claiming rendered lighting, shadow pixels or a hardware frame.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts upward/downward/diagonal directional aims, an off-origin spot aimed away from the origin, and a point light retaining position/range without a target; animated interpolation is owned by the parity test.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit calls existing Engine staging and Viewer factories with CPU-side Three lights and scene graphs, starting no GPU, browser, worker or process and adding no runtime host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Downward, upward and diagonal directional lights have the authored unit aiming vector.).
  */
 export function test_viewer_light_direction(): void {
   // 1. directional, three authored directions

@@ -30,10 +30,11 @@ import { vclose } from "../internal/vclose";
  * 4. Missing routes, zero-length routes, missing prototypes, malformed
  *    addresses, and out-of-range slots fail explicitly.
  *
- * @evidence contracts/testing.md#behavioral-verification Opens compact sets and individual members, checking bounded summaries, last-slot access, selected prototype, world placement and explicit malformed-law failures; wrong slot addressing or lost authored TRS fails.
- * @evidence contracts/testing.md#independent-expectations A centered 65-slot unit row spans minus/plus32, while the explicit quarter-turn maps local (7,1,2) plus anchor to (12,1,-7) and transforms the authored prototype box. These coordinates and identities are derived from input geometry; the other layout cases check finite placement only, not their complete distribution law.
- * @evidence contracts/testing.md#distinguishing-cases Keeps 64-item summary/65th access, scatter/lattice/explicit/route placements, prototype selection, repeated route point, malformed/outside addresses, missing/zero route and missing prototype; seeded parity and repeated pages have separate entries.
- * @evidence contracts/testing.md#execution-ownership The exported CPU entry is discovered under inspection and directly imports the description source with code-authored compiled fixtures; numeric placement/bounds are not rendered-pixel or delivered-video evidence.
+ * @evidence contracts/development/testing.md#behavioral-verification Opens compact sets and individual members, checking bounded summaries, last-slot access, selected prototype, world placement and explicit malformed-law failures; wrong slot addressing or lost authored TRS fails.
+ * @evidence contracts/development/testing.md#independent-expectations A centered 65-slot unit row spans minus/plus32, while the explicit quarter-turn maps local (7,1,2) plus anchor to (12,1,-7) and transforms the authored prototype box. These coordinates and identities are derived from input geometry; the other layout cases check finite placement only, not their complete distribution law.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps 64-item summary/65th access, scatter/lattice/explicit/route placements, prototype selection, repeated route point, malformed/outside addresses, missing/zero route and missing prototype; seeded parity and repeated pages have separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership The exported CPU entry is discovered under inspection and directly imports the description source with code-authored compiled fixtures; numeric placement/bounds are not rendered-pixel or delivered-video evidence.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A 65-member grid reports the exact total, first 64 stable ids, one omitted).
  */
 export function test_inspection_subject_instances(): void {
   const modelA: IAutoMovieModel = subjectInspectionModel({

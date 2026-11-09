@@ -36,10 +36,11 @@ const apart: () => {
  * 1. A non-finite sampleRate fails with a range violation on sampleRate.
  * 2. A non-positive sampleRate fails the same way.
  *
- * @evidence contracts/testing.md#behavioral-verification Invokes detectBodyCollision with NaN and zero sample rates and checks failed validation with a range finding at sampleRate, catching accidental defaulting or advisory-only treatment of unusable sampling configuration.
- * @evidence contracts/testing.md#independent-expectations A sampling frequency must be finite and strictly positive; NaN and zero violate separate parts of that domain. The distant valid capsules isolate rate admission from overlap advice, while assertions do not inspect empty events or prove that sampling was skipped.
- * @evidence contracts/testing.md#distinguishing-cases Non-finite and zero rates distinguish two refusals. Positive rates are exercised by the ordinary collision test; negative finite rates, infinity, and malformed capsule precedence are outside this case.
- * @evidence contracts/testing.md#execution-ownership The named test_validation_body_collision_bad_rate entry reaches portable detector admission with shared staticActor fixtures, with no real host or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Invokes detectBodyCollision with NaN and zero sample rates and checks failed validation with a range finding at sampleRate, catching accidental defaulting or advisory-only treatment of unusable sampling configuration.
+ * @evidence contracts/development/testing.md#independent-expectations A sampling frequency must be finite and strictly positive; NaN and zero violate separate parts of that domain. The distant valid capsules isolate rate admission from overlap advice, while assertions do not inspect empty events or prove that sampling was skipped.
+ * @evidence contracts/development/testing.md#distinguishing-cases Non-finite and zero rates distinguish two refusals. Positive rates are exercised by the ordinary collision test; negative finite rates, infinity, and malformed capsule precedence are outside this case.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_validation_body_collision_bad_rate entry reaches portable detector admission with shared staticActor fixtures, with no real host or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A non-finite sampleRate fails with a range violation on sampleRate.).
  */
 export function test_validation_body_collision_bad_rate(): void {
   const nan: IAutoMovieBodyCollisionResult = detectBodyCollision({

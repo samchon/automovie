@@ -100,10 +100,11 @@ const stage: (
  * 5. The boundary the placement entry makes reachable: a camera aimed at itself
  * resolves to its own position, so the zero-length look vector is refused at `$input.cameras[0].lookAt` rather than composing a degenerate rotation.
  *
- * @evidence contracts/testing.md#behavioral-verification Stages camera-id and explicit-point twins and observes their composed camera agreement, an independently expected local-minus-Z direction and preserved target/refusal decisions.
- * @evidence contracts/testing.md#independent-expectations The two authored lens positions imply normalized plus-X aim independently of staging basis math; whole-camera twin equality is metamorphic agreement and does not alone establish correct rotation or rendered framing.
- * @evidence contracts/testing.md#distinguishing-cases Keeps camera, actor and set targets, an unplaced id with located refusal and the self-target zero-vector boundary; GPU framing is outside this numerical entry.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_stage_scene_camera_target and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages camera-id and explicit-point twins and observes their composed camera agreement, an independently expected local-minus-Z direction and preserved target/refusal decisions.
+ * @evidence contracts/development/testing.md#independent-expectations The two authored lens positions imply normalized plus-X aim independently of staging basis math; whole-camera twin equality is metamorphic agreement and does not alone establish correct rotation or rendered framing.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps camera, actor and set targets, an unplaced id with located refusal and the self-target zero-vector boundary; GPU framing is outside this numerical entry.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_stage_scene_camera_target and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `cam-b` aims at `cam-a` and composes the same rotation as an explicit `point`).
  */
 export function test_film_stage_scene_camera_target(): void {
   // 1. camera B frames camera A, exactly as an explicit lens point does.

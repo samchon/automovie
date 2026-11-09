@@ -1,5 +1,4 @@
-import { validateMeshTopology } from "@automovie/engine";
-import { weldMeshVertices } from "@automovie/engine/math/weldMeshVertices";
+import { validateMeshTopology, weldMeshVertices } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieMesh,
@@ -18,10 +17,11 @@ import { throwsError } from "../internal/predicates";
  * 4. Boundary diagnostics retain traversal order and lexical coordinate labels.
  * 5. Huge finite coordinates remain distinct on their large axis while ordinary axes still weld by the nanometre grid; malformed tuples refuse instead of becoming origin vertices.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs topology admission on repeated/nearby triangle corners and direct shared welding on huge and malformed tuples; catches merged unrelated vertices while retaining valid seam welding.
- * @evidence contracts/testing.md#independent-expectations Duplicate directed triangles contribute three repeated edges, and distinct finite metre coordinates beyond safe grid integers cannot share a nanometre cell; hand-built ordinary-axis 0.4nm offsets remain in cell zero.
- * @evidence contracts/testing.md#distinguishing-cases Repeated corners, within/across-grid motion, lexical diagnostics, huge positive/negative coordinates, mixed small axes, signed zero, empty tuples, sparse holes, nonfinite values and incomplete XYZ distinguish intended welding from coercion or overflow; explicit physical aliases belong to the physical-vertices suite.
- * @evidence contracts/testing.md#execution-ownership Portable unit test discovered through test_validation_mesh_topology_welding; this export owns all cases and needs neither a native artifact nor renderer/consumer host.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs topology admission on repeated/nearby triangle corners and direct shared welding on huge and malformed tuples; catches merged unrelated vertices while retaining valid seam welding.
+ * @evidence contracts/development/testing.md#independent-expectations Duplicate directed triangles contribute three repeated edges, and distinct finite metre coordinates beyond safe grid integers cannot share a nanometre cell; hand-built ordinary-axis 0.4nm offsets remain in cell zero.
+ * @evidence contracts/development/testing.md#distinguishing-cases Repeated corners, within/across-grid motion, lexical diagnostics, huge positive/negative coordinates, mixed small axes, signed zero, empty tuples, sparse holes, nonfinite values and incomplete XYZ distinguish intended welding from coercion or overflow; explicit physical aliases belong to the physical-vertices suite.
+ * @evidence contracts/development/testing.md#execution-ownership Portable unit test discovered through test_validation_mesh_topology_welding; this export owns all cases and needs neither a native artifact nor renderer/consumer host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Each possible repeated triangle corner contributes no edge incidence.).
  */
 export function test_validation_mesh_topology_welding(): void {
   const mesh: IAutoMovieMesh = {

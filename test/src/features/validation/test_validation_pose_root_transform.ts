@@ -33,10 +33,11 @@ const poseWith: (root: IAutoMovieTransform) => IAutoMoviePose = (
  * 4. Finite but non-unit rotation is a range violation.
  * 5. Non-positive scale is a range violation.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validatePoseResult for supported root TRS and four malformed scalar families, requiring each owning translation/rotation/scale range address.
- * @evidence contracts/testing.md#independent-expectations Finite components, unit quaternion norm and strictly positive scale define supported TRS; identity has norm one while w=2 has norm two independently of pose validation.
- * @evidence contracts/testing.md#distinguishing-cases Retains valid root acceptance, NaN translation, infinite rotation, non-unit finite rotation and zero scale; model_part_transform owns part TRS and pose_valid owns a null root.
- * @evidence contracts/testing.md#execution-ownership This named portable unit uses a local pose adapter and existing rig factory without composing world transforms, exporting or starting a renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validatePoseResult for supported root TRS and four malformed scalar families, requiring each owning translation/rotation/scale range address.
+ * @evidence contracts/development/testing.md#independent-expectations Finite components, unit quaternion norm and strictly positive scale define supported TRS; identity has norm one while w=2 has norm two independently of pose validation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains valid root acceptance, NaN translation, infinite rotation, non-unit finite rotation and zero scale; model_part_transform owns part TRS and pose_valid owns a null root.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit uses a local pose adapter and existing rig factory without composing world transforms, exporting or starting a renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A valid root transform still validates.).
  */
 export function test_validation_pose_root_transform(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

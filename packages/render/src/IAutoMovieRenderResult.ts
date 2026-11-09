@@ -3,13 +3,10 @@ import type { IAutoMovieCapturedFrame } from "./IAutoMovieCapturedFrame";
 /**
  * The outcome of a render: encoded video plus frame metadata an agent can inspect without inferring paths from the ffmpeg pattern.
  *
- * @evidence contracts/common.md#principled-implementation The encoded output path is accompanied by the half-open sample schedule and frame records, retaining encode order and the exact encoder argument vector.
- * @evidence contracts/common.md#clear-and-simple-design One result envelope supplies both direct clip rendering and the inspectable render wrapper without another path inference layer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The result exposes host-returned output and frame paths; its type makes no claim that an encoder succeeded beyond the callback outcome.
- * @evidence contracts/common.md#meaningful-documentation Members explain seconds, frame ordering, directory, input pattern and the distinction between adapter output and requested paths.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The clip result data shape declares data and chooses no runtime algorithm; its producer documents construction cost.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The completed capture metadata describes an identity boundary and performs no request coordination or result caching.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased result does not retain a session or process; renderVideo transfers frame/time/argument arrays to its caller, and adapter implementations own the corresponding output files.
+ * @evidence contracts/development/design.md#principled-representation The encoded output path is accompanied by the half-open sample schedule and frame records, retaining encode order and the exact encoder argument vector.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One result envelope supplies both direct clip rendering and the inspectable render wrapper without another path inference layer.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The result exposes host-returned output and frame paths; its type makes no claim that an encoder succeeded beyond the callback outcome.
+ * @evidence contracts/development/common.md#meaningful-documentation Members explain seconds, frame ordering, directory, input pattern and the distinction between adapter output and requested paths.
  */
 export interface IAutoMovieRenderResult {
   /**

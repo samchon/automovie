@@ -28,10 +28,11 @@ const yaw: (deg: number) => IAutoMovieQuaternion = (
  *    a normalized lerp to avoid dividing by sin θ ≈ 0; the midpoint is still ≈
  *    Y0.2 to a looser tolerance.
  *
- * @evidence contracts/testing.md#behavioral-verification Executes slerp on identity-to-Y90, Y200 and Y0.4, checking supported endpoints, half-angle rotations and unit norms. Long-arc selection or a broken near-parallel result fails without requiring a particular quaternion sign.
- * @evidence contracts/testing.md#independent-expectations Equal-speed rotation gives Y45 halfway to Y90 and Y-80 halfway along the short arc to Y200; the near-parallel midpoint is Y0.2 within the retained 1e-3 tolerance. Expected rotations use fromAxisAngle, so a shared constructor convention error may escape; these tests measure no rendered motion.
- * @evidence contracts/testing.md#distinguishing-cases Keeps ordinary endpoints/midpoint, opposite-hemisphere endpoint/midpoint/unit norm and near-parallel midpoint/unit norm. The seeded sweep owns broader algebraic parity; extrapolation, malformed/nonunit input and exact threshold adjacency are not tested here.
- * @evidence contracts/testing.md#execution-ownership The discoverable named entry owns its synchronous portable Quaternion calls with no process, browser, GPU, native build, consumer installation or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes slerp on identity-to-Y90, Y200 and Y0.4, checking supported endpoints, half-angle rotations and unit norms. Long-arc selection or a broken near-parallel result fails without requiring a particular quaternion sign.
+ * @evidence contracts/development/testing.md#independent-expectations Equal-speed rotation gives Y45 halfway to Y90 and Y-80 halfway along the short arc to Y200; the near-parallel midpoint is Y0.2 within the retained 1e-3 tolerance. Expected rotations use fromAxisAngle, so a shared constructor convention error may escape; these tests measure no rendered motion.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps ordinary endpoints/midpoint, opposite-hemisphere endpoint/midpoint/unit norm and near-parallel midpoint/unit norm. The seeded sweep owns broader algebraic parity; extrapolation, malformed/nonunit input and exact threshold adjacency are not tested here.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable named entry owns its synchronous portable Quaternion calls with no process, browser, GPU, native build, consumer installation or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Ordinary arc (identity → Y90, dot ≈ 0.707 > 0): endpoints are returned at t=0).
  */
 export function test_math_quaternion_slerp(): void {
   const id: IAutoMovieQuaternion = Quaternion.identity();

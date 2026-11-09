@@ -21,10 +21,11 @@ import { createModel } from "../internal/fixtures";
  *    spellings of the matching sRGB swatch remain accepted.
  * 4. Linear mid-grey maps to quantized sRGB BC, rather than unconverted 80.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateModel on authored base and emissive colors and requires located scalar, label-shape and label-consistency refusals; detects a validator accepting contradictory hex even while all linear components lie in range.
- * @evidence contracts/testing.md#independent-expectations Unit red and green are exact endpoints of the sRGB transfer; linear 0.5 encodes to round(255*(1.055*0.5^(1/2.4)-0.055))=188, hexadecimal BC. These expected labels are specified independently of the product conversion helper.
- * @evidence contracts/testing.md#distinguishing-cases Covers nullable alpha and labels, invalid RGB/alpha values, malformed labels, valid-but-wrong labels, case-insensitive matching labels and a nonlinear midtone; stage tests own the same color rule through light/fog/background ingress.
- * @evidence contracts/testing.md#execution-ownership The synchronous unit entry directly imports the engine model validator and owns every case using the shared model fixture; no process, native artifact or renderer is involved.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateModel on authored base and emissive colors and requires located scalar, label-shape and label-consistency refusals; detects a validator accepting contradictory hex even while all linear components lie in range.
+ * @evidence contracts/development/testing.md#independent-expectations Unit red and green are exact endpoints of the sRGB transfer; linear 0.5 encodes to round(255*(1.055*0.5^(1/2.4)-0.055))=188, hexadecimal BC. These expected labels are specified independently of the product conversion helper.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers nullable alpha and labels, invalid RGB/alpha values, malformed labels, valid-but-wrong labels, case-insensitive matching labels and a nonlinear midtone; stage tests own the same color rule through light/fog/background ingress.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous unit entry directly imports the engine model validator and owns every case using the shared model fixture; no process, native artifact or renderer is involved.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Unit red/green labels and null alpha validate without changing their RGB.).
  */
 export function test_validation_model_material_color_channels(): void {
   const base: IAutoMovieModel = createModel();

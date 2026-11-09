@@ -26,10 +26,11 @@ import { nclose } from "../internal/predicates";
  * 3. applyExpression writes the expression channel's weight to the target of that name and leaves the driven target alone.
  * 4. applyPose writes the driven target's curve weight for the pose's spine flexion, updates it for a later pose, and leaves the expression target alone.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds geometry and models through the viewer and applies expressions and poses through its public functions, reading attributes, the morph dictionary and influences; catches absolute instead of relative targets, unnamed attributes, misaligned normal morphs, an expression overwriting a driven target and a pose that never writes its corrective.
- * @evidence contracts/testing.md#independent-expectations Delta values are the authored ones, the expected driven weight is the authored curve (0 to 1 over 0 to 90 degrees) at the posed angle, and the expression weight is the authored blendshape weight.
- * @evidence contracts/testing.md#distinguishing-cases Targets with and without normals, a geometry with none, driven and expression-addressed targets under both a pose and an expression, and two successive poses. Admission and the engine's weight arithmetic belong to the validation and kinematics tests.
- * @evidence contracts/testing.md#execution-ownership A portable unit over CPU-side Three objects and a synthetic internal fixture; it starts no browser, GPU or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds geometry and models through the viewer and applies expressions and poses through its public functions, reading attributes, the morph dictionary and influences; catches absolute instead of relative targets, unnamed attributes, misaligned normal morphs, an expression overwriting a driven target and a pose that never writes its corrective.
+ * @evidence contracts/development/testing.md#independent-expectations Delta values are the authored ones, the expected driven weight is the authored curve (0 to 1 over 0 to 90 degrees) at the posed angle, and the expression weight is the authored blendshape weight.
+ * @evidence contracts/development/testing.md#distinguishing-cases Targets with and without normals, a geometry with none, driven and expression-addressed targets under both a pose and an expression, and two successive poses. Admission and the engine's weight arithmetic belong to the validation and kinematics tests.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit over CPU-side Three objects and a synthetic internal fixture; it starts no browser, GPU or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: buildGeometry uploads relative position deltas named after their targets, with zero normal deltas for a target without normals when...).
  */
 export function test_viewer_morph_targets(): void {
   const model: IAutoMovieModel = createSkinnedTubeModel("dual-quaternion");

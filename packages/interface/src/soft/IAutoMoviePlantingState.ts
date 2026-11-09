@@ -9,10 +9,10 @@ import { IAutoMovieSoftBounds } from "./IAutoMovieSoftBounds";
  *
  * Every coordinate here is in the recipe's own frame, with the trunk's base at the origin. That is what makes one derived structure serve a whole bed: the cluster's placements carry the world transforms, and a renderer composes the two. A consumer that read these as world coordinates would draw forty ferns on top of each other at the origin.
  *
- * @evidence contracts/common.md#principled-implementation growPlanting derives path-seeded depth-first branches and leaves at one growth stage; branch endpoints remain recipe-local so cluster TRS can instance the same structure.
- * @evidence contracts/common.md#clear-and-simple-design One result separates structure derivation from cluster arrangement and includes its recipe identity and stage.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Bounds include maximum-end-radius stem support and all four transformed XY leaf-card corners, matching emitted geometry rather than guessing foliage width; this CPU envelope does not certify GPU rounding or continuous inclusion in a non-convex room union.
- * @evidence contracts/common.md#meaningful-documentation The recipe frame, stable branch/leaf order, nullable empty result and complete emitted stem/card envelope are stated for installation consumers composing member scale, rotation and translation.
+ * @evidence contracts/development/design.md#principled-representation growPlanting derives path-seeded depth-first branches and leaves at one growth stage; branch endpoints remain recipe-local so cluster TRS can instance the same structure.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One result separates structure derivation from cluster arrangement and includes its recipe identity and stage.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Bounds include maximum-end-radius stem support and all four transformed XY leaf-card corners, matching emitted geometry rather than guessing foliage width; this CPU envelope does not certify GPU rounding or continuous inclusion in a non-convex room union.
+ * @evidence contracts/development/common.md#meaningful-documentation The recipe frame, stable branch/leaf order, nullable empty result and complete emitted stem/card envelope are stated for installation consumers composing member scale, rotation and translation.
  */
 export interface IAutoMoviePlantingState {
   /** Identity of the recipe this structure was derived from. */

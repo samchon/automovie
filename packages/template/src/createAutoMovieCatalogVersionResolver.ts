@@ -17,13 +17,13 @@ import {
  * @param workspace Complete `pnpm-workspace.yaml` text.
  * @returns Lookup from catalog and dependency name to the specifier as written.
  *
- * @evidence contracts/common.md#principled-implementation The `yaml` package's document model gives each key its owning mapping, so ownership is decided structurally instead of by matching lines; strict parsing with `uniqueKeys` makes a duplicated key an error rather than a silent last-wins, and alias resolution follows the YAML anchor rules, refusing a forward or missing anchor.
- * @evidence contracts/common.md#clear-and-simple-design The function separates the once-per-manifest parse from the per-entry lookup, which is the split `resolveAutoMovieTemplateDependencyVersions` needs for its many lookups and `resolveAutoMovieCatalogVersion` reuses for one.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A parse diagnostic is held and rethrown by each lookup with that lookup's context, never ignored, and no catalog or dependency name is special-cased.
- * @evidence contracts/common.md#meaningful-documentation The comment states the lookup path, the direct-ownership rule, alias handling, every refusal, and that a parse error surfaces at lookup time.
- * @evidence contracts/performance.md#efficient-algorithms The manifest is parsed once, linear in its size; each lookup scans the direct keys of the root, `catalogs`, and one catalog, linear in those mappings' sizes, which are tens of keys.
- * @evidence contracts/performance.md#reuse-equivalent-work Every lookup made through one returned function shares the single parsed document, which is equivalent because the manifest text is immutable and the document is never modified; a different manifest needs a new call.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned function retains the parsed document and its first diagnostic for as long as the caller holds the function, one document per call, and owns no handle.
+ * @evidence contracts/development/implementation.md#principled-implementation The `yaml` package's document model gives each key its owning mapping, so ownership is decided structurally instead of by matching lines; strict parsing with `uniqueKeys` makes a duplicated key an error rather than a silent last-wins, and alias resolution follows the YAML anchor rules, refusing a forward or missing anchor.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The function separates the once-per-manifest parse from the per-entry lookup, which is the split `resolveAutoMovieTemplateDependencyVersions` needs for its many lookups and `resolveAutoMovieCatalogVersion` reuses for one.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A parse diagnostic is held and rethrown by each lookup with that lookup's context, never ignored, and no catalog or dependency name is special-cased.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states the lookup path, the direct-ownership rule, alias handling, every refusal, and that a parse error surfaces at lookup time.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The manifest is parsed once, linear in its size; each lookup scans the direct keys of the root, `catalogs`, and one catalog, linear in those mappings' sizes, which are tens of keys.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Every lookup made through one returned function shares the single parsed document, which is equivalent because the manifest text is immutable and the document is never modified; a different manifest needs a new call.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains the parsed document and its first diagnostic for as long as the caller holds the function, one document per call, and owns no handle.
  */
 export const createAutoMovieCatalogVersionResolver: (
   workspace: string,

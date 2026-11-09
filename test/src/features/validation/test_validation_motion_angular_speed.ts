@@ -18,10 +18,11 @@ import { makePose } from "../internal/makePose";
  * Scenarios:
  * 1. A shoulder swinging from 0 to 170 degrees in 0.1 seconds (1700 degrees/second) fails with a temporal pose violation although both angles satisfy the default shoulder constraint.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateMotion and requires a temporal pose finding for the fast shared shoulder, catching omission of adjacent-frame speed admission.
- * @evidence contracts/testing.md#independent-expectations The authored delta divided by elapsed seconds is 170/0.1=1700, above the declared 900 policy. This arithmetic certifies no sampled movement or anatomical maximum.
- * @evidence contracts/testing.md#distinguishing-cases Owns excessive shared-axis speed with individually admitted poses; motion_valid and motion_new_bone own slower movement and first-appearing joints, while time_order owns invalid elapsed time.
- * @evidence contracts/testing.md#execution-ownership The named portable unit validates existing rig/pose records without sampling motion, creating a Human figure or starting a renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateMotion and requires a temporal pose finding for the fast shared shoulder, catching omission of adjacent-frame speed admission.
+ * @evidence contracts/development/testing.md#independent-expectations The authored delta divided by elapsed seconds is 170/0.1=1700, above the declared 900 policy. This arithmetic certifies no sampled movement or anatomical maximum.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns excessive shared-axis speed with individually admitted poses; motion_valid and motion_new_bone own slower movement and first-appearing joints, while time_order owns invalid elapsed time.
+ * @evidence contracts/development/testing.md#execution-ownership The named portable unit validates existing rig/pose records without sampling motion, creating a Human figure or starting a renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A shoulder swinging from 0 to 170 degrees in 0.1 seconds (1700 degrees/second) fails with a temporal pose violation although both angles...).
  */
 export function test_validation_motion_angular_speed(): void {
   const motion: IAutoMovieMotion = makeMotion(

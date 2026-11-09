@@ -17,19 +17,52 @@ import { preparePhysicalGeometry as Geometry } from "./preparePhysicalGeometry";
  * Reusable finite-sample motion audit over the exact consumer state. Callers
  * provide per-body limits and allowed contact pairs; no actor name, species,
  * screenplay second, knee threshold or hand-picked radius lives here.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Reusable finite-sample motion audit over the exact consumer state) and documents 7 documented members as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents Reusable finite-sample motion audit over the exact consumer state: companion namespace of 7 members (`IAnchor`, `IConstraint`, `IBody`, `IPolicy`, `IFinding`, `IInput`, ...); units and frames named in its text: world, frame, metres, radians, frames. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieMotionAudit` in packages/engine/src/physics/AutoMovieMotionAudit.ts; its surface is the 7 members listed and the text shows 8 other files naming it, mostly packages/engine (4), test (4), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieMotionAudit {
-  /** Rigid, ray or blended world witness used by reusable audit constraints. */
+  /**
+   * Rigid, ray or blended world witness used by reusable audit constraints.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Rigid, ray or blended world witness used by reusable audit constraints.
+   * @evidence contracts/development/design.md#principled-representation Represents Rigid, ray or blended world witness used by reusable audit constraints: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAnchor` in packages/engine/src/physics/AutoMovieMotionAudit.ts; its surface is the 0 members listed and the text shows 6 other files naming it, mostly test (3), packages/engine (2), packages/human (1), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export type IAnchor = Constraint.IAnchor;
-  /** Time-windowed positional, distance or angular promise, with declared units and bounds. */
+  /**
+   * Time-windowed positional, distance or angular promise, with declared units and bounds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Time-windowed positional, distance or angular promise, with declared units and bounds.
+   * @evidence contracts/development/design.md#principled-representation Represents Time-windowed positional, distance or angular promise, with declared units and bounds: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IConstraint` in packages/engine/src/physics/AutoMovieMotionAudit.ts; its surface is the 0 members listed and the text shows 20 other files naming it, mostly packages/human (15), movies (2), test (2), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export type IConstraint = Constraint.IConstraint;
-  /** One explicit motion promise, in SI units. */
+  /**
+   * One explicit motion promise, in SI units.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: One explicit motion promise, in SI units.
+   * @evidence contracts/development/design.md#principled-representation Represents One explicit motion promise, in SI units: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IBody` in packages/engine/src/physics/AutoMovieMotionAudit.ts; its surface is the 0 members listed and the text shows 97 other files naming it, mostly packages/engine (42), test (42), packages/human (12), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export type IBody = IPolicy &
     (
       | { profile: P; geometry?: never }
       | { geometry: IAutoMovieMotionGeometry; profile?: never }
     );
-  /** Independent acceptance policy shared by physical and geometry-only observations. */
+  /**
+   * Independent acceptance policy shared by physical and geometry-only observations.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Independent acceptance policy shared by physical and geometry-only observations.
+   * @evidence contracts/development/design.md#principled-representation Represents Independent acceptance policy shared by physical and geometry-only observations: interface of 8 members (`id`, `speeds`, `supports`, `floorTolerance`, `accountForCompression`, `overlapTolerance`, ...); units and frames named in its text: frame, world, metres, radians, frames. Optional members `accountForCompression`, `constraints` express documented absence, and the ranges its member docs state are left to runtime validation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IPolicy` in packages/engine/src/physics/AutoMovieMotionAudit.ts; its surface is the 8 members listed and the text shows 3 other files naming it, mostly packages/engine (3), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; 2 optional members (`accountForCompression`, `constraints`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IPolicy {
     /** Scene id resolving in every sampled frame. */ id: string;
     /** Per-segment maximum world speed, m/s. Missing entries mean unbounded. */ speeds: Record<
@@ -49,7 +82,14 @@ export namespace AutoMovieMotionAudit {
     /** Maximum free/locked angular constraint error, radians. */ jointTolerance: number;
     /** Endpoint goals, support spread and bend limits from the same displayed frames. */ constraints?: Constraint.IConstraint[];
   }
-  /** Every violation is retained rather than stopping at the first phenomenon. */
+  /**
+   * Every violation is retained rather than stopping at the first phenomenon.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Every violation is retained rather than stopping at the first phenomenon.
+   * @evidence contracts/development/design.md#principled-representation Represents Every violation is retained rather than stopping at the first phenomenon: interface of 6 members (`seconds`, `body`, `label`, `kind`, `actual`, `limit`); units and frames named in its text: second, seconds, radians, metres. It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IFinding` in packages/engine/src/physics/AutoMovieMotionAudit.ts; its surface is the 6 members listed and the text shows 12 other files naming it, mostly test (9), packages/human (2), packages/engine (1), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IFinding {
     /** Film second. */ seconds: number;
     /** Owning scene body. */ body: string;
@@ -66,17 +106,42 @@ export namespace AutoMovieMotionAudit {
     /** Actual m/s for speed, radians for angle, metres otherwise. */ actual: number;
     /** Independently supplied acceptance bound in matching units. */ limit: number;
   }
-  /** Consumer state sampler and independently declared finite acceptance policy. */
+  /**
+   * Consumer state sampler and independently declared finite acceptance policy.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Consumer state sampler and independently declared finite acceptance policy.
+   * @evidence contracts/development/design.md#principled-representation Represents Consumer state sampler and independently declared finite acceptance policy: interface of 7 members (`bodies`, `start`, `end`, `rate`, `floor`, `sample`, ...); units and frames named in its text: second, world, metres, seconds. It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IInput` in packages/engine/src/physics/AutoMovieMotionAudit.ts; its surface is the 7 members listed and the text shows 227 other files naming it, mostly packages/human (131), test (44), packages/engine (42), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IInput {
     /** Audited scene bodies. */ bodies: IBody[];
     /** Inclusive first film second. */ start: number;
     /** Inclusive last film second. */ end: number;
     /** Positive finite samples per second. */ rate: number;
     /** World floor height in metres. */ floor: number;
-    /** Same state used by the display at this second. */ sample: (
-      seconds: number,
-    ) => Cache.IFrame;
-    /** Explicitly permitted shape-owner contact pairs. */ allowed: (
+    /**
+     * Same state used by the display at this second.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Same state used by the display at this second) as stated in this comment.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Same state used by the display at this second.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
+     */ sample: (seconds: number) => Cache.IFrame;
+    /**
+     * Explicitly permitted shape-owner contact pairs.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Explicitly permitted shape-owner contact pairs) as stated in this comment.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Explicitly permitted shape-owner contact pairs.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
+     */ allowed: (
       a: string,
       boneA: string,
       b: string,
@@ -84,7 +149,17 @@ export namespace AutoMovieMotionAudit {
       seconds: number,
     ) => boolean;
   }
-  /** Sample all bodies, support windows, speeds, floor clearances and pair contacts. */
+  /**
+   * Sample all bodies, support windows, speeds, floor clearances and pair contacts.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Sample all bodies, support windows, speeds, floor clearances and pair contacts.
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Sample all bodies, support windows, speeds, floor clearances and pair contacts) directly over its typed inputs (`input`) as nested iteration of depth 5 (for loop bounded by index <= count; for-of over input.bodies; for-of over motionAuditGeometry(body).joints), delegating to `admitPhysicalMotionAudit`, `Geometry`, `Math.ceil`, `Math.min`, `input.sample`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (3 throw sites). Apart from structural 0, 1 and 2 the body uses no numeric literal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One async operation of 195 lines and 7 top-level statements that reuses `admitPhysicalMotionAudit`, `Geometry`, `Math.ceil`, `Math.min`, `input.sample` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 7 non-null assertion(s); these are the remaining shortcuts and are not justified here.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`; the dominant cost is nested iteration of depth 5 (for loop bounded by index <= count; for-of over input.bodies; for-of over motionAuditGeometry(body).joints), performed once per call with 17 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Awaits 1 call per invocation and shares no result or in-flight work between invocations: equivalence of effectful calls is not decided here, so every call repeats its effects.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body awaits asynchronous work; it retains nothing after it settles beyond its result, and any handle it opens is owned and released by the call or by its callees.
+   */
   export async function run(
     input: IInput,
   ): Promise<{ samples: number; findings: IFinding[] }> {

@@ -86,10 +86,11 @@ const motion: (flexion: number, times?: number[]) => IAutoMovieMotion = (
  *    before conversion can relabel it as target motion.
  * 4. Enabled contacts reject nonfinite/negative tolerance, nonfinite scalar ground and nonfinite, reversed or out-of-clip hand windows by their own paths; disabled contacts ignore unused policy and zero tolerance/single-frame windows remain valid.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls public retarget admission and checks returned motion identity or null plus field-located source ROM, clock and contact-policy errors; invalid tolerance/window values cannot silently remove stance.
- * @evidence contracts/testing.md#independent-expectations Source flexion bound 30 admits20 and refuses60 despite target bound180; duration1 admits inclusive [0,1] contact bounds and zero tolerance, while reversed/outside/nonfinite values have no valid source-clock meaning.
- * @evidence contracts/testing.md#distinguishing-cases Source-valid, source-ROM-invalid, reversed-clock and static-contact boundaries distinguish conversion from refusal; disabled policy ignores unused fields. Dynamic ground failures and actual pin residuals belong to planting/contact suites.
- * @evidence contracts/testing.md#execution-ownership Portable unit test discovered through test_engine_retarget_source_validation; this function owns its directly invoked cases and uses no native artifact, renderer or consumer installation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public retarget admission and checks returned motion identity or null plus field-located source ROM, clock and contact-policy errors; invalid tolerance/window values cannot silently remove stance.
+ * @evidence contracts/development/testing.md#independent-expectations Source flexion bound 30 admits20 and refuses60 despite target bound180; duration1 admits inclusive [0,1] contact bounds and zero tolerance, while reversed/outside/nonfinite values have no valid source-clock meaning.
+ * @evidence contracts/development/testing.md#distinguishing-cases Source-valid, source-ROM-invalid, reversed-clock and static-contact boundaries distinguish conversion from refusal; disabled policy ignores unused fields. Dynamic ground failures and actual pin residuals belong to planting/contact suites.
+ * @evidence contracts/development/testing.md#execution-ownership Portable unit test discovered through test_engine_retarget_source_validation; this function owns its directly invoked cases and uses no native artifact, renderer or consumer installation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A source-valid clip reaches target conversion with successful validation).
  */
 export function test_engine_retarget_source_validation(): void {
   const source: IAutoMovieSkeleton = skeleton("source-rig", 30);

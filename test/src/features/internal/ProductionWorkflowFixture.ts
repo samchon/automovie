@@ -2,7 +2,7 @@ import {
   type IProductionConfigProps,
   createProductionConfig,
   stripNaturalnessComments,
-} from "@automovie/evidence/narrative";
+} from "@automovie/evidence";
 import {
   EvidenceChecker,
   type IEvidenceCheckAnalysis,

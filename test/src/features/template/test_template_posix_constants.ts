@@ -1,5 +1,7 @@
-import type { IScaffoldPosixConstants } from "@automovie/template/IScaffoldPosixConstants";
-import { resolveScaffoldPosixConstants } from "@automovie/template/resolveScaffoldPosixConstants";
+import {
+  type IScaffoldPosixConstants,
+  resolveScaffoldPosixConstants,
+} from "@automovie/template";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
@@ -15,10 +17,11 @@ import { throwsError } from "../internal/predicates";
  * 4. An unknown close-on-exec ABI and every missing required open flag refuse by the missing name.
  * 5. Fallback and provider resolution leave both caller-owned flag bags unchanged.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the production flag resolver and checks its native bit choices, preservation and refusal messages, catching the macOS pre-create failure caused by Node omitting O_CLOEXEC.
- * @evidence contracts/testing.md#independent-expectations Darwin's bit comes from Apple XNU bsd/sys/fcntl.h and Linux's from include/uapi/asm-generic/fcntl.h; preserved integers are caller-owned snapshots taken before invocation, so changing an input cannot change the expectation. This pure test verifies flag resolution and cannot establish a real macOS syscall's result.
- * @evidence contracts/testing.md#distinguishing-cases Covers both fallback families, a zero required value, explicit-provider precedence on a platform with no fallback, unknown ABI refusal, each absent required flag and unchanged input bags; native filesystem creation remains covered by scaffold publication integration observation.
- * @evidence contracts/testing.md#execution-ownership The test_ entry is discovered by the unit runner and invokes the pure resolver in-process with explicit platform and scalar inputs, starting no consumer process, native library or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the production flag resolver and checks its native bit choices, preservation and refusal messages, catching the macOS pre-create failure caused by Node omitting O_CLOEXEC.
+ * @evidence contracts/development/testing.md#independent-expectations Darwin's bit comes from Apple XNU bsd/sys/fcntl.h and Linux's from include/uapi/asm-generic/fcntl.h; preserved integers are caller-owned snapshots taken before invocation, so changing an input cannot change the expectation. This pure test verifies flag resolution and cannot establish a real macOS syscall's result.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers both fallback families, a zero required value, explicit-provider precedence on a platform with no fallback, unknown ABI refusal, each absent required flag and unchanged input bags; native filesystem creation remains covered by scaffold publication integration observation.
+ * @evidence contracts/development/testing.md#execution-ownership The test_ entry is discovered by the unit runner and invokes the pure resolver in-process with explicit platform and scalar inputs, starting no consumer process, native library or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Darwin without Node's close-on-exec export receives Apple's 0x01000000 ABI bit and preserves supplied flags, including zero-valued...).
  */
 export function test_template_posix_constants(): void {
   // Primary ABI definitions: https://github.com/apple-oss-distributions/xnu/blob/main/bsd/sys/fcntl.h and https://github.com/torvalds/linux/blob/master/include/uapi/asm-generic/fcntl.h.

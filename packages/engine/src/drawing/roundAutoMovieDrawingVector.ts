@@ -12,13 +12,13 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * @param vector World vector or point.
  * @returns A new vector on the grid.
  *
- * @evidence contracts/common.md#principled-implementation Applies `roundAutoMovieDrawingScalar` to each component independently, the grid rule for a vector in an orthonormal world frame.
- * @evidence contracts/common.md#clear-and-simple-design One world-vector rounding shared by the drawing frame and the schedule's room boxes instead of a private copy in each derivation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No vector is special-cased; the precision is the contract constant the scalar rule reads.
- * @evidence contracts/common.md#meaningful-documentation The comment states which stored values use it, the shared precision and the negative-zero guarantee.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A world vector has three components, each rounded once by the scalar rule, a fixed cost with no strategy to pick.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called a handful of times per derivation, for the four frame axes and each room's two box corners, so there is nothing worth sharing.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The rounded vector becomes part of the drawing frame or schedule box being assembled; the input vector is not referenced afterwards.
+ * @evidence contracts/development/implementation.md#principled-implementation Applies `roundAutoMovieDrawingScalar` to each component independently, the grid rule for a vector in an orthonormal world frame.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One world-vector rounding shared by the drawing frame and the schedule's room boxes instead of a private copy in each derivation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No vector is special-cased; the precision is the contract constant the scalar rule reads.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states which stored values use it, the shared precision and the negative-zero guarantee.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A world vector has three components, each rounded once by the scalar rule, a fixed cost with no strategy to pick.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called a handful of times per derivation, for the four frame axes and each room's two box corners, so there is nothing worth sharing.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The rounded vector becomes part of the drawing frame or schedule box being assembled; the input vector is not referenced afterwards.
  */
 export const roundAutoMovieDrawingVector = (
   vector: IAutoMovieVector3,

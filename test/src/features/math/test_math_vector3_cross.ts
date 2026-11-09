@@ -13,10 +13,11 @@ import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
  * 2. Anti-commutativity: reversing the operands negates the result, so Y×X=−Z.
  *    Together these pin both the magnitude and the orientation of the product.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs all three cyclic basis products and the reversed X/Y pair, asserting exact finite coordinate values and record fields. An axis permutation or incorrect cross-product sign fails.
- * @evidence contracts/testing.md#independent-expectations The right-handed determinant convention gives X cross Y = Z, Y cross Z = X and Z cross X = Y, with reversed operands negating Z. The existing structural observer compares numeric leaves through zero-tolerance nclose and generates no expected vectors.
- * @evidence contracts/testing.md#distinguishing-cases Preserves every cyclic pair and one reversed pair. Parallel vectors, general magnitudes, zero vectors and malformed input are not covered here; downstream segment and quaternion tests own their geometric compositions.
- * @evidence contracts/testing.md#execution-ownership This named math entry owns synchronous portable Vector3 calls with no consumer installation, native compilation, process, browser, GPU or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs all three cyclic basis products and the reversed X/Y pair, asserting exact finite coordinate values and record fields. An axis permutation or incorrect cross-product sign fails.
+ * @evidence contracts/development/testing.md#independent-expectations The right-handed determinant convention gives X cross Y = Z, Y cross Z = X and Z cross X = Y, with reversed operands negating Z. The existing structural observer compares numeric leaves through zero-tolerance nclose and generates no expected vectors.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves every cyclic pair and one reversed pair. Parallel vectors, general magnitudes, zero vectors and malformed input are not covered here; downstream segment and quaternion tests own their geometric compositions.
+ * @evidence contracts/development/testing.md#execution-ownership This named math entry owns synchronous portable Vector3 calls with no consumer installation, native compilation, process, browser, GPU or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The three cyclic basis products: X×Y=Z, Y×Z=X, Z×X=Y.).
  */
 export function test_math_vector3_cross(): void {
   const X: IAutoMovieVector3 = Vector3.create(1, 0, 0);

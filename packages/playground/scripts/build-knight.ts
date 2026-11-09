@@ -1,7 +1,7 @@
-import { exportModelToGLB } from "@automovie/render/node";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
+import { exportModelToGLB } from "../../template/scaffold/src/integrations/render/node/exportModelToGLB";
 import { buildKnight } from "../src/buildKnight";
 
 /**

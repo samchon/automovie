@@ -44,10 +44,11 @@ import { nclose } from "../internal/predicates";
  * 3. Cut to playback: a 24 fps one-shot cut runs 2 seconds and has 48 frame samples,
  *    all on `shot:beat-1` starting at its first instant.
  *
- * @evidence contracts/testing.md#behavioral-verification Executes the live numerical film stages and verifies each admission, the forged model join, compiled camera clip and final frame samples; a dropped or mismatched intermediate artifact fails its consuming stage or observable assertion.
- * @evidence contracts/testing.md#independent-expectations The fixture authors one two-second shot at 24 fps, so the contract requires 48 samples beginning at local zero with no blend; authored node and shot identities independently determine the staged join and playback selection.
- * @evidence contracts/testing.md#distinguishing-cases Owns one complete successful composition across film stages; rejection domains, repeated shots, trim seams and transitions belong to the focused stage and playback tests, without pretending this path covers those decisions.
- * @evidence contracts/testing.md#execution-ownership Despite its historical e2e filename, this discoverable synchronous entry is a portable engine unit composition with hand-authored data and the existing one-second fixture synthesizer, not the actor-context synthesizer. It installs or starts no consumer, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes the live numerical film stages and verifies each admission, the forged model join, compiled camera clip and final frame samples; a dropped or mismatched intermediate artifact fails its consuming stage or observable assertion.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture authors one two-second shot at 24 fps, so the contract requires 48 samples beginning at local zero with no blend; authored node and shot identities independently determine the staged join and playback selection.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns one complete successful composition across film stages; rejection domains, repeated shots, trim seams and transitions belong to the focused stage and playback tests, without pretending this path covers those decisions.
+ * @evidence contracts/development/testing.md#execution-ownership Despite its historical e2e filename, this discoverable synchronous entry is a portable engine unit composition with hand-authored data and the existing one-second fixture synthesizer, not the actor-context synthesizer. It installs or starts no consumer, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Forge to stage: knightB's stand-in validates and its id is what the staged).
  */
 export function test_film_full_ladder_e2e(): void {
   const script: IAutoMovieScript = makeScriptWrite();

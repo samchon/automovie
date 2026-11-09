@@ -4,13 +4,10 @@ import type * as THREE from "three";
  * Detached native camera state admitted by createViewerCameraState.restore.
  * Vectors and lens values are local native camera data, not a world hierarchy.
  *
- * @evidence contracts/common.md#principled-implementation The record contains copied native lens, TRS, layers and projection state for detached auto-updating PerspectiveCamera or OrthographicCamera. Unknown restore input is checked against a native candidate; this interface itself performs no runtime admission.
- * @evidence contracts/common.md#clear-and-simple-design One named transfer record exposes the existing camera payload so another exported transfer can name its return type. It introduces no alternate camera solver or new fields.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Lens discriminants retain the two supported native classes; projection arrays are not accepted as a shortcut around lens parity, and parent relationships are not guessed.
- * @evidence contracts/common.md#meaningful-documentation Fields state local vector and quaternion order, metre/millimetre/degree units, layer mask and view offset optionality. The comment identifies the runtime admission owner.
- * @evidence contracts/performance.md#efficient-algorithms This is a fixed-size scalar and tuple payload; capture and restore each handle constant-size state aside from native camera clone's possible child subtree.
- * @evidence contracts/performance.md#reuse-equivalent-work Each capture copies current mutable camera state. The type defines no state cache and restore cannot substitute a previous lens for a newly supplied payload.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The payload retains scalar values and copied arrays/view fields with no renderer, scene or native handle. Its lifetime transfers to the snapshot consumer and ends when its references become unreachable.
+ * @evidence contracts/development/design.md#principled-representation The record contains copied native lens, TRS, layers and projection state for detached auto-updating PerspectiveCamera or OrthographicCamera. Unknown restore input is checked against a native candidate; this interface itself performs no runtime admission.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One named transfer record exposes the existing camera payload so another exported transfer can name its return type. It introduces no alternate camera solver or new fields.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Lens discriminants retain the two supported native classes; projection arrays are not accepted as a shortcut around lens parity, and parent relationships are not guessed.
+ * @evidence contracts/development/common.md#meaningful-documentation Fields state local vector and quaternion order, metre/millimetre/degree units, layer mask and view offset optionality. The comment identifies the runtime admission owner.
  */
 export interface IViewerCameraStateSnapshot {
   /** Native camera class identity; restore requires the same current class. */

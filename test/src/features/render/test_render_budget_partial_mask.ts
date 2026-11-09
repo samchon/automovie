@@ -18,10 +18,11 @@ import {
  *
  * 1. A mask covering only one staged node still attributes the uncovered wall's triangles.
  *
- * @evidence contracts/testing.md#behavioral-verification Derives a real semantic mask covering only the fixture's fifth node, then measures the full subject and requires the uncovered hall-wall's exact own triangle attribution. Palette omission cannot erase measured resource cost.
- * @evidence contracts/testing.md#independent-expectations The fixture wall uses the authored box primitive with BOX_TRIANGLES triangles and its declared node/source address. The expected singleton owner row is hand-authored rather than copied from the partial mask or measured inventory.
- * @evidence contracts/testing.md#distinguishing-cases Keeps a covered node next to an uncovered staged wall and checks the uncovered wall's complete metric/owner/source/kind/cost row. Fully classified and missing-resource measurements belong to report and incomplete-resource tests.
- * @evidence contracts/testing.md#execution-ownership The named test_render_budget_partial_mask owns the portable mask-derivation/inventory case; it creates no GPU mask, render frame, browser or host process.
+ * @evidence contracts/development/testing.md#behavioral-verification Derives a real semantic mask covering only the fixture's fifth node, then measures the full subject and requires the uncovered hall-wall's exact own triangle attribution. Palette omission cannot erase measured resource cost.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture wall uses the authored box primitive with BOX_TRIANGLES triangles and its declared node/source address. The expected singleton owner row is hand-authored rather than copied from the partial mask or measured inventory.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps a covered node next to an uncovered staged wall and checks the uncovered wall's complete metric/owner/source/kind/cost row. Fully classified and missing-resource measurements belong to report and incomplete-resource tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_render_budget_partial_mask owns the portable mask-derivation/inventory case; it creates no GPU mask, render frame, browser or host process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A mask covering only one staged node still attributes the uncovered wall's triangles.).
  */
 export function test_render_budget_partial_mask(): void {
   const subject: typeof renderBudgetSubjectFixture = renderBudgetSubjectFixture;

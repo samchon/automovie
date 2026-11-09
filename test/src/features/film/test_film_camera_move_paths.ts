@@ -60,10 +60,11 @@ const frame: (
  *    subject's endpoint shift, and has a defined lateral fallback for a
  *    vertical staged bearing.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls compileCameraMove for orbit, follow, truck, static, colliding start times, and empty entries, observing key counts, selected positions, orbit radius/easing, and fallback bearings.
- * @evidence contracts/testing.md#independent-expectations A two-metre full subject at 90-degree FOV gives the fixed 1.15 metre distance and one-metre aim. Euclidean Math.hypot and atan2 measure orbit radius and angle independently; literal follow and truck endpoints follow the authored one-metre subject translation and framing grammar.
- * @evidence contracts/testing.md#distinguishing-cases Orbit mid-arc speed exceeds both ends, animated follow differs from static follow, later same-time framing replaces the earlier one, and vertical or zero staged bearings must return defined positions. Empty entries must yield null rather than a fabricated clip.
- * @evidence contracts/testing.md#execution-ownership Uses synchronous compilation and a local pure subject-position callback through the product seam; no renderer, filesystem, clock, process state, or dependency replacement is involved. Selected numerical keys do not prove rendered interpolation between them.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls compileCameraMove for orbit, follow, truck, static, colliding start times, and empty entries, observing key counts, selected positions, orbit radius/easing, and fallback bearings.
+ * @evidence contracts/development/testing.md#independent-expectations A two-metre full subject at 90-degree FOV gives the fixed 1.15 metre distance and one-metre aim. Euclidean Math.hypot and atan2 measure orbit radius and angle independently; literal follow and truck endpoints follow the authored one-metre subject translation and framing grammar.
+ * @evidence contracts/development/testing.md#distinguishing-cases Orbit mid-arc speed exceeds both ends, animated follow differs from static follow, later same-time framing replaces the earlier one, and vertical or zero staged bearings must return defined positions. Empty entries must yield null rather than a fabricated clip.
+ * @evidence contracts/development/testing.md#execution-ownership Uses synchronous compilation and a local pure subject-position callback through the product seam; no renderer, filesystem, clock, process state, or dependency replacement is involved. Selected numerical keys do not prove rendered interpolation between them.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `orbit` → 9 keys sweeping 45°, every position at distance `d` from the aim,).
  */
 export function test_film_camera_move_paths(): void {
   const subject: IAutoMovieFramedSubject = {

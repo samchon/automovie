@@ -55,10 +55,11 @@ const SPEC: IAutoMovieRenderSpec = {
  *    absence, not emptiness, so pre-#644 consumers see the exact same object
  *    shape.
  *
- * @evidence contracts/testing.md#behavioral-verification Plans the same eight-frame sequence with omitted and explicitly undefined guide passes, compares complete records and requires passOutputs/passManifests keys to be absent. Exact count/index checks accompany tolerant time/rate comparison so an empty-field fallback or changed partition fails.
- * @evidence contracts/testing.md#independent-expectations An omitted optional request and undefined both request no guide outputs; absence is independently asserted with key membership. Whole-plan comparison is a metamorphic no-op oracle, not an independent historical pre-644 snapshot or rendered-pixel proof.
- * @evidence contracts/testing.md#distinguishing-cases Keeps omitted and explicitly undefined neighbors with every chunk checked for key absence and the parent manifest key absent. Explicit empty, nonempty, repeated and malformed pass requests belong to chunk_guide_passes.
- * @evidence contracts/testing.md#execution-ownership The named test_render_chunk_guide_passes_twin owns these portable synchronous planner twins and no hidden registered cases; it captures/writes no frames and starts no renderer or encoder.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans the same eight-frame sequence with omitted and explicitly undefined guide passes, compares complete records and requires passOutputs/passManifests keys to be absent. Exact count/index checks accompany tolerant time/rate comparison so an empty-field fallback or changed partition fails.
+ * @evidence contracts/development/testing.md#independent-expectations An omitted optional request and undefined both request no guide outputs; absence is independently asserted with key membership. Whole-plan comparison is a metamorphic no-op oracle, not an independent historical pre-644 snapshot or rendered-pixel proof.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps omitted and explicitly undefined neighbors with every chunk checked for key absence and the parent manifest key absent. Explicit empty, nonempty, repeated and malformed pass requests belong to chunk_guide_passes.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_render_chunk_guide_passes_twin owns these portable synchronous planner twins and no hidden registered cases; it captures/writes no frames and starts no renderer or encoder.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Plans built with and without `passes: undefined` deep-equal each other.).
  */
 export function test_render_chunk_guide_passes_twin(): void {
   const whole: ReturnType<typeof planSequenceRender> = planSequenceRender({

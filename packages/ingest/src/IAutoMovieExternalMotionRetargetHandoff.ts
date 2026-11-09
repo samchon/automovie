@@ -5,13 +5,10 @@ import type { IAutoMovieExternalMotionBoneMapping } from "./IAutoMovieExternalMo
 /**
  * Inputs copied after adoption's mapped-basis and retarget-field checks; the engine-owned retarget pass still admits source conversion and source-target compatibility.
  *
- * @evidence contracts/common.md#principled-implementation Besides the copied rig and sorted mapping, the retarget handoff forwards the validated multiplier and target unchanged, which is all the engine retarget pass needs from ingest.
- * @evidence contracts/common.md#clear-and-simple-design Its fields mirror the retarget decision minus the take id, so the receipt's take field is the single place the selected clip lives.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The documentation keeps source conversion and source-target compatibility as downstream checks rather than implying ingest performed them.
- * @evidence contracts/common.md#meaningful-documentation The property comments say which values were checked, finite-positive scale and non-blank target, and that the target is not resolved here.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The retarget handoff is a data-only record that executes no code.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The retarget handoff coordinates no work between requests or consumers.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two scalars plus copies owned by the receipt; no handle or task.
+ * @evidence contracts/development/design.md#principled-representation Besides the copied rig and sorted mapping, the retarget handoff forwards the validated multiplier and target unchanged, which is all the engine retarget pass needs from ingest.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Its fields mirror the retarget decision minus the take id, so the receipt's take field is the single place the selected clip lives.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The documentation keeps source conversion and source-target compatibility as downstream checks rather than implying ingest performed them.
+ * @evidence contracts/development/common.md#meaningful-documentation The property comments say which values were checked, finite-positive scale and non-blank target, and that the target is not resolved here.
  */
 export interface IAutoMovieExternalMotionRetargetHandoff {
   /** Mode discriminator. */

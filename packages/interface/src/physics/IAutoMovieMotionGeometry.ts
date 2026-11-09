@@ -1,6 +1,13 @@
 import type { IAutoMoviePhysicalProfile as P } from "./IAutoMoviePhysicalProfile";
 
-/** Collision carriers and observed frames for geometric motion audits, without claiming a connected massive native articulation. */
+/**
+ * Collision carriers and observed frames for geometric motion audits, without claiming a connected massive native articulation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Collision carriers and observed frames for geometric motion audits, without claiming a connected massive native articulation) and documents 4 documented members as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents Collision carriers and observed frames for geometric motion audits, without claiming a connected massive native articulation: interface of 4 members (`segments`, `joints`, `materials`, `witnesses`); units and frames named in its text: frame, local, radians, metres, newton. Optional members `witnesses` express documented absence, and the ranges its member docs state are left to runtime validation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAutoMovieMotionGeometry` in packages/interface/src/physics/IAutoMovieMotionGeometry.ts; its surface is the 4 members listed and the text shows 7 other files naming it, mostly packages/engine (4), test (2), packages/interface (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ */
 export interface IAutoMovieMotionGeometry {
   /** Nonempty uniquely named collision carriers; independent carriers are allowed. */
   segments: {

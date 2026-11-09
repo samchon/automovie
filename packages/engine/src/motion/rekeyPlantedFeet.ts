@@ -17,13 +17,13 @@ import { sampleMotion } from "./sampleMotion";
 /**
  * Emit one corrected keyframe per admitted parallel time/pose/target sample using the same unchanged skeleton topology as stance detection. Only targeted leg chains are fitted; roots, expressions and other joints persist, while the prior corrected pose ranks equally accurate bend choices.
  *
- * @evidence contracts/common.md#principled-implementation Sequentially fits each pinned chain under the rig's shared clinical axes/rest frames and ROM, carrying the preceding corrected pose as continuity reference; resulting keyframes use linear easing on the existing dense sampling clock.
- * @evidence contracts/common.md#clear-and-simple-design This stage owns correction and frame packaging; stance grouping and pin selection remain pinStanceTargets' responsibility, and fitChainToTarget owns bounded candidate selection.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Untargeted legs and non-leg joints stay authored; missing/degenerate/unimprovable chains return their current pose rather than manufacturing a successful exact pin.
- * @evidence contracts/common.md#meaningful-documentation States parallel sample premise, topology/clinical agreement, unchanged root/expression/non-chain data and continuity-only prior-pose use.
- * @evidence contracts/performance.md#efficient-algorithms For F frames and L legs, performs F times L target lookups and only actual pins invoke bounded IK/FK search; output is O(F times joint population), with topology prepared once upstream.
- * @evidence contracts/performance.md#reuse-equivalent-work Reuses caller topology across all corrected frames and the preceding corrected pose for continuity; frame-specific parent pose and target still require fresh chain preparation.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The pass caller owns new keyframes and corrected joints; unchanged root/expression/joints may be shared with sampled input, while no cross-call cache or native handle persists.
+ * @evidence contracts/development/implementation.md#principled-implementation Sequentially fits each pinned chain under the rig's shared clinical axes/rest frames and ROM, carrying the preceding corrected pose as continuity reference; resulting keyframes use linear easing on the existing dense sampling clock.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This stage owns correction and frame packaging; stance grouping and pin selection remain pinStanceTargets' responsibility, and fitChainToTarget owns bounded candidate selection.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Untargeted legs and non-leg joints stay authored; missing/degenerate/unimprovable chains return their current pose rather than manufacturing a successful exact pin.
+ * @evidence contracts/development/common.md#meaningful-documentation States parallel sample premise, topology/clinical agreement, unchanged root/expression/non-chain data and continuity-only prior-pose use.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For F frames and L legs, performs F times L target lookups and only actual pins invoke bounded IK/FK search; output is O(F times joint population), with topology prepared once upstream.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses caller topology across all corrected frames and the preceding corrected pose for continuity; frame-specific parent pose and target still require fresh chain preparation.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The pass caller owns new keyframes and corrected joints; unchanged root/expression/joints may be shared with sampled input, while no cross-call cache or native handle persists.
  */
 export const rekeyPlantedFeet: (props: {
   /** Rig whose unchanged topology and ROM constrain correction. */ skeleton: IAutoMovieSkeleton;

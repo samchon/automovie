@@ -35,10 +35,11 @@ const finiteQuat: (q: IAutoMovieQuaternion) => boolean = (
  * 5. A nonzero scale far below `Number.EPSILON` (1e-20) under the same
  *    rotation checks recovered rotation and the X-scale ratio.
  *
- * @evidence contracts/testing.md#behavioral-verification Decomposes finite collapsed/tiny TRS matrices and checks exact zero scales, finite/unit recovered rotations and recomposition of surviving columns, catching division by zero or an epsilon-floored genuine scale.
- * @evidence contracts/testing.md#independent-expectations A zero basis column has zero norm, surviving columns must remain unchanged on recomposition and authored 1e-3/1e-20 scales remain nonzero; compose/recompose parity still shares product math and is not an independent arbitrary-matrix oracle.
- * @evidence contracts/testing.md#distinguishing-cases Each single collapse, all-zero basis, rotated single/pair collapses and small versus minute nonzero scale distinguish missing direction from small direction; mirrored/sheared/extreme-overflow matrices are unsupported here.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_matrix4_decompose_collapsed entry directly executes portable synchronous Matrix4 arithmetic on existing records, with no GPU visibility or Human deformation experiment.
+ * @evidence contracts/development/testing.md#behavioral-verification Decomposes finite collapsed/tiny TRS matrices and checks exact zero scales, finite/unit recovered rotations and recomposition of surviving columns, catching division by zero or an epsilon-floored genuine scale.
+ * @evidence contracts/development/testing.md#independent-expectations A zero basis column has zero norm, surviving columns must remain unchanged on recomposition and authored 1e-3/1e-20 scales remain nonzero; compose/recompose parity still shares product math and is not an independent arbitrary-matrix oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Each single collapse, all-zero basis, rotated single/pair collapses and small versus minute nonzero scale distinguish missing direction from small direction; mirrored/sheared/extreme-overflow matrices are unsupported here.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_matrix4_decompose_collapsed entry directly executes portable synchronous Matrix4 arithmetic on existing records, with no GPU visibility or Human deformation experiment.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Each axis collapsed in turn (identity rotation, other scales nonzero):).
  */
 export function test_resolve_matrix4_decompose_collapsed(): void {
   const t: IAutoMovieVector3 = { x: 1, y: 2, z: 3 };

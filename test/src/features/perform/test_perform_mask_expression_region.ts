@@ -80,10 +80,11 @@ const expressions: (m: IAutoMovieMotion) => (string | null)[] = (
  * 2. The same injected clip assigned to face keeps angry at every returned keyframe.
  * 3. A fullBody angry clip beside a face happy clip yields the singleton non-null preset set happy.
  *
- * @evidence contracts/testing.md#behavioral-verification Compiles single and overlapping region actions, then checks returned keyframe presets. Preserving non-face expression leakage or stripping the face channel contradicts these observations.
- * @evidence contracts/testing.md#independent-expectations Literal angry/happy/null expectations derive from ownership of the expression channel by face and deliberately region-agnostic local fixtures. The two every checks do not independently assert keyframe count; the layered happy set establishes nonempty face content there. Intensity, blendshape weights and sampled interpolation are not asserted.
- * @evidence contracts/testing.md#distinguishing-cases Retains non-face/face twins and concurrent fullBody/face ownership with different presets, without changing cases, clocks or intensity 1. Other region memberships, masked-report diagnostics and shot refusal belong to other tests.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns compiler calls and assertions; its local synth factory returns injected clips and registers nothing. No production host, native build or viewer is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Compiles single and overlapping region actions, then checks returned keyframe presets. Preserving non-face expression leakage or stripping the face channel contradicts these observations.
+ * @evidence contracts/development/testing.md#independent-expectations Literal angry/happy/null expectations derive from ownership of the expression channel by face and deliberately region-agnostic local fixtures. The two every checks do not independently assert keyframe count; the layered happy set establishes nonempty face content there. Intensity, blendshape weights and sampled interpolation are not asserted.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains non-face/face twins and concurrent fullBody/face ownership with different presets, without changing cases, clocks or intensity 1. Other region memberships, masked-report diagnostics and shot refusal belong to other tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns compiler calls and assertions; its local synth factory returns injected clips and registers nothing. No production host, native build or viewer is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An upperBody clip's returned keyframe presets are all null.).
  */
 export function test_perform_mask_expression_region(): void {
   const angryEverywhere: (call: IAutoMovieActionCall) => IAutoMovieMotion =

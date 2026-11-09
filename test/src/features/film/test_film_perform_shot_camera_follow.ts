@@ -69,10 +69,11 @@ const marchSynth: () => IAutoMovieMotion = (): IAutoMovieMotion =>
  * 2. Produce one static key for a point subject.
  * 3. Rotate the same march by staged +90-degree facing and check zero X drift and minus-one Z travel.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs performShot and reads camera translation keys, catching ignored root X travel, a node-local/world-frame mix, rootless endpoint X drift or a static-point path with more than one key. It does not compare every rootless coordinate or interior key.
- * @evidence contracts/testing.md#independent-expectations The authored one-metre X translation fixes X displacement; a +90-degree Y placement maps it to world minus-Z, and the rootless fixture requires equal endpoint X coordinates. nclose compares hand-derived displacement rather than the framing solver's output snapshot.
- * @evidence contracts/testing.md#distinguishing-cases Distinguishes translated root, rootless clip, static point and turned placement with the same numerical path; camera-subject and bone/projectile follow cases are owned by camera_subject.
- * @evidence contracts/testing.md#execution-ownership This portable discoverable unit owns its camera compilation cases and reads arrays only, starting no browser, viewer or GPU. Numerical camera keys prove no final framing appearance.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs performShot and reads camera translation keys, catching ignored root X travel, a node-local/world-frame mix, rootless endpoint X drift or a static-point path with more than one key. It does not compare every rootless coordinate or interior key.
+ * @evidence contracts/development/testing.md#independent-expectations The authored one-metre X translation fixes X displacement; a +90-degree Y placement maps it to world minus-Z, and the rootless fixture requires equal endpoint X coordinates. nclose compares hand-derived displacement rather than the framing solver's output snapshot.
+ * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes translated root, rootless clip, static point and turned placement with the same numerical path; camera-subject and bone/projectile follow cases are owned by camera_subject.
+ * @evidence contracts/development/testing.md#execution-ownership This portable discoverable unit owns its camera compilation cases and reads arrays only, starting no browser, viewer or GPU. Numerical camera keys prove no final framing appearance.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Follow a one-metre model-X root march and keep the rootless neighbour's endpoint X coordinate unchanged.).
  */
 export function test_film_perform_shot_camera_follow(): void {
   const staged: IAutoMovieStagedSet = stageScene(

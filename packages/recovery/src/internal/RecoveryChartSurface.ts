@@ -1,4 +1,4 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieCurve64 as C } from "@automovie/engine";
 
 import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
 import type { RecoveryChartBoundary } from "./RecoveryChartBoundary";
@@ -20,26 +20,23 @@ import { RecoveryChartMap as M } from "./RecoveryChartMap";
  * Optional source PL physical-gradient rows constrain observed slopes softly;
  * they neither impose exact cross-chart G1 nor certify the original embedding.
  *
- * @evidence contracts/common.md#principled-implementation Accepted Bernstein boundaries fix one harmonic Dirichlet chart; physical-area quadrature supplies interior source observations to an affine boundary-collar fit with acyclic hanging-control relations. Residual-driven partition refinement adds unknown coefficients and refits the actual source rather than subdividing the old field alone.
- * @evidence contracts/common.md#clear-and-simple-design Boundary fitting, private parameterization and coefficient fitting have separate numerical owners and reports; only coefficients and patch identities cross the generation seam.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source triangles supply observations only and never become generated faces. Boundary fits are not silently closed, failed charts are not reversed, and C0 sharing is not labelled a transverse-jet constraint.
- * @evidence contracts/common.md#meaningful-documentation States path direction, accepted-parameter authority, source-private lifetime and separate numerical, continuity and surface-fidelity qualifications.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The namespace initializes no fit.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work No module cache exists.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The observation caller owns returned coefficients and private reports.
+ * @evidence contracts/development/common.md#meaningful-documentation States path direction, accepted-parameter authority, source-private lifetime and separate numerical, continuity and surface-fidelity qualifications.
+ * @evidence contracts/development/design.md#principled-representation Represents Private four-sided disk observations to a jointly fitted bicubic coefficient atlas: companion namespace of 1 member (`fit`); units and frames named in its text: local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `RecoveryChartSurface` in packages/recovery/src/internal/RecoveryChartSurface.ts; its surface is the 1 member listed and the text shows 1 other file naming it, mostly packages/recovery (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace RecoveryChartSurface {
   /**
    * Fit one observed orientable disk whose four boundary paths are already identified.
    * Paths include their shared endpoints and contain private vertex ordinals.
    *
-   * @evidence contracts/common.md#principled-implementation Four consistent directed boundary paths define a square Dirichlet problem; exact restriction of each fitted boundary establishes collar boundary controls.
-   * @evidence contracts/common.md#clear-and-simple-design All work budgets are explicit and source topology remains local to observation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No source normal, replacement source mesh or arbitrary endpoint connection is accepted by the coefficient result.
-   * @evidence contracts/common.md#meaningful-documentation The returned private map, fit residuals and controls distinguish observation evidence from the public generated field.
-   * @evidence contracts/performance.md#efficient-algorithms Boundary fitting and one O(I(V+E)) harmonic solve precede at most maxRefinements plus one fits. Each fit clips source triangles into at most maxPatches collar leaves and reuses reduced sparse normal equations. Incompatible local edge hierarchies and work limits retain the prior complete area candidate.
-   * @evidence contracts/performance.md#reuse-equivalent-work Accepted boundary coefficients, registrations and the private harmonic map are reused across every refit. New knots restrict the same boundary authority; only interior coefficients are solved again against original observations.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources One chart's source arrays and numerical buffers remain live until return; maxPatches bounds the leaf registry and iteration budgets bound solves without dropping observations.
+   * @evidence contracts/development/implementation.md#principled-implementation Four consistent directed boundary paths define a square Dirichlet problem; exact restriction of each fitted boundary establishes collar boundary controls.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure All work budgets are explicit and source topology remains local to observation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source normal, replacement source mesh or arbitrary endpoint connection is accepted by the coefficient result.
+   * @evidence contracts/development/common.md#meaningful-documentation The returned private map, fit residuals and controls distinguish observation evidence from the public generated field.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Boundary fitting and one O(I(V+E)) harmonic solve precede at most maxRefinements plus one fits. Each fit clips source triangles into at most maxPatches collar leaves and reuses reduced sparse normal equations. Incompatible local edge hierarchies and work limits retain the prior complete area candidate.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Accepted boundary coefficients, registrations and the private harmonic map are reused across every refit. New knots restrict the same boundary authority; only interior coefficients are solved again against original observations.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One chart's source arrays and numerical buffers remain live until return; maxPatches bounds the leaf registry and iteration budgets bound solves without dropping observations.
    */
   export function fit(input: {
     name: string;

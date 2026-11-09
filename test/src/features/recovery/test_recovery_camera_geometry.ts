@@ -1,5 +1,5 @@
-import { AutoMovieMatrix3 } from "@automovie/engine/math/AutoMovieMatrix3";
-import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface/recovery";
+import { AutoMovieMatrix3 } from "@automovie/engine";
+import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { calibrateRecoveryEpipolarMatrix } from "../../../../packages/recovery/src/internal/calibrateRecoveryEpipolarMatrix";
@@ -19,10 +19,11 @@ import { nclose } from "../internal/nclose";
  * 3. A separately authored projective image map is recovered in both directions, while collinear data is refused.
  * 4. Undefined epipolar lines, overflowing matrix products and principal offsets that erase a pixel step cannot become finite geometric evidence.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the numerical geometry used by the image-pair estimator and observes pixel incidence, physical pose candidates, sparse point coordinates, signed depths, bidirectional projective transfer and refusal. Wrong inverse skew, matrix storage, essential orientation or unit-baseline convention changes these results.
- * @evidence contracts/testing.md#independent-expectations Analytic world points, a prescribed Y rotation, a prescribed unit translation and direct scalar pinhole equations generate both images without the fitting code. A separate rational 2D projective map supplies homography truth. These noise-free expectations test numerical semantics, not photographic accuracy or robust matching.
- * @evidence contracts/testing.md#distinguishing-cases Covers unequal focal scales, opposite skew signs, changed principal points, nonplanar depths, both translation signs in the pose ambiguity, a finite point behind both cameras, collinear designs, zero lines, unchanged borrowed matrix data, overflow and an unrepresentable chart. Noisy consensus, feature extraction and public operation admission belong to their owning tests.
- * @evidence contracts/testing.md#execution-ownership The portable test_recovery_camera_geometry function owns only finite analytic arrays and synchronous assertions; it creates no files, subprocess, installed consumer, browser or GPU and replaces no foreign implementation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the numerical geometry used by the image-pair estimator and observes pixel incidence, physical pose candidates, sparse point coordinates, signed depths, bidirectional projective transfer and refusal. Wrong inverse skew, matrix storage, essential orientation or unit-baseline convention changes these results.
+ * @evidence contracts/development/testing.md#independent-expectations Analytic world points, a prescribed Y rotation, a prescribed unit translation and direct scalar pinhole equations generate both images without the fitting code. A separate rational 2D projective map supplies homography truth. These noise-free expectations test numerical semantics, not photographic accuracy or robust matching.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers unequal focal scales, opposite skew signs, changed principal points, nonplanar depths, both translation signs in the pose ambiguity, a finite point behind both cameras, collinear designs, zero lines, unchanged borrowed matrix data, overflow and an unrepresentable chart. Noisy consensus, feature extraction and public operation admission belong to their owning tests.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_camera_geometry function owns only finite analytic arrays and synchronous assertions; it creates no files, subprocess, installed consumer, browser or GPU and replaces no foreign implementation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Independently projected nonplanar points recover their epipolar incidence and a member of the four-pose set with the known relative...).
  */
 export function test_recovery_camera_geometry(): void {
   const makeView: (

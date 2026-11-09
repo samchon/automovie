@@ -11,10 +11,11 @@ import { createGalleryHostFacts } from "../internal/createGalleryHostFacts";
  * 1. Interior and exact rectangle edges retain opening/lock while descendant-control clicks do not dismiss.
  * 2. Each authored outside direction closes and restores the original opener through supplied policy callbacks; disposal requests content release.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the directly imported real controller through existing GalleryUnit aliases and checks open/lock/focus effects after actual policy decisions.
- * @evidence contracts/testing.md#independent-expectations Authored 20/420/30/330 edges and independently selected one-pixel-outside points judge strict boundary behavior, with original opener identity retained.
- * @evidence contracts/testing.md#distinguishing-cases Interior/exact edges contrast all four outside directions and a descendant click, followed by close/disposal effects without assuming browser layout.
- * @evidence contracts/testing.md#execution-ownership The named entry reuses the existing caller-owned logical host facts, releases the controller and starts no DOM/modal/browser or new mock driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the directly imported real controller through existing GalleryUnit aliases and checks open/lock/focus effects after actual policy decisions.
+ * @evidence contracts/development/testing.md#independent-expectations Authored 20/420/30/330 edges and independently selected one-pixel-outside points judge strict boundary behavior, with original opener identity retained.
+ * @evidence contracts/development/testing.md#distinguishing-cases Interior/exact edges contrast all four outside directions and a descendant click, followed by close/disposal effects without assuming browser layout.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry reuses the existing caller-owned logical host facts, releases the controller and starts no DOM/modal/browser or new mock driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Interior and exact rectangle edges retain opening/lock while descendant-control clicks do not dismiss.).
  */
 export function test_website_gallery_backdrop(): void {
   const { facts, host }: ReturnType<typeof createGalleryHostFacts> =

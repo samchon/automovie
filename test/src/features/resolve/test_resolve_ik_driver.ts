@@ -87,10 +87,11 @@ const at: (world: Map<string, number[]>, id: string) => IAutoMovieVector3 = (
  *    reads world matrices.
  * 9. Zero-length upper or lower bone segments reject before angle solving.
  *
- * @evidence contracts/testing.md#behavioral-verification Applies actual analytic world IK and observes goal residuals, segment lengths, rolled bend position, solver deferral and refusal of invalid influence, pole angles, lengths and missing nodes.
- * @evidence contracts/testing.md#independent-expectations Authored unit links and goal positions determine length/reach expectations. For a straight two-unit chain reaching x=1.5, symmetry gives mid x=0.75 and height sqrt(1-0.75 squared), with the authored pole roll selecting positive Z.
- * @evidence contracts/testing.md#distinguishing-cases Reachable/root-coincident goals, straight X/Y fallback, absent/null-node/rolled poles and CCD/short-chain/spring neighbors accompany malformed inputs; no arbitrary anatomical ROM or extreme arithmetic guarantee follows.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_ik_driver entry directly runs synchronous CPU matrix/IK semantics on existing scene-node fixtures, without a new Human test asset, viewer or validation driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies actual analytic world IK and observes goal residuals, segment lengths, rolled bend position, solver deferral and refusal of invalid influence, pole angles, lengths and missing nodes.
+ * @evidence contracts/development/testing.md#independent-expectations Authored unit links and goal positions determine length/reach expectations. For a straight two-unit chain reaching x=1.5, symmetry gives mid x=0.75 and height sqrt(1-0.75 squared), with the authored pole roll selecting positive Z.
+ * @evidence contracts/development/testing.md#distinguishing-cases Reachable/root-coincident goals, straight X/Y fallback, absent/null-node/rolled poles and CCD/short-chain/spring neighbors accompany malformed inputs; no arbitrary anatomical ROM or extreme arithmetic guarantee follows.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_ik_driver entry directly runs synchronous CPU matrix/IK semantics on existing scene-node fixtures, without a new Human test asset, viewer or validation driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A reachable goal with a pole: the tip lands on the goal and both bone lengths).
  */
 export function test_resolve_ik_driver(): void {
   // 1. reachable + pole → tip on goal, lengths preserved

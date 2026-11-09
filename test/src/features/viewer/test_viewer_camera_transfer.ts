@@ -1,5 +1,7 @@
-import { createViewerCameraState } from "@automovie/viewer";
-import type { IViewerCameraStateSnapshot } from "@automovie/viewer/IViewerCameraStateSnapshot";
+import {
+  type IViewerCameraStateSnapshot,
+  createViewerCameraState,
+} from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 import * as THREE from "three";
@@ -14,10 +16,11 @@ import { nclose } from "../internal/predicates";
  * 2. Malformed restore fields refuse without changing the resident state; disabled and absent views remain supported.
  * 3. Manual matrix ownership, parenting, custom projection and an unsupported camera class refuse capture or restore.
  *
- * @evidence contracts/testing.md#behavioral-verification Captures and restores actual detached native perspective/orthographic cameras, checking lens, view, TRS, layers and projection fields against independently authored/native reference values. Invalid state must throw while leaving the resident state intact; unsupported parent/manual/custom-projection cameras refuse.
- * @evidence contracts/testing.md#independent-expectations Authored scalar/vector/lens/view values supply the oracle, with Three's own quaternion and projection APIs as the independent native reference. Every initial capture is checked against that reference before a round trip; exact finite scalar comparisons detect transfer drift without claiming a second projection derivation or GPU correctness.
- * @evidence contracts/testing.md#distinguishing-cases Covers both supported classes, enabled/disabled/absent crop state, malformed type/vector/lens/view/projection fields, overflowed transforms, manual matrix owners, parenting and custom projection. Every malformed-snapshot restore is followed by an unchanged-state assertion; the unsupported manual-matrix owner is checked for refusal only, and renderer pixel transfer belongs to host tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable async named unit performs synchronous portable operations on Three metadata objects and the production adapter. It installs no browser, renderer or GPU and registers all cases locally.
+ * @evidence contracts/development/testing.md#behavioral-verification Captures and restores actual detached native perspective/orthographic cameras, checking lens, view, TRS, layers and projection fields against independently authored/native reference values. Invalid state must throw while leaving the resident state intact; unsupported parent/manual/custom-projection cameras refuse.
+ * @evidence contracts/development/testing.md#independent-expectations Authored scalar/vector/lens/view values supply the oracle, with Three's own quaternion and projection APIs as the independent native reference. Every initial capture is checked against that reference before a round trip; exact finite scalar comparisons detect transfer drift without claiming a second projection derivation or GPU correctness.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers both supported classes, enabled/disabled/absent crop state, malformed type/vector/lens/view/projection fields, overflowed transforms, manual matrix owners, parenting and custom projection. Every malformed-snapshot restore is followed by an unchanged-state assertion; the unsupported manual-matrix owner is checked for refusal only, and renderer pixel transfer belongs to host tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable async named unit performs synchronous portable operations on Three metadata objects and the production adapter. It installs no browser, renderer or GPU and registers all cases locally.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Perspective and orthographic lenses, cropped views, TRS and layers match authored values before and after transfer.).
  */
 export async function test_viewer_camera_transfer(): Promise<void> {
   for (const camera of [

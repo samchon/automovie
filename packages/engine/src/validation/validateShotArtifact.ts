@@ -22,13 +22,13 @@ import { validateUniqueIds } from "./validateUniqueIds";
 /**
  * Admit shot/scene/camera references, performances, motion clips, metadata and delivered-camera clearance correspondence.
  *
- * @evidence contracts/common.md#principled-implementation Admit shot/scene/camera references, performances, motion clips, metadata and delivered-camera clearance correspondence.
- * @evidence contracts/common.md#clear-and-simple-design Clip shape and metadata/light owners supply leaf checks while this entry owns scene cross references.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A null motion registry defers compiled-motion existence; performance/object-clip walks report absent slots rather than silently skipping them. Clearance rows remain metadata rather than recomputed sweeps.
- * @evidence contracts/common.md#meaningful-documentation Exact paths and registry-optional semantics explain the host/engine boundary.
- * @evidence contracts/performance.md#efficient-algorithms Performance/clip/node/camera/coverage populations drive scans, maps and track-buffer validation; channel serialization also contributes.
- * @evidence contracts/performance.md#reuse-equivalent-work Request-local id sets and light-kind map share scene lookup work across shot fields.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only report rows escape; borrowed artifacts/registries remain caller-owned and no playback host is started.
+ * @evidence contracts/development/implementation.md#principled-implementation Admit shot/scene/camera references, performances, motion clips, metadata and delivered-camera clearance correspondence.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Clip shape and metadata/light owners supply leaf checks while this entry owns scene cross references.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A null motion registry defers compiled-motion existence; performance/object-clip walks report absent slots rather than silently skipping them. Clearance rows remain metadata rather than recomputed sweeps.
+ * @evidence contracts/development/common.md#meaningful-documentation Exact paths and registry-optional semantics explain the host/engine boundary.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Performance/clip/node/camera/coverage populations drive scans, maps and track-buffer validation; channel serialization also contributes.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Request-local id sets and light-kind map share scene lookup work across shot fields.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only report rows escape; borrowed artifacts/registries remain caller-owned and no playback host is started.
  */
 
 export const validateShotArtifact: (

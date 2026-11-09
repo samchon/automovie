@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryCameraMapInput } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryCameraMapInput } from "@automovie/interface";
 
 import type { IAutoMovieRecoveryCameraPairEstimate } from "./IAutoMovieRecoveryCameraPairEstimate";
 import type { IAutoMovieRecoveryCameraSource } from "./IAutoMovieRecoveryCameraSource";
@@ -13,13 +13,10 @@ import type { IAutoMovieRecoveryMapResection } from "./IAutoMovieRecoveryMapRese
  * tracks remain explicitly untriangulated. A completed operation is partial with
  * respect to an editable surface, metric scale and unobserved scene geometry.
  *
- * @evidence contracts/common.md#principled-implementation Qualified pair initialization, nonconflicting automatic tracks, pointwise geometry, existing-map resection and gauge-fixed joint reprojection provide separate measured stages. Only the fully qualified triad exposes the third pose; a seed-only result retains its original two-view evidence.
- * @evidence contracts/common.md#clear-and-simple-design One JSON record distinguishes computation completion, stage refusal, sparse-map acceptance and unobserved shape, with named numerical and observation records.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No intermediate refused camera, metric baseline, material-truth label, covariance, invisible completion or original/intermediate mesh becomes an accepted surface.
- * @evidence contracts/common.md#meaningful-documentation Members state source ordering, seven gauge constraints, null semantics, linked-versus-triangulated populations, fixed-population refinement and three-view support limits.
- * @evidence contracts/performance.md#efficient-algorithms This record performs no fitting; producers own bounded image, matching, proposal and sparse linear work.
- * @evidence contracts/performance.md#reuse-equivalent-work Complete seed/map policies and budgets accompany source identities so consumers preserve the exact recorded operating point; no effectful result cache is defined.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns bounded plain sources, seed matches and sparse landmarks. No RGB, descriptors, callbacks, process or file handle enters the result.
+ * @evidence contracts/development/design.md#principled-representation Qualified pair initialization, nonconflicting automatic tracks, pointwise geometry, existing-map resection and gauge-fixed joint reprojection provide separate measured stages. Only the fully qualified triad exposes the third pose; a seed-only result retains its original two-view evidence.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One JSON record distinguishes computation completion, stage refusal, sparse-map acceptance and unobserved shape, with named numerical and observation records.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No intermediate refused camera, metric baseline, material-truth label, covariance, invisible completion or original/intermediate mesh becomes an accepted surface.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state source ordering, seven gauge constraints, null semantics, linked-versus-triangulated populations, fixed-population refinement and three-view support limits.
  */
 export interface IAutoMovieRecoveryCameraMapEstimate {
   /** Versioned three-view map evidence artifact. */

@@ -81,10 +81,11 @@ function scalarMatches(actual: number[], expected: number): boolean {
  * 3. Malformed curve objects, point lists, point objects, non-finite coordinates,
  *    and non-increasing source values reject before output.
  *
- * @evidence contracts/testing.md#behavioral-verification Evaluates actual nonlinear driven channels through resolveDrivers; verifies curve interpolation/endpoint/default behavior and authoring refusal including null at the curve object's own boundary.
- * @evidence contracts/testing.md#independent-expectations At source 8.5 the authored (7,10)-(10,100) segment is halfway, so output is 55; source outside 0..10 holds the corresponding endpoint and missing source selects the first point. Strictly increasing finite points are independent curve admission requirements.
- * @evidence contracts/testing.md#distinguishing-cases Covers interior/below/above/missing source, array/primitive/null curve, absent/empty point list, malformed/null point, nonfinite output and duplicate source neighbors; linear range-driven behavior belongs to the separate driven driver test.
- * @evidence contracts/testing.md#execution-ownership The exported test_resolve_driven_curve owns synchronous portable sampled-map cases through the real driver seam, without consumer installation, Human assets, native host or replaced globals.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates actual nonlinear driven channels through resolveDrivers; verifies curve interpolation/endpoint/default behavior and authoring refusal including null at the curve object's own boundary.
+ * @evidence contracts/development/testing.md#independent-expectations At source 8.5 the authored (7,10)-(10,100) segment is halfway, so output is 55; source outside 0..10 holds the corresponding endpoint and missing source selects the first point. Strictly increasing finite points are independent curve admission requirements.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers interior/below/above/missing source, array/primitive/null curve, absent/empty point list, malformed/null point, nonfinite output and duplicate source neighbors; linear range-driven behavior belongs to the separate driven driver test.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_resolve_driven_curve owns synchronous portable sampled-map cases through the real driver seam, without consumer installation, Human assets, native host or replaced globals.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Piecewise interpolation and endpoint holds use curve points, ignoring).
  */
 export function test_resolve_driven_curve(): void {
   const run: (d: IAutoMovieDrivenDriver, src?: number) => number[] = (

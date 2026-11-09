@@ -194,10 +194,11 @@ const IDENTITY: number[] = [0, 0, 0, 1];
  * 6. Tiny nonzero dyadic scalar tangents still cross zero between valid zero
  *    keys; reversing their signs is an adjacent admitted curve.
  *
- * @evidence contracts/testing.md#behavioral-verification The actual shot artifact gate returns light property/kind, component/unit-key and scalar-interior findings, retaining the finite quaternion normalization exemption and exposing an absolute derivative floor that lost tiny negative excursions.
- * @evidence contracts/testing.md#independent-expectations Authored light-kind and unit-quaternion laws supply placement expectations; for zero keys at span one with tangents -2^-45 and +2^-45, the Hermite midpoint is independently -2^-47, below nonnegative intensity. Reversing tangents keeps the whole quadratic nonnegative.
- * @evidence contracts/testing.md#distinguishing-cases Preserve spot/directional/point placement splits, wrong widths, nonunit/out-of-range/nonfinite/empty rotation keys, valid position, finite wild quaternion tangents and ordinary scalar dip, adding small negative/positive scalar twins without widening the rotation exemption.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_validation_light_transform_bounds; authored scene/shot records and the actual artifact gate own the cases, without installing a light playback consumer or proving browser/GPU appearance.
+ * @evidence contracts/development/testing.md#behavioral-verification The actual shot artifact gate returns light property/kind, component/unit-key and scalar-interior findings, retaining the finite quaternion normalization exemption and exposing an absolute derivative floor that lost tiny negative excursions.
+ * @evidence contracts/development/testing.md#independent-expectations Authored light-kind and unit-quaternion laws supply placement expectations; for zero keys at span one with tangents -2^-45 and +2^-45, the Hermite midpoint is independently -2^-47, below nonnegative intensity. Reversing tangents keeps the whole quadratic nonnegative.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserve spot/directional/point placement splits, wrong widths, nonunit/out-of-range/nonfinite/empty rotation keys, valid position, finite wild quaternion tangents and ordinary scalar dip, adding small negative/positive scalar twins without widening the rotation exemption.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_validation_light_transform_bounds; authored scene/shot records and the actual artifact gate own the cases, without installing a light playback consumer or proving browser/GPU appearance.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The placement axes are admitted where the kind carries them, and refused).
  */
 export function test_validation_light_transform_bounds(): void {
   // 1. the kind split.

@@ -42,10 +42,11 @@ const validate: (duration: number, times: number[]) => IAutoMovieValidation = (
  * 2. `duration: 0` yields a temporal violation on `$input.duration`.
  * 3. `keyframes[i].time: NaN` yields a temporal violation on that keyframe time.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateMotion for infinite/zero duration and NaN keyframe time, requiring refusal and each exact temporal field address.
- * @evidence contracts/testing.md#independent-expectations Duration must be finite and greater than zero, and times must be finite seconds; zero, infinity and NaN violate those literal domains without interpreting generated samples.
- * @evidence contracts/testing.md#distinguishing-cases Separates duration positivity/finiteness from keyframe-time finiteness; motion_valid supplies finite positive timing and time_order/time_duration own sequence bounds.
- * @evidence contracts/testing.md#execution-ownership This named unit uses local pose/clip adapters and existing portable factories, without a clock host, sampler or dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateMotion for infinite/zero duration and NaN keyframe time, requiring refusal and each exact temporal field address.
+ * @evidence contracts/development/testing.md#independent-expectations Duration must be finite and greater than zero, and times must be finite seconds; zero, infinity and NaN violate those literal domains without interpreting generated samples.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates duration positivity/finiteness from keyframe-time finiteness; motion_valid supplies finite positive timing and time_order/time_duration own sequence bounds.
+ * @evidence contracts/development/testing.md#execution-ownership This named unit uses local pose/clip adapters and existing portable factories, without a clock host, sampler or dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `duration: Infinity` yields a temporal violation on `$input.duration`.).
  */
 export function test_validation_motion_non_finite_timing(): void {
   const infiniteDuration: IAutoMovieValidation = validate(

@@ -13,13 +13,13 @@ import { engineDiagnostic } from "./engineDiagnostic";
 /**
  * Validate cue ids, intervals, intensities, compiled stream correspondence, event inclusion and same-zone ordering.
  *
- * @evidence contracts/common.md#principled-implementation Validate cue ids, intervals, intensities, compiled stream correspondence, event inclusion and same-zone ordering.
- * @evidence contracts/common.md#clear-and-simple-design Shot-local maps index events/samples while deterministic zone/start/id sorting exposes interval checks.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The 128-cue policy reports excess without truncating; stream existence is metadata admission, not provider simulation.
- * @evidence contracts/common.md#meaningful-documentation Diagnostic field addresses identify source cues and preserve half-open event membership.
- * @evidence contracts/performance.md#efficient-algorithms C sorting costs O(C log C); repeated compiled-effect find costs O(CF), plus event/sample indexing and id text.
- * @evidence contracts/performance.md#reuse-equivalent-work Event/sample maps are request-local; prior-zone records are shared only within this validation.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Maps, sorted wrappers and diagnostics grow with the supplied shot; only diagnostics return and no native stream is created.
+ * @evidence contracts/development/implementation.md#principled-implementation Validate cue ids, intervals, intensities, compiled stream correspondence, event inclusion and same-zone ordering.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Shot-local maps index events/samples while deterministic zone/start/id sorting exposes interval checks.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 128-cue policy reports excess without truncating; stream existence is metadata admission, not provider simulation.
+ * @evidence contracts/development/common.md#meaningful-documentation Diagnostic field addresses identify source cues and preserve half-open event membership.
+ * @evidence contracts/development/implementation.md#efficient-algorithms C sorting costs O(C log C); repeated compiled-effect find costs O(CF), plus event/sample indexing and id text.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Event/sample maps are request-local; prior-zone records are shared only within this validation.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Maps, sorted wrappers and diagnostics grow with the supplied shot; only diagnostics return and no native stream is created.
  */
 export const validateAutoMovieEffects: (
   contract: IAutoMovieShotContract,

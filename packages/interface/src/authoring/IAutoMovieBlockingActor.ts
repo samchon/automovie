@@ -5,10 +5,10 @@ import { IAutoMovieTimingAnchor } from "../harness/IAutoMovieTimingAnchor";
  *
  * The node reference and anchor times are machine-checked; beats and cue text are not interpreted. A later listed anchor may not land earlier in time, and every anchor must lie within a non-frame action naming this node. Those checks establish temporal order and interval coverage, not that the described event occurred.
  *
- * @evidence contracts/common.md#principled-implementation blockBeat walks anchors in listed order, refusing nonfinite t, times outside [0, duration] and times earlier than the last finite predecessor. performShot then requires a non-frame action naming this node whose span contains t within 1e-9 s; this does not inspect cue prose or independently measure a causal event.
- * @evidence contracts/common.md#clear-and-simple-design The record is a node join key, one prose field and an optional anchor list; timing alignment lives in the engine gates, so the intent stores no derived action spans.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Equal anchor times are accepted because simultaneous moments are ordinary staging, and no node, cue text or actor kind changes the rule; `beats` is declared unchecked rather than parsed for verbs.
- * @evidence contracts/common.md#meaningful-documentation States which node the intent may name, that the prose is never read, that list order is causal order, the inclusive time window, and that each anchor must be covered by one of the actor's actions.
+ * @evidence contracts/development/design.md#principled-representation blockBeat walks anchors in listed order, refusing nonfinite t, times outside [0, duration] and times earlier than the last finite predecessor. performShot then requires a non-frame action naming this node whose span contains t within 1e-9 s; this does not inspect cue prose or independently measure a causal event.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The record is a node join key, one prose field and an optional anchor list; timing alignment lives in the engine gates, so the intent stores no derived action spans.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Equal anchor times are accepted because simultaneous moments are ordinary staging, and no node, cue text or actor kind changes the rule; `beats` is declared unchecked rather than parsed for verbs.
+ * @evidence contracts/development/common.md#meaningful-documentation States which node the intent may name, that the prose is never read, that list order is causal order, the inclusive time window, and that each anchor must be covered by one of the actor's actions.
  */
 export interface IAutoMovieBlockingActor {
   /**

@@ -47,10 +47,11 @@ const reference: (
  *    sRGB one, and refuses a negative detail scale while admitting a
  *    nonnegative one.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds actual physical materials and inspects normal-map identity, detail binding/repeat/strength and cache contributions, then invokes model validation for detail-map color space and scale. Detail-only fallback must preserve the specified strength without registering a second detail operation.
- * @evidence contracts/testing.md#independent-expectations Authored coarse/fine bindings, repeat 180 and strengths 0.5/0.7 supply the expected metadata; linear data-map and nonnegative scale requirements supply admission expectations. Native shader source, compiler success and visual blending are not tested.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts combined normal/detail, combined subsurface/detail and detail-only material setup, plus sRGB rejection and negative versus accepted positive scale. Transform snapshot ownership has its separate unit; rendered normal response requires actual GPU observation.
- * @evidence contracts/testing.md#execution-ownership This named unit calls material construction and portable validation directly with a supplied texture resolver. The resolver creates metadata-only native Texture objects and no decoder, browser, renderer or Human fixture is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds actual physical materials and inspects normal-map identity, detail binding/repeat/strength and cache contributions, then invokes model validation for detail-map color space and scale. Detail-only fallback must preserve the specified strength without registering a second detail operation.
+ * @evidence contracts/development/testing.md#independent-expectations Authored coarse/fine bindings, repeat 180 and strengths 0.5/0.7 supply the expected metadata; linear data-map and nonnegative scale requirements supply admission expectations. Native shader source, compiler success and visual blending are not tested.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts combined normal/detail, combined subsurface/detail and detail-only material setup, plus sRGB rejection and negative versus accepted positive scale. Transform snapshot ownership has its separate unit; rendered normal response requires actual GPU observation.
+ * @evidence contracts/development/testing.md#execution-ownership This named unit calls material construction and portable validation directly with a supplied texture resolver. The resolver creates metadata-only native Texture objects and no decoder, browser, renderer or Human fixture is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: With a normal map and a detail map, the built material keeps the).
  */
 export function test_viewer_detail_normal(): void {
   const base: IAutoMovieMaterial = createModel().materials[0]!;

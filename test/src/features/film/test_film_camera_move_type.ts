@@ -47,10 +47,11 @@ const SUBJECT: Parameters<
  *
  * 1. The forged crane move refuses with an Error naming the unknown move and authored token.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls compileCameraMove with an unsupported crane move and requires the named unknown-move Error, catching fallthrough that emits a camera clip without keys instead of refusing the action.
- * @evidence contracts/testing.md#independent-expectations Crane is outside the interface's closed camera-move vocabulary, while full framing and the literal camera/subject are valid; required message fragments identify the authored move rather than relying on a generated clip snapshot.
- * @evidence contracts/testing.md#distinguishing-cases Owns one forged move with otherwise supported framing and lens data; unsupported framing has its own refusal test, and each admitted path is exercised by the camera grammar and path tests.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_camera_move_type entry owns its portable engine call and shared Error observer, with no installed consumer, native compilation, process or rendering host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls compileCameraMove with an unsupported crane move and requires the named unknown-move Error, catching fallthrough that emits a camera clip without keys instead of refusing the action.
+ * @evidence contracts/development/testing.md#independent-expectations Crane is outside the interface's closed camera-move vocabulary, while full framing and the literal camera/subject are valid; required message fragments identify the authored move rather than relying on a generated clip snapshot.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns one forged move with otherwise supported framing and lens data; unsupported framing has its own refusal test, and each admitted path is exercised by the camera grammar and path tests.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_camera_move_type entry owns its portable engine call and shared Error observer, with no installed consumer, native compilation, process or rendering host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: The forged crane move refuses with an Error naming the unknown move and authored token.).
  */
 export function test_film_camera_move_type(): void {
   TestValidator.predicate(

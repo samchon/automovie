@@ -7,10 +7,10 @@ import { IAutoMovieSubjectReviewTarget } from "./IAutoMovieSubjectReviewTarget";
  *
  * The distinct subject-view kind and deliveryEvidence false keep subject inspection separate from delivered film-frame evidence.
  *
- * @evidence contracts/common.md#principled-implementation A passed observation records target, subject revision, compile, ordered viewpoint plan, camera pose, capture runtime and artifact identity; the engine coverage fold compares supplied context and validates record shape without reopening image bytes or proving capture occurred.
- * @evidence contracts/common.md#clear-and-simple-design The receipt carries provenance for one inspection-owned viewpoint without claiming screenplay time or delivery eligibility, which belong to film-frame evidence.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A shot capture cannot satisfy subject coverage merely by containing the subject; stale revision, plan or runtime remains ineligible. The fold requires a nonblank artifact digest without validating its syntax or agreement with actual bytes, which remain caller premises.
- * @evidence contracts/common.md#meaningful-documentation Defines production and artifact-qualified target, current revision/compile/plan/runtime identities, exact camera and image digest, terminal verdict and delivery exclusion.
+ * @evidence contracts/development/design.md#principled-representation A passed observation records target, subject revision, compile, ordered viewpoint plan, camera pose, capture runtime and artifact identity; the engine coverage fold compares supplied context and validates record shape without reopening image bytes or proving capture occurred.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The receipt carries provenance for one inspection-owned viewpoint without claiming screenplay time or delivery eligibility, which belong to film-frame evidence.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A shot capture cannot satisfy subject coverage merely by containing the subject; stale revision, plan or runtime remains ineligible. The fold requires a nonblank artifact digest without validating its syntax or agreement with actual bytes, which remain caller premises.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines production and artifact-qualified target, current revision/compile/plan/runtime identities, exact camera and image digest, terminal verdict and delivery exclusion.
  */
 export interface IAutoMovieSubjectReviewObservation {
   /** Evidence discriminator; a frame receipt has another kind. */

@@ -3,13 +3,10 @@
  * observations separated from each public length owner's admission policy.
  * This module is not re-exported by the curve barrel or a scalar integrator.
  *
- * @evidence contracts/common.md#principled-implementation Shares the existing eight-point Gauss-Legendre derivative norms, parameter mapping and piece/panel/node accumulation order; numerical observations do not select a replacement curve.
- * @evidence contracts/common.md#clear-and-simple-design One internal computation serves strict source and legacy cubic owners, which decide their own finite-result/endpoint/underflow policies.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Makes no specimen/test branch or derivative correction; callbacks propagate exceptions, and an out-of-domain rounded node is observed without querying beyond the source.
- * @evidence contracts/common.md#meaningful-documentation States internal ownership, validated caller premises, unchanged GL8 arithmetic and policy-neutral observations.
- * @evidence contracts/performance.md#efficient-algorithms N pieces and K panels use at most 24NK interior reads plus 2N optional endpoint reads with constant additional quadrature scratch; callbacks own their evaluation cost.
- * @evidence contracts/performance.md#reuse-equivalent-work Both public owners share one fixed node/weight population and the same norm/weighted-sum implementation, without duplicating quadrature or introducing a cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only 16 fixed quadrature constants persist; call-local observations/results retain no source, derivative, panel queue or task.
+ * @evidence contracts/development/common.md#meaningful-documentation States internal ownership, validated caller premises, unchanged GL8 arithmetic and policy-neutral observations.
+ * @evidence contracts/development/design.md#principled-representation Represents Internal shared GL8 computation for original curve derivatives, with numeric observations separated from each public length owner's admission policy: companion namespace of 1 member (`measure`); units and frames named in its text: world, second, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieCurveLengthQuadrature64` in packages/engine/src/geometry/curve/AutoMovieCurveLengthQuadrature64.ts; its surface is the 1 member listed and the text shows 2 other files naming it, mostly packages/engine (2), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieCurveLengthQuadrature64 {
   /**
@@ -21,13 +18,13 @@ export namespace AutoMovieCurveLengthQuadrature64 {
    * Callback exceptions propagate, while arithmetic observations accompany the
    * actual computed coarse/fine sums. Their difference is not an error bound.
    *
-   * @evidence contracts/common.md#principled-implementation Evaluates each original world derivative norm and unchanged GL8 weighted term in original piece/panel/node order for K and 2K; optional endpoints are observations only.
-   * @evidence contracts/common.md#clear-and-simple-design Returns computed sums with finite/underflow/node observations so public owners apply distinct existing contracts without a second quadrature implementation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not clamp parameters, manufacture derivatives or reject a legacy finite-final observation on strict-only premises; an out-of-domain rounded query is skipped and marked unavailable.
-   * @evidence contracts/common.md#meaningful-documentation States validated input/units, optional endpoints, flags, exception propagation and observation-only accuracy.
-   * @evidence contracts/performance.md#efficient-algorithms Uses 24NK interior slots and optionally 2N endpoint reads, with fixed-size flags and scalar accumulators instead of an adaptive queue.
-   * @evidence contracts/performance.md#reuse-equivalent-work The same speed reader, constants and summation serve both rules and both public length callers; no previous source measurement is cached.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows callbacks and domains synchronously and returns scalar observations only; fixed module constants are the sole retained population.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates each original world derivative norm and unchanged GL8 weighted term in original piece/panel/node order for K and 2K; optional endpoints are observations only.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Returns computed sums with finite/underflow/node observations so public owners apply distinct existing contracts without a second quadrature implementation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not clamp parameters, manufacture derivatives or reject a legacy finite-final observation on strict-only premises; an out-of-domain rounded query is skipped and marked unavailable.
+   * @evidence contracts/development/common.md#meaningful-documentation States validated input/units, optional endpoints, flags, exception propagation and observation-only accuracy.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Uses 24NK interior slots and optionally 2N endpoint reads, with fixed-size flags and scalar accumulators instead of an adaptive queue.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same speed reader, constants and summation serve both rules and both public length callers; no previous source measurement is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows callbacks and domains synchronously and returns scalar observations only; fixed module constants are the sole retained population.
    */
   export function measure(
     pieces: readonly {

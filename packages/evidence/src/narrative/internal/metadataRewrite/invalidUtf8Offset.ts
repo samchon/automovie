@@ -4,13 +4,13 @@ import { continuation } from "./continuation";
 /**
  * Returns the first invalid UTF-8 sequence start, or -1 for strict UTF-8.
  *
- * @evidence contracts/common.md#principled-implementation Validate UTF-8 byte classes, rejecting truncation, overlong forms, surrogates and values above U+10ffff.
- * @evidence contracts/common.md#clear-and-simple-design One advancing index reports the first invalid sequence start without decoding.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Ranges implement encoding constraints; invalid sequences are never replaced.
- * @evidence contracts/common.md#meaningful-documentation The comment defines invalid-start offsets and -1 for valid input.
- * @evidence contracts/performance.md#efficient-algorithms Each byte is inspected a bounded number of times: O(B) time and constant auxiliary space.
- * @evidence contracts/performance.md#reuse-equivalent-work Shared range predicates are reused; every distinct buffer still requires validation.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The borrowed buffer is not retained; only scalar indexes are owned.
+ * @evidence contracts/development/implementation.md#principled-implementation Validate UTF-8 byte classes, rejecting truncation, overlong forms, surrogates and values above U+10ffff.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One advancing index reports the first invalid sequence start without decoding.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Ranges implement encoding constraints; invalid sequences are never replaced.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment defines invalid-start offsets and -1 for valid input.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each byte is inspected a bounded number of times: O(B) time and constant auxiliary space.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared range predicates are reused; every distinct buffer still requires validation.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The borrowed buffer is not retained; only scalar indexes are owned.
  */
 export function invalidUtf8Offset(bytes: Buffer): number {
   for (let index: number = 0; index < bytes.length; ) {

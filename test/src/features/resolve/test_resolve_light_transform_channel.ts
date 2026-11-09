@@ -152,10 +152,11 @@ const SWING: IAutoMovieClip = clip(
  *    way and carries no `rotation`. Each throws rather than resolving to
  *    something plausible.
  *
- * @evidence contracts/testing.md#behavioral-verification Resolves authored position/rotation tracks and observes transform values, orientation, retained scale/reference ownership and property-kind refusals through the real shot-lighting pass.
- * @evidence contracts/testing.md#independent-expectations Linear endpoint arithmetic determines translated positions and sine/cosine of the authored half-angle determines the rotation midpoint; a symmetric midpoint also matches normalized lerp, so this case alone does not distinguish constant speed over the entire arc.
- * @evidence contracts/testing.md#distinguishing-cases Existing spot movement/rotation, unchanged transforms, valid/invalid light kinds and non-transform dimming contrast animated fields with preserved staged fields; general interpolation modes and key admission have separate owners.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_light_transform_channel entry directly executes synchronous CPU light-transform semantics on existing records, without a viewer, GPU or pixel-illumination assertion.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves authored position/rotation tracks and observes transform values, orientation, retained scale/reference ownership and property-kind refusals through the real shot-lighting pass.
+ * @evidence contracts/development/testing.md#independent-expectations Linear endpoint arithmetic determines translated positions and sine/cosine of the authored half-angle determines the rotation midpoint; a symmetric midpoint also matches normalized lerp, so this case alone does not distinguish constant speed over the entire arc.
+ * @evidence contracts/development/testing.md#distinguishing-cases Existing spot movement/rotation, unchanged transforms, valid/invalid light kinds and non-transform dimming contrast animated fields with preserved staged fields; general interpolation modes and key admission have separate owners.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_light_transform_channel entry directly executes synchronous CPU light-transform semantics on existing records, without a viewer, GPU or pixel-illumination assertion.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The declared amount, at two times. A lamp keyed from 0° to 90° about Y faces).
  */
 export function test_resolve_light_transform_channel(): void {
   // 1. the declared amount, at two times.

@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
 
 import type { IAutoMovieRecoveryFeasibleJointOptions } from "./IAutoMovieRecoveryFeasibleJointOptions";
 import type { IAutoMovieRecoveryFeasibleReportCapacity } from "./IAutoMovieRecoveryFeasibleReportCapacity";
@@ -6,13 +6,10 @@ import type { IAutoMovieRecoveryFeasibleReportCapacity } from "./IAutoMovieRecov
 /**
  * Fixed owned scene method state, excluding the existing cumulative work ledger.
  *
- * @evidence contracts/common.md#principled-implementation Declared and execution budgets distinguish the original reported ceiling from numerical capacity after the routing reservation.
- * @evidence contracts/common.md#clear-and-simple-design Three initial references group two fixed budget records and one nested scalar method snapshot; a later reporting context is acquired only inside the seed try. The scene retains its existing geometry and work owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No caller option alias, numerical answer, image identity or changed geometric threshold enters the route.
- * @evidence contracts/common.md#meaningful-documentation Each member states ownership and the different lifetime of reporting and execution values.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased record performs no computation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work It defines no cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The initial two17-field budgets, eight option/reference fields and three routing references occupy45 fixed slots; the optional reporting reference/context and replacement execution record belong to their later512 reporting envelope. The declared budget transfers into the result and other references expire synchronously.
+ * @evidence contracts/development/design.md#principled-representation Declared and execution budgets distinguish the original reported ceiling from numerical capacity after the routing reservation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Three initial references group two fixed budget records and one nested scalar method snapshot; a later reporting context is acquired only inside the seed try. The scene retains its existing geometry and work owners.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No caller option alias, numerical answer, image identity or changed geometric threshold enters the route.
+ * @evidence contracts/development/common.md#meaningful-documentation Each member states ownership and the different lifetime of reporting and execution values.
  */
 export interface IAutoMovieRecoverySceneFeasibleRouting {
   /** Owned original ceilings, transferred directly to the returned result. */

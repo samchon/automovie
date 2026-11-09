@@ -12,13 +12,10 @@ import {
  * framing, move and subject are usable; `performShot` compiles each into one
  * alternate take on `shot.coverage`, in blocking order.
  *
- * @evidence contracts/common.md#principled-implementation Pairs the intent with the resolved staged camera, because the take compiles from that camera's own staged bearing and the gate has already proven the lookup succeeds.
- * @evidence contracts/common.md#clear-and-simple-design Two fields, the intent and its camera, which is all the framing-camera gate and the coverage compile read.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Recorded only after every coverage rule passed, so the compile never meets a duplicate, hero or unstaged camera.
- * @evidence contracts/common.md#meaningful-documentation States when one is recorded, who consumes it and in what order, and what each field holds.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Type-only: the coverage gate writes at most one per intent, and the camera compile that reads it owns the work.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per intent and read by the framing-camera gate and the coverage compile of the same call.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Lives for one `performShot` call and references the caller's intent and the staged camera.
+ * @evidence contracts/development/design.md#principled-representation Pairs the intent with the resolved staged camera, because the take compiles from that camera's own staged bearing and the gate has already proven the lookup succeeds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two fields, the intent and its camera, which is all the framing-camera gate and the coverage compile read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Recorded only after every coverage rule passed, so the compile never meets a duplicate, hero or unstaged camera.
+ * @evidence contracts/development/common.md#meaningful-documentation States when one is recorded, who consumes it and in what order, and what each field holds.
  */
 export interface IPerformShotCoverageJob {
   /** The blocking's coverage intent. */

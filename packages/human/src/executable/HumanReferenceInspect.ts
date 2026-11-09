@@ -1,4 +1,4 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieCurve64 as C } from "@automovie/engine";
 import type { IAutoMovieRecoveryHermiteCurve } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";

@@ -31,10 +31,11 @@ const gait: IAutoMovieGait = {
  * 1. Non-finite, non-integer, and less-than-one sample counts throw.
  * 2. The valid boundary `samples = 1` emits the opening and closing keyframes.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls gaitMotion with malformed sample counts and asserts refusal, then checks that the one-interval boundary emits two keyframes at the supported cycle endpoints, catching fractional/empty bake admission or an off-by-one output population.
- * @evidence contracts/testing.md#independent-expectations A positive integer counts sample intervals, so one interval has two endpoints at zero and the authored one-second period. These literal expectations do not use generated keyframes as the oracle; existing nclose tolerances are preserved and any thrown value satisfies refusal checks.
- * @evidence contracts/testing.md#distinguishing-cases Preserves NaN, fractional 1.5, zero and negative sample counts and the accepted singleton interval. Larger sample populations, cycle phase, period and limb/root-bob scalars are owned by other gait tests.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns its malformed table and accepted boundary through the engine producer. The local refusal helper and lazy named facts register no tests and need no host, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls gaitMotion with malformed sample counts and asserts refusal, then checks that the one-interval boundary emits two keyframes at the supported cycle endpoints, catching fractional/empty bake admission or an off-by-one output population.
+ * @evidence contracts/development/testing.md#independent-expectations A positive integer counts sample intervals, so one interval has two endpoints at zero and the authored one-second period. These literal expectations do not use generated keyframes as the oracle; existing nclose tolerances are preserved and any thrown value satisfies refusal checks.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves NaN, fractional 1.5, zero and negative sample counts and the accepted singleton interval. Larger sample populations, cycle phase, period and limb/root-bob scalars are owned by other gait tests.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns its malformed table and accepted boundary through the engine producer. The local refusal helper and lazy named facts register no tests and need no host, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite, non-integer, and less-than-one sample counts throw.).
  */
 export function test_motion_gait_samples(): void {
   for (const samples of [Number.NaN, 1.5, 0, -1])

@@ -61,10 +61,11 @@ const xAt: (t: number) => number[] = (t: number): number[] => {
 };
 
 /**
- * @evidence contracts/testing.md#behavioral-verification Samples a 240-key translation ramp through sampleClip and checks midpoint, exact-key and off-grid coordinates, catching incorrect enclosing-segment/tie selection or altered inactive axes.
- * @evidence contracts/testing.md#independent-expectations Authored x=i at time i*DT makes linear x=time/DT with y=z=0; exact keys137/200 have literal endpoint values. This value oracle cannot establish whether the implementation uses binary rather than linear search.
- * @evidence contracts/testing.md#distinguishing-cases Every existing interior segment midpoint/key plus three off-grid queries and two exact-key vectors exercises dense segment selection; loop/clamp and malformed tracks belong to test_resolve_sample_clip.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_sample_clip_binary_search entry owns synchronous portable numerical queries through the actual sampler, without performance instrumentation or a new runtime validation driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples a 240-key translation ramp through sampleClip and checks midpoint, exact-key and off-grid coordinates, catching incorrect enclosing-segment/tie selection or altered inactive axes.
+ * @evidence contracts/development/testing.md#independent-expectations Authored x=i at time i*DT makes linear x=time/DT with y=z=0; exact keys137/200 have literal endpoint values. This value oracle cannot establish whether the implementation uses binary rather than linear search.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every existing interior segment midpoint/key plus three off-grid queries and two exact-key vectors exercises dense segment selection; loop/clamp and malformed tracks belong to test_resolve_sample_clip.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_sample_clip_binary_search entry owns synchronous portable numerical queries through the actual sampler, without performance instrumentation or a new runtime validation driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose () as stated in this comment.
  */
 export function test_resolve_sample_clip_binary_search(): void {
   const last: number = (N - 1) * DT;

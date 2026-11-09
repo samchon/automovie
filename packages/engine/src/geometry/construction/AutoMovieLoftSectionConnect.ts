@@ -25,25 +25,19 @@ type Layer = IAutoMovieLoftChain.ILayer & {
 /**
  * Complete generating laws for the one span changed by continuation.
  *
- * @evidence contracts/common.md#principled-implementation Native/native scalar Hermite and native/basis generating-field products use actual endpoint2 and close in total order two without invented Cartesian higher mixed derivatives.
- * @evidence contracts/common.md#clear-and-simple-design Endpoint capture and span publication are separate from field evaluation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Never fits a composed boundary to eight scalars, reads a host beyond its domain or silently substitutes a legacy field for broken native data.
- * @evidence contracts/common.md#meaningful-documentation States changed-span ownership, whole generating families, reflected directions and the composed-interior capture limit.
- * @evidence contracts/performance.md#efficient-algorithms Capturing one boundary reads one actual scalar/basis station; finalization visits layers and prepares fixed native or O(N) complete basis endpoint data.
- * @evidence contracts/performance.md#reuse-equivalent-work Published plain span laws are shared by caller-owned Point/Jet station plans.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains only explicit changed-span data and complete endpoints, with no module cache or host-chain callback.
+ * @evidence contracts/development/common.md#meaningful-documentation States changed-span ownership, whole generating families, reflected directions and the composed-interior capture limit.
+ * @evidence contracts/development/design.md#principled-representation Represents Complete generating laws for the one span changed by continuation: companion namespace of 5 members (`ISpan`, `capture`, `finish`, `active`, `bounds`); units and frames named in its text: second. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieLoftSectionConnect` in packages/engine/src/geometry/construction/AutoMovieLoftSectionConnect.ts; its surface is the 5 members listed and the text shows 10 other files naming it, mostly packages/engine (6), test (3), packages/human (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieLoftSectionConnect {
   /**
    * Explicit native, mixed or basis law on a changed regular station span.
    *
-   * @evidence contracts/common.md#principled-implementation Each variant defines a full phase function over its station interval; mixed uses one positive native scalar extension and one complete coefficient extension with a C2-flat station weight.
-   * @evidence contracts/common.md#clear-and-simple-design The discriminant states exactly which actual generators the reader evaluates.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Native endpoints are not Cartesian Taylor jets; basis endpoints are complete functions with all phase derivatives.
-   * @evidence contracts/common.md#meaningful-documentation Native end selects weight one at that end, and all station coordinates use mm.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This stored law performs no query.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Station readers own preparation reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Fixed native data and O(N) basis rows belong to the resulting immutable chain, without an original host reference.
+   * @evidence contracts/development/design.md#principled-representation Each variant defines a full phase function over its station interval; mixed uses one positive native scalar extension and one complete coefficient extension with a C2-flat station weight.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The discriminant states exactly which actual generators the reader evaluates.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Native endpoints are not Cartesian Taylor jets; basis endpoints are complete functions with all phase derivatives.
+   * @evidence contracts/development/common.md#meaningful-documentation Native end selects weight one at that end, and all station coordinates use mm.
    */
   export type ISpan =
     | { kind: "native"; law: AutoMovieLoftSectionBoundary.IBridge }
@@ -60,13 +54,13 @@ export namespace AutoMovieLoftSectionConnect {
   /**
    * Capture the actual complete family at a regular station, oriented once.
    *
-   * @evidence contracts/common.md#principled-implementation Reads original scalar2, an explicit generated native family or complete actual basis2, with first-station and chart/phase signs applied together.
-   * @evidence contracts/common.md#clear-and-simple-design Explicit endpoint data takes precedence, followed by an owned span and then the original base function.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A mixed interior cannot be projected into a native family; unavailable source2 is a named C2 premise failure, not a lost finite Point0.
-   * @evidence contracts/common.md#meaningful-documentation sign is the continuation station/chart direction; second derivatives keep their sign.
-   * @evidence contracts/performance.md#efficient-algorithms Bracketing, O(N) binding checks, a layer search and O(S(L+N)) existing-law validation precede the actual scalar/basis query and its reflection.
-   * @evidence contracts/performance.md#reuse-equivalent-work Captured plain endpoint data serves the shared boundary and both adjoining fields.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns independent family data or a string and retains no host or callable source.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads original scalar2, an explicit generated native family or complete actual basis2, with first-station and chart/phase signs applied together.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Explicit endpoint data takes precedence, followed by an owned span and then the original base function.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A mixed interior cannot be projected into a native family; unavailable source2 is a named C2 premise failure, not a lost finite Point0.
+   * @evidence contracts/development/common.md#meaningful-documentation sign is the continuation station/chart direction; second derivatives keep their sign.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Bracketing, O(N) binding checks, a layer search and O(S(L+N)) existing-law validation precede the actual scalar/basis query and its reflection.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Captured plain endpoint data serves the shared boundary and both adjoining fields.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent family data or a string and retains no host or callable source.
    */
   export function capture(
     chain: Chain,
@@ -123,13 +117,13 @@ export namespace AutoMovieLoftSectionConnect {
   /**
    * Publish complete changed-span laws after kept/transformed endpoint rows exist.
    *
-   * @evidence contracts/common.md#principled-implementation Uses actual matched and unchanged far endpoint2, not a new principal approximation of the ordinary source between unchanged rows.
-   * @evidence contracts/common.md#clear-and-simple-design Only intervals touching explicit endpoint records receive a declared law.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses unrepresentable transformed jets and overlapping re-expression rather than dropping source ownership or adding arbitrary missing derivatives.
-   * @evidence contracts/common.md#meaningful-documentation Called by the C2 construction owner; ordinary finite-value chains never need to run this operation for Point0.
-   * @evidence contracts/performance.md#efficient-algorithms One layer scan and two capture operations per changed interval, including their layer/law/binding searches, precede fixed native or O(N) mixed-law storage.
-   * @evidence contracts/performance.md#reuse-equivalent-work Immutable published laws are reused across every station/phase query of that span.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a shallow chain copy and explicit changed-span records; no global cache or historical registration selects geometry.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses actual matched and unchanged far endpoint2, not a new principal approximation of the ordinary source between unchanged rows.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Only intervals touching explicit endpoint records receive a declared law.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses unrepresentable transformed jets and overlapping re-expression rather than dropping source ownership or adding arbitrary missing derivatives.
+   * @evidence contracts/development/common.md#meaningful-documentation Called by the C2 construction owner; ordinary finite-value chains never need to run this operation for Point0.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One layer scan and two capture operations per changed interval, including their layer/law/binding searches, precede fixed native or O(N) mixed-law storage.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Immutable published laws are reused across every station/phase query of that span.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a shallow chain copy and explicit changed-span records; no global cache or historical registration selects geometry.
    */
   export function finish(chain: Chain): Chain {
     let spans: ISpan[] = chain.sectionSpans?.slice() ?? [];
@@ -163,13 +157,13 @@ export namespace AutoMovieLoftSectionConnect {
   /**
    * The declared changed-span law at a station, or genuine absence.
    *
-   * @evidence contracts/common.md#principled-implementation Explicit stored bounds select their complete generating field independently of source cache history.
-   * @evidence contracts/common.md#clear-and-simple-design One bounded law lookup preserves ordinary source spans elsewhere.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A malformed present list or unknown law never becomes a legacy fallback.
-   * @evidence contracts/common.md#meaningful-documentation Bounds are regular physical stations; this lookup opens no pole domain.
-   * @evidence contracts/performance.md#efficient-algorithms For S stored laws, mixed endpoint validation includes a layer search and O(N) binding comparison, giving O(S(L+N)) cold lookup work; repeated continuations do not imply a fixed two-span bound.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The pure lookup owns no cross-call result.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a borrowed immutable law and retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation Explicit stored bounds select their complete generating field independently of source cache history.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bounded law lookup preserves ordinary source spans elsewhere.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A malformed present list or unknown law never becomes a legacy fallback.
+   * @evidence contracts/development/common.md#meaningful-documentation Bounds are regular physical stations; this lookup opens no pole domain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For S stored laws, mixed endpoint validation includes a layer search and O(N) binding comparison, giving O(S(L+N)) cold lookup work; repeated continuations do not imply a fixed two-span bound.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The pure lookup owns no cross-call result.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a borrowed immutable law and retains nothing.
    */
   export function active(chain: Chain, station: number): ISpan | null {
     if (chain.sectionSpans === undefined) return null;
@@ -213,13 +207,13 @@ export namespace AutoMovieLoftSectionConnect {
   /**
    * Physical station bounds of a declared generating law.
    *
-   * @evidence contracts/common.md#principled-implementation Native bounds belong to the exact retained endpoints; other variants store their explicit interval.
-   * @evidence contracts/common.md#clear-and-simple-design One discriminator owns the layout difference.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown present law kinds throw instead of selecting another geometry.
-   * @evidence contracts/common.md#meaningful-documentation Returns lower/upper regular station in mm.
-   * @evidence contracts/performance.md#efficient-algorithms Constant field reads with one returned pair.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This pure layout accessor coordinates no work.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains no input or result.
+   * @evidence contracts/development/implementation.md#principled-implementation Native bounds belong to the exact retained endpoints; other variants store their explicit interval.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One discriminator owns the layout difference.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown present law kinds throw instead of selecting another geometry.
+   * @evidence contracts/development/common.md#meaningful-documentation Returns lower/upper regular station in mm.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant field reads with one returned pair.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure layout accessor coordinates no work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or result.
    */
   export function bounds(span: ISpan): readonly [number, number] {
     if (span?.kind === "native")

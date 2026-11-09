@@ -12,10 +12,11 @@ import { hasViolation } from "../internal/predicates";
  * 2. A generated member's model id must match its node.
  * 3. A repeated entry with imported origin reports both duplicate node and wrong origin.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls forgeCast once with four incoherent entries and asserts five located violations, detecting fail-fast loss, an imported-member overwrite or an invalid model-to-cast join.
- * @evidence contracts/testing.md#independent-expectations The authored script imports knightA and requires a generated knightB; ghost is undeclared, wrong-id differs from knightB and the second knightB entry duplicates the first. Those input positions determine the literal diagnostic paths.
- * @evidence contracts/testing.md#distinguishing-cases Collects stranger, imported member, wrong model id, duplicate node and wrong origin in one result; valid singleton joins, missing bodies and malformed rig graphs have separate forge tests.
- * @evidence contracts/testing.md#execution-ownership The synchronous discoverable function owns this portable forge case and imports its source directly; existing factories construct data only and no renderer, process or asset loader runs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls forgeCast once with four incoherent entries and asserts five located violations, detecting fail-fast loss, an imported-member overwrite or an invalid model-to-cast join.
+ * @evidence contracts/development/testing.md#independent-expectations The authored script imports knightA and requires a generated knightB; ghost is undeclared, wrong-id differs from knightB and the second knightB entry duplicates the first. Those input positions determine the literal diagnostic paths.
+ * @evidence contracts/development/testing.md#distinguishing-cases Collects stranger, imported member, wrong model id, duplicate node and wrong origin in one result; valid singleton joins, missing bodies and malformed rig graphs have separate forge tests.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable function owns this portable forge case and imports its source directly; existing factories construct data only and no renderer, process or asset loader runs.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A stranger and an imported-model cast member cannot receive stand-ins.).
  */
 export function test_film_forge_cast_bad_refs(): void {
   const forged: IAutoMovieForgedCast = forgeCast(makeScriptWrite(), {

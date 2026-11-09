@@ -10,10 +10,11 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * Scenarios:
  * 1. a unit box yields 72 position floats (24 vertices × 3), 36 indices, and a null `skin`.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the primitive-to-mesh adapter and observes its box vertex/index inventory and explicit absence of skin; missing geometry or invented skin fails.
- * @evidence contracts/testing.md#independent-expectations A box has six separately shaded quad faces, four vertices per face and two triangles per quad, giving 72 position components and 36 indices without sampling the adapter.
- * @evidence contracts/testing.md#distinguishing-cases The unit owns one admitted unit box and its unskinned adapter result; shape geometry, winding, closed surfaces and absent UVs have neighboring owning units.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_geometry_tessellate_to_mesh entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the primitive-to-mesh adapter and observes its box vertex/index inventory and explicit absence of skin; missing geometry or invented skin fails.
+ * @evidence contracts/development/testing.md#independent-expectations A box has six separately shaded quad faces, four vertices per face and two triangles per quad, giving 72 position components and 36 indices without sampling the adapter.
+ * @evidence contracts/development/testing.md#distinguishing-cases The unit owns one admitted unit box and its unskinned adapter result; shape geometry, winding, closed surfaces and absent UVs have neighboring owning units.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_geometry_tessellate_to_mesh entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: a unit box yields 72 position floats (24 vertices × 3), 36 indices, and a null `skin`.).
  */
 export function test_geometry_tessellate_to_mesh(): void {
   const mesh: import("@automovie/interface").IAutoMovieMesh = tessellateToMesh({

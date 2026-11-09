@@ -9,13 +9,13 @@ type Point = readonly [number, number];
 /**
  * Select a represented left-side probe with an independently checked corridor.
  *
- * @evidence contracts/common.md#principled-implementation Floating edge clearance proposes a nearby point; exact represented-point orientation and the empty-triangle witness verify connection to the requested boundary side before membership is read.
- * @evidence contracts/common.md#clear-and-simple-design Probe construction is one responsibility shared by component classification; the witness owns exact partition checks and Plan owns membership.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not call approximate distance an exact bound. At most 64 smaller proposals are attempted; unrepresentable clearance or exhausted local search returns an explicit failure, not an empty region.
- * @evidence contracts/common.md#meaningful-documentation States represented-number corridor meaning, one-period primitive premise and finite search/precision failure.
- * @evidence contracts/performance.md#efficient-algorithms Scans S segments for a proposal and at most 64 witnesses with O(V+S) exact-predicate work each; no source callback is evaluated here.
- * @evidence contracts/performance.md#reuse-equivalent-work Shares original indexed endpoints, one edge length and the proposed clearance across attempts; source membership remains with Plan.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Probe, local image arrays and witness scratch expire on return; no source map, callback or cache is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Floating edge clearance proposes a nearby point; exact represented-point orientation and the empty-triangle witness verify connection to the requested boundary side before membership is read.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Probe construction is one responsibility shared by component classification; the witness owns exact partition checks and Plan owns membership.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not call approximate distance an exact bound. At most 64 smaller proposals are attempted; unrepresentable clearance or exhausted local search returns an explicit failure, not an empty region.
+ * @evidence contracts/development/common.md#meaningful-documentation States represented-number corridor meaning, one-period primitive premise and finite search/precision failure.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Scans S segments for a proposal and at most 64 witnesses with O(V+S) exact-predicate work each; no source callback is evaluated here.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares original indexed endpoints, one edge length and the proposed clearance across attempts; source membership remains with Plan.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Probe, local image arrays and witness scratch expire on return; no source map, callback or cache is retained.
  */
 export function probeAutoMovieSolidMesh(
   vertices: ReadonlyMap<number, Point>,

@@ -21,10 +21,11 @@ import { namedFacts } from "../internal/predicates";
  *    framing/re-establishing feedback without duplicate findings.
  * 4. Pacing intent and review-note conversion preserve the analyzer's guidance.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs readFilmGrammar through shared source readers and grammarDiagnosticsToReviewNotes directly; assertions catch missed screen/eyeline/size/re-establishing findings, overbroad style suppression and lost diagnostic identity or recovery text.
- * @evidence contracts/testing.md#independent-expectations Hand-authored subject paths and camera half-planes define the expected screen relations and crossing decisions; stated framing/threshold contracts define findings. Fixture camera rotations use the product lookRotation helper, so its own arithmetic is separately covered rather than treated as an independent renderer oracle.
- * @evidence contracts/testing.md#distinguishing-cases Covers positive and negative screen motion, moving cameras, reverse/continuing/vertical/off-lens gaze, matching/mismatching sizes, displaced/new subjects and selective style suppression; axis continuity and malformed observations have separate discoverable tests.
- * @evidence contracts/testing.md#execution-ownership This portable synchronous unit entry owns its cases and calls source grammar functions through createFilmGrammarCase readers; the factory registers no hidden scenarios and starts no renderer or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs readFilmGrammar through shared source readers and grammarDiagnosticsToReviewNotes directly; assertions catch missed screen/eyeline/size/re-establishing findings, overbroad style suppression and lost diagnostic identity or recovery text.
+ * @evidence contracts/development/testing.md#independent-expectations Hand-authored subject paths and camera half-planes define the expected screen relations and crossing decisions; stated framing/threshold contracts define findings. Fixture camera rotations use the product lookRotation helper, so its own arithmetic is separately covered rather than treated as an independent renderer oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers positive and negative screen motion, moving cameras, reverse/continuing/vertical/off-lens gaze, matching/mismatching sizes, displaced/new subjects and selective style suppression; axis continuity and malformed observations have separate discoverable tests.
+ * @evidence contracts/development/testing.md#execution-ownership This portable synchronous unit entry owns its cases and calls source grammar functions through createFilmGrammarCase readers; the factory registers no hidden scenarios and starts no renderer or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Screen reversals and shallow same-size cuts report independently; jump-cut).
  */
 export function test_film_grammar(): void {
   const {

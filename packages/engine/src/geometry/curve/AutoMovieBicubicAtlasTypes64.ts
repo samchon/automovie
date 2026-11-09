@@ -77,13 +77,10 @@ type Corner = {
 /**
  * Internal atlas phase records preserve the public generator contracts and shared identity state.
  *
- * @evidence contracts/common.md#principled-implementation The records retain the original patch, cell, edge, corner and exact-phase structures.
- * @evidence contracts/common.md#clear-and-simple-design This phase retains its original arithmetic and ordered state transitions while its caller owns orchestration.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Extraction introduces no input correction, geometry fallback, reordered reduction or changed admission condition.
- * @evidence contracts/common.md#meaningful-documentation States the phase responsibility, shared-state ownership and numerical limits inherited from the calling algorithm.
- * @evidence contracts/performance.md#efficient-algorithms These type declarations perform no computation.
- * @evidence contracts/performance.md#reuse-equivalent-work Every phase names the same internal record shapes.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Erased types retain no runtime resources.
+ * @evidence contracts/development/design.md#principled-representation The records retain the original patch, cell, edge, corner and exact-phase structures.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface This phase retains its original arithmetic and ordered state transitions while its caller owns orchestration.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Extraction introduces no input correction, geometry fallback, reordered reduction or changed admission condition.
+ * @evidence contracts/development/common.md#meaningful-documentation States the phase responsibility, shared-state ownership and numerical limits inherited from the calling algorithm.
  */
 export type AutoMovieBicubicAtlasTypes64 = {
   /** Row-major millimetre bicubic chart and its declared orientation. */

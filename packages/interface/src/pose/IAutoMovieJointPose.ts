@@ -9,10 +9,10 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  *
  * Each axis is number or null; null means neutral zero. On an immobile constraint axis, validateJointRom admits both null and numeric zero and refuses nonzero motion. These declared numeric limits do not certify a complete anatomical or dynamic outcome.
  *
- * @evidence contracts/common.md#principled-implementation Flexion, abduction and twist match declared clinical axes for direct degree-range checks before jointToQuaternion composes rotations in the rig basis; null is neutral and an unavailable axis admits null or zero.
- * @evidence contracts/common.md#clear-and-simple-design A bone identity and three nullable scalar angles expose articulation without mixing rest transforms, root movement or quaternion storage into the authored joint.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Limits come from the effective target constraint rather than an actor or fixture; nonzero motion on an unavailable axis is reported, while neutral null and zero are deliberately equivalent.
- * @evidence contracts/common.md#meaningful-documentation Defines clinical axis signs, degree units, composition over the rest transform and neutral-null semantics, including the restriction for immovable axes.
+ * @evidence contracts/development/design.md#principled-representation Flexion, abduction and twist match declared clinical axes for direct degree-range checks before jointToQuaternion composes rotations in the rig basis; null is neutral and an unavailable axis admits null or zero.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface A bone identity and three nullable scalar angles expose articulation without mixing rest transforms, root movement or quaternion storage into the authored joint.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Limits come from the effective target constraint rather than an actor or fixture; nonzero motion on an unavailable axis is reported, while neutral null and zero are deliberately equivalent.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines clinical axis signs, degree units, composition over the rest transform and neutral-null semantics, including the restriction for immovable axes.
  */
 export interface IAutoMovieJointPose {
   /** Which bone this articulation applies to. */

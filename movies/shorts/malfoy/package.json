@@ -30,6 +30,11 @@
     "@automovie/recovery": "workspace:^",
     "@automovie/render": "workspace:^",
     "@automovie/viewer": "workspace:^",
+    "@gltf-transform/core": "catalog:gltf",
+    "h264-mp4-encoder": "catalog:media",
+    "mp4box": "catalog:media",
+    "playwright-core": "catalog:media",
+    "pngjs": "catalog:media",
     "three": "catalog:three"
   },
   "devDependencies": {
@@ -37,6 +42,7 @@
     "@nestia/e2e": "catalog:samchon",
     "@ttsc/lint": "catalog:samchon",
     "@types/node": "catalog:utils",
+    "@types/pngjs": "catalog:media",
     "@types/three": "catalog:three",
     "@wrtnlabs/evidence": "catalog:samchon",
     "ffmpeg-static": "^5.2.0",

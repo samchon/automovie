@@ -12,10 +12,11 @@ import { nclose } from "../internal/predicates";
  * 1. Independent nearest ticks 1602, 3203 and 4805 on the 30000/1001 clock retain native unit-rate sample reads.
  * 2. Both one-sample phase directions preserve the final reachable sample and silence beyond either the source trim or presentation span.
  *
- * @evidence contracts/testing.md#behavioral-verification Mixes the two source/presentation phase directions on the rational NTSC clock and observes trim-start, last reachable and first silent samples.
- * @evidence contracts/testing.md#independent-expectations Literal nearest ticks 1602, 3203 and 4805 follow 48000 times 1001/30000 independently of the engine clock helper, while authored ramp samples supply the PCM oracle.
- * @evidence contracts/testing.md#distinguishing-cases Preserves a shorter presentation interval and a shorter source interval, both final reachable samples and the adjacent trim/span silence; integer-rate playback remains in the asset entry.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_production_sound_ntsc_phase and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Mixes the two source/presentation phase directions on the rational NTSC clock and observes trim-start, last reachable and first silent samples.
+ * @evidence contracts/development/testing.md#independent-expectations Literal nearest ticks 1602, 3203 and 4805 follow 48000 times 1001/30000 independently of the engine clock helper, while authored ramp samples supply the PCM oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves a shorter presentation interval and a shorter source interval, both final reachable samples and the adjacent trim/span silence; integer-rate playback remains in the asset entry.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_production_sound_ntsc_phase and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Independent nearest ticks 1602, 3203 and 4805 on the 30000/1001 clock retain native unit-rate sample reads.).
  */
 export function test_film_production_sound_ntsc_phase(): void {
   const {

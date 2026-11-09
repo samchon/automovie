@@ -11,13 +11,10 @@ import type { IChunkObject } from "./IChunkObject.js";
  * instance to write and contributes no exception. The host owns promoted heroes;
  * this record does not establish complete upstream cue admission.
  *
- * @evidence contracts/common.md#principled-implementation Stores one located compiled formation slot with its owning anonymous chunk, local index and designed placement; sparse cue updates can address exactly that member without allocating a persistent Object3D per crowd member.
- * @evidence contracts/common.md#clear-and-simple-design Keeps the global-to-local slot join beside the cue's original placement, with chunk/tier buffers owned by the surrounding formation runtime.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The sparse set comes from authored per-member cues; absent/promoted/nonresident slots yield no exception rather than a fabricated instance or fixture-specific index.
- * @evidence contracts/common.md#meaningful-documentation States global and chunk-local indexing, designed placement and one-time lookup purpose; the builder's compile/runtime admission still determines whether a member can be instanced.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The slot-reference record performs no lookup or per-frame matrix calculation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The formation builder/update owner performs the one-time join and sparse reuse, not the shape itself.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources References remain owned by the formation's exception collection and acquire no separate GPU allocation or task.
+ * @evidence contracts/development/design.md#principled-representation Stores one located compiled formation slot with its owning anonymous chunk, local index and designed placement; sparse cue updates can address exactly that member without allocating a persistent Object3D per crowd member.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the global-to-local slot join beside the cue's original placement, with chunk/tier buffers owned by the surrounding formation runtime.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The sparse set comes from authored per-member cues; absent/promoted/nonresident slots yield no exception rather than a fabricated instance or fixture-specific index.
+ * @evidence contracts/development/common.md#meaningful-documentation States global and chunk-local indexing, designed placement and one-time lookup purpose; the builder's compile/runtime admission still determines whether a member can be instanced.
  */
 export interface ISlotException {
   /** Zero-based slot inside the whole formation. */

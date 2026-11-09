@@ -16,10 +16,11 @@ import type { IHumanDebugReferencePack } from "../../../../../packages/human/deb
  * and sampled-ring distances are zero independently of the name selector. Empty selections,
  * absent raw lofts and missing reference support must remain unavailable, not zero-distance passes.
  *
- * @evidence contracts/testing.md#behavioral-verification Uses real ViewLoft, reference flattening and the diagnostic owner; checks full/scoped rows, actual query counts and complete/partial/unavailable coverage.
- * @evidence contracts/testing.md#independent-expectations Unit circles have radius one at every angle; the four cardinal points and 48 equal-angle ring points coincide with reference vertices. Selecting one of two two-station sources halves cuts and 52-query station groups without changing its row.
- * @evidence contracts/testing.md#distinguishing-cases Covers default whole scope, a single part, no match, a null raw loft, no reference support and a reference supporting only one of two stations. Source geometry/diagnostics remain unchanged; this proves no anatomical fit or hardware display.
- * @evidence contracts/testing.md#execution-ownership Discoverable synchronous CPU unit under --include human_debug_view_deviation, with analytic raw parts only; no person generation, file, slot, browser or GPU is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses real ViewLoft, reference flattening and the diagnostic owner; checks full/scoped rows, actual query counts and complete/partial/unavailable coverage.
+ * @evidence contracts/development/testing.md#independent-expectations Unit circles have radius one at every angle; the four cardinal points and 48 equal-angle ring points coincide with reference vertices. Selecting one of two two-station sources halves cuts and 52-query station groups without changing its row.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers default whole scope, a single part, no match, a null raw loft, no reference support and a reference supporting only one of two stations. Source geometry/diagnostics remain unchanged; this proves no anatomical fit or hardware display.
+ * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU unit under --include human_debug_view_deviation, with analytic raw parts only; no person generation, file, slot, browser or GPU is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (A selected diagnostic keeps the whole request's row while excluding unrelated station work) as stated in this comment.
  */
 export function test_human_debug_view_deviation(): void {
   const parts: HumanDebugViewParts.IPart[] = [0, 100].map(
@@ -192,7 +193,9 @@ export function test_human_debug_view_deviation(): void {
     regions: [{ name: "head", sections: [pack.regions[0]!.sections[0]!] }],
   };
   // Stations 100 mm apart exceed the cut's maximum 24 mm half-slab.
-  const line100: (value: number) => IAutoMovieViewPart.IOutline = (value: number): IAutoMovieViewPart.IOutline => ({
+  const line100: (value: number) => IAutoMovieViewPart.IOutline = (
+    value: number,
+  ): IAutoMovieViewPart.IOutline => ({
     knots: [0, 100].map(
       (station: number): IAutoMovieViewPart.IKnot => ({
         site: "s" + station,
@@ -202,7 +205,8 @@ export function test_human_debug_view_deviation(): void {
     ),
   });
   const original: IAutoMovieViewPart | null = parts[0]!.part;
-  if (original === null) throw new Error("The deviation fixture needs its actual complete original");
+  if (original === null)
+    throw new Error("The deviation fixture needs its actual complete original");
   const spaced: IAutoMovieViewPart = {
     ...original,
     stations: [0, 100],

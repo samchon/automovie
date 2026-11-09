@@ -14,13 +14,10 @@ import type { IAutoMovieProductionRenderTier } from "./IAutoMovieProductionRende
  *
  * `planProductionRenderJob` builds it from supplied timeline and runtime inputs. Proxy and final plans share `editFingerprint` and differ in tier, projected frame format, frame count and chunks. Current repository callers are planner tests; a maintained application does not acquire, validate or execute stored plans through this record.
  *
- * @evidence contracts/common.md#principled-implementation The planner derives this version-four record deterministically from admitted supplied inputs; a stored record alone proves neither current input identity nor resident output bytes. The type executes no currentness check.
- * @evidence contracts/common.md#clear-and-simple-design Identities, tier, projected raster, resolved chunks and tracks occupy one planning result. The planner's existing tests consume the shape; no removed render subcommand or replacement application consumer is claimed.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No field is a cached measurement or special case; every value is copied or derived from the edit and declared inputs, and `version` is the one contract-defined constant.
- * @evidence contracts/common.md#meaningful-documentation The doc names the retained planner, current test-only consumption and lack of stored-plan admission, plus the relationship between tiers. Members state their source, units and ordering, with frame counts expressed as tier output frames.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The plan record is the output of planning rather than a procedure, and the cost of filling its chunks, frames and tracks is counted on `planProductionRenderJob`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates nothing itself; reuse of completed chunks is decided by their ids, which `IAutoMovieProductionRenderChunk` documents.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds no handle or task; its size grows with chunk and frame count and it lives as long as its holder keeps it.
+ * @evidence contracts/development/design.md#principled-representation The planner derives this version-four record deterministically from admitted supplied inputs; a stored record alone proves neither current input identity nor resident output bytes. The type executes no currentness check.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Identities, tier, projected raster, resolved chunks and tracks occupy one planning result. The planner's existing tests consume the shape; no removed render subcommand or replacement application consumer is claimed.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No field is a cached measurement or special case; every value is copied or derived from the edit and declared inputs, and `version` is the one contract-defined constant.
+ * @evidence contracts/development/common.md#meaningful-documentation The doc names the retained planner, current test-only consumption and lack of stored-plan admission, plus the relationship between tiers. Members state their source, units and ordering, with frame counts expressed as tier output frames.
  */
 export interface IAutoMovieProductionRenderJobPlan {
   /** Plan schema version. */

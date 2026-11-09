@@ -20,10 +20,11 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A non-finite value (`NaN`) pushes one violation; bounded ranges are finite
  *    numeric domains.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls range and toValidation, checking that an interior value remains clean while an over-limit value and NaN produce findings; only the over-limit finding's failed result is asserted.
- * @evidence contracts/testing.md#independent-expectations The stated finite interval [0,1] independently admits 0.5 and excludes 2 and NaN; exact row counts and the NaN field/message check catch omitted or duplicated findings without deriving an expectation from the collector.
- * @evidence contracts/testing.md#distinguishing-cases Interior, upper overshoot, and non-finite inputs distinguish acceptance from range refusal. Endpoint, lower overshoot, warning-only folding, and mixed severity are not covered here.
- * @evidence contracts/testing.md#execution-ownership The named test_validation_collector entry exercises portable in-memory validation without a host or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls range and toValidation, checking that an interior value remains clean while an over-limit value and NaN produce findings; only the over-limit finding's failed result is asserted.
+ * @evidence contracts/development/testing.md#independent-expectations The stated finite interval [0,1] independently admits 0.5 and excludes 2 and NaN; exact row counts and the NaN field/message check catch omitted or duplicated findings without deriving an expectation from the collector.
+ * @evidence contracts/development/testing.md#distinguishing-cases Interior, upper overshoot, and non-finite inputs distinguish acceptance from range refusal. Endpoint, lower overshoot, warning-only folding, and mixed severity are not covered here.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_validation_collector entry exercises portable in-memory validation without a host or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An in-range value (0.5 in [0,1]) pushes nothing, and an empty collector).
  */
 export function test_validation_collector(): void {
   const empty: ViolationCollector = new ViolationCollector();

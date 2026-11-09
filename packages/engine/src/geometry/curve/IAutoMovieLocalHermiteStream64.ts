@@ -23,25 +23,19 @@ type FaceRange = {
 /**
  * Immutable input and append-only output records for the physical Hermite stream.
  *
- * @evidence contracts/common.md#principled-implementation The structural record retains the original coefficient, phase and physical identity fields.
- * @evidence contracts/common.md#clear-and-simple-design This type owner separates immutable contracts from numerical execution.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A type does not supply geometry, weld positions or certify source fidelity.
- * @evidence contracts/common.md#meaningful-documentation Members state their units, ownership and local diagnostic scope.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A type performs no computation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A type owns no cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns all arrays and records.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state their units, ownership and local diagnostic scope.
+ * @evidence contracts/development/design.md#principled-representation Represents Immutable input and append-only output records for the physical Hermite stream: companion namespace of 3 members (`Input`, `Chunk`, `Summary`); units and frames named in its text: metre, metres, local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAutoMovieLocalHermiteStream64` in packages/engine/src/geometry/curve/IAutoMovieLocalHermiteStream64.ts; its surface is the 3 members listed and the text shows 1 other file naming it, mostly packages/engine (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace IAutoMovieLocalHermiteStream64 {
   /**
    * Immutable normalized mm courses, increasing physical mm stations and explicit budgets.
    *
-   * @evidence contracts/common.md#principled-implementation Physical and phase charts remain distinct in the input record.
-   * @evidence contracts/common.md#clear-and-simple-design One input record owns the run and resource policy.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No source triangle or fallback geometry is accepted.
-   * @evidence contracts/common.md#meaningful-documentation The operator documents tolerance, charts and immutable input lifetime.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A type performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A type owns no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A type retains no runtime input.
+   * @evidence contracts/development/design.md#principled-representation Physical and phase charts remain distinct in the input record.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One input record owns the run and resource policy.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No source triangle or fallback geometry is accepted.
+   * @evidence contracts/development/common.md#meaningful-documentation The operator documents tolerance, charts and immutable input lifetime.
    */
   export type Input = {
     /** Stable semantic run name. */
@@ -67,13 +61,10 @@ export namespace IAutoMovieLocalHermiteStream64 {
   /**
    * Newly published metre vertices and global indices; previous chunk vertices may be referenced.
    *
-   * @evidence contracts/common.md#principled-implementation Each index names an already published or current vertex; face ranges use chunk-relative triangle ordinals.
-   * @evidence contracts/common.md#clear-and-simple-design Geometry, source-free identity and diagnostic attribution travel together.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Independent sheets are separated by topologyDomain rather than coordinate welding.
-   * @evidence contracts/common.md#meaningful-documentation States indexing, metre units and consumer ownership.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Boundary reuse belongs to the generator.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The consumer releases each transferred chunk.
+   * @evidence contracts/development/design.md#principled-representation Each index names an already published or current vertex; face ranges use chunk-relative triangle ordinals.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Geometry, source-free identity and diagnostic attribution travel together.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Independent sheets are separated by topologyDomain rather than coordinate welding.
+   * @evidence contracts/development/common.md#meaningful-documentation States indexing, metre units and consumer ownership.
    */
   export type Chunk = {
     /** Owning physical station interval index. */
@@ -101,13 +92,10 @@ export namespace IAutoMovieLocalHermiteStream64 {
   /**
    * Complete-run counts and explicit interval limitations, returned after the last chunk.
    *
-   * @evidence contracts/common.md#principled-implementation Summary counts describe published output, not source fidelity.
-   * @evidence contracts/common.md#clear-and-simple-design A final record separates completion from per-chunk data.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Omitted intervals keep explicit reasons.
-   * @evidence contracts/common.md#meaningful-documentation States count scope and final-return semantics.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record owns no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only limitation strings and scalar totals survive generator completion.
+   * @evidence contracts/development/design.md#principled-representation Summary counts describe published output, not source fidelity.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A final record separates completion from per-chunk data.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Omitted intervals keep explicit reasons.
+   * @evidence contracts/development/common.md#meaningful-documentation States count scope and final-return semantics.
    */
   export type Summary = {
     /** Admitted station interval count. */

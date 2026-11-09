@@ -4,13 +4,13 @@ import { requiredArray } from "./requiredArray";
 /**
  * Validate every index in an optional glTF reference array.
  *
- * @evidence contracts/common.md#principled-implementation Undefined allows omitted references; a supplied array delegates each element's safe in-range admission with an indexed path.
- * @evidence contracts/common.md#clear-and-simple-design Array shape belongs to requiredArray and each index predicate to integerIndex, leaving this owner only enumeration.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Malformed references are neither skipped nor coerced, so the first failing index remains observable.
- * @evidence contracts/common.md#meaningful-documentation Comments describe optional-array meaning, indexed failures and the predeclared inventory length.
- * @evidence contracts/performance.md#efficient-algorithms An N-reference array costs O(N) with no new result array and constant work per index.
- * @evidence contracts/performance.md#reuse-equivalent-work Each reference is checked once using the shared single-index admission rule.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The enumeration borrows its array for the call and retains no graph or payload resource.
+ * @evidence contracts/development/implementation.md#principled-implementation Undefined allows omitted references; a supplied array delegates each element's safe in-range admission with an indexed path.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Array shape belongs to requiredArray and each index predicate to integerIndex, leaving this owner only enumeration.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Malformed references are neither skipped nor coerced, so the first failing index remains observable.
+ * @evidence contracts/development/common.md#meaningful-documentation Comments describe optional-array meaning, indexed failures and the predeclared inventory length.
+ * @evidence contracts/development/implementation.md#efficient-algorithms An N-reference array costs O(N) with no new result array and constant work per index.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each reference is checked once using the shared single-index admission rule.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The enumeration borrows its array for the call and retains no graph or payload resource.
  */
 export const integerIndices: (
   value: unknown,

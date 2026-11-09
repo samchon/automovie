@@ -5,10 +5,10 @@ import { AutoMovieViolationKind } from "./AutoMovieViolationKind";
  *
  * Engine verifiers report rule kind, severity, offending JSON path, expected condition and observed value. Direct callers receive these records; a build boundary may project them into its own diagnostic schema rather than preserving object identity or every field. The record supplies located correction data and does not write annotations into authored source.
  *
- * @evidence contracts/common.md#principled-implementation violation and ViolationCollector retain the failed rule category, severity, located path and observed value; toValidation treats any error as failure and preserves warnings alongside errors.
- * @evidence contracts/common.md#clear-and-simple-design One data record supports direct and build callers; optional magnitude and script-node location add context without separate feedback subclasses.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Severity is the producer's explicit classification, not inferred from numeric size. A warning remains observable but does not independently fail the canonical validation envelope.
- * @evidence contracts/common.md#meaningful-documentation Fields distinguish classification, binding severity, path, expected rule, original unknown value and optional channel-unit overshoot or screenplay location.
+ * @evidence contracts/development/design.md#principled-representation violation and ViolationCollector retain the failed rule category, severity, located path and observed value; toValidation treats any error as failure and preserves warnings alongside errors.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One data record supports direct and build callers; optional magnitude and script-node location add context without separate feedback subclasses.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Severity is the producer's explicit classification, not inferred from numeric size. A warning remains observable but does not independently fail the canonical validation envelope.
+ * @evidence contracts/development/common.md#meaningful-documentation Fields distinguish classification, binding severity, path, expected rule, original unknown value and optional channel-unit overshoot or screenplay location.
  */
 export interface IAutoMovieConstraintViolation {
   /** Which tier/category failed; routes the correction. */

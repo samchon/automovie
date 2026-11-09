@@ -3,10 +3,10 @@
  *
  * No step is integrated. validateFluidDomain checks record budgets of 65,536 cells, 100,000 maximum steps, 32 emitters and 4,096 particles per emitter, and rejects a computed Courant value above one; a derived NaN is not rejected by that comparison. measureRenderSimulation reads cells and sprayParticleCap for bound water bodies.
  *
- * @evidence contracts/common.md#principled-implementation Every field is a closed-form count over the grid and emitters, the face count following the Arakawa C staggering of one more face than cells along the crossed axis, and `courant` comes from the same `fluidCourantNumber` the validator checks.
- * @evidence contracts/common.md#clear-and-simple-design One flat record of derived numbers serves both the render metrics and a reviewer, with the refusal thresholds kept in `validateFluidDomain` rather than duplicated as fields here.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Counts model uncached replay and stored scalar-array payload, excluding per-step scratch arrays, JavaScript container overhead and physical runtime duration. The reported Courant value uses direct arithmetic and can be nonfinite; this record is neither domain admission nor a measured memory/runtime bound.
- * @evidence contracts/common.md#meaningful-documentation States the producer, that no step is integrated, every limit the validator enforces, and which consumer reads which fields; members give each formula, its unit, and what it leaves out.
+ * @evidence contracts/development/design.md#principled-representation Every field is a closed-form count over the grid and emitters, the face count following the Arakawa C staggering of one more face than cells along the crossed axis, and `courant` comes from the same `fluidCourantNumber` the validator checks.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One flat record of derived numbers serves both the render metrics and a reviewer, with the refusal thresholds kept in `validateFluidDomain` rather than duplicated as fields here.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Counts model uncached replay and stored scalar-array payload, excluding per-step scratch arrays, JavaScript container overhead and physical runtime duration. The reported Courant value uses direct arithmetic and can be nonfinite; this record is neither domain admission nor a measured memory/runtime bound.
+ * @evidence contracts/development/common.md#meaningful-documentation States the producer, that no step is integrated, every limit the validator enforces, and which consumer reads which fields; members give each formula, its unit, and what it leaves out.
  */
 export interface IAutoMovieFluidBudget {
   /** Id of the measured domain. */

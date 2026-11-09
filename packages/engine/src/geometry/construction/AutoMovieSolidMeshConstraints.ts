@@ -25,39 +25,55 @@ interface Cut {
  * edges carry an explicit cover turn, so coincident endpoints on different
  * sheets do not erase winding.
  *
- * @evidence contracts/common.md#principled-implementation Splits each native-chart segment at existing exactly collinear vertices, deduplicates indexed subconstraints with their source histories and checks all remaining intersections. Exact sign predicates decide represented coordinates without snapping.
- * @evidence contracts/common.md#clear-and-simple-design One immutable partition operation separates constraint identity from later face selection and triangulation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source point is interpolated, no distinct authoritative IDs are welded, and an unshared crossing remains a named failure. This is not a complete face mesher.
- * @evidence contracts/common.md#meaningful-documentation States existing-point authority, source-segment provenance, periodic turns and explicit unsupported/representability failures.
- * @evidence contracts/performance.md#efficient-algorithms For V points and E input segments, split preparation scans at most three images of each point per segment and sorts its cuts. S resulting subconstraints then undergo O(S squared) pair validation; input families with many overlaps can retain O(EV) source incidences.
- * @evidence contracts/performance.md#reuse-equivalent-work Each subconstraint is stored once by indexed endpoints and relative turn, with all overlapping source segments sharing that record.
- * @evidence contracts/performance.md#bound-retention-and-release-resources All maps/cuts are call-local; the caller owns the returned subconstraints and source-index arrays. No surface callback, mesh, vertex array or cache is retained.
+ * @evidence contracts/development/common.md#meaningful-documentation States existing-point authority, source-segment provenance, periodic turns and explicit unsupported/representability failures.
+ * @evidence contracts/development/design.md#principled-representation Represents Partition existing indexed chart constraints without inventing or welding a point: companion namespace of 4 members (`contains`, `ISegment`, `IEdge`, `split`); units and frames named in its text: local, second, world. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidMeshConstraints` in packages/engine/src/geometry/construction/AutoMovieSolidMeshConstraints.ts; its surface is the 4 members listed and the text shows 17 other files naming it, mostly packages/engine (11), test (6), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidMeshConstraints {
   /**
    * Whether an existing constraint contains this represented chart point.
    *
-   * @evidence contracts/common.md#principled-implementation Tests exact collinearity and closed coordinate ranges in each admitted local cover image, sharing the same represented-point predicate as split.
-   * @evidence contracts/common.md#clear-and-simple-design One membership reading lets grid/domain preparation avoid creating a new index on an authoritative shared boundary.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Returns no closest point or welded identity; a nearby distinct coordinate remains distinct and unavailable/overflowing inputs fail by name.
-   * @evidence contracts/common.md#meaningful-documentation States closed-segment meaning, single-period primitive premise and absence of source-point construction.
-   * @evidence contracts/performance.md#efficient-algorithms Scans S supplied segments and at most three point images each in O(S) work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This pure query retains no geometry or callback; caller-local source preparation owns repeated-query reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Uses fixed per-segment scratch and returns a boolean/string without retaining inputs.
+   * @evidence contracts/development/implementation.md#principled-implementation Tests exact collinearity and closed coordinate ranges in each admitted local cover image, sharing the same represented-point predicate as split.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One membership reading lets grid/domain preparation avoid creating a new index on an authoritative shared boundary.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Returns no closest point or welded identity; a nearby distinct coordinate remains distinct and unavailable/overflowing inputs fail by name.
+   * @evidence contracts/development/common.md#meaningful-documentation States closed-segment meaning, single-period primitive premise and absence of source-point construction.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Scans S supplied segments and at most three point images each in O(S) work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure query retains no geometry or callback; caller-local source preparation owns repeated-query reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Uses fixed per-segment scratch and returns a boolean/string without retaining inputs.
    */
-  export function contains(vertices: ReadonlyMap<number, Point>, segments: readonly ISegment[], point: Point, period?: number): boolean | string {
-    if (point.length !== 2 || !point.every(Number.isFinite) || (period !== undefined && !(Number.isFinite(period) && period > 0))) return "constraint membership needs finite coordinates and a positive period";
+  export function contains(
+    vertices: ReadonlyMap<number, Point>,
+    segments: readonly ISegment[],
+    point: Point,
+    period?: number,
+  ): boolean | string {
+    if (
+      point.length !== 2 ||
+      !point.every(Number.isFinite) ||
+      (period !== undefined && !(Number.isFinite(period) && period > 0))
+    )
+      return "constraint membership needs finite coordinates and a positive period";
     for (const segment of segments) {
       const a: Point | undefined = vertices.get(segment.a);
       const stored: Point | undefined = vertices.get(segment.b);
-      if (a === undefined || stored === undefined || !Number.isSafeInteger(segment.turn) || (period === undefined && segment.turn !== 0)) return "constraint membership has an unavailable endpoint or invalid turn";
+      if (
+        a === undefined ||
+        stored === undefined ||
+        !Number.isSafeInteger(segment.turn) ||
+        (period === undefined && segment.turn !== 0)
+      )
+        return "constraint membership has an unavailable endpoint or invalid turn";
       const b: Point = [stored[0], stored[1] + segment.turn * (period ?? 0)];
-      if (![...a, ...b].every(Number.isFinite)) return "constraint membership cover is not representable";
+      if (![...a, ...b].every(Number.isFinite))
+        return "constraint membership cover is not representable";
       const shifts: number[] | null = images(point[1], a[1], b[1], period);
-      if (shifts === null) return "constraint membership image is not representable";
+      if (shifts === null)
+        return "constraint membership image is not representable";
       for (const lift of shifts) {
         const lifted: Point = [point[0], point[1] + lift * (period ?? 0)];
-        if (!lifted.every(Number.isFinite)) return "constraint membership point is not representable";
+        if (!lifted.every(Number.isFinite))
+          return "constraint membership point is not representable";
         if (on(a, b, lifted)) return true;
       }
     }
@@ -67,13 +83,10 @@ export namespace AutoMovieSolidMeshConstraints {
   /**
    * An existing straight native-chart segment and its periodic lift.
    *
-   * @evidence contracts/common.md#principled-implementation Endpoint IDs name original evaluated vertices; turn selects the second endpoint's sheet without changing its identity.
-   * @evidence contracts/common.md#clear-and-simple-design Two IDs and one integer expose the complete indexed segment.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Contains no inferred world point, normal or positional weld.
-   * @evidence contracts/common.md#meaningful-documentation Members state endpoint authority and the cover-turn convention.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This input record has no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Partition owns overlap reuse; the record schedules no work.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns these scalars and their vertex map.
+   * @evidence contracts/development/design.md#principled-representation Endpoint IDs name original evaluated vertices; turn selects the second endpoint's sheet without changing its identity.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two IDs and one integer expose the complete indexed segment.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains no inferred world point, normal or positional weld.
+   * @evidence contracts/development/common.md#meaningful-documentation Members state endpoint authority and the cover-turn convention.
    */
   export interface ISegment {
     /** Original first endpoint ID. */
@@ -89,13 +102,10 @@ export namespace AutoMovieSolidMeshConstraints {
   /**
    * One subconstraint with every inducing input segment preserved.
    *
-   * @evidence contracts/common.md#principled-implementation The indexed subsegment and its source list preserve the input-to-refinement relation across overlaps and T junctions.
-   * @evidence contracts/common.md#clear-and-simple-design Extends the same segment record with one explicit provenance array.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicate geometry does not discard an inducing segment or replace a vertex identity.
-   * @evidence contracts/common.md#meaningful-documentation Sources index the original segment population, independently of output ordering.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This output record computes nothing.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work split owns the shared record construction.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned record owns its source-index array and retains no caller object.
+   * @evidence contracts/development/design.md#principled-representation The indexed subsegment and its source list preserve the input-to-refinement relation across overlaps and T junctions.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Extends the same segment record with one explicit provenance array.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Duplicate geometry does not discard an inducing segment or replace a vertex identity.
+   * @evidence contracts/development/common.md#meaningful-documentation Sources index the original segment population, independently of output ordering.
    */
   export interface IEdge extends ISegment {
     /** Original input segment indices that contain this subconstraint. */
@@ -107,13 +117,13 @@ export namespace AutoMovieSolidMeshConstraints {
    * Each primitive spans at most one period. Callers segment longer source paths
    * before this operation, as the existing sampled trim/grid producers do.
    *
-   * @evidence contracts/common.md#principled-implementation Existing vertices on each lifted closed segment become sorted cuts. Indexed/turn identity deduplicates overlapping pieces, followed by exact-sign contact validation.
-   * @evidence contracts/common.md#clear-and-simple-design One result union exposes a complete partition or the first explicit failure, without mutating caller data.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Distinct coincident IDs and proper crossings without an original vertex are refused rather than silently merged or reconstructed. The one-period primitive premise limits cover-image work.
-   * @evidence contracts/common.md#meaningful-documentation States lift range, source indices, immutability, failure and absence of world geometry construction.
-   * @evidence contracts/performance.md#efficient-algorithms O(EV log V plus S squared) work for E segments, V points and S unique pieces, with at most three periodic point/edge images per local comparison.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses each source vertex value and one indexed piece record for all of its inducing segments; no callback effects are shared.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Local maps and cut arrays expire with the call; output source incidence storage can grow to O(EV), with no retained global state.
+   * @evidence contracts/development/implementation.md#principled-implementation Existing vertices on each lifted closed segment become sorted cuts. Indexed/turn identity deduplicates overlapping pieces, followed by exact-sign contact validation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One result union exposes a complete partition or the first explicit failure, without mutating caller data.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Distinct coincident IDs and proper crossings without an original vertex are refused rather than silently merged or reconstructed. The one-period primitive premise limits cover-image work.
+   * @evidence contracts/development/common.md#meaningful-documentation States lift range, source indices, immutability, failure and absence of world geometry construction.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(EV log V plus S squared) work for E segments, V points and S unique pieces, with at most three periodic point/edge images per local comparison.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses each source vertex value and one indexed piece record for all of its inducing segments; no callback effects are shared.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local maps and cut arrays expire with the call; output source incidence storage can grow to O(EV), with no retained global state.
    */
   export function split(
     vertices: ReadonlyMap<number, Point>,

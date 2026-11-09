@@ -21,10 +21,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * 5. A fifth camera declares a non-finite point target, yielding `range` on
  * `$input.cameras[4].lookAt.point`.
  *
- * @evidence contracts/testing.md#behavioral-verification Stages five independently faulty cameras and requires located FOV, missing target, zero look vector and non-finite position/point refusals.
- * @evidence contracts/testing.md#independent-expectations The exclusive 180-degree bound, authored absent id, equal lens/target and literal Infinity determine expected paths independently of the staging diagnostic output.
- * @evidence contracts/testing.md#distinguishing-cases Preserves all five simultaneous malformed camera inputs; accepted point/actor/set/camera targets and copied precision/clearance operands have separate owning entries.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_stage_scene_camera_invalid and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages five independently faulty cameras and requires located FOV, missing target, zero look vector and non-finite position/point refusals.
+ * @evidence contracts/development/testing.md#independent-expectations The exclusive 180-degree bound, authored absent id, equal lens/target and literal Infinity determine expected paths independently of the staging diagnostic output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves all five simultaneous malformed camera inputs; accepted point/actor/set/camera targets and copied precision/clearance operands have separate owning entries.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_stage_scene_camera_invalid and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `fovDeg = 180` (the exclusive boundary itself) → a `range` violation on).
  */
 export function test_film_stage_scene_camera_invalid(): void {
   const base: IAutoMovieStage = makeStagingWrite();

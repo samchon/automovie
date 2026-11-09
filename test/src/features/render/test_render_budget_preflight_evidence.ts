@@ -47,10 +47,11 @@ import { renderShadowTargetFixture } from "../internal/renderShadowTargetFixture
  *    rather than dropping the only thing an operator could act on.
  * 8. A comma inside one tier cannot fingerprint the same as two distinct tiers.
  *
- * @evidence contracts/testing.md#behavioral-verification The test calls shot-budget assessment, evidence aggregation and refusal formatting; exact status, owner, numeric cost and diagnostic checks reject false clearance, incorrect severity and missing recoveries.
- * @evidence contracts/testing.md#independent-expectations Five boxes with twelve triangles each and one shadow redraw determine the peak independently; explicit severity order, empty-population policy and distinct one-tier versus two-tier populations determine the remaining verdict and digest expectations. This test does not independently verify the content-hash algorithm.
- * @evidence contracts/testing.md#distinguishing-cases Exact and one-triangle-lower limits, missing texture facts, missing renderer reports, empty shots, tier lookup, reordered verdicts and delimiter-bearing tier names distinguish admission from nearby failures; texture-specific allocation tests own decoded upload and sharing details.
- * @evidence contracts/testing.md#execution-ownership The discoverable unit function invokes deterministic package functions with in-memory compiled artifacts and injected texture facts; it starts no renderer, browser, encoder or process and registers no hidden cases.
+ * @evidence contracts/development/testing.md#behavioral-verification The test calls shot-budget assessment, evidence aggregation and refusal formatting; exact status, owner, numeric cost and diagnostic checks reject false clearance, incorrect severity and missing recoveries.
+ * @evidence contracts/development/testing.md#independent-expectations Five boxes with twelve triangles each and one shadow redraw determine the peak independently; explicit severity order, empty-population policy and distinct one-tier versus two-tier populations determine the remaining verdict and digest expectations. This test does not independently verify the content-hash algorithm.
+ * @evidence contracts/development/testing.md#distinguishing-cases Exact and one-triangle-lower limits, missing texture facts, missing renderer reports, empty shots, tier lookup, reordered verdicts and delimiter-bearing tier names distinguish admission from nearby failures; texture-specific allocation tests own decoded upload and sharing details.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable unit function invokes deterministic package functions with in-memory compiled artifacts and injected texture facts; it starts no renderer, browser, encoder or process and registers no hidden cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Tier lookup selects its exact budget, ignores the others, and).
  */
 export function test_render_budget_preflight_evidence(): void {
   const review: ReturnType<typeof renderBudgetFixture> = renderBudgetFixture({

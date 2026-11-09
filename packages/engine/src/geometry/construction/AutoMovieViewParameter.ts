@@ -5,25 +5,22 @@ import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCT
 /**
  * Source parameter arithmetic shared by radial outlines and nonzero world-coordinate curves.
  *
- * @evidence contracts/common.md#principled-implementation Implements the existing monotone station/root/angle maps, analytic inverse and station derivatives independently of radial closure.
- * @evidence contracts/common.md#clear-and-simple-design One owner admits, maps, inverts and differentiates source parameters.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Outside-domain stations remain invalid and singular endpoint jets remain absent; scalar values are never changed here.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes parameter endpoints, scalar values and radial closure, with kernel millimetre units.
- * @evidence contracts/performance.md#efficient-algorithms Constant arithmetic per map, inverse or derivative.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Pure scalar arithmetic coordinates no work.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds no global state or handles.
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes parameter endpoints, scalar values and radial closure, with kernel millimetre units.
+ * @evidence contracts/development/design.md#principled-representation Represents Source parameter arithmetic shared by radial outlines and nonzero world-coordinate curves: companion namespace of 6 members (`prepare`, `at`, `station`, `jet`, `inverseJet`, `transferJet`); units and frames named in its text: second, frame. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieViewParameter` in packages/engine/src/geometry/construction/AutoMovieViewParameter.ts; its surface is the 6 members listed and the text shows 23 other files naming it, mostly packages/human (12), packages/engine (9), test (2), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieViewParameter {
   /**
    * Admit and copy parameter endpoints already converted to kernel millimetres.
    *
-   * @evidence contracts/common.md#principled-implementation Finite roots and a finite positive angle span define the monotone source domain.
-   * @evidence contracts/common.md#clear-and-simple-design Returns a copied record, undefined identity map, or named failure.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses invalid endpoints without sorting or widening a domain.
-   * @evidence contracts/common.md#meaningful-documentation States units and all return states.
-   * @evidence contracts/performance.md#efficient-algorithms Constant checks and a fixed-size copy.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work One pure admission has no reusable effects.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns a copied record; no input is retained.
+   * @evidence contracts/development/implementation.md#principled-implementation Finite roots and a finite positive angle span define the monotone source domain.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Returns a copied record, undefined identity map, or named failure.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses invalid endpoints without sorting or widening a domain.
+   * @evidence contracts/development/common.md#meaningful-documentation States units and all return states.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant checks and a fixed-size copy.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One pure admission has no reusable effects.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns a copied record; no input is retained.
    */
   export function prepare(
     parameter: AutoMovieConstructionOutlineParameter | undefined,
@@ -45,13 +42,13 @@ export namespace AutoMovieViewParameter {
   /**
    * Map a station; a station outside the domain by at most {@link AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE} of its span (of the root coordinate magnitude for a root map) reads as its endpoint, and nonfinite or farther requests return NaN.
    *
-   * @evidence contracts/common.md#principled-implementation Uses signed square root or the equivalent angle root/asin expression from the nearer endpoint to avoid cancellation.
-   * @evidence contracts/common.md#clear-and-simple-design One map serves all scalar meanings, with omission as identity.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Clamps only a floating-point excess within the shared construction tolerance onto the endpoint; a larger excess is still refused, and no scalar value is altered.
-   * @evidence contracts/common.md#meaningful-documentation States admitted-domain and invalid-query behavior.
-   * @evidence contracts/performance.md#efficient-algorithms Constant work with at most one root and asin.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Pure scalar mapping schedules no work.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses signed square root or the equivalent angle root/asin expression from the nearer endpoint to avoid cancellation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One map serves all scalar meanings, with omission as identity.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Clamps only a floating-point excess within the shared construction tolerance onto the endpoint; a larger excess is still refused, and no scalar value is altered.
+   * @evidence contracts/development/common.md#meaningful-documentation States admitted-domain and invalid-query behavior.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work with at most one root and asin.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure scalar mapping schedules no work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at(
     parameter: AutoMovieConstructionOutlineParameter | undefined,
@@ -89,13 +86,13 @@ export namespace AutoMovieViewParameter {
   /**
    * Invert an admitted in-span source parameter.
    *
-   * @evidence contracts/common.md#principled-implementation Uses the square-root inverse and angle half-sine identity, from the nearer endpoint.
-   * @evidence contracts/common.md#clear-and-simple-design One inverse serves all critical-station observations.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Assumes the admitted parameter span and invents no closure.
-   * @evidence contracts/common.md#meaningful-documentation States the in-span premise and millimetre result.
-   * @evidence contracts/performance.md#efficient-algorithms Constant arithmetic and at most one sine.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work One pure scalar inverse schedules no work.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the square-root inverse and angle half-sine identity, from the nearer endpoint.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One inverse serves all critical-station observations.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Assumes the admitted parameter span and invents no closure.
+   * @evidence contracts/development/common.md#meaningful-documentation States the in-span premise and millimetre result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic and at most one sine.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One pure scalar inverse schedules no work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function station(
     parameter: AutoMovieConstructionOutlineParameter | undefined,
@@ -113,13 +110,13 @@ export namespace AutoMovieViewParameter {
   /**
    * First/second parameter derivatives in station, absent at a singular parameter endpoint.
    *
-   * @evidence contracts/common.md#principled-implementation Differentiates signed root and two-end angle analytically; zero endpoint distance has no finite change-of-parameter jet.
-   * @evidence contracts/common.md#clear-and-simple-design One pair feeds the scalar source chain rule, with null singularity.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no finite difference and leaves overflowing arithmetic observable to the caller.
-   * @evidence contracts/common.md#meaningful-documentation States derivative order, singular absence and admitted-domain premise.
-   * @evidence contracts/performance.md#efficient-algorithms Constant arithmetic per requested jet.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Pure derivatives coordinate no work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns at most a two-number pair and retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation Differentiates signed root and two-end angle analytically; zero endpoint distance has no finite change-of-parameter jet.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pair feeds the scalar source chain rule, with null singularity.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses no finite difference and leaves overflowing arithmetic observable to the caller.
+   * @evidence contracts/development/common.md#meaningful-documentation States derivative order, singular absence and admitted-domain premise.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic per requested jet.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure derivatives coordinate no work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns at most a two-number pair and retains nothing.
    */
   export function jet(
     parameter: AutoMovieConstructionOutlineParameter | undefined,
@@ -149,13 +146,13 @@ export namespace AutoMovieViewParameter {
   /**
    * First two derivatives of station in the selected coordinate, including its finite pole limit.
    *
-   * @evidence contracts/common.md#principled-implementation Differentiates s=pole+sign*q^2 or s=bottom+span*sin(q/2)^2; the angle first derivative uses separate square roots to avoid overflowing a*b.
-   * @evidence contracts/common.md#clear-and-simple-design One inverse jet serves analytic frame and coefficient chain rules.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid domains and nonfinite results return null; a zero first inverse derivative at a pole does not imply a finite forward station derivative.
-   * @evidence contracts/common.md#meaningful-documentation Parameter endpoints are kernel mm; results are ds/dq and d2s/dq2, independently of scalar values.
-   * @evidence contracts/performance.md#efficient-algorithms Constant checks and at most two roots use fixed storage.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Pure coordinate arithmetic schedules no work.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a fresh pair or null and retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation Differentiates s=pole+sign*q^2 or s=bottom+span*sin(q/2)^2; the angle first derivative uses separate square roots to avoid overflowing a*b.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One inverse jet serves analytic frame and coefficient chain rules.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid domains and nonfinite results return null; a zero first inverse derivative at a pole does not imply a finite forward station derivative.
+   * @evidence contracts/development/common.md#meaningful-documentation Parameter endpoints are kernel mm; results are ds/dq and d2s/dq2, independently of scalar values.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant checks and at most two roots use fixed storage.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure coordinate arithmetic schedules no work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh pair or null and retains nothing.
    */
   export function inverseJet(
     parameter: AutoMovieConstructionOutlineParameter | undefined,
@@ -181,13 +178,13 @@ export namespace AutoMovieViewParameter {
   /**
    * Derivatives of one source coordinate in another coordinate at the same station.
    *
-   * @evidence contracts/common.md#principled-implementation Uses analytic shared-pole root/angle compositions and their finite endpoint limits; other regular compositions use the two-order chain rule with the inverse jet.
-   * @evidence contracts/common.md#clear-and-simple-design One coordinate-transfer owner keeps scalar and frame derivative conversions on the same maps.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A singular source in a regular target or an unrepresentable result returns null. No Infinity-times-zero cancellation, derivative clamp or finite difference assigns a pole jet.
-   * @evidence contracts/common.md#meaningful-documentation Returns dqSource/dqTarget and its second derivative; identical maps return identity, and distinct singular endpoints require the same station and inward side.
-   * @evidence contracts/performance.md#efficient-algorithms Bounded scalar cases take constant work and fixed result storage.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Pure source-coordinate arithmetic retains no preparation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns only a pair or null and keeps neither parameter record.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses analytic shared-pole root/angle compositions and their finite endpoint limits; other regular compositions use the two-order chain rule with the inverse jet.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One coordinate-transfer owner keeps scalar and frame derivative conversions on the same maps.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A singular source in a regular target or an unrepresentable result returns null. No Infinity-times-zero cancellation, derivative clamp or finite difference assigns a pole jet.
+   * @evidence contracts/development/common.md#meaningful-documentation Returns dqSource/dqTarget and its second derivative; identical maps return identity, and distinct singular endpoints require the same station and inward side.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Bounded scalar cases take constant work and fixed result storage.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure source-coordinate arithmetic retains no preparation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns only a pair or null and keeps neither parameter record.
    */
   export function transferJet(
     source: AutoMovieConstructionOutlineParameter | undefined,

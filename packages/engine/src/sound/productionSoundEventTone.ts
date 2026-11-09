@@ -3,13 +3,13 @@ import { IAutoMovieProductionSoundEvent } from "@automovie/interface";
 /**
  * Evaluate only the selected semantic event's fixed procedural tone.
  *
- * @evidence contracts/common.md#principled-implementation Each closed event kind retains the original sine/noise expression and operand order at sample time t and normalized envelope time; no unselected palette expression contributes to the result.
- * @evidence contracts/common.md#clear-and-simple-design Tone selection is separate from mixing's clock, envelope, pan and density gain so one scalar owner exposes the fixed event palette without building a five-value object per sample.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts All supported kinds use their declared tone, with no fixture phase or added sample clamp; time/noise admission remains with the typed plan and mixer.
- * @evidence contracts/common.md#meaningful-documentation States seconds, normalized time and supplied seeded noise, preserving original selected expressions; trigonometric implementation rounding remains a cross-host limitation.
- * @evidence contracts/performance.md#efficient-algorithms A constant-size kind switch evaluates only the one or two sine calls used by that tone, with constant live scalar storage.
- * @evidence contracts/performance.md#reuse-equivalent-work The mixer reuses its already computed time, normalized time and seeded noise; unselected tone calculations and the former per-sample palette object are removed.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned scalar retains no event, sample buffer or palette object; no cross-event cache, audio device or task is acquired.
+ * @evidence contracts/development/implementation.md#principled-implementation Each closed event kind retains the original sine/noise expression and operand order at sample time t and normalized envelope time; no unselected palette expression contributes to the result.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Tone selection is separate from mixing's clock, envelope, pan and density gain so one scalar owner exposes the fixed event palette without building a five-value object per sample.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All supported kinds use their declared tone, with no fixture phase or added sample clamp; time/noise admission remains with the typed plan and mixer.
+ * @evidence contracts/development/common.md#meaningful-documentation States seconds, normalized time and supplied seeded noise, preserving original selected expressions; trigonometric implementation rounding remains a cross-host limitation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A constant-size kind switch evaluates only the one or two sine calls used by that tone, with constant live scalar storage.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The mixer reuses its already computed time, normalized time and seeded noise; unselected tone calculations and the former per-sample palette object are removed.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned scalar retains no event, sample buffer or palette object; no cross-event cache, audio device or task is acquired.
  */
 export function productionSoundEventTone(
   kind: IAutoMovieProductionSoundEvent["kind"],

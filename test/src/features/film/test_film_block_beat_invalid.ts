@@ -24,10 +24,11 @@ import { hasViolation } from "../internal/predicates";
  * 6. The camera favouring the unstaged `nobody` → `type` on
  *    `$input.camera.on.node`.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls blockBeat after valid staging and requires all six authored faults at their field paths, including a causal-reversal explanation in addition to a range finding. This catches short-circuit reporting or an anchor merely refused as outside the zero-duration timeline while its reversed order goes unnoticed.
- * @evidence contracts/testing.md#independent-expectations The script contains no beat-99 or ghost/nobody placement, a zero-duration beat is invalid, t=5 is outside it, and 0.5 follows 1.5 in the authored list. Literal membership and ordering establish the expected paths independently of the gate's sets and predecessor state.
- * @evidence contracts/testing.md#distinguishing-cases Preserves the six numbered simultaneous faults with two actor intents and a node-target camera; finite valid plans, nonfinite clocks, blank references, prior-state admission and camera vocabulary have separate tests.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_block_beat_invalid entry owns a portable stageScene prerequisite and one blockBeat refusal using existing fixtures, without installing a consumer, compiling native code or starting a real host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls blockBeat after valid staging and requires all six authored faults at their field paths, including a causal-reversal explanation in addition to a range finding. This catches short-circuit reporting or an anchor merely refused as outside the zero-duration timeline while its reversed order goes unnoticed.
+ * @evidence contracts/development/testing.md#independent-expectations The script contains no beat-99 or ghost/nobody placement, a zero-duration beat is invalid, t=5 is outside it, and 0.5 follows 1.5 in the authored list. Literal membership and ordering establish the expected paths independently of the gate's sets and predecessor state.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves the six numbered simultaneous faults with two actor intents and a node-target camera; finite valid plans, nonfinite clocks, blank references, prior-state admission and camera vocabulary have separate tests.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_block_beat_invalid entry owns a portable stageScene prerequisite and one blockBeat refusal using existing fixtures, without installing a consumer, compiling native code or starting a real host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Beat "beat-99" the script never planned → `type` on `$input.beat`.).
  */
 export function test_film_block_beat_invalid(): void {
   const staged: ReturnType<typeof stageScene> = stageScene(

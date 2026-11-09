@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryImageInput } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryImageInput } from "@automovie/interface";
 
 /** Analytic section parameters supplied independently of the recovery fitter. */
 interface RecoveryImageFixtureInput {
@@ -15,10 +15,10 @@ interface RecoveryImageFixtureInput {
  * supplied orthographic chart; an optional independent interval formula supplies
  * other analytic sections. Box support is a distinct ellipse-family negative.
  *
- * @evidence contracts/testing.md#behavioral-verification Supplies real RGB8 pixel populations whose support must be extracted rather than injecting expected observed rows or fitted controls.
- * @evidence contracts/testing.md#independent-expectations Raster inclusion uses analytic ellipse or box support and explicit pixel centres, with no recovery fitter, spline evaluator, atlas generator or renderer import. One fixed pixel-centre vector serves every row/view; supplied intervals use two binary searches of the same inclusive comparisons on an increasing chart, then copy the fixed RGB triplet into that exact contiguous range. Other charts/default formulas retain their direct inclusion scan.
- * @evidence contracts/testing.md#distinguishing-cases Parameterized angle, pixel pitch, ellipse/box shape and an optional analytic interval allow scale/chart and distinct section-family controls; admission failures are authored by the calling tests.
- * @evidence contracts/testing.md#execution-ownership This portable fixture owns only small resident typed arrays and deterministic arithmetic; it starts no process, filesystem, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies real RGB8 pixel populations whose support must be extracted rather than injecting expected observed rows or fitted controls.
+ * @evidence contracts/development/testing.md#independent-expectations Raster inclusion uses analytic ellipse or box support and explicit pixel centres, with no recovery fitter, spline evaluator, atlas generator or renderer import. One fixed pixel-centre vector serves every row/view; supplied intervals use two binary searches of the same inclusive comparisons on an increasing chart, then copy the fixed RGB triplet into that exact contiguous range. Other charts/default formulas retain their direct inclusion scan.
+ * @evidence contracts/development/testing.md#distinguishing-cases Parameterized angle, pixel pitch, ellipse/box shape and an optional analytic interval allow scale/chart and distinct section-family controls; admission failures are authored by the calling tests.
+ * @evidence contracts/development/testing.md#execution-ownership This portable fixture owns only small resident typed arrays and deterministic arithmetic; it starts no process, filesystem, browser or GPU.
  */
 export function recoveryImageFixture(
   input: RecoveryImageFixtureInput = {},

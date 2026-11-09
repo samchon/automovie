@@ -1,5 +1,7 @@
-import { createAutoMovieSupportSectionQuery } from "@automovie/engine/geometry/createAutoMovieSupportSectionQuery";
-import { evaluateAutoMovieSupportSection } from "@automovie/engine/geometry/evaluateAutoMovieSupportSection";
+import {
+  createAutoMovieSupportSectionQuery,
+  evaluateAutoMovieSupportSection,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -11,10 +13,11 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Redundant diagonal planes become active, replace cardinal sides and meet exact corners; every changing section agrees with a fresh query and an empty section cannot poison the next one.
  * 4. Redundant weak planes touching an unchanged seeded corner still refuse; uncertified finite coordinates fall back successfully, and an overflowing unused intersection still refuses.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises the actual public preparation closure repeatedly and the existing one-shot query. It observes new section corners, unchanged prior output, copied direction ownership and offset-dependent weak refusal.
- * @evidence contracts/testing.md#independent-expectations Cardinal half-planes with offsets [2,1,2,1] intersect at X=+/-2,Z=+/-1; changing only the positive-X offset moves that side to X=3. Cardinal offsets 2 with diagonal offsets 10, 2.5, .5 and 2sqrt(2) yield respectively four square, eight clipped-square, four diamond and four exactly tied square corners. On [-1,0] squared, two positive-diagonal zero bounds remain redundant but meet exactly at the origin. With normal (1,2^-1000), the redundant bound 1e7 leaves every intersection finite and the rectangle unchanged, while 1e10 makes its unused cardinal intersection exceed binary64 range. The almost parallel diagonal pair meets feasibly at the origin for zero offsets but is redundant when its first bound is 10 and the other is 1.
- * @evidence contracts/testing.md#distinguishing-cases Distinguishes fixed direction and validated active-edge reuse from stale offset caching, missed newly active planes, missing exact tight incidences, caller-array borrowing, shared mutable results and unconditional weak-pair deletion/refusal. The existing engine test owns invalid fields, physical mesh incidence and numerical determinant cases.
- * @evidence contracts/testing.md#execution-ownership This portable test_geometry_support_section_query entry owns bounded CPU arrays and query closures only, without filesystem, process, renderer, build or foreign replacement.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises the actual public preparation closure repeatedly and the existing one-shot query. It observes new section corners, unchanged prior output, copied direction ownership and offset-dependent weak refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Cardinal half-planes with offsets [2,1,2,1] intersect at X=+/-2,Z=+/-1; changing only the positive-X offset moves that side to X=3. Cardinal offsets 2 with diagonal offsets 10, 2.5, .5 and 2sqrt(2) yield respectively four square, eight clipped-square, four diamond and four exactly tied square corners. On [-1,0] squared, two positive-diagonal zero bounds remain redundant but meet exactly at the origin. With normal (1,2^-1000), the redundant bound 1e7 leaves every intersection finite and the rectangle unchanged, while 1e10 makes its unused cardinal intersection exceed binary64 range. The almost parallel diagonal pair meets feasibly at the origin for zero offsets but is redundant when its first bound is 10 and the other is 1.
+ * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes fixed direction and validated active-edge reuse from stale offset caching, missed newly active planes, missing exact tight incidences, caller-array borrowing, shared mutable results and unconditional weak-pair deletion/refusal. The existing engine test owns invalid fields, physical mesh incidence and numerical determinant cases.
+ * @evidence contracts/development/testing.md#execution-ownership This portable test_geometry_support_section_query entry owns bounded CPU arrays and query closures only, without filesystem, process, renderer, build or foreign replacement.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Independent rectangle offsets produce their analytic corners and fresh results after the caller changes its original normal array.).
  */
 export function test_geometry_support_section_query(): void {
   const normals: [number, number][] = [

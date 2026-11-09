@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryCameraSceneInput } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryCameraSceneInput } from "@automovie/interface";
 
 import type { IAutoMovieRecoveryCameraPairEstimate } from "./IAutoMovieRecoveryCameraPairEstimate";
 import type { IAutoMovieRecoveryCameraSource } from "./IAutoMovieRecoveryCameraSource";
@@ -14,13 +14,10 @@ import type { IAutoMovieRecoverySceneWork } from "./IAutoMovieRecoverySceneWork"
  * An accepted component may leave images unregistered; full requested coverage
  * is stated separately. Physical scale and an editable surface remain unknown.
  *
- * @evidence contracts/common.md#principled-implementation Global nonconflicting appearance admission precedes seed reconstruction, original point geometry, existing-map registration and common-gauge joint qualification. Only complete candidate transactions update poses, points and retained measurements.
- * @evidence contracts/common.md#clear-and-simple-design Accepted coverage, unregistered sources, attempted work and stop reasons are separate from computation completion and parent surface reconstruction. A refused seed keeps its completed fit diagnostic separately from the accepted-only joint report.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No rolled-back pose, material-truth claim, invented hidden region, dense table or metric scale is an accepted recovered asset.
- * @evidence contracts/common.md#meaningful-documentation Members state fixed source indices, null poses, unknown scale, strongest actual point support, immutable revisions and aggregate failure accounting.
- * @evidence contracts/performance.md#efficient-algorithms This output performs no fitting; admitted source, observation, track and attempt limits bound serialized evidence.
- * @evidence contracts/performance.md#reuse-equivalent-work Exact policies and work limits accompany the accepted checkpoint; no mutable effect cache is defined.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns detached JSON with no RGB, descriptors, callbacks, workers, paths or handles. Only a refused seed transfers one existing fixed plain report; successful seed qualification removes that temporary reference before candidate fits.
+ * @evidence contracts/development/design.md#principled-representation Global nonconflicting appearance admission precedes seed reconstruction, original point geometry, existing-map registration and common-gauge joint qualification. Only complete candidate transactions update poses, points and retained measurements.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Accepted coverage, unregistered sources, attempted work and stop reasons are separate from computation completion and parent surface reconstruction. A refused seed keeps its completed fit diagnostic separately from the accepted-only joint report.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No rolled-back pose, material-truth claim, invented hidden region, dense table or metric scale is an accepted recovered asset.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state fixed source indices, null poses, unknown scale, strongest actual point support, immutable revisions and aggregate failure accounting.
  */
 export interface IAutoMovieRecoveryCameraSceneEstimate {
   /** Versioned variable-view sparse-scene evidence. */

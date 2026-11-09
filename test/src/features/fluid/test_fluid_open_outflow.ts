@@ -48,10 +48,11 @@ const spillway: (open: boolean) => IAutoMovieFluidDomain = (
  * 3. Every returned depth is nonnegative at steps 1, 40, 200 and 600.
  * 4. The walled twin keeps its authored volume within 1e-12 m³, retains 0.5 m depth in every cell and books exactly zero outflow.
  *
- * @evidence contracts/testing.md#behavioral-verification Simulates the same basin with open versus walled east rim, requiring sampled outflow and lower remaining volume only for the open twin, nonnegative depths and complete ledger balance.
- * @evidence contracts/testing.md#independent-expectations Sixteen quarter-square-metre cells at half-metre depth give two cubic metres; volume plus outflow closes that total with no sources/drains, and the wall twin independently forbids boundary loss.
- * @evidence contracts/testing.md#distinguishing-cases Preserves sampled steps 1, 40, 200 and 600, the identical walled twin at 600 and no phantom source/drain terms; the assertion does not independently count limiter activations or certify all steps.
- * @evidence contracts/testing.md#execution-ownership This named portable unit owns absolute CPU field/ledger comparisons using existing basin data and starts no incremental simulation host, renderer or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Simulates the same basin with open versus walled east rim, requiring sampled outflow and lower remaining volume only for the open twin, nonnegative depths and complete ledger balance.
+ * @evidence contracts/development/testing.md#independent-expectations Sixteen quarter-square-metre cells at half-metre depth give two cubic metres; volume plus outflow closes that total with no sources/drains, and the wall twin independently forbids boundary loss.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves sampled steps 1, 40, 200 and 600, the identical walled twin at 600 and no phantom source/drain terms; the assertion does not independently count limiter activations or certify all steps.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit owns absolute CPU field/ledger comparisons using existing basin data and starts no incremental simulation host, renderer or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The open basin loses water: its volume at step 600 is far below the authored).
  */
 export function test_fluid_open_outflow(): void {
   const open: ReturnType<typeof spillway> = spillway(true);

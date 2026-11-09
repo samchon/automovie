@@ -12,10 +12,10 @@ import type { IAutoMovieConstructionView } from "./IAutoMovieConstructionView";
  *
  * A join's, a continuation's and a port's host and part, a split's host and both children's parts, and a trim's host, are nodes themselves, so groups nest to any depth: a join's host is everything built before it, which lets a later part meet an earlier blend (the second breast against the first, a malleolus on the shank-to-foot blend) and a part merge at both ends (a leg onto the trunk, then a foot onto the leg).
  *
- * @evidence contracts/common.md#principled-implementation View/source leaves undergo native lofting; profile leaves retain their actual piece fields through the existing atlas and mesh; joins, continuation, splits, ports and trims compose their solids through the tree's containment order.
- * @evidence contracts/common.md#clear-and-simple-design One closed union over declared views, complete native sources, original profiles and five operation records keeps explicit source references separate from declarative views without per-form variants.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Operator children remain contained nodes; a source key binds generating input in the current invocation, never an already realized solid or a global geometry registry. Shared runtime input does not create a second parent in the tree.
- * @evidence contracts/common.md#meaningful-documentation States each discriminant, containment and the distinction between a source input reference and solid-tree topology.
+ * @evidence contracts/development/design.md#principled-representation View/source leaves undergo native lofting; profile leaves retain their actual piece fields through the existing atlas and mesh; joins, continuation, splits, ports and trims compose their solids through the tree's containment order.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One closed union over declared views, complete native sources, original profiles and five operation records keeps explicit source references separate from declarative views without per-form variants.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Operator children remain contained nodes; a source key binds generating input in the current invocation, never an already realized solid or a global geometry registry. Shared runtime input does not create a second parent in the tree.
+ * @evidence contracts/development/common.md#meaningful-documentation States each discriminant, containment and the distinction between a source input reference and solid-tree topology.
  */
 export type AutoMovieConstructionNode =
   | (IAutoMovieConstructionProfile & {

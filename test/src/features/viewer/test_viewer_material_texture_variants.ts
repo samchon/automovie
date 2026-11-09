@@ -16,10 +16,11 @@ import type * as ThreeTypes from "three";
  * 2. Reobservation updates the same wrapper's state and stable owner; an independent Source stays separate despite equal upload keys.
  * 3. Removed use retains context facts; explicit host-supplied release rows prune the wrapper rather than claiming an automatic native disposal observer.
  *
- * @evidence contracts/testing.md#behavioral-verification Observes real Texture wrappers through material slots and measures the resulting Engine closure, catching premature wrapper merging, stale upload keys and an observer that loses unchanged owner identities.
- * @evidence contracts/testing.md#independent-expectations A 4-by-4 RGBA8 source has 64 bytes; equal Source and upload keys share that extent, while different keys or independent Source objects retain separate rows. Host-supplied pruning is explicit and does not prove an automatic native disposal observer.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts clone versus independent source, color-space and wrapping changes, recovered equivalence, removed use, explicit released-wrapper pruning and empty context facts; shader lookup construction belongs to the texture-facts test.
- * @evidence contracts/testing.md#execution-ownership This portable asynchronous entry uses existing Viewer/Engine source with actual in-memory Three wrappers, material slots and explicit host rows; it disposes those objects and starts no browser, GPU or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Observes real Texture wrappers through material slots and measures the resulting Engine closure, catching premature wrapper merging, stale upload keys and an observer that loses unchanged owner identities.
+ * @evidence contracts/development/testing.md#independent-expectations A 4-by-4 RGBA8 source has 64 bytes; equal Source and upload keys share that extent, while different keys or independent Source objects retain separate rows. Host-supplied pruning is explicit and does not prove an automatic native disposal observer.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts clone versus independent source, color-space and wrapping changes, recovered equivalence, removed use, explicit released-wrapper pruning and empty context facts; shader lookup construction belongs to the texture-facts test.
+ * @evidence contracts/development/testing.md#execution-ownership This portable asynchronous entry uses existing Viewer/Engine source with actual in-memory Three wrappers, material slots and explicit host rows; it disposes those objects and starts no browser, GPU or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Wrappers sharing a Source contribute one 64-byte extent until color spaces or samplers differ; restoring equal keys restores one extent.).
  */
 export async function test_viewer_material_texture_variants(): Promise<void> {
   const THREE: typeof ThreeTypes = await import("three");

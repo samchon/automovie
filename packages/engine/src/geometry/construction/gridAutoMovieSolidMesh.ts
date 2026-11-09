@@ -31,16 +31,10 @@ interface Grid {
   base: number;
 
   /** Face-specific charts, including foreign-owner shared source indices. */
-  chart: Map<
-    number,
-    Point
-  >;
+  chart: Map<number, Point>;
 
   /** New provisional IDs and their evaluated source points. */
-  samples: Map<
-    number,
-    Sample
-  >;
+  samples: Map<number, Sample>;
 
   /** Original indexed trim segments. */
   trim: AutoMovieSolidMeshConstraints.ISegment[];
@@ -58,16 +52,10 @@ interface Grid {
   interior: number[];
 
   /** Original kept source, independent of the sampling margin. */
-  source: (
-    u: number,
-    v: number,
-  ) => boolean;
+  source: (u: number, v: number) => boolean;
 
   /** Original source minus already retained full cells. */
-  residual: (
-    u: number,
-    v: number,
-  ) => boolean;
+  residual: (u: number, v: number) => boolean;
 
   /**
    * Phase scale of the face's uniform metric, length units per radian: the
@@ -97,13 +85,13 @@ interface Grid {
  * An explicit numeric physical2 admission failure is a named refusal; actual
  * source callback and ownership errors retain their original thrown identity.
  *
- * @evidence contracts/common.md#principled-implementation Keeps the original analytic grid readings and point metric, excludes potentially cut full cells, and prepares original-source and residual membership separately from the sampling margin.
- * @evidence contracts/common.md#clear-and-simple-design One local record carries provisional points, indexed constraints and full-cell triangles; domain assembly and residual triangulation have separate owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing retained grid is not an empty source. No trim index is reconstructed/welded, no full cell is admitted solely from corner flags and no mesh mutation occurs before all downstream planning succeeds.
- * @evidence contracts/common.md#meaningful-documentation States copied-jet lifetime, station-major exceptions, foreign-owner face charts, conservative cell exclusion and immutable-source premise. Periodic trim primitives use the local half-period family consumed by the existing kept-side reader.
- * @evidence contracts/performance.md#efficient-algorithms Reads G grid jets once and performs O(G(S+L)) true-cut classification, O(C(S+D)) conservative cell tests and O(G(S+D)) boundary-contact scans for S cut segments, D domain authority segments and C cells. Domain work and the cost of each source predicate are additional, not constant-time assumptions.
- * @evidence contracts/performance.md#reuse-equivalent-work Shares station/phase spacings, copied jets and grid-index reservations; source readers and full-cell lookup serve all residual queries within this face.
- * @evidence contracts/performance.md#bound-retention-and-release-resources O(G+S+L) grid/constraint/catalogue state is local; returned closures retain their source readers and cell table only until the caller finishes this face, with no global cache.
+ * @evidence contracts/development/implementation.md#principled-implementation Keeps the original analytic grid readings and point metric, excludes potentially cut full cells, and prepares original-source and residual membership separately from the sampling margin.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One local record carries provisional points, indexed constraints and full-cell triangles; domain assembly and residual triangulation have separate owners.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing retained grid is not an empty source. No trim index is reconstructed/welded, no full cell is admitted solely from corner flags and no mesh mutation occurs before all downstream planning succeeds.
+ * @evidence contracts/development/common.md#meaningful-documentation States copied-jet lifetime, station-major exceptions, foreign-owner face charts, conservative cell exclusion and immutable-source premise. Periodic trim primitives use the local half-period family consumed by the existing kept-side reader.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Reads G grid jets once and performs O(G(S+L)) true-cut classification, O(C(S+D)) conservative cell tests and O(G(S+D)) boundary-contact scans for S cut segments, D domain authority segments and C cells. Domain work and the cost of each source predicate are additional, not constant-time assumptions.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares station/phase spacings, copied jets and grid-index reservations; source readers and full-cell lookup serve all residual queries within this face.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources O(G+S+L) grid/constraint/catalogue state is local; returned closures retain their source readers and cell table only until the caller finishes this face, with no global cache.
  */
 export function gridAutoMovieSolidMesh(
   mesh: AutoMovieSolidMesh.IMesh,
@@ -443,9 +431,16 @@ function touches(
       )
         return "cell/trim cover is not representable";
       if (Math.max(first, last) >= v0 && Math.min(first, last) <= v1)
-        if (index < domainFrom || !AutoMovieSolidMeshAuthorities.consumedByCell(
-          [a[0], first], [b[0], last], [u0, u1], [v0, v1],
-        )) return true;
+        if (
+          index < domainFrom ||
+          !AutoMovieSolidMeshAuthorities.consumedByCell(
+            [a[0], first],
+            [b[0], last],
+            [u0, u1],
+            [v0, v1],
+          )
+        )
+          return true;
     }
   }
   return false;

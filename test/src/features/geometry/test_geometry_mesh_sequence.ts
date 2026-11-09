@@ -17,10 +17,11 @@ import { throwsError } from "../internal/throwsError";
  * 3. Invalid axes, clearances, single-mesh buffers, accumulated travel and final
  *    position overflow refuse rather than returning a partially placed group.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs separateAutoMovieMeshSequence and checks rigid placement, unchanged inputs, nonadjacent constraints and refusals, catching unnecessary projected-area overflow on already-clear finite members.
- * @evidence contracts/testing.md#independent-expectations Plane depths -0.6,-0.4,1.6 follow the ordered gap inequalities and balanced endpoint travel; shape/normal ownership expectations follow rigid translation.
- * @evidence contracts/testing.md#distinguishing-cases Covers all axes, disjoint middle members, already-clear/empty/singleton sequences, malformed buffers and translation/position overflow; projected clipping details belong to mesh-clearance tests.
- * @evidence contracts/testing.md#execution-ownership A discoverable geometry test calls TypeScript numerical source directly without a process, renderer, native build or dynamically installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs separateAutoMovieMeshSequence and checks rigid placement, unchanged inputs, nonadjacent constraints and refusals, catching unnecessary projected-area overflow on already-clear finite members.
+ * @evidence contracts/development/testing.md#independent-expectations Plane depths -0.6,-0.4,1.6 follow the ordered gap inequalities and balanced endpoint travel; shape/normal ownership expectations follow rigid translation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers all axes, disjoint middle members, already-clear/empty/singleton sequences, malformed buffers and translation/position overflow; projected clipping details belong to mesh-clearance tests.
+ * @evidence contracts/development/testing.md#execution-ownership A discoverable geometry test calls TypeScript numerical source directly without a process, renderer, native build or dynamically installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Planes at depths 0,-1,1 and gap 0.2 finish at -0.6,-0.4,1.6 on each axis.).
  */
 export function test_geometry_mesh_sequence(): void {
   const plane: (z: number, x?: number) => IAutoMovieMesh = (

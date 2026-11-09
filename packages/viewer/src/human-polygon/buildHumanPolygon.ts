@@ -28,13 +28,13 @@ import { humanPolygonSections as Sections } from "./humanPolygonSections.js";
  * @param options Optional display colours keyed by emitted bone name; unmatched palette entries are unused.
  * @returns Owned surface, actual bone/mesh registries, pose/palette ports, generating sections, head attachment and cleanup. Local probe points use registered rest point minus the corresponding rest joint; actor-root placement belongs to the parent.
  *
- * @evidence contracts/common.md#principled-implementation Every dimension comes from skeleton joints, tips and girth radii; no skin surface of the realistic Human is read, so a change in how the Human lofts its skin cannot break the blockout.
- * @evidence contracts/common.md#clear-and-simple-design One section loft draws each rigid module; body-frame placements are consumed once without rebuilding forward kinematics, actual string bone registries expose the same mesh frames, and setPose atomically updates surface and diagnostics.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No fixture dimension or imitated skin enters the drawing; missing joints refuse; rigid shared seams can open when posed.
- * @evidence contracts/common.md#meaningful-documentation Documents the LOD, units, head attachment frame, rigid-joint limitations and sticky palette/resource retirement failures.
- * @evidence contracts/performance.md#efficient-algorithms Bone/child/placement maps are built once for B bones. Ring assembly, zipper joining and normal generation follow emitted vertices V and triangles T, with O(B+V+T) construction work/storage.
- * @evidence contracts/performance.md#reuse-equivalent-work Parts share the default clay and diagnostic materials; matching RGB overrides share one current material, and sections reuse emitted ring positions.
- * @evidence contracts/performance.md#bound-retention-and-release-resources A completed palette becomes owned before the previous pool retires. Independent cleanup attempts every remaining resource and detach operation once; retirement failures remain sticky, reject further colour changes and retain bounded uncertain owners without retry.
+ * @evidence contracts/development/implementation.md#principled-implementation Every dimension comes from skeleton joints, tips and girth radii; no skin surface of the realistic Human is read, so a change in how the Human lofts its skin cannot break the blockout.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One section loft draws each rigid module; body-frame placements are consumed once without rebuilding forward kinematics, actual string bone registries expose the same mesh frames, and setPose atomically updates surface and diagnostics.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixture dimension or imitated skin enters the drawing; missing joints refuse; rigid shared seams can open when posed.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents the LOD, units, head attachment frame, rigid-joint limitations and sticky palette/resource retirement failures.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Bone/child/placement maps are built once for B bones. Ring assembly, zipper joining and normal generation follow emitted vertices V and triangles T, with O(B+V+T) construction work/storage.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Parts share the default clay and diagnostic materials; matching RGB overrides share one current material, and sections reuse emitted ring positions.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A completed palette becomes owned before the previous pool retires. Independent cleanup attempts every remaining resource and detach operation once; retirement failures remain sticky, reject further colour changes and retain bounded uncertain owners without retry.
  */
 export function buildHumanPolygon(
   output: AutoMovieHumanPolygon.IInput,
@@ -297,13 +297,6 @@ export function buildHumanPolygon(
  * to the head joint, and a head that widens to the head segment's girth radius
  * and closes on the head's tip (two girth radii above the joint when no tip).
  *
- * @evidence contracts/common.md#principled-implementation Uses only joint positions, girth radii and the head tip, as every procedural segment does; the 0.35/0.75 head heights and 0.92/0.85/0.8 narrowing are display conventions that round the skull, not measured anatomy.
- * @evidence contracts/common.md#clear-and-simple-design One local helper feeds the existing module sections and crown pole.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No skin surface is imitated; missing neck or head joints refuse.
- * @evidence contracts/common.md#meaningful-documentation States ring placement, the display convention and the units (registered bind metres).
- * @evidence contracts/performance.md#efficient-algorithms Constant work over two joints.
- * @evidence contracts/performance.md#reuse-equivalent-work Called once per drawing.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Returns plain vectors owned by the assembled module; nothing is retained.
  */
 function skeletalNeckAndHead(
   bones: ReadonlyMap<string, AutoMovieHumanPolygon.IBone>,

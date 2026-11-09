@@ -10,10 +10,11 @@ import { makeExpression } from "../internal/fixtures";
  * Scenarios:
  * 1. Happy at 0.8 with one jawOpen row at 0.3 succeeds.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual expression admission and requires success, catching an overbroad refusal of a supported preset/channel combination with interior magnitudes.
- * @evidence contracts/testing.md#independent-expectations Both names belong to their closed menus, both magnitudes lie in [0,1] and the sole channel is unique; no output snapshot supplies the expected verdict.
- * @evidence contracts/testing.md#distinguishing-cases Owns the accepted populated interior case; malformed names, repeated channels and upper scalar overflow have separate entries. This does not establish rendered expression quality or boundary admission.
- * @evidence contracts/testing.md#execution-ownership The named portable entry owns one fixture-produced document and observes actual engine validation without a face asset, host or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual expression admission and requires success, catching an overbroad refusal of a supported preset/channel combination with interior magnitudes.
+ * @evidence contracts/development/testing.md#independent-expectations Both names belong to their closed menus, both magnitudes lie in [0,1] and the sole channel is unique; no output snapshot supplies the expected verdict.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns the accepted populated interior case; malformed names, repeated channels and upper scalar overflow have separate entries. This does not establish rendered expression quality or boundary admission.
+ * @evidence contracts/development/testing.md#execution-ownership The named portable entry owns one fixture-produced document and observes actual engine validation without a face asset, host or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Happy at 0.8 with one jawOpen row at 0.3 succeeds.).
  */
 export function test_validation_expression_valid(): void {
   const result: IAutoMovieValidation = validateExpressionResult(

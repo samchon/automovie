@@ -130,3 +130,9 @@ export { createAutoMovieSurfaceAppearance } from "./createAutoMovieSurfaceAppear
 export { createAutoMoviePhysicalPoseAdapter } from "./createAutoMoviePhysicalPoseAdapter.js";
 export * from "./audio/index.js";
 export * from "./transport/index.js";
+export * from "./human-polygon/index.js";
+export * from "./AutoMovieResourceRetirementScope.js";
+export * from "./IViewerCameraStateSnapshot.js";
+export * from "./constructAutoMovieOwnedResources.js";
+export * from "./createViewerDisplayClock.js";
+export * from "./createViewerDisplayPublication.js";

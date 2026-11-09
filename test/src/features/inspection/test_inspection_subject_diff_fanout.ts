@@ -29,10 +29,11 @@ import { subjectInspectionModel } from "../internal/subjectInspectionModel";
  * 4. A missing explicit prototype and a degenerate weighted table remain
  *    deterministic diff inputs rather than crashing aggregate comparison.
  *
- * @evidence contracts/testing.md#behavioral-verification Diffs authored prototype geometry and compact selections, checking exact aggregate fan-out and the absence of individual instance records; expanding one reusable reshape into thousands of records or miscounting reassigned slots fails.
- * @evidence contracts/testing.md#independent-expectations The fixture explicitly places one element and 2392 slots on one model, so both changed prototype records have those literal populations; explicit choices and added-slot count independently determine selection changes without copying diff output.
- * @evidence contracts/testing.md#distinguishing-cases Keeps prototype/part fan-out, a single explicit reassignment, added membership, missing explicit selection, zero weights and a legacy no-LOD set; tolerance and seeded distribution semantics have separate entries.
- * @evidence contracts/testing.md#execution-ownership This exported test basename is discovered by the test runner and directly calls portable diff source with code-authored compiled records; its cases do not launch a browser, process or GPU and do not measure renderer cost.
+ * @evidence contracts/development/testing.md#behavioral-verification Diffs authored prototype geometry and compact selections, checking exact aggregate fan-out and the absence of individual instance records; expanding one reusable reshape into thousands of records or miscounting reassigned slots fails.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture explicitly places one element and 2392 slots on one model, so both changed prototype records have those literal populations; explicit choices and added-slot count independently determine selection changes without copying diff output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps prototype/part fan-out, a single explicit reassignment, added membership, missing explicit selection, zero weights and a legacy no-LOD set; tolerance and seeded distribution semantics have separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership This exported test basename is discovered by the test runner and directly calls portable diff source with code-authored compiled records; its cases do not launch a browser, process or GPU and do not measure renderer cost.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Reshaping one prototype used by 2,392 slots yields one prototype and one).
  */
 export function test_inspection_subject_diff_fanout(): void {
   const tileBefore: IAutoMovieModel = subjectInspectionModel({

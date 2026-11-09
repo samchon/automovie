@@ -16,10 +16,11 @@ import { nclose } from "../internal/nclose";
  * 4. Dot (1,2,3)·(4,5,6) → 32, and the dot of two perpendicular axes is 0, pinning
  *    the orthogonality the projection and lighting math rely on.
  *
- * @evidence contracts/testing.md#behavioral-verification Executes create, add, subtract, scale and dot, asserting each original scalar/vector result and ordered enumerable record fields. Reversed subtraction, missing components or wrong products fail while the original exact arithmetic remains legal.
- * @evidence contracts/testing.md#independent-expectations Per-coordinate integer sums/differences/products give (5,7,9), (3,3,3), (2,4,6) and dot 32; orthogonal basis vectors have zero dot. The observer uses nclose with zero tolerance for numeric leaves and retains structural comparison; it does not generate expectations.
- * @evidence contracts/testing.md#distinguishing-cases Keeps nonzero addition/subtraction/scaling, an ordinary dot and the adjacent orthogonal zero dot. Negative scales, overflow and malformed input are outside this entry; magnitude and normalization have separate tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable named entry directly calls portable Vector3 runtime methods and owns its synchronous assertions. It installs no consumer, builds no native artifact and starts no process, browser or GPU; no cases are dynamically registered.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes create, add, subtract, scale and dot, asserting each original scalar/vector result and ordered enumerable record fields. Reversed subtraction, missing components or wrong products fail while the original exact arithmetic remains legal.
+ * @evidence contracts/development/testing.md#independent-expectations Per-coordinate integer sums/differences/products give (5,7,9), (3,3,3), (2,4,6) and dot 32; orthogonal basis vectors have zero dot. The observer uses nclose with zero tolerance for numeric leaves and retains structural comparison; it does not generate expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps nonzero addition/subtraction/scaling, an ordinary dot and the adjacent orthogonal zero dot. Negative scales, overflow and malformed input are outside this entry; magnitude and normalization have separate tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable named entry directly calls portable Vector3 runtime methods and owns its synchronous assertions. It installs no consumer, builds no native artifact and starts no process, browser or GPU; no cases are dynamically registered.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Add (1,2,3)+(4,5,6) → (5,7,9), the per-component sum.).
  */
 export function test_math_vector3_arithmetic(): void {
   const a: IAutoMovieVector3 = Vector3.create(1, 2, 3);

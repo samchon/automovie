@@ -59,10 +59,11 @@ const trs: (x: number, y: number, z: number) => IAutoMovieTransform = (
  * 3. Malformed component flags reject before truthy/falsy coercion can change
  *    which parent frame components are inherited.
  *
- * @evidence contracts/testing.md#behavioral-verification Applies resolveWorldDrivers parent descriptors and observes inherited world TRS, descendant movement, unchanged owner position with all flags off and malformed/missing-input refusals.
- * @evidence contracts/testing.md#independent-expectations The parent's authored (10,0,0), quarter-turn Y rotation and uniform scale2 are the copied expectations; all-off position retains (3,4,5). The child assertion detects movement but does not independently calculate its full new world transform.
- * @evidence contracts/testing.md#distinguishing-cases All-on/all-off flags contrast inheritance with preservation, with non-boolean flags and missing owner/parent negatives; mixed flags and nonuniform-scale shear are not established by these cases.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_parent_driver entry executes synchronous CPU driver and matrix semantics directly, using existing portable node records without a live scene host or foreign replacement.
+ * @evidence contracts/development/testing.md#behavioral-verification Applies resolveWorldDrivers parent descriptors and observes inherited world TRS, descendant movement, unchanged owner position with all flags off and malformed/missing-input refusals.
+ * @evidence contracts/development/testing.md#independent-expectations The parent's authored (10,0,0), quarter-turn Y rotation and uniform scale2 are the copied expectations; all-off position retains (3,4,5). The child assertion detects movement but does not independently calculate its full new world transform.
+ * @evidence contracts/development/testing.md#distinguishing-cases All-on/all-off flags contrast inheritance with preservation, with non-boolean flags and missing owner/parent negatives; mixed flags and nonuniform-scale shear are not established by these cases.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_parent_driver entry executes synchronous CPU driver and matrix semantics directly, using existing portable node records without a live scene host or foreign replacement.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: All flags on: the owner snaps to the parent's full world frame in position,).
  */
 export function test_resolve_parent_driver(): void {
   const s: number = Math.SQRT1_2;

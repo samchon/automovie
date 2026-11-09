@@ -24,25 +24,19 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * (the clipping of one boundary by another of Weiler and Atherton, Hidden
  * surface removal using polygon area sorting, SIGGRAPH 1977).
  *
- * @evidence contracts/common.md#principled-implementation A rail that crosses faces is clipped into each face as a run that replaces the cycle arc it cuts off, the Weiler-Atherton clipping of one boundary by another.
- * @evidence contracts/common.md#clear-and-simple-design The rail with its crossings, then one clip per run per face.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Reports a failed available side test, but a run without an interior across probe currently defaults to its first candidate; that kept-side validation gap remains.
- * @evidence contracts/common.md#meaningful-documentation States the crossing search, the two candidates and the side test.
- * @evidence contracts/performance.md#efficient-algorithms Crossings use at most forty rail bisections; owner lookup and repeated per-run cycle searches/candidate construction also contribute to the cost.
- * @evidence contracts/performance.md#reuse-equivalent-work Rail points are vertices of the shared mesh, created once.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Replaces cycles in place; scratch arrays end with the call.
+ * @evidence contracts/development/common.md#meaningful-documentation States the crossing search, the two candidates and the side test.
+ * @evidence contracts/development/design.md#principled-representation Represents A host rail laid onto the faces of a body: its points with the crossings between faces, and each face it runs over trimmed by it: companion namespace of 6 members (`IRailPoint`, `BISECTIONS`, `SIDE`, `rail`, `trim`, `clip`); units and frames named in its text: world, local, second. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidClip` in packages/engine/src/geometry/construction/AutoMovieSolidClip.ts; its surface is the 6 members listed and the text shows 3 other files naming it, mostly packages/engine (3), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidClip {
   /**
    * A mesh vertex with its host-rail parameter and one or two incident face charts.
    *
-   * @evidence contracts/common.md#principled-implementation Regular points belong to one face; a placed crossing shares one vertex between two chart readings so clipped face boundaries can refer to the same index.
-   * @evidence contracts/common.md#clear-and-simple-design One record couples the shared mesh index to per-face chart data and the optional side-probe direction.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Two chart readings alone do not certify identical world positions; the crossing builder's finite bisection and atlas premises own that approximation.
-   * @evidence contracts/common.md#meaningful-documentation Gives phase order, face-chart mapping and the absence of an across probe at crossings.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This boundary record executes no bisection or clipping.
-   * @evidence contracts/performance.md#reuse-equivalent-work Both incident faces reuse its single vertex index; regular chart/across tuples may be borrowed from the published blend.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources A retaining caller owns the record/face list/one-or-two-entry map and borrowed tuple references; the mesh separately owns the vertex and surface owner.
+   * @evidence contracts/development/design.md#principled-representation Regular points belong to one face; a placed crossing shares one vertex between two chart readings so clipped face boundaries can refer to the same index.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One record couples the shared mesh index to per-face chart data and the optional side-probe direction.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Two chart readings alone do not certify identical world positions; the crossing builder's finite bisection and atlas premises own that approximation.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives phase order, face-chart mapping and the absence of an across probe at crossings.
    */
   export interface IRailPoint {
     /** Its vertex in the body's mesh. */
@@ -78,13 +72,13 @@ export namespace AutoMovieSolidClip {
    * @param count The blend's columns.
    * @returns The points in rail order, or where a crossing's rail fails.
    *
-   * @evidence contracts/common.md#principled-implementation Samples the host rail at blend columns and bisects each adjacent face change, retaining one low-side world vertex plus both endpoint chart readings for the placed crossing.
-   * @evidence contracts/common.md#clear-and-simple-design One point constructor owns mesh registration and metadata while one ordered column pass owns crossing brackets.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Assumes a supported face transition between adjacent columns; finite bisection and the millionth-column null-rail escape do not independently certify coincident chart positions. A failure can leave inserted vertices until the body caller rolls back.
-   * @evidence contracts/common.md#meaningful-documentation Names atlas-to-body index mapping, column count, rail order, mutation and crossing failure meaning.
-   * @evidence contracts/performance.md#efficient-algorithms C columns and B face changes use O(C) output plus up to 40 rail queries per change, with linear owner-name lookup for inserted points; rail solving/cache costs belong to that caller as well.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses published column charts/across directions and the join's rail cache for bisection queries; each returned crossing has one mesh vertex for both incident faces.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Mesh mutations and O(C+B) returned metadata survive success; on string failure the operation does not undo earlier inserts, while SolidBody.merge's checkpoint restores its arrays/cycles.
+   * @evidence contracts/development/implementation.md#principled-implementation Samples the host rail at blend columns and bisects each adjacent face change, retaining one low-side world vertex plus both endpoint chart readings for the placed crossing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One point constructor owns mesh registration and metadata while one ordered column pass owns crossing brackets.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Assumes a supported face transition between adjacent columns; finite bisection and the millionth-column null-rail escape do not independently certify coincident chart positions. A failure can leave inserted vertices until the body caller rolls back.
+   * @evidence contracts/development/common.md#meaningful-documentation Names atlas-to-body index mapping, column count, rail order, mutation and crossing failure meaning.
+   * @evidence contracts/development/implementation.md#efficient-algorithms C columns and B face changes use O(C) output plus up to 40 rail queries per change, with linear owner-name lookup for inserted points; rail solving/cache costs belong to that caller as well.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses published column charts/across directions and the join's rail cache for bisection queries; each returned crossing has one mesh vertex for both incident faces.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mesh mutations and O(C+B) returned metadata survive success; on string failure the operation does not undo earlier inserts, while SolidBody.merge's checkpoint restores its arrays/cycles.
    */
   export function rail(
     body: AutoMovieSolidBody.IBody,
@@ -184,13 +178,13 @@ export namespace AutoMovieSolidClip {
    * @param kind The rail's kind on a single face (`AutoMovieSolidBlendChain.IBlend.host.kind`).
    * @returns Null, or why a face could not be trimmed.
    *
-   * @evidence contracts/common.md#principled-implementation Splits a multi-face rail into crossing-to-crossing runs, inserts crossings in one existing boundary cycle and builds the two replacement arcs, using an available local across probe to choose the kept side.
-   * @evidence contracts/common.md#clear-and-simple-design The single-face loop case is direct; multi-face runs delegate boundary insertion/candidate selection to one local clip operation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects unsupported run/cycle/probe outcomes, but missing interior probes default to the first candidate without proving the kept side; previous mutations also remain on a later failure until the body owner rolls back.
-   * @evidence contracts/common.md#meaningful-documentation States in-place cycle changes, blend-neighbour identity, single-face kind and nullable error; the evidence records the no-probe validation gap.
-   * @evidence contracts/performance.md#efficient-algorithms Ordered run extraction is linear in rail size, while each run scans candidate face cycles and builds/tests O(C+R) boundary data; repeated runs can revisit an existing boundary rather than sharing a global clipping index.
-   * @evidence contracts/performance.md#reuse-equivalent-work Uses existing rail vertex/chart identities and shared blend-neighbour mappings instead of recomputing a second geometric rail.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The body retains replaced cycles and inserted crossing references; run/candidate scratch is local, and SolidBody.merge owns recovery of partial mutations when a premise string is returned.
+   * @evidence contracts/development/implementation.md#principled-implementation Splits a multi-face rail into crossing-to-crossing runs, inserts crossings in one existing boundary cycle and builds the two replacement arcs, using an available local across probe to choose the kept side.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The single-face loop case is direct; multi-face runs delegate boundary insertion/candidate selection to one local clip operation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rejects unsupported run/cycle/probe outcomes, but missing interior probes default to the first candidate without proving the kept side; previous mutations also remain on a later failure until the body owner rolls back.
+   * @evidence contracts/development/common.md#meaningful-documentation States in-place cycle changes, blend-neighbour identity, single-face kind and nullable error; the evidence records the no-probe validation gap.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Ordered run extraction is linear in rail size, while each run scans candidate face cycles and builds/tests O(C+R) boundary data; repeated runs can revisit an existing boundary rather than sharing a global clipping index.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses existing rail vertex/chart identities and shared blend-neighbour mappings instead of recomputing a second geometric rail.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body retains replaced cycles and inserted crossing references; run/candidate scratch is local, and SolidBody.merge owns recovery of partial mutations when a premise string is returned.
    */
   export function trim(
     body: AutoMovieSolidBody.IBody,

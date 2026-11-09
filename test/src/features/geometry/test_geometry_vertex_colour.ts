@@ -18,10 +18,11 @@ import { vertexColourMesh } from "../internal/vertexColourFixture";
  * 3. A nontrivial spatial deformation moves positions but retains RGB.
  * 4. Topology inspection counts nonfinite colour components independently.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls placement, merging, deformation and topology inspection on resident colored triangles; changed RGB correspondence, borrowed output storage or incorrect nonfinite counts fail.
- * @evidence contracts/testing.md#independent-expectations The fixture authors binary-fraction RGB values and ordered triangle indices, and absent color's multiplicative identity is white; exact copies use nclose with zero tolerance.
- * @evidence contracts/testing.md#distinguishing-cases Mirroring, fresh ownership, colored/bare/nonindexed merges, empty and wholly bare inputs, nontrivial deformation and two nonfinite components are covered; displayed material color belongs to renderer/viewer units.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_geometry_vertex_colour entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls placement, merging, deformation and topology inspection on resident colored triangles; changed RGB correspondence, borrowed output storage or incorrect nonfinite counts fail.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture authors binary-fraction RGB values and ordered triangle indices, and absent color's multiplicative identity is white; exact copies use nclose with zero tolerance.
+ * @evidence contracts/development/testing.md#distinguishing-cases Mirroring, fresh ownership, colored/bare/nonindexed merges, empty and wholly bare inputs, nontrivial deformation and two nonfinite components are covered; displayed material color belongs to renderer/viewer units.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_geometry_vertex_colour entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Mirrored placement preserves ordered RGB and owns its copied buffer.).
  */
 export function test_geometry_vertex_colour(): void {
   const colored: import("@automovie/interface").IAutoMovieMesh =

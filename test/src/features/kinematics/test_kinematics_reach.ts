@@ -68,10 +68,11 @@ const handAt: (pose: IAutoMoviePose) => IAutoMovieVector3 = (
  *    the case is kept because the axis-aligned target is still the one most
  *    likely to expose a degenerate cross product.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs reachPose and replays the returned clinical pose through forward kinematics, catching target misses, incorrect reach-shell extension and failure to reject degenerate chains.
- * @evidence contracts/testing.md#independent-expectations Targets are authored points and the unreachable endpoint is shoulder plus a normalized ray times the independent 0.55 metre segment sum; FK roundtrips share engine rotation algebra and can miss a coordinated solver/FK defect. Conventional code dimensions do not establish living-body capacity.
- * @evidence contracts/testing.md#distinguishing-cases Covers reachable directions, unreachable shell, missing hand, target at shoulder, collapsed segment and vertical reach; arm-chain fault tests own malformed parenting and hinge diagnosis.
- * @evidence contracts/testing.md#execution-ownership This discoverable kinematics function executes portable solvers against code-authored skeleton fixtures; no Human source basis, host process or GPU participates.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs reachPose and replays the returned clinical pose through forward kinematics, catching target misses, incorrect reach-shell extension and failure to reject degenerate chains.
+ * @evidence contracts/development/testing.md#independent-expectations Targets are authored points and the unreachable endpoint is shoulder plus a normalized ray times the independent 0.55 metre segment sum; FK roundtrips share engine rotation algebra and can miss a coordinated solver/FK defect. Conventional code dimensions do not establish living-body capacity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers reachable directions, unreachable shell, missing hand, target at shoulder, collapsed segment and vertical reach; arm-chain fault tests own malformed parenting and hinge diagnosis.
+ * @evidence contracts/development/testing.md#execution-ownership This discoverable kinematics function executes portable solvers against code-authored skeleton fixtures; no Human source basis, host process or GPU participates.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Several reachable targets around the shoulder (forward, down, across, up):).
  */
 export function test_kinematics_reach(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

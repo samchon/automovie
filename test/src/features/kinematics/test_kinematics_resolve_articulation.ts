@@ -35,10 +35,11 @@ const at: (
  * +X vector (0.2,0,0), swings a quarter turn to −Z, so its world position moves
  * from (0.2,1.4,0) at rest to (0,1.4,−0.2).
  *
- * @evidence contracts/testing.md#behavioral-verification Resolves a chest quarter-turn and checks its local rotation plus a child's displaced world position; rotating only the parent record without carrying its subtree fails.
- * @evidence contracts/testing.md#independent-expectations Right-hand Y90 maps the authored plus-X 0.2 offset to minus-Z 0.2 while preserving chest height 1.4. The local quaternion is independently stated by half-angle components, without using the product constructor as expected output.
- * @evidence contracts/testing.md#distinguishing-cases This nonidentity-parent case complements unarticulated rest and root-translation entries; it does not establish every bone/order, scale propagation or malformed graph behavior.
- * @evidence contracts/testing.md#execution-ownership This exported runner entry directly invokes portable FK source on the existing conventional skeleton, with no renderer or graphical host; the checked subtree coordinates are numerical results only.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves a chest quarter-turn and checks its local rotation plus a child's displaced world position; rotating only the parent record without carrying its subtree fails.
+ * @evidence contracts/development/testing.md#independent-expectations Right-hand Y90 maps the authored plus-X 0.2 offset to minus-Z 0.2 while preserving chest height 1.4. The local quaternion is independently stated by half-angle components, without using the product constructor as expected output.
+ * @evidence contracts/development/testing.md#distinguishing-cases This nonidentity-parent case complements unarticulated rest and root-translation entries; it does not establish every bone/order, scale propagation or malformed graph behavior.
+ * @evidence contracts/development/testing.md#execution-ownership This exported runner entry directly invokes portable FK source on the existing conventional skeleton, with no renderer or graphical host; the checked subtree coordinates are numerical results only.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Articulating a bone must rotate its whole subtree, not just itself: the defining property of forward kinematics) as stated in this comment.
  */
 export function test_kinematics_resolve_articulation(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

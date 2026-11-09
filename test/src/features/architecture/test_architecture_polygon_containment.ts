@@ -1,9 +1,11 @@
-import { ViolationCollector } from "@automovie/engine";
-import { appendBuiltRegionDefects } from "@automovie/engine/architecture/appendBuiltRegionDefects";
-import { builtOutlineIsClosed } from "@automovie/engine/architecture/builtOutlineIsClosed";
-import { outlineHull } from "@automovie/engine/architecture/outlineHull";
-import { pointInPolygon } from "@automovie/engine/architecture/pointInPolygon";
-import { polygonInside } from "@automovie/engine/architecture/polygonInside";
+import {
+  ViolationCollector,
+  appendBuiltRegionDefects,
+  builtOutlineIsClosed,
+  outlineHull,
+  pointInPolygon,
+  polygonInside,
+} from "@automovie/engine";
 import {
   IAutoMovieOpeningProfile,
   IAutoMoviePlanarPoint,
@@ -28,10 +30,11 @@ import { TestValidator } from "@nestia/e2e";
  * 8. Reversed winding preserves that bound; outward and two-arc zero-area
  *    chord rings retain their expanded bounds.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls polygonInside and the opening outlineHull, distinguishing vertex-only exits and permitted boundary contact. An admitted inward arc between concave corners must remain enclosed; translating its full edge inward creates an undersized hull and fails the actual arc/interior witness.
- * @evidence contracts/testing.md#independent-expectations The notch host excludes the interval (1,2)-(3,2) and contains y at most1. For the 2m chord/bulge0.5 arc, sagitta0.5 and radius1.25 give centre(1,-0.75), so x0.1 has y=sqrt(1.25^2-0.9^2)-0.75, below0.2; both this boundary and the interior point(0.1,0.2) must be in a conservative hull.
- * @evidence contracts/testing.md#distinguishing-cases Covers concave vertex exits in both windings, flush/identical/convex boundaries, exterior corners, crossings and empty rings, plus a simple positive-area arc profile whose offset hull is also simple. Opening operation and panel placement remain owned by test_architecture_built_opening.
- * @evidence contracts/testing.md#execution-ownership This portable unit is discovered by its exported test_architecture_polygon_containment function and calls a pure planar predicate directly; it registers no dynamic cases and starts no consumer or host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls polygonInside and the opening outlineHull, distinguishing vertex-only exits and permitted boundary contact. An admitted inward arc between concave corners must remain enclosed; translating its full edge inward creates an undersized hull and fails the actual arc/interior witness.
+ * @evidence contracts/development/testing.md#independent-expectations The notch host excludes the interval (1,2)-(3,2) and contains y at most1. For the 2m chord/bulge0.5 arc, sagitta0.5 and radius1.25 give centre(1,-0.75), so x0.1 has y=sqrt(1.25^2-0.9^2)-0.75, below0.2; both this boundary and the interior point(0.1,0.2) must be in a conservative hull.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers concave vertex exits in both windings, flush/identical/convex boundaries, exterior corners, crossings and empty rings, plus a simple positive-area arc profile whose offset hull is also simple. Opening operation and panel placement remain owned by test_architecture_built_opening.
+ * @evidence contracts/development/testing.md#execution-ownership This portable unit is discovered by its exported test_architecture_polygon_containment function and calls a pure planar predicate directly; it registers no dynamic cases and starts no consumer or host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A rectangle crosses the exterior interval between two notch vertices.).
  */
 export function test_architecture_polygon_containment(): void {
   const host: IAutoMoviePlanarPoint[] = [

@@ -44,10 +44,11 @@ const square: (half: number) => Array<{ x: number; y: number }> = (
  * 3. Authored face length, ring perimeter, loft length and revolution circumference yield spans 3, 8, 3 and 6*pi metres.
  * 4. Metric spans differ from a normalized one-unit box, and the developed ring explicitly opens at zero and closes at eight.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the geometry constructors and measures emitted UV inventory, metric spans and the developed region seam; normalized or missing coordinates on an atlas-bearing constructor fail.
- * @evidence contracts/testing.md#independent-expectations The authored face length, rectangle perimeter, loft path and revolution circumference determine spans 3, 8, 3 and 6*pi metres independently of emitted UVs.
- * @evidence contracts/testing.md#distinguishing-cases Four atlas-bearing constructors contrast with three constructors returning null UVs, metric spans contrast with one-unit normalization, and the perimeter seam contrasts zero with eight; binding vocabulary and visual texture sampling are outside this producer-output unit.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_geometry_uv_coordinate_source entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the geometry constructors and measures emitted UV inventory, metric spans and the developed region seam; normalized or missing coordinates on an atlas-bearing constructor fail.
+ * @evidence contracts/development/testing.md#independent-expectations The authored face length, rectangle perimeter, loft path and revolution circumference determine spans 3, 8, 3 and 6*pi metres independently of emitted UVs.
+ * @evidence contracts/development/testing.md#distinguishing-cases Four atlas-bearing constructors contrast with three constructors returning null UVs, metric spans contrast with one-unit normalization, and the perimeter seam contrasts zero with eight; binding vocabulary and visual texture sampling are outside this producer-output unit.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_geometry_uv_coordinate_source entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Region extrusion, the sweep mesh, revolution and polyhedron emit one UV pair per vertex.).
  */
 export function test_geometry_uv_coordinate_source(): void {
   const face: IAutoMovieMesh = buildAutoMoviePolyhedron([

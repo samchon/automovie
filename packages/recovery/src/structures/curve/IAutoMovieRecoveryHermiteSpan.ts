@@ -1,15 +1,12 @@
-import type { IAutoMovieCurve64 } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieCurve64 } from "@automovie/engine";
 
 /**
  * Cubic endpoint data on its enclosing curve's positive phase interval.
  *
- * @evidence contracts/common.md#principled-implementation Endpoint values and first derivatives uniquely determine a cubic on a supplied interval.
- * @evidence contracts/common.md#clear-and-simple-design Named endpoint and derivative fields prevent tangent directions from replacing derivative magnitudes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No sampled points, normalized tangent or inferred vertical width is stored.
- * @evidence contracts/common.md#meaningful-documentation Members state endpoint units and derivative chart.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The interface performs no arithmetic.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The interface owns no cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Coefficients belong to the enclosing artifact.
+ * @evidence contracts/development/design.md#principled-representation Endpoint values and first derivatives uniquely determine a cubic on a supplied interval.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Named endpoint and derivative fields prevent tangent directions from replacing derivative magnitudes.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No sampled points, normalized tangent or inferred vertical width is stored.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state endpoint units and derivative chart.
  */
 export interface IAutoMovieRecoveryHermiteSpan {
   /** Start position, millimetres in the original spatial frame. */
