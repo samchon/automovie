@@ -58,6 +58,6 @@ export function home(stage: PitchStage): AutoMovieComposition {
     camera.alongside([carina, harry], { start: 43, side: "left", view: "front", distance: 4, size: "medium" }),
     camera.shot([stage.snitch], { start: 43.4, size: "close", motion: "follow" }),
     camera.alongside([carina, harry], { start: 44.5, side: "left", view: "front", distance: 4, size: "medium" }),
-    camera.alongside([carina, harry], { start: 53, view: "behind", distance: 4.5, above: 3 }),
+    camera.alongside([carina, harry], { start: 53, view: "behind", distance: 4.5 }),
   );
 }
