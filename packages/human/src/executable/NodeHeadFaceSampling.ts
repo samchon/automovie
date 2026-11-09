@@ -6,7 +6,6 @@ import { NodeHeadOrbit } from "./NodeHeadOrbit";
 import { NodeHeadTrace } from "./NodeHeadTrace";
 
 type V2 = [number, number];
-type V3 = [number, number, number];
 type Row = { start: number; count: number; y: number };
 const phase72: number[] = Array.from({ length: 72 }, (_: unknown, i: number): number => (2 * Math.PI * i) / 72);
 const phase512: number[] = Array.from({ length: 512 }, (_: unknown, i: number): number => (2 * Math.PI * i) / 512);
