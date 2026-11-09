@@ -52,6 +52,9 @@ export namespace RefereeShape {
   /** Share of a raise over which the arm goes up, and again comes down: a tenth, a quick lift that then holds. */
   const RAISE_SHARE: number = 0.1;
 
+  /** How far in front of the shoulders the wave-off's hands cross, as a share of the reach: just ahead of the head so the crossing reads from the side. */
+  const WAVE_FORWARD: number = 0.2;
+
   /** Crossings of the arms over the head in the knockout wave-off: crossed and opened twice (WAKO and GLORY practice). */
   const WAVES: number = 2;
 
@@ -233,7 +236,7 @@ export namespace RefereeShape {
         const cross: number = Math.cos(2 * Math.PI * WAVES * s);
         const over = (side: 1 | -1): { point: IAutoMovieVector3 } => ({
           point: {
-            x: reach * 0.2,
+            x: reach * WAVE_FORWARD,
             y: shoulder + reach * RAISE_HEIGHT,
             z: side * measure.shoulderHalfWidth * 2 * cross,
           },
