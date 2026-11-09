@@ -38,6 +38,12 @@ export class StudentPolygon {
 
   private readonly forward: THREE.Vector3;
 
+  /** Rig points on every bone's joint, shown by default. */
+  private readonly rigPoints: THREE.Points;
+
+  /** Rig lines from every bone to its parent, shown by default. */
+  private readonly rigLines: THREE.LineSegments;
+
   /**
    * Build the figure.
    *
@@ -54,6 +60,20 @@ export class StudentPolygon {
     });
     this.object = this.figure.object;
     this.object.scale.setScalar(this.human.scale);
+
+    // The rig shows by default: a point on every bone's joint and a line to its parent, over the surface.
+    const count: number = neutral.bones.length;
+    this.rigPoints = new THREE.Points(
+      new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(new Float32Array(count * 3), 3)),
+      new THREE.PointsMaterial({ color: 0x101010, size: 5, sizeAttenuation: false, depthTest: false }),
+    );
+    this.rigLines = new THREE.LineSegments(
+      new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(new Float32Array(count * 6), 3)),
+      new THREE.LineBasicMaterial({ color: 0xffe14d, depthTest: false }),
+    );
+    this.rigPoints.renderOrder = 11;
+    this.rigLines.renderOrder = 10;
+    this.object.add(this.rigLines, this.rigPoints);
     const at = (bone: string): THREE.Vector3 => position(neutral, bone) ?? new THREE.Vector3();
     const left: THREE.Vector3 = at("leftUpperLeg").sub(at("rightUpperLeg")).normalize();
     this.forward = new THREE.Vector3().crossVectors(left, UP).normalize();
@@ -175,10 +195,30 @@ export class StudentPolygon {
       posed.push({ bone: bone.bone, position: [at.x, at.y, at.z], rotation: [q.x, q.y, q.z, q.w] });
     });
     this.figure.place({ posed });
+
+    // The rig follows the same posed joints the surface was placed from.
+    const points: THREE.BufferAttribute = this.rigPoints.geometry.getAttribute("position") as THREE.BufferAttribute;
+    const lines: THREE.BufferAttribute = this.rigLines.geometry.getAttribute("position") as THREE.BufferAttribute;
+    neutral.bones.forEach((bone: AutoMovieHumanSkeleton.IBone, i: number): void => {
+      const at: THREE.Vector3 = positions[i]!;
+      const parent: number | undefined = bone.parent === null ? undefined : index.get(bone.parent);
+      const from: THREE.Vector3 = parent === undefined ? at : positions[parent]!;
+      points.setXYZ(i, at.x, at.y, at.z);
+      lines.setXYZ(i * 2, from.x, from.y, from.z);
+      lines.setXYZ(i * 2 + 1, at.x, at.y, at.z);
+    });
+    points.needsUpdate = true;
+    lines.needsUpdate = true;
+    this.rigPoints.geometry.computeBoundingSphere();
+    this.rigLines.geometry.computeBoundingSphere();
   }
 
   /** Release the figure. */
   public dispose(): void {
+    for (const rig of [this.rigPoints, this.rigLines]) {
+      rig.geometry.dispose();
+      (rig.material as THREE.Material).dispose();
+    }
     this.figure.dispose();
     this.object.removeFromParent();
   }
