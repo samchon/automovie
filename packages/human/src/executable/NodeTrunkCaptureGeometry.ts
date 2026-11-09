@@ -23,6 +23,7 @@ export namespace NodeTrunkCaptureGeometry {
   /** Section order and ring samples: S00's (`AutoMovieHumanTrunkS00.of`: order 64, 160 samples). */
   export const LOFT: { order: number; samples: number } = { order: 64, samples: 160 };
 
+  /** Project a world vector onto an arm-plane direction, or compare their orientation. */
   export function armDot(a: V3, b: V3): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }

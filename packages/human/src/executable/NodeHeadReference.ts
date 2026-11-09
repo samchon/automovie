@@ -111,7 +111,7 @@ export namespace NodeHeadReference {
   export function attachOriginalJunctions(capture: CaptureModel.IPart, archive: string, mesh: AutoMovieMeshExtract.IMesh, chains: readonly IAutoMovieLoftChain[], axis: AutoMovieViewAxis.IAxis | undefined, forehead: Junction | null): void {
     if (capture.loft.status !== "available") return;
     // The observed right orbitale in the F1 head measurement, in capture world millimetres.
-    capture.ports.push({ name: "orbit", frame: "world", point: [103.44128859022192, 1579.628451098783, 31.07267043229048], radius: 53 });
+    capture.ports.push({ name: "orbit", point: [103.44128859022192, 1579.628451098783, 31.07267043229048], radius: 53 });
     const layouts: Layout[] = [
       // Ordinal 1 is a separate inner oral wall at these ear sections.
       { name: "ear junction", file: "sections/head/004.json", first: 933, ordinals: [[0, 2, 3], [0, 2], [0, 2], [0]], events: ["critical.403", "critical.404"], seams: [
@@ -138,10 +138,10 @@ export namespace NodeHeadReference {
     if (forehead !== null)
       report(capture, [forehead.receipt, ...stitchJunction(capture.loft, forehead, [{ chain: "head.vault", end: "bottom", rail: "forehead:top" }], chains, mesh),
         "the lower forehead rail remains open at the observed eye interval"].join("\n"));
-    const lastNeck: IAutoMovieLoftChain | undefined = chains.findLast((chain: IAutoMovieLoftChain): boolean => (chain.name ?? "").startsWith("head.neck."));
+    const lastNeck: IAutoMovieLoftChain | undefined = chains.filter((chain: IAutoMovieLoftChain): boolean => (chain.name ?? "").startsWith("head.neck.")).at(-1);
     try {
       const mouth: ReturnType<typeof NodeHeadJunction.mouth> = NodeHeadJunction.mouth(archive, mesh);
-      capture.ports.push({ name: "mouth", frame: "world", point: mouth.lip, radius: 42 });
+      capture.ports.push({ name: "mouth", point: mouth.lip, radius: 42 });
       const seams: Seam[] = [{ chain: "head.face", end: "bottom", rail: "mouth:last" }];
       if (axis !== undefined && lastNeck !== undefined)
         seams.unshift({ chain: lastNeck.name!, end: "top", rail: "mouth:first", station: lastNeck.layers.at(-1)!.y });

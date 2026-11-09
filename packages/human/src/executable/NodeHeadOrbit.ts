@@ -177,7 +177,7 @@ export namespace NodeHeadOrbit {
   }
 
   /** Recover the native exterior through exact UV duplicates without joining separated surfaces by proximity. */
-  function skin(mesh: AutoMovieMeshExtract.IMesh): CaptureModel.ITriangles {
+  export function skin(mesh: AutoMovieMeshExtract.IMesh): CaptureModel.ITriangles {
     const ids: Map<string, number> = new Map();
     const positions: number[] = [];
     const vertex: number[] = [];

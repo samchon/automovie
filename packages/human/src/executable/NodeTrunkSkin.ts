@@ -17,12 +17,17 @@ type ShoulderSkin = NodeTrunkArmscye.ShoulderSkin;
 
 const { exactReferenceVertices, readNeck, withoutClosingMarker }: typeof NodeTrunkArchive = NodeTrunkArchive;
 
-const { armDot, indexedTrunkReceipt, increasingPhase, edgeSense, medianReference, drawn, angle, add, sub, scale, cross, STEP, LOFT }: typeof NodeTrunkCaptureGeometry = NodeTrunkCaptureGeometry;
+const { armDot, indexedTrunkReceipt, increasingPhase, edgeSense, medianReference, drawn, add, sub, scale, cross, STEP, LOFT }: typeof NodeTrunkCaptureGeometry = NodeTrunkCaptureGeometry;
 
 /** Connect archived trunk sections with the measured fork, neck and shoulders. */
 export namespace NodeTrunkSkin {
   /** Original open upper-chest chains and endpoints shown in the joins capture. */
-  export type UpperCuts = { lines: CaptureModel.ILine[]; ports: CaptureModel.IPort[] };
+  export type UpperCuts = {
+    /** The measured open source chains displayed in the join inspection. */
+    lines: CaptureModel.ILine[];
+    /** Close-up camera targets at the original cut endpoints. */
+    ports: CaptureModel.IPort[];
+  };
 
   /** Join the original trunk rails, including the observed waist where the native comparison exceeded tolerance. */
   export function connectedArchive(

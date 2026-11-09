@@ -17,13 +17,28 @@ type V3 = CaptureModel.Vec3;
 export namespace NodeArmFingerFan {
   /** One observed native-world cut and its closed original curve. */
   export interface IPhysicalDigitRow {
+    /** Recorded archive row label for matching the course's original sections. */
     station: number;
+
+    /** Distance along the recorded digit course in millimetres. */
     stationMm: number;
+
+    /** Cutting-plane origin in native reference-world millimetres. */
     originMm: V3;
+
+    /** Observed unit cutting-plane normal in native reference-world axes. */
     normal: V3;
+
+    /** First unit tangent of the original section chart in native reference-world axes. */
     u: V3;
+
+    /** Second unit tangent in the original section chart's handedness. */
     v: V3;
+
+    /** Signed cut coordinate in millimetres used to recover the source slab. */
     coordinateMm: number;
+
+    /** Closed source Bézier contours in native reference-world millimetres. */
     loops: { curve: IAutoMovieCurve64.Cubic }[];
   }
 
@@ -34,8 +49,13 @@ export namespace NodeArmFingerFan {
 
   /** The actual generated branch, its proximal opening, and its four owned distal openings. */
   export interface IResult {
+    /** Indexed fan loft in native reference-world metres, with its connection rims open. */
     mesh: CaptureModel.ITriangles;
+
+    /** Ordered palm-side boundary vertices in native reference-world metres, with implicit closure. */
     proximal: V3[];
+
+    /** Four separately owned digit boundaries in native reference-world metres, with implicit closure. */
     distal: Readonly<Record<"index" | "middle" | "ring" | "pinky", V3[]>>;
   }
 

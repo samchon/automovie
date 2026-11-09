@@ -8,6 +8,7 @@ import type { CaptureModel } from "../inspection/CaptureModel";
 import { CaptureSpecs } from "../inspection/CaptureSpecs";
 import { HumanNodePaths } from "./HumanNodePaths";
 import type { NodeCaptureSources } from "./NodeCaptureSources";
+import { NodeHeadFaceSampling } from "./NodeHeadFaceSampling";
 import { NodeHeadReference } from "./NodeHeadReference";
 import { NodeHeadTrace } from "./NodeHeadTrace";
 import { NodeTrunkCaptureSource } from "./NodeTrunkCaptureSource";
@@ -57,10 +58,8 @@ interface IContour {
 export namespace NodeHeadCaptureSource {
   /** The common neck boundary with the trunk in her world, mm. */
   const BASE: number = 1458;
-
   /** The local raw submental study bounds bracket the two-loop cut. */
   const FLOOR: number = 1477;
-
   /** Native head pitch measured in the F1 head receipt, radians. */
   const PITCH: number = 5.5127455104162655 * Math.PI / 180;
 
@@ -73,7 +72,7 @@ export namespace NodeHeadCaptureSource {
     files: [
       "packages/human/src/executable/NodeHeadCaptureSource.ts",
       "packages/human/src/executable/NodeTrunkReference.ts",
-      "packages/human/src/executable/NodeHeadTrace.ts",
+      "packages/human/src/executable/NodeHeadTrace.ts", "packages/human/src/executable/NodeHeadFaceSampling.ts",
       "packages/human/src/executable/NodeHeadReference.ts", "packages/human/src/executable/NodeHeadJunction.ts", "packages/human/src/executable/NodeHeadOrbit.ts",
       "packages/human/src/executable/NodeTrunkCaptureSource.ts",
       "packages/human/src/executable/NodeTrunkArchive.ts",
@@ -191,6 +190,7 @@ export namespace NodeHeadCaptureSource {
       reference: { status: "available", mesh: display(her), cropToLoft: false, measures: { neckPlaneY: BASE, jawChartEndY: boundary }, method: "F1's original head and neck triangles in mm with Z negated" },
       milliseconds: { ...neck?.ms, head: performance.now() - started },
     });
+    NodeHeadFaceSampling.refine(capture, mesh, chains);
     const canonicalNeck: V3[] | null = await NodeTrunkCaptureSource.neckBoundary(mesh);
     NodeHeadTrace.attachNeck(capture, canonicalNeck, mesh, neckDomains.some((domain: Domain): boolean => domain.span[0] === 0 && domain.loft?.chain === chains[0]));
     NodeHeadReference.attachOriginalJunctions(capture, ARCHIVE, mesh, chains, local?.axis, forehead);
@@ -303,7 +303,7 @@ export namespace NodeHeadCaptureSource {
     const vault: IContour[] = pick(CaptureSpecs.steps(1604, 1698, 5), "head");
     const shown: IContour[] = [
       ...pick([1464, 1478, 1518, 1521.930809021, 1540, 1574, 1584.39590454102, 1596.1820602416992, 1604, 1654, 1698], "head"),
-      ...pick([1547.258644104004, 1550.6594848632812, 1555.3087615966797, 1563.79025131464], "head"),
+      ...pick([1547.258644104004, 1550.6594848632813, 1555.3087615966797, 1563.79025131464], "head"),
       ...pick([1543.1770324707031], "head", -1),
       ...pick([1541.095314025879], "head", 1),
       ...pick([1518, 1540, 1574, 1604], "head_detail"),

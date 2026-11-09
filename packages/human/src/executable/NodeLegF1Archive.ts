@@ -55,9 +55,13 @@ export namespace NodeLegF1Archive {
     station: number;
     /** Origin displacement along the family's first plane normal, in millimetres. */
     stationMm: number;
+    /** Plane origin in the original archive's world coordinates, in millimetres. */
     originMm: V3;
+    /** First unit chart axis in the original archive's world coordinates. */
     u: V3;
+    /** Second unit chart axis in the original archive's world coordinates. */
     v: V3;
+    /** Hermite observations in archive world millimetres, with closure recorded by each loop's kind. */
     loops: { kind: string; curve: { phaseIntervals: number[]; spans: ISpan[] } }[];
   }
 

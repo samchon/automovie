@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import { AutoMovieContourLoftCurves64, AutoMovieMeshCourse, AutoMovieMeshExtract, type IAutoMovieContourLoft64, type IAutoMovieCurve64, tessellateAutoMovieContourLoft64, tessellateAutoMovieContourStrip64 } from "@automovie/engine";
+import { AutoMovieContourLoftCurves64, AutoMovieMeshCourse, AutoMovieMeshExtract, type IAutoMovieContourLoft64, tessellateAutoMovieContourLoft64, tessellateAutoMovieContourStrip64 } from "@automovie/engine";
 
 import { AutoMovieHumanF1Trace } from "../generation/AutoMovieHumanF1Trace";
 import { AutoMovieHumanArmCurveSpec } from "../generation/arm/AutoMovieHumanArmCurveSpec";
@@ -22,13 +22,27 @@ const { armDot, armBoundaryGap, indexedTrunkReceipt, increasingPhase, edgeSense,
 /** Trace the measured F1 armscye and shared distal arm rim. */
 export namespace NodeTrunkArmscye {
   /** One original trunk rail and its positions in the emitted shoulder skin. */
-  export type TrunkRail = { station: number; points: V3[]; indices: number[]; direction: number };
+  export type TrunkRail = {
+    /** Height of the archived horizontal rail in millimetres. */
+    station: number;
+    /** Ordered capture-world points in millimetres. */
+    points: V3[];
+    /** Position indices in the emitted shoulder mesh in the same order. */
+    indices: number[];
+    /** Signed directed use of the rail by the retained shoulder triangles. */
+    direction: number;
+  };
   /** Shoulder patch and its two ordered trunk attachment rails, when available. */
-  export type ShoulderSkin = { part: CaptureModel.IPart; rails: [TrunkRail, TrunkRail] | null };
+  export type ShoulderSkin = {
+    /** Generated shoulder skin and its original comparison and measurement lines. */
+    part: CaptureModel.IPart;
+    /** Qualified lower and upper attachment rails, or null when either is unavailable. */
+    rails: [TrunkRail, TrunkRail] | null;
+  };
 
   /** Exercise the two observed arm merges in the original horizontal charts. */
   export async function armscye(name: string, mesh: AutoMovieMeshExtract.IMesh, ms: Record<string, number>): Promise<ShoulderSkin> {
-    type SavedCurve = Omit<IAutoMovieCurve64.Cubic, "spans"> & { spans: HermiteSpan[] };
+    type SavedCurve = NodeTrunkArchive.TrunkStation["loops"][number]["curve"];
     type SavedSection = { index: number; coordinateMm: number; curves: { ordinal: number; kind: string; winding: 1 | -1; curve: SavedCurve }[] };
     type SavedLink = { beforeMm: number; afterMm: number; groups: [number[], number[]][]; unsupported: Record<string, number> };
     const started: number = performance.now();

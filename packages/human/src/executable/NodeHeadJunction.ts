@@ -20,19 +20,29 @@ type IArchive = { source: SavedRow[]; links: SavedLink[]; loft: { events: IAutoM
 export namespace NodeHeadJunction {
   /** A declared subset of native section rows and events. */
   export interface ILayout {
+    /** Name used in diagnostics for this source junction. */
     name: string;
+    /** Path to the original region rows, relative to the F1 archive. */
     file: string;
+    /** Global index of the first published section. */
     first: number;
+    /** Ordered original contour ordinals retained at each section. */
     ordinals: number[][];
+    /** Original critical events allowed in this section range. */
     events: string[];
   }
 
   /** Exact indexed output and its original rail identities in the capture world. */
   export interface IResult {
+    /** Tessellated physical surface in the capture world, in millimetres. */
     clay: CaptureModel.ITriangles;
+    /** Observed construction lines and their original contour identities. */
     lines: CaptureModel.ILine[];
+    /** Ordered vertex indices into clay for each complete source rim. */
     rails: Map<string, number[]>;
+    /** Source ranges, topology results, and measured refusals. */
     receipt: string;
+    /** Whether the selected original groups emitted their required surface. */
     qualified: boolean;
   }
 
@@ -52,7 +62,8 @@ export namespace NodeHeadJunction {
       try {
         const minimum = loft.events.find((event): boolean => event.name === birth && event.kind === "minimum" && event.regular);
         const maximum = loft.events.find((event): boolean => event.name === death && event.kind === "maximum" && event.regular);
-        if (minimum?.terminal == null || maximum?.terminal == null) throw new Error("the original regular globe endpoints are unavailable");
+        if (minimum === undefined || minimum.terminal === null || maximum === undefined || maximum.terminal === null)
+          throw new Error("the original regular globe endpoints are unavailable");
         const first: number = links.findIndex((link: SavedLink): boolean => link.beforeMm === minimum.beforeMm && link.afterMm === minimum.afterMm);
         const last: number = links.findIndex((link: SavedLink): boolean => link.beforeMm === maximum.beforeMm && link.afterMm === maximum.afterMm);
         const ordinals: number[][] = globeOrdinals(links, first, last, minimum, maximum);
@@ -189,7 +200,7 @@ export namespace NodeHeadJunction {
     return result;
   }
 
-  function world([x, y, z]: V3): V3 {
+  function world([x, y, z]: IAutoMovieCurve64.Vector): V3 {
     return [x, y, -z];
   }
 
@@ -336,11 +347,11 @@ export namespace NodeHeadJunction {
     });
     if (events.length !== layout.events.length || events.some((event: IAutoMovieContourLoft64.IEvent): boolean => !event.regular))
       throw new Error("the published regular original events are unavailable");
-    const terminal: V3 | null | undefined = layout.name === "crown closure"
-      ? events.find((event: IAutoMovieContourLoft64.IEvent): boolean => event.kind === "maximum")?.terminal : undefined;
+    const terminal: IAutoMovieCurve64.Vector | null = layout.name === "crown closure"
+      ? events.find((event: IAutoMovieContourLoft64.IEvent): boolean => event.kind === "maximum")?.terminal ?? null : null;
     let inserted: number = 0;
     let refusedCuts: string = "";
-    if (terminal != null)
+    if (terminal !== null)
       try {
         inserted = crownCuts(mesh, sections, intervals, terminal);
       } catch (error) {
@@ -349,16 +360,15 @@ export namespace NodeHeadJunction {
     const positions: number[] = [];
     const indices: number[] = [];
     const lines: CaptureModel.ILine[] = [];
-    const emitted: Map<V3, number> = new Map();
+    const emitted: Map<IAutoMovieCurve64.Vector, number> = new Map();
     const rails: Map<string, number[]> = new Map();
-    const original = ([x, y, z]: V3): V3 => [x, y, -z];
     const result = generateAutoMovieContourLoft64({ sections, intervals, events, chordToleranceMm: loft.chordToleranceMm }, {
-      vertex: (index: number, point: V3): void => { emitted.set(point, index); positions.push(...original(point)); },
+      vertex: (index: number, point: IAutoMovieCurve64.Vector): void => { emitted.set(point, index); positions.push(...world(point)); },
       triangle: (a: number, b: number, c: number): void => { indices.push(a, c, b); },
-      construction: (id: string, points: readonly V3[]): void => {
-        lines.push({ id, points: points.map(original), closed: true, colour: "9e4c74" });
+      construction: (id: string, points: readonly IAutoMovieCurve64.Vector[]): void => {
+        lines.push({ id, points: points.map(world), closed: true, colour: "9e4c74" });
         const key: RegExpExecArray | null = /\.section\.(\d+)\.loop\.(\d+)$/.exec(id);
-        const rail: (number | undefined)[] = points.map((point: V3): number | undefined => emitted.get(point));
+        const rail: (number | undefined)[] = points.map((point: IAutoMovieCurve64.Vector): number | undefined => emitted.get(point));
         if (key !== null && rail.every((index: number | undefined): index is number => index !== undefined))
           rails.set(`${key[1]}:${key[2]}`, rail);
       },
@@ -368,7 +378,7 @@ export namespace NodeHeadJunction {
       indices.slice(3 * range.firstTriangle, 3 * (range.firstTriangle + range.triangleCount)),
     );
     const clay: CaptureModel.ITriangles = { positions, indices: retained };
-    const crown: string = terminal == null ? "" : `; ${inserted} raw middle sections, ${crownResidual(mesh, clay, sections, terminal)}`;
+    const crown: string = terminal === null ? "" : `; ${inserted} raw middle sections, ${crownResidual(mesh, clay, sections, terminal)}`;
     const independent: string = exterior === null ? "" : `; ${exterior.length}/${intervals.length} central exterior strips qualified; ${retained.length / 3} central triangles retained; ${independentWindingChanges(layout, sections, intervals)}`;
     const receipt: string = `${layout.name}, ${sections.length} original or raw rows: ${events.map((event: IAutoMovieContourLoft64.IEvent): string => `${event.name} at ${event.coordinateMm} mm`).join(", ")}; ${indices.length / 3} original-contour triangles; ${result.unresolved.length} unresolved groups ${JSON.stringify(result.unresolved)}${crown}${refusedCuts}${independent}`;
     return { clay, lines, rails, receipt, qualified: indices.length > 0 && (exterior === null ? result.unresolved.length === 0 : exterior.length === intervals.length) };
@@ -406,7 +416,7 @@ export namespace NodeHeadJunction {
   }
 
   /** Insert physical cuts inside the original crown's one-to-one interval. */
-  function crownCuts(mesh: AutoMovieMeshExtract.IMesh, sections: IAutoMovieContourLoft64.ISection[], intervals: IAutoMovieContourLoft64.IInterval[], terminal: V3): number {
+  function crownCuts(mesh: AutoMovieMeshExtract.IMesh, sections: IAutoMovieContourLoft64.ISection[], intervals: IAutoMovieContourLoft64.IInterval[], terminal: IAutoMovieCurve64.Vector): number {
     const a: number = sections[0]!.coordinateMm;
     const b: number = sections[1]!.coordinateMm;
     const count: number = Math.ceil((b - a) / 0.5);
@@ -443,11 +453,11 @@ export namespace NodeHeadJunction {
     return middle.length;
   }
 
-  function horizontalPlane(y: number, nativeCentre: V3): AutoMovieMeshCourse.IPlane {
+  function horizontalPlane(y: number, nativeCentre: IAutoMovieCurve64.Vector): AutoMovieMeshCourse.IPlane {
     return { station: y, origin: [nativeCentre[0], y, -nativeCentre[2]], u: [1, 0, 0], v: [0, 0, 1] };
   }
 
-  function crownResidual(mesh: AutoMovieMeshExtract.IMesh, clay: CaptureModel.ITriangles, sections: readonly IAutoMovieContourLoft64.ISection[], terminal: V3): string {
+  function crownResidual(mesh: AutoMovieMeshExtract.IMesh, clay: CaptureModel.ITriangles, sections: readonly IAutoMovieContourLoft64.ISection[], terminal: IAutoMovieCurve64.Vector): string {
     const planes: AutoMovieMeshCourse.IPlane[] = sections.slice(1, -1).map((section: IAutoMovieContourLoft64.ISection, i: number): AutoMovieMeshCourse.IPlane =>
       horizontalPlane((sections[i]!.coordinateMm + section.coordinateMm) / 2, terminal),
     );

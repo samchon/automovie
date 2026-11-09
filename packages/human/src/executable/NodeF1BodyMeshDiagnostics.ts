@@ -6,8 +6,11 @@ type V3 = [number, number, number];
 export namespace NodeF1BodyMeshDiagnostics {
   /** Results used in the existing body report and acceptance gates. */
   export interface IResult {
+    /** Finding counts by defect kind and by the construction face involved. */
     mesh: Record<string, { count: number; byFace: Record<string, number> }>;
+    /** World-mm crossing bounds, median, and partner counts for each first face. */
     where: Record<string, { box: [V3, V3]; median: V3; partners: Record<string, number> }>;
+    /** Signed enclosed volume in cubic millimetres, positive for outward winding. */
     enclosed: number;
   }
 

@@ -21,7 +21,7 @@ type UpperCuts = NodeTrunkSkin.UpperCuts;
 
 const { archiveRows, archiveCurve, archiveAxis, exactReferenceVertices, forkTransition }: typeof NodeTrunkArchive = NodeTrunkArchive;
 
-const { medianReference, drawn, wire, angle, add, sub, scale, cross, MID, STEP, LOFT }: typeof NodeTrunkCaptureGeometry = NodeTrunkCaptureGeometry;
+const { medianReference, drawn, wire, add, sub, scale, cross, MID, STEP, LOFT }: typeof NodeTrunkCaptureGeometry = NodeTrunkCaptureGeometry;
 
 const { connectedArchive }: typeof NodeTrunkSkin = NodeTrunkSkin;
 

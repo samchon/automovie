@@ -14,6 +14,9 @@ import { NodeTrunkWaist } from "./NodeTrunkWaist";
 
 type V3 = CaptureModel.Vec3;
 type Spec = AutoMovieHumanArmCurveSpec.ICurveSpec;
+type ArmRoot = NodeTrunkArchive.ArmRoot;
+type TrunkLoop = NodeTrunkArchive.TrunkStation["loops"][number];
+type HermiteSpan = TrunkLoop["curve"]["spans"][number];
 
 type ShoulderSkin = NodeTrunkArmscye.ShoulderSkin;
 
@@ -168,7 +171,11 @@ export namespace NodeTrunkCaptureSource {
       const fork: AutoMovieHumanF1Fork.IResult = AutoMovieHumanF1Fork.read(mesh, midline(her.points));
       const aboveFork: number = Math.max(...fork.ring.map((point: V3): number => point[1]));
       const armRows: ArmRoot[] = await armRoots();
-      const heights: number[] = armRows.flatMap((row: TrunkStation): number[] => row.loops.flatMap((loop): number[] => loop.curve.spans.map((span: HermiteSpan): number => span.start[1])));
+      const heights: number[] = armRows.flatMap((row: ArmRoot): number[] =>
+        row.loops.flatMap((loop: TrunkLoop): number[] =>
+          loop.curve.spans.map((span: HermiteSpan): number => span.start[1]),
+        ),
+      );
       const shoulder: ShoulderSkin = await armscye("trunk.armscye", mesh, ms);
       return waist(name, mesh, ms, [aboveFork, 1458], { fork, armscye: [Math.min(...heights), Math.max(...heights)], shoulder });
     }

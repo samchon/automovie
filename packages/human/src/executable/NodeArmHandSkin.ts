@@ -19,7 +19,6 @@ import { NodeArmFingerFan } from "./NodeArmFingerFan";
 /** Assemble native hand and digit surfaces on their observed world-space rims. */
 export namespace NodeArmHandSkin {
   type V3 = CaptureModel.Vec3;
-  type V2 = [number, number];
   type Digit = "thumb" | "index" | "middle" | "ring" | "pinky";
 
   interface IInput {

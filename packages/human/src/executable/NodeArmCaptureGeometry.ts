@@ -94,9 +94,16 @@ export namespace NodeArmCaptureGeometry {
 
   /** Original contours up to a measured whole-hand termination. */
   export interface IPalmArchive {
+    /** Ordered source and measured collar cuts ending at the whole-hand plane. */
     rows: IReferenceSection[];
+
+    /** Last whole-hand ring in capture-world millimetres, with implicit closure. */
     outline: V3[];
+
+    /** Last whole-hand cutting plane origin in capture-world millimetres. */
     end: V3;
+
+    /** Capture diagnostic naming the terminal plane, measured area, and raw cut flags. */
     receipt: string;
   }
 
@@ -366,12 +373,25 @@ export namespace NodeArmCaptureGeometry {
 
   /** One Bézier section and its cutting chart in native world millimetres. */
   export interface IReferenceSection {
+    /** Source row label, with a fractional label for an inserted measured collar cut. */
     station: number;
+
+    /** Distance along the source course in millimetres, used to index the axis. */
     stationMm: number;
+
+    /** Signed cutting-plane coordinate in millimetres in the section's observation chart. */
     coordinateMm: number;
+
+    /** Cutting-plane origin in native reference-world millimetres. */
     originMm: V3;
+
+    /** First unit tangent of the cutting plane in native reference-world axes. */
     u: V3;
+
+    /** Second unit tangent of the cutting plane in the reference chart's handedness. */
     v: V3;
+
+    /** Source contours in native reference-world millimetres with their observed closure kind. */
     loops: { kind: string; curve: IAutoMovieCurve64.Cubic }[];
   }
 
@@ -437,6 +457,7 @@ export namespace NodeArmCaptureGeometry {
     };
   }
 
+  /** Convert native reference axes to capture-world axes by reflecting Z at the same scale. */
   export function world([x, y, z]: IAutoMovieCurve64.Vector): V3 {
     return [x, y, -z];
   }
@@ -449,6 +470,7 @@ export namespace NodeArmCaptureGeometry {
     return [p[0] * factor, p[1] * factor, p[2] * factor];
   }
 
+  /** Displacement from b to a in their shared frame and units. */
   export function difference(a: V3, b: V3): V3 {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
@@ -456,8 +478,13 @@ export namespace NodeArmCaptureGeometry {
 
   /** Isolated raw-mesh tip and its observed neighbouring coordinates. */
   export interface IReferenceTerminal {
+    /** Whether the raw-mesh maximum qualifies as a single point for a loft cap. */
     singleTipQualified: boolean;
+
+    /** Terminal plane coordinate and its raw-mesh extremal points in native world millimetres. */
     maximum: { coordinateMm: number; pointsMm: V3[] };
+
+    /** Observed plane coordinates in millimetres, including a cut beyond the maximum. */
     coordinatesMm: number[];
   }
 }

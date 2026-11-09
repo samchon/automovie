@@ -35,9 +35,13 @@ export namespace NodeLegF1Loft {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps this source contract with its region owner.
    */
   export type ILegFork = {
+    /** The measured parent fork plane in native world millimetres. */
     parent: AutoMovieHumanF1Fork.IResult["parentPlane"];
+    /** The Newell plane and area centroid of this leg's closed half-ring in native world millimetres. */
     half: AutoMovieHumanF1Fork.IResult["leftPlane"];
+    /** The sign of this leg's native world Z displacement from the midline. */
     direction: number;
+    /** The native world Z coordinate of the sagittal split, in millimetres. */
     midline: number;
   };
 
@@ -262,7 +266,7 @@ export namespace NodeLegF1Loft {
     }
     if (legFork !== undefined && fork !== null) {
       const last = stations[stations.length - 1]!;
-      const from = previous?.station ?? stations[0]!;
+      const from = previous === undefined ? stations[0]! : previous.station;
       const phases = previous?.row.length ?? 72;
       let row: IRing;
       if (previous === undefined) {
@@ -328,7 +332,7 @@ export namespace NodeLegF1Loft {
       diagnostics.push(`Ordinary leg from ${sections[0]!.toFixed(3)} to ${sections[sections.length - 1]!.toFixed(3)} mm: ${departures.length}/${midpoints.length} same-plane midpoint sections; ${worst === undefined ? "no contour deviation read" : `median ${departures[Math.floor(departures.length / 2)]!.error.toFixed(3)} mm, maximum ${worst.error.toFixed(3)} mm at ${worst.station.toFixed(3)} mm`}.`);
     } else if (toeTip !== undefined || distalRim !== undefined) {
       const phases = previous?.row.length ?? 72;
-      const start = previous?.station ?? stations[0]!;
+      const start = previous === undefined ? stations[0]! : previous.station;
       const remaining = stations.filter((s): boolean => s >= start);
       let endRow = previous?.row;
       if (remaining.length > 1) {

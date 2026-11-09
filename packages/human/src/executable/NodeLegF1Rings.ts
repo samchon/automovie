@@ -34,10 +34,15 @@ export namespace NodeLegF1Rings {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps this source contract with its region owner.
    */
   export interface IOrdinaryInterval {
+    /** Course stations of the interval, in millimetres. */
     stations: number[];
+    /** Whether the join uses its observed contour rings. */
     observed: boolean;
+    /** Shared-edge and tangent inspection at the proximal seam. */
     entry: ISeamInspection;
+    /** Shared-edge and tangent inspection at the distal seam. */
     exit: ISeamInspection;
+    /** Connection modes at the proximal and distal seams, in that order. */
     modes: [string, string];
   }
 
@@ -220,7 +225,12 @@ export namespace NodeLegF1Rings {
    *
    * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps this source contract with its region owner.
    */
-  export type IRing = { station: number; row: number[] };
+  export type IRing = {
+    /** Course station of the ring, in millimetres. */
+    station: number;
+    /** Ordered world vertex indices with an implicit closing edge from last to first. */
+    row: number[];
+  };
 
   /**
    * Intersect one chart ray with a closed contour that contains its origin.

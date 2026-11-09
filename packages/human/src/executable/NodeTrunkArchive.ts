@@ -10,7 +10,7 @@ import { NodeTrunkCaptureGeometry } from "./NodeTrunkCaptureGeometry";
 type V3 = CaptureModel.Vec3;
 type V2 = [number, number];
 
-const { armDot, increasingPhase, span, add, sub, scale, MID, STEP }: typeof NodeTrunkCaptureGeometry = NodeTrunkCaptureGeometry;
+const { armDot, increasingPhase, add, sub, scale, MID, STEP }: typeof NodeTrunkCaptureGeometry = NodeTrunkCaptureGeometry;
 
 /** Read the archived F1 trunk sections and the exact source boundaries. */
 export namespace NodeTrunkArchive {
@@ -19,19 +19,24 @@ export namespace NodeTrunkArchive {
 
   /** One original section and its recorded Hermite loops in archive millimetres. */
   export type TrunkStation = {
+    /** Height of the archived cut in millimetres. */
     coordinateMm: number;
+    /** Origin of that cut in the archive world frame, in millimetres. */
     originMm: V3;
+    /** Recorded loops with their closure, Hermite data and fit measurements. */
     loops: { kind: string; fit: { sampleMaximumMm: number; polylineUpperEstimateMm: number; toleranceMet: boolean }; curve: { name: string; closed: boolean; phaseIntervals: number[]; spans: HermiteSpan[] } }[];
   };
   /** An original arm section with its archive frame and course distance. */
   export type ArmRoot = TrunkStation & { u: V3; v: V3; normal: V3; stationMm: number };
 
+  /** Read the two observed horizontal-section packets in archive order. */
   export async function archiveRows(): Promise<TrunkStation[]> {
     const files: string[] = ["001", "002"].map((file: string): string => HumanNodePaths.resolve(`.references/curves/hermite/f1/limbs/trunk/trunk-horizontal-v2-${file}.json`));
     const packets: { stations: TrunkStation[] }[] = await Promise.all(files.map(async (file: string): Promise<{ stations: TrunkStation[] }> => JSON.parse(await fs.readFile(file, "utf8")) as { stations: TrunkStation[] }));
     return packets.flatMap((packet: { stations: TrunkStation[] }): TrunkStation[] => packet.stations);
   }
 
+  /** Read both original independent arm rims in left-then-right order. */
   export async function armRoots(): Promise<ArmRoot[]> {
     return Promise.all([armRoot("l"), armRoot("r")]);
   }
@@ -81,6 +86,7 @@ export namespace NodeTrunkArchive {
     };
   }
 
+  /** Use the observed mid-trunk origin to place the level archive chart in capture world. */
   export function archiveAxis(rows: readonly TrunkStation[]): AutoMovieViewAxis.IAxis {
     const middle: TrunkStation | undefined = rows.find((row: TrunkStation): boolean => row.coordinateMm >= MID);
     if (middle === undefined) throw new Error("trunk: the original curves do not include the archive origin station");
@@ -132,6 +138,7 @@ export namespace NodeTrunkArchive {
     return rings;
   }
 
+  /** Read the shared 1458 mm holding contour in capture world, ordered without a closing duplicate. */
   export function readNeck(mesh: AutoMovieMeshExtract.IMesh, axis: AutoMovieViewAxis.IAxis, diagnostics: string[]): V3[] | null {
     const y: number = 1458;
     const section: AutoMovieHumanF1Trace.ICut | null = AutoMovieHumanF1Trace.read(mesh, axis, y);

@@ -345,7 +345,10 @@ export namespace NodeLegF1Foot {
       edges.set(edgeKey(a, b), [0, 0]);
     }
     const check = (): boolean => {
-      for (const count of edges.values()) count[0] = count[1] = 0;
+      for (const count of edges.values()) {
+        count[1] = 0;
+        count[0] = 0;
+      }
       for (let i = 0; i < indices.length; i += 3) for (let k = 0; k < 3; ++k) {
         const a = indices[i + k]!;
         const b = indices[i + (k + 1) % 3]!;
