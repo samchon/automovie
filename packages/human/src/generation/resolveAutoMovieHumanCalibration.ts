@@ -10,6 +10,7 @@ import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanPar
 import { AutoMovieHumanBodyLaw } from "./AutoMovieHumanBodyLaw";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import { autoMovieHumanCalibrationKey } from "./autoMovieHumanCalibrationKey";
+import { plainAutoMovieHumanCalibration } from "./plainAutoMovieHumanCalibration";
 
 /**
  * The body calibration of one parameter set, read from an artifact store or
@@ -20,8 +21,10 @@ import { autoMovieHumanCalibrationKey } from "./autoMovieHumanCalibrationKey";
  * `AutoMovieHumanSkeleton.prepare(params, { calibration })` (and to
  * `AutoMovieHumanPhysicalProfile.prepare` through that evaluator), so a
  * remount reads one stored entry instead of recalibrating. The value is the
- * calibration `calibrate(params).body` returns, carried exactly by the engine's
- * artifact JSON (including `-0` and non-finite numbers); its `diagnostics`
+ * calibration `calibrate(params).body` returns in its storable form
+ * (`plainAutoMovieHumanCalibration`, without the layers' live `frameSource`
+ * axis references), carried exactly by the engine's artifact JSON (including
+ * `-0` and non-finite numbers); its `diagnostics`
  * list is a copy, not shared with a later calibration.
  *
  * The key is `autoMovieHumanCalibrationKey(params, toolchain)`. Human's package
@@ -55,7 +58,9 @@ export async function resolveAutoMovieHumanCalibration(
     options.store,
     autoMovieHumanCalibrationKey(params, options.toolchain),
     async (): Promise<Uint8Array> =>
-      encodeAutoMovieArtifactJson(AutoMovieHumanBodyLaw.calibrate(params).body),
+      encodeAutoMovieArtifactJson(
+        plainAutoMovieHumanCalibration(AutoMovieHumanBodyLaw.calibrate(params).body),
+      ),
   );
   return decodeAutoMovieArtifactJson<IAutoMovieHumanBodyCalibration>(
     resolved.bytes,
