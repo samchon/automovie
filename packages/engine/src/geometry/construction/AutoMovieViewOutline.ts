@@ -1,5 +1,6 @@
 import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
 
+import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE";
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
 import { AutoMovieViewHermite } from "./AutoMovieViewHermite";
@@ -179,7 +180,19 @@ export namespace AutoMovieViewOutline {
       if (tip === undefined) continue;
       const knot: IAutoMovieViewPart.IKnot =
         end === "bottom" ? knots[0]! : knots[knots.length - 1]!;
-      if (!Number.isFinite(tip) || knot.station !== tip || knot.value !== 0)
+      if (
+        !Number.isFinite(tip) ||
+        knot.station !== tip ||
+        !(
+          Math.abs(knot.value) <=
+          AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE *
+            Math.max(
+              ...knots.map((k: IAutoMovieViewPart.IKnot): number =>
+                Math.abs(k.value),
+              ),
+            )
+        )
+      )
         return {
           contract: "pole knot",
           detail: `its ${end} knot ${knot.site}@${knot.station}=${knot.value} is not 0 at the finite pole station ${tip}`,
