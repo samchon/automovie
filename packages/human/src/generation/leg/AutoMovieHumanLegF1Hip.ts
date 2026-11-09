@@ -1,4 +1,4 @@
-import { AutoMovieCurveMath64 as M, triangulateAutoMovieRegion } from "@automovie/engine";
+import { AutoMovieCurveMath64 as M } from "@automovie/engine";
 
 import { AutoMovieHumanLoftMesh as Mesh } from "../../lofting/AutoMovieHumanLoftMesh";
 import type { AutoMovieHumanF1Fork } from "../trunk/AutoMovieHumanF1Fork";
@@ -9,7 +9,6 @@ import native from "./AutoMovieHumanLegF1Native.json";
 type V3 = M.V;
 type Context = Mesh.IContext;
 type Row = { station: number; ids: number[]; ends: [number, number] };
-type Point = { id: number; x: number; y: number };
 
 /**
  * F1's original open proximal sections, in absolute ISB world millimetres.
@@ -120,43 +119,71 @@ export namespace AutoMovieHumanLegF1Hip {
     const initialPoints: V3[] = initial.map(at);
     const initialIds: Map<V3, number> = new Map(initialPoints.map((point, i): [V3, number] => [point, initial[i]!]));
     World.stitchRows(start, World.forkClock(initialPoints, frame).map(point => initialIds.get(point)!), mesh.positions, pending, "length");
-    const chart = (row: Row): Point[] => {
-      let length: number = 0;
-      const values: number[] = [0];
-      for (let i: number = 1; i < row.ids.length; ++i) {
-        length += Math.hypot(...M.sub(at(row.ids[i]!), at(row.ids[i - 1]!)));
-        values.push(length);
-      }
-      return row.ids.map((id: number, i: number): Point => ({ id, x: values[i]! / length, y: row.station / 1000 }));
-    };
+    // Every ordinary strip advances adjacent measured arc-length phases.
+    // The end-plane guides are actual source curves, not straight cap chords.
     for (let i: number = 1; i < rows.length; ++i) {
       const a: Row = rows[i - 1]!, b: Row = rows[i]!;
-      const rail = (ids: number[], x: number): Point[] => ids.map((id: number): Point => ({ id, x, y: dot(at(id), n) / 1000 }));
-      polygon([
-        ...chart(a), ...rail(walk(a.ends[1], b.ends[1], -1), 1),
-        ...chart(b).reverse(), ...rail(walk(b.ends[0], a.ends[0], -1), 0),
-      ], pending);
+      ribbon(mesh, a.ids, b.ids, walk(a.ends[0], b.ends[0], 1), walk(a.ends[1], b.ends[1], -1), pending);
     }
     const last: Row = rows.at(-1)!;
-    const closing: number[] = walk(last.ends[1], last.ends[0], -1);
-    const capLength: number = closing.reduce((length: number, id: number, i: number): number =>
-      length + Math.hypot(...M.sub(at(id), at(i === 0 ? last.ids.at(-1)! : closing[i - 1]!))), 0)
-      + Math.hypot(...M.sub(at(last.ids[0]!), at(closing.length === 0 ? last.ids.at(-1)! : closing.at(-1)!)));
-    let progress: number = 0;
-    const cap: Point[] = closing.map((id: number, i: number): Point => {
-      progress += Math.hypot(...M.sub(at(id), at(i === 0 ? last.ids.at(-1)! : closing[i - 1]!)));
-      return { id, x: 1 - progress / capLength, y: dot(at(id), n) / 1000 };
-    });
-    polygon([...chart(last), ...cap], pending);
+    const cap: number[] = [last.ids[0]!, ...walk(last.ends[0], last.ends[1], 1), last.ids.at(-1)!];
+    // These two observed open curves share their actual indexed endpoints.
+    ribbon(mesh, last.ids, cap, [], [], pending);
     orient(mesh.indices, pending);
     mesh.indices.push(...pending);
   }
 
-  /** Triangulate one physical ribbon's parameter domain without adding a 3D point. */
-  function polygon(raw: Point[], indices: number[]): void {
-    const points: Point[] = raw.filter((p, i): boolean => p.id !== raw[(i + raw.length - 1) % raw.length]!.id);
-    const result = triangulateAutoMovieRegion({ outer: points.map(({ x, y }) => ({ x, y })) });
-    for (const index of result.triangles) indices.push(points[result.sourceIndices[index]!]!.id);
+  /**
+   * Ordinary open-curve zipper, using the same measured arc-length clock as
+   * World.stitchRows. Positions stay absolute world mm (+X forward, +Y up,
+   * negative Z on the left); phases alone are dimensionless.
+   *
+   * Each tile advances one adjacent source knot. No arbitrary region fan can
+   * connect opposite sides of a curved U-shaped section. All intermediate
+   * exit-guide indices enter the two boundary walks at endpoint phases 0/1.
+   * Their first neighbour is an interior section knot, so a planar end cap
+   * is not substituted for the actual source skin near a guide.
+   *
+   * A shared cap endpoint is the same declared index on both walks. Only
+   * triangles repeating that index are omitted; distinct degenerate source
+   * points are refused, never moved, epsilon-welded or silently removed.
+   */
+  function ribbon(mesh: Context, lower: number[], upper: number[], left: number[], right: number[], indices: number[]): void {
+    const clock = (row: number[]): number[] => {
+      let length: number = 0;
+      const values: number[] = [0];
+      for (let i: number = 1; i < row.length; ++i) {
+        length += Math.hypot(...M.sub(Mesh.position(mesh, row[i]!), Mesh.position(mesh, row[i - 1]!)));
+        values.push(length);
+      }
+      if (!(length > 0)) throw new Error("An observed F1 open loft curve has no length");
+      return values.map(value => value / length);
+    };
+    const walk = (ids: number[], phases: number[]): { id: number; phase: number }[] =>
+      ids.flatMap((id, i): { id: number; phase: number }[] =>
+        i > 0 && id === ids[i - 1] ? [] : [{ id, phase: phases[i]! }]);
+    const a = walk([...lower, ...right, upper.at(-1)!], [...clock(lower), ...right.map((): number => 1), 1]);
+    const b = walk([lower[0]!, ...left, ...upper], [0, ...left.map((): number => 0), ...clock(upper)]);
+    if (a.length < 2 || b.length < 2 || a[0]!.id !== b[0]!.id || a.at(-1)!.id !== b.at(-1)!.id)
+      throw new Error("An observed F1 ribbon does not retain its common guide endpoints");
+    const emit = (x: number, y: number, z: number): void => {
+      if (x === y || y === z || z === x) return;
+      const u: V3 = M.sub(Mesh.position(mesh, y), Mesh.position(mesh, x));
+      const v: V3 = M.sub(Mesh.position(mesh, z), Mesh.position(mesh, x));
+      const area: number = Math.hypot(u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]);
+      if (!(area > 0 && Number.isFinite(area))) throw new Error("Distinct measured F1 source knots collapse an ordinary loft tile");
+      indices.push(x, y, z);
+    };
+    // Establish the first interior source neighbour before consuming the
+    // left guide; equal terminal phases consume the entire right guide.
+    let i: number = 1, j: number = 0;
+    emit(a[0]!.id, a[i]!.id, b[0]!.id);
+    while (i + 1 < a.length || j + 1 < b.length) {
+      const x: number = a[i]!.id, y: number = b[j]!.id;
+      if ((a[i + 1]?.phase ?? Infinity) <= (b[j + 1]?.phase ?? Infinity))
+        emit(x, a[++i]!.id, y);
+      else emit(x, b[++j]!.id, y);
+    }
   }
 
   /** Split only the existing s136 boundary triangles at exact measured rail endpoints. */
