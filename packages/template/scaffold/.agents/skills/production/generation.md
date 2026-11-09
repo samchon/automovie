@@ -1,6 +1,6 @@
 # Acquire generated video
 
-Use this only when the commission calls for generated video; a motion hint or a direct 3D film never silently requires a generator. Read the provider and setup authority in [project context](profile.md) and use the selected service's existing connector, CLI or API.
+Use this only when the commission calls for generated video; a motion hint or a direct 3D film never silently requires a generator. [Video](../video/SKILL.md) chooses the model, plans requests within its limits and writes the prompts; read the provider and setup authority in [project context](profile.md) and use the selected service's existing connector, CLI or API.
 
 ## Establish the input path
 
@@ -8,7 +8,7 @@ Prepare the motion and its aligned controls through [conditioning](conditioning.
 
 ## Submit and adopt takes
 
-Each prompt describes its shot's audio as [audio](../audio/SKILL.md) sets, since the generator makes the film's sound. Bind each request to its exact input bytes, source revision, provider and model, settings, prompt, job identifier and result, without credentials, and record it under [media](media.md). Check the existing job state before retrying, since a retry can bill another job, and keep to the adopted cost and quality limits. A transient URL, seed or finished job is not an accepted take: keep the downloaded original apart from its derivatives. Inspect every candidate before adoption; a take that loses action, identity or causality is repaired at the source, request or selection, never hidden by a cut.
+Bind each request to its exact input bytes, source revision, provider and model, settings, prompt, job identifier and result, without credentials, and record it under [media](media.md). Check the existing job state before retrying, since a retry can bill another job, and keep to the adopted cost and quality limits. A transient URL, seed or finished job is not an accepted take: keep the downloaded original apart from its derivatives. Inspect every candidate before adoption; a take that loses action, identity or causality is repaired at the source, request or selection, never hidden by a cut.
 
 ## Hand off
 
