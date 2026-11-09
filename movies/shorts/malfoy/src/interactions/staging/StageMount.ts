@@ -220,7 +220,7 @@ export namespace StageMount {
     const bodies: Map<string, { body: StudentBody; figure: StudentFigure }> = new Map();
     for (const student of input.students) {
       const body: StudentBody = student.body();
-      const figure: StudentFigure = new StudentFigure(student.profile, body);
+      const figure: StudentFigure = new StudentFigure(student.profile);
       scene.add(figure.object);
       bodies.set(student.id, { body, figure });
     }
@@ -243,8 +243,7 @@ export namespace StageMount {
           continue;
         }
         const joints: StudentBody.IJoints = body.solve(posture);
-        const found = performance.entry(id, seconds)!;
-        figure.place(joints, { riding: found.step.to.support !== "stand" && found.step.to.support !== "seat" });
+        figure.place(joints);
         hands.set(id, joints);
       }
       for (const [id, { prop, figure }] of propFigures) {

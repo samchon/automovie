@@ -35,8 +35,6 @@ import { StudentHuman } from "./StudentHuman";
  * polygon.place(body.solve(posture));
  * ```
  *
- * @evidence docs/body/settings/cast/carina-malfoy.md#recognition Her skin colour on the Human body.
- * @evidence docs/body/settings/cast/harry-potter.md#recognition His skin colour on the Human body.
  * @evidence contracts/development/entities.md#object-shape A fragment of `StudentFigure` that owns its polygon figure.
  * @evidence contracts/development/common.md#meaningful-documentation States the bone mapping and what moves rigidly.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns its polygon figure until `dispose`.
@@ -68,11 +66,7 @@ export class StudentPolygon {
   public constructor(profile: IStudentProfile) {
     this.human = StudentHuman.of(profile);
     const neutral: AutoMovieHumanSkeleton.IOutput = this.human.neutral;
-    this.drawing = buildHumanPolygon(StudentPolygon.displayed(neutral), {
-      partColors: Object.fromEntries(
-        neutral.bones.map((b: AutoMovieHumanSkeleton.IBone): [string, number] => [b.bone, dressed(b.bone, profile)]),
-      ),
-    });
+    this.drawing = buildHumanPolygon(StudentPolygon.displayed(neutral));
     this.object = this.drawing.object;
     this.object.scale.setScalar(this.human.scale);
 
@@ -291,14 +285,6 @@ const FAN: ReadonlyMap<string, number> = new Map([
 
 /** World up. */
 const UP: THREE.Vector3 = new THREE.Vector3(0, 1, 0);
-
-/** A bone's drawn colour: skin on the head, neck and hands, black shoes and legs, the house colour (Slytherin green, Gryffindor red) on the trunk and arms. */
-function dressed(bone: string, profile: IStudentProfile): number {
-  if (/Foot|Toe/u.test(bone)) return 0x0c0c0c;
-  if (/UpperLeg$|LowerLeg$/u.test(bone)) return 0x1a1a1c;
-  if (/^(head|neck|jaw)$|Eye$|Hand$|Thumb|Index|Middle|Ring|Little/u.test(bone)) return profile.skin;
-  return profile.house === "slytherin" ? 0x1d5e3a : 0x8e1c22;
-}
 
 /** A bone's neutral world position. */
 function position(neutral: AutoMovieHumanSkeleton.IOutput, bone: string): THREE.Vector3 | undefined {

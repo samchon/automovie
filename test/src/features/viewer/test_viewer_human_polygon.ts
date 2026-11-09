@@ -212,10 +212,23 @@ export function test_viewer_human_polygon(): void {
     "invalid palette refuses",
     throwsError((): void => drawing.setPartColors({ leftLowerArm: -1 })),
   );
+  // The front query must agree with an independent three.js ray cast from +X
+  // against the same head surface.
   const front: number | undefined = drawing.head.frontAt(0.02, 0);
+  const surface: THREE.Mesh = new THREE.Mesh(
+    (drawing.head.object.children[0] as THREE.Mesh).geometry,
+    new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }),
+  );
+  const hits: THREE.Intersection[] = new THREE.Raycaster(
+    new THREE.Vector3(1, 0.02, 0),
+    new THREE.Vector3(-1, 0, 0),
+  ).intersectObject(surface);
+  (surface.material as THREE.Material).dispose();
   check(
-    "actual front query remains source-owned",
-    front !== undefined && nclose(front, 0.1, 1e-7),
+    "actual front query reads the actual head surface",
+    front !== undefined &&
+      hits.length > 0 &&
+      nclose(front, hits[0]!.point.x, 1e-7),
   );
   const neutralFace: ReturnType<typeof buildHumanCartoonFace> =
     buildHumanCartoonFace(drawing.head);
