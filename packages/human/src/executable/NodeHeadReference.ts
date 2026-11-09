@@ -92,7 +92,7 @@ export namespace NodeHeadReference {
   }
 
   /** Prefer the complete observed forehead span where the existing section fits missed it. */
-  export function withForehead(archive: string, mesh: AutoMovieMeshExtract.IMesh, chains: IAutoMovieLoftChain[], diagnostics: string[]): { chains: IAutoMovieLoftChain[]; forehead: Junction | null } {
+  export function withForehead(archive: string, mesh: AutoMovieMeshExtract.IMesh, chains: IAutoMovieLoftChain[], diagnostics: string[]): { chains: IAutoMovieLoftChain[]; forehead: NodeHeadJunction.IResult | null } {
     try {
       const forehead: ReturnType<typeof NodeHeadJunction.forehead> = NodeHeadJunction.forehead(archive, mesh);
       if (!forehead.qualified || !forehead.rails.has("forehead:top")) throw new Error(forehead.receipt);
@@ -109,7 +109,7 @@ export namespace NodeHeadReference {
   }
 
   /** Join observed head junctions to their physical neighbours and preserve unresolved boundary ownership. */
-  export function attachOriginalJunctions(capture: CaptureModel.IPart, archive: string, mesh: AutoMovieMeshExtract.IMesh, chains: readonly IAutoMovieLoftChain[], axis: AutoMovieViewAxis.IAxis | undefined, forehead: Junction | null): void {
+  export function attachOriginalJunctions(capture: CaptureModel.IPart, archive: string, mesh: AutoMovieMeshExtract.IMesh, chains: readonly IAutoMovieLoftChain[], axis: AutoMovieViewAxis.IAxis | undefined, forehead: NodeHeadJunction.IResult | null): void {
     if (capture.loft.status !== "available") return;
     // The observed right orbitale in the F1 head measurement, in capture world millimetres.
     capture.ports.push({ name: "orbit", point: [103.44128859022192, 1579.628451098783, 31.07267043229048], radius: 53 });
@@ -134,7 +134,7 @@ export namespace NodeHeadReference {
       let receipt: string;
       try {
         const join: NodeHeadJunction.IResult = "native" in layout ? layout.native() : NodeHeadJunction.create(archive, layout, mesh);
-        const staged = { ...capture.loft };
+        const staged: Extract<CaptureModel.ILoft, { status: "available" }> = { ...capture.loft };
         const seams: string[] = stitchJunction(staged, join, layout.seams, chains, mesh, undefined, layout.replace);
         if (!join.qualified || seams.some((item: string): boolean => item.includes("unsewn:"))) throw new Error([join.receipt, ...seams].join(" | "));
         capture.loft = staged;
