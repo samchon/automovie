@@ -8,7 +8,7 @@ import {
 } from "@automovie/interface";
 
 import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
-import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
+import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { Quaternion } from "../math/Quaternion";
@@ -16,26 +16,32 @@ import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
+import { fitHingedChainCandidate } from "./fitHingedChainCandidate";
 import { prepareChainPlant } from "./prepareChainPlant";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
 import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
+import { orientChainEffector } from "./orientChainEffector";
 
 /**
  * Fit a reachable two-bone chain to a model-frame target under the rig's effective ROM, retaining authored non-chain joints. A deterministic finite bend-plane search scores clamped FK and keeps the original pose unless its 1e-7-metre residual bucket improves or equal-bucket continuity improves toward an explicit prior pose; it is a bounded search, not a global-optimum guarantee.
+ *
+ * Candidates come in this order, the first exact one winning: the bend hint's plane; for a hinged mid joint (an elbow or a knee, whose abduction is immobile), the swivel parameterisation of Tolani, Goswami and Badler (2000), where the hinge angle follows from the span and the swivel about the root-to-target axis is swept for the least range-of-motion overshoot and then the side nearest the hint (`hingedArmArticulation`), because a free-swing candidate turns the hinge about the plane normal and the clamp of its abduction moves the effector; then the 32-plane sweep. When nothing reaches, the least clamped residual is returned, so an unreachable target leaves the effector on the reachable shell, not a pretended reach.
+ *
+ * With `effectorRotation`, a mid bone that declares a distal twist (a forearm) first takes the twist share of the requested rotation about its own length (swing-twist decomposition), clamped to its range, and the effector the remaining swing, so pronation and supination are the forearm's and the wrist keeps its place.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Prepares actual chain frames, solves analytic two-bone candidates, clamps upper/lower joints to rig ROM and measures their actual effector; residual buckets rank first, then squared sign-insensitive quaternion geodesic distance to the prior pose and finally exact residual.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Search policy stays here while preparation, analytic candidate solve and fast candidate FK have single owners; this split exposes the geometry shared by all bend candidates.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing/invalid/degenerate preparation and analytic solve preserve the original pose; no ideal target measurement replaces post-clamp FK. A 32-angle sweep and ten local halvings bound the heuristic, with 1e-12 continuity and 1e-6 normal-degeneracy thresholds.
  * @evidence contracts/development/common.md#meaningful-documentation States model-metre target, unchanged joints, residual-bucket ranking, prior-pose tie meaning and the bounded-search limitation without claiming every unreachable pin can be solved.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparation and authored/reference FK scale with rig/joints; at most34 initial candidates plus at most32minima times20 refinement candidates use constant-size fast FK, though candidate pose copies scale with authored joints. Early exact-bucket/continuity satisfaction stops the search.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Preparation and authored/reference FK scale with rig/joints; at most34 initial candidates plus at most32minima times20 refinement candidates use constant-size fast FK, though candidate pose copies scale with authored joints. Early exact-bucket/continuity satisfaction stops the search. A hinged chain adds up to two swivel sweeps of 720 decomposed candidates (360 one-degree swivels per bend branch), each with constant-size quaternion work and, with an effector rotation, two more decompositions; they run only when the hint plane misses or a rotation is requested.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work All bend candidates share prepared frames/domains and reference-angle maps; only candidate joints and scores vary, while per-frame parent pose changes force new preparation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sweep/minima arrays are bounded by32 entries and all temporary poses/maps are released after completion; the caller owns the selected pose, which may be the original, and no handles or background tasks exist.
  */
 export const fitChainToTarget: (
   props: IFitChainToTargetProps,
 ) => IAutoMoviePose = (input: IFitChainToTargetProps): IAutoMoviePose =>
-  orientEffector(input, fitChainBend(input));
+  orientChainEffector(input, fitChainBend(input));
 
 /**
  * The bend-plane fit of {@link fitChainToTarget}, before its effector is
@@ -204,8 +210,50 @@ const fitChainBend: (
     (props.referencePose === undefined ||
       best.continuity <= PLANT_CONTINUITY_EPSILON);
 
+  // A hinged mid joint (an elbow or a knee, whose abduction is immobile) can
+  // bend only about its own flexion axis, while the free-swing candidates
+  // turn it about the bend-plane normal and leave an abduction the ROM clamp
+  // then removes, moving the effector. The swivel parameterisation (Tolani,
+  // Goswami and Badler 2000) fixes the hinge angle from the span and spends
+  // the remaining swivel about the root-to-effector axis on the rig's range
+  // of motion; `hingedArmArticulation` sweeps it and keeps the candidate with
+  // the least ROM overshoot, then the one nearest the bend hint. With a
+  // requested effector rotation the swivel also decides whether that rotation
+  // is reachable, since the end joint cannot twist about its own length (a
+  // wrist turns only with the forearm's distal twist, an ankle only with the
+  // whole leg's swivel, the hip's rotation): Tolani's analysis chooses the
+  // swivel inside the end joint's limits too, so that candidate leads.
+  const hingeAxes: IAutoMovieJointAxes | undefined = props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES;
+  const hingedMid: boolean = prepared.lowerDomain.constraint !== null && prepared.lowerDomain.constraint.abduction === null && hingeAxes !== undefined;
+  if (hingedMid && props.effectorRotation !== undefined) {
+    // The hint's plane stands when it already reaches and turns the effector
+    // within a tenth of a degree; otherwise the oriented swivel replaces it.
+    const error: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => number = fitHingedChainCandidate.error(props, prepared, hingeAxes!, props.effectorRotation);
+    const articulated = (j: IAutoMovieJointPose): IAutoMovieQuaternion =>
+      jointToQuaternion(clampJointToSkeleton(j, props.skeleton), props.jointAxes?.[j.bone], props.restFrames?.[j.bone]);
+    const reached: IPlantCandidateScore = consider(pole);
+    if (plantResidualBucket(reached.residual) === 0 && error(articulated(pole.upper), articulated(pole.lower)) <= 0.1 && canFinish()) return best.pose;
+    const oriented: NonNullable<ReturnType<typeof solve>> | null = fitHingedChainCandidate(props, prepared, hingeAxes!, props.effectorRotation);
+    if (oriented !== null) {
+      const upper: IAutoMovieJointPose = clampJointToSkeleton(oriented.upper, props.skeleton);
+      const lower: IAutoMovieJointPose = clampJointToSkeleton(oriented.lower, props.skeleton);
+      const residual: number = distance(resolvePreparedChainEffector({ prepared, upper, lower, jointAxes: props.jointAxes, restFrames: props.restFrames }));
+      if (plantResidualBucket(residual) === 0)
+        return { ...props.pose, joints: [...props.pose.joints.filter((j: IAutoMovieJointPose): boolean => j.bone !== props.chain.upper && j.bone !== props.chain.lower), upper, lower] };
+      consider(oriented);
+    }
+  }
+
   consider(pole);
   if (canFinish()) return best.pose;
+
+  if (hingedMid) {
+    const hinged: NonNullable<ReturnType<typeof solve>> | null = fitHingedChainCandidate(props, prepared, hingeAxes!);
+    if (hinged !== null) {
+      consider(hinged);
+      if (canFinish()) return best.pose;
+    }
+  }
 
   const upper: IAutoMovieResolvedBone = prepared.upper;
   const reachAxis: IAutoMovieVector3 = Vector3.normalize(
@@ -419,69 +467,4 @@ function hintNormal(
   );
   if (Vector3.length(across) < 1e-9) return undefined;
   return Vector3.normalize(Vector3.cross(unitAxis, Vector3.normalize(across)));
-}
-
-/**
- * Turn the fitted chain's effector to a requested model-frame rotation: its
- * local articulation is the lower bone's world rotation undone, then its
- * rest rotation undone, read back as clinical angles through the same axes
- * and rest frames and clamped to the rig's range of motion.
- *
- * @param props The fit request; without `effectorRotation` the pose returns unchanged.
- * @param pose The fitted pose.
- * @returns The pose with the effector oriented.
- */
-function orientEffector(
-  props: IFitChainToTargetProps,
-  pose: IAutoMoviePose,
-): IAutoMoviePose {
-  if (props.effectorRotation === undefined) return pose;
-  const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
-    skeletonJointAxes(props.skeleton, props.jointAxes);
-  const lower: IAutoMovieResolvedBone = resolveBoneMap(
-    props.skeleton,
-    pose,
-    props.topology,
-    axes,
-    props.restFrames,
-  ).get(props.chain.lower)!;
-  const rest: IAutoMovieQuaternion =
-    props.skeleton.bones.find(
-      (b: (typeof props.skeleton.bones)[number]): boolean =>
-        b.bone === props.chain.effector,
-    )?.rest.rotation ?? Quaternion.identity();
-  const local: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
-      Quaternion.inverse(rest),
-      Quaternion.multiply(
-        Quaternion.inverse(lower.worldRotation),
-        props.effectorRotation,
-      ),
-    ),
-  );
-  const angles: ReturnType<typeof decomposeJointRotation> =
-    decomposeJointRotation(
-      local,
-      axes[props.chain.effector],
-      props.restFrames?.[props.chain.effector],
-    );
-  const effector: IAutoMovieJointPose = clampJointToSkeleton(
-    {
-      bone: props.chain.effector,
-      flexion: angles.flexion,
-      abduction: angles.abduction,
-      twist: angles.twist,
-    },
-    props.skeleton,
-  );
-  return {
-    ...pose,
-    joints: [
-      ...pose.joints.filter(
-        (joint: IAutoMovieJointPose): boolean =>
-          joint.bone !== props.chain.effector,
-      ),
-      effector,
-    ],
-  };
 }
