@@ -1,4 +1,4 @@
-import { encodeAutoMoviePng } from "@automovie/engine/render/encodeAutoMoviePng";
+import { encodeAutoMoviePng } from "@automovie/engine";
 import type { IAutoMovieImage } from "@automovie/interface";
 
 import { AutoMovieHumanIrisColor } from "../typings/AutoMovieHumanIrisColor";

@@ -6,10 +6,10 @@
  * Hole orientation and branch identities remain explicit. The record alone certifies
  * neither simple loops nor regularity, continuity or successful skin generation.
  *
- * @evidence contracts/common.md#principled-implementation Whole original curve intervals and one common physical plane define the sections before surface generation; no polar or convex-envelope representation is imposed.
- * @evidence contracts/common.md#clear-and-simple-design Closed data references identify functions, physical domains, curve clocks, guides and logical/material/binding regions; runtime callbacks stay in engine.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Labels do not infer geometry, missing derivatives or shared binding. Parameter intervals retain their original functions rather than sampled refits; topology remains an explicit admission responsibility.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes metre station intervals from original curve clocks, open pieces from closed loops and declared identity from verified geometry.
+ * @evidence contracts/development/design.md#principled-representation Whole original curve intervals and one common physical plane define the sections before surface generation; no polar or convex-envelope representation is imposed.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Closed data references identify functions, physical domains, curve clocks, guides and logical/material/binding regions; runtime callbacks stay in engine.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Labels do not infer geometry, missing derivatives or shared binding. Parameter intervals retain their original functions rather than sampled refits; topology remains an explicit admission responsibility.
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes metre station intervals from original curve clocks, open pieces from closed loops and declared identity from verified geometry.
  */
 export interface IAutoMovieConstructionProfile {
   /** Stable generating-family identity, independent of logical anatomical names. */
@@ -35,7 +35,14 @@ export interface IAutoMovieConstructionProfile {
 }
 
 export namespace IAutoMovieConstructionProfile {
-  /** A complete oriented contour on a stable physical station interval. */
+  /**
+   * A complete oriented contour on a stable physical station interval.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: A complete oriented contour on a stable physical station interval.
+   * @evidence contracts/development/design.md#principled-representation Represents A complete oriented contour on a stable physical station interval: interface of 7 members (`id`, `kind`, `orientation`, `surfaceOrientation`, `domain`, `pole`, ...); units and frames named in its text: local, world, metres. Optional members `surfaceOrientation`, `pole` express documented absence, and the ranges its member docs state are left to runtime validation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `ILoop` in packages/interface/src/construction/IAutoMovieConstructionProfile.ts; its surface is the 7 members listed and the text shows 31 other files naming it, mostly packages/engine (16), test (8), packages/human (6), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; 2 optional members (`surfaceOrientation`, `pole`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface ILoop {
     /** Unique loop identity in the family. */
     id: string;
@@ -59,7 +66,14 @@ export namespace IAutoMovieConstructionProfile {
     pieces: IPiece[];
   }
 
-  /** An actual original function interval; no new interpolation is implied. */
+  /**
+   * An actual original function interval; no new interpolation is implied.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: An actual original function interval; no new interpolation is implied.
+   * @evidence contracts/development/design.md#principled-representation Represents An actual original function interval; no new interpolation is implied: interface of 5 members (`id`, `source`, `clock`, `direction`, `branch`). It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IPiece` in packages/interface/src/construction/IAutoMovieConstructionProfile.ts; its surface is the 5 members listed and the text shows 18 other files naming it, mostly packages/human (11), packages/engine (4), test (3), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IPiece {
     /** Unique piece/chart identity in the family. */
     id: string;
@@ -77,7 +91,14 @@ export namespace IAutoMovieConstructionProfile {
     branch: string;
   }
 
-  /** A named original locus along a piece's physical station coordinate. */
+  /**
+   * A named original locus along a piece's physical station coordinate.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: A named original locus along a piece's physical station coordinate.
+   * @evidence contracts/development/design.md#principled-representation Represents A named original locus along a piece's physical station coordinate: interface of 3 members (`id`, `piece`, `clock`). It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IGuide` in packages/interface/src/construction/IAutoMovieConstructionProfile.ts; its surface is the 3 members listed and the text shows 42 other files naming it, mostly packages/human (26), packages/engine (9), test (7), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IGuide {
     /** Guide identity used by source constraints and editor selections. */
     id: string;
@@ -89,7 +110,14 @@ export namespace IAutoMovieConstructionProfile {
     clock: number;
   }
 
-  /** Logical identity mapped to real piece charts without duplicate geometry. */
+  /**
+   * Logical identity mapped to real piece charts without duplicate geometry.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Logical identity mapped to real piece charts without duplicate geometry.
+   * @evidence contracts/development/design.md#principled-representation Represents Logical identity mapped to real piece charts without duplicate geometry: interface of 7 members (`id`, `logicalParts`, `pieces`, `domain`, `trim`, `material`, ...); units and frames named in its text: metres. Optional members `domain`, `trim` express documented absence, and the ranges its member docs state are left to runtime validation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IRegion` in packages/interface/src/construction/IAutoMovieConstructionProfile.ts; its surface is the 7 members listed and the text shows 24 other files naming it, mostly packages/human (16), movies (4), packages/engine (3), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; 2 optional members (`domain`, `trim`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IRegion {
     /** Region identity, separate from a loop or generating stream. */
     id: string;

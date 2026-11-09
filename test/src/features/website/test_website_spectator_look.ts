@@ -14,10 +14,11 @@ import { nclose, vclose } from "../internal/predicates";
  * 2. Opposite pitch extremes stop short of inversion and coincident aim recovers.
  * 3. Wheel zoom obeys its lens range and updates the projection without translation.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls pointer look and lens zoom directly, observing one-radian yaw, adoption of a newly authored orientation, bounded pitch, removed roll, recovered aim distance and changed projection; stale orientation, inverted pitch or translated eye fails.
- * @evidence contracts/testing.md#independent-expectations The declared 0.0025-radian sensitivity makes 400 pixels one radian, trigonometric direction fixes the expected target, and exponential scaling makes log(2) times 1000 double a 45-degree lens; bounds come from the public 89-degree pitch and 5/110-degree lens policy.
- * @evidence contracts/testing.md#distinguishing-cases Covers horizontal look after an authored pose change, both pitch extremes, coincident eye/aim, ordinary zoom and both lens clamps with unchanged eye position; event capture and frame translation have separate spectator units.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_website_spectator_look entry owns portable Three camera arithmetic and matrix observations without renderer allocation, DOM, browser or GPU; it makes no rendered-appearance claim.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls pointer look and lens zoom directly, observing one-radian yaw, adoption of a newly authored orientation, bounded pitch, removed roll, recovered aim distance and changed projection; stale orientation, inverted pitch or translated eye fails.
+ * @evidence contracts/development/testing.md#independent-expectations The declared 0.0025-radian sensitivity makes 400 pixels one radian, trigonometric direction fixes the expected target, and exponential scaling makes log(2) times 1000 double a 45-degree lens; bounds come from the public 89-degree pitch and 5/110-degree lens policy.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers horizontal look after an authored pose change, both pitch extremes, coincident eye/aim, ordinary zoom and both lens clamps with unchanged eye position; event capture and frame translation have separate spectator units.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_website_spectator_look entry owns portable Three camera arithmetic and matrix observations without renderer allocation, DOM, browser or GPU; it makes no rendered-appearance claim.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Horizontal look rotates the current authored view rather than a stale pose.).
  */
 export function test_website_spectator_look(): void {
   const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(45),

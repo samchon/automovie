@@ -28,10 +28,11 @@ import { nclose } from "../internal/predicates";
  * 2. Admit positive integer repeat with the existing fixture synthesizer.
  * 3. Admit a reach to a staged node with the same synthesizer.
  *
- * @evidence contracts/testing.md#behavioral-verification Performs the coherent duel and checks shot/camera identities and clips, actor motion joins, clocks, positive repeat and a staged-node reach target.
- * @evidence contracts/testing.md#independent-expectations Authored beat/scene/camera ids determine output identity and two seconds determine duration within canonical 1e-6 predicates. Each performance must reference its own emitted motion, which is a join consistency check. Repeat and reach observe admission only, without independently measuring repeated motion content, reach geometry or pixels.
- * @evidence contracts/testing.md#distinguishing-cases Retains the two-actor draft with null final, camera motion, zero offsets, integer repeat and positional reach; invalid input and ROM excess are separate entries.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_valid unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs the coherent duel and checks shot/camera identities and clips, actor motion joins, clocks, positive repeat and a staged-node reach target.
+ * @evidence contracts/development/testing.md#independent-expectations Authored beat/scene/camera ids determine output identity and two seconds determine duration within canonical 1e-6 predicates. Each performance must reference its own emitted motion, which is a join consistency check. Repeat and reach observe admission only, without independently measuring repeated motion content, reach geometry or pixels.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains the two-actor draft with null final, camera motion, zero offsets, integer repeat and positional reach; invalid input and ROM excess are separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_valid unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Preserve authored shot/camera identities, two-second clip clocks and both actor-motion joins with zero offsets.).
  */
 export function test_film_perform_shot_valid(): void {
   const staged: IAutoMovieStagedSet = stageScene(

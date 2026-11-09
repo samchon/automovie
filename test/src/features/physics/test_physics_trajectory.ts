@@ -27,10 +27,11 @@ import { nclose, vclose } from "../internal/predicates";
  * 4. End to end with the aim solver: fire a solved launch, bake its flight, and
  *    the clip's last position sits on the target.
  *
- * @evidence contracts/testing.md#behavioral-verification Bakes and samples a projectile clip, checking track order, key count, endpoint time, frame-aligned positions, apex/landing facing and solved-launch landing; wrong sample timing, acceleration or orientation fails.
- * @evidence contracts/testing.md#independent-expectations Authored p0+v0*t+g*t^2/2 values replace projectileAt as the position oracle, key arithmetic gives 31 and the authored target defines final landing. sampleClip and Quaternion remain shared interpretation dependencies; apex interpolation has a stated tolerance and no rendered appearance is proved.
- * @evidence contracts/testing.md#distinguishing-cases Covers start/interior/end keys, horizontal apex versus downward landing and an oblique solved flight at a different fps; invalid timing and state admission belong to neighboring units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns all assertions and calls clip/math functions directly with local records, without a viewer, GPU or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Bakes and samples a projectile clip, checking track order, key count, endpoint time, frame-aligned positions, apex/landing facing and solved-launch landing; wrong sample timing, acceleration or orientation fails.
+ * @evidence contracts/development/testing.md#independent-expectations Authored p0+v0*t+g*t^2/2 values replace projectileAt as the position oracle, key arithmetic gives 31 and the authored target defines final landing. sampleClip and Quaternion remain shared interpretation dependencies; apex interpolation has a stated tolerance and no rendered appearance is proved.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers start/interior/end keys, horizontal apex versus downward landing and an oblique solved flight at a different fps; invalid timing and state admission belong to neighboring units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit owns all assertions and calls clip/math functions directly with local records, without a viewer, GPU or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A 30 fps trajectory over a 1 s flight has 31 keys (endpoints included) on).
  */
 export function test_physics_trajectory(): void {
   const p: IAutoMovieProjectile = {

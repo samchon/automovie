@@ -36,10 +36,11 @@ import { createSkinnedTubeModel } from "../internal/createSkinnedTubeModel";
  * 7. Neutral restoration (no joints, null root) returns the box to the rest build's box and the driven morph influence to zero.
  * 8. The depth pass and the outline shell apply morph targets before skinning in their vertex shaders.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds through buildModel, poses through applyPose and reads getVertexPosition, Box3.setFromObject, boundingSphere, Raycaster hits, clone queries and render-mode shader sources; catches Three's linear CPU path on a dual-quaternion skin, rest or stale bounds after a pose, bounds without the morph, an unsafe joint-only sphere, a picking ray testing other geometry, unreset neutral state, a clone losing its method and guide passes that skip morph targets. A reproduction of the pre-fix build (a plain THREE.SkinnedMesh with the same geometry, material, skeleton and bind) fails scenarios 1 to 6 on the dual-quaternion skin and 2 and 6 on the linear skin, whose unpadded bounds exclude the engine's vertices by float rounding.
- * @evidence contracts/testing.md#independent-expectations Expected points come from the engine's skinAutoMovieMesh over resolvePose and resolveMorphTargetWeights, which the kinematics tests pin to closed-form rotations; the linear contrast is Three's own SkinnedMesh.applyBoneTransform, and shader expectations are Three's chunk order.
- * @evidence contracts/testing.md#distinguishing-cases Both skin methods; rest, forward and backward bends; identity and non-identity part and root transforms; live and zero morph weights, which select the exact and the joint-only sphere; joint-ring vertices where the methods disagree; a clone; and two material-swapping passes. GPU float rounding is bounded analytically and checked on a hardware renderer elsewhere.
- * @evidence contracts/testing.md#execution-ownership A portable unit over CPU-side Three objects with a synthetic internal fixture; it starts no browser, GPU or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds through buildModel, poses through applyPose and reads getVertexPosition, Box3.setFromObject, boundingSphere, Raycaster hits, clone queries and render-mode shader sources; catches Three's linear CPU path on a dual-quaternion skin, rest or stale bounds after a pose, bounds without the morph, an unsafe joint-only sphere, a picking ray testing other geometry, unreset neutral state, a clone losing its method and guide passes that skip morph targets. A reproduction of the pre-fix build (a plain THREE.SkinnedMesh with the same geometry, material, skeleton and bind) fails scenarios 1 to 6 on the dual-quaternion skin and 2 and 6 on the linear skin, whose unpadded bounds exclude the engine's vertices by float rounding.
+ * @evidence contracts/development/testing.md#independent-expectations Expected points come from the engine's skinAutoMovieMesh over resolvePose and resolveMorphTargetWeights, which the kinematics tests pin to closed-form rotations; the linear contrast is Three's own SkinnedMesh.applyBoneTransform, and shader expectations are Three's chunk order.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both skin methods; rest, forward and backward bends; identity and non-identity part and root transforms; live and zero morph weights, which select the exact and the joint-only sphere; joint-ring vertices where the methods disagree; a clone; and two material-swapping passes. GPU float rounding is bounded analytically and checked on a hardware renderer elsewhere.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit over CPU-side Three objects with a synthetic internal fixture; it starts no browser, GPU or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: For a dual-quaternion and a linear tube under a non-identity part transform (rotated, uniformly scaled 1.5), a 90 degree spine bend, a...).
  */
 export function test_viewer_skinned_pose_parity(): void {
   const model: (method: IAutoMovieMeshSkin["method"]) => IAutoMovieModel = (
@@ -86,7 +87,11 @@ export function test_viewer_skinned_pose_parity(): void {
     },
     joints: [{ bone: "spine", flexion: 90, abduction: 0, twist: 0 }],
   };
-  const neutral: IAutoMoviePose = { skeleton: "tube-rig", root: null, joints: [] };
+  const neutral: IAutoMoviePose = {
+    skeleton: "tube-rig",
+    root: null,
+    joints: [],
+  };
 
   // Every scenario runs, and the failure lists every defect at once.
   const defects: string[] = [];
@@ -107,7 +112,9 @@ export function test_viewer_skinned_pose_parity(): void {
   for (const method of ["dual-quaternion", "linear"] as const) {
     const source: IAutoMovieModel = model(method);
     const built: IAutoMovieModelObject = buildModel(source);
-    const mesh: THREE.SkinnedMesh = built.parts.get("tube") as THREE.SkinnedMesh;
+    const mesh: THREE.SkinnedMesh = built.parts.get(
+      "tube",
+    ) as THREE.SkinnedMesh;
     built.object.updateMatrixWorld(true);
     const rest: THREE.Box3 = new THREE.Box3().setFromObject(mesh);
     const posed: (target: IAutoMoviePose) => THREE.Vector3[] = (
@@ -274,7 +281,8 @@ export function test_viewer_skinned_pose_parity(): void {
     source.indexOf("#include <morphtarget_vertex>") <
       source.indexOf("#include <skinning_vertex>");
   const depth: IAutoMovieRenderModeHandle = applyRenderMode(scene, "depth");
-  const depthSource: string = (mesh.material as THREE.ShaderMaterial).vertexShader;
+  const depthSource: string = (mesh.material as THREE.ShaderMaterial)
+    .vertexShader;
   depth.restore();
   const outline: IAutoMovieRenderModeHandle = applyRenderMode(scene, "outline");
   const shell: THREE.Mesh = built.object.children.find(
@@ -315,7 +323,12 @@ function expectedSkin(
   const t: IAutoMovieTransform = part.transform;
   const placed: THREE.Matrix4 = new THREE.Matrix4().compose(
     new THREE.Vector3(t.translation.x, t.translation.y, t.translation.z),
-    new THREE.Quaternion(t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w),
+    new THREE.Quaternion(
+      t.rotation.x,
+      t.rotation.y,
+      t.rotation.z,
+      t.rotation.w,
+    ),
     new THREE.Vector3(t.scale.x, t.scale.y, t.scale.z),
   );
   const flat: number[] = skinAutoMovieMesh(

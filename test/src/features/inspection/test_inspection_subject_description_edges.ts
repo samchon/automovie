@@ -29,10 +29,11 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * 5. Missing runtime LODs yield null prototype and geometry, while seeded rotation, non-uniform scale, and zero-weight prototype fallback remain deterministic.
  * 6. A logical-space declaration edit is classified as one reshape.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls direct descriptions and subject diff for less common compiled forms, checking explicit absence, ownership, bounds, prototype selection and one-space reshape; invented payloads or broken hierarchy links fail.
- * @evidence contracts/testing.md#independent-expectations Authored box dimensions, one-metre part offset, five-metre rigid rest and explicit shell coordinates determine geometry; zero-weight selection follows the final-prototype contract, while finite checks do not assert an exact seed draw.
- * @evidence contracts/testing.md#distinguishing-cases Primitive and rigid attachments including a missing bone, empty/missing models, shell/semantic spaces, population ownership, missing LOD, seeded variation and a logical-space edit are retained; full enumeration and coordinate-oracle units own their separate cases.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_inspection_subject_description_edges entry owns these synchronous portable compiled-record cases and local fact callbacks; resident synthetic records require no production installation, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls direct descriptions and subject diff for less common compiled forms, checking explicit absence, ownership, bounds, prototype selection and one-space reshape; invented payloads or broken hierarchy links fail.
+ * @evidence contracts/development/testing.md#independent-expectations Authored box dimensions, one-metre part offset, five-metre rigid rest and explicit shell coordinates determine geometry; zero-weight selection follows the final-prototype contract, while finite checks do not assert an exact seed draw.
+ * @evidence contracts/development/testing.md#distinguishing-cases Primitive and rigid attachments including a missing bone, empty/missing models, shell/semantic spaces, population ownership, missing LOD, seeded variation and a logical-space edit are retained; full enumeration and coordinate-oracle units own their separate cases.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_inspection_subject_description_edges entry owns these synchronous portable compiled-record cases and local fact callbacks; resident synthetic records require no production installation, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Primitive geometry, a non-identity part transform, a rigid rest-bone attachment, a missing attachment bone, and a null material all...).
  */
 export function test_inspection_subject_description_edges(): void {
   const primitive: IAutoMovieModel = primitiveModel();

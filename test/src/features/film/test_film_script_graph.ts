@@ -19,10 +19,11 @@ import { throwsError } from "../internal/predicates";
  * 6. BeatNodeOf finds the claiming beat node, and returns null for an unclaimed
  * beat, a null tree, and an undefined tree alike.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls screenplay parent and flat-beat joins and observes exact nearest-first ancestors, located malformed-chain throws and null unclaimed/absent-tree answers.
- * @evidence contracts/testing.md#independent-expectations The fixture's explicitly authored hierarchy supplies literal ancestor ids and claiming beat node, independent of the walkers; tests do not validate all possible screenplay graph shapes.
- * @evidence contracts/testing.md#distinguishing-cases Keeps a deep chain, root, unknown node, dangling parent, cycle, claimed/unclaimed beats and null/undefined tree inputs.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_script_graph and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls screenplay parent and flat-beat joins and observes exact nearest-first ancestors, located malformed-chain throws and null unclaimed/absent-tree answers.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture's explicitly authored hierarchy supplies literal ancestor ids and claiming beat node, independent of the walkers; tests do not validate all possible screenplay graph shapes.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps a deep chain, root, unknown node, dangling parent, cycle, claimed/unclaimed beats and null/undefined tree inputs.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_script_graph and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A deep chain walks nearest-first to the root, excluding the node itself: beat).
  */
 export function test_film_script_graph(): void {
   const tree: IAutoMovieScriptNode[] = createScriptTree();

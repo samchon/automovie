@@ -1,11 +1,4 @@
 import { planViewerFrameTimes } from "@automovie/render";
-import {
-  decodeAutoMovieDelivery,
-  mixAutoMovieAudioCues,
-  renderViewerFrames,
-  renderViewerVideo,
-  type IAutoMovieViewerVideoResult,
-} from "@automovie/render/node";
 import ffmpeg from "ffmpeg-static";
 import ffprobe from "ffprobe-static";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -13,6 +6,11 @@ import path from "node:path";
 
 import type { IFilm } from "../IFilm";
 import { films } from "../composition/films";
+import { type IAutoMovieViewerVideoResult } from "../integrations/render/node/IAutoMovieViewerVideoResult";
+import { decodeAutoMovieDelivery } from "../integrations/render/node/decodeAutoMovieDelivery";
+import { mixAutoMovieAudioCues } from "../integrations/render/node/mixAutoMovieAudioCues";
+import { renderViewerFrames } from "../integrations/render/node/renderViewerFrames";
+import { renderViewerVideo } from "../integrations/render/node/renderViewerVideo";
 import { selectFilm } from "../selectFilm";
 
 /**
@@ -26,8 +24,8 @@ import { selectFilm } from "../selectFilm";
  * `f<frame>-t<seconds>.png`. `--film` may be omitted while only one film exists.
  * A bare `http://...` argument selects the running Viewer, as `VIEWER_URL`
  * does; the default is this production's Viewer at 127.0.0.1:5199. The video
- * mode mixes the page's own soundtrack cues into the encode and then decodes
- * the delivered file completely, writing `decode-report.json` beside it.
+ * mode encodes the picture only, then decodes the delivered file completely,
+ * writing `decode-report.json` beside it; video diffusion makes the audio.
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment gives both modes, every option and its unit, the default folders and the still names.
  * @evidence contracts/development/implementation.md#principled-implementation One parser, film selection and capture URL serve both modes, so a still and the video's frame at the same second come from the same Viewer, raster and frame grid; the installed planViewerFrameTimes plans the seconds on the film's frame rate, and the installed renderViewerVideo and renderViewerFrames capture through the Viewer's own seek hook.
@@ -136,36 +134,6 @@ export async function render(): Promise<void> {
     chromeExecutable,
     ffmpegExecutable: process.env.FFMPEG_PATH ?? ffmpeg ?? "",
     viewSelector: "#view",
-    prepare: async (page): Promise<{ audioMix?: string }> => {
-      const soundtrack = (await page.evaluate(
-        (): unknown =>
-          (
-            window as unknown as { __afSoundtrack: () => unknown }
-          ).__afSoundtrack(),
-        undefined,
-      )) as
-        | {
-            cues: { asset: string; seconds: number; gain: number }[];
-            assets: Record<string, string>;
-          }
-        | undefined;
-      if (!soundtrack) return {};
-      const mixed = await mixAutoMovieAudioCues({
-        sampleRate: SAMPLE_RATE,
-        durationSeconds: selected.film.durationSeconds,
-        assets: Object.fromEntries(
-          Object.entries(soundtrack.assets).map(([id, file]) => [
-            id,
-            path.resolve(file),
-          ]),
-        ),
-        cues: soundtrack.cues,
-        outputPath: path.resolve(
-          `.cache/render/${selected.name}/soundtrack.wav`,
-        ),
-      });
-      return { audioMix: mixed.path };
-    },
     onProgress: (progress: {
       index: number;
       timeSeconds: number;
@@ -188,16 +156,12 @@ export async function render(): Promise<void> {
     fps: selected.film.fps,
     width: 1280,
     height: 720,
-    sampleRate: SAMPLE_RATE,
   });
   await writeFile(
     path.join(directory, "decode-report.json"),
     JSON.stringify(decoded, null, 2),
   );
 }
-
-/** Soundtrack sample rate, Hz: the 48 kHz of the production's audio sources. */
-const SAMPLE_RATE: number = 48000;
 
 void render().catch((error: unknown): void => {
   console.error(error);

@@ -30,17 +30,21 @@ export namespace HumanAnatomySurface {
   /**
    * Read existing index capacity without creating one or copying its arrays.
    *
-   * @evidence contracts/common.md#principled-implementation Reads the weak-key index and its typed-array byte lengths without changing query inputs or acquisition/release points; object overhead is not estimated.
-   * @evidence contracts/common.md#clear-and-simple-design The query owner exposes only counts and capacity; geometry and hierarchy arrays remain private.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No consumer, person or expected measurement changes the count.
-   * @evidence contracts/common.md#meaningful-documentation Names acquisition state, one reference per triangle, typed bytes and excluded overhead.
-   * @evidence contracts/performance.md#efficient-algorithms Reads a fixed number of array byte lengths in O(1) time with O(1) scalar scratch.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reads the same immutable-skin identity cache as queries and performs no generation, insertion or invalidation.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns three numbers and retains no skin or index; the weak-key cache lifetime is unchanged.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the weak-key index and its typed-array byte lengths without changing query inputs or acquisition/release points; object overhead is not estimated.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The query owner exposes only counts and capacity; geometry and hierarchy arrays remain private.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No consumer, person or expected measurement changes the count.
+   * @evidence contracts/development/common.md#meaningful-documentation Names acquisition state, one reference per triangle, typed bytes and excluded overhead.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reads a fixed number of array byte lengths in O(1) time with O(1) scalar scratch.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the same immutable-skin identity cache as queries and performs no generation, insertion or invalidation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns three numbers and retains no skin or index; the weak-key cache lifetime is unchanged.
    */
   export function statistics(skin: ISkin): IStatistics {
     const found: HumanAnatomySurfaceIndex | undefined = indexes.get(skin);
-    return { indexes: found === undefined ? 0 : 1, triangleReferences: found?.triangles ?? 0, typedBytes: found?.typedBytes ?? 0 };
+    return {
+      indexes: found === undefined ? 0 : 1,
+      triangleReferences: found?.triangles ?? 0,
+      typedBytes: found?.typedBytes ?? 0,
+    };
   }
 
   /** Vertex position. */
@@ -51,22 +55,27 @@ export namespace HumanAnatomySurface {
   /** A joint's centre, mm. */
   export function joint(skin: ISkin, bone: string): V3 {
     const found: V3 | undefined = skin.joints.get(bone);
-    if (found === undefined) throw new Error(`${skin.name} has no ${bone} joint`);
+    if (found === undefined)
+      throw new Error(`${skin.name} has no ${bone} joint`);
     return found;
   }
 
   /** Triangles whose chain name passes a test. */
   export function triangles(skin: ISkin, chain: RegExp): Uint32Array {
-    const keep: boolean[] = skin.chains.map((c: string): boolean => chain.test(c));
+    const keep: boolean[] = skin.chains.map((c: string): boolean =>
+      chain.test(c),
+    );
     const out: number[] = [];
-    for (let t: number = 0; t < skin.tri.length; t++) if (keep[skin.tri[t]!]) out.push(t);
+    for (let t: number = 0; t < skin.tri.length; t++)
+      if (keep[skin.tri[t]!]) out.push(t);
     return Uint32Array.from(out);
   }
 
   /** Vertices of the triangles whose chain name passes a test. */
   export function vertices(skin: ISkin, chain: RegExp): V3[] {
     const seen: Set<number> = new Set();
-    for (const t of triangles(skin, chain)) for (let k: number = 0; k < 3; k++) seen.add(skin.I[3 * t + k]!);
+    for (const t of triangles(skin, chain))
+      for (let k: number = 0; k < 3; k++) seen.add(skin.I[3 * t + k]!);
     return [...seen].map((v: number): V3 => point(skin, v));
   }
 
@@ -76,13 +85,20 @@ export namespace HumanAnatomySurface {
     const ll: number = V.dot(ab, ab);
     const close: (v: number) => boolean = (v: number): boolean => {
       const p: V3 = point(skin, v);
-      const s: number = ll === 0 ? 0 : Math.max(0, Math.min(1, V.dot(V.sub(p, a), ab) / ll));
+      const s: number =
+        ll === 0 ? 0 : Math.max(0, Math.min(1, V.dot(V.sub(p, a), ab) / ll));
       return V.dist(p, V.add(a, V.scale(ab, s))) <= radius;
     };
     const ok: Uint8Array = new Uint8Array(skin.P.length / 3);
     for (let v: number = 0; v < ok.length; v++) ok[v] = close(v) ? 1 : 0;
     const out: number[] = [];
-    for (let t: number = 0; t < skin.I.length / 3; t++) if (ok[skin.I[3 * t]!] || ok[skin.I[3 * t + 1]!] || ok[skin.I[3 * t + 2]!]) out.push(t);
+    for (let t: number = 0; t < skin.I.length / 3; t++)
+      if (
+        ok[skin.I[3 * t]!] ||
+        ok[skin.I[3 * t + 1]!] ||
+        ok[skin.I[3 * t + 2]!]
+      )
+        out.push(t);
     return Uint32Array.from(out);
   }
 
@@ -104,7 +120,8 @@ export namespace HumanAnatomySurface {
       for (let e: number = 0; e < 3; e++) {
         const a: number = skin.I[t + e]!;
         const b: number = skin.I[t + ((e + 1) % 3)]!;
-        if (count.get(Math.min(a, b) * n + Math.max(a, b)) === 1) next.set(b, a);
+        if (count.get(Math.min(a, b) * n + Math.max(a, b)) === 1)
+          next.set(b, a);
       }
     const loops: V3[][] = [];
     const seen: Set<number> = new Set();
@@ -145,23 +162,35 @@ export namespace HumanAnatomySurface {
    * times on most of them (an opening can spoil one ray); its depth is the
    * least distance to a triangle along the rays that found it inside.
    */
-  export function penetration(skin: ISkin, region: Uint32Array): { count: number; deepest: number; at: V3 | null } {
+  export function penetration(
+    skin: ISkin,
+    region: Uint32Array,
+  ): { count: number; deepest: number; at: V3 | null } {
     const normals: Float64Array = vertexNormals(skin);
     const index: HumanAnatomySurfaceIndex = indexOf(skin);
     const verts: Set<number> = new Set();
-    for (const t of region) for (let k: number = 0; k < 3; k++) verts.add(skin.I[3 * t + k]!);
+    for (const t of region)
+      for (let k: number = 0; k < 3; k++) verts.add(skin.I[3 * t + k]!);
     let count: number = 0;
     let deepest: number = 0;
     let at: V3 | null = null;
     for (const v of verts) {
       const p: V3 = point(skin, v);
-      const nv: V3 = [normals[3 * v]!, normals[3 * v + 1]!, normals[3 * v + 2]!];
+      const nv: V3 = [
+        normals[3 * v]!,
+        normals[3 * v + 1]!,
+        normals[3 * v + 2]!,
+      ];
       const q: V3 = V.add(p, V.scale(nv, 0.05));
       let inside: number = 0;
       let depth: number = Infinity;
       for (let axis: number = 0; axis < 3; axis++)
         for (const sign of [1, -1]) {
-          const hit: { crossings: number; nearest: number } = index.ray(q, axis, sign);
+          const hit: { crossings: number; nearest: number } = index.ray(
+            q,
+            axis,
+            sign,
+          );
           if (hit.crossings % 2 === 1) {
             inside++;
             depth = Math.min(depth, hit.nearest);
@@ -179,7 +208,12 @@ export namespace HumanAnatomySurface {
   }
 
   /** Skin crossings of a ray along an axis (0 x, 1 y, 2 z) in a sense, and the nearest one's distance. */
-  export function ray(skin: ISkin, p: V3, axis: number, sign: 1 | -1): { crossings: number; nearest: number } {
+  export function ray(
+    skin: ISkin,
+    p: V3,
+    axis: number,
+    sign: 1 | -1,
+  ): { crossings: number; nearest: number } {
     return indexOf(skin).ray(p, axis, sign);
   }
 
@@ -191,7 +225,9 @@ export namespace HumanAnatomySurface {
       const b: V3 = point(skin, skin.I[t + 1]!);
       const c: V3 = point(skin, skin.I[t + 2]!);
       const n: V3 = V.cross(V.sub(b, a), V.sub(c, a));
-      for (let k: number = 0; k < 3; k++) for (let c3: number = 0; c3 < 3; c3++) out[3 * skin.I[t + k]! + c3]! += n[c3]!;
+      for (let k: number = 0; k < 3; k++)
+        for (let c3: number = 0; c3 < 3; c3++)
+          out[3 * skin.I[t + k]! + c3]! += n[c3]!;
     }
     for (let v: number = 0; v < out.length; v += 3) {
       const l: number = Math.hypot(out[v]!, out[v + 1]!, out[v + 2]!) || 1;
@@ -208,13 +244,13 @@ export namespace HumanAnatomySurface {
    * The former grid-cell width was an acceleration detail, not a measurement
    * input; the internal callers now request only the skin and query points.
    *
-   * @evidence contracts/common.md#principled-implementation Delegates to global box-distance branch and bound, so interior and far points remain measured. The closed-triangle leaf distance includes collapsed segments and points without dropping their candidates.
-   * @evidence contracts/common.md#clear-and-simple-design Shares one immutable-skin index with rays instead of retaining a second coordinate grid.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not turn missing local candidates into Infinity or change any consumer's tolerance.
-   * @evidence contracts/common.md#meaningful-documentation Names global scope, units and removal of the obsolete grid-cell width.
-   * @evidence contracts/performance.md#efficient-algorithms Builds one O(T)-storage hierarchy, then prunes by lower distance bound for each query, with O(T) worst-case query work.
-   * @evidence contracts/performance.md#reuse-equivalent-work Both query kinds share the same immutable-skin index; a new skin identity acquires a new one.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one scalar per point and retains no point list; only the weakly keyed skin index survives the call.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to global box-distance branch and bound, so interior and far points remain measured. The closed-triangle leaf distance includes collapsed segments and points without dropping their candidates.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shares one immutable-skin index with rays instead of retaining a second coordinate grid.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not turn missing local candidates into Infinity or change any consumer's tolerance.
+   * @evidence contracts/development/common.md#meaningful-documentation Names global scope, units and removal of the obsolete grid-cell width.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Builds one O(T)-storage hierarchy, then prunes by lower distance bound for each query, with O(T) worst-case query work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both query kinds share the same immutable-skin index; a new skin identity acquires a new one.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar per point and retains no point list; only the weakly keyed skin index survives the call.
    */
   export function distances(skin: ISkin, points: V3[]): number[] {
     if (points.length === 0) return [];
@@ -224,7 +260,8 @@ export namespace HumanAnatomySurface {
 }
 
 /** One hierarchy per immutable skin, released when its external readers release the skin. */
-const indexes: WeakMap<HumanAnatomy.ISkin, HumanAnatomySurfaceIndex> = new WeakMap();
+const indexes: WeakMap<HumanAnatomy.ISkin, HumanAnatomySurfaceIndex> =
+  new WeakMap();
 
 /**
  * Acquire lazily, publishing only a completed hierarchy so failures are not cached.

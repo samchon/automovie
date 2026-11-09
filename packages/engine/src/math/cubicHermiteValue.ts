@@ -6,13 +6,13 @@
  * basis is applied. The sampler and every range proof share this evaluator: a
  * validator proving a different polynomial than playback uses is no proof.
  *
- * @evidence contracts/common.md#principled-implementation Four cubic Hermite basis terms interpolate endpoints and derivatives; key-time span converts per-second tangents to normalized-segment derivatives.
- * @evidence contracts/common.md#clear-and-simple-design Playback and range proofs share this polynomial owner so their tangent scaling cannot drift.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither time nor tangents are clamped, preserving authored interpolation and caller-controlled extrapolation.
- * @evidence contracts/common.md#meaningful-documentation Identifies outgoing/incoming tangent ownership, derivative units, span scaling and shared sampler/range-proof responsibility.
- * @evidence contracts/performance.md#efficient-algorithms Squared and cubed time are computed once for a fixed four-term polynomial, requiring constant arithmetic.
- * @evidence contracts/performance.md#reuse-equivalent-work All basis terms reuse the same time powers; no sampled component is cached across changing times.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only scalar powers and the returned component exist, without retained keys, tangents or sample history.
+ * @evidence contracts/development/implementation.md#principled-implementation Four cubic Hermite basis terms interpolate endpoints and derivatives; key-time span converts per-second tangents to normalized-segment derivatives.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Playback and range proofs share this polynomial owner so their tangent scaling cannot drift.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither time nor tangents are clamped, preserving authored interpolation and caller-controlled extrapolation.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies outgoing/incoming tangent ownership, derivative units, span scaling and shared sampler/range-proof responsibility.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Squared and cubed time are computed once for a fixed four-term polynomial, requiring constant arithmetic.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All basis terms reuse the same time powers; no sampled component is cached across changing times.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only scalar powers and the returned component exist, without retained keys, tangents or sample history.
  */
 export const cubicHermiteValue: (
   left: number,

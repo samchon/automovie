@@ -18,10 +18,11 @@ import { throwsError } from "../internal/predicates";
  * 3. POSIX status 0/1 admits a nonempty date or absence; other outcomes refuse
  *    without converting an error into a creation identity.
  *
- * @evidence contracts/testing.md#behavioral-verification Decodes supplied native transport results through production Windows/POSIX owners, asserting exact successful payloads, absence, malformed JSON, original spawn errors and diagnostic-bearing failed exits.
- * @evidence contracts/testing.md#independent-expectations Authored JSON/date text and the fixed transports' supported exit statuses define results independently of decoder output. Parsed Windows JSON is not an independently validated process-record schema, and no native command runs here.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts present/absent/structured Windows payloads, whitespace, malformed JSON, spawn-error priority, nonzero/null exits and POSIX supported 0/1 versus other outcomes; controller stop permission and Linux stat parsing belong to neighboring units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit calls production decoders through the existing source-module bridge with value records and owns all assertions; no process or OS host is started and no cases are dynamically registered.
+ * @evidence contracts/development/testing.md#behavioral-verification Decodes supplied native transport results through production Windows/POSIX owners, asserting exact successful payloads, absence, malformed JSON, original spawn errors and diagnostic-bearing failed exits.
+ * @evidence contracts/development/testing.md#independent-expectations Authored JSON/date text and the fixed transports' supported exit statuses define results independently of decoder output. Parsed Windows JSON is not an independently validated process-record schema, and no native command runs here.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts present/absent/structured Windows payloads, whitespace, malformed JSON, spawn-error priority, nonzero/null exits and POSIX supported 0/1 versus other outcomes; controller stop permission and Linux stat parsing belong to neighboring units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit calls production decoders through the existing source-module bridge with value records and owns all assertions; no process or OS host is started and no cases are dynamically registered.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Windows successful JSON carries a birth stamp, absent null or snapshot;).
  */
 export function test_process_ownership_transport_results(): void {
   const result: Parameters<typeof ProcessOwnershipUnit.windowsResult>[0] = {

@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoveryCameraChart } from "../../../../packages/recovery/src/internal/createRecoveryCameraChart";
@@ -14,10 +14,11 @@ import { nclose } from "../internal/nclose";
  * 2. Four local discovery attempts must still recover the same independent camera, stabilize final support and satisfy the recomputed conditional sampling target.
  * 3. A spent one-step optimizer does not inherit convergence from hypothesis discovery.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual calibrated consensus and four-pose selection on noisy independent projections, observes physical rotation and signed translation, final optimizer convergence, inlier identities, sampling work and the caller's local-work limit. A separate exhausted-optimizer call must remain unqualified.
- * @evidence contracts/testing.md#independent-expectations Scalar pinhole projection uses a prescribed Y-axis orbit about the point at depth six, with translation target minus rotated target. Forty distinct three-dimensional points span depth 5.9 through 6.1; deterministic subpixel perturbations and eight unrelated image points are authored before fitting. Neither expected pose nor inlier identities come from estimator output or photographs.
- * @evidence contracts/testing.md#distinguishing-cases Shallow depth variation exposes weak calibrated minimal initializers whose raw support cannot bound refined support. The regression compares the recovered camera to independent geometry and preserves final subset convergence and optimizer-budget refusal. It does not claim a shallow scene passes the separate homography ambiguity gate or establishes photographic accuracy.
- * @evidence contracts/testing.md#execution-ownership The portable test_recovery_camera_local_discovery entry owns small synchronous arrays and calls maintained numerical owners. It installs nothing, starts no process or viewer, opens no image or ground truth file and replaces no method or global.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual calibrated consensus and four-pose selection on noisy independent projections, observes physical rotation and signed translation, final optimizer convergence, inlier identities, sampling work and the caller's local-work limit. A separate exhausted-optimizer call must remain unqualified.
+ * @evidence contracts/development/testing.md#independent-expectations Scalar pinhole projection uses a prescribed Y-axis orbit about the point at depth six, with translation target minus rotated target. Forty distinct three-dimensional points span depth 5.9 through 6.1; deterministic subpixel perturbations and eight unrelated image points are authored before fitting. Neither expected pose nor inlier identities come from estimator output or photographs.
+ * @evidence contracts/development/testing.md#distinguishing-cases Shallow depth variation exposes weak calibrated minimal initializers whose raw support cannot bound refined support. The regression compares the recovered camera to independent geometry and preserves final subset convergence and optimizer-budget refusal. It does not claim a shallow scene passes the separate homography ambiguity gate or establishes photographic accuracy.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_camera_local_discovery entry owns small synchronous arrays and calls maintained numerical owners. It installs nothing, starts no process or viewer, opens no image or ground truth file and replaces no method or global.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Independently projected shallow nonplanar points with pixel noise and eight mismatches recover the prescribed orbit rather than an early...).
  */
 export function test_recovery_camera_local_discovery(): void {
   const policy: IAutoMovieRecoveryCameraPairInput["policy"] = {

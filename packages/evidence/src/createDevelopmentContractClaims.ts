@@ -23,13 +23,13 @@ import type { IAutoMovieDevelopmentProps } from "./IAutoMovieDevelopmentProps";
  * checklist alone, because their settings citations are judged by review
  * rather than required for every settings heading.
  *
- * @evidence contracts/common.md#principled-implementation Native TypeScript claims carry the checklist, and a second Markdown reference uses native target coverage to make the study-to-behavior, screenplay-to-scene and screenplay-to-film relations mechanical.
- * @evidence contracts/common.md#clear-and-simple-design One table maps each population to its stage, folders, symbol kinds and cited population; disabled stages produce no claim.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Source folders are the scaffold layout's documented locations, not fixture paths; nothing is inferred from file presence.
- * @evidence contracts/common.md#meaningful-documentation The comment states each stage's respondents and the relation it enforces.
- * @evidence contracts/performance.md#efficient-algorithms Builds at most four fixed-size claim trees in constant time; it performs no discovery or file I/O.
- * @evidence contracts/performance.md#reuse-equivalent-work Fresh objects are returned so one configuration's edits cannot reach another; there is no expensive shared work.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned claims; nothing is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Native TypeScript claims carry the checklist, and a second Markdown reference uses native target coverage to make the study-to-behavior, screenplay-to-scene and screenplay-to-film relations mechanical.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One table maps each population to its stage, folders, symbol kinds and cited population; disabled stages produce no claim.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Source folders are the scaffold layout's documented locations, not fixture paths; nothing is inferred from file presence.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states each stage's respondents and the relation it enforces.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Builds at most four fixed-size claim trees in constant time; it performs no discovery or file I/O.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Fresh objects are returned so one configuration's edits cannot reach another; there is no expensive shared work.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned claims; nothing is retained.
  */
 export function createDevelopmentContractClaims(
   props: IAutoMovieDevelopmentProps,

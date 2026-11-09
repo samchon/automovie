@@ -43,10 +43,10 @@ const jittered: (seed: number) => IAutoMoviePlantingDomain = (
  * Object.is comparisons independently check the selected endpoints, rotations
  * and scales, including signed zero. They do not compare every state field.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls growPlanting with repeated, alternate-seed, rebuilt and cap-limited recipes; selected numeric identity, length variation and named errors expose unstable derivation or ignored caps.
- * @evidence contracts/testing.md#independent-expectations Repeat calls and a JSON-rebuilt recipe must agree without embedding a produced snapshot; Object.is preserves exact selected fields, while the 32-bit digest can collide and twelve-decimal length grouping is approximate.
- * @evidence contracts/testing.md#distinguishing-cases Exercises jitter on/off, seed change, structural reconstruction, branch/leaf caps and enormous leaf density; other planting tests own hand-computed geometry and pruning, and this test measures neither allocations nor cross-host identity.
- * @evidence contracts/testing.md#execution-ownership The discoverable exported test is a portable engine unit test with no dynamic registrations, native build, viewer, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls growPlanting with repeated, alternate-seed, rebuilt and cap-limited recipes; selected numeric identity, length variation and named errors expose unstable derivation or ignored caps.
+ * @evidence contracts/development/testing.md#independent-expectations Repeat calls and a JSON-rebuilt recipe must agree without embedding a produced snapshot; Object.is preserves exact selected fields, while the 32-bit digest can collide and twelve-decimal length grouping is approximate.
+ * @evidence contracts/development/testing.md#distinguishing-cases Exercises jitter on/off, seed change, structural reconstruction, branch/leaf caps and enormous leaf density; other planting tests own hand-computed geometry and pruning, and this test measures neither allocations nor cross-host identity.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable exported test is a portable engine unit test with no dynamic registrations, native build, viewer, browser or GPU.
  *
  * Scenarios:
  *
@@ -63,6 +63,8 @@ const jittered: (seed: number) => IAutoMoviePlantingDomain = (
  *    what the law grows, and a leaf cap below what the foliage bears, each
  *    throw with the recipe named. A density of a trillion leaves per metre also
  *    throws the declared sixteen-leaf cap error; no allocation count is observed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two derivations have identical counts, branch endpoints, leaf rotations and).
  */
 export function test_planting_determinism(): void {
   const once: IAutoMoviePlantingState = growPlanting(jittered(20_260_810));

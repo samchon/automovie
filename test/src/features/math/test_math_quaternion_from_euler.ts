@@ -15,10 +15,11 @@ import { qclose, vclose } from "../internal/predicates";
  * 3. The `order` composes intrinsically: `XYZ` equals `qx·qy·qz` and `ZYX` equals
  *    `qz·qy·qx`, so the same angles in different orders differ.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls Euler conversion, axis-angle construction, multiplication and vector rotation; cardinal directions, zero angles and two noncommuting orders catch wrong handedness or axis order while permitting equivalent quaternion signs.
- * @evidence contracts/testing.md#independent-expectations Right-handed quarter-turns send +Y to +Z about X and +X to +Y about Z. Zero angles are neutral; XYZ and ZYX factor order follows the declared intrinsic contract. Product and axis-angle parity reuse other Quaternion operations and can share their defects; they are not independent quaternion component oracles.
- * @evidence contracts/testing.md#distinguishing-cases Preserves single-axis X/Y/Z inputs, zero and XYZ/ZYX noncommutativity. Other Euler orders, malformed inputs and nonunit rotation admission are outside this entry; axis magnitudes are covered by rotate-vector.
- * @evidence contracts/testing.md#execution-ownership The named math entry owns its synchronous assertions and directly calls portable runtime namespaces. It starts no process, browser or GPU, builds no native artifact and registers no cases dynamically.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls Euler conversion, axis-angle construction, multiplication and vector rotation; cardinal directions, zero angles and two noncommuting orders catch wrong handedness or axis order while permitting equivalent quaternion signs.
+ * @evidence contracts/development/testing.md#independent-expectations Right-handed quarter-turns send +Y to +Z about X and +X to +Y about Z. Zero angles are neutral; XYZ and ZYX factor order follows the declared intrinsic contract. Product and axis-angle parity reuse other Quaternion operations and can share their defects; they are not independent quaternion component oracles.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves single-axis X/Y/Z inputs, zero and XYZ/ZYX noncommutativity. Other Euler orders, malformed inputs and nonunit rotation admission are outside this entry; axis magnitudes are covered by rotate-vector.
+ * @evidence contracts/development/testing.md#execution-ownership The named math entry owns its synchronous assertions and directly calls portable runtime namespaces. It starts no process, browser or GPU, builds no native artifact and registers no cases dynamically.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The single Y-axis Euler rotation matches `fromAxisAngle`; X90 sends +Y).
  */
 export function test_math_quaternion_from_euler(): void {
   const qX: IAutoMovieQuaternion = Quaternion.fromAxisAngle(

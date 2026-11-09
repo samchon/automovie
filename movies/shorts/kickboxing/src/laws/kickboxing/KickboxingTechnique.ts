@@ -43,7 +43,9 @@ export namespace KickboxingTechnique {
     | "knee"
     | "feint-jab"
     | "feint-low-kick"
-    | "feint-body-kick";
+    | "feint-body-kick"
+    | "feint-shoulder"
+    | "feint-level";
 
   /** Performance family: which shape prior and timing law apply. */
   export type Family = "punch" | "round-kick" | "push-kick" | "knee" | "feint";
@@ -129,6 +131,16 @@ export namespace KickboxingTechnique {
    */
   export const PUMP_SHARE: number = 0.5;
 
+  /**
+   * Share of a punch's delivery a shoulder or level feint shows: about the
+   * first 0.3 of the delivery. The shoulder feint pushes the lead shoulder
+   * toward the opponent with a small forward step, the start of the jab
+   * (The Arena Gym: feints and level changes; Fight Primer on Adesanya); the
+   * level feint bends the knees to change level, the start of the body cross
+   * ([feint law](docs/research/kickboxing/exchanges.md#feints)).
+   */
+  export const LOAD_SHARE: number = 0.3;
+
   const punch = (
     name: Name,
     side: Side,
@@ -174,16 +186,24 @@ export namespace KickboxingTechnique {
   });
 
   const jab: ISpec = punch("jab", "left", "straight", "head", "face");
+  const cross: ISpec = punch("cross", "right", "straight", "head", "face");
+  const bodyCross: ISpec = punch(
+    "body-cross",
+    "right",
+    "straight",
+    "body",
+    "stomach",
+  );
   const lowKick: ISpec = kick("low-kick", "right", "leg", "thigh");
   const bodyKick: ISpec = kick("body-kick", "right", "body", "ribs");
 
   /** Every technique, by name. */
   export const table: Readonly<Record<Name, ISpec>> = Object.freeze({
     jab,
-    cross: punch("cross", "right", "straight", "head", "face"),
+    cross,
     hook: punch("hook", "left", "arc", "head", "jaw"),
     uppercut: punch("uppercut", "left", "rising", "head", "chin"),
-    "body-cross": punch("body-cross", "right", "straight", "body", "stomach"),
+    "body-cross": bodyCross,
     "body-hook": punch("body-hook", "left", "arc", "body", "ribs"),
     "low-kick": lowKick,
     "body-kick": bodyKick,
@@ -221,6 +241,8 @@ export namespace KickboxingTechnique {
     "feint-jab": feint("feint-jab", jab, PUMP_SHARE),
     "feint-low-kick": feint("feint-low-kick", lowKick, 1),
     "feint-body-kick": feint("feint-body-kick", bodyKick, 1),
+    "feint-shoulder": feint("feint-shoulder", cross, LOAD_SHARE),
+    "feint-level": feint("feint-level", bodyCross, LOAD_SHARE),
   } satisfies Record<Name, ISpec>);
 
   /**

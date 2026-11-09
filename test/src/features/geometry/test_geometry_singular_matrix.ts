@@ -1,4 +1,4 @@
-import { decomposeAutoMovieSingularMatrix } from "@automovie/engine/math/decomposeAutoMovieSingularMatrix";
+import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -12,10 +12,11 @@ import { nclose } from "../internal/nclose";
  * 3. The eight-row [I|c] design returns its analytic one-dimensional right nullspace and all nine orthogonal right vectors.
  * 4. Zero/singleton designs work; malformed, nonfinite, exhausted and unrepresentable designs throw independently of the next valid call.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the numerical kernel and observes factors, reconstruction, right-vector orthogonality, borrowed-array stability and throwing work/range admission. It catches a normal-matrix implementation that loses the weak original-design direction.
- * @evidence contracts/testing.md#independent-expectations Diagonal values are their absolute entries. For columns (1,e,0) and (1,0,e), singular values are sqrt(2+e^2) and e. For [I|c], A*A transpose = I+c*c transpose gives singular values sqrt(1+norm(c)^2), seven ones and zero, and (-c,1) is its independently known null vector. The test does not compare a snapshot or another call's factors.
- * @evidence contracts/testing.md#distinguishing-cases Covers square, tall, wide, repeated, exact-rank-deficient, ill-conditioned and commonly scaled inputs, zero and singleton shapes, one-entry budget boundaries, nonfinite/ragged data, a deliberately insufficient sweep and overflow. Camera-specific conditioning, estimation and pixel semantics belong to recovery tests.
- * @evidence contracts/testing.md#execution-ownership The portable test_geometry_singular_matrix entry owns finite CPU matrices and assertions only; it starts no compiler, process, filesystem consumer or renderer and replaces no foreign method.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the numerical kernel and observes factors, reconstruction, right-vector orthogonality, borrowed-array stability and throwing work/range admission. It catches a normal-matrix implementation that loses the weak original-design direction.
+ * @evidence contracts/development/testing.md#independent-expectations Diagonal values are their absolute entries. For columns (1,e,0) and (1,0,e), singular values are sqrt(2+e^2) and e. For [I|c], A*A transpose = I+c*c transpose gives singular values sqrt(1+norm(c)^2), seven ones and zero, and (-c,1) is its independently known null vector. The test does not compare a snapshot or another call's factors.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers square, tall, wide, repeated, exact-rank-deficient, ill-conditioned and commonly scaled inputs, zero and singleton shapes, one-entry budget boundaries, nonfinite/ragged data, a deliberately insufficient sweep and overflow. Camera-specific conditioning, estimation and pixel semantics belong to recovery tests.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_geometry_singular_matrix entry owns finite CPU matrices and assertions only; it starts no compiler, process, filesystem consumer or renderer and replaces no foreign method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Analytic diagonal and repeated-value factors reconstruct without changing borrowed input.).
  */
 export function test_geometry_singular_matrix(): void {
   const budget: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {

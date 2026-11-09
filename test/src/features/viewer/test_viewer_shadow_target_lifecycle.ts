@@ -45,10 +45,11 @@ function rendererFacts(draw: () => void): THREE.WebGLRenderer {
  * 3. A source pass changing filter retires both previous and newly produced attachments, leaving the restored renderer dirty for its next direct draw.
  * 4. Failed retirement keeps its original outcome without another disposal attempt; later scene passes, including another scene, request no draw.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls production shadow retirement and scene passes with the existing inline fact producer and real Three target/depth events; checks independent attempts, withdrawn slots, original failure identity and later draw refusal.
- * @evidence contracts/testing.md#independent-expectations Literal shared-owner counts, original Error identities, authored filter state and separately counted draw requests define expectations; orchestration facts do not prove native allocations, GPU pixels or kernel release.
- * @evidence contracts/testing.md#distinguishing-cases Covers empty/nonshadow/hidden/shared resources, independent disposal errors, healthy filter transition, failed post-draw retirement and repeated or another-scene admission refusal with no native retry.
- * @evidence contracts/testing.md#execution-ownership The named entry reuses the existing inline fact producer in isolated lifetimes and actual CPU Three objects/listeners; it starts no native renderer, new mock implementation, Human fixture or driver and replaces no foreign/global method.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls production shadow retirement and scene passes with the existing inline fact producer and real Three target/depth events; checks independent attempts, withdrawn slots, original failure identity and later draw refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Literal shared-owner counts, original Error identities, authored filter state and separately counted draw requests define expectations; orchestration facts do not prove native allocations, GPU pixels or kernel release.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers empty/nonshadow/hidden/shared resources, independent disposal errors, healthy filter transition, failed post-draw retirement and repeated or another-scene admission refusal with no native retry.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry reuses the existing inline fact producer in isolated lifetimes and actual CPU Three objects/listeners; it starts no native renderer, new mock implementation, Human fixture or driver and replaces no foreign/global method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty, ordinary and non-shadow lights remain valid; hidden shadow lights release shared targets/depth exactly once and clear their public...).
  */
 export function test_viewer_shadow_target_lifecycle(): void {
   let draws: number = 0;

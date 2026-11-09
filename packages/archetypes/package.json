@@ -19,7 +19,13 @@
     "type": "git",
     "url": "https://github.com/samchon/automovie"
   },
-  "files": ["lib", "src", "package.json", "LICENSE", "README.md"],
+  "files": [
+    "lib",
+    "src",
+    "package.json",
+    "LICENSE",
+    "README.md"
+  ],
   "publishConfig": {
     "access": "public",
     "main": "lib/index.js",

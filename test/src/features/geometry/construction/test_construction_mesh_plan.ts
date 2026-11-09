@@ -23,7 +23,10 @@ interface Case {
   ) => boolean;
   /** Positive phase period for a cylinder, otherwise a plane. */ period?: number;
   /** Exact triangle count when fixed by the prescribed simple polygon topology. */ count?: number;
-  /** Kept interior grid coordinates, independent of the boundary vertices. */ interior?: (readonly [number, number])[];
+  /** Kept interior grid coordinates, independent of the boundary vertices. */ interior?: (readonly [
+    number,
+    number,
+  ])[];
 }
 
 /**
@@ -41,10 +44,11 @@ interface Case {
  * 5. Unshared crossings, nonfinite coordinates, an unrepresentable strict
  *    centroid and an untriangulated kept band return named failures atomically.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the native index planner directly and inspects triangle IDs/lifts, area and incidence rather than accepting a nonthrowing search as coverage proof. Production face/grid and f1 skin remain separate tests.
- * @evidence contracts/testing.md#independent-expectations Rectangles give exact sum/difference areas; a polygon with eight outer and eight hole vertices has sixteen triangles. Each directed interior edge has one reverse and each unpaired edge lies on a prescribed source segment.
- * @evidence contracts/testing.md#distinguishing-cases Includes collinear preservation, no retained interior grid, redundant constraints, domain contact, unequal winding populations, seam translation, three units and detached results. It does not claim arbitrary spiral-search completeness or measured f1 performance.
- * @evidence contracts/testing.md#execution-ownership Discoverable synchronous CPU unit through --include construction_mesh_plan, with no person generation, host, renderer, process or global replacement.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the native index planner directly and inspects triangle IDs/lifts, area and incidence rather than accepting a nonthrowing search as coverage proof. Production face/grid and f1 skin remain separate tests.
+ * @evidence contracts/development/testing.md#independent-expectations Rectangles give exact sum/difference areas; a polygon with eight outer and eight hole vertices has sixteen triangles. Each directed interior edge has one reverse and each unpaired edge lies on a prescribed source segment.
+ * @evidence contracts/development/testing.md#distinguishing-cases Includes collinear preservation, no retained interior grid, redundant constraints, domain contact, unequal winding populations, seam translation, three units and detached results. It does not claim arbitrary spiral-search completeness or measured f1 performance.
+ * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU unit through --include construction_mesh_plan, with no person generation, host, renderer, process or global replacement.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A square with collinear boundary points, a collinear hole, redundant nested).
  */
 export function test_construction_mesh_plan(): void {
   const failures: string[] = [];
@@ -86,15 +90,30 @@ export function test_construction_mesh_plan(): void {
         inside(outer, u, v) && !inside(hole, u, v),
     },
     {
-      name: "interior diagonal point", polygons: [ring(outer)], interior: [[2, 2]], area: 16, count: 8,
+      name: "interior diagonal point",
+      polygons: [ring(outer)],
+      interior: [[2, 2]],
+      area: 16,
+      count: 8,
       keeps: (u: number, v: number): boolean => inside(outer, u, v),
     },
     {
-      name: "strict interior point", polygons: [ring(outer)], interior: [[1.3, 2.1]], area: 16, count: 8,
+      name: "strict interior point",
+      polygons: [ring(outer)],
+      interior: [[1.3, 2.1]],
+      area: 16,
+      count: 8,
       keeps: (u: number, v: number): boolean => inside(outer, u, v),
     },
     {
-      name: "two interior points", polygons: [ring(outer)], interior: [[2, 2], [1, 1]], area: 16, count: 10,
+      name: "two interior points",
+      polygons: [ring(outer)],
+      interior: [
+        [2, 2],
+        [1, 1],
+      ],
+      area: 16,
+      count: 10,
       keeps: (u: number, v: number): boolean => inside(outer, u, v),
     },
     {
@@ -145,8 +164,17 @@ export function test_construction_mesh_plan(): void {
       keeps: (u: number, _v: number): boolean => u > 1 && u < 3,
     },
     {
-      name: "winding interior points", polygons: [rail(1, 8), rail(3, 6)],
-      interior: [[2, 0], [2, 1.5], [2, 3], [2, 4.5]], area: 12, count: 22, period: 6,
+      name: "winding interior points",
+      polygons: [rail(1, 8), rail(3, 6)],
+      interior: [
+        [2, 0],
+        [2, 1.5],
+        [2, 3],
+        [2, 4.5],
+      ],
+      area: 12,
+      count: 22,
+      period: 6,
       keeps: (u: number, _v: number): boolean => u > 1 && u < 3,
     },
   ];
@@ -238,21 +266,53 @@ export function test_construction_mesh_plan(): void {
 
 /** A near-diagonal interior point requires a new local triangulation, never a snap or lost source edge. */
 function cavity(failures: string[]): void {
-  const points: Map<number, readonly [number, number]> = new Map([[0, [0, 0]], [1, [4, 0]], [2, [4, 4]], [3, [0, 4]], [4, [1, 1 + Number.EPSILON]]]);
-  const boundary: AutoMovieSolidMeshConstraints.ISegment[] = [{ a: 0, b: 1, turn: 0 }, { a: 1, b: 2, turn: 0 }, { a: 2, b: 3, turn: 0 }, { a: 3, b: 0, turn: 0 }];
-  const triangles: AutoMovieSolidMeshPlan.ITriangle[] = [{ vertices: [0, 1, 2], lifts: [0, 0, 0] }, { vertices: [0, 2, 3], lifts: [0, 0, 0] }];
-  const before: string = JSON.stringify({ points: [...points], boundary, triangles });
-  const made: AutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(points, boundary, triangles, (_u: number, _v: number): boolean => true);
-  if (typeof made === "string") { failures.push(`near-diagonal cavity: ${made}`); return; }
+  const points: Map<number, readonly [number, number]> = new Map([
+    [0, [0, 0]],
+    [1, [4, 0]],
+    [2, [4, 4]],
+    [3, [0, 4]],
+    [4, [1, 1 + Number.EPSILON]],
+  ]);
+  const boundary: AutoMovieSolidMeshConstraints.ISegment[] = [
+    { a: 0, b: 1, turn: 0 },
+    { a: 1, b: 2, turn: 0 },
+    { a: 2, b: 3, turn: 0 },
+    { a: 3, b: 0, turn: 0 },
+  ];
+  const triangles: AutoMovieSolidMeshPlan.ITriangle[] = [
+    { vertices: [0, 1, 2], lifts: [0, 0, 0] },
+    { vertices: [0, 2, 3], lifts: [0, 0, 0] },
+  ];
+  const before: string = JSON.stringify({
+    points: [...points],
+    boundary,
+    triangles,
+  });
+  const made: AutoMovieSolidMeshPlan.ITriangle[] | string =
+    insertAutoMovieSolidMeshPoints(
+      points,
+      boundary,
+      triangles,
+      (_u: number, _v: number): boolean => true,
+    );
+  if (typeof made === "string") {
+    failures.push(`near-diagonal cavity: ${made}`);
+    return;
+  }
   let area: number = 0;
   const edges: Map<string, number> = new Map();
   for (const triangle of made) {
-    if (!triangle.vertices.includes(4)) failures.push("near-diagonal cavity omitted the original interior authority");
+    if (!triangle.vertices.includes(4))
+      failures.push(
+        "near-diagonal cavity omitted the original interior authority",
+      );
     const a: readonly [number, number] = points.get(triangle.vertices[0])!;
     const b: readonly [number, number] = points.get(triangle.vertices[1])!;
     const c: readonly [number, number] = points.get(triangle.vertices[2])!;
-    const value: number = ((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) / 2;
-    if (!(value > 0)) failures.push("near-diagonal cavity made a nonpositive triangle");
+    const value: number =
+      ((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) / 2;
+    if (!(value > 0))
+      failures.push("near-diagonal cavity made a nonpositive triangle");
     area += value;
     for (let k: number = 0; k < 3; k++) {
       const first: number = triangle.vertices[k]!;
@@ -261,26 +321,110 @@ function cavity(failures: string[]): void {
       edges.set(key, (edges.get(key) ?? 0) + 1);
     }
   }
-  if (made.length !== 4 || !nclose(area, 16, 1e-12) || edges.has("0/2")) failures.push(`near-diagonal cavity did not replace the unconstrained diagonal: ${made.length}/${area}`);
-  for (const edge of boundary) if (edges.get(`${Math.min(edge.a, edge.b)}/${Math.max(edge.a, edge.b)}`) !== 1) failures.push("near-diagonal cavity changed an original source edge");
-  const constrained: AutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(points, [...boundary, { a: 0, b: 2, turn: 0 }], triangles, (_u: number, _v: number): boolean => true);
-  if (typeof constrained !== "string" || !constrained.includes("source constraint")) failures.push("near-diagonal cavity crossed a retained original constraint");
-  const nearVertex: Map<number, readonly [number, number]> = new Map([[0, [0, 0]], [1, [2, 0]], [2, [2, 2]], [3, [0, 2]], [4, [1, 1]], [5, [1, 1 + Number.EPSILON]]]);
-  const fan: AutoMovieSolidMeshPlan.ITriangle[] = [0, 1, 2, 3].map((id: number): AutoMovieSolidMeshPlan.ITriangle => ({ vertices: [id, (id + 1) % 4, 4], lifts: [0, 0, 0] }));
-  const preserved: AutoMovieSolidMeshPlan.ITriangle[] | string = insertAutoMovieSolidMeshPoints(nearVertex, boundary, fan, (_u: number, _v: number): boolean => true);
-  if (typeof preserved === "string" && !preserved.includes("no represented strict triangle") && !preserved.includes("would remove an original point occurrence")) failures.push(`near-vertex cavity refused for an unrelated premise: ${preserved}`);
-  if (typeof preserved !== "string" && (preserved.length !== 6 || !preserved.some((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(4)) || !preserved.some((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(5)))) failures.push("near-vertex cavity silently removed an original point instead of preserving it or refusing its representation");
-  if (JSON.stringify({ points: [...points], boundary, triangles }) !== before) failures.push("near-diagonal cavity mutated input data");
+  if (made.length !== 4 || !nclose(area, 16, 1e-12) || edges.has("0/2"))
+    failures.push(
+      `near-diagonal cavity did not replace the unconstrained diagonal: ${made.length}/${area}`,
+    );
+  for (const edge of boundary)
+    if (
+      edges.get(`${Math.min(edge.a, edge.b)}/${Math.max(edge.a, edge.b)}`) !== 1
+    )
+      failures.push("near-diagonal cavity changed an original source edge");
+  const constrained: AutoMovieSolidMeshPlan.ITriangle[] | string =
+    insertAutoMovieSolidMeshPoints(
+      points,
+      [...boundary, { a: 0, b: 2, turn: 0 }],
+      triangles,
+      (_u: number, _v: number): boolean => true,
+    );
+  if (
+    typeof constrained !== "string" ||
+    !constrained.includes("source constraint")
+  )
+    failures.push(
+      "near-diagonal cavity crossed a retained original constraint",
+    );
+  const nearVertex: Map<number, readonly [number, number]> = new Map([
+    [0, [0, 0]],
+    [1, [2, 0]],
+    [2, [2, 2]],
+    [3, [0, 2]],
+    [4, [1, 1]],
+    [5, [1, 1 + Number.EPSILON]],
+  ]);
+  const fan: AutoMovieSolidMeshPlan.ITriangle[] = [0, 1, 2, 3].map(
+    (id: number): AutoMovieSolidMeshPlan.ITriangle => ({
+      vertices: [id, (id + 1) % 4, 4],
+      lifts: [0, 0, 0],
+    }),
+  );
+  const preserved: AutoMovieSolidMeshPlan.ITriangle[] | string =
+    insertAutoMovieSolidMeshPoints(
+      nearVertex,
+      boundary,
+      fan,
+      (_u: number, _v: number): boolean => true,
+    );
+  if (
+    typeof preserved === "string" &&
+    !preserved.includes("no represented strict triangle") &&
+    !preserved.includes("would remove an original point occurrence")
+  )
+    failures.push(
+      `near-vertex cavity refused for an unrelated premise: ${preserved}`,
+    );
+  if (
+    typeof preserved !== "string" &&
+    (preserved.length !== 6 ||
+      !preserved.some((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean =>
+        triangle.vertices.includes(4),
+      ) ||
+      !preserved.some((triangle: AutoMovieSolidMeshPlan.ITriangle): boolean =>
+        triangle.vertices.includes(5),
+      ))
+  )
+    failures.push(
+      "near-vertex cavity silently removed an original point instead of preserving it or refusing its representation",
+    );
+  if (JSON.stringify({ points: [...points], boundary, triangles }) !== before)
+    failures.push("near-diagonal cavity mutated input data");
 }
 
 /** Removing a common lift must not hide a larger-than-half-period output span. */
 function outputCover(failures: string[]): void {
-  const exact: Map<number, readonly [number, number]> = new Map([[0, [-1, .75]], [1, [0, 0]], [2, [1, .5]], [3, [0, .25]]]);
-  const beyond: Map<number, readonly [number, number]> = new Map([[0, [-1, .75]], [1, [0, 0]], [2, [1, .5000000000000001]], [3, [0, .25]]]);
-  const made: AutoMovieSolidMeshPlan.ITriangle[] | string = triangulateAutoMovieSolidBoundary(exact, { vertices: [0, 1, 2, 3], lifts: [0, 1, 1, 1], winding: 0 }, 1);
-  const refused: AutoMovieSolidMeshPlan.ITriangle[] | string = triangulateAutoMovieSolidBoundary(beyond, { vertices: [0, 1, 2, 3], lifts: [0, 1, 1, 1], winding: 0 }, 1);
-  if (typeof made === "string" || made.length !== 2) failures.push("exact half-period output cover was refused");
-  if (typeof refused !== "string" || !refused.includes("no admitted native-chart ear")) failures.push("common-lift rounding hid an output cover beyond half a period");
+  const exact: Map<number, readonly [number, number]> = new Map([
+    [0, [-1, 0.75]],
+    [1, [0, 0]],
+    [2, [1, 0.5]],
+    [3, [0, 0.25]],
+  ]);
+  const beyond: Map<number, readonly [number, number]> = new Map([
+    [0, [-1, 0.75]],
+    [1, [0, 0]],
+    [2, [1, 0.5000000000000001]],
+    [3, [0, 0.25]],
+  ]);
+  const made: AutoMovieSolidMeshPlan.ITriangle[] | string =
+    triangulateAutoMovieSolidBoundary(
+      exact,
+      { vertices: [0, 1, 2, 3], lifts: [0, 1, 1, 1], winding: 0 },
+      1,
+    );
+  const refused: AutoMovieSolidMeshPlan.ITriangle[] | string =
+    triangulateAutoMovieSolidBoundary(
+      beyond,
+      { vertices: [0, 1, 2, 3], lifts: [0, 1, 1, 1], winding: 0 },
+      1,
+    );
+  if (typeof made === "string" || made.length !== 2)
+    failures.push("exact half-period output cover was refused");
+  if (
+    typeof refused !== "string" ||
+    !refused.includes("no admitted native-chart ear")
+  )
+    failures.push(
+      "common-lift rounding hid an output cover beyond half a period",
+    );
 }
 
 /** Eight independently authored points include a collinear midpoint on each side. */
@@ -331,7 +475,8 @@ function inspect(failures: string[], sample: Case, scale: number): void {
       });
     }
   }
-  for (const point of sample.interior ?? []) points.set(points.size, [point[0] * scale, point[1] * scale]);
+  for (const point of sample.interior ?? [])
+    points.set(points.size, [point[0] * scale, point[1] * scale]);
   const before: string = JSON.stringify({ points: [...points], constraints });
   const keeps: (u: number, v: number) => boolean = (
     u: number,
@@ -366,10 +511,20 @@ function inspect(failures: string[], sample: Case, scale: number): void {
     if (!(Number.isFinite(area) && area > 0))
       failures.push(`${label}: nonpositive chart triangle ${area}`);
     total += area;
-    for (const weights of [[1 / 3, 1 / 3, 1 / 3], [0.6, 0.2, 0.2], [0.2, 0.6, 0.2], [0.2, 0.2, 0.6]]) {
-      const u: number = (a[0] * weights[0]! + b[0] * weights[1]! + c[0] * weights[2]!) / scale;
-      const v: number = (a[1] * weights[0]! + b[1] * weights[1]! + c[1] * weights[2]!) / scale;
-      if (!sample.keeps(u, v)) failures.push(`${label}: triangle interior left its independently authored region at ${u}/${v}`);
+    for (const weights of [
+      [1 / 3, 1 / 3, 1 / 3],
+      [0.6, 0.2, 0.2],
+      [0.2, 0.6, 0.2],
+      [0.2, 0.2, 0.6],
+    ]) {
+      const u: number =
+        (a[0] * weights[0]! + b[0] * weights[1]! + c[0] * weights[2]!) / scale;
+      const v: number =
+        (a[1] * weights[0]! + b[1] * weights[1]! + c[1] * weights[2]!) / scale;
+      if (!sample.keeps(u, v))
+        failures.push(
+          `${label}: triangle interior left its independently authored region at ${u}/${v}`,
+        );
     }
     for (let k: number = 0; k < 3; k++) {
       const next: number = (k + 1) % 3;

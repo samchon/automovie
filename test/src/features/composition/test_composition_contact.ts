@@ -12,6 +12,12 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  * 1. Two 0.1 m spheres 0.19 m apart compress by 0.01 m and yield a contact record that satisfies a required-contact audit.
  * 2. The same spheres 0.25 m apart separate by 0.05 m, yield no record, and the audit reports the missing contact.
  * 3. A side without declared colliders refuses.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `auditAutoMovieOutcome`, `measureAutoMovieContact`, `preparePhysicalGeometry` on in-memory inputs and asserts the returned observations through 2x TestValidator.predicate; 3 numbered scenarios (first: Two 0.1 m spheres 0.19 m apart compress by 0.01 m and yield a contact record that satisfies a...; last: A side without declared colliders refuses.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
+ * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (1 assertion site compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contributes 3 numbered scenarios (first: Two 0.1 m spheres 0.19 m apart compress by 0.01 m and yield a contact record that satisfies a...; last: A side without declared colliders refuses.), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
+ * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_composition_contact`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two 0.1 m spheres 0.19 m apart compress by 0.01 m and yield a contact record that satisfies a required-contact audit.).
  */
 export async function test_composition_contact(): Promise<void> {
   const queries: Geometry.IQueries = await Geometry();

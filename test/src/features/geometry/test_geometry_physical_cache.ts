@@ -20,10 +20,11 @@ import { throwsError } from "../internal/throwsError";
  *    either direction; independent inter-face contact alone preserves it.
  * 6. Sparse coordinate holes refuse both capture and triangle participation queries.
  *
- * @evidence contracts/testing.md#behavioral-verification Captures physical topology and changes source meaning, connectivity and collapsed-face participation, asserting reuse only while all captured semantics agree and malformed buffers refuse.
- * @evidence contracts/testing.md#independent-expectations Authored source IDs, triangle ordinals and explicit coincident positions define equivalence; a separately validated fin demonstrates the incidence consequence of activating one dormant face. These discrete identity and grid-participation checks establish cache eligibility, not general surface embedding, area or rendered validity.
- * @evidence contracts/testing.md#distinguishing-cases Covers empty and malformed captures, translated/table-reordered equivalents, split/merged legacy classes, mutation ownership, changed dormant ordinal with equal population and sparse-coordinate holes; weld tests own raw grid-label rounding.
- * @evidence contracts/testing.md#execution-ownership This exported geometry entry owns all physical-cache cases and invokes CPU source through ordinary mesh records without installing a consumer or starting a host.
+ * @evidence contracts/development/testing.md#behavioral-verification Captures physical topology and changes source meaning, connectivity and collapsed-face participation, asserting reuse only while all captured semantics agree and malformed buffers refuse.
+ * @evidence contracts/development/testing.md#independent-expectations Authored source IDs, triangle ordinals and explicit coincident positions define equivalence; a separately validated fin demonstrates the incidence consequence of activating one dormant face. These discrete identity and grid-participation checks establish cache eligibility, not general surface embedding, area or rendered validity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers empty and malformed captures, translated/table-reordered equivalents, split/merged legacy classes, mutation ownership, changed dormant ordinal with equal population and sparse-coordinate holes; weld tests own raw grid-label rounding.
+ * @evidence contracts/development/testing.md#execution-ownership This exported geometry entry owns all physical-cache cases and invokes CPU source through ordinary mesh records without installing a consumer or starting a host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Translation and reordered source tables retain an admitted physical partition.).
  */
 export function test_geometry_physical_cache(): void {
   const make: () => IAutoMovieMesh = (): IAutoMovieMesh =>

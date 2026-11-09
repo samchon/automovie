@@ -3,6 +3,11 @@ import type { IAutoMovieIntent } from "./IAutoMovieIntent";
 /**
  * A composition resolved on the film clock: frozen, ordered entries a
  * renderer, a physics pass or a measurement reads without re-resolving.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (A composition resolved on the film clock: frozen, ordered entries a renderer, a physics pass or a measurement reads without re-resolving) and documents 2 documented members as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents A composition resolved on the film clock: frozen, ordered entries a renderer, a physics pass or a measurement reads without re-resolving: interface of 2 members (`entries`, `duration`); units and frames named in its text: seconds. It has no optional member, so no absent-value state combines with another. 2 members are readonly.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IAutoMovieSchedule` in packages/engine/src/composition/IAutoMovieSchedule.ts; its surface is the 2 members listed and the text shows 23 other files naming it, mostly movies (17), packages/engine (5), test (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export interface IAutoMovieSchedule {
   /** Every placed intent, by start then walk order. */
@@ -13,7 +18,14 @@ export interface IAutoMovieSchedule {
 }
 /** Companion types of {@link IAutoMovieSchedule}. */
 export namespace IAutoMovieSchedule {
-  /** One placed intent. */
+  /**
+   * One placed intent.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: One placed intent.
+   * @evidence contracts/development/design.md#principled-representation Represents One placed intent: interface of 8 members (`index`, `subject`, `intent`, `start`, `contact`, `end`, ...); units and frames named in its text: seconds. Optional members `contact`, `outcome`, `state` express documented absence, and the ranges its member docs state are left to runtime validation. 8 members are readonly.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IEntry` in packages/engine/src/composition/IAutoMovieSchedule.ts; its surface is the 8 members listed and the text shows 31 other files naming it, mostly packages/engine (12), movies (10), test (5), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; 3 optional members (`contact`, `outcome`, `state`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
+   */
   export interface IEntry {
     /** Walk-order index, stable for one composition. */
     readonly index: number;

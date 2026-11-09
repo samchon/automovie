@@ -44,10 +44,11 @@ const SKELETON: IAutoMovieSkeleton = {
  * 1. A spring stepping toward a 40-degree cap stays within that cap in every captured callback pose while still approaching it.
  * 2. An absent authored joint remains present with nonzero follow-through initially and settles near zero later.
  *
- * @evidence contracts/testing.md#behavioral-verification Advances the actual Player and reads the final pose sent to its existing imported-frame callback; catches post-spring ROM overshoot in that output and immediate loss of a vanished joint's follow-through.
- * @evidence contracts/testing.md#independent-expectations The authored 40-degree cap bounds every captured pose while the underdamped sequence approaches it; absent-joint output remains nonzero initially and settles within half a degree later. These temporal bounds do not independently solve the spring trajectory or observe rendered frames.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts capped stepped tracking with uncapped missing-joint decay at initial/late observations; equal-time and fresh-state decisions belong to the hold test.
- * @evidence contracts/testing.md#execution-ownership This named portable unit uses the original generic rig/motion/callback seam through source with CPU-side Object3D/player state, creating no browser, renderer, process or new Human figure.
+ * @evidence contracts/development/testing.md#behavioral-verification Advances the actual Player and reads the final pose sent to its existing imported-frame callback; catches post-spring ROM overshoot in that output and immediate loss of a vanished joint's follow-through.
+ * @evidence contracts/development/testing.md#independent-expectations The authored 40-degree cap bounds every captured pose while the underdamped sequence approaches it; absent-joint output remains nonzero initially and settles within half a degree later. These temporal bounds do not independently solve the spring trajectory or observe rendered frames.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts capped stepped tracking with uncapped missing-joint decay at initial/late observations; equal-time and fresh-state decisions belong to the hold test.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit uses the original generic rig/motion/callback seam through source with CPU-side Object3D/player state, creating no browser, renderer, process or new Human figure.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A spring stepping toward a 40-degree cap stays within that cap in every captured callback pose while still approaching it.).
  */
 export function test_viewer_player_spring_clamp(): void {
   const record: IAutoMoviePose[] = [];

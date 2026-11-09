@@ -13,10 +13,11 @@ import { makePose } from "../internal/makePose";
  * Scenarios:
  * 1. A pose articulating jaw, which the existing rig lacks, fails with a type violation on bone.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validatePoseResult for an undeclared joint bone and requires its type finding, catching silent omission of a dangling joint reference.
- * @evidence contracts/testing.md#independent-expectations A pose can articulate only names declared by its supplied rig; the existing twelve-bone fixture contains no jaw, independently of validator indexing.
- * @evidence contracts/testing.md#distinguishing-cases Retains matching skeleton identities with one absent bone; pose_valid owns declared joints and pose_duplicate_bone owns repeated declared references.
- * @evidence contracts/testing.md#execution-ownership This named portable unit reuses the existing factories and constructs no jaw geometry, Human asset or host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validatePoseResult for an undeclared joint bone and requires its type finding, catching silent omission of a dangling joint reference.
+ * @evidence contracts/development/testing.md#independent-expectations A pose can articulate only names declared by its supplied rig; the existing twelve-bone fixture contains no jaw, independently of validator indexing.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains matching skeleton identities with one absent bone; pose_valid owns declared joints and pose_duplicate_bone owns repeated declared references.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit reuses the existing factories and constructs no jaw geometry, Human asset or host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A pose articulating jaw, which the existing rig lacks, fails with a type violation on bone.).
  */
 export function test_validation_pose_unknown_bone(): void {
   const result: IAutoMovieValidation = validatePoseResult(

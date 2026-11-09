@@ -22,10 +22,11 @@ const COM: IAutoMovieVector3 = { x: 0, y: 5, z: 0 };
  * 3. A body already on a falling trajectory is not re-warned.
  * 4. A defies-gravity intent suppresses the warning and proposed arc while retaining one fall event.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual detection for bodyless, attached, already-falling and intent-marked inputs; checks clean validation for each and the explicitly selected event/trajectory results, catching advice that ignores these policy boundaries.
- * @evidence contracts/testing.md#independent-expectations The declared detector contract excludes bodyless, attached and actively falling candidates; physics intent suppresses advice but preserves its candidate event. Expected absence/presence and count are literal policy facts rather than implementation snapshots.
- * @evidence contracts/testing.md#distinguishing-cases Keeps all four suppression reasons distinct; unsupported ordinary proposals and malformed configuration are separate entries. The attached/already-falling cases do not assert every returned field.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns local numerical inputs and returned reports without a physics process, renderer, asset pipeline or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual detection for bodyless, attached, already-falling and intent-marked inputs; checks clean validation for each and the explicitly selected event/trajectory results, catching advice that ignores these policy boundaries.
+ * @evidence contracts/development/testing.md#independent-expectations The declared detector contract excludes bodyless, attached and actively falling candidates; physics intent suppresses advice but preserves its candidate event. Expected absence/presence and count are literal policy facts rather than implementation snapshots.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps all four suppression reasons distinct; unsupported ordinary proposals and malformed configuration are separate entries. The attached/already-falling cases do not assert every returned field.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns local numerical inputs and returned reports without a physics process, renderer, asset pipeline or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A `body: null` object (no declared physics) never falls.).
  */
 export function test_validation_free_fall_suppressed(): void {
   const noBody: ReturnType<typeof detectFreeFall> = detectFreeFall({

@@ -7,10 +7,10 @@ import { IAutoMovieBone } from "./IAutoMovieBone";
  *
  * Generated rigs and admitted glTF, GLB or VRM imports use the same normalized shape. The current ingest suffix gate admits those containers; it implements no FBX path. Shared addressing still requires the rig membership, mapping and rest-basis admission described above.
  *
- * @evidence contracts/common.md#principled-implementation A stable rig id and unique normalized bone records define one connected single-root parent graph for FK and ROM admission, shared by generated and explicitly mapped imported rigs.
- * @evidence contracts/common.md#clear-and-simple-design Rig existence and rest/constraint data are independent from pose and motion channels, allowing one normalized representation across acquisition paths.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Generic model validation requires one connected root but does not require every VRM mandatory bone or guarantee arbitrary-avatar retargeting; mapping, rest basis and target ROM remain separately admitted.
- * @evidence contracts/common.md#meaningful-documentation Defines stable rig identity, unique bone population, connected single-root graph and the separation from stricter VRM import requirements.
+ * @evidence contracts/development/design.md#principled-representation A stable rig id and unique normalized bone records define one connected single-root parent graph for FK and ROM admission, shared by generated and explicitly mapped imported rigs.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Rig existence and rest/constraint data are independent from pose and motion channels, allowing one normalized representation across acquisition paths.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Generic model validation requires one connected root but does not require every VRM mandatory bone or guarantee arbitrary-avatar retargeting; mapping, rest basis and target ROM remain separately admitted.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines stable rig identity, unique bone population, connected single-root graph and the separation from stricter VRM import requirements.
  */
 export interface IAutoMovieSkeleton {
   /** Stable id so poses, motions, and scene nodes can cite this rig. */

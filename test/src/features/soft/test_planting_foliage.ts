@@ -48,10 +48,10 @@ const PLAIN: IAutoMoviePlantingFoliage = {
  * onto the branch axis by the shortest arc, which off a `45°` branch is exactly
  * the quaternion `(0, 0, −sin 22.5°, cos 22.5°)`.
  *
- * @evidence contracts/testing.md#behavioral-verification Derives foliage-free, ordinary, trunk-bearing, inverted and jittered plants; counts, branch references, hand-computed TRS and unit rotations expose missing or misoriented blades.
- * @evidence contracts/testing.md#independent-expectations Floor-density counts, a quarter-branch offset and a half-angle quaternion derive from the authored geometry, with nclose/vclose/qunit tolerances; the inverted scalar additionally preserves Object.is positive-zero identity.
- * @evidence contracts/testing.md#distinguishing-cases Covers absent foliage, minimum-level gating, equal X/Z versus taller Y, an antiparallel axis and scale/roll variation; only Y-scale bounds are checked, and pruning, caps and cross-host replay belong elsewhere.
- * @evidence contracts/testing.md#execution-ownership This discoverable named export runs portable growth semantics directly, owns all six scenarios and registers no host, GPU or dynamic cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Derives foliage-free, ordinary, trunk-bearing, inverted and jittered plants; counts, branch references, hand-computed TRS and unit rotations expose missing or misoriented blades.
+ * @evidence contracts/development/testing.md#independent-expectations Floor-density counts, a quarter-branch offset and a half-angle quaternion derive from the authored geometry, with nclose/vclose/qunit tolerances; the inverted scalar additionally preserves Object.is positive-zero identity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers absent foliage, minimum-level gating, equal X/Z versus taller Y, an antiparallel axis and scale/roll variation; only Y-scale bounds are checked, and pruning, caps and cross-host replay belong elsewhere.
+ * @evidence contracts/development/testing.md#execution-ownership This discoverable named export runs portable growth semantics directly, owns all six scenarios and registers no host, GPU or dynamic cases.
  *
  * Scenarios:
  *
@@ -69,6 +69,8 @@ const PLAIN: IAutoMoviePlantingFoliage = {
  *    its choice — a half turn about `+x` — instead of normalizing a zero.
  * 6. Seeded scale and roll vary the blades, Y scale stays within its declared
  *    jitter, and the rotations stay unit length.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A recipe with no foliage rule bears no leaves at all, and one with a rule).
  */
 export function test_planting_foliage(): void {
   const bare: IAutoMoviePlantingState = leafed(null);

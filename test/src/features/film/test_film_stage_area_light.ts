@@ -53,10 +53,11 @@ const refusedAt: (
  * 3. The parameters a panel cannot act on are refused rather than dropped: a
  * distance `range`, a spot `coneAngle`, and a shadow map `three.js` never renders for an analytically integrated source.
  *
- * @evidence contracts/testing.md#behavioral-verification Stages an authored area panel and observes copied extent, aim and position plus located refusals for missing/invalid extent and fields unavailable to the chosen kind.
- * @evidence contracts/testing.md#independent-expectations Literal panel dimensions/position and local-minus-Z aimed along minus-X provide the expected quaternion; per-kind field rules provide refusal paths, while numerical lowering proves no GPU area-light or shadow-map appearance.
- * @evidence contracts/testing.md#distinguishing-cases Keeps complete area input, missing axes, zero/non-finite/nonnumeric extent, extent on other kinds, unavailable range/cone/shadow and the adjacent punctual shadow requirement.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_stage_area_light and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages an authored area panel and observes copied extent, aim and position plus located refusals for missing/invalid extent and fields unavailable to the chosen kind.
+ * @evidence contracts/development/testing.md#independent-expectations Literal panel dimensions/position and local-minus-Z aimed along minus-X provide the expected quaternion; per-kind field rules provide refusal paths, while numerical lowering proves no GPU area-light or shadow-map appearance.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps complete area input, missing axes, zero/non-finite/nonnumeric extent, extent on other kinds, unavailable range/cone/shadow and the adjacent punctual shadow requirement.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_stage_area_light and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A complete panel lowers to an `area` scene light keeping its extent, its aim).
  */
 export function test_film_stage_area_light(): void {
   const staged: IAutoMovieStagedSet = stagedWith(WINDOW);

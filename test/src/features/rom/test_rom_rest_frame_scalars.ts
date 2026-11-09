@@ -31,10 +31,11 @@ const badNeutral: IAutoMovieAxisFrame = {
  * 3. `restRelativeConstraint` rejects invalid frame entries before shifting.
  * 4. Omitted frames and null angles remain identity cases.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises both scalar conversions and interval reconciliation with malformed supplied frames, requiring actionable Error fragments before an invalid sign or neutral propagates.
- * @evidence contracts/testing.md#independent-expectations An affine rest frame admits only sign plus/minus one and a finite neutral; omitted frames preserve degrees and null angles preserve rest. Message fragments pin the offending quantity without depending on a full rendered message.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts invalid zero sign, NaN neutral, interval conversion of each defect, absent-frame scalar identity and null rest; valid mirror/shift arithmetic is covered by rest-frame reconciliation.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit calls maintained scalar and interval owners with local records, observes thrown Errors and starts no host or asset pipeline.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises both scalar conversions and interval reconciliation with malformed supplied frames, requiring actionable Error fragments before an invalid sign or neutral propagates.
+ * @evidence contracts/development/testing.md#independent-expectations An affine rest frame admits only sign plus/minus one and a finite neutral; omitted frames preserve degrees and null angles preserve rest. Message fragments pin the offending quantity without depending on a full rendered message.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts invalid zero sign, NaN neutral, interval conversion of each defect, absent-frame scalar identity and null rest; valid mirror/shift arithmetic is covered by rest-frame reconciliation.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit calls maintained scalar and interval owners with local records, observes thrown Errors and starts no host or asset pipeline.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `toRigAngle` rejects invalid frame signs.).
  */
 export function test_rom_rest_frame_scalars(): void {
   TestValidator.predicate(

@@ -18,13 +18,13 @@ import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
  * @returns The point at a parameter, and the number of segments.
  * @throws Error when the section's numbers are not finite, a superellipse half-axis is not positive or an exponent lies outside 1 to 20, or a B-spline or polygon has fewer than three points, or a Bezier curve's point count is not a positive multiple of three.
  *
- * @evidence contracts/common.md#principled-implementation The standard closed-curve evaluations: superellipse quadrants by their power-of-cosine form, the uniform cubic B-spline basis, the cubic Bernstein basis and linear interpolation along a polygon's sides, each split into equal parameter spans per segment.
- * @evidence contracts/common.md#clear-and-simple-design One parameterization serves both correspondence modes: the direction sampler brackets polar angles along it and parameter correspondence samples it directly.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Out-of-range numbers are refused rather than clamped.
- * @evidence contracts/common.md#meaningful-documentation States the parameter range and wrapping, the split per kind, where `k / n` lands, and every refusal.
- * @evidence contracts/performance.md#efficient-algorithms Validation is O(n) once; each evaluation is constant time.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The returned closure is the reuse.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains the section, released with it.
+ * @evidence contracts/development/implementation.md#principled-implementation The standard closed-curve evaluations: superellipse quadrants by their power-of-cosine form, the uniform cubic B-spline basis, the cubic Bernstein basis and linear interpolation along a polygon's sides, each split into equal parameter spans per segment.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One parameterization serves both correspondence modes: the direction sampler brackets polar angles along it and parameter correspondence samples it directly.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Out-of-range numbers are refused rather than clamped.
+ * @evidence contracts/development/common.md#meaningful-documentation States the parameter range and wrapping, the split per kind, where `k / n` lands, and every refusal.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Validation is O(n) once; each evaluation is constant time.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The returned closure is the reuse.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains the section, released with it.
  */
 export const parameterizeAutoMovieSweepSection: (
   section: Exclude<IAutoMovieSweepSection, IAutoMovieSweepSection.IRadial>,

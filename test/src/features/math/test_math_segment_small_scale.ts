@@ -19,10 +19,11 @@ import { nclose, vclose } from "../internal/predicates";
  * 2. Witnesses lie at the two segment midpoints, not at their endpoints.
  * 3. A 1e-10 metre segment retains its interior point distance and XZ projection.
  *
- * @evidence contracts/testing.md#behavioral-verification Executes shared segment witnesses plus point-distance and XZ adapters, catching a parallel threshold or squared-length floor that replaces valid interior minima.
- * @evidence contracts/testing.md#independent-expectations Orthogonal segment midpoints have a one-micrometre gap, and a point exactly halfway along a 1e-10 metre segment has zero distance and its own horizontal projection.
- * @evidence contracts/testing.md#distinguishing-cases Covers interior orthogonal minima and tiny point/segment projection with tight absolute tolerances; zero-length and conditioning tests own exact collapse and unrepresentable ranges.
- * @evidence contracts/testing.md#execution-ownership This discoverable math function owns its numerical cases and directly imports source without an installed consumer, process or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes shared segment witnesses plus point-distance and XZ adapters, catching a parallel threshold or squared-length floor that replaces valid interior minima.
+ * @evidence contracts/development/testing.md#independent-expectations Orthogonal segment midpoints have a one-micrometre gap, and a point exactly halfway along a 1e-10 metre segment has zero distance and its own horizontal projection.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers interior orthogonal minima and tiny point/segment projection with tight absolute tolerances; zero-length and conditioning tests own exact collapse and unrepresentable ranges.
+ * @evidence contracts/development/testing.md#execution-ownership This discoverable math function owns its numerical cases and directly imports source without an installed consumer, process or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Both public consumers return the independently known interior gap.).
  */
 export function test_math_segment_small_scale(): void {
   const a: IAutoMovieVector3 = { x: -5e-6, y: 0, z: 0 };

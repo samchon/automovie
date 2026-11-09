@@ -89,10 +89,11 @@ const tx: (m: number[]) => number = (m: number[]): number => m[12]!;
  * 4. Empty and omitted profiles yield the same empty diagnostics and world x
  *    within the existing numerical predicate; full serialized bytes are not checked.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs resolveFrame with semantic profile limits and caller limits, observing concrete world clamps and profile-tagged diagnostics, then compares the empty-profile neighbor with direct resolution.
- * @evidence contracts/testing.md#independent-expectations Authored intervals project the sampled translations onto their bounds and direct limits apply afterward; literal semantic/concrete ids determine diagnostic provenance. Empty-profile parity compares two product paths rather than supplying an independent numerical oracle.
- * @evidence contracts/testing.md#distinguishing-cases Mapped over-limit/in-range targets, direct-after-profile clamps and empty versus omitted profiles distinguish binding/order from unconditional changes; node-prefix and malformed binding admission belong to other tests.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_frame_profile_limits entry directly executes portable synchronous frame resolution, comparing numerical values with predicates rather than claiming physical pixels.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs resolveFrame with semantic profile limits and caller limits, observing concrete world clamps and profile-tagged diagnostics, then compares the empty-profile neighbor with direct resolution.
+ * @evidence contracts/development/testing.md#independent-expectations Authored intervals project the sampled translations onto their bounds and direct limits apply afterward; literal semantic/concrete ids determine diagnostic provenance. Empty-profile parity compares two product paths rather than supplying an independent numerical oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Mapped over-limit/in-range targets, direct-after-profile clamps and empty versus omitted profiles distinguish binding/order from unconditional changes; node-prefix and malformed binding admission belong to other tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_frame_profile_limits entry directly executes portable synchronous frame resolution, comparing numerical values with predicates rather than claiming physical pixels.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An overshooting sample (x=100) against the profile's bound limit ([0, 50])).
  */
 export function test_resolve_frame_profile_limits(): void {
   const clamped: IAutoMovieResolveOutput = resolveFrame({

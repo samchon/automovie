@@ -17,10 +17,11 @@ import { nclose, throwsError } from "../internal/predicates";
  * 4. Iterating many steps converges onto the target and comes to rest.
  * 5. Each nonfinite scalar, negative coefficient and nonpositive timestep refuses.
  *
- * @evidence contracts/testing.md#behavioral-verification Advances the actual damped spring through resting, restoring-force, damping and 400-step settling cases, then requires named input refusals. Wrong update order, lost damping or accepting invalid integration inputs fails the retained observations.
- * @evidence contracts/testing.md#independent-expectations Semi-implicit Euler gives velocity 20 and value two for k=20, target ten and dt=.1; pure damping gives zero velocity for c=10, v=50 and dt=.1. The 400-step finite convergence check applies only to its chosen stable coefficients/timestep and does not prove stability for arbitrary parameters.
- * @evidence contracts/testing.md#distinguishing-cases Keeps exact rest, one restoring step, zero-stiffness damping, the original settling trajectory, six nonfinite scalar positions, both negative coefficients and zero/negative dt. Arithmetic overflow from extreme finite inputs and other timesteps are outside this entry.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns its state loop and refusal cases and invokes portable scalar integration with no consumer installation, native build, host startup or dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Advances the actual damped spring through resting, restoring-force, damping and 400-step settling cases, then requires named input refusals. Wrong update order, lost damping or accepting invalid integration inputs fails the retained observations.
+ * @evidence contracts/development/testing.md#independent-expectations Semi-implicit Euler gives velocity 20 and value two for k=20, target ten and dt=.1; pure damping gives zero velocity for c=10, v=50 and dt=.1. The 400-step finite convergence check applies only to its chosen stable coefficients/timestep and does not prove stability for arbitrary parameters.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps exact rest, one restoring step, zero-stiffness damping, the original settling trajectory, six nonfinite scalar positions, both negative coefficients and zero/negative dt. Arithmetic overflow from extreme finite inputs and other timesteps are outside this entry.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns its state loop and refusal cases and invokes portable scalar integration with no consumer installation, native build, host startup or dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Resting exactly on the target with no velocity stays put (zero force).).
  */
 export function test_motion_damped_spring(): void {
   // 1. at rest on target

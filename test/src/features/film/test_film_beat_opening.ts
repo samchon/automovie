@@ -83,10 +83,11 @@ const shot: IAutoMovieShot = {
  *    0.
  * 2. The same beat's end (duration 0.5) sits at x = 1.0, distinguishing the opening instant from the closing state.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls resolveBeatOpening and resolveBeatEnd for the same looping travel shot, checking opening position, phase, motion identity and local clock against a distinct closing position, detecting an opening wrapper that samples shot duration instead of zero.
- * @evidence contracts/testing.md#independent-expectations The authored root law x=2t gives zero at opening and one metre at the half-second cut; a one-second loop starts at phase zero and retains walk identity. Neither resolver supplies the expected scalar or vector values for the other.
- * @evidence contracts/testing.md#distinguishing-cases Owns the same-shot opening/end contrast with a positive half-cycle span and zero performance offset; carried prior-beat state, loop seams and missing or duplicate references have separate tests.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_beat_opening entry owns both portable boundary calls with existing authored motion records, creating no installed consumer, native artifact, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolveBeatOpening and resolveBeatEnd for the same looping travel shot, checking opening position, phase, motion identity and local clock against a distinct closing position, detecting an opening wrapper that samples shot duration instead of zero.
+ * @evidence contracts/development/testing.md#independent-expectations The authored root law x=2t gives zero at opening and one metre at the half-second cut; a one-second loop starts at phase zero and retains walk identity. Neither resolver supplies the expected scalar or vector values for the other.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns the same-shot opening/end contrast with a positive half-cycle span and zero performance offset; carried prior-beat state, loop seams and missing or duplicate references have separate tests.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_beat_opening entry owns both portable boundary calls with existing authored motion records, creating no installed consumer, native artifact, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A hero performing the x = 2t walk from the staged origin opens at x = 0 (the).
  */
 export function test_film_beat_opening(): void {
   const opening: IAutoMovieBeatEndActorState = resolveBeatOpening({

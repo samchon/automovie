@@ -10,13 +10,10 @@
  * the screenplay scenes, beats and files they realize. An omitted stage stays
  * `"disabled"`, so ordinary coding and narrative-only work owe none of them.
  *
- * @evidence contracts/common.md#principled-implementation One stage per contract mirrors the scaffold's development contracts, so a commission enables exactly the duties its code can establish.
- * @evidence contracts/common.md#clear-and-simple-design Three optional fields with the narrative stage vocabulary; folders, populations and references belong to the claim factory.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No stage is implied by file presence; an absent field is disabled.
- * @evidence contracts/common.md#meaningful-documentation The comment names each stage's respondents, their citations and the disabled default.
- * @evidence contracts/performance.md#efficient-algorithms This erased interface chooses no algorithm; the claim factory owns composition.
- * @evidence contracts/performance.md#reuse-equivalent-work This erased interface coordinates no computation or retained cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources This erased interface owns no handles, tasks or resource lifetime.
+ * @evidence contracts/development/design.md#principled-representation One stage per contract mirrors the scaffold's development contracts, so a commission enables exactly the duties its code can establish.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Three optional fields with the narrative stage vocabulary; folders, populations and references belong to the claim factory.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No stage is implied by file presence; an absent field is disabled.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment names each stage's respondents, their citations and the disabled default.
  */
 export interface IAutoMovieDevelopmentProps {
   /**

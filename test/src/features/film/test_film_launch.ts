@@ -72,10 +72,11 @@ function launch(
  * 9. A nodeless aim without onHit keeps its flight/contact; requesting a recoil
  *    with a null or blank targetNode is refused rather than silently omitted.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises compileLaunch's flight, timed recoil, impact events and moving interception; assertions catch wrong speed or landing, reversed incoming recoil, missing onHit actors, and an event clock that omits the action start.
- * @evidence contracts/testing.md#independent-expectations Requested speed and target coordinates define the static oracle; constant-velocity target motion defines the independent interception oracle, and the custom-gravity apex gives a zero-velocity sightline case. Timing compares the solved contact against the same result's reaction and events, so it checks clock consistency rather than the ballistic root alone.
- * @evidence contracts/testing.md#distinguishing-cases Covers node and nodeless aims, reactions with and without unbalance, missing/blank struck actors, actor lists, direct and high arcs, unreachable targets, zero landing velocity and moving targets; full-shot admission and late-impact refusal belong to perform-shot launch tests.
- * @evidence contracts/testing.md#execution-ownership The synchronous unit entry directly imports compileLaunch and projectileAt and executes its portable physics cases without a renderer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises compileLaunch's flight, timed recoil, impact events and moving interception; assertions catch wrong speed or landing, reversed incoming recoil, missing onHit actors, and an event clock that omits the action start.
+ * @evidence contracts/development/testing.md#independent-expectations Requested speed and target coordinates define the static oracle; constant-velocity target motion defines the independent interception oracle, and the custom-gravity apex gives a zero-velocity sightline case. Timing compares the solved contact against the same result's reaction and events, so it checks clock consistency rather than the ballistic root alone.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers node and nodeless aims, reactions with and without unbalance, missing/blank struck actors, actor lists, direct and high arcs, unreachable targets, zero landing velocity and moving targets; full-shot admission and late-impact refusal belong to perform-shot launch tests.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous unit entry directly imports compileLaunch and projectileAt and executes its portable physics cases without a renderer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A direct shot at a downrange target compiles: the clip is the projectile).
  */
 export function test_film_launch(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 1.6, z: 0 };

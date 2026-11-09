@@ -11,13 +11,13 @@ class ScaffoldCleanupError extends AggregateError {}
  * @param resource Name of the released resource, used in the message.
  * @returns `second` alone, or the combined failure.
  *
- * @evidence contracts/common.md#principled-implementation `AggregateError` is the standard container for several errors, and a private subclass marks the lists built here so only those are flattened; the premise is that no caller throws `undefined` as a real failure, which holds because every caller stores caught errors from Node or from this package, and both throw `Error` objects.
- * @evidence contracts/common.md#clear-and-simple-design publishNativeScaffoldFile and overwriteScaffoldFile share cleanup-error ordering and flattening here; the private aggregate subtype keeps the combination marker out of the public API.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is swallowed or retried: both failures reach the caller, and the function only decides their container.
- * @evidence contracts/common.md#meaningful-documentation The comment states what `undefined` means for `first`, the order of members, which aggregates are flattened, and what `resource` names.
- * @evidence contracts/performance.md#efficient-algorithms Building the list copies the members of an earlier combination once, linear in the failures of one operation, which is at most a few close steps.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call wraps two distinct failures of one operation; there is no result another call could share.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned aggregate holds references to the combined failures only for as long as the caller keeps it; the function owns no handle or other state.
+ * @evidence contracts/development/implementation.md#principled-implementation `AggregateError` is the standard container for several errors, and a private subclass marks the lists built here so only those are flattened; the premise is that no caller throws `undefined` as a real failure, which holds because every caller stores caught errors from Node or from this package, and both throw `Error` objects.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure publishNativeScaffoldFile and overwriteScaffoldFile share cleanup-error ordering and flattening here; the private aggregate subtype keeps the combination marker out of the public API.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is swallowed or retried: both failures reach the caller, and the function only decides their container.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states what `undefined` means for `first`, the order of members, which aggregates are flattened, and what `resource` names.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Building the list copies the members of an earlier combination once, linear in the failures of one operation, which is at most a few close steps.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call wraps two distinct failures of one operation; there is no result another call could share.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned aggregate holds references to the combined failures only for as long as the caller keeps it; the function owns no handle or other state.
  */
 export const combineScaffoldFailures: (
   first: unknown,

@@ -44,10 +44,11 @@ import { throwsError } from "../internal/throwsError";
  * 5. The whole-inventory census is untouched: every summary it builds starts at
  *    the first member, and it still names every subject.
  *
- * @evidence contracts/testing.md#behavioral-verification Walks multiple child and compact-instance pages, asserting total, stable sorted ids, uniqueness and termination; a skipped/overlapping page, incorrect omitted count or census cap fails.
- * @evidence contracts/testing.md#independent-expectations The fixture declares 150 zero-padded child ids and 150 slots, independently fixing complete membership and code-unit order. The imported limit states the paging contract; this case does not independently justify that limit's performance policy.
- * @evidence contracts/testing.md#distinguishing-cases Keeps first and later pages, past-end empty output, negative/fractional rank refusal, compact-slot regeneration and unchanged first-page whole census; model geometry and hierarchy reach are separate entries.
- * @evidence contracts/testing.md#execution-ownership This runner-discovered exported CPU test owns all paging loops and local hierarchy records, directly calling description/census source without real production content, filesystem paging or a rendering host.
+ * @evidence contracts/development/testing.md#behavioral-verification Walks multiple child and compact-instance pages, asserting total, stable sorted ids, uniqueness and termination; a skipped/overlapping page, incorrect omitted count or census cap fails.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture declares 150 zero-padded child ids and 150 slots, independently fixing complete membership and code-unit order. The imported limit states the paging contract; this case does not independently justify that limit's performance policy.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps first and later pages, past-end empty output, negative/fractional rank refusal, compact-slot regeneration and unchanged first-page whole census; model geometry and hierarchy reach are separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership This runner-discovered exported CPU test owns all paging loops and local hierarchy records, directly calling description/census source without real production content, filesystem paging or a rendering host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Paging an element's children by the limit reaches every child exactly).
  */
 export function test_inspection_subject_member_paging(): void {
   const artifact: IAutoMovieSubjectArtifact = subjectInspectionArtifact({

@@ -1,11 +1,9 @@
 import {
-  type IAutoMovieRecoveryEventCurvePiece,
-  type IAutoMovieRecoveryEventCurveArc,
   AutoMovieRecoveryEventCurve as E,
+  type IAutoMovieRecoveryEventCurveArc,
+  type IAutoMovieRecoveryEventCurvePiece,
   prepareAutoMovieRecoveryAnnularChart,
 } from "@automovie/recovery";
-
-
 import { TestValidator } from "@nestia/e2e";
 
 import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
@@ -13,10 +11,11 @@ import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geo
 /**
  * Native occurrence direction determines endpoint names and the annular seam.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls maintained occurrence admission, Bernstein restriction, reversal, native endpoint resolution and the actual annular chart constructor. Assertions inspect shared seam identity and native coefficient names rather than duplicated arithmetic.
- * @evidence contracts/testing.md#independent-expectations Reversing a cubic starts at its raw P3 and therefore uses the second native endpoint name. A proper interior parameter is neither native endpoint. Identical left/right objects establish one explicit seam owner. Different raw endpoint coordinates cannot claim an alias.
- * @evidence contracts/testing.md#distinguishing-cases Covers full forward/reverse, nonbinary proper restriction, reversed proper restriction, exact C0 rejection, false endpoint alias, nonhorizontal boundary preservation, explicit knot retention and degenerate seam rejection.
- * @evidence contracts/testing.md#execution-ownership Portable CPU-only generic curves exercise maintained recovery owners without a source asset, process, disk, fitter, renderer or anatomical fixture.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls maintained occurrence admission, Bernstein restriction, reversal, native endpoint resolution and the actual annular chart constructor. Assertions inspect shared seam identity and native coefficient names rather than duplicated arithmetic.
+ * @evidence contracts/development/testing.md#independent-expectations Reversing a cubic starts at its raw P3 and therefore uses the second native endpoint name. A proper interior parameter is neither native endpoint. Identical left/right objects establish one explicit seam owner. Different raw endpoint coordinates cannot claim an alias.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers full forward/reverse, nonbinary proper restriction, reversed proper restriction, exact C0 rejection, false endpoint alias, nonhorizontal boundary preservation, explicit knot retention and degenerate seam rejection.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU-only generic curves exercise maintained recovery owners without a source asset, process, disk, fitter, renderer or anatomical fixture.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Native occurrence direction determines endpoint names and the annular seam) as stated in this comment.
  */
 export function test_geometry_recovery_event_curve(): void {
   const curve: (id: string, y: number) => C.Cubic = (
@@ -44,8 +43,12 @@ export function test_geometry_recovery_event_curve(): void {
       ],
     ],
   });
-  const bottom: IAutoMovieRecoveryEventCurveArc = E.fromCurve(curve("lower", 0));
-  const top: IAutoMovieRecoveryEventCurveArc = E.reverse(E.fromCurve(curve("upper", 3)));
+  const bottom: IAutoMovieRecoveryEventCurveArc = E.fromCurve(
+    curve("lower", 0),
+  );
+  const top: IAutoMovieRecoveryEventCurveArc = E.reverse(
+    E.fromCurve(curve("upper", 3)),
+  );
   const chart: ReturnType<typeof prepareAutoMovieRecoveryAnnularChart> =
     prepareAutoMovieRecoveryAnnularChart(bottom, top, "domain");
   TestValidator.equals("one shared seam", chart.left === chart.right, true);
@@ -65,7 +68,11 @@ export function test_geometry_recovery_event_curve(): void {
     top.pieces[0]!.source.endpointAuthorities[1],
   );
   TestValidator.equals("three-dimensional boundary retained", chart.top, top);
-  const restricted: IAutoMovieRecoveryEventCurveArc = E.portion(bottom, 0.13, 0.27);
+  const restricted: IAutoMovieRecoveryEventCurveArc = E.portion(
+    bottom,
+    0.13,
+    0.27,
+  );
   TestValidator.equals(
     "proper native start has no endpoint name",
     E.endpointAuthority(restricted.pieces[0]!, 0),
@@ -86,9 +93,12 @@ export function test_geometry_recovery_event_curve(): void {
     ...top.pieces[0]!,
     source: { ...top.pieces[0]!.source, start: 0, end: 0 },
   };
-  TestValidator.error("empty native orientation cannot claim an endpoint", (): void => {
-    E.endpointAuthority(wrong, 0);
-  });
+  TestValidator.error(
+    "empty native orientation cannot claim an endpoint",
+    (): void => {
+      E.endpointAuthority(wrong, 0);
+    },
+  );
   const broken: C.Cubic = {
     ...curve("broken", 0),
     spans: [
@@ -135,9 +145,20 @@ export function test_geometry_recovery_event_curve(): void {
   TestValidator.error("one cubic cannot cross a native knot", (): void => {
     E.piece(bottom, 0.2, 0.7);
   });
-  const first: IAutoMovieRecoveryEventCurveArc = E.line([0.3, 0, 0], [1, 0, 0], "first");
-  const second: IAutoMovieRecoveryEventCurveArc = E.line([1, 0, 0], [2, 0, 0], "second");
-  const combined: IAutoMovieRecoveryEventCurveArc = E.concatenate([first, second], "combined");
+  const first: IAutoMovieRecoveryEventCurveArc = E.line(
+    [0.3, 0, 0],
+    [1, 0, 0],
+    "first",
+  );
+  const second: IAutoMovieRecoveryEventCurveArc = E.line(
+    [1, 0, 0],
+    [2, 0, 0],
+    "second",
+  );
+  const combined: IAutoMovieRecoveryEventCurveArc = E.concatenate(
+    [first, second],
+    "combined",
+  );
   TestValidator.equals(
     "composite retains both native pieces",
     combined.pieces.length,

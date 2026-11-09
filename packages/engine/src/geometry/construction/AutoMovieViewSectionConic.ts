@@ -14,25 +14,22 @@ type Source = Pick<
 /**
  * Prepares, measures and diagnoses the actual conic/G2 source without replacing it.
  *
- * @evidence contracts/common.md#principled-implementation Measures short convex rational ends by chord/control-polygon enclosures and the unchanged quadratic interiors by native quadrature; finite measurement is part of range admission.
- * @evidence contracts/common.md#clear-and-simple-design Native arclength and source diagnostics share one measurement owner, while ViewSection owns input/fullness solving.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No coarse quadrature fallback, sampled replacement curve or changed convexity threshold is accepted.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes geometric end enclosures with floating arithmetic from the interior quadrature's estimated error; neither is called an interval certificate.
- * @evidence contracts/performance.md#efficient-algorithms Interior quadrature and each of at most eight end enclosures visit at most 8192 panels; fault reads at most 97 polar observations per quarter, 388 in total.
- * @evidence contracts/performance.md#reuse-equivalent-work Prepared native partitions and admitted end records serve every measurement without another source construction.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Scratch domains/panels are invocation-owned and bounded; no global source cache is retained.
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes geometric end enclosures with floating arithmetic from the interior quadrature's estimated error; neither is called an interval certificate.
+ * @evidence contracts/development/design.md#principled-representation Represents Prepares, measures and diagnoses the actual conic/G2 source without replacing it: companion namespace of 8 members (`prepare`, `length`, `fault`, `IDomain`, `IPanel`, `IEndPanel`, ...); units and frames named in its text: local, rational, second, degree. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieViewSectionConic` in packages/engine/src/geometry/construction/AutoMovieViewSectionConic.ts; its surface is the 8 members listed and the text shows 4 other files naming it, mostly packages/engine (2), packages/human (1), test (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieViewSectionConic {
   /**
    * Prepare shared guides and the retained native quadrature partition.
    *
-   * @evidence contracts/common.md#principled-implementation Uses the existing NUMBER shared-curvature policy and four-quarter factory in the original operand/order sequence.
-   * @evidence contracts/common.md#clear-and-simple-design A measured-source record lets internal length/fault readers omit unused public inspection observations.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Native partitions, source failures and original support/shoulder values remain unchanged; no incomplete public section is returned.
-   * @evidence contracts/common.md#meaningful-documentation Girth zero is unevaluated, guides use mm/angular orders, and ViewSection attaches public knots/fullness/diagonals.
-   * @evidence contracts/performance.md#efficient-algorithms Fixed quarter work plus the original 60 interior native-turn parameters at 60 bisections each; no inspection radius queries occur here.
-   * @evidence contracts/performance.md#reuse-equivalent-work The same source serves length, all 388 candidate fault readings and final observation decoration.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only caller-owned fixed source/guide/native-partition records escape; no cache is retained.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the existing NUMBER shared-curvature policy and four-quarter factory in the original operand/order sequence.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A measured-source record lets internal length/fault readers omit unused public inspection observations.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Native partitions, source failures and original support/shoulder values remain unchanged; no incomplete public section is returned.
+   * @evidence contracts/development/common.md#meaningful-documentation Girth zero is unevaluated, guides use mm/angular orders, and ViewSection attaches public knots/fullness/diagonals.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed quarter work plus the original 60 interior native-turn parameters at 60 bisections each; no inspection radius queries occur here.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same source serves length, all 388 candidate fault readings and final observation decoration.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only caller-owned fixed source/guide/native-partition records escape; no cache is retained.
    */
   export function prepare(
     box: AutoMovieViewSection.IBox,
@@ -70,13 +67,13 @@ export namespace AutoMovieViewSectionConic {
    * norm. tolerance is a positive native estimated target, default1e-7;
    * unresolved work/depth or nonfinite arithmetic remains NaN.
    *
-   * @evidence contracts/common.md#principled-implementation Integrates each quadratic half in its nearest-end native chart, using the retained turn partition without subtracting a near-one quadrature abscissa. Each same original convex cubic end is enclosed by its diagonally mapped chord and control-polygon lengths; invertible linear maps preserve the convex/positive-weight premises; positive homogeneous subdivision tightens that enclosure independently of weight-induced speed spikes.
-   * @evidence contracts/common.md#clear-and-simple-design Native quadrature and geometric end enclosures return one length or NaN for the identical composed source.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An unresolved enclosure, nonfinite speed or exhausted bound returns NaN; a chord alone never substitutes for an unresolved arclength.
-   * @evidence contracts/common.md#meaningful-documentation Half the requested length budget belongs to all eight possible ends and half to quadratic quadrature; 64epsilon floors account for floating arithmetic, without an interval-certificate claim.
-   * @evidence contracts/performance.md#efficient-algorithms At most8192 interior panel visits and8192 per present end, each to depth24; ordinary flat ends close their enclosure without subdivision.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses prepared controls/native partitions; child quadrature panels reuse their coarse integrals.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Eight local quadratic-half domains and bounded invocation-owned subdivision stacks die on return or failure.
+   * @evidence contracts/development/implementation.md#principled-implementation Integrates each quadratic half in its nearest-end native chart, using the retained turn partition without subtracting a near-one quadrature abscissa. Each same original convex cubic end is enclosed by its diagonally mapped chord and control-polygon lengths; invertible linear maps preserve the convex/positive-weight premises; positive homogeneous subdivision tightens that enclosure independently of weight-induced speed spikes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Native quadrature and geometric end enclosures return one length or NaN for the identical composed source.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unresolved enclosure, nonfinite speed or exhausted bound returns NaN; a chord alone never substitutes for an unresolved arclength.
+   * @evidence contracts/development/common.md#meaningful-documentation Half the requested length budget belongs to all eight possible ends and half to quadratic quadrature; 64epsilon floors account for floating arithmetic, without an interval-certificate claim.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most8192 interior panel visits and8192 per present end, each to depth24; ordinary flat ends close their enclosure without subdivision.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses prepared controls/native partitions; child quadrature panels reuse their coarse integrals.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Eight local quadratic-half domains and bounded invocation-owned subdivision stacks die on return or failure.
    */
   export function length(
     section: Pick<AutoMovieViewSection.ISection, "conics">,
@@ -211,13 +208,13 @@ export namespace AutoMovieViewSectionConic {
   /**
    * Actual finite-source, curvature or support diagnostic, otherwise null.
    *
-   * @evidence contracts/common.md#principled-implementation Source preparation proves the positive regular convex pieces; unchanged polar observations additionally expose floating arithmetic, girth or support failures.
-   * @evidence contracts/common.md#clear-and-simple-design One nullable string names the first broken premise.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps the existing1e-12 relative convexity and1e-6 support thresholds; observations do not stand in for the rational construction proof.
-   * @evidence contracts/common.md#meaningful-documentation Bare sections have unevaluated zero girth; nonfinite computed girth and nonfinite jets are refused explicitly.
-   * @evidence contracts/performance.md#efficient-algorithms At most388 prepared-source polar readings and constant storage.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reads the section's prepared source without rebuilding its quarters.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one string or null and retains no input.
+   * @evidence contracts/development/implementation.md#principled-implementation Source preparation proves the positive regular convex pieces; unchanged polar observations additionally expose floating arithmetic, girth or support failures.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One nullable string names the first broken premise.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the existing1e-12 relative convexity and1e-6 support thresholds; observations do not stand in for the rational construction proof.
+   * @evidence contracts/development/common.md#meaningful-documentation Bare sections have unevaluated zero girth; nonfinite computed girth and nonfinite jets are refused explicitly.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most388 prepared-source polar readings and constant storage.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the section's prepared source without rebuilding its quarters.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one string or null and retains no input.
    */
   export function fault(
     section: Pick<AutoMovieViewSection.ISection, "conics" | "box" | "girth">,

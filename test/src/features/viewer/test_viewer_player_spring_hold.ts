@@ -42,10 +42,11 @@ const flexionOf: (pose: IAutoMoviePose) => number | null = (
  * 2. Mid-lag repeated updates preserve the chased angle rather than resetting to the stepped 40-degree target.
  * 3. A fresh zero-delta first update initializes at its authored 25-degree target.
  *
- * @evidence contracts/testing.md#behavioral-verification Drives actual Player decay/lag, repeats a timestamp, then advances and reads final callback-pose angles; catches reseeding or deleting live output state on a zero-time update while preserving fresh initialization.
- * @evidence contracts/testing.md#independent-expectations The supported no-time relation preserves held observed angles; advancing output remains nonzero and changes, while a fresh sample has an authored 25-degree target. This does not independently establish hidden velocity or solver accuracy.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts live decay/tracking, repeated paused time, subsequent advance and fresh zero-delta state; backward time and broad trajectory accuracy are not exercised independently here.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit reuses existing generic rig/motion fixtures and the original frame callback through source, with CPU-side state and no browser, GPU, process or new Human driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Drives actual Player decay/lag, repeats a timestamp, then advances and reads final callback-pose angles; catches reseeding or deleting live output state on a zero-time update while preserving fresh initialization.
+ * @evidence contracts/development/testing.md#independent-expectations The supported no-time relation preserves held observed angles; advancing output remains nonzero and changes, while a fresh sample has an authored 25-degree target. This does not independently establish hidden velocity or solver accuracy.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts live decay/tracking, repeated paused time, subsequent advance and fresh zero-delta state; backward time and broad trajectory accuracy are not exercised independently here.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit reuses existing generic rig/motion fixtures and the original frame callback through source, with CPU-side state and no browser, GPU, process or new Human driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Mid-decay repeated updates keep the same present angle, and the next advancing update continues from nonzero state.).
  */
 export function test_viewer_player_spring_hold(): void {
   // 1. mid-decay hold across repeated same-t updates

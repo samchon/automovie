@@ -11,13 +11,13 @@ import type * as THREE from "three";
  *
  * Staged nodes are matched positionally because {@link buildScene} adds one group per designed node, in order; everything else is matched by its own name. Both readings are kept because a host is free to leave those groups anonymous, and the mask must resolve the scene the viewer builds rather than the scene a test found convenient to assemble.
  *
- * @evidence contracts/common.md#principled-implementation Requires enough top-level children, indexes canonical mask node names and binds designed nodes positionally before named traversal overrides with actual matching objects.
- * @evidence contracts/common.md#clear-and-simple-design One root-index owner serves both painter and nonmutating audit; nearest ancestor lookup and unresolved classification remain separate.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Only child-count is checked here: correct initial declaration order, admitted nonambiguous mask index and object names remain producer premises. Names/root presence cannot certify actual drawable pixels.
- * @evidence contracts/common.md#meaningful-documentation Documents anonymous staged groups, named descendants, positional order and too-short scene refusal without claiming full build validity.
- * @evidence contracts/performance.md#efficient-algorithms Engine indexing plus designed-node loop and full scene traversal cost O(E+S+N), with one object-keyed Map and no repeated palette scan per object.
- * @evidence contracts/performance.md#reuse-equivalent-work One call-local root map is reused by its owning paint/audit operation; changed graph/order/palette needs a fresh map rather than a name-only cached result.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned Map borrows scene object/document references for that operation scope and acquires no geometry/material/native handle; caller releases the map when the audit/pass ends.
+ * @evidence contracts/development/implementation.md#principled-implementation Requires enough top-level children, indexes canonical mask node names and binds designed nodes positionally before named traversal overrides with actual matching objects.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One root-index owner serves both painter and nonmutating audit; nearest ancestor lookup and unresolved classification remain separate.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only child-count is checked here: correct initial declaration order, admitted nonambiguous mask index and object names remain producer premises. Names/root presence cannot certify actual drawable pixels.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents anonymous staged groups, named descendants, positional order and too-short scene refusal without claiming full build validity.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Engine indexing plus designed-node loop and full scene traversal cost O(E+S+N), with one object-keyed Map and no repeated palette scan per object.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One call-local root map is reused by its owning paint/audit operation; changed graph/order/palette needs a fresh map rather than a name-only cached result.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned Map borrows scene object/document references for that operation scope and acquires no geometry/material/native handle; caller releases the map when the audit/pass ends.
  */
 export const maskRoots: (props: {
   /** Built scene whose initial children follow the design node order. */

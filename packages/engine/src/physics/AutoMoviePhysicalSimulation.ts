@@ -54,7 +54,17 @@ export class AutoMoviePhysicalSimulation {
     public readonly tracking: AutoMoviePhysicalSimulation.IDiagnostic[],
   ) {}
 
-  /** Query every joint's authored-relative error and the last completed step's cap forecasts. */
+  /**
+   * Query every joint's authored-relative error and the last completed step's cap forecasts.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Query every joint's authored-relative error and the last completed step's cap forecasts.
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Query every joint's authored-relative error and the last completed step's cap forecasts) directly over its typed inputs (`seconds`) as a fixed number of statements with no loop or recursion in the body, delegating to `samplePhysicalTracking`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 8 lines and 1 top-level statements that reuses `samplePhysicalTracking` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `seconds`; the dominant cost is a fixed number of statements with no loop or recursion in the body, performed once per call. No speedup is claimed and none is measured.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
+   */
   public trackingAt(
     seconds: number,
   ): AutoMoviePhysicalSimulation.IDiagnostic[] {
@@ -66,7 +76,17 @@ export class AutoMoviePhysicalSimulation {
     );
   }
 
-  /** Independently admit and identify current sampled input without initializing a solver or trusting a cache manifest. */
+  /**
+   * Independently admit and identify current sampled input without initializing a solver or trusting a cache manifest.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Independently admit and identify current sampled input without initializing a solver or trusting a cache manifest.
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Independently admit and identify current sampled input without initializing a solver or trusting a cache manifest) directly over its typed inputs (`input`) as a fixed number of statements with no loop or recursion in the body, delegating to `physicalInputDigest`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 3 lines and 1 top-level statements that reuses `physicalInputDigest` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`; the dominant cost is a fixed number of statements with no loop or recursion in the body, performed once per call. No speedup is claimed and none is measured.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
+   */
   public static identity(input: AutoMoviePhysicalSimulation.IInput): string {
     return physicalInputDigest(this.admitted(input));
   }
@@ -94,7 +114,17 @@ export class AutoMoviePhysicalSimulation {
     return owned;
   }
 
-  /** Run or resume a complete film; synchronous progress observes completed intervals only, and cancellation exposes no partial successful result. */
+  /**
+   * Run or resume a complete film; synchronous progress observes completed intervals only, and cancellation exposes no partial successful result.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Run or resume a complete film; synchronous progress observes completed intervals only, and cancellation exposes no partial successful result.
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Run or resume a complete film; synchronous progress observes completed intervals only, and cancellation exposes no partial successful result) directly over its typed inputs (`input`, `previous`, `signal`, `progress`) as nested iteration of depth 5 (every over owned.bodies; for-of over Object.entries( previous!.cach; for-of over previous!.cache.controllerCheckpoints.ge), delegating to `signal?.throwIfAborted`, `physicalInputDigest`, `progress`, `Math.round`, `computePhysicalKinematicFrames`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (1 throw site). Apart from structural 0, 1 and 2 the body uses no numeric literal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One async operation of 350 lines and 14 top-level statements that reuses `signal?.throwIfAborted`, `physicalInputDigest`, `progress`, `Math.round`, `computePhysicalKinematicFrames` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 35 non-null assertion(s); these are the remaining shortcuts and are not justified here.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`, `previous`, `signal`, `progress`; the dominant cost is nested iteration of depth 5 (every over owned.bodies; for-of over Object.entries( previous!.cach; for-of over previous!.cache.controllerCheckpoints.ge), performed once per call with 31 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Awaits 5 calls per invocation and shares no result or in-flight work between invocations: equivalence of effectful calls is not decided here, so every call repeats its effects.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body awaits asynchronous work; it retains nothing after it settles beyond its result, and any handle it opens is owned and released by the call or by its callees.
+   */
   public static async compute(
     input: AutoMoviePhysicalSimulation.IInput,
     previous?: AutoMoviePhysicalSimulation,
@@ -452,14 +482,45 @@ export class AutoMoviePhysicalSimulation {
   }
 }
 
-/** Public input and diagnostic aliases keep their established simulation owner. */
+/**
+ * Public input and diagnostic aliases keep their established simulation owner.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Public input and diagnostic aliases keep their established simulation owner) and documents 4 documented members as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents Public input and diagnostic aliases keep their established simulation owner: companion namespace of 4 members (`ITarget`, `IBody`, `IInput`, `IDiagnostic`). It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMoviePhysicalSimulation` in packages/engine/src/physics/AutoMoviePhysicalSimulation.ts; its surface is the 4 members listed and the text shows 76 other files naming it, mostly test (39), packages/engine (34), movies (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ */
 export namespace AutoMoviePhysicalSimulation {
-  /** Sampled authored segment goals and tracking strengths. */ export type ITarget =
-    AutoMoviePhysicalSimulationInput.ITarget;
-  /** One provider body and its bounded controller policy. */ export type IBody =
-    AutoMoviePhysicalSimulationInput.IBody;
-  /** Complete finite simulation work and input description. */ export type IInput =
-    AutoMoviePhysicalSimulationInput.IInput;
-  /** Pre-solve actuator-cap forecast at a completed cached step. */ export type IDiagnostic =
-    AutoMoviePhysicalSimulationInput.IDiagnostic;
+  /**
+   * Sampled authored segment goals and tracking strengths.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Sampled authored segment goals and tracking strengths) as stated in this comment.
+   * @evidence contracts/development/design.md#principled-representation Represents Sampled authored segment goals and tracking strengths: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `ITarget` in packages/engine/src/physics/AutoMoviePhysicalSimulation.ts; its surface is the 0 members listed and the text shows 48 other files naming it, mostly packages/engine (18), packages/human (11), movies (10), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */ export type ITarget = AutoMoviePhysicalSimulationInput.ITarget;
+  /**
+   * One provider body and its bounded controller policy.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (One provider body and its bounded controller policy) as stated in this comment.
+   * @evidence contracts/development/design.md#principled-representation Represents One provider body and its bounded controller policy: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IBody` in packages/engine/src/physics/AutoMoviePhysicalSimulation.ts; its surface is the 0 members listed and the text shows 97 other files naming it, mostly packages/engine (42), test (42), packages/human (12), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */ export type IBody = AutoMoviePhysicalSimulationInput.IBody;
+  /**
+   * Complete finite simulation work and input description.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Complete finite simulation work and input description) as stated in this comment.
+   * @evidence contracts/development/design.md#principled-representation Represents Complete finite simulation work and input description: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IInput` in packages/engine/src/physics/AutoMoviePhysicalSimulation.ts; its surface is the 0 members listed and the text shows 227 other files naming it, mostly packages/human (131), test (44), packages/engine (42), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */ export type IInput = AutoMoviePhysicalSimulationInput.IInput;
+  /**
+   * Pre-solve actuator-cap forecast at a completed cached step.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Pre-solve actuator-cap forecast at a completed cached step) as stated in this comment.
+   * @evidence contracts/development/design.md#principled-representation Represents Pre-solve actuator-cap forecast at a completed cached step: type alias of 0 members (). It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IDiagnostic` in packages/engine/src/physics/AutoMoviePhysicalSimulation.ts; its surface is the 0 members listed and the text shows 79 other files naming it, mostly packages/human (53), packages/engine (15), test (11), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */ export type IDiagnostic = AutoMoviePhysicalSimulationInput.IDiagnostic;
 }

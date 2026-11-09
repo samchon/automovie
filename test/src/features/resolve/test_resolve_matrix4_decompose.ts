@@ -41,10 +41,11 @@ const roundTrip: (
  *    second half of the `r00`-largest test going false (the `&&`
  *    short-circuit).
  *
- * @evidence contracts/testing.md#behavioral-verification Composes and decomposes authored TRS examples, comparing recovered positions/scales and sign-equivalent rotations across the trace and largest-diagonal branches, plus one recovered rotation norm.
- * @evidence contracts/testing.md#independent-expectations The original authored TRS is the round-trip expectation; half-turn Cartesian and tilted unit axes select extraction branches independently. Shared compose/decompose arithmetic can cancel a common error, so this complements the literal matrix-coefficient tests.
- * @evidence contracts/testing.md#distinguishing-cases Identity, X/Y/Z half-turns, a tilted half-turn and a Y quarter-turn cover these extraction choices; collapsed, mirrored and sheared matrices are not certified here.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_matrix4_decompose entry owns portable synchronous numeric round trips through the actual Matrix4 owner; it makes no visual or clinical correctness claim.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes and decomposes authored TRS examples, comparing recovered positions/scales and sign-equivalent rotations across the trace and largest-diagonal branches, plus one recovered rotation norm.
+ * @evidence contracts/development/testing.md#independent-expectations The original authored TRS is the round-trip expectation; half-turn Cartesian and tilted unit axes select extraction branches independently. Shared compose/decompose arithmetic can cancel a common error, so this complements the literal matrix-coefficient tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Identity, X/Y/Z half-turns, a tilted half-turn and a Y quarter-turn cover these extraction choices; collapsed, mirrored and sheared matrices are not certified here.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_matrix4_decompose entry owns portable synchronous numeric round trips through the actual Matrix4 owner; it makes no visual or clinical correctness claim.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Identity rotation → positive-trace branch; with a non-uniform scale and).
  */
 export function test_resolve_matrix4_decompose(): void {
   const one: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };

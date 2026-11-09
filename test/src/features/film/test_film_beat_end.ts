@@ -132,10 +132,11 @@ const shot: IAutoMovieShot = {
  * 4. A resting unperformed extra retains null motion and pose; all actors remain in scene order under the supplied beat and shot ids.
  * 5. A referenced walk missing from the supplied motions throws its named missing-motion Error.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls resolveBeatEnd and checks actor order, ids, local clocks, folded translation/facing, held and clamped pose fields and missing-motion refusal, catching offset loss, double-applied pose root or omission of unperformed nodes.
- * @evidence contracts/testing.md#independent-expectations The hero's staged x=10 plus authored root x=2 gives x=12, and a ninety-degree Y turn maps forward Z to positive X. Literal held positions and final head twist 20 supply the other expectations without product sampling; finite coordinates, clocks and twist use the shared tolerances.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts performed motion, explicitly held performance, scene-level motion and a resting node in one ordered snapshot, plus a missing motion; loop phases, velocities, plants, mounts and baked object authority are covered by adjacent beat-end tests.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_beat_end entry owns its literal scene, shot and missing-motion case and calls the engine in-process, with existing numerical fixtures and no installation, native artifact, process or render host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolveBeatEnd and checks actor order, ids, local clocks, folded translation/facing, held and clamped pose fields and missing-motion refusal, catching offset loss, double-applied pose root or omission of unperformed nodes.
+ * @evidence contracts/development/testing.md#independent-expectations The hero's staged x=10 plus authored root x=2 gives x=12, and a ninety-degree Y turn maps forward Z to positive X. Literal held positions and final head twist 20 supply the other expectations without product sampling; finite coordinates, clocks and twist use the shared tolerances.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts performed motion, explicitly held performance, scene-level motion and a resting node in one ordered snapshot, plus a missing motion; loop phases, velocities, plants, mounts and baked object authority are covered by adjacent beat-end tests.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_beat_end entry owns its literal scene, shot and missing-motion case and calls the engine in-process, with existing numerical fixtures and no installation, native artifact, process or render host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A performed hero samples one second after its offset, folds two metres of root travel and ninety degrees of yaw into staged state, and...).
  */
 export function test_film_beat_end(): void {
   const end: IAutoMovieBeatEndState = resolveBeatEnd({

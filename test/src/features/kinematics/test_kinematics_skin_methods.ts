@@ -25,10 +25,11 @@ import { throwsError, vclose } from "../internal/predicates";
  * 6. A translated pose moves every vertex by the translation under both methods.
  * 7. A mesh without a skin and a skin joint missing from the posed bones throw.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls skinAutoMovieMesh on a synthetic tube with hand-built rest and posed bones and reads the returned positions; catches a wrong joint transform (P R^-1), a missing translation term in the dual part, a missing hemisphere alignment, a linear blend on a dual-quaternion skin and the reverse.
- * @evidence contracts/testing.md#independent-expectations Expected points come from closed-form rotations about the joint: a rigid point rotates by the full angle, the dual quaternion blend of identity and a rotation by theta is the rotation by theta/2, and the linear blend is the midpoint of the rest and fully rotated points; none is read from the implementation.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts rest and posed, rigid and blended vertices, twist and bend, both methods and the omitted method, a negated quaternion and a pure translation, and the two refusal paths; mesh admission of the method and the viewer's shader belong to their own tests.
- * @evidence contracts/testing.md#execution-ownership A portable unit over engine arithmetic and an internal synthetic fixture; it starts no browser, GPU or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls skinAutoMovieMesh on a synthetic tube with hand-built rest and posed bones and reads the returned positions; catches a wrong joint transform (P R^-1), a missing translation term in the dual part, a missing hemisphere alignment, a linear blend on a dual-quaternion skin and the reverse.
+ * @evidence contracts/development/testing.md#independent-expectations Expected points come from closed-form rotations about the joint: a rigid point rotates by the full angle, the dual quaternion blend of identity and a rotation by theta is the rotation by theta/2, and the linear blend is the midpoint of the rest and fully rotated points; none is read from the implementation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts rest and posed, rigid and blended vertices, twist and bend, both methods and the omitted method, a negated quaternion and a pure translation, and the two refusal paths; mesh admission of the method and the viewer's shader belong to their own tests.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit over engine arithmetic and an internal synthetic fixture; it starts no browser, GPU or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Rest bones equal to posed bones leave every vertex in place under both methods.).
  */
 export function test_kinematics_skin_methods(): void {
   const rest: IAutoMovieResolvedBone[] = [

@@ -25,10 +25,11 @@ import { nclose } from "../../internal/nclose";
  * 5. Flat/bounded winding sources at exact seams, neighbouring doubles and
  *    signed subnormals agree with their independently known station sides.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual Mesh.face/close and reads IOpen chart/winding/end, world triangles, shared edge incidence and failure atomicity with no foreign replacement.
- * @evidence contracts/testing.md#independent-expectations A unit cylinder has known radial normals and opposite endpoint traversals. A bottom-contact rectangle removes exactly 0.6 chart area from 4 times 2pi, while only the untouched top remains a full endpoint.
- * @evidence contracts/testing.md#distinguishing-cases Covers chart reflection, cutter inversion, three units, full/partial endpoints, source period translation, callback presence/absence and original source IDs.
- * @evidence contracts/testing.md#execution-ownership Discoverable synchronous CPU test through construction_mesh_boundary_occurrences; it generates no person, host, render, process or independent triangulator.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual Mesh.face/close and reads IOpen chart/winding/end, world triangles, shared edge incidence and failure atomicity with no foreign replacement.
+ * @evidence contracts/development/testing.md#independent-expectations A unit cylinder has known radial normals and opposite endpoint traversals. A bottom-contact rectangle removes exactly 0.6 chart area from 4 times 2pi, while only the untouched top remains a full endpoint.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers chart reflection, cutter inversion, three units, full/partial endpoints, source period translation, callback presence/absence and original source IDs.
+ * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU test through construction_mesh_boundary_occurrences; it generates no person, host, render, process or independent triangulator.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Cylinders at three units and both chart orientations return two complete).
  */
 export function test_construction_mesh_boundary_occurrences(): void {
   const failures: string[] = [];
@@ -45,7 +46,6 @@ export function test_construction_mesh_boundary_occurrences(): void {
     );
 }
 
-
 /** A flat or bounded-height winding boundary crosses each phase once, including raw seam neighbours. */
 function cycleSeams(failures: string[]): void {
   const periods: [number, number, number][] = [
@@ -58,21 +58,57 @@ function cycleSeams(failures: string[]): void {
         for (const translated of [0, 3 * period])
           for (const varying of [false, true])
             for (const reverse of [false, true]) {
-              const raw: [number, number][] = [0, 1, 2, 3].map((k: number): [number, number] => [scale * (varying ? [1, 1.25, 1, .75][k]! : 1), offset + translated + k * period / 4]);
-              const chart: [number, number][] = reverse ? raw.slice().reverse() : raw;
+              const raw: [number, number][] = [0, 1, 2, 3].map(
+                (k: number): [number, number] => [
+                  scale * (varying ? [1, 1.25, 1, 0.75][k]! : 1),
+                  offset + translated + (k * period) / 4,
+                ],
+              );
+              const chart: [number, number][] = reverse
+                ? raw.slice().reverse()
+                : raw;
               const before: string = JSON.stringify(chart);
-              const phases: number[] = [-3 * period, -Number.EPSILON / 2, -Number.MIN_VALUE, 0, Number.MIN_VALUE, Number.EPSILON / 2, below, period, above, 3 * period];
+              const phases: number[] = [
+                -3 * period,
+                -Number.EPSILON / 2,
+                -Number.MIN_VALUE,
+                0,
+                Number.MIN_VALUE,
+                Number.EPSILON / 2,
+                below,
+                period,
+                above,
+                3 * period,
+              ];
               for (const kind of ["start", "end"] as const) {
-                const cycle: Pick<AutoMovieSolidCycle.ICycle, "kind" | "chart"> = { kind, chart };
-                const read: (u: number, v: number) => boolean = AutoMovieSolidCycle.prepare(cycle, period);
+                const cycle: Pick<
+                  AutoMovieSolidCycle.ICycle,
+                  "kind" | "chart"
+                > = { kind, chart };
+                const read: (u: number, v: number) => boolean =
+                  AutoMovieSolidCycle.prepare(cycle, period);
                 for (const phase of phases)
-                  for (const [u, kept] of [[0, kind === "end"], [2 * scale, kind === "start"]] as [number, boolean][]) {
-                    const live: boolean = AutoMovieSolidCycle.kept(cycle, u, phase, period);
+                  for (const [u, kept] of [
+                    [0, kind === "end"],
+                    [2 * scale, kind === "start"],
+                  ] as [number, boolean][]) {
+                    const live: boolean = AutoMovieSolidCycle.kept(
+                      cycle,
+                      u,
+                      phase,
+                      period,
+                    );
                     const prepared: boolean = read(u, phase);
-                    if (live !== kept || prepared !== kept) failures.push(`winding seam ${kind}/${scale}/${period}/${offset}/${translated}/${varying}/${reverse}: (${u},${phase}) was ${live}/${prepared}, expected ${kept}`);
+                    if (live !== kept || prepared !== kept)
+                      failures.push(
+                        `winding seam ${kind}/${scale}/${period}/${offset}/${translated}/${varying}/${reverse}: (${u},${phase}) was ${live}/${prepared}, expected ${kept}`,
+                      );
                   }
               }
-              if (JSON.stringify(chart) !== before) failures.push("winding seam reading moved an original chart endpoint");
+              if (JSON.stringify(chart) !== before)
+                failures.push(
+                  "winding seam reading moved an original chart endpoint",
+                );
             }
 }
 

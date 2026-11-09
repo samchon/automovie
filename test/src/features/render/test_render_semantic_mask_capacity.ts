@@ -1,9 +1,9 @@
 import {
   AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES,
   IAutoMovieRenderSubject,
+  assertAutoMovieSemanticMaskCapacity,
   deriveAutoMovieSemanticMask,
 } from "@automovie/engine";
-import { assertAutoMovieSemanticMaskCapacity } from "@automovie/engine/render/assertAutoMovieSemanticMaskCapacity";
 import {
   IAutoMovieSceneNode,
   IAutoMovieSemanticMask,
@@ -23,10 +23,11 @@ import { modelsFixture, sceneFixture } from "../internal/renderFixtures";
  * 2. 65537 and a larger exact safe count refuse with the original capacity diagnostic. This is count admission and does not claim a full-size render.
  * 3. The real derivation consumer accepts empty and single-node subjects and retains the node's stable identity through palette allocation.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual derivation admission and producer, checking inclusive capacity and explicit excess refusal without allocating fabricated full-size scene collections.
- * @evidence contracts/testing.md#independent-expectations The declared 65536 entity bound independently determines accepted 65535/65536 and refused 65537/MAX_SAFE counts; expected messages retain that count. Direct count admission does not prove complete maximum-size scene derivation, memory use or rendered coverage.
- * @evidence contracts/testing.md#distinguishing-cases Empty, singleton, just-below, exact and excessive counts retain boundary witnesses; real empty and one-node subjects separately prove consumer reach, while compact-slot fallback is owned elsewhere.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_semantic_mask_capacity owns its cases. Portable direct-source capacity and small actual producer calls, without a full-size renderer or palette image.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual derivation admission and producer, checking inclusive capacity and explicit excess refusal without allocating fabricated full-size scene collections.
+ * @evidence contracts/development/testing.md#independent-expectations The declared 65536 entity bound independently determines accepted 65535/65536 and refused 65537/MAX_SAFE counts; expected messages retain that count. Direct count admission does not prove complete maximum-size scene derivation, memory use or rendered coverage.
+ * @evidence contracts/development/testing.md#distinguishing-cases Empty, singleton, just-below, exact and excessive counts retain boundary witnesses; real empty and one-node subjects separately prove consumer reach, while compact-slot fallback is owned elsewhere.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_semantic_mask_capacity owns its cases. Portable direct-source capacity and small actual producer calls, without a full-size renderer or palette image.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty, single, one-below-limit and exact-limit counts are accepted by the same admission used before palette and slot allocation.).
  */
 export function test_render_semantic_mask_capacity(): void {
   TestValidator.equals(

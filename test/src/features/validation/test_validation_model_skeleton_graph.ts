@@ -35,10 +35,11 @@ const b: (
  * 2. `hips` and `spine` are both roots -> a type violation on the bone list.
  * 3. A single-rooted skeleton plus a detached two-bone cycle -> both detached cycle bones are unreachable.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateModel on missing-parent, two-root and detached-cycle graphs, requiring each respective refusal and both unreachable bone addresses.
- * @evidence contracts/testing.md#independent-expectations Literal parent edges establish whether a name resolves, roots number one and each bone is reachable; the detached pair links only to itself, independently of the traversal implementation.
- * @evidence contracts/testing.md#distinguishing-cases Separates unresolved parent, root-count and detached-cycle failures; model_valid owns the connected admitted graph and duplicate names are tested elsewhere.
- * @evidence contracts/testing.md#execution-ownership The named unit constructs ordinary bone records using the existing identity transform; no Human model, FK renderer or dynamically registered case is created.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateModel on missing-parent, two-root and detached-cycle graphs, requiring each respective refusal and both unreachable bone addresses.
+ * @evidence contracts/development/testing.md#independent-expectations Literal parent edges establish whether a name resolves, roots number one and each bone is reachable; the detached pair links only to itself, independently of the traversal implementation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates unresolved parent, root-count and detached-cycle failures; model_valid owns the connected admitted graph and duplicate names are tested elsewhere.
+ * @evidence contracts/development/testing.md#execution-ownership The named unit constructs ordinary bone records using the existing identity transform; no Human model, FK renderer or dynamically registered case is created.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `spine` names missing parent `neck` -> a type violation on its parent.).
  */
 export function test_validation_model_skeleton_graph(): void {
   const base: IAutoMovieModel = createModel();

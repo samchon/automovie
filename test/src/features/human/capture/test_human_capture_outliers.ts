@@ -19,10 +19,11 @@ type Bounds = CaptureOutliers.IBounds;
  * 5. `bounds` of points gives the per-axis extremes and null for no point; the plausible extent is 1.75 statures, at least the 1.69-stature diagonal of a 1.25 x 1.06 x 0.4 stature box.
  * 6. A part with a NaN bound is reported invalid and leaves the centre and the other parts' classification exactly as without it; `finite` drops NaN, +Infinity and -Infinity points and counts them. Red: the NaN part's own centre is NaN, which would poison the median.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls `CaptureOutliers.find` and `bounds`, which `node:capture` runs on every neighbour and whole row before fitting its cameras, and asserts the classification.
- * @evidence contracts/testing.md#independent-expectations The median centre and farthest-corner distances are computed by hand from the made boxes; the extent multiple is checked against the box-diagonal closed form, not read from the implementation.
- * @evidence contracts/testing.md#distinguishing-cases An outlier, a translated figure, exact and just-beyond limits, an empty row, an invalid limit. Red: a missed outlier, flagged inliers, a wrong distance.
- * @evidence contracts/testing.md#execution-ownership A synchronous CPU unit reached by `--include human_capture_outliers`; made boxes only.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `CaptureOutliers.find` and `bounds`, which `node:capture` runs on every neighbour and whole row before fitting its cameras, and asserts the classification.
+ * @evidence contracts/development/testing.md#independent-expectations The median centre and farthest-corner distances are computed by hand from the made boxes; the extent multiple is checked against the box-diagonal closed form, not read from the implementation.
+ * @evidence contracts/development/testing.md#distinguishing-cases An outlier, a translated figure, exact and just-beyond limits, an empty row, an invalid limit. Red: a missed outlier, flagged inliers, a wrong distance.
+ * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit reached by `--include human_capture_outliers`; made boxes only.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Red proofs: the checker rejects a classification that misses the 40 m part, one that also flags the figure's own parts (what a mean centre...).
  */
 export function test_human_capture_outliers(): void {
   const failures: string[] = [];
@@ -38,33 +39,125 @@ export function test_human_capture_outliers(): void {
   const limit: number = 2.8;
 
   // 2. One outlier. Centres x: 0, 0.01, 0, 0, 0.035, 0.035, 0.1 -> median 0.01; y: 1.2, 1.625, 1.075, 1.075, 0.45, 0.45, 1.1 -> 1.075; z: 0, 0, -0.2, 0.2, -0.09, 0.09, 0 -> 0.
-  const found: CaptureOutliers.IOutput = CaptureOutliers.find([...figure, far], limit);
-  const expectedDistance: number = Math.hypot(Math.max(Math.abs(0 - 0.01), Math.abs(0.2 - 0.01)), Math.max(Math.abs(1 - 1.075), Math.abs(1.2 - 1.075)), 40);
-  failures.push(...check(found, figure.map((b: Bounds): string => b.name), [{ name: "trunk.bad", distance: expectedDistance }]));
-  if (found.centre === null || Math.abs(found.centre[0] - 0.01) > 1e-12 || Math.abs(found.centre[1] - 1.075) > 1e-12 || Math.abs(found.centre[2]) > 1e-12) failures.push(`centre ${found.centre}`);
+  const found: CaptureOutliers.IOutput = CaptureOutliers.find(
+    [...figure, far],
+    limit,
+  );
+  const expectedDistance: number = Math.hypot(
+    Math.max(Math.abs(0 - 0.01), Math.abs(0.2 - 0.01)),
+    Math.max(Math.abs(1 - 1.075), Math.abs(1.2 - 1.075)),
+    40,
+  );
+  failures.push(
+    ...check(
+      found,
+      figure.map((b: Bounds): string => b.name),
+      [{ name: "trunk.bad", distance: expectedDistance }],
+    ),
+  );
+  if (
+    found.centre === null ||
+    Math.abs(found.centre[0] - 0.01) > 1e-12 ||
+    Math.abs(found.centre[1] - 1.075) > 1e-12 ||
+    Math.abs(found.centre[2]) > 1e-12
+  )
+    failures.push(`centre ${found.centre}`);
 
   // 1. Red proofs.
   const names: string[] = figure.map((b: Bounds): string => b.name);
-  const missed: CaptureOutliers.IOutput = { ...found, inliers: [...found.inliers, "trunk.bad"], outliers: [] };
-  if (check(missed, names, [{ name: "trunk.bad", distance: expectedDistance }]).length === 0) failures.push("proof: a missed outlier read as correct");
-  const dragged: CaptureOutliers.IOutput = { ...found, inliers: [], outliers: [...found.outliers, ...names.map((n: string): CaptureOutliers.IOutlier => ({ name: n, distance: 3, low: [0, 0, 0], high: [0, 0, 0] }))] };
-  if (check(dragged, names, [{ name: "trunk.bad", distance: expectedDistance }]).length === 0) failures.push("proof: flagged figure parts read as correct");
-  const nearest: CaptureOutliers.IOutput = { ...found, outliers: found.outliers.map((o: CaptureOutliers.IOutlier): CaptureOutliers.IOutlier => ({ ...o, distance: 39.9 })) };
-  if (check(nearest, names, [{ name: "trunk.bad", distance: expectedDistance }]).length === 0) failures.push("proof: a wrong distance read as correct");
+  const missed: CaptureOutliers.IOutput = {
+    ...found,
+    inliers: [...found.inliers, "trunk.bad"],
+    outliers: [],
+  };
+  if (
+    check(missed, names, [{ name: "trunk.bad", distance: expectedDistance }])
+      .length === 0
+  )
+    failures.push("proof: a missed outlier read as correct");
+  const dragged: CaptureOutliers.IOutput = {
+    ...found,
+    inliers: [],
+    outliers: [
+      ...found.outliers,
+      ...names.map(
+        (n: string): CaptureOutliers.IOutlier => ({
+          name: n,
+          distance: 3,
+          low: [0, 0, 0],
+          high: [0, 0, 0],
+        }),
+      ),
+    ],
+  };
+  if (
+    check(dragged, names, [{ name: "trunk.bad", distance: expectedDistance }])
+      .length === 0
+  )
+    failures.push("proof: flagged figure parts read as correct");
+  const nearest: CaptureOutliers.IOutput = {
+    ...found,
+    outliers: found.outliers.map(
+      (o: CaptureOutliers.IOutlier): CaptureOutliers.IOutlier => ({
+        ...o,
+        distance: 39.9,
+      }),
+    ),
+  };
+  if (
+    check(nearest, names, [{ name: "trunk.bad", distance: expectedDistance }])
+      .length === 0
+  )
+    failures.push("proof: a wrong distance read as correct");
 
   // 3. Translated figure.
-  const moved: Bounds[] = [...figure, box("toe", [0.1, 0, 0.05], [0.2, 0.05, 0.1])].map((b: Bounds): Bounds => ({ name: b.name, low: [b.low[0] + 100, b.low[1], b.low[2]], high: [b.high[0] + 100, b.high[1], b.high[2]] }));
-  const translated: CaptureOutliers.IOutput = CaptureOutliers.find(moved, limit);
-  if (translated.outliers.length !== 0) failures.push(`translated figure flagged ${translated.outliers.map((o: CaptureOutliers.IOutlier): string => o.name).join(", ")}`);
+  const moved: Bounds[] = [
+    ...figure,
+    box("toe", [0.1, 0, 0.05], [0.2, 0.05, 0.1]),
+  ].map(
+    (b: Bounds): Bounds => ({
+      name: b.name,
+      low: [b.low[0] + 100, b.low[1], b.low[2]],
+      high: [b.high[0] + 100, b.high[1], b.high[2]],
+    }),
+  );
+  const translated: CaptureOutliers.IOutput = CaptureOutliers.find(
+    moved,
+    limit,
+  );
+  if (translated.outliers.length !== 0)
+    failures.push(
+      `translated figure flagged ${translated.outliers.map((o: CaptureOutliers.IOutlier): string => o.name).join(", ")}`,
+    );
 
   // 4. Boundaries: two point-like parts at the origin fix the median at the origin for odd counts.
-  const anchor: Bounds[] = [box("a", [0, 0, 0], [0, 0, 0]), box("b", [0, 0, 0], [0, 0, 0])];
-  const at: CaptureOutliers.IOutput = CaptureOutliers.find([...anchor, box("edge", [0, 0, 0], [0, 0, 2.8])], limit);
-  if (at.outliers.length !== 0) failures.push("a part exactly at the limit was flagged");
-  const beyond: CaptureOutliers.IOutput = CaptureOutliers.find([...anchor, box("edge", [0, 0, 0], [0, 0, 2.801])], limit);
-  if (JSON.stringify(beyond.outliers.map((o: CaptureOutliers.IOutlier): string => o.name)) !== JSON.stringify(["edge"])) failures.push("a part 1 mm beyond the limit was not flagged");
+  const anchor: Bounds[] = [
+    box("a", [0, 0, 0], [0, 0, 0]),
+    box("b", [0, 0, 0], [0, 0, 0]),
+  ];
+  const at: CaptureOutliers.IOutput = CaptureOutliers.find(
+    [...anchor, box("edge", [0, 0, 0], [0, 0, 2.8])],
+    limit,
+  );
+  if (at.outliers.length !== 0)
+    failures.push("a part exactly at the limit was flagged");
+  const beyond: CaptureOutliers.IOutput = CaptureOutliers.find(
+    [...anchor, box("edge", [0, 0, 0], [0, 0, 2.801])],
+    limit,
+  );
+  if (
+    JSON.stringify(
+      beyond.outliers.map((o: CaptureOutliers.IOutlier): string => o.name),
+    ) !== JSON.stringify(["edge"])
+  )
+    failures.push("a part 1 mm beyond the limit was not flagged");
   const empty: CaptureOutliers.IOutput = CaptureOutliers.find([], limit);
-  if (empty.centre !== null || empty.inliers.length !== 0 || empty.outliers.length !== 0) failures.push("an empty row returned parts or a centre");
+  if (
+    empty.centre !== null ||
+    empty.inliers.length !== 0 ||
+    empty.outliers.length !== 0
+  )
+    failures.push("an empty row returned parts or a centre");
   let threw: boolean = false;
   try {
     CaptureOutliers.find(figure, 0);
@@ -74,36 +167,101 @@ export function test_human_capture_outliers(): void {
   if (!threw) failures.push("a zero limit did not throw");
 
   // 5. Bounds and the extent multiple.
-  const b: Bounds | null = CaptureOutliers.bounds("p", [[1, -2, 3], [-1, 5, 0], [0, 0, -4]]);
-  if (b === null || JSON.stringify([b.low, b.high]) !== JSON.stringify([[-1, -2, -4], [1, 5, 3]])) failures.push(`bounds ${JSON.stringify(b)}`);
-  if (CaptureOutliers.bounds("none", []) !== null) failures.push("bounds of no point is not null");
-  if (!(CaptureOutliers.STATURES >= Math.hypot(1.25, 1.06, 0.4))) failures.push(`extent ${CaptureOutliers.STATURES} statures is below the 1.69-stature figure diagonal`);
+  const b: Bounds | null = CaptureOutliers.bounds("p", [
+    [1, -2, 3],
+    [-1, 5, 0],
+    [0, 0, -4],
+  ]);
+  if (
+    b === null ||
+    JSON.stringify([b.low, b.high]) !==
+      JSON.stringify([
+        [-1, -2, -4],
+        [1, 5, 3],
+      ])
+  )
+    failures.push(`bounds ${JSON.stringify(b)}`);
+  if (CaptureOutliers.bounds("none", []) !== null)
+    failures.push("bounds of no point is not null");
+  if (!(CaptureOutliers.STATURES >= Math.hypot(1.25, 1.06, 0.4)))
+    failures.push(
+      `extent ${CaptureOutliers.STATURES} statures is below the 1.69-stature figure diagonal`,
+    );
 
   // 6. Non-finite geometry: a part with a NaN bound is invalid, takes no part in the centre and is neither inlier nor outlier; finite() drops NaN and infinite points and counts them.
   const nan: Bounds = box("foot.nan", [0, Number.NaN, 0], [0.2, 0.1, 0.1]);
-  const withNan: CaptureOutliers.IOutput = CaptureOutliers.find([...figure, nan], limit);
+  const withNan: CaptureOutliers.IOutput = CaptureOutliers.find(
+    [...figure, nan],
+    limit,
+  );
   const without: CaptureOutliers.IOutput = CaptureOutliers.find(figure, limit);
-  if (JSON.stringify(withNan.invalid) !== JSON.stringify(["foot.nan"])) failures.push(`invalid ${withNan.invalid.join(", ")}`);
-  if (JSON.stringify(withNan.centre) !== JSON.stringify(without.centre) || JSON.stringify(withNan.inliers) !== JSON.stringify(names) || withNan.outliers.length !== 0) failures.push("a NaN part changed the centre or the classification of the others");
-  if (without.invalid.length !== 0) failures.push("a finite figure reported invalid parts");
-  const split: { points: V3[]; dropped: number } = CaptureOutliers.finite([[0, 0, 0], [Number.NaN, 0, 0], [0, Number.POSITIVE_INFINITY, 0], [1, 2, Number.NEGATIVE_INFINITY], [1, 2, 3]]);
-  if (split.dropped !== 3 || JSON.stringify(split.points) !== JSON.stringify([[0, 0, 0], [1, 2, 3]])) failures.push(`finite split kept ${JSON.stringify(split.points)}, dropped ${split.dropped}`);
+  if (JSON.stringify(withNan.invalid) !== JSON.stringify(["foot.nan"]))
+    failures.push(`invalid ${withNan.invalid.join(", ")}`);
+  if (
+    JSON.stringify(withNan.centre) !== JSON.stringify(without.centre) ||
+    JSON.stringify(withNan.inliers) !== JSON.stringify(names) ||
+    withNan.outliers.length !== 0
+  )
+    failures.push(
+      "a NaN part changed the centre or the classification of the others",
+    );
+  if (without.invalid.length !== 0)
+    failures.push("a finite figure reported invalid parts");
+  const split: { points: V3[]; dropped: number } = CaptureOutliers.finite([
+    [0, 0, 0],
+    [Number.NaN, 0, 0],
+    [0, Number.POSITIVE_INFINITY, 0],
+    [1, 2, Number.NEGATIVE_INFINITY],
+    [1, 2, 3],
+  ]);
+  if (
+    split.dropped !== 3 ||
+    JSON.stringify(split.points) !==
+      JSON.stringify([
+        [0, 0, 0],
+        [1, 2, 3],
+      ])
+  )
+    failures.push(
+      `finite split kept ${JSON.stringify(split.points)}, dropped ${split.dropped}`,
+    );
 
   // 6. Red proof: the median of centres including the NaN part is NaN, which is what the exclusion prevents.
-  const naive: number[] = [...figure, nan].map((b: Bounds): number => (b.low[1] + b.high[1]) / 2).sort((a: number, b: number): number => a - b);
-  if (!naive.some((v: number): boolean => Number.isNaN(v))) failures.push("proof: the NaN part's centre did not read as NaN");
+  const naive: number[] = [...figure, nan]
+    .map((b: Bounds): number => (b.low[1] + b.high[1]) / 2)
+    .sort((a: number, b: number): number => a - b);
+  if (!naive.some((v: number): boolean => Number.isNaN(v)))
+    failures.push("proof: the NaN part's centre did not read as NaN");
 
-  if (failures.length !== 0) throw new Error(`${failures.length} capture outlier findings:\n${failures.join("\n")}`);
+  if (failures.length !== 0)
+    throw new Error(
+      `${failures.length} capture outlier findings:\n${failures.join("\n")}`,
+    );
 }
 
 /** Departures from the expected inliers and outliers with their distances. */
-function check(found: CaptureOutliers.IOutput, inliers: string[], outliers: { name: string; distance: number }[]): string[] {
+function check(
+  found: CaptureOutliers.IOutput,
+  inliers: string[],
+  outliers: { name: string; distance: number }[],
+): string[] {
   const out: string[] = [];
-  if (JSON.stringify(found.inliers) !== JSON.stringify(inliers)) out.push(`inliers ${found.inliers.join(", ")}`);
-  if (JSON.stringify(found.outliers.map((o: CaptureOutliers.IOutlier): string => o.name)) !== JSON.stringify(outliers.map((o: { name: string }): string => o.name))) out.push(`outliers ${found.outliers.map((o: CaptureOutliers.IOutlier): string => o.name).join(", ")}`);
+  if (JSON.stringify(found.inliers) !== JSON.stringify(inliers))
+    out.push(`inliers ${found.inliers.join(", ")}`);
+  if (
+    JSON.stringify(
+      found.outliers.map((o: CaptureOutliers.IOutlier): string => o.name),
+    ) !== JSON.stringify(outliers.map((o: { name: string }): string => o.name))
+  )
+    out.push(
+      `outliers ${found.outliers.map((o: CaptureOutliers.IOutlier): string => o.name).join(", ")}`,
+    );
   for (const e of outliers) {
-    const o: CaptureOutliers.IOutlier | undefined = found.outliers.find((x: CaptureOutliers.IOutlier): boolean => x.name === e.name);
-    if (o !== undefined && Math.abs(o.distance - e.distance) > 1e-9) out.push(`${e.name} distance ${o.distance} instead of ${e.distance}`);
+    const o: CaptureOutliers.IOutlier | undefined = found.outliers.find(
+      (x: CaptureOutliers.IOutlier): boolean => x.name === e.name,
+    );
+    if (o !== undefined && Math.abs(o.distance - e.distance) > 1e-9)
+      out.push(`${e.name} distance ${o.distance} instead of ${e.distance}`);
   }
   return out;
 }

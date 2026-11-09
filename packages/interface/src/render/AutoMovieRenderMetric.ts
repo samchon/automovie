@@ -12,10 +12,10 @@
  * - `fluidParticles` is the declared emitter cap, likewise an upper bound: a spray never exceeds it and distance thinning cuts it further.
  * - `textureBytes` bounds the represented uncompressed resident texels and attachments under supplied host facts, excluding driver overhead and encoded/CPU bytes. `geometryBytes` estimates declared prototype and surface buffers, excluding native chunk clones and instance streams; it is not a bound on all GPU geometry memory.
  *
- * @evidence contracts/common.md#principled-implementation A closed metric population matches the engine inventory and report protocol, with exact counts, conservative draw/geometry upper bounds and estimated device bytes distinguished by their measurement law.
- * @evidence contracts/common.md#clear-and-simple-design One shared vocabulary makes budgets and complete reports address the same bounded cost domains rather than free-string metrics whose typos silently disappear.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing certified texture facts remain null with gaps. LOD/culling only reduce declared geometry/submission bounds, while prototype-buffer geometryBytes and logical populations do not claim complete native GPU allocation or object counts.
- * @evidence contracts/common.md#meaningful-documentation Defines each metric's count, upper-bound or estimated-byte interpretation and why report completeness uses the closed population.
+ * @evidence contracts/development/design.md#principled-representation A closed metric population matches the engine inventory and report protocol, with exact counts, conservative draw/geometry upper bounds and estimated device bytes distinguished by their measurement law.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One shared vocabulary makes budgets and complete reports address the same bounded cost domains rather than free-string metrics whose typos silently disappear.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing certified texture facts remain null with gaps. LOD/culling only reduce declared geometry/submission bounds, while prototype-buffer geometryBytes and logical populations do not claim complete native GPU allocation or object counts.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines each metric's count, upper-bound or estimated-byte interpretation and why report completeness uses the closed population.
  */
 export type AutoMovieRenderMetric =
   | "triangles"

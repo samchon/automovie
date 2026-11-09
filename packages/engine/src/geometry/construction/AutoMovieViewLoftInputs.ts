@@ -21,13 +21,13 @@ interface Inputs {
 /**
  * Prepare ViewLoft's existing value readers, reusing retained direct sources.
  *
- * @evidence contracts/common.md#principled-implementation Reads each original Outline under its declared pole coordinate; direct sources reuse their admitted preparations and generic girth keeps its existing owner.
- * @evidence contracts/common.md#clear-and-simple-design One value-reader factory owns the source closures moved from ViewLoft without changing source or diagnostic identities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not reinterpolate principal sections, change knots, infer physical derivatives or replace an invalid source.
- * @evidence contracts/common.md#meaningful-documentation These readers are raw signed/fullness inputs before effective caps; report preserves the original contract and source name.
- * @evidence contracts/performance.md#efficient-algorithms Each source is prepared at most once: retained direct data is reused, while source-absent generic girth prepares its original outlines once.
- * @evidence contracts/performance.md#reuse-equivalent-work The returned closures share their prepared scalar sources across all principal and cap-density station reads.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Preparations and closures belong to the ViewLoft call, without a registry or additional cache.
+ * @evidence contracts/development/implementation.md#principled-implementation Reads each original Outline under its declared pole coordinate; direct sources reuse their admitted preparations and generic girth keeps its existing owner.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One value-reader factory owns the source closures moved from ViewLoft without changing source or diagnostic identities.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not reinterpolate principal sections, change knots, infer physical derivatives or replace an invalid source.
+ * @evidence contracts/development/common.md#meaningful-documentation These readers are raw signed/fullness inputs before effective caps; report preserves the original contract and source name.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each source is prepared at most once: retained direct data is reused, while source-absent generic girth prepares its original outlines once.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned closures share their prepared scalar sources across all principal and cap-density station reads.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Preparations and closures belong to the ViewLoft call, without a registry or additional cache.
  */
 export function AutoMovieViewLoftInputs(
   part: IAutoMovieViewPart,

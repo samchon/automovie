@@ -75,13 +75,13 @@ const CORNERS: readonly (readonly [number, number, number])[] = [
  * Exact zero or nonfinite normals
  * remain zero with counts; finite positive-area geometry survives normal qualifications.
  *
- * @evidence contracts/common.md#principled-implementation Complete tensor Bernstein evaluation, exact subdivision, Taylor derivative bounds and declared edge authority generate a new indexed mesh. Sample unions conform within one authoritative interval family; different equivalent authority families retain a separate explicit polygon-conformity limitation.
- * @evidence contracts/common.md#clear-and-simple-design Admission, bounded atlas planning, canonical edge registration and shared parameter-boundary triangulation expose separate ownership stages.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source mesh, coordinate welding, anatomy table, dropped control, arbitrary tolerance change or fallback normal supplies geometry.
- * @evidence contracts/common.md#meaningful-documentation States control ordering, units, shared identity, streaming lifetime, approximation scope and local failure effects.
- * @evidence contracts/performance.md#efficient-algorithms Admission is O(C+P). At most maxCells leaf slots and fewer than twice as many refinement nodes are allocated. Registries sort O(L) corners in O(L log L); each cell triangulates its N ordered perimeter samples in O(N) work, followed by fixed-degree evaluations and logarithmic range searches.
- * @evidence contracts/performance.md#reuse-equivalent-work Canonical positions are cached after independent coefficient-consistency checks; distinct normal fans retain separate analytic render vertices at that identity. Atomic interval incidence is computed once per edge. Exact child nets serve refinement without source refitting.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The generator retains O(C+P+L) coefficient references, plans, canonical samples and fan registries plus one vertex-bounded chunk. Requested corner parameters add six numbers per emitted triangle alongside that chunk's indices; omitted requests allocate no parameter buffer. Legacy edge/corner caches release after their last incident patch; canonical registries release at completion or cancellation. Consumers own yielded arrays.
+ * @evidence contracts/development/implementation.md#principled-implementation Complete tensor Bernstein evaluation, exact subdivision, Taylor derivative bounds and declared edge authority generate a new indexed mesh. Sample unions conform within one authoritative interval family; different equivalent authority families retain a separate explicit polygon-conformity limitation.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, bounded atlas planning, canonical edge registration and shared parameter-boundary triangulation expose separate ownership stages.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source mesh, coordinate welding, anatomy table, dropped control, arbitrary tolerance change or fallback normal supplies geometry.
+ * @evidence contracts/development/common.md#meaningful-documentation States control ordering, units, shared identity, streaming lifetime, approximation scope and local failure effects.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Admission is O(C+P). At most maxCells leaf slots and fewer than twice as many refinement nodes are allocated. Registries sort O(L) corners in O(L log L); each cell triangulates its N ordered perimeter samples in O(N) work, followed by fixed-degree evaluations and logarithmic range searches.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Canonical positions are cached after independent coefficient-consistency checks; distinct normal fans retain separate analytic render vertices at that identity. Atomic interval incidence is computed once per edge. Exact child nets serve refinement without source refitting.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The generator retains O(C+P+L) coefficient references, plans, canonical samples and fan registries plus one vertex-bounded chunk. Requested corner parameters add six numbers per emitted triangle alongside that chunk's indices; omitted requests allocate no parameter buffer. Legacy edge/corner caches release after their last incident patch; canonical registries release at completion or cancellation. Consumers own yielded arrays.
  */
 export function* tessellateAutoMovieBicubicAtlas64(
   input: AtlasInput,
@@ -137,13 +137,10 @@ export function* tessellateAutoMovieBicubicAtlas64(
 /**
  * Immutable input, streamed chunk and terminal summary contracts for this generator.
  *
- * @evidence contracts/common.md#principled-implementation Explicit coefficient identity, millimetre inputs and metre output define the same public streaming contract as the generator.
- * @evidence contracts/common.md#clear-and-simple-design Input policy, transferred geometry and terminal scalar accounting have separate record owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Types introduce no source fallback, implicit welding or numerical default.
- * @evidence contracts/common.md#meaningful-documentation Members state units, append-only indexing, ownership and independent approximation qualification.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Erased records perform no numerical work.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Erased records own no cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Runtime acquisition and transferred chunk lifetime belong to the generator and its consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state units, append-only indexing, ownership and independent approximation qualification.
+ * @evidence contracts/development/design.md#principled-representation Represents Immutable input, streamed chunk and terminal summary contracts for this generator: companion namespace of 3 members (`Input`, `Chunk`, `Summary`); units and frames named in its text: local, metre, metres. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `tessellateAutoMovieBicubicAtlas64` in packages/engine/src/geometry/curve/tessellateAutoMovieBicubicAtlas64.ts; its surface is the 3 members listed and the text shows 7 other files naming it, mostly packages/engine (4), packages/recovery (2), test (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace tessellateAutoMovieBicubicAtlas64 {
   /**

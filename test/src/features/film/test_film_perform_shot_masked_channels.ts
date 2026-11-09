@@ -160,10 +160,11 @@ const bonesOf: (motion: IAutoMovieMotion) => Set<AutoMovieHumanoidBone> = (
  * 4. Distinguish combined root/expression loss from expression-only loss.
  * 5. Report each actor in a shared action in actor-id order.
  *
- * @evidence contracts/testing.md#behavioral-verification Performs synthesized clips through region masks and checks located dropped-bone/root/expression diagnoses, surviving channels and actor-ordered reports.
- * @evidence contracts/testing.md#independent-expectations The authored quadruped and hips/hind bone lists define membership; expected foreground names are independently code-unit ordered and the caller's channel data defines every expected drop.
- * @evidence contracts/testing.md#distinguishing-cases Retains narrowed/default masks, boundary hips, combined and expression-only losses, and two-actor reporting; ROM is deliberately absent here and covered elsewhere.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_masked_channels unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs synthesized clips through region masks and checks located dropped-bone/root/expression diagnoses, surviving channels and actor-ordered reports.
+ * @evidence contracts/development/testing.md#independent-expectations The authored quadruped and hips/hind bone lists define membership; expected foreground names are independently code-unit ordered and the caller's channel data defines every expected drop.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains narrowed/default masks, boundary hips, combined and expression-only losses, and two-actor reporting; ROM is deliberately absent here and covered elsewhere.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_masked_channels unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Refuse fore-leg channels masked by lowerBody and report every lost bone.).
  */
 export function test_film_perform_shot_masked_channels(): void {
   const staged: IAutoMovieStagedSet = stageScene(

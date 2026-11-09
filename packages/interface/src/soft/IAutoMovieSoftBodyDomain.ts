@@ -16,10 +16,10 @@ import { IAutoMovieSoftWind } from "./IAutoMovieSoftWind";
  *
  * Constraint rest lengths come from the authored rest coordinates. Starting from those coordinates with no forces, changed anchor targets or collider projections gives zero distance residual in representable arithmetic; a collider can displace an otherwise unforced rest shape.
  *
- * @evidence contracts/common.md#principled-implementation simulateSoftBody uses fixed-step position prediction and Jacobi distance projection on an authored lattice, with rest lengths measured from rest coordinates and zero inverse mass at anchors.
- * @evidence contracts/common.md#clear-and-simple-design The independent domain owns solver inputs; architecture furnishing references it rather than changing the cloth algorithm according to its room.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The tier has no self-collision or friction solve. Collider projection is discrete and ordered, and the declared referenceSpeed travel bound does not clamp measured speed or prove continuous collision avoidance.
- * @evidence contracts/common.md#meaningful-documentation Members specify row-major arrays, world metre coordinates, kilogram masses, hard anchors, named boundary states and the unsupported self-collision request.
+ * @evidence contracts/development/design.md#principled-representation simulateSoftBody uses fixed-step position prediction and Jacobi distance projection on an authored lattice, with rest lengths measured from rest coordinates and zero inverse mass at anchors.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The independent domain owns solver inputs; architecture furnishing references it rather than changing the cloth algorithm according to its room.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The tier has no self-collision or friction solve. Collider projection is discrete and ordered, and the declared referenceSpeed travel bound does not clamp measured speed or prove continuous collision avoidance.
+ * @evidence contracts/development/common.md#meaningful-documentation Members specify row-major arrays, world metre coordinates, kilogram masses, hard anchors, named boundary states and the unsupported self-collision request.
  */
 export interface IAutoMovieSoftBodyDomain {
   /** Schema version. */

@@ -21,10 +21,11 @@ const HELD: number = 0.0005;
  *    medium tiers, 8, 12 and 16 columns, the subdivided limit's perimeter
  *    along the ring lies within 0.5 mm of it.
  *
- * @evidence contracts/testing.md#behavioral-verification Samples the girth network with `sampleAutoMovieSurfaceNetwork` and measures the subdivided limit along the ring; a factor solved on the wrong row, a wrong measurement of the isoline or a factor lost before the rest fit leaves the perimeter millimetres short, while any hold that meets the declaration passes.
- * @evidence contracts/testing.md#independent-expectations The declared perimeter is the sweep's own section at the ring, a dense polyline of `compileAutoMovieSweep`; the measured one is a Richardson-extrapolated polyline through subdivided limit positions, independent of the engine's quadrature.
- * @evidence contracts/testing.md#distinguishing-cases Covers three column counts and a ring at a girth maximum, where sampling loses the most; the cornered section is owned by the girth corners test, coupled rings by the coupled girth test, and the free shortfall and the refusals by the girth refusal test.
- * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_girth` entry with no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples the girth network with `sampleAutoMovieSurfaceNetwork` and measures the subdivided limit along the ring; a factor solved on the wrong row, a wrong measurement of the isoline or a factor lost before the rest fit leaves the perimeter millimetres short, while any hold that meets the declaration passes.
+ * @evidence contracts/development/testing.md#independent-expectations The declared perimeter is the sweep's own section at the ring, a dense polyline of `compileAutoMovieSweep`; the measured one is a Richardson-extrapolated polyline through subdivided limit positions, independent of the engine's quadrature.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers three column counts and a ring at a girth maximum, where sampling loses the most; the cornered section is owned by the girth corners test, coupled rings by the coupled girth test, and the free shortfall and the refusals by the girth refusal test.
+ * @evidence contracts/development/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_girth` entry with no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: The tube swelling to its middle, with an elliptic section, its middle).
  */
 export function test_geometry_sweep_girth(): void {
   const sweep: IAutoMovieSweepSurface = compileAutoMovieSweep(

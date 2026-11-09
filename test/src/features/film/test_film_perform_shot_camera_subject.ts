@@ -243,10 +243,11 @@ const keysOf: (
  * 2. Use a live moving bone for follow/focus and accept a missing later-sample fallback.
  * 3. Keep placed-actor and launched-projectile follow keys moving.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs performShot and checks take identities, key counts, performance membership, focus point and endpoint movement, catching missing facing rotation, frozen live focus or a camera injected as a performer.
- * @evidence contracts/testing.md#independent-expectations A camera is an admitted position with no rig/facing, so its follow stays still; the supplied bone callback independently gives focus (6,1.2,0), and the authored actor march/projectile flight must move. Key-count/movement witnesses do not independently prove the complete ballistic or framing trajectory.
- * @evidence contracts/testing.md#distinguishing-cases Preserves hero/coverage camera subjects, no-camera-performance invariants, live/missing-later bone lookup, placed actor and launched prop neighbours. Invalid camera-as-react target and malformed targets belong to action gate tests.
- * @evidence contracts/testing.md#execution-ownership The synchronous discoverable unit owns all portable subject cases using the existing synthesizer and an explicit target callback; it opens no viewer or process, and tests no GPU display.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs performShot and checks take identities, key counts, performance membership, focus point and endpoint movement, catching missing facing rotation, frozen live focus or a camera injected as a performer.
+ * @evidence contracts/development/testing.md#independent-expectations A camera is an admitted position with no rig/facing, so its follow stays still; the supplied bone callback independently gives focus (6,1.2,0), and the authored actor march/projectile flight must move. Key-count/movement witnesses do not independently prove the complete ballistic or framing trajectory.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves hero/coverage camera subjects, no-camera-performance invariants, live/missing-later bone lookup, placed actor and launched prop neighbours. Invalid camera-as-react target and malformed targets belong to action gate tests.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable unit owns all portable subject cases using the existing synthesizer and an explicit target callback; it opens no viewer or process, and tests no GPU display.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Frame a camera in hero/coverage takes while keeping cameras out of pose performances.).
  */
 export function test_film_perform_shot_camera_subject(): void {
   // 1. the hero take: an animated, facing-less subject holds still.

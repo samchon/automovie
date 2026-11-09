@@ -11,13 +11,13 @@
  * @param to Value at `progress = 1`.
  * @param progress Interpolation fraction, normally in `[0, 1]`.
  *
- * @evidence contracts/common.md#principled-implementation The two-weight form of linear interpolation, which is exact at both endpoints in floating point because `1 − 0` and `1 − 1` are exact and a product with zero vanishes, unlike `from + (to − from) · progress`, which can miss `to` at one; it premises finite inputs and leaves an infinite input to propagate.
- * @evidence contracts/common.md#clear-and-simple-design One scalar helper shared by the formation motion samplers and `formationSlotPosition`, so every formation coordinate interpolates by the same rule.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No clamp, easing or caller-specific case; extrapolation outside `[0, 1]` is stated rather than hidden.
- * @evidence contracts/common.md#meaningful-documentation States the formula, the exact-endpoint property and why it matters, that progress is unclamped, and who uses it.
- * @evidence contracts/performance.md#efficient-algorithms Two multiplications, one subtraction and one addition with no allocation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Formation samples supply their current endpoint values and progress, and interpolation stores no sample history between frames.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Weighted scalar interpolation allocates no buffer and retains neither endpoints nor progress after returning the number.
+ * @evidence contracts/development/implementation.md#principled-implementation The two-weight form of linear interpolation, which is exact at both endpoints in floating point because `1 − 0` and `1 − 1` are exact and a product with zero vanishes, unlike `from + (to − from) · progress`, which can miss `to` at one; it premises finite inputs and leaves an infinite input to propagate.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar helper shared by the formation motion samplers and `formationSlotPosition`, so every formation coordinate interpolates by the same rule.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No clamp, easing or caller-specific case; extrapolation outside `[0, 1]` is stated rather than hidden.
+ * @evidence contracts/development/common.md#meaningful-documentation States the formula, the exact-endpoint property and why it matters, that progress is unclamped, and who uses it.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two multiplications, one subtraction and one addition with no allocation.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Formation samples supply their current endpoint values and progress, and interpolation stores no sample history between frames.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Weighted scalar interpolation allocates no buffer and retains neither endpoints nor progress after returning the number.
  */
 export const lerp: (from: number, to: number, progress: number) => number = (
   from: number,

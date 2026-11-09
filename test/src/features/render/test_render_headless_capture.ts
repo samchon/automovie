@@ -1,15 +1,13 @@
-import {
-  AutoMovieHeadlessCaptureError,
-  AutoMovieHeadlessCaptureErrorCode,
-  IAutoMovieHeadlessCaptureOptions,
-  IAutoMovieHeadlessCaptureSession,
-  IAutoMovieHeadlessLocator,
-  IAutoMovieHeadlessPage,
-  createHeadlessCaptureAdapter,
-} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { type Context, createContext } from "node:vm";
 
+import { AutoMovieHeadlessCaptureError } from "../../../../packages/template/scaffold/src/integrations/render/headlessCapture/AutoMovieHeadlessCaptureError";
+import { AutoMovieHeadlessCaptureErrorCode } from "../../../../packages/template/scaffold/src/integrations/render/headlessCapture/AutoMovieHeadlessCaptureErrorCode";
+import { IAutoMovieHeadlessCaptureOptions } from "../../../../packages/template/scaffold/src/integrations/render/headlessCapture/IAutoMovieHeadlessCaptureOptions";
+import { IAutoMovieHeadlessCaptureSession } from "../../../../packages/template/scaffold/src/integrations/render/headlessCapture/IAutoMovieHeadlessCaptureSession";
+import { IAutoMovieHeadlessLocator } from "../../../../packages/template/scaffold/src/integrations/render/headlessCapture/IAutoMovieHeadlessLocator";
+import { IAutoMovieHeadlessPage } from "../../../../packages/template/scaffold/src/integrations/render/headlessCapture/IAutoMovieHeadlessPage";
+import { createHeadlessCaptureAdapter } from "../../../../packages/template/scaffold/src/integrations/render/headlessCapture/createHeadlessCaptureAdapter";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { runHeadlessPageCallback } from "../internal/runHeadlessPageCallback";
 
@@ -125,10 +123,11 @@ const open: (
  * 2. Custom selectors, seek hook, and wait condition override the defaults.
  * 3. Route, seek-hook, style, screenshot, and empty-frame failures are reported with structured error codes.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real adapter through the existing page seam and records navigation, style, selector, page-local seek, supplied bytes, writer metadata and close calls, including structured step failures.
- * @evidence contracts/testing.md#independent-expectations The declared defaults and authored custom names determine expected calls and frame_00002.png; captured bytes are the existing supplied [1,2,3], not decoded PNG evidence. Self-contained product callbacks execute in the page instance's isolated VM context instead of a patched Node global.
- * @evidence contracts/testing.md#distinguishing-cases Default/custom settings and route, missing seek, style, evaluation, screenshot and empty-byte failures preserve all existing cases. The synchronous wait seam models refusal, not a real browser timeout or polling implementation.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_headless_capture owns its cases. Portable adapter/callback semantics in the existing FakePage, with no navigation process, filesystem writer, actual screenshot, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the real adapter through the existing page seam and records navigation, style, selector, page-local seek, supplied bytes, writer metadata and close calls, including structured step failures.
+ * @evidence contracts/development/testing.md#independent-expectations The declared defaults and authored custom names determine expected calls and frame_00002.png; captured bytes are the existing supplied [1,2,3], not decoded PNG evidence. Self-contained product callbacks execute in the page instance's isolated VM context instead of a patched Node global.
+ * @evidence contracts/development/testing.md#distinguishing-cases Default/custom settings and route, missing seek, style, evaluation, screenshot and empty-byte failures preserve all existing cases. The synchronous wait seam models refusal, not a real browser timeout or polling implementation.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_headless_capture owns its cases. Portable adapter/callback semantics in the existing FakePage, with no navigation process, filesystem writer, actual screenshot, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The page seam records one navigation request, seek-hook wait and UI-hiding style; the adapter forwards supplied capture bytes to its...).
  */
 export async function test_render_headless_capture(): Promise<void> {
   const page: FakePage = new FakePage();

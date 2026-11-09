@@ -28,10 +28,11 @@ const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
  *    through (10,0,0) at t=1; a unit sphere there is hit at ≈t=1.
  * 7. A sphere far off the path is never hit → null.
  *
- * @evidence contracts/testing.md#behavioral-verification Computes segment entry parameters and sampled projectile contact, asserting first contact, misses, inside/degenerate behavior and a hit on the sphere; returning an unbounded line intersection or the sphere center fails.
- * @evidence contracts/testing.md#independent-expectations Authored axis geometry gives entry 0.4 and inside parameter 0; the parabola reaches the sphere center at one second, so entry must precede it and lie near the surface. The loose contact window does not prove an exact continuous-curve root or every numeric branch.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts crossing, parallel miss, degenerate inside/outside, inside start, beyond-end line intersection and projectile hit/miss; malformed radius/vector/timing admission belongs to neighboring units.
- * @evidence contracts/testing.md#execution-ownership The named exported unit calls portable collision functions directly and owns all assertions; no physics host, renderer or dynamic case is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes segment entry parameters and sampled projectile contact, asserting first contact, misses, inside/degenerate behavior and a hit on the sphere; returning an unbounded line intersection or the sphere center fails.
+ * @evidence contracts/development/testing.md#independent-expectations Authored axis geometry gives entry 0.4 and inside parameter 0; the parabola reaches the sphere center at one second, so entry must precede it and lie near the surface. The loose contact window does not prove an exact continuous-curve root or every numeric branch.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts crossing, parallel miss, degenerate inside/outside, inside start, beyond-end line intersection and projectile hit/miss; malformed radius/vector/timing admission belongs to neighboring units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported unit calls portable collision functions directly and owns all assertions; no physics host, renderer or dynamic case is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Normal entry: segment (0,0,0)→(10,0,0) crosses a sphere at (5,0,0) r=1 →).
  */
 export function test_physics_collision(): void {
   // 1. normal entry

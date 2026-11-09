@@ -72,10 +72,11 @@ const tx: (m: number[]) => number = (m: number[]): number => m[12]!;
  * 5. The morph-weights channel populates the weights map for that node only; the
  *    static and TRS nodes never appear in it.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs resolveFrame and observes clamped world translation, scale/rest fallback, morph output and original overshoot diagnostics; missing sampled nodes and non-scalar driven outputs must reject.
- * @evidence contracts/testing.md#independent-expectations Authored endpoint x=100 exceeds max50, so projection yields world x=50 while reporting actual100; the scale and singleton-weight endpoints are literal input values, independent of resolver output.
- * @evidence contracts/testing.md#distinguishing-cases Null/animated clips, sampled/unsampled limits, present/absent TRS and morph channels, a missing node and scalar-pointer/non-scalar-node outputs cover this frame-folding boundary; driver dependency and spring histories are tested separately.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_frame entry directly executes portable synchronous sample/constrain/compose semantics and observes output maps, without a renderer, native asset or foreign replacement.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs resolveFrame and observes clamped world translation, scale/rest fallback, morph output and original overshoot diagnostics; missing sampled nodes and non-scalar driven outputs must reject.
+ * @evidence contracts/development/testing.md#independent-expectations Authored endpoint x=100 exceeds max50, so projection yields world x=50 while reporting actual100; the scale and singleton-weight endpoints are literal input values, independent of resolver output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Null/animated clips, sampled/unsampled limits, present/absent TRS and morph channels, a missing node and scalar-pointer/non-scalar-node outputs cover this frame-folding boundary; driver dependency and spring histories are tested separately.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_frame entry directly executes portable synchronous sample/constrain/compose semantics and observes output maps, without a renderer, native asset or foreign replacement.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A null clip keeps the translation+rotation node's world x at rest, and no).
  */
 export function test_resolve_frame(): void {
   const nodes: IAutoMovieNode[] = [

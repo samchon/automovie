@@ -18,7 +18,9 @@ import { polygonFilm } from "../../../internal/polygonFilm";
  * exchanges.md#targets and ring-generalship.md#targets): at least 75% of
  * strikes thrown in combinations of two or more; at least 85% of exchanges
  * contain a combination; every round kick prepares or finishes a
- * combination; each fighter throws 20 to 40 strikes per minute of action;
+ * combination; each fighter throws 16 to 22 strikes per minute of round
+ * time, feints excluded (GLORY's landed-per-minute over its near-half
+ * accuracy, exchanges.md#output);
  * each fighter opens at least a third of the exchanges; exchanges start on
  * average within one standard deviation of 3.4 s apart; at least 30% of the
  * footwork path is lateral to the fighters' line; the line turns at least
@@ -66,12 +68,12 @@ export function test_kickboxing_targets(): void {
   const groups = [...exchanges.values()];
   const combos: number = groups.filter((g) => g.length >= 2).length;
   // The study's exceptions: single counters (exchanges answering another in
-  // the same beat), the range-resetting teep and the clinch knee.
+  // the same beat, suffixed `c`), the range-resetting teep and the clinch knee.
   const exceptions: number = groups.filter(
     (g) =>
       g.length === 1 &&
       (["teep", "knee"].includes(strike(g[0]!).technique) ||
-        !/-b\d+$/.test(g[0]!.intent.anchor!.split("/")[0]!)),
+        COUNTER.test(g[0]!.intent.anchor!.split("/")[0]!)),
   ).length;
   assert.ok(
     combos / (groups.length - exceptions) >= 0.85,
@@ -85,7 +87,7 @@ export function test_kickboxing_targets(): void {
     ).length;
     const perMinute: number = own / (action / 60);
     assert.ok(
-      perMinute >= 20 && perMinute <= 40,
+      perMinute >= 16 && perMinute <= 22,
       `${subject} ${perMinute} per minute`,
     );
     const opened: number = groups.filter(
@@ -96,24 +98,19 @@ export function test_kickboxing_targets(): void {
       `${subject} opens ${opened}/${groups.length}`,
     );
   }
-  const beats = [
-    ...new Set(
-      strikes.map((e) =>
-        e.intent.anchor!.replace(/c?\/\d+$/, "").replace(/[a-z]$/, ""),
-      ),
-    ),
-  ];
+  // A screenplay beat, inserted ones (`s03-b02a`) included, is one exchange;
+  // its counters (`c`, `c2`) belong to it.
+  const beat = (e: IAutoMovieSchedule.IEntry): string =>
+    e.intent.anchor!.split("/")[0]!.replace(COUNTER, "");
+  const beats = [...new Set(strikes.map(beat))];
   const starts = beats
     .map((id) =>
-      Math.min(
-        ...strikes
-          .filter((e) => e.intent.anchor!.startsWith(id))
-          .map((e) => e.start),
-      ),
+      Math.min(...strikes.filter((e) => beat(e) === id).map((e) => e.start)),
     )
     .sort((x, y) => x - y);
   const gaps = starts.slice(1).map((s, k) => s - starts[k]!);
   const mean: number = gaps.reduce((s, g) => s + g, 0) / gaps.length;
+  console.log("TMPMETRICS", JSON.stringify({ share, followed: measured.combinationShare, combos, groups: groups.length, beats: beats.length, mean, a: strikes.filter((e) => e.subject === "a" && !KickboxingTechnique.table[strike(e).technique].shows).length, b: strikes.filter((e) => e.subject === "b" && !KickboxingTechnique.table[strike(e).technique].shows).length }));
   assert.ok(Math.abs(mean - 3.4) <= 1.2, `mean exchange interval ${mean}`);
   // Footwork: lateral share, ring revolution, ropes and bounds, sampled every frame of the action.
   const ring: RingFootwork.IRing = {
@@ -171,3 +168,6 @@ export function test_kickboxing_targets(): void {
     `ropes share ${ropes / samples}`,
   );
 }
+
+/** The suffix of a counter exchange inside its beat. */
+const COUNTER: RegExp = /c\d*$/;

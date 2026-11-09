@@ -6,10 +6,10 @@ import { renderFixtureNode } from "./renderFixtureNode";
 /**
  * Five model-referencing nodes and two authored lights, optionally reversed or extended by one unrelated prop.
  *
- * @evidence contracts/testing.md#behavioral-verification Existing semantic-mask and render-budget tests consume these staged nodes and assert order stability, unrelated-node behavior and costs; this helper does not measure them.
- * @evidence contracts/testing.md#independent-expectations Four tower elements and one lantern have explicitly authored model ids; the sun casts one 1024 shadow map and the fill has no shadow declaration, providing independently countable input populations.
- * @evidence contracts/testing.md#distinguishing-cases Default order, reversed order, an extra crate and their combination are caller choices. Each call creates its arrays/nodes/lights while their transforms retain the original shared identity object.
- * @evidence contracts/testing.md#execution-ownership Pure in-memory scene records reached by existing unit entries, with no Three renderer, GPU, native artifact or scenario discovery changes.
+ * @evidence contracts/development/testing.md#behavioral-verification Existing semantic-mask and render-budget tests consume these staged nodes and assert order stability, unrelated-node behavior and costs; this helper does not measure them.
+ * @evidence contracts/development/testing.md#independent-expectations Four tower elements and one lantern have explicitly authored model ids; the sun casts one 1024 shadow map and the fill has no shadow declaration, providing independently countable input populations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Default order, reversed order, an extra crate and their combination are caller choices. Each call creates its arrays/nodes/lights while their transforms retain the original shared identity object.
+ * @evidence contracts/development/testing.md#execution-ownership Pure in-memory scene records reached by existing unit entries, with no Three renderer, GPU, native artifact or scenario discovery changes.
  */
 export const sceneFixture: (props?: {
   reversed?: boolean;

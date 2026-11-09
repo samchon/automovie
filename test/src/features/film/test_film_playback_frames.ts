@@ -29,10 +29,11 @@ const shot: (id: string, duration: number) => IAutoMovieShot = (
  * 2. Refuse zero fps with the stated field/range diagnosis.
  * 3. Refuse NaN fps with a finiteness diagnosis.
  *
- * @evidence contracts/testing.md#behavioral-verification Samples two one-second shots at four fps, checking eight frame identities, restarted quarter-second local clocks and invalid fps errors.
- * @evidence contracts/testing.md#independent-expectations The frame grid i/4 has eight instants strictly below two seconds; i modulo four supplies the independent local-clock expectation and the second shot owns frame four.
- * @evidence contracts/testing.md#distinguishing-cases Retains the hard-cut boundary, all eight frames, zero and NaN fps; dissolves and trim/event seams belong to resolver tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_playback_frames unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Samples two one-second shots at four fps, checking eight frame identities, restarted quarter-second local clocks and invalid fps errors.
+ * @evidence contracts/development/testing.md#independent-expectations The frame grid i/4 has eight instants strictly below two seconds; i modulo four supplies the independent local-clock expectation and the second shot owns frame four.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains the hard-cut boundary, all eight frames, zero and NaN fps; dissolves and trim/event seams belong to resolver tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_playback_frames unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Resolve all eight hard-cut frames on the independent quarter-second grid.).
  */
 export function test_film_playback_frames(): void {
   const sequence: IAutoMovieSequence = {

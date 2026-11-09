@@ -22,6 +22,12 @@ const DURATION: number = 1 / 120;
  * 3. The valid relationship is admitted; unknown colliders, unsupported compression and malformed normals refuse before solver allocation.
  *
  * Solver impulses and checkpoint continuation belong to the native simulation units.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `Vector3`, `AutoMoviePhysicalSimulation`, `planPhysicalContactTargets` on in-memory inputs and asserts the returned observations through 2x TestValidator.equals; 3 numbered scenarios (first: Moving only a target sphere changes an independent primitive limb's fitted pose, and both fits reach the...; last: The valid relationship is admitted; unknown colliders, unsupported compression and malformed normals refuse...). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
+ * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contributes 3 numbered scenarios (first: Moving only a target sphere changes an independent primitive limb's fitted pose, and both fits reach the...; last: The valid relationship is admitted; unknown colliders, unsupported compression and malformed normals refuse...), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
+ * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_contact_binding`, which owns the cases delegated to `PhysicalFixtures`, `PhysicalModelFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Moving only a target sphere changes an independent primitive limb's fitted pose, and both fits reach the receiver's surface.).
  */
 export async function test_physical_contact_binding(): Promise<void> {
   const findings: string[] = [];

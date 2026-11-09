@@ -13,7 +13,7 @@ Choose the commissioned route from the request, project context, adopted instruc
 
 ## Route and parents
 
-Commissioned video follows one traceable chain: settings and research, screenplay, laws and entities with their tests, scene composition, then the film. Each link cites the addresses it realizes from the links above it, so no code exists without a cited basis and no requirement stays unrealized; a later link can only realize what an earlier one decided, and motion written before the screenplay settles its action is fitted to guesses.
+Commissioned video follows one traceable chain: settings and research, screenplay, laws and entities with their tests and accepted [catalog cases](../motion/SKILL.md), scene composition, then the film. Each link cites the addresses it realizes from the links above it, so no code exists without a cited basis and no requirement stays unrealized; a later link can only realize what an earlier one decided, and motion written before the screenplay settles its action is fitted to guesses.
 
 Every film has settings, because every later layer realizes and cites their facts and cannot cite what was never written; a facet that does not apply says so with its reason. Long work runs settings → treatments → scripts → screenplay construction, then screenplay naturalness; only the final screenplay has a separate expression pass. A short runs settings → screenplay (`short-with-settings`), keeping expression, evidence and review without empty treatment, script or outline files. Asset-only work has no narrative passes, and only an explicit user waiver omits screenplay naturalness. Choose form and scale through [direction](planning/direction.md); complete work is the default.
 
@@ -36,6 +36,6 @@ Inherit through actual parents, repairing a missing handoff rather than bypassin
 
 ## Completion
 
-Run `pnpm evidence` and read its whole report; a passing graph shows the recorded relationships, and review judges the creative result. Whole-work completion needs the selected passes, a current closing review, passing unfiltered validation, the compiler and source checks and required tests, and [delivery review](../review/delivery.md) of any commissioned media.
+Run `npm run evidence` and read its whole report; a passing graph shows the recorded relationships, and review judges the creative result. Whole-work completion needs the selected passes, a current closing review, passing unfiltered validation, the compiler and source checks and required tests, and [delivery review](../review/delivery.md) of any commissioned media.
 
 A manuscript with its closing review may be delivered with its revision and named remaining diagnostics, but that is not fully validated completion. A creative defect, missing parent, pending transfer, unfinished review or unverified media blocks its completion, and until review finishes the result is a draft. Changes to completed layers follow [closed passes](correction/repair.md#closed-passes).

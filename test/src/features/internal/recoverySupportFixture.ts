@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryImageInput } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryImageInput } from "@automovie/interface";
 
 import { recoveryImageFixture } from "./recoveryImageFixture";
 
@@ -17,10 +17,10 @@ interface RecoverySupportDirection {
  * h=R(1+.16 cos(2a)+.04 sin(3a))+centre. Its h+h'' is positive, so it is
  * a strictly convex support function. Neither formula imports the fitter.
  *
- * @evidence contracts/testing.md#behavioral-verification Supplies actual RGB8 rasters that public observation must scan before fitting; no measured rows or expected coefficients are injected.
- * @evidence contracts/testing.md#independent-expectations Analytic box support and a strictly convex harmonic support function define independent silhouette limits; translating centres and cubic dimensions determine physical pixel inclusion. Each supplied camera angle and its opposite prepare their fixed trigonometric factors once; every row still evaluates the same cubic dimensions and centres before raster inclusion.
- * @evidence contracts/testing.md#distinguishing-cases Axis-aligned/rotated box and smooth asymmetric families distinguish sharp active-boundary events from smooth constant incidence. Optional angles permit separate training and withheld observations.
- * @evidence contracts/testing.md#execution-ownership This portable fixture owns resident arrays and deterministic arithmetic only, without filesystem, process, trained model, renderer or Human source.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies actual RGB8 rasters that public observation must scan before fitting; no measured rows or expected coefficients are injected.
+ * @evidence contracts/development/testing.md#independent-expectations Analytic box support and a strictly convex harmonic support function define independent silhouette limits; translating centres and cubic dimensions determine physical pixel inclusion. Each supplied camera angle and its opposite prepare their fixed trigonometric factors once; every row still evaluates the same cubic dimensions and centres before raster inclusion.
+ * @evidence contracts/development/testing.md#distinguishing-cases Axis-aligned/rotated box and smooth asymmetric families distinguish sharp active-boundary events from smooth constant incidence. Optional angles permit separate training and withheld observations.
+ * @evidence contracts/development/testing.md#execution-ownership This portable fixture owns resident arrays and deterministic arithmetic only, without filesystem, process, trained model, renderer or Human source.
  */
 export function recoverySupportFixture(
   kind: "box" | "rotated-box" | "smooth-asymmetric",

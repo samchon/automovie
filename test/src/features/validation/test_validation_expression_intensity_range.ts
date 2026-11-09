@@ -11,10 +11,11 @@ import { hasViolation } from "../internal/predicates";
  * Scenarios:
  * 1. Happy at intensity two fails with a range finding on intensity.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual expression validation and requires failed admission plus a located intensity range fault, catching a validator that accepts an excessive preset magnitude.
- * @evidence contracts/testing.md#independent-expectations Intensity belongs to inclusive [0,1], so two is outside; happy is a supported name and no blendshape row supplies a competing failure.
- * @evidence contracts/testing.md#distinguishing-cases Owns upper intensity overflow; accepted preset/weight and channel-weight overflow are separate entries. Negative, nonfinite and exact intensity boundaries are not exercised here.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns one local expression and directly reads engine admission without a renderer, asset, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual expression validation and requires failed admission plus a located intensity range fault, catching a validator that accepts an excessive preset magnitude.
+ * @evidence contracts/development/testing.md#independent-expectations Intensity belongs to inclusive [0,1], so two is outside; happy is a supported name and no blendshape row supplies a competing failure.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns upper intensity overflow; accepted preset/weight and channel-weight overflow are separate entries. Negative, nonfinite and exact intensity boundaries are not exercised here.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns one local expression and directly reads engine admission without a renderer, asset, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Happy at intensity two fails with a range finding on intensity.).
  */
 export function test_validation_expression_intensity_range(): void {
   const result: IAutoMovieValidation = validateExpressionResult(

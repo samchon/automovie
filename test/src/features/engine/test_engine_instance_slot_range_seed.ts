@@ -13,10 +13,11 @@ const COUNT: number = 2_000;
  * 1. All 2,000 draws remain in the authored ranges and use every palette entry.
  * 2. A second seed changes more than 90% of scale draws; 64 fixed draws stay exact.
  *
- * @evidence contracts/testing.md#behavioral-verification Regenerates each addressed member through the actual instance-slot owner, observing scale/trait range bounds, palette coverage, unchanged zero-width ranges and changed scale draws after a seed edit.
- * @evidence contracts/testing.md#independent-expectations Authored .5..1.5 and -1..1 intervals, three palette entries, 1.2/.25 fixed values and the original greater-than-90-percent threshold define the oracle independently. Two selected seeds witness sensitivity without proving all seeds or statistical independence.
- * @evidence contracts/testing.md#distinguishing-cases Preserves the full 2000-member varying population, its same-slot reseeded twin and 64 fixed-range draws; prototype, transform and visibility laws have separate units. Original inclusive ranges, strict change-count bound and 1e-12 fixed tolerances remain unchanged.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns placements/member arrays through the existing canonical fixtures, starts no filesystem/renderer/browser/GPU work and mutates no production consumer or foreign method.
+ * @evidence contracts/development/testing.md#behavioral-verification Regenerates each addressed member through the actual instance-slot owner, observing scale/trait range bounds, palette coverage, unchanged zero-width ranges and changed scale draws after a seed edit.
+ * @evidence contracts/development/testing.md#independent-expectations Authored .5..1.5 and -1..1 intervals, three palette entries, 1.2/.25 fixed values and the original greater-than-90-percent threshold define the oracle independently. Two selected seeds witness sensitivity without proving all seeds or statistical independence.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves the full 2000-member varying population, its same-slot reseeded twin and 64 fixed-range draws; prototype, transform and visibility laws have separate units. Original inclusive ranges, strict change-count bound and 1e-12 fixed tolerances remain unchanged.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns placements/member arrays through the existing canonical fixtures, starts no filesystem/renderer/browser/GPU work and mutates no production consumer or foreign method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: All 2,000 draws remain in the authored ranges and use every palette entry.).
  */
 export function test_engine_instance_slot_range_seed(): void {
   // 2. Ranged values.

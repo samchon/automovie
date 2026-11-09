@@ -15,10 +15,11 @@ import { hasViolation } from "../internal/predicates";
  * Scenarios:
  * 1. Attaching the existing part to undeclared jaw fails at attachedBone.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual model validation with a dangling attachment and requires failed admission plus a type finding at the reference field, catching undeclared rigid-bone wiring.
- * @evidence contracts/testing.md#independent-expectations The existing fixture rig declares no jaw, so its part cannot resolve that name; literal type/path expectations follow reference admission rather than runtime attachment output.
- * @evidence contracts/testing.md#distinguishing-cases Owns one missing-bone reference; valid model, graph topology and rest-transform admission are separate model entries. This does not observe a built attachment or FK.
- * @evidence contracts/testing.md#execution-ownership The named synchronous entry reuses the existing model/rig fixture and invokes the portable validator without loading a Human asset, renderer or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual model validation with a dangling attachment and requires failed admission plus a type finding at the reference field, catching undeclared rigid-bone wiring.
+ * @evidence contracts/development/testing.md#independent-expectations The existing fixture rig declares no jaw, so its part cannot resolve that name; literal type/path expectations follow reference admission rather than runtime attachment output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns one missing-bone reference; valid model, graph topology and rest-transform admission are separate model entries. This does not observe a built attachment or FK.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous entry reuses the existing model/rig fixture and invokes the portable validator without loading a Human asset, renderer or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Attaching the existing part to undeclared jaw fails at attachedBone.).
  */
 export function test_validation_model_bone_ref(): void {
   const base: IAutoMovieModel = createModel();

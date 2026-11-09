@@ -163,10 +163,11 @@ const makeBinding: (
  * 6. An unknown driver discriminator throws.
  * 7. Prototype spellings require explicit own mappings; declared own constructor and __proto__ names bind normally.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual bindProfile across all supported driver/channel arms, prefix and refusal paths; inherited prototype names must take the missing-key diagnostic while declared own names remain valid bindings.
- * @evidence contracts/testing.md#independent-expectations The authored a/b/c/g/p map defines exact A/B/C/G/P ids after actor/ prefix. Object.fromEntries supplies constructor/__proto__ as own string entries, whereas an empty ordinary record declares neither despite its prototype properties.
- * @evidence contracts/testing.md#distinguishing-cases Covers every remapped driver reference, pointer pass-through, null pole/center, bare/prefixed ids, absent/blank mapping, profile mismatch and unknown discriminator, plus own versus inherited reserved property spellings. Frame composition of bound profiles belongs to the profile frame suites.
- * @evidence contracts/testing.md#execution-ownership The exported test_resolve_bind_profile owns synchronous portable data-binding cases and starts no consumer, Human scene or renderer; all assertions observe the real returned limits/drivers or thrown diagnostics.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual bindProfile across all supported driver/channel arms, prefix and refusal paths; inherited prototype names must take the missing-key diagnostic while declared own names remain valid bindings.
+ * @evidence contracts/development/testing.md#independent-expectations The authored a/b/c/g/p map defines exact A/B/C/G/P ids after actor/ prefix. Object.fromEntries supplies constructor/__proto__ as own string entries, whereas an empty ordinary record declares neither despite its prototype properties.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers every remapped driver reference, pointer pass-through, null pole/center, bare/prefixed ids, absent/blank mapping, profile mismatch and unknown discriminator, plus own versus inherited reserved property spellings. Frame composition of bound profiles belongs to the profile frame suites.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_resolve_bind_profile owns synchronous portable data-binding cases and starts no consumer, Human scene or renderer; all assertions observe the real returned limits/drivers or thrown diagnostics.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every driver type's node fields remap through boneMap + `"actor/"` prefix:).
  */
 export function test_resolve_bind_profile(): void {
   const bound: IAutoMovieBoundProfile = bindProfile({

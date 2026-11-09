@@ -13,25 +13,19 @@ type Jet = AutoMovieConicFieldJet.IJet;
 /**
  * Shared projective G2 geometry at an already selected numeric clock.
  *
- * @evidence contracts/common.md#principled-implementation Normalized homogeneous log monomials and positive pair sums serve both NUMBER and AD.
- * @evidence contracts/common.md#clear-and-simple-design Existing Hermite owns preparation and the numeric inverse; this kernel owns point/direction arithmetic.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No AD allocation occurs in a numeric inverse and no second ray solve occurs in a source read.
- * @evidence contracts/common.md#meaningful-documentation Clock is cubic log odds; endpoints are explicit positions, not null-clock guesses.
- * @evidence contracts/performance.md#efficient-algorithms Fixed four monomials and six positive tangent pairs per reading.
- * @evidence contracts/performance.md#reuse-equivalent-work Numeric and differentiated readers specialize the identical projective formula.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Prepared tuples and fresh results are call-owned; no cache or algebra table is retained.
+ * @evidence contracts/development/common.md#meaningful-documentation Clock is cubic log odds; endpoints are explicit positions, not null-clock guesses.
+ * @evidence contracts/development/design.md#principled-representation Represents Shared projective G2 geometry at an already selected numeric clock: companion namespace of 9 members (`IProjective`, `IDirection`, `logSum`, `sumAtMaximum`, `projective`, `direction`, ...); units and frames named in its text: rational, world, local, second. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConicHermiteField` in packages/engine/src/geometry/construction/AutoMovieConicHermiteField.ts; its surface is the 9 members listed and the text shows 4 other files naming it, mostly packages/engine (2), test (2), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConicHermiteField {
   /**
    * Point and normalized homogeneous log probabilities at one clock.
    *
-   * @evidence contracts/common.md#principled-implementation The projective Bernstein mean preserves the original positive rational polygon.
-   * @evidence contracts/common.md#clear-and-simple-design One intermediate serves point and tangent evaluation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An endpoint has an explicit point and no invented finite clock.
-   * @evidence contracts/common.md#meaningful-documentation Point uses physical quarter coordinates; logs are dimensionless log probabilities.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This data record computes nothing.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Its final logs are reused by the tangent and numeric curvature readers.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns two coordinates and at most four logs.
+   * @evidence contracts/development/design.md#principled-representation The projective Bernstein mean preserves the original positive rational polygon.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One intermediate serves point and tangent evaluation.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An endpoint has an explicit point and no invented finite clock.
+   * @evidence contracts/development/common.md#meaningful-documentation Point uses physical quarter coordinates; logs are dimensionless log probabilities.
    */
   export interface IProjective<T> {
     /** Physical point in the selected end chart. */
@@ -44,13 +38,10 @@ export namespace AutoMovieConicHermiteField {
   /**
    * Increasing-polar unit tangent and logarithmic speed scale.
    *
-   * @evidence contracts/common.md#principled-implementation Positive pair sums avoid subtraction of parallel native derivatives.
-   * @evidence contracts/common.md#clear-and-simple-design The numeric curvature owner and source reader share one direction.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Only the first source derivatives of the unit tangent are externally required.
-   * @evidence contracts/common.md#meaningful-documentation Interior speed uses log-odds clock; endpoint speed uses its polygon edge scale.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This data record computes nothing.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The same normalized pair determines tangent and log speed.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Two tangent coordinates and one log scale belong to the caller.
+   * @evidence contracts/development/design.md#principled-representation Positive pair sums avoid subtraction of parallel native derivatives.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The numeric curvature owner and source reader share one direction.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only the first source derivatives of the unit tangent are externally required.
+   * @evidence contracts/development/common.md#meaningful-documentation Interior speed uses log-odds clock; endpoint speed uses its polygon edge scale.
    */
   export interface IDirection<T> {
     /** Increasing-polar unit tangent in the selected end chart. */
@@ -63,13 +54,13 @@ export namespace AutoMovieConicHermiteField {
   /**
    * Stable logarithm of a positive sum with a primal scaling gauge.
    *
-   * @evidence contracts/common.md#principled-implementation The maximum is frozen only as a gauge; exp sum and logarithm remain differentiated.
-   * @evidence contracts/common.md#clear-and-simple-design One kernel serves normalized weights and positive velocity sums.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No source logarithmic derivative is frozen to a number.
-   * @evidence contracts/common.md#meaningful-documentation The empty sum is log(0); regular readers require a nonempty positive component or an explicit endpoint.
-   * @evidence contracts/performance.md#efficient-algorithms One bounded traversal of the supplied fixed-size array.
-   * @evidence contracts/performance.md#reuse-equivalent-work One maximum normalizes every term.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one scalar without retaining its array.
+   * @evidence contracts/development/implementation.md#principled-implementation The maximum is frozen only as a gauge; exp sum and logarithm remain differentiated.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One kernel serves normalized weights and positive velocity sums.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source logarithmic derivative is frozen to a number.
+   * @evidence contracts/development/common.md#meaningful-documentation The empty sum is log(0); regular readers require a nonempty positive component or an explicit endpoint.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One bounded traversal of the supplied fixed-size array.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One maximum normalizes every term.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar without retaining its array.
    */
   export function logSum<T>(ops: Algebra<T>, values: readonly T[]): T {
     if (values.length === 0) return ops.constant(-Infinity);
@@ -95,13 +86,13 @@ export namespace AutoMovieConicHermiteField {
   /**
    * Rational cubic point at a fixed log-odds clock or an explicit endpoint.
    *
-   * @evidence contracts/common.md#principled-implementation Homogeneous monomials are normalized logarithmically, then a pivoted barycentric mean preserves small coordinate differences.
-   * @evidence contracts/common.md#clear-and-simple-design One operation kernel supplies both numeric ray inversion and source point Hessians.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Endpoint identity is never inferred from a rounded native t or null clock.
-   * @evidence contracts/common.md#meaningful-documentation Interior clock is constant with respect to s,p; endpoint points follow their prepared source controls.
-   * @evidence contracts/performance.md#efficient-algorithms Four monomials and fixed-size barycentric sums.
-   * @evidence contracts/performance.md#reuse-equivalent-work One primal maximum supplies the normalization gauge and pivot; normalized logs serve the final direction and numeric curvature.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only a point and at most four log scalars escape.
+   * @evidence contracts/development/implementation.md#principled-implementation Homogeneous monomials are normalized logarithmically, then a pivoted barycentric mean preserves small coordinate differences.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation kernel supplies both numeric ray inversion and source point Hessians.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Endpoint identity is never inferred from a rounded native t or null clock.
+   * @evidence contracts/development/common.md#meaningful-documentation Interior clock is constant with respect to s,p; endpoint points follow their prepared source controls.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four monomials and fixed-size barycentric sums.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One primal maximum supplies the normalization gauge and pivot; normalized logs serve the final direction and numeric curvature.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a point and at most four log scalars escape.
    */
   export function projective<T>(
     ops: Algebra<T>,
@@ -157,13 +148,13 @@ export namespace AutoMovieConicHermiteField {
   /**
    * Unit tangent from positive projective pair sums.
    *
-   * @evidence contracts/common.md#principled-implementation Pairs have coefficient (j-i)*probability_i*probability_j; physical deficit and height restore the Cartesian direction.
-   * @evidence contracts/common.md#clear-and-simple-design One direction formula serves numeric curvature and source tangent gradients.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No native speed division or world-coordinate control subtraction is used.
-   * @evidence contracts/common.md#meaningful-documentation Endpoint direction reads its exact polygon edge; increasing local polar direction is[-x,+y].
-   * @evidence contracts/performance.md#efficient-algorithms Six pairs and constant-size logarithmic normalization.
-   * @evidence contracts/performance.md#reuse-equivalent-work The final projective probabilities are reused without another inverse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only a tangent pair and one logarithmic scale escape.
+   * @evidence contracts/development/implementation.md#principled-implementation Pairs have coefficient (j-i)*probability_i*probability_j; physical deficit and height restore the Cartesian direction.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One direction formula serves numeric curvature and source tangent gradients.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No native speed division or world-coordinate control subtraction is used.
+   * @evidence contracts/development/common.md#meaningful-documentation Endpoint direction reads its exact polygon edge; increasing local polar direction is[-x,+y].
+   * @evidence contracts/development/implementation.md#efficient-algorithms Six pairs and constant-size logarithmic normalization.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The final projective probabilities are reused without another inverse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a tangent pair and one logarithmic scale escape.
    */
   export function direction<T>(
     ops: Algebra<T>,
@@ -221,13 +212,13 @@ export namespace AutoMovieConicHermiteField {
   /**
    * Prepared G2 source partials at the final primal clock.
    *
-   * @evidence contracts/common.md#principled-implementation The same projective point and positive direction kernel reads supplied source Hessians.
-   * @evidence contracts/common.md#clear-and-simple-design One selected descriptor supplies clock, endpoint identity, reflection and radial phase geometry.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No inverse, native-turn partition, length integration or missing derivative is added.
-   * @evidence contracts/common.md#meaningful-documentation Returns point2/tangent1 in the original quarter chart; reflected tangent changes by -S.
-   * @evidence contracts/performance.md#efficient-algorithms One AD reading outside the numeric inverse's iterations.
-   * @evidence contracts/performance.md#reuse-equivalent-work The numeric radial jet and log curvature are reused unchanged.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh required tuples or one named failure retain no preparation or cache.
+   * @evidence contracts/development/implementation.md#principled-implementation The same projective point and positive direction kernel reads supplied source Hessians.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One selected descriptor supplies clock, endpoint identity, reflection and radial phase geometry.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No inverse, native-turn partition, length integration or missing derivative is added.
+   * @evidence contracts/development/common.md#meaningful-documentation Returns point2/tangent1 in the original quarter chart; reflected tangent changes by -S.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One AD reading outside the numeric inverse's iterations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The numeric radial jet and log curvature are reused unchanged.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh required tuples or one named failure retain no preparation or cache.
    */
   export function read(
     patch: AutoMovieConicHermite.IPatch<Jet>,
@@ -273,13 +264,13 @@ export namespace AutoMovieConicHermiteField {
   /**
    * Numeric phase geometry from the final shared projective reading.
    *
-   * @evidence contracts/common.md#principled-implementation Positive homogeneous triple determinants and exact endpoint laws provide logarithmic curvature; the unit tangent determines the polar jet.
-   * @evidence contracts/common.md#clear-and-simple-design One primal geometry owner serves the numeric source and fixed-clock derivative descriptor.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Curvature is never obtained by subtracting nearly parallel native derivatives.
-   * @evidence contracts/common.md#meaningful-documentation Endpoint speed is its polygon edge scale; interior speed is log-odds speed; no source curvature derivatives are implied.
-   * @evidence contracts/performance.md#efficient-algorithms Four positive triples or one endpoint identity, with fixed storage.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the final projective probabilities and shared direction without another inverse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed-size numeric descriptor arrays escape.
+   * @evidence contracts/development/implementation.md#principled-implementation Positive homogeneous triple determinants and exact endpoint laws provide logarithmic curvature; the unit tangent determines the polar jet.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One primal geometry owner serves the numeric source and fixed-clock derivative descriptor.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Curvature is never obtained by subtracting nearly parallel native derivatives.
+   * @evidence contracts/development/common.md#meaningful-documentation Endpoint speed is its polygon edge scale; interior speed is log-odds speed; no source curvature derivatives are implied.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four positive triples or one endpoint identity, with fixed storage.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the final projective probabilities and shared direction without another inverse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only fixed-size numeric descriptor arrays escape.
    */
   export function ray(
     patch: AutoMovieConicHermite.IPatch,

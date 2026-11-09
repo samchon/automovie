@@ -27,10 +27,11 @@ const GRAVITY: IAutoMovieVector3 = { x: 0, y: -9.81, z: 0 };
  *    some iterate).
  * 5. A non-positive speed → null.
  *
- * @evidence contracts/testing.md#behavioral-verification Solves stationary and sliding targets, checks static parity and physical interception, distinguishes a partial one-step lead and requires null for the authored out-of-range and zero-speed requests.
- * @evidence contracts/testing.md#independent-expectations Constant-acceleration displacement and requested speed independently constrain the stationary result, and direct substitution checks the sliding intercept. Static-solver parity and projectileAt are supplemental shared-dependency checks; arbitrary callback convergence is not certified.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts stationary, slower downrange motion, a one-step unsettled cap, an authored faster out-of-range target and zero speed; closest-visited selection and invalid iteration/vector admission belong to neighboring units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit owns every case and calls launch/state functions with local target callbacks, without hosts or dynamically registered tests.
+ * @evidence contracts/development/testing.md#behavioral-verification Solves stationary and sliding targets, checks static parity and physical interception, distinguishes a partial one-step lead and requires null for the authored out-of-range and zero-speed requests.
+ * @evidence contracts/development/testing.md#independent-expectations Constant-acceleration displacement and requested speed independently constrain the stationary result, and direct substitution checks the sliding intercept. Static-solver parity and projectileAt are supplemental shared-dependency checks; arbitrary callback convergence is not certified.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts stationary, slower downrange motion, a one-step unsettled cap, an authored faster out-of-range target and zero speed; closest-visited selection and invalid iteration/vector admission belong to neighboring units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit owns every case and calls launch/state functions with local target callbacks, without hosts or dynamically registered tests.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A stationary target reduces to the static solve: same velocity and hit time).
  */
 export function test_physics_moving_launch(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 1.6, z: 0 };

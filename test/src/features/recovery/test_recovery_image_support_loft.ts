@@ -1,8 +1,8 @@
-import { createAutoMovieSupportSectionQuery } from "@automovie/engine/geometry/createAutoMovieSupportSectionQuery";
+import { createAutoMovieSupportSectionQuery } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryImageObservation,
   IAutoMovieRecoverySupportLoft,
-} from "@automovie/interface/recovery";
+} from "@automovie/interface";
 import {
   compileAutoMovieRecoverySupportLoft,
   fitAutoMovieRecoveryImageLoft,
@@ -24,10 +24,11 @@ import { recoverySupportFixture } from "../internal/recoverySupportFixture";
  * 4. Contradictory calibrated supports, including a lower-only violation in the final row, and disconnected visible rows refuse instead of discarding a view or filling a gap.
  * 5. Inadequate directions, event/row budgets, malformed coverage/scales and cancellation refuse or cancel explicitly.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises public RGB observation, support fitting, independent source-free compilation and actual engine mesh/normals. It checks held-out analytic raster support, compact coefficients, boundary events and independent edits rather than source arrangement or private helper snapshots.
- * @evidence contracts/testing.md#independent-expectations Analytic box and strictly convex harmonic support formulas rasterize independent truth. Six reserved angles enter only evaluation, with a fixed .5 mm support bound. The 0/90 degree half-widths a,b cap either oriented 45 degree support at (a+b)/sqrt(2). A four-row circular control has all half-widths 10 mm; changing its final lower boundary alone to -28 mm, or both half-widths to 28 mm, contradicts that bound. Coordinate scaling equations and exact return define edit expectations independently of the generated field.
- * @evidence contracts/testing.md#distinguishing-cases Covers sharp active-boundary changes versus smooth sections, translated cubic profiles, an unsupported ellipse hypothesis, contradictory supports, disconnected visible rows, scalar compactness, withheld directions, explicit unknown hidden topology, malformed coverage/unit normals/scales and row/event limits. Actual hardware appearance is outside this analytic unit.
- * @evidence contracts/testing.md#execution-ownership This portable test_recovery_image_support_loft entry owns bounded resident RGB arrays and CPU-generated mesh only, without process, filesystem, native build, renderer, GPU or Human imports.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises public RGB observation, support fitting, independent source-free compilation and actual engine mesh/normals. It checks held-out analytic raster support, compact coefficients, boundary events and independent edits rather than source arrangement or private helper snapshots.
+ * @evidence contracts/development/testing.md#independent-expectations Analytic box and strictly convex harmonic support formulas rasterize independent truth. Six reserved angles enter only evaluation, with a fixed .5 mm support bound. The 0/90 degree half-widths a,b cap either oriented 45 degree support at (a+b)/sqrt(2). A four-row circular control has all half-widths 10 mm; changing its final lower boundary alone to -28 mm, or both half-widths to 28 mm, contradicts that bound. Coordinate scaling equations and exact return define edit expectations independently of the generated field.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers sharp active-boundary changes versus smooth sections, translated cubic profiles, an unsupported ellipse hypothesis, contradictory supports, disconnected visible rows, scalar compactness, withheld directions, explicit unknown hidden topology, malformed coverage/unit normals/scales and row/event limits. Actual hardware appearance is outside this analytic unit.
+ * @evidence contracts/development/testing.md#execution-ownership This portable test_recovery_image_support_loft entry owns bounded resident RGB arrays and CPU-generated mesh only, without process, filesystem, native build, renderer, GPU or Human imports.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Box, rotated-box and smooth asymmetric images fit the general support path while the ellipse prior refuses.).
  */
 export function test_recovery_image_support_loft(): void {
   const generation: Parameters<typeof compileAutoMovieRecoverySupportLoft>[1] =

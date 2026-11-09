@@ -1,13 +1,10 @@
 /**
  * A scalar piecewise cubic with Fritsch–Butland slope seeds, in arbitrary consistent coordinate and value units. Explicit derivatives replace those seeds; evaluation rejects extrapolation and chooses the right interval at an interior knot.
  *
- * @evidence contracts/common.md#principled-implementation Weighted harmonic interior slopes and bounded three-point endpoint slopes follow Fritsch and Butland, https://doi.org/10.1137/0905021; local power coefficients interpolate the supplied values and derivatives.
- * @evidence contracts/common.md#clear-and-simple-design One scalar field owns its interval coefficients; reusable slope resolution is exposed separately for callers constructing vector or tensor fields.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomy, smoothing fit, coordinate conversion or replacement endpoint derivative is introduced.
- * @evidence contracts/common.md#meaningful-documentation States derivative units, caller-owned immutable station storage, knot selection and extrapolation refusal.
- * @evidence contracts/performance.md#efficient-algorithms Construction is linear in station count and evaluates one interval with Horner arithmetic after a linear interval search.
- * @evidence contracts/performance.md#reuse-equivalent-work Coefficients are computed once per constructed field and reused for value and derivative queries.
- * @evidence contracts/performance.md#bound-retention-and-release-resources A field retains its supplied station array and four coefficients per interval, with no global cache or consumer references.
+ * @evidence contracts/development/design.md#principled-representation Weighted harmonic interior slopes and bounded three-point endpoint slopes follow Fritsch and Butland, https://doi.org/10.1137/0905021; local power coefficients interpolate the supplied values and derivatives.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One scalar field owns its interval coefficients; reusable slope resolution is exposed separately for callers constructing vector or tensor fields.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No anatomy, smoothing fit, coordinate conversion or replacement endpoint derivative is introduced.
+ * @evidence contracts/development/common.md#meaningful-documentation States derivative units, caller-owned immutable station storage, knot selection and extrapolation refusal.
  */
 export class AutoMoviePchip64 {
   /** Local power coefficients [cubic, quadratic, derivative, value] relative to each interval's start. */
@@ -51,13 +48,13 @@ export class AutoMoviePchip64 {
   /**
    * Evaluate inside the closed coordinate range; derivative output has value units per coordinate unit. Nonfinite input, extrapolation and nonfinite results reject.
    *
-   * @evidence contracts/common.md#principled-implementation Horner evaluation uses the interval's local coordinate; differentiating those same power coefficients gives the first derivative.
-   * @evidence contracts/common.md#clear-and-simple-design The derivative switch shares interval selection and coefficient storage with ordinary evaluation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An out-of-domain query is rejected rather than clamped or extrapolated, and no derivative normalization changes its units.
-   * @evidence contracts/common.md#meaningful-documentation States the closed domain, right-interval knot convention and finite-result requirement.
-   * @evidence contracts/performance.md#efficient-algorithms Interval search is O(n); the selected cubic then uses a fixed number of scalar operations.
-   * @evidence contracts/performance.md#reuse-equivalent-work Both query kinds read the coefficients retained by the constructor, without rebuilding slopes.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources A query retains no prior coordinate or result and allocates no interval arrays.
+   * @evidence contracts/development/implementation.md#principled-implementation Horner evaluation uses the interval's local coordinate; differentiating those same power coefficients gives the first derivative.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The derivative switch shares interval selection and coefficient storage with ordinary evaluation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An out-of-domain query is rejected rather than clamped or extrapolated, and no derivative normalization changes its units.
+   * @evidence contracts/development/common.md#meaningful-documentation States the closed domain, right-interval knot convention and finite-result requirement.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Interval search is O(n); the selected cubic then uses a fixed number of scalar operations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both query kinds read the coefficients retained by the constructor, without rebuilding slopes.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A query retains no prior coordinate or result and allocates no interval arrays.
    */
   public at(x: number, derivative: boolean = false): number {
     if (!Number.isFinite(x) || x < this.xs[0]! || x > this.xs.at(-1)!)
@@ -77,13 +74,13 @@ export class AutoMoviePchip64 {
   /**
    * Resolve dy/dx at finite, strictly increasing matching stations; two points use their common secant. Equal or opposite-sign neighboring secants give a zero interior derivative.
    *
-   * @evidence contracts/common.md#principled-implementation Secants and interval widths feed the shared Fritsch–Butland weighted harmonic and endpoint-limited slope operation.
-   * @evidence contracts/common.md#clear-and-simple-design Admission and coordinate-to-secant conversion precede the independently reusable slope kernel.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Nonfinite secants and nonpositive intervals reject; the function does not substitute a monotone interpolator with a different endpoint rule.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes derivative units, the two-point case and sign-change treatment.
-   * @evidence contracts/performance.md#efficient-algorithms Two linear array passes prepare widths and secants, followed by the linear slope kernel.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The result is the reusable slope vector; mutable caller data do not receive a retained cross-call verdict.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary widths and secants expire on return; only the new slope array transfers to the caller.
+   * @evidence contracts/development/implementation.md#principled-implementation Secants and interval widths feed the shared Fritsch–Butland weighted harmonic and endpoint-limited slope operation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission and coordinate-to-secant conversion precede the independently reusable slope kernel.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonfinite secants and nonpositive intervals reject; the function does not substitute a monotone interpolator with a different endpoint rule.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes derivative units, the two-point case and sign-change treatment.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two linear array passes prepare widths and secants, followed by the linear slope kernel.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The result is the reusable slope vector; mutable caller data do not receive a retained cross-call verdict.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary widths and secants expire on return; only the new slope array transfers to the caller.
    */
   public static slopes(
     xs: readonly number[],
@@ -108,13 +105,13 @@ export class AutoMoviePchip64 {
   /**
    * Resolve slopes from one or more corresponding positive interval widths and finite secants; these are admitted premises owned by slopes() or the vector coefficient constructor. Output has one more entry than the interval arrays.
    *
-   * @evidence contracts/common.md#principled-implementation Interior weights are 2hNext+hPrevious and hNext+2hPrevious; one-sided endpoint estimates retain the adjacent secant's sign and three-times bound.
-   * @evidence contracts/common.md#clear-and-simple-design Scalar and vector coefficient producers share this one numerical slope rule without sharing their domain-evaluation policy.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts This low-level operation requires admitted widths/secants and performs no anatomy-dependent tangent override.
-   * @evidence contracts/common.md#meaningful-documentation States the prevalidated array contract and the number of returned station slopes.
-   * @evidence contracts/performance.md#efficient-algorithms One slope per station is computed in O(n), with fixed endpoint calculations.
-   * @evidence contracts/performance.md#reuse-equivalent-work Vector callers reuse their already computed secants rather than rebuild coordinate differences for each derivative query.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The new output array owns scalar slopes only and retains neither supplied array.
+   * @evidence contracts/development/implementation.md#principled-implementation Interior weights are 2hNext+hPrevious and hNext+2hPrevious; one-sided endpoint estimates retain the adjacent secant's sign and three-times bound.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Scalar and vector coefficient producers share this one numerical slope rule without sharing their domain-evaluation policy.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts This low-level operation requires admitted widths/secants and performs no anatomy-dependent tangent override.
+   * @evidence contracts/development/common.md#meaningful-documentation States the prevalidated array contract and the number of returned station slopes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One slope per station is computed in O(n), with fixed endpoint calculations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Vector callers reuse their already computed secants rather than rebuild coordinate differences for each derivative query.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The new output array owns scalar slopes only and retains neither supplied array.
    */
   public static fromSecants(
     h: readonly number[],
@@ -146,13 +143,13 @@ export class AutoMoviePchip64 {
   /**
    * Apply scalar slope resolution to corresponding three-component nodes in each station row; finite matching rows with at least two increasing stations are caller premises.
    *
-   * @evidence contracts/common.md#principled-implementation Independent scalar PCHIP slopes are computed per node and coordinate, preserving the original component order.
-   * @evidence contracts/common.md#clear-and-simple-design The nested layout adapter shares scalar admission and limiting rather than introducing a second vector slope formula.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts It performs no spatial tangent normalization, axis fitting or per-node sample fitting.
-   * @evidence contracts/common.md#meaningful-documentation Identifies the station/node/coordinate ordering and corresponding-row premise.
-   * @evidence contracts/performance.md#efficient-algorithms For S stations and N nodes, three scalar columns per node take O(SN) work and output storage.
-   * @evidence contracts/performance.md#reuse-equivalent-work One derivative field is returned for downstream coefficient construction; later curve evaluation need not repeat the slope solve.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary component columns are released and returned triples do not alias the supplied station rows.
+   * @evidence contracts/development/implementation.md#principled-implementation Independent scalar PCHIP slopes are computed per node and coordinate, preserving the original component order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The nested layout adapter shares scalar admission and limiting rather than introducing a second vector slope formula.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts It performs no spatial tangent normalization, axis fitting or per-node sample fitting.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the station/node/coordinate ordering and corresponding-row premise.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For S stations and N nodes, three scalar columns per node take O(SN) work and output storage.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One derivative field is returned for downstream coefficient construction; later curve evaluation need not repeat the slope solve.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary component columns are released and returned triples do not alias the supplied station rows.
    */
   public static fieldSlopes(
     xs: readonly number[],

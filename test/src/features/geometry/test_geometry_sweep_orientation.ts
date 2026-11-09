@@ -78,10 +78,11 @@ const tilt = (surface: IAutoMovieSweepSurface): number => {
  * 2. No station rotations: under `fixed` the plane's normal at every `u` equals the start frame's; under the default it follows the path, turning by more than ten degrees.
  * 3. Omitting the orientation gives the same frames as `transported`.
  *
- * @evidence contracts/testing.md#behavioral-verification Compiles sweeps with `compileAutoMovieSweep` and reads their points and frames; a fixed orientation that still transported the frame fails scenarios 1 and 2, a default that changed fails 2 and 3.
- * @evidence contracts/testing.md#independent-expectations A plane whose normal is `+Y` holds every point at its origin's height, and a frame carried without turning keeps its start normal; both follow from the documented orientation alone. The default's tilt and turn are bounded only from below, because the rotation-minimizing frame's exact values are owned by the spine's tests.
- * @evidence contracts/testing.md#distinguishing-cases Covers the option with and without station rotations, the default as the adjacent case where planes must turn, and explicit `transported` against omission; section interpolation, guides and features are owned by the other sweep tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable named entry calls the portable engine compiler directly; it installs no consumer and starts no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Compiles sweeps with `compileAutoMovieSweep` and reads their points and frames; a fixed orientation that still transported the frame fails scenarios 1 and 2, a default that changed fails 2 and 3.
+ * @evidence contracts/development/testing.md#independent-expectations A plane whose normal is `+Y` holds every point at its origin's height, and a frame carried without turning keeps its start normal; both follow from the documented orientation alone. The default's tilt and turn are bounded only from below, because the rotation-minimizing frame's exact values are owned by the spine's tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers the option with and without station rotations, the default as the adjacent case where planes must turn, and explicit `transported` against omission; section interpolation, guides and features are owned by the other sweep tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable named entry calls the portable engine compiler directly; it installs no consumer and starts no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Level stations on an S-bent path: under `fixed` every surface point, between stations too, lies at its spine point's height; under the...).
  */
 export function test_geometry_sweep_orientation(): void {
   const fixed: IAutoMovieSweepSurface = compileAutoMovieSweep(

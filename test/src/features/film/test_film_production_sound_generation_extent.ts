@@ -13,10 +13,11 @@ import { nclose } from "../internal/predicates";
  * 1. A decoded generation ending one sample before its declared span preserves the last reached sample within 1e-6.
  * 2. Only the single unreached native tick becomes silent.
  *
- * @evidence contracts/testing.md#behavioral-verification Mixes a supplied asset generation one sample shorter than its declared cue and observes the last reached sample and the one unreached silent tick.
- * @evidence contracts/testing.md#independent-expectations The authored ramp, gain and independently chosen final two indices supply expected sample values; the test checks this exact one-sample generation deficit rather than general decoder extent reconciliation.
- * @evidence contracts/testing.md#distinguishing-cases Distinguishes the final reached tick from the adjacent unreached tick without stretching the source; missing assets, unit-rate trims and malformed supplied PCM remain in their owning entries.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_production_sound_generation_extent and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Mixes a supplied asset generation one sample shorter than its declared cue and observes the last reached sample and the one unreached silent tick.
+ * @evidence contracts/development/testing.md#independent-expectations The authored ramp, gain and independently chosen final two indices supply expected sample values; the test checks this exact one-sample generation deficit rather than general decoder extent reconciliation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes the final reached tick from the adjacent unreached tick without stretching the source; missing assets, unit-rate trims and malformed supplied PCM remain in their owning entries.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_production_sound_generation_extent and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A decoded generation ending one sample before its declared span preserves the last reached sample within 1e-6.).
  */
 export function test_film_production_sound_generation_extent(): void {
   const {

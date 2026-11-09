@@ -22,10 +22,11 @@ import { hasViolation } from "../internal/predicates";
  * 2. Non-finite, zero and equal clip operands report the authored camera path.
  * 3. Null precision, malformed or unsupported bit counts, and nonnumeric, infinite or zero metre thresholds report their own field paths.
  *
- * @evidence contracts/testing.md#behavioral-verification Stages authored clip/precision operands and observes exact values with an independent copied precision record, then requires addressed invalid clip, bit-count and step-threshold failures.
- * @evidence contracts/testing.md#independent-expectations Literal near/far values, positive safe depth-code capability and a finite positive metre step define admission expectations; this test checks staging operands rather than measuring a hardware depth buffer.
- * @evidence contracts/testing.md#distinguishing-cases Keeps the accepted copy case and all twelve original NaN/zero/infinite/equal clip, null precision, nonnumeric/fractional/zero/overflow bit count and invalid step inputs.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_stage_scene_camera_depth_precision and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages authored clip/precision operands and observes exact values with an independent copied precision record, then requires addressed invalid clip, bit-count and step-threshold failures.
+ * @evidence contracts/development/testing.md#independent-expectations Literal near/far values, positive safe depth-code capability and a finite positive metre step define admission expectations; this test checks staging operands rather than measuring a hardware depth buffer.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps the accepted copy case and all twelve original NaN/zero/infinite/equal clip, null precision, nonnumeric/fractional/zero/overflow bit count and invalid step inputs.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_stage_scene_camera_depth_precision and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Valid near/far and precision operands reach the camera unchanged through a distinct precision record.).
  */
 export function test_film_stage_scene_camera_depth_precision(): void {
   const base: IAutoMovieStage = makeStagingWrite();

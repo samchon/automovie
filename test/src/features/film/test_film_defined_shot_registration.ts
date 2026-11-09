@@ -73,10 +73,11 @@ const paths: (compiled: IAutoMovieCompiledDefinedShot) => string[] = (
  * 2. A missing contract becomes pipeline-failed at $shot, and a throwing builder becomes builder-failed carrying its thrown text.
  * 3. Re-registering preserves the new argument id, including refusal of a blank new id.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls defineShot and compileDefinedShot and observes diagnostic codes, paths, counts and thrown text, catching an overwritten registration address or an exception escaping these early boundaries.
- * @evidence contracts/testing.md#independent-expectations The registration contract requires nonblank addresses and gives the explicit id argument precedence; exception translation names registration or build. Expected paths and messages are authored literals, not output snapshots. The partial runtime is never read by these failing phases.
- * @evidence contracts/testing.md#distinguishing-cases Covers separate and combined blank fields, a missing contract, a throwing builder and valid/blank re-registration ids. Successful staging, performance and continuity are exercised by the defined-shot tests; this entry does not execute those later phases.
- * @evidence contracts/testing.md#execution-ownership The synchronous discoverable entry owns its named facts and calls portable engine source; namedFacts evaluates in order and stops at its first false fact. It starts no host, renderer or generated project.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls defineShot and compileDefinedShot and observes diagnostic codes, paths, counts and thrown text, catching an overwritten registration address or an exception escaping these early boundaries.
+ * @evidence contracts/development/testing.md#independent-expectations The registration contract requires nonblank addresses and gives the explicit id argument precedence; exception translation names registration or build. Expected paths and messages are authored literals, not output snapshots. The partial runtime is never read by these failing phases.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers separate and combined blank fields, a missing contract, a throwing builder and valid/blank re-registration ids. Successful staging, performance and continuity are exercised by the defined-shot tests; this entry does not execute those later phases.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable entry owns its named facts and calls portable engine source; namedFacts evaluates in order and stops at its first false fact. It starts no host, renderer or generated project.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Blank id, scene and contract beat identify their fields; three blanks produce three diagnostics.).
  */
 export function test_film_defined_shot_registration(): void {
   const thrown: IAutoMovieCompiledDefinedShot = compile(

@@ -41,10 +41,11 @@ import { boxModel, material, sceneFixture } from "../internal/renderFixtures";
  * 3. Missing texture facts refuse with source and shot identities; supplying
  *    decoded RGBA8 facts clears admission without changing authored materials.
  *
- * @evidence contracts/testing.md#behavioral-verification Measures combined texture storage, runtime-only contributor accounting and unknown-storage refusal text through the actual inventory, budget and explicit compiled-shot assessment functions.
- * @evidence contracts/testing.md#independent-expectations Safe-integer overflow follows two 2^52-byte images; the adjacent 1152-byte total and 1024-byte lookup omission are arithmetic expectations, not copies of another inventory result.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts individually safe versus combined-overflow images, editable images versus runtime-only storage and omitted versus supplied decoded facts while preserving materials.
- * @evidence contracts/testing.md#execution-ownership Owns a portable synchronous metadata case with a deliberately partial compiled-shot fixture and supplied renderer identity; no renderer draw, native allocation or automatic production refusal is observed, and execution belongs to the test runner.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures combined texture storage, runtime-only contributor accounting and unknown-storage refusal text through the actual inventory, budget and explicit compiled-shot assessment functions.
+ * @evidence contracts/development/testing.md#independent-expectations Safe-integer overflow follows two 2^52-byte images; the adjacent 1152-byte total and 1024-byte lookup omission are arithmetic expectations, not copies of another inventory result.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts individually safe versus combined-overflow images, editable images versus runtime-only storage and omitted versus supplied decoded facts while preserving materials.
+ * @evidence contracts/development/testing.md#execution-ownership Owns a portable synchronous metadata case with a deliberately partial compiled-shot fixture and supplied renderer identity; no renderer draw, native allocation or automatic production refusal is observed, and execution belongs to the test runner.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two RGBA8 images each costing 2^52 bytes overflow the exact integer total;).
  */
 export function test_render_texture_budget_bound(): void {
   const model: IAutoMovieModel = boxModel({

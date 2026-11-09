@@ -30,10 +30,11 @@ const TINY: number = (0.05 * Math.PI) / 180;
  * 6. A 0.05 degree turn and signed slopes below 1e-12 remain active, including
  *    a 1e-200 slope whose unscaled squared axis length would underflow.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs aimRotation and rotates the input direction, asserting general, collinear and microscopic turns so a hidden sine deadzone or axis-norm underflow cannot return identity.
- * @evidence contracts/testing.md#independent-expectations Right-handed cardinal-axis turns define general and antiparallel expectations; authored signed slopes define microscopic Y components with tolerance relative to their nonzero magnitude. Quaternion.rotateVector is the actual numerical consumer, so a coordinated defect in both engine operations could evade this replay oracle.
- * @evidence contracts/testing.md#distinguishing-cases Covers both antiparallel axis branches, aligned/zero/nonunit directions, NaN/infinite refusals and signed/subnormal-scale turns; quaternion tests own generic rotation normalization.
- * @evidence contracts/testing.md#execution-ownership The exported kinematics entry directly reaches CPU vector/quaternion source and owns all cases without a Human basis, probe, renderer or native driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs aimRotation and rotates the input direction, asserting general, collinear and microscopic turns so a hidden sine deadzone or axis-norm underflow cannot return identity.
+ * @evidence contracts/development/testing.md#independent-expectations Right-handed cardinal-axis turns define general and antiparallel expectations; authored signed slopes define microscopic Y components with tolerance relative to their nonzero magnitude. Quaternion.rotateVector is the actual numerical consumer, so a coordinated defect in both engine operations could evade this replay oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers both antiparallel axis branches, aligned/zero/nonunit directions, NaN/infinite refusals and signed/subnormal-scale turns; quaternion tests own generic rotation normalization.
+ * @evidence contracts/development/testing.md#execution-ownership The exported kinematics entry directly reaches CPU vector/quaternion source and owns all cases without a Human basis, probe, renderer or native driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: General case: +X → +Y rotates +X onto +Y.).
  */
 export function test_kinematics_aim_rotation(): void {
   TestValidator.predicate(

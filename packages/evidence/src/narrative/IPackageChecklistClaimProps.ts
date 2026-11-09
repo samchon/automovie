@@ -11,13 +11,10 @@ import type { ProductionStage } from "./ProductionStage";
  * its selected hosts answer item by item, and the wiring is the same every
  * time — only the document, the hosts, and when the claim is off differ.
  *
- * @evidence contracts/common.md#principled-implementation The object groups work-contract paths, host selectors, explicit symbol granularity and activation flags for createPackageChecklistClaim; default pass and checklist meanings are documented on their members.
- * @evidence contracts/common.md#clear-and-simple-design One object owns document selection, host granularity and activation so createPackageChecklistClaim validates the relationship together.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact work paths and symbol validity are enforced by createPackageChecklistClaim rather than hidden type-level assumptions.
- * @evidence contracts/common.md#meaningful-documentation Members explain document-relative addressing, required host granularity, pass/checklist defaults and optional deferral.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Local checklist inputs is erased at runtime; producing and consuming functions account for concrete traversal and allocation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Local checklist inputs declares data and coordinates no reusable effects; consumers own equivalence and invalidation.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Local checklist inputs acquires no resource or retained state; concrete owners determine instance bytes and lifetimes.
+ * @evidence contracts/development/design.md#principled-representation The object groups work-contract paths, host selectors, explicit symbol granularity and activation flags for createPackageChecklistClaim; default pass and checklist meanings are documented on their members.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One object owns document selection, host granularity and activation so createPackageChecklistClaim validates the relationship together.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Exact work paths and symbol validity are enforced by createPackageChecklistClaim rather than hidden type-level assumptions.
+ * @evidence contracts/development/common.md#meaningful-documentation Members explain document-relative addressing, required host granularity, pass/checklist defaults and optional deferral.
  */
 export interface IPackageChecklistClaimProps {
   /** Names the claim in diagnostics. State what the hosts must reach. */

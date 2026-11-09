@@ -15,10 +15,11 @@ import { nclose } from "../internal/predicates";
  *    body has fallen ½·10·1²=5 → position (5,5,0), velocity (5,−10,0).
  * 3. At the apex of a straight-up throw the vertical velocity is zero.
  *
- * @evidence contracts/testing.md#behavioral-verification Evaluates launch, one-second falling state and vertical apex, asserting numeric positions and velocities; dropped acceleration, its half factor or velocity evolution fails.
- * @evidence contracts/testing.md#independent-expectations Authored arithmetic from p0+v0*t+g*t^2/2 and v0+g*t supplies the expected components and apex height, without calling a sibling solver. The fixture samples stated instants rather than all times.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts zero elapsed time, nonzero horizontal travel under gravity and a vertical zero-velocity apex; non-finite admission and baked clips belong to neighboring units.
- * @evidence contracts/testing.md#execution-ownership The named exported unit calls the portable state evaluator directly and owns all assertions, without a simulator host or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates launch, one-second falling state and vertical apex, asserting numeric positions and velocities; dropped acceleration, its half factor or velocity evolution fails.
+ * @evidence contracts/development/testing.md#independent-expectations Authored arithmetic from p0+v0*t+g*t^2/2 and v0+g*t supplies the expected components and apex height, without calling a sibling solver. The fixture samples stated instants rather than all times.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts zero elapsed time, nonzero horizontal travel under gravity and a vertical zero-velocity apex; non-finite admission and baked clips belong to neighboring units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported unit calls the portable state evaluator directly and owns all assertions, without a simulator host or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: At t=0 the state is the launch state.).
  */
 export function test_physics_projectile(): void {
   const g: IAutoMovieVector3 = { x: 0, y: -10, z: 0 };

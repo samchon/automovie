@@ -19,10 +19,11 @@ import { throwsError } from "../internal/throwsError";
  * 2. Non-finite custom joint-axis components throw.
  * 3. A valid quaternion and axis basis still decomposes normally.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the inverse with malformed quaternion/axis values and checks explicit error fragments, then observes 25-degree twist for ordinary and nonunit orthogonal bases; nonfinite propagation or failed normalization is caught without rounding away angular error.
- * @evidence contracts/testing.md#independent-expectations Finite orthogonal input is the supported boundary premise, whereas NaN/infinity, zero, collinear and oblique axes violate it; the authored Y25 input defines the expected twist. Axis-angle construction is shared engine math, so this is not an independent proof of that constructor.
- * @evidence contracts/testing.md#distinguishing-cases Keeps NaN/infinite quaternion components, infinite axis, zero/collinear/nonorthogonal axes, a valid input and scaled orthogonal twin; mixed rotations and Euler branch choices are owned elsewhere.
- * @evidence contracts/testing.md#execution-ownership This exported runner entry directly calls portable inverse source and the existing synchronous throwsError helper; no external solver, installed consumer or rendering host participates.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the inverse with malformed quaternion/axis values and checks explicit error fragments, then observes 25-degree twist for ordinary and nonunit orthogonal bases; nonfinite propagation or failed normalization is caught without rounding away angular error.
+ * @evidence contracts/development/testing.md#independent-expectations Finite orthogonal input is the supported boundary premise, whereas NaN/infinity, zero, collinear and oblique axes violate it; the authored Y25 input defines the expected twist. Axis-angle construction is shared engine math, so this is not an independent proof of that constructor.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps NaN/infinite quaternion components, infinite axis, zero/collinear/nonorthogonal axes, a valid input and scaled orthogonal twin; mixed rotations and Euler branch choices are owned elsewhere.
+ * @evidence contracts/development/testing.md#execution-ownership This exported runner entry directly calls portable inverse source and the existing synchronous throwsError helper; no external solver, installed consumer or rendering host participates.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite quaternion components throw.).
  */
 export function test_kinematics_decompose_joint_inputs(): void {
   const validAxes: {

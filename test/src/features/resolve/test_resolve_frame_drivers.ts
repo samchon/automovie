@@ -35,10 +35,11 @@ const node: (id: string, x: number) => IAutoMovieNode = (
  * 1. With no clip, full-influence copying makes node a follow node b's x=5 translation in its world matrix.
  * 2. A twoBone descriptor with only two chain nodes remains deferred because the analytic solve needs three.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls resolveFrame with a rest-pose copy driver and short twoBone chain, observing the copied translation in world output and one deferred descriptor.
- * @evidence contracts/testing.md#independent-expectations Full translation influence copies source x=5; a two-node chain lacks the mid/tip structure required by the analytic three-node solve. The count alone does not assert deferred descriptor identity.
- * @evidence contracts/testing.md#distinguishing-cases The authored rest x=1 must change to5, while the unsupported-length IK descriptor remains deferred; full world aim/parent/IK and stateful spring execution have separate owners.
- * @evidence contracts/testing.md#execution-ownership The named test_resolve_frame_drivers entry executes real synchronous CPU frame composition through direct source imports and never starts a viewer or changes solver policy.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolveFrame with a rest-pose copy driver and short twoBone chain, observing the copied translation in world output and one deferred descriptor.
+ * @evidence contracts/development/testing.md#independent-expectations Full translation influence copies source x=5; a two-node chain lacks the mid/tip structure required by the analytic three-node solve. The count alone does not assert deferred descriptor identity.
+ * @evidence contracts/development/testing.md#distinguishing-cases The authored rest x=1 must change to5, while the unsupported-length IK descriptor remains deferred; full world aim/parent/IK and stateful spring execution have separate owners.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_resolve_frame_drivers entry executes real synchronous CPU frame composition through direct source imports and never starts a viewer or changes solver policy.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: With no clip, full-influence copying makes node a follow node b's x=5 translation in its world matrix.).
  */
 export function test_resolve_frame_drivers(): void {
   const nodes: IAutoMovieNode[] = [node("a", 1), node("b", 5)];

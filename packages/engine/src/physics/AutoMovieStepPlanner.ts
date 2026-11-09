@@ -298,7 +298,17 @@ export class AutoMovieStepPlanner {
     freezePhysicalRecord(this.schedule);
   }
 
-  /** Binary search returns a new placement; callers cannot mutate the cache. */
+  /**
+   * Binary search returns a new placement; callers cannot mutate the cache.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Binary search returns a new placement; callers cannot mutate the cache.
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Binary search returns a new placement; callers cannot mutate the cache) directly over its typed inputs (`bone`, `seconds`) as a single pass (while loop), delegating to `Number.isFinite`, `structuredClone`, `AutoMovieStepPlanner.swing`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (1 throw site). Apart from structural 0, 1 and 2 the body uses no numeric literal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 42 lines and 10 top-level statements that reuses `Number.isFinite`, `structuredClone`, `AutoMovieStepPlanner.swing` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 2 non-null assertion(s); these are the remaining shortcuts and are not justified here.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `bone`, `seconds`; the dominant cost is a single pass (while loop), performed once per call with 4 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
+   */
   public at(bone: string, seconds: number): AutoMovieStepPlanner.IState {
     const list: AutoMovieStepPlanner.IStep[] | undefined =
       this.segments.get(bone);
@@ -349,16 +359,37 @@ export class AutoMovieStepPlanner {
   }
 }
 
-/** World support placements and explicit scheduling policy. */
+/**
+ * World support placements and explicit scheduling policy.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (World support placements and explicit scheduling policy) and documents 7 documented members as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents World support placements and explicit scheduling policy: companion namespace of 7 members (`IPlacement`, `IReservation`, `IStep`, `IState`, `IInput`, `angle`, ...); units and frames named in its text: world, radians, metres, second, seconds. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieStepPlanner` in packages/engine/src/physics/AutoMovieStepPlanner.ts; its surface is the 7 members listed and the text shows 6 other files naming it, mostly packages/engine (3), test (3), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ */
 export namespace AutoMovieStepPlanner {
-  /** Anchor in world X/Z, orientation in radians, clearance in metres. */
+  /**
+   * Anchor in world X/Z, orientation in radians, clearance in metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Anchor in world X/Z, orientation in radians, clearance in metres.
+   * @evidence contracts/development/design.md#principled-representation Represents Anchor in world X/Z, orientation in radians, clearance in metres: interface of 4 members (`point`, `yaw`, `pitch`, `clearance`). It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IPlacement` in packages/engine/src/physics/AutoMovieStepPlanner.ts; its surface is the 4 members listed and the text shows 66 other files naming it, mostly movies (30), packages/human (21), test (10), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IPlacement {
     /** Floor-plane anchor. */ point: [number, number];
     /** Heading about +Y. */ yaw: number;
     /** Rotation about the support's lateral axis. */ pitch: number;
     /** Vertical displacement above its planted placement. */ clearance: number;
   }
-  /** A support temporarily controlled by authored motion. */
+  /**
+   * A support temporarily controlled by authored motion.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: A support temporarily controlled by authored motion.
+   * @evidence contracts/development/design.md#principled-representation Represents A support temporarily controlled by authored motion: interface of 3 members (`bone`, `start`, `end`); units and frames named in its text: second. It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IReservation` in packages/engine/src/physics/AutoMovieStepPlanner.ts; its surface is the 3 members listed and the text shows 0 other files naming it, so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IReservation {
     /** Endpoint bone id. */
     bone: string;
@@ -367,7 +398,14 @@ export namespace AutoMovieStepPlanner {
     /** Landing second. */
     end: number;
   }
-  /** Immutable endpoints; the querying method returns independent copies. */
+  /**
+   * Immutable endpoints; the querying method returns independent copies.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Immutable endpoints; the querying method returns independent copies.
+   * @evidence contracts/development/design.md#principled-representation Represents Immutable endpoints; the querying method returns independent copies: interface of 3 members (`kind`, `from`, `to`). It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IStep` in packages/engine/src/physics/AutoMovieStepPlanner.ts; its surface is the 3 members listed and the text shows 5 other files naming it, mostly packages/engine (2), test (2), packages/human (1), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IStep extends IReservation {
     /** Movement owner. */
     kind: "swing" | "reserved";
@@ -376,7 +414,14 @@ export namespace AutoMovieStepPlanner {
     /** Landing. */
     to: IPlacement;
   }
-  /** Instantaneous phase, with an optional moving segment. */
+  /**
+   * Instantaneous phase, with an optional moving segment.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Instantaneous phase, with an optional moving segment.
+   * @evidence contracts/development/design.md#principled-representation Represents Instantaneous phase, with an optional moving segment: interface of 4 members (`phase`, `placement`, `progress`, `step`). Optional members `step` express documented absence, and the ranges its member docs state are left to runtime validation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IState` in packages/engine/src/physics/AutoMovieStepPlanner.ts; its surface is the 4 members listed and the text shows 37 other files naming it, mostly packages/engine (17), packages/human (8), test (7), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IState {
     /** Contact phase. */
     phase: "planted" | "swing" | "reserved";
@@ -387,16 +432,41 @@ export namespace AutoMovieStepPlanner {
     /** Absent while planted. */
     step?: IStep;
   }
-  /** Numeric policy has no hidden body or film presets. */
+  /**
+   * Numeric policy has no hidden body or film presets.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Numeric policy has no hidden body or film presets.
+   * @evidence contracts/development/design.md#principled-representation Represents Numeric policy has no hidden body or film presets: interface of 19 members (`pattern`, `start`, `end`, `rate`, `desired`, `heading`, ...); units and frames named in its text: second, world, metres, radians, seconds. Optional members `peakPitch`, `swingRetargeting` express documented absence, and the ranges its member docs state are left to runtime validation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IInput` in packages/engine/src/physics/AutoMovieStepPlanner.ts; its surface is the 19 members listed and the text shows 227 other files naming it, mostly packages/human (131), test (44), packages/engine (42), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; 2 optional members (`peakPitch`, `swingRetargeting`) are independent fields rather than alternatives of one another as far as their docs state; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IInput {
     /** Complete limb and footfall declaration. */ pattern: IAutoMovieFootfallPattern;
     /** First film second. */ start: number;
     /** Last film second. */ end: number;
     /** Scheduling ticks per second. */ rate: number;
-    /** Pure desired support placements in world metres/radians. */ desired: (
-      seconds: number,
-    ) => Record<string, IPlacement>;
-    /** Pure body heading in radians. */ heading: (seconds: number) => number;
+    /**
+     * Pure desired support placements in world metres/radians.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Pure desired support placements in world metres/radians) as stated in this comment.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Pure desired support placements in world metres/radians.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
+     */ desired: (seconds: number) => Record<string, IPlacement>;
+    /**
+     * Pure body heading in radians.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Pure body heading in radians) as stated in this comment.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Pure body heading in radians.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
+     */ heading: (seconds: number) => number;
     /** Authored support exclusions. */ reservations: IReservation[];
     /** Swing seconds. */ duration: number;
     /** Weighted placement-error trigger, metres. */ threshold: number;
@@ -413,11 +483,31 @@ export namespace AutoMovieStepPlanner {
     /** Pitch error lever, metres/radian. */ pitchLever: number;
     /** Prefer another support within this many seconds of the last landing. */ alternationWindow: number;
   }
-  /** Signed shortest angle, radians, preserving both pi endpoints. */
+  /**
+   * Signed shortest angle, radians, preserving both pi endpoints.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Signed shortest angle, radians, preserving both pi endpoints.
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Signed shortest angle, radians, preserving both pi endpoints) directly over its typed inputs (`value`) as a fixed number of statements with no loop or recursion in the body, delegating to `Envelope.angle`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 3 lines and 1 top-level statements that reuses `Envelope.angle` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `value`; the dominant cost is a fixed number of statements with no loop or recursion in the body, performed once per call. No speedup is claimed and none is measured.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
+   */
   export function angle(value: number): number {
     return Envelope.angle(0, value, 1);
   }
-  /** Quintic endpoint interpolation and a lifted sine arc, as in supported stepping. */
+  /**
+   * Quintic endpoint interpolation and a lifted sine arc, as in supported stepping.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Quintic endpoint interpolation and a lifted sine arc, as in supported stepping.
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Quintic endpoint interpolation and a lifted sine arc, as in supported stepping) directly over its typed inputs (`from`, `to`, `progress`, `height`, `peakPitch`) as a single pass (every over [ ...from.point, from.ya), delegating to `Math.max`, `Math.min`, `Envelope.smoother`, `angle`, `Math.sin`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (1 throw site). Apart from structural 0, 1 and 2 the body uses no numeric literal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 33 lines and 4 top-level statements that reuses `Math.max`, `Math.min`, `Envelope.smoother`, `angle`, `Math.sin` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `from`, `to`, `progress`, `height`, `peakPitch`; the dominant cost is a single pass (every over [ ...from.point, from.ya), performed once per call with 4 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
+   */
   export function swing(
     from: IPlacement,
     to: IPlacement,

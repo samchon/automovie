@@ -19,10 +19,11 @@ import { validationHasNoWarnings } from "../internal/predicates";
  *    suggested response once `physicsIntent` is set.
  * 2. The contact events are still emitted (they are observational).
  *
- * @evidence contracts/testing.md#behavioral-verification Calls detectBodyCollision with an intentional overlap and asserts clean validation, a null suggested response, and two retained contact events, catching suppression that incorrectly drops observations or retains correction advice.
- * @evidence contracts/testing.md#independent-expectations The capsules' 0.1 m centerline separation is below their summed 0.4 m radii throughout the one-second window; endpoint-inclusive 1 Hz sampling gives two contacts. The documented physicsIntent policy suppresses warnings and response independently of event collection; event content is not asserted here.
- * @evidence contracts/testing.md#distinguishing-cases This case owns the marker-present branch using the same geometry as the unmarked collision test. That neighboring test owns unsuppressed overlap and separation; malformed-input precedence and marker string contents are outside this test.
- * @evidence contracts/testing.md#execution-ownership The named test_validation_body_collision_intent entry uses the portable detector and shared staticActor fixture without a real physics/render host or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls detectBodyCollision with an intentional overlap and asserts clean validation, a null suggested response, and two retained contact events, catching suppression that incorrectly drops observations or retains correction advice.
+ * @evidence contracts/development/testing.md#independent-expectations The capsules' 0.1 m centerline separation is below their summed 0.4 m radii throughout the one-second window; endpoint-inclusive 1 Hz sampling gives two contacts. The documented physicsIntent policy suppresses warnings and response independently of event collection; event content is not asserted here.
+ * @evidence contracts/development/testing.md#distinguishing-cases This case owns the marker-present branch using the same geometry as the unmarked collision test. That neighboring test owns unsuppressed overlap and separation; malformed-input precedence and marker string contents are outside this test.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_validation_body_collision_intent entry uses the portable detector and shared staticActor fixture without a real physics/render host or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The same overlap that warns without a marker produces no warnings and no).
  */
 export function test_validation_body_collision_intent(): void {
   const result: IAutoMovieBodyCollisionResult = detectBodyCollision({

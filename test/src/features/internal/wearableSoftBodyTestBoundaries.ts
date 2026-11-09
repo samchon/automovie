@@ -11,10 +11,10 @@ import { wearableSoftBodyTestDomain as domain } from "./wearableSoftBodyTestDoma
 /**
  * Preserve original Scenario 8 complete moving-boundary admission refusals.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real lower boundary solver with each original incomplete, misnumbered, foreign, duplicated or malformed record and observes the existing cause-specific error.
- * @evidence contracts/testing.md#independent-expectations The authored moving particle0 and torso capsule define completeness and identity independently; literal invalid indices/vectors/radii establish refusal expectations rather than expected solver positions.
- * @evidence contracts/testing.md#distinguishing-cases Retains every original Scenario 8 input/error/order, including static-anchor override, zero radius and both nonfinite capsule endpoints. The existing valid boundary only arranges negative twins and supplies no oracle values.
- * @evidence contracts/testing.md#execution-ownership The main unit directly invokes this synchronous assertion owner and lends its original static-domain identity; all temporary boundary rows stay local, with no host, file, renderer, browser/GPU or foreign-method replacement.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the real lower boundary solver with each original incomplete, misnumbered, foreign, duplicated or malformed record and observes the existing cause-specific error.
+ * @evidence contracts/development/testing.md#independent-expectations The authored moving particle0 and torso capsule define completeness and identity independently; literal invalid indices/vectors/radii establish refusal expectations rather than expected solver positions.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains every original Scenario 8 input/error/order, including static-anchor override, zero radius and both nonfinite capsule endpoints. The existing valid boundary only arranges negative twins and supplies no oracle values.
+ * @evidence contracts/development/testing.md#execution-ownership The main unit directly invokes this synchronous assertion owner and lends its original static-domain identity; all temporary boundary rows stay local, with no host, file, renderer, browser/GPU or foreign-method replacement.
  */
 export function wearableSoftBodyTestBoundaries(
   staticDomain: IAutoMovieSoftBodyDomain,

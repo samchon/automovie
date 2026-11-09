@@ -13,10 +13,11 @@ import { nclose } from "../internal/predicates";
  * 2. Changing the caller's translation and repeat leaves the captured matrix
  *    unchanged and distinct from the texture's current matrix.
  *
- * @evidence contracts/testing.md#behavioral-verification Registers the actual detail-normal operation, changes the caller texture transform and applies the operation to a native shader-shaped record. The attached transform must retain registration values while the texture remains borrowed and strength remains 0.75.
- * @evidence contracts/testing.md#independent-expectations With zero rotation and centre, repeat (2,3) and offset (0.25,0.5) independently give column-major affine entries [2,0,0,0,3,0,0.25,0.5,1]. This checks captured uniform values and identity, not source spelling, GPU compilation or rendered normals.
- * @evidence contracts/testing.md#distinguishing-cases The post-registration offset/repeat change contrasts with retained matrix coefficients and the still-identical texture reference. Combined-map and detail-only material admission belong to the material unit; this case owns the transform snapshot boundary.
- * @evidence contracts/testing.md#execution-ownership This named portable unit directly invokes patch registration/application using Three metadata objects, then disposes its texture. No renderer, browser, GPU or dynamically registered test is acquired.
+ * @evidence contracts/development/testing.md#behavioral-verification Registers the actual detail-normal operation, changes the caller texture transform and applies the operation to a native shader-shaped record. The attached transform must retain registration values while the texture remains borrowed and strength remains 0.75.
+ * @evidence contracts/development/testing.md#independent-expectations With zero rotation and centre, repeat (2,3) and offset (0.25,0.5) independently give column-major affine entries [2,0,0,0,3,0,0.25,0.5,1]. This checks captured uniform values and identity, not source spelling, GPU compilation or rendered normals.
+ * @evidence contracts/development/testing.md#distinguishing-cases The post-registration offset/repeat change contrasts with retained matrix coefficients and the still-identical texture reference. Combined-map and detail-only material admission belong to the material unit; this case owns the transform snapshot boundary.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit directly invokes patch registration/application using Three metadata objects, then disposes its texture. No renderer, browser, GPU or dynamically registered test is acquired.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Translation (0.25, 0.5) and repeat (2, 3), with zero rotation and centre,).
  */
 export function test_viewer_detail_normal_transform_snapshot(): void {
   const texture: THREE.Texture = new THREE.Texture();

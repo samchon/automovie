@@ -13,10 +13,11 @@ import { TREE_SCRIPT } from "../internal/TREE_SCRIPT";
  * 3. A present caption renders bracketed; the caption-less beat renders none.
  * 4. Determinism: rendering twice yields byte-identical text.
  *
- * @evidence contracts/testing.md#behavioral-verification Serializes the real five-kind script tree and checks ordered text fragments, dialogue indentation/anchors, caption count and repeat output, detecting lost payload branches or reordered text.
- * @evidence contracts/testing.md#independent-expectations The original authored tree and documented plain-text convention determine literal fragments and their order; repeat serialization is an in-process consistency check rather than a historical text snapshot or cross-host proof.
- * @evidence contracts/testing.md#distinguishing-cases Intent, act, scene, group and two beat payloads, anchored/unanchored dialogue and present/absent captions preserve the original cases; treeless and refusal paths belong to the fallback companion.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_screenplay owns its cases. Portable string serialization; shared canonical input leaves are borrowed and no document writer, production host or renderer is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Serializes the real five-kind script tree and checks ordered text fragments, dialogue indentation/anchors, caption count and repeat output, detecting lost payload branches or reordered text.
+ * @evidence contracts/development/testing.md#independent-expectations The original authored tree and documented plain-text convention determine literal fragments and their order; repeat serialization is an in-process consistency check rather than a historical text snapshot or cross-host proof.
+ * @evidence contracts/development/testing.md#distinguishing-cases Intent, act, scene, group and two beat payloads, anchored/unanchored dialogue and present/absent captions preserve the original cases; treeless and refusal paths belong to the fallback companion.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_screenplay owns its cases. Portable string serialization; shared canonical input leaves are borrowed and no document writer, production host or renderer is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The five-kind tree renders in refinement order: intent header, act rule, upper-cased slug + description, group rationale, both beats with...).
  */
 export function test_render_screenplay(): void {
   const text: string = renderScreenplay(TREE_SCRIPT);

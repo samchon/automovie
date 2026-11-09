@@ -3,13 +3,10 @@ import type { IScaffoldFileSnapshot } from "./IScaffoldFileSnapshot";
 /**
  * The complete observed instruction update before mutation.
  *
- * @evidence contracts/common.md#principled-implementation The plan couples candidate bytes with the exact target file generations observed during conflict detection.
- * @evidence contracts/common.md#clear-and-simple-design One record exposes updates, unchanged paths, conflicts and retained retired paths.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A conflict is not a completed update; obsolete files are reported instead of deleted through successor pathnames.
- * @evidence contracts/common.md#meaningful-documentation Members identify output bytes, preconditions and the legacy-state boundary.
- * @evidence contracts/performance.md#efficient-algorithms Record size follows selected file count and candidate bytes.
- * @evidence contracts/performance.md#reuse-equivalent-work One plan reuses captured file generations within a single application only.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The plan retains strings and scalar snapshots under caller ownership, without open handles.
+ * @evidence contracts/development/design.md#principled-representation The plan couples candidate bytes with the exact target file generations observed during conflict detection.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record exposes updates, unchanged paths, conflicts and retained retired paths.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A conflict is not a completed update; obsolete files are reported instead of deleted through successor pathnames.
+ * @evidence contracts/development/common.md#meaningful-documentation Members identify output bytes, preconditions and the legacy-state boundary.
  */
 export interface IScaffoldSyncPlan {
   /** Absolute target root. */

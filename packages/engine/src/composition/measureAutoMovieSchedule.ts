@@ -11,6 +11,13 @@ import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
  * @param schedule The resolved schedule.
  * @param classify The production's classification of entries.
  * @returns The measurements.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Measure a schedule's pacing against the production's own classification: actions per minute, the share of actions that follow the same subject's previous action within the combination gap, each subject's lateral share of displacement and idle seconds over its presence, and the share of time a camera entry moves with the cut cadence) and documents parameters `schedule`, `classify`, the returned value as stated in this comment.
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Measure a schedule's pacing against the production's own classification: actions per minute, the share of actions that follow the same subject's previous action within the combination gap, each subject's lateral share of displacement and idle seconds over its presence, and the share of time a camera entry moves with the cut cadence) directly over its typed inputs (`schedule`, `classify`) as nested iteration of depth 3 (filter over schedule.entries; for-of over actions; for-of over new Set( schedule.entries.map((e: IA), delegating to `classify.action`, `last.get`, `last.set`, `classify.displacement`, `Math.abs`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Beyond structural 0, 1 and 2 the body uses the literals 60, 0.5, whose basis this answer does not independently establish and a reviewer must confirm.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 68 lines and 11 top-level statements that reuses `classify.action`, `last.get`, `last.set`, `classify.displacement`, `Math.abs` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters. Literal caveat: 60, 0.5 are not independently sourced here.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `schedule`, `classify`; the dominant cost is nested iteration of depth 3 (filter over schedule.entries; for-of over actions; for-of over new Set( schedule.entries.map((e: IA), performed once per call with 8 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 8 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function measureAutoMovieSchedule(
   schedule: IAutoMovieSchedule,
@@ -83,7 +90,14 @@ export function measureAutoMovieSchedule(
     cutsPerMinute: minutes > 0 ? cuts / minutes : 0,
   };
 }
-/** Companion types of {@link measureAutoMovieSchedule}. */
+/**
+ * Companion types of {@link measureAutoMovieSchedule}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Companion types of ) and documents 3 documented members as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents Companion types of : companion namespace of 3 members (`IClassify`, `ISubject`, `IMeasure`); units and frames named in its text: seconds, metres. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `measureAutoMovieSchedule` in packages/engine/src/composition/measureAutoMovieSchedule.ts; its surface is the 3 members listed and the text shows 3 other files naming it, mostly movies (1), packages/engine (1), test (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ */
 export namespace measureAutoMovieSchedule {
   /** The production's classification of entries. */
   export interface IClassify {

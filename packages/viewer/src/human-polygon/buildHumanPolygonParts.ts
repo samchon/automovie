@@ -9,13 +9,13 @@ import { humanPolygonSections as Sections } from "./humanPolygonSections.js";
  * skeleton: torso rings from joint spans, neck and head rings and crown supplied
  * by the caller from the neck and head joints, palms and feet from their joints.
  *
- * @evidence contracts/common.md#principled-implementation Preserves original torso/palm boundaries, girth-derived sections, leaf bevels and the procedural Subtalar/Midfoot foot; the neck and head rings come from their joints. The supplied existing assembler owns local emission and placement.
- * @evidence contracts/common.md#clear-and-simple-design Separates unchanged body module selection from drawing lifecycle, palette and pose application; it borrows the existing bone maps and add callback.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No cancelled sparse model, fitted dimensions, new anatomy coefficient or authored pose enters this promotion.
- * @evidence contracts/common.md#meaningful-documentation Records original construction preservation and the supplied assembler's responsibility; source comments retain shared-boundary and custom driving-joint premises.
- * @evidence contracts/performance.md#efficient-algorithms One pass over rest bones plus bounded bilateral joint lists selects at most one rigid module per emitted bone, with map lookup rather than repeated rest-graph scans.
- * @evidence contracts/performance.md#reuse-equivalent-work Reuses shared torso/course section records and the caller's maps/material-owning assembler.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary vectors/sections transfer to assembly; the caller owns every emitted mesh, diagnostic and material and receives the actual head objects/bounds.
+ * @evidence contracts/development/implementation.md#principled-implementation Preserves original torso/palm boundaries, girth-derived sections, leaf bevels and the procedural Subtalar/Midfoot foot; the neck and head rings come from their joints. The supplied existing assembler owns local emission and placement.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Separates unchanged body module selection from drawing lifecycle, palette and pose application; it borrows the existing bone maps and add callback.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No cancelled sparse model, fitted dimensions, new anatomy coefficient or authored pose enters this promotion.
+ * @evidence contracts/development/common.md#meaningful-documentation Records original construction preservation and the supplied assembler's responsibility; source comments retain shared-boundary and custom driving-joint premises.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One pass over rest bones plus bounded bilateral joint lists selects at most one rigid module per emitted bone, with map lookup rather than repeated rest-graph scans.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses shared torso/course section records and the caller's maps/material-owning assembler.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary vectors/sections transfer to assembly; the caller owns every emitted mesh, diagnostic and material and receives the actual head objects/bounds.
  */
 export function buildHumanPolygonParts(
   output: AutoMovieHumanPolygon.IInput,

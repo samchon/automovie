@@ -30,10 +30,11 @@ const keysOf: (value: object) => string[] = (value: object): string[] =>
  * 1. Each enhanced declaration adds the four contract fields beside the legacy eight.
  * 2. An explicit prototype resolves the named model; its adjacent missing name refuses.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual member regenerator and compares its complete own-key population for legacy omission and each enhanced declaration, then observes explicit prototype model selection and the missing-id refusal.
- * @evidence contracts/testing.md#independent-expectations Literal legacy eight keys and four extended keys supply the exact shape oracle independently; literal short-body and missing-name error define prototype outcomes. Key-set checks do not establish all extended field values, which their transform/visibility/distribution units own.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts omission with prototypes, lattice, explicit layout, per-axis scale, rotation and visibility probability, plus selected/missing explicit prototype twins. Existing row labels, key order policy and all six enhanced declarations remain unchanged.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns local placements and key/selection callbacks through the existing canonical fixture; it opens no file, renderer, browser or GPU and replaces no foreign method or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual member regenerator and compares its complete own-key population for legacy omission and each enhanced declaration, then observes explicit prototype model selection and the missing-id refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Literal legacy eight keys and four extended keys supply the exact shape oracle independently; literal short-body and missing-name error define prototype outcomes. Key-set checks do not establish all extended field values, which their transform/visibility/distribution units own.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts omission with prototypes, lattice, explicit layout, per-axis scale, rotation and visibility probability, plus selected/missing explicit prototype twins. Existing row labels, key order policy and all six enhanced declarations remain unchanged.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns local placements and key/selection callbacks through the existing canonical fixture; it opens no file, renderer, browser or GPU and replaces no foreign method or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Each enhanced declaration adds the four contract fields beside the legacy eight.).
  */
 export function test_engine_instance_slot_variation(): void {
   const table: ReturnType<typeof crowd> = crowd({

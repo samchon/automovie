@@ -16,6 +16,12 @@ import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
  * Scenarios:
  * 1. A retained endpoint offset cannot leak fresh world force after repeated withdrawal.
  * 2. Actual native floor contacts clear a previous failed-landing latch without a special bracing policy.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `Vector3`, `AutoMoviePhysicalSimulation`, `advancePhysicalBalance` on in-memory inputs and asserts the returned observations through 2x TestValidator.predicate; 2 numbered scenarios (first: A retained endpoint offset cannot leak fresh world force after repeated withdrawal.; last: Actual native floor contacts clear a previous failed-landing latch without a special bracing policy.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
+ * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (2 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contributes 2 numbered scenarios (first: A retained endpoint offset cannot leak fresh world force after repeated withdrawal.; last: Actual native floor contacts clear a previous failed-landing latch without a special bracing policy.), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
+ * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_recovery_release`, which owns the cases delegated to `PhysicalFixtures`, `PhysicalModelFixtures`, `PhysicalSupportFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A retained endpoint offset cannot leak fresh world force after repeated withdrawal.).
  */
 export async function test_physical_recovery_release(): Promise<void> {
   await RAPIER.init();

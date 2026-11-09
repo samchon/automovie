@@ -1,8 +1,8 @@
 import { IAutoMovieModel } from "@automovie/interface";
-import { exportModelToGLB } from "@automovie/render/node";
 import { Document, Node, NodeIO } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
+import { exportModelToGLB } from "../../../../packages/template/scaffold/src/integrations/render/node/exportModelToGLB";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 
 /** A rig whose hips rest carries a non-unit scale (a common VRM import). */
@@ -52,10 +52,11 @@ const MODEL: IAutoMovieModel = {
  * 1. The exported hips node carries unit scale while its rest translation and rotation survive verbatim.
  * 2. Negative twin: the attached part's node keeps its authored (2,3,4) scale and its own translation.
  *
- * @evidence contracts/testing.md#behavioral-verification Reads exported bone and part TRS through NodeIO, catching bone-rest scale leakage while preserving the part's independently authored scale and translation.
- * @evidence contracts/testing.md#independent-expectations The rig convention defines unit bone scale, rest translation (0,1,0), identity rotation and part scale (2,3,4) with translation (0,0.2,0); numeric components use nclose rather than exact deep equality. The reader does not compare displayed bounds.
- * @evidence contracts/testing.md#distinguishing-cases Bone rest scale 1.02 is the changing case and a scaled attached part is the positive twin that must retain scale; general rest hierarchy and missing references belong to the GLB export test.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_export_rest_scale owns its cases. In-memory GLB conversion and SDK parsing only, with no live viewer or renderer.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads exported bone and part TRS through NodeIO, catching bone-rest scale leakage while preserving the part's independently authored scale and translation.
+ * @evidence contracts/development/testing.md#independent-expectations The rig convention defines unit bone scale, rest translation (0,1,0), identity rotation and part scale (2,3,4) with translation (0,0.2,0); numeric components use nclose rather than exact deep equality. The reader does not compare displayed bounds.
+ * @evidence contracts/development/testing.md#distinguishing-cases Bone rest scale 1.02 is the changing case and a scaled attached part is the positive twin that must retain scale; general rest hierarchy and missing references belong to the GLB export test.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_export_rest_scale owns its cases. In-memory GLB conversion and SDK parsing only, with no live viewer or renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The exported hips node carries unit scale while its rest translation and rotation survive verbatim.).
  */
 export async function test_render_export_rest_scale(): Promise<void> {
   const glb: Uint8Array<ArrayBufferLike> = await exportModelToGLB(MODEL);

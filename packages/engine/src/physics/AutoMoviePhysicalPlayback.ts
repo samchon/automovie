@@ -56,7 +56,17 @@ export class AutoMoviePhysicalPlayback {
   public get supportWrenches(): readonly Cache.ISupportWrench[] {
     return this.header.supportWrenches;
   }
-  /** Sample the authoritative dynamic, C1 kinematic return, or authored phase at local time. */
+  /**
+   * Sample the authoritative dynamic, C1 kinematic return, or authored phase at local time.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Sample the authoritative dynamic, C1 kinematic return, or authored phase at local time.
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Sample the authoritative dynamic, C1 kinematic return, or authored phase at local time) directly over its typed inputs (`body`, `bone`, `seconds`) as a fixed number of statements with no loop or recursion in the body, delegating to `samplePhysicalOwnership`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 9 lines and 1 top-level statements that reuses `samplePhysicalOwnership` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `body`, `bone`, `seconds`; the dominant cost is a fixed number of statements with no loop or recursion in the body, performed once per call. No speedup is claimed and none is measured.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 0 allocation sites become the returned value or die with the call, so nothing grows.
+   */
   public ownershipAt(
     body: string,
     bone: string,
@@ -71,7 +81,17 @@ export class AutoMoviePhysicalPlayback {
     );
   }
 
-  /** Pack complete cached poses and causal metadata on the build machine. */
+  /**
+   * Pack complete cached poses and causal metadata on the build machine.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Pack complete cached poses and causal metadata on the build machine.
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Pack complete cached poses and causal metadata on the build machine) directly over its typed inputs (`cache`, `maximumBytes`) as a fixed number of statements with no loop or recursion in the body, delegating to `encodePhysicalPlayback`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One async operation of 3 lines and 1 top-level statements that reuses `encodePhysicalPlayback` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `cache`, `maximumBytes`; the dominant cost is a fixed number of statements with no loop or recursion in the body, performed once per call. No speedup is claimed and none is measured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Awaits 0 calls per invocation and shares no result or in-flight work between invocations: equivalence of effectful calls is not decided here, so every call repeats its effects.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body awaits asynchronous work; it retains nothing after it settles beyond its result, and any handle it opens is owned and released by the call or by its callees.
+   */
   public static async encode(
     cache: Cache,
     maximumBytes: number,
@@ -79,7 +99,17 @@ export class AutoMoviePhysicalPlayback {
     return encodePhysicalPlayback(cache, maximumBytes);
   }
 
-  /** Admit owned archive bytes against the complete current authored input. */
+  /**
+   * Admit owned archive bytes against the complete current authored input.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Admit owned archive bytes against the complete current authored input.
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Admit owned archive bytes against the complete current authored input) directly over its typed inputs (`source`, `expectedIdentity`, `budget`) as a fixed number of statements with no loop or recursion in the body, delegating to `decodePhysicalPlayback`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One async operation of 9 lines and 2 top-level statements that reuses `decodePhysicalPlayback` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `source`, `expectedIdentity`, `budget`; the dominant cost is a fixed number of statements with no loop or recursion in the body, performed once per call with 1 allocation site (literals and constructed values). No speedup is claimed and none is measured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Awaits 1 call per invocation and shares no result or in-flight work between invocations: equivalence of effectful calls is not decided here, so every call repeats its effects.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body awaits asynchronous work; it retains nothing after it settles beyond its result, and any handle it opens is owned and released by the call or by its callees.
+   */
   public static async decode(
     source: Uint8Array,
     expectedIdentity: string,
@@ -97,7 +127,17 @@ export class AutoMoviePhysicalPlayback {
       decoded.offset,
     );
   }
-  /** Sample in any order using the same interpolation law as live cached simulation. */
+  /**
+   * Sample in any order using the same interpolation law as live cached simulation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Sample in any order using the same interpolation law as live cached simulation.
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Sample in any order using the same interpolation law as live cached simulation) directly over its typed inputs (`seconds`) as a single pass (for-of over this.header.segments.entries()), delegating to `Number.isFinite`, `Math.floor`, `Math.ceil`, `view.getFloat64`, `number`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (1 throw site). Beyond structural 0, 1 and 2 the body uses the literals 8, 3, 4, 5, 6, whose basis this answer does not independently establish and a reviewer must confirm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 50 lines and 10 top-level statements that reuses `Number.isFinite`, `Math.floor`, `Math.ceil`, `view.getFloat64`, `number` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters. Literal caveat: 8, 3, 4, 5, 6 are not independently sourced here.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `seconds`; the dominant cost is a single pass (for-of over this.header.segments.entries()), performed once per call with 9 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 9 allocation sites become the returned value or die with the call, so nothing grows.
+   */
   public at(seconds: number): Cache.IFrame {
     if (!Number.isFinite(seconds) || seconds < 0 || seconds > this.duration)
       throw new Error("Physical playback seek outside completed film");
@@ -150,9 +190,23 @@ export class AutoMoviePhysicalPlayback {
   }
 }
 
-/** Versioned metadata is stored ahead of the binary frame records. */
+/**
+ * Versioned metadata is stored ahead of the binary frame records.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Versioned metadata is stored ahead of the binary frame records) and documents 1 documented member as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents Versioned metadata is stored ahead of the binary frame records: companion namespace of 1 member (`IHeader`); units and frames named in its text: seconds, second, frame. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMoviePhysicalPlayback` in packages/engine/src/physics/AutoMoviePhysicalPlayback.ts; its surface is the 1 member listed and the text shows 10 other files naming it, mostly packages/engine (4), test (4), movies (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ */
 export namespace AutoMoviePhysicalPlayback {
-  /** Solver-free playback data; native checkpoints are deliberately producer-owned. */
+  /**
+   * Solver-free playback data; native checkpoints are deliberately producer-owned.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Solver-free playback data; native checkpoints are deliberately producer-owned.
+   * @evidence contracts/development/design.md#principled-representation Represents Solver-free playback data; native checkpoints are deliberately producer-owned: interface of 10 members (`format`, `protocol`, `identity`, `duration`, `rate`, `segments`, ...); units and frames named in its text: seconds, second, frame. It has no optional member, so no absent-value state combines with another.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IHeader` in packages/engine/src/physics/AutoMoviePhysicalPlayback.ts; its surface is the 10 members listed and the text shows 4 other files naming it, mostly packages/engine (3), test (1), so no member is declared for a presumed future need.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+   */
   export interface IHeader {
     /** Binary record layout. */ format: 1;
     /** Simulation/controller compatibility. */ protocol: string;

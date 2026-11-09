@@ -16,10 +16,11 @@ import { throwsError } from "../internal/throwsError";
  * 2. Reject null records, missing tuples, nonfinite coordinates and wrong tuple dimensions.
  * 3. A dense reachable point agrees through plain and prepared evaluator capabilities.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls public ClinicalIk with owned arithmetic evaluators and counts both full evaluation and projection selection. Every malformed request must throw with zero calls; a sparse target population cannot report a zero-error success.
- * @evidence contracts/testing.md#independent-expectations The fixture maps public hip degrees to X in centimetres, with its carrier fixed at Y1. A25-degree hip therefore reaches X.25 independently of either solver path; positive outputs must agree within the requested metre tolerance.
- * @evidence contracts/testing.md#distinguishing-cases Covers dense positive plain/prepared parity, target holes, coordinate holes, explicit undefined/null records, missing position, Infinity, NaN and dimensions two/four. Existing clinical tests own anatomical limits and unreachable residuals.
- * @evidence contracts/testing.md#execution-ownership One synchronous root unit uses arithmetic FK and portable assertions without model construction, process, browser, renderer or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public ClinicalIk with owned arithmetic evaluators and counts both full evaluation and projection selection. Every malformed request must throw with zero calls; a sparse target population cannot report a zero-error success.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture maps public hip degrees to X in centimetres, with its carrier fixed at Y1. A25-degree hip therefore reaches X.25 independently of either solver path; positive outputs must agree within the requested metre tolerance.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers dense positive plain/prepared parity, target holes, coordinate holes, explicit undefined/null records, missing position, Infinity, NaN and dimensions two/four. Existing clinical tests own anatomical limits and unreachable residuals.
+ * @evidence contracts/development/testing.md#execution-ownership One synchronous root unit uses arithmetic FK and portable assertions without model construction, process, browser, renderer or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Reject holes in the target population and either three-coordinate tuple.).
  */
 export function test_human_clinical_ik_admission(): void {
   let evaluations: number = 0;

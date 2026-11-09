@@ -31,10 +31,11 @@ type AxisJet = NonNullable<
  * 4. The actual axis callback and a returned value getter throw their original Error object through the public query; numerical admission does not swallow foreign exceptions.
  * 5. A finite surface Point0 does not supply physical2 to the grid. Its explicit numeric admission refusal is named and atomic, while an actual source callback error still propagates by identity.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the public source/world reader and the real ViewLoft/SolidChain consumer, observing all p/u/v/uu/uv/vv fields, failures, fresh vectors and exception identity. No Human generation or synthetic proxy surface supplies the new result.
- * @evidence contracts/testing.md#independent-expectations Uses P=(s*s+r*cos(phi+s*s),s,s*s*s+r*sin(phi+s*s)), r=1+s*s and its explicit first/second partials. A 2e-9 absolute budget covers these unit-scale finite binary64 expressions; equality with the actual loft is separate wiring evidence, not its own numerical oracle or a global cap/domain certificate. A unit frame rotating at1e154 radians/mm has finite second-frame components1e308, while a constant radius4 makes its world second derivative overflow at station0.
- * @evidence contracts/testing.md#distinguishing-cases Covers negative and cardinal phases, nonprincipal stations, changing frame speed and acceleration, complete source2 versus absent axis2/pole jets, malformed finite-data boundaries, overflow and foreign callback/getter identity. Existing source_field/conic_field own broader local scalar/shape cases; this question owns world lifting and its actual loft equivalence.
- * @evidence contracts/testing.md#execution-ownership One discoverable synchronous CPU question under --include construction_source_world_jet. Uses one small original part and actual loft only; no person, process, viewer, profiler or GPU is created.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public source/world reader and the real ViewLoft/SolidChain consumer, observing all p/u/v/uu/uv/vv fields, failures, fresh vectors and exception identity. No Human generation or synthetic proxy surface supplies the new result.
+ * @evidence contracts/development/testing.md#independent-expectations Uses P=(s*s+r*cos(phi+s*s),s,s*s*s+r*sin(phi+s*s)), r=1+s*s and its explicit first/second partials. A 2e-9 absolute budget covers these unit-scale finite binary64 expressions; equality with the actual loft is separate wiring evidence, not its own numerical oracle or a global cap/domain certificate. A unit frame rotating at1e154 radians/mm has finite second-frame components1e308, while a constant radius4 makes its world second derivative overflow at station0.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers negative and cardinal phases, nonprincipal stations, changing frame speed and acceleration, complete source2 versus absent axis2/pole jets, malformed finite-data boundaries, overflow and foreign callback/getter identity. Existing source_field/conic_field own broader local scalar/shape cases; this question owns world lifting and its actual loft equivalence.
+ * @evidence contracts/development/testing.md#execution-ownership One discoverable synchronous CPU question under --include construction_source_world_jet. Uses one small original part and actual loft only; no person, process, viewer, profiler or GPU is created.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The circle r(s)=1+s*s moves on o=(s*s,s,s*s*s) while its plane rotates by s*s. Closed differentiation of that whole world map supplies all...).
  */
 export function test_construction_source_world_jet(): void {
   const failures: string[] = [];
@@ -215,7 +216,8 @@ function unavailableGrid(failures: string[]): void {
     }
     if (error === numeric) {
       if (
-        thrown !== undefined || details.length !== 1 ||
+        thrown !== undefined ||
+        details.length !== 1 ||
         !details[0]!.includes("physical2: owned missing axis2")
       )
         failures.push("Unavailable grid physical2 lost its named admission.");

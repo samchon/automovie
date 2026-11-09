@@ -21,6 +21,14 @@ import { validatePhysicalProfile } from "./validatePhysicalProfile";
  * scale is uniform. Mass is analytic volume times density. Spheres use solid
  * sphere inertia; other primitives use their bounding-box inertia approximation.
  * Aggregation uses the parallel-axis theorem. Overrides replace entire segments.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Build a physical provider from primitive parts, density and explicit joint declarations) as stated in this comment.
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Build a physical provider from primitive parts, density and explicit joint declarations) directly over its typed inputs (`model`, `options`) as nested iteration of depth 2 (for-of over model.skeleton.bones; find over [...parents]; for-of over transforms), delegating to `physicalModelRestTransforms`, `parents.set`, `transforms.set`, `segments.push`, `structuredClone`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (9 throw sites). Beyond structural 0, 1 and 2 the body uses the literals 0.4, 3, 1e-8, whose basis this answer does not independently establish and a reviewer must confirm.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 233 lines and 18 top-level statements that reuses `physicalModelRestTransforms`, `parents.set`, `transforms.set`, `segments.push`, `structuredClone` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 2 non-null assertion(s); these are the remaining shortcuts and are not justified here.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `model`, `options`; the dominant cost is nested iteration of depth 2 (for-of over model.skeleton.bones; find over [...parents]; for-of over transforms), performed once per call with 34 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 34 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function derivePhysicalProfile(
   model: IAutoMovieModel,
@@ -259,7 +267,14 @@ export function derivePhysicalProfile(
   return profile;
 }
 
-/** Density and full overrides keep model content out of Engine. */
+/**
+ * Density and full overrides keep model content out of Engine.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Density and full overrides keep model content out of Engine) and documents 1 documented member as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents Density and full overrides keep model content out of Engine: companion namespace of 1 member (`IOptions`); units and frames named in its text: frames, radians, second. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `derivePhysicalProfile` in packages/engine/src/physics/derivePhysicalProfile.ts; its surface is the 1 member listed and the text shows 3 other files naming it, mostly test (2), packages/engine (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ */
 export namespace derivePhysicalProfile {
   /** All masses are kg and density is kg/m³. */
   export interface IOptions {

@@ -64,10 +64,11 @@ const run: (
  * 2. Refuse NaN action start at its authored field.
  * 3. Refuse infinite action duration while the shot duration is also infinite.
  *
- * @evidence contracts/testing.md#behavioral-verification Performs authored non-finite shot/action clocks and checks failure plus each owning range path before span arithmetic can use those values.
- * @evidence contracts/testing.md#independent-expectations Finite positive shot duration and finite action clocks exclude Infinity and NaN by their input contract; the explicit expected input paths do not come from the gate's own list.
- * @evidence contracts/testing.md#distinguishing-cases Preserves infinite shot span, NaN action start and infinite action duration (with an infinite shot span as originally supplied); valid finite clocks are exercised by other perform entries.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_non_finite_timing unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs authored non-finite shot/action clocks and checks failure plus each owning range path before span arithmetic can use those values.
+ * @evidence contracts/development/testing.md#independent-expectations Finite positive shot duration and finite action clocks exclude Infinity and NaN by their input contract; the explicit expected input paths do not come from the gate's own list.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves infinite shot span, NaN action start and infinite action duration (with an infinite shot span as originally supplied); valid finite clocks are exercised by other perform entries.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_non_finite_timing unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Refuse infinite shot duration at the shot field.).
  */
 export function test_film_perform_shot_non_finite_timing(): void {
   const infiniteShotDuration: IAutoMoviePerformedShot = run({

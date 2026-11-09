@@ -20,10 +20,10 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * `stagger`, `jump`, and `draw` to `fullBody`, and every other kind to
  * `upperBody`. Hold preserves existing articulation and emote supplies facial expression; a stretch or tail flick that changes body joints needs authored enact motion or a host synthesizer.
  *
- * @evidence contracts/common.md#principled-implementation A closed string union converges parallel generations on one spelling per family, and the engine maps kinds to motion through explicit tables, `gestureMotion`'s generic set and `actionRegion`'s per-kind region defaults, so each kind's behavior is a lookup rather than a guess.
- * @evidence contracts/common.md#clear-and-simple-design Eighteen families with `note` for refinement and `custom` as the escape keep the vocabulary small enough to choose from while leaving variety to the free-text note the engine ignores.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Kinds the reference synthesizer cannot animate return no motion instead of borrowing another family's keyframes, and the documentation lists them so an author knows a host synthesizer must supply them.
- * @evidence contracts/common.md#meaningful-documentation States why the set is closed, how `note` and `custom` widen it, why creature families share the humanoid skeleton, exactly which kinds produce motion and under what condition, each kind's default region, and how to express an untargeted creature pose.
+ * @evidence contracts/development/design.md#principled-representation A closed string union converges parallel generations on one spelling per family, and the engine maps kinds to motion through explicit tables, `gestureMotion`'s generic set and `actionRegion`'s per-kind region defaults, so each kind's behavior is a lookup rather than a guess.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Eighteen families with `note` for refinement and `custom` as the escape keep the vocabulary small enough to choose from while leaving variety to the free-text note the engine ignores.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Kinds the reference synthesizer cannot animate return no motion instead of borrowing another family's keyframes, and the documentation lists them so an author knows a host synthesizer must supply them.
+ * @evidence contracts/development/common.md#meaningful-documentation States why the set is closed, how `note` and `custom` widen it, why creature families share the humanoid skeleton, exactly which kinds produce motion and under what condition, each kind's default region, and how to express an untargeted creature pose.
  */
 export type AutoMovieGestureKind =
   // humanoid

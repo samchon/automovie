@@ -1,8 +1,8 @@
 import {
   type IAutoMovieMeshDeformationInfluence,
+  assertAutoMovieDeformedTriangles,
   createAutoMovieMeshDeformer,
 } from "@automovie/engine";
-import { assertAutoMovieDeformedTriangles } from "@automovie/engine/geometry/assertAutoMovieDeformedTriangles";
 import {
   type IAutoMovieMesh,
   type IAutoMovieMeshDeformationField,
@@ -35,10 +35,11 @@ import { throwsError } from "../internal/throwsError";
  *    admit an unchanged face, and names the vertex whose cofactor cannot
  *    transport the normal at all instead of reporting an opposed face.
  *
- * @evidence contracts/testing.md#behavioral-verification Executes the deformer and its actual exported triangle-admission owner directly, checking retained positive orientation, collapse/reversal refusals, accepted transported half-turn, tiny/empty geometry and named malformed/overflow/cofactor failures without input mutation. It catches reliance on endpoint Jacobians alone.
- * @evidence contracts/testing.md#independent-expectations Moving only the unit triangle's origin by (d,d,0) gives twice-area 1-2*d, hence d=.2 stays positive, .5 collapses and 2 reverses despite identity endpoint Jacobians. Two negative local scales preserve determinant and transported orientation. These discrete face expectations cannot certify between-vertex geometry or global collision freedom.
- * @evidence contracts/testing.md#distinguishing-cases Preserves indexed/nonindexed, reversed-winding and normal-free variants; positive/collapsed/reversed face; transported half-turn; empty/microscopic input; malformed attributes/indices; source degeneracy; area overflow; extreme finite cofactor normals and failed transport. Mask and scale derivatives belong to their companion tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable named entry uses ordinary direct imports of portable product source, including the existing triangle-admission export, without source loaders or module replacement. It starts no process, browser, GPU or native build and adds no Human test, fixture or dynamic case.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes the deformer and its actual exported triangle-admission owner directly, checking retained positive orientation, collapse/reversal refusals, accepted transported half-turn, tiny/empty geometry and named malformed/overflow/cofactor failures without input mutation. It catches reliance on endpoint Jacobians alone.
+ * @evidence contracts/development/testing.md#independent-expectations Moving only the unit triangle's origin by (d,d,0) gives twice-area 1-2*d, hence d=.2 stays positive, .5 collapses and 2 reverses despite identity endpoint Jacobians. Two negative local scales preserve determinant and transported orientation. These discrete face expectations cannot certify between-vertex geometry or global collision freedom.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves indexed/nonindexed, reversed-winding and normal-free variants; positive/collapsed/reversed face; transported half-turn; empty/microscopic input; malformed attributes/indices; source degeneracy; area overflow; extreme finite cofactor normals and failed transport. Mask and scale derivatives belong to their companion tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable named entry uses ordinary direct imports of portable product source, including the existing triangle-admission export, without source loaders or module replacement. It starts no process, browser, GPU or native build and adds no Human test, fixture or dynamic case.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: d=0.2 retains area 0.3; d=0.5 collapses and d=2 reverses. Indexed,).
  */
 export function test_geometry_mesh_deformation_topology(): void {
   const mesh: IAutoMovieMesh = {

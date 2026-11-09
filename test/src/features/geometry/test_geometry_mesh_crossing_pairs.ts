@@ -34,10 +34,11 @@ const blades: IAutoMovieMesh = {
  * 2. Default and explicit false retain one witness for the subject triangle.
  * 3. Lifted-clear and empty neighbours yield no witnesses in complete mode.
  *
- * @evidence contracts/testing.md#behavioral-verification Executes mesh crossing in complete/default/explicit-false modes and checks ordinal/coplanar records plus clear and empty reports. It catches early exit in complete mode while preserving the default's one-witness-per-subject-triangle behavior.
- * @evidence contracts/testing.md#independent-expectations The two authored vertical blades pierce the reference plane and the third blade overlaps it coplanarly; moving them up clears the plane. Expected triangle ordinals follow supplied index order, independently of candidate traversal. These discrete witnesses do not measure depth or prove an embedded solid.
- * @evidence contracts/testing.md#distinguishing-cases Keeps two transverse piercings and one flat overlap on a single subject triangle, default/false versus complete mode, and lifted/empty neighbours. Edge tolerances, malformed buffers and shared-corner folds belong to the companion crossing tests.
- * @evidence contracts/testing.md#execution-ownership The named entry directly calls portable crossing source with the existing two mesh records, sorting only the returned complete-mode records for comparison. It starts no process, browser, GPU or native build and registers no new cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes mesh crossing in complete/default/explicit-false modes and checks ordinal/coplanar records plus clear and empty reports. It catches early exit in complete mode while preserving the default's one-witness-per-subject-triangle behavior.
+ * @evidence contracts/development/testing.md#independent-expectations The two authored vertical blades pierce the reference plane and the third blade overlaps it coplanarly; moving them up clears the plane. Expected triangle ordinals follow supplied index order, independently of candidate traversal. These discrete witnesses do not measure depth or prove an embedded solid.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps two transverse piercings and one flat overlap on a single subject triangle, default/false versus complete mode, and lifted/empty neighbours. Edge tolerances, malformed buffers and shared-corner folds belong to the companion crossing tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry directly calls portable crossing source with the existing two mesh records, sorting only the returned complete-mode records for comparison. It starts no process, browser, GPU or native build and registers no new cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Complete mode names both authored blades and the coplanar overlap.).
  */
 export function test_geometry_mesh_crossing_pairs(): void {
   const all: IAutoMovieMeshCrossing[] = measureAutoMovieMeshCrossings(

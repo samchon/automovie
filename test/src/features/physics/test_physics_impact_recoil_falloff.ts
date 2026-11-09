@@ -45,10 +45,11 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
  * 1. Non-finite and out-of-range falloff values throw before propagation.
  * 2. Boundary falloff values `0` and `1` remain valid attenuation choices.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds recoil with invalid attenuation expecting throws, then checks zero stops propagation and one preserves it, catching non-finite/amplifying admission or broken valid endpoints.
- * @evidence contracts/testing.md#independent-expectations The finite [0,1] coefficient contract defines refusal; 0^0=1, 0^1=0 and 1^i=1 give independently authored contact/downstream expectations and null rest. Exception type and internal order are not asserted.
- * @evidence contracts/testing.md#distinguishing-cases Covers NaN, infinity, just-below-zero and just-above-one refusal plus both admitted endpoints on two joints; intermediate falloff and explicit joint clamps belong to the recoil unit.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit calls impactRecoil with a local rig and owns its assertions without hosts or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds recoil with invalid attenuation expecting throws, then checks zero stops propagation and one preserves it, catching non-finite/amplifying admission or broken valid endpoints.
+ * @evidence contracts/development/testing.md#independent-expectations The finite [0,1] coefficient contract defines refusal; 0^0=1, 0^1=0 and 1^i=1 give independently authored contact/downstream expectations and null rest. Exception type and internal order are not asserted.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers NaN, infinity, just-below-zero and just-above-one refusal plus both admitted endpoints on two joints; intermediate falloff and explicit joint clamps belong to the recoil unit.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit calls impactRecoil with a local rig and owns its assertions without hosts or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite and out-of-range falloff values throw before propagation.).
  */
 export function test_physics_impact_recoil_falloff(): void {
   for (const falloff of [Number.NaN, Infinity, -0.1, 1.1])

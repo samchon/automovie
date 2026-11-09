@@ -17,10 +17,11 @@ import {
  * 3. Negative, above-one, NaN and infinite channels refuse at that channel;
  *    replacing only that channel with a boundary value restores validity.
  *
- * @evidence contracts/testing.md#behavioral-verification Validates actual models carrying omitted or explicit vertex RGB buffers and inspects located cardinality/range findings. A partial or overlong buffer cannot pass as a complete per-vertex multiplier, and repairing the single bad channel must restore acceptance.
- * @evidence contracts/testing.md#independent-expectations Three authored vertices require nine RGB components, each finite within [0,1]; omitted colors are permitted by the mesh contract. Expected paths and boundaries come from that contract, without using validator output as an expected buffer or claiming rendered color correctness.
- * @evidence contracts/testing.md#distinguishing-cases Covers omission, complete zero/one boundaries, empty/partial/extra triples and just-outside endpoints plus NaN/infinities. Replacing only channel four with zero proves adjacent acceptance; texture color space and GPU interpolation belong to other owners.
- * @evidence contracts/testing.md#execution-ownership The named unit directly invokes portable model admission with the existing authored triangle fixture. It acquires no decoder, viewer or GPU and owns its local malformed-buffer cases without dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Validates actual models carrying omitted or explicit vertex RGB buffers and inspects located cardinality/range findings. A partial or overlong buffer cannot pass as a complete per-vertex multiplier, and repairing the single bad channel must restore acceptance.
+ * @evidence contracts/development/testing.md#independent-expectations Three authored vertices require nine RGB components, each finite within [0,1]; omitted colors are permitted by the mesh contract. Expected paths and boundaries come from that contract, without using validator output as an expected buffer or claiming rendered color correctness.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers omission, complete zero/one boundaries, empty/partial/extra triples and just-outside endpoints plus NaN/infinities. Replacing only channel four with zero proves adjacent acceptance; texture color space and GPU interpolation belong to other owners.
+ * @evidence contracts/development/testing.md#execution-ownership The named unit directly invokes portable model admission with the existing authored triangle fixture. It acquires no decoder, viewer or GPU and owns its local malformed-buffer cases without dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Omission and exact zero/one boundaries are admitted.).
  */
 export function test_validation_vertex_colour(): void {
   const mesh: IAutoMovieMesh = vertexColourMesh();

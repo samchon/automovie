@@ -37,13 +37,10 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  * the spacing the columns' distance along a rail and `R` the surface's
  * smaller radius of curvature, so the column count is chosen from that bound.
  *
- * @evidence contracts/common.md#principled-implementation A join's blend is published as a two-layer chain whose layers carry the rails' sections and the across jets, so the blend reads as any other chain's surface.
- * @evidence contracts/common.md#clear-and-simple-design One builder from a join and a column count.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A column with a non-finite jet makes the blend refused, never published.
- * @evidence contracts/common.md#meaningful-documentation States the layers, their fields and the refusal.
- * @evidence contracts/performance.md#efficient-algorithms One column evaluation per published phase and O(n) spline interpolation per field.
- * @evidence contracts/performance.md#reuse-equivalent-work The columns are evaluated once and every field's spline is built from them.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains the chain and per-column chart/direction/point/width arrays. Layers also reference shared mutable LEVEL/STILL factory records; no join or column cache is captured by the publication itself.
+ * @evidence contracts/development/common.md#meaningful-documentation States the layers, their fields and the refusal.
+ * @evidence contracts/development/design.md#principled-representation Represents A join's blend published as a lofted chain, so the skin, its normals, its binding and its chart read the blend's vertices as they read any chain's, and a later merge can take the blend as a host face: companion namespace of 3 members (`IBlend`, `of`, `strip`); units and frames named in its text: frame, radians, world, local, second. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidBlendChain` in packages/engine/src/geometry/construction/AutoMovieSolidBlendChain.ts; its surface is the 3 members listed and the text shows 15 other files naming it, mostly test (8), packages/engine (6), packages/human (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidBlendChain {
   /**
@@ -52,13 +49,10 @@ export namespace AutoMovieSolidBlendChain {
    * names trace parameter seed+phi. Layer frame/zero-jet records are shared
    * factory objects, so mutating them can affect other published blends.
    *
-   * @evidence contracts/common.md#principled-implementation One column ordering ties the interpolated ribbon chain to its two rail charts, direction observations, intersection points and width readings; between-column interpolation is not an exact analytic-surface certificate.
-   * @evidence contracts/common.md#clear-and-simple-design A data record publishes geometry and its source correspondence without retaining the join's query API or another tessellated representation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type proves neither regular G2 contact nor global orientation/trim correctness. The producer's shared mutable frame records remain an ownership gap, not a guarantee of detached output.
-   * @evidence contracts/common.md#meaningful-documentation Gives the station/phase mapping, physical units, loop correspondence and shared-frame mutation consequence.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This publication shape performs no interpolation, search or tessellation; of owns those preparations.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no requests or effects; its source-aligned data are the producer's saved observations rather than a retained join cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns O(C) layer coefficients, rail/direction/point/width arrays for C columns; fixed shared frame records remain factory globals, and no join closure or query history is retained by IBlend.
+   * @evidence contracts/development/design.md#principled-representation One column ordering ties the interpolated ribbon chain to its two rail charts, direction observations, intersection points and width readings; between-column interpolation is not an exact analytic-surface certificate.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A data record publishes geometry and its source correspondence without retaining the join's query API or another tessellated representation.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The type proves neither regular G2 contact nor global orientation/trim correctness. The producer's shared mutable frame records remain an ownership gap, not a guarantee of detached output.
+   * @evidence contracts/development/common.md#meaningful-documentation Gives the station/phase mapping, physical units, loop correspondence and shared-frame mutation consequence.
    */
   export interface IBlend {
     /** The chain. */
@@ -112,13 +106,13 @@ export namespace AutoMovieSolidBlendChain {
    * @param count Columns, a positive multiple of 4 of at least 8.
    * @returns The blend, or null for an unsupported count, failed/nonfinite column, unrepresentable positive chord or unusable orientation anchor.
    *
-   * @evidence contracts/common.md#principled-implementation Copies both analytic ribbon 2-jets into two station layers and obtains the chart sign from the first host rail's analytic outward normal. The join owns unfolding; one sign anchor does not certify regularity between columns.
-   * @evidence contracts/common.md#clear-and-simple-design One producer validates its count and column data before publishing the chain and shared trim records.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses invalid arithmetic and zero/ambiguous orientation; neither the storage origin nor sampled mesh triangles decide the outward side.
-   * @evidence contracts/common.md#meaningful-documentation States supported counts, nullable publication failures, parameter mapping and analytic outward ownership.
-   * @evidence contracts/performance.md#efficient-algorithms Evaluates count columns, interpolates a fixed number of O(count) fields, then reads one analytic orientation jet; column solve costs belong to the join.
-   * @evidence contracts/performance.md#reuse-equivalent-work One local column array supplies layers, trim charts and the sign anchor; the returned join's existing rail cache handles repeated rail requests.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Local columns are released after publication; the caller owns the O(count) chain and trim arrays, with no additional retained cache here.
+   * @evidence contracts/development/implementation.md#principled-implementation Copies both analytic ribbon 2-jets into two station layers and obtains the chart sign from the first host rail's analytic outward normal. The join owns unfolding; one sign anchor does not certify regularity between columns.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One producer validates its count and column data before publishing the chain and shared trim records.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses invalid arithmetic and zero/ambiguous orientation; neither the storage origin nor sampled mesh triangles decide the outward side.
+   * @evidence contracts/development/common.md#meaningful-documentation States supported counts, nullable publication failures, parameter mapping and analytic outward ownership.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Evaluates count columns, interpolates a fixed number of O(count) fields, then reads one analytic orientation jet; column solve costs belong to the join.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One local column array supplies layers, trim charts and the sign anchor; the returned join's existing rail cache handles repeated rail requests.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local columns are released after publication; the caller owns the O(count) chain and trim arrays, with no additional retained cache here.
    */
   export function of(
     name: string,
@@ -270,13 +264,13 @@ export namespace AutoMovieSolidBlendChain {
    * @param outward The start surface's outward normal at column 0.
    * @returns The chain and its station span `L`, mm, or null for a nonpositive or nonfinite span or an unusable orientation anchor.
    *
-   * @evidence contracts/common.md#principled-implementation A chain interval whose two layers carry values, slopes and second derivatives is the quintic Hermite in station (`AutoMovieStationHermite`), so copying each ribbon's point, first over `L` and second over `L^2` reproduces the blend columns exactly at the column phases; between them every field is the periodic cubic B-spline interpolant.
-   * @evidence contracts/common.md#clear-and-simple-design One builder owns the ribbons-to-layers mapping and the outward sign, shared by both strip producers so their chains cannot drift apart.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses a degenerate span or orientation instead of publishing; the column count and finiteness are the caller's admission.
-   * @evidence contracts/common.md#meaningful-documentation States the layer fields, the station and phase meanings, the units and the refusals.
-   * @evidence contracts/performance.md#efficient-algorithms One pass for the span and twelve O(n) periodic spline interpolations for n columns, then one chain jet for the sign.
-   * @evidence contracts/performance.md#reuse-equivalent-work The caller's already evaluated ribbons are read once per field; nothing is re-evaluated on a surface.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns O(n) layer arrays owned by the caller; the layers reference the shared LEVEL/STILL factory records as the join's blend always has, and no column array is retained.
+   * @evidence contracts/development/implementation.md#principled-implementation A chain interval whose two layers carry values, slopes and second derivatives is the quintic Hermite in station (`AutoMovieStationHermite`), so copying each ribbon's point, first over `L` and second over `L^2` reproduces the blend columns exactly at the column phases; between them every field is the periodic cubic B-spline interpolant.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One builder owns the ribbons-to-layers mapping and the outward sign, shared by both strip producers so their chains cannot drift apart.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a degenerate span or orientation instead of publishing; the column count and finiteness are the caller's admission.
+   * @evidence contracts/development/common.md#meaningful-documentation States the layer fields, the station and phase meanings, the units and the refusals.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One pass for the span and twelve O(n) periodic spline interpolations for n columns, then one chain jet for the sign.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller's already evaluated ribbons are read once per field; nothing is re-evaluated on a surface.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns O(n) layer arrays owned by the caller; the layers reference the shared LEVEL/STILL factory records as the join's blend always has, and no column array is retained.
    */
   export function strip(
     name: string,

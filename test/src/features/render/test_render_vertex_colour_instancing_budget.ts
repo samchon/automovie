@@ -28,10 +28,11 @@ import {
  * 3. All-bare/all-coloured models add no padding; a bare box next to a coloured
  *    triangle contributes 24 white triples while retaining its original cost.
  *
- * @evidence contracts/testing.md#behavioral-verification Measures ordinary, instance-set, formation and shared-prototype modes through real inventory accounting, checking model/total agreement and resident white RGB padding exactly once.
- * @evidence contracts/testing.md#independent-expectations Literal 204/240, 240/240, 168/168 and 840/1128-byte pairs encode authored triangle and box attribute arithmetic; population counts do not supply the expected prototype byte costs.
- * @evidence contracts/testing.md#distinguishing-cases Crosses four bare/colored geometry combinations with four population modes, retaining eight slots and two chunks, so omitted padding, per-slot multiplication and double charging become visible.
- * @evidence contracts/testing.md#execution-ownership Owns synchronous portable models and compiled-population fixture records and invokes metadata measurement; no Viewer instancing buffer or GPU renderer is created, and execution belongs to the test runner.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures ordinary, instance-set, formation and shared-prototype modes through real inventory accounting, checking model/total agreement and resident white RGB padding exactly once.
+ * @evidence contracts/development/testing.md#independent-expectations Literal 204/240, 240/240, 168/168 and 840/1128-byte pairs encode authored triangle and box attribute arithmetic; population counts do not supply the expected prototype byte costs.
+ * @evidence contracts/development/testing.md#distinguishing-cases Crosses four bare/colored geometry combinations with four population modes, retaining eight slots and two chunks, so omitted padding, per-slot multiplication and double charging become visible.
+ * @evidence contracts/development/testing.md#execution-ownership Owns synchronous portable models and compiled-population fixture records and invokes metadata measurement; no Viewer instancing buffer or GPU renderer is created, and execution belongs to the test runner.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Ordinary mixed triangles cost 204 bytes; flattening adds 36 white RGB bytes.).
  */
 export function test_render_vertex_colour_instancing_budget(): void {
   const colored: IAutoMovieMesh = vertexColourMesh();

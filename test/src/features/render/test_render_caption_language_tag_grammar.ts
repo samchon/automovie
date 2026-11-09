@@ -36,10 +36,11 @@ import { TestValidator } from "@nestia/e2e";
  *    place is refused rather than ignored.
  * 9. The comparison key folds ASCII case only, and a malformed tag has no key.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real caption-language parser and comparison-key projection, checking retained display spelling, ASCII-folded identity and malformed null results across the grammar's alternative and uniqueness decisions.
- * @evidence contracts/testing.md#independent-expectations Expected strings and refusals come from the listed RFC 5646 langtag, privateuse and grandfathered productions, not an IANA lookup or parser output snapshot. This pins well-formed syntax and case identity, not registered language semantics.
- * @evidence contracts/testing.md#distinguishing-cases The original nine groups preserve grandfathered near-misses, empty/long/illegal subtags, private-use requirements, language length, ordered extlang/script/region, variant uniqueness, required/unique extensions, terminal private use and malformed comparison keys.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_render_caption_language_tag_grammar owns these synchronous portable string cases; it installs no runtime, contacts no registry, opens no file and starts no host process.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the real caption-language parser and comparison-key projection, checking retained display spelling, ASCII-folded identity and malformed null results across the grammar's alternative and uniqueness decisions.
+ * @evidence contracts/development/testing.md#independent-expectations Expected strings and refusals come from the listed RFC 5646 langtag, privateuse and grandfathered productions, not an IANA lookup or parser output snapshot. This pins well-formed syntax and case identity, not registered language semantics.
+ * @evidence contracts/development/testing.md#distinguishing-cases The original nine groups preserve grandfathered near-misses, empty/long/illegal subtags, private-use requirements, language length, ordered extlang/script/region, variant uniqueness, required/unique extensions, terminal private use and malformed comparison keys.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_render_caption_language_tag_grammar owns these synchronous portable string cases; it installs no runtime, contacts no registry, opens no file and starts no host process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A grandfathered production is admitted by the fixed list, case-folded for).
  */
 export function test_render_caption_language_tag_grammar(): void {
   const parsed: (value: string) => string | null = (

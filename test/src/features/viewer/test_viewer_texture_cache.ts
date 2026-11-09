@@ -58,10 +58,11 @@ const material: (patch: Partial<IAutoMovieMaterial>) => IAutoMovieMaterial = (
  * 2. Repeated close requests exactly one disposal event for every observed source/clone and rejects later priming/resolution.
  * 3. An unprimed asset refuses; a failed controlled host load names its own asset and still retires the healthy source.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls real cache/material/binding APIs and observes loader calls, actual shared Source identity, distinct wrappers, sampler projection and disposal requests/refusal.
- * @evidence contracts/testing.md#independent-expectations Authored asset names/transforms and independently counted wrapper/source events define expectations. The existing loader produces CPU Texture objects, not real image decoding or native uploads.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts repeated priming/shared assets, independent repeats, absent normals, unprimed/closed refusal and partial load failure with healthy resource retirement.
- * @evidence contracts/testing.md#execution-ownership The named async entry reuses its existing owned loader callback and actual CPU Texture objects, closes its caches/materials and starts no browser, decoder, renderer or new driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls real cache/material/binding APIs and observes loader calls, actual shared Source identity, distinct wrappers, sampler projection and disposal requests/refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Authored asset names/transforms and independently counted wrapper/source events define expectations. The existing loader produces CPU Texture objects, not real image decoding or native uploads.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts repeated priming/shared assets, independent repeats, absent normals, unprimed/closed refusal and partial load failure with healthy resource retirement.
+ * @evidence contracts/development/testing.md#execution-ownership The named async entry reuses its existing owned loader callback and actual CPU Texture objects, closes its caches/materials and starts no browser, decoder, renderer or new driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Repeated priming loads each asset once; issued clones share Source identity but retain independent repeats and optional normal bindings.).
  */
 export async function test_viewer_texture_cache(): Promise<void> {
   const loader: {

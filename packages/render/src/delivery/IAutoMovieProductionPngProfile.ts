@@ -8,13 +8,10 @@ import type { AutoMovieProductionPngRole } from "./AutoMovieProductionPngRole";
  * the raster is a single literal, because the writers support exactly one
  * format.
  *
- * @evidence contracts/common.md#principled-implementation Literal types encode each fixed format fact, so a profile cannot state a format the writers do not produce, and the checker compares fields one-for-one against the parser's observation.
- * @evidence contracts/common.md#clear-and-simple-design The profile is a flat record mirroring the parsed picture's field names, so the checker needs no mapping layer; `version` lets the shape change without misreading an older profile.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The literals are the writers' actual output contract, not values chosen to match a fixture, and no role has a field of its own.
- * @evidence contracts/common.md#meaningful-documentation The prose names the producer and checker and why fields are literals; each member gives its unit or the convention its literal names.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This interface only describes expected picture facts; the comparison cost is answered on `assertProductionPngPicture`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A PNG profile value is plain data and shares no work across phases.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The profile is a small fixed-size record with no handle or task.
+ * @evidence contracts/development/design.md#principled-representation Literal types encode each fixed format fact, so a profile cannot state a format the writers do not produce, and the checker compares fields one-for-one against the parser's observation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The profile is a flat record mirroring the parsed picture's field names, so the checker needs no mapping layer; `version` lets the shape change without misreading an older profile.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The literals are the writers' actual output contract, not values chosen to match a fixture, and no role has a field of its own.
+ * @evidence contracts/development/common.md#meaningful-documentation The prose names the producer and checker and why fields are literals; each member gives its unit or the convention its literal names.
  */
 export interface IAutoMovieProductionPngProfile {
   /** Profile schema version. */

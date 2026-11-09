@@ -64,7 +64,10 @@ export namespace AutoMovieHumanHeadEarFrame {
   export function of(plan: IAutoMovieHumanHeadLayout, mass: IAutoMovieViewPart, sign: 1 | -1, ear: IAutoMovieHumanEar, top?: number): IFrame {
     const source: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(mass);
     const outline: AutoMovieViewOutline.IOutline | null = source.curves.find((curve: AutoMovieViewCurves.ICurve): boolean => curve.name === "side.positive")?.outline ?? null;
-    if (outline === null) throw new Error("Ear orientation needs the actual original head side guide");
+    if (outline === null)
+      throw new Error(
+        `Ear orientation needs the actual original head side guide: ${source.diagnostics.map((d: { detail: string }): string => d.detail).join("; ")}`,
+      );
     const reading: AutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(outline, plan.landmarks.tragion[1]);
     if (typeof reading === "string" || reading.stationJet === null) throw new Error("Ear orientation needs a finite side-guide derivative at tragion");
     const n: [number, number, number] = unit([0, -reading.stationJet[0], sign]);

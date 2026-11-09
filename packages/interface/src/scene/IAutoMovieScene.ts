@@ -11,10 +11,10 @@ import { IAutoMovieSpace } from "./IAutoMovieSpace";
  *
  * The scene is the composition layer above individual rigs: it says _where_ characters stand, _what_ they are doing (which motion/pose), and _how_ the frame is lit and framed. A structured building owns rooms and lowers the world transforms of its visible elements here, while actors and props remain ordinary scene nodes in that same frame.
  *
- * @evidence contracts/common.md#principled-implementation A scene combines placed reusable models, camera and light state with optional support space, atmosphere and render environment; engine admission checks identities and physical parameters before deterministic composition.
- * @evidence contracts/common.md#clear-and-simple-design Scene placement stays separate from reusable rigs and structured buildings, whose lowering contributes ordinary scene nodes and support surfaces to the same world frame.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Omitted space, fog and environment preserve documented legacy paths rather than inventing current authored conditions; structural guides bypass appearance fog and tone mapping.
- * @evidence contracts/common.md#meaningful-documentation Defines composition ownership, default viewpoint, model placements and optional environment/space/fog state and guide-pass effects.
+ * @evidence contracts/development/design.md#principled-representation A scene combines placed reusable models, camera and light state with optional support space, atmosphere and render environment; engine admission checks identities and physical parameters before deterministic composition.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Scene placement stays separate from reusable rigs and structured buildings, whose lowering contributes ordinary scene nodes and support surfaces to the same world frame.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Omitted space, fog and environment preserve documented legacy paths rather than inventing current authored conditions; structural guides bypass appearance fog and tone mapping.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines composition ownership, default viewpoint, model placements and optional environment/space/fog state and guide-pass effects.
  */
 export interface IAutoMovieScene {
   /** Stable id. */

@@ -28,3 +28,4 @@ export type { IAutoMovieFootfallPattern } from "./physics/IAutoMovieFootfallPatt
 export type { IAutoMoviePhysicalContactBinding } from "./physics/IAutoMoviePhysicalContactBinding";
 export type { IAutoMoviePhysicalPointBound } from "./physics/IAutoMoviePhysicalPointBound";
 export type { IAutoMovieMotionGeometry } from "./physics/IAutoMovieMotionGeometry";
+export * from "./recovery";

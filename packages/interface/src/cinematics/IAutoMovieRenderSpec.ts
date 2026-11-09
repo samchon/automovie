@@ -12,10 +12,10 @@ import { IAutoMovieRenderFrameFormat } from "./IAutoMovieRenderFrameFormat";
  * +faststart`. The encoder never tone maps; the curve is a renderer setting
  * applied before capture.
  *
- * @evidence contracts/common.md#principled-implementation `frameTimes` computes each sample as `i / fps` rather than by accumulation so no rounding drift builds up, `ffmpegArgs` passes the codec, pixel format, CRF, rate and size verbatim, and `autoMovieRenderTargetSettingsOfShot` resolves the curve as the scene environment's `toneMapping` when present, else this spec's.
- * @evidence contracts/common.md#clear-and-simple-design The spec holds only delivery choices (target, clock and raster, curve default, encoder settings) and never content, and `codec` and `pixelFormat` are single-member unions because one encoder path exists and a wider option would promise output nothing produces.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Structural passes bypass tone mapping as a rule rather than per scene, and the curve is never forced onto a scene that declares its own; the remaining gap is that `crf` reaches the encoder unchecked, which its documentation states.
- * @evidence contracts/common.md#meaningful-documentation States the frame count and sample formula, the exact encoder arguments, which layer owns the tone curve and when this default applies, that structural passes ignore it, and that the caller must keep the CRF in range.
+ * @evidence contracts/development/design.md#principled-representation `frameTimes` computes each sample as `i / fps` rather than by accumulation so no rounding drift builds up, `ffmpegArgs` passes the codec, pixel format, CRF, rate and size verbatim, and `autoMovieRenderTargetSettingsOfShot` resolves the curve as the scene environment's `toneMapping` when present, else this spec's.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The spec holds only delivery choices (target, clock and raster, curve default, encoder settings) and never content, and `codec` and `pixelFormat` are single-member unions because one encoder path exists and a wider option would promise output nothing produces.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Structural passes bypass tone mapping as a rule rather than per scene, and the curve is never forced onto a scene that declares its own; the remaining gap is that `crf` reaches the encoder unchecked, which its documentation states.
+ * @evidence contracts/development/common.md#meaningful-documentation States the frame count and sample formula, the exact encoder arguments, which layer owns the tone curve and when this default applies, that structural passes ignore it, and that the caller must keep the CRF in range.
  */
 export interface IAutoMovieRenderSpec {
   /** Id of the shot or sequence to render. */

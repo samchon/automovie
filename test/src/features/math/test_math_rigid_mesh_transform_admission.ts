@@ -1,4 +1,4 @@
-import { fitRigidMeshTransform } from "@automovie/engine/math/fitRigidMeshTransform";
+import { fitRigidMeshTransform } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
@@ -11,10 +11,11 @@ import { throwsError } from "../internal/predicates";
  * 2. Selected nonfinite or missing coordinates and unrepresentable centering refuse.
  * 3. A following valid call remains usable, and unused coordinates do not enter the fit.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real rigid fitter on malformed correspondence and requires its named refusal, then checks a valid centroid and exclusion of unselected NaN coordinates. Accepting invalid selected data or scanning unrelated vertices fails these observations.
- * @evidence contracts/testing.md#independent-expectations Aligned XYZ buffers and distinct resident integer selections are the fit contract. Averaging the authored target vertices gives (.5,1,0); selecting only target (4,5,6) gives that point unchanged. These centroid assertions do not independently validate the recovered rotation.
- * @evidence contracts/testing.md#distinguishing-cases Preserves unequal/misaligned buffers, empty/duplicate/negative/outside/fractional/NaN selections, selected nonfinite/sparse coordinates and centering overflow, beside a valid recovery and unselected NaN values. Proper rotation, rank deficiencies and coordinate-scale invariance belong to the transform entry.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns all local admission cases and directly invokes portable fitting source, without consumer installation, native compilation, process/browser/GPU startup or dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the real rigid fitter on malformed correspondence and requires its named refusal, then checks a valid centroid and exclusion of unselected NaN coordinates. Accepting invalid selected data or scanning unrelated vertices fails these observations.
+ * @evidence contracts/development/testing.md#independent-expectations Aligned XYZ buffers and distinct resident integer selections are the fit contract. Averaging the authored target vertices gives (.5,1,0); selecting only target (4,5,6) gives that point unchanged. These centroid assertions do not independently validate the recovered rotation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves unequal/misaligned buffers, empty/duplicate/negative/outside/fractional/NaN selections, selected nonfinite/sparse coordinates and centering overflow, beside a valid recovery and unselected NaN values. Proper rotation, rank deficiencies and coordinate-scale invariance belong to the transform entry.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns all local admission cases and directly invokes portable fitting source, without consumer installation, native compilation, process/browser/GPU startup or dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Misaligned buffers, absent/duplicate/outside/noninteger vertices refuse.).
  */
 export function test_math_rigid_mesh_transform_admission(): void {
   const valid: Parameters<typeof fitRigidMeshTransform>[0] = {

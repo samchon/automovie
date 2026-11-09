@@ -21,10 +21,11 @@ import { vclose } from "../internal/vclose";
  * 2. Asking for construction observations leaves every target, control position, corner and ring unchanged. Inspection neither narrows a registry cell nor substitutes an endpoint into a separately generated display curve.
  * 3. A formula-generated ring of deliberately displaced cage pins includes the shared node. The whole generating curve stays unchanged even though the emitted pin target moves, distinguishing geometric evaluation from a pin-overwritten target-buffer read.
  *
- * @evidence contracts/testing.md#behavioral-verification Compiles a real sweep/bridge network with and without construction, locates the emitted fork endpoint by its sweep-domain corner identity, and independently compares that target with the actual curve endpoint. Returning a raw endpoint, changing observation cells or altering cage output fails.
- * @evidence contracts/testing.md#independent-expectations The shared geometric boundary contract determines endpoint equality; emitted node identity follows the patch's affine chart and sampler's domain identity. A separately compiled raw zero-cell surface point distinguishes an unchanged mixed-field implementation. This establishes evaluator consistency rather than anatomical correctness.
- * @evidence contracts/testing.md#distinguishing-cases Covers a shared filtered node beside a continuous curve, the no-inspection control and active cage pins that must not change the generating curve. Separate construction pose and volume scenarios own bound resweep and fixed rest snapshots. The main construction test owns tangent flattening, girth correction, smooth feature courses and count admission; pose and general topology are owned by existing rig tests.
- * @evidence contracts/testing.md#execution-ownership A portable synchronous test_geometry_sweep_construction_boundary entry; no host, process, renderer or GPU is started.
+ * @evidence contracts/development/testing.md#behavioral-verification Compiles a real sweep/bridge network with and without construction, locates the emitted fork endpoint by its sweep-domain corner identity, and independently compares that target with the actual curve endpoint. Returning a raw endpoint, changing observation cells or altering cage output fails.
+ * @evidence contracts/development/testing.md#independent-expectations The shared geometric boundary contract determines endpoint equality; emitted node identity follows the patch's affine chart and sampler's domain identity. A separately compiled raw zero-cell surface point distinguishes an unchanged mixed-field implementation. This establishes evaluator consistency rather than anatomical correctness.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers a shared filtered node beside a continuous curve, the no-inspection control and active cage pins that must not change the generating curve. Separate construction pose and volume scenarios own bound resweep and fixed rest snapshots. The main construction test owns tangent flattening, girth correction, smooth feature courses and count admission; pose and general topology are owned by existing rig tests.
+ * @evidence contracts/development/testing.md#execution-ownership A portable synchronous test_geometry_sweep_construction_boundary entry; no host, process, renderer or GPU is started.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The fork curve of the branched-body fixture meets its shared geometric target, independently located by its sweep-domain corner identity....).
  */
 export function test_geometry_sweep_construction_boundary(): void {
   const network: IAutoMovieSurfaceNetwork = sweepBranchedBody();
@@ -128,39 +129,78 @@ export function test_geometry_sweep_construction_boundary(): void {
     observed.cage.rings,
     plain.cage.rings,
   );
-  function counts(n: number): IAutoMovieSurfaceNetwork.ICounts { return ({
-    lowest: n, low: n, medium: n, high: n,
-  }); }
+  function counts(n: number): IAutoMovieSurfaceNetwork.ICounts {
+    return {
+      lowest: n,
+      low: n,
+      medium: n,
+      high: n,
+    };
+  }
   const boundary: Array<[number, number, number]> = [
-    [-0.17, 0.17, 8], [0.17, 0.33, 2], [0.33, 0.67, 8], [0.67, 0.83, 2],
+    [-0.17, 0.17, 8],
+    [0.17, 0.33, 2],
+    [0.33, 0.67, 8],
+    [0.67, 0.83, 2],
   ];
   const pinned: IAutoMovieSurfaceRig = rigAutoMovieSurfaceNetwork({
     network: {
       ...network,
-      rings: [...(network.rings ?? []), {
-        name: "geometric-field-negative-control",
-        edges: boundary.map(([from, to, segments]: [number, number, number]): IAutoMovieSurfaceNetwork.ISweepEdge => ({
-          type: "sweep", sweep: "trunk", from: { u: 0, v: from }, to: { u: 0, v: to }, segments: counts(segments),
-        })),
-        positions: Array.from({ length: 20 }, (_: unknown, i: number): IAutoMovieVector3 => {
-          const angle: number = 2 * Math.PI * i / 20;
-          return { x: 0.5 * Math.cos(angle), y: 0, z: 0.5 * Math.sin(angle) };
-        }),
-      }],
+      rings: [
+        ...(network.rings ?? []),
+        {
+          name: "geometric-field-negative-control",
+          edges: boundary.map(
+            ([from, to, segments]: [
+              number,
+              number,
+              number,
+            ]): IAutoMovieSurfaceNetwork.ISweepEdge => ({
+              type: "sweep",
+              sweep: "trunk",
+              from: { u: 0, v: from },
+              to: { u: 0, v: to },
+              segments: counts(segments),
+            }),
+          ),
+          positions: Array.from(
+            { length: 20 },
+            (_: unknown, i: number): IAutoMovieVector3 => {
+              const angle: number = (2 * Math.PI * i) / 20;
+              return {
+                x: 0.5 * Math.cos(angle),
+                y: 0,
+                z: 0.5 * Math.sin(angle),
+              };
+            },
+          ),
+        },
+      ],
     },
     tier: "medium",
     fit: false,
     construction: { station: 16, line: 16, feature: 8, curve: 8 },
   });
   const pinnedCurve: IAutoMovieSurfaceConstruction = pinned.construction.find(
-    (entry: IAutoMovieSurfaceConstruction): boolean => entry.kind === "curve" && entry.name === "fork",
+    (entry: IAutoMovieSurfaceConstruction): boolean =>
+      entry.kind === "curve" && entry.name === "fork",
   )!;
-  TestValidator.predicate("active cage pins do not replace the generating curve", pinnedCurve.points.every(
-    (value: number, i: number): boolean => nclose(value, curve.points[i]!, 0),
-  ));
-  TestValidator.predicate("the negative control actually moves the shared pin", !vclose(actual, {
-    x: pinned.cage.targets[3 * index]!,
-    y: pinned.cage.targets[3 * index + 1]!,
-    z: pinned.cage.targets[3 * index + 2]!,
-  }, 1e-3));
+  TestValidator.predicate(
+    "active cage pins do not replace the generating curve",
+    pinnedCurve.points.every((value: number, i: number): boolean =>
+      nclose(value, curve.points[i]!, 0),
+    ),
+  );
+  TestValidator.predicate(
+    "the negative control actually moves the shared pin",
+    !vclose(
+      actual,
+      {
+        x: pinned.cage.targets[3 * index]!,
+        y: pinned.cage.targets[3 * index + 1]!,
+        z: pinned.cage.targets[3 * index + 2]!,
+      },
+      1e-3,
+    ),
+  );
 }

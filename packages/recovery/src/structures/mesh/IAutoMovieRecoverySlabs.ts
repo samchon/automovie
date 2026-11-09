@@ -7,13 +7,10 @@ import type { IAutoMovieRecoverySections } from "./IAutoMovieRecoverySections";
  * source triangles or normal fields are returned. PL event qualification has
  * the existing source-topology meaning and does not qualify the saved curves.
  *
- * @evidence contracts/common.md#principled-implementation New raw-cut provenance supplies exact ports to the existing clipped-cell and PL critical observers; original saved publication identities remain separate from the independently observed source evidence.
- * @evidence contracts/common.md#clear-and-simple-design One result separates verified source cuts, externally bound symbolic publications and finite slab observations without duplicating or rewriting curve authorities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Raw address/closure agreement is not elevated to coefficient, physical-phase or jet correctness; failed and degenerate ports remain unsupported and no geometry fallback transfers.
- * @evidence contracts/common.md#meaningful-documentation Documents units, original direction/frame, caller identity scope, raw-cut verification, coefficient absence and source-only event qualification.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased result performs no fitting or observation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The result owns no cache or source preparation.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns copied source-address and event metadata; source arrays and saved coefficient buffers are absent.
+ * @evidence contracts/development/design.md#principled-representation New raw-cut provenance supplies exact ports to the existing clipped-cell and PL critical observers; original saved publication identities remain separate from the independently observed source evidence.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One result separates verified source cuts, externally bound symbolic publications and finite slab observations without duplicating or rewriting curve authorities.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Raw address/closure agreement is not elevated to coefficient, physical-phase or jet correctness; failed and degenerate ports remain unsupported and no geometry fallback transfers.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents units, original direction/frame, caller identity scope, raw-cut verification, coefficient absence and source-only event qualification.
  */
 export interface IAutoMovieRecoverySlabs {
   /** New acquisition identity, independent of saved curve names. */

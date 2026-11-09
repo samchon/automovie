@@ -1,13 +1,10 @@
 /**
  * One declared native endpoint position and its current control owner.
  *
- * @evidence contracts/common.md#principled-implementation Explicit fields preserve the producer's coefficient order, units and identities.
- * @evidence contracts/common.md#clear-and-simple-design One named record replaces repeated anonymous copies of the same structural value.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The declaration supplies no inferred geometry or fallback values.
- * @evidence contracts/common.md#meaningful-documentation Members state physical units, field ordering and coefficient-index meaning.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased type performs no computation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no runtime cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Records are caller-owned and acquire no handles.
+ * @evidence contracts/development/design.md#principled-representation Explicit fields preserve the producer's coefficient order, units and identities.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One named record replaces repeated anonymous copies of the same structural value.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The declaration supplies no inferred geometry or fallback values.
+ * @evidence contracts/development/common.md#meaningful-documentation Members state physical units, field ordering and coefficient-index meaning.
  */
 export interface IAutoMovieRecoveryNativeEndpoint {
   /** Original endpoint coordinates, millimetres. */

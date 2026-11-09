@@ -12,10 +12,11 @@ import { createRecoverySceneNumericalFixture } from "../internal/createRecoveryS
  * 1. One reciprocal index link between the seed and last image joins two otherwise distinct material-index seam tracks, creating duplicate observations in a middle image.
  * 2. The whole global component is excluded from seed geometry and final points; other qualified tracks retain a complete component.
  *
- * @evidence contracts/testing.md#behavioral-verification Executes global linking and the full scene workflow, checking the duplicate-view component count, reduced seed-match population and absence of every conflicted feature from accepted landmarks.
- * @evidence contracts/testing.md#independent-expectations The independently assigned visibility identities determine exactly which two components merge and which source indices conflict; exclusion is an admission policy, not a declaration that a measured photo track is false material truth.
- * @evidence contracts/testing.md#distinguishing-cases A conflict visible only through the fifth image affects the initial seed, distinguishing global admission from local-map deletion after refinement. Nonconflicting points and all requested camera coverage remain supported.
- * @evidence contracts/testing.md#execution-ownership The portable test_recovery_camera_scene_conflicts entry runs resident arrays and actual matcher outputs with an explicit extra input link; it replaces no function and starts no host, process, compiler, installation, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes global linking and the full scene workflow, checking the duplicate-view component count, reduced seed-match population and absence of every conflicted feature from accepted landmarks.
+ * @evidence contracts/development/testing.md#independent-expectations The independently assigned visibility identities determine exactly which two components merge and which source indices conflict; exclusion is an admission policy, not a declaration that a measured photo track is false material truth.
+ * @evidence contracts/development/testing.md#distinguishing-cases A conflict visible only through the fifth image affects the initial seed, distinguishing global admission from local-map deletion after refinement. Nonconflicting points and all requested camera coverage remain supported.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_camera_scene_conflicts entry runs resident arrays and actual matcher outputs with an explicit extra input link; it replaces no function and starts no host, process, compiler, installation, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: One reciprocal index link between the seed and last image joins two otherwise distinct material-index seam tracks, creating duplicate...).
  */
 export function test_recovery_camera_scene_conflicts(): void {
   const fixture: ReturnType<typeof createRecoverySceneNumericalFixture> =

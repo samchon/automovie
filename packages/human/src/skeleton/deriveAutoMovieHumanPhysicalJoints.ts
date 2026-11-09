@@ -2,8 +2,8 @@ import {
   Quaternion,
   Vector3,
   derivePhysicalActuators,
+  quaternionFromAutoMovieBasis,
 } from "@automovie/engine";
-import { quaternionFromAutoMovieBasis } from "@automovie/engine/math/quaternionFromAutoMovieBasis";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,

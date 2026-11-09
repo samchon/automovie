@@ -13,6 +13,13 @@ import type { AutoMovieViewerTransport } from "./AutoMovieViewerTransport.js";
  *
  * @param context The document and the host's capabilities.
  * @returns An idempotent cleanup.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Bind a review document's controls to a transport, with one abortable listener lifetime: play, pause, seek, speed, sound, interval, inspection orbit, delivered camera, inspection snapshot, PNG snapshot and an export hint, plus arrow (one frame), page (0.1 s) and Home/End keys, and a pause when the document hides) and documents parameter `context`, the returned value as stated in this comment.
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Bind a review document's controls to a transport, with one abortable listener lifetime: play, pause, seek, speed, sound, interval, inspection orbit, delivered camera, inspection snapshot, PNG snapshot and an export hint, plus arrow (one frame), page (0.1 s) and Home/End keys, and a pause when the document hides) directly over its typed inputs (`context`) as a fixed number of statements with no loop or recursion in the body, delegating to `action`, `context.report`, `context.setOrbit`, `element`, `context.deliveredCamera`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (1 throw site). Beyond structural 0, 1 and 2 the body uses the literals 3, 0.1, whose basis this answer does not independently establish and a reviewer must confirm.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 175 lines and 20 top-level statements that reuses `action`, `context.report`, `context.setOrbit`, `element`, `context.deliveredCamera` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 1 type assertion(s), 1 non-null assertion(s); these are the remaining shortcuts and are not justified here.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `context`; the dominant cost is a fixed number of statements with no loop or recursion in the body, performed once per call with 4 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Performs effectful work per invocation and shares no result or in-flight work between invocations: equivalence of effectful calls is not decided here, so every call repeats its effects.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body touches I/O, timers, listeners or process state; it retains nothing after it settles beyond its result, and any handle it opens is owned and released by the call or by its callees.
  */
 export function mountAutoMovieTransportControls(
   context: mountAutoMovieTransportControls.IContext,
@@ -191,7 +198,14 @@ export function mountAutoMovieTransportControls(
   );
   return (): void => aborter.abort();
 }
-/** Companion types of {@link mountAutoMovieTransportControls}. */
+/**
+ * Companion types of {@link mountAutoMovieTransportControls}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Companion types of ) and documents 1 documented member as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents Companion types of : companion namespace of 1 member (`IContext`); units and frames named in its text: frames, second, frame, seconds. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `mountAutoMovieTransportControls` in packages/viewer/src/transport/mountAutoMovieTransportControls.ts; its surface is the 1 member listed and the text shows 1 other file naming it, mostly packages/viewer (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
+ */
 export namespace mountAutoMovieTransportControls {
   /** The document and the host's borrowed capabilities. */
   export interface IContext {

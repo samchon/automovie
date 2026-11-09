@@ -78,10 +78,11 @@ const gridPoint: (
  *    `(0, 1)` of corner 0, which reaches it first, and its centre at `(1, 1)`
  *    of corner 0.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs `subdivideAutoMovieSurface` with face-varying UVs and asserts `uvs`, `uvFaces` and `parameters`; smoothing a seam, merging the two sides of a seam, a wrong interior rule, a wrong parameter face or coordinate fails.
- * @evidence contracts/testing.md#independent-expectations Linear charts are reproduced exactly by Catmull-Clark on a regular grid and kept by pinned boundaries, so the expected UV is the chart map of the grid point; the interior rule is Catmull and Clark's written in the test; parameter expectations follow the documented square and sub-face conventions.
- * @evidence contracts/testing.md#distinguishing-cases Covers linear and non-linear charts, seam versus interior values, outer boundary corners, an absent UV set, quad and triangle parameters, and shared vertices; positions, limits, creases and refusals are owned by the other `test_geometry_subdivision_*` tests.
- * @evidence contracts/testing.md#execution-ownership A discoverable unit entry calling the portable engine function on synthetic cages; no consumer, native build, process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `subdivideAutoMovieSurface` with face-varying UVs and asserts `uvs`, `uvFaces` and `parameters`; smoothing a seam, merging the two sides of a seam, a wrong interior rule, a wrong parameter face or coordinate fails.
+ * @evidence contracts/development/testing.md#independent-expectations Linear charts are reproduced exactly by Catmull-Clark on a regular grid and kept by pinned boundaries, so the expected UV is the chart map of the grid point; the interior rule is Catmull and Clark's written in the test; parameter expectations follow the documented square and sub-face conventions.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers linear and non-linear charts, seam versus interior values, outer boundary corners, an absent UV set, quad and triangle parameters, and shared vertices; positions, limits, creases and refusals are owned by the other `test_geometry_subdivision_*` tests.
+ * @evidence contracts/development/testing.md#execution-ownership A discoverable unit entry calling the portable engine function on synthetic cages; no consumer, native build, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two charts that are each a linear map of the grid keep it exactly at).
  */
 export function test_geometry_subdivision_uvs(): void {
   const cage: IAutoMovieSubdivisionCage = charted();

@@ -33,10 +33,11 @@ const rest: IAutoMovieTransform = {
  * `hips`(root)→`spine`→`chest` are reachable; `leftHand`→`leftLowerArm` is
  * orphaned (`leftLowerArm` is not declared).
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises topology indexing, reachableBoneNames and resolvePose, asserting root-only reachability, snapshot behavior and a named duplicate-bone refusal before recursion.
- * @evidence contracts/testing.md#independent-expectations Declared parent links independently imply exactly chest, hips and spine are reachable; mutation adds spine only to a rebuilt topology, and repeated hips violates unique identity.
- * @evidence contracts/testing.md#distinguishing-cases Covers orphaned and fully reachable skeletons, explicit versus rebuilt topology, caller mutation and a duplicate identity cycle; rootless/cycle tests own detached hierarchies.
- * @evidence contracts/testing.md#execution-ownership The exported kinematics entry owns all local hierarchy cases and directly reaches CPU source without native build, installed consumer or real host.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises topology indexing, reachableBoneNames and resolvePose, asserting root-only reachability, snapshot behavior and a named duplicate-bone refusal before recursion.
+ * @evidence contracts/development/testing.md#independent-expectations Declared parent links independently imply exactly chest, hips and spine are reachable; mutation adds spine only to a rebuilt topology, and repeated hips violates unique identity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers orphaned and fully reachable skeletons, explicit versus rebuilt topology, caller mutation and a duplicate identity cycle; rootless/cycle tests own detached hierarchies.
+ * @evidence contracts/development/testing.md#execution-ownership The exported kinematics entry owns all local hierarchy cases and directly reaches CPU source without native build, installed consumer or real host.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (The core #730 scenario: a skeleton with a real root and a reachable sub-tree, plus ONE orphaned bone whose parent names a bone absent from the skeleton) as stated in this comment.
  */
 export function test_kinematics_resolve_orphan(): void {
   const skeleton: IAutoMovieSkeleton = {

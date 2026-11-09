@@ -1,7 +1,7 @@
 import {
   type IProductionConfigProps,
   createProductionClaims,
-} from "@automovie/evidence/narrative";
+} from "@automovie/evidence";
 import type {
   IEvidenceCheckAnalysis,
   IEvidenceClaim,
@@ -19,10 +19,11 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * 2. Removing every citation of the second event exposes missing coverage.
  * 3. A screenplay file realizes exactly one script; a second parent is refused.
  *
- * @evidence contracts/testing.md#behavioral-verification Submits the factory's actual file-relationship claims to EvidenceChecker with authored Markdown citations and asserts accepted many-to-many coverage, uncovered-event failure and rejection of multiple lineage parents.
- * @evidence contracts/testing.md#independent-expectations Two independently authored treatment files and three explicit script citations establish the allowed braid; the final screenplay's one-parent contract determines its permitted cardinality. Assertions inspect checker outcomes and diagnostic codes rather than source arrangement.
- * @evidence contracts/testing.md#distinguishing-cases Shared-parent and multi-parent event coverage both pass, a completely uncited event fails, and the neighboring final-lineage relation rejects that same multi-parent shape. Separate review tests cover native fingerprint freshness.
- * @evidence contracts/testing.md#execution-ownership The exported test_template_production_relationships entry owns three independent authored snapshots in a temporary tree and calls the public checker in-process. It installs nothing and starts no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Submits the factory's actual file-relationship claims to EvidenceChecker with authored Markdown citations and asserts accepted many-to-many coverage, uncovered-event failure and rejection of multiple lineage parents.
+ * @evidence contracts/development/testing.md#independent-expectations Two independently authored treatment files and three explicit script citations establish the allowed braid; the final screenplay's one-parent contract determines its permitted cardinality. Assertions inspect checker outcomes and diagnostic codes rather than source arrangement.
+ * @evidence contracts/development/testing.md#distinguishing-cases Shared-parent and multi-parent event coverage both pass, a completely uncited event fails, and the neighboring final-lineage relation rejects that same multi-parent shape. Separate review tests cover native fingerprint freshness.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_template_production_relationships entry owns three independent authored snapshots in a temporary tree and calls the public checker in-process. It installs nothing and starts no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two scripts share an event and one script realizes two treatment files.).
  */
 export async function test_template_production_relationships(): Promise<void> {
   const root: string = ProductionWorkflowFixture.create();

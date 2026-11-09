@@ -10,10 +10,11 @@ import { tourFixture } from "../internal/websiteTourFixture";
  * 2. Search narrows by case-insensitive name and reports an empty result.
  * 3. A mobile panel opens on request; disposal removes view nodes and retires reset authority.
  *
- * @evidence contracts/testing.md#behavioral-verification Mounts the navigator and dispatches selection/search/reset/toggle events, observing stable ids, highlighted copy, filtered visibility, result counts and inert reset after disposal; synthesized ids, stale selection or retained reset authority fails.
- * @evidence contracts/testing.md#independent-expectations Two authored view records define room/exterior ids and labels; a mixed-case padded query independently targets the reading room, an absent word targets none, and callback counts expose reset behavior without inspecting implementation listeners.
- * @evidence contracts/testing.md#distinguishing-cases Covers collapsed-to-open panel, room highlight, case-insensitive trimmed search, no matches, cleared search, exterior reset and disposed reset with removed view nodes; malformed host controls and capture/motion have separate units.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_website_tour_navigation entry owns resident JSDOM event cases and its supplied selection callback, with no foreign method replacement or browser/GPU; the disposed reset observation does not independently certify removal of every native listener.
+ * @evidence contracts/development/testing.md#behavioral-verification Mounts the navigator and dispatches selection/search/reset/toggle events, observing stable ids, highlighted copy, filtered visibility, result counts and inert reset after disposal; synthesized ids, stale selection or retained reset authority fails.
+ * @evidence contracts/development/testing.md#independent-expectations Two authored view records define room/exterior ids and labels; a mixed-case padded query independently targets the reading room, an absent word targets none, and callback counts expose reset behavior without inspecting implementation listeners.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers collapsed-to-open panel, room highlight, case-insensitive trimmed search, no matches, cleared search, exterior reset and disposed reset with removed view nodes; malformed host controls and capture/motion have separate units.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_website_tour_navigation entry owns resident JSDOM event cases and its supplied selection callback, with no foreign method replacement or browser/GPU; the disposed reset observation does not independently certify removal of every native listener.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Buttons apply their stable ids and highlight their current authored view.).
  */
 export function test_website_tour_navigation(): void {
   const f: ReturnType<typeof tourFixture> = tourFixture(),

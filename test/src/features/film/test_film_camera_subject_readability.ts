@@ -113,10 +113,11 @@ const readable: (
  * 5. Horizontal segments at body height and far above the frame distinguish
  *    intersection from unconditional acceptance.
  *
- * @evidence contracts/testing.md#behavioral-verification Compiles and resolves each camera framing, then compares segment/frustum intersection with ground-point projection and with displaced, behind-lens, beyond-far, and high horizontal segments.
- * @evidence contracts/testing.md#independent-expectations Fixed boolean expectations express the intended shot-size semantics and the independently chosen extreme positions; no observed engine output is reused as an expected readability result.
- * @evidence contracts/testing.md#distinguishing-cases All four positive shot sizes are paired with an unfollowed 1000 metre displacement. Medium and close must read the body while rejecting its ground point, and depth and vertical negatives prevent a broad always-visible implementation.
- * @evidence contracts/testing.md#execution-ownership Runs synchronous compilation, clip sampling, projection, and mathematical intersection on local records without a renderer, external resources, clock, or replacement of product dependencies; the result is sampled numerical visibility rather than rendered-image proof.
+ * @evidence contracts/development/testing.md#behavioral-verification Compiles and resolves each camera framing, then compares segment/frustum intersection with ground-point projection and with displaced, behind-lens, beyond-far, and high horizontal segments.
+ * @evidence contracts/development/testing.md#independent-expectations Fixed boolean expectations express the intended shot-size semantics and the independently chosen extreme positions; no observed engine output is reused as an expected readability result.
+ * @evidence contracts/development/testing.md#distinguishing-cases All four positive shot sizes are paired with an unfollowed 1000 metre displacement. Medium and close must read the body while rejecting its ground point, and depth and vertical negatives prevent a broad always-visible implementation.
+ * @evidence contracts/development/testing.md#execution-ownership Runs synchronous compilation, clip sampling, projection, and mathematical intersection on local records without a renderer, external resources, clock, or replacement of product dependencies; the result is sampled numerical visibility rather than rendered-image proof.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: All four framings read a correctly staged subject, including the cropped).
  */
 export function test_film_camera_subject_readability(): void {
   const framings: readonly ["wide", "full", "medium", "close"] = [

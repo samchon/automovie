@@ -11,10 +11,11 @@ import { createGalleryHostFacts } from "../internal/createGalleryHostFacts";
  * 1. Unmodified forward/backward arrows wrap the authored three-view population with five interceptions.
  * 2. Tab, Escape, Enter and each modifier remain unhandled without additional selection/interception, followed by controller disposal.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the directly imported real gallery controller through the existing alias and observes view wrap plus interception counts.
- * @evidence contracts/testing.md#independent-expectations Authored forward/backward index sequences and a separately counted five interceptions define expectations independently of the controller.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts both wrap directions, Tab/Escape/Enter and each modifier; refusal proves no policy interception, not native key delivery or browser focus handling.
- * @evidence contracts/testing.md#execution-ownership The named entry reuses existing logical host callbacks, disposes the controller and starts no DOM, native modal or new host/driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the directly imported real gallery controller through the existing alias and observes view wrap plus interception counts.
+ * @evidence contracts/development/testing.md#independent-expectations Authored forward/backward index sequences and a separately counted five interceptions define expectations independently of the controller.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts both wrap directions, Tab/Escape/Enter and each modifier; refusal proves no policy interception, not native key delivery or browser focus handling.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry reuses existing logical host callbacks, disposes the controller and starts no DOM, native modal or new host/driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Unmodified forward/backward arrows wrap the authored three-view population with five interceptions.).
  */
 export function test_website_gallery_keyboard(): void {
   const { host, facts }: ReturnType<typeof createGalleryHostFacts> =

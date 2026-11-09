@@ -3,10 +3,10 @@ import { IAutoMovieShotPredicate } from "./IAutoMovieShotPredicate";
 /**
  * One authoritative scalar predicate beside its measured value and result. An unresolved operand records null and fails rather than becoming a zero measurement.
  *
- * @evidence contracts/common.md#principled-implementation Engine evaluateShotPredicate measures position, Euclidean distance or joint angle at the sample instant and compares it with the authored operator/tolerance. Null represents an unresolved operand, nonfinite measurement or any caught measurement exception and cannot pass; expected-value admission remains a caller premise.
- * @evidence contracts/common.md#clear-and-simple-design Predicate, actual and passed preserve the obligation, observation and decision separately, allowing state and event realization lists to share the same grading representation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing rigs, bones or selectors do not become zero-valued measurements, and authored expected values are never copied into actual to manufacture realization.
- * @evidence contracts/common.md#meaningful-documentation Identifies predicate authority, sampled scalar ownership, null unresolved semantics and the resulting failed comparison.
+ * @evidence contracts/development/design.md#principled-representation Engine evaluateShotPredicate measures position, Euclidean distance or joint angle at the sample instant and compares it with the authored operator/tolerance. Null represents an unresolved operand, nonfinite measurement or any caught measurement exception and cannot pass; expected-value admission remains a caller premise.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Predicate, actual and passed preserve the obligation, observation and decision separately, allowing state and event realization lists to share the same grading representation.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing rigs, bones or selectors do not become zero-valued measurements, and authored expected values are never copied into actual to manufacture realization.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies predicate authority, sampled scalar ownership, null unresolved semantics and the resulting failed comparison.
  */
 export interface IAutoMovieCompiledPredicateResult {
   /** Exact authoritative predicate. */

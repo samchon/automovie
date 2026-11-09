@@ -94,10 +94,11 @@ const entry: (
  * 3. The empty entries boundary is a locked-off covering camera: `cameraMotion:
  *    null`, `cameraIntent: []`, the camera id still carried.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls compileCameraCoverage for a side-camera span, two spans, and empty entries, checking the solved position/orientation, target node ids, clip parity, intent order, and locked-off boundary.
- * @evidence contracts/testing.md#independent-expectations The explicit side-camera bearing and two-metre medium subject give fixed 0.62/1.44 coordinates and a positive 90-degree yaw. Comparison to compileCameraMove establishes assembler delegation only; the separate hand-computed side-camera checks anchor the geometry independently.
- * @evidence contracts/testing.md#distinguishing-cases A camera staged on +X must use its own angle rather than +Z; static then push-in spans must keep their authored intent order, and empty entries must retain the camera id with null motion and no intents.
- * @evidence contracts/testing.md#execution-ownership Runs synchronous compilation on local records without a renderer, resource access, clock, process state, or dependency replacement. Existing test12ValuesClose preserves clip keys, track order, channel metadata, lengths, and exact nclose numeric components; intent identity checks observe the assembler's borrowed-record contract.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls compileCameraCoverage for a side-camera span, two spans, and empty entries, checking the solved position/orientation, target node ids, clip parity, intent order, and locked-off boundary.
+ * @evidence contracts/development/testing.md#independent-expectations The explicit side-camera bearing and two-metre medium subject give fixed 0.62/1.44 coordinates and a positive 90-degree yaw. Comparison to compileCameraMove establishes assembler delegation only; the separate hand-computed side-camera checks anchor the geometry independently.
+ * @evidence contracts/development/testing.md#distinguishing-cases A camera staged on +X must use its own angle rather than +Z; static then push-in spans must keep their authored intent order, and empty entries must retain the camera id with null motion and no intents.
+ * @evidence contracts/development/testing.md#execution-ownership Runs synchronous compilation on local records without a renderer, resource access, clock, process state, or dependency replacement. Existing test12ValuesClose preserves clip keys, track order, channel metadata, lengths, and exact nclose numeric components; intent identity checks observe the assembler's borrowed-record contract.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A `static medium` span on the +X side camera keys the camera at `(0.62, 1.44,).
  */
 export function test_film_camera_coverage(): void {
   // 1. the covering camera's own staged bearing frames its own angle.

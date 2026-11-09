@@ -1,4 +1,4 @@
-import { decomposeAutoMovieSingularMatrix } from "@automovie/engine/math/decomposeAutoMovieSingularMatrix";
+import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { solveRecoveryMapJointStep } from "../../../../packages/recovery/src/internal/solveRecoveryMapJointStep";
@@ -12,10 +12,11 @@ import { nclose } from "../internal/nclose";
  * 1. Seventeen camera coordinates and four observations per point exceed both previous triad limits; zero/damped steps match an independently assembled full-design solve in every coordinate.
  * 2. An unobserved camera direction or undersized original-design budget refuses before damping can manufacture rank.
  *
- * @evidence contracts/testing.md#behavioral-verification Executes the actual generalized block step, camera QR compression and original SVD consumer, asserting all camera/point deltas and explicit unobservable/over-budget failures.
- * @evidence contracts/testing.md#independent-expectations A full separately assembled, column-normalized augmented original design has identical mathematical damping and solves all variables together by direct Jacobi SVD. This independently checks elimination and row compression, not the shared decomposition's external accuracy.
- * @evidence contracts/testing.md#distinguishing-cases Covers C=17, eight rows per point, zero/positive damping, nonsymmetric deterministic rows, every output delta, absent camera columns and preallocation refusal. Geometric gauge and newly visible points are exercised by the five-view pipeline.
- * @evidence contracts/testing.md#execution-ownership The portable test_recovery_camera_scene_joint entry owns numerical arrays only and starts no file/process/compiler/installation/browser/GPU host.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes the actual generalized block step, camera QR compression and original SVD consumer, asserting all camera/point deltas and explicit unobservable/over-budget failures.
+ * @evidence contracts/development/testing.md#independent-expectations A full separately assembled, column-normalized augmented original design has identical mathematical damping and solves all variables together by direct Jacobi SVD. This independently checks elimination and row compression, not the shared decomposition's external accuracy.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers C=17, eight rows per point, zero/positive damping, nonsymmetric deterministic rows, every output delta, absent camera columns and preallocation refusal. Geometric gauge and newly visible points are exercised by the five-view pipeline.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_camera_scene_joint entry owns numerical arrays only and starts no file/process/compiler/installation/browser/GPU host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Seventeen camera coordinates and four observations per point exceed both previous triad limits; zero/damped steps match an independently...).
  */
 export function test_recovery_camera_scene_joint(): void {
   const budget: ReturnType<

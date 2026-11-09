@@ -17,7 +17,7 @@ import { AutoMovieHumanHeadLipPart } from "./AutoMovieHumanHeadLipPart";
  * | --- | --- | --- | --- |
  * | tip lobule | nose | merge | elliptical cap, as wide as the tip ball's breadth (`face.tipBall[2]` half nose widths), closing at pronasale |
  * | ala, each side | nose | merge | the alar lobule (`face.ala`) beside the subnasale at half `nose.width` |
- * | nostril, each side | nose | diff | the nostril's size and centre in the base (`face.nostrilSize`, `face.nostrilCentre`) |
+ * | nostril, each side | nose (material contact: that side's ala) | diff | the nostril's size and centre in the base (`face.nostrilSize`, `face.nostrilCentre`) |
  * | philtral groove | head mass | diff | the philtrum's depth and half width (`face.philtrum`), subnasale to labrale superius |
  * | mentolabial sulcus | head mass | diff | Legan and Burstone's sulcus depth (`profile.sulcus`) at the sublabiale |
  * | helix, antihelix, concha, each side | auricle | merge, diff | drawn in the ear's own frame (`AutoMovieHumanHeadEarParts`) |
@@ -132,31 +132,38 @@ export namespace AutoMovieHumanHeadInnerParts {
 
       // Prior.ala's half-heights are vertical n-prn ratios. A tilted local
       // support contributes only up.y of its length to that vertical span.
-      out.push(
-        ...part(
-          `nose.ala.${side}`,
-          "nose",
-          "merge",
-          sub(centre, [0, 0, sign * INSET]),
-          [0, 0, sign],
-          up,
-          [
-            (f.ala[3]! * alarSpan) / up[1],
-            half,
-            (f.ala[4]! * alarSpan) / up[1],
-            half,
-          ],
-          INSET + half,
-          centre,
-          nose,
-          attempts,
-        ),
+      const ala: AutoMovieHumanHeadFeatures.IFeature[] = part(
+        `nose.ala.${side}`,
+        "nose",
+        "merge",
+        sub(centre, [0, 0, sign * INSET]),
+        [0, 0, sign],
+        up,
+        [
+          (f.ala[3]! * alarSpan) / up[1],
+          half,
+          (f.ala[4]! * alarSpan) / up[1],
+          half,
+        ],
+        INSET + half,
+        centre,
+        nose,
+        attempts,
       );
+      out.push(...ala);
       const nostril: [number, number, number] = [
         m.subnasale[0] + f.nostrilCentre[0]! * nasalForward,
         m.subnasale[1],
         sign * f.nostrilCentre[1]! * plan.noseWidth,
       ];
+
+      // The nostril opens in the alar base, halfway between the midline and
+      // alare, where the nasal body (dorsum and columella, `face.dorsum`
+      // half widths) has already narrowed inside it. Its upward axis
+      // therefore enters material through this side's alar lobule, never
+      // through the nasal body's wall, so that ala's original is its material
+      // contact. The cumulative nose subtree, which merges this ala before
+      // the nostril, remains its tree parent.
       out.push(
         ...part(
           `nose.nostril.${side}`,
@@ -173,7 +180,7 @@ export namespace AutoMovieHumanHeadInnerParts {
           ],
           INSET + 8.8 * k,
           nostril,
-          nose,
+          ala[0]?.part ?? `nose.ala.${side}`,
           attempts,
         ),
       );
@@ -256,7 +263,13 @@ export namespace AutoMovieHumanHeadInnerParts {
     return out;
   }
 
-  /** One inner part. */
+  /**
+   * One inner part.
+   *
+   * @param host The original material parent, or the name of a required one
+   *   whose own source failed; that name records this part as a failed
+   *   attempt instead of authoring it without its contact.
+   */
   function part(
     name: string,
     parent: string,
@@ -267,29 +280,44 @@ export namespace AutoMovieHumanHeadInnerParts {
     extents: [number, number, number, number],
     height: number,
     seed: [number, number, number],
-    host?: IAutoMovieViewPart,
+    host: IAutoMovieViewPart | string,
     attempts?: AutoMovieHumanHeadDome.IAttempt[],
   ): AutoMovieHumanHeadFeatures.IFeature[] {
     const h: number = Math.max(INSET + 0.5, height);
     const e: [number, number, number, number] = extents.map(
       (x: number): number => Math.max(0.5, Math.abs(x)),
     ) as [number, number, number, number];
+    const dome: Omit<AutoMovieHumanHeadDome.IDome, "host"> = {
+      name,
+      origin,
+      outward,
+      along,
+      extents: e,
+      height: h,
+      profile: 2,
+      shoulder: AutoMovieViewSection.ELLIPSE,
+    };
+
+    // A missing material parent is its own failed premise, recorded like
+    // any other attempt, so the composer still refuses the whole head.
+    if (typeof host === "string") {
+      const error: string = `Dome ${name} has no original material parent ${host}`;
+      if (attempts === undefined) throw new Error(error);
+      attempts.push({
+        name,
+        definition: dome,
+        parent: host,
+        parentSource: null,
+        domain: null,
+        base: [...origin],
+        point: [...seed],
+        attachment: null,
+        error,
+      });
+      return [];
+    }
     const source: AutoMovieHumanHeadDome.IPart | null =
-      AutoMovieHumanHeadDome.attempt(
-        {
-          name,
-          origin,
-          outward,
-          along,
-          extents: e,
-          height: h,
-          profile: 2,
-          shoulder: AutoMovieViewSection.ELLIPSE,
-        },
-        host,
-        seed,
-        attempts,
-      );
+      AutoMovieHumanHeadDome.attempt(dome, host, seed, attempts);
     return source === null
       ? []
       : [

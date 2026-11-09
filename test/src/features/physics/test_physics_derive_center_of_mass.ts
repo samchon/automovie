@@ -50,10 +50,11 @@ const unit: AutoMoviePrimitiveShape = {
  * 6. A cone contributes its off-origin centroid (+height/4), shifted by its
  *    transform.
  *
- * @evidence contracts/testing.md#behavioral-verification Derives centers from primitive prop parts and checks transformed location and volume-weighted balance, catching unweighted averaging or an omitted scale Jacobian and cone offset.
- * @evidence contracts/testing.md#independent-expectations Symmetry, the 1:8 solid-volume ratio and the cone's height/4 centroid give authored vectors independently of the product's primitive helpers. These fixtures do not establish rotated or articulated mass placement.
- * @evidence contracts/testing.md#distinguishing-cases Covers one untransformed/translated box, equal opposite boxes, unequal dimensions, equivalent transform scaling and a shifted cone; zero-volume refusal belongs to the degenerate unit.
- * @evidence contracts/testing.md#execution-ownership The named exported unit executes portable derivation with existing local prop fixtures and direct assertions, without rendering or a native host.
+ * @evidence contracts/development/testing.md#behavioral-verification Derives centers from primitive prop parts and checks transformed location and volume-weighted balance, catching unweighted averaging or an omitted scale Jacobian and cone offset.
+ * @evidence contracts/development/testing.md#independent-expectations Symmetry, the 1:8 solid-volume ratio and the cone's height/4 centroid give authored vectors independently of the product's primitive helpers. These fixtures do not establish rotated or articulated mass placement.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers one untransformed/translated box, equal opposite boxes, unequal dimensions, equivalent transform scaling and a shifted cone; zero-volume refusal belongs to the degenerate unit.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported unit executes portable derivation with existing local prop fixtures and direct assertions, without rendering or a native host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A single box with no transform → the box's own centroid, the origin.).
  */
 export function test_physics_derive_center_of_mass(): void {
   TestValidator.predicate(

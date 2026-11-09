@@ -13,10 +13,11 @@ import { createGalleryContent } from "../internal/createGalleryContent";
  * 3. Dispose twice: all pending failures are invalidated and release occurs once.
  * 4. A throwing release loses old callback authority before execution and is not retried.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the real image lifecycle with owned attachment callbacks and asserts admitted effects, released callback indices and retained cleanup failures; an old guard acting during release or a repeated release fails the counts.
- * @evidence contracts/testing.md#independent-expectations Replacement transfers authority before old cleanup and each installed callback is released once; expected indices follow the explicit attachment sequence, with failure identity supplied independently by the test.
- * @evidence contracts/testing.md#distinguishing-cases Covers current and stale image errors, successive exterior/room replacement, repeated successful disposal and failed transfer/disposal; actual image decoding and DOM removal remain browser observations.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit imports GalleryImageLifecycle directly and supplies portable callbacks without a DOM, browser, foreign replacement or asset acquisition.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the real image lifecycle with owned attachment callbacks and asserts admitted effects, released callback indices and retained cleanup failures; an old guard acting during release or a repeated release fails the counts.
+ * @evidence contracts/development/testing.md#independent-expectations Replacement transfers authority before old cleanup and each installed callback is released once; expected indices follow the explicit attachment sequence, with failure identity supplied independently by the test.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers current and stale image errors, successive exterior/room replacement, repeated successful disposal and failed transfer/disposal; actual image decoding and DOM removal remain browser observations.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit imports GalleryImageLifecycle directly and supplies portable callbacks without a DOM, browser, foreign replacement or asset acquisition.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Attach an exterior: its current failure is admitted and its direct URL retained.).
  */
 export function test_website_gallery_image_recovery(): void {
   const lifecycle: GalleryImageLifecycle = new GalleryImageLifecycle();

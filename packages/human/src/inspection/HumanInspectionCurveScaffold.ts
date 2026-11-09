@@ -1,7 +1,7 @@
 import {
   type IAutoMovieCurve64 as C,
   AutoMovieCurveMath64 as M,
-} from "@automovie/engine/geometry/curve";
+} from "@automovie/engine";
 import type { IAutoMovieRecoveryHermiteCurve } from "@automovie/recovery";
 
 import type { NodeCanvasTypes as N } from "./NodeCanvasTypes";

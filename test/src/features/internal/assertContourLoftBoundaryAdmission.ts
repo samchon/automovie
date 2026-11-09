@@ -13,10 +13,10 @@ const { rectangle, intervalTriangles, aligned }: typeof B = B;
 /**
  * Preserve local interval and event admission scenarios.
  *
- * @evidence contracts/testing.md#behavioral-verification Executes the original portable loft calls and their actual mesh, construction, phase and omission assertions in the same order.
- * @evidence contracts/testing.md#independent-expectations Original polynomial formulas, oriented identity-edge counts and dimensioned expectations remain unchanged; no implementation snapshot supplies an oracle.
- * @evidence contracts/testing.md#distinguishing-cases Preserves this extracted scenario group's original positive, malformed and boundary cases without dropping assertions.
- * @evidence contracts/testing.md#execution-ownership Called by the existing discoverable named test; direct portable imports start no process, browser, GPU or native build and register no dynamic tests.
+ * @evidence contracts/development/testing.md#behavioral-verification Executes the original portable loft calls and their actual mesh, construction, phase and omission assertions in the same order.
+ * @evidence contracts/development/testing.md#independent-expectations Original polynomial formulas, oriented identity-edge counts and dimensioned expectations remain unchanged; no implementation snapshot supplies an oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves this extracted scenario group's original positive, malformed and boundary cases without dropping assertions.
+ * @evidence contracts/development/testing.md#execution-ownership Called by the existing discoverable named test; direct portable imports start no process, browser, GPU or native build and register no dynamic tests.
  */
 export function assertContourLoftBoundaryAdmission(): void {
   const localSections: L.ISection[] = [0, 2].map(

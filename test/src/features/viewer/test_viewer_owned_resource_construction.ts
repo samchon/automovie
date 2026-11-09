@@ -5,8 +5,8 @@ import {
   buildGeometry,
   buildMaterial,
   buildModel,
+  constructAutoMovieOwnedResources,
 } from "@automovie/viewer";
-import { constructAutoMovieOwnedResources } from "@automovie/viewer/constructAutoMovieOwnedResources";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -23,10 +23,11 @@ import {
  * 2. A successful producer transfers the actual resource identity without retiring it, and a failure before any allocation keeps its original identity.
  * 3. The material and model producers preserve a native texture cache-copy refusal, then build the normal part population once the metadata is ordinary; the geometry producer keeps its position attribute.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises the actual owned-resource constructor and the material, model and geometry producers with real dispose listeners and a real texture cache; catches partial rollback, repeated disposal of a shared resource, premature retirement of a transferred resource and a swallowed cache-copy failure.
- * @evidence contracts/testing.md#independent-expectations The initialization-before-cleanup cause order, one dispose event per distinct owner and the identity of the transferred resource are observed independently of the constructor; the native cache-copy failure is the getter's own Error instance.
- * @evidence contracts/testing.md#distinguishing-cases Covers failure after duplicate and distinct acquisitions, success, failure before acquisition, nested material and model cache-copy refusal and a repaired cache.
- * @evidence contracts/testing.md#execution-ownership The asynchronous unit imports maintained source directly and owns its local resources; it launches no renderer, browser, worker or process and registers no dynamic tests.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises the actual owned-resource constructor and the material, model and geometry producers with real dispose listeners and a real texture cache; catches partial rollback, repeated disposal of a shared resource, premature retirement of a transferred resource and a swallowed cache-copy failure.
+ * @evidence contracts/development/testing.md#independent-expectations The initialization-before-cleanup cause order, one dispose event per distinct owner and the identity of the transferred resource are observed independently of the constructor; the native cache-copy failure is the getter's own Error instance.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers failure after duplicate and distinct acquisitions, success, failure before acquisition, nested material and model cache-copy refusal and a repaired cache.
+ * @evidence contracts/development/testing.md#execution-ownership The asynchronous unit imports maintained source directly and owns its local resources; it launches no renderer, browser, worker or process and registers no dynamic tests.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Producer initialization registers geometry, material and skeleton before a later failure; rollback attempts each distinct resource once...).
  */
 export async function test_viewer_owned_resource_construction(): Promise<void> {
   const caught: (operation: () => void) => unknown = (

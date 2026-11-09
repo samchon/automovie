@@ -140,6 +140,14 @@ export class Fighter {
   public feintBodyKick(): FighterChain {
     return this.chain().feintBodyKick();
   }
+  /** Shoulder feint: the lead shoulder pushed forward, the start of the jab. @returns The chain. */
+  public feintShoulder(): FighterChain {
+    return this.chain().feintShoulder();
+  }
+  /** Level-change feint of the body cross. @returns The chain. */
+  public feintLevel(): FighterChain {
+    return this.chain().feintLevel();
+  }
   /** Parry. @returns The chain. */
   public parry(): FighterChain {
     return this.chain().parry();
@@ -283,7 +291,7 @@ export class Fighter {
    * @returns The chain.
    */
   public phase(
-    phase: "guard" | "fall" | "attempt" | "lie" | "victory",
+    phase: Extract<KickboxingAction.IAction, { kind: "phase" }>["phase"],
     seconds: number,
     anchor?: string,
   ): AutoMovieChain {

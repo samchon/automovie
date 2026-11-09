@@ -8,13 +8,10 @@ import type { IAutoMovieRecoveryResectionScore } from "./IAutoMovieRecoveryResec
  * Each event is an owned snapshot, so observer mutation cannot alter the fit.
  * The observer accounts for any retained history; observer errors propagate.
  *
- * @evidence contracts/common.md#principled-implementation One event follows each actual proposal or final refit, including numerical refusal and nonconvergence. Before/after scores use the same fixed population and unchanged acceptance gates.
- * @evidence contracts/common.md#clear-and-simple-design Optional observation stays separate from proposal selection; absent observers allocate no design trace and retain no event history.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No diagnostic pose or local result registers a camera, modifies input observations or bypasses support stability. Events fire outside numerical catches.
- * @evidence contracts/common.md#meaningful-documentation States phase-local indices, copied ownership, missing results, observer error propagation and conditional fitted-support meaning.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased event performs no scoring or fit.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Events copy already computed poses, scores and refinement reports without a second fit or score.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The producer retains no history; the optional observer owns retained copies and external writes.
+ * @evidence contracts/development/design.md#principled-representation One event follows each actual proposal or final refit, including numerical refusal and nonconvergence. Before/after scores use the same fixed population and unchanged acceptance gates.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Optional observation stays separate from proposal selection; absent observers allocate no design trace and retain no event history.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No diagnostic pose or local result registers a camera, modifies input observations or bypasses support stability. Events fire outside numerical catches.
+ * @evidence contracts/development/common.md#meaningful-documentation States phase-local indices, copied ownership, missing results, observer error propagation and conditional fitted-support meaning.
  */
 export interface IAutoMovieRecoveryResectionTrace {
   /** Proposal draw or final fixed-subset refit. */

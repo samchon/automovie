@@ -58,10 +58,11 @@ const emitter: (id: string, maxParticles: number) => IAutoMovieFluidSpray = (
  *    different for the selected one-ulp depth change and adjacent step.
  * 5. Validating empty feature and domain lists against the basin fixture succeeds; this does not execute or observe a complete production.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls fluid budget/Courant readers, simulates selected states and hashes them, and validates an empty water binding; detects wrong lattice/cap counts, wrong Courant reporting and the selected digest regressions.
- * @evidence contracts/testing.md#independent-expectations A 6-by-4 grid gives 24 cells, 58 faces and 656 bytes by independent count, while the documented Courant equation supplies the scalar oracle. Hash comparisons test only selected sensitivity, not collision freedom or cross-machine identity.
- * @evidence contracts/testing.md#distinguishing-cases Retains two emitters with total cap 192, no-emitter budget, identical state repeats, the selected one-ulp depth change, adjacent step and empty features/domains; admission caps and solver physics are separate tests.
- * @evidence contracts/testing.md#execution-ownership This named portable unit owns its budget/hash/binding assertions through engine calls and existing records, without building a renderer or installing a consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls fluid budget/Courant readers, simulates selected states and hashes them, and validates an empty water binding; detects wrong lattice/cap counts, wrong Courant reporting and the selected digest regressions.
+ * @evidence contracts/development/testing.md#independent-expectations A 6-by-4 grid gives 24 cells, 58 faces and 656 bytes by independent count, while the documented Courant equation supplies the scalar oracle. Hash comparisons test only selected sensitivity, not collision freedom or cross-machine identity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains two emitters with total cap 192, no-emitter budget, identical state repeats, the selected one-ulp depth change, adjacent step and empty features/domains; admission caps and solver physics are separate tests.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit owns its budget/hash/binding assertions through engine calls and existing records, without building a renderer or installing a consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The budget of a 6×4 lattice is the hand-computed 24 cells, 58 velocity faces,).
  */
 export function test_fluid_budget_report(): void {
   const domain: ReturnType<typeof flatBasin> = flatBasin({

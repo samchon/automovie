@@ -75,10 +75,11 @@ const triangle: (uvs: number[] | null) => IAutoMovieModelPart = (
  * 3. An sRGB anisotropy map or thickness map is refused because both slots carry linear data.
  * 4. An anisotropic material cited by a mesh without UV0 is refused at that mesh's `uvs` and one cited by a tessellated primitive at its geometry, while the same mesh with UV0, or with anisotropy strength zero, is not.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateModel on authored materials and parts and checks reported kinds and paths, catching a missing lobe gate, a clamped value, a lost slot or a missing UV requirement.
- * @evidence contracts/testing.md#independent-expectations The intervals and the linear decoding come from the glTF extension factors the interface restates and documents; the UV0 rule follows the interface's statement that the direction lies in the UV0 tangent frame.
- * @evidence contracts/testing.md#distinguishing-cases Pairs each boundary value with a just-outside twin, a linear with an sRGB binding, and a UV-less mesh or primitive with a UV-bearing mesh and with zero strength; viewer mapping and carried images are owned by their own tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable exported unit runs the portable engine validator on in-memory records without a file, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateModel on authored materials and parts and checks reported kinds and paths, catching a missing lobe gate, a clamped value, a lost slot or a missing UV requirement.
+ * @evidence contracts/development/testing.md#independent-expectations The intervals and the linear decoding come from the glTF extension factors the interface restates and documents; the UV0 rule follows the interface's statement that the direction lies in the UV0 tangent frame.
+ * @evidence contracts/development/testing.md#distinguishing-cases Pairs each boundary value with a just-outside twin, a linear with an sRGB binding, and a UV-less mesh or primitive with a UV-bearing mesh and with zero strength; viewer mapping and carried images are owned by their own tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable exported unit runs the portable engine validator on in-memory records without a file, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every lobe at its closed-interval boundary on a UV-bearing mesh, a multi-turn negative rotation, a bare-id anisotropy map and a linear...).
  */
 export function test_validation_material_lobes(): void {
   TestValidator.equals(

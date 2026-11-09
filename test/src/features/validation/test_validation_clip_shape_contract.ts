@@ -1,9 +1,9 @@
 import {
   IAutoMovieSampledChannel,
+  channelValueWidth,
   sampleClip,
   validateClipArtifact,
 } from "@automovie/engine";
-import { channelValueWidth } from "@automovie/engine/validation/channelValueWidth";
 import {
   IAutoMovieClip,
   IAutoMovieConstraintViolation,
@@ -136,10 +136,11 @@ const bothAccept: (value: unknown) => boolean = (value: unknown): boolean =>
  *    and nonstring keys yield undefined without key coercion.
  * 8. Sparse resident track/time/value arrays produce a located gate finding and a sampler throw, while the ordinary dense translation twin still samples.
  *
- * @evidence contracts/testing.md#behavioral-verification Actual artifact findings and sampler outcomes compare the shared track/loop contract while direct width outputs catch inherited lookup values or key-coercion throws; supported adjacent tracks remain readable.
- * @evidence contracts/testing.md#independent-expectations Node TRS dimensions, quaternion width four, glTF cubic triplets, finite strictly increasing time and boolean looping define the expected payload laws. Variable morph-target weights have no fixed width, and prototype/object keys declare no channel dimension.
- * @evidence contracts/testing.md#distinguishing-cases Preserves the stated shape refusals and selected supported single-keyframe, quaternion, cubic and variable-weight controls, plus zero-duration asymmetry, malformed channels, prototype/object-key lookup and sparse slots beside dense translation. Each invalid field has a located refusal check; the supported controls do not independently pair every malformed input or assert sampled numerical values.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_validation_clip_shape_contract; the exported function owns all gate/sampler/width assertions with authored records, without installing a clip player, native artifact or browser/GPU host.
+ * @evidence contracts/development/testing.md#behavioral-verification Actual artifact findings and sampler outcomes compare the shared track/loop contract while direct width outputs catch inherited lookup values or key-coercion throws; supported adjacent tracks remain readable.
+ * @evidence contracts/development/testing.md#independent-expectations Node TRS dimensions, quaternion width four, glTF cubic triplets, finite strictly increasing time and boolean looping define the expected payload laws. Variable morph-target weights have no fixed width, and prototype/object keys declare no channel dimension.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves the stated shape refusals and selected supported single-keyframe, quaternion, cubic and variable-weight controls, plus zero-duration asymmetry, malformed channels, prototype/object-key lookup and sparse slots beside dense translation. Each invalid field has a located refusal check; the supported controls do not independently pair every malformed input or assert sampled numerical values.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_validation_clip_shape_contract; the exported function owns all gate/sampler/width assertions with authored records, without installing a clip player, native artifact or browser/GPU host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every keyframe-payload rule refuses on BOTH sides at once, each at its own).
  */
 export function test_validation_clip_shape_contract(): void {
   const sparseTimes: number[] = withoutArraySlot([0, 1], 1);

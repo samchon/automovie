@@ -11,13 +11,13 @@
  * @param grid Vertex indices by row `j` from 0 to `rows` and column `i` from 0 to `columns`, boundary and interior; only read.
  * @returns The writer, which reads the boundary vertices and writes the interior into the same buffer.
  *
- * @evidence contracts/common.md#principled-implementation Coons' bilinearly blended interpolation of four boundary curves, which reproduces every side exactly.
- * @evidence contracts/common.md#clear-and-simple-design The weights depend only on the grid, so they are stored once with their indices and the writer is a weighted sum.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No smoothing or relaxation is added to the interior.
- * @evidence contracts/common.md#meaningful-documentation States the formula, its source and the grid layout.
- * @evidence contracts/performance.md#efficient-algorithms Eight terms per interior point per pose, with no allocation.
- * @evidence contracts/performance.md#reuse-equivalent-work Indices and weights are computed once.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains 17 numbers per interior point.
+ * @evidence contracts/development/implementation.md#principled-implementation Coons' bilinearly blended interpolation of four boundary curves, which reproduces every side exactly.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The weights depend only on the grid, so they are stored once with their indices and the writer is a weighted sum.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No smoothing or relaxation is added to the interior.
+ * @evidence contracts/development/common.md#meaningful-documentation States the formula, its source and the grid layout.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Eight terms per interior point per pose, with no allocation.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Indices and weights are computed once.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains 17 numbers per interior point.
  */
 export const rigAutoMovieSurfaceCoons: (
   grid: number[][],

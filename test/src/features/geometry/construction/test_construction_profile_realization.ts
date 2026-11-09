@@ -42,10 +42,11 @@ const CORNERS: readonly (readonly [number, number])[] = Made.corners;
  *    coincident actual trim stays uncappable. Wrong role, interior diagonal,
  *    out-of-grid authority and missing ID refuse before mesh mutation.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the public pure profile construction ingress through actual Body/Atlas drawing, boundary publication and Skin fans, inspecting mesh source replay, face incidence and named rollback results.
- * @evidence contracts/testing.md#independent-expectations Exact L line equations give perimeter and lateral area8; cone coordinates satisfy x²+z²=y², with outward normal proportional to(x,-y,z). Independent edge counts distinguish shared source identities from coincident duplicate vertices; no output snapshot or fitted mesh supplies expectations.
- * @evidence contracts/testing.md#distinguishing-cases Includes concavity, six pieces, one/multiple periodic-owner pieces, reversed clocks/orientation, actual pole versus open end, source neighborhoods, missing derivatives, wrong declaration and failed source callbacks. Existing Profile/phase/KnownPort questions own complete derivative and band-map equations.
- * @evidence contracts/testing.md#execution-ownership One synchronous CPU construction_profile_realization entry uses synthetic immutable source functions and public construction APIs without a viewer, host process or Human generation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public pure profile construction ingress through actual Body/Atlas drawing, boundary publication and Skin fans, inspecting mesh source replay, face incidence and named rollback results.
+ * @evidence contracts/development/testing.md#independent-expectations Exact L line equations give perimeter and lateral area8; cone coordinates satisfy x²+z²=y², with outward normal proportional to(x,-y,z). Independent edge counts distinguish shared source identities from coincident duplicate vertices; no output snapshot or fitted mesh supplies expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Includes concavity, six pieces, one/multiple periodic-owner pieces, reversed clocks/orientation, actual pole versus open end, source neighborhoods, missing derivatives, wrong declaration and failed source callbacks. Existing Profile/phase/KnownPort questions own complete derivative and band-map equations.
+ * @evidence contracts/development/testing.md#execution-ownership One synchronous CPU construction_profile_realization entry uses synthetic immutable source functions and public construction APIs without a viewer, host process or Human generation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Six exact line families form a concave L prism: zero native chains, six).
  */
 export function test_construction_profile_realization(): void {
   const failures: string[] = [];

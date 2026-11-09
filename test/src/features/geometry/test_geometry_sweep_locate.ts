@@ -111,10 +111,11 @@ function recovers(
  * 3. A point above the spine's end takes the end's plane; a point at the end itself takes `u` 1.
  * 4. A non-finite point is refused.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs `locateAutoMovieSweepPoint` on compiled sweeps and compares with the parameters the points were made from by `point`; a wrong plane, turn or sign of offset fails scenarios 1 and 2, a wrong end rule scenario 3.
- * @evidence contracts/testing.md#independent-expectations Each expected value is the input the forward query was given, and the offset is the distance the point was moved along the plane's radial direction, so the oracle is the sweep's documented forward map, not the inverse under test.
- * @evidence contracts/testing.md#distinguishing-cases Covers a straight and a bent spine, points on, outside and inside the surface, a point beyond the spine and the non-finite refusal; section interpolation and orientation are owned by the other sweep tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable named entry calls portable engine functions directly; it installs no consumer and starts no process, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `locateAutoMovieSweepPoint` on compiled sweeps and compares with the parameters the points were made from by `point`; a wrong plane, turn or sign of offset fails scenarios 1 and 2, a wrong end rule scenario 3.
+ * @evidence contracts/development/testing.md#independent-expectations Each expected value is the input the forward query was given, and the offset is the distance the point was moved along the plane's radial direction, so the oracle is the sweep's documented forward map, not the inverse under test.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers a straight and a bent spine, points on, outside and inside the surface, a point beyond the spine and the non-finite refusal; section interpolation and orientation are owned by the other sweep tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable named entry calls portable engine functions directly; it installs no consumer and starts no process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Points of a straight elliptic sweep, on the surface and 10 mm outside or inside, at several parameters and turns, are recovered exactly.).
  */
 export function test_geometry_sweep_locate(): void {
   const straight: IAutoMovieSweepSurface = compileAutoMovieSweep(STRAIGHT);

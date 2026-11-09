@@ -12,10 +12,11 @@ import { throwsError } from "../internal/predicates";
  * 2. Independent S/T wraps and min/mag filters retain every supplied sampler field without changing the source; generation and explicit mip metadata remain distinct.
  * 3. Unsupported sampler values remain unreported and absent/nonpositive/fractional/nonfinite dimensions refuse.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual source observation across component/internal/color formats, wraps/filters and generated/manual policies without changing the observed sampler.
- * @evidence contracts/testing.md#independent-expectations Independent authored format/sampler pairs and 4x4 dimensions judge every returned field; supplied image metadata is not a successful decoder or native allocation receipt.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts supported byte/half/float layouts, explicit overrides, unsupported representation/sampler values and absent/nonpositive/fractional/nonfinite extents.
- * @evidence contracts/testing.md#execution-ownership The named entry mutates only its owned CPU Texture inputs and disposes them; it starts no decoder/renderer/native host and replaces no SDK method.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual source observation across component/internal/color formats, wraps/filters and generated/manual policies without changing the observed sampler.
+ * @evidence contracts/development/testing.md#independent-expectations Independent authored format/sampler pairs and 4x4 dimensions judge every returned field; supplied image metadata is not a successful decoder or native allocation receipt.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts supported byte/half/float layouts, explicit overrides, unsupported representation/sampler values and absent/nonpositive/fractional/nonfinite extents.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry mutates only its owned CPU Texture inputs and disposes them; it starts no decoder/renderer/native host and replaces no SDK method.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Authored component/internal/color-space formats distinguish supported ordinary source and environment projections from unknown...).
  */
 export async function test_viewer_texture_source_facts(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

@@ -33,13 +33,13 @@ type Vector = [number, number, number];
  * realization obligations. Supplied neighboring fields/maps must be C2 on
  * the rectangle, including their explicit actual validity domains.
  *
- * @evidence contracts/common.md#principled-implementation Exact second-order pullback of actual C2 functions and endpoint-flat polynomial weights prove the promised boundary total2; no source derivatives above order two are required.
- * @evidence contracts/common.md#clear-and-simple-design Resolve two source/map pairs once, then one surface evaluates Point0 or complete total2 with explicit domain and original owner failures.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No generated-loft intersection, numerical refit, boundary Taylor strip, finite difference or missing derivative is used. A finite set of regular queries is not claimed to certify an entire band or its topology.
- * @evidence contracts/common.md#meaningful-documentation Gives the composition law, chart/world units, endpoint specialization, immutable callback lifetime and separation of local numeric admission from global realization.
- * @evidence contracts/performance.md#efficient-algorithms Fixed preparation and at most two original field/map readings per query precede constant-size chain/product rules; original owner evaluation costs remain included.
- * @evidence contracts/performance.md#reuse-equivalent-work Resolved original owners are shared for the reader lifetime; each query reuses one actual map/field total2 and no boundary is reconstructed.
- * @evidence contracts/performance.md#bound-retention-and-release-resources A returned surface owns a copied descriptor and two borrowed side references; fixed-size vectors have query lifetime and no persistent query cache or external handle is acquired.
+ * @evidence contracts/development/implementation.md#principled-implementation Exact second-order pullback of actual C2 functions and endpoint-flat polynomial weights prove the promised boundary total2; no source derivatives above order two are required.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve two source/map pairs once, then one surface evaluates Point0 or complete total2 with explicit domain and original owner failures.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No generated-loft intersection, numerical refit, boundary Taylor strip, finite difference or missing derivative is used. A finite set of regular queries is not claimed to certify an entire band or its topology.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the composition law, chart/world units, endpoint specialization, immutable callback lifetime and separation of local numeric admission from global realization.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Fixed preparation and at most two original field/map readings per query precede constant-size chain/product rules; original owner evaluation costs remain included.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Resolved original owners are shared for the reader lifetime; each query reuses one actual map/field total2 and no boundary is reconstructed.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A returned surface owns a copied descriptor and two borrowed side references; fixed-size vectors have query lifetime and no persistent query cache or external handle is acquired.
  */
 export function AutoMovieConstructionKnownPort(
   source: IAutoMovieConstructionKnownPortSource,
@@ -149,13 +149,10 @@ export function AutoMovieConstructionKnownPort(
  * for the actual downstream owners, not evaluated weights or a certificate
  * that two independently supplied fields have compatible bindings.
  *
- * @evidence contracts/common.md#principled-implementation The returned surface and its actual resolved rail owners preserve the original chart/source relation; metadata does not establish physical binding equality.
- * @evidence contracts/common.md#clear-and-simple-design One surface-compatible result adds the copied closed descriptor and both existing runtime field/map references without another geometry provider.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Publication neither fits a rail nor infers weights, material continuity or a shared owner from matching names or positions.
- * @evidence contracts/common.md#meaningful-documentation States detached metadata, borrowed immutable original functions and the unverified downstream binding obligations.
- * @evidenceExclude contracts/performance.md#efficient-algorithms These result types perform no geometric work; the merged preparation function owns evaluation and pullback costs.
- * @evidence contracts/performance.md#reuse-equivalent-work The result exposes the same resolved field/map references used by its surface, preserving their caller-established immutable source dependencies.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains one copied descriptor and two borrowed source/map pairs with the surface; no registry, query cache or external handle is added by these types.
+ * @evidence contracts/development/common.md#meaningful-documentation States detached metadata, borrowed immutable original functions and the unverified downstream binding obligations.
+ * @evidence contracts/development/design.md#principled-representation Represents The emitted kernel surface keeps its original rail owners and addresses: companion namespace of 1 member (`IPrepared`). It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConstructionKnownPort` in packages/engine/src/geometry/construction/AutoMovieConstructionKnownPort.ts; its surface is the 1 member listed and the text shows 5 other files naming it, mostly packages/human (2), test (2), packages/engine (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieConstructionKnownPort {
   /** Actual kernel chart and its same original authored rail/material/binding addresses. */

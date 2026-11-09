@@ -74,10 +74,11 @@ const SUBJECT: IAutoMovieFramedSubject = {
  *    the STAGED position (a whip pans in place), rotating from the staged
  *    quaternion to the aim.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls compileCameraMove for static, push-in, and whip actions, checking track kinds, key counts, positions, timing, eased progress, and the whip's staged start and aimed landing.
- * @evidence contracts/testing.md#independent-expectations A two-metre subject and 90-degree FOV give the hand-authored 0.62 distance and 1.44 aim. Push-in endpoints 0.775 and 0.496, quarter progress 0.7401, and the 0.2-second whip span are fixed grammar expectations; the final forward axis independently checks the landing orientation.
- * @evidence contracts/testing.md#distinguishing-cases Static position differs from the staged distance; eased quarter progress differs from linear movement; a yawed staged whip must retain its position while starting from that yaw and landing on the aim.
- * @evidence contracts/testing.md#execution-ownership Uses synchronous camera compilation and quaternion-vector math on local records without a renderer, resource access, clock, process state, or replacement of product dependencies; selected track values establish numerical grammar behavior, not every clip field or a rendered move.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls compileCameraMove for static, push-in, and whip actions, checking track kinds, key counts, positions, timing, eased progress, and the whip's staged start and aimed landing.
+ * @evidence contracts/development/testing.md#independent-expectations A two-metre subject and 90-degree FOV give the hand-authored 0.62 distance and 1.44 aim. Push-in endpoints 0.775 and 0.496, quarter progress 0.7401, and the 0.2-second whip span are fixed grammar expectations; the final forward axis independently checks the landing orientation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Static position differs from the staged distance; eased quarter progress differs from linear movement; a yawed staged whip must retain its position while starting from that yaw and landing on the aim.
+ * @evidence contracts/development/testing.md#execution-ownership Uses synchronous camera compilation and quaternion-vector math on local records without a renderer, resource access, clock, process state, or replacement of product dependencies; selected track values establish numerical grammar behavior, not every clip field or a rendered move.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `static medium` → one key at the framed position `(0, 1.44, 0.62)` (the).
  */
 export function test_film_camera_move_grammar(): void {
   const still: ReturnType<typeof compileCameraMove> = compileCameraMove({

@@ -9,13 +9,10 @@
  * convention, and stays sharp at every level and in the limit. A boundary edge
  * is always infinitely sharp, so declaring one has no effect.
  *
- * @evidence contracts/common.md#principled-implementation Per-edge sharpness with uniform decrement and fractional blending is the semi-sharp crease model of DeRose, Kass and Truong (1998); the infinite value 10 is the OpenSubdiv constant, so authored values mean the same as in that reference.
- * @evidence contracts/common.md#clear-and-simple-design An edge is named by its two cage vertices, the identity the cage already has, instead of an edge index the caller would have to derive from the subdivider's own edge numbering.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts `subdivideAutoMovieSurface` refuses a crease naming no cage edge, a repeated edge, and a sharpness outside 0 to 10, instead of ignoring or clamping it.
- * @evidence contracts/common.md#meaningful-documentation States the rule sequence a sharpness selects, the infinite value, the boundary interaction, and the admitted range.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the refinement cost is answered on `subdivideAutoMovieSurface`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Read once while the cage is admitted; nothing is cached on it.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller-owned and read only; the subdivider copies the sharpness into its own edge table.
+ * @evidence contracts/development/design.md#principled-representation Per-edge sharpness with uniform decrement and fractional blending is the semi-sharp crease model of DeRose, Kass and Truong (1998); the infinite value 10 is the OpenSubdiv constant, so authored values mean the same as in that reference.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface An edge is named by its two cage vertices, the identity the cage already has, instead of an edge index the caller would have to derive from the subdivider's own edge numbering.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts `subdivideAutoMovieSurface` refuses a crease naming no cage edge, a repeated edge, and a sharpness outside 0 to 10, instead of ignoring or clamping it.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule sequence a sharpness selects, the infinite value, the boundary interaction, and the admitted range.
  */
 export interface IAutoMovieSubdivisionCrease {
   /** Index of one end vertex of the cage edge. */

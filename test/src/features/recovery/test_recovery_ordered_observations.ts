@@ -16,10 +16,11 @@ import { nclose } from "../internal/nclose";
  * 2. Its saved Hermite coefficients replay exactly, while a changed endpoint refuses correspondence.
  * 3. An ordered straight polyline preserves its two-mm physical phase, and progress-triggered abort at either checkpoint publishes no value.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises public section observation, ordered cuts, saved-fit binding and polyline observation, asserting physical geometry, unavailable mismatches and cancellation without output.
- * @evidence contracts/testing.md#independent-expectations Similar triangles give the Y=1 section legs of two mm and hypotenuse sqrt(8); a straight two-mm polyline has length two independently of the fitter.
- * @evidence contracts/testing.md#distinguishing-cases Matching and changed saved coefficients distinguish exact replay registration from source proximity. Initial and final callback abort distinguish checkpoint cancellation from successful delivery.
- * @evidence contracts/testing.md#execution-ownership The central runner owns this synchronous portable generic tetrahedron case. It starts no host, timer, native process, GPU or Human generation.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises public section observation, ordered cuts, saved-fit binding and polyline observation, asserting physical geometry, unavailable mismatches and cancellation without output.
+ * @evidence contracts/development/testing.md#independent-expectations Similar triangles give the Y=1 section legs of two mm and hypotenuse sqrt(8); a straight two-mm polyline has length two independently of the fitter.
+ * @evidence contracts/development/testing.md#distinguishing-cases Matching and changed saved coefficients distinguish exact replay registration from source proximity. Initial and final callback abort distinguish checkpoint cancellation from successful delivery.
+ * @evidence contracts/development/testing.md#execution-ownership The central runner owns this synchronous portable generic tetrahedron case. It starts no host, timer, native process, GPU or Human generation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A tetrahedron cut at Y=1 has three sides and perimeter 4+sqrt(8) mm.).
  */
 export function test_recovery_ordered_observations(): void {
   const mesh: IAutoMovieRecoverySectionsInput = {

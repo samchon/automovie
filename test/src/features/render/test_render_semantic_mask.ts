@@ -20,10 +20,11 @@ import { createSemanticMaskTestInputs } from "../internal/createSemanticMaskTest
  * 1. The 13 named layers retain their expected building, room, boundary, opening, element and slot owners.
  * 2. A door-leaf colour resolves its node and six declared ancestors with their semantic labels.
  *
- * @evidence contracts/testing.md#behavioral-verification Derives actual semantic entries and resolves a declared door-leaf colour, checking tight owner joins, drawing-node identity and the reachable ancestor chain.
- * @evidence contracts/testing.md#independent-expectations The authored building's unit, spaces, facade, opening and leaf hierarchy supplies thirteen hand-listed owners and six ancestor labels; lookup uses a derived colour as its key, so this is ownership/lookup consistency rather than an independent palette-colour oracle.
- * @evidence contracts/testing.md#distinguishing-cases Logical containers, orphan-free prop, water body and compact set/slot cover distinct claim classes; dangling/cyclic lookup, collisions and capacity have their own units.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_semantic_mask owns its cases. Portable semantic metadata derivation and lookup, with no pixel buffer, mask drawing or GPU segmentation.
+ * @evidence contracts/development/testing.md#behavioral-verification Derives actual semantic entries and resolves a declared door-leaf colour, checking tight owner joins, drawing-node identity and the reachable ancestor chain.
+ * @evidence contracts/development/testing.md#independent-expectations The authored building's unit, spaces, facade, opening and leaf hierarchy supplies thirteen hand-listed owners and six ancestor labels; lookup uses a derived colour as its key, so this is ownership/lookup consistency rather than an independent palette-colour oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Logical containers, orphan-free prop, water body and compact set/slot cover distinct claim classes; dangling/cyclic lookup, collisions and capacity have their own units.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_semantic_mask owns its cases. Portable semantic metadata derivation and lookup, with no pixel buffer, mask drawing or GPU segmentation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The 13 named layers retain their expected building, room, boundary, opening, element and slot owners.).
  */
 export function test_render_semantic_mask(): void {
   const {

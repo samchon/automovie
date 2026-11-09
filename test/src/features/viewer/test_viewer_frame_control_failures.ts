@@ -11,10 +11,11 @@ import * as THREE from "three";
  * 2. Rebase and source release failures are both attempted and retained in order.
  * 3. A throwing terminal release is attempted once and never resumes the source.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the public mounted controller through producer lease ports, checking continued ticks after refused acquisition, original ordered release failures, sticky repeat behavior and exactly-once terminal cleanup.
- * @evidence contracts/testing.md#independent-expectations Ownership requires no acquired lease after acquisition failure, every independent final-release obligation attempted once, original cause identity preserved and terminal cleanup marked resume=false.
- * @evidence contracts/testing.md#distinguishing-cases Covers acquisition failure, simultaneous rebase/release failures, repeated release, post-failure tick refusal and failed disposal repeated after a retained lease. The companion behavior test owns normal nested restore/freeze/resume and invalid transfers.
- * @evidence contracts/testing.md#execution-ownership Portable named unit uses CPU cameras and declared source callbacks only; no host, browser, GPU, timers or global/foreign method replacements run.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public mounted controller through producer lease ports, checking continued ticks after refused acquisition, original ordered release failures, sticky repeat behavior and exactly-once terminal cleanup.
+ * @evidence contracts/development/testing.md#independent-expectations Ownership requires no acquired lease after acquisition failure, every independent final-release obligation attempted once, original cause identity preserved and terminal cleanup marked resume=false.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers acquisition failure, simultaneous rebase/release failures, repeated release, post-failure tick refusal and failed disposal repeated after a retained lease. The companion behavior test owns normal nested restore/freeze/resume and invalid transfers.
+ * @evidence contracts/development/testing.md#execution-ownership Portable named unit uses CPU cameras and declared source callbacks only; no host, browser, GPU, timers or global/foreign method replacements run.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Failed acquisition creates no lease and does not suppress ordinary ticks.).
  */
 export function test_viewer_frame_control_failures(): void {
   const acquisition: Error = new Error("source pause failed");

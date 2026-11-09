@@ -8,4 +8,4 @@ Package upgrades never rewrite this production. Authorized AutoMovie CLI sync up
 
 ## Changing the layout
 
-When changing a layout, keep selectors, imports, commands, links, identities, and actual consumers aligned. Update source and media answers through [their evidence method](../evidence/answering.md); changes touching narrative answers or closed reviews follow [upstream repair](../story/correction/repair.md). Keep global routing in `AGENTS.md`, task goals and boundaries in skill overviews, and conditional detail in sibling resources linked directly from those overviews. Installed APIs own their callable behavior.
+When changing a layout, keep selectors, imports, commands, links, identities, and actual consumers aligned. Update source and media answers through [their evidence method](../evidence/answering.md); changes touching narrative answers or closed reviews follow [upstream repair](../story/correction/repair.md).

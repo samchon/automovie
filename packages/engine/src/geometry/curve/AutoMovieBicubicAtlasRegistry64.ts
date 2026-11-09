@@ -18,13 +18,13 @@ type Corner = AutoMovieBicubicAtlasTypes64["Corner"];
 /**
  * Register shared corners, exact edge phases and incidence before atlas emission.
  *
- * @evidence contracts/common.md#principled-implementation Original patch order, phase-key comparison and boundary atom incidence determine unchanged first and last owners.
- * @evidence contracts/common.md#clear-and-simple-design This phase retains its original arithmetic and ordered state transitions while its caller owns orchestration.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Extraction introduces no input correction, geometry fallback, reordered reduction or changed admission condition.
- * @evidence contracts/common.md#meaningful-documentation States the phase responsibility, shared-state ownership and numerical limits inherited from the calling algorithm.
- * @evidence contracts/performance.md#efficient-algorithms Visits planned boundary cells, sorts each exact phase population and checks its declared incidents.
- * @evidence contracts/performance.md#reuse-equivalent-work One registry is reused across every emitted patch and normal fan.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Maps stay generator-owned until their original last-owner cleanup; the summary remains one shared mutable record.
+ * @evidence contracts/development/implementation.md#principled-implementation Original patch order, phase-key comparison and boundary atom incidence determine unchanged first and last owners.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This phase retains its original arithmetic and ordered state transitions while its caller owns orchestration.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Extraction introduces no input correction, geometry fallback, reordered reduction or changed admission condition.
+ * @evidence contracts/development/common.md#meaningful-documentation States the phase responsibility, shared-state ownership and numerical limits inherited from the calling algorithm.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Visits planned boundary cells, sorts each exact phase population and checks its declared incidents.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One registry is reused across every emitted patch and normal fan.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Maps stay generator-owned until their original last-owner cleanup; the summary remains one shared mutable record.
  */
 export function AutoMovieBicubicAtlasRegistry64(
   input: AtlasInput,

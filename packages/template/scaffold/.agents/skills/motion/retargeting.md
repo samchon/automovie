@@ -1,10 +1,10 @@
 # Adopt and retarget motion
 
-Use this for recorded, generated or imported motion, or when a character's proportions or rig change. Read the accepted source, the [rig characterization](../3d-modeling/rigging.md), the screenplay's decisions and the installed kinematics and import contracts; a clip's name does not establish its timing, contacts or meaning.
+Use this for recorded, generated or imported motion, or when a character's proportions or rig change. Read the accepted source, the [rig characterization](../3d-modeling/rigging.md), the screenplay's decisions and the installed kinematics and import contracts; establish a clip's timing, contacts and meaning from its data rather than its name.
 
 ## Establish the source and target meanings
 
-Freeze the source bytes and conversion settings with their skeleton, rest pose, time convention, root trajectory, scale and usage terms, and record the bone, axis, unit and frame correspondence. Imported quaternions are not automatically the joint-angle representation a retargeter accepts; normalize through supported operations instead of relabeling a clip. Keep the retargeter's warnings and refusals: a returned clip is not proof of contact fidelity, and joint limits are never widened to hide an incompatible conversion. Set root scale from meaningful dimensions, then confirm facing, root path, reach, foot positions and attached props; an unreachable support is fixed at the rig, staging or path, because a different outcome is a narrative change.
+Freeze the source bytes and conversion settings with their skeleton, rest pose, time convention, root trajectory, scale and usage terms, and record the bone, axis, unit and frame correspondence. Convert imported rotations to the representation the retargeter accepts through supported operations rather than relabeling a clip. Keep the retargeter's warnings and refusals, because a returned clip does not prove contact fidelity, and keep joint limits as the rig defines them. Set root scale from meaningful dimensions, then confirm facing, root path, reach, foot positions and attached props; an unreachable support is fixed at the rig, staging or path, because a different outcome is a narrative change.
 
 ## Preserve contacts and time
 

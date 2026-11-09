@@ -65,10 +65,11 @@ const refusedAt: (images: unknown, path: string) => boolean = (
  * 2. One carried image bound as sRGB colour and as a linear normal map is reported as contradictory under that model's image, not as a project asset.
  * 3. A non-list, a non-record entry, a blank or repeated id, a JPEG media type, a data-URI prefix, non-PNG bytes, a 16-bit depth, a palette, interlacing, a zero edge and an edge one past 8192 are each refused at the image's path, while greyscale, greyscale-alpha and RGB images and an 8192-pixel edge are admitted.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateModel and validateTextureAssets on authored models and checks the reported paths, catching a missing image gate, a ledger demand for carried bytes and a lost intent check.
- * @evidence contracts/testing.md#independent-expectations PNG bytes come from an independent Node zlib encoder with authored IHDR fields; the admitted subset and the 8192 edge are the documented interface contract, and the ledger rule follows the interface's resolution order.
- * @evidence contracts/testing.md#distinguishing-cases Pairs carried and uncarried bindings of one id, each refused header field with an admitted colour type, and the edge bound at 8192 and 8193; viewer decoding and material lobes are owned by their own tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable exported unit runs portable engine validators on in-memory records without a file, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateModel and validateTextureAssets on authored models and checks the reported paths, catching a missing image gate, a ledger demand for carried bytes and a lost intent check.
+ * @evidence contracts/development/testing.md#independent-expectations PNG bytes come from an independent Node zlib encoder with authored IHDR fields; the admitted subset and the 8192 edge are the documented interface contract, and the ledger rule follows the interface's resolution order.
+ * @evidence contracts/development/testing.md#distinguishing-cases Pairs carried and uncarried bindings of one id, each refused header field with an admitted colour type, and the edge bound at 8192 and 8193; viewer decoding and material lobes are owned by their own tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable exported unit runs portable engine validators on in-memory records without a file, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A model carrying one RGBA PNG bound by its base colour validates, and the texture closure with an empty ledger reports nothing for it,...).
  */
 export function test_validation_model_images(): void {
   const facts: (asset: string) => IAutoMovieTextureImageFacts | undefined = ():

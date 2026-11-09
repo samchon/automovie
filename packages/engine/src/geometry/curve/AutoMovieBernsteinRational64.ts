@@ -8,25 +8,22 @@ import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
  * Quotients require a positive evaluated denominator and reject otherwise; no epsilon denominator or polynomial quotient fit replaces the homogeneous representation.
  *
  *
- * @evidence contracts/common.md#principled-implementation Homogeneous numerator/denominator records evaluated by N/Q and (N'Q-NQ')/Q², partitioned by the same subdivision as polynomials.
- * @evidence contracts/common.md#clear-and-simple-design Rational records are separated from the polynomial algebra and subdivision they compose.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nonpositive denominators reject; no quotient sampling or fit is used.
- * @evidence contracts/common.md#meaningful-documentation Each member states its denominator and parameter contract.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Members state degree-dependent costs; a namespace declaration computes nothing.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The namespace stores no cross-call result table.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No geometry, model, scene or lifetime handle is owned by the namespace.
+ * @evidence contracts/development/common.md#meaningful-documentation Each member states its denominator and parameter contract.
+ * @evidence contracts/development/design.md#principled-representation Represents Rational Bernstein quotients N/Q, including the four existing quotient operations preserved by the AutoMovieBernstein64 compatibility facade: companion namespace of 4 members (`thirdsR`, `evaluateR`, `evaluateS`, `positiveScalar`); units and frames named in its text: rational, degrees, local, degree. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieBernsteinRational64` in packages/engine/src/geometry/curve/AutoMovieBernsteinRational64.ts; its surface is the 4 members listed and the text shows 1 other file naming it, mostly packages/engine (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieBernsteinRational64 {
   /**
    * Partition numerator and denominator together so the rational quotient is unchanged.
    *
-   * @evidence contracts/common.md#principled-implementation Numerator and denominator are partitioned with corresponding thirds so the quotient chart remains aligned.
-   * @evidence contracts/common.md#clear-and-simple-design Rational partitioning composes the existing polynomial partition owners.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No denominator sampling or quotient fitting replaces the homogeneous representation.
-   * @evidence contracts/common.md#meaningful-documentation Partition numerator and denominator together so the rational quotient is unchanged.
-   * @evidence contracts/performance.md#efficient-algorithms Numerator and denominator subdivision dominate O(n²) work for their supplied degrees.
-   * @evidence contracts/performance.md#reuse-equivalent-work Both coefficient families use one identical three-domain partition.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Each returned record owns its new numerator and denominator arrays.
+   * @evidence contracts/development/implementation.md#principled-implementation Numerator and denominator are partitioned with corresponding thirds so the quotient chart remains aligned.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Rational partitioning composes the existing polynomial partition owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No denominator sampling or quotient fitting replaces the homogeneous representation.
+   * @evidence contracts/development/common.md#meaningful-documentation Partition numerator and denominator together so the rational quotient is unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Numerator and denominator subdivision dominate O(n²) work for their supplied degrees.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both coefficient families use one identical three-domain partition.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each returned record owns its new numerator and denominator arrays.
    */
   export function thirdsR(r: B.RecordV): B.RecordV[] {
     const ns: B.Poly[] = D.thirds(r.numerator),
@@ -41,13 +38,13 @@ export namespace AutoMovieBernsteinRational64 {
   /**
    * Evaluate N/Q or its quotient derivative; a nonpositive denominator rejects.
    *
-   * @evidence contracts/common.md#principled-implementation Evaluates N and Q and uses (N′Q-NQ′)/Q² for the optional derivative.
-   * @evidence contracts/common.md#clear-and-simple-design One quotient operation shares vector/scalar evaluation and differentiation owners.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A nonpositive evaluated denominator rejects; polynomial quotient fitting is not used.
-   * @evidence contracts/common.md#meaningful-documentation Evaluate N/Q or its quotient derivative; a nonpositive denominator rejects.
-   * @evidence contracts/performance.md#efficient-algorithms Coefficient evaluation and derivative-net evaluation dominate quadratic work in supplied degrees.
-   * @evidence contracts/performance.md#reuse-equivalent-work The already evaluated N and Q are reused in the quotient derivative.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the new result triple escapes local numerator/denominator calculations.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates N and Q and uses (N′Q-NQ′)/Q² for the optional derivative.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One quotient operation shares vector/scalar evaluation and differentiation owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A nonpositive evaluated denominator rejects; polynomial quotient fitting is not used.
+   * @evidence contracts/development/common.md#meaningful-documentation Evaluate N/Q or its quotient derivative; a nonpositive denominator rejects.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Coefficient evaluation and derivative-net evaluation dominate quadratic work in supplied degrees.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The already evaluated N and Q are reused in the quotient derivative.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the new result triple escapes local numerator/denominator calculations.
    */
   export function evaluateR(
     r: B.RecordV,
@@ -70,13 +67,13 @@ export namespace AutoMovieBernsteinRational64 {
   /**
    * Evaluate a scalar quotient or its derivative; a nonpositive denominator rejects.
    *
-   * @evidence contracts/common.md#principled-implementation Scalar quotient evaluation uses N/Q or (N′Q-NQ′)/Q² at the same parameter.
-   * @evidence contracts/common.md#clear-and-simple-design The scalar quotient composes the same coefficient evaluation and derivative operations.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Nonpositive evaluated denominators reject without a replacement epsilon denominator.
-   * @evidence contracts/common.md#meaningful-documentation Evaluate a scalar quotient or its derivative; a nonpositive denominator rejects.
-   * @evidence contracts/performance.md#efficient-algorithms A fixed number of scalar Bernstein evaluations dominates quadratic degree cost.
-   * @evidence contracts/performance.md#reuse-equivalent-work N and Q values are reused within the derivative expression.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only one scalar returns; coefficient and derivative scratch arrays are not retained.
+   * @evidence contracts/development/implementation.md#principled-implementation Scalar quotient evaluation uses N/Q or (N′Q-NQ′)/Q² at the same parameter.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The scalar quotient composes the same coefficient evaluation and derivative operations.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonpositive evaluated denominators reject without a replacement epsilon denominator.
+   * @evidence contracts/development/common.md#meaningful-documentation Evaluate a scalar quotient or its derivative; a nonpositive denominator rejects.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of scalar Bernstein evaluations dominates quadratic degree cost.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work N and Q values are reused within the derivative expression.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only one scalar returns; coefficient and derivative scratch arrays are not retained.
    */
   export function evaluateS(
     r: B.RecordS,
@@ -95,13 +92,13 @@ export namespace AutoMovieBernsteinRational64 {
   /**
    * Construct a control-positive rational transition with the supplied endpoint values and slopes.
    *
-   * @evidence contracts/common.md#principled-implementation Endpoint slope signs choose neighboring positive support values and solve homogeneous weights for those endpoint derivatives.
-   * @evidence contracts/common.md#clear-and-simple-design One four-control rational transition preserves the supplied endpoint data.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Nonpositive endpoint values reject; finite binary64 representability remains a caller premise.
-   * @evidence contracts/common.md#meaningful-documentation Construct a control-positive rational transition with the supplied endpoint values and slopes.
-   * @evidence contracts/performance.md#efficient-algorithms The construction uses four supports and four weights with fixed work.
-   * @evidence contracts/performance.md#reuse-equivalent-work Solved weights directly supply both homogeneous numerator and denominator.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned record owns two new four-number arrays.
+   * @evidence contracts/development/implementation.md#principled-implementation Endpoint slope signs choose neighboring positive support values and solve homogeneous weights for those endpoint derivatives.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One four-control rational transition preserves the supplied endpoint data.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonpositive endpoint values reject; finite binary64 representability remains a caller premise.
+   * @evidence contracts/development/common.md#meaningful-documentation Construct a control-positive rational transition with the supplied endpoint values and slopes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The construction uses four supports and four weights with fixed work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Solved weights directly supply both homogeneous numerator and denominator.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned record owns two new four-number arrays.
    */
   export function positiveScalar(
     a: number,

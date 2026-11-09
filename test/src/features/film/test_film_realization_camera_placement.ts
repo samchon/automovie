@@ -106,10 +106,11 @@ const compile: (framed: boolean) => IAutoMovieCompiledDefinedShot = (
  * what makes the record worth writing.
  * 3. A beat with no `frame` action compiles no move and records no placement; independent depth precision belongs to the dedicated depth tests.
  *
- * @evidence contracts/testing.md#behavioral-verification Compiles framed and locked programs and observes actual camera-motion membership, recorded placement and preservation of staged camera inputs; recorded framed placement is compared through the renderer's camera resolver seam.
- * @evidence contracts/testing.md#independent-expectations The authored staged position and framed-versus-locked contract provide independent changed/unchanged expectations; the shared resolver comparison proves agreement between consumers rather than an independent camera-solve or depth-precision algorithm.
- * @evidence contracts/testing.md#distinguishing-cases Keeps framed and locked successful compilation, moved placement at every sample, unchanged staged translation and absence of locked placements; independent depth precision is owned by its dedicated tests.
- * @evidence contracts/testing.md#execution-ownership The runner discovers test_film_realization_camera_placement and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Compiles framed and locked programs and observes actual camera-motion membership, recorded placement and preservation of staged camera inputs; recorded framed placement is compared through the renderer's camera resolver seam.
+ * @evidence contracts/development/testing.md#independent-expectations The authored staged position and framed-versus-locked contract provide independent changed/unchanged expectations; the shared resolver comparison proves agreement between consumers rather than an independent camera-solve or depth-precision algorithm.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps framed and locked successful compilation, moved placement at every sample, unchanged staged translation and absence of locked placements; independent depth precision is owned by its dedicated tests.
+ * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_realization_camera_placement and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A framed beat carries a placement at every camera sample, and it is exactly).
  */
 export function test_film_realization_camera_placement(): void {
   const framed: IAutoMovieCompiledDefinedShot = compile(true);

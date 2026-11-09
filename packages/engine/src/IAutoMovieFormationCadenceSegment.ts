@@ -12,13 +12,10 @@
  * always produce the same segments, so a re-render is byte-identical and a seek
  * is exact.
  *
- * @evidence contracts/common.md#principled-implementation Cadence is the integral of covered ground over `[0, time]`, so the interval is cut at cue boundaries and each piece records seconds, eased distance and turn, which a consumer sums to get the cycle phase exactly at any seek time.
- * @evidence contracts/common.md#clear-and-simple-design Four fields, each a quantity a cycle consumer adds up; resolving the gait to a figure model stays with the viewer, which knows the runtime models of each LOD tier.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing accumulates between frames, so no frame-to-frame drift is corrected afterwards; a gap carries the previous gait as a stated rule rather than a guess for a missing cue.
- * @evidence contracts/common.md#meaningful-documentation States the gait's source and its null before the first cue, the gap gait rule, the seconds, the x-z plane and meter unit of distance, and that the turn is unsigned radians.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Plain record; producing the list costs one sort of the unit's cues and one pass over them in `formationCadenceSegments`, answered there.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each segment list is rebuilt from the cue list and the time; the type has no identity that would let one list stand for another time.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Four scalars; a list holds at most two segments per cue started before the time plus one trailing gap, and its caller owns it.
+ * @evidence contracts/development/design.md#principled-representation Cadence is the integral of covered ground over `[0, time]`, so the interval is cut at cue boundaries and each piece records seconds, eased distance and turn, which a consumer sums to get the cycle phase exactly at any seek time.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Four fields, each a quantity a cycle consumer adds up; resolving the gait to a figure model stays with the viewer, which knows the runtime models of each LOD tier.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing accumulates between frames, so no frame-to-frame drift is corrected afterwards; a gap carries the previous gait as a stated rule rather than a guess for a missing cue.
+ * @evidence contracts/development/common.md#meaningful-documentation States the gait's source and its null before the first cue, the gap gait rule, the seconds, the x-z plane and meter unit of distance, and that the turn is unsigned radians.
  */
 export interface IAutoMovieFormationCadenceSegment {
   /**

@@ -1,10 +1,9 @@
 import {
-  type IAutoMovieRecoveryEventCurvePiece,
   type IAutoMovieRecoveryEventChartInput as Chart,
   AutoMovieRecoveryEventCurve as E,
+  type IAutoMovieRecoveryEventCurvePiece,
   assembleAutoMovieRecoveryFieldComplex as assemble,
 } from "@automovie/recovery";
-
 import { TestValidator } from "@nestia/e2e";
 
 import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
@@ -20,10 +19,11 @@ import { nclose } from "../internal/nclose";
  * 3. A failed corner, repeated domain name or patch budget preserves unrelated geometry.
  * 4. An explicit observation refusal remains textual and prevents complete coverage.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls maintained global assembly and consumes its recipe through the public CPU atlas realizer. It measures triangle area, exact shared index owners and local refusals rather than matching generated snapshots.
- * @evidence contracts/testing.md#independent-expectations Each declared affine three-by-three millimetre square has area9e-6 square metres. Equal edge names require all four equal coefficients; a conflict cannot erase a disconnected finite square or become an average. Insufficient capacity cannot produce complete supplied-domain coverage.
- * @evidence contracts/testing.md#distinguishing-cases Covers shared adjacent domains, unrelated finite output, a genuine raw internal-control conflict, mismatched corner, repeated ID, empty input, aggregate patch exhaustion and observation refusal. Partial intervals and reversal arithmetic have their dedicated native-compiler test; no source fidelity or embedding assertion follows.
- * @evidence contracts/testing.md#execution-ownership Portable mathematical curves exercise maintained assembly and the actual engine in process. No anatomical fixture, original mesh, fitter, filesystem, host process, viewer or GPU is involved.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls maintained global assembly and consumes its recipe through the public CPU atlas realizer. It measures triangle area, exact shared index owners and local refusals rather than matching generated snapshots.
+ * @evidence contracts/development/testing.md#independent-expectations Each declared affine three-by-three millimetre square has area9e-6 square metres. Equal edge names require all four equal coefficients; a conflict cannot erase a disconnected finite square or become an average. Insufficient capacity cannot produce complete supplied-domain coverage.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers shared adjacent domains, unrelated finite output, a genuine raw internal-control conflict, mismatched corner, repeated ID, empty input, aggregate patch exhaustion and observation refusal. Partial intervals and reversal arithmetic have their dedicated native-compiler test; no source fidelity or embedding assertion follows.
+ * @evidence contracts/development/testing.md#execution-ownership Portable mathematical curves exercise maintained assembly and the actual engine in process. No anatomical fixture, original mesh, fitter, filesystem, host process, viewer or GPU is involved.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two adjacent squares share one complete native edge and realize their combined area.).
  */
 export function test_geometry_recovery_field_complex(): void {
   const policy: Parameters<typeof assemble>[1] = {
@@ -165,20 +165,26 @@ export function test_geometry_recovery_field_complex(): void {
       ...second.chart,
       left: {
         ...second.chart.left,
-        pieces: second.chart.left.pieces.map((piece: IAutoMovieRecoveryEventCurvePiece): IAutoMovieRecoveryEventCurvePiece => {
-          const parent: C.Span = E.fullparentControls(piece.source);
-          const net: C.Span = [
-            parent[0],
-            [
-              parent[1][0] + 1,
-              parent[1][1],
-              parent[1][2],
-            ],
-            parent[2],
-            parent[3],
-          ];
-          return { ...piece, source: { ...piece.source, curve: { ...piece.source.curve, spans: [net] } } };
-        }),
+        pieces: second.chart.left.pieces.map(
+          (
+            piece: IAutoMovieRecoveryEventCurvePiece,
+          ): IAutoMovieRecoveryEventCurvePiece => {
+            const parent: C.Span = E.fullparentControls(piece.source);
+            const net: C.Span = [
+              parent[0],
+              [parent[1][0] + 1, parent[1][1], parent[1][2]],
+              parent[2],
+              parent[3],
+            ];
+            return {
+              ...piece,
+              source: {
+                ...piece.source,
+                curve: { ...piece.source.curve, spans: [net] },
+              },
+            };
+          },
+        ),
       },
     },
   };

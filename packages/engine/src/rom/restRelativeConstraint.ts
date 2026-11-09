@@ -40,13 +40,13 @@ const shift: (
 /**
  * Convert clinical degree interval endpoints by (clinical - neutral) / sign and reorder mirrored bounds. Null axes remain immobile and absent frames retain range identity. swingDeg is carried as the existing rest-deviation policy; arbitrary neutral shifts do not prove clinical swing-metric invariance.
  *
- * @evidence contracts/common.md#principled-implementation Invert sign/neutral on clinical interval endpoints and reorder mirrored bounds, retaining swingDeg as the existing rest-relative deviation-cap policy.
- * @evidence contracts/common.md#clear-and-simple-design Interval conversion shares scalar frame meaning while preserving null axes and absent-frame range identity.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid frame sign/neutral throws; unchanged swingDeg does not prove clinical two-axis metric invariance under arbitrary neutral shifts.
- * @evidence contracts/common.md#meaningful-documentation Docs identify degrees, endpoint ordering, null/undefined semantics and the cone policy without universal invariance claims.
- * @evidence contracts/performance.md#efficient-algorithms Three fixed axis conversions allocate at most three intervals plus one constraint wrapper.
- * @evidence contracts/performance.md#reuse-equivalent-work Unchanged ranges/frames remain borrowed; changed bounds or rest convention requires new conversion.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns wrapper/new intervals and borrows unchanged clinical ranges; no registry, handle or task survives.
+ * @evidence contracts/development/implementation.md#principled-implementation Invert sign/neutral on clinical interval endpoints and reorder mirrored bounds, retaining swingDeg as the existing rest-relative deviation-cap policy.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Interval conversion shares scalar frame meaning while preserving null axes and absent-frame range identity.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid frame sign/neutral throws; unchanged swingDeg does not prove clinical two-axis metric invariance under arbitrary neutral shifts.
+ * @evidence contracts/development/common.md#meaningful-documentation Docs identify degrees, endpoint ordering, null/undefined semantics and the cone policy without universal invariance claims.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three fixed axis conversions allocate at most three intervals plus one constraint wrapper.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged ranges/frames remain borrowed; changed bounds or rest convention requires new conversion.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns wrapper/new intervals and borrows unchanged clinical ranges; no registry, handle or task survives.
  */
 export const restRelativeConstraint: (
   clinical: IAutoMovieJointConstraint,

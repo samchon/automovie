@@ -13,10 +13,10 @@ import { wearableSoftBodyTestDomain as domain } from "./wearableSoftBodyTestDoma
 /**
  * Preserve original wearable Scenario 7 admission refusals after the earlier accepted cases.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual wearable resolver for each original malformed step, frame, subject, bone, transform or budget input and observes its original diagnostic substring.
- * @evidence contracts/testing.md#independent-expectations Literal fractional/out-of-range/nonfinite values and missing/duplicate authored identities independently determine refusal expectations, without copying resolver decisions into an expected trajectory.
- * @evidence contracts/testing.md#distinguishing-cases Keeps every original Scenario 7 case, input value, error and assertion order; supplied static/node/capsule domains retain their main-unit identities. Accepted motion and lower-boundary admission remain separately owned original blocks.
- * @evidence contracts/testing.md#execution-ownership The main test directly invokes this synchronous assertion owner with borrowed existing records; fresh malformed frames stay local, and no file, renderer, browser, GPU, native host or foreign-method replacement is used.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual wearable resolver for each original malformed step, frame, subject, bone, transform or budget input and observes its original diagnostic substring.
+ * @evidence contracts/development/testing.md#independent-expectations Literal fractional/out-of-range/nonfinite values and missing/duplicate authored identities independently determine refusal expectations, without copying resolver decisions into an expected trajectory.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps every original Scenario 7 case, input value, error and assertion order; supplied static/node/capsule domains retain their main-unit identities. Accepted motion and lower-boundary admission remain separately owned original blocks.
+ * @evidence contracts/development/testing.md#execution-ownership The main test directly invokes this synchronous assertion owner with borrowed existing records; fresh malformed frames stay local, and no file, renderer, browser, GPU, native host or foreign-method replacement is used.
  */
 export function wearableSoftBodyTestAdmission(
   staticDomain: IAutoMovieSoftBodyDomain,

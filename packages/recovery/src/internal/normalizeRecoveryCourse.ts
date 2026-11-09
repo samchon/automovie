@@ -1,18 +1,20 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
-import { compileAutoMovieNormalizedPhases64 } from "@automovie/engine/geometry/curve/compileAutoMovieNormalizedPhases64";
+import {
+  type IAutoMovieCurve64 as C,
+  compileAutoMovieNormalizedPhases64,
+} from "@automovie/engine";
 
 /**
  * Normalize the saved open-course phase and optionally reverse its declared direction.
  * Physical coefficients remain unchanged; reversing a span reverses its control order
  * and widths together. The last normalized width closes the binary64 prefix exactly.
  *
- * @evidence contracts/common.md#principled-implementation Positive saved widths normalize one existing parameter chart; explicit reversal changes control and interval order together without fitting new geometry.
- * @evidence contracts/common.md#clear-and-simple-design One pure owner admits and normalizes a complete saved course for the open-field engine.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source mesh, nearest correspondence, copied normals, positional weld or coefficient correction enters this operation.
- * @evidence contracts/common.md#meaningful-documentation States phase normalization, physical preservation, explicit reversal and unrepresentable prefix refusal.
- * @evidence contracts/performance.md#efficient-algorithms N spans and widths require O(N) time and output storage.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This pure per-course operation has no cross-call cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the immutable input; normalized arrays transfer to the run invocation and no handle or global state survives.
+ * @evidence contracts/development/implementation.md#principled-implementation Positive saved widths normalize one existing parameter chart; explicit reversal changes control and interval order together without fitting new geometry.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure owner admits and normalizes a complete saved course for the open-field engine.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source mesh, nearest correspondence, copied normals, positional weld or coefficient correction enters this operation.
+ * @evidence contracts/development/common.md#meaningful-documentation States phase normalization, physical preservation, explicit reversal and unrepresentable prefix refusal.
+ * @evidence contracts/development/implementation.md#efficient-algorithms N spans and widths require O(N) time and output storage.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure per-course operation has no cross-call cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the immutable input; normalized arrays transfer to the run invocation and no handle or global state survives.
  */
 export function normalizeRecoveryCourse(
   curve: C.Cubic,

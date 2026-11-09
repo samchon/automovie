@@ -12,13 +12,10 @@
  * candidate never replaces the native solution. Arrays are new and owned by
  * the caller.
  *
- * @evidence contracts/common.md#principled-implementation Records coordinate-wise dual correction for a fixed feasible primal and active-set working steps with blocking constraints, the two corrections the producer runs; admission is a separate full-row KKT measurement by the refinement owner, so nothing here certifies the candidate.
- * @evidence contracts/common.md#clear-and-simple-design One record for both methods, carrying the candidate, the method chosen, and per-step traces a failed solve's error message prints; fields of the method not taken stay empty or zero.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The method is chosen by measured residuals, never by a problem's phase or a particular row, and `accepted` can only be set by the independent admission.
- * @evidence contracts/common.md#meaningful-documentation States how the method is chosen, the shared budget, that the values are an unadmitted candidate, who admits them, and ownership; each field states its unit and which method fills it.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A result record with no algorithm; the correction cost is answered on `polishAutoMovieQuadraticProgram`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each diagnostic trace describes one polishing attempt from one native solution under its original rows and step budget; no candidate is cached for another program.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Owned by the caller; each trace grows by at most two entries per started step, so every trace is linear in `maximumRefinements`, and `activeRows` holds at most one working-row list per step; nothing else is retained.
+ * @evidence contracts/development/design.md#principled-representation Records coordinate-wise dual correction for a fixed feasible primal and active-set working steps with blocking constraints, the two corrections the producer runs; admission is a separate full-row KKT measurement by the refinement owner, so nothing here certifies the candidate.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record for both methods, carrying the candidate, the method chosen, and per-step traces a failed solve's error message prints; fields of the method not taken stay empty or zero.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The method is chosen by measured residuals, never by a problem's phase or a particular row, and `accepted` can only be set by the independent admission.
+ * @evidence contracts/development/common.md#meaningful-documentation States how the method is chosen, the shared budget, that the values are an unadmitted candidate, who admits them, and ownership; each field states its unit and which method fills it.
  */
 export interface IAutoMovieQuadraticPolishingResult {
   /** Whether the refinement's full-row admission adopted the candidate. */

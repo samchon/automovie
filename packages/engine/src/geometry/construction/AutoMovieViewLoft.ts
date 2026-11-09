@@ -60,25 +60,19 @@ interface Row {
  * Unreachable girth keeps its reach endpoint with a diagnostic. Fewer than two
  * surviving sections publish no final chain. Source records and inputs remain immutable.
  *
- * @evidence contracts/common.md#principled-implementation A part's sections come from its four outlines and its fullness owner at each station, lofted into one chain whose layers read back the outlines at their sites; a declared touch/split source's sections are its native conic chains, with their continuity derived from the moving joins.
- * @evidence contracts/common.md#clear-and-simple-design One create function from a view part to its chain, surface, sections and diagnostics.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A broken station is left out with its diagnostic; no section is replaced by a fallback shape, a chain station is never published as a four-quarter section, and no C2 is claimed across a chain join.
- * @evidence contracts/common.md#meaningful-documentation States the inputs' premises, the poles' domes, the chain stations' continuity with its derivation and the result's fields.
- * @evidence contracts/performance.md#efficient-algorithms One section solve per station plus the poles' added rings.
- * @evidence contracts/performance.md#reuse-equivalent-work Each outline's spline is built once and read at every station.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the chain and the emitted sections.
+ * @evidence contracts/development/common.md#meaningful-documentation States the inputs' premises, the poles' domes, the chain stations' continuity with its derivation and the result's fields.
+ * @evidence contracts/development/design.md#principled-representation The result carries its actual four-quarter sections and split chains separately, with their source frames, the final field and its continuity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One create operation owns view-part admission and publication. Station records expose the admitted geometry to inspection and the compatibility layer.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A rejected source keeps its diagnostic, never publishes a replacement shape, and a split chain declares only the continuity of its joins.
  */
 export namespace AutoMovieViewLoft {
   /**
    * The operator's result.
    *
-   * @evidence contracts/common.md#principled-implementation Separates the final loft chain/surface from admitted sections, source diagnostics and the declared phase/station continuity.
-   * @evidence contracts/common.md#clear-and-simple-design Nullable final geometry and retained sections/diagnostics express partial and total admission failures.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing chain remains null; surviving sections are not described as the complete original source curve.
-   * @evidence contracts/common.md#meaningful-documentation Members state null cases, section identity and continuity.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Result data has no algorithm; create owns realization cost.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Result data coordinates no requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the returned chain, sections and diagnostics.
+   * @evidence contracts/development/design.md#principled-representation Separates the final loft chain/surface from admitted sections, source diagnostics and the declared phase/station continuity.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Nullable final geometry and retained sections/diagnostics express partial and total admission failures.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing chain remains null; surviving sections are not described as the complete original source curve.
+   * @evidence contracts/development/common.md#meaningful-documentation Members state null cases, section identity and continuity.
    */
   export interface IResult {
     /** Bare chain, null on input/station/coefficient/frame preparation failure; regular-surface qualification is separate. */
@@ -103,13 +97,10 @@ export namespace AutoMovieViewLoft {
   /**
    * One emitted station.
    *
-   * @evidence contracts/common.md#principled-implementation Stores one admitted section with its station and actual input plane, before final coefficient/frame interpolation.
-   * @evidence contracts/common.md#clear-and-simple-design Station, frame and section preserve the section owner's inputs and result.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not claim an emitted section exists at a failed station or closing pole.
-   * @evidence contracts/common.md#meaningful-documentation Members distinguish source station units, plane and admitted section.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Section data has no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Section data coordinates no requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The containing loft result owns the section and frame.
+   * @evidence contracts/development/design.md#principled-representation Stores one admitted section with its station and actual input plane, before final coefficient/frame interpolation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Station, frame and section preserve the section owner's inputs and result.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Does not claim an emitted section exists at a failed station or closing pole.
+   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish source station units, plane and admitted section.
    */
   export interface IStation {
     /** Station, mm. */
@@ -125,13 +116,10 @@ export namespace AutoMovieViewLoft {
   /**
    * One emitted chain station.
    *
-   * @evidence contracts/common.md#principled-implementation Stores one admitted conic chain with its station and actual input plane, before final coefficient/frame interpolation.
-   * @evidence contracts/common.md#clear-and-simple-design Station, frame and chain, as a four-quarter station keeps its section.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Only an admitted chain is stored.
-   * @evidence contracts/common.md#meaningful-documentation Members distinguish source station units, plane and the chain with its join curvatures.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Section data has no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Section data coordinates no requests.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The containing loft result owns the chain and frame.
+   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish source station units, plane and the chain with its join curvatures.
+   * @evidence contracts/development/design.md#principled-representation Stores one admitted conic chain with its physical station and exact input plane.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The loft result exposes its split station to the compatibility layer and inspection alongside ordinary section stations.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only an admitted chain is stored and its individual arc geometry remains available.
    */
   export interface IChainStation {
     /** Station, mm. */
@@ -150,13 +138,13 @@ export namespace AutoMovieViewLoft {
    * @param part The part.
    * @returns The chain, its surface, its sections and its diagnostics.
    *
-   * @evidence contracts/common.md#principled-implementation Retains original direct scalar sources as final local authority and actual analytic frame jets; explicit compatibility coefficients keep their existing common closing coordinate or ordinary SeamStation law, sampled from each station's own section or chain.
-   * @evidence contracts/common.md#clear-and-simple-design Source admission, section construction and final chain construction remain consecutive stages with explicit diagnostics.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid source/fullness/sections retain their diagnostics. A direct field with a rejected prepared station is not published through surviving compatibility rows, and no fallback section is introduced.
-   * @evidence contracts/common.md#meaningful-documentation The namespace describes ownership, totality, the pole rule, the chain stations and the final coefficient interpolation; source values use the value-only owner.
-   * @evidence contracts/performance.md#efficient-algorithms Each source is prepared once. An O(L+K) station-set and declared-knot coverage pass precedes section solves; each station then solves one section or prepares one chain, and coefficient/frame preparation and ordinary field solves are linear in layer rows and component widths.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses prepared scalar sources across station values; SeamStation skips source-owned tables and reuses each ordinary curvature table for its slope solve.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned direct chain owns original scalar preparations and O(LN) compatibility bindings alongside its sections; temporary samples are call-local and no cross-part cache is added.
+   * @evidence contracts/development/implementation.md#principled-implementation Retains original direct scalar sources as final local authority and actual analytic frame jets; explicit compatibility coefficients keep their existing common closing coordinate or ordinary SeamStation law, sampled from each station's own section or chain.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Source admission, section construction and final chain construction remain consecutive stages with explicit diagnostics.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid source/fullness/sections retain their diagnostics. A direct field with a rejected prepared station is not published through surviving compatibility rows, and no fallback section is introduced.
+   * @evidence contracts/development/common.md#meaningful-documentation The namespace describes ownership, totality, the pole rule, the chain stations and the final coefficient interpolation; source values use the value-only owner.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each source is prepared once. An O(L+K) station-set and declared-knot coverage pass precedes section solves; each station then solves one section or prepares one chain, and coefficient/frame preparation and ordinary field solves are linear in layer rows and component widths.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses prepared scalar sources across station values; SeamStation skips source-owned tables and reuses each ordinary curvature table for its slope solve.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned direct chain owns original scalar preparations and O(LN) compatibility bindings alongside its sections; temporary samples are call-local and no cross-part cache is added.
    */
   export function create(part: IAutoMovieViewPart): IResult {
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
@@ -258,14 +246,31 @@ export namespace AutoMovieViewLoft {
     } else {
       required.push(fullness.kind === "girth" ? ["girth", fullness.girth] : ["shoulder", fullness.shoulder]);
       if (fullness.departures !== undefined)
-        required.push(...fullness.departures.map((outline: IAutoMovieViewPart.IOutline, q: number): [string, IAutoMovieViewPart.IOutline] => [`departure ${q}`, outline]));
+        required.push(
+          ...fullness.departures.map(
+            (
+              outline: IAutoMovieViewPart.IOutline,
+              q: number,
+            ): [string, IAutoMovieViewPart.IOutline] => [
+              `departure ${q}`,
+              outline,
+            ],
+          ),
+        );
     }
     const declared: Set<number> = new Set(part.stations);
     let missing: boolean = false;
     for (const [name, outline] of direct === null ? required : [])
       for (const knot of outline.knots)
-        if (knot.station >= first && knot.station <= last && !declared.has(knot.station)) {
-          report("stations", `${name} knot ${knot.site}@${knot.station} mm lies inside the retained interval but is absent from declared stations`);
+        if (
+          knot.station >= first &&
+          knot.station <= last &&
+          !declared.has(knot.station)
+        ) {
+          report(
+            "stations",
+            `${name} knot ${knot.site}@${knot.station} mm lies inside the retained interval but is absent from declared stations`,
+          );
           missing = true;
         }
     if (missing) return empty();

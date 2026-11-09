@@ -16,10 +16,11 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * 5. JSON glTF and GLB refuse duplicate object members, including names that become equal only after JSON escape decoding.
  * 6. A document nested 100,000 levels deep is accepted when its members are unique and refused when the deepest object repeats a member, so the duplicate scan never turns nesting depth into call-stack depth.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls motion byte inspection and observes canonical node facts or precise structural/JSON refusal; lost rest transforms, guessed matrix decomposition or duplicate-member acceptance fails.
- * @evidence contracts/testing.md#independent-expectations Authored node TRS and parent links supply canonical facts, and decoded JSON member identity defines duplicates; glTF/GLB headers and explicit little-endian samples define the fixture independently.
- * @evidence contracts/testing.md#distinguishing-cases Parent resolution, cycles, names, malformed/nonfinite TRS, positive scale, unit rotations, matrices, root/escaped/nested/array duplicates, string escapes and 100,000-level accepted/refused nesting are retained; adoption policy is owned by the adoption unit.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_ingest_external_model_inspector entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls motion byte inspection and observes canonical node facts or precise structural/JSON refusal; lost rest transforms, guessed matrix decomposition or duplicate-member acceptance fails.
+ * @evidence contracts/development/testing.md#independent-expectations Authored node TRS and parent links supply canonical facts, and decoded JSON member identity defines duplicates; glTF/GLB headers and explicit little-endian samples define the fixture independently.
+ * @evidence contracts/development/testing.md#distinguishing-cases Parent resolution, cycles, names, malformed/nonfinite TRS, positive scale, unit rotations, matrices, root/escaped/nested/array duplicates, string escapes and 100,000-level accepted/refused nesting are retained; adoption policy is owned by the adoption unit.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_ingest_external_model_inspector entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A valid motion source returns stable node ids, source indices and names, parent ids, canonical local TRS, and the meter/right-handed/Y-up...).
  */
 export function test_ingest_external_model_inspector(): void {
   const inspected: import("@automovie/ingest").IAutoMovieExternalModelInspection =

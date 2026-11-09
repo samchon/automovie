@@ -7,13 +7,13 @@ import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
  * @param boundary Section positions in millimetres and matching mm-per-mm first-variation controls.
  * @throws Error on any missing coefficient, identity, topology or physical-unit mismatch.
  *
- * @evidence contracts/common.md#principled-implementation Primitive admission checks the section, followed by matching span/control layout, finite derivative components, exact ID and declared physical units.
- * @evidence contracts/common.md#clear-and-simple-design Boundary-specific checks extend primitive admission without converting the supplied field.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A finite supplied longitudinalAxis is accepted without a unit-length, regularity or section/derivative compatibility proof; callers retain those premises.
- * @evidence contracts/common.md#meaningful-documentation Documents the exact one-turn sum, physical derivative denominator and checks that remain outside admission.
- * @evidence contracts/performance.md#efficient-algorithms Linear in the section and derivative control counts; every represented coefficient must be examined.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work No admission result is cached because caller-owned boundary arrays can change between calls.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The assertion mutates and retains no boundary or coefficient array.
+ * @evidence contracts/development/implementation.md#principled-implementation Primitive admission checks the section, followed by matching span/control layout, finite derivative components, exact ID and declared physical units.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Boundary-specific checks extend primitive admission without converting the supplied field.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A finite supplied longitudinalAxis is accepted without a unit-length, regularity or section/derivative compatibility proof; callers retain those premises.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents the exact one-turn sum, physical derivative denominator and checks that remain outside admission.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the section and derivative control counts; every represented coefficient must be examined.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work No admission result is cached because caller-owned boundary arrays can change between calls.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The assertion mutates and retains no boundary or coefficient array.
  */
 export function assertAutoMovieCurveBoundary64(boundary: C.Boundary): void {
   if (

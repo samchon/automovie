@@ -1,10 +1,9 @@
 import {
-  type IAutoMovieRecoveryEventCurveArc,
   AutoMovieRecoveryEventCurve as E,
   type IAutoMovieRecoveryEventChartInput,
+  type IAutoMovieRecoveryEventCurveArc,
   compileAutoMovieRecoveryEventDomain,
 } from "@automovie/recovery";
-
 import { TestValidator } from "@nestia/e2e";
 
 import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
@@ -19,10 +18,11 @@ import { nclose } from "../internal/nclose";
  * 2. Independent opposite-side knots produce two or four conforming cells.
  * 3. Insufficient patch capacity and unequal corner authorities are refused.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls maintained coefficient compilation and the public bicubic atlas realizer, then measures actual triangle area and orientation. Changed boundary coefficients, false shared corners or a dropped tensor cell change these observations.
- * @evidence contracts/testing.md#independent-expectations The four specified straight sides bound a three-by-three millimetre planar square, with area 9e-6 square metres and positive Z chart normal. Reversing chart winding changes signed area only. A retained midpoint knot splits that same square into two exact affine fields.
- * @evidence contracts/testing.md#distinguishing-cases Covers one patch, an opposite-side knot union, both winding signs, explicit insufficient patch budget, nonmeeting corners and independent source-fit qualification. Native-parent partial-interval assembly is a separate owner and is not certified by this test.
- * @evidence contracts/testing.md#execution-ownership Generic portable CPU curves reach the actual maintained engine without a fitter, source mesh, anatomical fixture, process, filesystem, viewer or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls maintained coefficient compilation and the public bicubic atlas realizer, then measures actual triangle area and orientation. Changed boundary coefficients, false shared corners or a dropped tensor cell change these observations.
+ * @evidence contracts/development/testing.md#independent-expectations The four specified straight sides bound a three-by-three millimetre planar square, with area 9e-6 square metres and positive Z chart normal. Reversing chart winding changes signed area only. A retained midpoint knot splits that same square into two exact affine fields.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers one patch, an opposite-side knot union, both winding signs, explicit insufficient patch budget, nonmeeting corners and independent source-fit qualification. Native-parent partial-interval assembly is a separate owner and is not certified by this test.
+ * @evidence contracts/development/testing.md#execution-ownership Generic portable CPU curves reach the actual maintained engine without a fitter, source mesh, anatomical fixture, process, filesystem, viewer or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: One affine patch and either orientation retain the declared square area.).
  */
 export function test_geometry_recovery_event_domain(): void {
   const a: C.Vector = [0, 0, 0],

@@ -15,13 +15,10 @@ import { AutoMovieEnvelopeFaceAspect } from "./AutoMovieEnvelopeFaceAspect";
  * whose one space is not in the record yields no record; a space no building
  * unit owns makes the producer throw.
  *
- * @evidence contracts/common.md#principled-implementation Exposure means a declared face separates exactly one declared space. The normal is authored +Z flipped only when a positive-offset centroid probe passes containment; this heuristic does not certify global outward orientation. The shoelace centroid falls back to the vertex mean below the area threshold.
- * @evidence contracts/common.md#clear-and-simple-design Carries identity, owner, authored label, aspect and world geometry together, so the census and the corner finder read one record per face instead of re-deriving world vertices and normals.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Authored `kind` never decides aspect or exposure. The same positive-side containment probe applies to every face; an outside probe preserves the authored direction rather than inventing an orientation certificate.
- * @evidence contracts/common.md#meaningful-documentation States the exposure rule, the producer and its order, when no record is produced and when the producer throws, how the normal is derived and why, the centroid weighting, the vertex order and the metre units.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; deriving it costs one outline transform, one centroid and one containment probe per boundary, answered on `builtEnvironmentEnvelopeFaces`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call rebuilds the face list from the record; the census and corner finder each call the producer, and nothing stores faces across environments or edits.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns fresh vectors and a vertex array per face, released with the caller's list; no field aliases the boundary record.
+ * @evidence contracts/development/design.md#principled-representation Exposure means a declared face separates exactly one declared space. The normal is authored +Z flipped only when a positive-offset centroid probe passes containment; this heuristic does not certify global outward orientation. The shoelace centroid falls back to the vertex mean below the area threshold.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Carries identity, owner, authored label, aspect and world geometry together, so the census and the corner finder read one record per face instead of re-deriving world vertices and normals.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Authored `kind` never decides aspect or exposure. The same positive-side containment probe applies to every face; an outside probe preserves the authored direction rather than inventing an orientation certificate.
+ * @evidence contracts/development/common.md#meaningful-documentation States the exposure rule, the producer and its order, when no record is produced and when the producer throws, how the normal is derived and why, the centroid weighting, the vertex order and the metre units.
  */
 export interface IAutoMovieBuiltEnvelopeFace {
   /** Boundary whose face this is. */

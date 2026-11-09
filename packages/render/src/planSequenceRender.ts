@@ -21,13 +21,13 @@ import { renderPathStem } from "./renderPathStem";
 /**
  * Build the render-layer manifest for a committed sequence. The output FPS is controlled by the render spec; the cut's fps is preserved as editorial metadata. Trim and transition arithmetic is delegated to the engine playback timeline, then copied into the manifest so the capture host has no hidden timing rules.
  *
- * @evidence contracts/common.md#principled-implementation sequenceTimeline owns trim and overlap arithmetic, frameTimes supplies increasing half-open output samples, and one playbackCursor resolves those samples without changing the sequence's editorial fps.
- * @evidence contracts/common.md#clear-and-simple-design The manifest gathers timeline spans, resolved frame samples and paths so a capture host reads one plan instead of independently implementing the cut.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A mismatched render target or empty schedule refuses; output path overrides are caller data and no sequence identity is specially recognized.
- * @evidence contracts/common.md#meaningful-documentation The planner documents editorial versus output fps and target equality; manifest members state seconds, trim offsets, blend weights and host paths.
- * @evidence contracts/performance.md#efficient-algorithms For S supplied shots, E timeline entries and F output frames, the engine first indexes all S shots, including unused extras; layout and the forward cursor then cost O(E+F), for O(S+E+F) planning time and peak metadata space. The returned manifest retains O(E+F) records and no per-frame full timeline scan occurs.
- * @evidence contracts/performance.md#reuse-equivalent-work One resolved timeline feeds shot spans, transitions and every frame sample; the forward cursor retains its current entry across increasing sample times only within this call.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned plan retains shot-span and frame metadata proportional to the output schedule; the temporary cursor and timeline are released on return, and planning opens no host resource.
+ * @evidence contracts/development/implementation.md#principled-implementation sequenceTimeline owns trim and overlap arithmetic, frameTimes supplies increasing half-open output samples, and one playbackCursor resolves those samples without changing the sequence's editorial fps.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The manifest gathers timeline spans, resolved frame samples and paths so a capture host reads one plan instead of independently implementing the cut.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A mismatched render target or empty schedule refuses; output path overrides are caller data and no sequence identity is specially recognized.
+ * @evidence contracts/development/common.md#meaningful-documentation The planner documents editorial versus output fps and target equality; manifest members state seconds, trim offsets, blend weights and host paths.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For S supplied shots, E timeline entries and F output frames, the engine first indexes all S shots, including unused extras; layout and the forward cursor then cost O(E+F), for O(S+E+F) planning time and peak metadata space. The returned manifest retains O(E+F) records and no per-frame full timeline scan occurs.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One resolved timeline feeds shot spans, transitions and every frame sample; the forward cursor retains its current entry across increasing sample times only within this call.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned plan retains shot-span and frame metadata proportional to the output schedule; the temporary cursor and timeline are released on return, and planning opens no host resource.
  */
 export const planSequenceRender: (props: {
   sequence: IAutoMovieSequence;

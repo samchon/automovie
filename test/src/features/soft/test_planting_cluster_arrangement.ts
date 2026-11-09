@@ -64,10 +64,11 @@ const closestPair: (
  *    the derivation goes on to emit.
 
  *
- * @evidence contracts/testing.md#behavioral-verification Real arrangement and growth/budget outputs catch lost spacing, slots, seed influence, per-axis scale, yaw normalization or count accounting. The independent large-population spacing oracle remains intact.
- * @evidence contracts/testing.md#independent-expectations Authored rectangle/spacing/scale bounds, quaternion unit law, exhaustive small-population distances and the independent x-sorted large-population sweep supply expectations. Complete binary depth-three counts give 7 branches, 42 requested instances and 8 density-derived leaves; repeated output checks are metamorphic replay witnesses.
- * @evidence contracts/testing.md#distinguishing-cases Preserve ordinary/tight/no-spacing populations, seed changes, singleton/zero extents, identity yaw/fixed scale, impossible positive spacing, all 4,000 meadow slots and bare/leafed/jitter budget cases without reducing population or weakening checks.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_planting_cluster_arrangement; the exported test owns authored cases and delegates only its independent large-spacing predicate, without starting a GPU instancing host.
+ * @evidence contracts/development/testing.md#behavioral-verification Real arrangement and growth/budget outputs catch lost spacing, slots, seed influence, per-axis scale, yaw normalization or count accounting. The independent large-population spacing oracle remains intact.
+ * @evidence contracts/development/testing.md#independent-expectations Authored rectangle/spacing/scale bounds, quaternion unit law, exhaustive small-population distances and the independent x-sorted large-population sweep supply expectations. Complete binary depth-three counts give 7 branches, 42 requested instances and 8 density-derived leaves; repeated output checks are metamorphic replay witnesses.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserve ordinary/tight/no-spacing populations, seed changes, singleton/zero extents, identity yaw/fixed scale, impossible positive spacing, all 4,000 meadow slots and bare/leafed/jitter budget cases without reducing population or weakening checks.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_planting_cluster_arrangement; the exported test owns authored cases and delegates only its independent large-spacing predicate, without starting a GPU instancing host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An ordinary cluster places every member it asked for, inside the declared).
  */
 export function test_planting_cluster_arrangement(): void {
   const cluster: IAutoMoviePlantingCluster = plantingCluster();

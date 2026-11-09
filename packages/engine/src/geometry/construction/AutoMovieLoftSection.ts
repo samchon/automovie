@@ -37,25 +37,22 @@ type Owner =
 /**
  * Local station plans of explicit source and continuation generating fields.
  *
- * @evidence contracts/common.md#principled-implementation Original scalar fields and declared changed-span generators determine values and total2, while genuine source absence keeps the existing basis reader.
- * @evidence contracts/common.md#clear-and-simple-design Capability-specific factories share one explicit ownership selection and a total2 product rule for mixed fields.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Never promotes finite Point0 to a physical-jet requirement, fits a boundary, reads outside a host domain or hides a broken present source behind legacy geometry.
- * @evidence contracts/common.md#meaningful-documentation Separates local phase-only results, physical station derivatives, changed spans and immutable data ownership.
- * @evidence contracts/performance.md#efficient-algorithms Cold preparation includes binding comparison, a layer search and O(S(L+N)) changed-law validation before original scalar lookup or native/O(N) mixed preparation; phase reads use the selected generators.
- * @evidence contracts/performance.md#reuse-equivalent-work Each caller-owned closure reuses its station preparation across phases; this module does not merge existing Point and Jet caches.
- * @evidence contracts/performance.md#bound-retention-and-release-resources No module cache exists; the caller owns prepared geometry and complete basis rows until its closure is released.
+ * @evidence contracts/development/common.md#meaningful-documentation Separates local phase-only results, physical station derivatives, changed spans and immutable data ownership.
+ * @evidence contracts/development/design.md#principled-representation Represents Local station plans of explicit source and continuation generating fields: companion namespace of 4 members (`present`, `regular`, `phase`, `jet`); units and frames named in its text: local, world, frame, radians. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieLoftSection` in packages/engine/src/geometry/construction/AutoMovieLoftSection.ts; its surface is the 4 members listed and the text shows 8 other files naming it, mostly packages/engine (6), packages/human (2), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLoftSection {
   /**
    * Whether explicit source data requires its owning reader, before preparation.
    *
-   * @evidence contracts/common.md#principled-implementation Presence of original, span or endpoint data selects explicit validation rather than a registration history.
-   * @evidence contracts/common.md#clear-and-simple-design This presence predicate only routes station preparation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not certify physical derivatives or turn malformed present data into absence.
-   * @evidence contracts/common.md#meaningful-documentation Immutable source presence is distinct from value and derivative admission.
-   * @evidence contracts/performance.md#efficient-algorithms Constant chain-field checks precede a layer scan only for endpoint-only carriers.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This pure predicate owns no preparation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains no input or result.
+   * @evidence contracts/development/implementation.md#principled-implementation Presence of original, span or endpoint data selects explicit validation rather than a registration history.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This presence predicate only routes station preparation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not certify physical derivatives or turn malformed present data into absence.
+   * @evidence contracts/development/common.md#meaningful-documentation Immutable source presence is distinct from value and derivative admission.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant chain-field checks precede a layer scan only for endpoint-only carriers.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure predicate owns no preparation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or result.
    */
   export function present(chain: Chain): boolean {
     return (
@@ -74,13 +71,13 @@ export namespace AutoMovieLoftSection {
   /**
    * Required local physical2 presence under the actual interval owners.
    *
-   * @evidence contracts/common.md#principled-implementation Original source status and complete native/mixed laws supply local2 independently of projection curvature; actual legacy intervals still require their coefficient curvature rows.
-   * @evidence contracts/common.md#clear-and-simple-design One local capability predicate is shared by world Jet and exact-frame adaptation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts This presence predicate neither prepares missing derivatives nor certifies arbitrary numeric outputs; every query retains actual source admission.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes complete endpoint/span families from compatibility arrays, separately from frame and physical-pole availability.
-   * @evidence contracts/performance.md#efficient-algorithms A source-status scan includes binary binding lookup for clipped rows, followed by O(L*S) interval/law-presence work for L layers and S laws; no phase inverse or source2 query occurs.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The pure predicate owns no station preparation or cross-call result.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains no input or output and adds no cache.
+   * @evidence contracts/development/implementation.md#principled-implementation Original source status and complete native/mixed laws supply local2 independently of projection curvature; actual legacy intervals still require their coefficient curvature rows.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One local capability predicate is shared by world Jet and exact-frame adaptation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts This presence predicate neither prepares missing derivatives nor certifies arbitrary numeric outputs; every query retains actual source admission.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes complete endpoint/span families from compatibility arrays, separately from frame and physical-pole availability.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A source-status scan includes binary binding lookup for clipped rows, followed by O(L*S) interval/law-presence work for L layers and S laws; no phase inverse or source2 query occurs.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The pure predicate owns no station preparation or cross-call result.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or output and adds no cache.
    */
   export function regular(chain: Chain): boolean {
     if (!AutoMovieLoftSectionSource.regular(chain)) return false;
@@ -119,13 +116,13 @@ export namespace AutoMovieLoftSection {
   /**
    * Prepare finite values and phase derivatives, independently of physical2.
    *
-   * @evidence contracts/common.md#principled-implementation NUMBER geometry reads actual scalar values or the explicit continuation generating function at the requested station.
-   * @evidence contracts/common.md#clear-and-simple-design Null means genuine legacy ownership, never a failed present source.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not request physical source2 or replace unavailable derivatives with zeros.
-   * @evidence contracts/common.md#meaningful-documentation Returns local p/t/tt in mm and radians; source and chain data must remain immutable.
-   * @evidence contracts/performance.md#efficient-algorithms Original scalar knot lookup and fixed native preparation, or O(N) complete basis extension for a mixed span, happen once per station closure.
-   * @evidence contracts/performance.md#reuse-equivalent-work Every requested phase reuses the prepared station geometry and mixed weight.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-owned closures retain their geometry/rows; results own fresh local vectors and there is no cache insertion.
+   * @evidence contracts/development/implementation.md#principled-implementation NUMBER geometry reads actual scalar values or the explicit continuation generating function at the requested station.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Null means genuine legacy ownership, never a failed present source.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not request physical source2 or replace unavailable derivatives with zeros.
+   * @evidence contracts/development/common.md#meaningful-documentation Returns local p/t/tt in mm and radians; source and chain data must remain immutable.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Original scalar knot lookup and fixed native preparation, or O(N) complete basis extension for a mixed span, happen once per station closure.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every requested phase reuses the prepared station geometry and mixed weight.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Caller-owned closures retain their geometry/rows; results own fresh local vectors and there is no cache insertion.
    */
   export function phase(
     chain: Chain,
@@ -170,13 +167,13 @@ export namespace AutoMovieLoftSection {
   /**
    * Prepare actual physical station2 and phase total2 of the same generator.
    *
-   * @evidence contracts/common.md#principled-implementation Analytic source2 and total2 product rules differentiate the same source/span function that phase reads.
-   * @evidence contracts/common.md#clear-and-simple-design Required physical jets are prepared only through this entry point.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing physical2 throws with its premise; no Cartesian third/fourth derivative or hidden legacy fallback is constructed.
-   * @evidence contracts/common.md#meaningful-documentation Local derivatives use physical station mm and phase radians; a finite phase-only plan need not admit this operation.
-   * @evidence contracts/performance.md#efficient-algorithms Source2 lookup plus fixed native preparation or O(N) complete basis extension precede each station's phase traversal.
-   * @evidence contracts/performance.md#reuse-equivalent-work The returned reader shares one prepared station and mixed weight across all phases.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Geometry/rows belong to the caller's closure; each returned total2 owns new vectors and no global cache is added.
+   * @evidence contracts/development/implementation.md#principled-implementation Analytic source2 and total2 product rules differentiate the same source/span function that phase reads.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Required physical jets are prepared only through this entry point.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing physical2 throws with its premise; no Cartesian third/fourth derivative or hidden legacy fallback is constructed.
+   * @evidence contracts/development/common.md#meaningful-documentation Local derivatives use physical station mm and phase radians; a finite phase-only plan need not admit this operation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Source2 lookup plus fixed native preparation or O(N) complete basis extension precede each station's phase traversal.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned reader shares one prepared station and mixed weight across all phases.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Geometry/rows belong to the caller's closure; each returned total2 owns new vectors and no global cache is added.
    */
   export function jet(
     chain: Chain,

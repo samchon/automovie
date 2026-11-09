@@ -6,10 +6,10 @@ import { renderFixtureIdentity } from "./renderFixtureIdentity";
 /**
  * The existing two-storey tower: an exterior-connected hall, a sealed vault and a loft joined by one stair.
  *
- * @evidence contracts/testing.md#behavioral-verification Room-visibility, semantic ownership and render-budget units consume the same authored room/element ids; the helper supplies the graph while the named tests assert portal closure and attributed costs.
- * @evidence contracts/testing.md#independent-expectations The hall/vault wall has no opening, the hall facade has a door/window, and the stair joins hall to loft; visibility expectations can be read from those declarations without using the culler's output.
- * @evidence contracts/testing.md#distinguishing-cases Fresh room, boundary and connector records allow existing tests to add doors, overlaps or lift stops without changing another returned graph. Element transforms still share the module identity, and this helper declares no water body or compiled model geometry.
- * @evidence contracts/testing.md#execution-ownership Portable numerical fixture construction for existing discovered units; no renderer, process, filesystem or dynamic test registration is installed.
+ * @evidence contracts/development/testing.md#behavioral-verification Room-visibility, semantic ownership and render-budget units consume the same authored room/element ids; the helper supplies the graph while the named tests assert portal closure and attributed costs.
+ * @evidence contracts/development/testing.md#independent-expectations The hall/vault wall has no opening, the hall facade has a door/window, and the stair joins hall to loft; visibility expectations can be read from those declarations without using the culler's output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Fresh room, boundary and connector records allow existing tests to add doors, overlaps or lift stops without changing another returned graph. Element transforms still share the module identity, and this helper declares no water body or compiled model geometry.
+ * @evidence contracts/development/testing.md#execution-ownership Portable numerical fixture construction for existing discovered units; no renderer, process, filesystem or dynamic test registration is installed.
  */
 export const buildingFixture: () => IAutoMovieBuiltEnvironment =
   (): IAutoMovieBuiltEnvironment => ({

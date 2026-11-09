@@ -16,6 +16,7 @@ import type { IFighterProfile } from "./IFighterProfile";
  * @evidence docs/body/settings/cast/fighter-a.md#defense Parry, catch, slip, roll, sway, elbow block and check.
  * @evidence docs/body/settings/cast/fighter-a.md#checks-drag He checks the drag feint at once, every time.
  * @evidence docs/body/settings/cast/fighter-a.md#answers-pump His right glove meets a pump jab, every time.
+ * @evidence docs/research/kickboxing/exchanges.md#feints A shoulder feint draws the parry; a level feint draws the elbow block.
  */
 export const fighterA: IFighterProfile = Object.freeze<IFighterProfile>({
   id: "a",
@@ -35,28 +36,28 @@ export const fighterA: IFighterProfile = Object.freeze<IFighterProfile>({
       },
     },
     head: {
-      length: 195,
-      cephalicIndex: 78,
-      circumference: 575,
-      height: 230,
-      faceHeight: 120,
-      faceWidth: 145,
-      mandibularWidth: 110,
-      minimumFrontalWidth: 110,
-      mouthOpening: 48,
-      mandibularLaterotrusion: 10,
+      length: 201.12,
+      cephalicIndex: 76.90433571996817,
+      circumference: 577.89,
+      height: 225,
+      faceHeight: 127.2,
+      faceWidth: 143.23,
+      mandibularWidth: 104.5,
+      minimumFrontalWidth: 111.4,
+      mouthOpening: 55.3,
+      mandibularLaterotrusion: 10.4,
       face: {
         eyePair: {
-          left: { palpebralFissureLength: 29, palpebralFissureHeight: 10 },
-          right: { palpebralFissureLength: 29, palpebralFissureHeight: 10 },
+          left: { palpebralFissureLength: 28.8, palpebralFissureHeight: 11.61 },
+          right: { palpebralFissureLength: 28.8, palpebralFissureHeight: 11.61 },
         },
-        intercanthalWidth: 33,
-        nose: { width: 36, height: 52, protrusion: 20 },
-        mouth: { width: 50, upperVermilionHeight: 7, lowerVermilionHeight: 9 },
+        intercanthalWidth: 32.7,
+        nose: { width: 36.1, height: 56.6, protrusion: 21 },
+        mouth: { width: 50.9, upperVermilionHeight: 7.5, lowerVermilionHeight: 8.7 },
       },
       earPair: {
-        left: { length: 66, breadth: 29, protrusion: 18 },
-        right: { length: 66, breadth: 29, protrusion: 18 },
+        left: { length: 67, breadth: 29.05, protrusion: 19.5 },
+        right: { length: 67, breadth: 29.05, protrusion: 19.5 },
       },
     },
   },
@@ -80,6 +81,8 @@ export const fighterA: IFighterProfile = Object.freeze<IFighterProfile>({
     "feint-jab",
     "feint-low-kick",
     "feint-body-kick",
+    "feint-shoulder",
+    "feint-level",
   ],
   defenses: [
     "parry",
@@ -98,6 +101,13 @@ export const fighterA: IFighterProfile = Object.freeze<IFighterProfile>({
       id: "checks-drag",
       sees: { families: ["feint"], limb: "leg", levels: ["leg"] },
       response: "check",
+      reliability: 1,
+    },
+    {
+      kind: "tell",
+      id: "reads-level",
+      sees: { families: ["feint"], limb: "arm", levels: ["body"] },
+      response: "elbow-block",
       reliability: 1,
     },
     {

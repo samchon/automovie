@@ -100,10 +100,11 @@ const key: (time: number, x: number, z: number) => IAutoMovieKeyframe = (
  *    and do not attempt FK sampling.
  * 4. A no-drift contact with default path, rate, and tolerance succeeds.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual sampled FK foot-skate validation and checks a stable warning path with its speed overshoot, intent suppression, accepted higher tolerance/default no-drift input and four malformed annotation findings.
- * @evidence contracts/testing.md#independent-expectations The existing untranslated leg offsets place the foot at ground and root displacement 0.1m over 0.5s gives 0.2m/s, 0.15 beyond the 0.05 limit. Literal bone/window/speed/rate addresses judge invalid annotation reporting independently of sampling output.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts sliding/default-still, strict/looser speed and intentional/unintentional motion, plus missing bone, reversed window, negative speed and zero sample rate. Higher tolerance and no-drift assertions require success but do not independently require an empty warning population.
- * @evidence contracts/testing.md#execution-ownership The named synchronous entry owns the existing generic rig/clip records and directly reaches portable motion/FK semantics, without a Human asset, new geometry case, renderer or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual sampled FK foot-skate validation and checks a stable warning path with its speed overshoot, intent suppression, accepted higher tolerance/default no-drift input and four malformed annotation findings.
+ * @evidence contracts/development/testing.md#independent-expectations The existing untranslated leg offsets place the foot at ground and root displacement 0.1m over 0.5s gives 0.2m/s, 0.15 beyond the 0.05 limit. Literal bone/window/speed/rate addresses judge invalid annotation reporting independently of sampling output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts sliding/default-still, strict/looser speed and intentional/unintentional motion, plus missing bone, reversed window, negative speed and zero sample rate. Higher tolerance and no-drift assertions require success but do not independently require an empty warning population.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous entry owns the existing generic rig/clip records and directly reaches portable motion/FK semantics, without a Human asset, new geometry case, renderer or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A planted left foot that slides 0.1m over 0.5s exceeds a 0.05m/s limit and).
  */
 export function test_validation_foot_skate(): void {
   const sliding: IAutoMovieMotion = makeMotion(

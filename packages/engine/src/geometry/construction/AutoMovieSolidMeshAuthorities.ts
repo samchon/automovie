@@ -12,40 +12,66 @@ type Point = readonly [number, number];
  * never cutting loops. This distinction lets open-boundary provenance retain
  * a genuine source end while a coincident actual trim remains uncappable.
  *
- * @evidence contracts/common.md#principled-implementation Preserves the existing indexed/lift validation verbatim, then requires every declared domain segment to lie exactly on one actual grid side before domain assembly reuses its IDs.
- * @evidence contracts/common.md#clear-and-simple-design One authority owner separates shared-point validation from Grid's source sampling and keeps domain roles distinct from original trim constraints.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No positional weld, chart tolerance, input normalization or changed trim/end policy appears. Authorities cannot draw a new interior domain boundary or replace missing physical2.
- * @evidence contracts/common.md#meaningful-documentation States original IDs, foreign-owner charts, exact lift reconstruction, domain-only roles and local-map mutation before mesh publication.
- * @evidence contracts/performance.md#efficient-algorithms Validates B indexed occurrences/segments in expected O(B) Map work with constant numeric work per entry; original source evaluation remains in Grid and no triangle scan is added.
- * @evidence contracts/performance.md#reuse-equivalent-work Both roles share one face-local chart map and the unchanged collect implementation; actual domain assembly reuses those IDs and the returned segments prevent one-sided grid subdivision rather than inventing coincident vertices.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the local chart map and returned segments until face planning settles; no mesh mutation, global cache or handle is acquired here.
+ * @evidence contracts/development/common.md#meaningful-documentation States original IDs, foreign-owner charts, exact lift reconstruction, domain-only roles and local-map mutation before mesh publication.
+ * @evidence contracts/development/design.md#principled-representation Represents Admit authoritative indexed trim and original-domain chart occurrences: companion namespace of 3 members (`consumedByCell`, `domainSegments`, `collect`); units and frames named in its text: local. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidMeshAuthorities` in packages/engine/src/geometry/construction/AutoMovieSolidMeshAuthorities.ts; its surface is the 3 members listed and the text shows 2 other files naming it, mostly packages/engine (1), packages/human (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidMeshAuthorities {
   /**
    * An exact cell side consumes both authority endpoints through the existing grid lookup.
    *
-   * @evidence contracts/common.md#principled-implementation Distinguishes an identical grid side or an isolated shared grid corner from every partial, longer or nonaligned authority segment. The caller still resolves the original IDs at those exact corners.
-   * @evidence contracts/common.md#clear-and-simple-design One exact chart predicate lets Grid retain its cells beside aligned original domain authorities; actual cutting loops never use this exception.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no tolerance, new vertex, weld or segment subdivision. An authority knot inside a cell side and a coarse authority spanning several cells remain residual constraints.
-   * @evidence contracts/common.md#meaningful-documentation A true result describes consumption in this finite grid cell, not a source membership, surface chord certificate or arbitrary trim exemption. Inputs are the admitted face's finite lifted chart values.
-   * @evidence contracts/performance.md#efficient-algorithms Constant exact endpoint and interval comparisons per already-overlapping authority occurrence.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The pure predicate coordinates no requests or preparation.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Retains no arrays, mesh or source; the caller owns the supplied endpoint values.
+   * @evidence contracts/development/implementation.md#principled-implementation Distinguishes an identical grid side or an isolated shared grid corner from every partial, longer or nonaligned authority segment. The caller still resolves the original IDs at those exact corners.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One exact chart predicate lets Grid retain its cells beside aligned original domain authorities; actual cutting loops never use this exception.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses no tolerance, new vertex, weld or segment subdivision. An authority knot inside a cell side and a coarse authority spanning several cells remain residual constraints.
+   * @evidence contracts/development/common.md#meaningful-documentation A true result describes consumption in this finite grid cell, not a source membership, surface chord certificate or arbitrary trim exemption. Inputs are the admitted face's finite lifted chart values.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant exact endpoint and interval comparisons per already-overlapping authority occurrence.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The pure predicate coordinates no requests or preparation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no arrays, mesh or source; the caller owns the supplied endpoint values.
    */
-  export function consumedByCell(a: Point, b: Point, u: Point, v: Point): boolean {
-    if (a[0] === b[0] && (a[0] === u[0] || a[0] === u[1]) &&
-      Math.min(a[1], b[1]) === v[0] && Math.max(a[1], b[1]) === v[1]) return true;
-    if (a[1] === b[1] && (a[1] === v[0] || a[1] === v[1]) &&
-      Math.min(a[0], b[0]) === u[0] && Math.max(a[0], b[0]) === u[1]) return true;
+  export function consumedByCell(
+    a: Point,
+    b: Point,
+    u: Point,
+    v: Point,
+  ): boolean {
+    if (
+      a[0] === b[0] &&
+      (a[0] === u[0] || a[0] === u[1]) &&
+      Math.min(a[1], b[1]) === v[0] &&
+      Math.max(a[1], b[1]) === v[1]
+    )
+      return true;
+    if (
+      a[1] === b[1] &&
+      (a[1] === v[0] || a[1] === v[1]) &&
+      Math.min(a[0], b[0]) === u[0] &&
+      Math.max(a[0], b[0]) === u[1]
+    )
+      return true;
     const lowU: number = Math.max(Math.min(a[0], b[0]), u[0]);
     const highU: number = Math.min(Math.max(a[0], b[0]), u[1]);
     const lowV: number = Math.max(Math.min(a[1], b[1]), v[0]);
     const highV: number = Math.min(Math.max(a[1], b[1]), v[1]);
-    return lowU === highU && lowV === highV &&
-      (lowU === u[0] || lowU === u[1]) && (lowV === v[0] || lowV === v[1]);
+    return (
+      lowU === highU &&
+      lowV === highV &&
+      (lowU === u[0] || lowU === u[1]) &&
+      (lowV === v[0] || lowV === v[1])
+    );
   }
 
-  /** Seed actual rectangular domain points; return a named premise before any source or mesh write. */
+  /**
+   * Seed actual rectangular domain points; return a named premise before any source or mesh write.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Seed actual rectangular domain points; return a named premise before any source or mesh write.
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Seed actual rectangular domain points; return a named premise before any source or mesh write) directly over its typed inputs (`mesh`, `input`, `chart`, `period`) as nested iteration of depth 2 (for-of over loops; for-of over loop.chart; for-of over segments), delegating to `Array.isArray`, `collect`, `chart.get`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 52 lines and 14 top-level statements that reuses `Array.isArray`, `collect`, `chart.get` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 6 non-null assertion(s); these are the remaining shortcuts and are not justified here.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `mesh`, `input`, `chart`, `period`; the dominant cost is nested iteration of depth 2 (for-of over loops; for-of over loop.chart; for-of over segments), performed once per call with 2 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 2 allocation sites become the returned value or die with the call, so nothing grows.
+   */
   export function domainSegments(
     mesh: AutoMovieSolidMesh.IMesh,
     input: AutoMovieSolidMesh.IFace,
@@ -103,7 +129,17 @@ export namespace AutoMovieSolidMeshAuthorities {
     }
     return segments;
   }
-  /** Preserve original IDs; every repeated phase must equal the first authority plus its explicit integer period in binary64. Original loops remain unchanged for membership, so no near-coordinate canonicalization replaces their input. */
+  /**
+   * Preserve original IDs; every repeated phase must equal the first authority plus its explicit integer period in binary64. Original loops remain unchanged for membership, so no near-coordinate canonicalization replaces their input.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Preserve original IDs; every repeated phase must equal the first authority plus its explicit integer period in binary64.
+   * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Preserve original IDs; every repeated phase must equal the first authority plus its explicit integer period in binary64) directly over its typed inputs (`mesh`, `loops`, `chart`, `period`) as nested iteration of depth 3 (for-of over loops; for loop bounded by k < loop.vertices.length; every over point), delegating to `Number.isSafeInteger`, `point.every`, `chart.get`, `chart.set`, `Math.round`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Beyond structural 0, 1 and 2 the body uses the literal 3, whose basis this answer does not independently establish and a reviewer must confirm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 79 lines and 3 top-level statements that reuses `Number.isSafeInteger`, `point.every`, `chart.get`, `chart.set`, `Math.round` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 12 non-null assertion(s); these are the remaining shortcuts and are not justified here.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `mesh`, `loops`, `chart`, `period`; the dominant cost is nested iteration of depth 3 (for-of over loops; for loop bounded by k < loop.vertices.length; every over point), performed once per call with 3 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 3 allocation sites become the returned value or die with the call, so nothing grows.
+   */
   export function collect(
     mesh: AutoMovieSolidMesh.IMesh,
     loops: readonly AutoMovieSolidMesh.ILoop[],

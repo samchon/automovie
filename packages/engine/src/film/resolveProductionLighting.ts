@@ -13,13 +13,13 @@ import { resolveShotLighting } from "../resolve/resolveShotLighting";
  * @param props The production lighting and the instant.
  * @returns One light per declared source, in declaration order.
  *
- * @evidence contracts/common.md#principled-implementation Evaluates the production's light clips with the shot light resolver, the keyframe sampling every animated light uses, so a production source and a shot light rendered at the same instant hold the same value; story seconds are the clip clock because production light clips are authored on it.
- * @evidence contracts/common.md#clear-and-simple-design Renames the production record's fields onto the shot resolver's input instead of keeping a second resolver, so rounding, end-of-clip clamping and per-light accumulation exist once.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No light or property is special-cased, and malformed tracks throw through the shared resolver rather than being skipped.
- * @evidence contracts/common.md#meaningful-documentation States why the shot resolver is reused and what that guarantees, the identity return for untouched sources, the throws, the caller, the clock, and the result's order.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Delegates to `resolveShotLighting`, which samples each clip once at the instant and indexes lights by id; this adapter adds one object literal.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolves one instant per call; current production assembly inherits the shot-opening snapshot once, rather than resampling these story tracks each frame. No cross-call result is cached for mutable lighting records.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; untouched sources are the declared objects by reference and touched ones are fresh copies owned by the caller.
+ * @evidence contracts/development/implementation.md#principled-implementation Evaluates the production's light clips with the shot light resolver, the keyframe sampling every animated light uses, so a production source and a shot light rendered at the same instant hold the same value; story seconds are the clip clock because production light clips are authored on it.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Renames the production record's fields onto the shot resolver's input instead of keeping a second resolver, so rounding, end-of-clip clamping and per-light accumulation exist once.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No light or property is special-cased, and malformed tracks throw through the shared resolver rather than being skipped.
+ * @evidence contracts/development/common.md#meaningful-documentation States why the shot resolver is reused and what that guarantees, the identity return for untouched sources, the throws, the caller, the clock, and the result's order.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Delegates to `resolveShotLighting`, which samples each clip once at the instant and indexes lights by id; this adapter adds one object literal.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Resolves one instant per call; current production assembly inherits the shot-opening snapshot once, rather than resampling these story tracks each frame. No cross-call result is cached for mutable lighting records.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; untouched sources are the declared objects by reference and touched ones are fresh copies owned by the caller.
  */
 export function resolveProductionLighting(props: {
   /** The production's declared sources and their story-clock motion. */

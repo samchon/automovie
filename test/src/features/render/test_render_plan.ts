@@ -30,10 +30,11 @@ const SPEC: IAutoMovieRenderSpec = {
  * 4. Frame names zero-pad to the input pattern (`frame_00042.png` and `frame_%05d.png`), and render path stems are file-safe.
  * 5. `ffmpegArgs` encodes the spec into the pinned H.264 / pixel-format / crf / output-size (`-s width x height`) / faststart command.
  *
- * @evidence contracts/testing.md#behavioral-verification Checks the real frame count and three selected sample times, naming, safe path stems and encoder arguments, detecting incorrect selected clock values, unsafe components or omitted delivery options.
- * @evidence contracts/testing.md#independent-expectations Two seconds times 30 gives 60 samples, independently expected at i/30; filename literals, Windows device-name rules and the documented ffmpeg option order supply other expectations. No ffmpeg process validates these strings or encodes frames.
- * @evidence contracts/testing.md#distinguishing-cases Zero and nonfinite clocks, empty/dot/parent stems, reserved names with extensions, separators and a valid default spec preserve the original guard and naming cases.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_plan owns its cases. Portable schedule and command construction only; no files, encoder or capture host are opened.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks the real frame count and three selected sample times, naming, safe path stems and encoder arguments, detecting incorrect selected clock values, unsafe components or omitted delivery options.
+ * @evidence contracts/development/testing.md#independent-expectations Two seconds times 30 gives 60 samples, independently expected at i/30; filename literals, Windows device-name rules and the documented ffmpeg option order supply other expectations. No ffmpeg process validates these strings or encodes frames.
+ * @evidence contracts/development/testing.md#distinguishing-cases Zero and nonfinite clocks, empty/dot/parent stems, reserved names with extensions, separators and a valid default spec preserve the original guard and naming cases.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_plan owns its cases. Portable schedule and command construction only; no files, encoder or capture host are opened.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A 2 s clip at 30 fps yields 60 frames; the first, second and last samples agree with `0`, `1/30` and `59/30` within nclose tolerance. The...).
  */
 export function test_render_plan(): void {
   // 1. schedule

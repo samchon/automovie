@@ -96,10 +96,11 @@ const windingAgreesWithNormals: (t: {
  * 1. Every solid has strictly positive oriented volume.
  * 2. Every nondegenerate triangle across all six primitive kinds agrees with its authored normal; visual culling requires separate real-renderer observation.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls primitive tessellation and checks positive oriented volume plus agreement between geometric triangle normals and authored normals; global or local winding reversals fail.
- * @evidence contracts/testing.md#independent-expectations The divergence theorem and triangle cross products derive orientation independently of the producer's index construction; degenerate triangles have no orientation and are skipped.
- * @evidence contracts/testing.md#distinguishing-cases All five solids receive global checks and all six primitive kinds receive local checks; closed topology and capsule shape belong to the watertight unit, while these signs alone do not prove visible rendering.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_geometry_tessellate_winding entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls primitive tessellation and checks positive oriented volume plus agreement between geometric triangle normals and authored normals; global or local winding reversals fail.
+ * @evidence contracts/development/testing.md#independent-expectations The divergence theorem and triangle cross products derive orientation independently of the producer's index construction; degenerate triangles have no orientation and are skipped.
+ * @evidence contracts/development/testing.md#distinguishing-cases All five solids receive global checks and all six primitive kinds receive local checks; closed topology and capsule shape belong to the watertight unit, while these signs alone do not prove visible rendering.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_geometry_tessellate_winding entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every solid has strictly positive oriented volume.).
  */
 export function test_geometry_tessellate_winding(): void {
   for (const shape of SOLIDS)

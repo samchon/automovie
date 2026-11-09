@@ -36,10 +36,11 @@ const stageSet: (set: SetPlacement[]) => ReturnType<typeof stageScene> = (
  * 3. The negative twin: a very small but positive uniform scale is accepted, so
  *    the gate rejects zero rather than "small".
  *
- * @evidence contracts/testing.md#behavioral-verification Stages omitted, uniform and per-axis set scales and observes their TRS values, then requires zero, negative and nonfinite refusals while admitting a tiny positive scale.
- * @evidence contracts/testing.md#independent-expectations Identity, the literal uniform 2.5 and vector components define the scale oracle, compared with vclose; positive finite scale is the admission rule rather than a measured rendered size.
- * @evidence contracts/testing.md#distinguishing-cases Preserves omission, uniform/vector spellings, zero, negative axis, NaN, infinite axis and the adjacent positive 1e-6 case; model geometry and yaw/full rotation have separate owners.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all scale cases through stageScene and existing fixture records, without model loading, rendering or any real host.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages omitted, uniform and per-axis set scales and observes their TRS values, then requires zero, negative and nonfinite refusals while admitting a tiny positive scale.
+ * @evidence contracts/development/testing.md#independent-expectations Identity, the literal uniform 2.5 and vector components define the scale oracle, compared with vclose; positive finite scale is the admission rule rather than a measured rendered size.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves omission, uniform/vector spellings, zero, negative axis, NaN, infinite axis and the adjacent positive 1e-6 case; model geometry and yaw/full rotation have separate owners.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns all scale cases through stageScene and existing fixture records, without model loading, rendering or any real host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An omitted `scale` keeps the model's authored size (identity); a bare number).
  */
 export function test_film_stage_scene_set_scale(): void {
   const staged: ReturnType<typeof stageSet> = stageSet([

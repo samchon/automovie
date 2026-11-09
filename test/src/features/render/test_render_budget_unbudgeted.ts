@@ -13,10 +13,11 @@ import { BOX_TRIANGLES } from "../internal/renderFixtures";
  *
  * 1. Every metric remains unbudgeted and the report retains its measured triangle total.
  *
- * @evidence contracts/testing.md#behavioral-verification Measures the original subject and evaluates it with a null budget, asserting the unbudgeted tier, aggregate status, unique per-metric status/limit sets and retained triangle measurement.
- * @evidence contracts/testing.md#independent-expectations No declared limits means null limits and unbudgeted findings under the documented within aggregate, not missing measurements. Five staged unit boxes and twelve instance slots give the literal two-pass triangle formula; within here proves no declared limit was exceeded, not budget clearance.
- * @evidence contracts/testing.md#distinguishing-cases Preserves the absent-budget twin against an otherwise populated measurable subject; explicit limits, incomplete observations and over-limit refusals are covered separately.
- * @evidence contracts/testing.md#execution-ownership The named test_render_budget_unbudgeted owns one portable inventory/report case through existing fixtures with no drawing, capture, file write or GPU allocation.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures the original subject and evaluates it with a null budget, asserting the unbudgeted tier, aggregate status, unique per-metric status/limit sets and retained triangle measurement.
+ * @evidence contracts/development/testing.md#independent-expectations No declared limits means null limits and unbudgeted findings under the documented within aggregate, not missing measurements. Five staged unit boxes and twelve instance slots give the literal two-pass triangle formula; within here proves no declared limit was exceeded, not budget clearance.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves the absent-budget twin against an otherwise populated measurable subject; explicit limits, incomplete observations and over-limit refusals are covered separately.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_render_budget_unbudgeted owns one portable inventory/report case through existing fixtures with no drawing, capture, file write or GPU allocation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Every metric remains unbudgeted and the report retains its measured triangle total.).
  */
 export function test_render_budget_unbudgeted(): void {
   const target: ReturnType<typeof renderBudgetTargetFixture> =

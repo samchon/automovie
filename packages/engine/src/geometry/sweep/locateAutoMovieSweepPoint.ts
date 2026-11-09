@@ -17,13 +17,13 @@ const BISECTIONS: number = 48;
  * @returns `u`, the spine parameter of the section plane holding the point, 0 to 1; `v`, the point's polar direction in that plane, a turn from 0 to 1; and `offset`, its distance outside the surface along that direction in metres, negative inside.
  * @throws Error when the point is not finite.
  *
- * @evidence contracts/common.md#principled-implementation Inverting a sweep's section-plane family by bracketing and bisecting the point's signed plane distance along the spine, the standard root finding for a monotone or piecewise monotone scalar, and reading the direction as the polar angle in the plane the forward map uses.
- * @evidence contracts/common.md#clear-and-simple-design Uses only the surface's own frame and radius queries, so it inverts exactly what the sweep evaluates, fixed or transported orientation and station turns included.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Several candidate planes are resolved by a stated rule, the nearest surface, and a point beyond the spine by the nearer end's plane; non-finite input is refused.
- * @evidence contracts/common.md#meaningful-documentation States the sampling, the bracketing and bisection, the choice among planes, the end rule, the direction convention and the offset's sign.
- * @evidence contracts/performance.md#efficient-algorithms 128 frame queries to bracket, 48 per bracket to refine, and one radius query per candidate; independent of the sweep's resolution.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call locates one point; callers locating many keep the compiled surface.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#principled-implementation Inverting a sweep's section-plane family by bracketing and bisecting the point's signed plane distance along the spine, the standard root finding for a monotone or piecewise monotone scalar, and reading the direction as the polar angle in the plane the forward map uses.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Uses only the surface's own frame and radius queries, so it inverts exactly what the sweep evaluates, fixed or transported orientation and station turns included.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Several candidate planes are resolved by a stated rule, the nearest surface, and a point beyond the spine by the nearer end's plane; non-finite input is refused.
+ * @evidence contracts/development/common.md#meaningful-documentation States the sampling, the bracketing and bisection, the choice among planes, the end rule, the direction convention and the offset's sign.
+ * @evidence contracts/development/implementation.md#efficient-algorithms 128 frame queries to bracket, 48 per bracket to refine, and one radius query per candidate; independent of the sweep's resolution.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call locates one point; callers locating many keep the compiled surface.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export const locateAutoMovieSweepPoint: (props: {
   surface: IAutoMovieSweepSurface;

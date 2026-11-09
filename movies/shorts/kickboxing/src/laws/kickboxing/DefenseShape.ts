@@ -30,6 +30,18 @@ export namespace DefenseShape {
   /** Side bend of a slip, degrees: the thoracic range's limit, so the head clears a glove width. */
   const SLIP_BEND: number = 15;
 
+  /** How far a landed teep drives the receiver's hips back, in head radii: a hand's breadth or two. */
+  const PUSHED_BACK: number = 2;
+
+  /** How much deeper a landed teep folds the trunk than a body punch's reaction. */
+  const FOLD: number = 2;
+
+  /** Reach share of the teep parry's sweeping glove: well in front of the body, where the foot is met. */
+  const SWEEP_REACH: number = 0.6;
+
+  /** Height of the teep parry's glove above the hips, as a share of the hip-to-shoulder height: the stomach line. */
+  const STOMACH_SHARE: number = 0.3;
+
   /** Trunk flexion of a roll under a hook, degrees: two thirds of the thoracic range. */
   const ROLL_FLEXION: number = 20;
 
@@ -141,6 +153,25 @@ export namespace DefenseShape {
     const cheek = guard.hands[side];
     switch (input.answer) {
       case "parry":
+        // Against a teep the rear glove sweeps the foot aside at the
+        // stomach line, forward of the body, so the foot never lands.
+        if (spec.family === "push-kick")
+          return {
+            ...guard,
+            hands: {
+              ...guard.hands,
+              right: {
+                point: {
+                  x: measure.armReach * SWEEP_REACH,
+                  y:
+                    measure.hip -
+                    guard.drop +
+                    (measure.shoulder - measure.hip) * STOMACH_SHARE,
+                  z: -measure.shoulderHalfWidth,
+                },
+              },
+            },
+          };
         // The rear glove meets the incoming line across the face and turns it aside.
         return {
           ...guard,
@@ -234,13 +265,22 @@ export namespace DefenseShape {
           },
         };
       case "slip": {
-        // Outside the punch: toward the side of the throwing arm.
+        // Outside the punch: toward the side of the throwing arm. The hips
+        // shift a head radius and the trunk side-bends over them by the
+        // angle that carries the head the rest of its slip, two thirds in
+        // the thoracic spine and a third in the lumbar; the knees and waist
+        // bend into it, so the head also drops and leans forward.
+        const bend: number = slipBend(measure);
         return {
           ...guard,
-          drop: guard.drop + measure.headRadius * 0.5,
+          drop: guard.drop + measure.headRadius,
           shift: { forward: 0, left: sign * measure.headRadius },
-          thoracic: { ...guard.thoracic, lateralFlexion: sign * SLIP_BEND },
-          lumbar: { ...guard.lumbar, lateralFlexion: (sign * SLIP_BEND) / 2 },
+          thoracic: {
+            ...guard.thoracic,
+            flexion: guard.thoracic.flexion + SLIP_BEND / 2,
+            lateralFlexion: (sign * bend * 2) / 3,
+          },
+          lumbar: { ...guard.lumbar, lateralFlexion: (sign * bend) / 3 },
           cervical: {
             ...guard.cervical,
             lateralFlexion: (-sign * SLIP_BEND) / 2,
@@ -250,7 +290,10 @@ export namespace DefenseShape {
       case "roll":
         return {
           ...guard,
-          drop: guard.drop + measure.headRadius * 1.5,
+          // The head ducks under the hook's arc by a head's height, 20 to 30
+          // cm down with the knees and the trunk's flexion (coaching of the
+          // roll).
+          drop: guard.drop + measure.headRadius * 2,
           thoracic: {
             ...guard.thoracic,
             flexion: ROLL_FLEXION,
@@ -323,6 +366,22 @@ export namespace DefenseShape {
             shift: { forward: -measure.headRadius * s, left: 0 },
             wince: s,
           };
+        if (spec.level === "body" && spec.family === "push-kick")
+          // The teep's push folds him at the waist and drives his hips back.
+          return {
+            ...guard,
+            shift: { forward: -measure.headRadius * PUSHED_BACK * s, left: 0 },
+            thoracic: {
+              ...guard.thoracic,
+              flexion: guard.thoracic.flexion + REACTION.trunk * FOLD * s,
+            },
+            lumbar: {
+              ...guard.lumbar,
+              flexion: guard.lumbar.flexion + REACTION.trunk * s,
+            },
+            jaw: 10 * s,
+            wince: s,
+          };
         if (spec.level === "body")
           return {
             ...guard,
@@ -352,6 +411,34 @@ export namespace DefenseShape {
         };
       }
     }
+  }
+
+  /**
+   * How far a slip carries the head off the punch's line: one head breadth,
+   * so the glove passes beside it (coaching of the slip: 15 to 25 cm off
+   * the centreline).
+   *
+   * @param measure The slipping fighter's measure.
+   * @returns Metres of the head's sideways travel.
+   */
+  export function slip(measure: IFighterMeasure): number {
+    return 2 * measure.headRadius;
+  }
+
+  /**
+   * The trunk's total side-bend in a slip, degrees: after the hips' shift of
+   * a head radius, the bend over the hips that carries the head centre the
+   * rest of {@link slip}.
+   *
+   * @param measure The slipping fighter's measure.
+   * @returns Degrees.
+   */
+  export function slipBend(measure: IFighterMeasure): number {
+    const rest: number = slip(measure) - measure.headRadius;
+    return (
+      (Math.asin(Math.min(1, rest / (measure.head - measure.hip))) * 180) /
+      Math.PI
+    );
   }
 
   /** Smoothstep easing of a progress in [0, 1]. */

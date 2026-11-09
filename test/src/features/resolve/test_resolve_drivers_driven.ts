@@ -13,10 +13,11 @@ import { runResolveDriversDrivenScenario } from "../internal/runResolveDriversDr
  * 7. A nonboolean clamp flag throws.
  * 8. Node TRS and nonscalar pointer outputs throw before a scalar write.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs the existing driven scenarios through actual resolveDrivers, checking output width/values and diagnostic fragments for invalid inputs rather than inspecting source or configuration arrangement.
- * @evidence contracts/testing.md#independent-expectations Linear interval arithmetic gives50/100/200, the lower-bound default gives7 or3, and midpoint interpolation on (7,10)-(10,100) gives55; literal endpoints and scalar-width requirements supply the remaining expectations independently of the implementation.
- * @evidence contracts/testing.md#distinguishing-cases Present/absent source, clamped/extrapolated/degenerate ranges and interior/held curve values distinguish supported paths from malformed tuple, finite-value, curve-order and output-width neighbors; singleton node weights and dependency graphs have separate tests.
- * @evidence contracts/testing.md#execution-ownership The named synchronous test_resolve_drivers_driven calls runResolveDriversDrivenScenario, which owns portable map-based cases without installing a consumer, launching a host or replacing globals or foreign methods.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the existing driven scenarios through actual resolveDrivers, checking output width/values and diagnostic fragments for invalid inputs rather than inspecting source or configuration arrangement.
+ * @evidence contracts/development/testing.md#independent-expectations Linear interval arithmetic gives50/100/200, the lower-bound default gives7 or3, and midpoint interpolation on (7,10)-(10,100) gives55; literal endpoints and scalar-width requirements supply the remaining expectations independently of the implementation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Present/absent source, clamped/extrapolated/degenerate ranges and interior/held curve values distinguish supported paths from malformed tuple, finite-value, curve-order and output-width neighbors; singleton node weights and dependency graphs have separate tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous test_resolve_drivers_driven calls runResolveDriversDrivenScenario, which owns portable map-based cases without installing a consumer, launching a host or replacing globals or foreign methods.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Present source5 maps [0,10] to50 on [0,100].).
  */
 export function test_resolve_drivers_driven(): void {
   runResolveDriversDrivenScenario();

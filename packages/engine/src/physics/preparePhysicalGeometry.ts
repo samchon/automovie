@@ -16,6 +16,14 @@ import { physicalShapeBounds } from "./physicalShapeBounds";
  * This creates no dynamics world, steps and impulses. Returned contacts retain
  * null impulse so a geometric witness cannot masquerade as a solver result.
  * Query allocations are owned and released by Rapier's Shape.contactShape API.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Prepare exact convex geometric queries with the pinned WASM narrow phase) as stated in this comment.
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Prepare exact convex geometric queries with the pinned WASM narrow phase) directly over its typed inputs as 5 sequential passes (map over Object.values(boundsA.min); map over Object.values(boundsA.max); map over Object.values(boundsB.min)), delegating to `RAPIER.init`, `Number.isFinite`, `physicalShapeBounds`, `Math.max`, `Object.values(boundsA.min).map`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (3 throw sites). Beyond structural 0, 1 and 2 the body uses the literals 32, 23, 0.5, whose basis this answer does not independently establish and a reviewer must confirm.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One async operation of 108 lines and 2 top-level statements that reuses `RAPIER.init`, `Number.isFinite`, `physicalShapeBounds`, `Math.max`, `Object.values(boundsA.min).map` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters. Literal caveat: 32, 23, 0.5 are not independently sourced here.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of its inputs; the dominant cost is 5 sequential passes (map over Object.values(boundsA.min); map over Object.values(boundsA.max); map over Object.values(boundsB.min)), performed once per call with 10 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Awaits 1 call per invocation and shares no result or in-flight work between invocations: equivalence of effectful calls is not decided here, so every call repeats its effects.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body awaits asynchronous work; it retains nothing after it settles beyond its result, and any handle it opens is owned and released by the call or by its callees.
  */
 export async function preparePhysicalGeometry(): Promise<preparePhysicalGeometry.IQueries> {
   await RAPIER.init();
@@ -126,7 +134,14 @@ export async function preparePhysicalGeometry(): Promise<preparePhysicalGeometry
   };
 }
 
-/** Narrow-phase inputs and the no-dynamics query surface. */
+/**
+ * Narrow-phase inputs and the no-dynamics query surface.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Narrow-phase inputs and the no-dynamics query surface) and documents 2 documented members as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents Narrow-phase inputs and the no-dynamics query surface: companion namespace of 2 members (`ICollider`, `IQueries`); units and frames named in its text: local, world, seconds. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `preparePhysicalGeometry` in packages/engine/src/physics/preparePhysicalGeometry.ts; its surface is the 2 members listed and the text shows 28 other files naming it, mostly packages/engine (12), test (11), movies (5), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ */
 export namespace preparePhysicalGeometry {
   /** One collider in its current body placement. */
   export interface ICollider {

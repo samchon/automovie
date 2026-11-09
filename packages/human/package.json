@@ -8,19 +8,7 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./control": "./src/control/index.ts",
-    "./instance": "./src/instance/index.ts",
     "./package.json": "./package.json"
-  },
-  "typesVersions": {
-    "*": {
-      "control": [
-        "src/control/index.ts"
-      ],
-      "instance": [
-        "src/instance/index.ts"
-      ]
-    }
   },
   "scripts": {
     "debug": "vite",
@@ -66,30 +54,12 @@
   ],
   "publishConfig": {
     "access": "public",
-    "typesVersions": {
-      "*": {
-        "control": [
-          "lib/control/index.d.ts"
-        ],
-        "instance": [
-          "lib/instance/index.d.ts"
-        ]
-      }
-    },
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
     "exports": {
       ".": {
         "types": "./lib/index.d.ts",
         "default": "./lib/index.js"
-      },
-      "./control": {
-        "types": "./lib/control/index.d.ts",
-        "default": "./lib/control/index.js"
-      },
-      "./instance": {
-        "types": "./lib/instance/index.d.ts",
-        "default": "./lib/instance/index.js"
       },
       "./package.json": "./package.json"
     }

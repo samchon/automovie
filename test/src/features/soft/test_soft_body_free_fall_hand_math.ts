@@ -54,10 +54,11 @@ const freeSheet: (drag: number) => IAutoMovieSoftBodyDomain = (
  *    those coordinates stay bit-identical to the rest mesh across both runs.
 
  *
- * @evidence contracts/testing.md#behavioral-verification Real solver particle coordinates, velocities, maxSpeed, strain, contacts and time catch changed prediction, damping or correction ordering while permitting the same rigid dyadic trajectory.
- * @evidence contracts/testing.md#independent-expectations Semi-implicit recurrence closed forms give undamped v=-1/drop=72/1024 and damped four-step speed=.125*(1-1/16), drop=(4-1+1/16)/512. Dyadic witnesses retain exact comparisons rather than an implementation snapshot.
- * @evidence contracts/testing.md#distinguishing-cases Zero drag and r=1/2 drag distinguish the two integration branches, with every transverse coordinate unchanged and no strain/contact; collision and anchored constraints are covered elsewhere.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_soft_body_free_fall_hand_math; the exported test owns all asserted cases and creates no renderer, playback process or foreign-method replacement.
+ * @evidence contracts/development/testing.md#behavioral-verification Real solver particle coordinates, velocities, maxSpeed, strain, contacts and time catch changed prediction, damping or correction ordering while permitting the same rigid dyadic trajectory.
+ * @evidence contracts/development/testing.md#independent-expectations Semi-implicit recurrence closed forms give undamped v=-1/drop=72/1024 and damped four-step speed=.125*(1-1/16), drop=(4-1+1/16)/512. Dyadic witnesses retain exact comparisons rather than an implementation snapshot.
+ * @evidence contracts/development/testing.md#distinguishing-cases Zero drag and r=1/2 drag distinguish the two integration branches, with every transverse coordinate unchanged and no strain/contact; collision and anchored constraints are covered elsewhere.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_soft_body_free_fall_hand_math; the exported test owns all asserted cases and creates no renderer, playback process or foreign-method replacement.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Undamped, after 8 steps of `dt = 1/64` under `g = −8`: every velocity is).
  */
 export function test_soft_body_free_fall_hand_math(): void {
   const undamped: IAutoMovieSoftBodyDomain = freeSheet(0);

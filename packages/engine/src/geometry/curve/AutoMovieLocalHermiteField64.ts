@@ -13,25 +13,19 @@ import { compileAutoMovieNormalizedPhases64 } from "./compileAutoMovieNormalized
  * overshoot, zero Jacobians and intersections remain possible. The explicit ruled
  * alternative uses two-course convex interpolation with station C0 only. Source corners survive.
  *
- * @evidence contracts/common.md#principled-implementation Station-only linear derivative weights and exact De Casteljau restrictions construct local bicubic Hermite cells.
- * @evidence contracts/common.md#clear-and-simple-design Admission and analytic field construction are separate from tessellation and source observation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source mesh, limiter, tangent normalization or sampled curve fit defines the field.
- * @evidence contracts/common.md#meaningful-documentation Documents physical derivatives, partition invariance, mutable-input lifetime and unsupported geometric guarantees.
- * @evidenceExclude contracts/performance.md#efficient-algorithms The namespace performs no computation; prepare owns costs.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work No namespace-level cache exists.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No namespace-level geometry is retained.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents physical derivatives, partition invariance, mutable-input lifetime and unsupported geometric guarantees.
+ * @evidence contracts/development/design.md#principled-representation Represents Local physical-station cubic Hermite fields from complete normalized open courses: companion namespace of 4 members (`Cell`, `Jet`, `Prepared`, `prepare`); units and frames named in its text: local, second, degree. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieLocalHermiteField64` in packages/engine/src/geometry/curve/AutoMovieLocalHermiteField64.ts; its surface is the 4 members listed and the text shows 6 other files naming it, mostly packages/engine (3), test (2), packages/recovery (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieLocalHermiteField64 {
   /**
    * Exact analytic cell; rows run along station t, columns along normalized phase u.
    *
-   * @evidence contracts/common.md#principled-implementation Four complete cubic rows retain the local tensor coefficients in millimetres.
-   * @evidence contracts/common.md#clear-and-simple-design Phase extent accompanies its coefficient grid.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No sample or source topology substitutes for coefficients.
-   * @evidence contracts/common.md#meaningful-documentation States grid direction and units.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A record performs no traversal.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record coordinates no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Runtime ownership belongs to prepare's caller.
+   * @evidence contracts/development/design.md#principled-representation Four complete cubic rows retain the local tensor coefficients in millimetres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Phase extent accompanies its coefficient grid.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No sample or source topology substitutes for coefficients.
+   * @evidence contracts/development/common.md#meaningful-documentation States grid direction and units.
    */
   export type Cell = {
     /** First normalized course phase. */
@@ -45,13 +39,10 @@ export namespace AutoMovieLocalHermiteField64 {
   /**
    * Millimetre position and full partials per normalized phase and physical station mm.
    *
-   * @evidence contracts/common.md#principled-implementation Complete evaluated first derivatives retain their chart scale.
-   * @evidence contracts/common.md#clear-and-simple-design One jet supplies positions and analytic normals.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Partials are not unit tangent hints.
-   * @evidence contracts/common.md#meaningful-documentation States units of both independent parameters.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record owns no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Values transfer to the caller.
+   * @evidence contracts/development/design.md#principled-representation Complete evaluated first derivatives retain their chart scale.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One jet supplies positions and analytic normals.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Partials are not unit tangent hints.
+   * @evidence contracts/development/common.md#meaningful-documentation States units of both independent parameters.
    */
   export type Jet = {
     /** Source curve position in millimetres. */
@@ -66,37 +57,34 @@ export namespace AutoMovieLocalHermiteField64 {
    * Admitted field closures. Inputs must stay immutable until the caller releases this
    * object; only partitions and derivative weights are retained in addition to inputs.
    *
-   * @evidence contracts/common.md#principled-implementation Interval cells use at most four contributing courses and station jets use the same fixed derivative weights.
-   * @evidence contracts/common.md#clear-and-simple-design Two operations expose analytic cells and authoritative station-edge jets.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Shared boundaries are evaluated from the original course rather than adjacent rounded restrictions.
-   * @evidence contracts/common.md#meaningful-documentation States immutable lifetime and right-sided knot derivatives, with the final endpoint left-sided.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This structural type performs no work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Runtime reuse belongs to prepare.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller releases closures to release source references.
+   * @evidence contracts/development/design.md#principled-representation Interval cells use at most four contributing courses and station jets use the same fixed derivative weights.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two operations expose analytic cells and authoritative station-edge jets.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shared boundaries are evaluated from the original course rather than adjacent rounded restrictions.
+   * @evidence contracts/development/common.md#meaningful-documentation States immutable lifetime and right-sided knot derivatives, with the final endpoint left-sided.
    */
   export type Prepared = {
     /**
      * Increasing local phase cells for one admitted physical station interval.
      *
-     * @evidence contracts/common.md#principled-implementation Exact restrictions and fixed physical derivative weights construct bicubic cells from admitted courses.
-     * @evidence contracts/common.md#clear-and-simple-design One interval address returns caller-owned coefficient cells without observation or topology inference.
-     * @evidence contracts/common.md#prohibited-implementation-shortcuts No source face, sampled replacement curve or limiter changes the prepared field.
-     * @evidence contracts/common.md#meaningful-documentation The prepared owner states station indexing, millimetres, immutable course lifetime and unsupported geometric guarantees.
-     * @evidence contracts/performance.md#efficient-algorithms Work sorts the at-most-four incident course partitions and performs constant-degree restriction per resulting cell.
-     * @evidence contracts/performance.md#reuse-equivalent-work Admitted partitions and station derivative weights are reused by every interval call.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh cell arrays belong to the caller; no additional process-wide state is retained.
+     * @evidence contracts/development/implementation.md#principled-implementation Exact restrictions and fixed physical derivative weights construct bicubic cells from admitted courses.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One interval address returns caller-owned coefficient cells without observation or topology inference.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source face, sampled replacement curve or limiter changes the prepared field.
+     * @evidence contracts/development/common.md#meaningful-documentation The prepared owner states station indexing, millimetres, immutable course lifetime and unsupported geometric guarantees.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Work sorts the at-most-four incident course partitions and performs constant-degree restriction per resulting cell.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Admitted partitions and station derivative weights are reused by every interval call.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh cell arrays belong to the caller; no additional process-wide state is retained.
      */
     interval: (index: number) => Cell[];
     /**
      * Authoritative saved-course value and right-sided partials; u=1 uses the left span.
      *
-     * @evidence contracts/common.md#principled-implementation The stored course evaluates position once while the same physical station stencil supplies its transverse derivative.
-     * @evidence contracts/common.md#clear-and-simple-design One normalized phase query returns a complete analytic jet from the prepared field.
-     * @evidence contracts/common.md#prohibited-implementation-shortcuts Unit tangent hints, source normals and coordinate-based neighbor matching do not supply derivatives.
-     * @evidence contracts/common.md#meaningful-documentation States one-sided knot convention, physical versus normalized derivatives and saved-curve authority.
-     * @evidence contracts/performance.md#efficient-algorithms Binary span lookup and constant-degree evaluation visit at most four incident course spans.
-     * @evidence contracts/performance.md#reuse-equivalent-work Prepared partitions and physical derivative weights serve every station query.
-     * @evidence contracts/performance.md#bound-retention-and-release-resources The returned jet is newly owned and no query cache or source mesh is retained.
+     * @evidence contracts/development/implementation.md#principled-implementation The stored course evaluates position once while the same physical station stencil supplies its transverse derivative.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One normalized phase query returns a complete analytic jet from the prepared field.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unit tangent hints, source normals and coordinate-based neighbor matching do not supply derivatives.
+     * @evidence contracts/development/common.md#meaningful-documentation States one-sided knot convention, physical versus normalized derivatives and saved-curve authority.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Binary span lookup and constant-degree evaluation visit at most four incident course spans.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared partitions and physical derivative weights serve every station query.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned jet is newly owned and no query cache or source mesh is retained.
      */
     station: (index: number, u: number) => Jet;
   };
@@ -111,13 +99,13 @@ export namespace AutoMovieLocalHermiteField64 {
    * convex blend. Its station jet chooses the right incident secant, or the last left
    * secant, as one normal authority; station continuity is C0 rather than C1.
    *
-   * @evidence contracts/common.md#principled-implementation Quadratic mode uses fixed nonuniform physical secant stencils before Hermite construction. Ruled mode directly elevates the two-course convex blend to a bicubic tensor; exact restriction commutes with both definitions before binary64 rounding.
-   * @evidence contracts/common.md#clear-and-simple-design A single admitted partition and derivative stencil per station feed local cells and authoritative edge jets.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomical branch, source point copying, tolerance repair or nonlinear limiter is used.
-   * @evidence contracts/common.md#meaningful-documentation States immutable source lifetime, normalized correspondence, physical units, one-sided corner behavior and geometric limitations.
-   * @evidence contracts/performance.md#efficient-algorithms Admission is O(N+S); an interval sorts at most four course partitions in quadratic mode and two in ruled mode, then restricts each contributing curve per cell with logarithmic span lookup. Each input knot participates at most four times, without a global Cartesian partition.
-   * @evidence contracts/performance.md#reuse-equivalent-work Partitions and station-only derivative weights are prepared once; source station jets provide one shared authority to neighboring tessellation intervals.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Closures retain O(N+S) partitions, weights and caller-owned source references; interval cells are fresh caller-owned arrays and no process-wide cache exists.
+   * @evidence contracts/development/implementation.md#principled-implementation Quadratic mode uses fixed nonuniform physical secant stencils before Hermite construction. Ruled mode directly elevates the two-course convex blend to a bicubic tensor; exact restriction commutes with both definitions before binary64 rounding.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A single admitted partition and derivative stencil per station feed local cells and authoritative edge jets.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No anatomical branch, source point copying, tolerance repair or nonlinear limiter is used.
+   * @evidence contracts/development/common.md#meaningful-documentation States immutable source lifetime, normalized correspondence, physical units, one-sided corner behavior and geometric limitations.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Admission is O(N+S); an interval sorts at most four course partitions in quadratic mode and two in ruled mode, then restricts each contributing curve per cell with logarithmic span lookup. Each input knot participates at most four times, without a global Cartesian partition.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Partitions and station-only derivative weights are prepared once; source station jets provide one shared authority to neighboring tessellation intervals.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Closures retain O(N+S) partitions, weights and caller-owned source references; interval cells are fresh caller-owned arrays and no process-wide cache exists.
    */
   export function prepare(
     stations: readonly number[],

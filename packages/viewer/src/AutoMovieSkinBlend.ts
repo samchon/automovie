@@ -5,13 +5,10 @@ import * as THREE from "three";
  * joint table of {@link AutoMovieSkinBlend.STRIDE} numbers per joint: `K_j`
  * (16, column-major), its rotation quaternion (4) and its dual part (4).
  *
- * @evidence contracts/common.md#principled-implementation Linear blend skinning and dual quaternion skinning (Kavan et al. 2008) with the shader's pivot, hemisphere alignment, normalization and application order.
- * @evidence contracts/common.md#clear-and-simple-design Pure functions over typed arrays, separated from the mesh's cache and Three overrides.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No tolerance, joint or mesh is special-cased.
- * @evidence contracts/common.md#meaningful-documentation States the table layout and each formula.
- * @evidence contracts/performance.md#efficient-algorithms Constant work per vertex with no allocation.
- * @evidence contracts/performance.md#reuse-equivalent-work Joint tables are built once per pose by the caller and shared by every vertex.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation States the table layout and each formula.
+ * @evidence contracts/development/design.md#principled-representation Represents The per-vertex arithmetic of 's CPU skin, over a joint table of numbers per joint: `K_j` (16, column-major), its rotation quaternion (4) and its dual part (4): companion namespace of 7 members (`STRIDE`, `GPU_RELATIVE_ERROR`, `dual`, `linear`, `usedJoints`, `packed`, ...); units and frames named in its text: quaternion. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSkinBlend` in packages/viewer/src/AutoMovieSkinBlend.ts; its surface is the 7 members listed and the text shows 2 other files naming it, mostly packages/viewer (2), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSkinBlend {
   /** Numbers per joint in a table: `K_j`, rotation, dual part. */
@@ -26,13 +23,13 @@ export namespace AutoMovieSkinBlend {
    * tie), sum, normalize by the rotation's length and apply; a direction takes
    * the rotation alone. Writes three numbers into `out` at `at`.
    *
-   * @evidence contracts/common.md#principled-implementation Kavan et al.'s DLB with the shader's pivot rule and the action p' = r p r* + vec(2 d r*).
-   * @evidence contracts/common.md#clear-and-simple-design One flat function the evaluation loop calls per vertex.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No fallback to linear blending.
-   * @evidence contracts/common.md#meaningful-documentation States pivot, alignment, normalization and the direction case.
-   * @evidence contracts/performance.md#efficient-algorithms About a hundred flops, no allocation.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reads the shared joint table.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Writes only into `out`.
+   * @evidence contracts/development/implementation.md#principled-implementation Kavan et al.'s DLB with the shader's pivot rule and the action p' = r p r* + vec(2 d r*).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One flat function the evaluation loop calls per vertex.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fallback to linear blending.
+   * @evidence contracts/development/common.md#meaningful-documentation States pivot, alignment, normalization and the direction case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms About a hundred flops, no allocation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the shared joint table.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Writes only into `out`.
    */
   export function dual(
     t: Float64Array,
@@ -66,14 +63,22 @@ export namespace AutoMovieSkinBlend {
     const kb: number = aligned(t, b, p) * wb;
     const kc: number = aligned(t, c, p) * wc;
     const kd: number = aligned(t, d, p) * wd;
-    let rx: number = ka * t[a + 16]! + kb * t[b + 16]! + kc * t[c + 16]! + kd * t[d + 16]!;
-    let ry: number = ka * t[a + 17]! + kb * t[b + 17]! + kc * t[c + 17]! + kd * t[d + 17]!;
-    let rz: number = ka * t[a + 18]! + kb * t[b + 18]! + kc * t[c + 18]! + kd * t[d + 18]!;
-    let rw: number = ka * t[a + 19]! + kb * t[b + 19]! + kc * t[c + 19]! + kd * t[d + 19]!;
-    let dx: number = ka * t[a + 20]! + kb * t[b + 20]! + kc * t[c + 20]! + kd * t[d + 20]!;
-    let dy: number = ka * t[a + 21]! + kb * t[b + 21]! + kc * t[c + 21]! + kd * t[d + 21]!;
-    let dz: number = ka * t[a + 22]! + kb * t[b + 22]! + kc * t[c + 22]! + kd * t[d + 22]!;
-    let dw: number = ka * t[a + 23]! + kb * t[b + 23]! + kc * t[c + 23]! + kd * t[d + 23]!;
+    let rx: number =
+      ka * t[a + 16]! + kb * t[b + 16]! + kc * t[c + 16]! + kd * t[d + 16]!;
+    let ry: number =
+      ka * t[a + 17]! + kb * t[b + 17]! + kc * t[c + 17]! + kd * t[d + 17]!;
+    let rz: number =
+      ka * t[a + 18]! + kb * t[b + 18]! + kc * t[c + 18]! + kd * t[d + 18]!;
+    let rw: number =
+      ka * t[a + 19]! + kb * t[b + 19]! + kc * t[c + 19]! + kd * t[d + 19]!;
+    let dx: number =
+      ka * t[a + 20]! + kb * t[b + 20]! + kc * t[c + 20]! + kd * t[d + 20]!;
+    let dy: number =
+      ka * t[a + 21]! + kb * t[b + 21]! + kc * t[c + 21]! + kd * t[d + 21]!;
+    let dz: number =
+      ka * t[a + 22]! + kb * t[b + 22]! + kc * t[c + 22]! + kd * t[d + 22]!;
+    let dw: number =
+      ka * t[a + 23]! + kb * t[b + 23]! + kc * t[c + 23]! + kd * t[d + 23]!;
     const norm: number = Math.sqrt(rx * rx + ry * ry + rz * rz + rw * rw);
     rx /= norm;
     ry /= norm;
@@ -106,13 +111,13 @@ export namespace AutoMovieSkinBlend {
    * Three's linear blend over normalized weights. Writes three numbers into
    * `out` at `at`.
    *
-   * @evidence contracts/common.md#principled-implementation The matrix blend Three's SkinnedMesh and its shader compute.
-   * @evidence contracts/common.md#clear-and-simple-design The linear counterpart of dual.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Weights are used as given, never renormalized; a zero weight contributes zero.
-   * @evidence contracts/common.md#meaningful-documentation States the formula and output.
-   * @evidence contracts/performance.md#efficient-algorithms At most four affine products, no allocation.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reads the shared joint table.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Writes only into `out`.
+   * @evidence contracts/development/implementation.md#principled-implementation The matrix blend Three's SkinnedMesh and its shader compute.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The linear counterpart of dual.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Weights are used as given, never renormalized; a zero weight contributes zero.
+   * @evidence contracts/development/common.md#meaningful-documentation States the formula and output.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most four affine products, no allocation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the shared joint table.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Writes only into `out`.
    */
   export function linear(
     t: Float64Array,
@@ -150,13 +155,13 @@ export namespace AutoMovieSkinBlend {
   /**
    * Skeleton slots with a nonzero weight on some vertex, ascending.
    *
-   * @evidence contracts/common.md#principled-implementation A slot with zero weight everywhere contributes nothing to either blend, so only these enter keys and bounds.
-   * @evidence contracts/common.md#clear-and-simple-design Shared by the cache key and the joint-only sphere.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads the actual attributes, never the joint list's length.
-   * @evidence contracts/common.md#meaningful-documentation States the order.
-   * @evidence contracts/performance.md#efficient-algorithms O(V) once per geometry version.
-   * @evidence contracts/performance.md#reuse-equivalent-work The caller keeps the result per geometry version.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a caller-owned array.
+   * @evidence contracts/development/implementation.md#principled-implementation A slot with zero weight everywhere contributes nothing to either blend, so only these enter keys and bounds.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared by the cache key and the joint-only sphere.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the actual attributes, never the joint list's length.
+   * @evidence contracts/development/common.md#meaningful-documentation States the order.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(V) once per geometry version.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller keeps the result per geometry version.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a caller-owned array.
    */
   export function usedJoints(
     indices: THREE.BufferAttribute,
@@ -178,13 +183,13 @@ export namespace AutoMovieSkinBlend {
    * The backing array of a tightly packed, unnormalized attribute of `size`
    * components, else null so the caller reads through Three's accessors.
    *
-   * @evidence contracts/common.md#principled-implementation Only a plain BufferAttribute's array equals its components.
-   * @evidence contracts/common.md#clear-and-simple-design Lets the evaluation loop index arrays directly when that is exact.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Interleaved or normalized attributes keep Three's decoding.
-   * @evidence contracts/common.md#meaningful-documentation States when null is returned.
-   * @evidence contracts/performance.md#efficient-algorithms Constant time.
-   * @evidence contracts/performance.md#reuse-equivalent-work Borrows the attribute's array.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation Only a plain BufferAttribute's array equals its components.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Lets the evaluation loop index arrays directly when that is exact.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Interleaved or normalized attributes keep Three's decoding.
+   * @evidence contracts/development/common.md#meaningful-documentation States when null is returned.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the attribute's array.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function packed(
     attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
@@ -200,13 +205,13 @@ export namespace AutoMovieSkinBlend {
   /**
    * An attribute's version; an interleaved one reports its buffer's.
    *
-   * @evidence contracts/common.md#principled-implementation Three bumps these versions on every needsUpdate.
-   * @evidence contracts/common.md#clear-and-simple-design One read for both attribute kinds.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No content hashing stands in for the version.
-   * @evidence contracts/common.md#meaningful-documentation States the interleaved case.
-   * @evidence contracts/performance.md#efficient-algorithms Constant time.
-   * @evidence contracts/performance.md#reuse-equivalent-work Lets caches key on attribute writes.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation Three bumps these versions on every needsUpdate.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One read for both attribute kinds.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No content hashing stands in for the version.
+   * @evidence contracts/development/common.md#meaningful-documentation States the interleaved case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Lets caches key on attribute writes.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function versionOf(
     attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
@@ -227,7 +232,10 @@ function affine(
   pz: number,
 ): number {
   return (
-    t[o + row]! * px + t[o + 4 + row]! * py + t[o + 8 + row]! * pz + t[o + 12 + row]!
+    t[o + row]! * px +
+    t[o + 4 + row]! * py +
+    t[o + 8 + row]! * pz +
+    t[o + 12 + row]!
   );
 }
 

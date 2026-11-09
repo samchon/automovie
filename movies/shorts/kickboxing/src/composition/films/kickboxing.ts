@@ -52,13 +52,17 @@ export function kickboxing(): IFilm {
           maximumContacts: 1,
           metresPerNewton: 0.001,
         },
-        soundtrack: { cues: mounted.cues, assets: RingStage.SOUND },
         report: {
           violations: mounted.violations,
           findings: mounted.findings,
           measures: mounted.measures,
         },
         seek: mounted.seek,
+        // The frame key carries the Human package identity and the frame's own
+        // scene-state digest, not this production's whole source: an edit then
+        // recaptures only the frames whose displayed state changed, and the
+        // render's cacheVerifyEvery sampling proves the reused ones
+        // (stage caches: iterate on changed intervals).
         ...(source === undefined
           ? {}
           : {

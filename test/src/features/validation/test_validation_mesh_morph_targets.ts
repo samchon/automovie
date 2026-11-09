@@ -19,10 +19,11 @@ import { hasViolation } from "../internal/predicates";
  * 4. A driver naming a bone outside the skeleton, an unknown axis, an empty curve, a nonfinite point and a non-increasing source are refused.
  * 5. A driven target named after an ARKit channel, in any case, or a preset is refused.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs validateModel over whole models and reads success and violation paths; catches admitted malformed buffers, names and drivers, and an expression-named driven target that the viewer would overwrite every frame.
- * @evidence contracts/testing.md#independent-expectations Lengths follow the glTF rule of one delta triple per vertex, curve rules follow IAutoMovieDrivenCurve's contract, and the name rule follows the documented expression vocabulary; expectations are read from those contracts, not from the validator.
- * @evidence contracts/testing.md#distinguishing-cases Valid driven, undriven and normal-less targets beside each malformed field, an undriven ARKit name beside a driven one in another case, and a preset name. Weight resolution and rendering belong to the kinematics and viewer tests.
- * @evidence contracts/testing.md#execution-ownership A portable engine unit over a synthetic internal fixture; it starts no browser, GPU or process.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs validateModel over whole models and reads success and violation paths; catches admitted malformed buffers, names and drivers, and an expression-named driven target that the viewer would overwrite every frame.
+ * @evidence contracts/development/testing.md#independent-expectations Lengths follow the glTF rule of one delta triple per vertex, curve rules follow IAutoMovieDrivenCurve's contract, and the name rule follows the documented expression vocabulary; expectations are read from those contracts, not from the validator.
+ * @evidence contracts/development/testing.md#distinguishing-cases Valid driven, undriven and normal-less targets beside each malformed field, an undriven ARKit name beside a driven one in another case, and a preset name. Weight resolution and rendering belong to the kinematics and viewer tests.
+ * @evidence contracts/development/testing.md#execution-ownership A portable engine unit over a synthetic internal fixture; it starts no browser, GPU or process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A tube with an undriven target, a driven target and a target without normals is admitted; an undriven target may take an ARKit name.).
  */
 export function test_validation_mesh_morph_targets(): void {
   const vertexCount: number = 16 * 17;

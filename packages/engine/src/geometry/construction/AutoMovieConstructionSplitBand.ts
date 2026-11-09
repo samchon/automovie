@@ -10,7 +10,8 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** World point or derivative, mm. */
 type Vec3 = AutoMovieSolidVector.Vec3;
-const { add, combine, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
+const { add, combine, cross, dot, norm, scale, sub, unit } =
+  AutoMovieSolidVector;
 
 /**
  * One band of a split (`IAutoMovieConstructionSplit`): the join strip between a child's loop on the host's end and the child's rail, published as a two-layer chain (`AutoMovieSolidBlendChain.strip`).
@@ -21,25 +22,19 @@ const { add, combine, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVecto
  *
  * The child's phase at each column is the one whose rail point stands at the loop point's angle about the rail ring's centroid, in the ring's Newell plane. It is admitted only when the ring's angle and the loop's angle both turn once, strictly monotonically, round that centroid (construction.md, Tree: measure monotonicity before choosing a parameter); otherwise the band is refused with the reason.
  *
- * @evidence contracts/common.md#principled-implementation The band is the quintic Hermite strip between each side's own 2-jet across its rail (Hartmann 2001), so it meets the host and the child G2 at every column; the angular correspondence is a bijection exactly when both curves are star-shaped about the centroid, which is what the monotonicity check measures.
- * @evidence contracts/common.md#clear-and-simple-design One builder per band: loop, correspondence, ribbons and the shared strip publication; the realization owns the body.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No Taylor continuation of the host and no sampled refit: every ribbon is a surface's own jet or the declared ruling; a nonmonotone loop, a collapsed column or a nonfinite ribbon is refused, never patched.
- * @evidence contracts/common.md#meaningful-documentation States the clock, both ribbons, the crease, the correspondence and its admission.
- * @evidence contracts/performance.md#efficient-algorithms For n columns: 8n ring samples, n bisections of 48 steps on the child's ring, 3n surface jets for the ribbons and O(n) strip interpolation.
- * @evidence contracts/performance.md#reuse-equivalent-work The arc's host jets are read once and serve the loop and the ribbons' scale; the strip builder is the join blend's own.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Returns O(n) arrays and the chain owned by the caller; ring samples and ribbons die with the call.
+ * @evidence contracts/development/common.md#meaningful-documentation States the clock, both ribbons, the crease, the correspondence and its admission.
+ * @evidence contracts/development/design.md#principled-representation Represents One band of a split (`IAutoMovieConstructionSplit`): the join strip between a child's loop on the host's end and the child's rail, published as a two-layer chain (`AutoMovieSolidBlendChain.strip`): companion namespace of 13 members (`ISide`, `IInput`, `IBand`, `IStrip`, `create`, `refine`, ...); units and frames named in its text: radians, degrees, degree, second. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieConstructionSplitBand` in packages/engine/src/geometry/construction/AutoMovieConstructionSplitBand.ts; its surface is the 13 members listed and the text shows 7 other files naming it, mostly packages/engine (3), packages/human (2), test (2), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds a use of `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieConstructionSplitBand {
   /**
    * One side of a band: the face's surface, the rail's station on it and the station's sign into the band's continuation.
    *
-   * @evidence contracts/common.md#principled-implementation A rail at one station with a station sign fixes the ribbon's chart direction `(into, 0)`.
-   * @evidence contracts/common.md#clear-and-simple-design Three fields are the whole side.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The station is the realization's, not searched here.
-   * @evidence contracts/common.md#meaningful-documentation States each field's unit and sign meaning.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A record runs no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record coordinates no work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows the face's surface for the call.
+   * @evidence contracts/development/design.md#principled-representation A rail at one station with a station sign fixes the ribbon's chart direction `(into, 0)`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Three fields are the whole side.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The station is the realization's, not searched here.
+   * @evidence contracts/development/common.md#meaningful-documentation States each field's unit and sign meaning.
    */
   export interface ISide {
     /** The face's surface, mm. */
@@ -55,13 +50,10 @@ export namespace AutoMovieConstructionSplitBand {
   /**
    * What one band is built from.
    *
-   * @evidence contracts/common.md#principled-implementation The host's arc, its end normal and the child's rail determine the loop and both ribbons.
-   * @evidence contracts/common.md#clear-and-simple-design The split's per-band slice of its declaration, in kernel units.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Values only; admission belongs to the realization.
-   * @evidence contracts/common.md#meaningful-documentation States the arc's orientation, the normal's direction and the units.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A record runs no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record coordinates no work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Borrowed for the call.
+   * @evidence contracts/development/design.md#principled-representation The host's arc, its end normal and the child's rail determine the loop and both ribbons.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The split's per-band slice of its declaration, in kernel units.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only; admission belongs to the realization.
+   * @evidence contracts/development/common.md#meaningful-documentation States the arc's orientation, the normal's direction and the units.
    */
   export interface IInput {
     /** The band's chain name. */
@@ -92,13 +84,10 @@ export namespace AutoMovieConstructionSplitBand {
   /**
    * One built band.
    *
-   * @evidence contracts/common.md#principled-implementation Publishes the strip chain with the column data the body's cycles need, so the shared vertices are the columns' own points.
-   * @evidence contracts/common.md#clear-and-simple-design The chain, its surface and three column arrays.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Column values are the ones the strip interpolates, not resampled.
-   * @evidence contracts/common.md#meaningful-documentation States each array's indexing and unit.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A record runs no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record coordinates no work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns O(n) arrays and the chain.
+   * @evidence contracts/development/design.md#principled-representation Publishes the strip chain with the column data the body's cycles need, so the shared vertices are the columns' own points.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The chain, its surface and three column arrays.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Column values are the ones the strip interpolates, not resampled.
+   * @evidence contracts/development/common.md#meaningful-documentation States each array's indexing and unit.
    */
   export interface IBand extends IStrip {
     /** The arc's host phases at columns `0..n/2`, radians. */
@@ -108,13 +97,10 @@ export namespace AutoMovieConstructionSplitBand {
   /**
    * One built strip from a loop to a child's rail.
    *
-   * @evidence contracts/common.md#principled-implementation Publishes the strip chain with the column data the body's cycles need, so the shared vertices are the columns' own points.
-   * @evidence contracts/common.md#clear-and-simple-design The chain, its surface and the column arrays.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Column values are the ones the strip interpolates, not resampled.
-   * @evidence contracts/common.md#meaningful-documentation States each array's indexing and unit.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A record runs no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record coordinates no work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns O(n) arrays and the chain.
+   * @evidence contracts/development/design.md#principled-representation Publishes the strip chain with the column data the body's cycles need, so the shared vertices are the columns' own points.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The chain, its surface and the column arrays.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Column values are the ones the strip interpolates, not resampled.
+   * @evidence contracts/development/common.md#meaningful-documentation States each array's indexing and unit.
    */
   export interface IStrip {
     /** The strip chain: station 0 the loop, station `length` the child's rail. */
@@ -142,20 +128,28 @@ export namespace AutoMovieConstructionSplitBand {
    * @param input The band's sides, arc, normal, columns and crease.
    * @returns The band, or the refusal.
    *
-   * @evidence contracts/common.md#principled-implementation Each column's ribbons are the sides' own 2-jets (or the declared ruling and crease chord) scaled to the column chord, as the join blend scales its ribbons.
-   * @evidence contracts/common.md#clear-and-simple-design Loop, correspondence, columns, then the shared strip.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses collapsed or nonfinite columns and a strip without orientation or surface.
-   * @evidence contracts/common.md#meaningful-documentation States the refusals in its result.
-   * @evidence contracts/performance.md#efficient-algorithms Linear in columns apart from the correspondence's fixed-depth bisections.
-   * @evidence contracts/performance.md#reuse-equivalent-work The arc jets serve both the loop and the scale.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary columns are released; the result is caller-owned.
+   * @evidence contracts/development/implementation.md#principled-implementation Each column's ribbons are the sides' own 2-jets (or the declared ruling and crease chord) scaled to the column chord, as the join blend scales its ribbons.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Loop, correspondence, columns, then the shared strip.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses collapsed or nonfinite columns and a strip without orientation or surface.
+   * @evidence contracts/development/common.md#meaningful-documentation States the refusals in its result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in columns apart from the correspondence's fixed-depth bisections.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The arc jets serve both the loop and the scale.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary columns are released; the result is caller-owned.
    */
   export function create(input: IInput): IBand | string {
     const factor: number = refine(input);
-    const made: IBand | string = build(factor === 1 ? input : { ...input, count: factor * input.count });
+    const made: IBand | string = build(
+      factor === 1 ? input : { ...input, count: factor * input.count },
+    );
     if (typeof made === "string" || factor === 1) return made;
-    const every: <T>(list: T[]) => T[] = <T>(list: T[]): T[] => list.filter((_: T, j: number): boolean => j % factor === 0);
-    return { ...made, hostPhases: every(made.hostPhases), loop: every(made.loop), childPhases: every(made.childPhases) };
+    const every: <T>(list: T[]) => T[] = <T>(list: T[]): T[] =>
+      list.filter((_: T, j: number): boolean => j % factor === 0);
+    return {
+      ...made,
+      hostPhases: every(made.hostPhases),
+      loop: every(made.loop),
+      childPhases: every(made.childPhases),
+    };
   }
 
   /**
@@ -177,17 +171,35 @@ export namespace AutoMovieConstructionSplitBand {
     const n: number = input.count;
     const m: number = n / 2;
     const [alpha, beta]: [number, number] = input.arc;
-    const ring: (k: number) => Vec3 = (k: number): Vec3 => input.host.surface.jet(input.host.station, alpha + ((beta - alpha) * k) / m).p;
+    const ring: (k: number) => Vec3 = (k: number): Vec3 =>
+      input.host.surface.jet(
+        input.host.station,
+        alpha + ((beta - alpha) * k) / m,
+      ).p;
     const start: Vec3 = ring(0);
     const finish: Vec3 = ring(m);
-    const reversed: boolean = norm(sub(seam.curve.ends[0], finish)) > norm(sub(seam.curve.ends[0], start));
-    const onSeam: (k: number) => Vec3 = (k: number): Vec3 => seam.curve.at(reversed ? 1 - (k - m) / m : (k - m) / m).point;
-    const turn: (a: Vec3, b: Vec3, c: Vec3) => number = (a: Vec3, b: Vec3, c: Vec3): number => {
+    const reversed: boolean =
+      norm(sub(seam.curve.ends[0], finish)) >
+      norm(sub(seam.curve.ends[0], start));
+    const onSeam: (k: number) => Vec3 = (k: number): Vec3 =>
+      seam.curve.at(reversed ? 1 - (k - m) / m : (k - m) / m).point;
+    const turn: (a: Vec3, b: Vec3, c: Vec3) => number = (
+      a: Vec3,
+      b: Vec3,
+      c: Vec3,
+    ): number => {
       const u: Vec3 | null = unit(sub(b, a));
       const v: Vec3 | null = unit(sub(c, b));
-      return u === null || v === null ? 0 : (Math.acos(Math.max(-1, Math.min(1, dot(u, v)))) * 180) / Math.PI;
+      return u === null || v === null
+        ? 0
+        : (Math.acos(Math.max(-1, Math.min(1, dot(u, v)))) * 180) / Math.PI;
     };
-    const turns: number[] = [turn(ring(0), ring(1), ring(2)), turn(ring(m - 2), ring(m - 1), ring(m)), turn(finish, onSeam(m + 1), onSeam(m + 2)), turn(onSeam(n - 2), onSeam(n - 1), start)];
+    const turns: number[] = [
+      turn(ring(0), ring(1), ring(2)),
+      turn(ring(m - 2), ring(m - 1), ring(m)),
+      turn(finish, onSeam(m + 1), onSeam(m + 2)),
+      turn(onSeam(n - 2), onSeam(n - 1), start),
+    ];
     return Math.min(16, Math.max(1, Math.ceil(Math.max(...turns))));
   }
 
@@ -196,8 +208,14 @@ export namespace AutoMovieConstructionSplitBand {
     const n: number = input.count;
     const m: number = n / 2;
     const [alpha, beta]: [number, number] = input.arc;
-    const hostPhases: number[] = Array.from({ length: m + 1 }, (_: unknown, k: number): number => alpha + ((beta - alpha) * k) / m);
-    const ring: IAutoMovieSolidSurface.IJet[] = hostPhases.map((phi: number): IAutoMovieSolidSurface.IJet => input.host.surface.jet(input.host.station, phi));
+    const hostPhases: number[] = Array.from(
+      { length: m + 1 },
+      (_: unknown, k: number): number => alpha + ((beta - alpha) * k) / m,
+    );
+    const ring: IAutoMovieSolidSurface.IJet[] = hostPhases.map(
+      (phi: number): IAutoMovieSolidSurface.IJet =>
+        input.host.surface.jet(input.host.station, phi),
+    );
     const start: Vec3 = ring[0]!.p;
     const finish: Vec3 = ring[m]!.p;
     // A curved seam: chord column k stands at the share `(k - m) / m` of the
@@ -206,11 +224,25 @@ export namespace AutoMovieConstructionSplitBand {
     // (child 0) and its `finish` for the other, so both bands read the same
     // points (band 0's column k is band 1's `3 m - k`).
     const seam: IInput["seam"] = input.seam;
-    const reversed: boolean = seam !== undefined && norm(sub(seam.curve.ends[0], finish)) > norm(sub(seam.curve.ends[0], start));
-    const seamAt: (AutoMovieConstructionSplitSeam.IPoint | null)[] = Array.from({ length: n }, (_: unknown, k: number): AutoMovieConstructionSplitSeam.IPoint | null =>
-      seam === undefined || k <= m ? null : seam.curve.at(reversed ? 1 - (k - m) / m : (k - m) / m),
+    const reversed: boolean =
+      seam !== undefined &&
+      norm(sub(seam.curve.ends[0], finish)) >
+        norm(sub(seam.curve.ends[0], start));
+    const seamAt: (AutoMovieConstructionSplitSeam.IPoint | null)[] = Array.from(
+      { length: n },
+      (_: unknown, k: number): AutoMovieConstructionSplitSeam.IPoint | null =>
+        seam === undefined || k <= m
+          ? null
+          : seam.curve.at(reversed ? 1 - (k - m) / m : (k - m) / m),
     );
-    const loop: Vec3[] = Array.from({ length: n }, (_: unknown, k: number): Vec3 => (k <= m ? [...ring[k]!.p] : (seamAt[k]?.point ?? add(finish, scale(sub(start, finish), (k - m) / m)))));
+    const loop: Vec3[] = Array.from(
+      { length: n },
+      (_: unknown, k: number): Vec3 =>
+        k <= m
+          ? [...ring[k]!.p]
+          : (seamAt[k]?.point ??
+            add(finish, scale(sub(start, finish), (k - m) / m))),
+    );
     // The start ribbon: the host's 2-jet leaving its end on the arc; on the
     // chord the declared ruling in the end section's plane, square to the
     // chord, toward this band's own arc. The two bands then leave their
@@ -220,7 +252,10 @@ export namespace AutoMovieConstructionSplitBand {
     // send both bands off the chord in the same direction: two sheets
     // tangent back to back, a tent along the seam.
     const along: Vec3 | null = unit(sub(start, finish));
-    const toward: Vec3 = sub(ring[Math.floor(m / 2)]!.p, scale(add(start, finish), 0.5));
+    const toward: Vec3 = sub(
+      ring[Math.floor(m / 2)]!.p,
+      scale(add(start, finish), 0.5),
+    );
     // A curved seam's ruling: the seam plane's normal toward this band's arc.
     const lateral: Vec3 | null =
       seam !== undefined
@@ -229,8 +264,16 @@ export namespace AutoMovieConstructionSplitBand {
           : scale(seam.curve.normal, Math.sign(dot(seam.curve.normal, toward)))
         : along === null
           ? null
-          : unit(sub(sub(toward, scale(along, dot(toward, along))), scale(input.normal, dot(toward, input.normal))));
-    if (lateral === null) return seam === undefined ? "the chord gives no direction square to it in the end plane toward the arc" : "the seam plane holds the direction toward the band's arc";
+          : unit(
+              sub(
+                sub(toward, scale(along, dot(toward, along))),
+                scale(input.normal, dot(toward, input.normal)),
+              ),
+            );
+    if (lateral === null)
+      return seam === undefined
+        ? "the chord gives no direction square to it in the end plane toward the arc"
+        : "the seam plane holds the direction toward the band's arc";
     // The ribbons' turn at the forks (`IAutoMovieConstructionSplit.IProfile`):
     // `pi / 4` at a fork, falling by the quintic smoothstep to 0 at `corner`
     // of clock from it, so the ribbon fields stay C2 along the loop.
@@ -240,22 +283,53 @@ export namespace AutoMovieConstructionSplitBand {
       const x: number = d / seam.corner;
       return 1 - x * x * x * (10 - 15 * x + 6 * x * x);
     };
-    const near: (k: number, L: number) => AutoMovieSolidRibbon.IRibbon | string = (k: number, L: number): AutoMovieSolidRibbon.IRibbon | string => {
+    const near: (
+      k: number,
+      L: number,
+    ) => AutoMovieSolidRibbon.IRibbon | string = (
+      k: number,
+      L: number,
+    ): AutoMovieSolidRibbon.IRibbon | string => {
       if (k > m) {
-        const reading: AutoMovieConstructionSplitSeam.IPoint | null = seamAt[k] ?? null;
-        if (reading === null) return { point: loop[k]!, first: scale(lateral, L), second: [0, 0, 0] };
+        const reading: AutoMovieConstructionSplitSeam.IPoint | null =
+          seamAt[k] ?? null;
+        if (reading === null)
+          return {
+            point: loop[k]!,
+            first: scale(lateral, L),
+            second: [0, 0, 0],
+          };
         // On the seam: from the ruling toward the seam's direction away from
         // the nearer fork. Rising share from `finish` is the seam's tangent
         // unless the seam runs the other way.
         const fromFinish: number = (k - m) * step;
         const fromStart: number = (n - k) * step;
-        const angle: number = (Math.PI / 4) * share(Math.min(fromFinish, fromStart));
-        const away: Vec3 = scale(reading.tangent, (fromFinish <= fromStart ? 1 : -1) * (reversed ? -1 : 1));
-        return { point: loop[k]!, first: scale(add(scale(lateral, Math.cos(angle)), scale(away, Math.sin(angle))), L), second: [0, 0, 0] };
+        const angle: number =
+          (Math.PI / 4) * share(Math.min(fromFinish, fromStart));
+        const away: Vec3 = scale(
+          reading.tangent,
+          (fromFinish <= fromStart ? 1 : -1) * (reversed ? -1 : 1),
+        );
+        return {
+          point: loop[k]!,
+          first: scale(
+            add(scale(lateral, Math.cos(angle)), scale(away, Math.sin(angle))),
+            L,
+          ),
+          second: [0, 0, 0],
+        };
       }
       const hostSpeed: number = norm(ring[k]!.u);
-      if (!(hostSpeed > 0)) return `column ${k}: the host's station speed vanishes at its end`;
-      const own: AutoMovieSolidRibbon.IRibbon = AutoMovieSolidRibbon.of(input.host.surface, input.host.station, hostPhases[k]!, input.host.into, 0, L / hostSpeed);
+      if (!(hostSpeed > 0))
+        return `column ${k}: the host's station speed vanishes at its end`;
+      const own: AutoMovieSolidRibbon.IRibbon = AutoMovieSolidRibbon.of(
+        input.host.surface,
+        input.host.station,
+        hostPhases[k]!,
+        input.host.into,
+        0,
+        L / hostSpeed,
+      );
       const w: number = share(Math.min(k, m - k) * step);
       if (w === 0) return own;
       // On the arc: from the host's own ribbon toward the ruling, inside the
@@ -264,16 +338,40 @@ export namespace AutoMovieConstructionSplitBand {
       // derivative falls with the turn's share.
       const ahead: Vec3 | null = unit(own.first);
       const normal: Vec3 | null = unit(cross(ring[k]!.u, ring[k]!.v));
-      if (ahead === null || normal === null) return `column ${k}: the host's tangent plane is degenerate`;
-      const side: Vec3 | null = unit(sub(sub(lateral, scale(normal, dot(lateral, normal))), scale(ahead, dot(lateral, ahead))));
-      if (side === null) return `column ${k}: the seam's ruling has no direction in the host's tangent plane square to its ribbon`;
+      if (ahead === null || normal === null)
+        return `column ${k}: the host's tangent plane is degenerate`;
+      const side: Vec3 | null = unit(
+        sub(
+          sub(lateral, scale(normal, dot(lateral, normal))),
+          scale(ahead, dot(lateral, ahead)),
+        ),
+      );
+      if (side === null)
+        return `column ${k}: the seam's ruling has no direction in the host's tangent plane square to its ribbon`;
       const angle: number = (Math.PI / 4) * w;
-      return { point: own.point, first: scale(add(scale(ahead, Math.cos(angle)), scale(side, Math.sin(angle))), L), second: scale(own.second, 1 - w) };
+      return {
+        point: own.point,
+        first: scale(
+          add(scale(ahead, Math.cos(angle)), scale(side, Math.sin(angle))),
+          L,
+        ),
+        second: scale(own.second, 1 - w),
+      };
     };
     // The outward side: the host's outward normal at column 0.
-    const outward: Vec3 | null = unit(scale(cross(ring[0]!.u, ring[0]!.v), input.host.surface.orientation));
-    if (outward === null) return "the host's tangent plane at the arc's start is degenerate";
-    const made: IStrip | string = strip(input.name, loop, near, outward, input.child, input.crease);
+    const outward: Vec3 | null = unit(
+      scale(cross(ring[0]!.u, ring[0]!.v), input.host.surface.orientation),
+    );
+    if (outward === null)
+      return "the host's tangent plane at the arc's start is degenerate";
+    const made: IStrip | string = strip(
+      input.name,
+      loop,
+      near,
+      outward,
+      input.child,
+      input.crease,
+    );
     return typeof made === "string" ? made : { ...made, hostPhases };
   }
 
@@ -281,13 +379,13 @@ export namespace AutoMovieConstructionSplitBand {
    * A band's strip from its loop to a child's rail: the shared builder of a
    * split's bands and a port's band.
    *
-   * @evidence contracts/common.md#principled-implementation Matches the child's rail to the loop by angle about the rail's centroid, pairs each loop ribbon with the child's own 2-jet at its rail (or the crease's chord arrival), scales both by the monotone factor and publishes the join's strip chain.
-   * @evidence contracts/common.md#clear-and-simple-design The caller supplies only its loop and its start ribbons; correspondence, scale and publication are shared.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses a nonmonotone correspondence, collapsed or nonfinite columns and a strip without orientation or surface; a column whose ribbon points back against its chord is kept unaltered and named in `scale.backward`, never patched.
-   * @evidence contracts/common.md#meaningful-documentation States the inputs, the steps and the refusals.
-   * @evidence contracts/performance.md#efficient-algorithms Linear in columns apart from the correspondence's bisections and each column's scale search.
-   * @evidence contracts/performance.md#reuse-equivalent-work Each column's child jet serves its chord, its ribbon and its scale.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary columns are released; the result is caller-owned.
+   * @evidence contracts/development/implementation.md#principled-implementation Matches the child's rail to the loop by angle about the rail's centroid, pairs each loop ribbon with the child's own 2-jet at its rail (or the crease's chord arrival), scales both by the monotone factor and publishes the join's strip chain.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The caller supplies only its loop and its start ribbons; correspondence, scale and publication are shared.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a nonmonotone correspondence, collapsed or nonfinite columns and a strip without orientation or surface; a column whose ribbon points back against its chord is kept unaltered and named in `scale.backward`, never patched.
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the steps and the refusals.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in columns apart from the correspondence's bisections and each column's scale search.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each column's child jet serves its chord, its ribbon and its scale.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary columns are released; the result is caller-owned.
    *
    * @param name The band's chain name.
    * @param loop The loop's points at the `n` clocks `2 pi k / n`, mm.
@@ -297,21 +395,42 @@ export namespace AutoMovieConstructionSplitBand {
    * @param crease The declared crease window on the child side, or absent.
    * @returns The strip, or the refusal.
    */
-  export function strip(name: string, loop: readonly Vec3[], near: (k: number, L: number) => AutoMovieSolidRibbon.IRibbon | string, outward: Vec3, child: ISide, crease?: IAutoMovieConstructionSplit.ICrease): IStrip | string {
+  export function strip(
+    name: string,
+    loop: readonly Vec3[],
+    near: (k: number, L: number) => AutoMovieSolidRibbon.IRibbon | string,
+    outward: Vec3,
+    child: ISide,
+    crease?: IAutoMovieConstructionSplit.ICrease,
+  ): IStrip | string {
     const n: number = loop.length;
     const childPhases: number[] | string = phases(child, loop);
     if (typeof childPhases === "string") return childPhases;
 
-    const columns: { start: AutoMovieSolidRibbon.IRibbon; end: AutoMovieSolidRibbon.IRibbon }[] = [];
+    const columns: {
+      start: AutoMovieSolidRibbon.IRibbon;
+      end: AutoMovieSolidRibbon.IRibbon;
+    }[] = [];
     for (let k: number = 0; k < n; ++k) {
-      const far: IAutoMovieSolidSurface.IJet = child.surface.jet(child.station, childPhases[k]!);
+      const far: IAutoMovieSolidSurface.IJet = child.surface.jet(
+        child.station,
+        childPhases[k]!,
+      );
       const chord: Vec3 = sub(far.p, loop[k]!);
       const L: number = norm(chord);
       const childSpeed: number = norm(far.u);
-      if (!(Number.isFinite(L) && L > 0 && childSpeed > 0)) return `column ${k}: the loop point and the child's rail point coincide or the child's station speed vanishes`;
+      if (!(Number.isFinite(L) && L > 0 && childSpeed > 0))
+        return `column ${k}: the loop point and the child's rail point coincide or the child's station speed vanishes`;
       const start: AutoMovieSolidRibbon.IRibbon | string = near(k, L);
       if (typeof start === "string") return start;
-      const own: AutoMovieSolidRibbon.IRibbon = AutoMovieSolidRibbon.of(child.surface, child.station, childPhases[k]!, child.into, 0, L / childSpeed);
+      const own: AutoMovieSolidRibbon.IRibbon = AutoMovieSolidRibbon.of(
+        child.surface,
+        child.station,
+        childPhases[k]!,
+        child.into,
+        0,
+        L / childSpeed,
+      );
       const w: number = weight((2 * Math.PI * k) / n, crease);
       const end: AutoMovieSolidRibbon.IRibbon =
         w === 0
@@ -324,7 +443,17 @@ export namespace AutoMovieConstructionSplitBand {
               ]),
               second: scale(own.second, 1 - w),
             };
-      if (![start.point, start.first, start.second, end.point, end.first, end.second].every((v: readonly number[]): boolean => v.every(Number.isFinite))) return `column ${k}: a ribbon is not finite`;
+      if (
+        ![
+          start.point,
+          start.first,
+          start.second,
+          end.point,
+          end.first,
+          end.second,
+        ].every((v: readonly number[]): boolean => v.every(Number.isFinite))
+      )
+        return `column ${k}: a ribbon is not finite`;
       columns.push({ start, end });
     }
 
@@ -351,13 +480,22 @@ export namespace AutoMovieConstructionSplitBand {
     const backward: number[] = [];
     for (const [k, column] of columns.entries()) {
       const chord: Vec3 = sub(column.end.point, column.start.point);
-      if (!(dot(chord, column.start.first) > 0 && dot(chord, column.end.first) > 0)) backward.push(k);
+      if (
+        !(
+          dot(chord, column.start.first) > 0 && dot(chord, column.end.first) > 0
+        )
+      )
+        backward.push(k);
     }
-    const forward: typeof columns = columns.filter((_: (typeof columns)[number], k: number): boolean => !backward.includes(k));
+    const forward: typeof columns = columns.filter(
+      (_: (typeof columns)[number], k: number): boolean =>
+        !backward.includes(k),
+    );
     const factors: number[] = [];
     for (const column of forward) {
       const own: number | null = largest(column, 1);
-      if (own === null) return "no ribbon scale keeps every column monotone along its chord";
+      if (own === null)
+        return "no ribbon scale keeps every column monotone along its chord";
       factors.push(own);
     }
     let factor: number = factors.length === 0 ? 1 : Math.min(...factors);
@@ -366,21 +504,43 @@ export namespace AutoMovieConstructionSplitBand {
       for (const column of forward) {
         if (monotone(column, factor)) continue;
         const lower: number | null = largest(column, factor);
-        if (lower === null) return "no ribbon scale keeps every column monotone along its chord";
+        if (lower === null)
+          return "no ribbon scale keeps every column monotone along its chord";
         factor = lower;
         settled = false;
       }
     }
-    const scaled: typeof columns = columns.map((column: (typeof columns)[number]): (typeof columns)[number] => ({
-      start: { point: column.start.point, first: scale(column.start.first, factor), second: scale(column.start.second, factor * factor) },
-      end: { point: column.end.point, first: scale(column.end.first, factor), second: scale(column.end.second, factor * factor) },
-    }));
+    const scaled: typeof columns = columns.map(
+      (column: (typeof columns)[number]): (typeof columns)[number] => ({
+        start: {
+          point: column.start.point,
+          first: scale(column.start.first, factor),
+          second: scale(column.start.second, factor * factor),
+        },
+        end: {
+          point: column.end.point,
+          first: scale(column.end.first, factor),
+          second: scale(column.end.second, factor * factor),
+        },
+      }),
+    );
 
-    const published: { chain: IAutoMovieLoftChain; length: number } | null = AutoMovieSolidBlendChain.strip(name, scaled, outward);
-    if (published === null) return "the strip has no positive span or no outward side";
-    const surface: IAutoMovieSolidSurface | null = AutoMovieSolidChain.surface(published.chain);
+    const published: { chain: IAutoMovieLoftChain; length: number } | null =
+      AutoMovieSolidBlendChain.strip(name, scaled, outward);
+    if (published === null)
+      return "the strip has no positive span or no outward side";
+    const surface: IAutoMovieSolidSurface | null = AutoMovieSolidChain.surface(
+      published.chain,
+    );
     if (surface === null) return "the strip chain carries no surface";
-    return { chain: published.chain, surface, length: published.length, loop: [...loop], childPhases, scale: { applied: factor, columns: factors, backward } };
+    return {
+      chain: published.chain,
+      surface,
+      length: published.length,
+      loop: [...loop],
+      childPhases,
+      scale: { applied: factor, columns: factors, backward },
+    };
   }
 
   /**
@@ -390,15 +550,18 @@ export namespace AutoMovieConstructionSplitBand {
    * @param crease The window, or absent.
    * @returns The weight in `[0, 1]`.
    *
-   * @evidence contracts/common.md#principled-implementation The quintic smoothstep has zero first and second derivatives at both ends, so the weighted ribbons stay C2 along the loop.
-   * @evidence contracts/common.md#clear-and-simple-design One periodic distance and one polynomial.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The window is authored; no geometry decides it.
-   * @evidence contracts/common.md#meaningful-documentation States the window, the fall law and the absent case.
-   * @evidence contracts/performance.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure scalar function coordinates no work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation The quintic smoothstep has zero first and second derivatives at both ends, so the weighted ribbons stay C2 along the loop.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One periodic distance and one polynomial.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The window is authored; no geometry decides it.
+   * @evidence contracts/development/common.md#meaningful-documentation States the window, the fall law and the absent case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure scalar function coordinates no work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function weight(c: number, crease: IAutoMovieConstructionSplit.ICrease | undefined): number {
+  export function weight(
+    c: number,
+    crease: IAutoMovieConstructionSplit.ICrease | undefined,
+  ): number {
     if (crease === undefined) return 0;
     const turn: number = 2 * Math.PI;
     const x: number = (((c - crease.start) % turn) + turn) % turn;
@@ -413,13 +576,10 @@ export namespace AutoMovieConstructionSplitBand {
   /**
    * One column's two ribbons: the host-side (or chord) ribbon at the band's start and the child-side one at its end, per unit of the cross parameter.
    *
-   * @evidence contracts/common.md#principled-implementation The quintic Hermite column is fixed by these two 2-jets.
-   * @evidence contracts/common.md#clear-and-simple-design Two ribbons, as the join's column carries.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Values only.
-   * @evidence contracts/common.md#meaningful-documentation States which side each ribbon is and its parameter.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A record runs no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record coordinates no work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Borrowed vectors.
+   * @evidence contracts/development/design.md#principled-representation The quintic Hermite column is fixed by these two 2-jets.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two ribbons, as the join's column carries.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only.
+   * @evidence contracts/development/common.md#meaningful-documentation States which side each ribbon is and its parameter.
    */
   export interface IColumn {
     /** The start ribbon, at the loop. */
@@ -447,9 +607,20 @@ export namespace AutoMovieConstructionSplitBand {
     const a2: Vec3 = scale(column.start.second, f * f);
     const b1: Vec3 = scale(column.end.first, f);
     const b2: Vec3 = scale(column.end.second, f * f);
-    const controls: Vec3[] = [a, add(a, scale(a1, 1 / 5)), add(add(a, scale(a1, 2 / 5)), scale(a2, 1 / 20)), add(add(b, scale(b1, -2 / 5)), scale(b2, 1 / 20)), add(b, scale(b1, -1 / 5)), b];
-    const along: number[] = controls.map((p: Vec3): number => dot(sub(p, a), chord));
-    return along.every((x: number, i: number): boolean => i === 0 || x >= along[i - 1]!);
+    const controls: Vec3[] = [
+      a,
+      add(a, scale(a1, 1 / 5)),
+      add(add(a, scale(a1, 2 / 5)), scale(a2, 1 / 20)),
+      add(add(b, scale(b1, -2 / 5)), scale(b2, 1 / 20)),
+      add(b, scale(b1, -1 / 5)),
+      b,
+    ];
+    const along: number[] = controls.map((p: Vec3): number =>
+      dot(sub(p, a), chord),
+    );
+    return along.every(
+      (x: number, i: number): boolean => i === 0 || x >= along[i - 1]!,
+    );
   }
 
   /**
@@ -463,13 +634,13 @@ export namespace AutoMovieConstructionSplitBand {
    * @param from The largest scale to try.
    * @returns The scale found, or null.
    *
-   * @evidence contracts/common.md#principled-implementation Searches the Bezier-hull monotonicity condition (`monotone`) along the scale; the found value holds it, though the holding set need not be an interval, so a larger holding scale may exist.
-   * @evidence contracts/common.md#clear-and-simple-design Halving then bisection, one predicate.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No tolerance on the condition; a scale that fails is never returned.
-   * @evidence contracts/common.md#meaningful-documentation States the search, its bound and its null case.
-   * @evidence contracts/performance.md#efficient-algorithms At most about 30 halvings and 40 bisection steps, each six control points.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure numeric search coordinates no work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation Searches the Bezier-hull monotonicity condition (`monotone`) along the scale; the found value holds it, though the holding set need not be an interval, so a larger holding scale may exist.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Halving then bisection, one predicate.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance on the condition; a scale that fails is never returned.
+   * @evidence contracts/development/common.md#meaningful-documentation States the search, its bound and its null case.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most about 30 halvings and 40 bisection steps, each six control points.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure numeric search coordinates no work.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function largest(column: IColumn, from: number): number | null {
     if (monotone(column, from)) return from;
@@ -494,15 +665,24 @@ export namespace AutoMovieConstructionSplitBand {
   function phases(child: ISide, loop: readonly Vec3[]): number[] | string {
     const turn: number = 2 * Math.PI;
     const samples: number = 8 * loop.length;
-    const at: (psi: number) => Vec3 = (psi: number): Vec3 => [...(child.surface.point?.(child.station, psi) ?? child.surface.jet(child.station, psi).p)];
-    const ring: Vec3[] = Array.from({ length: samples }, (_: unknown, j: number): Vec3 => at((turn * j) / samples));
+    const at: (psi: number) => Vec3 = (psi: number): Vec3 => [
+      ...(child.surface.point?.(child.station, psi) ??
+        child.surface.jet(child.station, psi).p),
+    ];
+    const ring: Vec3[] = Array.from(
+      { length: samples },
+      (_: unknown, j: number): Vec3 => at((turn * j) / samples),
+    );
 
     // The ring's centroid and its Newell normal (the polygon's area vector).
     let centre: Vec3 = [0, 0, 0];
     for (const q of ring) centre = add(centre, scale(q, 1 / samples));
     let area: Vec3 = [0, 0, 0];
     ring.forEach((q: Vec3, j: number): void => {
-      area = add(area, cross(sub(q, centre), sub(ring[(j + 1) % samples]!, centre)));
+      area = add(
+        area,
+        cross(sub(q, centre), sub(ring[(j + 1) % samples]!, centre)),
+      );
     });
     const normal: Vec3 | null = unit(area);
     if (normal === null) return "the child's rail ring encloses no area";
@@ -514,46 +694,73 @@ export namespace AutoMovieConstructionSplitBand {
       const d: Vec3 = sub(p, centre);
       return Math.atan2(dot(d, e2), dot(d, e1));
     };
-    const wrap: (x: number) => number = (x: number): number => x - turn * Math.round(x / turn);
+    const wrap: (x: number) => number = (x: number): number =>
+      x - turn * Math.round(x / turn);
 
     // Both curves must turn once, strictly monotonically, round the centroid.
-    const unwrap: (values: number[], what: string) => { angles: number[]; sense: 1 | -1 } | string = (values: number[], what: string): { angles: number[]; sense: 1 | -1 } | string => {
+    const unwrap: (
+      values: number[],
+      what: string,
+    ) => { angles: number[]; sense: 1 | -1 } | string = (
+      values: number[],
+      what: string,
+    ): { angles: number[]; sense: 1 | -1 } | string => {
       const angles: number[] = [values[0]!];
-      for (let j: number = 1; j <= values.length; ++j) angles.push(angles[j - 1]! + wrap(values[j % values.length]! - values[j - 1]!));
+      for (let j: number = 1; j <= values.length; ++j)
+        angles.push(
+          angles[j - 1]! + wrap(values[j % values.length]! - values[j - 1]!),
+        );
       const total: number = angles[values.length]! - angles[0]!;
       const sense: 1 | -1 = total > 0 ? 1 : -1;
-      if (!(Math.abs(Math.abs(total) - turn) < 1e-6)) return `the ${what} turns ${total.toFixed(6)} rad round the child's rail centroid, not once`;
-      for (let j: number = 1; j < angles.length; ++j) if (!(sense * (angles[j]! - angles[j - 1]!) > 0)) return `the ${what}'s angle round the child's rail centroid is not monotone at ${j - 1}`;
+      if (!(Math.abs(Math.abs(total) - turn) < 1e-6))
+        return `the ${what} turns ${total.toFixed(6)} rad round the child's rail centroid, not once`;
+      for (let j: number = 1; j < angles.length; ++j)
+        if (!(sense * (angles[j]! - angles[j - 1]!) > 0))
+          return `the ${what}'s angle round the child's rail centroid is not monotone at ${j - 1}`;
       return { angles, sense };
     };
-    const rim: { angles: number[]; sense: 1 | -1 } | string = unwrap(ring.map(angle), "child's rail ring");
+    const rim: { angles: number[]; sense: 1 | -1 } | string = unwrap(
+      ring.map(angle),
+      "child's rail ring",
+    );
     if (typeof rim === "string") return rim;
-    const lap: { angles: number[]; sense: 1 | -1 } | string = unwrap(loop.map(angle), "loop");
+    const lap: { angles: number[]; sense: 1 | -1 } | string = unwrap(
+      loop.map(angle),
+      "loop",
+    );
     if (typeof lap === "string") return lap;
 
     // Invert the ring's unwrapped angle at each loop angle: bracket by the samples, then bisect.
-    const found: number[] = lap.angles.slice(0, loop.length).map((target: number): number => {
-      const base: number = rim.angles[0]!;
-      const x: number = base + rim.sense * ((((rim.sense * (target - base)) % turn) + turn) % turn);
-      let j: number = 0;
-      while (j < samples - 1 && rim.sense * (rim.angles[j + 1]! - x) < 0) ++j;
-      let lo: number = (turn * j) / samples;
-      let hi: number = (turn * (j + 1)) / samples;
-      const reading: (psi: number) => number = (psi: number): number => rim.angles[j]! + wrap(angle(at(psi)) - rim.angles[j]!);
-      for (let step: number = 0; step < 48; ++step) {
-        const mid: number = (lo + hi) / 2;
-        if (rim.sense * (reading(mid) - x) < 0) lo = mid;
-        else hi = mid;
-      }
-      return (lo + hi) / 2;
-    });
+    const found: number[] = lap.angles
+      .slice(0, loop.length)
+      .map((target: number): number => {
+        const base: number = rim.angles[0]!;
+        const x: number =
+          base +
+          rim.sense * ((((rim.sense * (target - base)) % turn) + turn) % turn);
+        let j: number = 0;
+        while (j < samples - 1 && rim.sense * (rim.angles[j + 1]! - x) < 0) ++j;
+        let lo: number = (turn * j) / samples;
+        let hi: number = (turn * (j + 1)) / samples;
+        const reading: (psi: number) => number = (psi: number): number =>
+          rim.angles[j]! + wrap(angle(at(psi)) - rim.angles[j]!);
+        for (let step: number = 0; step < 48; ++step) {
+          const mid: number = (lo + hi) / 2;
+          if (rim.sense * (reading(mid) - x) < 0) lo = mid;
+          else hi = mid;
+        }
+        return (lo + hi) / 2;
+      });
 
     // Unwrap along the clock in the correspondence's direction.
     const direction: number = rim.sense * lap.sense;
     const out: number[] = [found[0]!];
     for (let k: number = 1; k < found.length; ++k) {
-      const step: number = direction * ((((direction * (found[k]! - out[k - 1]!)) % turn) + turn) % turn);
-      if (!(step !== 0)) return `the child's rail phase does not advance at column ${k}`;
+      const step: number =
+        direction *
+        ((((direction * (found[k]! - out[k - 1]!)) % turn) + turn) % turn);
+      if (!(step !== 0))
+        return `the child's rail phase does not advance at column ${k}`;
       out.push(out[k - 1]! + step);
     }
     return out;

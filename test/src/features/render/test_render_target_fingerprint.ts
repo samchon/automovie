@@ -42,10 +42,11 @@ import { namedFacts, throwsError } from "../internal/predicates";
  * 5. An unchanged target is fresh, and the one-line summary says which.
  * 6. Renderer tuple tabs and embedded asset row delimiters cannot alias a distinct target.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual digest, seal, target comparator and summary; malformed input refuses, real field drift names its source and embedded separators cannot merge different renderer or asset tuples.
- * @evidence contracts/testing.md#independent-expectations Node SHA over Buffer UTF-8 independently checks hashing across padding/Unicode boundaries. Authored tuple (webgl2-tab-x,y,gpu) differs from (webgl2,x-tab-y,gpu); one asset whose path contains a rendered second row differs from two distinct assets, regardless of a delimiter-joined spelling.
- * @evidence contracts/testing.md#distinguishing-cases Covers exact digest block boundaries, lone surrogates, reordered assets, each admitted numeric/string refusal, every target drift kind, equal targets and tab/newline collision neighbors. Native upload-sharing identity is owned by texture residency tests.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_render_target_fingerprint runs portable synchronous identity semantics with Node crypto as an independent oracle; it starts no capture host, GPU, process or dynamically registered suite.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual digest, seal, target comparator and summary; malformed input refuses, real field drift names its source and embedded separators cannot merge different renderer or asset tuples.
+ * @evidence contracts/development/testing.md#independent-expectations Node SHA over Buffer UTF-8 independently checks hashing across padding/Unicode boundaries. Authored tuple (webgl2-tab-x,y,gpu) differs from (webgl2,x-tab-y,gpu); one asset whose path contains a rendered second row differs from two distinct assets, regardless of a delimiter-joined spelling.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers exact digest block boundaries, lone surrogates, reordered assets, each admitted numeric/string refusal, every target drift kind, equal targets and tab/newline collision neighbors. Native upload-sharing identity is owned by texture residency tests.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_render_target_fingerprint runs portable synchronous identity semantics with Node crypto as an independent oracle; it starts no capture host, GPU, process or dynamically registered suite.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The pure-TypeScript digest equals `node:crypto` on the empty string, on both).
  */
 export function test_render_target_fingerprint(): void {
   const oracle: (text: string) => string = (text: string): string =>

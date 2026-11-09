@@ -86,10 +86,11 @@ const topo: (
  * 9. Nonfinite or missing position/index slots yield no topology verdict;
  *    model admission owns their structural findings and welding must not throw.
  *
- * @evidence contracts/testing.md#behavioral-verification The actual standalone topology gate catches nonmanifold incidence, shared-edge winding and optional closure through returned findings; malformed structural buffers must skip topology without escaping a weld error.
- * @evidence contracts/testing.md#independent-expectations Authored square/tetrahedron face lists independently determine edge multiplicity and direction; deleting one tetrahedron face exposes three edges, and structural holes cannot name finite coordinates or vertex references.
- * @evidence contracts/testing.md#distinguishing-cases Preserve open/closed twins, third fin, flipped pair, collapsed triangle, nonindexed soup, all malformed lengths/indices and the real tessellated-box weld seam, adding NaN/Infinity and sparse position/index buffers; model-buffer admission owns the located structural errors.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_validation_mesh_topology; authored mesh records, the existing tessellator and actual topology results own the assertions without a GPU mesh upload, viewer or Human host.
+ * @evidence contracts/development/testing.md#behavioral-verification The actual standalone topology gate catches nonmanifold incidence, shared-edge winding and optional closure through returned findings; malformed structural buffers must skip topology without escaping a weld error.
+ * @evidence contracts/development/testing.md#independent-expectations Authored square/tetrahedron face lists independently determine edge multiplicity and direction; deleting one tetrahedron face exposes three edges, and structural holes cannot name finite coordinates or vertex references.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserve open/closed twins, third fin, flipped pair, collapsed triangle, nonindexed soup, all malformed lengths/indices and the real tessellated-box weld seam, adding NaN/Infinity and sparse position/index buffers; model-buffer admission owns the located structural errors.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_validation_mesh_topology; authored mesh records, the existing tessellator and actual topology results own the assertions without a GPU mesh upload, viewer or Human host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two triangles sharing an edge with consistent winding pass; the same open).
  */
 export function test_validation_mesh_topology(): void {
   // 1. consistent open pair: passes; expectClosed flags its open edges.

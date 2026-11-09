@@ -20,10 +20,11 @@ import { throwsError } from "../internal/throwsError";
  *    (folded).
  * 6. Uniformly tiny and huge right triangles retain their angles; unrepresentable side ratios refuse explicitly.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises the scalar two-bone solver and checks returned bend, lift and reach flag, catching squared-length overflow/underflow that otherwise yields NaN for a similar finite triangle.
- * @evidence contracts/testing.md#independent-expectations Equal sides with a square-root-two base form an isosceles right triangle with ninety-degree bend and forty-five-degree lift at every common scale; shell endpoints independently define folded/straight cases.
- * @evidence contracts/testing.md#distinguishing-cases Covers reachable and both clamped boundaries, zero distance, invalid lengths/distance, extreme shared scales and unrepresentable side ratios; chain-articulation tests own world orientation and plane choice.
- * @evidence contracts/testing.md#execution-ownership The exported kinematics unit entry owns all scalar cases and calls portable solver source without a skeleton application, native solver or rendering host.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises the scalar two-bone solver and checks returned bend, lift and reach flag, catching squared-length overflow/underflow that otherwise yields NaN for a similar finite triangle.
+ * @evidence contracts/development/testing.md#independent-expectations Equal sides with a square-root-two base form an isosceles right triangle with ninety-degree bend and forty-five-degree lift at every common scale; shell endpoints independently define folded/straight cases.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers reachable and both clamped boundaries, zero distance, invalid lengths/distance, extreme shared scales and unrepresentable side ratios; chain-articulation tests own world orientation and plane choice.
+ * @evidence contracts/development/testing.md#execution-ownership The exported kinematics unit entry owns all scalar cases and calls portable solver source without a skeleton application, native solver or rendering host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Right-angle reach: equal unit bones to distance sqrt(2) give bend90 degrees).
  */
 export function test_kinematics_two_bone_ik(): void {
   // 1. right angle

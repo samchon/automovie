@@ -62,10 +62,10 @@ export namespace HumanPeople {
    *
    * @throws {Error} When the request is malformed or names a person the table does not hold.
    *
-   * @evidence contracts/testing.md#behavioral-verification The workspace Human selection question reads this actual fixture with explicit argv/environment inputs and logs its zero-argument result from the real invocation, catching CLI precedence or default-population regressions without generating a figure.
-   * @evidence contracts/testing.md#independent-expectations Literal f1/m2 registry order, the existing ten core people and sixty-six extended people define the oracle; no generated geometry supplies it.
-   * @evidence contracts/testing.md#distinguishing-cases The owning question covers CLI over the old environment input, absent CLI with named/default/extended values, and invalid CLI preflight. Figure questions retain their geometric expectations after selecting these names.
-   * @evidence contracts/testing.md#execution-ownership This portable fixture reader shares the pure CLI grammar with actual preflight, reads only supplied or default invocation inputs and writes no environment or global selection state.
+   * @evidence contracts/development/testing.md#behavioral-verification The workspace Human selection question reads this actual fixture with explicit argv/environment inputs and logs its zero-argument result from the real invocation, catching CLI precedence or default-population regressions without generating a figure.
+   * @evidence contracts/development/testing.md#independent-expectations Literal f1/m2 registry order, the existing ten core people and sixty-six extended people define the oracle; no generated geometry supplies it.
+   * @evidence contracts/development/testing.md#distinguishing-cases The owning question covers CLI over the old environment input, absent CLI with named/default/extended values, and invalid CLI preflight. Figure questions retain their geometric expectations after selecting these names.
+   * @evidence contracts/development/testing.md#execution-ownership This portable fixture reader shares the pure CLI grammar with actual preflight, reads only supplied or default invocation inputs and writes no environment or global selection state.
    */
   export function names(
     argv: readonly string[] = process.argv.slice(2),
@@ -77,10 +77,10 @@ export namespace HumanPeople {
   /**
    * Validate a supplied immutable population value and retain registry order. This reads no CLI, environment, generated figure or mutable run configuration.
    *
-   * @evidence contracts/testing.md#behavioral-verification The workspace Human selection question exercises this actual registry admission directly and through preflight, catching accepted unknown names, reordered selections or duplicate results.
-   * @evidence contracts/testing.md#independent-expectations Literal named people, stable registry order and the existing core/extended population counts supply expectations independently of this selector.
-   * @evidence contracts/testing.md#distinguishing-cases Named/duplicate/default/extended values and unknown or empty comma-list members distinguish valid population requests; scenario option grammar belongs to the shared reader's question.
-   * @evidence contracts/testing.md#execution-ownership This synchronous portable registry query creates input records only and owns no generated person, host, environment mutation or retained selection state.
+   * @evidence contracts/development/testing.md#behavioral-verification The workspace Human selection question exercises this actual registry admission directly and through preflight, catching accepted unknown names, reordered selections or duplicate results.
+   * @evidence contracts/development/testing.md#independent-expectations Literal named people, stable registry order and the existing core/extended population counts supply expectations independently of this selector.
+   * @evidence contracts/development/testing.md#distinguishing-cases Named/duplicate/default/extended values and unknown or empty comma-list members distinguish valid population requests; scenario option grammar belongs to the shared reader's question.
+   * @evidence contracts/development/testing.md#execution-ownership This synchronous portable registry query creates input records only and owns no generated person, host, environment mutation or retained selection state.
    */
   export function select(value?: string): string[] {
     if (value !== undefined && value !== "" && value !== "extended") {

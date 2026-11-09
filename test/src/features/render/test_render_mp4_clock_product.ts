@@ -1,6 +1,7 @@
-import { equalRational } from "@automovie/render/node/equalRational";
-import { exactProductionClockProduct } from "@automovie/render/node/exactProductionClockProduct";
 import { TestValidator } from "@nestia/e2e";
+
+import { equalRational } from "../../../../packages/template/scaffold/src/integrations/render/node/equalRational";
+import { exactProductionClockProduct } from "../../../../packages/template/scaffold/src/integrations/render/node/exactProductionClockProduct";
 
 /**
  * Two MP4 tracks are compared by an exact cross-product, never by division.
@@ -14,10 +15,11 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Zero, negative, fractional and non-finite terms are refused on either side with the shared message, and the largest safe integer is still admitted.
  * 4. The boolean rational equality used for clock ratios matches equal ratios on different timescales, separates ratios a double cannot tell apart, and reports a zero or negative denominator or an unsafe term as unequal, so `1/0` never equals `2/0`.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls actual exact clock-product and rational-equality owners, distinguishing equal runtimes, one-tick changes and double-rounded large products while refusing inadmissible terms.
- * @evidence contracts/testing.md#independent-expectations The hand-computed 90-minute product is 3185049600000, below 2^53; the separate maximum-safe term times three supplies the genuine beyond-double witness with exact digits 27021597764222973. Positive safe clock terms and cross multiplication supply expectations without creating or probing MP4 media.
- * @evidence contracts/testing.md#distinguishing-cases Zero, negative, fractional, unsafe, NaN and infinite terms contrast with maximum-safe admission; rational cases cover equal scales, rounding-indistinguishable ratios and invalid denominators.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_mp4_clock_product owns its cases. Portable arithmetic through direct source imports; no mux, ffprobe, media file or child process runs.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls actual exact clock-product and rational-equality owners, distinguishing equal runtimes, one-tick changes and double-rounded large products while refusing inadmissible terms.
+ * @evidence contracts/development/testing.md#independent-expectations The hand-computed 90-minute product is 3185049600000, below 2^53; the separate maximum-safe term times three supplies the genuine beyond-double witness with exact digits 27021597764222973. Positive safe clock terms and cross multiplication supply expectations without creating or probing MP4 media.
+ * @evidence contracts/development/testing.md#distinguishing-cases Zero, negative, fractional, unsafe, NaN and infinite terms contrast with maximum-safe admission; rational cases cover equal scales, rounding-indistinguishable ratios and invalid denominators.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_mp4_clock_product owns its cases. Portable arithmetic through direct source imports; no mux, ffprobe, media file or child process runs.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two cross-products of one equal-runtime pair agree, and a one-tick-longer audio track disagrees.).
  */
 export function test_render_mp4_clock_product(): void {
   // 90 minutes of picture on a 24 fps, 12288-tick media clock beside the same

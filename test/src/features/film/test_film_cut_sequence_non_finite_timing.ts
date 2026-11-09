@@ -63,10 +63,11 @@ const hasFiniteViolation: (
  * 3. `trim.duration: Infinity` yields `range` on `.trim.duration`.
  * 4. `transition.duration: Infinity` yields `range` on `.transition.duration`.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls cutSequence separately with four nonfinite timing fields and requires failure plus a range finding naming finite admission at that field, detecting comparisons that accidentally admit NaN or positive Infinity.
- * @evidence contracts/testing.md#independent-expectations Editorial frame rate and time operands must be finite; the literal Infinity and NaN cases violate that premise without needing a derived runtime. Expected paths follow authored field positions and the finite message fragment distinguishes the intended gate from another range refusal.
- * @evidence contracts/testing.md#distinguishing-cases Isolates infinite fps, NaN trim start, infinite trim duration and infinite transition duration; the transition has a preceding entry so first-entry refusal cannot explain the finding. Finite out-of-bounds and nonpositive cases belong to the other cutSequence tests.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_cut_sequence_non_finite_timing entry owns four direct in-process assembly cases through its private run helper, creating no native artifact, installed consumer or real host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls cutSequence separately with four nonfinite timing fields and requires failure plus a range finding naming finite admission at that field, detecting comparisons that accidentally admit NaN or positive Infinity.
+ * @evidence contracts/development/testing.md#independent-expectations Editorial frame rate and time operands must be finite; the literal Infinity and NaN cases violate that premise without needing a derived runtime. Expected paths follow authored field positions and the finite message fragment distinguishes the intended gate from another range refusal.
+ * @evidence contracts/development/testing.md#distinguishing-cases Isolates infinite fps, NaN trim start, infinite trim duration and infinite transition duration; the transition has a preceding entry so first-entry refusal cannot explain the finding. Finite out-of-bounds and nonpositive cases belong to the other cutSequence tests.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_cut_sequence_non_finite_timing entry owns four direct in-process assembly cases through its private run helper, creating no native artifact, installed consumer or real host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `fps: Infinity` yields `range` on `$input.fps`.).
  */
 export function test_film_cut_sequence_non_finite_timing(): void {
   const infiniteFps: ReturnType<typeof run> = run({

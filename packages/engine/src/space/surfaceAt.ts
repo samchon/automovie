@@ -8,13 +8,13 @@ import { surfaceHeightAt } from "./surfaceHeightAt";
 /**
  * Select the topmost surface at an XZ query, including non-walkable surfaces.
  *
- * @evidence contracts/common.md#principled-implementation Prepared ring membership and canonical local height are scanned in authored order; strictly greater heights replace the winner, so exact ties retain the first surface.
- * @evidence contracts/common.md#clear-and-simple-design This selector owns topmost ordering while membership and height rules remain separate canonical owners; heightAt adds walkability afterward.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No covering surface returns null and no underneath-overhang search is invented; finite admitted heights and a matching preparation are prerequisites, while NaN heights cannot win the comparison.
- * @evidence contracts/common.md#meaningful-documentation Documents borrowed winner identity, tie order, null semantics and the distinction between presence and walkability.
- * @evidence contracts/performance.md#efficient-algorithms A query scans E edges across S surfaces with O(1) height arithmetic per candidate; default preparation adds O(E) owned storage and work.
- * @evidence contracts/performance.md#reuse-equivalent-work A supplied prepared space shares ring projections between queries; the space parameter is not checked against that generation and callers must keep them paired.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The winner is a borrowed source surface; call-local selection state and default preparation acquire no external resources.
+ * @evidence contracts/development/implementation.md#principled-implementation Prepared ring membership and canonical local height are scanned in authored order; strictly greater heights replace the winner, so exact ties retain the first surface.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This selector owns topmost ordering while membership and height rules remain separate canonical owners; heightAt adds walkability afterward.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No covering surface returns null and no underneath-overhang search is invented; finite admitted heights and a matching preparation are prerequisites, while NaN heights cannot win the comparison.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents borrowed winner identity, tie order, null semantics and the distinction between presence and walkability.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A query scans E edges across S surfaces with O(1) height arithmetic per candidate; default preparation adds O(E) owned storage and work.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied prepared space shares ring projections between queries; the space parameter is not checked against that generation and callers must keep them paired.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The winner is a borrowed source surface; call-local selection state and default preparation acquire no external resources.
  */
 export const surfaceAt: (
   space: IAutoMovieSpace,

@@ -2,7 +2,7 @@ import {
   type AutoMovieHumanPolygon,
   buildHumanCartoonFace,
   buildHumanPolygon,
-} from "@automovie/viewer/human-polygon";
+} from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -26,10 +26,11 @@ import { nclose, throwsError } from "../internal/predicates";
  * 5. Drawing disposal retires each owned geometry/material once, clears its
  * registries and makes further pose/palette updates refuse.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds through the optional public entry, reads actual mesh positions/indices and bone-group world transforms, replaces palettes/poses, constructs a face on the actual front and counts native disposal events; catches a head that ignores its joints or tip, lost custom bones, wrong local frames, double root/parent composition, stale diagnostics, partial invalid writes and attached-resource overreach.
- * @evidence contracts/testing.md#independent-expectations The head's first ring sits at its rest joint with the neck radius 0.04 narrowed by the 0.92 display convention, its highest vertex is the head tip 0.18 m above the joint, and a procedural shin's first point is its supplied radius along +X. A forearm probe (0.04,0,0), z quarter-turn and placement (2,3,4), followed by actor y quarter-turn and translation (1,0,0), gives world (5,3.04,-2). Palette and resource expectations use actual identities/events rather than source matching or implementation snapshots.
- * @evidence contracts/testing.md#distinguishing-cases Covers skeleton-built neck/head and procedural sections, custom non-humanoid foot/toe bones, nonidentity root and bone rotation, surface/diagnostic agreement, equal/different/unmatched colours, invalid pose variants, neutral/expressive face output, explicit unsupported actions, disposal repetition and post-disposal refusal; real Human inputs and hardware appearance remain the consuming host's verification.
- * @evidence contracts/testing.md#execution-ownership One portable CPU unit calls maintained public Viewer entries over a small synthetic descriptor, starts no Human generator, browser, renderer, process or installation, and owns its ordinary Three objects.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds through the optional public entry, reads actual mesh positions/indices and bone-group world transforms, replaces palettes/poses, constructs a face on the actual front and counts native disposal events; catches a head that ignores its joints or tip, lost custom bones, wrong local frames, double root/parent composition, stale diagnostics, partial invalid writes and attached-resource overreach.
+ * @evidence contracts/development/testing.md#independent-expectations The head's first ring sits at its rest joint with the neck radius 0.04 narrowed by the 0.92 display convention, its highest vertex is the head tip 0.18 m above the joint, and a procedural shin's first point is its supplied radius along +X. A forearm probe (0.04,0,0), z quarter-turn and placement (2,3,4), followed by actor y quarter-turn and translation (1,0,0), gives world (5,3.04,-2). Palette and resource expectations use actual identities/events rather than source matching or implementation snapshots.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers skeleton-built neck/head and procedural sections, custom non-humanoid foot/toe bones, nonidentity root and bone rotation, surface/diagnostic agreement, equal/different/unmatched colours, invalid pose variants, neutral/expressive face output, explicit unsupported actions, disposal repetition and post-disposal refusal; real Human inputs and hardware appearance remain the consuming host's verification.
+ * @evidence contracts/development/testing.md#execution-ownership One portable CPU unit calls maintained public Viewer entries over a small synthetic descriptor, starts no Human generator, browser, renderer, process or installation, and owns its ordinary Three objects.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The neck and head are built from their joints alone (no skin surface): the).
  */
 export function test_viewer_human_polygon(): void {
   const input: AutoMovieHumanPolygon.IInput = createHumanPolygonFixture();

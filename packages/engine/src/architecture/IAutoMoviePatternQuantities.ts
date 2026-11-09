@@ -9,13 +9,10 @@ import { IAutoMoviePatternZoneQuantities } from "./IAutoMoviePatternZoneQuantiti
  * region, joints and any area the generator left empty alike, so `jointLength`
  * is the joint length only when the program tiles the region.
  *
- * @evidence contracts/common.md#principled-implementation Totals sum per-zone records; waste subtracts covered from consumed and joint area subtracts covered from net region. These are binary64 polygon measurements and accounting formulas, not exact-real area identities or independent physical coverage proofs.
- * @evidence contracts/common.md#clear-and-simple-design Pattern totals plus the zone records in one object, so a caller reports either level without summing.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The joint length assumes a tiling program and is stated as such rather than corrected for gaps, and an overlap appears as a negative joint area rather than being clamped.
- * @evidence contracts/common.md#meaningful-documentation States how totals relate to zones, why waste includes punched area, what joint area counts and when joint length is meaningful, and the units and ranges of each figure.
- * @evidenceExclude contracts/performance.md#efficient-algorithms No code; totals are linear in the zone count, answered on `generateAutoMovieSurfacePattern`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per run from the zone records the run already summed.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds numbers and a copied zone array owned by the run result.
+ * @evidence contracts/development/design.md#principled-representation Totals sum per-zone records; waste subtracts covered from consumed and joint area subtracts covered from net region. These are binary64 polygon measurements and accounting formulas, not exact-real area identities or independent physical coverage proofs.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Pattern totals plus the zone records in one object, so a caller reports either level without summing.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The joint length assumes a tiling program and is stated as such rather than corrected for gaps, and an overlap appears as a negative joint area rather than being clamped.
+ * @evidence contracts/development/common.md#meaningful-documentation States how totals relate to zones, why waste includes punched area, what joint area counts and when joint length is meaningful, and the units and ranges of each figure.
  */
 export interface IAutoMoviePatternQuantities {
   /** Placed occurrences across every zone, whole and cut alike. */

@@ -21,13 +21,13 @@ const COLOUR_TYPES: ReadonlySet<number> = new Set([0, 2, 4, 6]);
  *
  * The header is the IHDR chunk (W3C PNG, 2nd edition, section 11.2.2): a 13-byte body whose bit depth must be 8, colour type 0, 2, 4 or 6, compression, filter and interlace methods 0, and whose edges must be positive and at most `AUTO_MOVIE_MAX_TEXTURE_EDGE`. Only the first 44 base64 characters are decoded, so a corrupt compressed stream or a wrong checksum after the header passes here and is refused when the viewer decodes the image.
  *
- * @evidence contracts/common.md#principled-implementation Strict RFC 4648 syntax is checked on the whole string, then the signature and IHDR fields decoded from its prefix are compared with the PNG specification's values for the decoded subset; readAutoMovieImageFacts supplies signature, chunk type and edges.
- * @evidence contracts/common.md#clear-and-simple-design Image-list admission is one leaf beside material admission; the shared image-facts reader owns PNG dimension parsing and this owner only adds the decoder-subset fields.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported depths, palettes, interlacing and oversize edges are refused rather than left to a viewer approximation; the documented header-only limit is stated instead of claimed as full decodability.
- * @evidence contracts/common.md#meaningful-documentation States the admitted media, base64 form, IHDR subset, edge bound and the header-only limitation with where the remaining faults surface.
- * @evidence contracts/performance.md#efficient-algorithms One linear regular-expression scan per image string and a fixed 33-byte header decode; no pixel data is inflated.
- * @evidence contracts/performance.md#reuse-equivalent-work Reuses the shared image-facts reader and unique-id validator; images are re-checked per call because the model is caller-owned and mutable.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The decoded header prefix is a temporary 33-byte array; only findings reach the caller's collector.
+ * @evidence contracts/development/implementation.md#principled-implementation Strict RFC 4648 syntax is checked on the whole string, then the signature and IHDR fields decoded from its prefix are compared with the PNG specification's values for the decoded subset; readAutoMovieImageFacts supplies signature, chunk type and edges.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Image-list admission is one leaf beside material admission; the shared image-facts reader owns PNG dimension parsing and this owner only adds the decoder-subset fields.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unsupported depths, palettes, interlacing and oversize edges are refused rather than left to a viewer approximation; the documented header-only limit is stated instead of claimed as full decodability.
+ * @evidence contracts/development/common.md#meaningful-documentation States the admitted media, base64 form, IHDR subset, edge bound and the header-only limitation with where the remaining faults surface.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One linear regular-expression scan per image string and a fixed 33-byte header decode; no pixel data is inflated.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shared image-facts reader and unique-id validator; images are re-checked per call because the model is caller-owned and mutable.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The decoded header prefix is a temporary 33-byte array; only findings reach the caller's collector.
  */
 export const validateModelImages: (
   images: unknown,

@@ -15,13 +15,10 @@ import { IAutoMovieHalfSpacePlane } from "@automovie/interface";
  * stopped at once. Validation checks the plane count, finite values and
  * non-zero normals, not that the planes enclose a non-empty bounded region.
  *
- * @evidence contracts/common.md#principled-implementation A convex solid as an intersection of half-spaces, tested by the analytic slab method; it relies on convexity, which a half-space intersection always has, and does not check boundedness or non-emptiness, as stated.
- * @evidence contracts/common.md#clear-and-simple-design One shape serves both context occluders and building shades, so a single occlusion routine reads both while the caller keeps ownership by choosing the list.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Context masses are never returned as building geometry, and an unbounded plane set is accepted as authored rather than rejected by an unstated heuristic.
- * @evidence contracts/common.md#meaningful-documentation States the inside convention, the stop rule including a ray starting inside, what validation checks and leaves unchecked, the four-plane minimum, and that ids are unique only within their own list.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; the slab test is linear in the planes of one solid, answered on `autoMovieSolidBlocks`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Read for one study; the solids list is assembled once per study and its occlusion verdicts depend on each ray.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources An id and a plane array the caller owns; the plane count has no upper bound beyond what the caller authored.
+ * @evidence contracts/development/design.md#principled-representation A convex solid as an intersection of half-spaces, tested by the analytic slab method; it relies on convexity, which a half-space intersection always has, and does not check boundedness or non-emptiness, as stated.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One shape serves both context occluders and building shades, so a single occlusion routine reads both while the caller keeps ownership by choosing the list.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Context masses are never returned as building geometry, and an unbounded plane set is accepted as authored rather than rejected by an unstated heuristic.
+ * @evidence contracts/development/common.md#meaningful-documentation States the inside convention, the stop rule including a ray starting inside, what validation checks and leaves unchecked, the four-plane minimum, and that ids are unique only within their own list.
  */
 export interface IAutoMovieAnalysisSolid {
   /** Stable identity of the blocker within its own list (occluders or shades). */

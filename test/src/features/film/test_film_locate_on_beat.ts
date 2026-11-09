@@ -33,10 +33,11 @@ const sample: () => IAutoMovieConstraintViolation[] =
  * 2. Original records still have no node.
  * 3. A missing tree and an unclaimed beat leave both outputs unstamped.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls locateOnBeat and checks output nodes, severity/path strings and unchanged input node fields, catching a wrong claimant or mutation of the supplied violations. It does not assert every nested field or object identity.
- * @evidence contracts/testing.md#independent-expectations The existing tree explicitly associates beat-1 with b1, and neither an absent tree nor beat-99 provides a claimant. The two authored severity/path literals determine preserved output independently of the function.
- * @evidence contracts/testing.md#distinguishing-cases Covers a claimed beat, absent tree and unclaimed beat with both warning and error records; empty feedback, overwritten pre-existing node fields and malformed-tree admission are separate responsibilities.
- * @evidence contracts/testing.md#execution-ownership This discoverable synchronous unit owns its in-memory location cases and imports portable source directly, with no external host or dynamically registered scenario.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls locateOnBeat and checks output nodes, severity/path strings and unchanged input node fields, catching a wrong claimant or mutation of the supplied violations. It does not assert every nested field or object identity.
+ * @evidence contracts/development/testing.md#independent-expectations The existing tree explicitly associates beat-1 with b1, and neither an absent tree nor beat-99 provides a claimant. The two authored severity/path literals determine preserved output independently of the function.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers a claimed beat, absent tree and unclaimed beat with both warning and error records; empty feedback, overwritten pre-existing node fields and malformed-tree admission are separate responsibilities.
+ * @evidence contracts/development/testing.md#execution-ownership This discoverable synchronous unit owns its in-memory location cases and imports portable source directly, with no external host or dynamically registered scenario.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A claiming tree stamps b1 on both input violations while preserving severity and path.).
  */
 export function test_film_locate_on_beat(): void {
   const tree: IAutoMovieScriptNode[] = createScriptTree();

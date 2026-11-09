@@ -109,10 +109,11 @@ const beatProps: (
  * 4. A nonsensical tolerance is a range error that short-circuits before any
  *    snapshot is compared.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateFilmContinuity on empty, singleton, resumed, drifted, and invalid-tolerance films, checking no-cut success, absence of resumed warnings, an actor-qualified cut warning, and a located range error.
- * @evidence contracts/testing.md#independent-expectations The authored root travels two metres in one second, so the half-second first beat ends one metre from its staging point. Staging the second at one metre must resume it, while staging at zero must warn at beat index one; no observed snapshot supplies either expected staging coordinate.
- * @evidence contracts/testing.md#distinguishing-cases Empty and singleton inputs have no cut; matched versus origin-reset staging distinguish a real previous-end/current-opening comparison from checking each beat alone. NaN tolerance must refuse before snapshot comparison rather than silently defaulting.
- * @evidence contracts/testing.md#execution-ownership Uses local scene, shot, and motion records with synchronous numerical snapshot resolution, without staging/registered-shot resume, rendering, resources, clocks, or replacement of dependencies. The checks observe advisory translation continuity and tolerance admission, not every continuity channel.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateFilmContinuity on empty, singleton, resumed, drifted, and invalid-tolerance films, checking no-cut success, absence of resumed warnings, an actor-qualified cut warning, and a located range error.
+ * @evidence contracts/development/testing.md#independent-expectations The authored root travels two metres in one second, so the half-second first beat ends one metre from its staging point. Staging the second at one metre must resume it, while staging at zero must warn at beat index one; no observed snapshot supplies either expected staging coordinate.
+ * @evidence contracts/development/testing.md#distinguishing-cases Empty and singleton inputs have no cut; matched versus origin-reset staging distinguish a real previous-end/current-opening comparison from checking each beat alone. NaN tolerance must refuse before snapshot comparison rather than silently defaulting.
+ * @evidence contracts/development/testing.md#execution-ownership Uses local scene, shot, and motion records with synchronous numerical snapshot resolution, without staging/registered-shot resume, rendering, resources, clocks, or replacement of dependencies. The checks observe advisory translation continuity and tolerance admission, not every continuity channel.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An empty film and a single-beat film have no cut to lint and pass with no).
  */
 export function test_film_continuity_walk(): void {
   TestValidator.equals(

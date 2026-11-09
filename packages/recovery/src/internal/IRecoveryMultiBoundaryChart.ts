@@ -1,27 +1,21 @@
-import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieCurve64 as C } from "@automovie/engine";
 
 /**
  * Structural records for RecoveryMultiBoundaryChart.
  *
- * @evidence contracts/common.md#principled-implementation These records preserve the operation's original structural fields and ownership declarations without executing geometry or fitting.
- * @evidence contracts/common.md#clear-and-simple-design A type-only owner separates the unchanged input and result contracts from execution.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The records introduce no defaults, source fallback, validation bypass or numerical transformation.
- * @evidence contracts/common.md#meaningful-documentation Existing member comments retain their units and boundary meanings; the operation documents numerical qualifications.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A type performs no computation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A type owns no cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Input and output lifetimes remain with the operation and its caller.
+ * @evidence contracts/development/common.md#meaningful-documentation Existing member comments retain their units and boundary meanings; the operation documents numerical qualifications.
+ * @evidence contracts/development/design.md#principled-representation Represents Structural records for RecoveryMultiBoundaryChart: companion namespace of 2 members (`Input`, `Result`). It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `IRecoveryMultiBoundaryChart` in packages/recovery/src/internal/IRecoveryMultiBoundaryChart.ts; its surface is the 2 members listed and the text shows 1 other file naming it, mostly packages/recovery (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace IRecoveryMultiBoundaryChart {
   /**
    * Original immutable input contract.
    *
-   * @evidence contracts/common.md#principled-implementation These records preserve the operation's original structural fields and ownership declarations without executing geometry or fitting.
-   * @evidence contracts/common.md#clear-and-simple-design A type-only owner separates the unchanged input and result contracts from execution.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The records introduce no defaults, source fallback, validation bypass or numerical transformation.
-   * @evidence contracts/common.md#meaningful-documentation Existing member comments retain their units and boundary meanings; the operation documents numerical qualifications.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A type performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A type owns no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Input and output lifetimes remain with the operation and its caller.
+   * @evidence contracts/development/design.md#principled-representation These records preserve the operation's original structural fields and ownership declarations without executing geometry or fitting.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A type-only owner separates the unchanged input and result contracts from execution.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The records introduce no defaults, source fallback, validation bypass or numerical transformation.
+   * @evidence contracts/development/common.md#meaningful-documentation Existing member comments retain their units and boundary meanings; the operation documents numerical qualifications.
    */
   export type Input = {
     /** Private physical positions in millimetres; returned positions include fan duplicates. */
@@ -40,13 +34,10 @@ export namespace IRecoveryMultiBoundaryChart {
   /**
    * Original returned coefficient and diagnostic contract.
    *
-   * @evidence contracts/common.md#principled-implementation These records preserve the operation's original structural fields and ownership declarations without executing geometry or fitting.
-   * @evidence contracts/common.md#clear-and-simple-design A type-only owner separates the unchanged input and result contracts from execution.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The records introduce no defaults, source fallback, validation bypass or numerical transformation.
-   * @evidence contracts/common.md#meaningful-documentation Existing member comments retain their units and boundary meanings; the operation documents numerical qualifications.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A type performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A type owns no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Input and output lifetimes remain with the operation and its caller.
+   * @evidence contracts/development/design.md#principled-representation These records preserve the operation's original structural fields and ownership declarations without executing geometry or fitting.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A type-only owner separates the unchanged input and result contracts from execution.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The records introduce no defaults, source fallback, validation bypass or numerical transformation.
+   * @evidence contracts/development/common.md#meaningful-documentation Existing member comments retain their units and boundary meanings; the operation documents numerical qualifications.
    */
   export type Result = {
     /** Private physical positions in millimetres; returned positions include fan duplicates. */

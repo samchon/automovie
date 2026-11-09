@@ -50,44 +50,58 @@ type Reader = (phi: number) => AutoMovieViewChain.IReading | null;
  * refuses it) and its loft declares C1 (`AutoMovieViewLoft`). A source
  * without them keeps the four-quarter reading unchanged.
  *
- * @evidence contracts/common.md#principled-implementation Shared native geometry and radial source2 produce Cartesian phase/station derivatives by the analytic polar product rule; a declared touch/split source maps its actual guide and split points, tangents and piece shoulders onto the chain, whose one ray reader supplies the point and whose AD radius Hessian enters the same polar rule.
- * @evidence contracts/common.md#clear-and-simple-design Radial, Cartesian Point0, phase and physical-total2 factories share numeric geometry and primal coordinate owners while requiring only their declared outputs; one declared-chain branch per factory selects the chain.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the same numeric ray once, preserves raw negative phases and applies no second reflection, coordinate fit or missing derivative; a chain fault or unmet ray is refused, never replaced by the four-quarter section, and chain Point0 requires no derivative.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes fixed local-quarter geometry, global polar phase and physical station derivatives, and the chain's G1 joins with their sided second phase derivatives and where that policy is admitted.
- * @evidence contracts/performance.md#efficient-algorithms Fixed four-quarter station preparation precedes one numeric inverse per phase; AD only evaluates the selected source piece after that inverse. A chain prepares its K arcs once per station and reads one arc per phase.
- * @evidence contracts/performance.md#reuse-equivalent-work The caller-owned phase closure reuses its station geometry and the same ray supplies the Cartesian primal and source2 dispatch; a chain closure reuses its prepared arcs and their station jets.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only caller-owned prepared geometry and fresh local vectors are retained; no module cache exists.
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes fixed local-quarter geometry, global polar phase and physical station derivatives, and the chain's G1 joins with their sided second phase derivatives and where that policy is admitted.
+ * @evidence contracts/development/design.md#principled-representation The native value, radial, point and jet readers share the same polar chart, in millimetres and radians. The split chain carries its actual contacts, tangent angles and piece shoulders.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The curve, phase, radial, value, chain, point and jet factories expose distinct outputs of the same station geometry to the loft and its consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A rejected chain or ray stays rejected, with its original phase and orientation preserved. Value and Point0 require no unavailable derivatives.
  */
 export namespace AutoMovieLoftSectionNative {
   /**
    * Two separate capabilities of one immutable numeric station preparation.
    *
-   * @evidence contracts/common.md#principled-implementation Both methods consume the same prepared native conics and original phase clock.
-   * @evidence contracts/common.md#clear-and-simple-design Point0 and phase derivatives remain distinct operations over one station.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A Point0 request evaluates no phase or physical derivatives and neither method substitutes failed geometry.
-   * @evidence contracts/common.md#meaningful-documentation Coordinates use local mm and phase derivatives use radians; no physical-station jet is claimed.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This capability record performs no algorithm.
-   * @evidence contracts/performance.md#reuse-equivalent-work The producer owns one unchanged numeric preparation for its two explicit consumers.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Its caller owns fixed conic data and fresh returned vectors.
+   * @evidence contracts/development/design.md#principled-representation Both methods consume the same prepared native conics and original phase clock.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Point0 and phase derivatives remain distinct operations over one station.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A Point0 request evaluates no phase or physical derivatives and neither method substitutes failed geometry.
+   * @evidence contracts/development/common.md#meaningful-documentation Coordinates use local mm and phase derivatives use radians; no physical-station jet is claimed.
    */
   export interface ICurve {
-    /** Read only the actual finite local Cartesian point. */
+    /**
+     * Read only the actual finite local Cartesian point.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Read only the actual finite local Cartesian point.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Read only the actual finite local Cartesian point.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
+     */
     point(phi: number): [number, number];
 
-    /** Explicitly read that same original point and its first two phase derivatives. */
+    /**
+     * Explicitly read that same original point and its first two phase derivatives.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Documents the member contract in its own summary: Explicitly read that same original point and its first two phase derivatives.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the contract it fixes is: Explicitly read that same original point and its first two phase derivatives.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
+     */
     phase(phi: number): Phase;
   }
 
   /**
    * Prepare the numeric source once when a consumer needs Point0 inversion and a later phase tangent.
    *
-   * @evidence contracts/common.md#principled-implementation Uses the same NUMBER preparation, quarter restoration and capability-specific readers as point and phase; a declared chain prepares its arcs once for both.
-   * @evidence contracts/common.md#clear-and-simple-design One station descriptor separates preparation from each required evaluation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not memoize arbitrary algebra callbacks, require physical2, change input access order, retain failed preparations or alter native admission.
-   * @evidence contracts/common.md#meaningful-documentation The returned Point0 and phase operations retain their individual finite-output checks.
-   * @evidence contracts/performance.md#efficient-algorithms One fixed four-quarter numeric preparation replaces two identical station preparations.
-   * @evidence contracts/performance.md#reuse-equivalent-work Both actual operations share this call's unchanged numeric source; no station or trial map is introduced.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The descriptor owns fixed source records only until the caller releases it.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the same NUMBER preparation, quarter restoration and capability-specific readers as point and phase; a declared chain prepares its arcs once for both.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One station descriptor separates preparation from each required evaluation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not memoize arbitrary algebra callbacks, require physical2, change input access order, retain failed preparations or alter native admission.
+   * @evidence contracts/development/common.md#meaningful-documentation The returned Point0 and phase operations retain their individual finite-output checks.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed four-quarter numeric preparation replaces two identical station preparations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both actual operations share this call's unchanged numeric source; no station or trial map is introduced.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The descriptor owns fixed source records only until the caller releases it.
    */
   export function curve(inputs: AutoMovieLoftViewRead.IValues): ICurve {
     if (declares(inputs)) {
@@ -101,13 +115,13 @@ export namespace AutoMovieLoftSectionNative {
   /**
    * Prepare finite value/phase geometry using NUMBER alone.
    *
-   * @evidence contracts/common.md#principled-implementation Actual extent/shoulder values enter the shared numeric quarter factory, independently of physical station2 availability; a declared chain reads its jets at constant station values, whose phase partials are the chain's own.
-   * @evidence contracts/common.md#clear-and-simple-design One numeric preparation returns a reusable phase-only reader.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not request physical jets, create a principal interpolant or substitute a legacy section after source failure.
-   * @evidence contracts/common.md#meaningful-documentation Output local vectors are value, first phase and second phase, in mm/radians.
-   * @evidence contracts/performance.md#efficient-algorithms Fixed quarter preparation and one numeric lookup per phase, without AD, length integration or observation partitions; a chain reads one AD arc per phase.
-   * @evidence contracts/performance.md#reuse-equivalent-work Numeric preparation is shared by every call through the returned closure.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns its closure and four quarters until release; each result owns new vectors.
+   * @evidence contracts/development/implementation.md#principled-implementation Actual extent/shoulder values enter the shared numeric quarter factory, independently of physical station2 availability; a declared chain reads its jets at constant station values, whose phase partials are the chain's own.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One numeric preparation returns a reusable phase-only reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not request physical jets, create a principal interpolant or substitute a legacy section after source failure.
+   * @evidence contracts/development/common.md#meaningful-documentation Output local vectors are value, first phase and second phase, in mm/radians.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed quarter preparation and one numeric lookup per phase, without AD, length integration or observation partitions; a chain reads one AD arc per phase.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Numeric preparation is shared by every call through the returned closure.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns its closure and four quarters until release; each result owns new vectors.
    */
   export function phase(
     inputs: AutoMovieLoftViewRead.IValues,
@@ -119,13 +133,13 @@ export namespace AutoMovieLoftSectionNative {
   /**
    * Prepare the existing radial phase jet without inspection partitions.
    *
-   * @evidence contracts/common.md#principled-implementation Uses the same NUMBER curvature, G2 preparation and radius evaluator as ViewSection.bare/radius; a declared chain returns its own radius and phase partials.
-   * @evidence contracts/common.md#clear-and-simple-design A radial-only factory serves scalar constraints without constructing observations or measures.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Retains the original radius arithmetic and NaN tuple on source/query failure, a chain fault or unmet ray included; it does not obtain radius from a reconstructed point.
-   * @evidence contracts/common.md#meaningful-documentation Inputs are positive extent/shoulder values and outputs are mm per angular derivative order; required failure diagnostics remain caller-owned.
-   * @evidence contracts/performance.md#efficient-algorithms Fixed geometry preparation and one existing radius query; no native-turn partition, samples or length work.
-   * @evidence contracts/performance.md#reuse-equivalent-work The closure reuses its one prepared source at every requested angle.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-owned fixed geometry and fresh radial tuples retain no global cache.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the same NUMBER curvature, G2 preparation and radius evaluator as ViewSection.bare/radius; a declared chain returns its own radius and phase partials.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A radial-only factory serves scalar constraints without constructing observations or measures.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the original radius arithmetic and NaN tuple on source/query failure, a chain fault or unmet ray included; it does not obtain radius from a reconstructed point.
+   * @evidence contracts/development/common.md#meaningful-documentation Inputs are positive extent/shoulder values and outputs are mm per angular derivative order; required failure diagnostics remain caller-owned.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed geometry preparation and one existing radius query; no native-turn partition, samples or length work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The closure reuses its one prepared source at every requested angle.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Caller-owned fixed geometry and fresh radial tuples retain no global cache.
    */
   export function radial(
     inputs: AutoMovieLoftViewRead.IValues,
@@ -151,13 +165,13 @@ export namespace AutoMovieLoftSectionNative {
   /**
    * Prepare the original radius value required by scalar dimension constraints.
    *
-   * @evidence contracts/common.md#principled-implementation Uses the same NUMBER curvature and G2 geometry admission as radial, then its owner's value-only inverse kernel; a declared chain returns the length of its ray reader's arc point.
-   * @evidence contracts/common.md#clear-and-simple-design Scalar constraints explicitly request value, while radial retains its original three-component contract.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves input getter exceptions and source/query refusal; no phase or physical derivatives are claimed or replaced.
-   * @evidence contracts/common.md#meaningful-documentation The closure returns calibration length or NaN when its required source/value cannot be read.
-   * @evidence contracts/performance.md#efficient-algorithms One four-quarter preparation serves value queries without tangent, radial2 or curvature conversion; a chain reads its arc point without AD.
-   * @evidence contracts/performance.md#reuse-equivalent-work Only this caller's unchanged numeric geometry is shared.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fixed geometry until the closure is released; no global cache exists.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the same NUMBER curvature and G2 geometry admission as radial, then its owner's value-only inverse kernel; a declared chain returns the length of its ray reader's arc point.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Scalar constraints explicitly request value, while radial retains its original three-component contract.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves input getter exceptions and source/query refusal; no phase or physical derivatives are claimed or replaced.
+   * @evidence contracts/development/common.md#meaningful-documentation The closure returns calibration length or NaN when its required source/value cannot be read.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One four-quarter preparation serves value queries without tangent, radial2 or curvature conversion; a chain reads its arc point without AD.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only this caller's unchanged numeric geometry is shared.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns fixed geometry until the closure is released; no global cache exists.
    */
   export function value(
     inputs: AutoMovieLoftViewRead.IValues,
@@ -177,13 +191,13 @@ export namespace AutoMovieLoftSectionNative {
   /**
    * The numeric chain of a source declaring touch offsets or split points.
    *
-   * @evidence contracts/common.md#principled-implementation The same guide, split and shoulder mapping every chain reading uses, at the station's values.
-   * @evidence contracts/common.md#clear-and-simple-design One mapping and one chain preparation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A four-quarter source, a malformed layout or a chain fault returns its named refusal; no four-quarter section stands in.
-   * @evidence contracts/common.md#meaningful-documentation Returns the chain with its arcs and join curvatures for the loft's compatibility rows and an inspecting trace.
-   * @evidence contracts/performance.md#efficient-algorithms One O(K) preparation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure preparation coordinates no requests.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh chain and retains nothing.
+   * @evidence contracts/development/implementation.md#principled-implementation The same guide, split and shoulder mapping every chain reading uses, at the station's values.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One mapping and one chain preparation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A four-quarter source, a malformed layout or a chain fault returns its named refusal; no four-quarter section stands in.
+   * @evidence contracts/development/common.md#meaningful-documentation Returns the chain with its arcs and join curvatures for the loft's compatibility rows and an inspecting trace.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One O(K) preparation.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure preparation coordinates no requests.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh chain and retains nothing.
    */
   export function chain(
     inputs: AutoMovieLoftViewRead.IValues,
@@ -201,13 +215,13 @@ export namespace AutoMovieLoftSectionNative {
   /**
    * Prepare exactly the finite Cartesian value capability of the native source.
    *
-   * @evidence contracts/common.md#principled-implementation Same admitted NUMBER geometry and shared raw/G2 inverse produce the identical physically restored primal coordinates; a declared chain's point is its ray reader's arc point.
-   * @evidence contracts/common.md#clear-and-simple-design Point0 is separate from phase/physical2 and never fabricates those derivative fields.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves source admission, small negative phases, signed quarter rotation, inverse residual and positive finite norm; uncomputed derivatives are not asserted available and a chain point needs none.
-   * @evidence contracts/common.md#meaningful-documentation Returns a fresh local mm pair; invalid geometry/query raises the same admission-error family, and collapsed poles remain the caller's explicit capability.
-   * @evidence contracts/performance.md#efficient-algorithms Fixed preparation precedes one unchanged inverse and point reading, omitting tangent/polar2/log-curvature work.
-   * @evidence contracts/performance.md#reuse-equivalent-work The caller-owned closure retains one immutable station preparation across phases.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed source geometry is retained until the closure is released; every point is fresh.
+   * @evidence contracts/development/implementation.md#principled-implementation Same admitted NUMBER geometry and shared raw/G2 inverse produce the identical physically restored primal coordinates; a declared chain's point is its ray reader's arc point.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Point0 is separate from phase/physical2 and never fabricates those derivative fields.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves source admission, small negative phases, signed quarter rotation, inverse residual and positive finite norm; uncomputed derivatives are not asserted available and a chain point needs none.
+   * @evidence contracts/development/common.md#meaningful-documentation Returns a fresh local mm pair; invalid geometry/query raises the same admission-error family, and collapsed poles remain the caller's explicit capability.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed preparation precedes one unchanged inverse and point reading, omitting tangent/polar2/log-curvature work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller-owned closure retains one immutable station preparation across phases.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only fixed source geometry is retained until the closure is released; every point is fresh.
    */
   export function point(
     inputs: AutoMovieLoftViewRead.IValues,
@@ -219,13 +233,13 @@ export namespace AutoMovieLoftSectionNative {
   /**
    * Prepare actual physical source2 and retain its one numeric primal lookup.
    *
-   * @evidence contracts/common.md#principled-implementation The proved radial source2 reader and the Cartesian polar product rule define all six total2 vectors of the same native field; a declared chain's AD radius Hessian, from the actual station jets of its points, tangents and shoulders, enters the same product rule on its ray reader's direction.
-   * @evidence contracts/common.md#clear-and-simple-design One caller-owned station preparation feeds one numeric ray and one same-ray source evaluation per phase.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Never forms source3/4 or a rectangular jet; invalid required inputs/outputs fail without a curve fallback.
-   * @evidence contracts/common.md#meaningful-documentation Source derivatives use physical station mm; the ray's already restored quarter owns phase orientation; a chain's second phase derivatives at a sided join are the starting arc's.
-   * @evidence contracts/performance.md#efficient-algorithms Fixed station AD preparation plus one numeric inverse and one selected AD reading per phase.
-   * @evidence contracts/performance.md#reuse-equivalent-work The private copied preparation reuses successful metadata validation across phases and the same descriptor supplies its point; failures and exceptions are not retained.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Prepared AD/numeric data and one validation bit belong to the existing caller-owned closure; outputs own fresh vectors and no global cache is retained.
+   * @evidence contracts/development/implementation.md#principled-implementation The proved radial source2 reader and the Cartesian polar product rule define all six total2 vectors of the same native field; a declared chain's AD radius Hessian, from the actual station jets of its points, tangents and shoulders, enters the same product rule on its ray reader's direction.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One caller-owned station preparation feeds one numeric ray and one same-ray source evaluation per phase.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never forms source3/4 or a rectangular jet; invalid required inputs/outputs fail without a curve fallback.
+   * @evidence contracts/development/common.md#meaningful-documentation Source derivatives use physical station mm; the ray's already restored quarter owns phase orientation; a chain's second phase derivatives at a sided join are the starting arc's.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed station AD preparation plus one numeric inverse and one selected AD reading per phase.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The private copied preparation reuses successful metadata validation across phases and the same descriptor supplies its point; failures and exceptions are not retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Prepared AD/numeric data and one validation bit belong to the existing caller-owned closure; outputs own fresh vectors and no global cache is retained.
    */
   export function jet(
     inputs: AutoMovieLoftViewRead.IJets,

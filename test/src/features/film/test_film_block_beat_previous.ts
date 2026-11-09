@@ -54,10 +54,11 @@ const endState: (nodes: string[]) => IAutoMovieBeatEndState = (
  * 4. The same actor carried twice → duplication violation.
  * 5. An empty carried node id → non-empty-id violation.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls blockBeat with valid, omitted, unplaced, duplicate and blank prior actor states, checking successful state identity or null and located type refusals, catching lost continuity ownership or an invalid carried actor admitted to a staged beat.
- * @evidence contracts/testing.md#independent-expectations The existing stage places knightA and knightB only, so ghost and a blank id are invalid and two knightA entries collide. A valid previous state must be returned by its supplied object identity, while omission means null; no product snapshot generates these expectations.
- * @evidence contracts/testing.md#distinguishing-cases Preserves the five numbered cases: complete valid pair, absent previous state, one unplaced actor, repeated actor and whitespace identity; pose and velocity derivation are owned by resolveBeatEnd tests rather than this referential gate.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_film_block_beat_previous entry owns every literal prior state and direct portable blocking call after one existing staging prerequisite, with no installation, native artifact, process or rendering host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls blockBeat with valid, omitted, unplaced, duplicate and blank prior actor states, checking successful state identity or null and located type refusals, catching lost continuity ownership or an invalid carried actor admitted to a staged beat.
+ * @evidence contracts/development/testing.md#independent-expectations The existing stage places knightA and knightB only, so ghost and a blank id are invalid and two knightA entries collide. A valid previous state must be returned by its supplied object identity, while omission means null; no product snapshot generates these expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves the five numbered cases: complete valid pair, absent previous state, one unplaced actor, repeated actor and whitespace identity; pose and velocity derivation are owned by resolveBeatEnd tests rather than this referential gate.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_block_beat_previous entry owns every literal prior state and direct portable blocking call after one existing staging prerequisite, with no installation, native artifact, process or rendering host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A prior state whose actors are all staged → success, surfaced as `previous`).
  */
 export function test_film_block_beat_previous(): void {
   const staged: ReturnType<typeof stageScene> = stageScene(

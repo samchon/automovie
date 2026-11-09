@@ -28,10 +28,11 @@ import { boxCell, buildingFixture } from "../internal/renderFixtures";
  * 10. A stop naming an undeclared space leaves the closure answer unchanged without throwing. Environment admission separately refuses that unresolved stop.
  * 11. From an intermediate landing of a one-way shaft, the stop below, the stop above and the other landing are kept. An endpoint-only graph would omit the camera's own starting space.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls real cell/portal visibility and observes named visible/hidden sets and inconclusive placement, detecting false portal reachability or loss of conservative uncertainty.
- * @evidence contracts/testing.md#independent-expectations The authored hall/vault wall has no opening, the facade opens outside and stairs/lift landings connect declared rooms; hand graph reachability supplies every expected set. This graph policy does not measure sight rays, pixels or actual occlusion geometry.
- * @evidence contracts/testing.md#distinguishing-cases Interior/exterior/ambiguous placement, unknown cells, added door, exterior windows, solitary room, one-way links, intermediate landings and an undeclared stop preserve aggressive and conservative twins.
- * @evidence contracts/testing.md#execution-ownership The exported test_render_room_visibility owns its cases. Portable graph/cell computation from resident environment records, with no live camera, renderer or host process.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls real cell/portal visibility and observes named visible/hidden sets and inconclusive placement, detecting false portal reachability or loss of conservative uncertainty.
+ * @evidence contracts/development/testing.md#independent-expectations The authored hall/vault wall has no opening, the facade opens outside and stairs/lift landings connect declared rooms; hand graph reachability supplies every expected set. This graph policy does not measure sight rays, pixels or actual occlusion geometry.
+ * @evidence contracts/development/testing.md#distinguishing-cases Interior/exterior/ambiguous placement, unknown cells, added door, exterior windows, solitary room, one-way links, intermediate landings and an undeclared stop preserve aggressive and conservative twins.
+ * @evidence contracts/development/testing.md#execution-ownership The exported test_render_room_visibility owns its cases. Portable graph/cell computation from resident environment records, with no live camera, renderer or host process.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 11 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A camera inside `ground-hall` hides exactly `ground-vault`, the one space no declared portal reaches, and keeps every container of a kept...).
  */
 export function test_render_room_visibility(): void {
   const inside: IAutoMovieRoomVisibility = autoMovieRoomVisibility({

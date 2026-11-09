@@ -18,13 +18,16 @@ import type { RingFootwork } from "../kickboxing/RingFootwork";
  * const next = RefereePosition.walk(current, goal, dt);
  * ```
  *
- * @evidence docs/research/officiating/referee.md#positioning Desired point, perimeter, closing, going around, walking speed 1.39 m/s and the half-second follow.
+ * @evidence docs/research/officiating/referee.md#positioning Desired point, perimeter, closing, going around, brisk walking at most 2.53 m/s and the half-second follow.
  * @evidence docs/body/settings/cast/referee.md#positioning Side-on across the line, never between them.
  * @evidence docs/research/officiating/referee.md#knockdown Beside the fallen fighter, the standing fighter and the corner in view.
  */
 export namespace RefereePosition {
   /** Comfortable walking speed of men in their twenties, m/s (Bohannon 1997). */
   export const SPEED: number = 1.39;
+
+  /** Maximum walking speed of men in their twenties, m/s (Bohannon 1997): he walks briskly, never runs, to keep his side view of fighters circling at a fighting cadence. */
+  export const BRISK: number = 2.53;
 
   /** He aims at where the fighters were this many seconds earlier (film choice in the study). */
   export const LAG: number = 0.5;
@@ -108,13 +111,13 @@ export namespace RefereePosition {
   }
 
   /**
-   * One walking step of the track: toward the goal at no more than his speed.
+   * One walking step of the track: toward the goal at no more than his brisk walking speed.
    *
    * @param current His position.
    * @param target His desired point.
    * @param seconds The step's duration.
    * @returns His next position.
-   * @evidence docs/research/officiating/referee.md#positioning He walks at most 1.39 m/s.
+   * @evidence docs/research/officiating/referee.md#positioning He walks at most 2.53 m/s.
    */
   export function walk(
     current: RingFootwork.IPoint,
@@ -124,7 +127,7 @@ export namespace RefereePosition {
     const dx: number = target.x - current.x;
     const dz: number = target.z - current.z;
     const distance: number = Math.hypot(dx, dz);
-    const step: number = SPEED * seconds;
+    const step: number = BRISK * seconds;
     if (distance <= step) return target;
     return {
       x: current.x + (dx / distance) * step,

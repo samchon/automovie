@@ -5,10 +5,10 @@ import type { IAutoMovieRecoveryContourResumeInput } from "@automovie/recovery";
  * Scenarios:
  * 1. Preserve each original mutation, including successful/foreign/duplicate targets, stale source/frame/lineage and invalid artifact policies.
  *
- * @evidence contracts/testing.md#behavioral-verification The owning contour-resume scenario applies every returned mutation and requires refusal before any fit checkpoint.
- * @evidence contracts/testing.md#independent-expectations Each mutation violates a declared input identity, unique-address or finite-policy premise independently of computed coefficients.
- * @evidence contracts/testing.md#distinguishing-cases Separate source, selection, frame, alias, raw-publication and policy failures distinguish complete preflight from partial target fitting.
- * @evidence contracts/testing.md#execution-ownership This pure helper returns caller-owned closures; no I/O, native resource or Human fixture is used.
+ * @evidence contracts/development/testing.md#behavioral-verification The owning contour-resume scenario applies every returned mutation and requires refusal before any fit checkpoint.
+ * @evidence contracts/development/testing.md#independent-expectations Each mutation violates a declared input identity, unique-address or finite-policy premise independently of computed coefficients.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separate source, selection, frame, alias, raw-publication and policy failures distinguish complete preflight from partial target fitting.
+ * @evidence contracts/development/testing.md#execution-ownership This pure helper returns caller-owned closures; no I/O, native resource or Human fixture is used.
  */
 export function createRecoveryContourResumeMutations(): Array<
   (value: IAutoMovieRecoveryContourResumeInput) => void

@@ -8,13 +8,13 @@ import { contactMask } from "./contactMask";
 /**
  * Group each leg's stance mask into maximal inclusive runs and assign one fixed model-frame contact per run. A run beginning at frame zero resumes an authoritative opening target; otherwise its first foot supplies XZ and sampled ground supplies Y. Parallel times/FK arrays are caller-admitted.
  *
- * @evidence contracts/common.md#principled-implementation Contiguous true intervals define one stance run; its fixed target is shared by all covered frame maps and compact metadata, preserving prior-beat contact only at the opening boundary. Every resulting target must be finite.
- * @evidence contracts/common.md#clear-and-simple-design The detection/pinning stage owns run grouping and target choice, leaving clinical IK and dense keyframe output to rekeyPlantedFeet.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No contact is invented for false mask frames; opening pins apply only to an actual opening stance, and malformed sampled/carried target coordinates throw rather than replacing the target.
- * @evidence contracts/common.md#meaningful-documentation States inclusive times, model-frame coordinates, parallel-array premise, ground snapping and authoritative opening-target precedence.
- * @evidence contracts/performance.md#efficient-algorithms For L legs and F frames, mask construction, run grouping and target assignment take O(LF) work with O(F plus contacts) maps/entries and O(number of runs) compact metadata.
- * @evidence contracts/performance.md#reuse-equivalent-work All frames in one run share the same fixed target object and the compact plant record, so IK reads one admitted contact rather than resampling ground at each pinned frame.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Returned per-frame maps and plants belong to the pass caller; run masks/ranges are temporary, and no input pose, callback or external handle is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Contiguous true intervals define one stance run; its fixed target is shared by all covered frame maps and compact metadata, preserving prior-beat contact only at the opening boundary. Every resulting target must be finite.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The detection/pinning stage owns run grouping and target choice, leaving clinical IK and dense keyframe output to rekeyPlantedFeet.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No contact is invented for false mask frames; opening pins apply only to an actual opening stance, and malformed sampled/carried target coordinates throw rather than replacing the target.
+ * @evidence contracts/development/common.md#meaningful-documentation States inclusive times, model-frame coordinates, parallel-array premise, ground snapping and authoritative opening-target precedence.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For L legs and F frames, mask construction, run grouping and target assignment take O(LF) work with O(F plus contacts) maps/entries and O(number of runs) compact metadata.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All frames in one run share the same fixed target object and the compact plant record, so IK reads one admitted contact rather than resampling ground at each pinned frame.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned per-frame maps and plants belong to the pass caller; run masks/ranges are temporary, and no input pose, callback or external handle is retained.
  */
 export const pinStanceTargets: (props: {
   /** Legs whose feet are planted. */ legs: readonly IAutoMovieFootLeg[];

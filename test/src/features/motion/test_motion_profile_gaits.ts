@@ -44,10 +44,11 @@ const doorlike: IAutoMovieProfile = {
  *    the same profile binding key.
  * 5. Exact gait names that also occur on Object.prototype remain enumerable own clip keys without changing the result's prototype.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls profile binding and asserts clip count, exact keys, skeleton identity, periods and duplicate rejection; reserved property names cannot disappear or change the result prototype.
- * @evidence contracts/testing.md#independent-expectations The local walk/trot declarations supply periods 1/0.6 and literal profile-scoped identity, while requested skeleton ids independently determine the observed clip targets. Exact unique names must remain enumerable own keys even when they also name Object.prototype members; these checks do not compare body geometry.
- * @evidence contracts/testing.md#distinguishing-cases Two gaits, a second skeleton, no gait, duplicate name and __proto__/constructor/toString names distinguish valid exact-name indexing from overwrite and prototype mutation; gait sampling/clinical formulas belong to gait suites.
- * @evidence contracts/testing.md#execution-ownership Portable unit test discovered as test_motion_profile_gaits; this function owns its cases and directly invokes the binding seam without building or hosting a consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls profile binding and asserts clip count, exact keys, skeleton identity, periods and duplicate rejection; reserved property names cannot disappear or change the result prototype.
+ * @evidence contracts/development/testing.md#independent-expectations The local walk/trot declarations supply periods 1/0.6 and literal profile-scoped identity, while requested skeleton ids independently determine the observed clip targets. Exact unique names must remain enumerable own keys even when they also name Object.prototype members; these checks do not compare body geometry.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two gaits, a second skeleton, no gait, duplicate name and __proto__/constructor/toString names distinguish valid exact-name indexing from overwrite and prototype mutation; gait sampling/clinical formulas belong to gait suites.
+ * @evidence contracts/development/testing.md#execution-ownership Portable unit test discovered as test_motion_profile_gaits; this function owns its cases and directly invokes the binding seam without building or hosting a consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The horse profile bound to a rig produces a clip per named gait, keyed by).
  */
 export function test_motion_profile_gaits(): void {
   // 1. bind onto one body

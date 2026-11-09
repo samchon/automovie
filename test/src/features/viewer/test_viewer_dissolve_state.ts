@@ -20,10 +20,11 @@ import { nclose } from "../internal/predicates";
  * 4. Invalid alpha refuses, while the pose wrapper preserves callback order.
  * 5. A throwing source-texture disposal cannot skip either healthy copy and repeats preserve the same closed-owner failure without disposal or draw.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs actual dissolve/compositor functions through the existing explicit renderer-control seam and reads real FramebufferTexture identity/extents/dispose events; distinguishes local reuse, healthy recreation and failed retirement that loses owner state or retries native release, without observing GPU pixels.
- * @evidence contracts/testing.md#independent-expectations Caller source sequence pins outgoing/incoming order, requested drawing-buffer integers pin copy extent, and supplied Error plus one event per three distinct copies pins one-attempt failure completion independently of registry implementation.
- * @evidence contracts/testing.md#distinguishing-cases Exercises both weight endpoints/midpoint, two renderers, resize, successful repeat/recreation, caller target/backing, invalid alpha and pose/pass wrapper, then one throwing copy with two healthy releases and post-close callback refusal.
- * @evidence contracts/testing.md#execution-ownership Portable unit uses existing in-memory renderer ports and actual Three textures/targets; no browser/context, filesystem or process is created, all case callbacks are inline and foreign/global methods are never replaced.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs actual dissolve/compositor functions through the existing explicit renderer-control seam and reads real FramebufferTexture identity/extents/dispose events; distinguishes local reuse, healthy recreation and failed retirement that loses owner state or retries native release, without observing GPU pixels.
+ * @evidence contracts/development/testing.md#independent-expectations Caller source sequence pins outgoing/incoming order, requested drawing-buffer integers pin copy extent, and supplied Error plus one event per three distinct copies pins one-attempt failure completion independently of registry implementation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Exercises both weight endpoints/midpoint, two renderers, resize, successful repeat/recreation, caller target/backing, invalid alpha and pose/pass wrapper, then one throwing copy with two healthy releases and post-close callback refusal.
+ * @evidence contracts/development/testing.md#execution-ownership Portable unit uses existing in-memory renderer ports and actual Three textures/targets; no browser/context, filesystem or process is created, all case callbacks are inline and foreign/global methods are never replaced.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Endpoints and intermediate weights resolve both callbacks in order.).
  */
 export function test_viewer_dissolve_state(): void {
   const a: ReturnType<typeof createDisplayCompositionRenderer> =

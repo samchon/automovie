@@ -3,13 +3,10 @@ import type { IScaffoldFileSnapshot } from "./IScaffoldFileSnapshot";
 /**
  * Options for publishing a scaffold into a directory.
  *
- * @evidence contracts/common.md#principled-implementation Force is an explicit opt-in because both effects it grants, admitting a populated root and rewriting an existing file, overwrite state the user owns.
- * @evidence contracts/common.md#clear-and-simple-design Force admits replacement while optional captured generations constrain each candidate to its inspected state; sync uses both without introducing a second writer.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Force grants no authority over links or multiply linked files; overwriteScaffoldFile still requires one ordinary single-link resident with its captured identity and written state.
- * @evidence contracts/common.md#meaningful-documentation The comment states both effects of `force`, the limits on replacement, and that omission means a new or empty root only.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Consumers own candidate lookup and comparison; the schema chooses no executable algorithm.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Expected snapshots are observations for one publication, never a reusable acceptance verdict.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns an optional candidate-sized snapshot map; snapshots contain scalar identities and no open resources.
+ * @evidence contracts/development/design.md#principled-representation Force is an explicit opt-in because both effects it grants, admitting a populated root and rewriting an existing file, overwrite state the user owns.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Force admits replacement while optional captured generations constrain each candidate to its inspected state; sync uses both without introducing a second writer.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Force grants no authority over links or multiply linked files; overwriteScaffoldFile still requires one ordinary single-link resident with its captured identity and written state.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states both effects of `force`, the limits on replacement, and that omission means a new or empty root only.
  */
 export interface IScaffoldPublicationOptions {
   /**

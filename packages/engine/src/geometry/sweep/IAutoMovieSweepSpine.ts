@@ -14,13 +14,10 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * directions the path leaves its first point and reaches its last, as a curve
  * that must meet a surface tangentially does.
  *
- * @evidence contracts/common.md#principled-implementation A centre curve through ordered points with chord-length knots, as sweep-based modelling interpolates key-section centres, through a centripetal Catmull-Rom spline so the path has no cusp at a bent joint.
- * @evidence contracts/common.md#clear-and-simple-design Points plus one starting direction are the least a frame-transported sweep needs; twist belongs to the stations' rotations, not to the spine; optional end directions are the one constraint a curve meeting a surface adds.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No point is smoothed away or added; a path that doubles back on itself is refused where its tangent vanishes.
- * @evidence contracts/common.md#meaningful-documentation States interpolation, parameterization, the frame transport, and the meaning, unit and constraints of each field.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; frame cost is answered on `frameAutoMovieSweepSpine`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record compiled once per sweep.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its sweep.
+ * @evidence contracts/development/design.md#principled-representation A centre curve through ordered points with chord-length knots, as sweep-based modelling interpolates key-section centres, through a centripetal Catmull-Rom spline so the path has no cusp at a bent joint.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Points plus one starting direction are the least a frame-transported sweep needs; twist belongs to the stations' rotations, not to the spine; optional end directions are the one constraint a curve meeting a surface adds.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No point is smoothed away or added; a path that doubles back on itself is refused where its tangent vanishes.
+ * @evidence contracts/development/common.md#meaningful-documentation States interpolation, parameterization, the frame transport, and the meaning, unit and constraints of each field.
  */
 export interface IAutoMovieSweepSpine {
   /** Points the path passes through, in metres, at least two, no two consecutive ones equal. */

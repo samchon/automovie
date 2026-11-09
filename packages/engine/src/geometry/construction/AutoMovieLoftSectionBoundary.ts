@@ -29,25 +29,19 @@ interface Controls {
  * scalars; it has no law here, and every entry refuses it by name rather
  * than carrying its four-quarter part alone.
  *
- * @evidence contracts/common.md#principled-implementation Quintic Hermite of actual log-extent/logit-shoulder endpoint2 defines a full scalar generating field, so native total2 needs no Cartesian third/fourth mixed derivatives.
- * @evidence contracts/common.md#clear-and-simple-design Original endpoint tuples, transformed rows and one span completely determine the bridge.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not reinterpolate ordinary source spans, fit an endpoint to eight scalars, clamp a shoulder or replace an unavailable actual jet; a chain source is refused, never reduced to its eight scalars.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes continuation ownership, physical station jets, effective inputs and finite-arithmetic admission, and names the chain refusal.
- * @evidence contracts/performance.md#efficient-algorithms Eight scalar transforms prepare two fixed endpoints; a read combines three eight-entry rows and applies their inverse chain rule.
- * @evidence contracts/performance.md#reuse-equivalent-work Every phase at a station reuses the resulting scalar inputs through its native station preparation.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-owned fixed endpoint/control arrays have no layer-sized or global cache.
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes continuation ownership, physical station jets, effective inputs and finite-arithmetic admission, and names the chain refusal.
+ * @evidence contracts/development/design.md#principled-representation Stores a native continuation span through its original endpoint jets and transformed controls, with physical stations in millimetres.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the endpoint and bridge records and their creation, value, jet and orientation readers to construction and inspection.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The eight-scalar law refuses touch and split chains because their extra controls cannot be recovered from the four extents and four shoulders.
  */
 export namespace AutoMovieLoftSectionBoundary {
   /**
    * Actual native-family scalar2 at one regular boundary.
    *
-   * @evidence contracts/common.md#principled-implementation The eight effective scalar2 tuples describe the same native family and physical station used by the boundary.
-   * @evidence contracts/common.md#clear-and-simple-design One station and the shared native input record preserve endpoint ownership.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A composed non-native endpoint cannot acquire this type by fitting; actual physical jets must be available.
-   * @evidence contracts/common.md#meaningful-documentation Inputs include cap effects once and station uses mm.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This endpoint record has no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Creation and reading own reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns eight copied scalar triples and one station.
+   * @evidence contracts/development/design.md#principled-representation The eight effective scalar2 tuples describe the same native family and physical station used by the boundary.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One station and the shared native input record preserve endpoint ownership.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A composed non-native endpoint cannot acquire this type by fitting; actual physical jets must be available.
+   * @evidence contracts/development/common.md#meaningful-documentation Inputs include cap effects once and station uses mm.
    */
   export interface IEnd {
     /** Location in the receiving chain's physical station, mm. */
@@ -60,13 +54,10 @@ export namespace AutoMovieLoftSectionBoundary {
   /**
    * One explicit positive native scalar generating field.
    *
-   * @evidence contracts/common.md#principled-implementation Original endpoints and transformed Hermite rows determine the field independently of registration history.
-   * @evidence contracts/common.md#clear-and-simple-design A discriminator, two endpoints and two complete transformed rows suffice.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not claim monotonicity, proximity to the replaced child span or binary64 positivity without read-time admission.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes exact endpoint tuples from the declared interior log/logit interpolation.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This stored law performs no interpolation itself.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Its readers coordinate station preparation.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Two endpoint records and two fixed three-row controls belong to the containing immutable chain.
+   * @evidence contracts/development/design.md#principled-representation Original endpoints and transformed Hermite rows determine the field independently of registration history.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A discriminator, two endpoints and two complete transformed rows suffice.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Does not claim monotonicity, proximity to the replaced child span or binary64 positivity without read-time admission.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes exact endpoint tuples from the declared interior log/logit interpolation.
    */
   export interface IBridge {
     /** Distinguishes this native-family law from any mixed generating field. */
@@ -82,13 +73,13 @@ export namespace AutoMovieLoftSectionBoundary {
   /**
    * Define one changed span from actual effective native scalar endpoint2.
    *
-   * @evidence contracts/common.md#principled-implementation Transforms actual derivatives by the log/logit chain rule and retains their original endpoint tuples exactly.
-   * @evidence contracts/common.md#clear-and-simple-design Admission, copying and fixed-size transformation are one preparation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses missing/nonfinite jets, invalid source values and chain endpoints; no derivative limiting, fitting or fallback is selected.
-   * @evidence contracts/common.md#meaningful-documentation Requires increasing physical stations and actual native-family rather than composed endpoint data.
-   * @evidence contracts/performance.md#efficient-algorithms Constant eight-scalar endpoint work without phase inverses or layer traversal.
-   * @evidence contracts/performance.md#reuse-equivalent-work The transformed endpoint rows serve all later station reads.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns copied endpoint/control arrays or a diagnostic and retains no caller object globally.
+   * @evidence contracts/development/implementation.md#principled-implementation Transforms actual derivatives by the log/logit chain rule and retains their original endpoint tuples exactly.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, copying and fixed-size transformation are one preparation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses missing/nonfinite jets, invalid source values and chain endpoints; no derivative limiting, fitting or fallback is selected.
+   * @evidence contracts/development/common.md#meaningful-documentation Requires increasing physical stations and actual native-family rather than composed endpoint data.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant eight-scalar endpoint work without phase inverses or layer traversal.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The transformed endpoint rows serve all later station reads.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns copied endpoint/control arrays or a diagnostic and retains no caller object globally.
    */
   export function create(first: IEnd, last: IEnd): IBridge | string {
     if (chained(first?.inputs) || chained(last?.inputs)) return CHAIN;
@@ -124,13 +115,13 @@ export namespace AutoMovieLoftSectionBoundary {
   /**
    * Read the declared full scalar field, preserving its exact original endpoints.
    *
-   * @evidence contracts/common.md#principled-implementation Physical-station quintic weights and inverse log/logit derivatives produce actual scalar2 for the native section factory.
-   * @evidence contracts/common.md#clear-and-simple-design Exact-end reads and interior interpolation are explicit branches of the same declared law.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses malformed present data, outside stations, overflow/underflow and logistic endpoint saturation; no clamp or fake missing jet is used.
-   * @evidence contracts/common.md#meaningful-documentation Returns effective inputs without applying the cap again; positivity is admitted in actual binary64 output.
-   * @evidence contracts/performance.md#efficient-algorithms Three fixed eight-entry Hermite combinations and eight inverse transforms take constant work per station.
-   * @evidence contracts/performance.md#reuse-equivalent-work The caller prepares native geometry once from this result for all of that station's phases.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Every result owns fresh triples; this owner retains no queried station.
+   * @evidence contracts/development/implementation.md#principled-implementation Physical-station quintic weights and inverse log/logit derivatives produce actual scalar2 for the native section factory.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Exact-end reads and interior interpolation are explicit branches of the same declared law.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses malformed present data, outside stations, overflow/underflow and logistic endpoint saturation; no clamp or fake missing jet is used.
+   * @evidence contracts/development/common.md#meaningful-documentation Returns effective inputs without applying the cap again; positivity is admitted in actual binary64 output.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three fixed eight-entry Hermite combinations and eight inverse transforms take constant work per station.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller prepares native geometry once from this result for all of that station's phases.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Every result owns fresh triples; this owner retains no queried station.
    */
   export function read(bridge: IBridge, station: number): Inputs | string {
     const fault: string | null = admit(bridge, station);
@@ -164,13 +155,13 @@ export namespace AutoMovieLoftSectionBoundary {
   /**
    * Evaluate only the value of an already declared boundary law.
    *
-   * @evidence contracts/common.md#principled-implementation The same transformed coefficient function is evaluated at order0 and inverse-transformed without computing its physical derivative outputs.
-   * @evidence contracts/common.md#clear-and-simple-design Stored coefficient admission remains separate from the requested value capability.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A finite generated value survives unavailable/nonrepresentable interior physical derivatives; no derivative row is fabricated or queried.
-   * @evidence contracts/common.md#meaningful-documentation Effective values include the cap once and retain exact original endpoint values.
-   * @evidence contracts/performance.md#efficient-algorithms One fixed eight-entry Hermite combination and eight inverse values, without derivative weights.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the declared transformed endpoint coefficients for a value-only station plan.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns two fresh four-entry arrays and retains no query.
+   * @evidence contracts/development/implementation.md#principled-implementation The same transformed coefficient function is evaluated at order0 and inverse-transformed without computing its physical derivative outputs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Stored coefficient admission remains separate from the requested value capability.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A finite generated value survives unavailable/nonrepresentable interior physical derivatives; no derivative row is fabricated or queried.
+   * @evidence contracts/development/common.md#meaningful-documentation Effective values include the cap once and retain exact original endpoint values.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed eight-entry Hermite combination and eight inverse values, without derivative weights.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the declared transformed endpoint coefficients for a value-only station plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns two fresh four-entry arrays and retains no query.
    */
   export function values(
     bridge: IBridge,
@@ -214,13 +205,13 @@ export namespace AutoMovieLoftSectionBoundary {
   /**
    * Re-express source2 for opposite chart direction, once before native preparation.
    *
-   * @evidence contracts/common.md#principled-implementation Matching ends reflect +v/-v, reverse quarter ownership and negate the actual first station derivative; second derivatives retain their sign.
-   * @evidence contracts/common.md#clear-and-simple-design One signed permutation covers the two end-direction cases.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Native geometry already contains this phase reflection afterward, so callers must not apply another minus-phi transform; a chain endpoint is refused rather than reflected in its four-quarter part alone.
-   * @evidence contracts/common.md#meaningful-documentation States station/quarter reflection separately from the native provider's internal ray reflection.
-   * @evidence contracts/performance.md#efficient-algorithms Copies eight triples with constant indexing work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This value transform owns no reusable station plan.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns independent tuples and retains no source or output.
+   * @evidence contracts/development/implementation.md#principled-implementation Matching ends reflect +v/-v, reverse quarter ownership and negate the actual first station derivative; second derivatives retain their sign.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One signed permutation covers the two end-direction cases.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Native geometry already contains this phase reflection afterward, so callers must not apply another minus-phi transform; a chain endpoint is refused rather than reflected in its four-quarter part alone.
+   * @evidence contracts/development/common.md#meaningful-documentation States station/quarter reflection separately from the native provider's internal ray reflection.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Copies eight triples with constant indexing work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This value transform owns no reusable station plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent tuples and retains no source or output.
    */
   export function orient(inputs: Inputs, sign: 1 | -1): Inputs {
     if (chained(inputs)) throw new Error(CHAIN);

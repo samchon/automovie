@@ -32,10 +32,11 @@ const romItems: (
  * 1. An elbow at 175-degree flexion exceeds the 150-degree maximum and reports one flexion fault.
  * 2. Negative ten-degree flexion falls below the zero minimum and reports one fault.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls ROM validation above and below the default elbow interval, requiring one located fault and the correct degree distance on each side.
- * @evidence contracts/testing.md#independent-expectations The declared [0,150] interval gives 175-150=25 and 0-(-10)=10 degree overshoots. These are arithmetic expectations of the conventional default policy, not a population-specific clinical certificate.
- * @evidence contracts/testing.md#distinguishing-cases Both upper and lower refusals preserve their counts and overshoots; accepted interior and immobile-axis behavior are separate ROM entries.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit owns two collector populations through a private helper and the existing joint fixture; no renderer, process or native artifact participates.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls ROM validation above and below the default elbow interval, requiring one located fault and the correct degree distance on each side.
+ * @evidence contracts/development/testing.md#independent-expectations The declared [0,150] interval gives 175-150=25 and 0-(-10)=10 degree overshoots. These are arithmetic expectations of the conventional default policy, not a population-specific clinical certificate.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both upper and lower refusals preserve their counts and overshoots; accepted interior and immobile-axis behavior are separate ROM entries.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit owns two collector populations through a private helper and the existing joint fixture; no renderer, process or native artifact participates.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An elbow at 175-degree flexion exceeds the 150-degree maximum and reports one flexion fault.).
  */
 export function test_rom_validate_over_range(): void {
   const over: IAutoMovieConstraintViolation[] = romItems({ flexion: 175 });

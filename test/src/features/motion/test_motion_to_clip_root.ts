@@ -26,10 +26,11 @@ import {
  *    emits translation + rotation tracks on the synthetic root node.
  * 3. Negative twin: an all-null-root motion emits no root-node tracks at all.
  *
- * @evidence contracts/testing.md#behavioral-verification Bakes the existing translated/yawed root-to-null motion through clipWorldParity at bake times, observes exactly translation/rotation root tracks, and verifies the all-null twin emits none.
- * @evidence contracts/testing.md#independent-expectations Literal track paths and the synthetic root id are independently authored expectations. Clinical FK versus node-frame equality is a metamorphic law through shared math with unchanged 1e-6 defaults; the nonempty mixed-root fixture and all-null twin distinguish omission from unconditional track emission without asserting a new geometry oracle.
- * @evidence contracts/testing.md#distinguishing-cases Retains authored root (1,2,3) and 90-degree yaw versus null, translated/rotated channels versus no root channels, and the same arm motion. All-null identity, scale and between-sample interpolation have separate scopes.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns its parity helper invocation and two explicit bakes using existing fixture constructors. Helpers register no extra cases and start no viewer, process or GPU artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Bakes the existing translated/yawed root-to-null motion through clipWorldParity at bake times, observes exactly translation/rotation root tracks, and verifies the all-null twin emits none.
+ * @evidence contracts/development/testing.md#independent-expectations Literal track paths and the synthetic root id are independently authored expectations. Clinical FK versus node-frame equality is a metamorphic law through shared math with unchanged 1e-6 defaults; the nonempty mixed-root fixture and all-null twin distinguish omission from unconditional track emission without asserting a new geometry oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains authored root (1,2,3) and 90-degree yaw versus null, translated/rotated channels versus no root channels, and the same arm motion. All-null identity, scale and between-sample interpolation have separate scopes.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns its parity helper invocation and two explicit bakes using existing fixture constructors. Helpers register no extra cases and start no viewer, process or GPU artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A motion whose root is set on one keyframe and `null` on the other holds).
  */
 export function test_motion_to_clip_root(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

@@ -39,10 +39,11 @@ import { boxModel, material, sceneFixture } from "../internal/renderFixtures";
  * 4. Invalid sampler/missing multi-resident authority produce the same unknown
  *    cardinality; supported corrected facts recover and change the sealed target.
  *
- * @evidence contracts/testing.md#behavioral-verification Propagates uncertified source, sampler and sharing authority through actual closure, inventory and explicit compiled-shot assessment, preserving unknown counts/bytes and generating source/runtime diagnostics.
- * @evidence contracts/testing.md#independent-expectations One 4-by-4 RGBA8 image costs 64 bytes and one allocation; its PBR lookup adds 1024 bytes and one allocation. Null bounds, literal owner identities and the two gap metrics independently state the uncertainty contract.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts supported and uncertified source state, invalid sampler, missing multi-resident authority, mixed known/unknown runtime grouping and runtime-only uncertainty, then corrected facts and target invalidation.
- * @evidence contracts/testing.md#execution-ownership Owns one CPU Three DataTexture and synchronous supplied context metadata after asynchronous module loading, disposes it on the successful path and uses partial compiled-shot fixtures; no GPU allocation, native retirement or automatic render-job gate is observed, and failure cleanup is not asserted.
+ * @evidence contracts/development/testing.md#behavioral-verification Propagates uncertified source, sampler and sharing authority through actual closure, inventory and explicit compiled-shot assessment, preserving unknown counts/bytes and generating source/runtime diagnostics.
+ * @evidence contracts/development/testing.md#independent-expectations One 4-by-4 RGBA8 image costs 64 bytes and one allocation; its PBR lookup adds 1024 bytes and one allocation. Null bounds, literal owner identities and the two gap metrics independently state the uncertainty contract.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts supported and uncertified source state, invalid sampler, missing multi-resident authority, mixed known/unknown runtime grouping and runtime-only uncertainty, then corrected facts and target invalidation.
+ * @evidence contracts/development/testing.md#execution-ownership Owns one CPU Three DataTexture and synchronous supplied context metadata after asynchronous module loading, disposes it on the successful path and uses partial compiled-shot fixtures; no GPU allocation, native retirement or automatic render-job gate is observed, and failure cleanup is not asserted.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Adjacent supported no-manual Source/state facts share one64-byte upload;).
  */
 export async function test_render_texture_unknown_cardinality(): Promise<void> {
   const THREE: typeof import("three") = await import("three");

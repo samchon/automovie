@@ -22,10 +22,11 @@ import { nclose } from "../internal/predicates";
  *    to a point must still flag when another capsule passes through it.
  * 3. A zero-length segment clear of a real segment: a finite, exact gap.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs point and segment distance queries at exact collapsed spans, catching NaN separation that could silently evade collision admission.
- * @evidence contracts/testing.md#independent-expectations The 3-4-5 triangle gives point distance five, while a point on a segment has zero gap and a point two metres above it has distance two.
- * @evidence contracts/testing.md#distinguishing-cases Covers point-to-point, overlapping point-to-segment and separated point-to-segment cases; small-scale and conditioning tests own nonzero tiny spans and extreme arithmetic.
- * @evidence contracts/testing.md#execution-ownership The exported math entry calls portable distance source and scalar assertions directly, without host startup or native compilation.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs point and segment distance queries at exact collapsed spans, catching NaN separation that could silently evade collision admission.
+ * @evidence contracts/development/testing.md#independent-expectations The 3-4-5 triangle gives point distance five, while a point on a segment has zero gap and a point two metres above it has distance two.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers point-to-point, overlapping point-to-segment and separated point-to-segment cases; small-scale and conditioning tests own nonzero tiny spans and extreme arithmetic.
+ * @evidence contracts/development/testing.md#execution-ownership The exported math entry calls portable distance source and scalar assertions directly, without host startup or native compilation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Point to a zero-length segment: the exact point-to-endpoint distance).
  */
 export function test_math_segment_zero_length(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

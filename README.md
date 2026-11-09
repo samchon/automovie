@@ -31,7 +31,7 @@ npm test
 
 Open the generated directory in your coding agent and give it the intended production request. `AGENTS.md` routes eight skills; `PROJECT.md` records the adopted scope and choices. Follow the [production workflow](./packages/template/scaffold/README.md#make-a-motion-hint) from screenplay through programmed staging, any required companion controls, the actual host and whole edit, and delivery review. The blank scaffold supplies instructions, configuration and package dependencies; it contains no film, viewer host or media provider. Its initial checks validate that empty harness and produce no movie. As the production is authored, its README records the actual execution and delivery commands.
 
-Film productions live under `movies/`; the architectural demonstrations under `experimental/` retain their existing roles. Explicit `automovie sync <directory> --check` inspects instruction updates for a production. Sync preserves project content, configuration and contracts and reports local instruction conflicts; package upgrades alone change no project files.
+Film productions live under `movies/`; the architectural demonstrations under `experimental/` retain their existing roles. Explicit `automovie sync <directory> --check` inspects instruction updates for a production; inside this repository, run it from source as `pnpm automovie sync <directory> --check`. Sync preserves project content, configuration and contracts and reports local instruction conflicts; package upgrades alone change no project files.
 
 ## Packages
 

@@ -14,10 +14,11 @@ import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture
  *
  * 1. The outline pass is omitted from ranked contributors but remains in the complete overrun and recovery.
  *
- * @evidence contracts/testing.md#behavioral-verification Evaluates a public inventory whose only triangle attribution is an outline pass, requiring over status, no editable contributors, one omitted contributor with its complete cost and recovery naming the pass without an invented edit destination.
- * @evidence contracts/testing.md#independent-expectations The authored single pass costs BOX_TRIANGLES against a zero limit, so all cost exceeds the limit while none belongs to an editable scene resource. Literal count/status/recovery fragments distinguish accounting from actionable owner ranking.
- * @evidence contracts/testing.md#distinguishing-cases Retains pass-only overrun, omitted contributor count/cost, missing editable-owner explanation and prohibition on false edit instructions. Mixed editable/pass populations and ranked truncation belong to overrun-owner and contributor-bound tests.
- * @evidence contracts/testing.md#execution-ownership The named test_render_budget_pass_accounting owns synchronous portable report evaluation through the shared fixture seam; the outline pass is accounting data and no graphical pass or native host executes.
+ * @evidence contracts/development/testing.md#behavioral-verification Evaluates a public inventory whose only triangle attribution is an outline pass, requiring over status, no editable contributors, one omitted contributor with its complete cost and recovery naming the pass without an invented edit destination.
+ * @evidence contracts/development/testing.md#independent-expectations The authored single pass costs BOX_TRIANGLES against a zero limit, so all cost exceeds the limit while none belongs to an editable scene resource. Literal count/status/recovery fragments distinguish accounting from actionable owner ranking.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains pass-only overrun, omitted contributor count/cost, missing editable-owner explanation and prohibition on false edit instructions. Mixed editable/pass populations and ranked truncation belong to overrun-owner and contributor-bound tests.
+ * @evidence contracts/development/testing.md#execution-ownership The named test_render_budget_pass_accounting owns synchronous portable report evaluation through the shared fixture seam; the outline pass is accounting data and no graphical pass or native host executes.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: The outline pass is omitted from ranked contributors but remains in the complete overrun and recovery.).
  */
 export function test_render_budget_pass_accounting(): void {
   const target: ReturnType<typeof renderBudgetTargetFixture> =

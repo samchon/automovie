@@ -3,13 +3,10 @@ import type { ProductionStage } from "./ProductionStage";
 /**
  * Selects each layer's construction stage and its native parent references.
  *
- * @evidence contracts/common.md#principled-implementation The stage object selects route-specific construction claims and a long-route outline override; native references carry the actual parents, while independent review judges their completion.
- * @evidence contracts/common.md#clear-and-simple-design Scalar layer stages and the optional outline override express the actual construction chain without an alternate scripts edition.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Runtime source validation rejects invalid stages and unsupported tuples rather than treating the interface as proof of validity.
- * @evidence contracts/common.md#meaningful-documentation Members define the long-route outline fallback and actual screenplay prerequisites for all three narrative routes.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Construction stage selection is erased at runtime; producing and consuming functions account for concrete traversal and allocation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Construction stage selection declares data and coordinates no reusable effects; consumers own equivalence and invalidation.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Construction stage selection acquires no resource or retained state; concrete owners determine instance bytes and lifetimes.
+ * @evidence contracts/development/design.md#principled-representation The stage object selects route-specific construction claims and a long-route outline override; native references carry the actual parents, while independent review judges their completion.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Scalar layer stages and the optional outline override express the actual construction chain without an alternate scripts edition.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Runtime source validation rejects invalid stages and unsupported tuples rather than treating the interface as proof of validity.
+ * @evidence contracts/development/common.md#meaningful-documentation Members define the long-route outline fallback and actual screenplay prerequisites for all three narrative routes.
  */
 export interface IProductionConstruction {
   /**

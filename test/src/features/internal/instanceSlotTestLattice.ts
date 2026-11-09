@@ -5,10 +5,10 @@ import { instanceSlotTestPlacement as placement } from "./instanceSlotTestPlacem
 /**
  * Preserve the original eight-member two-by-two-by-two lattice input.
  *
- * @evidence contracts/testing.md#behavioral-verification Supplies the unchanged lattice to actual instance-slot regeneration for first/last layer-row-column observations.
- * @evidence contracts/testing.md#independent-expectations Literal axis spacing 1/2/3 and zero anchor/heading are inputs; the consumer independently states the two expected world points.
- * @evidence contracts/testing.md#distinguishing-cases Retains all eight addressed slots and the original first/last witnesses without deriving a predicted member or adding a case.
- * @evidence contracts/testing.md#execution-ownership Returns fresh caller-owned placement/layout/spacing records through the existing placement owner, acquiring no file, host, browser or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Supplies the unchanged lattice to actual instance-slot regeneration for first/last layer-row-column observations.
+ * @evidence contracts/development/testing.md#independent-expectations Literal axis spacing 1/2/3 and zero anchor/heading are inputs; the consumer independently states the two expected world points.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains all eight addressed slots and the original first/last witnesses without deriving a predicted member or adding a case.
+ * @evidence contracts/development/testing.md#execution-ownership Returns fresh caller-owned placement/layout/spacing records through the existing placement owner, acquiring no file, host, browser or GPU.
  */
 export function instanceSlotTestLattice(): IAutoMovieInstanceSetPlacement {
   return placement({

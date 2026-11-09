@@ -17,10 +17,11 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * 2. A self-cycle, two-node cycle, repeated child, or second parent fails with its structural diagnostic under every profile, including unselected nodes.
  * 3. Child indices at the inventory length, below zero, fractional, or non-safe fail before parent traversal; index zero remains a legal child.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs all four model profiles on the same weighted/animated resident model and checks legal roots, parent propagation and structural refusals; profile-dependent forest admission fails.
- * @evidence contracts/testing.md#independent-expectations The authored two-node inventory, weighted hips, parent edge and malformed child lists determine expected facts and field-specific diagnostics without an arrangement-only assertion.
- * @evidence contracts/testing.md#distinguishing-cases Static, humanoid, motion and VRM profiles cover legal root/child zero, self/two-node cycles, repeated children, multiple parents and out-of-range/negative/fractional/unsafe indices, including unselected components; depth and scene selection have separate units.
- * @evidence contracts/testing.md#execution-ownership The discoverable test_ingest_external_model_hierarchy_profiles entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs all four model profiles on the same weighted/animated resident model and checks legal roots, parent propagation and structural refusals; profile-dependent forest admission fails.
+ * @evidence contracts/development/testing.md#independent-expectations The authored two-node inventory, weighted hips, parent edge and malformed child lists determine expected facts and field-specific diagnostics without an arrangement-only assertion.
+ * @evidence contracts/development/testing.md#distinguishing-cases Static, humanoid, motion and VRM profiles cover legal root/child zero, self/two-node cycles, repeated children, multiple parents and out-of-range/negative/fractional/unsafe indices, including unselected components; depth and scene selection have separate units.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_ingest_external_model_hierarchy_profiles entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Static, glTF humanoid, motion, and VRM accept independent scene roots and a legal parent-child edge while preserving weighted hips and...).
  */
 export function test_ingest_external_model_hierarchy_profiles(): void {
   const profiles: AutoMovieExternalModelIngestProfile[] = [

@@ -19,10 +19,11 @@ import { throwsError } from "../internal/predicates";
  * 3. Snapshot and termination failures retain their exact Error, and successful
  *    retry consumes fresh observations rather than a cached termination plan.
  *
- * @evidence contracts/testing.md#behavioral-verification Stops through the production ownership controller with authored Windows snapshots, asserting parent-first admitted targets, unchanged source facts, snapshot-only refusals and original host failures followed by fresh recovery.
- * @evidence contracts/testing.md#independent-expectations Exact creation stamps and strictly newer child ancestry independently define the target set and request order. The recorder proves portable admission semantics, not acquisition, verification or termination of real native handles.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts a newer child with sibling/stale links, absent/reused/duplicate roots, singleton recovery and snapshot/termination errors; broader tree boundaries and native transport decoding belong to neighboring process units.
- * @evidence contracts/testing.md#execution-ownership The named exported unit reaches production controller source through the existing loader and fact recorder; it starts no native process or other host and dynamically registers no cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Stops through the production ownership controller with authored Windows snapshots, asserting parent-first admitted targets, unchanged source facts, snapshot-only refusals and original host failures followed by fresh recovery.
+ * @evidence contracts/development/testing.md#independent-expectations Exact creation stamps and strictly newer child ancestry independently define the target set and request order. The recorder proves portable admission semantics, not acquisition, verification or termination of real native handles.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a newer child with sibling/stale links, absent/reused/duplicate roots, singleton recovery and snapshot/termination errors; broader tree boundaries and native transport decoding belong to neighboring process units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported unit reaches production controller source through the existing loader and fact recorder; it starts no native process or other host and dynamically registers no cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A matching root admits its newer child while excluding a sibling and a).
  */
 export function test_process_ownership_windows_admission(): void {
   const { facts, host }: ReturnType<typeof createProcessOwnershipHostFacts> =

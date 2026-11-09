@@ -31,25 +31,19 @@ interface Halfedge {
  * holes can belong to one face. A periodic walk can close in the surface while
  * retaining a nonzero cover winding. Selection and triangulation belong later.
  *
- * @evidence contracts/common.md#principled-implementation Uses paired directed edges and cyclic exact-sign angular order to preserve arbitrary vertex degree and each left boundary component; integer cover lifts preserve periodic winding.
- * @evidence contracts/common.md#clear-and-simple-design One incidence reader consumes already split constraints and returns only indexed walks, leaving source geometry, face membership and triangulation separate.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Never reduces a vertex to one outgoing edge or equates a closed surface walk with a zero-winding planar polygon. Overlapping directions remain a named failed subdivision premise.
- * @evidence contracts/common.md#meaningful-documentation States left-side convention, boundary-component meaning, periodic lifts and later ownership of holes/face membership.
- * @evidence contracts/performance.md#efficient-algorithms Creates 2E halfedges and sorts each degree-d vertex in O(d log d), then walks each directed edge once; exact-predicate cost is owned by the chart orientation primitive.
- * @evidence contracts/performance.md#reuse-equivalent-work One sorted incidence population and one twin-position table serve every boundary traversal.
- * @evidence contracts/performance.md#bound-retention-and-release-resources O(V+E) halfedges, adjacency and visited state are local; callers own returned index/lift arrays and no mesh or callback is retained.
+ * @evidence contracts/development/common.md#meaningful-documentation States left-side convention, boundary-component meaning, periodic lifts and later ownership of holes/face membership.
+ * @evidence contracts/development/design.md#principled-representation Represents Native-chart halfedge incidence after shared constraint subdivision: companion namespace of 2 members (`IWalk`, `walks`); units and frames named in its text: second. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidMeshIncidence` in packages/engine/src/geometry/construction/AutoMovieSolidMeshIncidence.ts; its surface is the 2 members listed and the text shows 5 other files naming it, mostly packages/engine (4), test (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieSolidMeshIncidence {
   /**
    * One directed left boundary component in the native parameter cover.
    *
-   * @evidence contracts/common.md#principled-implementation Original vertex IDs and integer lifts describe the walk without converting identified surface points to an annular polygon.
-   * @evidence contracts/common.md#clear-and-simple-design Parallel ID/lift arrays plus total winding expose its complete combinatorial path.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The record does not claim a nonzero-winding walk bounds a planar region or that one component owns an entire face.
-   * @evidence contracts/common.md#meaningful-documentation States cover origin, omitted repeated closing point and winding meaning.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This result record has no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Boundary traversal owns population reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns both fresh arrays and a scalar; no input object is retained.
+   * @evidence contracts/development/design.md#principled-representation Original vertex IDs and integer lifts describe the walk without converting identified surface points to an annular polygon.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Parallel ID/lift arrays plus total winding expose its complete combinatorial path.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record does not claim a nonzero-winding walk bounds a planar region or that one component owns an entire face.
+   * @evidence contracts/development/common.md#meaningful-documentation States cover origin, omitted repeated closing point and winding meaning.
    */
   export interface IWalk {
     /** Original vertex IDs, without repeating the closing vertex. */
@@ -65,13 +59,13 @@ export namespace AutoMovieSolidMeshIncidence {
   /**
    * Read every directed boundary component of an already split constraint graph.
    *
-   * @evidence contracts/common.md#principled-implementation Sorts outgoing halfedges around each source, follows the predecessor of the twin at each target and accumulates the represented cover turn.
-   * @evidence contracts/common.md#clear-and-simple-design One result union returns all walks or the named finite/subdivision premise that failed, without mutating the graph.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing points, unrepresentable lifts, zero spans or duplicate outgoing directions fail explicitly; no branch, hole or edge is dropped to close a walk.
-   * @evidence contracts/common.md#meaningful-documentation Documents that input must already be split and output is boundary incidence rather than kept-face triangulation.
-   * @evidence contracts/performance.md#efficient-algorithms O(V+E+sum(d log d)) work and linear storage; the position table makes each successor lookup constant-time after sorting.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses lifted endpoints, angular lists and twin positions rather than rebuilding them for each walk.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources All traversal maps/bitmaps expire on return; only fresh walk arrays escape, with no shared cache.
+   * @evidence contracts/development/implementation.md#principled-implementation Sorts outgoing halfedges around each source, follows the predecessor of the twin at each target and accumulates the represented cover turn.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One result union returns all walks or the named finite/subdivision premise that failed, without mutating the graph.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing points, unrepresentable lifts, zero spans or duplicate outgoing directions fail explicitly; no branch, hole or edge is dropped to close a walk.
+   * @evidence contracts/development/common.md#meaningful-documentation Documents that input must already be split and output is boundary incidence rather than kept-face triangulation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(V+E+sum(d log d)) work and linear storage; the position table makes each successor lookup constant-time after sorting.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses lifted endpoints, angular lists and twin positions rather than rebuilding them for each walk.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All traversal maps/bitmaps expire on return; only fresh walk arrays escape, with no shared cache.
    */
   export function walks(
     vertices: ReadonlyMap<number, Point>,

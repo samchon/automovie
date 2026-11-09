@@ -22,10 +22,11 @@ const rest: IAutoMoviePose = makePose([joint("leftLowerArm", { flexion: 0 })]);
  * Scenarios:
  * 1. A one-second clip has supported poses and a second-keyframe jawOpen weight of 1.5, yielding a range violation beneath keyframes[1].expression.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateMotion with one out-of-range expression weight and requires its keyframe-rooted range finding, catching omitted expression validation or lost parent addressing.
- * @evidence contracts/testing.md#independent-expectations Blendshape weights occupy inclusive [0,1], so 1.5 is unsupported; the second key's literal owning address does not depend on generated facial output.
- * @evidence contracts/testing.md#distinguishing-cases Retains the first key's supported expression and second key's excessive weight; dedicated expression entries own preset/channel/intensity admission and motion_valid owns null expressions.
- * @evidence contracts/testing.md#execution-ownership This named unit uses existing expression/pose/clip factories and a portable validator; no face, morph buffer or Human asset is created.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateMotion with one out-of-range expression weight and requires its keyframe-rooted range finding, catching omitted expression validation or lost parent addressing.
+ * @evidence contracts/development/testing.md#independent-expectations Blendshape weights occupy inclusive [0,1], so 1.5 is unsupported; the second key's literal owning address does not depend on generated facial output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains the first key's supported expression and second key's excessive weight; dedicated expression entries own preset/channel/intensity admission and motion_valid owns null expressions.
+ * @evidence contracts/development/testing.md#execution-ownership This named unit uses existing expression/pose/clip factories and a portable validator; no face, morph buffer or Human asset is created.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: A one-second clip has supported poses and a second-keyframe jawOpen weight of 1.5, yielding a range violation beneath...).
  */
 export function test_validation_motion_keyframe_expression(): void {
   const motion: IAutoMovieMotion = makeMotion(

@@ -24,10 +24,11 @@ import {
  * 2. Check shot/film domain-separated seeds, canonical digests and requested clocks.
  * 3. Mutate emitted bounds, recipe and intensity without changing authored inputs.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs materializeCompiledEffects and observes ordered records, event fields, seeds, digests and source isolation, catching owner mixing, omitted cue fields or shallow-copy mutation leaks.
- * @evidence contracts/testing.md#independent-expectations The documented protocol tags and authored ids/seeds define the SHA-256 seed record; Node crypto independently checks hashing. nodeCanonicalDigest shares the product canonicalizer, so it independently checks the digest primitive rather than every canonical ordering rule. filmEffectValuesClose checks numerical leaves within 1e-12 with exact key sets and array order.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts shot and film owner protocols, unresolved zone/recipe, optional event and mutable nested output fields; changing an owner within one protocol is not independently exercised here. Full film cue/clock admission belongs to effect_materialization.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous unit owns these in-memory stream cases and calls source directly; Node crypto is a portable reference within this process, without browser/GPU or cross-machine execution proof.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs materializeCompiledEffects and observes ordered records, event fields, seeds, digests and source isolation, catching owner mixing, omitted cue fields or shallow-copy mutation leaks.
+ * @evidence contracts/development/testing.md#independent-expectations The documented protocol tags and authored ids/seeds define the SHA-256 seed record; Node crypto independently checks hashing. nodeCanonicalDigest shares the product canonicalizer, so it independently checks the digest primitive rather than every canonical ordering rule. filmEffectValuesClose checks numerical leaves within 1e-12 with exact key sets and array order.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts shot and film owner protocols, unresolved zone/recipe, optional event and mutable nested output fields; changing an owner within one protocol is not independently exercised here. Full film cue/clock admission belongs to effect_materialization.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous unit owns these in-memory stream cases and calls source directly; Node crypto is a portable reference within this process, without browser/GPU or cross-machine execution proof.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Materialize sorted cues, skip unresolved zones/recipes and preserve optional events.).
  */
 export function test_film_effect_compiled_streams(): void {
   const contract: IAutoMovieShotContract = {

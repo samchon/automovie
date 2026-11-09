@@ -6,6 +6,7 @@ import type { IFighterMeasure } from "./IFighterMeasure";
 import { KickboxingTechnique } from "./KickboxingTechnique";
 import { KickboxingTiming } from "./KickboxingTiming";
 import { PunchShape } from "./PunchShape";
+import { StraightLegShape } from "./StraightLegShape";
 import { TurnoverShape } from "./TurnoverShape";
 import { blendPosture } from "./blendPosture";
 
@@ -36,6 +37,50 @@ export namespace StrikeShape {
   export const SHIN_SHARE: number = 0.6;
 
   /**
+   * The kicking foot's speed at impact as a share of its peak in the
+   * extension: Muay Thai linear foot velocity at impact 7.22 m/s against a
+   * maximum of 13.24 m/s, metatarsal markers (Gavagan and Sayers 2017,
+   * Table 2); the foot peaks before contact and still travels at contact.
+   */
+  export const IMPACT_SPEED_SHARE: number = 7.22 / 13.24;
+
+  /** End slope of the extension's cubic progress whose impact speed is {@link IMPACT_SPEED_SHARE} of its peak, solved once by bisection. */
+  const END_SLOPE: number = (() => {
+    // Slope u ↦ p'(u) of the Hermite p(u) = 3u² − 2u³ + k(u³ − u²): zero at
+    // the chamber key, k at impact; its peak share k / max p' rises with k.
+    const share = (k: number): number => {
+      const u: number = Math.max(0, Math.min(1, (6 - 2 * k) / (12 - 6 * k)));
+      const peak: number = Math.max(
+        k,
+        -6 * u * u + 6 * u + k * (3 * u * u - 2 * u),
+      );
+      return k / peak;
+    };
+    let low: number = 0;
+    let high: number = 1.5;
+    for (let i: number = 0; i < 60; i++) {
+      const mid: number = (low + high) / 2;
+      if (share(mid) < IMPACT_SPEED_SHARE) low = mid;
+      else high = mid;
+    }
+    return (low + high) / 2;
+  })();
+
+  /**
+   * Progress of a round kick's extension from the chamber key to impact:
+   * it leaves the chamber at rest, peaks before contact and reaches the
+   * target still travelling at {@link IMPACT_SPEED_SHARE} of its peak.
+   *
+   * @param u Time share of the extension in [0, 1].
+   * @returns Progress in [0, 1].
+   * @evidence docs/research/kickboxing/techniques.md#kick-timing Peak and impact foot speeds of the measured Muay Thai kicks.
+   */
+  export function extension(u: number): number {
+    const x: number = Math.max(0, Math.min(1, u));
+    return 3 * x * x - 2 * x * x * x + END_SLOPE * (x * x * x - x * x);
+  }
+
+  /**
    * Support-foot turn at impact, radians, read from the Chan rear-oblique
    * frames (rotated support foot, not a measured angle); the Brazilian
    * kick's heel turns toward the target as far as the head kick's.
@@ -46,18 +91,11 @@ export namespace StrikeShape {
     head: Math.PI / 3,
   };
 
-  /** Share of the arm's reach the kicking-side glove holds forward at the head line: three quarters, the extended guard read from the PLOS impact frame. */
+  /** Share of the arm's reach the turnover's kicking-side glove holds forward at the head line: three quarters, the extended guard read from the PLOS impact frame. */
   const GUARD_REACH: number = 0.75;
 
-  /** Hip flexion of the round-kick chamber, degrees, by level: thigh toward the target height (PLOS Fig. 3 chamber). */
-  const CHAMBER_HIP: Readonly<Record<KickboxingTechnique.Level, number>> = {
-    leg: 45,
-    body: 80,
-    head: 95,
-  };
-
-  /** Knee flexion of the chamber, degrees: the folded shank of PLOS Fig. 3 B. */
-  const CHAMBER_KNEE: number = 110;
+  /** How far behind the hips the round kick's same-side glove sweeps, in head radii: down and back past the hip, a glove's diameter clear of it (coaching of the round kick's counter-rotation). */
+  const COUNTER_BACK: number = 2;
 
   /** Trunk lean away from a round kick at impact, degrees: the thoracic side-bend range, by level. */
   const LEAN: Readonly<Record<KickboxingTechnique.Level, number>> = {
@@ -130,10 +168,11 @@ export namespace StrikeShape {
       );
     }
     if (shown.family === "punch") {
-      const out: number =
-        t <= delivery
-          ? ease(t / delivery)
-          : 1 - ease((t - delivery) / KickboxingTiming.HAND_RECOVERY);
+      const out: number = PunchShape.amount(
+        t,
+        delivery,
+        PunchShape.path(input, shown),
+      );
       if (t >= delivery + KickboxingTiming.HAND_RECOVERY) return null;
       return PunchShape.posture(input, shown, Math.max(0, out));
     }
@@ -166,9 +205,9 @@ export namespace StrikeShape {
       case "round-kick":
         return roundKick(input, shown, phase, progress, amount);
       case "push-kick":
-        return teep(input, phase, progress, amount);
+        return StraightLegShape.teep(input, phase, progress, amount);
       case "knee":
-        return knee(input, phase, progress, amount);
+        return StraightLegShape.knee(input, phase, progress, amount);
       case "feint":
         throw new Error("A feint performs another technique");
     }
@@ -204,7 +243,7 @@ export namespace StrikeShape {
       phase === "out"
         ? progress <= chamberShare
           ? 0
-          : ease((progress - chamberShare) / (1 - chamberShare))
+          : extension((progress - chamberShare) / (1 - chamberShare))
         : progress <= 0.5
           ? 1 - ease(progress / 0.5)
           : 0;
@@ -222,30 +261,38 @@ export namespace StrikeShape {
       y: turnover ? TurnoverShape.hip(measure) - drop : measure.hip - drop,
       z: sign * measure.hipHalfWidth,
     };
-    const folded: { point: IAutoMovieVector3; knee: IAutoMovieVector3 } = fold(
-      hip,
-      CHAMBER_HIP[
-        spec.disguise
-          ? KickboxingTechnique.table[spec.disguise].level
-          : spec.level
-      ],
-      sign,
-      measure,
-    );
+    const folded: { point: IAutoMovieVector3; knee: IAutoMovieVector3 } =
+      StraightLegShape.fold(
+        hip,
+        StraightLegShape.CHAMBER_HIP[
+          spec.disguise
+            ? KickboxingTechnique.table[spec.disguise].level
+            : spec.level
+        ],
+        sign,
+        measure,
+      );
     const target: IAutoMovieVector3 =
       input.target === null ? folded.knee : local(input.target);
+    // The lower leg's line stops a shin radius short of the region, so its
+    // surface meets the region's surface and never sinks into it.
+    const contact: IAutoMovieVector3 = StrikeShape.standoff(
+      hip,
+      target,
+      measure.shinRadius,
+    );
     // The shin crosses the target toward the kicker's other side; the
     // descending kick's instep comes down onto it from the highest knee.
     const impact: { knee: IAutoMovieVector3; point: IAutoMovieVector3 } =
       turnover
-        ? TurnoverShape.impact(hip, target, measure)
+        ? TurnoverShape.impact(hip, contact, measure)
         : {
-            knee: Vector3.add(target, {
+            knee: Vector3.add(contact, {
               x: 0,
               y: 0,
               z: sign * measure.shank * SHIN_SHARE,
             }),
-            point: Vector3.add(target, {
+            point: Vector3.add(contact, {
               x: 0,
               y: 0,
               z: -sign * measure.shank * (1 - SHIN_SHARE),
@@ -298,42 +345,45 @@ export namespace StrikeShape {
       };
     } else
       foot = {
-        point: Vector3.lerp(
-          chamber.point,
-          rest,
-          ease((progress - 0.5) / 0.5),
-        ),
+        point: Vector3.lerp(chamber.point, rest, ease((progress - 0.5) / 0.5)),
         knee: chamber.knee,
       };
     // The turnover's trunk leans only by the pelvis's tilt and hike, the
     // lumbar spine flexing back over the kick to keep the head up.
     const lean: number = turnover ? 0 : LEAN[spec.level] * drive;
-    // The kicking-side glove reaches forward along the head line toward the
-    // receiver: from the head, carried back as the turnover tilts the trunk,
-    // straight ahead at its height, as far as the arm reaches from its
-    // shoulder along that ray; the other guards the chin.
+    // A round kick's same-side arm sweeps down and back along the kicking
+    // hip to counter the hip's turn; the turnover's kicking-side glove
+    // reaches forward along the head line toward the receiver, carried back
+    // as the pelvis tilts (brazilian-kick.md#law). The other glove guards
+    // the chin; no glove rises above the head.
     const tilt: number = (TurnoverShape.TILT * over * Math.PI) / 180;
     const forward: { point: IAutoMovieVector3 } = {
       point: local(
-        reachAlong(
-          {
-            x: -(measure.head - measure.hip) * Math.sin(tilt),
-            y:
-              measure.hip +
-              (measure.head - measure.hip) * Math.cos(tilt) -
-              drop,
-            z: sign * measure.headRadius,
-          },
-          {
-            x: -(measure.shoulder - measure.hip) * Math.sin(tilt),
-            y:
-              measure.hip +
-              (measure.shoulder - measure.hip) * Math.cos(tilt) -
-              drop,
-            z: sign * measure.shoulderHalfWidth,
-          },
-          measure.armReach * GUARD_REACH,
-        ),
+        turnover
+          ? reachAlong(
+              {
+                x: -(measure.head - measure.hip) * Math.sin(tilt),
+                y:
+                  measure.hip +
+                  (measure.head - measure.hip) * Math.cos(tilt) -
+                  drop,
+                z: sign * measure.headRadius,
+              },
+              {
+                x: -(measure.shoulder - measure.hip) * Math.sin(tilt),
+                y:
+                  measure.hip +
+                  (measure.shoulder - measure.hip) * Math.cos(tilt) -
+                  drop,
+                z: sign * measure.shoulderHalfWidth,
+              },
+              measure.armReach * GUARD_REACH,
+            )
+          : {
+              x: -measure.headRadius * COUNTER_BACK,
+              y: measure.hip - drop,
+              z: sign * (measure.hipHalfWidth + measure.gloveRadius * 2),
+            },
       ),
     };
     const kicked: IBoutPosture = {
@@ -365,131 +415,6 @@ export namespace StrikeShape {
     );
   }
 
-  /** The lead-leg teep: knee up, sole driven forward to the stomach, recoil. */
-  function teep(
-    input: IInput,
-    phase: "out" | "back",
-    progress: number,
-    amount: number,
-  ): IBoutPosture {
-    const { measure, guard, rest } = input;
-    const hip: IAutoMovieVector3 = {
-      x: 0,
-      y: measure.hip - guard.drop,
-      z: measure.hipHalfWidth,
-    };
-    const chamber = fold(hip, CHAMBER_HIP.body, 1, measure);
-    const aim: IAutoMovieVector3 =
-      input.target ??
-      Vector3.add(hip, { x: measure.thigh + measure.shank, y: 0, z: 0 });
-    const end: IAutoMovieVector3 = Vector3.subtract(aim, {
-      x: measure.foot / 2 - LANDING_DEPTH,
-      y: 0,
-      z: 0,
-    });
-    const out: number = phase === "out" ? ease(progress) : 1 - ease(progress);
-    const point: IAutoMovieVector3 =
-      phase === "out" && progress < 0.6
-        ? Vector3.lerp(rest.left, chamber.point, ease(progress / 0.6))
-        : phase === "out"
-          ? Vector3.lerp(chamber.point, end, ease((progress - 0.6) / 0.4))
-          : progress < 0.5
-            ? Vector3.lerp(end, chamber.point, ease(progress / 0.5))
-            : Vector3.lerp(
-                chamber.point,
-                rest.left,
-                ease((progress - 0.5) / 0.5),
-              );
-    const kicked: IBoutPosture = {
-      ...guard,
-      shift: { forward: -measure.headRadius * out, left: 0 },
-      thoracic: {
-        ...guard.thoracic,
-        flexion: guard.thoracic.flexion - 10 * out,
-      },
-      feet: { ...guard.feet, left: { point } },
-    };
-    return blendPosture(guard, kicked, amount, rest);
-  }
-
-  /** The clinch knee: both gloves behind the receiver's head, the rear knee driven up into his stomach. */
-  function knee(
-    input: IInput,
-    phase: "out" | "back",
-    progress: number,
-    amount: number,
-  ): IBoutPosture {
-    const { measure, guard, rest } = input;
-    const hip: IAutoMovieVector3 = {
-      x: 0,
-      y: measure.hip - guard.drop,
-      z: -measure.hipHalfWidth,
-    };
-    const target: IAutoMovieVector3 =
-      input.target ?? Vector3.add(hip, { x: measure.thigh, y: 0, z: 0 });
-    const kneePoint: IAutoMovieVector3 = Vector3.subtract(target, {
-      x: LANDING_DEPTH,
-      y: 0,
-      z: 0,
-    });
-    const ankle: IAutoMovieVector3 = Vector3.add(kneePoint, {
-      x: -measure.shank * 0.6,
-      y: -measure.shank * 0.8,
-      z: 0,
-    });
-    const out: number = phase === "out" ? ease(progress) : 1 - ease(progress);
-    const grip: IAutoMovieVector3 = input.clinch ?? guard.hands.left.point;
-    const kneed: IBoutPosture = {
-      ...guard,
-      thoracic: { ...guard.thoracic, flexion: guard.thoracic.flexion + 10 },
-      hands: {
-        left: {
-          point: Vector3.add(grip, { x: 0, y: 0, z: measure.gloveRadius }),
-        },
-        right: {
-          point: Vector3.add(grip, { x: 0, y: 0, z: -measure.gloveRadius }),
-        },
-      },
-      feet: {
-        ...guard.feet,
-        right: { point: Vector3.lerp(rest.right, ankle, out), knee: kneePoint },
-      },
-    };
-    return blendPosture(guard, kneed, amount * Math.min(1, out * 2), rest);
-  }
-
-  /** The folded chamber of a leg at a hip flexion, raised beside the hip toward the front. */
-  function fold(
-    hip: IAutoMovieVector3,
-    flexion: number,
-    sign: 1 | -1,
-    measure: IFighterMeasure,
-  ): { point: IAutoMovieVector3; knee: IAutoMovieVector3 } {
-    const f: number = (flexion * Math.PI) / 180;
-    const thigh: IAutoMovieVector3 = {
-      x: Math.sin(f),
-      y: -Math.cos(f),
-      z: sign * 0.25,
-    };
-    const knee: IAutoMovieVector3 = Vector3.add(
-      hip,
-      Vector3.scale(Vector3.normalize(thigh), measure.thigh),
-    );
-    const k: number = f + Math.PI - (CHAMBER_KNEE * Math.PI) / 180;
-    const shank: IAutoMovieVector3 = {
-      x: -Math.sin(Math.PI - k) * 0.6,
-      y: -Math.cos(Math.PI - k),
-      z: 0,
-    };
-    return {
-      knee,
-      point: Vector3.add(
-        knee,
-        Vector3.scale(Vector3.normalize(shank), measure.shank),
-      ),
-    };
-  }
-
   /**
    * The point on the forward ray from `head` (along +X, the facing toward
    * the receiver) whose distance from `shoulder` is `reach`: the glove held
@@ -504,8 +429,35 @@ export namespace StrikeShape {
     const p: IAutoMovieVector3 = Vector3.subtract(head, shoulder);
     // |p + s·x̂| = reach, the forward root.
     const s: number =
-      -p.x + Math.sqrt(Math.max(0, p.x * p.x - Vector3.dot(p, p) + reach * reach));
+      -p.x +
+      Math.sqrt(Math.max(0, p.x * p.x - Vector3.dot(p, p) + reach * reach));
     return { x: head.x + s, y: head.y, z: head.z };
+  }
+
+  /**
+   * A struck point moved back toward the striking joint across the floor by
+   * a limb's radius: where the limb's joint line must pass so its surface,
+   * not its axis, meets the region.
+   *
+   * @param joint The striking limb's root joint, body frame.
+   * @param target The region's surface point, body frame.
+   * @param radius The limb collider's radius, metres.
+   * @returns The joint line's contact point.
+   */
+  export function standoff(
+    joint: IAutoMovieVector3,
+    target: IAutoMovieVector3,
+    radius: number,
+  ): IAutoMovieVector3 {
+    const dx: number = target.x - joint.x;
+    const dz: number = target.z - joint.z;
+    const length: number = Math.hypot(dx, dz);
+    if (length === 0) return target;
+    return {
+      x: target.x - (dx / length) * radius,
+      y: target.y,
+      z: target.z - (dz / length) * radius,
+    };
   }
 
   /** A guard-frame point in the frame of a body turned further by `angle` about +Y (right-handed). */

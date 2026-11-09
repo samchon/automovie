@@ -11,6 +11,14 @@ import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
  * parent order. Report the largest translation and angular adjustment so an
  * author can detect a physical approximation that changes the intended pose.
  * This operates on motor goals only, never on a simulated or displayed frame.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Convert authored placements into the declared fixed-pivot physical tree) as stated in this comment.
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Convert authored placements into the declared fixed-pivot physical tree) directly over its typed inputs (`profile`, `authored`) as nested iteration of depth 2 (map over profile.joints; for-of over profile.segments; while loop), delegating to `Object.create`, `children.has`, `structuredClone`, `Quaternion.multiply`, `Quaternion.inverse`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (2 throw sites). Apart from structural 0, 1 and 2 the body uses no numeric literal.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 68 lines and 8 top-level statements that reuses `Object.create`, `children.has`, `structuredClone`, `Quaternion.multiply`, `Quaternion.inverse` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 3 non-null assertion(s); these are the remaining shortcuts and are not justified here.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `profile`, `authored`; the dominant cost is nested iteration of depth 2 (map over profile.joints; for-of over profile.segments; while loop), performed once per call with 6 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 6 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function projectPhysicalTargets(
   profile: P,

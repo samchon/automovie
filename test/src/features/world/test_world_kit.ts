@@ -45,10 +45,11 @@ const instanceBase: () => Omit<
  * 3. Blank id, collapsed/nonfinite block extents, zero-length ramp, overlap,
  *    overhang, floating bounds, blocked route and unreachable landmark throw.
  *
- * @evidence contracts/testing.md#behavioral-verification Actual world constructor fields and assertWorldPlacements results exercise design production and placement refusal. Selected output fields expose wrong block models/layouts/heights, while the existing contradiction cases must throw.
- * @evidence contracts/testing.md#independent-expectations Authored block base and dimensions determine bounds, ramp endpoints determine its height, and layouts retain their requested discriminator. Geometry and walkable/route membership determine the supported and refused placement cases; this does not inspect rendered buildings or every output field.
- * @evidence contracts/testing.md#distinguishing-cases Ordinary ground and raised support, route-only and exact-rim landmarks contrast malformed sizes/coordinates, overlap, overhang, unsupported height and blocked/unreachable placements. Heightfield interpolation belongs to its separate owning test.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_world_kit; this exported function owns the constructor assertions and registered rejected callbacks, without generating a production artifact or installing a browser/GPU host.
+ * @evidence contracts/development/testing.md#behavioral-verification Actual world constructor fields and assertWorldPlacements results exercise design production and placement refusal. Selected output fields expose wrong block models/layouts/heights, while the existing contradiction cases must throw.
+ * @evidence contracts/development/testing.md#independent-expectations Authored block base and dimensions determine bounds, ramp endpoints determine its height, and layouts retain their requested discriminator. Geometry and walkable/route membership determine the supported and refused placement cases; this does not inspect rendered buildings or every output field.
+ * @evidence contracts/development/testing.md#distinguishing-cases Ordinary ground and raised support, route-only and exact-rim landmarks contrast malformed sizes/coordinates, overlap, overhang, unsupported height and blocked/unreachable placements. Heightfield interpolation belongs to its separate owning test.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_world_kit; this exported function owns the constructor assertions and registered rejected callbacks, without generating a production artifact or installing a browser/GPU host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Terrain, ramp, block and layout constructors retain selected model, bounds,).
  */
 export function test_world_kit(): void {
   const ground: IAutoMovieWorldSurface = worldTerrain({

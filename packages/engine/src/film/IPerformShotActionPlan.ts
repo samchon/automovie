@@ -14,13 +14,10 @@ import { IPerformShotLaunchJob } from "./IPerformShotLaunchJob";
  * `stageActionPaths` together when a launch schedules a recoil, and sort
  * `frames` in place.
  *
- * @evidence contracts/common.md#principled-implementation Keeps the stage list and its violation paths as parallel arrays because the performance builder reports a masked clip by its position in the list it was handed, which is neither the input index nor stable once engine-injected recoils are appended.
- * @evidence contracts/common.md#clear-and-simple-design One result of the action pass holding the four lists and the election later stages read, instead of six loose variables threaded through each stage.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Jobs are recorded only for actions whose checks passed, and the path list stores a full path per entry so an injected recoil can point at the author's `onHit` rather than a field it does not have.
- * @evidence contracts/common.md#meaningful-documentation States who builds it, how actions are sorted into it, which later stages mutate which fields, and for each field what it holds.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Type-only: the action pass fills its lists in one walk over the actions, which is that function's cost to state.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per call and read by every later stage of the same call.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Lives for one `performShot` call, bounded by the action count plus one injected recoil per launch.
+ * @evidence contracts/development/design.md#principled-representation Keeps the stage list and its violation paths as parallel arrays because the performance builder reports a masked clip by its position in the list it was handed, which is neither the input index nor stable once engine-injected recoils are appended.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One result of the action pass holding the four lists and the election later stages read, instead of six loose variables threaded through each stage.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Jobs are recorded only for actions whose checks passed, and the path list stores a full path per entry so an injected recoil can point at the author's `onHit` rather than a field it does not have.
+ * @evidence contracts/development/common.md#meaningful-documentation States who builds it, how actions are sorted into it, which later stages mutate which fields, and for each field what it holds.
  */
 export interface IPerformShotActionPlan {
   /**

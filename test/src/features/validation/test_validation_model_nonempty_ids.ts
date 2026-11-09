@@ -16,10 +16,11 @@ import { hasViolation } from "../internal/hasViolation";
  * Scenarios:
  * 1. Blank model/skeleton/material/part ids plus blank non-null asset and texture ids fail at their own fields; an undefined bone identity is also refused.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateModel with blank identities/references and an undefined bone name, requiring each field's type finding rather than only an aggregate failure.
- * @evidence contracts/testing.md#independent-expectations Stable references require non-whitespace identifiers; undefined is not a bone identifier. Literal addresses identify each authored defect without copying validator output.
- * @evidence contracts/testing.md#distinguishing-cases Covers empty, whitespace and malformed identities across model, asset, skeleton, material, texture and part fields; model_valid owns their supported neighbor.
- * @evidence contracts/testing.md#execution-ownership The named unit validates caller-created records through the existing model factory; no external asset is resolved or generated.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateModel with blank identities/references and an undefined bone name, requiring each field's type finding rather than only an aggregate failure.
+ * @evidence contracts/development/testing.md#independent-expectations Stable references require non-whitespace identifiers; undefined is not a bone identifier. Literal addresses identify each authored defect without copying validator output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers empty, whitespace and malformed identities across model, asset, skeleton, material, texture and part fields; model_valid owns their supported neighbor.
+ * @evidence contracts/development/testing.md#execution-ownership The named unit validates caller-created records through the existing model factory; no external asset is resolved or generated.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Blank model/skeleton/material/part ids plus blank non-null asset and texture ids fail at their own fields; an undefined bone identity is...).
  */
 export function test_validation_model_nonempty_ids(): void {
   const base: IAutoMovieModel = createModel();

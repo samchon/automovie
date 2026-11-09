@@ -14,7 +14,17 @@ import { AutoMoviePhysicalBalance as Balance } from "./AutoMoviePhysicalBalance"
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { visitPhysicalNative } from "./visitPhysicalNative";
 
-/** Read touching upward native floor constraints before recent positive surface impulses. Native points retain their actual combined friction; receipt-only compliant contacts use the declared average with the floor's friction 0.7. No projected sole or future contact is invented. */
+/**
+ * Read touching upward native floor constraints before recent positive surface impulses. Native points retain their actual combined friction; receipt-only compliant contacts use the declared average with the floor's friction 0.7. No projected sole or future contact is invented.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Read touching upward native floor constraints before recent positive surface impulses) as stated in this comment.
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Read touching upward native floor constraints before recent positive surface impulses) directly over its typed inputs (`input`) as nested iteration of depth 3 (flatMap over input.pattern.limbs; for-of over input.colliders; for loop bounded by i < manifold.numContacts()), delegating to `patches.includes`, `visitPhysicalNative`, `manifold.normal`, `manifold.numContacts`, `manifold.contactDist`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Beyond structural 0, 1 and 2 the body uses the literals 0.5, 0.7, whose basis this answer does not independently establish and a reviewer must confirm.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 131 lines and 1 top-level statements that reuses `patches.includes`, `visitPhysicalNative`, `manifold.normal`, `manifold.numContacts`, `manifold.contactDist` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 4 non-null assertion(s); these are the remaining shortcuts and are not justified here.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`; the dominant cost is nested iteration of depth 3 (flatMap over input.pattern.limbs; for-of over input.colliders; for loop bounded by i < manifold.numContacts()), performed once per call with 9 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 9 allocation sites become the returned value or die with the call, so nothing grows.
+ */
 export function collectPhysicalSupports(input: {
   /** Current native world, outside a solver invocation. */ world: World;
   /** Source body identity. */ body: string;
@@ -157,7 +167,14 @@ export function collectPhysicalSupports(input: {
   );
 }
 
-/** Actual support geometry is shared by balance classification and force allocation. */
+/**
+ * Actual support geometry is shared by balance classification and force allocation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Actual support geometry is shared by balance classification and force allocation) and documents 2 documented members as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents Actual support geometry is shared by balance classification and force allocation: companion namespace of 2 members (`IPoint`, `ISupport`); units and frames named in its text: world, metres. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `collectPhysicalSupports` in packages/engine/src/physics/collectPhysicalSupports.ts; its surface is the 2 members listed and the text shows 8 other files naming it, mostly test (5), packages/engine (3), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ */
 export namespace collectPhysicalSupports {
   /** One measured floor application point and its Coulomb coefficient. */
   export interface IPoint {

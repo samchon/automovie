@@ -24,13 +24,13 @@ const assertFiniteVector: (name: string, vector: IAutoMovieVector3) => void = (
  * along its arc (e.g. via `aimRotation`).
  *
  *
- * @evidence contracts/common.md#principled-implementation Evaluate p0+v0*t+g*t^2/2 and v0+g*t for constant world acceleration. Inputs and time must be finite; finite arithmetic can still overflow, and negative finite time evaluates the same equations backwards.
- * @evidence contracts/common.md#clear-and-simple-design One analytic state evaluation is shared by launch and trajectory callers, avoiding an integration state machine.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Gravity and launch vectors are caller inputs rather than actor-specific constants; invalid components throw instead of returning a fabricated state.
- * @evidence contracts/common.md#meaningful-documentation Docs give metre, second and metre-per-second-squared units, fresh vectors, finite admission and constant-acceleration scope.
- * @evidence contracts/performance.md#efficient-algorithms A fixed number of vector scalar operations gives O(1) time and two output vectors per instant.
- * @evidence contracts/performance.md#reuse-equivalent-work Trajectory and collision sampling reuse this equation owner, not results across mutable projectile/time pairs.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Each state transfers to the caller; the launch record is borrowed and no integration history or resource is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Evaluate p0+v0*t+g*t^2/2 and v0+g*t for constant world acceleration. Inputs and time must be finite; finite arithmetic can still overflow, and negative finite time evaluates the same equations backwards.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One analytic state evaluation is shared by launch and trajectory callers, avoiding an integration state machine.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Gravity and launch vectors are caller inputs rather than actor-specific constants; invalid components throw instead of returning a fabricated state.
+ * @evidence contracts/development/common.md#meaningful-documentation Docs give metre, second and metre-per-second-squared units, fresh vectors, finite admission and constant-acceleration scope.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of vector scalar operations gives O(1) time and two output vectors per instant.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Trajectory and collision sampling reuse this equation owner, not results across mutable projectile/time pairs.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each state transfers to the caller; the launch record is borrowed and no integration history or resource is retained.
  */
 export const projectileAt: (
   p: IAutoMovieProjectile,

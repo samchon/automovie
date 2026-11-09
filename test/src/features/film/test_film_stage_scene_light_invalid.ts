@@ -20,10 +20,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * 4. A fourth light declares a non-finite direction, yielding `range` on
  *    `$input.lights[3].direction`.
  *
- * @evidence contracts/testing.md#behavioral-verification Stages four malformed directional lights and requires each intensity or direction range finding, catching accepted negative or infinite intensity and zero or nonfinite aim.
- * @evidence contracts/testing.md#independent-expectations Physical nonnegative finite intensity and a finite nonzero aimed direction determine the four literal kind/path witnesses; no lowerer output supplies expected refusals.
- * @evidence contracts/testing.md#distinguishing-cases Owns negative and infinite intensity plus zero and infinite direction in one refused write; valid directional lowering belongs to the valid staging entry and other light kinds have separate shape cases.
- * @evidence contracts/testing.md#execution-ownership This synchronous named unit owns all four malformed inputs through stageScene and the existing film fixtures; it checks record admission without rendering light or opening a host.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages four malformed directional lights and requires each intensity or direction range finding, catching accepted negative or infinite intensity and zero or nonfinite aim.
+ * @evidence contracts/development/testing.md#independent-expectations Physical nonnegative finite intensity and a finite nonzero aimed direction determine the four literal kind/path witnesses; no lowerer output supplies expected refusals.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns negative and infinite intensity plus zero and infinite direction in one refused write; valid directional lowering belongs to the valid staging entry and other light kinds have separate shape cases.
+ * @evidence contracts/development/testing.md#execution-ownership This synchronous named unit owns all four malformed inputs through stageScene and the existing film fixtures; it checks record admission without rendering light or opening a host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The sun's intensity is −1 → a `range` violation on).
  */
 export function test_film_stage_scene_light_invalid(): void {
   const base: ReturnType<typeof makeStagingWrite> = makeStagingWrite();

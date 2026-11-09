@@ -57,10 +57,11 @@ import { vclose } from "../internal/vclose";
  *    (#1346). The negative twin is scenario 5's explicit `{}`, which still
  *    produces the rig-space angles a caller with its own convention needs.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises affine angle conversion and threads rest frames through composition, inverse, FK and reach, checking converted coordinates, contact, hinge agreement and the default table; a dropped frame or wrong neutral/sign fails.
- * @evidence contracts/testing.md#independent-expectations The authored sign minus1/neutral 90 frame fixes rig minus60 from clinical 150 and its inverse. Literal angle recovery supplements shared forward/inverse parity; FK/reach comparisons can miss shared geometric defects and do not independently establish clinical ranges. Default parity preserves exact scalar values via zero-tolerance predicates.
- * @evidence contracts/testing.md#distinguishing-cases Keeps null/absent frame, mirrored nonzero neutral, ordinary/gimbal inverse, explicit raw versus framed FK/reach, common hinge angle and omitted-table behavior; malformed axes/domains and illegal-pose gate cases are separate entries.
- * @evidence contracts/testing.md#execution-ownership The exported CPU entry is discovered by the test runner and directly imports conversion and kinematics source; conventional skeletons and table comparisons run without Human asset, viewer or GPU, so no visible pose is certified.
+ * @evidence contracts/development/testing.md#behavioral-verification Exercises affine angle conversion and threads rest frames through composition, inverse, FK and reach, checking converted coordinates, contact, hinge agreement and the default table; a dropped frame or wrong neutral/sign fails.
+ * @evidence contracts/development/testing.md#independent-expectations The authored sign minus1/neutral 90 frame fixes rig minus60 from clinical 150 and its inverse. Literal angle recovery supplements shared forward/inverse parity; FK/reach comparisons can miss shared geometric defects and do not independently establish clinical ranges. Default parity preserves exact scalar values via zero-tolerance predicates.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps null/absent frame, mirrored nonzero neutral, ordinary/gimbal inverse, explicit raw versus framed FK/reach, common hinge angle and omitted-table behavior; malformed axes/domains and illegal-pose gate cases are separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership The exported CPU entry is discovered by the test runner and directly imports conversion and kinematics source; conventional skeletons and table comparisons run without Human asset, viewer or GPU, so no visible pose is certified.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `toRigAngle` / `toClinicalAngle` are inverses; a `null` angle and an absent).
  */
 export function test_kinematics_rest_frame_angles(): void {
   // right-arm-like: abduction mirrors (sign −1) and rests at 90° (a T-pose arm)

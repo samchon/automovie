@@ -21,10 +21,11 @@ import { namedFacts } from "../internal/predicates";
  * 3. Extensions about geometry, compression, lighting or the container are not
  *    this gate's business and are left alone.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual material-extension classifier and unsupported-name selector, requiring admitted names to disappear and unsupported material/texture names to remain once in stable order; unrelated extension categories remain outside this advisory inventory.
- * @evidence contracts/testing.md#independent-expectations The four declared supported material identities and authored underscore-separated category names determine the literal accepted and unsupported populations independently of selector output. This tests admission metadata rather than rendering fidelity or codec support.
- * @evidence contracts/testing.md#distinguishing-cases Covers empty and supported-only inventories, mixed categories, duplicate unsupported names, plural/singular and case-folded segments, a vendor material name and an unrelated substring; image decoding and actual GPU appearance belong to their owning surfaces.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit invokes portable engine classification over local string arrays without an asset loader, filesystem, process, browser or GPU host.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual material-extension classifier and unsupported-name selector, requiring admitted names to disappear and unsupported material/texture names to remain once in stable order; unrelated extension categories remain outside this advisory inventory.
+ * @evidence contracts/development/testing.md#independent-expectations The four declared supported material identities and authored underscore-separated category names determine the literal accepted and unsupported populations independently of selector output. This tests admission metadata rather than rendering fidelity or codec support.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers empty and supported-only inventories, mixed categories, duplicate unsupported names, plural/singular and case-folded segments, a vendor material name and an unrelated substring; image decoding and actual GPU appearance belong to their owning surfaces.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit invokes portable engine classification over local string arrays without an asset loader, filesystem, process, browser or GPU host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The four extensions `IAutoMovieMaterial` restates are accepted silently, and).
  */
 export function test_validation_material_parity(): void {
   TestValidator.equals(

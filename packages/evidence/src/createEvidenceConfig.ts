@@ -10,13 +10,13 @@ import { createProductionConfig } from "./narrative/createProductionConfig";
 /**
  * Creates a native Evidence configuration with optional narrative claims.
  *
- * @evidence contracts/common.md#principled-implementation An absolute project location anchors the native engineering defaults and optional narrative selectors; caller-supplied claims are cloned before composition.
- * @evidence contracts/common.md#clear-and-simple-design One options object selects engineering alone or delegates narrative claim composition to createProductionConfig.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The returned object is an ordinary native configuration; this function neither evaluates diagnostics nor grants creative approval.
- * @evidence contracts/common.md#meaningful-documentation The input types explain routes, disabled stage defaults and additional native claims; export this result from evidence.config.ts.
- * @evidence contracts/performance.md#efficient-algorithms Engineering creation clones supplied claims or allocates two defaults; narrative creation additionally discovers current contract files and expands a fixed number of layer families.
- * @evidence contracts/performance.md#reuse-equivalent-work Each call owns fresh option and claim copies; filesystem-dependent narrative composition is not cached across calls.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned configuration; this function retains no registry, native process or open resource.
+ * @evidence contracts/development/implementation.md#principled-implementation An absolute project location anchors the native engineering defaults and optional narrative selectors; caller-supplied claims are cloned before composition.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One options object selects engineering alone or delegates narrative claim composition to createProductionConfig.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The returned object is an ordinary native configuration; this function neither evaluates diagnostics nor grants creative approval.
+ * @evidence contracts/development/common.md#meaningful-documentation The input types explain routes, disabled stage defaults and additional native claims; export this result from evidence.config.ts.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Engineering creation clones supplied claims or allocates two defaults; narrative creation additionally discovers current contract files and expands a fixed number of layer families.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call owns fresh option and claim copies; filesystem-dependent narrative composition is not cached across calls.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned configuration; this function retains no registry, native process or open resource.
  */
 export function createEvidenceConfig(
   props: IAutoMovieEvidenceConfigProps,

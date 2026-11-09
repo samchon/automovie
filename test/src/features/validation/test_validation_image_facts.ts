@@ -168,10 +168,11 @@ const hdr: (props: {
  *    blank line and non-standard scanline orientation reports "not an image"
  *    rather than a guessed size.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual byte-header reader on PNG, JPEG, three WebP forms and two Radiance signatures, requiring exact media/dimension facts or null; JPEG marker-chain controls catch fixed-offset guesses and invalid DRI or frame-marker classification.
- * @evidence contracts/testing.md#independent-expectations Authored container magic, endian field packing and literal dimensions provide the independent header oracle; JPEG standalone markers and Radiance -Y/+X orientation determine the accepted neighbors. Prefix fixtures establish header recognition only, without proving CRCs, complete payloads or pixel decodability.
- * @evidence contracts/testing.md#distinguishing-cases Preserves every existing accepted variant and all null/undefined/empty, truncated, wrong-magic/chunk/start-code, malformed segment/DRI, unadmitted restart/Huffman, terminal and Radiance separator/orientation failures. Asset-ledger authorization and full image decoding are owned elsewhere.
- * @evidence contracts/testing.md#execution-ownership The named synchronous unit constructs local header byte arrays and invokes portable probing without opening files, installing a decoder, starting a process or rendering pixels.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual byte-header reader on PNG, JPEG, three WebP forms and two Radiance signatures, requiring exact media/dimension facts or null; JPEG marker-chain controls catch fixed-offset guesses and invalid DRI or frame-marker classification.
+ * @evidence contracts/development/testing.md#independent-expectations Authored container magic, endian field packing and literal dimensions provide the independent header oracle; JPEG standalone markers and Radiance -Y/+X orientation determine the accepted neighbors. Prefix fixtures establish header recognition only, without proving CRCs, complete payloads or pixel decodability.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves every existing accepted variant and all null/undefined/empty, truncated, wrong-magic/chunk/start-code, malformed segment/DRI, unadmitted restart/Huffman, terminal and Radiance separator/orientation failures. Asset-ledger authorization and full image decoding are owned elsewhere.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous unit constructs local header byte arrays and invokes portable probing without opening files, installing a decoder, starting a process or rendering pixels.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Each accepted container reports its exact media type and its two edges: PNG's).
  */
 export function test_validation_image_facts(): void {
   TestValidator.equals(

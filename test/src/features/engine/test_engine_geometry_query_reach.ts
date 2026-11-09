@@ -223,10 +223,11 @@ const measure: (
  *    stages: a model target at x=2.2 maps to world z=-2.2, and the rest hand
  *    maps to z=-0.75. Flattening these stages doubles the wrong axis.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the public reach and distance query entry; asserts arm gaps, measurability, ROM reporting and named refusal, including affine composition.
- * @evidence contracts/testing.md#independent-expectations Shoulder x=0.2 plus lengths 0.3+0.25 gives far gap 1.45; a +Y quarter turn sends x to -z before node x scaling. ROM comparisons only verify delegation to the separately tested pose validator.
- * @evidence contracts/testing.md#distinguishing-cases Near/far, handless/collapsed/absent chains, all three zero-scale axes and a translated turn distinguish refusal from valid measurements; the nonuniform root-turn case catches TRS flattening. Selector lookup and terrain boundaries belong to the selector suite.
- * @evidence contracts/testing.md#execution-ownership Portable unit test discovered as test_engine_geometry_query_reach by the repository test runner; this export directly owns every case and starts no host or native build.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public reach and distance query entry; asserts arm gaps, measurability, ROM reporting and named refusal, including affine composition.
+ * @evidence contracts/development/testing.md#independent-expectations Shoulder x=0.2 plus lengths 0.3+0.25 gives far gap 1.45; a +Y quarter turn sends x to -z before node x scaling. ROM comparisons only verify delegation to the separately tested pose validator.
+ * @evidence contracts/development/testing.md#distinguishing-cases Near/far, handless/collapsed/absent chains, all three zero-scale axes and a translated turn distinguish refusal from valid measurements; the nonuniform root-turn case catches TRS flattening. Selector lookup and terrain boundaries belong to the selector suite.
+ * @evidence contracts/development/testing.md#execution-ownership Portable unit test discovered as test_engine_geometry_query_reach by the repository test runner; this export directly owns every case and starts no host or native build.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A target 0.3 m from the left shoulder is reachable with no gap at the).
  */
 export function test_engine_geometry_query_reach(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

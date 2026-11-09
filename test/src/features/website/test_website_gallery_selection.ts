@@ -14,10 +14,11 @@ import { createGalleryHostFacts } from "../internal/createGalleryHostFacts";
  * 2. Advance across both collection boundaries: exterior resets and absent tour clears.
  * 3. Close after navigation: lock releases and the original opener receives focus.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls gallery selection and controller navigation to observe current copy, source/tour destinations, pressed view, collection wrap and original opener restoration; stale destinations, unreset views or last-building focus fail.
- * @evidence contracts/testing.md#independent-expectations Three authored content records independently supply copy and links; the expected count, room index and boundary wraps follow collection/index arithmetic, while an owned host records requested lock/focus effects without claiming native completion.
- * @evidence contracts/testing.md#distinguishing-cases Covers opening the middle building, a room view, movement to an absent-tour building, both collection wraps, close after navigation and nullable copy; modified-click refusal, keyboard view wraps and disposal belong to separate gallery units.
- * @evidence contracts/testing.md#execution-ownership The synchronous test_website_gallery_selection entry owns pure projection and controller cases through the existing host fixture, with no DOM, browser process, image decoder or native dialog.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls gallery selection and controller navigation to observe current copy, source/tour destinations, pressed view, collection wrap and original opener restoration; stale destinations, unreset views or last-building focus fail.
+ * @evidence contracts/development/testing.md#independent-expectations Three authored content records independently supply copy and links; the expected count, room index and boundary wraps follow collection/index arithmetic, while an owned host records requested lock/focus effects without claiming native completion.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers opening the middle building, a room view, movement to an absent-tour building, both collection wraps, close after navigation and nullable copy; modified-click refusal, keyboard view wraps and disposal belong to separate gallery units.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_website_gallery_selection entry owns pure projection and controller cases through the existing host fixture, with no DOM, browser process, image decoder or native dialog.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Open the middle building and select a room: copy, image and pressed index agree.).
  */
 export function test_website_gallery_selection(): void {
   const content: ReturnType<typeof createGalleryContent> =

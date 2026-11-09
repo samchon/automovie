@@ -47,10 +47,11 @@ import { vclose } from "../internal/vclose";
  *    table, so its attachment matches the numerical framed hand rather than raw
  *    rig-space FK. No displayed hand is observed by this CPU case.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls resolveAttachment on resolved bone poses, asserting contact transforms and mutating output scale to catch aliasing back into the authored attachment.
- * @evidence contracts/testing.md#independent-expectations Rest chest height is the authored sum 1+0.2+0.2 metres and Y90 maps the offset 0.1Z to 0.1X, yielding (0.1,1.45,0) without product-generated expected FK. Rotation assertions sample w rather than all quaternion components, and framed-hand replay is shared-path parity that cannot independently prove FK or clinical capacity.
- * @evidence contracts/testing.md#distinguishing-cases Covers rest/nonidentity offsets, root rotation, absent bone, clinical-space posing and returned scale ownership; skeleton topology tests own unreachable hierarchies.
- * @evidence contracts/testing.md#execution-ownership This discoverable CPU kinematics entry directly imports numerical product source and code fixtures, with no real process, browser, GPU or native build.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls resolveAttachment on resolved bone poses, asserting contact transforms and mutating output scale to catch aliasing back into the authored attachment.
+ * @evidence contracts/development/testing.md#independent-expectations Rest chest height is the authored sum 1+0.2+0.2 metres and Y90 maps the offset 0.1Z to 0.1X, yielding (0.1,1.45,0) without product-generated expected FK. Rotation assertions sample w rather than all quaternion components, and framed-hand replay is shared-path parity that cannot independently prove FK or clinical capacity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers rest/nonidentity offsets, root rotation, absent bone, clinical-space posing and returned scale ownership; skeleton topology tests own unreachable hierarchies.
+ * @evidence contracts/development/testing.md#execution-ownership This discoverable CPU kinematics entry directly imports numerical product source and code fixtures, with no real process, browser, GPU or native build.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Rest parent and identity offset place the child on the chest within the).
  */
 export function test_kinematics_attachment(): void {
   const skeleton: IAutoMovieSkeleton = createSkeleton();

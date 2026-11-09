@@ -64,5 +64,13 @@ function measure(h: number, gloves: number): IFighterMeasure {
     shank: 0.246 * h,
     ankle: 0.039 * h,
     foot: 0.152 * h,
+    // Half the shank's breadth, about a fifth of its length (Winter table 4.1 segment girths).
+    shinRadius: (0.246 * h) / 10,
+    // Upright polygon men: each level's front surface over the origin.
+    front: {
+      head: (0.13 * h) / 2,
+      body: (0.259 * h) / 4,
+      leg: (0.191 * h) / 2,
+    },
   };
 }

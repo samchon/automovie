@@ -123,10 +123,11 @@ const keyedMidpointDirection: () => IAutoMovieVector3 =
  * 2. Start, midpoint and end updates follow the Engine's resolved transform.
  * 3. Three's interpolation of the authored keys supplies an independent direction reference, distinguishing a shared applyLightState path from a correct motion resolver.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds a staged spot and applies resolved light motion at selected times, reading native light/target world vectors and positions; catches build and frame writers disagreeing on absolute transform or leaving the target at its initial aim.
- * @evidence contracts/testing.md#independent-expectations Authored endpoint keys and an independent Three quaternion slerp define the midpoint direction; Engine resolveLightMotion is a shared contract reference for resolved fields, so the independent key interpolation prevents parity alone from blessing the same sampling error.
- * @evidence contracts/testing.md#distinguishing-cases Covers initial construction and resolved start/midpoint/end aiming vectors, then an independently interpolated midpoint; absolute translation, point-light absence of aim and other light kinds have separate coverage obligations.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit exercises maintained source with actual CPU-side native light objects and clip records, creating no renderer, browser, GPU, process or new fixture host; world-vector parity is not pixel evidence.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds a staged spot and applies resolved light motion at selected times, reading native light/target world vectors and positions; catches build and frame writers disagreeing on absolute transform or leaving the target at its initial aim.
+ * @evidence contracts/development/testing.md#independent-expectations Authored endpoint keys and an independent Three quaternion slerp define the midpoint direction; Engine resolveLightMotion is a shared contract reference for resolved fields, so the independent key interpolation prevents parity alone from blessing the same sampling error.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers initial construction and resolved start/midpoint/end aiming vectors, then an independently interpolated midpoint; absolute translation, point-light absence of aim and other light kinds have separate coverage obligations.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit exercises maintained source with actual CPU-side native light objects and clip records, creating no renderer, browser, GPU, process or new fixture host; world-vector parity is not pixel evidence.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A built staged light has the declared aiming vector before any animation update.).
  */
 export function test_viewer_light_transform_parity(): void {
   // 1. the build path alone is already correct.

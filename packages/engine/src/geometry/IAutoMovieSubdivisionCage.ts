@@ -13,13 +13,10 @@ import { IAutoMovieSubdivisionCrease } from "./IAutoMovieSubdivisionCrease";
  * a seam is an edge whose two faces name different values at either end. Every
  * UV value belongs to the corners of exactly one vertex.
  *
- * @evidence contracts/common.md#principled-implementation Positions and UVs use the glTF packed layout of `IAutoMovieMesh`, faces are index polygons, and UV topology is the indexed face-varying model of OpenSubdiv, so seams are declared by index rather than inferred from coincident values.
- * @evidence contracts/common.md#clear-and-simple-design One record holds exactly what Catmull-Clark needs: vertex positions, polygon connectivity, optional face-varying UVs and optional edge sharpness; boundaries need no declaration because they follow from connectivity.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is repaired: a non-manifold edge, inconsistent winding, a vertex with two fans, an unused vertex or UV, or a UV shared by two vertices is refused by `subdivideAutoMovieSurface`.
- * @evidence contracts/common.md#meaningful-documentation States the manifold, winding and usage requirements, the face-varying UV model and how a seam is expressed, the units and layouts, and what omitted UVs and creases mean.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the refinement cost is answered on `subdivideAutoMovieSurface`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Read once while the cage is admitted; nothing is cached on it.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller-owned and read only; the subdivider copies every value into its own level buffers.
+ * @evidence contracts/development/design.md#principled-representation Positions and UVs use the glTF packed layout of `IAutoMovieMesh`, faces are index polygons, and UV topology is the indexed face-varying model of OpenSubdiv, so seams are declared by index rather than inferred from coincident values.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One record holds exactly what Catmull-Clark needs: vertex positions, polygon connectivity, optional face-varying UVs and optional edge sharpness; boundaries need no declaration because they follow from connectivity.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is repaired: a non-manifold edge, inconsistent winding, a vertex with two fans, an unused vertex or UV, or a UV shared by two vertices is refused by `subdivideAutoMovieSurface`.
+ * @evidence contracts/development/common.md#meaningful-documentation States the manifold, winding and usage requirements, the face-varying UV model and how a seam is expressed, the units and layouts, and what omitted UVs and creases mean.
  */
 export interface IAutoMovieSubdivisionCage {
   /** Packed vertex positions `[x, y, z, ...]` in metres, finite. */

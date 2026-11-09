@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryCameraMapInput } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryCameraMapInput } from "@automovie/interface";
 
 import type { extractRecoveryImageFeatures } from "../../../../packages/recovery/src/internal/extractRecoveryImageFeatures";
 import type { IAutoMovieRecoveryMapPose } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapPose";

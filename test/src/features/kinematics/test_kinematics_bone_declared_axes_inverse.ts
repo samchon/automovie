@@ -46,10 +46,11 @@ const Z_ELBOW: IAutoMovieJointAxes = {
  *    on the undeclared source rig and to flexion −90 when the spine declares
  *    flexion about −X.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls armChainFault and importedNodeClipToAutoMovieMotion on rigs with and without declared axes; an inverse path that ignored the declaration keeps the fault or the +90 reading.
- * @evidence contracts/testing.md#independent-expectations A Y hinge is parallel to a −Y forearm and a Z hinge is not; a turn about +X reads as +90 about +X and −90 about −X by the right-hand rule.
- * @evidence contracts/testing.md#distinguishing-cases Each scenario pairs the undeclared rig with the declared one; forward resolution and baking belong to the declared-axes kinematics entry, and the chain IK and retargeting read the same `skeletonJointAxes` table without their own case here.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous kinematics unit entry over in-memory rigs and the shared imported-clip fixtures, calling engine source without a viewer, GPU or installed asset.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls armChainFault and importedNodeClipToAutoMovieMotion on rigs with and without declared axes; an inverse path that ignored the declaration keeps the fault or the +90 reading.
+ * @evidence contracts/development/testing.md#independent-expectations A Y hinge is parallel to a −Y forearm and a Z hinge is not; a turn about +X reads as +90 about +X and −90 about −X by the right-hand rule.
+ * @evidence contracts/development/testing.md#distinguishing-cases Each scenario pairs the undeclared rig with the declared one; forward resolution and baking belong to the declared-axes kinematics entry, and the chain IK and retargeting read the same `skeletonJointAxes` table without their own case here.
+ * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous kinematics unit entry over in-memory rigs and the shared imported-clip fixtures, calling engine source without a viewer, GPU or installed asset.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An arm hanging along −Y faults under `HUMANOID_JOINT_AXES`, whose elbow).
  */
 export function test_kinematics_bone_declared_axes_inverse(): void {
   // 1. the arm-chain diagnosis

@@ -66,10 +66,11 @@ const modelWithMesh: (mesh: IAutoMovieMesh) => IAutoMovieModel = (
  *    instead of escaping through topology or passing a skipped row.
  * 8. Dense finite relief and normalized skin buffers remain admitted.
  *
- * @evidence contracts/testing.md#behavioral-verification The real model gate returns located structural findings for resident mesh buffers, catching skipped sparse slots and escaped weld errors while retaining valid indexed/nonindexed and fully populated optional attributes.
- * @evidence contracts/testing.md#independent-expectations Three xyz vertices require nine finite position scalars, triangle references require three in-range integers, relief requires one finite nonnegative scalar per vertex, and four finite skin influences per vertex sum to one. Missing a required slot cannot supply any of these values.
- * @evidence contracts/testing.md#distinguishing-cases Preserve valid/minimal and combined malformed tuple/index cases, adding isolated NaN/Infinity and sparse position/index/relief/skin-joint/skin-index/skin-weight cases beside a dense normalized control; explicit physical partition and closed-boundary semantics remain owning topology cases.
- * @evidence contracts/testing.md#execution-ownership Portable CPU unit discovered as test_validation_model_mesh_buffers; existing model/rig record builders supply only source data and validateModel owns all observed results, without a mesh uploader, browser, GPU or Human inspection host.
+ * @evidence contracts/development/testing.md#behavioral-verification The real model gate returns located structural findings for resident mesh buffers, catching skipped sparse slots and escaped weld errors while retaining valid indexed/nonindexed and fully populated optional attributes.
+ * @evidence contracts/development/testing.md#independent-expectations Three xyz vertices require nine finite position scalars, triangle references require three in-range integers, relief requires one finite nonnegative scalar per vertex, and four finite skin influences per vertex sum to one. Missing a required slot cannot supply any of these values.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserve valid/minimal and combined malformed tuple/index cases, adding isolated NaN/Infinity and sparse position/index/relief/skin-joint/skin-index/skin-weight cases beside a dense normalized control; explicit physical partition and closed-boundary semantics remain owning topology cases.
+ * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_validation_model_mesh_buffers; existing model/rig record builders supply only source data and validateModel owns all observed results, without a mesh uploader, browser, GPU or Human inspection host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A finite, aligned triangle mesh validates.).
  */
 export function test_validation_model_mesh_buffers(): void {
   TestValidator.equals(

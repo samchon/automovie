@@ -367,12 +367,14 @@ export namespace AutoMovieHumanHeadComposer {
 
     // Parents precede their children, but never relocate their geometry.
     // The supplied anatomy owns each frame; intersection and blend failures
-    // are the tree's observations of those unchanged curves.
+    // are the tree's observations of those unchanged curves. A failed
+    // regional attachment authors no part, so the head is composed without
+    // it; only a head whose every attachment fails is refused.
     const failures: AutoMovieHumanHeadDome.IAttempt[] = attachments.filter(
       (attempt: AutoMovieHumanHeadDome.IAttempt): boolean =>
         attempt.error !== null,
     );
-    if (failures.length > 0)
+    if (failures.length > 0 && failures.length === attachments.length)
       throw new Error(
         `Head original attachment failures: ${JSON.stringify(
           attachments.map(

@@ -90,10 +90,11 @@ const frame: IAutoMovieCameraAction = {
  * 4. Admit disjoint head/face actions and require exactly two synthesis calls.
  * 5. Admit fullBody with disjoint face/head content and refuse its shared-head twin.
  *
- * @evidence contracts/testing.md#behavioral-verification Performs overlapping synthesized channel content and checks shared arm/head/root/expression refusal, adjacent/disjoint admission and exactly two callback invocations for the cached pair.
- * @evidence contracts/testing.md#independent-expectations Authored clip channels, not broad region labels, define conflicts; half-open adjacent spans do not overlap, and one synthesis per action/actor requires the counted two actions to invoke the callback twice.
- * @evidence contracts/testing.md#distinguishing-cases Covers shared-channel overlap and adjacency, repeated head comparisons, root/expression conflicts, partial regions, broad disjoint masks and shared-head twin; the callback count specifically observes the counted disjoint pair.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_region_gates unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs overlapping synthesized channel content and checks shared arm/head/root/expression refusal, adjacent/disjoint admission and exactly two callback invocations for the cached pair.
+ * @evidence contracts/development/testing.md#independent-expectations Authored clip channels, not broad region labels, define conflicts; half-open adjacent spans do not overlap, and one synthesis per action/actor requires the counted two actions to invoke the callback twice.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers shared-channel overlap and adjacency, repeated head comparisons, root/expression conflicts, partial regions, broad disjoint masks and shared-head twin; the callback count specifically observes the counted disjoint pair.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_region_gates unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Refuse overlapping arm content and admit adjacent placements.).
  */
 export function test_film_perform_shot_region_gates(): void {
   const staged: IAutoMovieStagedSet = stageScene(

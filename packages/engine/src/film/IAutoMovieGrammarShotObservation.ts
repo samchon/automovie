@@ -17,13 +17,10 @@ import { IAutoMovieGrammarSubjectObservation } from "./IAutoMovieGrammarSubjectO
  * observed subject, the axis names one subject twice, or `styleIntent` repeats
  * a value.
  *
- * @evidence contracts/common.md#principled-implementation Every check reads only these observations: shot size from the primary subject's projected occupancy at both boundaries, cuts from the outgoing end and incoming start, and the action-axis side from the sign of the horizontal cross product; subjects are sorted and axis endpoints ordered by id before any check, so enumeration order cannot change the result.
- * @evidence contracts/common.md#clear-and-simple-design Holds both boundary cameras, the subjects and the three editorial claims the checks compare against, so the analyzer never reads a scene, clip or contract and stays a pure function of this data.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing claim is stated as null and disables only the checks that need it, rather than being filled with a default framing, subject or axis.
- * @evidence contracts/common.md#meaningful-documentation States the producer and its sampling instants, the failure effect of each malformed field, the units, which checks each nullable field disables, and that subject and axis order carry no meaning.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the analyzer's per-shot and per-cut cost is answered on `readFilmGrammar`.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per placed shot by the caller for one reading; nothing caches it.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns two camera samples and one record per observed subject; the analyzer copies the arrays it normalizes and keeps nothing after the call.
+ * @evidence contracts/development/design.md#principled-representation Every check reads only these observations: shot size from the primary subject's projected occupancy at both boundaries, cuts from the outgoing end and incoming start, and the action-axis side from the sign of the horizontal cross product; subjects are sorted and axis endpoints ordered by id before any check, so enumeration order cannot change the result.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Holds both boundary cameras, the subjects and the three editorial claims the checks compare against, so the analyzer never reads a scene, clip or contract and stays a pure function of this data.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing claim is stated as null and disables only the checks that need it, rather than being filled with a default framing, subject or axis.
+ * @evidence contracts/development/common.md#meaningful-documentation States the producer and its sampling instants, the failure effect of each malformed field, the units, which checks each nullable field disables, and that subject and axis order carry no meaning.
  */
 export interface IAutoMovieGrammarShotObservation {
   /** Shot id, non-blank and unique in the input. */

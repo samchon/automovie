@@ -48,10 +48,11 @@ const modelWithConstraint: (
  * 4. The supported [400,700] interval admits its 700-degree endpoint in a 30-degree cone, and paired [340,380] intervals admit the interior 360/360 zero-swing point in a 5-degree cone.
  * 5. [400,500] with an immobile other axis still has no pose in a 30-degree cone and remains refused.
  *
- * @evidence contracts/testing.md#behavioral-verification Call validateModel on actual rig overrides and assert success or precise fault paths, catching false refusal of admitted periodic poses while preserving malformed/empty-cone errors.
- * @evidence contracts/testing.md#independent-expectations Half-angle cosine's 720-degree period makes 700 equivalent to -20, and two 360-degree axis half-angle cosines multiply to+1; expected admission follows those identities rather than a snapshot or nearest-zero implementation.
- * @evidence contracts/testing.md#distinguishing-cases Existing valid/null/nonfinite/inverted/positive-negative boxes remain, with periodic endpoint/interior positives and a neighboring periodic no-intersection refusal; pose-time ROM is owned separately.
- * @evidence contracts/testing.md#execution-ownership The discoverable exported unit calls portable model validation with the existing canonical fixture and asserts its report, without installing a host or building a native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Call validateModel on actual rig overrides and assert success or precise fault paths, catching false refusal of admitted periodic poses while preserving malformed/empty-cone errors.
+ * @evidence contracts/development/testing.md#independent-expectations Half-angle cosine's 720-degree period makes 700 equivalent to -20, and two 360-degree axis half-angle cosines multiply to+1; expected admission follows those identities rather than a snapshot or nearest-zero implementation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Existing valid/null/nonfinite/inverted/positive-negative boxes remain, with periodic endpoint/interior positives and a neighboring periodic no-intersection refusal; pose-time ROM is owned separately.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable exported unit calls portable model validation with the existing canonical fixture and asserts its report, without installing a host or building a native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Valid/null cones and neutral-excluding positive/negative boxes remain admitted.).
  */
 export function test_validation_model_bone_constraint(): void {
   TestValidator.equals(

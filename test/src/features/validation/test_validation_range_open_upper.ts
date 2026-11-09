@@ -11,10 +11,11 @@ import { TestValidator } from "@nestia/e2e";
  * 2. The default interval and legacy open-lower (0,90] interval retain upper equality; the default retains lower equality too.
  * 3. An unbounded maximum accepts finite values under either endpoint policy; nonfinite or wrongly typed observations remain refused.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls validateRange and inspects appended findings for open/closed endpoints, admitted neighbors and finite unbounded values, catching endpoint-policy inversion or nonfinite admission.
- * @evidence contracts/testing.md#independent-expectations Literal interval arithmetic determines whether 0/180, interior camera values and 90 belong to the authored intervals. Bracket expectations express those mathematical policies, not snapshots of validator output.
- * @evidence contracts/testing.md#distinguishing-cases Retains endpoint equality, adjacent interior, above-bound, NaN/infinity/string and infinite-upper-bound cases under both maximum policies; scene_artifact owns actual camera/light field composition.
- * @evidence contracts/testing.md#execution-ownership This named portable unit directly invokes the scalar gate with caller-owned finding arrays; it starts no camera, renderer or dynamic registration.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateRange and inspects appended findings for open/closed endpoints, admitted neighbors and finite unbounded values, catching endpoint-policy inversion or nonfinite admission.
+ * @evidence contracts/development/testing.md#independent-expectations Literal interval arithmetic determines whether 0/180, interior camera values and 90 belong to the authored intervals. Bracket expectations express those mathematical policies, not snapshots of validator output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains endpoint equality, adjacent interior, above-bound, NaN/infinity/string and infinite-upper-bound cases under both maximum policies; scene_artifact owns actual camera/light field composition.
+ * @evidence contracts/development/testing.md#execution-ownership This named portable unit directly invokes the scalar gate with caller-owned finding arrays; it starts no camera, renderer or dynamic registration.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An open (0,180) camera interval refuses both endpoints and accepts adjacent interior values with a matching mathematical diagnostic.).
  */
 export function test_validation_range_open_upper(): void {
   const camera: (value: unknown) => IAutoMovieConstraintViolation[] = (

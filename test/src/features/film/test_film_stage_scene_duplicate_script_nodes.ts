@@ -15,10 +15,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * at the duplicate script source path instead of silently using the later cast
  * member.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs stageScene with two knightA cast declarations carrying conflicting model references and requires the duplicate script-node refusal instead of a last-record model choice.
- * @evidence contracts/testing.md#independent-expectations A cast node is a unique join key, so the second declaration independently requires a type finding at the literal script path; the shared witness checks path inclusion.
- * @evidence contracts/testing.md#distinguishing-cases Keeps otherwise valid placements while changing only cast-key uniqueness; successful distinct cast and modelRef fallback are owned by the valid staging entry.
- * @evidence contracts/testing.md#execution-ownership The named synchronous test owns the duplicate-cast case and calls the portable staging seam with existing record fixtures, without a renderer or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs stageScene with two knightA cast declarations carrying conflicting model references and requires the duplicate script-node refusal instead of a last-record model choice.
+ * @evidence contracts/development/testing.md#independent-expectations A cast node is a unique join key, so the second declaration independently requires a type finding at the literal script path; the shared witness checks path inclusion.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps otherwise valid placements while changing only cast-key uniqueness; successful distinct cast and modelRef fallback are owned by the valid staging entry.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous test owns the duplicate-cast case and calls the portable staging seam with existing record fixtures, without a renderer or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: `knightA` appears twice in the script cast with conflicting `modelRef`).
  */
 export function test_film_stage_scene_duplicate_script_nodes(): void {
   const staged: ReturnType<typeof stageScene> = stageScene(

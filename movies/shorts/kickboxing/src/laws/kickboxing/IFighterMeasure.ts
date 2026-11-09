@@ -47,4 +47,14 @@ export interface IFighterMeasure {
 
   /** Ankle to toe tip, metres. */
   foot: number;
+
+  /** Radius of the lower leg's collider, metres: how far the shin's and knee's surfaces stand off the joint line. */
+  shinRadius: number;
+
+  /**
+   * How far the guard carries each struck level ahead of the stance origin,
+   * metres: the face, the stomach and the lead thigh's front surfaces on the
+   * guard placed by limb fitting, so ranges keep the displayed bodies apart.
+   */
+  front: { head: number; body: number; leg: number };
 }

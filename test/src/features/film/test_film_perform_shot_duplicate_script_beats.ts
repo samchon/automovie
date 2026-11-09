@@ -22,10 +22,11 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * Scenarios:
  * 1. Retains the coherent staged fixture while only duplicating the script beat; ordinary unique-beat admission is covered by perform_shot_valid.
  *
- * @evidence contracts/testing.md#behavioral-verification Stages a valid duel and performs against two script beats sharing beat-1; failure and the second beat's id path detect ambiguous shot identity.
- * @evidence contracts/testing.md#independent-expectations The authored duplicate id must be refused at $script.beats[1].id; this checks identity admission, not downstream rendered output.
- * @evidence contracts/testing.md#distinguishing-cases Retains the coherent staged fixture while only duplicating the script beat; ordinary unique-beat admission is covered by perform_shot_valid.
- * @evidence contracts/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_duplicate_script_beats unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages a valid duel and performs against two script beats sharing beat-1; failure and the second beat's id path detect ambiguous shot identity.
+ * @evidence contracts/development/testing.md#independent-expectations The authored duplicate id must be refused at $script.beats[1].id; this checks identity admission, not downstream rendered output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains the coherent staged fixture while only duplicating the script beat; ordinary unique-beat admission is covered by perform_shot_valid.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_duplicate_script_beats unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, each sentence naming the input and the behavior it pins (first: Retains the coherent staged fixture while only duplicating the script beat; ordinary unique-beat admission is covered by perform_shot_valid.).
  */
 export function test_film_perform_shot_duplicate_script_beats(): void {
   const baseScript: IAutoMovieScript = makeScriptWrite();

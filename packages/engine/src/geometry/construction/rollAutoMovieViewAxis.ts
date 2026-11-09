@@ -14,13 +14,13 @@ import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
  *
  * Direction admission reuses the jointed initial-up policy: relative normal projection must exceed 1e-9, limiting projection condition number to below 1e9. This rejects some finite nonparallel directions. For endpoint components (c,s), their first-order angle perturbation is bounded by hypot(dc,ds)/hypot(c,s); a small projected norm amplifies input, frame and dot-product error. This numerical conditioning policy is not an anatomical tolerance, an exact-zero test or a universal absolute angle-accuracy guarantee. The supplied base must already be an admitted orthonormal C2 axis. Its analytic-jet support, when present, is carried through the same rotation in station or a requested pole coordinate; this wrapper does not repair the base centreline. Queries use finite stations.
  *
- * @evidence contracts/common.md#principled-implementation Projects the caller's signed direction into the actual endpoint normal plane and rotates the existing orthonormal u/v basis by a C2 scalar source; no centreline or tangent changes.
- * @evidence contracts/common.md#clear-and-simple-design One prepared scalar rotation and one frame wrapper implement the single interval contract.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No fixed anatomical angle, sampled frame, finite-difference production jet, initial-up rotation or world-axis substitution is used; failed premises return their diagnostic.
- * @evidence contracts/common.md#meaningful-documentation States millimetres, angle direction/half-turn convention, endpoint projection, shared quintic owner and constant relative transport.
- * @evidence contracts/performance.md#efficient-algorithms Constant preparation plus a two-knot source; each value/jet query reads its corresponding base callback once, one scalar value/jet and fixed trigonometric/product arithmetic.
- * @evidence contracts/performance.md#reuse-equivalent-work Measures the endpoint angle/source once; an analytic query reuses its base jet's value instead of reconstructing the course through a second at call.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The wrapper retains its base axis and two-knot source only; frame vectors are invocation-local, and zero roll returns the base directly.
+ * @evidence contracts/development/implementation.md#principled-implementation Projects the caller's signed direction into the actual endpoint normal plane and rotates the existing orthonormal u/v basis by a C2 scalar source; no centreline or tangent changes.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared scalar rotation and one frame wrapper implement the single interval contract.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fixed anatomical angle, sampled frame, finite-difference production jet, initial-up rotation or world-axis substitution is used; failed premises return their diagnostic.
+ * @evidence contracts/development/common.md#meaningful-documentation States millimetres, angle direction/half-turn convention, endpoint projection, shared quintic owner and constant relative transport.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation plus a two-knot source; each value/jet query reads its corresponding base callback once, one scalar value/jet and fixed trigonometric/product arithmetic.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Measures the endpoint angle/source once; an analytic query reuses its base jet's value instead of reconstructing the course through a second at call.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The wrapper retains its base axis and two-knot source only; frame vectors are invocation-local, and zero roll returns the base directly.
  * @param base Admitted C2 orthonormal frame function.
  * @param from Finite transition start station, mm.
  * @param to Finite transition end station, mm, strictly greater than from.

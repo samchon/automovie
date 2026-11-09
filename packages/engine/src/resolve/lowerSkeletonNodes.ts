@@ -5,13 +5,13 @@ import { MOTION_ROOT_NODE_ID } from "./constants/MOTION_ROOT_NODE_ID";
 /**
  * Lower an admitted skeleton into a fresh identity group root and bone rest nodes. Prefixes concatenate onto node/parent ids and rootParent seats the synthetic root under a placement. Root records are independent; bone rest translation/rotation are borrowed and bone scales are fresh unit vectors.
  *
- * @evidence contracts/common.md#principled-implementation Lower admitted bones beneath a fresh identity root, prefixing bone/parent ids and borrowing rest translation/rotation; composeScene separately admits graph uniqueness and cycles.
- * @evidence contracts/common.md#clear-and-simple-design One bridge joins scene lowering to motion clip naming, with the caller explicitly choosing prefix and root parent.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Fresh nested root records prevent one lowering's mutation from contaminating another; bone rest data stays borrowed rather than silently cloned or repaired.
- * @evidence contracts/common.md#meaningful-documentation Props document defaults, root placement and rest ownership; the output contains nodes rather than geometry or current motion state.
- * @evidence contracts/performance.md#efficient-algorithms B bones require O(B) new node wrappers and id text, with fixed-size transforms and one root.
- * @evidence contracts/performance.md#reuse-equivalent-work Scene/motion consumers share naming; changed mutable skeleton contents require new lowering instead of an identity-only cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns node/root records and the skeleton owns borrowed rest data; no native node, handle or task is retained.
+ * @evidence contracts/development/implementation.md#principled-implementation Lower admitted bones beneath a fresh identity root, prefixing bone/parent ids and borrowing rest translation/rotation; composeScene separately admits graph uniqueness and cycles.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One bridge joins scene lowering to motion clip naming, with the caller explicitly choosing prefix and root parent.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Fresh nested root records prevent one lowering's mutation from contaminating another; bone rest data stays borrowed rather than silently cloned or repaired.
+ * @evidence contracts/development/common.md#meaningful-documentation Props document defaults, root placement and rest ownership; the output contains nodes rather than geometry or current motion state.
+ * @evidence contracts/development/implementation.md#efficient-algorithms B bones require O(B) new node wrappers and id text, with fixed-size transforms and one root.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Scene/motion consumers share naming; changed mutable skeleton contents require new lowering instead of an identity-only cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns node/root records and the skeleton owns borrowed rest data; no native node, handle or task is retained.
  */
 export const lowerSkeletonNodes: (props: {
   skeleton: IAutoMovieSkeleton;

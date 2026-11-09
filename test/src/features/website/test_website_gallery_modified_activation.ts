@@ -11,10 +11,11 @@ import { createGalleryHostFacts } from "../internal/createGalleryHostFacts";
  * 1. Every modifier and nonprimary button refuse without effects or interception.
  * 2. The neighboring plain primary click admits once and requests open/lock before disposal.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the directly imported real controller through the existing alias, observing alternate refusal, untouched effects and one adjacent admitted opening.
- * @evidence contracts/testing.md#independent-expectations Authored modifier/button variants and independently stated zero/one interception and lock/open effects define expectations.
- * @evidence contracts/testing.md#distinguishing-cases Each modifier and nonprimary button contrasts a plain primary click so an always-admit or always-refuse policy fails without observing real browser navigation.
- * @evidence contracts/testing.md#execution-ownership The named entry owns existing logical host facts and controller lifecycle, disposes it and creates no DOM/modal/native host or new driver.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the directly imported real controller through the existing alias, observing alternate refusal, untouched effects and one adjacent admitted opening.
+ * @evidence contracts/development/testing.md#independent-expectations Authored modifier/button variants and independently stated zero/one interception and lock/open effects define expectations.
+ * @evidence contracts/development/testing.md#distinguishing-cases Each modifier and nonprimary button contrasts a plain primary click so an always-admit or always-refuse policy fails without observing real browser navigation.
+ * @evidence contracts/development/testing.md#execution-ownership The named entry owns existing logical host facts and controller lifecycle, disposes it and creates no DOM/modal/native host or new driver.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every modifier and nonprimary button refuse without effects or interception.).
  */
 export function test_website_gallery_modified_activation(): void {
   const { host, facts }: ReturnType<typeof createGalleryHostFacts> =

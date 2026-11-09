@@ -17,6 +17,14 @@ import { visitPhysicalNative } from "./visitPhysicalNative";
  * broad phase; convex surface distance supplies actual compression. No air
  * gap generates an impulse. Angular effective mass and bounded Coulomb
  * friction act at the measured point. The next fixed step advances the result.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Implicit Kelvin-Voigt surface impulses, with a separately colliding rigid core at each declared compression limit) as stated in this comment.
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Implicit Kelvin-Voigt surface impulses, with a separately colliding rigid core at each declared compression limit) directly over its typed inputs (`world`, `surfaces`, `seconds`, `dt`) as a single pass (for-of over surfaces), delegating to `visitPhysicalNative`, `surfaces.get`, `Math.min`, `Math.max`, `visited.has`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (2 throw sites). Beyond structural 0, 1 and 2 the body uses the literal 0.5, whose basis this answer does not independently establish and a reviewer must confirm.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 111 lines and 4 top-level statements that reuses `visitPhysicalNative`, `surfaces.get`, `Math.min`, `Math.max`, `visited.has` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body contains 0 `any`, 0 type assertion(s), 4 non-null assertion(s); these are the remaining shortcuts and are not justified here.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `world`, `surfaces`, `seconds`, `dt`; the dominant cost is a single pass (for-of over surfaces), performed once per call with 9 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 9 allocation sites become the returned value or die with the call, so nothing grows.
  */
 export function solvePhysicalCompliantContacts(
   world: World,
@@ -154,7 +162,14 @@ function transferredNormal(
     : 0;
 }
 
-/** Numerical material policy for an outer surface, separate from its rigid core. */
+/**
+ * Numerical material policy for an outer surface, separate from its rigid core.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Numerical material policy for an outer surface, separate from its rigid core) and documents 2 documented members as stated in this comment.
+ * @evidence contracts/development/design.md#principled-representation Represents Numerical material policy for an outer surface, separate from its rigid core: companion namespace of 2 members (`ISurface`, `IMeasurement`); units and frames named in its text: metres, newton, seconds, second, world. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `solvePhysicalCompliantContacts` in packages/engine/src/physics/solvePhysicalCompliantContacts.ts; its surface is the 2 members listed and the text shows 3 other files naming it, mostly packages/engine (2), test (1), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ */
 export namespace solvePhysicalCompliantContacts {
   /** Admitted solver material values; exaggerated gains are explicit. */
   export interface ISurface {

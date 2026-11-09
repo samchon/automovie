@@ -1,17 +1,14 @@
-import type { IAutoMovieCurve64 } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieCurve64 } from "@automovie/engine";
 
 import type { IAutoMovieRecoveryTerminalSeed } from "./IAutoMovieRecoveryTerminalSeed";
 
 /**
  * Source-only distal topology observed above one existing closed-loop seed. The maximum and PL critical positions are measurements in the registered millimetre frame, not source mesh payloads. Multiple extrema, open incidence, plateaus and unqualified links remain explicit; they never authorize a single fabricated cap.
  *
- * @evidence contracts/common.md#principled-implementation Clipped indexed-source connectivity associates the seed with private vertex-incidence probes; actual projection extrema and existing lower/upper-link classification determine terminal observations.
- * @evidence contracts/common.md#clear-and-simple-design One source-free record carries the seed, observed critical relations and additional physical stations separately from generated skin.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source topology, normals, copied specimen surface, nearest-point identity, clamped coordinate or invented terminal is returned.
- * @evidence contracts/common.md#meaningful-documentation States measurement units, one-tip qualification, multiple-branch limits, critical brackets and additional-station meaning.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This erased output computes nothing.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record owns no cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns copied scalar, point and event records; source mesh arrays remain private.
+ * @evidence contracts/development/design.md#principled-representation Clipped indexed-source connectivity associates the seed with private vertex-incidence probes; actual projection extrema and existing lower/upper-link classification determine terminal observations.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One source-free record carries the seed, observed critical relations and additional physical stations separately from generated skin.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No source topology, normals, copied specimen surface, nearest-point identity, clamped coordinate or invented terminal is returned.
+ * @evidence contracts/development/common.md#meaningful-documentation States measurement units, one-tip qualification, multiple-branch limits, critical brackets and additional-station meaning.
  */
 export interface IAutoMovieRecoverySourceTerminal {
   /** Published source loop followed toward increasing scalar coordinates. */

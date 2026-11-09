@@ -36,10 +36,11 @@ const shift: (x: number) => IAutoMovieTransform = (
  *
  * The unchanged reversed clip observes root present-to-absent midpoint 1 from shift(2) and the end expression preset, while the both-roots-present clip observes midpoint 1 from shifts 0/2. The axis-swap twin observes start-only abduction and end-only twist.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls sampleMotion on four authored two-stop clips and checks flexion/abduction/twist midpoint values, root presence and X midpoints, and happy/angry preset identity for opposite one-sided expressions.
- * @evidence contracts/testing.md#independent-expectations Linear half progress gives the literal 60, 5, 2.5, 0.5, 1, 4 and 3 from unchanged authored endpoints and neutral zero/identity conventions. Preset names are authored literals, not extracted expectations; expression intensity/channel behavior is not inferred from name agreement and belongs to the expression units.
- * @evidence contracts/testing.md#distinguishing-cases Retains both-present axes, each missing-side axis direction, missing-start/missing-end/both-present roots and both expression directions at t=0.5. Null-null values, loop/clamp clocks and complete expression blends have separate owners.
- * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns four direct sample calls with existing in-memory fixture constructors. Private shift and predicate readers register no cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls sampleMotion on four authored two-stop clips and checks flexion/abduction/twist midpoint values, root presence and X midpoints, and happy/angry preset identity for opposite one-sided expressions.
+ * @evidence contracts/development/testing.md#independent-expectations Linear half progress gives the literal 60, 5, 2.5, 0.5, 1, 4 and 3 from unchanged authored endpoints and neutral zero/identity conventions. Preset names are authored literals, not extracted expectations; expression intensity/channel behavior is not inferred from name agreement and belongs to the expression units.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains both-present axes, each missing-side axis direction, missing-start/missing-end/both-present roots and both expression directions at t=0.5. Null-null values, loop/clamp clocks and complete expression blends have separate owners.
+ * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns four direct sample calls with existing in-memory fixture constructors. Private shift and predicate readers register no cases and start no viewer, process or native artifact.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Flexion present on both keyframes (0→120) → 60.).
  */
 export function test_motion_sample_asymmetric(): void {
   const forward: IAutoMovieMotion = makeMotion(

@@ -21,25 +21,19 @@ interface CapReading {
 /**
  * Original scalar values and qualified physical jets for native view evaluation.
  *
- * @evidence contracts/common.md#principled-implementation Reads the actual prepared scalar owners and differentiates their existing cap product analytically in the same physical station coordinate.
- * @evidence contracts/common.md#clear-and-simple-design Value-only and physical-second-order reads have separate APIs and share only the actual cap law.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Value admission never requests a physical jet; unavailable derivatives produce a named failure rather than invented zeros or a legacy curve.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes signed outlines, effective shoulder ownership and regular station derivatives from singular parameter endpoints.
- * @evidence contracts/performance.md#efficient-algorithms One scalar query per original source precedes fixed four-quarter and at-most-two-cap arithmetic; no world frame, layer traversal, native inverse or girth solve occurs.
- * @evidence contracts/performance.md#reuse-equivalent-work The common shoulder is read once and shared by its four departures; source preparation remains producer-owned.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh scalar arrays and failures belong to the caller; no station, phase or source cache is retained.
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes signed outlines, effective shoulder ownership and regular station derivatives from singular parameter endpoints.
+ * @evidence contracts/development/design.md#principled-representation Represents Original scalar values and qualified physical jets for native view evaluation: companion namespace of 4 members (`IValues`, `IJets`, `values`, `jets`); units and frames named in its text: second. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieLoftViewRead` in packages/engine/src/geometry/construction/AutoMovieLoftViewRead.ts; its surface is the 4 members listed and the text shows 39 other files naming it, mostly packages/human (20), packages/engine (11), test (8), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieLoftViewRead {
   /**
    * Finite original values, before native shape admission.
    *
-   * @evidence contracts/common.md#principled-implementation Keeps four signed-to-positive extents and the four effective shoulders from their source functions, and a top source's touch offsets, splits and split lists when it declares them.
-   * @evidence contracts/common.md#clear-and-simple-design Two arrays preserve the shared section factory's quarter layout; the optional members carry the split-quarter chain's extra inputs.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Values do not imply physical jet availability or a positive/convex admitted section.
-   * @evidence contracts/common.md#meaningful-documentation Extents use mm and shoulders are dimensionless, ordered +u,+v,-u,-v; touch offsets are mm along each support line; each split is [u mm, v mm, tangent angle rad, shoulder].
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This result has no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The reader owns query reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns its fresh arrays.
+   * @evidence contracts/development/design.md#principled-representation Keeps four signed-to-positive extents and the four effective shoulders from their source functions, and a top source's touch offsets, splits and split lists when it declares them.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two arrays preserve the shared section factory's quarter layout; the optional members carry the split-quarter chain's extra inputs.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values do not imply physical jet availability or a positive/convex admitted section.
+   * @evidence contracts/development/common.md#meaningful-documentation Extents use mm and shoulders are dimensionless, ordered +u,+v,-u,-v; touch offsets are mm along each support line; each split is [u mm, v mm, tangent angle rad, shoulder].
    */
   export interface IValues {
     /** Four extent values, mm; native section admission still checks positivity. */
@@ -61,13 +55,10 @@ export namespace AutoMovieLoftViewRead {
   /**
    * Actual finite physical-station source2 inputs of the shared native field.
    *
-   * @evidence contracts/common.md#principled-implementation Carries each actual value, first derivative and second derivative after the analytical cap product rule.
-   * @evidence contracts/common.md#clear-and-simple-design Two ordered four-entry jet arrays directly match ViewSectionField.prepare; the optional members carry the split-quarter chain's extra inputs.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A null source station jet never appears as a zero-filled tuple.
-   * @evidence contracts/common.md#meaningful-documentation Each tuple uses physical station mm, extent mm and dimensionless shoulders; touch offsets in mm; splits as [u, v, angle, shoulder] tuples.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This result performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Its producer owns scalar query reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns its fixed tuples with no borrowed mutable output.
+   * @evidence contracts/development/design.md#principled-representation Carries each actual value, first derivative and second derivative after the analytical cap product rule.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two ordered four-entry jet arrays directly match ViewSectionField.prepare; the optional members carry the split-quarter chain's extra inputs.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A null source station jet never appears as a zero-filled tuple.
+   * @evidence contracts/development/common.md#meaningful-documentation Each tuple uses physical station mm, extent mm and dimensionless shoulders; touch offsets in mm; splits as [u, v, angle, shoulder] tuples.
    */
   export interface IJets {
     /** Four extent source2 tuples in physical station. */
@@ -89,13 +80,13 @@ export namespace AutoMovieLoftViewRead {
   /**
    * Read finite scalar values without requesting station derivatives.
    *
-   * @evidence contracts/common.md#principled-implementation Uses Outline.value for every actual scalar and the original maximum cap weight and shoulder blend.
-   * @evidence contracts/common.md#clear-and-simple-design Admission, original values and effective fullness are consecutive stages.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A finite value at a singular parameter endpoint survives; malformed present data returns a named source failure without another geometry.
-   * @evidence contracts/common.md#meaningful-documentation Returns finite scalar inputs rather than a derivative or shape certificate.
-   * @evidence contracts/performance.md#efficient-algorithms Four extent queries and the direct fullness owner's queries retain their Outline lookup costs, followed by fixed arithmetic.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reads a common shoulder once before adding its quarter departures.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns fresh arrays or a diagnostic string and retains no query.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses Outline.value for every actual scalar and the original maximum cap weight and shoulder blend.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, original values and effective fullness are consecutive stages.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A finite value at a singular parameter endpoint survives; malformed present data returns a named source failure without another geometry.
+   * @evidence contracts/development/common.md#meaningful-documentation Returns finite scalar inputs rather than a derivative or shape certificate.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four extent queries and the direct fullness owner's queries retain their Outline lookup costs, followed by fixed arithmetic.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads a common shoulder once before adding its quarter departures.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh arrays or a diagnostic string and retains no query.
    */
   export function values(
     source: AutoMovieLoftViewSource.ISource,
@@ -144,13 +135,13 @@ export namespace AutoMovieLoftViewRead {
   /**
    * Read actual physical source2; an unavailable input jet remains unavailable.
    *
-   * @evidence contracts/common.md#principled-implementation Applies signs, direct fullness addition and the exact first/second cap product rule to actual Outline.stationJet values.
-   * @evidence contracts/common.md#clear-and-simple-design The explicit derivative path is separate from value-only reading and contains no phase geometry.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves singular-pole, singular-parameter and nonfinite statuses in its failure instead of using parameter jets as physical jets.
-   * @evidence contracts/common.md#meaningful-documentation States required physical derivatives and unchanged effective shoulder ownership.
-   * @evidence contracts/performance.md#efficient-algorithms Each required scalar is read once, retaining Outline's knot-search cost; all remaining work is fixed by four quarters.
-   * @evidence contracts/performance.md#reuse-equivalent-work Shares the common shoulder jet and one cap jet across all four effective quarters.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns owned triples or a named failure with no retained source or station state.
+   * @evidence contracts/development/implementation.md#principled-implementation Applies signs, direct fullness addition and the exact first/second cap product rule to actual Outline.stationJet values.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The explicit derivative path is separate from value-only reading and contains no phase geometry.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves singular-pole, singular-parameter and nonfinite statuses in its failure instead of using parameter jets as physical jets.
+   * @evidence contracts/development/common.md#meaningful-documentation States required physical derivatives and unchanged effective shoulder ownership.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each required scalar is read once, retaining Outline's knot-search cost; all remaining work is fixed by four quarters.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the common shoulder jet and one cap jet across all four effective quarters.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns owned triples or a named failure with no retained source or station state.
    */
   export function jets(
     source: AutoMovieLoftViewSource.ISource,

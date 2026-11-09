@@ -37,10 +37,11 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
  * 1. Non-finite velocity components on either body throw before impact math.
  * 2. Finite body velocities keep the existing inelastic impulse behavior.
  *
- * @evidence contracts/testing.md#behavioral-verification Rejects invalid velocity components on each body, then checks finite closing speed, impulse and both outgoing speeds, catching either non-finite admission or a guard that refuses valid collisions.
- * @evidence contracts/testing.md#independent-expectations Finite velocity is the admission contract; equal unit masses at closing speed 10 with an inelastic response give impulse 5 and shared speed 5 by momentum balance. Exception presence, not identity, is asserted and extreme-finite overflow is outside this fixture.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts NaN on body a, infinity on body b and a finite positive twin; mass/material/normal admission and other response kinds belong to neighboring impact units.
- * @evidence contracts/testing.md#execution-ownership The named exported portable unit calls resolveImpact on authored records and owns every assertion without real hosts or dynamically registered cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Rejects invalid velocity components on each body, then checks finite closing speed, impulse and both outgoing speeds, catching either non-finite admission or a guard that refuses valid collisions.
+ * @evidence contracts/development/testing.md#independent-expectations Finite velocity is the admission contract; equal unit masses at closing speed 10 with an inelastic response give impulse 5 and shared speed 5 by momentum balance. Exception presence, not identity, is asserted and extreme-finite overflow is outside this fixture.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts NaN on body a, infinity on body b and a finite positive twin; mass/material/normal admission and other response kinds belong to neighboring impact units.
+ * @evidence contracts/development/testing.md#execution-ownership The named exported portable unit calls resolveImpact on authored records and owns every assertion without real hosts or dynamically registered cases.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite velocity components on either body throw before impact math.).
  */
 export function test_physics_impact_body_velocity(): void {
   const moving: IAutoMovieImpactBody = { ...BODY, velocity: v(0, 0, 10) };

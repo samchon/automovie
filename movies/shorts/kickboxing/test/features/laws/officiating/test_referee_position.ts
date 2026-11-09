@@ -5,7 +5,7 @@ import { RefereePosition } from "../../../../src/laws/officiating/RefereePositio
 
 /**
  * The referee stands side-on across the line, closes on the ropes, goes
- * around rather than between, walks no faster than 1.39 m/s, and counts one
+ * around rather than between, walks no faster than 2.53 m/s, and counts one
  * number per second toward the farthest neutral corner.
  *
  * Scenarios: an open-ring goal is perpendicular to the line (a side view of
@@ -55,7 +55,7 @@ export function test_referee_position(): void {
   });
   assert.equal(cornered.side, -1);
   const next = RefereePosition.walk({ x: 0, z: 0 }, { x: 10, z: 0 }, 0.5);
-  assert.ok(Math.abs(next.x - RefereePosition.SPEED * 0.5) < 1e-12);
+  assert.ok(Math.abs(next.x - RefereePosition.BRISK * 0.5) < 1e-12);
   assert.ok(RefereePosition.between({ x: 0, z: 0.1 }, a, b, 0.4));
   assert.ok(!RefereePosition.between({ x: 1, z: 0 }, a, b, 0.4));
   assert.equal(KnockdownCount.number(157, 3), 160);

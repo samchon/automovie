@@ -26,10 +26,11 @@ const gait: (rootBob: IAutoMovieGaitRootBob) => IAutoMovieGait = (
  * 2. Zero amplitude remains valid and emits a constant vertical root offset.
  * 3. Mutating one returned root's scale/rotation does not rewrite another frame or a later bake.
  *
- * @evidence contracts/testing.md#behavioral-verification Runs gait synthesis with invalid bob scalars and constant height, then mutates an output root and checks independent subsequent frame/bake values; catches exposure of module identity records.
- * @evidence contracts/testing.md#independent-expectations Zero amplitude makes the authored center 1.2 the constant height under the sinusoid contract, and unchanged output rotation/scale retain identity w=1 and x=1. Existing absolute tolerances remain unchanged; the unit observes representative identity components rather than every transform component.
- * @evidence contracts/testing.md#distinguishing-cases NaN amplitude/phase, infinite center, accepted zero amplitude and mutation of one frame versus another frame and a later bake separate scalar admission from output ownership. Moving sinusoid shape and cycle phase belong to other gait tests.
- * @evidence contracts/testing.md#execution-ownership Portable unit test discovered as test_motion_gait_root_bob_scalars; this function owns all directly invoked cases without a renderer, native build or consumer host.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs gait synthesis with invalid bob scalars and constant height, then mutates an output root and checks independent subsequent frame/bake values; catches exposure of module identity records.
+ * @evidence contracts/development/testing.md#independent-expectations Zero amplitude makes the authored center 1.2 the constant height under the sinusoid contract, and unchanged output rotation/scale retain identity w=1 and x=1. Existing absolute tolerances remain unchanged; the unit observes representative identity components rather than every transform component.
+ * @evidence contracts/development/testing.md#distinguishing-cases NaN amplitude/phase, infinite center, accepted zero amplitude and mutation of one frame versus another frame and a later bake separate scalar admission from output ownership. Moving sinusoid shape and cycle phase belong to other gait tests.
+ * @evidence contracts/development/testing.md#execution-ownership Portable unit test discovered as test_motion_gait_root_bob_scalars; this function owns all directly invoked cases without a renderer, native build or consumer host.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite root-bob amplitude, phase, and center values throw.).
  */
 export function test_motion_gait_root_bob_scalars(): void {
   const base: IAutoMovieGaitRootBob = {

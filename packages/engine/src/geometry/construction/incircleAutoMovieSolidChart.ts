@@ -31,17 +31,23 @@ interface Dyadic {
  * @returns +1 inside, -1 outside and 0 exactly on the circle; for a clockwise `(a, b, c)` the sign is reversed.
  * @throws RangeError for a nonfinite input coordinate.
  *
- * @evidence contracts/common.md#principled-implementation Uses the standard lifted in-circle determinant with a floating error filter and an exact integer fallback on the represented dyadic coordinates; a common binary scale multiplies the determinant by a positive power of two and leaves its sign unchanged.
- * @evidence contracts/common.md#clear-and-simple-design One sign predicate owns the in-circle arithmetic of chart legalization, beside the orientation predicate it pairs with; dyadic decoding stays private.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No tolerance classifies nearly cocircular points as on the circle; the predicate moves no coordinate, merges no vertex and never answers from an unfiltered floating value.
- * @evidence contracts/common.md#meaningful-documentation States the determinant, its sign convention for both orientations, the filter's source and bound, the exact fallback and the invalid-input failure.
- * @evidence contracts/performance.md#efficient-algorithms Separated determinants cost constant floating arithmetic; ambiguous ones decode eight doubles and multiply integers whose size the binary64 exponent range bounds, independently of the mesh size.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This pure predicate coordinates no source evaluations or requests and caches no geometry.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains one module-local eight-byte decoding view; integer scratch is call-local and no input reference survives.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses the standard lifted in-circle determinant with a floating error filter and an exact integer fallback on the represented dyadic coordinates; a common binary scale multiplies the determinant by a positive power of two and leaves its sign unchanged.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One sign predicate owns the in-circle arithmetic of chart legalization, beside the orientation predicate it pairs with; dyadic decoding stays private.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance classifies nearly cocircular points as on the circle; the predicate moves no coordinate, merges no vertex and never answers from an unfiltered floating value.
+ * @evidence contracts/development/common.md#meaningful-documentation States the determinant, its sign convention for both orientations, the filter's source and bound, the exact fallback and the invalid-input failure.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Separated determinants cost constant floating arithmetic; ambiguous ones decode eight doubles and multiply integers whose size the binary64 exponent range bounds, independently of the mesh size.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This pure predicate coordinates no source evaluations or requests and caches no geometry.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one module-local eight-byte decoding view; integer scratch is call-local and no input reference survives.
  */
-export function incircleAutoMovieSolidChart(a: Point, b: Point, c: Point, d: Point): number {
+export function incircleAutoMovieSolidChart(
+  a: Point,
+  b: Point,
+  c: Point,
+  d: Point,
+): number {
   const values: number[] = [a[0], a[1], b[0], b[1], c[0], c[1], d[0], d[1]];
-  if (!values.every(Number.isFinite)) throw new RangeError("Chart in-circle needs finite coordinates");
+  if (!values.every(Number.isFinite))
+    throw new RangeError("Chart in-circle needs finite coordinates");
   const adx: number = a[0] - d[0];
   const ady: number = a[1] - d[1];
   const bdx: number = b[0] - d[0];
@@ -65,20 +71,34 @@ export function incircleAutoMovieSolidChart(a: Point, b: Point, c: Point, d: Poi
   // range: with each nonzero difference within 2^+-200, no product of four
   // leaves it, and a zero difference is exact. Other inputs take the exact path.
   if (
-    [adx, ady, bdx, bdy, cdx, cdy].every((value: number): boolean => value === 0 || (Math.abs(value) >= SMALLEST && Math.abs(value) <= LARGEST)) &&
+    [adx, ady, bdx, bdy, cdx, cdy].every(
+      (value: number): boolean =>
+        value === 0 ||
+        (Math.abs(value) >= SMALLEST && Math.abs(value) <= LARGEST),
+    ) &&
     Number.isFinite(determinant) &&
     Number.isFinite(bound) &&
     Math.abs(determinant) > bound
   )
     return determinant > 0 ? 1 : -1;
   const numbers: Dyadic[] = values.map(decode);
-  const nonzero: Dyadic[] = numbers.filter((value: Dyadic): boolean => value.significand !== 0n);
+  const nonzero: Dyadic[] = numbers.filter(
+    (value: Dyadic): boolean => value.significand !== 0n,
+  );
   if (nonzero.length === 0) return 0;
-  const exponent: number = Math.min(...nonzero.map((value: Dyadic): number => value.exponent));
-  const n: bigint[] = numbers.map((value: Dyadic): bigint => (value.significand === 0n ? 0n : value.significand << BigInt(value.exponent - exponent)));
+  const exponent: number = Math.min(
+    ...nonzero.map((value: Dyadic): number => value.exponent),
+  );
+  const n: bigint[] = numbers.map((value: Dyadic): bigint =>
+    value.significand === 0n
+      ? 0n
+      : value.significand << BigInt(value.exponent - exponent),
+  );
   const x: bigint[] = [n[0]! - n[6]!, n[2]! - n[6]!, n[4]! - n[6]!];
   const y: bigint[] = [n[1]! - n[7]!, n[3]! - n[7]!, n[5]! - n[7]!];
-  const lift: bigint[] = [0, 1, 2].map((k: number): bigint => x[k]! * x[k]! + y[k]! * y[k]!);
+  const lift: bigint[] = [0, 1, 2].map(
+    (k: number): bigint => x[k]! * x[k]! + y[k]! * y[k]!,
+  );
   const exact: bigint =
     lift[0]! * (x[1]! * y[2]! - x[2]! * y[1]!) +
     lift[1]! * (x[2]! * y[0]! - x[0]! * y[2]!) +
