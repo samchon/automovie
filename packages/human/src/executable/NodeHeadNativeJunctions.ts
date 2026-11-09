@@ -15,6 +15,7 @@ type Connect = (before: readonly number[], after: readonly number[], a: number[]
 type ArchivedJoin = NodeHeadJunction.ILayout & { seams: { chain: string; end: "top" | "bottom"; rail: string }[]; replace?: string };
 type Rim = { rail: number[]; component: number; side: 0 | 1 };
 type V2 = [number, number];
+type Band = "forehead" | "mouth" | "neck" | "nose";
 
 /** Repair exposed head cuts using the same indexed source contours on both sides. */
 export namespace NodeHeadNativeJunctions {
@@ -65,16 +66,21 @@ export namespace NodeHeadNativeJunctions {
    * Only the named eye or lip slab is replaced; the existing indexed outer
    * and oral rims remain the interfaces to the surrounding conic surfaces.
    */
-  function replaceFoldedBand(name: "forehead" | "mouth", base: Patch, native: CaptureModel.ITriangles, clip: Clip, connect: Connect): Patch {
-    const keys = name === "forehead" ? [["0:0"], ["192:0"]] as const : [["mouth:first", "0:1"], ["mouth:last", "212:1"]] as const;
+  function replaceFoldedBand(name: Band, base: Patch, native: CaptureModel.ITriangles, clip: Clip, connect: Connect): Patch {
+    const keys = name === "forehead" ? [["0:0"], ["192:0"]] as const
+      : name === "mouth" ? [["mouth:first", "0:1"], ["mouth:last", "212:1"]] as const : [["lower"], ["upper"]] as const;
     const upper: number[] | undefined = base.rails.get(keys[1][0]);
     if (upper === undefined) throw new Error("the retained upper rail is missing");
-    // F1 rows 2688 and 423 are the observed inner cuts next to the
-    // retained orbit and mouth rims, respectively.
-    const from: number = name === "forehead" ? 1598.3105087280273 : 1518.1841659545898;
-    // F1 row 2876 lies below the retained row 2878 with enough physical
-    // separation for the transition. Row 628 is the upper mouth cut.
-    const to: number = name === "forehead" ? 1602.3069763183594 : 1525.7013702392578;
+    // The forehead and mouth use F1 rows 2688/2876 and 423/628.
+    // The neck and nasal planes are observed midplanes between native
+    // vertex heights, just inside the measured existing outer rails.
+    const sourceCuts: Record<Band, [number, number]> = {
+      forehead: [1598.3105087280273, 1602.3069763183594],
+      mouth: [1518.1841659545898, 1525.7013702392578],
+      neck: [1458.4367370605469, 1517.5642395019531],
+      nose: [1549.2088317871094, 1558.627700805664],
+    };
+    const [from, to]: [number, number] = sourceCuts[name];
     if (to >= base.clay.positions[3 * upper[0]! + 1]!) throw new Error("the source cut must remain below the retained upper rail");
     const vault: number[] | undefined = name === "forehead" ? base.rails.get("forehead:top") : undefined;
     const retained: number[] = name === "forehead" ? upperStrip(base, upper, vault) : [];
@@ -104,6 +110,8 @@ export namespace NodeHeadNativeJunctions {
       }));
     if (new Set(measured.map(({ rim }): Rim => rim)).size !== measured.length) throw new Error("two original rims selected the same native rail");
     const selected: Set<number> = new Set(measured.map(({ rim }): number => rim.component));
+    if ((name === "neck" || name === "nose") && selected.size !== 1)
+      throw new Error("the original exterior does not join both observed rails");
     const componentFaces: number[] = [...selected].flatMap((i: number): number[] => patches[i]!);
     const sourceEdges: Map<string, Edge> = edges(componentFaces);
     const expected: number = measured.reduce((sum: number, { rim }): number => sum + rim.rail.length, 0);
@@ -117,6 +125,7 @@ export namespace NodeHeadNativeJunctions {
     const lines: CaptureModel.ILine[] = [];
     const stitched: number[] = [];
     const errors: number[] = [];
+    const midpoints: number[] = [];
     for (const [i, { old, rim, residual }] of measured.entries()) {
       const nativeRail: number[] = rim.rail.map((id: number): number => ids.get(id)!);
       const point = (id: number): V3 => at(positions, id);
@@ -126,6 +135,7 @@ export namespace NodeHeadNativeJunctions {
       const error: number = midplaneGap(native, { positions, indices: faces }, mid, xz(positions, nativeRail));
       if (error > 0.5) throw new Error(`native ${name} rail ${i} midplane ${Number.isFinite(error) ? error.toFixed(3) : "unreadable"} mm`);
       errors.push(Math.max(error, residual));
+      midpoints.push(error);
       stitched.push(...faces);
       for (const [kind, rail] of [["retained", old], ["native", nativeRail]] as const)
         lines.push({ id: `${name}.physical.${kind}.${i}`, points: rail.map(point), closed: true, colour: "9e4c74" });
@@ -135,7 +145,64 @@ export namespace NodeHeadNativeJunctions {
     const indices: number[] = core.concat(stitched, retained);
     if (edgeSignature(indices) !== edgeSignature(base.clay.indices))
       throw new Error("the native strip changed an original oriented rim or created an invalid edge");
-    return { ...base, clay: { positions, indices }, lines, receipt: `${name}: ${core.length / 3} actual source skin triangles; ${measured.length} unchanged indexed rims, ordinary seams ${errors.map((v: number): string => v.toFixed(3)).join("/")} mm; ${retained.length / 3} original vault-transition faces retained` };
+    return { ...base, clay: { positions, indices }, lines, receipt: `${name}: ${core.length / 3} actual source skin triangles; ${measured.length} unchanged indexed rims, ordinary seams ${errors.map((v: number): string => v.toFixed(3)).join("/")} mm, independent midplanes ${midpoints.map((v: number): string => v.toFixed(3)).join("/")} mm; ${retained.length / 3} original vault-transition faces retained` };
+  }
+
+  /** Rebuild the two proved outer spans after their neighboring neck and cavity edges are assembled. */
+  export function repairOuterSpans(capture: CaptureModel.IPart, native: CaptureModel.ITriangles, clip: Clip, connect: Connect): void {
+    if (capture.loft.status !== "available") return;
+    const loft: Extract<CaptureModel.ILoft, { status: "available" }> = capture.loft;
+    // Neck: canonical trunk rail to F1 mouth row 421. Nose: the two
+    // retained 512-point face rails outside the published nasal saddles.
+    const spans: readonly (readonly ["neck" | "nose", number, number])[] = [
+      ["neck", 1458, 1518.0571746826172],
+      ["nose", 1548.9590644836426, 1558.7013574838638],
+    ];
+    for (const [name, low, high] of spans) {
+      let receipt: string;
+      try {
+        const base: Patch = exteriorSpan(loft.clay, low, high);
+        const patch: Patch = replaceFoldedBand(name, base, native, clip, connect);
+        const removed: Set<string> = new Set();
+        for (let i: number = 0; i < base.clay.indices.length; i += 3)
+          removed.add(base.clay.indices.slice(i, i + 3).join(":"));
+        const outside: number[] = [];
+        for (let i: number = 0; i < loft.clay.indices.length; i += 3) {
+          const face: number[] = loft.clay.indices.slice(i, i + 3);
+          if (!removed.has(face.join(":"))) outside.push(...face);
+        }
+        loft.clay = { positions: patch.clay.positions, indices: outside.concat(patch.clay.indices) };
+        loft.lines = loft.lines.filter((line: CaptureModel.ILine): boolean =>
+          line.points.some(([, y]): boolean => y < low || y > high)).concat(patch.lines);
+        receipt = patch.receipt;
+      } catch (error) {
+        receipt = `native ${name} exterior refused: ${error instanceof Error ? error.message : String(error)}`;
+      }
+      capture.diagnostics.push(receipt);
+      loft.diagnostics.push(receipt);
+      console.log(receipt);
+    }
+  }
+
+  /** Select only the indexed outside component between the observed rails, leaving inner walls intact. */
+  function exteriorSpan(clay: CaptureModel.ITriangles, low: number, high: number): Patch {
+    const scoped: number[] = [];
+    for (let i: number = 0; i < clay.indices.length; i += 3) {
+      const face: number[] = clay.indices.slice(i, i + 3);
+      if (face.every((id: number): boolean => clay.positions[3 * id + 1]! >= low - 1e-7 && clay.positions[3 * id + 1]! <= high + 1e-7))
+        scoped.push(...face);
+    }
+    const matches: Patch[] = components(scoped).flatMap((faces: number[]): Patch[] => {
+      const free: Edge[] = [...edges(faces).values()].filter((edge: Edge): boolean => edge.uses === 1);
+      const ends: (number[] | undefined)[] = [low, high].map((y: number): number[] | undefined =>
+        loops(free.filter((edge: Edge): boolean => onPlane(clay.positions, edge, y))).sort((a: number[], b: number[]): number => b.length - a.length)[0]);
+      const [a, b] = ends;
+      if (a === undefined || b === undefined || a.length + b.length !== free.length ||
+          !a.some((id: number): boolean => clay.positions[3 * id]! < -40)) return [];
+      return [{ clay: { positions: clay.positions, indices: faces }, lines: [], rails: new Map([["lower", a], ["upper", b]]), receipt: "", qualified: true }];
+    });
+    if (matches.length !== 1) throw new Error("the observed interval does not expose one exterior with two complete indexed rims");
+    return matches[0]!;
   }
 
   /** Keep both incident rows of the original vault transition by their exact indexed ownership. */

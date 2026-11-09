@@ -89,8 +89,8 @@ export namespace NodeHeadReference {
         report(capture, `${name} refused: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
+    NodeHeadNativeJunctions.repairOuterSpans(capture, NodeHeadOrbit.skin(mesh), NodeHeadOrbit.clipPlane, NodeHeadOrbit.connect);
   }
-
   /** Prefer the complete observed forehead span where the existing section fits missed it. */
   export function withForehead(archive: string, mesh: AutoMovieMeshExtract.IMesh, chains: IAutoMovieLoftChain[], diagnostics: string[]): { chains: IAutoMovieLoftChain[]; forehead: NodeHeadJunction.IResult | null } {
     try {
