@@ -158,7 +158,7 @@ export namespace NodeArmCaptureSource {
       const palmStarted: number = performance.now();
       let diagnosis: string;
       try {
-        diagnosis = attachContours(part.loft.clay, palm.rows, lines[palmStart]!.points, axis.at(cuts[palmStart]!), undefined, contourCoordinates(palm.rows));
+        diagnosis = attachContours(part.loft.clay, palm.rows, lines[palmStart]!.points, axis.at(cuts[palmStart]!), undefined, contourCoordinates(palm.rows, side === "left"));
       } catch (error) {
         diagnosis = `palm junction refused: ${error instanceof Error ? error.message : String(error)}`;
       }

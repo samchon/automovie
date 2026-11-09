@@ -213,19 +213,20 @@ export namespace NodeArmCaptureGeometry {
   /** Numerical chart of the ordinary strip. Its rows are still the original world planes. */
   interface IContourCoordinates {
     stations: number[];
+    worldCollar: boolean;
     into(row: number, point: V3): V3;
     out(point: V3): V3;
   }
 
   /** Read each exact observed plane in the contour loft's common numerical chart. */
-  export function contourCoordinates(rows: readonly IReferenceSection[]): IContourCoordinates {
+  export function contourCoordinates(rows: readonly IReferenceSection[], worldCollar: boolean): IContourCoordinates {
     const S: typeof AutoMovieHumanArmCurveSpec = AutoMovieHumanArmCurveSpec;
     const planes: IPhysicalPlane[] = rows.map(physicalPlane);
     const stations: number[] = [0];
     for (let i: number = 1; i < planes.length; ++i)
       stations.push(stations[i - 1]! + Math.hypot(...difference(planes[i]!.origin, planes[i - 1]!.origin)));
     return {
-      stations,
+      stations, worldCollar,
       into(i: number, point: V3): V3 {
         const p: IPhysicalPlane = planes[i]!;
         const relative: V3 = difference(point, p.origin);
@@ -318,7 +319,10 @@ export namespace NodeArmCaptureGeometry {
         positions.push(...vertex);
       }
     }
-    const indices: number[] = ordinary.mesh.indices.map((index: number): number => remap[index]!);
+    const tiles: number[] = coordinates?.worldCollar === true
+      ? NodeArmFingerFan.worldCollar(ordinary, coordinates.stations, coordinates.out)
+      : ordinary.mesh.indices;
+    const indices: number[] = tiles.map((index: number): number => remap[index]!);
     const seam: Map<number, number> = new Map();
     for (let i: number = 0; i < indices.length; i += 3)
       for (let k: number = 0; k < 3; ++k) {

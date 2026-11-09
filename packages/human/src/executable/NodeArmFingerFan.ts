@@ -4,6 +4,7 @@ import {
   type IAutoMovieContourLoft64,
   type IAutoMovieCurve64,
   tessellateAutoMovieContourLoft64,
+  tessellateAutoMovieContourStrip64,
 } from "@automovie/engine";
 import { type IAutoMovieRecoverySlabObservation, observeAutoMovieRecoverySections } from "@automovie/recovery";
 
@@ -203,6 +204,69 @@ export namespace NodeArmFingerFan {
       proximal,
       distal: { index: distal("index"), middle: ring.points, ring: distal("ring"), pinky: distal("pinky") },
     };
+  }
+
+  /** Retile both observed palm collar spans in world millimetres without changing any rim vertex. */
+  export function worldCollar(loft: IAutoMovieContourLoft64.IResult, stations: readonly number[], world: (p: V3) => V3): number[] {
+    const last: number = stations.length - 1;
+    let indices: number[] | null = loft.mesh.indices;
+    if (indices === null) throw new Error("The original palm collar must have indexed strips");
+    for (const row of [last, last - 1]) indices = worldCollarStrip(loft, stations, world, indices, row);
+    return indices;
+  }
+
+  /** Replace one collar strip while retaining its exact indexed rims and winding. */
+  function worldCollarStrip(loft: IAutoMovieContourLoft64.IResult, stations: readonly number[], world: (p: V3) => V3, indices: number[], last: number): number[] {
+    type Range = NonNullable<IAutoMovieContourLoft64.IResult["primitiveRanges"]>[number];
+    const ranges: Range[] | undefined = loft.primitiveRanges?.filter((row: Range): boolean =>
+      row.kind === "strip" && row.beforeMm === stations[last - 1] && row.afterMm === stations[last]);
+    if (ranges?.length !== 1)
+      throw new Error("The original palm collar must own one ordinary strip");
+    const range: Range = ranges[0]!;
+    const positions: number[] = loft.mesh.positions;
+    const begin: number = range.firstTriangle * 3, end: number = begin + range.triangleCount * 3;
+    const old: number[] = indices.slice(begin, end);
+
+    // Her terminal plane turns across the collar. Comparing separate flattened
+    // charts there can match opposite sides of the hand and fold the strip.
+    const available: Map<string, number> = new Map([...new Set(old)].map((i: number): [string, number] => [positions.slice(i * 3, i * 3 + 3).join(","), i]));
+    const identity: Map<V3, number> = new Map();
+    const rings: V3[][] = [last - 1, last].map((row: number): V3[] => {
+      const rim: IAutoMovieContourLoft64.IResult["construction"][number] | undefined = loft.construction.find(({ id }): boolean => id.endsWith(`.section.${row}.loop.0`));
+      if (!rim) throw new Error("The physical palm collar lost an observed boundary");
+      return rim.points.map((p: V3): V3 => {
+        const index: number | undefined = available.get(p.join(","));
+        if (index === undefined) throw new Error("A measured collar knot has no indexed boundary vertex");
+        const q: V3 = world(NodeArmDraw.scale(p, 1000));
+        identity.set(q, index);
+        return q;
+      });
+    });
+    const tiles: number[] = [];
+    tessellateAutoMovieContourStrip64(rings[0]!, rings[1]!, (a: V3, b: V3, c: V3): void => {
+      tiles.push(identity.get(a)!, identity.get(b)!, identity.get(c)!);
+    }, (point: V3): string | undefined => identity.get(point)?.toString(), ({ qualified }): void => {
+      if (!qualified) throw new Error("The world-space palm collar did not retain a qualified strip");
+    });
+
+    const boundary = (faces: readonly number[]): Map<string, number> => {
+      const uses: Map<string, number> = new Map();
+      for (let i: number = 0; i < faces.length; i += 3)
+        for (let j: number = 0; j < 3; j++) {
+          const a: number = faces[i + j]!, b: number = faces[i + (j + 1) % 3]!;
+          const key: string = a < b ? `${a}:${b}` : `${b}:${a}`;
+          uses.set(key, (uses.get(key) ?? 0) + (a < b ? 1 : -1));
+        }
+      return new Map([...uses].filter(([, winding]): boolean => winding !== 0));
+    };
+    const prior: Map<string, number> = boundary(old), next: Map<string, number> = boundary(tiles);
+    const direction: Set<number> = new Set([...prior].map(([edge, sign]): number => sign * (next.get(edge) ?? 0)));
+    if (prior.size !== next.size || direction.size !== 1 || direction.has(0))
+      throw new Error("The world-space palm collar changed the observed rim indices");
+    if (direction.has(-1))
+      for (let i: number = 0; i < tiles.length; i += 3)
+        [tiles[i + 1], tiles[i + 2]] = [tiles[i + 2]!, tiles[i + 1]!];
+    return [...indices.slice(0, begin), ...tiles, ...indices.slice(end)];
   }
 
   /** Observe a physical cut between two known original end planes. */
