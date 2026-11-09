@@ -301,6 +301,21 @@ export namespace NodeLegF1Loft {
           stitchSeam(row, next, axis, positions, indices);
           const seam = inspectSeam(positions, indices, axis, previous.adjacent, previous, next);
           diagnostics.push(`Knee boundary ${previous.station.toFixed(3)} mm: ${seam.sharedEdges} reciprocal edges, maximum face angle ${seam.angle.toFixed(2)} degrees.`);
+        } else if (footRefinements.includes(row.station) || footRefinements.includes(station)) {
+          // The archived instep charts roll faster than their section planes
+          // turn. Carry the upstream direction into both planes for the seam
+          // clock. Each observed section keeps its original world vertices.
+          const upstream = axis.at(row.station).u as V3;
+          const transported: AutoMovieViewAxis.IAxis = {
+            at(s): Frame {
+              const frame = axis.at(s);
+              const n = AutoMovieViewAxis.normal(frame) as V3;
+              const u = Geometry.unit(sub(upstream, scale(n, Geometry.dot(upstream, n))));
+              return { origin: frame.origin, u, v: Geometry.cross(u, n) };
+            },
+          };
+          const mode = stitchSeam(row, next, transported, positions, indices);
+          diagnostics.push(`Observed instep correspondence from ${row.station.toFixed(3)} to ${station.toFixed(3)} mm: ${mode}.`);
         } else stitchRows(row.row, next.row, positions, indices);
         row = next;
         if (!footRefinements.includes(station)) sections.push(station);
