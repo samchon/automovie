@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This is an AutoMovie production. It primarily turns an LLM-authored screenplay into a deterministic whole motion-video hint, and can also deliver a separately commissioned screenplay, standalone asset, or requested direct 3D or post-diffusion film. [README](README.md) lists commands and the [production skill](.agents/skills/production/SKILL.md) routes the commissioned output and its working files.
+This is an AutoMovie production. It primarily turns an LLM-authored screenplay into a deterministic whole motion-video hint, and can also deliver a separately commissioned screenplay, standalone asset, or requested direct 3D or post-diffusion film. A hint guides video-to-video diffusion, so its figures and objects need only be identifiable and its accuracy goes to performance and camera, as [entity work](.agents/skills/development/entities.md#coarse-first) sets. [README](README.md) lists commands and the [production skill](.agents/skills/production/SKILL.md) routes the commissioned output and its working files.
 
 ## Attitude
 
