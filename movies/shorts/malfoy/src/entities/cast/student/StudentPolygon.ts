@@ -12,8 +12,10 @@ import { StudentHuman } from "./StudentHuman";
  * each mapped bone turns from its neutral direction onto the solved segment
  * (upper arm shoulder→elbow, forearm elbow→wrist, hand wrist→hand, thigh
  * hip→knee, shin knee→ankle, foot ankle→toe; trunk, neck and head by their
- * solved frames), limb roots sit on the solved joints, and every unmapped
- * bone (fingers, toes, eyes, jaw) moves rigidly with its parent.
+ * solved frames). Only the hips sit on the solved pelvis; every other bone
+ * hangs from its parent by the Human body's own offset, so the figure stays
+ * joined, and every unmapped bone (fingers, toes, eyes, jaw) moves rigidly
+ * with its parent.
  *
  * ```ts
  * const polygon = new StudentPolygon(profile);
@@ -158,9 +160,12 @@ export class StudentPolygon {
       turn.normalize();
       turns[i] = turn;
       const own: THREE.Vector3 = n(bone.bone)!;
+
+      // Only the root sits on the solved pelvis; every other bone hangs from its
+      // parent by the Human body's own offset, so segments stay joined however the
+      // solved joints' spacing differs from the Human proportions.
       let at: THREE.Vector3;
-      if (t?.anchor !== undefined) at = vec(t.anchor).divideScalar(s);
-      else if (parent === undefined) at = vec(j.pelvis).divideScalar(s);
+      if (parent === undefined) at = vec(t?.anchor ?? j.pelvis).divideScalar(s);
       else at = positions[parent]!.clone().add(own.clone().sub(n(neutral.bones[parent]!.bone)!).applyQuaternion(turns[parent]!));
       if (![at.x, at.y, at.z].every(Number.isFinite))
         at = parent === undefined ? own.clone() : positions[parent]!.clone().add(own.clone().sub(n(neutral.bones[parent]!.bone)!));
