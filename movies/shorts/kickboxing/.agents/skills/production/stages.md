@@ -18,4 +18,4 @@ Caches are derived state: never commit one or cite it as the source of truth. Le
 
 ## Iterate on the affected interval
 
-Check a change on the 10-second review segments it touches, through live Viewer playback, stills from `npm run render -- --film <name> --from <s> --to <s> --every <frames>` and their [dense pass](../review/delivery.md#measure-and-compare), so render time goes to delivery rather than to rechecking. Render the whole film exactly once, for delivery, after every segment is clean; the frame cache then recaptures only changed frames.
+Check a change on the 10-second review segments it touches, through live Viewer playback, stills from `npm run capture -- --film <name> --from <s>` and their [dense pass](../review/delivery.md#measure-and-compare), so render time goes to delivery rather than to rechecking. Render the whole film exactly once, for delivery, after every segment is clean; the frame cache then recaptures only changed frames.
