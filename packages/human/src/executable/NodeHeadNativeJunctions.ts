@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import type { AutoMovieMeshCourse, AutoMovieMeshExtract, IAutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieMeshExtract, type AutoMovieMeshCourse, type IAutoMovieLoftChain } from "@automovie/engine";
 
 import type { CaptureModel } from "../inspection/CaptureModel";
 import { HumanNodePaths } from "./HumanNodePaths";
@@ -9,15 +9,17 @@ import { NodeHeadTrace } from "./NodeHeadTrace";
 type Patch = NodeHeadJunction.IResult;
 type Link = { groups: [number[], number[]][] };
 type V3 = [number, number, number];
-type Edge = { a: number; b: number; uses: number };
+type Edge = { a: number; b: number; uses: number; balance: number };
 type Clip = (points: number[], faces: readonly number[], plane: AutoMovieMeshCourse.IPlane, sign: 1 | -1) => number[];
 type Connect = (before: readonly number[], after: readonly number[], a: number[], b: number[], point: (id: number) => V3) => number[];
 type ArchivedJoin = NodeHeadJunction.ILayout & { seams: { chain: string; end: "top" | "bottom"; rail: string }[]; replace?: string };
+type Rim = { rail: number[]; component: number; side: 0 | 1 };
+type V2 = [number, number];
 
 /** Repair exposed head cuts using the same indexed source contours on both sides. */
 export namespace NodeHeadNativeJunctions {
   /** Continue the oral wall to the recorded lower branches and the upper terminal. */
-  export function oralWall(archive: string, mesh: AutoMovieMeshExtract.IMesh, mouth: Patch): Patch {
+  export function oralWall(archive: string, mesh: AutoMovieMeshExtract.IMesh, mouth: Patch, native: CaptureModel.ITriangles, clip: Clip, connect: Connect): Patch {
     const links: Link[] = (JSON.parse(fs.readFileSync(HumanNodePaths.resolve(`${archive}/links.json`), "utf8")) as { intervals: Link[] }).intervals;
     const first: number = 336;
     const lower: number[][] = [[1]];
@@ -34,7 +36,7 @@ export namespace NodeHeadNativeJunctions {
       name: "upper original oral wall", file: ["sections/head/003.json", "sections/head/004.json"], first: 633,
       ordinals: Array.from({ length: 316 }, (): number[] => [1]).concat([[]]), events: ["critical.410"],
     }, mesh);
-    return append(append(mouth, below, "0:1", `${lower.length - 1}:0`), above, "212:1", "0:0");
+    return append(append(replaceIfQualified("mouth", mouth, native, clip, connect), below, "0:1", `${lower.length - 1}:0`), above, "212:1", "0:0");
   }
 
   /** Follow both signed nasal saddles and the three original inner wall terminals. */
@@ -58,6 +60,115 @@ export namespace NodeHeadNativeJunctions {
     ] },
   ];
 
+  /**
+   * Carry the observed near-horizontal skin using its own face adjacency.
+   * Only the named eye or lip slab is replaced; the existing indexed outer
+   * and oral rims remain the interfaces to the surrounding conic surfaces.
+   */
+  function replaceFoldedBand(name: "forehead" | "mouth", base: Patch, native: CaptureModel.ITriangles, clip: Clip, connect: Connect): Patch {
+    const keys = name === "forehead" ? [["0:0"], ["forehead:top"]] as const : [["mouth:first", "0:1"], ["mouth:last", "212:1"]] as const;
+    const upper: number[] | undefined = base.rails.get(keys[1][0]);
+    if (upper === undefined) throw new Error("the retained upper rail is missing");
+    const from: number = name === "forehead" ? 1598.4699249267578 : 1518.1841659545898;
+    // Use an actual source-plane intersection just inside the retained upper rail.
+    const to: number = name === "forehead" ? base.clay.positions[3 * upper[0]! + 1]! - 0.125 : 1525.7013702392578;
+    const plane = (station: number): AutoMovieMeshCourse.IPlane => ({ station, origin: [0, station, 0], u: [1, 0, 0], v: [0, 0, 1] });
+    const points: number[] = native.positions.slice();
+    const source: number[] = clip(points, clip(points, native.indices, plane(from), 1), plane(to), -1);
+    const patches: number[][] = components(source);
+    const rims: Rim[] = patches.flatMap((part: number[], component: number): Rim[] => {
+      const free: Edge[] = [...edges(part).values()].filter((edge: Edge): boolean => edge.uses === 1);
+      return ([0, 1] as const).flatMap((side): Rim[] =>
+        loops(free.filter((edge: Edge): boolean => onPlane(points, edge, side === 0 ? from : to))).map((rail: number[]): Rim => ({ rail, component, side })));
+    });
+    const at = (array: readonly number[], id: number): V3 => [array[id * 3]!, array[id * 3 + 1]!, array[id * 3 + 2]!];
+    const xz = (array: readonly number[], rail: readonly number[]): V2[] => rail.map((id: number): V2 => [array[id * 3]!, array[id * 3 + 2]!]);
+    const measured: { old: number[]; rim: Rim; residual: number }[] = ([0, 1] as const).flatMap((side) =>
+      keys[side].map((key: string) => {
+        const old: number[] | undefined = base.rails.get(key);
+        if (old === undefined || NodeHeadTrace.railDirection(base.clay.indices, old) === 0) throw new Error(`missing indexed original rim ${key}`);
+        const physical: V2[] = xz(base.clay.positions, old);
+        const matches = rims.filter((rim: Rim): boolean => rim.side === side).map((rim: Rim) =>
+          ({ rim, residual: ringGap(physical, xz(points, rim.rail)) })).sort((a, b): number => a.residual - b.residual);
+        const found = matches[0];
+        if (found === undefined || found.residual > 0.5 || (matches[1]?.residual ?? Infinity) <= 0.5)
+          throw new Error(`no unique original ${name} rail for ${key} within 0.5 mm (nearest ${found?.residual.toFixed(3) ?? "unavailable"})`);
+        return { old, ...found };
+      }));
+    if (new Set(measured.map(({ rim }): Rim => rim)).size !== measured.length) throw new Error("two original rims selected the same native rail");
+    const selected: Set<number> = new Set(measured.map(({ rim }): number => rim.component));
+    const componentFaces: number[] = [...selected].flatMap((i: number): number[] => patches[i]!);
+    const sourceEdges: Map<string, Edge> = edges(componentFaces);
+    const expected: number = measured.reduce((sum: number, { rim }): number => sum + rim.rail.length, 0);
+    if ([...sourceEdges.values()].filter((edge: Edge): boolean => edge.uses === 1).length !== expected ||
+        [...sourceEdges.values()].some((edge: Edge): boolean => edge.uses > 2))
+      throw new Error("the native slab has an additional physical opening or an invalid indexed edge");
+    const positions: number[] = base.clay.positions.slice();
+    const ids: Map<number, number> = new Map([...new Set(componentFaces)].map((id: number): [number, number] => [id, positions.push(...at(points, id)) / 3 - 1]));
+    const core: number[] = componentFaces.map((id: number): number => ids.get(id)!);
+    const reversed: number[] = base.clay.indices.map((_, i: number): number => base.clay.indices[i % 3 === 0 ? i : i % 3 === 1 ? i + 1 : i - 1]!);
+    const lines: CaptureModel.ILine[] = [];
+    const stitched: number[] = [];
+    const errors: number[] = [];
+    for (const [i, { old, rim, residual }] of measured.entries()) {
+      const nativeRail: number[] = rim.rail.map((id: number): number => ids.get(id)!);
+      const point = (id: number): V3 => at(positions, id);
+      const faces: number[] = rim.side === 0 ? connect(reversed, core, old, nativeRail, point) : connect(core, reversed, nativeRail, old, point);
+      const mid: number = (point(old[0]!)[1] + point(nativeRail[0]!)[1]) / 2;
+      const error: number = midplaneGap(native, { positions, indices: faces }, mid, xz(positions, nativeRail));
+      if (error > 0.5) throw new Error(`native ${name} rail ${i} midplane ${Number.isFinite(error) ? error.toFixed(3) : "unreadable"} mm`);
+      errors.push(Math.max(error, residual));
+      stitched.push(...faces);
+      for (const [kind, rail] of [["retained", old], ["native", nativeRail]] as const)
+        lines.push({ id: `${name}.physical.${kind}.${i}`, points: rail.map(point), closed: true, colour: "9e4c74" });
+    }
+    const indices: number[] = core.concat(stitched);
+    if (edgeSignature(indices) !== edgeSignature(base.clay.indices))
+      throw new Error("the native strip changed an original oriented rim or created an invalid edge");
+    return { ...base, clay: { positions, indices }, lines, receipt: `${name}: ${core.length / 3} actual source skin triangles; ${measured.length} unchanged indexed rims, ordinary seams ${errors.map((v: number): string => v.toFixed(3)).join("/")} mm` };
+  }
+
+  /** Read closed directed free-edge walks without forcing an open source arc into a ring. */
+  function loops(free: readonly Edge[]): number[][] {
+    const next: Map<number, number[]> = new Map();
+    for (const { a, b } of free) next.set(a, [...(next.get(a) ?? []), b]);
+    const seen: Set<number> = new Set();
+    const out: number[][] = [];
+    for (const start of next.keys()) {
+      if (seen.has(start)) continue;
+      const rail: number[] = [];
+      for (let id: number | undefined = start; id !== undefined && !seen.has(id); id = next.get(id)?.length === 1 ? next.get(id)![0] : undefined) {
+        seen.add(id);
+        rail.push(id);
+      }
+      if (rail.length >= 3 && next.get(rail.at(-1)!)?.[0] === start) out.push(rail);
+    }
+    return out;
+  }
+
+  function ringGap(a: V2[], b: V2[]): number {
+    return Math.sqrt(Math.max(NodeHeadTrace.directed(a, b), NodeHeadTrace.directed(b, a)));
+  }
+
+  /** Check the same physical loop in an independent raw horizontal plane. */
+  function midplaneGap(raw: CaptureModel.ITriangles, clay: CaptureModel.ITriangles, y: number, support: V2[]): number {
+    const frame: AutoMovieMeshExtract.IFrame = { origin: [0, 0, 0], axes: [[1, 0, 0], [0, 1, 0], [0, 0, 1]] };
+    const read = (mesh: CaptureModel.ITriangles): V2[][] => AutoMovieMeshExtract.outline(mesh, frame, [y], 1, 0.5, 0)[0]!.loops
+      .filter((loop: AutoMovieMeshExtract.ILoop): boolean => loop.closed).map((loop: AutoMovieMeshExtract.ILoop): V2[] => loop.points.map(([z, x]): V2 => [x, z]));
+    const built: V2[][] = read(clay);
+    const nearest: V2[] | undefined = read(raw).sort((a: V2[], b: V2[]): number => ringGap(support, a) - ringGap(support, b))[0];
+    return nearest === undefined || built.length !== 1 ? Infinity : ringGap(nearest, built[0]!);
+  }
+
+  /** Compare exact oriented indexed boundaries and refuse any additional incidence defect. */
+  function edgeSignature(faces: readonly number[]): string {
+    const free: string[] = [];
+    for (const [id, edge] of edges(faces))
+      if (edge.uses === 1) free.push(`${id}:${edge.a < edge.b ? 1 : -1}`);
+      else if (edge.uses !== 2 || edge.balance !== 0) throw new Error("a patch has a nonreciprocal interior edge");
+    return free.sort().join("|");
+  }
+
   /** Continue only the forehead branch whose source traverses the change of signed winding. */
   export function eyelid(forehead: Patch, native: CaptureModel.ITriangles, clip: Clip, connect: Connect): Patch {
     const original: number[] | undefined = forehead.rails.get("70:1");
@@ -77,8 +188,15 @@ export namespace NodeHeadNativeJunctions {
     if (error > 0.5) throw new Error(`the upper eyelid rail misses its native continuation by ${error.toFixed(3)} mm`);
     const skin: number[] = patch.clay.indices.map((id: number): number => id + offset);
     const strip: number[] = connect(forehead.clay.indices, skin, original, next, point);
-    return { ...forehead, clay: { positions, indices: forehead.clay.indices.concat(skin, strip) },
+    const baseline: Patch = { ...forehead, clay: { positions, indices: forehead.clay.indices.concat(skin, strip) },
       lines: forehead.lines.concat(patch.lines), receipt: `${forehead.receipt}\n${patch.receipt}; ${original.length}/${next.length} reciprocal edges, ${error.toFixed(3)} mm observed rail deviation` };
+    return replaceIfQualified("forehead", baseline, native, clip, connect);
+  }
+
+  /** Preserve the already connected construction when the original local band is unsupported. */
+  function replaceIfQualified(name: "forehead" | "mouth", baseline: Patch, native: CaptureModel.ITriangles, clip: Clip, connect: Connect): Patch {
+    try { return replaceFoldedBand(name, baseline, native, clip, connect); }
+    catch (error) { return { ...baseline, receipt: `${baseline.receipt}\nnative ${name} band refused: ${error instanceof Error ? error.message : String(error)}` }; }
   }
 
   /** Drop the superseded two-row exterior bridge as complete indexed triangles. */
@@ -166,8 +284,9 @@ export namespace NodeHeadNativeJunctions {
         const a: number = faces[i + j]!, b: number = faces[i + (j + 1) % 3]!;
         const id: string = key(a, b);
         const prior: Edge | undefined = found.get(id);
-        if (prior === undefined) found.set(id, { a, b, uses: 1 });
-        else ++prior.uses;
+        const direction: number = a < b ? 1 : -1;
+        if (prior === undefined) found.set(id, { a, b, uses: 1, balance: direction });
+        else { ++prior.uses; prior.balance += direction; }
       }
     return found;
   }
