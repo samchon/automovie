@@ -2,6 +2,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
   IAutoMoviePose,
+  IAutoMovieQuaternion,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -50,4 +51,17 @@ export interface IFitChainToTargetProps {
    * its root and non-chain joints do not replace the current pose.
    */
   referencePose?: IAutoMoviePose;
+
+  /**
+   * A model-frame point the mid joint (a knee or an elbow) bends toward, the
+   * pole vector of game-engine two-bone IK; omitted, the solve bends toward
+   * world-down and searches bend planes by residual and continuity.
+   */
+  bend?: IAutoMovieVector3;
+
+  /**
+   * The effector's model-frame rotation, as `resolvePose` reports world
+   * rotations; omitted, the effector keeps the pose's own angles.
+   */
+  effectorRotation?: IAutoMovieQuaternion;
 }

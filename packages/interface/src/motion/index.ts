@@ -5,3 +5,6 @@ export * from "./IAutoMovieKeyframe";
 export * from "./IAutoMovieMotion";
 export * from "./IAutoMovieGaitCycle";
 export * from "./IAutoMovieGaitRootBob";
+export * from "./IAutoMovieMotionEvent";
+export * from "./AutoMovieMotionTarget";
+export * from "./IAutoMovieProficiency";

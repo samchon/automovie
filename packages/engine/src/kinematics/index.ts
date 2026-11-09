@@ -36,3 +36,5 @@ export * from "./skeletonJointAxes";
 export * from "./solveTwoBoneIK";
 export * from "./twoBoneChainArticulation";
 export * from "./validateJointAxesBasis";
+export * from "./measureAutoMovieHumanoidBody";
+export * from "./resolveAutoMovieHumanoidSurfaces";

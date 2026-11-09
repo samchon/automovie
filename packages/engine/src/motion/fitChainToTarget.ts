@@ -8,6 +8,7 @@ import {
 } from "@automovie/interface";
 
 import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
+import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { Quaternion } from "../math/Quaternion";
@@ -33,6 +34,18 @@ import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
  */
 export const fitChainToTarget: (
   props: IFitChainToTargetProps,
+) => IAutoMoviePose = (input: IFitChainToTargetProps): IAutoMoviePose =>
+  orientEffector(input, fitChainBend(input));
+
+/**
+ * The bend-plane fit of {@link fitChainToTarget}, before its effector is
+ * oriented.
+ *
+ * @param input The fit request.
+ * @returns The fitted pose.
+ */
+const fitChainBend: (
+  input: IFitChainToTargetProps,
 ) => IAutoMoviePose = (input: IFitChainToTargetProps): IAutoMoviePose => {
   // Declared bone axes take precedence over the host table, once, so the
   // preparation, the analytic solve and the candidate FK read one basis.
@@ -56,7 +69,14 @@ export const fitChainToTarget: (
       restFrames: props.restFrames,
     });
 
-  const pole: ReturnType<typeof solve> = solve();
+  // A bend hint picks the bend plane the way a pole vector does in game-engine
+  // two-bone IK (Unreal's Two Bone IK joint target, Unity's
+  // TwoBoneIKConstraint hint): the mid joint is displaced toward the hint's
+  // component across the root-to-target axis. Without a hint, the analytic
+  // default bends toward world-down and the search below takes over.
+  const pole: ReturnType<typeof solve> = solve(
+    props.bend === undefined ? undefined : hintNormal(prepared.upper.worldPosition, props.target, props.bend),
+  );
   if (pole === null) return props.pose;
   const authored: IAutoMovieVector3 = resolveBoneMap(
     props.skeleton,
@@ -372,3 +392,96 @@ const jointRotationDistance: (
   const angle: number = 2 * Math.acos(dot);
   return angle * angle;
 };
+
+/**
+ * The bend-plane normal that displaces the mid joint toward a hint: the
+ * hint's component across the root-to-target axis, crossed as the analytic
+ * default crosses world-down (`axis x pole`). A hint on the axis gives no
+ * plane, so the default is used.
+ *
+ * @param root The chain root, model metres.
+ * @param target The effector target, model metres.
+ * @param bend The hint, model metres.
+ * @returns The unit normal, or undefined when the hint lies on the axis.
+ */
+function hintNormal(
+  root: IAutoMovieVector3,
+  target: IAutoMovieVector3,
+  bend: IAutoMovieVector3,
+): IAutoMovieVector3 | undefined {
+  const axis: IAutoMovieVector3 = Vector3.subtract(target, root);
+  if (Vector3.length(axis) < 1e-9) return undefined;
+  const unitAxis: IAutoMovieVector3 = Vector3.normalize(axis);
+  const toward: IAutoMovieVector3 = Vector3.subtract(bend, root);
+  const across: IAutoMovieVector3 = Vector3.subtract(
+    toward,
+    Vector3.scale(unitAxis, Vector3.dot(toward, unitAxis)),
+  );
+  if (Vector3.length(across) < 1e-9) return undefined;
+  return Vector3.normalize(Vector3.cross(unitAxis, Vector3.normalize(across)));
+}
+
+/**
+ * Turn the fitted chain's effector to a requested model-frame rotation: its
+ * local articulation is the lower bone's world rotation undone, then its
+ * rest rotation undone, read back as clinical angles through the same axes
+ * and rest frames and clamped to the rig's range of motion.
+ *
+ * @param props The fit request; without `effectorRotation` the pose returns unchanged.
+ * @param pose The fitted pose.
+ * @returns The pose with the effector oriented.
+ */
+function orientEffector(
+  props: IFitChainToTargetProps,
+  pose: IAutoMoviePose,
+): IAutoMoviePose {
+  if (props.effectorRotation === undefined) return pose;
+  const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
+    skeletonJointAxes(props.skeleton, props.jointAxes);
+  const lower: IAutoMovieResolvedBone = resolveBoneMap(
+    props.skeleton,
+    pose,
+    props.topology,
+    axes,
+    props.restFrames,
+  ).get(props.chain.lower)!;
+  const rest: IAutoMovieQuaternion =
+    props.skeleton.bones.find(
+      (b: (typeof props.skeleton.bones)[number]): boolean =>
+        b.bone === props.chain.effector,
+    )?.rest.rotation ?? Quaternion.identity();
+  const local: IAutoMovieQuaternion = Quaternion.normalize(
+    Quaternion.multiply(
+      Quaternion.inverse(rest),
+      Quaternion.multiply(
+        Quaternion.inverse(lower.worldRotation),
+        props.effectorRotation,
+      ),
+    ),
+  );
+  const angles: ReturnType<typeof decomposeJointRotation> =
+    decomposeJointRotation(
+      local,
+      axes[props.chain.effector],
+      props.restFrames?.[props.chain.effector],
+    );
+  const effector: IAutoMovieJointPose = clampJointToSkeleton(
+    {
+      bone: props.chain.effector,
+      flexion: angles.flexion,
+      abduction: angles.abduction,
+      twist: angles.twist,
+    },
+    props.skeleton,
+  );
+  return {
+    ...pose,
+    joints: [
+      ...pose.joints.filter(
+        (joint: IAutoMovieJointPose): boolean =>
+          joint.bone !== props.chain.effector,
+      ),
+      effector,
+    ],
+  };
+}
