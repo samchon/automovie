@@ -104,6 +104,95 @@ export namespace NodeLegF1Loft {
     return rings;
   }
 
+  /** Loft the native posterior section into the exact first two leg rims. */
+  function stitchPosteriorFork(
+    boundary: number[],
+    next: number[],
+    section: { frame: Frame; points: V3[] },
+    fork: ILegFork,
+    mesh: AutoMovieMeshExtract.IMesh,
+    positions: number[],
+    indices: number[],
+    append: (points: V3[]) => number[],
+  ): V3[] {
+    const strip: number[] = [];
+    stitchRows(boundary, next, positions, strip, "length");
+    const keep = (): V3[] => {
+      for (const index of strip) indices.push(index);
+      return [];
+    };
+    const center = AutoMovieMeshCourse.centroid(section.points);
+    if (center === null) return keep();
+    const lower = scale(AutoMovieViewAxis.normal(section.frame) as V3, -1);
+    const mixed = mix(fork.parent.normal, lower, 0.5);
+    const normal = Geometry.unit(mixed);
+    const level = (Geometry.dot(fork.parent.centroid, fork.parent.normal) + Geometry.dot(center, lower)) / 2;
+    const seed = mix(fork.parent.centroid, center, 0.5);
+    const shift = (level - Geometry.dot(seed, mixed)) / Math.hypot(...mixed);
+    const origin: V3 = [seed[0] + shift * normal[0], seed[1] + shift * normal[1], seed[2] + shift * normal[2]];
+    const u = Geometry.unit(sub([0, 0, 1], scale(normal, normal[2])));
+    const v = Geometry.cross(u, normal);
+    const cut = AutoMovieMeshExtract.outline(mesh, { origin, axes: [normal, u, v] }, [0], 0, Trace.TOLERANCE, 0)[0]!;
+    const side = (p: V3): number => fork.direction * (p[2] - fork.midline);
+    const exterior = (p: V3): boolean => side(p) > 0 && p[0] < center[0];
+    const arcs: V3[][] = [];
+    for (const loop of cut.loops) {
+      const points = loop.points.map((p): V3 => place({ origin, u, v }, p));
+      const outside = points.findIndex((p): boolean => !exterior(p));
+      const ordered = loop.closed && outside >= 0 ? [...points.slice(outside + 1), ...points.slice(0, outside + 1)] : points;
+      let arc: V3[] = [];
+      for (const p of ordered) {
+        if (exterior(p) && Geometry.dot(sub(p, fork.parent.centroid), fork.parent.normal) < 0 && Geometry.dot(sub(p, center), lower) > 0) arc.push(p);
+        else {
+          if (arc.length > 1) arcs.push(arc);
+          arc = [];
+        }
+      }
+      if (arc.length > 1) arcs.push(arc);
+    }
+    if (arcs.length !== 1) return keep();
+    const source = arcs[0]!;
+    if (side(source[0]!) > side(source[source.length - 1]!)) source.reverse();
+    if (source.some((p, i): boolean => i > 0 && side(p) <= side(source[i - 1]!))) return keep();
+    const point = (i: number): V3 => [positions[3 * i]!, positions[3 * i + 1]!, positions[3 * i + 2]!];
+    const edge = (a: number, b: number): string => a < b ? `${a},${b}` : `${b},${a}`;
+    const readings = Array.from({ length: strip.length / 3 }, (_, i) => {
+      const a = point(strip[3 * i]!), b = point(strip[3 * i + 1]!);
+      const da = Geometry.dot(sub(a, origin), normal), db = Geometry.dot(sub(b, origin), normal);
+      // The shared nonplanar median rail stays on its existing strip.
+      if (side(a) <= 0 || side(b) <= 0 || da * db >= 0) return null;
+      const at = mix(a, b, da / (da - db));
+      const z = side(at);
+      if (!exterior(at) || z < side(source[0]!)) return null;
+      const end = source.findIndex((p): boolean => side(p) > z);
+      if (end < 1) return null;
+      const first = source[end - 1]!, last = source[end]!;
+      return { edge: edge(strip[3 * i]!, strip[3 * i + 1]!), point: mix(first, last, (z - side(first)) / (side(last) - side(first))) };
+    });
+    const gap = readings.findIndex((sample) => sample === null);
+    if (gap < 0) return keep();
+    const ordered = [...readings.slice(gap + 1), ...readings.slice(0, gap + 1)];
+    const first = ordered.findIndex((sample) => sample !== null);
+    if (first < 0) return keep();
+    const end = ordered.findIndex((sample, i) => i > first && sample === null);
+    if (end - first < 2 || ordered.slice(end).some((sample) => sample !== null)) return keep();
+    const arc = ordered.slice(first, end).map((sample) => sample!);
+    const rail = arc.map(({ point: p }): V3 => p);
+    const samples = new Map(append(rail).map((index, i): [string, number] => [arc[i]!.edge, index]));
+    const upper = new Set(boundary);
+    for (let i = 0; i < strip.length; i += 3) {
+      const face = strip.slice(i, i + 3);
+      const k = face.findIndex((index, j): boolean => upper.has(index) === upper.has(face[(j + 1) % 3]!));
+      const a = face[k]!, b = face[(k + 1) % 3]!, c = face[(k + 2) % 3]!;
+      const bc = samples.get(edge(b, c)), ca = samples.get(edge(c, a));
+      if (bc !== undefined && ca !== undefined) indices.push(a, b, bc, a, bc, ca, ca, bc, c);
+      else if (bc !== undefined) indices.push(a, b, bc, a, bc, c);
+      else if (ca !== undefined) indices.push(a, b, ca, ca, b, c);
+      else indices.push(a, b, c);
+    }
+    return rail;
+  }
+
   /**
    * Weld the measured leg transitions to existing conic, ordinary and native end rows.
    *
@@ -277,7 +366,11 @@ export namespace NodeLegF1Loft {
         let boundary = append(forkClock(fork, measured[0]?.frame ?? frame));
         for (const [k, section] of measured.entries()) {
           const next = append(forkClock(section.points, section.frame));
-          stitchRows(boundary, next, positions, indices, "length");
+          if (k === 0) {
+            const rail = stitchPosteriorFork(boundary, next, section, legFork, mesh, positions, indices, append);
+            if (rail.length > 0) lines.push({ id: "Observed posterior fork rail", points: rail, closed: false, colour: "505050" });
+            diagnostics.push(`Observed posterior fork rail: ${rail.length} points on one native section between the retained rims.`);
+          } else stitchRows(boundary, next, positions, indices, "length");
           boundary = next;
           lines.push({ id: `Observed fork transition ${k + 1}`, points: section.points, closed: true, colour: "505050" });
           hipPlanes.push({ station: k, origin: section.frame.origin as V3, u: section.frame.u as V3, v: section.frame.v as V3 });
