@@ -26,7 +26,7 @@ Settings domains map onto code: cast, crowds, props and sets become entities of 
 
 ## How the parts work together
 
-An entity is constructed from its settings facts and composes small fragments; its methods are capabilities that return intent records. A scene chains those capabilities in a sentence-like call such as `a.cue().lift(b).next(b.land())`, and the installed combinators place the chains in time; interactions then align the participants, derive timing from the laws and decide outcomes from the outcome tables, and consequences follow from those outcomes. The whole composition resolves once into a frozen schedule, and every film second is a pure function of that schedule. Each film has its own seed, and a film that continues another starts from that film's final state snapshots. Logic lives in pure laws the methods call, so a unit test needs no mock. This object shell over a functional core is the production's own style; installed packages keep theirs.
+An entity is constructed from its settings facts and composes small fragments; its methods are capabilities that return intent records. A scene chains those capabilities in a sentence-like call such as `a.cue().lift(b).next(b.land()).with(c.turn())`, where the installed combinators place `next` in sequence and `with` in parallel; interactions then align the participants, derive timing from the laws and decide outcomes from the outcome tables, and consequences follow from those outcomes. The whole composition resolves once into a frozen schedule, and every film second is a pure function of that schedule. Each film has its own seed, and a film that continues another starts from that film's final state snapshots. Logic lives in pure laws the methods call, so a unit test needs no mock. This object shell over a functional core is the production's own style; installed packages keep theirs.
 
 ## Dependencies and files
 
@@ -36,6 +36,4 @@ Each file exports one declaration named as the file and stays under 500 lines; a
 
 ## Execution and runtime setup
 
-[Production](../production/SKILL.md) routes the commissioned work to its specialists. Read the actual source entry, runtime configuration and installed APIs before adopting a host or integration; available files alone do not prove working playback or export. [Finishing](../production/finishing.md) verifies that path and the assembled artifact. Select an external generation service only for a commissioned generation workflow.
-
-[Project context](../production/profile.md) owns operating choices and authority. README and `.env.example` document the actual commands and nonsecret configuration; ignored `.env` holds credentials. Installed APIs own callable behavior.
+Read the actual source entry, runtime configuration and installed APIs before adopting a host or integration, and record the choice and its authority in [project context](../production/profile.md); [finishing](../production/finishing.md) verifies playback and export on the assembled artifact.

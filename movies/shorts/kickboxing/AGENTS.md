@@ -13,7 +13,7 @@ This is an AutoMovie production. It primarily turns an LLM-authored screenplay i
 - Keep external generation outside deterministic playback; retain the actual media used.
 - Save each expensive stage's result and resume from it under [stage caches](.agents/skills/production/stages.md).
 - Use installed package READMEs, public types, and JSDoc for APIs; do not copy them into instructions.
-- Report what you verified, not what you built.
+- Before reporting, review your own screenplay, code, modules and film unprompted, as a demanding viewer of the depicted practice; fix what falls short at its cause, then report what you verified, not what you built.
 - Keep video and 3D viewers operational. Restore a broken viewer first, repair missing capabilities at their owner and reconnect the actual consumer before continuing.
 
 ## Finishing Work
@@ -26,11 +26,11 @@ A message without a tool call ends the turn. While work remains, do not end it w
 - a report because a stage finished;
 - a wait on background work.
 
-Stop only when nothing can move without the user or a destructive or outward-facing action needs confirmation.
+Put status notes in the same message as the next tool call. Stop only when nothing can move without the user or a destructive or outward-facing action needs confirmation.
 
 ## Skills
 
-Read [PROJECT.md](PROJECT.md) for the adopted scope, then enter the requested task directly. Story selects only the current writing task; review, graph configuration and media production have their own entry points.
+Read [PROJECT.md](PROJECT.md) for the adopted scope, then enter the requested task directly.
 
 ### Creation
 

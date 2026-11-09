@@ -8,7 +8,7 @@ Keep each stage's result as a content-addressed artifact in an ignored folder un
 
 Record each stage's input and output digests. A rerun reuses a stage whose key is unchanged once its stored artifact matches the recorded output digest, and recomputes only stages whose key changed; a recomputed output whose digest is unchanged stops recomputation of the stages after it, the early cutoff of [Build Systems à la Carte](https://www.microsoft.com/en-us/research/wp-content/uploads/2018/03/build-systems.pdf). A captured frame is reusable only as a pure function of the resolved state and frame index under [frame evaluation](../motion/timeline.md#separate-sampling-from-retained-state), and a physics bake resumes only from a complete checkpoint under [physical feedback](../motion/physics.md).
 
-Supply these digests through the installed caches, such as the render frame cache, the prepared-figure cache, the stage-artifact helper and the engine's physics checkpoints, rather than writing a cache in the production; a missing capability is repaired at its package owner under [development](../development/SKILL.md).
+Supply these digests through the installed caches, such as the render frame cache, the prepared-figure cache, the stage-artifact helper and the engine's physics checkpoints, rather than writing a cache in the production; [development](../development/SKILL.md) adds a missing one at its package owner.
 
 ## Check and clean the caches
 
@@ -18,4 +18,4 @@ Caches are derived state: never commit one or cite it as the source of truth. Le
 
 ## Iterate on the affected interval
 
-Inspect a change over its affected interval: play the changed scenes' interval and capture targeted stills of it. Render the whole film for delivery, where the frame cache recaptures only changed frames, after the whole-film [measures and comparison](../review/delivery.md#measure-and-compare).
+Check a change on the 10-second review segments it touches, through live Viewer playback, stills from `npm run render -- --film <name> --from <s> --to <s> --every <frames>` and their [dense pass](../review/delivery.md#measure-and-compare), so render time goes to delivery rather than to rechecking. Render the whole film exactly once, for delivery, after every segment is clean; the frame cache then recaptures only changed frames.
