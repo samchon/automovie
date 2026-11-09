@@ -9,6 +9,7 @@ import { HumanProxemics } from "../../everyday/HumanProxemics";
 import { gestureStroke } from "../../everyday/gestureStroke";
 import { rest } from "../../everyday/rest";
 import { seated } from "../../everyday/seated";
+import { typeText } from "../../everyday/typeText";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -51,6 +52,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * - `everyday-brace`: bracing for a push from ahead; the centre of mass's
  *   margin to the base's edge along the push higher at `set` than at the
  *   start, and laterally not lower (Massion 1992; Hof et al. 2005).
+ * - `everyday-type`: typing "hello world" at a counter at elbow height;
+ *   the index fingertip on each key's pressed centre within 10 mm.
  * - `everyday-step`: stepping over a 0.3 m box, at tenths of the crossing;
  *   every sole point at least 5 cm above the box while over it.
  *
@@ -66,7 +69,7 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
-export function everydayCases(family?: "approach" | "look" | "gesture" | "rest" | "seat" | "bend" | "step" | "brace", bodies: readonly string[] = ["m-average"]): IMotionCaptureCase[] {
+export function everydayCases(family?: "approach" | "look" | "gesture" | "rest" | "seat" | "bend" | "step" | "brace" | "type", bodies: readonly string[] = ["m-average"]): IMotionCaptureCase[] {
   const wants = (name: string): boolean => family === undefined || family === name;
   const out: IMotionCaptureCase[] = [];
   const within = everydayVerdicts.within;
@@ -312,6 +315,29 @@ export function everydayCases(family?: "approach" | "look" | "gesture" | "rest" 
           { name: "lateral margin not lower at set", passed: after.side >= before.side - 1e-3, detail: `${(before.side * 1000).toFixed(1)} mm before, ${(after.side * 1000).toFixed(1)} mm at set` },
           ...everydayVerdicts.standard(performance, "a", body),
         ],
+      });
+    }
+
+    if (wants("type")) {
+      const keyboard = { at: { x: 0, y: body.measure.shoulderHeight - body.measure.upperArm - 0.005, z: 0.35 }, yaw: 0 };
+      const text: string = "hello world";
+      const performance: HumanPerformance = one(HumanChain.subject("a").typeText({ keyboard, text }));
+      const segment = performance.segments("a")[0]!;
+      const verdicts: IMotionCaptureCase.IVerdict[] = everydayVerdicts.standard(performance, "a", body);
+      let worst: number = 0;
+      [...text].forEach((letter: string, i: number): void => {
+        const t: number = segment.start + segment.plan.events[i]!.share * segment.plan.duration;
+        const k = typeText.key(letter);
+        const target: IAutoMovieVector3 = { x: keyboard.at.x + k.at.x, y: keyboard.at.y - typeText.TRAVEL, z: keyboard.at.z + k.at.z };
+        worst = Math.max(worst, Vector3.length(Vector3.subtract(HumanHand.frame(body, performance.bones("a", t), k.side, "indexTip", "point").point, target)));
+      });
+      verdicts.push(within("fingertip on each key at its press", worst, 0.01, "mm"));
+      out.push({
+        name: `everyday-type${suffix}`,
+        times: [0, 2, 4, 6, 8].map((i: number) => ({ seconds: segment.start + segment.plan.events[i]!.share * segment.plan.duration, label: `press ${text[i]}` })),
+        performers: [figure(performance, "a", man)],
+        boxes: [{ centre: { x: 0, y: keyboard.at.y - 0.015, z: 0.35 }, half: { x: 0.2, y: 0.01, z: 0.07 }, color: 0x555555 }],
+        verdicts,
       });
     }
   }

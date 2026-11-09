@@ -80,6 +80,9 @@ export namespace stepOver {
     lead?: "left" | "right";
   }
 
+  /** How far before and beyond the obstacle the full lift is held, metres: room for a drooping toe and the ramp's start (provisional). */
+  export const SPAN: number = 0.06;
+
   /** Sole clearance over the obstacle's top, metres (provisional; Patla and Rietdyk 1993). */
   export const MARGIN: number = 0.1;
 
@@ -141,8 +144,8 @@ export namespace stepOver {
       return hi;
     };
     const spans: Record<"left" | "right", [number, number]> = {
-      left: [reachAt("left", "toe", near - 0.02), reachAt("left", "heel", far + 0.02)],
-      right: [reachAt("right", "toe", near - 0.02), reachAt("right", "heel", far + 0.02)],
+      left: [reachAt("left", "toe", near - SPAN), reachAt("left", "heel", far + SPAN)],
+      right: [reachAt("right", "toe", near - SPAN), reachAt("right", "heel", far + SPAN)],
     };
     const swing = (side: "left" | "right", s: number): { placement: HumanFoot.IPlacement; lift: number } => {
       const [s0, s1] = spans[side];
