@@ -1,14 +1,15 @@
 {
   "version": 1,
   "files": {
-    ".agents/skills/3d-modeling/SKILL.md": "1fc75485de4d7c6607e66c23bc25b00cea116a7be43789554f79004cbb7ce3f2",
+    ".agents/skills/3d-modeling/SKILL.md": "1d8c1287f04564f7c606ea62659d718d9bf0e6ad40b604f30243c705d95b9f4f",
     ".agents/skills/3d-modeling/crafting.md": "aec8332f3c9542bf924b4fa491d1dc7f875b9397ad5d210face57d235d6433a6",
     ".agents/skills/3d-modeling/diffusion.md": "aa1b1c5f51f98f95fb2562fe4e04429e627fb882ad27633f6f81745f846e8d3b",
     ".agents/skills/3d-modeling/lofting.md": "b79c3b511012921ddd5d2f1bf5fa6a1f659ef25fcb25933b1e7e198803573cdc",
     ".agents/skills/3d-modeling/modularization.md": "18dd5b410294275504e1cc7381bb0a2c13efa589e12c00807fc536028d5fb860",
-    ".agents/skills/3d-modeling/recovery.md": "267ae0a6164dcacad6c6fea1d46692a3214feff32b50933af2110950a5621410",
-    ".agents/skills/3d-modeling/research.md": "eab5003cd9ba5500624afdddd7b98cf6cce595b58b408be7ac925cfa6b333a84",
+    ".agents/skills/3d-modeling/recovery.md": "cab31afbd4a6ed54278626d3393f8eca0ca365c235ee7d47886196c0dc27a86d",
+    ".agents/skills/3d-modeling/research.md": "2bccda37385602022597facd4412f4a5f66f6fe97ba9983aa0d7787e7966fefa",
     ".agents/skills/3d-modeling/rigging.md": "1e96a37aac5f897c71f48675bee097007ee272ecb40b423b650b9fe21c80c4b5",
+    ".agents/skills/3d-modeling/sources.md": "5eacae610a40a1df1978f827a9d8dfd376d8a5ad0f3dfdf74ca1ff29939554c7",
     ".agents/skills/3d-modeling/visual-debugging.md": "a28555abd1419f59bb9d5c6d9e7223986d87243ebfed2505fed32f92314c617a",
     ".agents/skills/audio/SKILL.md": "e2ef185970215dfb809b05409cecd0bc32f63d8ddeb3edea78a11c7b14a7cf86",
     ".agents/skills/audio/acquisition.md": "038eb49d1fca5040ae8b1cdf93fe11331dd60ad03071eceee22ae2f62cfa6996",
@@ -25,6 +26,7 @@
     ".agents/skills/evidence/adoption.md": "1bec09e7cc204f7db36df4f18b3592129fef05321bd4d13a1cf784879ec2a1b7",
     ".agents/skills/evidence/answering.md": "f90ef12f2da155dfcefdad0f4f288b91b08e579f9466b15b676aa0f34b677c64",
     ".agents/skills/evidence/configuration.md": "9299c40e91a9da48c82d790efcc9a35ed41e67f3681cff61aa3f8b0952792654",
+    ".agents/skills/image/SKILL.md": "f38446e5cabf0b89219b70544f26e279c13dd132eee439a7969e6e1f2adad6e1",
     ".agents/skills/motion/SKILL.md": "5e0175661478fedc4c12e7e12ddf54a511c0016c33cde0a8079bf3ce243b629e",
     ".agents/skills/motion/physics.md": "dbd535501dca3de7bec29e2fe181c9f8141ad4eb0180437ebc20315ccb4a1cc8",
     ".agents/skills/motion/research.md": "ac0f13e0a2af7893048b0e652cbbb4d7dec1e08dc65118a6a8520a66b4177760",
@@ -71,11 +73,10 @@
     ".agents/skills/story/planning/requirements.md": "a1d8a0695b4b17401977c7f72a282c058f604dae371ad1b2c98f09340c487b34",
     ".agents/skills/story/planning/research.md": "5be1939fc6849752cb91f6d4135694b8f9eb8a4f5411bf30edd3a555e108d9bd",
     ".agents/skills/story/workflow.md": "a34af71d1b64d83975c09c791023508428a9cb0d42490fdd89be3ce87c9982e2",
-    "AGENTS.md": "3e8dfa45d341409e2c836c36807169d5ce85f9addbeab2520c2de494159ddf28",
-    "CLAUDE.md": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
-    ".agents/skills/image/SKILL.md": "f38446e5cabf0b89219b70544f26e279c13dd132eee439a7969e6e1f2adad6e1",
     ".agents/skills/video/SKILL.md": "a6bbb22addf59d26d24acbbad7c8d415c7719fad3435a743b352307e19ad5f71",
     ".agents/skills/video/models.md": "e8cd3dc20eeec272d34cd6c191e74228e7376abd5d5289bc75ca3bf1d8902b73",
-    ".agents/skills/video/prompts.md": "a862f03ff539ce63d5b2441e85e5990c31cdef44e999b60e55917000b7ce7124"
+    ".agents/skills/video/prompts.md": "a862f03ff539ce63d5b2441e85e5990c31cdef44e999b60e55917000b7ce7124",
+    "AGENTS.md": "3e8dfa45d341409e2c836c36807169d5ce85f9addbeab2520c2de494159ddf28",
+    "CLAUDE.md": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49"
   }
 }

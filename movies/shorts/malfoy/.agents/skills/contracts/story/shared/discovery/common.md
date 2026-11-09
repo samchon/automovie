@@ -1,6 +1,6 @@
 # Common requirement discovery
 
-The discovery result answers for the entire inspected layer population. Authors create `work/discovery/results.md` under this story contract tree from actual findings and inspected negatives; the scaffold supplies no completed negative.
+The discovery result answers for the entire inspected layer population. Authors create `work/discovery/results.md` under the production's `docs/contracts` from actual findings and inspected negatives; the scaffold supplies no completed negative.
 
 ## Were requirements found and assigned without inventing duplicate authority? {#shared-work-boundary}
 

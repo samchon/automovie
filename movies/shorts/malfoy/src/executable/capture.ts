@@ -10,6 +10,7 @@ import type { IFilm } from "../IFilm";
 import type { IFilmProduction } from "../IFilmProduction";
 import { films } from "../composition/films";
 import { selectFilm } from "../selectFilm";
+import { planCaptureStills } from "./planCaptureStills";
 import { AutoMovieRasterSheet } from "./viewer/node/raster/AutoMovieRasterSheet";
 import { type IAutoMovieSceneRaster } from "./viewer/node/raster/IAutoMovieSceneRaster";
 import { encodeAutoMovieRasterPng } from "./viewer/node/raster/encodeAutoMovieRasterPng";
@@ -25,25 +26,31 @@ import { stampAutoMovieRasterLabel } from "./viewer/node/raster/stampAutoMovieRa
  * CPU rasterizer, stamps the second in the corner, and writes
  * `t<seconds>.png` frames, contact sheets `sheet-<from>-<to>.png` with JSON
  * cell indexes, and `manifest.json` into
- * `media/automovie/<film>/frames/capture/<from>-<to>/` or `--out <dir>`.
+ * `media/automovie/<film>/frames/capture/<from>-<to>[-<view>]/` or
+ * `--out <dir>`, so a catalog case or a 10-second review segment always lands
+ * at the same path.
  *
  * Requests: `--from <s>` (default 0) and `--to <s>` (default ten seconds
- * later, at most the film's end) bound a half-open window sampled `--rate
- * <n>` times per second (default 5, at most 10, so 50 frames per ten seconds);
+ * later, at most the film's end) bound a half-open window that
+ * {@link planCaptureStills} samples on the film's frame grid at `--rate <n>`
+ * per second (default 5, at most 10, so 50 frames per ten seconds), adding 10
+ * per second within half a second of each `--events <s,s,…>` second;
  * `--every <frames>` samples the film's own frame grid instead, inclusive of
  * both ends; `--at <s,s,…>` draws exact seconds. `--width`/`--height` set the
  * raster (default the film's delivery raster), `--supersample <1-4>`
- * antialiases, `--view x,y,z:tx,ty,tz` replaces the camera by a static
+ * antialiases, `--view <name>` draws through one of the film's named
+ * `IFilmProduction.views` and `--view x,y,z:tx,ty,tz` through a static
  * inspection camera in world metres, `--per-sheet <n>` and `--columns <n>`
- * lay out sheets (default 20 cells in five columns, four seconds at 5 per second),
- * `--no-label` and `--no-sheet` drop the stamp and the sheets, and `--list`
- * prints the registered films. `--module <file.ts>` (with `--export <name>`
- * when the module has several exports) captures a film that is not
- * registered, such as a motion rehearsal under `test/rehearsals/`, into
- * `media/automovie/modules/<module>/`; several comma-separated modules share
- * one run. `--video` draws every frame of the film's grid in `[from, to)`
- * (default the whole film) and encodes them at the film's rate with the
- * installed FFmpeg into `media/automovie/<film>/videos/capture.mp4`. Run it with `ttsx --no-plugins --noCheck` so no
+ * lay out sheets (default 50 cells in ten columns, one 10-second segment at
+ * 5 per second), `--no-label` and `--no-sheet` drop the stamp and the
+ * sheets, and `--list` prints the registered films. `--module <file.ts>`
+ * (with `--export <name>` when the module has several exports) captures a
+ * film that is not registered, such as a motion rehearsal, whole by default,
+ * into `media/automovie/modules/<module>/`; several comma-separated modules
+ * share one run. `--video` draws every frame of the film's grid in
+ * `[from, to)` (default the whole film) and encodes them at the film's rate
+ * with the installed FFmpeg into `media/automovie/<film>/videos/capture.mp4`.
+ * Run it with `ttsx --no-plugins --noCheck` so no
  * type check or compiler plugin runs before drawing; the type-check watch owns
  * compile errors.
  *
@@ -116,24 +123,14 @@ export async function capture(): Promise<void> {
         ? film.durationSeconds
         : Math.min(from + 10, film.durationSeconds),
     )!;
-    const rate: number = number("--rate", 5)!;
-    if (rate > 10)
-      throw new Error(
-        "--rate is at most 10 frames per second; use --at for single frames",
-      );
+    const view: string | undefined = options.get("--view");
 
     // A video draws every frame of the film's grid in [from, to) and encodes them at the film's rate.
+    const first: number = Math.ceil(from * film.fps - 1e-9);
     const times: number[] = video
       ? Array.from(
-          {
-            length: Math.max(
-              0,
-              Math.ceil(to * film.fps - 1e-9) -
-                Math.ceil(from * film.fps - 1e-9),
-            ),
-          },
-          (_: unknown, k: number): number =>
-            (Math.ceil(from * film.fps - 1e-9) + k) / film.fps,
+          { length: Math.max(0, Math.ceil(to * film.fps - 1e-9) - first) },
+          (_: unknown, k: number): number => (first + k) / film.fps,
         )
       : options.has("--at")
         ? planViewerFrameTimes({
@@ -149,12 +146,21 @@ export async function capture(): Promise<void> {
               to,
               every: number("--every"),
             })
-          : sampleWindow(from, to, rate, film.durationSeconds);
+          : planCaptureStills({
+              fps: film.fps,
+              durationSeconds: film.durationSeconds,
+              start: from,
+              end: to,
+              rate: number("--rate", 5),
+              events: options.has("--events")
+                ? options.get("--events")!.split(",").map(Number)
+                : [],
+            });
     const width: number = number("--width", film.width ?? 1280)!;
     const height: number = number("--height", film.height ?? 720)!;
     const supersample: number = number("--supersample", 1)!;
-    const perSheet: number = number("--per-sheet", 20)!;
-    const columns: number = number("--columns", 5)!;
+    const perSheet: number = number("--per-sheet", 50)!;
+    const columns: number = number("--columns", 10)!;
     const label: (seconds: number) => string = (seconds: number): string =>
       seconds.toFixed(3).padStart(7, "0");
     const directory: string =
@@ -165,7 +171,12 @@ export async function capture(): Promise<void> {
         selected.name,
         "frames",
         video ? "video" : "capture",
-        video ? "" : `${label(times[0]!)}-${label(times.at(-1)!)}`,
+        video
+          ? ""
+          : `${label(times[0]!)}-${label(times.at(-1)!)}` +
+              (view === undefined
+                ? ""
+                : `-${/^[a-z0-9-]+$/u.test(view) ? view : "inspection"}`),
       );
     await mkdir(directory, { recursive: true });
 
@@ -184,10 +195,15 @@ export async function capture(): Promise<void> {
     );
     const mounted: number = performance.now();
     try {
-      const camera: THREE.Camera = inspectionCamera(
-        production.camera,
-        options.get("--view"),
-      );
+      const preset: NonNullable<IFilmProduction["views"]>[string] | undefined =
+        view !== undefined &&
+        production.views !== undefined &&
+        Object.hasOwn(production.views, view)
+          ? production.views[view]
+          : undefined;
+      const camera: THREE.Camera = preset
+        ? production.camera.clone()
+        : inspectionCamera(production.camera, view);
       const frames: { file: string; seconds: number }[] = [];
       const skipped: Record<string, number> = {};
       const sheets: string[] = [];
@@ -242,6 +258,12 @@ export async function capture(): Promise<void> {
 
       for (const seconds of times) {
         production.seek(seconds);
+        if (preset) {
+          const pose: ReturnType<NonNullable<typeof preset>> = preset(seconds);
+          camera.position.set(...pose.position);
+          camera.lookAt(...pose.target);
+          camera.updateMatrixWorld();
+        }
         fitAspect(camera, width, height);
         const raster: IAutoMovieSceneRaster = rasterizeAutoMovieScene({
           scene: production.scene,
@@ -374,6 +396,7 @@ const VALUED: readonly string[] = [
   "--from",
   "--to",
   "--rate",
+  "--events",
   "--every",
   "--at",
   "--width",
@@ -420,25 +443,6 @@ async function loadModuleFilm(
     name: path.join("modules", name === undefined ? base : `${base}-${chosen}`),
     film: candidate as IFilm,
   };
-}
-
-/** Seconds `from + k / rate` inside the half-open window `[from, to)`. */
-function sampleWindow(
-  from: number,
-  to: number,
-  rate: number,
-  duration: number,
-): number[] {
-  if (!(rate > 0))
-    throw new Error("--rate must be positive samples per second");
-  if (!(from >= 0 && from < to && to <= duration))
-    throw new Error(`The window must satisfy 0 <= from < to <= ${duration}`);
-  const count: number = Math.ceil((to - from) * rate - 1e-9);
-  return Array.from(
-    { length: count },
-    (_: unknown, k: number): number =>
-      Math.round((from + k / rate) * 1e6) / 1e6,
-  );
 }
 
 /** Match a perspective camera's aspect to the raster, as the Viewer does for its canvas. */
