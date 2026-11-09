@@ -916,6 +916,9 @@ importers:
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
+      '@automovie/motions':
+        specifier: workspace:^
+        version: link:../motions
       '@automovie/recovery':
         specifier: workspace:^
         version: link:../recovery

@@ -1,4 +1,4 @@
-import { HUMANOID_GAITS } from "@automovie/archetypes";
+import { HUMANOID_GAITS } from "@automovie/motions";
 import {
   HUMANOID_JOINT_AXES,
   IAutoMovieActorContext,

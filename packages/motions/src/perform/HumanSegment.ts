@@ -17,6 +17,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
+import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { HumanSkill } from "../skill/HumanSkill";
@@ -53,6 +54,15 @@ export namespace HumanSegment {
 
     /** Displayed poses already evaluated, by film second; bounded to 4096 entries. */
     cache: Map<number, IAutoMoviePose>;
+
+    /** Whether the schedule is still being resolved: nothing is cached meanwhile, because another person's actions may not be placed yet. */
+    resolving: boolean;
+
+    /** Additive layers over every action, in order. */
+    layers: readonly IHumanLayer[];
+
+    /** What a layer can read. */
+    layer: IHumanLayer.IContext;
   }
 
   /** One placed action. */
@@ -168,7 +178,9 @@ export namespace HumanSegment {
     const shown = (t: number): IAutoMoviePose => (previous === undefined ? initial(person) : of(person, previous, t));
     const state: samplePoseVelocity.IState = samplePoseVelocity(shown, seconds);
     const posture: IHumanPosture =
-      previous === undefined ? person.initial : previous.plan.posture(Math.min(previous.plan.duration, Math.max(0, seconds - previous.start)));
+      previous === undefined
+        ? person.initial
+        : layered(person, previous.plan.posture(Math.min(previous.plan.duration, Math.max(0, seconds - previous.start))), seconds);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
       resolvePose(state.pose, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map((r): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r]),
     );
@@ -212,11 +224,12 @@ export namespace HumanSegment {
    * @returns The pose.
    */
   export function displayed(person: IPerson, seconds: number): IAutoMoviePose {
-    const cached: IAutoMoviePose | undefined = person.cache.get(seconds);
+    const cached: IAutoMoviePose | undefined = person.resolving ? undefined : person.cache.get(seconds);
     if (cached !== undefined) return cached;
     let active: ISegment | undefined;
     for (const s of person.segments) if (s.entryTime <= seconds + 1e-12) active = s;
     const pose: IAutoMoviePose = active === undefined ? initial(person) : of(person, active, seconds);
+    if (person.resolving) return pose;
     if (person.cache.size >= 4096) person.cache.delete(person.cache.keys().next().value!);
     person.cache.set(seconds, pose);
     return pose;
@@ -235,7 +248,7 @@ export namespace HumanSegment {
   export function of(person: IPerson, segment: ISegment, seconds: number): IAutoMoviePose {
     const body = person.performer.body;
     const local: number = Math.min(segment.plan.duration, Math.max(0, seconds - segment.start));
-    const posture: IHumanPosture = segment.plan.posture(local);
+    const posture: IHumanPosture = layered(person, segment.plan.posture(local), seconds);
     let pose: IAutoMoviePose = resolveHumanPosture(body, posture);
     const transition = segment.transition;
     if (transition !== undefined && transition.kind !== "redirect" && seconds - transition.cut < transition.blend) {
@@ -243,7 +256,7 @@ export namespace HumanSegment {
         samplePoseVelocity((t: number): IAutoMoviePose => of(person, transition.source, t), transition.cut),
         samplePoseVelocity(
           (t: number): IAutoMoviePose =>
-            resolveHumanPosture(body, segment.plan.posture(Math.min(segment.plan.duration, Math.max(0, t - segment.start)))),
+            resolveHumanPosture(body, layered(person, segment.plan.posture(Math.min(segment.plan.duration, Math.max(0, t - segment.start))), t)),
           transition.cut,
         ),
         transition.blend,
@@ -255,6 +268,27 @@ export namespace HumanSegment {
       }
     }
     return clampPose(pose, body.skeleton);
+  }
+
+  /**
+   * Forget every evaluated pose and transition offset, once every person's
+   * actions are placed, so nothing evaluated against a half-placed
+   * performance survives.
+   *
+   * @param person The person.
+   */
+  export function settle(person: IPerson): void {
+    for (const segment of person.segments) {
+      segment.plan.settle?.();
+      if (segment.transition !== undefined) delete segment.transition.offset;
+    }
+    person.cache.clear();
+    person.resolving = false;
+  }
+
+  /** A posture with the person's layers added in order. */
+  function layered(person: IPerson, posture: IHumanPosture, seconds: number): IHumanPosture {
+    return person.layers.reduce((p: IHumanPosture, layer: IHumanLayer): IHumanPosture => layer.apply(p, seconds, person.layer), posture);
   }
 
   /** The standing pose before a person's first action. */

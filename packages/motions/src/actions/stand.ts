@@ -34,9 +34,10 @@ export namespace stand {
   /** The action's name. */
   export const name: HumanActionName = "stand";
 
-  /** Cancel table: a stand can be cut anywhere into another stand. */
+  /** Cancel table: a stand can be cut anywhere. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+    walk: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
   /**

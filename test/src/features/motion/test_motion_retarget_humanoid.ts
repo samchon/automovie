@@ -1,4 +1,4 @@
-import { HUMANOID_PROFILE } from "@automovie/archetypes";
+import { HUMANOID_PROFILE } from "@automovie/motions";
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,

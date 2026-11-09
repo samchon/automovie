@@ -66,7 +66,7 @@ export function galleryCases(): IMotionCaptureCase[] {
   const bodies: IMotionCaptureCase = {
     name: "bodies",
     times: [{ seconds: 0, label: "neutral" }],
-    performers: (["f-short", "m-average", "m-tall"] as const).map((id: string, i: number): IMotionCaptureCase.IPerformer => {
+    performers: (["f-small", "m-average", "m-tall"] as const).map((id: string, i: number): IMotionCaptureCase.IPerformer => {
       const b: AutoMovieHumanCanonicalBody.IBody = MotionBodies.population(id).body;
       return {
         id,

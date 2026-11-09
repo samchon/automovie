@@ -33,4 +33,14 @@ export interface IHumanActionPlan {
    * @returns The posture.
    */
   posture(seconds: number): IHumanPosture;
+
+  /**
+   * Drop anything memoised from reads made before the performance settled.
+   * A plan whose geometry depends on another person or prop may build it on
+   * its first posture call; a call during schedule resolution can read a
+   * half-placed performance, so the performance calls this on every plan
+   * once every action is placed, before any pose is evaluated again.
+   * `contacts` may be a getter over the same memo.
+   */
+  settle?(): void;
 }

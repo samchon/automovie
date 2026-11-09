@@ -1,5 +1,8 @@
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { everydayCases } from "./everydayCases";
 import { galleryCases } from "./galleryCases";
+import { locomotionCases } from "./locomotionCases";
+import { handlingCases } from "./handlingCases";
 
 /**
  * Every capture case by name: each factory builds one or more cases, so a
@@ -13,4 +16,12 @@ import { galleryCases } from "./galleryCases";
 export const MOTION_CAPTURE_CASES: Readonly<Record<string, () => IMotionCaptureCase[]>> = {
   gallery: (): IMotionCaptureCase[] => galleryCases().filter((c: IMotionCaptureCase): boolean => c.name === "gallery"),
   bodies: (): IMotionCaptureCase[] => galleryCases().filter((c: IMotionCaptureCase): boolean => c.name === "bodies"),
+  walk: (): IMotionCaptureCase[] => locomotionCases(),
+  "everyday-approach": (): IMotionCaptureCase[] => everydayCases("approach"),
+  "everyday-look": (): IMotionCaptureCase[] => everydayCases("look"),
+  "everyday-gesture": (): IMotionCaptureCase[] => everydayCases("gesture"),
+  "everyday-rest": (): IMotionCaptureCase[] => everydayCases("rest"),
+  "everyday-seat": (): IMotionCaptureCase[] => everydayCases("seat"),
+  "everyday-bend": (): IMotionCaptureCase[] => everydayCases("bend"),
+  "handling-handshake": (): IMotionCaptureCase[] => handlingCases("handshake"),
 };

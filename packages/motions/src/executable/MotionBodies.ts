@@ -33,7 +33,7 @@ export namespace MotionBodies {
   /** The sweep of population bodies every experiment runs across. */
   export const SWEEP: readonly string[] = [
     "f-small",
-    "f-short",
+    "f-minus-one",
     "f-average",
     "f-tall",
     "f-long-legged",

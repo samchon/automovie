@@ -1,6 +1,6 @@
 # @automovie/archetypes
 
-Typed producers of shipped model groups, and the humanoid gait tables a production may bind. Each producer takes named dimensions and returns one `IAutoMovieModel`, the group a film references directly; each gait table is data the engine's gait machinery binds onto a skeleton.
+Typed producers of shipped model groups. Each producer takes named dimensions and returns one `IAutoMovieModel`, the group a film references directly. The humanoid gait tables moved to `@automovie/motions`.
 
 Shipped figure and prop definitions belong here. `interface`, `engine`, and `viewer` stay independent of this catalogue.
 
@@ -37,7 +37,6 @@ const figure: IAutoMovieModel = createAutoMovieStickman({
 | --- | --- |
 | `createAutoMovieStickman` | A thirteen-bone primitive figure scaled by height, head radius and limb radius. |
 | `createAutoMoviePrimitiveProp` | A skeletonless model of one primitive shape. |
-| `HUMANOID_GAITS`, `HUMANOID_PROFILE` | The five humanoid locomotion gaits and the profile that packages them. |
 
 ## What may enter
 

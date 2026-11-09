@@ -1,4 +1,4 @@
-import { HUMANOID_GAITS, HUMANOID_PROFILE } from "@automovie/archetypes";
+import { HUMANOID_GAITS, HUMANOID_PROFILE } from "@automovie/motions";
 import {
   bindProfileGaits,
   gaitMotion,
