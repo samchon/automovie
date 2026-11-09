@@ -49,7 +49,10 @@ import { HumanPrehension } from "./HumanPrehension";
  *    timed by the same movement-time law.
  *
  * The hand grips the prop from `gripClosed` to the end, which attaches the
- * prop to the hand (`HumanPerformance.prop`), so the prop rides the lift.
+ * prop to the hand (`HumanPerformance.prop`), so the prop rides the lift, and
+ * the plan declares a hold from `gripClosed`, so the hand keeps the prop with
+ * its closed fingers through later actions (carried with the trunk while a
+ * walk or a turn drives the body) until a put down or a hand over takes it.
  *
  * Events: `gripClosed`, `liftOff`, `lifted`. A pick up cut into a stand
  * before `gripClosed` abandons the reach; after `lifted` it continues into a
@@ -138,6 +141,7 @@ export namespace pickUp {
         { part: "rightFoot", kind: "plant", from: 0, to: 1, support: { kind: "ground" } },
         { part: hand, kind: "grip", from: reach / duration, to: 1, support: { kind: "prop", subject: context.params.prop } },
       ],
+      holds: [{ side, prop: context.params.prop, from: reach / duration, fingers: closed }],
       contact: reach,
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
