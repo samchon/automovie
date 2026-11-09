@@ -23,13 +23,15 @@ export namespace NodeHeadJunction {
     /** Name used in diagnostics for this source junction. */
     name: string;
     /** Path to the original region rows, relative to the F1 archive. */
-    file: string;
+    file: string | readonly string[];
     /** Global index of the first published section. */
     first: number;
     /** Ordered original contour ordinals retained at each section. */
     ordinals: number[][];
     /** Original critical events allowed in this section range. */
     events: string[];
+    /** Last archive section whose outer rail is still owned by this local patch. */
+    lastExterior?: number;
   }
 
   /** Exact indexed output and its original rail identities in the capture world. */
@@ -216,7 +218,7 @@ export namespace NodeHeadJunction {
 
   /** Read the exact source curves that own the ear and crown topology. */
   export function create(archive: string, layout: ILayout, mesh: AutoMovieMeshExtract.IMesh): IResult {
-    return build(layout, mesh, readArchive(archive, [layout.file]));
+    return build(layout, mesh, readArchive(archive, typeof layout.file === "string" ? [layout.file] : layout.file));
   }
 
   /** Follow the continuously connected forehead exterior up to the first vault rail. */
@@ -374,7 +376,10 @@ export namespace NodeHeadJunction {
       },
     });
     const exterior: readonly PrimitiveRange[] | null = layout.name === "forehead exterior" ? qualifiedExterior(intervals, result) : null;
-    const retained: number[] = exterior === null ? indices : exterior.flatMap((range: PrimitiveRange): number[] =>
+    const cutoff: number | undefined = layout.lastExterior === undefined ? undefined : sections[layout.lastExterior - first]?.coordinateMm;
+    const ranges: readonly PrimitiveRange[] | null = cutoff === undefined ? exterior : (result.primitiveRanges ?? []).filter((range: PrimitiveRange): boolean =>
+      range.beforeMm < cutoff || !intervals.find((interval): boolean => interval.beforeMm === range.beforeMm)?.groups[range.group]?.before.includes(0));
+    const retained: number[] = ranges === null ? indices : ranges.flatMap((range: PrimitiveRange): number[] =>
       indices.slice(3 * range.firstTriangle, 3 * (range.firstTriangle + range.triangleCount)),
     );
     const clay: CaptureModel.ITriangles = { positions, indices: retained };

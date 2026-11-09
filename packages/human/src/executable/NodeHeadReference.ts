@@ -7,13 +7,14 @@ import { HumanInspectionReferenceMesh } from "../inspection/HumanInspectionRefer
 import { CaptureSpecs } from "../inspection/CaptureSpecs";
 import { HumanNodePaths } from "./HumanNodePaths";
 import { NodeHeadJunction } from "./NodeHeadJunction";
+import { NodeHeadNativeJunctions } from "./NodeHeadNativeJunctions";
 import { NodeHeadOrbit } from "./NodeHeadOrbit";
 import { NodeHeadTrace } from "./NodeHeadTrace";
 
 type V3 = [number, number, number];
 type V2 = [number, number];
 type Seam = { chain: string; end: "top" | "bottom"; rail: string; station?: number };
-type Layout = NodeHeadJunction.ILayout & { seams: Seam[] };
+type Layout = { seams: Seam[]; replace?: string } & (NodeHeadJunction.ILayout | { name: string; native: () => NodeHeadJunction.IResult });
 type Junction = Pick<NodeHeadJunction.IResult, "clay" | "lines" | "rails" | "receipt">;
 
 /**
@@ -112,7 +113,12 @@ export namespace NodeHeadReference {
     if (capture.loft.status !== "available") return;
     // The observed right orbitale in the F1 head measurement, in capture world millimetres.
     capture.ports.push({ name: "orbit", point: [103.44128859022192, 1579.628451098783, 31.07267043229048], radius: 53 });
+    const native = (): CaptureModel.ITriangles => NodeHeadOrbit.skin(mesh);
     const layouts: Layout[] = [
+      ...NodeHeadNativeJunctions.ARCHIVED,
+      { name: "original right ear terminal", seams: [{ chain: "head.right-lobe", end: "bottom", rail: "rim" }],
+        native: () => NodeHeadNativeJunctions.terminal(native(), NodeHeadOrbit.clipPlane, 1541.1154556274414, 1541.1328125,
+          [23.4403657913208, 1541.1158752441406, 71.77016258239746], "top", "right ear terminal") },
       // Ordinal 1 is a separate inner oral wall at these ear sections.
       { name: "ear junction", file: "sections/head/004.json", first: 933, ordinals: [[0, 2, 3], [0, 2], [0, 2], [0]], events: ["critical.403", "critical.404"], seams: [
         { chain: "head.face-linked.882", end: "top", rail: "0:0" },
@@ -127,17 +133,23 @@ export namespace NodeHeadReference {
     for (const layout of layouts) {
       let receipt: string;
       try {
-        const join: Junction = NodeHeadJunction.create(archive, layout, mesh);
-        const seams: string[] = stitchJunction(capture.loft, join, layout.seams, chains, mesh);
+        const join: NodeHeadJunction.IResult = "native" in layout ? layout.native() : NodeHeadJunction.create(archive, layout, mesh);
+        const staged = { ...capture.loft };
+        const seams: string[] = stitchJunction(staged, join, layout.seams, chains, mesh, undefined, layout.replace);
+        if (!join.qualified || seams.some((item: string): boolean => item.includes("unsewn:"))) throw new Error([join.receipt, ...seams].join(" | "));
+        capture.loft = staged;
         receipt = [join.receipt, ...seams].join("\n");
       } catch (error) {
         receipt = `${layout.name} refused: ${error instanceof Error ? error.message : String(error)}`;
       }
       report(capture, receipt);
     }
-    if (forehead !== null)
-      report(capture, [forehead.receipt, ...stitchJunction(capture.loft, forehead, [{ chain: "head.vault", end: "bottom", rail: "forehead:top" }], chains, mesh),
-        "the lower forehead rail remains open at the observed eye interval"].join("\n"));
+    if (forehead !== null) {
+      let skin: Junction = forehead;
+      try { skin = NodeHeadNativeJunctions.eyelid(forehead, native(), NodeHeadOrbit.clipPlane, NodeHeadOrbit.connect); }
+      catch (error) { report(capture, `original eyelid branch refused: ${error instanceof Error ? error.message : String(error)}`); }
+      report(capture, [skin.receipt, ...stitchJunction(capture.loft, skin, [{ chain: "head.vault", end: "bottom", rail: "forehead:top" }], chains, mesh)].join("\n"));
+    }
     const lastNeck: IAutoMovieLoftChain | undefined = chains.filter((chain: IAutoMovieLoftChain): boolean => (chain.name ?? "").startsWith("head.neck.")).at(-1);
     try {
       const mouth: ReturnType<typeof NodeHeadJunction.mouth> = NodeHeadJunction.mouth(archive, mesh);
@@ -145,7 +157,10 @@ export namespace NodeHeadReference {
       const seams: Seam[] = [{ chain: "head.face", end: "bottom", rail: "mouth:last" }];
       if (axis !== undefined && lastNeck !== undefined)
         seams.unshift({ chain: lastNeck.name!, end: "top", rail: "mouth:first", station: lastNeck.layers.at(-1)!.y });
-      report(capture, [mouth.receipt, ...stitchJunction(capture.loft, mouth, seams, chains, mesh, axis)].join("\n"));
+      let wall: Junction = mouth;
+      try { wall = NodeHeadNativeJunctions.oralWall(archive, mesh, mouth); }
+      catch (error) { report(capture, `original oral wall refused: ${error instanceof Error ? error.message : String(error)}`); }
+      report(capture, [wall.receipt, ...stitchJunction(capture.loft, wall, seams, chains, mesh, axis)].join("\n"));
     } catch (error) {
       report(capture, `mouth aperture refused: ${error instanceof Error ? error.message : String(error)}`);
     }
@@ -230,12 +245,18 @@ export namespace NodeHeadReference {
     chains: readonly IAutoMovieLoftChain[],
     mesh: AutoMovieMeshExtract.IMesh,
     axis?: AutoMovieViewAxis.IAxis,
+    replaceChain?: string,
   ): string[] {
     const base: number = loft.clay.positions.length / 3;
     const positions: number[] = loft.clay.positions.concat(join.clay.positions);
     let faces: number[] = loft.clay.indices.concat(join.clay.indices.map((i: number): number => base + i));
     const point = (i: number): V3 => [positions[3 * i]!, positions[3 * i + 1]!, positions[3 * i + 2]!];
     const replaced: Set<string> = new Set();
+    if (replaceChain !== undefined) {
+      const domain: number = chains.findIndex((chain): boolean => chain.name === replaceChain);
+      faces = NodeHeadNativeJunctions.withoutBridge(faces, chains[domain], replaced,
+        (chain, end) => adjacentRail(chain, end, loft.clay.positions, domain));
+    }
     const reports: string[] = [];
     for (const seam of seams) {
       try {

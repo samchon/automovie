@@ -3,6 +3,7 @@ import { AutoMovieMeshCourse, AutoMovieMeshExtract, tessellateAutoMovieContourSt
 import type { CaptureModel } from "../inspection/CaptureModel";
 import { CaptureSpecs } from "../inspection/CaptureSpecs";
 import { NodeHeadJunction } from "./NodeHeadJunction";
+import { NodeHeadNativeJunctions } from "./NodeHeadNativeJunctions";
 import { NodeHeadTrace } from "./NodeHeadTrace";
 
 type V2 = [number, number];
@@ -109,7 +110,8 @@ export namespace NodeHeadOrbit {
     return { clay: { positions: points, indices: clay.indices.concat(faces) }, lines, receipt: `lower orbit skin: ${receipts.join(" | ")}` };
   }
 
-  function connect(before: readonly number[], after: readonly number[] | null, a: number[], b: number[], point: (id: number) => V3): number[] {
+  /** Join two existing native rims with reciprocal indexed edge use. */
+  export function connect(before: readonly number[], after: readonly number[] | null, a: number[], b: number[], point: (id: number) => V3): number[] {
     const low: number = NodeHeadTrace.railDirection(before, a);
     const high: number | null = after === null ? null : NodeHeadTrace.railDirection(after, b);
     if (low === 0 || high === 0) throw new Error("an original skin rim is not a complete free indexed rail");
@@ -135,8 +137,10 @@ export namespace NodeHeadOrbit {
 
   function clipped(native: CaptureModel.ITriangles, from: AutoMovieMeshCourse.IPlane, to: AutoMovieMeshCourse.IPlane, outer: boolean): ReturnType<typeof clip> {
     const points: number[] = native.positions.slice();
-    const all: number[] = clipPlane(points, clipPlane(points, native.indices, from, 1), to, -1);
-    const faces: number[] = outer ? NodeHeadJunction.posteriorComponent(points, all) : all;
+    const above: number[] = clipPlane(points, native.indices, from, 1);
+    const crossed: Map<string, number> = new Map();
+    const all: number[] = clipPlane(points, above, to, -1, crossed);
+    const faces: number[] = outer ? NodeHeadNativeJunctions.sideSkin(points, NodeHeadJunction.posteriorComponent(points, all), clipPlane(points, above, to, 1, crossed), to.station) : all;
     const used: number[] = [...new Set(faces)];
     const map: Map<number, number> = new Map(used.map((id: number, i: number): [number, number] => [id, i]));
     const clay: CaptureModel.ITriangles = { positions: used.flatMap((id: number): V3 => at(points, id)), indices: faces.map((id: number): number => map.get(id)!) };
@@ -216,10 +220,9 @@ export namespace NodeHeadOrbit {
     return { positions, indices: exterior };
   }
 
-  /** Use one exact interpolation per crossed indexed source edge. */
-  function clipPlane(points: number[], faces: readonly number[], plane: AutoMovieMeshCourse.IPlane, sign: 1 | -1): number[] {
+  /** Share one exact interpolation per crossed native edge on both sides of a cut. */
+  export function clipPlane(points: number[], faces: readonly number[], plane: AutoMovieMeshCourse.IPlane, sign: 1 | -1, crossed: Map<string, number> = new Map()): number[] {
     const distances: number[] = Array.from({ length: points.length / 3 }, (_: unknown, id: number): number => distance(at(points, id), plane));
-    const crossed: Map<string, number> = new Map();
     const kept: number[] = [];
     for (let i: number = 0; i < faces.length; i += 3) {
       const face: Face = [faces[i]!, faces[i + 1]!, faces[i + 2]!];
@@ -289,7 +292,6 @@ export namespace NodeHeadOrbit {
     if (found.length !== 1 || (!outer && found[0]!.length !== next.size)) throw new Error("the clipped plane does not have one physical exterior rim");
     return found[0]!;
   }
-
   function at(positions: ArrayLike<number>, id: number): V3 {
     return [positions[3 * id]!, positions[3 * id + 1]!, positions[3 * id + 2]!];
   }
