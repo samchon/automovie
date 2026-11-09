@@ -33,13 +33,13 @@ export namespace AutoMovieLoftViewRead {
   /**
    * Finite original values, before native shape admission.
    *
-   * @evidence contracts/common.md#principled-implementation Keeps four signed-to-positive extents and the four effective shoulders from their source functions.
-   * @evidence contracts/common.md#clear-and-simple-design Two arrays preserve the shared section factory's quarter layout.
+   * @evidence contracts/common.md#principled-implementation Keeps four signed-to-positive extents and the four effective shoulders from their source functions, and a top source's touch offsets, splits and split lists when it declares them.
+   * @evidence contracts/common.md#clear-and-simple-design Two arrays preserve the shared section factory's quarter layout; the optional members carry the split-quarter chain's extra inputs.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Values do not imply physical jet availability or a positive/convex admitted section.
-   * @evidence contracts/common.md#meaningful-documentation Extents use mm and shoulders are dimensionless, ordered +u,+v,-u,-v.
+   * @evidence contracts/common.md#meaningful-documentation Extents use mm and shoulders are dimensionless, ordered +u,+v,-u,-v; touch offsets are mm along each support line; each split is [u mm, v mm, tangent angle rad, shoulder].
    * @evidenceExclude contracts/performance.md#efficient-algorithms This result has no algorithm.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The reader owns query reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns two fresh four-entry arrays.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns its fresh arrays.
    */
   export interface IValues {
     /** Four extent values, mm; native section admission still checks positivity. */
@@ -47,18 +47,27 @@ export namespace AutoMovieLoftViewRead {
 
     /** Four effective shoulder values after their existing cap law. */
     shoulders: number[];
+
+    /** Four touch offsets, mm, when the source declares them. */
+    touch?: number[];
+
+    /** Four splits `[u, v, angle, shoulder]`, when the source declares them. */
+    splits?: number[][];
+
+    /** Each quarter's ordered split points `[u, v, angle, shoulder]`, when the source declares them. */
+    pieces?: number[][][];
   }
 
   /**
    * Actual finite physical-station source2 inputs of the shared native field.
    *
    * @evidence contracts/common.md#principled-implementation Carries each actual value, first derivative and second derivative after the analytical cap product rule.
-   * @evidence contracts/common.md#clear-and-simple-design Two ordered four-entry jet arrays directly match ViewSectionField.prepare.
+   * @evidence contracts/common.md#clear-and-simple-design Two ordered four-entry jet arrays directly match ViewSectionField.prepare; the optional members carry the split-quarter chain's extra inputs.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A null source station jet never appears as a zero-filled tuple.
-   * @evidence contracts/common.md#meaningful-documentation Each tuple uses physical station mm, extent mm and dimensionless shoulders.
+   * @evidence contracts/common.md#meaningful-documentation Each tuple uses physical station mm, extent mm and dimensionless shoulders; touch offsets in mm; splits as [u, v, angle, shoulder] tuples.
    * @evidenceExclude contracts/performance.md#efficient-algorithms This result performs no computation.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Its producer owns scalar query reuse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns eight fixed tuples with no borrowed mutable output.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns its fixed tuples with no borrowed mutable output.
    */
   export interface IJets {
     /** Four extent source2 tuples in physical station. */
@@ -66,6 +75,15 @@ export namespace AutoMovieLoftViewRead {
 
     /** Four effective shoulder source2 tuples in that same station. */
     shoulders: Scalar[];
+
+    /** Four touch-offset source2 tuples, when the source declares them. */
+    touch?: Scalar[];
+
+    /** Four splits of four source2 tuples each, `[u, v, angle, shoulder]`, when the source declares them. */
+    splits?: Scalar[][];
+
+    /** Each quarter's ordered split points, four source2 tuples each, when the source declares them. */
+    pieces?: Scalar[][][];
   }
 
   /**
@@ -110,7 +128,14 @@ export namespace AutoMovieLoftViewRead {
         shoulders = shoulders.map((r: number): number => blend(r, w));
       if (![...extents, ...shoulders].every(Number.isFinite))
         throw new Error("The effective source values are not finite.");
-      return { extents, shoulders };
+      const out: IValues = { extents, shoulders };
+      if (source.fullness.kind === "top" && source.fullness.touch !== null)
+        out.touch = source.fullness.touch.map((outline: AutoMovieViewOutline.IOutline, q: number): number => value(outline, station, `touch ${q}`));
+      if (source.fullness.kind === "top" && source.fullness.splits !== null)
+        out.splits = source.fullness.splits.map((split: readonly AutoMovieViewOutline.IOutline[], q: number): number[] => split.map((outline: AutoMovieViewOutline.IOutline, k: number): number => value(outline, station, `split ${q} ${SPLIT[k]}`)));
+      if (source.fullness.kind === "top" && source.fullness.pieces !== null)
+        out.pieces = source.fullness.pieces.map((list: readonly (readonly AutoMovieViewOutline.IOutline[])[], q: number): number[][] => list.map((split: readonly AutoMovieViewOutline.IOutline[], j: number): number[] => split.map((outline: AutoMovieViewOutline.IOutline, k: number): number => value(outline, station, `quarter ${q} point ${j} ${SPLIT[k]}`))));
+      return out;
     } catch (error: unknown) {
       return fault(station, error);
     }
@@ -181,15 +206,25 @@ export namespace AutoMovieLoftViewRead {
         )
       )
         throw new Error("The required effective source2 is not finite.");
-      return {
+      const out: IJets = {
         extents,
         shoulders: shoulders.map((at: Scalar): Scalar => [...at]),
       };
+      if (source.fullness.kind === "top" && source.fullness.touch !== null)
+        out.touch = source.fullness.touch.map((outline: AutoMovieViewOutline.IOutline, q: number): Scalar => jet(outline, station, `touch ${q}`));
+      if (source.fullness.kind === "top" && source.fullness.splits !== null)
+        out.splits = source.fullness.splits.map((split: readonly AutoMovieViewOutline.IOutline[], q: number): Scalar[] => split.map((outline: AutoMovieViewOutline.IOutline, k: number): Scalar => jet(outline, station, `split ${q} ${SPLIT[k]}`)));
+      if (source.fullness.kind === "top" && source.fullness.pieces !== null)
+        out.pieces = source.fullness.pieces.map((list: readonly (readonly AutoMovieViewOutline.IOutline[])[], q: number): Scalar[][] => list.map((split: readonly AutoMovieViewOutline.IOutline[], j: number): Scalar[] => split.map((outline: AutoMovieViewOutline.IOutline, k: number): Scalar => jet(outline, station, `quarter ${q} point ${j} ${SPLIT[k]}`))));
+      return out;
     } catch (error: unknown) {
       return fault(station, error);
     }
   }
 }
+
+/** The four scalar roles of one split, in its tuple order. */
+const SPLIT: readonly string[] = ["u", "v", "angle", "shoulder"];
 
 /** Distinguish explicit source absence at the caller from broken present source data here. */
 function validate(
@@ -222,6 +257,18 @@ function validate(
           source.fullness.departures.length !== 4)
   )
     throw new Error("The present fullness source has no four-quarter layout.");
+
+  // A split-quarter or touch-offset section has no cap law: the cap blends
+  // quarter shoulders toward the four-quarter ellipse, which names no piece
+  // of a split quarter.
+  if (source.fullness.kind === "top" && (source.fullness.touch !== null || source.fullness.splits !== null || source.fullness.pieces !== null)) {
+    if (source.caps.length !== 0) throw new Error("A touch-offset or split-quarter source has no cap law; it closes no pole.");
+    if (source.fullness.touch !== null && source.fullness.touch.length !== 4) throw new Error("The present touch source has no four-guide layout.");
+    if (source.fullness.splits !== null && (source.fullness.splits.length !== 4 || source.fullness.splits.some((split: readonly AutoMovieViewOutline.IOutline[]): boolean => split.length !== 4)))
+      throw new Error("The present split source has no four-quarter, four-role layout.");
+    if (source.fullness.pieces !== null && (source.fullness.pieces.length !== 4 || source.fullness.pieces.some((list: readonly (readonly AutoMovieViewOutline.IOutline[])[]): boolean => !Array.isArray(list) || list.some((split: readonly AutoMovieViewOutline.IOutline[]): boolean => split.length !== 4))))
+      throw new Error("The present split-list source has no four-quarter layout of four-role points.");
+  }
   const poles: Set<number> = new Set();
   for (const entry of source.caps) {
     if (

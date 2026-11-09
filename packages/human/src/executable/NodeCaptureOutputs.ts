@@ -26,7 +26,7 @@ export namespace NodeCaptureOutputs {
     loft: "generated loft: grey layer rings, guides at phases 0 teal, 90 purple, 180 magenta, 270 orange, light grey course",
     "loft-clay": "generated loft curves over default clay, lines depth-tested",
     clay: "generated default clay alone (raw loft, final skin not run)",
-    reference: "each view pairs our clay (left) with the registered MetaHuman f1 reference mesh as clay (right), same camera and frame",
+    reference: "each view pairs our clay (left) with each drawn part's reference mesh as clay (right), in the frame its provider placed it (registered or her own world; the manifest records each part's reference method), same camera and frame",
   };
 
   /** One written sheet. */

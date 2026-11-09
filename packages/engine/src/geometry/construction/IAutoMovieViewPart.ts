@@ -280,7 +280,63 @@ export namespace IAutoMovieViewPart {
     /** Discriminator. */
     kind: "top";
 
-    /** Each quarter's shoulder value, knots at the top view's key stations. */
+    /** Each quarter's shoulder value, knots at the top view's key stations; with {@link splits}, the shoulder of the quarter's first piece. */
     shoulders: IQuarters<IOutline>;
+
+    /**
+     * Where each guide touches its support line, millimetres along it from
+     * the chart axis: the `v` of the `+u` and `-u` extremes and the `u` of
+     * the `+v` and `-v` extremes, so a section's extreme point stands where
+     * the section actually reaches it (classic conic lofting's maximum
+     * half-breadth line has its own height). Absent: every guide on its axis
+     * line, the four-quarter section's convention.
+     */
+    touch?: IQuarters<IOutline>;
+
+    /**
+     * Each quarter split into two conic pieces at a point of the section
+     * (#3158): quarter q runs from guide q to split q with shoulder
+     * `shoulders[q]` and from split q to guide q + 1 with
+     * `splits[q].shoulder`, each piece a rational quadratic on its two end
+     * points and tangent lines (`AutoMovieViewChain`). Absent: one conic per
+     * quarter.
+     */
+    splits?: IQuarters<ISplit>;
+
+    /**
+     * Each quarter split into conic pieces at its ordered points of the
+     * section (#3158), in increasing phase: quarter q runs from guide q
+     * through `pieces[q][0]`, `pieces[q][1]`, ... to guide q + 1, its first
+     * piece with shoulder `shoulders[q]` and each later piece with the
+     * shoulder of the point that starts it, each a rational quadratic on its
+     * two end points and tangent lines (`AutoMovieViewChain`). An empty list
+     * leaves the quarter one conic. Absent: one conic per quarter.
+     */
+    pieces?: IQuarters<ISplit[]>;
+  }
+
+  /**
+   * One quarter's split point, its tangent and the second piece's shoulder, each a scalar source in station.
+   *
+   * @evidence contracts/common.md#principled-implementation A conic piece is fixed by its two end points, their tangent lines and one shoulder; the split supplies the shared point, its tangent and the second piece's shoulder.
+   * @evidence contracts/common.md#clear-and-simple-design Four scalar sources per split reuse the outline evaluator.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The record does not choose its point; its producer reads it from the section it traces.
+   * @evidence contracts/common.md#meaningful-documentation States chart millimetres, the tangent angle's reference and orientation, and the shoulder's piece.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Source data has no runtime algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Source data coordinates no requests.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The producer owns its four outlines.
+   */
+  export interface ISplit {
+    /** The split point's `u`, chart millimetres. */
+    u: IOutline;
+
+    /** The split point's `v`, chart millimetres. */
+    v: IOutline;
+
+    /** The tangent direction there, radians from `+u` toward `+v`, oriented in increasing phase. */
+    angle: IOutline;
+
+    /** The second piece's shoulder, in (0, 1). */
+    shoulder: IOutline;
   }
 }

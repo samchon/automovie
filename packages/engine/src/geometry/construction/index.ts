@@ -48,6 +48,7 @@ export * from "./AutoMovieSolidZip";
 export * from "./AutoMovieSplineCurve";
 export * from "./AutoMovieStationHermite";
 export * from "./AutoMovieViewAxis";
+export * from "./AutoMovieViewChain";
 export * from "./AutoMovieViewCurves";
 export * from "./AutoMovieViewLoft";
 export * from "./AutoMovieViewOutline";

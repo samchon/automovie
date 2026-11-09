@@ -23,10 +23,16 @@ interface Controls {
 /**
  * A continuation-owned native generating law on one changed station span.
  *
+ * A source declaring touch offsets or quarter splits is a G1 conic chain
+ * (`AutoMovieViewChain`), whose phase reading is C1 with sided second
+ * derivatives at its joins and whose inputs are more than these eight
+ * scalars; it has no law here, and every entry refuses it by name rather
+ * than carrying its four-quarter part alone.
+ *
  * @evidence contracts/common.md#principled-implementation Quintic Hermite of actual log-extent/logit-shoulder endpoint2 defines a full scalar generating field, so native total2 needs no Cartesian third/fourth mixed derivatives.
  * @evidence contracts/common.md#clear-and-simple-design Original endpoint tuples, transformed rows and one span completely determine the bridge.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not reinterpolate ordinary source spans, fit an endpoint to eight scalars, clamp a shoulder or replace an unavailable actual jet.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes continuation ownership, physical station jets, effective inputs and finite-arithmetic admission.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not reinterpolate ordinary source spans, fit an endpoint to eight scalars, clamp a shoulder or replace an unavailable actual jet; a chain source is refused, never reduced to its eight scalars.
+ * @evidence contracts/common.md#meaningful-documentation Distinguishes continuation ownership, physical station jets, effective inputs and finite-arithmetic admission, and names the chain refusal.
  * @evidence contracts/performance.md#efficient-algorithms Eight scalar transforms prepare two fixed endpoints; a read combines three eight-entry rows and applies their inverse chain rule.
  * @evidence contracts/performance.md#reuse-equivalent-work Every phase at a station reuses the resulting scalar inputs through its native station preparation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-owned fixed endpoint/control arrays have no layer-sized or global cache.
@@ -78,13 +84,14 @@ export namespace AutoMovieLoftSectionBoundary {
    *
    * @evidence contracts/common.md#principled-implementation Transforms actual derivatives by the log/logit chain rule and retains their original endpoint tuples exactly.
    * @evidence contracts/common.md#clear-and-simple-design Admission, copying and fixed-size transformation are one preparation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses missing/nonfinite jets and invalid source values; no derivative limiting, fitting or fallback is selected.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses missing/nonfinite jets, invalid source values and chain endpoints; no derivative limiting, fitting or fallback is selected.
    * @evidence contracts/common.md#meaningful-documentation Requires increasing physical stations and actual native-family rather than composed endpoint data.
    * @evidence contracts/performance.md#efficient-algorithms Constant eight-scalar endpoint work without phase inverses or layer traversal.
    * @evidence contracts/performance.md#reuse-equivalent-work The transformed endpoint rows serve all later station reads.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns copied endpoint/control arrays or a diagnostic and retains no caller object globally.
    */
   export function create(first: IEnd, last: IEnd): IBridge | string {
+    if (chained(first?.inputs) || chained(last?.inputs)) return CHAIN;
     if (
       first === null ||
       first === undefined ||
@@ -209,13 +216,14 @@ export namespace AutoMovieLoftSectionBoundary {
    *
    * @evidence contracts/common.md#principled-implementation Matching ends reflect +v/-v, reverse quarter ownership and negate the actual first station derivative; second derivatives retain their sign.
    * @evidence contracts/common.md#clear-and-simple-design One signed permutation covers the two end-direction cases.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Native geometry already contains this phase reflection afterward, so callers must not apply another minus-phi transform.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Native geometry already contains this phase reflection afterward, so callers must not apply another minus-phi transform; a chain endpoint is refused rather than reflected in its four-quarter part alone.
    * @evidence contracts/common.md#meaningful-documentation States station/quarter reflection separately from the native provider's internal ray reflection.
    * @evidence contracts/performance.md#efficient-algorithms Copies eight triples with constant indexing work.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This value transform owns no reusable station plan.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns independent tuples and retains no source or output.
    */
   export function orient(inputs: Inputs, sign: 1 | -1): Inputs {
+    if (chained(inputs)) throw new Error(CHAIN);
     if (!valid(inputs) || (sign !== 1 && sign !== -1))
       throw new Error(
         "A native endpoint reflection needs actual scalar2 and a direction sign of 1 or -1.",
@@ -235,6 +243,19 @@ export namespace AutoMovieLoftSectionBoundary {
       ),
     };
   }
+}
+
+/** The refusal of a chain source at a boundary. */
+const CHAIN: string =
+  "A touch-offset or split-quarter source is a G1 conic chain, phase C1 with sided second derivatives at its joins; it has no eight-scalar boundary law.";
+
+/** Inputs declaring touch offsets or splits belong to a chain. */
+function chained(inputs: Inputs | null | undefined): boolean {
+  return (
+    inputs !== null &&
+    inputs !== undefined &&
+    (inputs.touch !== undefined || inputs.splits !== undefined || inputs.pieces !== undefined)
+  );
 }
 
 /** Validate the explicit generating-law coefficients without evaluating a requested derivative. */
@@ -284,11 +305,12 @@ function admit(
   return null;
 }
 
-/** Actual scalar2 admission is distinct from value-only source availability. */
+/** Actual scalar2 admission is distinct from value-only source availability; a chain's inputs are not eight scalars. */
 function valid(inputs: Inputs): boolean {
   return (
     inputs !== null &&
     inputs !== undefined &&
+    !chained(inputs) &&
     Array.isArray(inputs.extents) &&
     Array.isArray(inputs.shoulders) &&
     inputs.extents.length === 4 &&
