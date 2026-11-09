@@ -105,6 +105,8 @@ export namespace AutoMovieHumanHeadF1Skin {
       },
     );
     const ranges: NonNullable<typeof result.primitiveRanges> = [];
+    const neckLimit: number = observed.directNeck.retainedAfterMm;
+    const neckSense: 1 | -1 = direction(mesh.indices, required(rims, 1458, 0).indices, "original canonical neck");
     const sides: Map<Clock, { lower: 1 | -1; upper: 1 | -1 }> = new Map();
     for (const clock of observed.clocks) {
       const range = result.primitiveRanges?.find((item): boolean => item.kind === "strip"
@@ -118,6 +120,11 @@ export namespace AutoMovieHumanHeadF1Skin {
       });
       ranges.push(range);
     }
+    // The turned source owner replaces the whole lower domain, including
+    // every original split and pole. Its boundary is a preserved healthy
+    // section, not a plane moved past an inconvenient child contour.
+    for (const range of result.primitiveRanges ?? [])
+      if (range.afterMm <= neckLimit) ranges.push(range);
     const removed: Set<number> = new Set(ranges.flatMap(({ firstTriangle, triangleCount }): number[] =>
       Array.from({ length: triangleCount }, (_: unknown, i: number): number => firstTriangle + i)));
     const retained: number[] = [];
@@ -128,7 +135,9 @@ export namespace AutoMovieHumanHeadF1Skin {
     // critical event receives this clock. All persistent edge anchors were
     // retained offline. Between anchors this is inferred PL parameter
     // transport, not a material correspondence or a longitudinal guide.
-    for (const clock of observed.clocks) ordinary(mesh, rims, clock, sides.get(clock)!);
+    for (const clock of observed.clocks)
+      if (clock.afterMm > neckLimit) ordinary(mesh, rims, clock, sides.get(clock)!);
+    turnedNeck(mesh, rims, neckSense);
     for (const interval of observed.intervals)
       for (const group of interval.groups)
         if (group.ear !== null) ear(mesh, rims, interval.afterMm, group);
@@ -177,6 +186,49 @@ export namespace AutoMovieHumanHeadF1Skin {
       ...eyeReceipts,
       `Offline source ${observed.sourceIdentity}; selection ${observed.sourceSelectionIdentity}; clock interiors remain inferred PL`,
     ] };
+  }
+
+  /** Consume the turned numerical owner and share both existing physical port directions. */
+  function turnedNeck(mesh: Context, rims: ReadonlyMap<string, Rim>, lowerSense: 1 | -1): void {
+    const events: Event[] = observed.directNeck.events.map((event): Event => {
+      const kind: string = event.kind;
+      if (kind !== "minimum" && kind !== "maximum" && kind !== "saddle")
+        throw new Error("The turned F1 neck has an unknown original critical kind");
+      return { ...event, kind, terminal: event.terminal === null ? null : AutoMovieCurveMath64.clone(event.terminal) };
+    });
+    const sections: AutoMovieHumanHeadF1Junctions.IClosedNeck["sections"] = observed.directNeck.sections.map((section) => ({
+      coordinateMm: section.coordinateMm,
+      loops: section.loops.map((loop) => ({
+        winding: loop.winding, pointsMm: loop.pointsMm,
+        segmentDomains: loop.segmentDomains.map((domain): "lower" | "upper" | null => {
+          if (domain !== null && domain !== "lower" && domain !== "upper")
+            throw new Error("An observed neck span has an unknown physical ownership domain");
+          return domain;
+        }),
+      })),
+    }));
+    const part: AutoMovieHumanHeadF1Junctions.IOutput = AutoMovieHumanHeadF1Junctions.neck({ ...observed.directNeck, sections, events });
+    const lower: number[] = required(rims, 1458, 0).indices;
+    const upper: number[] = required(rims, observed.directNeck.retainedAfterMm, 0).indices;
+    const first: number[] | undefined = part.rails.get("neck:bottom"), last: number[] | undefined = part.rails.get("neck:top");
+    if (first === undefined || last === undefined) throw new Error("The physical turned neck omitted an original port");
+    const offset: number = mesh.positions.length / 3;
+    for (const value of part.mesh.positions) mesh.positions.push(value);
+    for (const id of part.mesh.indices) mesh.indices.push(id + offset);
+    const a: number[] = first.map((id: number): number => id + offset), b: number[] = last.map((id: number): number => id + offset);
+    const opposite = (sense: 1 | -1): 1 | -1 => sense === 1 ? -1 : 1;
+    const connect = (lo: number[], hi: number[], wantLow: 1 | -1, wantHigh: 1 | -1): void => {
+      const begin: number = mesh.indices.length;
+      strip(mesh, lo, hi);
+      if (direction(mesh.indices.slice(begin), lo, "turned continuation lower") !== wantLow)
+        for (let i: number = begin; i < mesh.indices.length; i += 3)
+          [mesh.indices[i + 1], mesh.indices[i + 2]] = [mesh.indices[i + 2]!, mesh.indices[i + 1]!];
+      const faces: number[] = mesh.indices.slice(begin);
+      if (direction(faces, lo, "turned oriented lower") !== wantLow || direction(faces, hi, "turned oriented upper") !== wantHigh)
+        throw new Error("The turned source continuation changed one original physical port direction");
+    };
+    connect(lower, a, lowerSense, opposite(direction(mesh.indices, a, "turned lower free port")));
+    connect(b, upper, opposite(direction(mesh.indices, b, "turned upper free port")), opposite(direction(mesh.indices, upper, "retained healthy upper port")));
   }
 
   /** Record a positive PL cubic chart while preserving the actual sheet sense. */
