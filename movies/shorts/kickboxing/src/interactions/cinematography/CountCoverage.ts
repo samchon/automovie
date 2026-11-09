@@ -18,7 +18,7 @@ import type { IRingCast } from "../kickboxing/IRingCast";
  *
  * ```ts
  * const count = CountCoverage.window(schedule, "referee");
- * const shot = CountCoverage.shot(schedule, cast); // { counted: ["referee", "b"], subjects: ["referee", "b", "a"] }
+ * const shot = CountCoverage.shot(schedule, cast); // { counted: ["referee", "b"], subjects: ["referee", "b", "a"], winner: "a" }
  * CountCoverage.bearing(shot.counted.map(floorOf), corner); // framing shot.subjects
  * ```
  *
@@ -58,6 +58,9 @@ export namespace CountCoverage {
 
     /** Who the shot frames: the two-shot, and the winner in his neutral corner behind it, so the shot also shows him keeping to his corner. */
     subjects: string[];
+
+    /** The standing fighter, sent to the neutral corner. */
+    winner: string;
   }
 
   /**
@@ -80,7 +83,7 @@ export namespace CountCoverage {
     if (fallen === undefined) return undefined;
     const winner: string = fallen === cast.a.id ? cast.b.id : cast.a.id;
     const counted: string[] = [cast.referee.id, fallen];
-    return { counted, subjects: [...counted, winner] };
+    return { counted, subjects: [...counted, winner], winner };
   }
 
   /**

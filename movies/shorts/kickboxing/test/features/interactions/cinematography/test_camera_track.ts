@@ -42,12 +42,8 @@ export function test_camera_track(): void {
           ? cast.a.body.measure
           : cast.b.body.measure;
     // The camera's own bounding sphere of a standing man.
-    return {
-      x: floor.x,
-      y: measure.head / 2,
-      z: floor.z,
-      radius: measure.head / 2 + measure.head * 0.1,
-    };
+    const s = CameraTrack.sphere(measure, floor);
+    return { ...s.center, radius: s.radius };
   };
   const shot = CountCoverage.shot(schedule, cast);
   const counted = (t: number): string[] | undefined =>

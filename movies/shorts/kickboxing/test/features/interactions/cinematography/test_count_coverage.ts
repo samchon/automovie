@@ -36,6 +36,7 @@ export function test_count_coverage(): void {
     {
       counted: [cast.referee.id, cast.b.id],
       subjects: [cast.referee.id, cast.b.id, cast.a.id],
+      winner: cast.a.id,
     },
   );
   assert.deepEqual(
@@ -43,6 +44,7 @@ export function test_count_coverage(): void {
     {
       counted: [cast.referee.id, cast.a.id],
       subjects: [cast.referee.id, cast.a.id, cast.b.id],
+      winner: cast.b.id,
     },
   );
   assert.equal(
