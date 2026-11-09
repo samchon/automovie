@@ -5,6 +5,7 @@ import {
   Quaternion,
   Vector3,
   minimumJerk,
+  resolveAutoMovieHumanoidSurfaces,
   resolvePose,
 } from "@automovie/engine";
 import type {
@@ -427,13 +428,37 @@ export namespace punch {
       ...(struck === undefined
         ? {}
         : {
-            gap: StrikingTarget.gap(struck, (end: IAutoMovieVector3, seconds: number): IAutoMovieVector3 =>
-              Vector3.add(end, StrikingBody.socket(body, fist, rotationAt(seconds - t0))),
-            ),
+            gap: StrikingTarget.gap(struck, (end: IAutoMovieVector3, seconds: number): IAutoMovieVector3 => knuckles(seconds - t0, end)),
           }),
       scan: { from: t0, to: t0 + shown + 0.1, step: 1 / 96 },
       ...(fixed === undefined ? {} : { fixed }),
     });
+
+    // The punch's posture for a wrist goal: the shown one takes the stroke's
+    // end (stopped at its contact), the free one the stroke's free path.
+    const compose = (t: number, end: IAutoMovieVector3): IHumanPosture => {
+      const posture: IHumanPosture = base(t);
+      const guard = StrikingStance.guard(body, posture, { lead });
+      const elbow: IAutoMovieVector3 = Vector3.lerp(
+        Vector3.lerp(startElbow, StrikingReach.hint(shoulder, solved, bendToward, 0.25 * m.upperArm), out(t)),
+        guard[arm]!.bend,
+        back(t),
+      );
+      const wrist: IAutoMovieVector3 = Vector3.add(end, { x: 0, y: -drop.depth * sag(t), z: 0 });
+      return { ...posture, limbs: { ...posture.limbs, ...guard, [arm]: { point: wrist, bend: elbow, rotation: rotationAt(t) } } };
+    };
+
+    // The knuckles where the fitted arm puts them for a wrist goal: the
+    // engine's limb fit, as the display solves it, read back through the fist
+    // socket, so the contact scan, the joint resolution and the figure agree.
+    function knuckles(t: number, end: IAutoMovieVector3): IAutoMovieVector3 {
+      const bones = new Map(
+        resolvePose(resolveHumanPosture(body, compose(t, end)), body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
+          (r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+        ),
+      );
+      return resolveAutoMovieHumanoidSurfaces.place(body.surfaces.sockets[fist], bones.get(`${side}Hand` as AutoMovieHumanoidBone)!).point;
+    }
 
     // The feet's contact windows, as shares of the punch.
     const contacts: IHumanContactWindow[] = [];
@@ -450,21 +475,8 @@ export namespace punch {
     return {
       contacts,
       record: { offset, planned: tracker.planned, reached: Vector3.add(solved.end, socket), status: solved.status, stop: stroke.stop },
-      fist: (seconds: number): IAutoMovieVector3 => Vector3.add(stroke.free(seconds), StrikingBody.socket(body, fist, rotationAt(seconds - t0))),
-      posture: (t: number): IHumanPosture => {
-        const posture: IHumanPosture = base(t);
-        const guard = StrikingStance.guard(body, posture, { lead });
-        const elbow: IAutoMovieVector3 = Vector3.lerp(
-          Vector3.lerp(startElbow, StrikingReach.hint(shoulder, solved, bendToward, 0.25 * m.upperArm), out(t)),
-          guard[arm]!.bend,
-          back(t),
-        );
-        const wrist: IAutoMovieVector3 = Vector3.add(stroke.end(t0 + t), { x: 0, y: -drop.depth * sag(t), z: 0 });
-        return {
-          ...posture,
-          limbs: { ...posture.limbs, ...guard, [arm]: { point: wrist, bend: elbow, rotation: rotationAt(t) } },
-        };
-      },
+      fist: (seconds: number): IAutoMovieVector3 => knuckles(seconds - t0, stroke.free(seconds)),
+      posture: (t: number): IHumanPosture => compose(t, stroke.end(t0 + t)),
     };
   }
 }

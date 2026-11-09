@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
@@ -209,7 +209,12 @@ export namespace StrikingStance {
   }
 
   /**
-   * Planted leg goals on placed feet, knees bending forward along each foot.
+   * Planted leg goals on placed feet: the knee's bend hint lies up the leg
+   * from the ankle and out along the foot's own three-dimensional forward
+   * (its heading and its pitch, so a heel raised on a ball pivot tips the
+   * hint with it), which under the engine's hinged knee fit decides the knee's
+   * side; the foot's rotation itself goes through as the effector rotation,
+   * which the fit carries with the hip's swivel.
    *
    * @param body The body.
    * @param feet The feet.
@@ -224,8 +229,8 @@ export namespace StrikingStance {
     const out: Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> = {};
     for (const side of ["left", "right"] as const) {
       const foot: HumanFoot.IPlacement = feet[side];
-      const toes: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: HumanFrame.heading(foot.rotation) }, { x: 0, y: 0, z: 1 });
-      const bend: IAutoMovieVector3 = Vector3.add(foot.ankle, Vector3.add(Vector3.scale(toes, body.measure.shank), { x: 0, y: body.measure.shank, z: 0 }));
+      const toes: IAutoMovieVector3 = Quaternion.rotateVector(foot.rotation, { x: 0, y: 0, z: 1 });
+      const bend: IAutoMovieVector3 = Vector3.add(foot.ankle, Vector3.add(Vector3.scale(toes, 0.5 * body.measure.shank), { x: 0, y: body.measure.shank, z: 0 }));
       out[side === "left" ? "leftLeg" : "rightLeg"] = { point: foot.ankle, bend, rotation: foot.rotation, ...(planted[side] ? { planted: true } : {}) };
     }
     return out;

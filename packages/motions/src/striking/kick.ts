@@ -651,11 +651,21 @@ export namespace kick {
     };
     return {
       ...parts,
+      // The lower shin on the free path, read from the leg the engine's fit
+      // solves for the free ankle goal, the same limb the display shows.
       shin: (seconds: number): IAutoMovieVector3 => {
         const t: number = seconds - t0;
-        const hip: IAutoMovieVector3 = StrikingBody.trunk(body, parts.base(t)).get(`${timing.side}UpperLeg` as AutoMovieHumanoidBone)!.worldPosition;
-        const ankle: IAutoMovieVector3 = parts.free(seconds);
-        return Vector3.lerp(StrikingLeg.knee(body, hip, ankle, parts.hint(t)), ankle, SHIN_SHARE);
+        const posture: IHumanPosture = parts.base(t);
+        const bones = new Map(
+          resolvePose(
+            resolveHumanPosture(body, { ...posture, limbs: { ...posture.limbs, [limb]: { point: parts.free(seconds), bend: parts.hint(t), rotation: parts.rotation(t) } } }),
+            body.skeleton,
+            HUMANOID_JOINT_AXES,
+            HUMANOID_REST_FRAME,
+          ).map((r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r]),
+        );
+        const knee: IAutoMovieVector3 = bones.get(`${timing.side}LowerLeg` as AutoMovieHumanoidBone)!.worldPosition;
+        return Vector3.lerp(knee, bones.get(`${timing.side}Foot` as AutoMovieHumanoidBone)!.worldPosition, SHIN_SHARE);
       },
       posture: (t: number): IHumanPosture => {
         const held = chain(t);

@@ -194,8 +194,12 @@ export namespace knee {
       },
     };
     StrikingRecord.register(out, (): StrikingRecord.IRecord => {
+      // What the fitted leg reaches at the impact: a target beyond the hip's
+      // thrust or the leg's range is the declared miss at maximum reach.
       const g = geometry();
-      return { offset: { x: 0, y: 0, z: 0 }, planned: g.target, reached: g.target, status: "reached", stop };
+      const reached: IAutoMovieVector3 = kneePoint(t0 + impact);
+      const short: boolean = Vector3.length(Vector3.subtract(reached, g.target)) > 0.015;
+      return { offset: { x: 0, y: 0, z: 0 }, planned: g.target, reached, status: short ? "short" : "reached", stop };
     });
     return out;
   }
