@@ -25,7 +25,10 @@ export function stampAutoMovieRasterLabel(
   if (!Number.isSafeInteger(scale) || scale <= 0)
     throw new Error("Label scale must be a positive integer");
   const pad: number = scale * 2;
-  const boxWidth: number = Math.min(raster.width, pad * 2 + text.length * 4 * scale - scale);
+  const boxWidth: number = Math.min(
+    raster.width,
+    pad * 2 + text.length * 4 * scale - scale,
+  );
   const boxHeight: number = Math.min(raster.height, pad * 2 + 5 * scale);
   fill(raster, 0, 0, boxWidth, boxHeight, [16, 16, 16]);
   for (const [n, character] of [...text.toLowerCase()].entries()) {
@@ -53,8 +56,16 @@ function fill(
   height: number,
   rgb: readonly [number, number, number],
 ): void {
-  for (let py: number = Math.max(0, y); py < Math.min(raster.height, y + height); py++)
-    for (let px: number = Math.max(0, x); px < Math.min(raster.width, x + width); px++) {
+  for (
+    let py: number = Math.max(0, y);
+    py < Math.min(raster.height, y + height);
+    py++
+  )
+    for (
+      let px: number = Math.max(0, x);
+      px < Math.min(raster.width, x + width);
+      px++
+    ) {
       const offset: number = (py * raster.width + px) * 4;
       raster.pixels[offset] = rgb[0];
       raster.pixels[offset + 1] = rgb[1];

@@ -1,6 +1,7 @@
 export * from "./IAutoMovieScaffoldProps";
 export * from "./IAutoMovieScaffoldSourceEntry";
 export * from "./AutoMovieScaffoldLayer";
+export * from "./AUTOMOVIE_TEMPLATE_CATALOGS";
 export * from "./assertScaffoldProjectName";
 export * from "./renderScaffold";
 export * from "./renderScaffoldInstructions";

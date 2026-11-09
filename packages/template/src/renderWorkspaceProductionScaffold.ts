@@ -6,7 +6,7 @@ import { renderScaffoldLayer } from "./renderScaffoldLayer";
 /**
  * Render one production for a workspace from {@link renderWorkspaceScaffold}, into an in-memory `{ posixPath: content }` map relative to its directory `movies/<shorts|series>/<directory>`.
  *
- * Only the `production` layer is rendered: the instructions and their sync state stay at the workspace root. `{{name}}` is the admitted package name, `{{skills}}` is `../../../.agents/skills`, the workspace root's shared tree three directories up, and every `{{version:<key>}}` is `catalog:`, resolved by the root's `pnpm-workspace.yaml`. Nothing is written.
+ * Only the `production` layer is rendered: the instructions and their sync state stay at the workspace root. `{{name}}` is the admitted package name, `{{skills}}` is `../../../.agents/skills`, the workspace root's shared tree three directories up, and every `{{version:<key>}}` is `catalog:<name>` of its `AUTOMOVIE_TEMPLATE_CATALOGS` group, resolved by the root's `pnpm-workspace.yaml`. Nothing is written.
  *
  * @param props The production's package name, admitted by {@link assertScaffoldProjectName}.
  * @returns The rendered file map.

@@ -4,9 +4,9 @@ import path from "node:path";
 
 import type { IFilm } from "../IFilm";
 import { films } from "../composition/films";
-import type { IAutoMovieViewerVideoResult } from "../integrations/render/node/IAutoMovieViewerVideoResult";
-import { renderViewerVideo } from "../integrations/render/node/renderViewerVideo";
 import { selectFilm } from "../selectFilm";
+import type { IAutoMovieViewerVideoResult } from "./render/node/IAutoMovieViewerVideoResult";
+import { renderViewerVideo } from "./render/node/renderViewerVideo";
 
 /**
  * Export one film of the running Viewer as a picture-only video.
@@ -29,12 +29,7 @@ export async function render(): Promise<void> {
   const argv: string[] = process.argv.slice(2);
   for (let index: number = 0; index < argv.length; index++) {
     const [key, inline] = argv[index]!.split(/=(.*)/s) as [string, string?];
-    if (
-      ![
-        "--film",
-        "--out",
-      ].includes(key)
-    )
+    if (!["--film", "--out"].includes(key))
       throw new Error(`Unknown option ${key}`);
     const value: string | undefined = inline ?? argv[++index];
     if (value === undefined || value === "")

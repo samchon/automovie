@@ -9,7 +9,7 @@ import { renderScaffoldLayer } from "./renderScaffoldLayer";
 /**
  * Render a pnpm workspace root that holds several productions, into an in-memory `{ posixPath: content }` map.
  *
- * The map joins the shared instruction surface from {@link renderScaffoldInstructions} with the `workspace` layer: `pnpm-workspace.yaml` listing `movies/shorts/*`, `movies/series/*` and `packages/*` with a default `catalog` of the build-time `AUTOMOVIE_TEMPLATE_VERSIONS` ranges, a root `package.json` named by the admitted name with the `automovie` CLI as a development dependency, its README and `.gitignore`. The generated instruction digests are added for explicit later sync. No production is included; {@link renderWorkspaceProductionScaffold} renders each one. Nothing is written.
+ * The map joins the shared instruction surface from {@link renderScaffoldInstructions} with the `workspace` layer: `pnpm-workspace.yaml` listing `movies/shorts/*`, `movies/series/*` and `packages/*` with named `catalogs` of the build-time `AUTOMOVIE_TEMPLATE_VERSIONS` ranges, grouped by `AUTOMOVIE_TEMPLATE_CATALOGS` with one anchor per release group, a root `package.json` named by the admitted name with the `automovie` CLI as a development dependency, its README and `.gitignore`. The generated instruction digests are added for explicit later sync. No production is included; {@link renderWorkspaceProductionScaffold} renders each one. Nothing is written.
  *
  * @param props The workspace's name, admitted by {@link assertScaffoldProjectName}.
  * @returns The rendered file map.

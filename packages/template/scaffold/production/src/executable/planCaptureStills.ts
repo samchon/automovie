@@ -52,8 +52,7 @@ export function planCaptureStills(request: {
       frames.add(Math.round(seconds * fps));
   };
   const count: number = Math.round((end - start) * rate);
-  for (let index: number = 0; index < count; index++)
-    add(start + index / rate);
+  for (let index: number = 0; index < count; index++) add(start + index / rate);
   for (const event of request.events ?? []) {
     if (!Number.isFinite(event))
       throw new Error("Event seconds must be finite");

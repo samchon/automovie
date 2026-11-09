@@ -18,7 +18,7 @@ import { throwsError } from "../internal/predicates";
  *
  * 1. The single production and the workspace root ship byte-identical instruction files, each with its sync state; a workspace production ships no instruction, state or root workspace file.
  * 2. The workspace root lists `movies/shorts/*`, `movies/series/*` and `packages/*`, and ships no production file.
- * 3. Every dependency of a workspace production is `catalog:` and has an entry in the workspace root's catalog with the single production's range, and the root's `automovie` CLI resolves through that catalog too.
+ * 3. Every dependency of a workspace production is `catalog:<name>` and resolves, through the root's named catalogs and their anchors, to the single production's range; the root's `automovie` CLI resolves through `catalog:automovie` too.
  * 4. Every relative Markdown link a production README or PROJECT.md makes into `.agents/skills` lands on a shipped instruction file, both at a single production's root and three directories below a workspace root, and the evidence configuration names the same skills path.
  * 5. Each renderer refuses an unportable name.
  *
@@ -90,7 +90,9 @@ export function test_template_scaffold_workspace(): void {
     TestValidator.equals(`root omits ${relative}`, root[relative], undefined);
 
   // Every catalog dependency resolves to the single production's range.
-  const catalog: Map<string, string> = readCatalog(workspaceYaml);
+  const catalogs: Map<string, Map<string, string>> = readCatalogs(
+    workspaceYaml,
+  );
   const singleManifest: IManifest = JSON.parse(single["package.json"]!);
   const memberManifest: IManifest = JSON.parse(member["package.json"]!);
   TestValidator.equals(
@@ -103,13 +105,13 @@ export function test_template_scaffold_workspace(): void {
       memberManifest[section] ?? {},
     )) {
       const range: string = singleManifest[section]![dependency]!;
-      if (specifier !== "catalog:") {
-        TestValidator.equals(`${dependency} stays literal`, specifier, range);
-        continue;
-      }
+      TestValidator.predicate(
+        `${dependency} uses a named catalog`,
+        specifier.startsWith("catalog:") && specifier !== "catalog:",
+      );
       TestValidator.equals(
         `catalog range of ${dependency}`,
-        catalog.get(dependency),
+        catalogs.get(specifier.slice("catalog:".length))?.get(dependency),
         range,
       );
     }
@@ -117,11 +119,11 @@ export function test_template_scaffold_workspace(): void {
   TestValidator.equals(
     "root CLI uses the catalog",
     rootManifest.devDependencies?.automovie,
-    "catalog:",
+    "catalog:automovie",
   );
   TestValidator.equals(
     "catalog CLI range",
-    catalog.get("automovie"),
+    catalogs.get("automovie")?.get("automovie"),
     AUTOMOVIE_TEMPLATE_VERSIONS.cli,
   );
 
@@ -178,18 +180,33 @@ interface IManifest {
   devDependencies?: Record<string, string>;
 }
 
-/** Read the default `catalog` map of a rendered `pnpm-workspace.yaml`, whose entries are `  <name>: "<range>"` lines with optionally quoted names. */
-function readCatalog(yaml: string): Map<string, string> {
-  const catalog: Map<string, string> = new Map();
+/** Read the named `catalogs` of a rendered `pnpm-workspace.yaml`, whose entries are `    <name>: "<range>"`, `    <name>: &<anchor> "<range>"` or `    <name>: *<anchor>` lines under `  <catalog>:` headings, with optionally quoted names. */
+function readCatalogs(yaml: string): Map<string, Map<string, string>> {
+  const catalogs: Map<string, Map<string, string>> = new Map();
+  const anchors: Map<string, string> = new Map();
   let inside: boolean = false;
+  let current: Map<string, string> | undefined;
   for (const line of yaml.split("\n")) {
-    if (/^\S/u.test(line)) inside = line === "catalog:";
-    else if (inside) {
-      const match: RegExpMatchArray | null = line.match(
-        /^ {2}"?([^":]+)"?: "([^"]+)"$/u,
-      );
-      if (match !== null) catalog.set(match[1]!, match[2]!);
+    if (/^\S/u.test(line)) {
+      inside = line === "catalogs:";
+      continue;
     }
+    if (!inside) continue;
+    const heading: RegExpMatchArray | null = line.match(/^ {2}([\w-]+):$/u);
+    if (heading !== null) {
+      current = new Map();
+      catalogs.set(heading[1]!, current);
+      continue;
+    }
+    const entry: RegExpMatchArray | null = line.match(
+      /^ {4}"?([^":]+)"?: (?:&(\w+) )?(?:"([^"]+)"|\*(\w+))$/u,
+    );
+    if (entry === null || current === undefined) continue;
+    const value: string | undefined =
+      entry[3] !== undefined ? entry[3] : anchors.get(entry[4]!);
+    if (value === undefined) continue;
+    if (entry[2] !== undefined) anchors.set(entry[2], value);
+    current.set(entry[1]!, value);
   }
-  return catalog;
+  return catalogs;
 }

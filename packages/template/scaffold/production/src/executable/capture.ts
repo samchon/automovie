@@ -1,9 +1,4 @@
 import { planViewerFrameTimes } from "@automovie/render";
-import { AutoMovieRasterSheet } from "../integrations/viewer/node/raster/AutoMovieRasterSheet";
-import { type IAutoMovieSceneRaster } from "../integrations/viewer/node/raster/IAutoMovieSceneRaster";
-import { encodeAutoMovieRasterPng } from "../integrations/viewer/node/raster/encodeAutoMovieRasterPng";
-import { rasterizeAutoMovieScene } from "../integrations/viewer/node/raster/rasterizeAutoMovieScene";
-import { stampAutoMovieRasterLabel } from "../integrations/viewer/node/raster/stampAutoMovieRasterLabel";
 import ffmpeg from "ffmpeg-static";
 import { spawnSync } from "node:child_process";
 import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
@@ -16,6 +11,11 @@ import type { IFilmProduction } from "../IFilmProduction";
 import { films } from "../composition/films";
 import { selectFilm } from "../selectFilm";
 import { planCaptureStills } from "./planCaptureStills";
+import { AutoMovieRasterSheet } from "./viewer/node/raster/AutoMovieRasterSheet";
+import { type IAutoMovieSceneRaster } from "./viewer/node/raster/IAutoMovieSceneRaster";
+import { encodeAutoMovieRasterPng } from "./viewer/node/raster/encodeAutoMovieRasterPng";
+import { rasterizeAutoMovieScene } from "./viewer/node/raster/rasterizeAutoMovieScene";
+import { stampAutoMovieRasterLabel } from "./viewer/node/raster/stampAutoMovieRasterLabel";
 
 /**
  * Draw film frames straight from Node, with no Viewer server, browser or
@@ -106,252 +106,287 @@ export async function capture(): Promise<void> {
     ? options.get("--module")!.split(",")
     : [undefined];
   if (modules.length > 1 && options.has("--out"))
-    throw new Error("--out names one film's folder; omit it with several modules");
-  for (const moduleFile of modules) {
-  const selected: { name: string; film: IFilm } =
-    moduleFile !== undefined
-      ? await loadModuleFilm(moduleFile, options.get("--export"))
-      : selectFilm(films, options.get("--film") ?? null);
-  const film: IFilm = selected.film;
-  const from: number = number("--from", 0)!;
-  const video: boolean = options.has("--video");
-  const to: number = number(
-    "--to",
-    moduleFile !== undefined || video
-      ? film.durationSeconds
-      : Math.min(from + 10, film.durationSeconds),
-  )!;
-  const view: string | undefined = options.get("--view");
-
-  // A video draws every frame of the film's grid in [from, to) and encodes them at the film's rate.
-  const first: number = Math.ceil(from * film.fps - 1e-9);
-  const times: number[] = video
-    ? Array.from(
-        { length: Math.max(0, Math.ceil(to * film.fps - 1e-9) - first) },
-        (_: unknown, k: number): number => (first + k) / film.fps,
-      )
-    : options.has("--at")
-    ? planViewerFrameTimes({
-        fps: film.fps,
-        durationSeconds: film.durationSeconds,
-        at: options.get("--at")!.split(",").map(Number),
-      })
-    : options.has("--every")
-      ? planViewerFrameTimes({
-          fps: film.fps,
-          durationSeconds: film.durationSeconds,
-          from,
-          to,
-          every: number("--every"),
-        })
-      : planCaptureStills({
-          fps: film.fps,
-          durationSeconds: film.durationSeconds,
-          start: from,
-          end: to,
-          rate: number("--rate", 5),
-          events: options.has("--events")
-            ? options.get("--events")!.split(",").map(Number)
-            : [],
-        });
-  const width: number = number("--width", film.width ?? 1280)!;
-  const height: number = number("--height", film.height ?? 720)!;
-  const supersample: number = number("--supersample", 1)!;
-  const perSheet: number = number("--per-sheet", 50)!;
-  const columns: number = number("--columns", 10)!;
-  const label: (seconds: number) => string = (seconds: number): string =>
-    seconds.toFixed(3).padStart(7, "0");
-  const directory: string =
-    options.get("--out") ??
-    path.join(
-      "media",
-      "automovie",
-      selected.name,
-      "frames",
-      video ? "video" : "capture",
-      video
-        ? ""
-        : `${label(times[0]!)}-${label(times.at(-1)!)}` +
-            (view === undefined
-              ? ""
-              : `-${/^[a-z0-9-]+$/u.test(view) ? view : "inspection"}`),
+    throw new Error(
+      "--out names one film's folder; omit it with several modules",
     );
-  await mkdir(directory, { recursive: true });
+  for (const moduleFile of modules) {
+    const selected: { name: string; film: IFilm } =
+      moduleFile !== undefined
+        ? await loadModuleFilm(moduleFile, options.get("--export"))
+        : selectFilm(films, options.get("--film") ?? null);
+    const film: IFilm = selected.film;
+    const from: number = number("--from", 0)!;
+    const video: boolean = options.has("--video");
+    const to: number = number(
+      "--to",
+      moduleFile !== undefined || video
+        ? film.durationSeconds
+        : Math.min(from + 10, film.durationSeconds),
+    )!;
+    const view: string | undefined = options.get("--view");
 
-  // Replace only this command's earlier outputs in the directory.
-  for (const entry of await readdir(directory))
-    if (/^(t\d+\.\d+\.png|f\d{5}\.png|sheet-.*\.png(\.json)?|manifest\.json)$/.test(entry))
-      await rm(path.join(directory, entry));
-
-  const started: number = performance.now();
-  const production: IFilmProduction = await film.create(
-    (message: string): void => console.error(`[${selected.name}] ${message}`),
-  );
-  const mounted: number = performance.now();
-  try {
-    const preset: NonNullable<IFilmProduction["views"]>[string] | undefined =
-      view !== undefined &&
-      production.views !== undefined &&
-      Object.hasOwn(production.views, view)
-        ? production.views[view]
-        : undefined;
-    const camera: THREE.Camera = preset
-      ? production.camera.clone()
-      : inspectionCamera(production.camera, view);
-    const frames: { file: string; seconds: number }[] = [];
-    const skipped: Record<string, number> = {};
-    const sheets: string[] = [];
-    let triangles: number = 0;
-
-    // Sheets fill as frames are drawn: cells scaled so the longer side is 320 pixels.
-    const scale: number = 320 / Math.max(width, height);
-    const cellWidth: number = Math.max(1, Math.round(width * scale));
-    const cellHeight: number = Math.max(1, Math.round(height * scale));
-    let sheet: AutoMovieRasterSheet | undefined;
-    let group: { file: string; seconds: number }[] = [];
-    const flush: () => Promise<void> = async (): Promise<void> => {
-      if (sheet === undefined || group.length === 0) return;
-      const file: string = path.join(
-        directory,
-        `sheet-${label(group[0]!.seconds)}-${label(group.at(-1)!.seconds)}.png`,
+    // A video draws every frame of the film's grid in [from, to) and encodes them at the film's rate.
+    const first: number = Math.ceil(from * film.fps - 1e-9);
+    const times: number[] = video
+      ? Array.from(
+          { length: Math.max(0, Math.ceil(to * film.fps - 1e-9) - first) },
+          (_: unknown, k: number): number => (first + k) / film.fps,
+        )
+      : options.has("--at")
+        ? planViewerFrameTimes({
+            fps: film.fps,
+            durationSeconds: film.durationSeconds,
+            at: options.get("--at")!.split(",").map(Number),
+          })
+        : options.has("--every")
+          ? planViewerFrameTimes({
+              fps: film.fps,
+              durationSeconds: film.durationSeconds,
+              from,
+              to,
+              every: number("--every"),
+            })
+          : planCaptureStills({
+              fps: film.fps,
+              durationSeconds: film.durationSeconds,
+              start: from,
+              end: to,
+              rate: number("--rate", 5),
+              events: options.has("--events")
+                ? options.get("--events")!.split(",").map(Number)
+                : [],
+            });
+    const width: number = number("--width", film.width ?? 1280)!;
+    const height: number = number("--height", film.height ?? 720)!;
+    const supersample: number = number("--supersample", 1)!;
+    const perSheet: number = number("--per-sheet", 50)!;
+    const columns: number = number("--columns", 10)!;
+    const label: (seconds: number) => string = (seconds: number): string =>
+      seconds.toFixed(3).padStart(7, "0");
+    const directory: string =
+      options.get("--out") ??
+      path.join(
+        "media",
+        "automovie",
+        selected.name,
+        "frames",
+        video ? "video" : "capture",
+        video
+          ? ""
+          : `${label(times[0]!)}-${label(times.at(-1)!)}` +
+              (view === undefined
+                ? ""
+                : `-${/^[a-z0-9-]+$/u.test(view) ? view : "inspection"}`),
       );
-      await writeFile(file, encodeAutoMovieRasterPng(sheet.finish()));
-      await writeFile(
-        `${file}.json`,
-        JSON.stringify(
-          {
+    await mkdir(directory, { recursive: true });
+
+    // Replace only this command's earlier outputs in the directory.
+    for (const entry of await readdir(directory))
+      if (
+        /^(t\d+\.\d+\.png|f\d{5}\.png|sheet-.*\.png(\.json)?|manifest\.json)$/.test(
+          entry,
+        )
+      )
+        await rm(path.join(directory, entry));
+
+    const started: number = performance.now();
+    const production: IFilmProduction = await film.create(
+      (message: string): void => console.error(`[${selected.name}] ${message}`),
+    );
+    const mounted: number = performance.now();
+    try {
+      const preset: NonNullable<IFilmProduction["views"]>[string] | undefined =
+        view !== undefined &&
+        production.views !== undefined &&
+        Object.hasOwn(production.views, view)
+          ? production.views[view]
+          : undefined;
+      const camera: THREE.Camera = preset
+        ? production.camera.clone()
+        : inspectionCamera(production.camera, view);
+      const frames: { file: string; seconds: number }[] = [];
+      const skipped: Record<string, number> = {};
+      const sheets: string[] = [];
+      let triangles: number = 0;
+
+      // Sheets fill as frames are drawn: cells scaled so the longer side is 320 pixels.
+      const scale: number = 320 / Math.max(width, height);
+      const cellWidth: number = Math.max(1, Math.round(width * scale));
+      const cellHeight: number = Math.max(1, Math.round(height * scale));
+      let sheet: AutoMovieRasterSheet | undefined;
+      let group: { file: string; seconds: number }[] = [];
+      const flush: () => Promise<void> = async (): Promise<void> => {
+        if (sheet === undefined || group.length === 0) return;
+        const file: string = path.join(
+          directory,
+          `sheet-${label(group[0]!.seconds)}-${label(group.at(-1)!.seconds)}.png`,
+        );
+        await writeFile(file, encodeAutoMovieRasterPng(sheet.finish()));
+        await writeFile(
+          `${file}.json`,
+          JSON.stringify(
+            {
+              columns,
+              cellWidth,
+              cellHeight,
+              cells: group.map(
+                (
+                  f: { file: string; seconds: number },
+                  index: number,
+                ): {
+                  row: number;
+                  column: number;
+                  seconds: number;
+                  file: string;
+                } => ({
+                  row: Math.floor(index / columns),
+                  column: index % columns,
+                  seconds: f.seconds,
+                  file: path.basename(f.file),
+                }),
+              ),
+            },
+            null,
+            2,
+          ),
+          "utf8",
+        );
+        sheets.push(file);
+        sheet = undefined;
+        group = [];
+      };
+
+      for (const seconds of times) {
+        production.seek(seconds);
+        if (preset) {
+          const pose: ReturnType<NonNullable<typeof preset>> = preset(seconds);
+          camera.position.set(...pose.position);
+          camera.lookAt(...pose.target);
+          camera.updateMatrixWorld();
+        }
+        fitAspect(camera, width, height);
+        const raster: IAutoMovieSceneRaster = rasterizeAutoMovieScene({
+          scene: production.scene,
+          camera,
+          width,
+          height,
+          supersample,
+        });
+        if (!options.has("--no-label") && !video)
+          stampAutoMovieRasterLabel(
+            raster,
+            `${seconds.toFixed(2)}s`,
+            Math.max(2, Math.round(Math.min(width, height) / 240)),
+          );
+        const file: string = path.join(
+          directory,
+          video
+            ? `f${String(frames.length).padStart(5, "0")}.png`
+            : `t${label(seconds)}.png`,
+        );
+        await writeFile(file, encodeAutoMovieRasterPng(raster));
+        frames.push({ file, seconds });
+        triangles = Math.max(triangles, raster.statistics.triangles);
+        for (const [type, count] of Object.entries(raster.statistics.skipped))
+          skipped[type] = Math.max(skipped[type] ?? 0, count);
+        if (!options.has("--no-sheet") && !video) {
+          sheet ??= new AutoMovieRasterSheet(
+            perSheet,
             columns,
             cellWidth,
             cellHeight,
-            cells: group.map(
-              (
-                f: { file: string; seconds: number },
-                index: number,
-              ): { row: number; column: number; seconds: number; file: string } => ({
-                row: Math.floor(index / columns),
-                column: index % columns,
-                seconds: f.seconds,
-                file: path.basename(f.file),
-              }),
-            ),
-          },
-          null,
-          2,
+          );
+          sheet.add(raster, `${seconds.toFixed(2)}s`);
+          group.push({ file, seconds });
+          if (group.length === perSheet) await flush();
+        }
+      }
+      await flush();
+      const drawn: number = performance.now();
+
+      const manifest: object = {
+        film: selected.name,
+        durationSeconds: film.durationSeconds,
+        fps: film.fps,
+        raster: { width, height, supersample },
+        camera: options.get("--view") ?? "film",
+        times,
+        frames: frames.map((f: { file: string; seconds: number }): string =>
+          path.basename(f.file),
         ),
+        sheets: sheets.map((s: string): string => path.basename(s)),
+        maximumTriangles: triangles,
+        skipped,
+        milliseconds: {
+          create: Math.round(mounted - started),
+          frames: Math.round(drawn - mounted),
+          perFrame: Math.round((drawn - mounted) / times.length),
+        },
+      };
+      await writeFile(
+        path.join(directory, "manifest.json"),
+        JSON.stringify(manifest, null, 2),
         "utf8",
       );
-      sheets.push(file);
-      sheet = undefined;
-      group = [];
-    };
+      console.log(
+        `capture ${selected.name}: ${times.length} frames in ${directory}`,
+      );
+      console.log(
+        `create ${((mounted - started) / 1000).toFixed(1)} s, draw ${((drawn - mounted) / 1000).toFixed(1)} s` +
+          (Object.keys(skipped).length === 0
+            ? ""
+            : `, not drawn: ${JSON.stringify(skipped)}`),
+      );
+      for (const sheet of sheets) console.log(sheet);
 
-    for (const seconds of times) {
-      production.seek(seconds);
-      if (preset) {
-        const pose: ReturnType<NonNullable<typeof preset>> = preset(seconds);
-        camera.position.set(...pose.position);
-        camera.lookAt(...pose.target);
-        camera.updateMatrixWorld();
-      }
-      fitAspect(camera, width, height);
-      const raster: IAutoMovieSceneRaster = rasterizeAutoMovieScene({
-        scene: production.scene,
-        camera,
-        width,
-        height,
-        supersample,
-      });
-      if (!options.has("--no-label") && !video)
-        stampAutoMovieRasterLabel(
-          raster,
-          `${seconds.toFixed(2)}s`,
-          Math.max(2, Math.round(Math.min(width, height) / 240)),
+      // Encode the drawn frames at the film's own rate into one H.264 file.
+      if (video) {
+        const output: string = path.join(
+          "media",
+          "automovie",
+          selected.name,
+          "videos",
+          "capture.mp4",
         );
-      const file: string = path.join(
-        directory,
-        video ? `f${String(frames.length).padStart(5, "0")}.png` : `t${label(seconds)}.png`,
-      );
-      await writeFile(file, encodeAutoMovieRasterPng(raster));
-      frames.push({ file, seconds });
-      triangles = Math.max(triangles, raster.statistics.triangles);
-      for (const [type, count] of Object.entries(raster.statistics.skipped))
-        skipped[type] = Math.max(skipped[type] ?? 0, count);
-      if (!options.has("--no-sheet") && !video) {
-        sheet ??= new AutoMovieRasterSheet(perSheet, columns, cellWidth, cellHeight);
-        sheet.add(raster, `${seconds.toFixed(2)}s`);
-        group.push({ file, seconds });
-        if (group.length === perSheet) await flush();
+        await mkdir(path.dirname(output), { recursive: true });
+        const encoder: string = process.env.FFMPEG_PATH ?? ffmpeg ?? "";
+        if (encoder === "")
+          throw new Error("Set FFMPEG_PATH; ffmpeg-static found no binary");
+        const result: ReturnType<typeof spawnSync> = spawnSync(
+          encoder,
+          [
+            "-y",
+            "-framerate",
+            String(film.fps),
+            "-i",
+            path.join(directory, "f%05d.png"),
+            "-c:v",
+            "libx264",
+            "-pix_fmt",
+            "yuv420p",
+            "-crf",
+            "18",
+            output,
+          ],
+          { stdio: "inherit" },
+        );
+        if (result.status !== 0)
+          throw new Error(`ffmpeg exited with ${result.status}`);
+        console.log(output);
       }
+    } finally {
+      production.dispose();
     }
-    await flush();
-    const drawn: number = performance.now();
-
-    const manifest: object = {
-      film: selected.name,
-      durationSeconds: film.durationSeconds,
-      fps: film.fps,
-      raster: { width, height, supersample },
-      camera: options.get("--view") ?? "film",
-      times,
-      frames: frames.map((f: { file: string; seconds: number }): string =>
-        path.basename(f.file),
-      ),
-      sheets: sheets.map((s: string): string => path.basename(s)),
-      maximumTriangles: triangles,
-      skipped,
-      milliseconds: {
-        create: Math.round(mounted - started),
-        frames: Math.round(drawn - mounted),
-        perFrame: Math.round((drawn - mounted) / times.length),
-      },
-    };
-    await writeFile(
-      path.join(directory, "manifest.json"),
-      JSON.stringify(manifest, null, 2),
-      "utf8",
-    );
-    console.log(`capture ${selected.name}: ${times.length} frames in ${directory}`);
-    console.log(
-      `create ${((mounted - started) / 1000).toFixed(1)} s, draw ${((drawn - mounted) / 1000).toFixed(1)} s` +
-        (Object.keys(skipped).length === 0 ? "" : `, not drawn: ${JSON.stringify(skipped)}`),
-    );
-    for (const sheet of sheets) console.log(sheet);
-
-    // Encode the drawn frames at the film's own rate into one H.264 file.
-    if (video) {
-      const output: string = path.join("media", "automovie", selected.name, "videos", "capture.mp4");
-      await mkdir(path.dirname(output), { recursive: true });
-      const encoder: string = process.env.FFMPEG_PATH ?? ffmpeg ?? "";
-      if (encoder === "") throw new Error("Set FFMPEG_PATH; ffmpeg-static found no binary");
-      const result: ReturnType<typeof spawnSync> = spawnSync(
-        encoder,
-        [
-          "-y",
-          "-framerate",
-          String(film.fps),
-          "-i",
-          path.join(directory, "f%05d.png"),
-          "-c:v",
-          "libx264",
-          "-pix_fmt",
-          "yuv420p",
-          "-crf",
-          "18",
-          output,
-        ],
-        { stdio: "inherit" },
-      );
-      if (result.status !== 0) throw new Error(`ffmpeg exited with ${result.status}`);
-      console.log(output);
-    }
-  } finally {
-    production.dispose();
-  }
   }
 }
 
 /** Options that take no value. */
-const FLAGS: readonly string[] = ["--list", "--no-label", "--no-sheet", "--video"];
+const FLAGS: readonly string[] = [
+  "--list",
+  "--no-label",
+  "--no-sheet",
+  "--video",
+];
 
 /** Options that take a value. */
 const VALUED: readonly string[] = [
@@ -405,18 +440,19 @@ async function loadModuleFilm(
     throw new Error(`${file}#${chosen} is not an IFilm or a factory of one`);
   const base: string = path.basename(file).replace(/\.[cm]?[jt]s$/u, "");
   return {
-    name: path.join(
-      "modules",
-      name === undefined ? base : `${base}-${chosen}`,
-    ),
+    name: path.join("modules", name === undefined ? base : `${base}-${chosen}`),
     film: candidate as IFilm,
   };
 }
 
 /** Match a perspective camera's aspect to the raster, as the Viewer does for its canvas. */
 function fitAspect(camera: THREE.Camera, width: number, height: number): void {
-  const perspective: THREE.PerspectiveCamera = camera as THREE.PerspectiveCamera;
-  if (perspective.isPerspectiveCamera === true && perspective.aspect !== width / height) {
+  const perspective: THREE.PerspectiveCamera =
+    camera as THREE.PerspectiveCamera;
+  if (
+    perspective.isPerspectiveCamera === true &&
+    perspective.aspect !== width / height
+  ) {
     perspective.aspect = width / height;
     perspective.updateProjectionMatrix();
   }
@@ -433,7 +469,9 @@ function inspectionCamera(
     .map((part: string): number[] => part.split(",").map(Number));
   if (
     points.length !== 2 ||
-    points.some((p: number[]): boolean => p.length !== 3 || !p.every(Number.isFinite))
+    points.some(
+      (p: number[]): boolean => p.length !== 3 || !p.every(Number.isFinite),
+    )
   )
     throw new Error("--view must be x,y,z:tx,ty,tz in metres");
   const inspection: THREE.PerspectiveCamera = camera.clone();

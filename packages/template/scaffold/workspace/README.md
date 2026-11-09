@@ -10,7 +10,7 @@ An AutoMovie workspace: several productions share one set of skills and contract
 | `movies/shorts/<name>` | A short production, written settings → screenplay |
 | `movies/series/<name>` | A long production, written settings → treatments → scripts → screenplay |
 | `packages/<name>` | The workspace's own libraries that several productions import |
-| `pnpm-workspace.yaml` | Workspace members and the `catalog` of versions every production uses |
+| `pnpm-workspace.yaml` | Workspace members and the named `catalogs` of versions every production uses through `catalog:<name>` |
 
 A production is the directory holding its `PROJECT.md`, `README.md`, `src`, `test`, `docs` and configuration; its commands run there. A production's own work and language contracts live in its `docs/contracts`.
 
