@@ -28,7 +28,10 @@ import { resolvePose } from "./resolvePose";
  * normal is the direction. This is how authored hit and touch locations are
  * placed on character physics bodies in game engines (a bone plus a local
  * offset on its collider), generalised so the offset comes from the body's
- * own shapes and fits any size. Sockets of the foot, seat and back are read
+ * own shapes and fits any size. The palm, sole, heel and seat regions share
+ * their sockets' points, and the index fingertip region is the exit of a ray
+ * along the finger through the hand's colliders, riding the distal phalanx.
+ * Sockets of the foot, seat and back are read
  * from the exact axis bounds of their segment's colliders at rest (heel at
  * the back of the sole, ball under the toe joint, toe at the front, sole at
  * the middle, seat under the pelvis, back behind the thorax); the palm is the
@@ -148,6 +151,22 @@ export function resolveAutoMovieHumanoidSurfaces(
   }
   const pelvis = bounds("hips");
   sockets.seat = local("hips", { x: 0, y: pelvis.min.y, z: (pelvis.min.z + pelvis.max.z) / 2 }, down, forward);
+
+  // Contact points the body presents are regions too: the palm, the sole,
+  // the heel and the seat take their sockets' points, and the index
+  // fingertip is where a ray along the finger leaves the hand's colliders,
+  // riding the distal phalanx.
+  regions.seat = { ...sockets.seat };
+  for (const Side of ["Left", "Right"] as const) {
+    const side: string = Side.toLowerCase();
+    const bone = (name: string): AutoMovieHumanoidBone => `${side}${name}` as AutoMovieHumanoidBone;
+    regions[`palm${Side}` as AutoMovieHumanoidRegion] = { ...sockets[`palm${Side}` as AutoMovieHumanoidSocket] };
+    regions[`sole${Side}` as AutoMovieHumanoidRegion] = { ...sockets[`sole${Side}` as AutoMovieHumanoidSocket] };
+    regions[`heel${Side}` as AutoMovieHumanoidRegion] = { ...sockets[`heel${Side}` as AutoMovieHumanoidSocket] };
+    const distal: IAutoMovieVector3 = at(bone("IndexDistal")).worldPosition;
+    const along: IAutoMovieVector3 = Vector3.subtract(distal, at(bone("IndexIntermediate")).worldPosition);
+    regions[`indexTip${Side}` as AutoMovieHumanoidRegion] = local(bone("IndexDistal"), exit(bone("Hand"), distal, along), along);
+  }
   const thorax = bounds("chest");
   sockets.back = local("chest", { x: 0, y: (thorax.min.y + thorax.max.y) / 2, z: thorax.min.z }, { x: 0, y: 0, z: -1 }, { x: 0, y: 1, z: 0 });
   return { regions, sockets };
@@ -236,17 +255,19 @@ const GRIP_RADIUS: number = 0.025;
 const KNUCKLE_RADIUS: number = 0.012;
 
 /** Every region's definition, both sides from one table: +X is the body's left. */
-const REGIONS: Readonly<Record<AutoMovieHumanoidRegion, IRegionDef>> = (() => {
+const REGIONS: Readonly<Partial<Record<AutoMovieHumanoidRegion, IRegionDef>>> = (() => {
   const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
   const head: IStation = { bone: "head", toward: "centre", share: 0 };
   const neck: IStation = { bone: "neck", toward: "head", share: 0.5 };
   const chest = (share: number): IStation => ({ bone: "chest", toward: "neck", share });
   const spine = (share: number): IStation => ({ bone: "spine", toward: "chest", share });
   const table: Partial<Record<AutoMovieHumanoidRegion, IRegionDef>> = {
-    headTop: { station: head, direction: v(0, 1, 0) },
+    crown: { station: head, direction: v(0, 1, 0) },
     forehead: { station: head, direction: v(0, 0.45, 1) },
     face: { station: head, direction: v(0, 0, 1) },
+    noseBridge: { station: head, direction: v(0, 0.1, 1) },
     nose: { station: head, direction: v(0, -0.15, 1) },
+    mouth: { station: head, direction: v(0, -0.4, 1) },
     chin: { station: head, direction: v(0, -0.75, 0.65) },
     headBack: { station: head, direction: v(0, 0, -1) },
     throat: { station: neck, direction: v(0, 0, 1) },
@@ -277,6 +298,8 @@ const REGIONS: Readonly<Record<AutoMovieHumanoidRegion, IRegionDef>> = (() => {
     set("upperArm", { station: { bone: s("UpperArm"), toward: s("LowerArm"), share: 0.5 }, direction: v(0, 1, 0) });
     set("elbow", { station: { bone: s("LowerArm"), toward: s("Hand"), share: 0 }, direction: v(0, 0, -1) });
     set("forearm", { station: { bone: s("LowerArm"), toward: s("Hand"), share: 0.5 }, direction: v(0, 1, 0) });
+    set("wrist", { station: { bone: s("LowerArm"), toward: s("Hand"), share: 0.95 }, direction: v(0, 1, 0) });
+    set("pocketFront", { station: { bone: s("UpperLeg"), toward: s("LowerLeg"), share: 0.15 }, direction: v(0.35 * x, 0, 1) });
     set("handBack", { station: { bone: s("Hand"), toward: s("MiddleProximal"), share: 0.5 }, direction: v(0, 1, 0) });
     set("thighFront", { station: { bone: s("UpperLeg"), toward: s("LowerLeg"), share: 0.5 }, direction: v(0, 0, 1) });
     set("thighOuter", { station: { bone: s("UpperLeg"), toward: s("LowerLeg"), share: 0.5 }, direction: v(x, 0, 0) });
@@ -286,7 +309,7 @@ const REGIONS: Readonly<Record<AutoMovieHumanoidRegion, IRegionDef>> = (() => {
     set("calf", { station: { bone: s("LowerLeg"), toward: s("Foot"), share: 0.35 }, direction: v(0, 0, -1) });
     set("footTop", { station: { bone: s("Foot"), toward: s("Toes"), share: 0.5 }, direction: v(0, 1, 0) });
   }
-  return table as Record<AutoMovieHumanoidRegion, IRegionDef>;
+  return table;
 })();
 
 /** The farthest distance along a unit ray at which it is still inside a shape, or -Infinity on a miss. */

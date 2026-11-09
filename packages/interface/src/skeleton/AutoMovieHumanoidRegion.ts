@@ -7,16 +7,20 @@
  * posterior trunk with the hypochondriac regions over the liver (right) and
  * spleen (left) and the lumbar regions over the kidneys, and the limbs by
  * segment and aspect. Paired regions carry their side, the body's own left
- * or right. Each region is anchored to one humanoid bone and resolved to a
+ * or right. Contact points the body itself presents (the palm, the index
+ * fingertip, the sole, the heel, the seat) are regions too, so another body
+ * or an object can be aimed at them. Each region is anchored to one humanoid bone and resolved to a
  * point and an outward normal on that bone's collision shapes by the engine,
  * so the same name serves a generated Human, an imported character or a
  * parametric figure. The list grows additively; no name is ever repurposed.
  */
 export type AutoMovieHumanoidRegion =
-  | "headTop"
+  | "crown"
   | "forehead"
   | "face"
+  | "noseBridge"
   | "nose"
+  | "mouth"
   | "chin"
   | "jawLeft"
   | "jawRight"
@@ -43,6 +47,9 @@ export type AutoMovieHumanoidRegion =
   | "kidneyLeft"
   | "kidneyRight"
   | "groin"
+  | "seat"
+  | "pocketFrontLeft"
+  | "pocketFrontRight"
   | "hipLeft"
   | "hipRight"
   | "shoulderLeft"
@@ -53,8 +60,14 @@ export type AutoMovieHumanoidRegion =
   | "elbowRight"
   | "forearmLeft"
   | "forearmRight"
+  | "wristLeft"
+  | "wristRight"
+  | "palmLeft"
+  | "palmRight"
   | "handBackLeft"
   | "handBackRight"
+  | "indexTipLeft"
+  | "indexTipRight"
   | "thighFrontLeft"
   | "thighFrontRight"
   | "thighOuterLeft"
@@ -68,4 +81,8 @@ export type AutoMovieHumanoidRegion =
   | "calfLeft"
   | "calfRight"
   | "footTopLeft"
-  | "footTopRight";
+  | "footTopRight"
+  | "soleLeft"
+  | "soleRight"
+  | "heelLeft"
+  | "heelRight";
