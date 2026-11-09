@@ -21,12 +21,17 @@ import { Vector3 } from "../math/Vector3";
  * comfortable reach. A taller partner therefore raises the point, as the
  * exchange height rises with stature (Sutiphotinun et al. 2020, reviewed by
  * Kopnarski 2023), and either partner's comfortable reach is honoured on
- * average.
+ * average. When the partners' statures differ so much that this mean lies
+ * beyond one straight arm (a child and a tall adult), the height moves to the
+ * nearest one inside the band of heights both straight arms reach at that
+ * horizontal distance, so the shorter partner reaches up or the taller down
+ * only as far as the other cannot.
  *
- * A meeting is refused, not stretched, when the point lies beyond either
- * person's full reach `limit`: the error gives both distances and limits and
- * the largest shoulder gap the pair can close, so the author moves the people
- * instead of receiving an arm torn off its shoulder.
+ * A meeting is refused, not stretched, when no height lies within both
+ * straight arms' reach: the error gives both limits and the widest shoulder
+ * gap the pair can close (the band only narrows as the gap widens, so it is
+ * found by bisection), so the author moves the people instead of receiving
+ * an arm torn off its shoulder.
  *
  * @param input Both sides' acting shoulders and reaches.
  * @returns The meeting point and each side's shoulder distance to it.
@@ -34,9 +39,9 @@ import { Vector3 } from "../math/Vector3";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the horizontal and vertical rules with their sources, the frame and units, and the refusal.
  * @evidence contracts/development/implementation.md#principled-implementation Midpoint location (Hansen 2017) and a comfortable-reach hand height from the right triangle of the arm, the shoulder height and the half gap.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed-form point and one feasibility check.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable point is refused with the feasible gap, never clamped onto an arm.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed-form point projected into one reachable band, and one feasibility check.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable meeting is refused with the feasible gap, never clamped onto an arm; the projection only moves the height inside both arms' reach.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work; a refusal adds a fixed 50-step bisection.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Allocates its result only.
  */
@@ -50,22 +55,43 @@ export function resolveAutoMovieMutualGoal(input: {
   const half: number = Math.hypot(input.b.shoulder.x - input.a.shoulder.x, input.b.shoulder.z - input.a.shoulder.z) / 2;
   const height = (side: resolveAutoMovieMutualGoal.ISide): number =>
     side.shoulder.y - Math.sqrt(Math.max(0, side.reach * side.reach - half * half));
+
+  // The heights each straight arm can reach at that horizontal distance; the
+  // comfortable mean is moved into the band both share.
+  const band = (side: resolveAutoMovieMutualGoal.ISide, h: number): [number, number] => {
+    const drop: number = Math.sqrt(Math.max(0, side.limit * side.limit - h * h));
+    return [side.shoulder.y - drop, side.shoulder.y + drop];
+  };
+  const shared = (h: number): [number, number] => {
+    const [a0, a1] = band(input.a, h);
+    const [b0, b1] = band(input.b, h);
+    return [Math.max(a0, b0), Math.min(a1, b1)];
+  };
+  const [low, high] = shared(half);
+  if (half > Math.min(input.a.limit, input.b.limit) || low > high) {
+    // The widest closable gap, by bisection on the half gap: the shared band
+    // only narrows as the gap widens.
+    let lo: number = 0;
+    let hi: number = Math.min(input.a.limit, input.b.limit);
+    for (let i: number = 0; i < 50; i++) {
+      const mid: number = (lo + hi) / 2;
+      const [l, u] = shared(mid);
+      if (l <= u) lo = mid;
+      else hi = mid;
+    }
+    throw new Error(
+      `The hands cannot meet: no height lies within both arms' reach of ${input.a.limit.toFixed(3)} m and ${input.b.limit.toFixed(3)} m at a shoulder gap of ${(2 * half).toFixed(3)} m; bring the shoulders within about ${(2 * lo).toFixed(3)} m of each other`,
+    );
+  }
   const point: IAutoMovieVector3 = {
     x: (input.a.shoulder.x + input.b.shoulder.x) / 2,
-    y: (height(input.a) + height(input.b)) / 2,
+    y: Math.min(high, Math.max(low, (height(input.a) + height(input.b)) / 2)),
     z: (input.a.shoulder.z + input.b.shoulder.z) / 2,
   };
   const distance: [number, number] = [
     Vector3.length(Vector3.subtract(point, input.a.shoulder)),
     Vector3.length(Vector3.subtract(point, input.b.shoulder)),
   ];
-  if (distance[0] > input.a.limit || distance[1] > input.b.limit) {
-    const rise: number = Math.abs(input.a.shoulder.y - input.b.shoulder.y) / 2;
-    const widest: number = 2 * Math.sqrt(Math.max(0, Math.min(input.a.limit, input.b.limit) ** 2 - rise * rise));
-    throw new Error(
-      `The hands cannot meet: the midpoint is ${distance[0].toFixed(3)} m and ${distance[1].toFixed(3)} m from the shoulders, beyond reaches of ${input.a.limit.toFixed(3)} m and ${input.b.limit.toFixed(3)} m; bring the shoulders within about ${widest.toFixed(3)} m of each other`,
-    );
-  }
   return { point, distance };
 }
 

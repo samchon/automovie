@@ -17,6 +17,9 @@ import { TestValidator } from "@nestia/e2e";
  * 4. A taller partner (higher shoulder) raises the point; equal people meet
  *    below their shoulders by the comfortable-reach drop
  *    `sqrt(reach^2 - h^2)`.
+ *    A child and a tall adult whose comfortable mean lies below the adult's
+ *    straight arm meet at the adult's lowest reachable height, both within
+ *    their limits.
  * 5. Shoulders farther apart than the full reaches allow are refused, and the
  *    message names the largest closable gap, which itself is accepted.
  * 6. A comfortable reach above the limit, or a non-positive reach, throws.
@@ -57,6 +60,15 @@ export function test_motion_handling_mutual_goal(): void {
   TestValidator.predicate("equal people drop by sqrt(reach^2 - h^2)", close(even.point.y, 1.4 - Math.sqrt(0.25 - 0.09)));
   const taller: resolveAutoMovieMutualGoal.IGoal = resolveAutoMovieMutualGoal({ a: side(0, 0, 1.4, 0.5, 0.65), b: side(0, 0.6, 1.6, 0.5, 0.65) });
   TestValidator.predicate("a taller partner raises the point", taller.point.y > even.point.y + 0.05);
+
+  // 4b. A child and a tall adult: the comfortable mean lies beyond the
+  // adult's straight arm, so the point rises to the lowest height the adult
+  // reaches, and both distances stay within their limits.
+  const child: resolveAutoMovieMutualGoal.ISide = side(0, 0, 1.0, 0.35, 0.45);
+  const adult: resolveAutoMovieMutualGoal.ISide = side(0, 0.6, 1.7, 0.5, 0.65);
+  const mixed: resolveAutoMovieMutualGoal.IGoal = resolveAutoMovieMutualGoal({ a: child, b: adult });
+  TestValidator.predicate("a child and an adult meet within both reaches", mixed.distance[0] <= 0.45 + 1e-9 && mixed.distance[1] <= 0.65 + 1e-9);
+  TestValidator.predicate("the meeting rises to the adult's lowest reach", close(mixed.point.y, 1.7 - Math.sqrt(0.65 * 0.65 - 0.09)));
 
   // 5. Refusal with the closable gap.
   let message: string = "";
