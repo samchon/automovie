@@ -10,7 +10,12 @@ import {
   resolvePose,
   samplePoseVelocity,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -97,7 +102,9 @@ export namespace HumanSegment {
     prop: string;
 
     /** The holding fingers' clinical angles. */
-    fingers: Readonly<Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>>;
+    fingers: Readonly<
+      Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
+    >;
 
     /** The action that took hold. */
     source: ISegment;
@@ -119,8 +126,15 @@ export namespace HumanSegment {
    * @param side The hand.
    * @returns Whether it drives the hand.
    */
-  export function drives(plan: IHumanActionPlan, side: "left" | "right"): boolean {
-    return plan.contacts.some((c: IHumanContactWindow): boolean => c.part === `${side}Hand`) || (plan.hands ?? []).includes(side);
+  export function drives(
+    plan: IHumanActionPlan,
+    side: "left" | "right",
+  ): boolean {
+    return (
+      plan.contacts.some(
+        (c: IHumanContactWindow): boolean => c.part === `${side}Hand`,
+      ) || (plan.hands ?? []).includes(side)
+    );
   }
 
   /** One placed action. */
@@ -192,21 +206,38 @@ export namespace HumanSegment {
     name: HumanActionName,
     start: number,
   ): IHumanInterruptRow | undefined {
-    if (previous === undefined || before === undefined || before.cut === undefined || Math.abs(before.end - start) > 1e-9)
+    if (
+      previous === undefined ||
+      before === undefined ||
+      before.cut === undefined ||
+      Math.abs(before.end - start) > 1e-9
+    )
       return undefined;
     const D: number = previous.plan.duration;
     const share: number = (previous.end - previous.start) / D;
-    const rows: readonly IHumanInterruptRow[] = previous.law.interrupts[name] ?? [];
-    const found: IHumanInterruptRow | undefined = rows.find((r: IHumanInterruptRow): boolean => {
-      const [a, b] = r.window.map((w: number | string): number => HumanSegment.share(w, previous.plan));
-      return share >= a! - 1e-9 && share <= b! + 1e-9;
-    });
+    const rows: readonly IHumanInterruptRow[] =
+      previous.law.interrupts[name] ?? [];
+    const found: IHumanInterruptRow | undefined = rows.find(
+      (r: IHumanInterruptRow): boolean => {
+        const [a, b] = r.window.map((w: number | string): number =>
+          HumanSegment.share(w, previous.plan),
+        );
+        return share >= a! - 1e-9 && share <= b! + 1e-9;
+      },
+    );
     if (found !== undefined) return found;
     const legal: string =
       rows.length === 0
         ? "none declared"
-        : rows.map((r: IHumanInterruptRow): string => `[${r.window.join(", ")}] (${r.kind})`).join(", ");
-    throw new Error(`${subject}: ${previous.name} cannot be cut into ${name} at share ${share.toFixed(3)}; legal windows: ${legal}`);
+        : rows
+            .map(
+              (r: IHumanInterruptRow): string =>
+                `[${r.window.join(", ")}] (${r.kind})`,
+            )
+            .join(", ");
+    throw new Error(
+      `${subject}: ${previous.name} cannot be cut into ${name} at share ${share.toFixed(3)}; legal windows: ${legal}`,
+    );
   }
 
   /**
@@ -219,7 +250,10 @@ export namespace HumanSegment {
   export function share(at: number | string, plan: IHumanActionPlan): number {
     if (typeof at === "number") return at;
     const event = plan.events.find((e) => e.name === at);
-    if (event === undefined) throw new Error(`No event ${at}; events are ${plan.events.map((e) => e.name).join(", ") || "none"}`);
+    if (event === undefined)
+      throw new Error(
+        `No event ${at}; events are ${plan.events.map((e) => e.name).join(", ") || "none"}`,
+      );
     return event.share;
   }
 
@@ -231,22 +265,51 @@ export namespace HumanSegment {
    * @param seconds The entry second.
    * @returns The entry state.
    */
-  export function entry(person: IPerson, previous: ISegment | undefined, seconds: number): IHumanEntryState {
+  export function entry(
+    person: IPerson,
+    previous: ISegment | undefined,
+    seconds: number,
+  ): IHumanEntryState {
     const body = person.performer.body;
-    const shown = (t: number): IAutoMoviePose => (previous === undefined ? initial(person) : of(person, previous, t));
+    const shown = (t: number): IAutoMoviePose =>
+      previous === undefined ? initial(person) : of(person, previous, t);
     const state: samplePoseVelocity.IState = samplePoseVelocity(shown, seconds);
     const posture: IHumanPosture =
       previous === undefined
         ? person.initial
-        : layered(person, previous.plan.posture(Math.min(previous.plan.duration, Math.max(0, seconds - previous.start))), seconds);
+        : layered(
+            person,
+            previous.plan.posture(
+              Math.min(
+                previous.plan.duration,
+                Math.max(0, seconds - previous.start),
+              ),
+            ),
+            seconds,
+          );
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      resolvePose(state.pose, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map((r): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r]),
+      resolvePose(
+        state.pose,
+        body.skeleton,
+        HUMANOID_JOINT_AXES,
+        HUMANOID_REST_FRAME,
+      ).map((r): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
+        r.bone,
+        r,
+      ]),
     );
     const planted = (part: "leftFoot" | "rightFoot"): boolean => {
       if (previous === undefined) return true;
-      const u: number = Math.min(1, Math.max(0, (seconds - previous.start) / previous.plan.duration));
+      const u: number = Math.min(
+        1,
+        Math.max(0, (seconds - previous.start) / previous.plan.duration),
+      );
       return previous.plan.contacts.some(
-        (c: IHumanContactWindow): boolean => c.part === part && (c.kind === "plant" || c.kind === "pivot") && u >= c.from - 1e-9 && u <= c.to + 1e-9,
+        (c: IHumanContactWindow): boolean =>
+          c.part === part &&
+          (c.kind === "plant" || c.kind === "pivot") &&
+          u >= c.from - 1e-9 &&
+          u <= c.to + 1e-9,
       );
     };
     const foot = (side: "left" | "right"): IHumanEntryState.IFoot => ({
@@ -268,7 +331,13 @@ export namespace HumanSegment {
               params: previous.params,
               plan: previous.plan,
               start: previous.start,
-              share: Math.min(1, Math.max(0, (seconds - previous.start) / previous.plan.duration)),
+              share: Math.min(
+                1,
+                Math.max(
+                  0,
+                  (seconds - previous.start) / previous.plan.duration,
+                ),
+              ),
             },
           }),
     };
@@ -282,13 +351,18 @@ export namespace HumanSegment {
    * @returns The pose.
    */
   export function displayed(person: IPerson, seconds: number): IAutoMoviePose {
-    const cached: IAutoMoviePose | undefined = person.resolving ? undefined : person.cache.get(seconds);
+    const cached: IAutoMoviePose | undefined = person.resolving
+      ? undefined
+      : person.cache.get(seconds);
     if (cached !== undefined) return cached;
     let active: ISegment | undefined;
-    for (const s of person.segments) if (s.entryTime <= seconds + 1e-12) active = s;
-    const pose: IAutoMoviePose = active === undefined ? initial(person) : of(person, active, seconds);
+    for (const s of person.segments)
+      if (s.entryTime <= seconds + 1e-12) active = s;
+    const pose: IAutoMoviePose =
+      active === undefined ? initial(person) : of(person, active, seconds);
     if (person.resolving) return pose;
-    if (person.cache.size >= 4096) person.cache.delete(person.cache.keys().next().value!);
+    if (person.cache.size >= 4096)
+      person.cache.delete(person.cache.keys().next().value!);
     person.cache.set(seconds, pose);
     return pose;
   }
@@ -303,14 +377,30 @@ export namespace HumanSegment {
    * @param seconds Film seconds.
    * @returns The pose.
    */
-  export function of(person: IPerson, segment: ISegment, seconds: number): IAutoMoviePose {
+  export function of(
+    person: IPerson,
+    segment: ISegment,
+    seconds: number,
+  ): IAutoMoviePose {
     const body = person.performer.body;
-    const local: number = Math.min(segment.plan.duration, Math.max(0, seconds - segment.start));
-    let posture: IHumanPosture = layered(person, segment.plan.posture(local), seconds);
-    const carried: IHeld[] = person.holds.filter(
-      (h: IHeld): boolean => h.source !== segment && h.from <= seconds && seconds < h.until && !drives(segment.plan, h.side),
+    const local: number = Math.min(
+      segment.plan.duration,
+      Math.max(0, seconds - segment.start),
     );
-    for (const h of carried) posture = { ...posture, joints: { ...posture.joints, ...h.fingers } };
+    let posture: IHumanPosture = layered(
+      person,
+      segment.plan.posture(local),
+      seconds,
+    );
+    const carried: IHeld[] = person.holds.filter(
+      (h: IHeld): boolean =>
+        h.source !== segment &&
+        h.from <= seconds &&
+        seconds < h.until &&
+        !drives(segment.plan, h.side),
+    );
+    for (const h of carried)
+      posture = { ...posture, joints: { ...posture.joints, ...h.fingers } };
     let pose: IAutoMoviePose = resolveHumanPosture(body, posture);
     if (carried.length !== 0) {
       // The carry: each held hand rides the chest with the offset it had when
@@ -320,12 +410,25 @@ export namespace HumanSegment {
       for (const h of carried) {
         h.carry ??= capture(person, h);
         const goal: IHumanPosture.IGoal = {
-          point: Vector3.add(chest.worldPosition, Quaternion.rotateVector(chest.worldRotation, h.carry.position)),
-          rotation: Quaternion.normalize(Quaternion.multiply(chest.worldRotation, h.carry.rotation)),
-          bend: Vector3.add(chest.worldPosition, Quaternion.rotateVector(chest.worldRotation, { x: h.side === "left" ? 0.5 : -0.5, y: -0.5, z: -0.3 })),
+          point: Vector3.add(
+            chest.worldPosition,
+            Quaternion.rotateVector(chest.worldRotation, h.carry.position),
+          ),
+          rotation: Quaternion.normalize(
+            Quaternion.multiply(chest.worldRotation, h.carry.rotation),
+          ),
+          bend: Vector3.add(
+            chest.worldPosition,
+            Quaternion.rotateVector(chest.worldRotation, {
+              x: h.side === "left" ? 0.5 : -0.5,
+              y: -0.5,
+              z: -0.3,
+            }),
+          ),
           planted: true,
         };
-        const limb: "leftArm" | "rightArm" = h.side === "left" ? "leftArm" : "rightArm";
+        const limb: "leftArm" | "rightArm" =
+          h.side === "left" ? "leftArm" : "rightArm";
         limbs[limb] = goal;
         pose = resolveHumanPosture.limb(body, pose, limb, goal);
       }
@@ -337,35 +440,71 @@ export namespace HumanSegment {
       for (const w of segment.plan.weapons ?? []) {
         const s: number | undefined = person.stops.get(weapon(segment, w.id));
         if (s === undefined || seconds <= s) continue;
-        const side: "left" | "right" = w.limb.startsWith("left") ? "left" : "right";
+        const side: "left" | "right" = w.limb.startsWith("left")
+          ? "left"
+          : "right";
         const arm: boolean = w.limb.endsWith("Arm");
         const map = bones(person, of(person, segment, s));
-        const effector: IAutoMovieResolvedBone = map.get(`${side}${arm ? "Hand" : "Foot"}`)!;
+        const effector: IAutoMovieResolvedBone = map.get(
+          `${side}${arm ? "Hand" : "Foot"}`,
+        )!;
         const goal: IHumanPosture.IGoal = {
           point: effector.worldPosition,
           rotation: effector.worldRotation,
-          bend: map.get(`${side}${arm ? "LowerArm" : "LowerLeg"}`)!.worldPosition,
+          bend: map.get(`${side}${arm ? "LowerArm" : "LowerLeg"}`)!
+            .worldPosition,
           planted: true,
         };
         posture = { ...posture, limbs: { ...posture.limbs, [w.limb]: goal } };
         pose = resolveHumanPosture.limb(body, pose, w.limb, goal);
       }
     const transition = segment.transition;
-    if (transition !== undefined && transition.kind !== "redirect" && seconds - transition.cut < transition.blend) {
+    if (
+      transition !== undefined &&
+      transition.kind !== "redirect" &&
+      seconds - transition.cut < transition.blend
+    ) {
       transition.offset ??= inertializePose(
-        samplePoseVelocity((t: number): IAutoMoviePose => of(person, transition.source, t), transition.cut),
+        samplePoseVelocity(
+          (t: number): IAutoMoviePose => of(person, transition.source, t),
+          transition.cut,
+        ),
         samplePoseVelocity(
           (t: number): IAutoMoviePose =>
-            resolveHumanPosture(body, layered(person, segment.plan.posture(Math.min(segment.plan.duration, Math.max(0, t - segment.start))), t)),
+            resolveHumanPosture(
+              body,
+              layered(
+                person,
+                segment.plan.posture(
+                  Math.min(
+                    segment.plan.duration,
+                    Math.max(0, t - segment.start),
+                  ),
+                ),
+                t,
+              ),
+            ),
           transition.cut,
         ),
         transition.blend,
       );
-      pose = transition.offset(Math.max(0, seconds - transition.cut), pose);
-      for (const limb of ["leftLeg", "rightLeg", "leftArm", "rightArm"] as const) {
+      // The offset pose is clamped first and the planted limbs re-solved last,
+      // so no later step moves a plant (the limb fit keeps its own angles in range).
+      pose = clampPose(
+        transition.offset(Math.max(0, seconds - transition.cut), pose),
+        body.skeleton,
+      );
+      for (const limb of [
+        "leftLeg",
+        "rightLeg",
+        "leftArm",
+        "rightArm",
+      ] as const) {
         const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
-        if (goal?.planted === true) pose = resolveHumanPosture.limb(body, pose, limb, goal);
+        if (goal?.planted === true)
+          pose = resolveHumanPosture.limb(body, pose, limb, goal);
       }
+      return pose;
     }
     return clampPose(pose, body.skeleton);
   }
@@ -388,30 +527,55 @@ export namespace HumanSegment {
   }
 
   /** A pose's world bones. */
-  function bones(person: IPerson, pose: IAutoMoviePose): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+  function bones(
+    person: IPerson,
+    pose: IAutoMoviePose,
+  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     return new Map(
-      resolvePose(pose, person.performer.body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
-        (r): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-      ),
+      resolvePose(
+        pose,
+        person.performer.body.skeleton,
+        HUMANOID_JOINT_AXES,
+        HUMANOID_REST_FRAME,
+      ).map((r): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
+        r.bone,
+        r,
+      ]),
     );
   }
 
   /** A held hand's frame in the chest's frame at the end of the action that took hold. */
-  function capture(person: IPerson, held: IHeld): { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion } {
+  function capture(
+    person: IPerson,
+    held: IHeld,
+  ): { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion } {
     const at: number = Math.max(held.from, held.source.end);
     const map = bones(person, of(person, held.source, at));
     const chest: IAutoMovieResolvedBone = map.get("chest")!;
     const hand: IAutoMovieResolvedBone = map.get(`${held.side}Hand`)!;
     const inverse = Quaternion.inverse(chest.worldRotation);
     return {
-      position: Quaternion.rotateVector(inverse, Vector3.subtract(hand.worldPosition, chest.worldPosition)),
-      rotation: Quaternion.normalize(Quaternion.multiply(inverse, hand.worldRotation)),
+      position: Quaternion.rotateVector(
+        inverse,
+        Vector3.subtract(hand.worldPosition, chest.worldPosition),
+      ),
+      rotation: Quaternion.normalize(
+        Quaternion.multiply(inverse, hand.worldRotation),
+      ),
     };
   }
 
   /** A posture with the person's layers added in order. */
-  function layered(person: IPerson, posture: IHumanPosture, seconds: number): IHumanPosture {
-    return person.layers.reduce((p: IHumanPosture, layer: IHumanLayer): IHumanPosture => layer.apply(p, seconds, person.layer), posture);
+  function layered(
+    person: IPerson,
+    posture: IHumanPosture,
+    seconds: number,
+  ): IHumanPosture {
+    return person.layers.reduce(
+      (p: IHumanPosture, layer: IHumanLayer): IHumanPosture =>
+        layer.apply(p, seconds, person.layer),
+      posture,
+    );
   }
 
   /** The standing pose before a person's first action. */

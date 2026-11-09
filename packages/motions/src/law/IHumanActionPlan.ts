@@ -1,4 +1,8 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionEvent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { IHumanContactWindow } from "./IHumanContactWindow";
@@ -139,6 +143,8 @@ export namespace IHumanActionPlan {
     from: number;
 
     /** The holding fingers' clinical angles, kept while carried. */
-    fingers?: Readonly<Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>>;
+    fingers?: Readonly<
+      Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
+    >;
   }
 }

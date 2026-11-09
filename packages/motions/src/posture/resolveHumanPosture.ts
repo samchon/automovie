@@ -22,16 +22,17 @@ import type { IHumanPosture } from "./IHumanPosture";
 
 /**
  * Resolve a posture into a canonical pose: the root from the posture's
- * position and heading, every directly set joint, then each limb goal by the
- * engine's two-bone fit with its bend hint, arms after the trunk and legs
- * after the root, and finally the rig's range of motion.
+ * position and heading, every directly set joint clamped to the rig's range
+ * of motion, then each limb goal by the engine's two-bone fit with its bend
+ * hint, arms after the trunk and legs after the root, last, so nothing moves
+ * a solved goal afterwards.
  *
  * Bones a posture neither sets nor solves stand at clinical zero, so every
  * pose this returns lists every rig bone and reads the same on any renderer.
  * The limb fit is `fitChainToTarget`, which clamps its candidates to the
  * rig's range of motion and searches bend planes when the hinted one misses;
- * the whole pose is then clamped by `clampPose`, so no returned angle exceeds
- * the rig's declared range.
+ * the set joints are clamped by `clampPose` before it, so no returned angle
+ * exceeds the rig's declared range and the clamp never moves a plant.
  *
  * @param body The performer's body.
  * @param posture The posture.
@@ -39,9 +40,9 @@ import type { IHumanPosture } from "./IHumanPosture";
  *   as a transition's displayed pose; its root is ignored.
  * @returns The canonical pose.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the order, the default for unset bones, the IK owner and the final clamp.
- * @evidence contracts/development/implementation.md#principled-implementation Root, then forward joints, then two-bone IK per limb with a pole hint (the engine's fitChainToTarget), then the range-of-motion clamp: the standard procedural order where IK runs on the already posed parents.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose assembly, one fit per goal, one clamp.
+ * @evidence contracts/development/common.md#meaningful-documentation States the order, the default for unset bones, the IK owner and where the clamp runs.
+ * @evidence contracts/development/implementation.md#principled-implementation Root, then forward joints clamped to their range, then two-bone IK per limb with a pole hint (the engine's fitChainToTarget, range-clamped itself): the standard procedural order where IK runs last, on the already posed parents.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose assembly, one clamp, one fit per goal.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle is set past the rig's range; an unreachable goal leaves the limb extended toward it, reported by the audits.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones plus up to four limb fits, each a bounded bend search.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; the body's topology is shared.
@@ -53,24 +54,48 @@ export function resolveHumanPosture(
   base?: IAutoMoviePose,
 ): IAutoMoviePose {
   const kept: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
-    (base?.joints ?? []).map((j: IAutoMovieJointPose): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j]),
+    (base?.joints ?? []).map(
+      (
+        j: IAutoMovieJointPose,
+      ): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j],
+    ),
   );
-  const joints: IAutoMovieJointPose[] = body.skeleton.bones.map((b): IAutoMovieJointPose => {
-    const set: readonly [number, number, number] | undefined = posture.joints[b.bone];
-    if (set !== undefined) return { bone: b.bone, flexion: set[0], abduction: set[1], twist: set[2] };
-    return kept.get(b.bone) ?? { bone: b.bone, flexion: 0, abduction: 0, twist: 0 };
-  });
-  let pose: IAutoMoviePose = {
-    skeleton: body.skeleton.id,
-    root: { translation: posture.root, rotation: resolveHumanPosture.heading(posture), scale: { x: 1, y: 1, z: 1 } },
-    joints,
-  };
+  const joints: IAutoMovieJointPose[] = body.skeleton.bones.map(
+    (b): IAutoMovieJointPose => {
+      const set: readonly [number, number, number] | undefined =
+        posture.joints[b.bone];
+      if (set !== undefined)
+        return {
+          bone: b.bone,
+          flexion: set[0],
+          abduction: set[1],
+          twist: set[2],
+        };
+      return (
+        kept.get(b.bone) ?? { bone: b.bone, flexion: 0, abduction: 0, twist: 0 }
+      );
+    },
+  );
+  // The set joints are clamped first and the limbs fitted last, so the clamp
+  // never moves a solved goal; the fit keeps the limb's own angles in range.
+  let pose: IAutoMoviePose = clampPose(
+    {
+      skeleton: body.skeleton.id,
+      root: {
+        translation: posture.root,
+        rotation: resolveHumanPosture.heading(posture),
+        scale: { x: 1, y: 1, z: 1 },
+      },
+      joints,
+    },
+    body.skeleton,
+  );
   for (const limb of ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
     const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
     if (goal === undefined) continue;
     pose = fitLimb(body, pose, limb, goal);
   }
-  return clampPose(pose, body.skeleton);
+  return pose;
 }
 
 /**
@@ -88,7 +113,9 @@ export namespace resolveHumanPosture {
    * @param posture The posture's heading.
    * @returns The rotation.
    */
-  export function heading(posture: Pick<IHumanPosture, "yaw" | "pitch" | "roll">): IAutoMovieQuaternion {
+  export function heading(
+    posture: Pick<IHumanPosture, "yaw" | "pitch" | "roll">,
+  ): IAutoMovieQuaternion {
     return Quaternion.normalize(
       Quaternion.multiply(
         Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, posture.yaw),
@@ -115,36 +142,60 @@ export namespace resolveHumanPosture {
    * @param knee The least knee flexion, degrees; 5 when absent.
    * @returns The posture, its root lowered when needed.
    */
-  export function lower(body: IHumanBody, posture: IHumanPosture, knee: number = 5): IHumanPosture {
+  export function lower(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    knee: number = 5,
+  ): IHumanPosture {
     const a: number = body.measure.thigh;
     const b: number = body.measure.shank;
     const phi: number = (knee * Math.PI) / 180;
     const limit: number = Math.sqrt(a * a + b * b + 2 * a * b * Math.cos(phi));
-    const legs = (["left", "right"] as const).filter((side) => posture.limbs[`${side}Leg`]?.planted === true);
+    const legs = (["left", "right"] as const).filter(
+      (side) => posture.limbs[`${side}Leg`]?.planted === true,
+    );
     if (legs.length === 0) return posture;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
       resolvePose(
         {
           skeleton: body.skeleton.id,
-          root: { translation: posture.root, rotation: heading(posture), scale: { x: 1, y: 1, z: 1 } },
+          root: {
+            translation: posture.root,
+            rotation: heading(posture),
+            scale: { x: 1, y: 1, z: 1 },
+          },
           joints: Object.entries(posture.joints)
             .filter(([bone]) => bone === "hips")
-            .map(([bone, j]) => ({ bone: bone as AutoMovieHumanoidBone, flexion: j![0], abduction: j![1], twist: j![2] })),
+            .map(([bone, j]) => ({
+              bone: bone as AutoMovieHumanoidBone,
+              flexion: j![0],
+              abduction: j![1],
+              twist: j![2],
+            })),
         },
         body.skeleton,
         HUMANOID_JOINT_AXES,
         HUMANOID_REST_FRAME,
-      ).map((r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r]),
+      ).map(
+        (
+          r: IAutoMovieResolvedBone,
+        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+      ),
     );
     let drop: number = 0;
     for (const side of legs) {
-      const hip: IAutoMovieVector3 = bones.get(`${side}UpperLeg`)!.worldPosition;
+      const hip: IAutoMovieVector3 = bones.get(
+        `${side}UpperLeg`,
+      )!.worldPosition;
       const goal: IAutoMovieVector3 = posture.limbs[`${side}Leg`]!.point;
       const dh: number = Math.hypot(hip.x - goal.x, hip.z - goal.z);
       const dv: number = hip.y - goal.y;
-      if (Math.hypot(dh, dv) > limit && dh < limit) drop = Math.max(drop, dv - Math.sqrt(limit * limit - dh * dh));
+      if (Math.hypot(dh, dv) > limit && dh < limit)
+        drop = Math.max(drop, dv - Math.sqrt(limit * limit - dh * dh));
     }
-    return drop === 0 ? posture : { ...posture, root: { ...posture.root, y: posture.root.y - drop } };
+    return drop === 0
+      ? posture
+      : { ...posture, root: { ...posture.root, y: posture.root.y - drop } };
   }
 
   /**
@@ -156,7 +207,12 @@ export namespace resolveHumanPosture {
    * @param goal Its goal.
    * @returns The pose with the limb fitted.
    */
-  export function limb(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb, goal: IHumanPosture.IGoal): IAutoMoviePose {
+  export function limb(
+    body: IHumanBody,
+    pose: IAutoMoviePose,
+    limb: IHumanPosture.Limb,
+    goal: IHumanPosture.IGoal,
+  ): IAutoMoviePose {
     return fitLimb(body, pose, limb, goal);
   }
 }
@@ -167,19 +223,37 @@ export namespace resolveHumanPosture {
  * limb actually reached (`HumanFoot.heelOff`), and a foot's toes take back
  * the pitch it lost.
  */
-function fitLimb(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb, goal: IHumanPosture.IGoal): IAutoMoviePose {
+function fitLimb(
+  body: IHumanBody,
+  pose: IAutoMoviePose,
+  limb: IHumanPosture.Limb,
+  goal: IHumanPosture.IGoal,
+): IAutoMoviePose {
   let fitted: IAutoMoviePose = fitOnce(body, pose, limb, goal);
   if (goal.contact === undefined || goal.rotation === undefined) return fitted;
   const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
   const leg: boolean = limb.endsWith("Leg");
   const effector: AutoMovieHumanoidBone = leg ? `${side}Foot` : `${side}Hand`;
-  const anchor: IAutoMovieVector3 = Vector3.add(goal.point, Quaternion.rotateVector(goal.rotation, goal.contact));
+  const anchor: IAutoMovieVector3 = Vector3.add(
+    goal.point,
+    Quaternion.rotateVector(goal.rotation, goal.contact),
+  );
   let toes: number = 0;
   for (let i: number = 0; i < 2; i++) {
-    const reached: IAutoMovieQuaternion = resolvePose(fitted, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).find(
+    const reached: IAutoMovieQuaternion = resolvePose(
+      fitted,
+      body.skeleton,
+      HUMANOID_JOINT_AXES,
+      HUMANOID_REST_FRAME,
+    ).find(
       (r: IAutoMovieResolvedBone): boolean => r.bone === effector,
     )!.worldRotation;
-    const dot: number = Math.abs(reached.x * goal.rotation.x + reached.y * goal.rotation.y + reached.z * goal.rotation.z + reached.w * goal.rotation.w);
+    const dot: number = Math.abs(
+      reached.x * goal.rotation.x +
+        reached.y * goal.rotation.y +
+        reached.z * goal.rotation.z +
+        reached.w * goal.rotation.w,
+    );
     if (dot > Math.cos((0.1 * Math.PI) / 360)) break;
     const off = HumanFoot.heelOff(goal.rotation, reached, anchor, goal.contact);
     toes = off.toes;
@@ -189,20 +263,36 @@ function fitLimb(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Lim
   const bone: AutoMovieHumanoidBone = `${side}Toes`;
   return {
     ...fitted,
-    joints: fitted.joints.map((j: IAutoMovieJointPose): IAutoMovieJointPose => (j.bone === bone ? { ...j, flexion: (j.flexion ?? 0) + toes } : j)),
+    joints: fitted.joints.map(
+      (j: IAutoMovieJointPose): IAutoMovieJointPose =>
+        j.bone === bone ? { ...j, flexion: (j.flexion ?? 0) + toes } : j,
+    ),
   };
 }
 
 /** One fit of a limb by the engine's two-bone solver. */
-function fitOnce(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb, goal: IHumanPosture.IGoal): IAutoMoviePose {
+function fitOnce(
+  body: IHumanBody,
+  pose: IAutoMoviePose,
+  limb: IHumanPosture.Limb,
+  goal: IHumanPosture.IGoal,
+): IAutoMoviePose {
   const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
   const arm: boolean = limb.endsWith("Arm");
   return fitChainToTarget({
     skeleton: body.skeleton,
     pose,
     chain: arm
-      ? { upper: `${side}UpperArm`, lower: `${side}LowerArm`, effector: `${side}Hand` }
-      : { upper: `${side}UpperLeg`, lower: `${side}LowerLeg`, effector: `${side}Foot` },
+      ? {
+          upper: `${side}UpperArm`,
+          lower: `${side}LowerArm`,
+          effector: `${side}Hand`,
+        }
+      : {
+          upper: `${side}UpperLeg`,
+          lower: `${side}LowerLeg`,
+          effector: `${side}Foot`,
+        },
     target: goal.point,
     bend: goal.bend,
     ...(goal.rotation === undefined ? {} : { effectorRotation: goal.rotation }),

@@ -69,9 +69,21 @@ export class HumanPerformance {
 
   private readonly props: Map<string, IHumanProp>;
 
-  private readonly anchors: Map<string, HumanSegment.ISegment & { subject: string }>;
+  private readonly anchors: Map<
+    string,
+    HumanSegment.ISegment & { subject: string }
+  >;
 
-  private readonly gripCache: Map<string, { subject: string; side: "left" | "right"; from: number; to: number; offset?: IHumanProp.IFrame }[]> = new Map();
+  private readonly gripCache: Map<
+    string,
+    {
+      subject: string;
+      side: "left" | "right";
+      from: number;
+      to: number;
+      offset?: IHumanProp.IFrame;
+    }[]
+  > = new Map();
 
   private resolving: boolean = true;
 
@@ -81,13 +93,26 @@ export class HumanPerformance {
    * @param input The chain seed, the performers, the props and the composition.
    */
   public constructor(input: HumanPerformance.IInput) {
-    this.props = new Map((input.props ?? []).map((p: IHumanProp): [string, IHumanProp] => [p.subject, p]));
+    this.props = new Map(
+      (input.props ?? []).map((p: IHumanProp): [string, IHumanProp] => [
+        p.subject,
+        p,
+      ]),
+    );
     this.people = new Map();
     this.anchors = new Map();
     for (const performer of input.performers) {
-      if (this.people.has(performer.subject)) throw new Error(`Duplicate performer ${performer.subject}`);
-      const initial: IHumanPosture = stand.posture(performer.body, performer.at, performer.yaw);
-      const skill: HumanSkill.ISkill = HumanSkill.resolve(performer.proficiency, input.seed);
+      if (this.people.has(performer.subject))
+        throw new Error(`Duplicate performer ${performer.subject}`);
+      const initial: IHumanPosture = stand.posture(
+        performer.body,
+        performer.at,
+        performer.yaw,
+      );
+      const skill: HumanSkill.ISkill = HumanSkill.resolve(
+        performer.proficiency,
+        input.seed,
+      );
       const body = performer.body;
       this.people.set(performer.subject, {
         performer,
@@ -104,7 +129,10 @@ export class HumanPerformance {
           body,
           skill,
           aim: (target: AutoMovieMotionTarget, seconds: number) => {
-            const posture: IHumanPosture = this.posture(performer.subject, seconds);
+            const posture: IHumanPosture = this.posture(
+              performer.subject,
+              seconds,
+            );
             return this.aim(target, seconds, {
               root: posture.root,
               yaw: posture.yaw,
@@ -116,21 +144,27 @@ export class HumanPerformance {
               range: 0.9 * (body.measure.thigh + body.measure.shank),
             });
           },
-          random: (channel: string) => HumanSkill.stream(skill, performer.subject, "layer", 0, channel),
+          random: (channel: string) =>
+            HumanSkill.stream(skill, performer.subject, "layer", 0, channel),
         },
       });
     }
     this.schedule = resolveAutoMovieSchedule(input.composition, {
-      timing: (intent: IAutoMovieIntent, context) => this.place(intent, context.start, context.entries),
-      until: (intent: IAutoMovieIntent, placed: { start: number; duration: number }): number | undefined =>
-        this.proximity(intent, placed),
+      timing: (intent: IAutoMovieIntent, context) =>
+        this.place(intent, context.start, context.entries),
+      until: (
+        intent: IAutoMovieIntent,
+        placed: { start: number; duration: number },
+      ): number | undefined => this.proximity(intent, placed),
     });
     this.contacts();
     for (const person of this.people.values()) HumanSegment.settle(person);
     this.resolving = false;
     for (const entry of this.schedule.entries) {
       const person: HumanSegment.IPerson = this.person(entry.subject);
-      const segment: HumanSegment.ISegment | undefined = person.segments.find((s: HumanSegment.ISegment): boolean => s.entry === entry.index);
+      const segment: HumanSegment.ISegment | undefined = person.segments.find(
+        (s: HumanSegment.ISegment): boolean => s.entry === entry.index,
+      );
       if (segment !== undefined) segment.end = entry.end;
     }
     this.duration = this.schedule.duration;
@@ -158,8 +192,13 @@ export class HumanPerformance {
   public posture(subject: string, seconds: number): IHumanPosture {
     const person: HumanSegment.IPerson = this.person(subject);
     let active: HumanSegment.ISegment | undefined;
-    for (const s of person.segments) if (s.entryTime <= seconds + 1e-12) active = s;
-    return active === undefined ? person.initial : active.plan.posture(Math.min(active.plan.duration, Math.max(0, seconds - active.start)));
+    for (const s of person.segments)
+      if (s.entryTime <= seconds + 1e-12) active = s;
+    return active === undefined
+      ? person.initial
+      : active.plan.posture(
+          Math.min(active.plan.duration, Math.max(0, seconds - active.start)),
+        );
   }
 
   /**
@@ -169,11 +208,21 @@ export class HumanPerformance {
    * @param seconds Film seconds.
    * @returns Resolved bones by rig bone.
    */
-  public bones(subject: string, seconds: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+  public bones(
+    subject: string,
+    seconds: number,
+  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const person: HumanSegment.IPerson = this.person(subject);
     return new Map(
-      resolvePose(this.pose(subject, seconds), person.performer.body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
-        (r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+      resolvePose(
+        this.pose(subject, seconds),
+        person.performer.body.skeleton,
+        HUMANOID_JOINT_AXES,
+        HUMANOID_REST_FRAME,
+      ).map(
+        (
+          r: IAutoMovieResolvedBone,
+        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
       ),
     );
   }
@@ -199,7 +248,10 @@ export class HumanPerformance {
    */
   public prop(subject: string, seconds: number): IHumanProp.IFrame {
     const prop: IHumanProp | undefined = this.props.get(subject);
-    if (prop === undefined) throw new Error(`No prop ${subject}; props are ${[...this.props.keys()].join(", ") || "none"}`);
+    if (prop === undefined)
+      throw new Error(
+        `No prop ${subject}; props are ${[...this.props.keys()].join(", ") || "none"}`,
+      );
     const grips = this.grips(subject);
     // The latest grip still holding carries it; with none holding, the one released last left it.
     let active: (typeof grips)[number] | undefined;
@@ -214,17 +266,29 @@ export class HumanPerformance {
     const at: number = Math.min(seconds, window.to);
     window.offset ??= ((): IHumanProp.IFrame => {
       const before: IHumanProp.IFrame = this.prop(subject, window!.from - 1e-6);
-      const hand: IHumanProp.IFrame = this.hand(window!.subject, window!.side, window!.from);
+      const hand: IHumanProp.IFrame = this.hand(
+        window!.subject,
+        window!.side,
+        window!.from,
+      );
       const inverse = Quaternion.inverse(hand.rotation);
       return {
-        position: Quaternion.rotateVector(inverse, Vector3.subtract(before.position, hand.position)),
+        position: Quaternion.rotateVector(
+          inverse,
+          Vector3.subtract(before.position, hand.position),
+        ),
         rotation: Quaternion.multiply(inverse, before.rotation),
       };
     })();
     const hand: IHumanProp.IFrame = this.hand(window.subject, window.side, at);
     return {
-      position: Vector3.add(hand.position, Quaternion.rotateVector(hand.rotation, window.offset.position)),
-      rotation: Quaternion.normalize(Quaternion.multiply(hand.rotation, window.offset.rotation)),
+      position: Vector3.add(
+        hand.position,
+        Quaternion.rotateVector(hand.rotation, window.offset.position),
+      ),
+      rotation: Quaternion.normalize(
+        Quaternion.multiply(hand.rotation, window.offset.rotation),
+      ),
     };
   }
 
@@ -249,27 +313,46 @@ export class HumanPerformance {
   public aim(
     target: AutoMovieMotionTarget,
     seconds: number,
-    frame: { root: IAutoMovieVector3; yaw: number; heights: Record<"low" | "middle" | "high", number>; range: number },
+    frame: {
+      root: IAutoMovieVector3;
+      yaw: number;
+      heights: Record<"low" | "middle" | "high", number>;
+      range: number;
+    },
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
     const yaw: number = (frame.yaw * Math.PI) / 180;
-    const forward: IAutoMovieVector3 = { x: Math.sin(yaw), y: 0, z: Math.cos(yaw) };
-    const left: IAutoMovieVector3 = { x: Math.cos(yaw), y: 0, z: -Math.sin(yaw) };
+    const forward: IAutoMovieVector3 = {
+      x: Math.sin(yaw),
+      y: 0,
+      z: Math.cos(yaw),
+    };
+    const left: IAutoMovieVector3 = {
+      x: Math.cos(yaw),
+      y: 0,
+      z: -Math.sin(yaw),
+    };
     switch (target.kind) {
       case "person": {
         const other: HumanSegment.IPerson = this.person(target.subject);
         const placed = resolveAutoMovieHumanoidSurfaces.place(
           other.performer.body.surfaces.regions[target.region],
-          this.bones(target.subject, seconds).get(other.performer.body.surfaces.regions[target.region].bone)!,
+          this.bones(target.subject, seconds).get(
+            other.performer.body.surfaces.regions[target.region].bone,
+          )!,
         );
         return { point: placed.point, normal: placed.normal };
       }
       case "prop": {
         const prop: IHumanProp | undefined = this.props.get(target.subject);
         const local = prop?.points[target.point];
-        if (local === undefined) throw new Error(`No prop point ${target.subject}.${target.point}`);
+        if (local === undefined)
+          throw new Error(`No prop point ${target.subject}.${target.point}`);
         const at: IHumanProp.IFrame = this.prop(target.subject, seconds);
         return {
-          point: Vector3.add(at.position, Quaternion.rotateVector(at.rotation, local.point)),
+          point: Vector3.add(
+            at.position,
+            Quaternion.rotateVector(at.rotation, local.point),
+          ),
           normal: Quaternion.rotateVector(at.rotation, local.normal),
         };
       }
@@ -278,13 +361,27 @@ export class HumanPerformance {
           point:
             target.frame === "world"
               ? target.at
-              : Vector3.add({ x: frame.root.x, y: 0, z: frame.root.z }, Vector3.add(Vector3.add(Vector3.scale(left, target.at.x), { x: 0, y: target.at.y, z: 0 }), Vector3.scale(forward, target.at.z))),
+              : Vector3.add(
+                  { x: frame.root.x, y: 0, z: frame.root.z },
+                  Vector3.add(
+                    Vector3.add(Vector3.scale(left, target.at.x), {
+                      x: 0,
+                      y: target.at.y,
+                      z: 0,
+                    }),
+                    Vector3.scale(forward, target.at.z),
+                  ),
+                ),
           normal: Vector3.scale(forward, -1),
         };
       case "none":
         return {
           point: Vector3.add(
-            { x: frame.root.x, y: frame.heights[target.line ?? "middle"], z: frame.root.z },
+            {
+              x: frame.root.x,
+              y: frame.heights[target.line ?? "middle"],
+              z: frame.root.z,
+            },
             Vector3.scale(forward, target.range ?? frame.range),
           ),
           normal: Vector3.scale(forward, -1),
@@ -293,18 +390,33 @@ export class HumanPerformance {
   }
 
   /** The schedule's timing law: plan the intent from the state its person is in. */
-  private place(intent: IAutoMovieIntent, start: number, entries: readonly IAutoMovieSchedule.IEntry[]) {
+  private place(
+    intent: IAutoMovieIntent,
+    start: number,
+    entries: readonly IAutoMovieSchedule.IEntry[],
+  ) {
     const person: HumanSegment.IPerson = this.person(intent.subject);
     const name: HumanActionName = intent.capability as HumanActionName;
     const law: IHumanActionLaw<never> | undefined = HUMAN_ACTIONS[name];
-    if (law === undefined) throw new Error(`${intent.subject}: no action law is named ${intent.capability}`);
-    const params: object = (intent.parameters?.params as object | undefined) ?? {};
+    if (law === undefined)
+      throw new Error(
+        `${intent.subject}: no action law is named ${intent.capability}`,
+      );
+    const params: object =
+      (intent.parameters?.params as object | undefined) ?? {};
     const previous: HumanSegment.ISegment | undefined = person.segments.at(-1);
-    const before: IAutoMovieSchedule.IEntry | undefined = [...entries].reverse().find((e: IAutoMovieSchedule.IEntry): boolean => e.subject === intent.subject);
-    if (previous !== undefined && before !== undefined) previous.end = before.end;
+    const before: IAutoMovieSchedule.IEntry | undefined = [...entries]
+      .reverse()
+      .find(
+        (e: IAutoMovieSchedule.IEntry): boolean => e.subject === intent.subject,
+      );
+    if (previous !== undefined && before !== undefined)
+      previous.end = before.end;
     const row = HumanSegment.row(intent.subject, previous, before, name, start);
     const entry = HumanSegment.entry(person, previous, start);
-    const instance: number = person.segments.filter((s: HumanSegment.ISegment): boolean => s.id === (intent.anchor ?? name)).length;
+    const instance: number = person.segments.filter(
+      (s: HumanSegment.ISegment): boolean => s.id === (intent.anchor ?? name),
+    ).length;
     const body = person.performer.body;
     const range: number = 0.9 * (body.measure.thigh + body.measure.shank);
     const context: IHumanActionContext<never> = {
@@ -325,20 +437,36 @@ export class HumanPerformance {
           },
           range,
         }),
-      random: (channel: string) => HumanSkill.stream(person.skill, intent.subject, intent.anchor ?? name, instance, channel),
+      random: (channel: string) =>
+        HumanSkill.stream(
+          person.skill,
+          intent.subject,
+          intent.anchor ?? name,
+          instance,
+          channel,
+        ),
       performer: (subject: string): IHumanActionContext.IPerformer => ({
         body: this.person(subject).performer.body,
         bones: (seconds: number) => this.bones(subject, seconds),
       }),
       prop: (subject: string): IHumanActionContext.IProp => {
         const prop: IHumanProp | undefined = this.props.get(subject);
-        if (prop === undefined) throw new Error(`${intent.subject}.${name} reads prop ${subject}; props are ${[...this.props.keys()].join(", ") || "none"}`);
-        return { prop, frame: (seconds: number): IHumanProp.IFrame => this.prop(subject, seconds) };
+        if (prop === undefined)
+          throw new Error(
+            `${intent.subject}.${name} reads prop ${subject}; props are ${[...this.props.keys()].join(", ") || "none"}`,
+          );
+        return {
+          prop,
+          frame: (seconds: number): IHumanProp.IFrame =>
+            this.prop(subject, seconds),
+        };
       },
       action: (anchor: string): IHumanActionContext.IPlaced => {
         const placed = this.anchors.get(anchor);
         if (placed === undefined)
-          throw new Error(`${intent.subject}.${name} reads the action anchored ${anchor}, which is not placed earlier; anchors placed are ${[...this.anchors.keys()].join(", ") || "none"}`);
+          throw new Error(
+            `${intent.subject}.${name} reads the action anchored ${anchor}, which is not placed earlier; anchors placed are ${[...this.anchors.keys()].join(", ") || "none"}`,
+          );
         return {
           subject: placed.subject,
           name: placed.name,
@@ -351,7 +479,8 @@ export class HumanPerformance {
       },
     };
     let plan = law.plan(context);
-    const share: number = row === undefined ? 0 : HumanSegment.share(row.entry, plan);
+    const share: number =
+      row === undefined ? 0 : HumanSegment.share(row.entry, plan);
     if (share > 0) {
       context.start = start - share * plan.duration;
       plan = law.plan(context);
@@ -372,15 +501,28 @@ export class HumanPerformance {
       transition:
         previous === undefined
           ? undefined
-          : { kind: row?.kind ?? "inertialize", blend: row?.blend ?? 0.25, source: previous, cut: start },
+          : {
+              kind: row?.kind ?? "inertialize",
+              blend: row?.blend ?? 0.25,
+              source: previous,
+              cut: start,
+            },
     };
     // A held hand: a grip window on its prop takes it over; any other use of it is refused.
     for (const held of person.holds) {
       if (held.until !== Infinity) continue;
       const take = plan.contacts.find(
-        (c) => c.part === `${held.side}Hand` && c.kind === "grip" && c.support.kind === "prop" && c.support.subject === held.prop,
+        (c) =>
+          c.part === `${held.side}Hand` &&
+          c.kind === "grip" &&
+          c.support.kind === "prop" &&
+          c.support.subject === held.prop,
       );
-      if (take !== undefined) held.until = Math.max(held.from, context.start + take.from * plan.duration);
+      if (take !== undefined)
+        held.until = Math.max(
+          held.from,
+          context.start + take.from * plan.duration,
+        );
       else if (HumanSegment.drives(plan, held.side))
         throw new Error(
           `${intent.subject}: ${name} needs the ${held.side} hand, which holds ${held.prop} since ${held.source.name} (${held.source.id}); put it down or hand it over first`,
@@ -396,31 +538,59 @@ export class HumanPerformance {
         from: context.start + hold.from * plan.duration,
         until: Infinity,
       });
-    if (intent.anchor !== undefined) this.anchors.set(intent.anchor, Object.assign(segment, { subject: intent.subject }));
+    if (intent.anchor !== undefined)
+      this.anchors.set(
+        intent.anchor,
+        Object.assign(segment, { subject: intent.subject }),
+      );
     return {
       duration: active,
-      ...(plan.contact === undefined || plan.contact < share * plan.duration ? {} : { contact: plan.contact - share * plan.duration }),
+      ...(plan.contact === undefined || plan.contact < share * plan.duration
+        ? {}
+        : { contact: plan.contact - share * plan.duration }),
       events: plan.events
         .filter((e): boolean => e.share >= share)
-        .map((e) => ({ name: e.name, share: active === 0 ? 0 : (e.share - share) / (1 - share) })),
+        .map((e) => ({
+          name: e.name,
+          share: active === 0 ? 0 : (e.share - share) / (1 - share),
+        })),
     };
   }
 
   /** The share of the latest segment's active span at which a proximity cut happens. */
-  private proximity(intent: IAutoMovieIntent, placed: { start: number; duration: number }): number | undefined {
+  private proximity(
+    intent: IAutoMovieIntent,
+    placed: { start: number; duration: number },
+  ): number | undefined {
     const until = intent.until;
     if (until === undefined || !("proximity" in until)) return undefined;
     const person: HumanSegment.IPerson = this.person(intent.subject);
     const segment: HumanSegment.ISegment = person.segments.at(-1)!;
-    const frame = person.performer.body.surfaces.regions[until.proximity.effector];
+    const frame =
+      person.performer.body.surfaces.regions[until.proximity.effector];
     const gap = (seconds: number): number => {
-      const effector: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(frame, this.bones(intent.subject, seconds).get(frame.bone)!).point;
-      return Vector3.length(Vector3.subtract(effector, segment.context.aim(until.proximity.target, seconds).point)) - until.proximity.distance;
+      const effector: IAutoMovieVector3 =
+        resolveAutoMovieHumanoidSurfaces.place(
+          frame,
+          this.bones(intent.subject, seconds).get(frame.bone)!,
+        ).point;
+      return (
+        Vector3.length(
+          Vector3.subtract(
+            effector,
+            segment.context.aim(until.proximity.target, seconds).point,
+          ),
+        ) - until.proximity.distance
+      );
     };
     const step: number = 1 / 24;
     let previous: number = placed.start;
     if (gap(previous) <= 0) return 0;
-    for (let t: number = placed.start + step; t <= placed.start + placed.duration + 1e-9; t += step) {
+    for (
+      let t: number = placed.start + step;
+      t <= placed.start + placed.duration + 1e-9;
+      t += step
+    ) {
       if (gap(t) <= 0) {
         let lo: number = previous;
         let hi: number = t;
@@ -429,7 +599,9 @@ export class HumanPerformance {
           if (gap(mid) <= 0) hi = mid;
           else lo = mid;
         }
-        return placed.duration === 0 ? 0 : (hi - placed.start) / placed.duration;
+        return placed.duration === 0
+          ? 0
+          : (hi - placed.start) / placed.duration;
       }
       previous = t;
     }
@@ -447,7 +619,14 @@ export class HumanPerformance {
    */
   private contacts(): void {
     const weapons: resolveAutoMovieContactEvents.IWeapon[] = [];
-    const owners: Map<string, { person: HumanSegment.IPerson; segment: HumanSegment.ISegment; id: string }> = new Map();
+    const owners: Map<
+      string,
+      {
+        person: HumanSegment.IPerson;
+        segment: HumanSegment.ISegment;
+        id: string;
+      }
+    > = new Map();
     const far: IAutoMovieVector3 = { x: 1e6, y: 1e6, z: 1e6 };
     let from: number = Infinity;
     let to: number = -Infinity;
@@ -459,84 +638,175 @@ export class HumanPerformance {
           if (!(b > a)) continue;
           const key: string = `${person.performer.subject}|${HumanSegment.weapon(segment, w.id)}`;
           owners.set(key, { person, segment, id: w.id });
-          weapons.push({ id: key, owner: person.performer.subject, radius: w.radius, position: (t: number) => (t < a || t > b ? far : w.path(t)) });
+          weapons.push({
+            id: key,
+            owner: person.performer.subject,
+            radius: w.radius,
+            position: (t: number) => (t < a || t > b ? far : w.path(t)),
+          });
           from = Math.min(from, a);
           to = Math.max(to, b);
         }
     if (weapons.length === 0) return;
-    const paths: Map<string, (t: number) => IAutoMovieVector3> = new Map(weapons.map((w) => [w.id, (t: number) => w.position(t, new Map())]));
-    const met: Map<string, IHumanActionPlan.IContactEvent & { key: string }> = new Map();
+    const paths: Map<string, (t: number) => IAutoMovieVector3> = new Map(
+      weapons.map((w) => [w.id, (t: number) => w.position(t, new Map())]),
+    );
+    const met: Map<string, IHumanActionPlan.IContactEvent & { key: string }> =
+      new Map();
     let applied: string = "";
     const apply = (stops: resolveAutoMovieContactEvents.IStops): void => {
-      const signature: string = [...stops].map(([k, s]) => `${k}@${s}`).sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0)).join(";");
+      const signature: string = [...stops]
+        .map(([k, s]) => `${k}@${s}`)
+        .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
+        .join(";");
       if (signature === applied) return;
       applied = signature;
       for (const person of this.people.values()) person.stops.clear();
       const changed: Set<HumanSegment.ISegment> = new Set();
       for (const [key, seconds] of stops) {
         const owner = owners.get(key)!;
-        owner.person.stops.set(HumanSegment.weapon(owner.segment, owner.id), seconds);
+        owner.person.stops.set(
+          HumanSegment.weapon(owner.segment, owner.id),
+          seconds,
+        );
         if (met.get(key)?.seconds !== seconds) {
-          met.set(key, { key, weapon: owner.id, against: nearest(owner.person, paths.get(key)!(seconds), seconds), seconds });
+          met.set(key, {
+            key,
+            weapon: owner.id,
+            against: nearest(owner.person, paths.get(key)!(seconds), seconds),
+            seconds,
+          });
           changed.add(owner.segment);
         }
       }
-      for (const [key, event] of [...met]) if (!stops.has(key)) {
-        met.delete(key);
-        changed.add(owners.get(event.key)!.segment);
-      }
+      for (const [key, event] of [...met])
+        if (!stops.has(key)) {
+          met.delete(key);
+          changed.add(owners.get(event.key)!.segment);
+        }
       for (const segment of changed) {
         if (segment.plan.stop === undefined) continue;
-        segment.plan.stop([...met.values()].filter((e) => owners.get(e.key)!.segment === segment).map(({ weapon, against, seconds }) => ({ weapon, against, seconds })));
+        segment.plan.stop(
+          [...met.values()]
+            .filter((e) => owners.get(e.key)!.segment === segment)
+            .map(({ weapon, against, seconds }) => ({
+              weapon,
+              against,
+              seconds,
+            })),
+        );
         segment.plan.settle?.();
       }
     };
-    const nearest = (owner: HumanSegment.IPerson, point: IAutoMovieVector3, seconds: number): string => {
-      let best: { subject: string; distance: number } = { subject: "", distance: Infinity };
+    const nearest = (
+      owner: HumanSegment.IPerson,
+      point: IAutoMovieVector3,
+      seconds: number,
+    ): string => {
+      let best: { subject: string; distance: number } = {
+        subject: "",
+        distance: Infinity,
+      };
       for (const person of this.people.values()) {
         if (person === owner) continue;
-        const d: number = HumanColliders.distance(person.performer.body, this.bones(person.performer.subject, seconds), point).distance;
-        if (d < best.distance) best = { subject: person.performer.subject, distance: d };
+        const d: number = HumanColliders.distance(
+          person.performer.body,
+          this.bones(person.performer.subject, seconds),
+          point,
+        ).distance;
+        if (d < best.distance)
+          best = { subject: person.performer.subject, distance: d };
       }
       return best.subject;
     };
-    const events: resolveAutoMovieContactEvents.IEvent[] = resolveAutoMovieContactEvents({
-      weapons,
-      bodies: [...this.people.values()].map((person: HumanSegment.IPerson) => ({
-        id: person.performer.subject,
-        distance: (point: IAutoMovieVector3, seconds: number, stops: resolveAutoMovieContactEvents.IStops): number => {
-          apply(stops);
-          return HumanColliders.distance(person.performer.body, this.bones(person.performer.subject, seconds), point).distance;
-        },
-      })),
-      from,
-      to,
-      step: 1 / 120,
-    });
+    const events: resolveAutoMovieContactEvents.IEvent[] =
+      resolveAutoMovieContactEvents({
+        weapons,
+        bodies: [...this.people.values()].map(
+          (person: HumanSegment.IPerson) => ({
+            id: person.performer.subject,
+            distance: (
+              point: IAutoMovieVector3,
+              seconds: number,
+              stops: resolveAutoMovieContactEvents.IStops,
+            ): number => {
+              apply(stops);
+              return HumanColliders.distance(
+                person.performer.body,
+                this.bones(person.performer.subject, seconds),
+                point,
+              ).distance;
+            },
+          }),
+        ),
+        from,
+        to,
+        step: 1 / 120,
+      });
     apply(new Map(events.map((e): [string, number] => [e.weapon, e.seconds])));
-    const plans: Map<HumanSegment.ISegment, IHumanActionPlan.IContactEvent[]> = new Map();
+    const plans: Map<HumanSegment.ISegment, IHumanActionPlan.IContactEvent[]> =
+      new Map();
     for (const owner of owners.values()) plans.set(owner.segment, []);
     for (const e of events) {
       const owner = owners.get(e.weapon)!;
-      plans.get(owner.segment)!.push({ weapon: owner.id, against: e.against, seconds: e.seconds });
+      plans
+        .get(owner.segment)!
+        .push({ weapon: owner.id, against: e.against, seconds: e.seconds });
     }
     for (const [segment, own] of plans) segment.plan.stop?.(own);
   }
 
   /** Every grip window on a prop across every person, in film order, computed once after construction. */
-  private grips(subject: string): { subject: string; side: "left" | "right"; from: number; to: number; offset?: IHumanProp.IFrame }[] {
+  private grips(
+    subject: string,
+  ): {
+    subject: string;
+    side: "left" | "right";
+    from: number;
+    to: number;
+    offset?: IHumanProp.IFrame;
+  }[] {
     const known = this.gripCache.get(subject);
     if (known !== undefined) return known;
-    const out: { subject: string; side: "left" | "right"; from: number; to: number; offset?: IHumanProp.IFrame }[] = [];
+    const out: {
+      subject: string;
+      side: "left" | "right";
+      from: number;
+      to: number;
+      offset?: IHumanProp.IFrame;
+    }[] = [];
     for (const person of this.people.values()) {
       for (const held of person.holds)
-        if (held.prop === subject) out.push({ subject: person.performer.subject, side: held.side, from: held.from, to: held.until });
+        if (held.prop === subject)
+          out.push({
+            subject: person.performer.subject,
+            side: held.side,
+            from: held.from,
+            to: held.until,
+          });
       for (const segment of person.segments)
         for (const c of segment.plan.contacts)
-          if (c.kind === "grip" && c.support.kind === "prop" && c.support.subject === subject && (c.part === "leftHand" || c.part === "rightHand")) {
-            const from: number = Math.max(segment.entryTime, segment.start + c.from * segment.plan.duration);
-            const to: number = Math.min(segment.end, segment.start + c.to * segment.plan.duration);
-            if (to >= from) out.push({ subject: person.performer.subject, side: c.part === "leftHand" ? "left" : "right", from, to });
+          if (
+            c.kind === "grip" &&
+            c.support.kind === "prop" &&
+            c.support.subject === subject &&
+            (c.part === "leftHand" || c.part === "rightHand")
+          ) {
+            const from: number = Math.max(
+              segment.entryTime,
+              segment.start + c.from * segment.plan.duration,
+            );
+            const to: number = Math.min(
+              segment.end,
+              segment.start + c.to * segment.plan.duration,
+            );
+            if (to >= from)
+              out.push({
+                subject: person.performer.subject,
+                side: c.part === "leftHand" ? "left" : "right",
+                from,
+                to,
+              });
           }
     }
     out.sort((a, b): number => a.from - b.from);
@@ -545,17 +815,32 @@ export class HumanPerformance {
   }
 
   /** A hand's grip-socket frame: the socket's point with the hand bone's world rotation. */
-  private hand(subject: string, side: "left" | "right", seconds: number): IHumanProp.IFrame {
+  private hand(
+    subject: string,
+    side: "left" | "right",
+    seconds: number,
+  ): IHumanProp.IFrame {
     const person: HumanSegment.IPerson = this.person(subject);
-    const frame = person.performer.body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"];
-    const bone: IAutoMovieResolvedBone = this.bones(subject, seconds).get(frame.bone)!;
-    return { position: resolveAutoMovieHumanoidSurfaces.place(frame, bone).point, rotation: bone.worldRotation };
+    const frame =
+      person.performer.body.surfaces.sockets[
+        side === "left" ? "gripLeft" : "gripRight"
+      ];
+    const bone: IAutoMovieResolvedBone = this.bones(subject, seconds).get(
+      frame.bone,
+    )!;
+    return {
+      position: resolveAutoMovieHumanoidSurfaces.place(frame, bone).point,
+      rotation: bone.worldRotation,
+    };
   }
 
   /** A person by subject, or an error naming the performers. */
   private person(subject: string): HumanSegment.IPerson {
     const person: HumanSegment.IPerson | undefined = this.people.get(subject);
-    if (person === undefined) throw new Error(`No performer ${subject}; performers are ${[...this.people.keys()].join(", ")}`);
+    if (person === undefined)
+      throw new Error(
+        `No performer ${subject}; performers are ${[...this.people.keys()].join(", ")}`,
+      );
     return person;
   }
 }

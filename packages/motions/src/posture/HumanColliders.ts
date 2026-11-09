@@ -1,9 +1,13 @@
-import { type IAutoMovieResolvedBone, Quaternion, Vector3 } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMoviePhysicalProfile as P,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
@@ -38,7 +42,11 @@ export namespace HumanColliders {
    * @returns The distance to the nearest collider and its bone.
    * @throws {Error} When the profile has no shape.
    */
-  export function distance(body: IHumanBody, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, point: IAutoMovieVector3): IDistance {
+  export function distance(
+    body: IHumanBody,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    point: IAutoMovieVector3,
+  ): IDistance {
     let best: IDistance | undefined;
     for (const segment of body.profile.segments) {
       const bone: AutoMovieHumanoidBone = segment.bone as AutoMovieHumanoidBone;
@@ -48,24 +56,49 @@ export namespace HumanColliders {
       for (const shape of segment.shapes) {
         const offset: IAutoMovieVector3 = Vector3.add(
           Vector3.subtract(segment.neutral.position, rest),
-          Quaternion.rotateVector(segment.neutral.rotation, shape.transform.position),
+          Quaternion.rotateVector(
+            segment.neutral.rotation,
+            shape.transform.position,
+          ),
         );
-        const centre: IAutoMovieVector3 = Vector3.add(posed.worldPosition, Quaternion.rotateVector(posed.worldRotation, offset));
-        const rotation: IAutoMovieQuaternion = Quaternion.multiply(posed.worldRotation, Quaternion.multiply(segment.neutral.rotation, shape.transform.rotation));
+        const centre: IAutoMovieVector3 = Vector3.add(
+          posed.worldPosition,
+          Quaternion.rotateVector(posed.worldRotation, offset),
+        );
+        const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+          posed.worldRotation,
+          Quaternion.multiply(
+            segment.neutral.rotation,
+            shape.transform.rotation,
+          ),
+        );
         const d: number = signed(shape, centre, rotation, point);
-        if (best === undefined || d < best.distance) best = { distance: d, bone };
+        if (best === undefined || d < best.distance)
+          best = { distance: d, bone };
       }
     }
-    if (best === undefined) throw new Error("A body without colliders has no distance");
+    if (best === undefined)
+      throw new Error("A body without colliders has no distance");
     return best;
   }
 
   /** A point's signed distance to one placed shape. */
-  function signed(shape: P.IShape, centre: IAutoMovieVector3, rotation: IAutoMovieQuaternion, point: IAutoMovieVector3): number {
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(Quaternion.inverse(rotation), Vector3.subtract(point, centre));
+  function signed(
+    shape: P.IShape,
+    centre: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion,
+    point: IAutoMovieVector3,
+  ): number {
+    const local: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.inverse(rotation),
+      Vector3.subtract(point, centre),
+    );
     if (shape.kind === "sphere") return Vector3.length(local) - shape.radius;
     if (shape.kind === "capsule") {
-      const y: number = Math.max(-shape.halfLength, Math.min(shape.halfLength, local.y));
+      const y: number = Math.max(
+        -shape.halfLength,
+        Math.min(shape.halfLength, local.y),
+      );
       return Math.hypot(local.x, local.y - y, local.z) - shape.radius;
     }
     if (shape.kind === "box") {
@@ -74,8 +107,13 @@ export namespace HumanColliders {
         y: Math.abs(local.y) - shape.halfExtents.y,
         z: Math.abs(local.z) - shape.halfExtents.z,
       };
-      return Math.hypot(Math.max(q.x, 0), Math.max(q.y, 0), Math.max(q.z, 0)) + Math.min(Math.max(q.x, q.y, q.z), 0);
+      return (
+        Math.hypot(Math.max(q.x, 0), Math.max(q.y, 0), Math.max(q.z, 0)) +
+        Math.min(Math.max(q.x, q.y, q.z), 0)
+      );
     }
-    throw new Error(`No signed distance for a ${(shape as { kind: string }).kind} collider`);
+    throw new Error(
+      `No signed distance for a ${(shape as { kind: string }).kind} collider`,
+    );
   }
 }

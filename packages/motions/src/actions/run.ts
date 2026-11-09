@@ -32,7 +32,14 @@ export namespace run {
 
   /** Cancel table: as a walk's, any step may be cut into another locomotion, and a stand once both feet are down. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
-    stand: [{ window: ["lastFootfall", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    stand: [
+      {
+        window: ["lastFootfall", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.3,
+      },
+    ],
     walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
     run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
     jump: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
@@ -63,7 +70,9 @@ export namespace run {
   }
 
   /** Each pace's running gait. */
-  export const GAITS: Readonly<Record<NonNullable<IParams["pace"]>, walk.IGait>> = {
+  export const GAITS: Readonly<
+    Record<NonNullable<IParams["pace"]>, walk.IGait>
+  > = {
     jog: gait(0.6, 0.4, 0.03, 0.15, 25, 5),
     run: gait(1.3, 0.35, 0.035, 0.25, 35, 8),
     sprint: gait(5, 0.25, 0.03, 0.35, 50, 12),
@@ -75,12 +84,21 @@ export namespace run {
    * @param context The action's context.
    * @returns The plan.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     return walk.locomote(context, GAITS[context.params.pace ?? "run"]);
   }
 
   /** A running gait from its Froude number, duty factor, oscillation, swing lift, shoulder swing and trunk lean. */
-  function gait(froude: number, duty: number, amplitude: number, lift: number, shoulder: number, lean: number): walk.IGait {
+  function gait(
+    froude: number,
+    duty: number,
+    amplitude: number,
+    lift: number,
+    shoulder: number,
+    lean: number,
+  ): walk.IGait {
     return {
       froude,
       step: (fr: number): number => 0.75 + 0.5 * Math.sqrt(fr),

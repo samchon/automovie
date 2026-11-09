@@ -36,7 +36,9 @@ export interface IHumanPosture {
   roll: number;
 
   /** Clinical angles of directly set bones, degrees. */
-  joints: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>;
+  joints: Partial<
+    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+  >;
 
   /** Limb goals solved by inverse kinematics. */
   limbs: Partial<Record<IHumanPosture.Limb, IHumanPosture.IGoal>>;

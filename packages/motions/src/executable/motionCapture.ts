@@ -64,7 +64,7 @@ export async function motionCapture(): Promise<void> {
   for (const view of views) if (!(view in VIEWS)) throw new Error(`Unknown view ${view}`);
   let failed: number = 0;
   for (const name of names) {
-    const factory: (() => IMotionCaptureCase[]) | undefined = MOTION_CAPTURE_CASES[name];
+    const factory: (() => Iterable<IMotionCaptureCase>) | undefined = MOTION_CAPTURE_CASES[name];
     if (factory === undefined) throw new Error(`Unknown case ${name}`);
     for (const capture of factory()) failed += await draw(capture, cell, views);
   }

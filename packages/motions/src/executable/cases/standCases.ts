@@ -4,11 +4,15 @@ import {
   resolveAutoMovieCenterOfMass,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
 import type { IHumanBody } from "../../body/IHumanBody";
+import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
@@ -41,7 +45,9 @@ import { MotionBodies } from "../MotionBodies";
 export function standCases(): IMotionCaptureCase[] {
   const names = ["f-small", "m-average", "m-tall"] as const;
   const men = names.map((name) => MotionBodies.population(name));
-  const bodies: IHumanBody[] = men.map((man) => createHumanBody(man.body.skeleton, man.body.profile));
+  const bodies: IHumanBody[] = men.map((man) =>
+    createHumanBody(man.body.skeleton, man.body.profile),
+  );
   let chain: HumanChain | undefined;
   names.forEach((_, i: number): void => {
     const one: HumanChain = HumanChain.subject(`s${i}`).stand({ seconds: 2 });
@@ -70,24 +76,43 @@ export function standCases(): IMotionCaptureCase[] {
   let floorOk: boolean = true;
   names.forEach((name, i: number): void => {
     const body: IHumanBody = bodies[i]!;
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = performance.bones(`s${i}`, end);
-    const z = (bone: AutoMovieHumanoidBone): number => bones.get(bone)!.worldPosition.z;
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      performance.bones(`s${i}`, end);
+    const z = (bone: AutoMovieHumanoidBone): number =>
+      bones.get(bone)!.worldPosition.z;
     const hips: number = (z("leftUpperLeg") + z("rightUpperLeg")) / 2;
     const shoulders: number = (z("leftUpperArm") + z("rightUpperArm")) / 2;
     const ear: number = z("head");
-    plumb.push(`${name} shoulders ${((shoulders - hips) * 1000).toFixed(1)} mm, ear ${((ear - hips) * 1000).toFixed(1)} mm`);
-    if (Math.abs(shoulders - hips) > 0.03 || Math.abs(ear - hips) > 0.03) plumbOk = false;
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(bones.get("head")!.worldRotation, { x: 0, y: 0, z: 1 });
+    plumb.push(
+      `${name} shoulders ${((shoulders - hips) * 1000).toFixed(1)} mm, ear ${((ear - hips) * 1000).toFixed(1)} mm`,
+    );
+    if (Math.abs(shoulders - hips) > 0.03 || Math.abs(ear - hips) > 0.03)
+      plumbOk = false;
+    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+      bones.get("head")!.worldRotation,
+      { x: 0, y: 0, z: 1 },
+    );
     const pitch: number = (Math.asin(forward.y) * 180) / Math.PI;
     level.push(`${name} ${pitch.toFixed(1)} deg`);
     if (Math.abs(pitch) > 2) levelOk = false;
-    const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(resolveAutoMovieCenterOfMass(body.skeleton, body.profile), bones);
+    const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+      resolveAutoMovieCenterOfMass(body.skeleton, body.profile),
+      bones,
+    );
     const ahead: number = com.z - (z("leftFoot") + z("rightFoot")) / 2;
     lean.push(`${name} ${(ahead * 100).toFixed(1)} cm`);
     if (ahead < 0.02 || ahead > 0.06) leanOk = false;
-    for (const socket of ["heelLeft", "heelRight", "toeLeft", "toeRight"] as const) {
+    for (const socket of [
+      "heelLeft",
+      "heelRight",
+      "toeLeft",
+      "toeRight",
+    ] as const) {
       const frame = body.surfaces.sockets[socket];
-      const y: number = resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!).point.y;
+      const y: number = resolveAutoMovieHumanoidSurfaces.place(
+        frame,
+        bones.get(frame.bone)!,
+      ).point.y;
       if (Math.abs(y) > 0.005) {
         floorOk = false;
         floor.push(`${name} ${socket} ${(y * 1000).toFixed(1)} mm`);
@@ -102,16 +127,35 @@ export function standCases(): IMotionCaptureCase[] {
         { seconds: 0.5, label: "settled" },
         { seconds: end, label: "end" },
       ],
-      performers: names.map((_, i: number): IMotionCaptureCase.IPerformer => ({
-        id: `s${i}`,
-        body: men[i]!.body,
-        pose: (seconds: number): IAutoMoviePose => performance.pose(`s${i}`, seconds),
-      })),
+      performers: names.map(
+        (_, i: number): IMotionCaptureCase.IPerformer => ({
+          id: `s${i}`,
+          body: men[i]!.body,
+          pose: (seconds: number): IAutoMoviePose =>
+            performance.pose(`s${i}`, seconds),
+        }),
+      ),
       verdicts: [
-        { name: "shoulders and ear within 3 cm of the hips' vertical", passed: plumbOk, detail: plumb.join("; ") },
-        { name: "head level within 2 degrees", passed: levelOk, detail: level.join("; ") },
-        { name: "centre of mass 2 to 6 cm ahead of the ankles", passed: leanOk, detail: lean.join("; ") },
-        { name: "heels and toes on the floor within 5 mm", passed: floorOk, detail: floor.join("; ") || "all within 5 mm" },
+        {
+          name: "shoulders and ear within 3 cm of the hips' vertical",
+          passed: plumbOk,
+          detail: plumb.join("; "),
+        },
+        {
+          name: "head level within 2 degrees",
+          passed: levelOk,
+          detail: level.join("; "),
+        },
+        {
+          name: "centre of mass 2 to 6 cm ahead of the ankles",
+          passed: leanOk,
+          detail: lean.join("; "),
+        },
+        {
+          name: "heels and toes on the floor within 5 mm",
+          passed: floorOk,
+          detail: floor.join("; ") || "all within 5 mm",
+        },
       ],
     },
   ];

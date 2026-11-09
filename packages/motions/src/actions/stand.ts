@@ -1,9 +1,12 @@
 import { minimumJerk, seededSmoothNoise } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
+import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
-import type { HumanActionName } from "../HumanActionName";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
@@ -49,17 +52,32 @@ export namespace stand {
    * @param context The action's context.
    * @returns The plan.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const duration: number = context.params.seconds ?? 1.5;
     if (!(duration > 0)) throw new Error("A stand lasts a positive time");
     const yaw: number = context.entry.posture.yaw;
-    const footing: Record<"left" | "right", IAutoMovieVector3> = feet(context.body, context.entry, yaw);
+    const footing: Record<"left" | "right", IAutoMovieVector3> = feet(
+      context.body,
+      context.entry,
+      yaw,
+    );
     const upright: standUpright.IAlignment = standUpright.of(context.body);
-    const lean: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, { x: 0, y: 0, z: upright.lean });
+    const lean: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw },
+      { x: 0, y: 0, z: upright.lean },
+    );
     const middle: IAutoMovieVector3 = {
-      x: (footing.left.x + footing.right.x) / 2 - centre(context.body, yaw).x + lean.x,
+      x:
+        (footing.left.x + footing.right.x) / 2 -
+        centre(context.body, yaw).x +
+        lean.x,
       y: -0.005,
-      z: (footing.left.z + footing.right.z) / 2 - centre(context.body, yaw).z + lean.z,
+      z:
+        (footing.left.z + footing.right.z) / 2 -
+        centre(context.body, yaw).z +
+        lean.z,
     };
     const joints = { ...RELAXED, ...upright.joints };
     const settle: number = Math.min(0.5, duration);
@@ -70,15 +88,27 @@ export namespace stand {
     return {
       duration,
       events: [{ name: "settled", share: settle / duration }],
-      contacts: (["leftFoot", "rightFoot"] as const).map((part) => ({ part, kind: "plant" as const, from: 0, to: 1, support: { kind: "ground" as const } })),
+      contacts: (["leftFoot", "rightFoot"] as const).map((part) => ({
+        part,
+        kind: "plant" as const,
+        from: 0,
+        to: 1,
+        support: { kind: "ground" as const },
+      })),
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number = minimumJerk(t / settle).s;
         const u: number = t / duration;
         const root: IAutoMovieVector3 = {
-          x: from.x + (middle.x - from.x) * s + sway * Math.SQRT2 * seededSmoothNoise(sx, u, duration, 0.8),
+          x:
+            from.x +
+            (middle.x - from.x) * s +
+            sway * Math.SQRT2 * seededSmoothNoise(sx, u, duration, 0.8),
           y: from.y + (middle.y - from.y) * s,
-          z: from.z + (middle.z - from.z) * s + sway * Math.SQRT2 * seededSmoothNoise(sz, u, duration, 0.8),
+          z:
+            from.z +
+            (middle.z - from.z) * s +
+            sway * Math.SQRT2 * seededSmoothNoise(sz, u, duration, 0.8),
         };
         return {
           root,
@@ -102,8 +132,12 @@ export namespace stand {
   export const TOE_OUT: number = 7;
 
   /** Relaxed hanging arms and a neutral trunk, clinical degrees. */
-  export const RELAXED: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = (() => {
-    const out: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = {};
+  export const RELAXED: Partial<
+    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+  > = (() => {
+    const out: Partial<
+      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+    > = {};
     for (const side of ["left", "right"]) {
       out[`${side}UpperArm` as AutoMovieHumanoidBone] = [0, 5, 0];
       out[`${side}LowerArm` as AutoMovieHumanoidBone] = [12, 0, 0];
@@ -123,13 +157,26 @@ export namespace stand {
    * @param yaw The heading, degrees.
    * @returns Ankle points, world metres.
    */
-  export function feet(body: IHumanBody, entry: IHumanEntryState, yaw: number): Record<"left" | "right", IAutoMovieVector3> {
-    const frame: HumanFrame.IFrame = { origin: { ...entry.posture.root, y: 0 }, yaw };
+  export function feet(
+    body: IHumanBody,
+    entry: IHumanEntryState,
+    yaw: number,
+  ): Record<"left" | "right", IAutoMovieVector3> {
+    const frame: HumanFrame.IFrame = {
+      origin: { ...entry.posture.root, y: 0 },
+      yaw,
+    };
     const out = {} as Record<"left" | "right", IAutoMovieVector3>;
     for (const side of ["left", "right"] as const) {
       const foot: IHumanEntryState.IFoot = entry.feet[side];
       const rest: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
-      out[side] = foot.planted ? { ...foot.ankle, y: body.measure.ankleHeight } : HumanFrame.point(frame, { x: rest.x, y: body.measure.ankleHeight, z: rest.z });
+      out[side] = foot.planted
+        ? { ...foot.ankle, y: body.measure.ankleHeight }
+        : HumanFrame.point(frame, {
+            x: rest.x,
+            y: body.measure.ankleHeight,
+            z: rest.z,
+          });
     }
     return out;
   }
@@ -153,11 +200,29 @@ export namespace stand {
     // The knee points over the foot (Perry and Burnfield): the foot has no
     // axial joint, so its toe-out comes from the hip's twist that this hint sets.
     const knee = (side: "left" | "right"): IAutoMovieVector3 =>
-      HumanFrame.point({ origin: HumanFrame.point(frame, body.rest.get(`${side}LowerLeg`)!), yaw: yaw + (side === "left" ? TOE_OUT : -TOE_OUT) }, { x: 0, y: 0, z: 1 });
+      HumanFrame.point(
+        {
+          origin: HumanFrame.point(frame, body.rest.get(`${side}LowerLeg`)!),
+          yaw: yaw + (side === "left" ? TOE_OUT : -TOE_OUT),
+        },
+        { x: 0, y: 0, z: 1 },
+      );
     // Each foot turns about its toes' joint when the ankle cannot hold it flat (HumanFoot.heelOff).
     return {
-      leftLeg: { point: feet.left, bend: knee("left"), rotation: HumanFrame.turn(yaw + TOE_OUT), planted: true, contact: HumanFoot.offset(body, "left", "mtp") },
-      rightLeg: { point: feet.right, bend: knee("right"), rotation: HumanFrame.turn(yaw - TOE_OUT), planted: true, contact: HumanFoot.offset(body, "right", "mtp") },
+      leftLeg: {
+        point: feet.left,
+        bend: knee("left"),
+        rotation: HumanFrame.turn(yaw + TOE_OUT),
+        planted: true,
+        contact: HumanFoot.offset(body, "left", "mtp"),
+      },
+      rightLeg: {
+        point: feet.right,
+        bend: knee("right"),
+        rotation: HumanFrame.turn(yaw - TOE_OUT),
+        planted: true,
+        contact: HumanFoot.offset(body, "right", "mtp"),
+      },
     };
   }
 
@@ -170,16 +235,35 @@ export namespace stand {
    * @param yaw The heading, degrees.
    * @returns The posture.
    */
-  export function posture(body: IHumanBody, at: IAutoMovieVector3, yaw: number): IHumanPosture {
+  export function posture(
+    body: IHumanBody,
+    at: IAutoMovieVector3,
+    yaw: number,
+  ): IHumanPosture {
     const frame: HumanFrame.IFrame = { origin: at, yaw };
     const feet = {} as Record<"left" | "right", IAutoMovieVector3>;
     for (const side of ["left", "right"] as const) {
       const rest: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
-      feet[side] = HumanFrame.point(frame, { x: rest.x, y: body.measure.ankleHeight, z: rest.z });
+      feet[side] = HumanFrame.point(frame, {
+        x: rest.x,
+        y: body.measure.ankleHeight,
+        z: rest.z,
+      });
     }
     const upright: standUpright.IAlignment = standUpright.of(body);
-    const root: IAutoMovieVector3 = HumanFrame.point(frame, { x: 0, y: -0.005, z: upright.lean });
-    return { root, yaw, pitch: 0, roll: 0, joints: { ...RELAXED, ...upright.joints }, limbs: legs(body, root, yaw, feet) };
+    const root: IAutoMovieVector3 = HumanFrame.point(frame, {
+      x: 0,
+      y: -0.005,
+      z: upright.lean,
+    });
+    return {
+      root,
+      yaw,
+      pitch: 0,
+      roll: 0,
+      joints: { ...RELAXED, ...upright.joints },
+      limbs: legs(body, root, yaw, feet),
+    };
   }
 }
 
@@ -187,5 +271,8 @@ export namespace stand {
 function centre(body: IHumanBody, yaw: number): IAutoMovieVector3 {
   const l: IAutoMovieVector3 = body.rest.get("leftFoot")!;
   const r: IAutoMovieVector3 = body.rest.get("rightFoot")!;
-  return HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, { x: (l.x + r.x) / 2, y: 0, z: (l.z + r.z) / 2 });
+  return HumanFrame.point(
+    { origin: { x: 0, y: 0, z: 0 }, yaw },
+    { x: (l.x + r.x) / 2, y: 0, z: (l.z + r.z) / 2 },
+  );
 }

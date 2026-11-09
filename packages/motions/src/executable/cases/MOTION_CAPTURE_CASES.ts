@@ -17,12 +17,15 @@ import { strikingCases } from "./strikingCases";
  * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the capture harness only.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No case data lives here, only the registry.
  */
-export const MOTION_CAPTURE_CASES: Readonly<Record<string, () => IMotionCaptureCase[]>> = {
+export const MOTION_CAPTURE_CASES: Readonly<Record<string, () => Iterable<IMotionCaptureCase>>> = {
   gallery: (): IMotionCaptureCase[] => galleryCases().filter((c: IMotionCaptureCase): boolean => c.name === "gallery"),
   bodies: (): IMotionCaptureCase[] => galleryCases().filter((c: IMotionCaptureCase): boolean => c.name === "bodies"),
   walk: (): IMotionCaptureCase[] => locomotionCases("walk"),
   run: (): IMotionCaptureCase[] => locomotionCases("run"),
-  "jump-e1": (): IMotionCaptureCase[] => (["f-small", "m-average", "m-tall"] as const).flatMap((who) => jumpCases(who)),
+  "jump-e1": function* (): Iterable<IMotionCaptureCase> {
+    // One body at a time, so each body's sheets and verdicts are written as it finishes.
+    for (const who of ["f-small", "m-average", "m-tall"] as const) yield* jumpCases(who);
+  },
   "jump-e1-f-small": (): IMotionCaptureCase[] => jumpCases("f-small"),
   "jump-e1-m-average": (): IMotionCaptureCase[] => jumpCases("m-average"),
   "jump-e1-m-tall": (): IMotionCaptureCase[] => jumpCases("m-tall"),
@@ -35,6 +38,7 @@ export const MOTION_CAPTURE_CASES: Readonly<Record<string, () => IMotionCaptureC
   "everyday-bend": (): IMotionCaptureCase[] => everydayCases("bend"),
   "everyday-step": (): IMotionCaptureCase[] => everydayCases("step"),
   "everyday-brace": (): IMotionCaptureCase[] => everydayCases("brace"),
+  "everyday-type": (): IMotionCaptureCase[] => everydayCases("type"),
   "everyday-rest-sweep": (): IMotionCaptureCase[] => everydayCases("rest", MotionBodies.SWEEP.filter((b: string): boolean => b !== "f-short")),
   "everyday-seat-sweep": (): IMotionCaptureCase[] => everydayCases("seat", MotionBodies.SWEEP.filter((b: string): boolean => b !== "f-short")),
   "handling-handshake": (): IMotionCaptureCase[] => handlingCases("handshake"),

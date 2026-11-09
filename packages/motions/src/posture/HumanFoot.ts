@@ -1,5 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 
@@ -44,7 +47,10 @@ export namespace HumanFoot {
    * @param pitch Degrees, positive toes up.
    * @returns The rotation.
    */
-  export function rotation(heading: number, pitch: number): IAutoMovieQuaternion {
+  export function rotation(
+    heading: number,
+    pitch: number,
+  ): IAutoMovieQuaternion {
     return Quaternion.normalize(
       Quaternion.multiply(
         Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
@@ -63,13 +69,29 @@ export namespace HumanFoot {
    * @param toes The toes' flexion, degrees, positive lifting them.
    * @returns The offset, metres.
    */
-  export function offset(body: IHumanBody, side: "left" | "right", point: "heel" | "ball" | "toe" | "sole" | "mtp", toes: number = 0): IAutoMovieVector3 {
+  export function offset(
+    body: IHumanBody,
+    side: "left" | "right",
+    point: "heel" | "ball" | "toe" | "sole" | "mtp",
+    toes: number = 0,
+  ): IAutoMovieVector3 {
     const foot: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
-    if (point === "mtp") return Vector3.subtract(body.rest.get(`${side}Toes`)!, foot);
-    const socket = body.surfaces.sockets[`${point}${side === "left" ? "Left" : "Right"}`];
+    if (point === "mtp")
+      return Vector3.subtract(body.rest.get(`${side}Toes`)!, foot);
+    const socket =
+      body.surfaces.sockets[`${point}${side === "left" ? "Left" : "Right"}`];
     if (socket.bone === `${side}Foot`) return socket.point;
-    const joint: IAutoMovieVector3 = Vector3.subtract(body.rest.get(socket.bone)!, foot);
-    return Vector3.add(joint, Quaternion.rotateVector(Quaternion.fromAxisAngle({ x: -1, y: 0, z: 0 }, toes), socket.point));
+    const joint: IAutoMovieVector3 = Vector3.subtract(
+      body.rest.get(socket.bone)!,
+      foot,
+    );
+    return Vector3.add(
+      joint,
+      Quaternion.rotateVector(
+        Quaternion.fromAxisAngle({ x: -1, y: 0, z: 0 }, toes),
+        socket.point,
+      ),
+    );
   }
 
   /**
@@ -93,7 +115,10 @@ export namespace HumanFoot {
   ): IPlacement {
     const r: IAutoMovieQuaternion = rotation(heading, pitch);
     const local: IAutoMovieVector3 = offset(body, side, pivot);
-    return { ankle: Vector3.subtract(at, Quaternion.rotateVector(r, local)), rotation: r };
+    return {
+      ankle: Vector3.subtract(at, Quaternion.rotateVector(r, local)),
+      rotation: r,
+    };
   }
 
   /**
@@ -118,9 +143,19 @@ export namespace HumanFoot {
     contact: IAutoMovieVector3,
   ): { ankle: IAutoMovieVector3; toes: number } {
     const pitch = (q: IAutoMovieQuaternion): number =>
-      (Math.asin(Math.max(-1, Math.min(1, Quaternion.rotateVector(q, { x: 0, y: 0, z: 1 }).y))) * 180) / Math.PI;
+      (Math.asin(
+        Math.max(
+          -1,
+          Math.min(1, Quaternion.rotateVector(q, { x: 0, y: 0, z: 1 }).y),
+        ),
+      ) *
+        180) /
+      Math.PI;
     return {
-      ankle: Vector3.subtract(anchor, Quaternion.rotateVector(reached, contact)),
+      ankle: Vector3.subtract(
+        anchor,
+        Quaternion.rotateVector(reached, contact),
+      ),
       toes: Math.max(0, pitch(asked) - pitch(reached)),
     };
   }
@@ -135,7 +170,16 @@ export namespace HumanFoot {
    * @param toes The toes' flexion, degrees, positive lifting them.
    * @returns The point, world metres.
    */
-  export function point(body: IHumanBody, side: "left" | "right", point: "heel" | "ball" | "toe" | "sole" | "mtp", foot: IPlacement, toes: number = 0): IAutoMovieVector3 {
-    return Vector3.add(foot.ankle, Quaternion.rotateVector(foot.rotation, offset(body, side, point, toes)));
+  export function point(
+    body: IHumanBody,
+    side: "left" | "right",
+    point: "heel" | "ball" | "toe" | "sole" | "mtp",
+    foot: IPlacement,
+    toes: number = 0,
+  ): IAutoMovieVector3 {
+    return Vector3.add(
+      foot.ankle,
+      Quaternion.rotateVector(foot.rotation, offset(body, side, point, toes)),
+    );
   }
 }

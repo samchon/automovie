@@ -1,5 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { HumanFoot } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,25 +32,63 @@ import { TestValidator } from "@nestia/e2e";
 export function test_motion_heel_off(): void {
   const ball: IAutoMovieVector3 = { x: 0, y: -0.07, z: 0.14 };
   const heel: IAutoMovieVector3 = { x: 0, y: -0.07, z: -0.05 };
-  const pitch = (degrees: number, yaw: number = 0): IAutoMovieQuaternion => HumanFoot.rotation(yaw, degrees);
+  const pitch = (degrees: number, yaw: number = 0): IAutoMovieQuaternion =>
+    HumanFoot.rotation(yaw, degrees);
   const anchor: IAutoMovieVector3 = { x: 0.1, y: 0, z: 1 };
 
   // 1. Flat ask, toes-down reach.
   const off = HumanFoot.heelOff(pitch(0), pitch(-15), anchor, ball);
-  const held: IAutoMovieVector3 = Vector3.add(off.ankle, Quaternion.rotateVector(pitch(-15), ball));
-  TestValidator.predicate("the ball stays on its anchor", Vector3.length(Vector3.subtract(held, anchor)) < 1e-12);
-  TestValidator.predicate("the heel rises", Vector3.add(off.ankle, Quaternion.rotateVector(pitch(-15), heel)).y > 0.01);
-  TestValidator.predicate("the toes extend by the lost 15 degrees", Math.abs(off.toes - 15) < 1e-9);
+  const held: IAutoMovieVector3 = Vector3.add(
+    off.ankle,
+    Quaternion.rotateVector(pitch(-15), ball),
+  );
+  TestValidator.predicate(
+    "the ball stays on its anchor",
+    Vector3.length(Vector3.subtract(held, anchor)) < 1e-12,
+  );
+  TestValidator.predicate(
+    "the heel rises",
+    Vector3.add(off.ankle, Quaternion.rotateVector(pitch(-15), heel)).y > 0.01,
+  );
+  TestValidator.predicate(
+    "the toes extend by the lost 15 degrees",
+    Math.abs(off.toes - 15) < 1e-9,
+  );
 
   // 2. Pitched ask.
-  TestValidator.predicate("the toes extend by 15 degrees from a pitched ask", Math.abs(HumanFoot.heelOff(pitch(-10), pitch(-25), anchor, ball).toes - 15) < 1e-9);
+  TestValidator.predicate(
+    "the toes extend by 15 degrees from a pitched ask",
+    Math.abs(
+      HumanFoot.heelOff(pitch(-10), pitch(-25), anchor, ball).toes - 15,
+    ) < 1e-9,
+  );
 
   // 3. Toes-up reach.
-  TestValidator.equals("no extension when the foot is more toes-up", HumanFoot.heelOff(pitch(0), pitch(5), anchor, ball).toes, 0);
+  TestValidator.equals(
+    "no extension when the foot is more toes-up",
+    HumanFoot.heelOff(pitch(0), pitch(5), anchor, ball).toes,
+    0,
+  );
 
   // 4. A turn about the vertical.
-  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 40);
-  const turned = HumanFoot.heelOff(pitch(0, 40), pitch(-15, 40), Quaternion.rotateVector(turn, anchor), ball);
-  TestValidator.predicate("the ankle turns with the frame", Vector3.length(Vector3.subtract(turned.ankle, Quaternion.rotateVector(turn, off.ankle))) < 1e-12);
-  TestValidator.predicate("the toes' extension is unchanged by the turn", Math.abs(turned.toes - off.toes) < 1e-9);
+  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 1, z: 0 },
+    40,
+  );
+  const turned = HumanFoot.heelOff(
+    pitch(0, 40),
+    pitch(-15, 40),
+    Quaternion.rotateVector(turn, anchor),
+    ball,
+  );
+  TestValidator.predicate(
+    "the ankle turns with the frame",
+    Vector3.length(
+      Vector3.subtract(turned.ankle, Quaternion.rotateVector(turn, off.ankle)),
+    ) < 1e-12,
+  );
+  TestValidator.predicate(
+    "the toes' extension is unchanged by the turn",
+    Math.abs(turned.toes - off.toes) < 1e-9,
+  );
 }

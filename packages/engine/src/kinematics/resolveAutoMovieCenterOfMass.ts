@@ -1,8 +1,8 @@
 import type {
   AutoMovieHumanoidBone,
-  IAutoMoviePhysicalProfile as P,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -38,24 +38,49 @@ import { resolvePose } from "./resolvePose";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the body; callers resolve once per body.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and retains nothing.
  */
-export function resolveAutoMovieCenterOfMass(skeleton: IAutoMovieSkeleton, profile: P): resolveAutoMovieCenterOfMass.IModel {
+export function resolveAutoMovieCenterOfMass(
+  skeleton: IAutoMovieSkeleton,
+  profile: P,
+): resolveAutoMovieCenterOfMass.IModel {
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-    resolvePose({ skeleton: skeleton.id, root: null, joints: [] }, skeleton).map(
-      (r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+    resolvePose(
+      { skeleton: skeleton.id, root: null, joints: [] },
+      skeleton,
+    ).map(
+      (
+        r: IAutoMovieResolvedBone,
+      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
     ),
   );
-  const segments: resolveAutoMovieCenterOfMass.ISegment[] = profile.segments.map((s: P.ISegment): resolveAutoMovieCenterOfMass.ISegment => {
-    const bone: IAutoMovieResolvedBone | undefined = rest.get(s.bone as AutoMovieHumanoidBone);
-    if (bone === undefined) throw new Error(`The mass model needs the rig bone ${s.bone}`);
-    const world: IAutoMovieVector3 = Vector3.add(s.neutral.position, Quaternion.rotateVector(s.neutral.rotation, s.centerOfMass));
-    return {
-      bone: bone.bone,
-      mass: s.mass,
-      point: Quaternion.rotateVector(Quaternion.inverse(bone.worldRotation), Vector3.subtract(world, bone.worldPosition)),
-    };
-  });
-  const mass: number = segments.reduce((sum: number, s: resolveAutoMovieCenterOfMass.ISegment): number => sum + s.mass, 0);
-  if (!(mass > 0)) throw new Error("The mass model needs a positive total mass");
+  const segments: resolveAutoMovieCenterOfMass.ISegment[] =
+    profile.segments.map(
+      (s: P.ISegment): resolveAutoMovieCenterOfMass.ISegment => {
+        const bone: IAutoMovieResolvedBone | undefined = rest.get(
+          s.bone as AutoMovieHumanoidBone,
+        );
+        if (bone === undefined)
+          throw new Error(`The mass model needs the rig bone ${s.bone}`);
+        const world: IAutoMovieVector3 = Vector3.add(
+          s.neutral.position,
+          Quaternion.rotateVector(s.neutral.rotation, s.centerOfMass),
+        );
+        return {
+          bone: bone.bone,
+          mass: s.mass,
+          point: Quaternion.rotateVector(
+            Quaternion.inverse(bone.worldRotation),
+            Vector3.subtract(world, bone.worldPosition),
+          ),
+        };
+      },
+    );
+  const mass: number = segments.reduce(
+    (sum: number, s: resolveAutoMovieCenterOfMass.ISegment): number =>
+      sum + s.mass,
+    0,
+  );
+  if (!(mass > 0))
+    throw new Error("The mass model needs a positive total mass");
   return { mass, segments };
 }
 
@@ -97,14 +122,21 @@ export namespace resolveAutoMovieCenterOfMass {
    * @returns The centre of mass, world metres.
    * @throws {Error} When a segment's bone is not posed.
    */
-  export function place(model: IModel, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): IAutoMovieVector3 {
+  export function place(
+    model: IModel,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ): IAutoMovieVector3 {
     let x: number = 0;
     let y: number = 0;
     let z: number = 0;
     for (const s of model.segments) {
       const bone: IAutoMovieResolvedBone | undefined = bones.get(s.bone);
-      if (bone === undefined) throw new Error(`The centre of mass needs the posed bone ${s.bone}`);
-      const p: IAutoMovieVector3 = Vector3.add(bone.worldPosition, Quaternion.rotateVector(bone.worldRotation, s.point));
+      if (bone === undefined)
+        throw new Error(`The centre of mass needs the posed bone ${s.bone}`);
+      const p: IAutoMovieVector3 = Vector3.add(
+        bone.worldPosition,
+        Quaternion.rotateVector(bone.worldRotation, s.point),
+      );
       x += s.mass * p.x;
       y += s.mass * p.y;
       z += s.mass * p.z;
@@ -126,9 +158,20 @@ export namespace resolveAutoMovieCenterOfMass {
    * @returns The extrapolated centre of mass, world metres.
    * @throws {Error} When the length or gravity is not positive.
    */
-  export function extrapolate(com: IAutoMovieVector3, velocity: IAutoMovieVector3, length: number, gravity: number = 9.81): IAutoMovieVector3 {
-    if (!(length > 0) || !(gravity > 0)) throw new Error(`The extrapolated centre needs a positive length and gravity, got ${length} and ${gravity}`);
-    return Vector3.add(com, Vector3.scale(velocity, 1 / Math.sqrt(gravity / length)));
+  export function extrapolate(
+    com: IAutoMovieVector3,
+    velocity: IAutoMovieVector3,
+    length: number,
+    gravity: number = 9.81,
+  ): IAutoMovieVector3 {
+    if (!(length > 0) || !(gravity > 0))
+      throw new Error(
+        `The extrapolated centre needs a positive length and gravity, got ${length} and ${gravity}`,
+      );
+    return Vector3.add(
+      com,
+      Vector3.scale(velocity, 1 / Math.sqrt(gravity / length)),
+    );
   }
 
   /**
@@ -142,8 +185,12 @@ export namespace resolveAutoMovieCenterOfMass {
    * @returns The signed margin, metres.
    * @throws {Error} When there is no support point.
    */
-  export function margin(point: IAutoMovieVector3, support: readonly IAutoMovieVector3[]): number {
-    if (support.length === 0) throw new Error("The margin of stability needs a support point");
+  export function margin(
+    point: IAutoMovieVector3,
+    support: readonly IAutoMovieVector3[],
+  ): number {
+    if (support.length === 0)
+      throw new Error("The margin of stability needs a support point");
     const hull: IAutoMovieVector3[] = convexHull2D(support);
     const distance: number = nearestHullEdge(point, hull).distance;
     return hull.length >= 3 && pointInHull(point, hull) ? distance : -distance;

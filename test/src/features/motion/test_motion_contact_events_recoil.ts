@@ -27,29 +27,64 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 scenarios and what each pins.
  */
 export function test_motion_contact_events_recoil(): void {
-  const fist = (t: number): IAutoMovieVector3 => ({ x: -1 + 2 * t, y: 1, z: 0 });
-  const counter = (t: number): IAutoMovieVector3 => ({ x: 1.6 - 1.5 * t, y: 1, z: 0 });
-  const sphere = (centre: IAutoMovieVector3, radius: number, p: IAutoMovieVector3): number =>
+  const fist = (t: number): IAutoMovieVector3 => ({
+    x: -1 + 2 * t,
+    y: 1,
+    z: 0,
+  });
+  const counter = (t: number): IAutoMovieVector3 => ({
+    x: 1.6 - 1.5 * t,
+    y: 1,
+    z: 0,
+  });
+  const sphere = (
+    centre: IAutoMovieVector3,
+    radius: number,
+    p: IAutoMovieVector3,
+  ): number =>
     Math.hypot(p.x - centre.x, p.y - centre.y, p.z - centre.z) - radius;
   const run = (recoil: boolean): resolveAutoMovieContactEvents.IEvent[] =>
     resolveAutoMovieContactEvents({
       weapons: [
-        { id: "a:fist", owner: "a", radius: 0.05, position: (t: number) => fist(t) },
-        { id: "b:counter", owner: "b", radius: 0.05, position: (t: number) => counter(t) },
+        {
+          id: "a:fist",
+          owner: "a",
+          radius: 0.05,
+          position: (t: number) => fist(t),
+        },
+        {
+          id: "b:counter",
+          owner: "b",
+          radius: 0.05,
+          position: (t: number) => counter(t),
+        },
       ],
       bodies: [
         {
           id: "a",
-          distance: (p: IAutoMovieVector3, t: number, stops: resolveAutoMovieContactEvents.IStops): number => {
+          distance: (
+            p: IAutoMovieVector3,
+            t: number,
+            stops: resolveAutoMovieContactEvents.IStops,
+          ): number => {
             const s: number | undefined = stops.get("a:fist");
-            if (s === undefined || t <= s + 0.015) return sphere(fist(s === undefined ? t : Math.min(t, s)), 0.05, p);
+            if (s === undefined || t <= s + 0.015)
+              return sphere(
+                fist(s === undefined ? t : Math.min(t, s)),
+                0.05,
+                p,
+              );
             if (!recoil) return sphere(fist(s), 0.05, p);
             const u: number = Math.min(1, (t - s - 0.015) / 0.1);
             const at: IAutoMovieVector3 = fist(s);
             return sphere({ ...at, x: at.x + (-1 - at.x) * u }, 0.05, p);
           },
         },
-        { id: "b", distance: (p: IAutoMovieVector3): number => sphere({ x: 0.5, y: 1, z: 0 }, 0.1, p) },
+        {
+          id: "b",
+          distance: (p: IAutoMovieVector3): number =>
+            sphere({ x: 0.5, y: 1, z: 0 }, 0.1, p),
+        },
       ],
       from: 0,
       to: 1,
@@ -59,7 +94,12 @@ export function test_motion_contact_events_recoil(): void {
   // 1. The fist stops on B.
   const recoiling = run(true);
   const first = recoiling.find((e) => e.weapon === "a:fist");
-  TestValidator.predicate(`the fist stops on B at 0.675 s (${first?.seconds})`, first !== undefined && first.against === "b" && Math.abs(first.seconds - 0.675) < 1e-4);
+  TestValidator.predicate(
+    `the fist stops on B at 0.675 s (${first?.seconds})`,
+    first !== undefined &&
+      first.against === "b" &&
+      Math.abs(first.seconds - 0.675) < 1e-4,
+  );
 
   // 2. The counter passes where the recoiled fist no longer is.
   TestValidator.predicate(
@@ -69,5 +109,10 @@ export function test_motion_contact_events_recoil(): void {
 
   // 3. Control: a fist held at its stop does stop the counter.
   const held = run(false).find((e) => e.weapon === "b:counter");
-  TestValidator.predicate(`a held fist stops the counter at 0.767 s (${held?.seconds})`, held !== undefined && held.against === "a" && Math.abs(held.seconds - 1.15 / 1.5) < 1e-4);
+  TestValidator.predicate(
+    `a held fist stops the counter at 0.767 s (${held?.seconds})`,
+    held !== undefined &&
+      held.against === "a" &&
+      Math.abs(held.seconds - 1.15 / 1.5) < 1e-4,
+  );
 }
