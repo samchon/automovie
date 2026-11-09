@@ -50,7 +50,7 @@ A strike reaches only as far as the performer's actual limb plus the step he tak
 | Clinch knee | Knee | Stomach | Rising | Tracks until launch |
 | Brazilian kick | Instep and distal shin | Behind the ear at the jaw–neck junction | Descending over the guard | Commits at the chamber key |
 
-GLORY bans linear kicks to the legs, so every leg attack arcs ([rules](rules.md#legal-actions)). A kick commits to what the receiver shows at its chamber key, which is how a disguise works: a later evasion relates to the swept line, not to a homing foot.
+A body kick lands with the hard lower shin, not the foot, most of the shin's length crossing the ribs or liver from outside ([Evolve: the 6 Muay Thai kicks](https://evolve-mma.com/blog/the-6-muay-thai-kicks-you-need-to-know-videos/)); the kicker's body stays outside the receiver's, so the two bodies never cross. GLORY bans linear kicks to the legs, so every leg attack arcs ([rules](rules.md#legal-actions)). A kick commits to what the receiver shows at its chamber key, which is how a disguise works: a later evasion relates to the swept line, not to a homing foot.
 
 ### Defenses {#defenses}
 
@@ -64,6 +64,8 @@ GLORY bans linear kicks to the legs, so every leg attack arcs ([rules](rules.md#
 | Elbow block | Elbow and forearm on the attacked side | Body punches, body kicks | The elbow drops over the ribs; the other glove stays on the cheek |
 | High block | Forearm and glove on the attacked side | High kicks | Forearm braced against the side of the head |
 | Check | Lead shin, raised | Low kicks | The bent lead leg lifts with toes pulled up and turns the shin into the kick |
+
+The elbow block tucks the elbow to the body as the kick rises and drops it toward the hip on the kick's side, so the blocking elbow meets the shin at hip and rib height ([Dynamic Striking: kickboxing kicks](https://dynamicstriking.com/blogs/news/kickboxing-kicks)). Coaches rank the answers to kicks: evade first, a half-step away; check second; counter at once ([LowKick MMA: defending calf kicks](https://www.lowkickmma.com/how-to-defend-against-calf-kicks-according-to-mma-muay-thai-and-kickboxing-pros/)).
 
 A defense begins when the receiver reads the attack's launch and completes by its contact, so a defense never answers an attack it cannot see coming: a feint's read happens at its shown fraction, a disguised kick's read at its chamber key.
 

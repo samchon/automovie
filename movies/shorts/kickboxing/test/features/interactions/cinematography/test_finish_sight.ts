@@ -49,7 +49,7 @@ export function test_finish_sight(): void {
   const pixel: number =
     (2 *
       length(lens.position, scene.contact) *
-      Math.tan(CoverageLaw.FIELD_OF_VIEW / 2)) /
+      Math.tan(lens.fieldOfView / 2)) /
     FRAME_LINES;
   assert.ok(
     length(leg.knee, leg.hip) <= ma.thigh + pixel,
@@ -115,13 +115,17 @@ export function test_finish_sight(): void {
         y: f.body.measure.head / 2,
       })),
       { ...RefereeTrack.at(referee, t).point, y: ma.head / 2 },
-    ].map((p) => ({ point: { x: p.x, y: p.y, z: p.z }, seconds: t, carriers: [] }));
+    ].map((p) => ({
+      point: { x: p.x, y: p.y, z: p.z },
+      seconds: t,
+      carriers: [],
+    }));
     assert.ok(
       SightLaw.framed(
         s.position,
         s.target,
         { ...scene, watched: men },
-        CoverageLaw.FIELD_OF_VIEW,
+        s.fieldOfView,
         CoverageLaw.ASPECT,
       ) > 0,
       `all three men in frame at ${t}`,

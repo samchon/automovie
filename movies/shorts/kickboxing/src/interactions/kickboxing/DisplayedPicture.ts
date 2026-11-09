@@ -108,7 +108,11 @@ export namespace DisplayedPicture {
             b,
             body(cast.referee.id, cast.referee.body.measure.ankle, seconds),
           ],
-          lens: { position: shot.position, target: shot.target },
+          lens: {
+            position: shot.position,
+            target: shot.target,
+            fieldOfView: shot.fieldOfView,
+          },
         };
       },
       striking: (subject, spec, seconds) => {

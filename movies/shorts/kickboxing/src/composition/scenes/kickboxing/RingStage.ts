@@ -1,16 +1,16 @@
 import {
-  preparePhysicalGeometry,
-  Quaternion,
-  Vector3,
   type AutoMovieComposition,
   type AutoMoviePhysicsCache,
   type IAutoMovieSchedule,
+  Quaternion,
+  Vector3,
+  preparePhysicalGeometry,
 } from "@automovie/engine";
+import { resolveAutoMovieHumanCalibration } from "@automovie/human";
 import type {
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
-import { resolveAutoMovieHumanCalibration } from "@automovie/human";
 import { createAutoMovieHttpArtifactStore } from "@automovie/render";
 import * as THREE from "three";
 
@@ -33,8 +33,8 @@ import { CameraTrack } from "../../../interactions/cinematography/CameraTrack";
 import { FinishSight } from "../../../interactions/cinematography/FinishSight";
 import { BoutLaws } from "../../../interactions/kickboxing/BoutLaws";
 import { BoutPerformance } from "../../../interactions/kickboxing/BoutPerformance";
-import { DisplayedPicture } from "../../../interactions/kickboxing/DisplayedPicture";
 import { ContactReceipts } from "../../../interactions/kickboxing/ContactReceipts";
+import { DisplayedPicture } from "../../../interactions/kickboxing/DisplayedPicture";
 import type { IRingCast } from "../../../interactions/kickboxing/IRingCast";
 import { RefereePerformance } from "../../../interactions/officiating/RefereePerformance";
 import { RefereeTrack } from "../../../interactions/officiating/RefereeTrack";
@@ -209,6 +209,8 @@ export class RingStage {
       const shot = CameraTrack.at(camera, seconds);
       view.position.set(shot.position.x, shot.position.y, shot.position.z);
       view.lookAt(shot.target.x, shot.target.y, shot.target.z);
+      // The lens zooms with the shot (CameraTrack's per-sample field of view).
+      view.fov = (shot.fieldOfView * 180) / Math.PI;
       view.updateProjectionMatrix();
       last = {
         [cast.a.id]: bodies[cast.a.id]!.segments,
@@ -329,9 +331,9 @@ export class RingStage {
     calibrations: RingStage.ICalibrations;
     source?: string;
   }> {
-    const response: Response | undefined = await fetch(
-      RingStage.SOURCES,
-    ).catch((): undefined => undefined);
+    const response: Response | undefined = await fetch(RingStage.SOURCES).catch(
+      (): undefined => undefined,
+    );
     if (!response?.ok) return { calibrations: {} };
     const sources = (await response.json()) as {
       human: string;

@@ -84,6 +84,32 @@ export namespace CoverageLaw {
   /** Highest wide-camera lens above the arena floor, metres: about 7.5 m (SVG, HBO boxing at Yankee Stadium). */
   export const WIDE_HEIGHT: number = 7.5;
 
+  /** Height of the 16:9 image on the broadcast 2/3-inch sensor, millimetres: about 9.6 × 5.4 mm of its 11 mm diagonal. */
+  export const SENSOR_HEIGHT: number = 5.4;
+
+  /** Focal range of the wide camera's box zoom, millimetres: 8.7–818 mm (Fujinon UA94x8.7; Canon DIGISUPER 86 at 9.3–800 mm). */
+  export const BOX_ZOOM: readonly [number, number] = [8.7, 818];
+
+  /** Focal range of the apron's portable zoom, millimetres: 7.5–180 mm (Canon CJ24ex7.5B). */
+  export const PORTABLE_ZOOM: readonly [number, number] = [7.5, 180];
+
+  /**
+   * The vertical fields of view a size's lens zooms between: the box zoom
+   * for the wide camera's sizes, the portable zoom for the apron's, each
+   * 2 atan(sensor height / (2 focal)).
+   *
+   * @param size The shot size.
+   * @returns The narrowest and widest vertical field of view, radians.
+   * @evidence docs/research/cinematography/fight-coverage.md#practice Broadcast box and portable zoom ranges on the 2/3-inch sensor.
+   */
+  export function zoom(size: Size): { narrowest: number; widest: number } {
+    const [short, long] =
+      size === "wide" || size === "finish" ? BOX_ZOOM : PORTABLE_ZOOM;
+    const field = (focal: number): number =>
+      2 * Math.atan(SENSOR_HEIGHT / (2 * focal));
+    return { narrowest: field(long), widest: field(short) };
+  }
+
   /** Delivery frame aspect, width over height. */
   export const ASPECT: number = 16 / 9;
 
@@ -110,6 +136,47 @@ export namespace CoverageLaw {
     const side: number =
       (referee.x - cx) * nx + (referee.z - cz) * nz >= 0 ? -1 : 1;
     return Math.atan2(side * nx, side * nz);
+  }
+
+  /** Turn between the bearings tried to clear the referee from the fighters, radians: one orbit second's tenth (film choice). */
+  const CLEAR_TURN: number = ORBIT / 10;
+
+  /** Most turn from side-on the referee's clearing may take, radians: half the orbit's quarter turn. */
+  const CLEAR_REACH: number = Math.PI / 4;
+
+  /**
+   * The least turn from a bearing that keeps the referee off the fighters'
+   * sightline: seen from that bearing, his body stands beside theirs on the
+   * screen, not behind or in front of either.
+   *
+   * @param bearing The wanted bearing, radians.
+   * @param a Fighter A's floor point.
+   * @param b Fighter B's floor point.
+   * @param referee The referee's floor point.
+   * @param width Half the width of a man's body, metres.
+   * @returns The nearest bearing within {@link CLEAR_REACH} at which no fighter's body overlaps the referee's across the view; the given one when none does.
+   * @evidence docs/research/cinematography/fight-coverage.md#law The referee never blocks the action.
+   */
+  export function unblocked(
+    bearing: number,
+    a: { x: number; z: number },
+    b: { x: number; z: number },
+    referee: { x: number; z: number },
+    width: number,
+  ): number {
+    const across = (p: { x: number; z: number }, at: number): number =>
+      p.x * Math.cos(at) - p.z * Math.sin(at);
+    const clear = (at: number): boolean =>
+      [a, b].every(
+        (f) => Math.abs(across(f, at) - across(referee, at)) >= 2 * width,
+      );
+    const steps: number = Math.round(CLEAR_REACH / CLEAR_TURN);
+    for (let k: number = 0; k <= steps; k++)
+      for (const sign of k === 0 ? [1] : [1, -1]) {
+        const at: number = bearing + sign * k * CLEAR_TURN;
+        if (clear(at)) return at;
+      }
+    return bearing;
   }
 
   /**

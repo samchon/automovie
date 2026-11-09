@@ -11,6 +11,7 @@ import type { IRingCast } from "../kickboxing/IRingCast";
 import { RefereeTrack } from "../officiating/RefereeTrack";
 import { FinishHold } from "./FinishHold";
 import type { FinishSight } from "./FinishSight";
+import { LensZoom } from "./LensZoom";
 import { RopeLens } from "./RopeLens";
 
 /**
@@ -58,6 +59,9 @@ export namespace CameraTrack {
 
     /** The size held. */
     size: CoverageLaw.Size;
+
+    /** The lens's vertical field of view, radians: its zoom. */
+    fieldOfView: number;
   }
 
   /**
@@ -163,6 +167,7 @@ export namespace CameraTrack {
       elevation: number;
       position: IAutoMovieVector3 | undefined;
       target: IAutoMovieVector3 | undefined;
+      fieldOfView: number | undefined;
     }
     // Advance the operator from step `from` through step `to`, appending samples.
     const run = (
@@ -221,10 +226,16 @@ export namespace CameraTrack {
                   elevation: view.elevation,
                 }
             : {
-                bearing: CoverageLaw.bearing(
+                bearing: CoverageLaw.unblocked(
+                  CoverageLaw.bearing(
+                    floor(state.a!),
+                    floor(state.b!),
+                    floor(state.referee!),
+                  ),
                   floor(state.a!),
                   floor(state.b!),
                   floor(state.referee!),
+                  cast.referee.body.measure.shoulderHalfWidth,
                 ),
                 elevation: CoverageLaw.ELEVATION,
               };
@@ -233,11 +244,15 @@ export namespace CameraTrack {
             ? aim.bearing
             : CoverageLaw.orbit(s.bearing, aim.bearing, STEP);
         s.elevation = CoverageLaw.orbit(s.elevation, aim.elevation, STEP);
-        const wantedFrame = place(
-          cast,
-          s.size,
-          CoverageLaw.goal(s.size, subjects, s.bearing, s.elevation),
-          framed,
+        const goal = CoverageLaw.goal(s.size, subjects, s.bearing, s.elevation);
+        const wantedFrame = place(cast, s.size, goal, framed);
+        // The lens zooms so the subjects fill the size's share from where it stands.
+        const zoom: number = LensZoom.fieldOfView(
+          wantedFrame,
+          subjects.map((id) => framed[id]!),
+          goal.fill,
+          CoverageLaw.ASPECT,
+          CoverageLaw.zoom(s.size),
         );
         const follow: number = k === 0 ? 1 : CoverageLaw.follow(STEP);
         s.position =
@@ -251,7 +266,16 @@ export namespace CameraTrack {
           s.target === undefined
             ? wantedFrame.target
             : lerp(s.target, wantedFrame.target, follow);
-        samples.push({ position: s.position, target: s.target, size: s.size });
+        s.fieldOfView =
+          s.fieldOfView === undefined
+            ? zoom
+            : s.fieldOfView + (zoom - s.fieldOfView) * follow;
+        samples.push({
+          position: s.position,
+          target: s.target,
+          size: s.size,
+          fieldOfView: s.fieldOfView,
+        });
       }
     };
     const fresh = (): IState => ({
@@ -261,6 +285,7 @@ export namespace CameraTrack {
       elevation: CoverageLaw.ELEVATION,
       position: undefined,
       target: undefined,
+      fieldOfView: undefined,
     });
     const finishing: IAutoMovieSchedule.IEntry | undefined = strike(schedule);
     if (finishing === undefined || !Number.isFinite(finish)) {
@@ -327,7 +352,7 @@ export namespace CameraTrack {
                   carriers: [],
                 })),
               },
-              CoverageLaw.FIELD_OF_VIEW,
+              lens.fieldOfView,
               CoverageLaw.ASPECT,
             ) > 0
           );
@@ -361,6 +386,9 @@ export namespace CameraTrack {
       position: lerp(samples[i]!.position, samples[j]!.position, w),
       target: lerp(samples[i]!.target, samples[j]!.target, w),
       size: samples[i]!.size,
+      fieldOfView:
+        samples[i]!.fieldOfView +
+        (samples[j]!.fieldOfView - samples[i]!.fieldOfView) * w,
     };
   }
 
@@ -399,7 +427,7 @@ export namespace CameraTrack {
       lens.position,
       lens.target,
       scene,
-      CoverageLaw.FIELD_OF_VIEW,
+      lens.fieldOfView,
       CoverageLaw.ASPECT,
     );
   }

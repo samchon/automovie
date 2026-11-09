@@ -86,8 +86,12 @@ export namespace PictureMeasures {
     /** Every displayed figure whose standing knees are measured: the fighters and the referee. */
     figures: readonly IBody[];
 
-    /** The delivered lens. */
-    lens: { position: IAutoMovieVector3; target: IAutoMovieVector3 };
+    /** The delivered lens and, when it zooms, its vertical field of view in radians. */
+    lens: {
+      position: IAutoMovieVector3;
+      target: IAutoMovieVector3;
+      fieldOfView?: number;
+    };
   }
 
   /** The measuring limits. */
@@ -263,7 +267,10 @@ export namespace PictureMeasures {
       samples.filter((s) =>
         s.bodies.every((b) =>
           (["left", "right"] as const).every((side) =>
-            PictureGeometry.inside(s.lens, b.legs[side].ankle, limits),
+            PictureGeometry.inside(s.lens, b.legs[side].ankle, {
+              fieldOfView: s.lens.fieldOfView ?? limits.fieldOfView,
+              aspect: limits.aspect,
+            }),
           ),
         ),
       ).length / Math.max(1, samples.length);
