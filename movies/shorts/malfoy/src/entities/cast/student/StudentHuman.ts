@@ -55,7 +55,12 @@ export namespace StudentHuman {
     let neutral: AutoMovieHumanSkeleton.IOutput | undefined = memo.get(template.id);
     if (neutral === undefined) {
       const params: IAutoMovieHumanParameters = template.parameters;
-      neutral = AutoMovieHumanSkeleton.prepare(params)({});
+      const key: string = `${template.id}-${hash(JSON.stringify(params))}`;
+      neutral = read(key);
+      if (neutral === undefined) {
+        neutral = AutoMovieHumanSkeleton.prepare(params)({});
+        write(key, neutral);
+      }
       memo.set(template.id, neutral);
     }
     return { neutral, scale: profile.stature / template.stature };
@@ -63,4 +68,46 @@ export namespace StudentHuman {
 
   /** Neutral bodies by template id. */
   const memo: Map<string, AutoMovieHumanSkeleton.IOutput> = new Map();
+
+  /** Node's file system when running in Node (capture, tests), absent in the browser. */
+  interface IFs {
+    existsSync(path: string): boolean;
+    readFileSync(path: string, encoding: "utf8"): string;
+    writeFileSync(path: string, data: string): void;
+    mkdirSync(path: string, options: { recursive: true }): void;
+  }
+
+  /** The stage cache folder of neutral bodies, under the working directory's `.cache`. */
+  const FOLDER: string = ".cache/human-neutral";
+
+  /** Node's fs, or undefined in a browser. */
+  function fs(): IFs | undefined {
+    const host: { getBuiltinModule?: (id: string) => unknown } | undefined = (
+      globalThis as { process?: { getBuiltinModule?: (id: string) => unknown } }
+    ).process;
+    return host?.getBuiltinModule?.("node:fs") as IFs | undefined;
+  }
+
+  /** A cached neutral body, if present. */
+  function read(key: string): AutoMovieHumanSkeleton.IOutput | undefined {
+    const file: IFs | undefined = fs();
+    const path: string = `${FOLDER}/${key}.json`;
+    if (file === undefined || !file.existsSync(path)) return undefined;
+    return JSON.parse(file.readFileSync(path, "utf8")) as AutoMovieHumanSkeleton.IOutput;
+  }
+
+  /** Store a neutral body in the stage cache when running in Node. */
+  function write(key: string, neutral: AutoMovieHumanSkeleton.IOutput): void {
+    const file: IFs | undefined = fs();
+    if (file === undefined) return;
+    file.mkdirSync(FOLDER, { recursive: true });
+    file.writeFileSync(`${FOLDER}/${key}.json`, JSON.stringify(neutral));
+  }
+
+  /** FNV-1a hash of a string, hex. */
+  function hash(text: string): string {
+    let h: number = 0x811c9dc5;
+    for (let i: number = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 0x01000193) >>> 0;
+    return h.toString(16);
+  }
 }

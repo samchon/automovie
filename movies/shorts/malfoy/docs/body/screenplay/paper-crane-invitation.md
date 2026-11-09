@@ -1,6 +1,6 @@
 # Paper Crane Invitation
 
-One continuous late-afternoon scene in a castle corridor's window bay, framed 9:16. Each scene is the next fifteen seconds of the same action; times stated in the action are anchors of the film's clock. The film is silent, so its dialogue exists only on this page.
+One continuous late-afternoon scene in a castle corridor's window bay, framed 9:16. Each scene is the next fifteen seconds of the same action; times stated in the action are anchors of the film's clock, and each beat record's time line allocates its span, the thirteen spans filling 0–60 s without gap or overlap. The film is silent, so its dialogue exists only on this page.
 
 ## INT. CORRIDOR WINDOW BAY - LATE AFTERNOON {#s01}
 
@@ -22,6 +22,7 @@ CARINA, fifteen, platinum hair loose over a black robe and a green-and-silver ti
 
 HARRY, fifteen, round glasses, untidy black hair, a scarlet-and-gold tie under his open robe, walks in from the corridor through the open front, hands in his trouser pockets. His eyes go to the bench.
 
+- Time: 0.000–2.600 s (2.600 s)
 - Cast: [Carina](../settings/cast/carina-malfoy.md#recognition), [Harry](../settings/cast/harry-potter.md#walk)
 - Intent: Carina waits for Harry with the crane she charmed for him; Harry comes into the bay for the bench.
 - Outcome: Harry walks in at his ordinary pace, as the [walking study](../../research/everyday/walking.md#pace) gives.
@@ -39,12 +40,13 @@ Her hand goes after it at once, out past the end of the sill, and stops a handsp
 
 Harry has stopped on the front route. He pulls his left hand from his pocket and closes it round the crane. It stops dead in his fist.
 
+- Time: 2.600–6.100 s (3.500 s), to the closing of his fist
 - Cast: [Carina](../settings/cast/carina-malfoy.md#gesture), [Harry](../settings/cast/harry-potter.md#everyday)
 - Intent: Carina sends her invitation and at once reaches to call it back; Harry catches what is flying at him.
 - Outcome: Caught, as the [handover outcome table](../../research/everyday/handover.md#outcomes) gives for a charmed crane met by a closing hand; Carina's reach stops short of the crane by her own check, so the [charm](../settings/world/magic.md#paper-charm) is not touched in flight.
 - Consequence: the charm ends in Harry's hand with the crane whole; Carina stands where she stood, her right hand at her chest.
 - Space: the crane glides from the sill's right end across the right-end standing area to Harry on the front route before the bench's right half; Harry stops there; Carina's feet stay planted.
-- Camera: cut to a medium on Carina as she turns to him, Harry's side screen left, holding the crane on her fingertip and the push; cut on the push to a medium on Harry from the bay's right end, on the same side of their line, as the crane glides in from screen right into his fist.
+- Camera: cut to a medium on Carina as her chin lifts, Harry's side screen left, holding the crane on her fingertip and the push; cut on the push to a medium on Harry from the bay's right end, on the same side of their line, as the crane glides in from screen right into his fist.
 - Sound: dialogue none; foley none; ambience none; effects none; music none.
 - Continuity: the crane caught and folded in Harry's left hand; his right hand still in its pocket.
 
@@ -57,6 +59,7 @@ This for me?
 
 Carina says nothing. Her hand stays at her chest.
 
+- Time: 6.100–9.400 s (3.300 s)
 - Cast: [Harry](../settings/cast/harry-potter.md#pushes-glasses), [Carina](../settings/cast/carina-malfoy.md#wants)
 - Intent: Harry recovers from the surprise and asks; Carina cannot bring herself to answer.
 - Outcome: none; a question left unanswered.
@@ -77,6 +80,7 @@ Don't open it.
 
 His hands stop. The sheet hangs half open between his fingers, the writing still folded away inside. She stops an arm's length in front of him, between him and the window, his back to the open front. Her hand drops to her side. He looks at her; neither of them moves.
 
+- Time: 9.400–15.000 s (5.600 s)
 - Cast: [Harry](../settings/cast/harry-potter.md#everyday), [Carina](../settings/cast/carina-malfoy.md#walk)
 - Intent: Harry opens what he takes for his note; Carina hurries to stop him; Harry stops at her word.
 - Outcome: stopped with the sheet half open and the [writing](../settings/props/paper-crane.md#writing) still hidden in its folds.
@@ -112,6 +116,7 @@ Harry's fingers open. The sheet is hers, and she draws it in against her chest. 
 HARRY
 Sorry.
 
+- Time: 15.000–19.600 s (4.600 s)
 - Cast: [Carina](../settings/cast/carina-malfoy.md#wants), [Harry](../settings/cast/harry-potter.md#gives-room)
 - Intent: Carina takes the crane back; Harry gives it back at once, as he [keeps nothing she asks for](../settings/cast/harry-potter.md#wants).
 - Outcome: creased, not torn, because she pulls before he opens and both stop within a reaction time, as the [opposing-pull law](../../research/everyday/handover.md#pulls) gives; then transferred, her fingers closed before his opened, under the [ownership rule](../../research/everyday/handover.md#ownership).
@@ -125,6 +130,7 @@ Sorry.
 
 His eyes are on the paper. Her right hand sweeps it behind her hip, and her left hand goes still at her side. His open palms come down. Neither of them moves.
 
+- Time: 19.600–20.000 s (0.400 s)
 - Cast: [Carina](../settings/cast/carina-malfoy.md#hides-the-personal), [Harry](../settings/cast/harry-potter.md#gesture)
 - Intent: Carina hides what she has now decided not to give; Harry lowers his open palms and waits.
 - Outcome: none; the paper is out of his sight.
@@ -142,12 +148,13 @@ Carina does not try again. She turns and walks back round the bench's right end 
 
 Harry pushes his hands into his pockets, goes to the bench and, feet planted, lowers himself onto the right half of the seat, out of her way.
 
+- Time: 20.000–30.000 s (10.000 s); the near miss from 21.100
 - Cast: [Carina](../settings/cast/carina-malfoy.md#effort), [Harry](../settings/cast/harry-potter.md#gives-room)
 - Intent: Carina tries to leave, then retreats to her cups instead; Harry tries to give her room, then gives her all of it by sitting down.
 - Outcome: both stop short with no contact and Harry yields by the half step, as the [walking outcome table](../../research/everyday/walking.md#outcomes) gives; seated with his calves at the seat's edge, as the [sitting outcome table](../../research/everyday/sitting.md#outcomes) gives.
 - Consequence: Carina stays; Harry sits on the bench's right half facing the open front; his near miss draws one [push of the glasses](../settings/cast/harry-potter.md#pushes-glasses).
 - Space: they meet on the front route between her and the open front; Carina goes round the bench's right end to the sill's right end; Harry walks to the seat's front edge and sits.
-- Camera: cut back to the full two-shot in profile for the near miss, then to a two-shot from the open front that keeps her at the sill and him going to the bench and sitting.
+- Camera: the full two-shot in profile holds through the near miss; cut to a two-shot from the open front that keeps her at the sill and him going to the bench and sitting.
 - Sound: dialogue none; foley none; ambience none; effects none; music none.
 - Continuity: Harry seated from here, hands in his pockets; Carina at the sill, the sheet still behind her hip.
 
@@ -169,6 +176,7 @@ From 30 seconds, she stands at the sill beside the two cups, her back to him. He
 
 Behind her, Harry turns at the waist and looks back past the end of the bench: at her, at the paper behind her hip, at the two cups on the sill.
 
+- Time: 30.000–33.000 s (3.000 s)
 - Cast: [Carina](../settings/cast/carina-malfoy.md#forehead-touch), [Harry](../settings/cast/harry-potter.md#knows)
 - Intent: Carina hides her embarrassment where nobody faces her; Harry looks for her and finds what she has prepared.
 - Outcome: none; Harry sees the two cups.
@@ -190,6 +198,7 @@ Harry turns back toward the open front, plants his feet and slides along the sea
 HARRY
 I'd say yes, by the way.
 
+- Time: 33.000–38.600 s (5.600 s)
 - Cast: [Harry](../settings/cast/harry-potter.md#lexicon), [Carina](../settings/cast/carina-malfoy.md#wants)
 - Intent: Harry answers the invitation without making her ask it, and makes room for her on the bench; Carina holds still.
 - Outcome: the right half of the bench is free, the shift following the [shifting law](../../research/everyday/sitting.md#shift).
@@ -207,16 +216,17 @@ You didn't read it.
 HARRY
 Didn't have to.
 
-Carina brings the paper out from behind her hip and turns toward him. She opens it the rest of the way and folds it once along the writing. Then she turns back to the sill, lays it flat beside the cups and hooks a finger through each handle.
+Carina brings the paper out from behind her hip and turns toward him. She opens it the rest of the way and folds it once along the writing. Then she turns back to the sill and lays it flat beside the cups.
 
+- Time: 38.600–45.000 s (6.400 s)
 - Cast: [Carina](../settings/cast/carina-malfoy.md#lexicon), [Harry](../settings/cast/harry-potter.md#gesture)
 - Intent: Carina tests whether he guessed; Harry confirms it plainly; Carina puts the note down to take up the tea.
-- Outcome: the sheet opened and folded once, as the [crane's stages](../settings/props/paper-crane.md#stages) give; both cups held by their handles, as their [holding fact](../settings/props/tea-cups.md#holding) gives.
-- Consequence: the folded note lies on the sill; Carina's hands are on the cups.
+- Outcome: the sheet opened and folded once, as the [crane's stages](../settings/props/paper-crane.md#stages) give.
+- Consequence: the folded note lies on the sill beside the cups; Carina's hands are free.
 - Space: unchanged.
 - Camera: the two-shot from the open front as she turns to him; cut to a medium on Carina from the open front, in profile as she faces him, the paper and the fold between her hands; cut to a full shot of her from outside the window as she turns back and lays the note on the sill, her face and hands toward us through the pane.
 - Sound: dialogue "You didn't read it.", "Didn't have to."; foley none; ambience none; effects none; music none.
-- Continuity: the note folded once on the sill from here; Carina's hands on the cup handles.
+- Continuity: the note folded once on the sill from here; both cups still on the sill.
 
 ## INT. CORRIDOR WINDOW BAY - CONTINUOUS {#s04}
 
@@ -232,11 +242,12 @@ Carina brings the paper out from behind her hip and turns toward him. She opens 
 
 ### Carried {#s04-b01}
 
-From 45 seconds, she lifts both cups off the sill and turns from it. She carries them round the bench's right end in short, level steps, watching the tea, and stops in front of him.
+From 45 seconds, she lifts both cups off the sill by their handles, one in each hand, and steps back from it. She carries them round the bench's right end in short, level steps, watching the tea, and stops in front of him.
 
+- Time: 45.000–49.200 s (4.200 s)
 - Cast: [Carina](../settings/cast/carina-malfoy.md#everyday), [Harry](../settings/cast/harry-potter.md#gives-room)
 - Intent: Carina brings the tea to him; Harry waits without reaching.
-- Outcome: both cups arrive upright and unspilled, as the [carrying rule](../../research/everyday/handover.md#cups) gives.
+- Outcome: both cups held by their handles, as their [holding fact](../settings/props/tea-cups.md#holding) gives, arrive upright and unspilled, as the [carrying rule](../../research/everyday/handover.md#cups) gives.
 - Consequence: Carina stands before the bench facing Harry, a cup in each hand.
 - Space: Carina from the sill's right end round the bench's right end onto the front route, stopping at handover distance in front of Harry.
 - Camera: the full shot from outside the window holds as she lifts both cups; cut to a two-shot from the open front at seated eye height that follows her round the bench's end, Harry seated screen left, Carina screen right.
@@ -250,8 +261,9 @@ She holds out the cup in her left hand. Harry's right hand comes up under it and
 CARINA
 Drink it, Potter.
 
-Harry rests the cup on his knee. She waits a breath before she moves.
+Harry lowers the cup to his lap. She waits a breath before she moves.
 
+- Time: 49.200–52.600 s (3.400 s)
 - Cast: [Carina](../settings/cast/carina-malfoy.md#lexicon), [Harry](../settings/cast/harry-potter.md#everyday)
 - Intent: Carina gives Harry his tea; Harry receives it the way a cup is received.
 - Outcome: transferred: his hand supports the cup's body before her fingers open, under the [ownership rule](../../research/everyday/handover.md#ownership) and the [cup handover](../../research/everyday/handover.md#cups).
@@ -267,6 +279,7 @@ She turns her back to the empty half of the bench and steps back until her calve
 
 Harry lifts his cup a little toward her. She lifts hers to the same height. They drink. The folded note lies on the sill behind them, near the place where the cups stood, until the picture ends at 60 seconds.
 
+- Time: 52.600–60.000 s (7.400 s)
 - Cast: [Carina](../settings/cast/carina-malfoy.md#everyday), [Harry](../settings/cast/harry-potter.md#gesture)
 - Intent: Carina takes the seat he left her; both share the tea.
 - Outcome: seated side by side, as the [sitting outcome table](../../research/everyday/sitting.md#outcomes) gives; each drinks, so each [tea level](../settings/props/tea-cups.md#tea-level) drops a little.

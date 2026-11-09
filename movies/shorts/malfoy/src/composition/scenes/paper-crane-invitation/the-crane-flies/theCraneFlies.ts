@@ -19,8 +19,9 @@ import type { CorridorStage } from "../CorridorStage";
  * is cut on the push: a medium on Carina holds the crane on her
  * fingertip and its release, then a medium on Harry from the bay's right
  * end, on the same side of their line, holds its glide in from screen right
- * to his fist and his glasses push; a two-shot from the open front, the
- * pair on a diagonal in depth, follows her approach (a profile two-shot
+ * to his fist, his glasses push and his question; a two-shot from the open
+ * front, cut as he starts to unfold it, the pair on a diagonal in depth,
+ * follows her approach (a profile two-shot
  * cannot frame them 2 m apart inside the bay's walls). Her chin lifts for
  * half a second just before the push, her psychological gesture.
  *
@@ -78,7 +79,7 @@ export function theCraneFlies(cast: CorridorStage.ICast): AutoMovieComposition {
       .wide([harry, carina], { start: 0, from: "front" })
       .next(camera.shot([carina], { start: 3.8, size: "medium", screen: [harry, carina] }))
       .next(camera.shot([harry], { start: 5.15, size: "medium", from: "rightEnd", keep: "hands" }))
-      .next(camera.twoShot([harry, carina], { start: 8.6, from: "front" }))
+      .next(camera.twoShot([harry, carina], { start: 9.4, from: "front" }))
       .next(camera.twoShot([harry, carina], { start: 10.4 })),
   );
 }

@@ -188,7 +188,7 @@ From 23.000 they part. Carina gives ground in short steps, rear foot first, to t
 
 ### The high shot {#s03-b01}
 
-From 27 seconds, Carina plants her front foot. Her wand tip rises to his wand shoulder and stays there, longer than any aim before it. Harry watches her hand.
+At 27.500 Carina plants her front foot. Her wand tip rises to his wand shoulder and stays there, longer than any aim before it. Harry watches her hand.
 
 CARINA
 Flipendo!
@@ -294,7 +294,7 @@ You all right?
 - Outcome: none; a question.
 - Consequence: both breathing hard; his grip unchanged.
 - Space: unchanged, the fallen block behind Harry.
-- Camera: the same shot, pushed in to a full two-shot in profile, Carina at the left and Harry at the right, the block behind him, his hand and her forearm inside the margins.
+- Camera: the same shot, pushed in to a medium two-shot in profile, Carina at the left and Harry at the right, head to hips, his hand and her forearm inside the margins; the block is seen only as he looks back.
 - Sound: dialogue "You all right?" at 38.700, as text only; foley none; ambience none; effects none; music none.
 - Continuity: as before.
 
@@ -318,7 +318,7 @@ At 42.900 she draws her arm in against her robe. At once Harry lifts both open p
 - Outcome: Harry releases her as soon as he sees where she is looking ([holds on](../settings/cast/harry-potter.md#holds-on)).
 - Consequence: her forearm free and drawn against her robe; his palms open; half a step more between them.
 - Space: Harry gives a half step back from her, still inside the centre.
-- Camera: the same full two-shot in profile; the shot that began with her run ends once his palms are up.
+- Camera: the same medium two-shot in profile, held through his palms; the shot that began with her run ends at 45.000 as she turns away.
 - Sound: dialogue "You grabbed again." at 39.500, low, slowing on its last word, and "You got close again." at 41.600, as text only; foley none; ambience none; effects none; music none.
 - Continuity: the second grip ends.
 

@@ -328,7 +328,7 @@ His weight comes onto her broom and it sinks under them. Carina's knees tighten;
 - Outcome: the first two steps of the [transfer](../../research/flight/broom-riding.md#transfer), new grip before old release, so the [outcome table](../../research/flight/broom-riding.md#outcomes) admits it.
 - Consequence: Harry hangs two-handed from Carina's rear section; her broom dips; his broom flies on riderless, as [riderless brooms](../settings/world/flight.md#riderless) gives, with open air ahead of it.
 - Space: Harry's broom above and right of them, falling back; the pair below and left of its line.
-- Camera: alongside, pushing in to keep both of Harry's hands, both shafts and both riders in frame.
+- Camera: alongside, the same full two-shot, holding both of Harry's hands, both shafts and both riders in frame.
 - Sound: dialogue none; foley none; ambience none; effects none; music none.
 - Continuity: Harry's broom riderless from here.
 
@@ -356,7 +356,7 @@ Harry's empty broom drifts back over their heads and falls behind. Both breathe 
 - Outcome: the broom dips and recovers, as [two riders](../settings/world/flight.md#tandem) gives.
 - Consequence: steady tandem flight; Harry's broom gliding on alone behind them.
 - Space: the tandem carries on east over the runoff, low.
-- Camera: alongside, three-quarter front, easing back to a medium two-shot.
+- Camera: alongside, three-quarter front, still the full two-shot to the end of the scene.
 - Sound: dialogue none; foley none; ambience none; effects none; music none.
 - Continuity: as before.
 
@@ -394,7 +394,7 @@ No promises.
 - Outcome: the exchange stays banter and nothing is confessed, as [the work's register](../settings/world/work.md#register) keeps it.
 - Consequence: Carina faces front, the broom climbing gently; Harry sits behind her, both hands on the shaft.
 - Space: the tandem climbs gently east toward the far end of the runoff; far behind them G-K closes from the goals, still small, and hangs back.
-- Camera: three-quarter front, medium two-shot: Carina's face in front, Harry's over her shoulder; as Harry looks up, a cut to the Snitch alone, close and level with it high in the air, held still until it darts out of frame, then a cut back to the two-shot as he looks at her.
+- Camera: three-quarter front, medium two-shot: Carina's face in front, Harry's over her shoulder; as Harry looks up, a cut to the Snitch alone, close and level with it high in the air, the lens staying on it as it comes to hang until it darts out of frame, then a cut back to the two-shot as he looks at her.
 - Sound: dialogue "You had it.", "Don't make a habit of it.", "No promises."; foley none; ambience none; effects none; music none.
 - Continuity: as before.
 

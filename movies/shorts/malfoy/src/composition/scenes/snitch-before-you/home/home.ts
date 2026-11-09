@@ -11,8 +11,9 @@ import type { PitchStage } from "../PitchStage";
  * with her free left hand for a second; then she banks them round toward
  * the pitch and lets the broom run home toward the east hoops, G-K falling
  * in on their far side as they pass him. Three-quarter front medium
- * two-shot for the words, with a held close insert of the Snitch from the
- * moment Harry looks up until it darts away, then a cut to a view from just
+ * two-shot for the words, with a close insert that follows the Snitch from
+ * the moment Harry looks up, through its hang, until it darts away (a held
+ * framing would lose it while it is still flying in), then a cut to a view from just
  * behind and above the pair, the east hoops ahead and growing, held to the
  * end.
  *
@@ -54,7 +55,7 @@ export function home(stage: PitchStage): AutoMovieComposition {
       .fly(["tandem.turn", "tandem.back"], { speed: 5 })
       .fly(["tandem.home", "keeper.runoff"], { speed: 8 }),
     camera.alongside([carina, harry], { start: 43, side: "left", view: "front", distance: 4, size: "medium" }),
-    camera.shot([stage.snitch], { start: 43.4, size: "close", motion: "hold" }),
+    camera.shot([stage.snitch], { start: 43.4, size: "close", motion: "follow" }),
     camera.alongside([carina, harry], { start: 44.5, side: "left", view: "front", distance: 4, size: "medium" }),
     camera.alongside([carina, harry], { start: 53, view: "behind", distance: 4.5 }),
   );

@@ -16,7 +16,7 @@ Carina Malfoy rehearses an invitation to an empty stone bench until Harry Potter
 
 ### The first try {#s01-b01}
 
-Low sun lies across a paved recess and turns its north wall a warm beige. Against that wall stands one grey stone bench, empty. Two paces in front of it waits Carina Malfoy, fifteen, her platinum hair loose above the shoulders of an open black robe, a green-and-silver tie at her white collar. Between her right thumb and fingers she pinches a small white note, the writing turned toward herself.
+From 0 seconds, low sun lies across a paved recess and turns its north wall a warm beige. Against that wall stands one grey stone bench, empty. Two paces in front of it waits Carina Malfoy, fifteen, her platinum hair loose above the shoulders of an open black robe, a green-and-silver tie at her white collar. Between her right thumb and fingers she pinches a small white note, the writing turned toward herself.
 
 She walks the two paces up to the bench and lifts the note toward the empty seat, at the height of a seated boy's chest.
 
@@ -129,7 +129,7 @@ No hurry.
 
 ### Let fall {#s02-b03}
 
-From 33 seconds, Carina looks at the space he has left her. She steps into it, chin up, eyes fixed somewhere past his ear, and opens her fingers.
+From 33 seconds, Carina looks at the space he has left her. She steps into it, up to handing distance, and opens her fingers.
 
 The note slips from her hand, rocks down past her knee from side to side and settles flat on the paving between their shoes.
 

@@ -32,7 +32,7 @@ import type { CourtyardStage } from "../CourtyardStage";
  * @returns The scene's composition, filling 24.9–50.7 s.
  * @evidence docs/body/screenplay/three-oclock.md#s02 The scene: the two students and the note between them.
  * @evidence docs/body/screenplay/three-oclock.md#s02-b01 "Come where?", the hide, the turn and "Nowhere." from 24.9 s.
- * @evidence docs/body/screenplay/three-oclock.md#s02-b02 The open palm, the withdrawn first offer and the first give-room from 27.9 s.
+ * @evidence docs/body/screenplay/three-oclock.md#s02-b02 The open palm, her chin lift, the withdrawn first offer and the first give-room from 27.9 s.
  * @evidence docs/body/screenplay/three-oclock.md#s02-b03 The step in, the drop and the two lines from 33 s.
  * @evidence docs/body/screenplay/three-oclock.md#s02-b04 The shared bend to the forehead contact, the second give-room and the glasses from 37.4 s.
  * @evidence docs/body/screenplay/three-oclock.md#s02-b05 The aborted second bend, the third give-room and the held palm from 41.2 s.
@@ -59,7 +59,7 @@ export function theNote(cast: CourtyardStage.ICast): AutoMovieComposition {
       .hide(note)
       .turnTo(harry)
       .say("Nowhere.")
-      .hold(0.9, { start: 27.9 })
+      .liftChin({ start: 27.9, seconds: 0.9 })
       .offer(note, harry)
       .hold(0.1, { start: 32.9 })
       .walkTo(harry, {

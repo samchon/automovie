@@ -12,8 +12,8 @@ import type { CorridorStage } from "../CorridorStage";
  * drink, to the end at 60 s.
  *
  * Concretization: she stops in front of Harry and a little toward the empty
- * half, so the turn to her seat is one step; Harry rests his cup on his
- * knee until he lifts it first, and she follows.
+ * half, so the turn to her seat is one step; Harry lowers his cup to his
+ * lap until he lifts it first, and she follows.
  *
  * ```ts
  * teaSideBySide(new CorridorStage().cast);

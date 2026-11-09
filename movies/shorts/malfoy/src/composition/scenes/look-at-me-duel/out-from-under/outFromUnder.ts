@@ -22,7 +22,8 @@ import type { CourtStage } from "../CourtStage";
  * before the cap reaches head height and ends at her side, behind the
  * shield she raises toward the block; the camera holds the run and the
  * contact from the south-east and arcs to the south as they step out, so
- * the shield faces it; Carina's wand drop rides on the
+ * the shield faces it, then pushes in to a medium two-shot so the faces and
+ * the held forearm read at vertical size; Carina's wand drop rides on the
  * run's first step, because a separate wand action before it would leave
  * Harry under the cap too long.
  *
@@ -75,6 +76,6 @@ export function outFromUnder(cast: CourtStage.ICast): AutoMovieComposition {
       .shot([carina, harry, "supportZone"], { size: "full", start: 27.0, from: "southEast", screen: [carina, harry] })
       .next(camera.wide([carina, harry, "supportZone"], { start: 30.3, from: "southEast" }))
       .next(camera.wide([carina, harry, "supportZone"], { start: 31.6, from: "south", cut: false, motion: "arc", seconds: 1.5 }))
-      .next(camera.shot([carina, harry], { size: "full", start: 34.0, screen: [carina, harry], cut: false, motion: "push", seconds: 2.0 })),
+      .next(camera.shot([carina, harry], { size: "medium", start: 34.0, screen: [carina, harry], cut: false, motion: "push", seconds: 2.0 })),
   );
 }
