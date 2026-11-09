@@ -104,24 +104,15 @@ export namespace CameraTrack {
     // man, the winner in his corner behind them (fight-coverage.md#practice).
     const counting = CountCoverage.window(schedule, cast.referee.id);
     const counted = CountCoverage.shot(schedule, cast);
-    const corner = counting
-      ? CountCoverage.corner(
-          cast,
-          BoutLaws.origin(schedule, cast.a.id, counting.start, cast).point,
-        )
-      : undefined;
-    const height = (measure: {
-      head: number;
-    }): {
-      body: number;
-      bodyRadius: number;
-    } => ({
-      body: measure.head / 2,
-      bodyRadius: measure.head / 2 + measure.head * 0.1,
-    });
-    const ha = height(cast.a.body.measure);
-    const hb = height(cast.b.body.measure);
-    const hr = height(cast.referee.body.measure);
+    // The camera's corner is the one the standing fighter was not sent to.
+    const corner =
+      counting && counted
+        ? CountCoverage.corner(
+            cast,
+            BoutLaws.origin(schedule, counted.winner, counting.start, cast)
+              .point,
+          )
+        : undefined;
     const spheres = (
       t: number,
     ): Record<string, { center: IAutoMovieVector3; radius: number }> => {
@@ -129,18 +120,9 @@ export namespace CameraTrack {
       const b = BoutLaws.origin(schedule, cast.b.id, t, cast).point;
       const r = RefereeTrack.at(referee, t).point;
       return {
-        [cast.a.id]: {
-          center: { x: a.x, y: ha.body, z: a.z },
-          radius: ha.bodyRadius,
-        },
-        [cast.b.id]: {
-          center: { x: b.x, y: hb.body, z: b.z },
-          radius: hb.bodyRadius,
-        },
-        [cast.referee.id]: {
-          center: { x: r.x, y: hr.body, z: r.z },
-          radius: hr.bodyRadius,
-        },
+        [cast.a.id]: sphere(cast.a.body.measure, a),
+        [cast.b.id]: sphere(cast.b.body.measure, b),
+        [cast.referee.id]: sphere(cast.referee.body.measure, r),
       };
     };
     const wide: string[] = [cast.a.id, cast.b.id, cast.referee.id];
@@ -509,6 +491,31 @@ export namespace CameraTrack {
     return typeof keep === "string"
       ? schedule.entries.find((e) => e.intent.anchor === keep)
       : undefined;
+  }
+
+  /**
+   * Share of a man's height the framing sphere extends beyond half of it,
+   * so the sphere about his mid-height holds his feet, head and raised
+   * gloves: a tenth (film choice).
+   */
+  export const SPHERE_MARGIN: number = 0.1;
+
+  /**
+   * A standing man's framing sphere: centred at half his height over his
+   * floor point, its radius half his height and the margin.
+   *
+   * @param measure His measure.
+   * @param floor His floor point.
+   * @returns The sphere.
+   */
+  export function sphere(
+    measure: { head: number },
+    floor: { x: number; z: number },
+  ): { center: IAutoMovieVector3; radius: number } {
+    return {
+      center: { x: floor.x, y: measure.head / 2, z: floor.z },
+      radius: measure.head / 2 + measure.head * SPHERE_MARGIN,
+    };
   }
 
   function floor(sphere: { center: IAutoMovieVector3 }): {

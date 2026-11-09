@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "@automovie/evidence": "workspace:^",
+    "@nestia/e2e": "catalog:samchon",
     "@ttsc/lint": "^0.36.0",
     "@types/node": "^22.19.17",
     "@types/three": "catalog:three",
