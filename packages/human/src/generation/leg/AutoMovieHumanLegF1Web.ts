@@ -40,11 +40,24 @@ export namespace AutoMovieHumanLegF1Web {
     if (ports.length !== 6) throw new Error(`The fixed ${side} forefoot needs six observed ports`);
     const seed: Port = ports[0]!;
     const skin: Skin = sectionSkin(side, seed.points);
+    const observed = native.patches.find(piece => piece.name === `leg.${side}.toe-web seed.terminal`)?.info.rootTransitions;
+    if (observed === undefined) throw new Error("The F1 root transitions have no complete observed authoring table");
+    const transitions = ports.slice(1).map((_, i) => observed.find(item => item.digit === i + 1));
+    const cuts: Port[] = ports.slice(1).map((port, i) => {
+      const transition = transitions[i];
+      if (transition === undefined) return port;
+      const healthy = transition.rows[0];
+      if (healthy === undefined || transition.rows.some(row => row.reversals.length !== 0))
+        throw new Error("An observed F1 root transition lacks a regular geometric chart");
+      const normal = AutoMovieCurveMath64.clone(AutoMovieViewAxis.normal(port.frame));
+      return { frame: { ...port.frame, origin: AutoMovieCurveMath64.add(port.frame.origin as V3,
+        AutoMovieCurveMath64.scale(normal, healthy.station)) }, points: healthy.points.map(AutoMovieCurveMath64.clone) };
+    });
     const receipts: number[] = [];
     // The native owner cuts in digit order. In particular the fifth oblique
     // plane crosses already removed distal sheets of the other four toes.
     // A cut of the untrimmed whole foot cannot identify that fifth rim.
-    for (const [i, port] of ports.slice(1).entries()) {
+    for (const [i, port] of cuts.entries()) {
       const { positive, negative } = AutoMovieHumanFootWebTrim.splitSkin(skin, port.frame);
       const components: Face[][] = AutoMovieHumanFootWebTrim.skinComponents(positive);
       const observed = components.flatMap((faces: Face[]) =>
@@ -56,14 +69,15 @@ export namespace AutoMovieHumanLegF1Web {
       receipts.push(cut!.deviation);
       skin.faces = negative.concat(...components.filter((faces: Face[]): boolean => faces !== cut!.faces));
     }
-    const rims = ports.slice(1).map((port: Port) => {
+    const rims = cuts.map((port: Port) => {
       const [rim] = AutoMovieHumanFootWebTrim.matchingRims(skin.points, skin.faces, port, 0.5);
       if (rim === undefined) throw new Error(`The fixed ${side} web lost a retained toe cut`);
       return { ring: rim.ring, port };
     });
     // Replace only the final generated tile band at each turned cut. The
     // exact root and the remaining inner rail span a finite physical strip.
-    const trims = rims.map(({ ring, port }) => ({ before: withdrawBand(skin, ring), port }));
+    const trims = rims.map(({ ring }, i) => ({ before: transitions[i] === undefined ? withdrawBand(skin, ring) : ring,
+      port: ports[i + 1]!, transition: transitions[i] }));
     const seedIds: number[] = existing(seed.points, mesh.positions);
     const seedSign: 1 | -1 = direction(mesh.indices, seedIds);
     const generated: number[] = existing(seed.points, skin.points.flat());
@@ -73,7 +87,7 @@ export namespace AutoMovieHumanLegF1Web {
     const used: Set<number> = new Set(flat);
     for (const id of used) if (!shared.has(id)) shared.set(id, AutoMovieHumanLoftMesh.vertices(mesh, [skin.points[id]!])[0]!);
     for (const [a, b, c] of skin.faces) mesh.indices.push(shared.get(a)!, shared.get(same ? c : b)!, shared.get(same ? b : c)!);
-    return trims.map(({ before, port }, i: number): string => {
+    return trims.map(({ before, port, transition }, i: number): string => {
       const toe: Context = AutoMovieHumanFootToes.f1(side, i + 1, port.points);
       const root: number[] = existing(port.points, toe.positions);
       const off: number = mesh.positions.length / 3;
@@ -81,7 +95,24 @@ export namespace AutoMovieHumanLegF1Web {
       for (const index of toe.indices) mesh.indices.push(index + off);
       const a: number[] = before.map((id: number): number => shared.get(id)!);
       const b: number[] = root.map((id: number): number => id + off);
-      bridge(mesh, a, b);
+      if (transition === undefined) bridge(mesh, a, b);
+      else {
+        // Replace the complete root band between genuine transverse curves,
+        // not one triangle-adjacency row. The original root itself is unchanged.
+        const tiles = AutoMovieHumanFootWebTrim.f1RootLoft(mesh.positions, a, b, port.frame,
+          transition.rows.slice(1, -1).map(row => row.points.map(AutoMovieCurveMath64.clone)));
+        const directed = (rail: number[]): number[] => {
+          const angles = rail.map(id => {
+            const d = AutoMovieCurveMath64.sub(AutoMovieHumanLoftMesh.position(mesh, id), port.frame.origin as V3);
+            return Math.atan2(dot(d, port.frame.v as V3), dot(d, port.frame.u as V3));
+          });
+          return rail.map((_, k) => k).sort((x, y) => angles[x]! - angles[y]!).map(k => rail[k]!);
+        };
+        const first = direction(mesh.indices, directed(a)), last = direction(mesh.indices, directed(b));
+        if (first !== -last) throw new Error("The exact F1 root boundaries disagree on their physical winding");
+        for (let k = 0; k < tiles.length; k += 3)
+          mesh.indices.push(tiles[k]!, tiles[k + (first > 0 ? 1 : 2)]!, tiles[k + (first > 0 ? 2 : 1)]!);
+      }
       return `toe.${side}.${i + 1}`;
     });
   }

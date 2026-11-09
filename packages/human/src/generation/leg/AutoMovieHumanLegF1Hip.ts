@@ -8,7 +8,7 @@ import native from "./AutoMovieHumanLegF1Native.json";
 
 type V3 = M.V;
 type Context = Mesh.IContext;
-type Row = { station: number; ids: number[]; ends: [number, number] };
+type Row = { station: number; ids: number[]; ends: [number, number]; phases: number[] };
 
 /**
  * F1's original open proximal sections, in absolute ISB world millimetres.
@@ -31,8 +31,6 @@ export namespace AutoMovieHumanLegF1Hip {
     const boundary: number[] = Mesh.vertices(mesh, World.forkClock(fork[side], frame));
     const start: number[] = Mesh.vertices(mesh, World.forkClock(entry, frame));
     World.fixedCollar(boundary, start, arcs, mesh.positions, mesh.indices);
-    const axes: V3[] = source.frame.axes.map(M.clone);
-    const n: V3 = axes[0]!;
     const dot = (a: V3, b: V3): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
     const at = (id: number): V3 => Mesh.position(mesh, id);
     // The two authored views retain the same 98 source knots but start at
@@ -81,15 +79,26 @@ export namespace AutoMovieHumanLegF1Hip {
       ends.push(result);
       return result;
     };
-    const rows: Row[] = source.rows.map(({ station, loops }): Row => {
-      if (loops.length !== 1 || loops[0]!.closed) throw new Error("The original F1 hip ribbon is not one open curve");
-      const raw: V3[] = loops[0]!.points.map(([a, b]): V3 => [
-        n[0] * station + axes[1]![0] * a! + axes[2]![0] * b!,
-        n[1] * station + axes[1]![1] * a! + axes[2]![1] * b!,
-        n[2] * station + axes[1]![2] * a! + axes[2]![2] * b!,
-      ]);
+    const chart = source.info.guideChart;
+    if (chart === undefined || source.guidedRows === undefined || source.cornerSections === undefined || chart.unqualifiedRows.length !== 0)
+      throw new Error("The F1 hip lacks complete qualified geometric source guides");
+    const phases = (ids: number[], anchor?: number): number[] => {
+      const values = ids.map(id => {
+        const d = M.sub(at(id), M.clone(chart.origin));
+        return chart.sign * Math.atan2(dot(d, M.clone(chart.v)), dot(d, M.clone(chart.u)));
+      });
+      if (anchor !== undefined) values[0] = anchor + Math.atan2(Math.sin(values[0]! - anchor), Math.cos(values[0]! - anchor));
+      for (let i = 1; i < values.length; ++i)
+        values[i] = values[i - 1]! + Math.atan2(Math.sin(values[i]! - values[i - 1]!), Math.cos(values[i]! - values[i - 1]!));
+      if (values.some((value, i) => i > 0 && value < values[i - 1]!))
+        throw new Error("An F1 hip boundary reverses its inferred physical ray chart");
+      return values;
+    };
+    const rows: Row[] = source.guidedRows.map(({ station, points: observed, phases: measured, reversals }): Row => {
+      if (reversals.length !== 0) throw new Error("An observed F1 hip section has no single-valued geometric chart");
+      const raw: V3[] = observed.map(M.clone);
       const first = endpoint(raw[0]!), last = endpoint(raw.at(-1)!);
-      return { station, ids: [first.id, ...Mesh.vertices(mesh, raw.slice(1, -1)), last.id], ends: [first.arc, last.arc] };
+      return { station, ids: [first.id, ...Mesh.vertices(mesh, raw.slice(1, -1)), last.id], ends: [first.arc, last.arc], phases: measured };
     });
     splitExit(mesh, exit, insertions);
     const exitSamples: { id: number; arc: number }[] = [
@@ -116,74 +125,104 @@ export namespace AutoMovieHumanLegF1Hip {
     const pending: number[] = [];
     const first: Row = rows[0]!;
     const initial: number[] = [...first.ids, ...walk(first.ends[1], first.ends[0], 1)];
-    const initialPoints: V3[] = initial.map(at);
-    const initialIds: Map<V3, number> = new Map(initialPoints.map((point, i): [V3, number] => [point, initial[i]!]));
-    World.stitchRows(start, World.forkClock(initialPoints, frame).map(point => initialIds.get(point)!), mesh.positions, pending, "length");
-    // Every ordinary strip advances adjacent measured arc-length phases.
-    // The end-plane guides are actual source curves, not straight cap chords.
-    for (let i: number = 1; i < rows.length; ++i) {
-      const a: Row = rows[i - 1]!, b: Row = rows[i]!;
-      ribbon(mesh, a.ids, b.ids, walk(a.ends[0], b.ends[0], 1), walk(a.ends[1], b.ends[1], -1), pending);
+    const closed = (raw: number[]): { ids: number[]; clock: number[] } => {
+      const ordered = raw.map(id => {
+        const d = M.sub(at(id), M.clone(chart.origin));
+        return { id, phase: chart.sign * Math.atan2(dot(d, M.clone(chart.v)), dot(d, M.clone(chart.u))) };
+      }).sort((a, b) => a.phase - b.phase);
+      const ids = ordered.map(item => item.id), index = raw.indexOf(ids[0]!);
+      const step = raw[(index + 1) % raw.length] === ids[1] ? 1 : -1;
+      if (ids.some((id, i) => id !== raw[(index + step * i + raw.length) % raw.length]))
+        throw new Error("A closed F1 hip support is not single-valued on the source chart");
+      return { ids, clock: [...ordered.slice(1).map(item => item.phase), ordered[0]!.phase + 2 * Math.PI] };
+    };
+    let previous = closed(start);
+    // The lowest added station is a closed contour touching the exact exit
+    // corner once. Keep its closed identity and its observed contact ownership;
+    // the ordinary tiler's seam is that same indexed point, not a cut or weld.
+    const contacts = source.cornerSections.filter(section => section.station < first.station &&
+      section.loops.length === 1 && section.loops[0]!.closed);
+    for (const section of contacts.sort((a, b) => a.station - b.station)) {
+      const loop = section.loops[0]!;
+      if (loop.contacts.length !== 1) throw new Error("A closed F1 hip support has ambiguous boundary contact");
+      const contact = loop.contacts[0]!, contactId = exit[section.exit]!;
+      const ids = loop.points.map((point, i) => i === contact.vertex ? contactId : Mesh.vertices(mesh, [M.clone(point)])[0]!);
+      const next = closed(ids);
+      World.stitchRows(previous.ids, next.ids, mesh.positions, pending, [previous.clock, next.clock]);
+      previous = next;
     }
-    const last: Row = rows.at(-1)!;
-    const cap: number[] = [last.ids[0]!, ...walk(last.ends[0], last.ends[1], 1), last.ids.at(-1)!];
-    // These two observed open curves share their actual indexed endpoints.
-    ribbon(mesh, last.ids, cap, [], [], pending);
+    const compound = closed(initial), shared = previous.ids.filter(id => compound.ids.includes(id));
+    if (shared.length === 0) World.stitchRows(previous.ids, compound.ids, mesh.positions, pending, [previous.clock, compound.clock]);
+    else {
+      if (shared.length !== 1) throw new Error("A critical F1 hip support has more than its observed single contact");
+      const walkFrom = (ids: number[]): number[] => {
+        const k = ids.indexOf(shared[0]!);
+        return [...ids.slice(k), ...ids.slice(0, k), shared[0]!];
+      };
+      const a = walkFrom(previous.ids), b = walkFrom(compound.ids), firstPhase = phases(a);
+      ribbon(mesh, a, b, [], [], firstPhase, phases(b, firstPhase[0]), pending);
+    }
+    // Input phases are an inferred fixed geometric chart. They are not claimed
+    // as material identities. Independent .5 mm, normal and crossing gates
+    // decide the whole candidate; no source position is changed to pass them.
+    for (let i = 1; i < rows.length; ++i) {
+      const a = rows[i - 1]!, b = rows[i]!;
+      ribbon(mesh, a.ids, b.ids, walk(a.ends[0], b.ends[0], 1), walk(a.ends[1], b.ends[1], -1),
+        a.phases, b.phases, pending);
+    }
+    const last = rows.at(-1)!;
+    const cap = [last.ids[0]!, ...walk(last.ends[0], last.ends[1], 1), last.ids.at(-1)!];
+    ribbon(mesh, last.ids, cap, [], [], last.phases, phases(cap, last.phases[0]), pending);
     orient(mesh.indices, pending);
     mesh.indices.push(...pending);
   }
 
   /**
-   * Ordinary open-curve zipper, using the same measured arc-length clock as
-   * World.stitchRows. Positions stay absolute world mm (+X forward, +Y up,
-   * negative Z on the left); phases alone are dimensionless.
-   *
-   * Each tile advances one adjacent source knot. No arbitrary region fan can
-   * connect opposite sides of a curved U-shaped section. All intermediate
-   * exit-guide indices enter the two boundary walks at endpoint phases 0/1.
-   * Their first neighbour is an interior section knot, so a planar end cap
-   * is not substituted for the actual source skin near a guide.
-   *
-   * A shared cap endpoint is the same declared index on both walks. Only
-   * triangles repeating that index are omitted; distinct degenerate source
-   * points are refused, never moved, epsilon-welded or silently removed.
+   * Ordinary source-curve loft on an explicitly inferred physical ray chart.
+   * Every tile advances an adjacent observed knot; guide corners are actual
+   * source-plane events, not phase-0/1 fans. Shared cap/contact endpoints keep
+   * the same indices and only repeated-index zero-domain tiles are omitted.
+   * Coordinates are world mm; phases are radians. This does not certify G1.
    */
-  function ribbon(mesh: Context, lower: number[], upper: number[], left: number[], right: number[], indices: number[]): void {
-    const clock = (row: number[]): number[] => {
-      let length: number = 0;
-      const values: number[] = [0];
-      for (let i: number = 1; i < row.length; ++i) {
-        length += Math.hypot(...M.sub(Mesh.position(mesh, row[i]!), Mesh.position(mesh, row[i - 1]!)));
-        values.push(length);
-      }
-      if (!(length > 0)) throw new Error("An observed F1 open loft curve has no length");
-      return values.map(value => value / length);
-    };
-    const walk = (ids: number[], phases: number[]): { id: number; phase: number }[] =>
-      ids.flatMap((id, i): { id: number; phase: number }[] =>
-        i > 0 && id === ids[i - 1] ? [] : [{ id, phase: phases[i]! }]);
-    const a = walk([...lower, ...right, upper.at(-1)!], [...clock(lower), ...right.map((): number => 1), 1]);
-    const b = walk([lower[0]!, ...left, ...upper], [0, ...left.map((): number => 0), ...clock(upper)]);
-    if (a.length < 2 || b.length < 2 || a[0]!.id !== b[0]!.id || a.at(-1)!.id !== b.at(-1)!.id)
-      throw new Error("An observed F1 ribbon does not retain its common guide endpoints");
+  function ribbon(mesh: Context, lower: number[], upper: number[], left: number[], right: number[],
+    a: number[], b: number[], indices: number[]): void {
+    const begin = indices.length;
     const emit = (x: number, y: number, z: number): void => {
       if (x === y || y === z || z === x) return;
-      const u: V3 = M.sub(Mesh.position(mesh, y), Mesh.position(mesh, x));
-      const v: V3 = M.sub(Mesh.position(mesh, z), Mesh.position(mesh, x));
-      const area: number = Math.hypot(u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]);
-      if (!(area > 0 && Number.isFinite(area))) throw new Error("Distinct measured F1 source knots collapse an ordinary loft tile");
+      const u = M.sub(Mesh.position(mesh, y), Mesh.position(mesh, x)), v = M.sub(Mesh.position(mesh, z), Mesh.position(mesh, x));
+      if (!(Math.hypot(u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]) > 0))
+        throw new Error("Distinct source hip knots collapse their ordinary loft tile");
       indices.push(x, y, z);
     };
-    // Establish the first interior source neighbour before consuming the
-    // left guide; equal terminal phases consume the entire right guide.
-    let i: number = 1, j: number = 0;
-    emit(a[0]!.id, a[i]!.id, b[0]!.id);
-    while (i + 1 < a.length || j + 1 < b.length) {
-      const x: number = a[i]!.id, y: number = b[j]!.id;
-      if ((a[i + 1]?.phase ?? Infinity) <= (b[j + 1]?.phase ?? Infinity))
-        emit(x, a[++i]!.id, y);
-      else emit(x, b[++j]!.id, y);
+    let i = 0, j = 0;
+    while (i + 1 < lower.length || j + 1 < upper.length) {
+      const x = lower[i]!, y = upper[j]!;
+      if ((a[i + 1] ?? Infinity) <= (b[j + 1] ?? Infinity)) emit(x, lower[++i]!, y);
+      else emit(x, upper[++j]!, y);
     }
+    // Consecutive corner planes partition the original exit guide into one
+    // straight source edge. Retain all prior subdivision points on that edge,
+    // without replacing it with a chord across a bent boundary.
+    const subdivide = (from: number, to: number, middle: number[]): void => {
+      if (middle.length === 0) return;
+      const p = Mesh.position(mesh, from), d = M.sub(Mesh.position(mesh, to), p), l2 = d.reduce((sum, v) => sum + v * v, 0);
+      for (const id of middle) {
+        const q = Mesh.position(mesh, id), along = M.sub(q, p).reduce((sum, v, k) => sum + v * d[k]!, 0) / l2;
+        if (along < 0 || along > 1 || Math.hypot(...M.sub(q, M.add(p, M.scale(d, along)))) > 1e-8)
+          throw new Error("An F1 exit guide still contains an unrepresented physical corner");
+      }
+      for (let f = begin; f < indices.length; f += 3) for (let k = 0; k < 3; ++k) {
+        const x = indices[f + k]!, y = indices[f + (k + 1) % 3]!;
+        if (!((x === from && y === to) || (x === to && y === from))) continue;
+        const z = indices[f + (k + 2) % 3]!, walk = x === from ? [from, ...middle, to] : [to, ...middle.slice().reverse(), from];
+        const replacement: number[] = [];
+        for (let n = 1; n < walk.length; ++n) replacement.push(walk[n - 1]!, walk[n]!, z);
+        indices.splice(f, 3, ...replacement); return;
+      }
+      throw new Error("An observed F1 guide has no ordinary boundary edge");
+    };
+    subdivide(lower[0]!, upper[0]!, left);
+    subdivide(lower.at(-1)!, upper.at(-1)!, right);
   }
 
   /** Split only the existing s136 boundary triangles at exact measured rail endpoints. */

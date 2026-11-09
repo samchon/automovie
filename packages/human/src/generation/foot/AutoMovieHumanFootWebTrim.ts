@@ -165,4 +165,57 @@ export namespace AutoMovieHumanFootWebTrim {
     return Math.max(directed(a, b), directed(b, a));
   }
 
+  /**
+   * Loft actual parallel F1 root sections in one fixed physical ray chart.
+   * World positions remain millimetres (+X forward, +Y up, left negative Z).
+   * The chart is geometric correspondence, not a measured material label.
+   * It refuses a non-single-valued contour; no minimum-area fan, source mesh,
+   * tolerance change or coordinate weld supplies a missing correspondence.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Ordered observed cross-sections share the actual root axes; all boundary knots and every intermediate curve are retained by adjacent ordinary tiles.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A reversed ray order or collapsed distinct tile is refused; the caller owns exact boundary orientation and the final independent surface gates.
+   */
+  export function f1RootLoft(
+    positions: number[], lower: number[], upper: number[], frame: Frame, sections: readonly (readonly V3[])[],
+  ): number[] {
+    const point = (id: number): V3 => [positions[3 * id]!, positions[3 * id + 1]!, positions[3 * id + 2]!];
+    const order = (raw: number[]): { ids: number[]; phases: number[] } => {
+      const angles = raw.map(id => {
+        const d = sub(point(id), frame.origin as V3);
+        return Math.atan2(Geometry.dot(d, frame.v as V3), Geometry.dot(d, frame.u as V3));
+      });
+      const sorted = raw.map((_, i) => i).sort((a, b): number => angles[a]! - angles[b]!);
+      const first = sorted[0]!, step = sorted[1] === (first + 1) % raw.length ? 1 : -1;
+      if (sorted.some((index, i): boolean => index !== (first + step * i + raw.length) % raw.length) ||
+        sorted.some((index, i): boolean => i > 0 && !(angles[index]! > angles[sorted[i - 1]!]!)))
+        throw new Error("An observed F1 root curve is not single-valued on its actual ray chart");
+      return { ids: sorted.map(i => raw[i]!), phases: sorted.map(i => angles[i]!) };
+    };
+    const rows: number[][] = [lower];
+    for (const section of sections) rows.push(section.map(value => {
+      const id = positions.length / 3;
+      positions.push(value[0], value[1], value[2]); return id;
+    }));
+    rows.push(upper);
+    const prepared = rows.map(order), indices: number[] = [];
+    for (let k = 1; k < prepared.length; ++k) {
+      const a = prepared[k - 1]!, b = prepared[k]!;
+      const clocks = (row: typeof a): number[] => [...row.phases.slice(1), row.phases[0]! + 2 * Math.PI];
+      const ca = clocks(a), cb = clocks(b);
+      let i = 0, j = 0;
+      while (i < a.ids.length || j < b.ids.length) {
+        const x = a.ids[i % a.ids.length]!, y = b.ids[j % b.ids.length]!;
+        if ((ca[i] ?? Infinity) < (cb[j] ?? Infinity)) indices.push(x, y, a.ids[++i % a.ids.length]!);
+        else indices.push(x, y, b.ids[++j % b.ids.length]!);
+      }
+    }
+    for (let i = 0; i < indices.length; i += 3) {
+      const a = point(indices[i]!), b = point(indices[i + 1]!), c = point(indices[i + 2]!);
+      if (!(Math.hypot(...Geometry.cross(sub(b, a), sub(c, a))) > 0))
+        throw new Error("Distinct observed F1 transverse sections collapse an ordinary root tile");
+    }
+    return indices;
+  }
+
+
 }
