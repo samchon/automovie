@@ -1,16 +1,16 @@
 import {
-  preparePhysicalGeometry,
-  Quaternion,
-  Vector3,
   type AutoMovieComposition,
   type AutoMoviePhysicsCache,
   type IAutoMovieSchedule,
+  Quaternion,
+  Vector3,
+  preparePhysicalGeometry,
 } from "@automovie/engine";
+import { resolveAutoMovieHumanCalibration } from "@automovie/human";
 import type {
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
-import { resolveAutoMovieHumanCalibration } from "@automovie/human";
 import { createAutoMovieHttpArtifactStore } from "@automovie/render";
 import * as THREE from "three";
 
@@ -34,6 +34,7 @@ import { FinishSight } from "../../../interactions/cinematography/FinishSight";
 import { BoutLaws } from "../../../interactions/kickboxing/BoutLaws";
 import { BoutPerformance } from "../../../interactions/kickboxing/BoutPerformance";
 import { ContactReceipts } from "../../../interactions/kickboxing/ContactReceipts";
+import { DisplayedPicture } from "../../../interactions/kickboxing/DisplayedPicture";
 import type { IRingCast } from "../../../interactions/kickboxing/IRingCast";
 import { RefereePerformance } from "../../../interactions/officiating/RefereePerformance";
 import { RefereeTrack } from "../../../interactions/officiating/RefereeTrack";
@@ -155,10 +156,20 @@ export class RingStage {
         Quaternion.rotateVector(s.rotation, region.localPoint),
       );
     }
+    progress?.("Measuring the picture");
+    const picture: Record<string, number> = DisplayedPicture.measures(
+      cast,
+      schedule,
+      performance,
+      referee,
+      camera,
+      duration,
+    );
     const cues: SoundCues.ICue[] = SoundCues.of(
       seed,
       schedule,
       measured.receipts,
+      duration,
     );
     const scene: THREE.Scene = new THREE.Scene();
     scene.background = new THREE.Color(RingStage.BACKGROUND);
@@ -198,6 +209,8 @@ export class RingStage {
       const shot = CameraTrack.at(camera, seconds);
       view.position.set(shot.position.x, shot.position.y, shot.position.z);
       view.lookAt(shot.target.x, shot.target.y, shot.target.z);
+      // The lens zooms with the shot (CameraTrack's per-sample field of view).
+      view.fov = (shot.fieldOfView * 180) / Math.PI;
       view.updateProjectionMatrix();
       last = {
         [cast.a.id]: bodies[cast.a.id]!.segments,
@@ -259,10 +272,15 @@ export class RingStage {
             ]
           : []),
       ],
-      measures:
-        clearance === undefined || framing === undefined
+      measures: {
+        ...picture,
+        "foreground-overlap": SoundCues.overlap(
+          cues.filter((c) => c.asset !== SoundCues.BED),
+        ),
+        ...(clearance === undefined || framing === undefined
           ? {}
-          : { "finish-clearance": clearance, "finish-in-frame": framing },
+          : { "finish-clearance": clearance, "finish-in-frame": framing }),
+      },
       receipts: measured.receipts,
       cues,
       seek,
@@ -303,19 +321,19 @@ export class RingStage {
   /**
    * Human's body calibrations of the cast, read from the development
    * server's artifact store under the digest of Human's source (computed and
-   * stored on a miss), with the digest of this production's source that the
-   * frame digest carries. Outside the development server, nothing: every
-   * body calibrates itself and the page publishes no frame digest.
+   * stored on a miss), with that Human package identity the frame digest
+   * carries. Outside the development server, nothing: every body calibrates
+   * itself and the page publishes no frame digest.
    *
-   * @returns The calibrations and the production's source digest.
+   * @returns The calibrations and the Human package's source digest.
    */
   public static async calibrate(): Promise<{
     calibrations: RingStage.ICalibrations;
     source?: string;
   }> {
-    const response: Response | undefined = await fetch(
-      RingStage.SOURCES,
-    ).catch((): undefined => undefined);
+    const response: Response | undefined = await fetch(RingStage.SOURCES).catch(
+      (): undefined => undefined,
+    );
     if (!response?.ok) return { calibrations: {} };
     const sources = (await response.json()) as {
       human: string;
@@ -329,7 +347,7 @@ export class RingStage {
       resolveAutoMovieHumanCalibration(fighterA.parameters, options),
       resolveAutoMovieHumanCalibration(RefereeBody.PARAMETERS, options),
     ]);
-    return { calibrations: { fighter, referee }, source: sources.production };
+    return { calibrations: { fighter, referee }, source: sources.human };
   }
 
   /** The development server's artifact store. */

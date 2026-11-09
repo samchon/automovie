@@ -1,4 +1,4 @@
-import { Vector3, type IAutoMovieSchedule } from "@automovie/engine";
+import { type IAutoMovieSchedule, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { Fighter } from "../../entities/cast/fighter/Fighter";
@@ -8,14 +8,16 @@ import type { IBoutPosture } from "../../laws/kickboxing/IBoutPosture";
 import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
 import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
 import { KickboxingTiming } from "../../laws/kickboxing/KickboxingTiming";
+import { KneeSupport } from "../../laws/kickboxing/KneeSupport";
 import { KnockdownShape } from "../../laws/kickboxing/KnockdownShape";
 import type { RingFootwork } from "../../laws/kickboxing/RingFootwork";
 import { StanceShape } from "../../laws/kickboxing/StanceShape";
-import { StepPattern } from "../../laws/kickboxing/StepPattern";
 import { StrikeShape } from "../../laws/kickboxing/StrikeShape";
 import { blendPosture } from "../../laws/kickboxing/blendPosture";
 import { BoutLaws } from "./BoutLaws";
+import { GuardRhythm } from "./GuardRhythm";
 import type { IRingCast } from "./IRingCast";
+import { PlantedFeet } from "./PlantedFeet";
 
 /**
  * A fighter's shape-prior posture and floor frame at one second, from the
@@ -31,7 +33,7 @@ import type { IRingCast } from "./IRingCast";
  *
  * @evidence docs/research/kickboxing/techniques.md#laws Shapes in the performer's frame, bent toward the receiver's actual region.
  * @evidence docs/research/kickboxing/ring-generalship.md#movements Origins and facing from the footwork.
- * @evidence docs/research/kickboxing/ring-generalship.md#sources Alternating steps.
+ * @evidence docs/research/kickboxing/ring-generalship.md#sources Alternating steps, placed by {@link PlantedFeet}.
  * @evidence docs/research/kickboxing/techniques.md#surfaces Punches track the head until launch; kicks commit at the chamber key.
  */
 export namespace FighterPosture {
@@ -103,7 +105,7 @@ export namespace FighterPosture {
       x: look.x - lookFrom.x,
       z: look.z - lookFrom.z,
     });
-    const feet: Record<"left" | "right", IAutoMovieVector3> = planted(
+    const feet: Record<"left" | "right", IAutoMovieVector3> = PlantedFeet.at(
       fighter,
       schedule,
       here,
@@ -115,7 +117,11 @@ export namespace FighterPosture {
       y: 0,
       z: here.point.z,
     };
-    const guard: IBoutPosture = StanceShape.guard(measure);
+    const switching = PlantedFeet.switching(here, measure);
+    const guard: IBoutPosture =
+      switching === null
+        ? StanceShape.guard(measure)
+        : { ...StanceShape.guard(measure), yaw: switching.yaw };
     const rest: Record<"left" | "right", IAutoMovieVector3> = local(
       feet,
       origin,
@@ -123,6 +129,8 @@ export namespace FighterPosture {
       guard.yaw,
     );
     let posture: IBoutPosture = guard;
+    // The turnover rises onto a straightened support (brazilian-kick.md#law).
+    let rising: boolean = false;
     for (const entry of schedule.entries) {
       if (entry.subject !== subject || entry.start > seconds) continue;
       const action = read(entry);
@@ -171,7 +179,10 @@ export namespace FighterPosture {
             answered(schedule, entry.intent.anchor) ?? "",
           ),
         });
-        if (struck) posture = merge(posture, struck, guard, rest);
+        if (struck) {
+          posture = merge(posture, struck, guard, rest);
+          rising ||= spec.line === "descending";
+        }
       } else if (action.kind === "answer") {
         if (seconds >= entry.end) continue;
         const scale: number = action.answer === "take" ? REACTION_SCALE : 1;
@@ -225,6 +236,56 @@ export namespace FighterPosture {
         else if (action.phase === "victory")
           posture = CelebrationShape.posture(measure, guard, t);
       }
+    }
+    // Between busy actions the guard keeps its rhythm.
+    if (seconds < after && !corner)
+      posture = GuardRhythm.apply(posture, measure, schedule, subject, seconds);
+    // Standing, the supporting knees keep their least bend: both in the
+    // fighting stance; at least one upright in the corner and the
+    // celebration, and the support knee under a raised kicking or checking
+    // leg, which itself carries no weight. The fall is exempt.
+    if (seconds < after && !rising) {
+      const raised: boolean =
+        posture.feet.left !== null || posture.feet.right !== null;
+      const upright: boolean =
+        raised || corner || movedTo(schedule, subject, seconds, ["celebrate"]);
+      // The planted feet in the root frame of the final body turn. A foot
+      // swinging through a step counts at the floor, so the stance's sink is
+      // kept while moving and the stepping leg never reaches out straight.
+      const turn: number = posture.yaw - guard.yaw;
+      const c: number = Math.cos(turn);
+      const s: number = Math.sin(turn);
+      const planted = (side: "left" | "right"): IAutoMovieVector3 | null =>
+        posture.feet[side] !== null
+          ? null
+          : {
+              x: rest[side].x * c - rest[side].z * s,
+              y: Math.min(rest[side].y, measure.ankle),
+              z: rest[side].x * s + rest[side].z * c,
+            };
+      posture = {
+        ...posture,
+        drop: Math.max(
+          posture.drop,
+          KneeSupport.drop(
+            measure,
+            KneeSupport.legs(
+              measure,
+              { left: planted("left"), right: planted("right") },
+              posture.shift,
+            ),
+            // A kick's support knee keeps the upright floor, the turnover's
+            // rise onto a straightened support excepted; standing upright
+            // takes the weight at the loading-response bend.
+            raised
+              ? KneeSupport.UPRIGHT
+              : upright
+                ? KneeSupport.LOADED
+                : KneeSupport.STANCE,
+            upright ? "one" : "both",
+          ),
+        ),
+      };
     }
     return { posture, frame: { origin, facing, feet } };
   }
@@ -374,62 +435,6 @@ export namespace FighterPosture {
         e.start + (e.end - e.start) * 0.5 <= seconds
       );
     });
-  }
-
-  /** World ankle points of the planted feet: stance placements about the origin on the step pattern. */
-  function planted(
-    fighter: Fighter,
-    schedule: IAutoMovieSchedule,
-    here: ReturnType<typeof BoutLaws.origin>,
-    facing: { x: number; z: number },
-    cast: IRingCast,
-  ): Record<"left" | "right", IAutoMovieVector3> {
-    const stance = StanceShape.feet(fighter.body.measure);
-    const place = (
-      point: RingFootwork.IPoint,
-      side: "left" | "right",
-      lift: number,
-    ): IAutoMovieVector3 => {
-      const p = stance[side];
-      return {
-        x: point.x + facing.x * p.x - facing.z * p.z,
-        y: p.y + lift * fighter.body.measure.ankle * StepPattern.LIFT_SHARE,
-        z: point.z + facing.z * p.x + facing.x * p.z,
-      };
-    };
-    if (!here.moving)
-      return {
-        left: place(here.point, "left", 0),
-        right: place(here.point, "right", 0),
-      };
-    const { entry, share, from, about } = here.moving;
-    const action = KickboxingAction.read(entry.intent);
-    if (action.kind !== "move") throw new Error("unreachable");
-    const to: RingFootwork.IPoint = (entry.state as BoutLaws.IState).origin!;
-    const first: "left" | "right" = StepPattern.leading(from, to, facing);
-    const along = (s: number): RingFootwork.IPoint =>
-      BoutLaws.origin(
-        schedule,
-        fighter.id,
-        entry.start + s * (entry.end - entry.start),
-        cast,
-      ).point;
-    void about;
-    const foot = (side: "left" | "right"): IAutoMovieVector3 => {
-      const f = StepPattern.foot({ steps: action.steps, first, share }, side);
-      const a: IAutoMovieVector3 = place(along(f.from), side, 0);
-      const b: IAutoMovieVector3 = place(along(f.to), side, 0);
-      const s: number = f.swing >= 1 ? 1 : f.swing;
-      return {
-        ...Vector3.lerp(a, b, s),
-        y:
-          a.y +
-          StepPattern.lift(f.swing) *
-            fighter.body.measure.ankle *
-            StepPattern.LIFT_SHARE,
-      };
-    };
-    return { left: foot("left"), right: foot("right") };
   }
 
   /** World points into the posture's root frame (after the posture yaw). */

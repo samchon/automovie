@@ -24,12 +24,16 @@ Dutch kickboxing, as taught by Ernesto Hoost, Peter Aerts and Ramon Dekkers, thr
 - [Bloody Elbow: Dutch Muay Thai moves to remember](https://bloodyelbow.com/2018/05/10/dutch-muay-thai-moves-to-remember-part-1-ernesto-hoost-k1-peter-aerts-ramon-dekkers-rob-kaman-glory)
 - [Evolve MMA: Dutch kickboxing's influence on modern Muay Thai](https://evolve-mma.com/blog/the-influence-of-dutch-kickboxing-on-modern-muay-thai-fighters/)
 - [GLORY: The Art of Low Kicks](https://glorykickboxing.com/news/the-art-of-low-kicks)
+- [Muay Thai Guy: how to KO and break legs with leg kicks](https://www.muay-thai-guy.com/blog/how-to-ko-and-break-legs-with-leg-kicks)
+- [Evolve MMA: 5 effective low-kick combinations in Muay Thai](https://evolve-mma.com/blog/5-effective-low-kicks-combinations-in-muay-thai/)
+
+Coaches time the low kick to the moment the receiver's weight sits on the target leg: as he steps, or after a setup loads the lead leg, such as a body shot that brings the elbows down or a hook that pushes the weight sideways. A faked low kick followed by a cross punishes a receiver who checks early.
 
 Law: a combination is two to five strikes of one fighter whose launches follow each other at the [combination intervals](techniques.md#punch-timing); a kick in it stands first or last. A hook to the body or head before a rear low kick loads the receiver's lead leg, so a low kick that follows a hook in the same combination lands unless the receiver is already standing on one leg to check.
 
 ## Defense keeps attacking {#defense}
 
-Checking raises the bent lead leg so the shin meets the incoming kick. Coaches stress countering at once from the check, before the kicker recovers; a late counter gives the kicker time for another attack. Elite counter-strikers such as Giorgio Petrosyan work at the edge of punching range, slip or step back into counters, and draw predictable returns by attacking the guard.
+Checking raises the bent lead leg so the shin meets the incoming kick. The check must start early: a shin still rising when the kick arrives lets it land. Coaches stress countering at once from the check, firing off its rebound as the foot lands, before the kicker recovers; a late counter gives the kicker time for another attack. Elite counter-strikers such as Giorgio Petrosyan work at the edge of punching range, slip or step back into counters, and draw predictable returns by attacking the guard.
 
 - [Evolve MMA: how to check kicks](https://evolve-mma.com/blog/how-to-check-kicks-in-muay-thai)
 - [Diesel Gym: how to defend low kicks](https://dieselgym.co.uk/how-to-defend-low-kicks-diesel-technique-of-the-week/)
@@ -44,7 +48,7 @@ A drag or hip-turn feint of the rear low kick makes the opponent lift his leg to
 - [Dynamic Striking: attacks off the jab with Jake Mainini](https://dynamicstriking.com/blogs/news/attacks-off-the-jab-with-jake-mainini)
 - [Evolve MMA: advanced striking set-ups and combinations](https://evolve-mma.com/blog/20-advanced-mma-striking-set-ups-and-combinations-you-should-add-to-your-arsenal/)
 
-Law: a feint shows the first part of a real technique and returns along the same path, so its timing is the shown technique's own: a pump jab shows half of the jab's delivery, a low-kick or body-kick feint shows the kick up to its chamber key. The receiver reads the shown technique and starts that technique's answer; the answer holds until the feint has returned. The attack that follows strikes the region the answer opened.
+Law: a feint shows the first part of a real technique and returns along the same path, so its timing is the shown technique's own: a pump jab shows half of the jab's delivery, a low-kick or body-kick feint shows the kick up to its chamber key. The receiver reads the shown technique and starts that technique's answer; the answer holds until the feint has returned. The attack that follows strikes the region the answer opened. A shoulder feint is a slight level change with a small forward step that pushes the lead shoulder toward the opponent ([The Arena Gym: feints and level changes in kickboxing](https://thearenagym.com/using-feints-and-level-changes-to-land-punches-in-kickboxing/), [Fight Primer: Israel Adesanya](https://www.fightprimer.com/advanced-striking-20-israel-adesanya-bit-of-a-weeb-tho)): the film shows the first 0.3 of the jab's delivery, its entry step carried as every strike's is, and it draws the rear-glove parry; a feint is judged by the reaction it draws, a raised guard, a lean back or a step aside ([Evolve: the importance of feints](https://evolve-vacation.com/blog/the-importance-of-using-feints-in-boxing-muay-thai/)), so the receiver's answer is displayed, never only labelled; a level feint shows the first 0.3 of the body cross's delivery, the knees bending to change level, and draws the elbow block over the ribs. A stance switch exchanges the lead and rear feet in place on their own tracks and turns the body into the opposite stance; the film's switch returns to orthodox within the movement, because every technique shape is orthodox.
 
 ## Habits and patterns {#habits}
 
@@ -87,14 +91,18 @@ A landed blow moves the receiver's struck region away from it; a blocked, checke
 
 ## Output rate {#output}
 
-Public GLORY statistics are event- or fighter-specific rather than league averages. A heavyweight round in [GLORY's CroCop–Bonjasky numbers](https://glorykickboxing.com/news/by-the-numbers-crocop-vs-bonjasky) shows 24 and 31 strikes thrown. A [FightMetrics-based summary](https://fightforecast.substack.com/p/giga-chikadze-has-better-stats-in) credits Giga Chikadze with 7.46 strikes landed per minute.
+Public GLORY statistics are event- or fighter-specific rather than league averages. A heavyweight round in [GLORY's CroCop–Bonjasky numbers](https://glorykickboxing.com/news/by-the-numbers-crocop-vs-bonjasky) shows 24 and 31 strikes thrown in the round, 8 to 10 per minute of a three-minute round. A [FightMetrics-based summary](https://fightforecast.substack.com/p/giga-chikadze-has-better-stats-in) credits Giga Chikadze with 7.46 strikes landed per minute.
+
+GLORY's career figures count strikes landed per minute of fight time, feints not being strikes: [Giorgio Petrosyan](https://glorykickboxing.com/fighters/giorgio-petrosyan) lands 8.22 at 48.7% accuracy, so he throws about 16.9; [Rico Verhoeven](https://www.mmaplus.co.uk/kickboxing/glory-ws/head-2-head-verhoeven-vs-brestovac/) lands 10.26 and [Alex Pereira](https://fightforecast.substack.com/p/comparing-the-striking-power-of-glory) 10.30, about 20 to 22 thrown at the same near-half accuracy. Elite GLORY fighters therefore throw about 16 to 22 strikes per minute; the CroCop–Bonjasky heavyweight round sits below that band.
 
 ## Measurable targets {#targets}
 
 A composed round meets these targets, measured on its resolved schedule:
 
+Measured on the displayed film (window.__afReport().measures): each fighter's strikes thrown per minute of action inside 16–22 and landed inside 8–11, stated from GLORY's own statistics, where Petrosyan lands 8.22 per minute at 48.7% accuracy and Verhoeven and Pereira 10.26 and 10.30 ([GLORY: Giorgio Petrosyan](https://glorykickboxing.com/fighters/giorgio-petrosyan), [MMA Plus: Verhoeven vs Brestovac](https://www.mmaplus.co.uk/kickboxing/glory-ws/head-2-head-verhoeven-vs-brestovac/), [Fight Forecast: comparing the striking power of GLORY](https://fightforecast.substack.com/p/comparing-the-striking-power-of-glory)). These sources put thrown volume at about 17–21 per minute, against the schedule target of 20–40 below; the overlap is 20–22, and the screenplay owner reconciles the schedule target.
+
 - Exchanges start at intervals whose mean lies within one standard deviation of 3.4 s (Ouergui, consecutive high-intensity actions).
 - At least 75% of strikes are thrown inside combinations of two or more, and at least 85% of exchanges contain a combination. This is denser than the roughly two thirds Romanenko observed, because the film compresses a championship round into 150 seconds of action; the exceptions are single counters, the range-resetting teep and the clinch knee.
 - Every kick prepares or finishes a combination, except checks, teeps and the clinch knee.
-- Each fighter throws between 20 and 40 strikes per minute of action, bracketing the observed rounds and the film's compression.
+- Each fighter throws between 16 and 22 strikes per minute of round time, feints excluded: the [output rate](#output) band from GLORY's landed-per-minute figures divided by their near-half accuracy. An earlier 20–40 read the CroCop–Bonjasky per-round counts as per-minute rates and is withdrawn; those counts, 8 to 10 per minute for heavyweights, lie below the band. The film's two 80 kg champions throw at the elite band, so feints, not extra strikes, carry the activity between them.
 - Initiative changes hands: each fighter opens at least a third of the exchanges.

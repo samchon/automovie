@@ -1,6 +1,6 @@
 # Stage the screenplay for the camera
 
-Use this when screenplay beats become scene compositions, or when blocking, cameras or continuity change. [Entity work](../development/entities.md) chooses representations, [frame evaluation](timeline.md) owns time sampling and production owns the final edit. A shot list or an animated object without the required exchange does not realize a scene.
+Use this when screenplay beats become scene compositions, or when blocking, cameras or continuity change. [Entity work](../development/entities.md) chooses representations, [frame evaluation](timeline.md) owns time sampling and production owns the final edit.
 
 ## Decide the observable performance
 
@@ -12,7 +12,7 @@ Stage in the set's zones and landmarks, never in coordinates: each beat's spatia
 
 ## Direct the actual view
 
-Cameras and lights are entities whose behavior follows the action: a camera frames subjects by relation, reframes as they move, follows motivated action and cuts where the screenplay's camera decisions and the cinematography research place it. Keep spatial relations, screen direction, eye lines and reveal timing; deliberate discontinuity is valid when it serves the experience. Inspect subjects, contact and reaction at the delivered aspect and scale through the whole action, checking clipping, occlusion and competing detail in the actual camera frames; a subject box inside the frustum does not prove readable pixels.
+Cameras and lights are entities whose behavior follows the action: a camera frames subjects by relation, reframes as they move, follows motivated action and cuts where the screenplay's camera decisions and the cinematography research place it. Keep spatial relations, screen direction, eye lines and reveal timing; deliberate discontinuity is valid when it serves the experience. Inspect subjects, contact and reaction at the delivered aspect and scale through the whole action, checking clipping, occlusion and competing detail in the actual camera frames rather than in subject bounds.
 
 ## Carry state through the edit
 

@@ -15,8 +15,9 @@ import { polygonCast } from "../../../internal/polygonCast";
  *
  * Scenarios: every answer of a four-strike exchange shares its strike's
  * contact second and carries its anchor; outcomes are parried, blocked,
- * evaded, checked; the step-in rides the first strike and ends at the
- * combination's range, ending at the first strike's contact; a mismatched count or a
+ * evaded, checked; every strike's entry starts at its launch and ends at
+ * that strike's own range, a punch's at its contact, and the attacker exits
+ * to outside range; a mismatched count or a
  * foreign answer refuses; a phase lasts exactly its window, and with a last
  * anchor its contact lands exactly at the window's end; an overfull phase
  * refuses.
@@ -52,12 +53,26 @@ export function test_exchange(): void {
     answers.map((e) => e.outcome),
     ["parried", "blocked", "evaded", "checked"],
   );
-  const range = KickboxingRange.combination(a.body.measure, b.body.measure, [
+  const cycle = KickboxingRange.cycle(a.body.measure, b.body.measure, [
     "jab",
     "cross",
     "hook",
     "low-kick",
   ]);
+  const range = cycle.exit;
+  // Each strike's entry ends at its own range by its launch's step time.
+  for (const [k, strike] of strikes.entries()) {
+    const entry = schedule.entries.find(
+      (e) => e.intent.anchor === `x/${k}/entry`,
+    )!;
+    assert.ok(Math.abs(entry.start - strike.start) < 1e-12);
+    const at = BoutLaws.origin(schedule, "a", entry.end, cast).point;
+    const them = BoutLaws.origin(schedule, "b", entry.end, cast).point;
+    assert.ok(
+      Math.abs(Math.hypot(at.x - them.x, at.z - them.z) - cycle.entries[k]!) <
+        1e-9,
+    );
+  }
   const end = BoutLaws.origin(schedule, "a", schedule.duration, cast).point;
   const other = BoutLaws.origin(schedule, "b", schedule.duration, cast).point;
   assert.ok(
@@ -67,7 +82,7 @@ export function test_exchange(): void {
     exchange(cast, "y", b.jab(), a.slip()),
     { timing: boutTiming },
   );
-  const step = counter.entries.find((e) => e.intent.capability === "move")!;
+  const step = counter.entries.find((e) => e.intent.anchor === "y/0/entry")!;
   assert.ok(
     Math.abs(
       step.end -
@@ -98,7 +113,7 @@ export function test_exchange(): void {
   }).entries.find((e) => e.intent.anchor === "q/1")!;
   assert.ok(Math.abs(finish.contact! - 15) < 1e-9);
   assert.throws(() =>
-    RingPhase.fill(2, [
+    RingPhase.fill(1, [
       RingPhase.reset([a, "circle"]),
       exchange(cast, "r", a.jab().cross(), b.parry().slip()),
     ]),

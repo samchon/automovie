@@ -10,8 +10,8 @@ import type * as THREE from "three";
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment names what one mount holds; each member states what it owns and when it runs.
  * @evidence contracts/development/design.md#principled-representation Playback, seeking and capture all place the scene through one seek per second, so a second reached by any path draws the same state.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The four members the Viewer entry reads to draw, seek and release a film.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The members the Viewer entry reads to draw, seek and release a film, plus the two optional review sources it reads only when a review overlay or named view is requested.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists; named views move only a separate inspection camera, so the film camera and delivered captures are unchanged.
  */
 export interface IFilmProduction {
   /** Scene the Viewer renders, owned by this mount. */
@@ -33,6 +33,24 @@ export interface IFilmProduction {
     /** Inspection vector length per newton of step-mean force. */
     metresPerNewton: number;
   };
+
+  /**
+   * Optional named review cameras that the Viewer's `view` parameter selects,
+   * such as a side-on view, one behind each subject or a high 45° view; each
+   * places the inspection camera for the drawn second and leaves the film
+   * camera untouched.
+   */
+  views?: Readonly<
+    Record<
+      string,
+      (seconds: number) => {
+        /** Camera position in world metres. */
+        position: readonly [number, number, number];
+        /** Point the camera looks at, in world metres. */
+        target: readonly [number, number, number];
+      }
+    >
+  >;
 
   /**
    * Places every displayed object and the camera for an exact film second.

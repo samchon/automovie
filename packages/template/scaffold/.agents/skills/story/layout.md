@@ -15,6 +15,7 @@ Commit instructions, creative bodies and evidence answers. Review, naturalness a
 | `docs/body/scripts/NNN-part/NNN-episode.md` | Executable scenes and release partition, with part indexes |
 | `docs/body/screenplay/<film>.md`, or `NNN-part/NNN-episode.md` for several videos | Complete final audiovisual text, one file per delivered video, whose name the film and its media reuse; long work preserves its script partition |
 | `docs/research/index.md`, `docs/research/<discipline>/<topic>.md` | The source index and the studies of each practice and style: laws, outcome tables and measurable targets, under [research](planning/research.md) |
+| `references/`, ignored `references/private/` | Retained research originals: permitted copies, and those whose rights are unconfirmed |
 | `docs/acceptance/<film>.md` | The film's tracked acceptance checklist and its observed results, under [delivery review](../review/delivery.md) |
 | `docs/evidence/construction/{units,files}/<layer>/...` | Separate construction answers for units and whole files, including `files/research/` for the research studies |
 | Ignored `docs/review/{draft,final}/<layer>/<relative-file>.md` | Current independent unit reviews mirroring the actual body or working edition |

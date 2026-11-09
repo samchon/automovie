@@ -11,7 +11,8 @@ import type { IRingCast } from "../../../../interactions/kickboxing/IRingCast";
  *
  * Concretization: A's victory steps take him toward his own red corner, two
  * steps per second for eight steps, then he keeps celebrating in place; the
- * winner gesture follows the sweep.
+ * winner gesture follows the sweep: the referee walks to A and raises his
+ * arm, then crouches beside B from 171.200.
  *
  * @param cast The cast.
  * @returns The scene, aligned to the "Ten!" anchor at 167.000.
@@ -28,10 +29,10 @@ export function knockoutAndCelebration(cast: IRingCast): AutoMovieComposition {
   ): AutoMovieComposition => AutoMovieComposition.at("count-10", part, offset);
   return AutoMovieComposition.parallel(
     at(0.6, referee.signal("knockout", 1.2, "Knockout! Red wins!")),
-    at(1.8, referee.signal("winner", 0.2)),
+    at(1.8, referee.signal("winner", 2.4)),
     at(1.1, a.phase("victory", 11.9)),
     at(1.1, a.move("celebrate", 8)),
-    at(2, referee.signal("attend", 11)),
+    at(4.2, referee.signal("attend", 8.8)),
     at(3.1, bell.ring()),
   );
 }

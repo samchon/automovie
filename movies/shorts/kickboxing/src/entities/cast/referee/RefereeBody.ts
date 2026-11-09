@@ -154,6 +154,17 @@ export class RefereeBody {
       shank: length("leftLowerLeg", "leftFoot"),
       ankle: at("leftFoot").y,
       foot: 0.15 * 1.78,
+      // He stands upright, so each level's front surface stands over his
+      // origin: the head's radius, half the shoulder half-width of chest
+      // depth and the hip half-width of thigh.
+      front: {
+        head:
+          shape.kind === "sphere" || shape.kind === "capsule"
+            ? shape.radius
+            : 0,
+        body: Math.abs(at("leftUpperArm").z) / 2,
+        leg: Math.abs(at("leftUpperLeg").z),
+      },
     });
   }
 

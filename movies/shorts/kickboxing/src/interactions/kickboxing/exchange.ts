@@ -7,9 +7,11 @@ import { KickboxingTiming } from "../../laws/kickboxing/KickboxingTiming";
 import type { IRingCast } from "./IRingCast";
 
 /**
- * One exchange: the attacker steps in to the range his strikes need while
- * his first strike is delivered, as a stepping jab carries its own step
- * (IBA), throws them, and each of the receiver's answers is aligned to the strike it meets,
+ * One exchange as a range cycle: every strike carries its own entry, a
+ * step-in, lunge or slide from its launch that brings the attacker from
+ * where he stands into that strike's contact range, as a stepping jab
+ * carries its own step (IBA); after the last strike he steps back out to
+ * outside range. Each of the receiver's answers is aligned to the strike it meets,
  * starting at that strike's launch so its contact coincides with the
  * strike's contact. Strikes are anchored `<id>/<k>`; answers carry the anchor
  * they answer, so outcomes, contacts and reactions find their pair.
@@ -25,9 +27,10 @@ import type { IRingCast } from "./IRingCast";
  * @returns The exchange's composition.
  * @throws When the counts differ, a chain mixes subjects or a part is not of its kind.
  * @evidence docs/research/kickboxing/techniques.md#defenses A defense begins at the attack's launch and completes by its contact.
- * @evidence docs/research/kickboxing/techniques.md#reach The attacker closes to the shortest range his combination needs before the first launch.
+ * @evidence docs/research/kickboxing/techniques.md#reach Each strike enters to its own range; the attacker exits to outside range.
+ * @evidence docs/research/kickboxing/ring-generalship.md#exit The exit steps off the line toward the side the combination finished on.
  * @evidence docs/research/kickboxing/exchanges.md#combinations Strikes chain at the combination intervals.
- * @evidence docs/research/kickboxing/ring-generalship.md#movements Range: the attacker steps in before an exchange.
+ * @evidence docs/research/kickboxing/ring-generalship.md#movements Range: each strike's entry, then the step back out.
  */
 export function exchange(
   cast: IRingCast,
@@ -87,70 +90,73 @@ export function exchange(
       );
     },
   );
-  const range: number = KickboxingRange.combination(
+  const cycle = KickboxingRange.cycle(
     self.body.measure,
     other.body.measure,
     techniques,
   );
-  const first = KickboxingAction.read(anchored[0]!);
-  const seconds: number =
-    first.kind === "strike" ? KickboxingTiming.delivery(first.technique) : 0;
-  // A later kick that needs more room than the combination's range takes it
-  // while it chambers: the support foot slides back to that kick's own range.
-  // Punches never step back inside a combination.
-  const room: AutoMovieComposition[] = anchored.flatMap(
-    (intent: IAutoMovieIntent, k: number): AutoMovieComposition[] => {
+  // Each strike carries its own entry from its launch: a punch's step-in or
+  // drag lands with the punch, a kick's switch or slide is done by its
+  // chamber key, so the body arrives at that strike's own range.
+  const entries: AutoMovieComposition[] = anchored.map(
+    (intent: IAutoMovieIntent, k: number): AutoMovieComposition => {
       const strike = KickboxingAction.read(intent);
-      if (k === 0 || strike.kind !== "strike") return [];
-      const spec: KickboxingTechnique.ISpec =
-        KickboxingTechnique.table[strike.technique];
-      if (spec.limb !== "leg" || spec.shows) return [];
-      const own: number = KickboxingRange.of(
-        self.body.measure,
-        other.body.measure,
-        strike.technique,
-      );
-      if (own <= range) return [];
+      if (strike.kind !== "strike") throw new Error("unreachable");
       const lead: number = KickboxingTiming.delivery(
         strike.technique,
         strike.follows,
       );
-      const chamber: number = Math.min(lead, KickboxingTiming.KICK_CHAMBER);
-      return [
-        AutoMovieComposition.at(
-          `${id}/${k}`,
-          KickboxingAction.intent(attacker, {
+      // A kick's step is done by its chamber key, so it kicks from a planted
+      // support foot; a punch's step lands with the punch.
+      const kick: boolean =
+        KickboxingTechnique.performed(
+          KickboxingTechnique.table[strike.technique],
+        ).limb === "leg";
+      const seconds: number = kick
+        ? Math.min(lead, KickboxingTiming.KICK_CHAMBER)
+        : lead;
+      return AutoMovieComposition.at(
+        `${id}/${k}`,
+        KickboxingAction.intent(
+          attacker,
+          {
             kind: "move",
-            movement: "separate",
-            steps: APPROACH_STEPS,
-            range: own,
-            seconds: chamber,
-          }),
-          -lead,
+            movement: "approach",
+            steps: ENTRY_STEPS,
+            range: cycle.entries[k]!,
+            seconds,
+          },
+          `${id}/${k}/entry`,
         ),
-      ];
+        -lead,
+      );
     },
   );
+  // After the last strike the attacker steps off the line back out to
+  // outside range in one push-off beat, toward the side he finished on: a
+  // lead-hand or lead-leg finish to the lead side, a rear finish to the rear
+  // side (ring-generalship.md#exit). The referee keeps his own clearance on
+  // his track.
+  const last: KickboxingTechnique.ISpec = KickboxingTechnique.performed(
+    KickboxingTechnique.table[techniques[techniques.length - 1]!],
+  );
+  const exit: IAutoMovieIntent = KickboxingAction.intent(attacker, {
+    kind: "move",
+    movement: "separate",
+    steps: ENTRY_STEPS,
+    range: cycle.exit,
+    side: last.side,
+    seconds: KickboxingTiming.STEP_PERIOD,
+  });
   return AutoMovieComposition.parallel(
-    AutoMovieComposition.sequence(...anchored),
+    AutoMovieComposition.sequence(...anchored, exit),
     ...aligned,
-    ...room,
-    KickboxingAction.intent(
-      attacker,
-      {
-        kind: "move",
-        movement: "approach",
-        steps: APPROACH_STEPS,
-        range,
-        seconds,
-      },
-      `${id}/approach`,
-    ),
+    ...entries,
   );
 }
 
-/** Steps of the step-in: the lead foot and the following rear foot, so the stance is restored at range. */
-const APPROACH_STEPS: number = 2;
+/** Steps of an entry or exit: the lead foot and the following rear foot, so the stance is restored at range. */
+const ENTRY_STEPS: number = 2;
 
 /** The intents of a chain, in order; only sequences of intents are exchange material. */
 function flatten(node: AutoMovieComposition): IAutoMovieIntent[] {

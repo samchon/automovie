@@ -47,4 +47,11 @@ export interface IFighterMeasure {
 
   /** Ankle to toe tip, metres. */
   foot: number;
+
+  /**
+   * How far the guard carries each struck level ahead of the stance origin,
+   * metres: the face, the stomach and the lead thigh's front surfaces on the
+   * guard placed by limb fitting, so ranges keep the displayed bodies apart.
+   */
+  front: { head: number; body: number; leg: number };
 }

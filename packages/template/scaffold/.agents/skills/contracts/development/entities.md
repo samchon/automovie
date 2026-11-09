@@ -1,6 +1,6 @@
 # Entities
 
-Each exported declaration under `src/entities/` answers these items in its doc comment, beside [common](common.md), [design](design.md) and [implementation](implementation.md). An entity is one cast member, crowd, prop, set, camera or light, and its [settings realization](#settings-realization) answer names each settings fact it realizes as `docs/body/settings/<domain>/<subject>.md#<fact>` with how it is realized, which review checks.
+Each exported declaration under `src/entities/` answers these items in its doc comment, beside [common](common.md), [design](design.md) and [implementation](implementation.md). An entity is one cast member, crowd, prop, set, camera or light, and its [settings realization](#settings-realization) answer names each settings fact it realizes as `docs/body/settings/<domain>/<subject>.md#<fact>` with how it is realized.
 
 ## Does it realize the settings facts it cites? {#settings-realization}
 

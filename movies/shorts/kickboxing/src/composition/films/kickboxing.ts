@@ -59,6 +59,11 @@ export function kickboxing(): IFilm {
           measures: mounted.measures,
         },
         seek: mounted.seek,
+        // The frame key carries the Human package identity and the frame's own
+        // scene-state digest, not this production's whole source: an edit then
+        // recaptures only the frames whose displayed state changed, and the
+        // render's cacheVerifyEvery sampling proves the reused ones
+        // (stage caches: iterate on changed intervals).
         ...(source === undefined
           ? {}
           : {
