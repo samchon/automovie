@@ -45,6 +45,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *   point; the
  *   palm within 15 mm of it and the extrapolated centre of mass over the
  *   feet at the deepest.
+ * - `everyday-brace`: bracing for a push from ahead; the margin of
+ *   stability higher at `set` than at the start (Massion 1992).
  * - `everyday-step`: stepping over a 0.3 m box, at tenths of the crossing;
  *   every sole point at least 5 cm above the box while over it.
  *
@@ -60,7 +62,7 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
-export function everydayCases(family?: "approach" | "look" | "gesture" | "rest" | "seat" | "bend" | "step", bodies: readonly string[] = ["m-average"]): IMotionCaptureCase[] {
+export function everydayCases(family?: "approach" | "look" | "gesture" | "rest" | "seat" | "bend" | "step" | "brace", bodies: readonly string[] = ["m-average"]): IMotionCaptureCase[] {
   const wants = (name: string): boolean => family === undefined || family === name;
   const out: IMotionCaptureCase[] = [];
   const within = everydayVerdicts.within;
@@ -276,6 +278,27 @@ export function everydayCases(family?: "approach" | "look" | "gesture" | "rest" 
         performers: [figure(performance, "a", man)],
         boxes: [{ centre: { x: 0, y: box.height / 2, z: box.at.z + box.depth / 2 }, half: { x: 0.4, y: box.height / 2, z: box.depth / 2 }, color: 0x9a7b55 }],
         verdicts: [{ name: "sole clearance over the box", passed: clearance >= 0.05, detail: `${(clearance * 1000).toFixed(1)} mm (at least 50 mm)` }, ...everydayVerdicts.standard(performance, "a", body)],
+      });
+    }
+
+    if (wants("brace")) {
+      const performance: HumanPerformance = one(HumanChain.subject("a").brace({ toward: { kind: "point", at: { x: 0, y: 1.2, z: 2 }, frame: "world" }, kind: "push" }));
+      const set: number = event(performance, "a", 0, "set");
+      const before: number = everydayVerdicts.stability(performance, "a", body, 0.02);
+      const after: number = everydayVerdicts.stability(performance, "a", body, set);
+      out.push({
+        name: `everyday-brace${suffix}`,
+        times: [
+          { seconds: 0, label: "start" },
+          { seconds: set / 2, label: "stepping" },
+          { seconds: set, label: "set" },
+          { seconds: performance.segments("a")[0]!.end, label: "end" },
+        ],
+        performers: [figure(performance, "a", man)],
+        verdicts: [
+          { name: "margin of stability higher at set", passed: after > before, detail: `${(before * 1000).toFixed(1)} mm before, ${(after * 1000).toFixed(1)} mm at set` },
+          ...everydayVerdicts.standard(performance, "a", body),
+        ],
       });
     }
   }

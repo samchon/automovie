@@ -1,0 +1,172 @@
+import { Vector3, minimumJerk } from "@automovie/engine";
+import type { AutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
+
+import type { HumanActionName } from "../HumanActionName";
+import { stand } from "../actions/stand";
+import { standUpright } from "../actions/standUpright";
+import type { IHumanBody } from "../body/IHumanBody";
+import type { IHumanActionContext } from "../law/IHumanActionContext";
+import type { IHumanActionLaw } from "../law/IHumanActionLaw";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import { HumanFrame } from "../posture/HumanFrame";
+import { HumanHand } from "../posture/HumanHand";
+import type { IHumanPosture } from "../posture/IHumanPosture";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanTrunk } from "./HumanTrunk";
+import { handGoals } from "./handGoals";
+import { poseBones } from "./poseBones";
+
+/**
+ * Bracing for an expected impact, push or a falling body: the stance
+ * widens and staggers along the line of the coming force, the body lowers
+ * and leans into it, and the hands come up in front, all set before the
+ * force arrives.
+ *
+ * People preparing for a predictable perturbation adjust their posture in
+ * advance, anticipatory postural adjustments (Massion 1992, Prog Neurobiol
+ * 38:35): they enlarge the base of support along the expected force, lower
+ * the centre of mass and lean against the force. The goals: the foot on the
+ * side away from the force steps back along the force's line by 0.3 leg
+ * lengths and out by 0.05 (a staggered, wider base); the pelvis settles over
+ * the middle of the new base and drops by 4 % of the hip height (knees
+ * flexed); the trunk inclines 10 degrees toward the force; and both palms
+ * come up ahead of the chest, facing the force for an `impact` or a `push`,
+ * turned up and lower to receive a `catchBody`. Step size, drop, lean and
+ * timing are provisional (Massion describes the adjustments, not these
+ * magnitudes). The stepping foot swings over 0.4 s with a 3 cm lift, the
+ * set is reached at `set`, 0.6 s after the start (provisional lead time),
+ * and held for the rest of the action.
+ *
+ * The force comes from `toward` (a person, prop or point the force comes
+ * from) or from straight ahead when absent.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the provisional values.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, hand, trunk and contact types.
+ * @evidence contracts/development/implementation.md#principled-implementation Footprint, pelvis and palm goals solved by the shared inverse kinematics, with the anticipatory adjustments Massion describes.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans the step once, then evaluates each posture in closed form.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Provisional magnitudes are named and marked.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A few posture solves per frame.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's inputs.
+ */
+export namespace brace {
+  /** The action's name. */
+  export const name: HumanActionName = "brace";
+
+  /** Cancel table: a brace is standing and may become standing again. */
+  export const interrupts: IHumanActionLaw["interrupts"] = {
+    stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+  };
+
+  /** Parameters. */
+  export interface IParams {
+    /** Where the force comes from; straight ahead when absent. */
+    toward?: AutoMovieMotionTarget;
+
+    /** What is braced for; `impact` when absent. */
+    kind?: "impact" | "push" | "catchBody";
+
+    /** How long the brace lasts, seconds; 1.5 when absent. */
+    seconds?: number;
+  }
+
+  /** Lead time to the set posture, seconds (provisional). */
+  export const SET: number = 0.6;
+
+  /**
+   * Plan a brace.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   */
+  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+    const body: IHumanBody = context.body;
+    const m = body.measure;
+    const p: IParams = context.params;
+    const duration: number = Math.max(SET + 0.2, p.seconds ?? 1.5);
+    const yaw: number = context.entry.posture.yaw;
+    const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(body, context.entry, yaw);
+    const middle: IAutoMovieVector3 = { x: (feet.left.x + feet.right.x) / 2, y: 0, z: (feet.left.z + feet.right.z) / 2 };
+
+    // The force's line: toward the source, on the floor.
+    const source: IAutoMovieVector3 = p.toward === undefined ? HumanFrame.point({ origin: middle, yaw }, { x: 0, y: 0, z: 1 }) : context.aim(p.toward, context.start).point;
+    const toward: IAutoMovieVector3 = Vector3.normalize({ x: source.x - middle.x, y: 0, z: source.z - middle.z });
+    const left: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, { x: 1, y: 0, z: 0 });
+
+    // The foot farther from the source steps back along the line and out.
+    const back: "left" | "right" = Vector3.dot(Vector3.subtract(feet.left, feet.right), toward) < 0 ? "left" : "right";
+    const out: IAutoMovieVector3 = Vector3.scale(left, back === "left" ? 1 : -1);
+    const leg: number = m.thigh + m.shank;
+    const placed: IAutoMovieVector3 = Vector3.add(feet[back], Vector3.add(Vector3.scale(toward, -0.3 * leg), Vector3.scale(out, 0.05 * leg)));
+    const swing: [number, number] = [0.1, 0.5];
+    const footAt = (side: "left" | "right", t: number): { ankle: IAutoMovieVector3; planted: boolean } => {
+      if (side !== back || t <= swing[0]) return { ankle: feet[side], planted: true };
+      if (t >= swing[1]) return { ankle: placed, planted: true };
+      const u: number = (t - swing[0]) / (swing[1] - swing[0]);
+      const ankle: IAutoMovieVector3 = Vector3.lerp(feet[side], placed, minimumJerk(u).s);
+      return { ankle: { ...ankle, y: ankle.y + 0.03 * Math.sin(Math.PI * u) }, planted: false };
+    };
+
+    // The pelvis settles over the new base, lowered; the trunk leans into the force.
+    const centre: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw },
+      { x: (body.rest.get("leftFoot")!.x + body.rest.get("rightFoot")!.x) / 2, y: 0, z: (body.rest.get("leftFoot")!.z + body.rest.get("rightFoot")!.z) / 2 },
+    );
+    const settled: IAutoMovieVector3 = Vector3.lerp(feet[back === "left" ? "right" : "left"], placed, 0.5);
+    const start: IAutoMovieVector3 = context.entry.posture.root;
+    const goal: IAutoMovieVector3 = { x: settled.x - centre.x, y: -0.005 - 0.04 * m.hipHeight, z: settled.z - centre.z };
+    const lean: number = 10;
+    const forward: number = (Math.atan2(toward.x, toward.z) * 180) / Math.PI - yaw;
+    const upright = standUpright.of(body).joints;
+
+    const contacts: IHumanContactWindow[] = [
+      { part: back === "left" ? "rightFoot" : "leftFoot", kind: "plant", from: 0, to: 1, support: { kind: "ground" } },
+      { part: back === "left" ? "leftFoot" : "rightFoot", kind: "plant", from: 0, to: swing[0] / duration, support: { kind: "ground" } },
+      { part: back === "left" ? "leftFoot" : "rightFoot", kind: "plant", from: swing[1] / duration, to: 1, support: { kind: "ground" } },
+    ];
+    return {
+      duration,
+      events: [{ name: "set", share: SET / duration }],
+      contacts,
+      posture: (seconds: number): IHumanPosture => {
+        const t: number = Math.min(duration, Math.max(0, seconds));
+        const s: number = minimumJerk(t / SET).s;
+        const root: IAutoMovieVector3 = Vector3.lerp(start, goal, s);
+        const tilt = HumanTrunk.incline({ ...stand.RELAXED, ...upright }, lean * s * Math.cos((forward * Math.PI) / 180));
+        const legs: IHumanPosture["limbs"] = stand.legs(body, root, yaw, { left: footAt("left", t).ankle, right: footAt("right", t).ankle });
+        for (const side of ["left", "right"] as const) {
+          const limb: "leftLeg" | "rightLeg" = side === "left" ? "leftLeg" : "rightLeg";
+          if (!footAt(side, t).planted) legs[limb] = { ...legs[limb]!, planted: false };
+        }
+        const posture: IHumanPosture = resolveHumanPosture.lower(body, { root, yaw, pitch: tilt.pitch, roll: 0, joints: tilt.joints, limbs: legs });
+
+        // The palms come up ahead of the chest, toward the force.
+        const frame: HumanFrame.IFrame = { origin: posture.root, yaw };
+        const reach: number = (m.upperArm + m.forearm) * 0.55;
+        const catching: boolean = p.kind === "catchBody";
+        const requests: handGoals.IRequest[] = (["left", "right"] as const).map((side) => {
+          const sign: number = side === "left" ? 1 : -1;
+          const point: IAutoMovieVector3 = Vector3.add(HumanFrame.point(frame, { x: sign * m.shoulderHalfWidth * 0.9, y: catching ? m.chestHeight - 0.1 * m.stature : m.chestHeight, z: 0 }), Vector3.scale(toward, reach));
+          const turn = HumanHand.rotation(side, catching ? { fingers: toward, palm: { x: 0, y: 1, z: 0 } } : { fingers: { x: 0, y: 1, z: 0 }, palm: toward });
+          return { side, surface: "palm", shape: "flat", point, rotation: turn, bend: HumanHand.elbow(body, posture, side, 0.2) };
+        });
+        if (s <= 0) return posture;
+        const hanging = poseHands(body, posture);
+        return handGoals(
+          body,
+          { ...posture, joints: { ...posture.joints, ...HumanHand.shape("left", "flat"), ...HumanHand.shape("right", "flat") } },
+          requests.map((r) => ({ ...r, point: Vector3.lerp(hanging[r.side], r.point, s) })),
+        );
+      },
+    };
+  }
+}
+
+/** Where each palm hangs in a posture whose arms are not goal-driven. */
+function poseHands(body: IHumanBody, posture: IHumanPosture): Record<"left" | "right", IAutoMovieVector3> {
+  const bones = poseBones(body, resolveHumanPosture(body, posture));
+  return { left: HumanHand.frame(body, bones, "left", "palm").point, right: HumanHand.frame(body, bones, "right", "palm").point };
+}

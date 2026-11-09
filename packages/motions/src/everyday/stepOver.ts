@@ -26,8 +26,9 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * roughly constant margin whatever its height, so the lift grows with the
  * obstacle and the margin does not; 0.1 m is the margin used (provisional,
  * of the order they report). The lead foot lands so the obstacle's middle
- * falls at mid-swing, where the lift is fullest, and at least one tenth of a
- * foot length beyond the far side; the trail foot lands beside it at the
+ * falls at mid-swing, where the lift is fullest, at least one tenth of a
+ * foot length beyond the far side and no farther than the legs' stride
+ * allows; the trail foot lands beside it at the
  * body's rest separation. The pelvis moves halfway between the feet while
  * the lead foot swings, stays there through the double support, and moves
  * over the landed feet while the trail foot swings, each leg on a
@@ -105,9 +106,10 @@ export namespace stepOver {
       throw new Error(`${context.subject}: an obstacle ${obstacle.height.toFixed(3)} m high is above the ${(0.55 * m.hipHeight).toFixed(3)} m this body steps over`);
     const far: number = near + obstacle.depth;
     const heelBack: number = -HumanFoot.offset(body, lead, "heel").z;
-    const landing: number = Math.max(far + 0.1 * m.footLength + heelBack, near + far - HumanFrame.local(frame, feet[lead]).z);
-    if (landing - HumanFrame.local(frame, feet[trail]).z > 0.95 * 2 * Math.sqrt(Math.max(0, leg * leg - (0.9 * m.hipHeight - m.ankleHeight) ** 2)))
-      throw new Error(`${context.subject}: an obstacle ${obstacle.depth.toFixed(3)} m deep is too deep to cross in one step`);
+    const nearest: number = far + 0.1 * m.footLength + heelBack;
+    const farthest: number = HumanFrame.local(frame, feet[trail]).z + 0.95 * 2 * Math.sqrt(Math.max(0, leg * leg - (0.9 * m.hipHeight - m.ankleHeight) ** 2));
+    if (nearest > farthest) throw new Error(`${context.subject}: an obstacle ${obstacle.depth.toFixed(3)} m deep is too deep to cross in one step`);
+    const landing: number = Math.min(farthest, Math.max(nearest, near + far - HumanFrame.local(frame, feet[lead]).z));
 
     // Footprints: each foot from its start to beside the other beyond the obstacle.
     const restX = (side: "left" | "right"): number => body.rest.get(`${side}Foot`)!.x;
