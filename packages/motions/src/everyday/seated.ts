@@ -1,4 +1,4 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, type IAutoMovieResolvedBone, Quaternion, Vector3, resolvePose } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Quaternion, Vector3 } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
@@ -6,6 +6,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "./poseBones";
 
 /**
  * The geometry every seat law shares: where on a seat the body's seat
@@ -137,9 +138,7 @@ export namespace seated {
    * @returns Arm goals.
    */
   export function hands(body: IHumanBody, posture: IHumanPosture): IHumanPosture["limbs"] {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      resolvePose(resolveHumanPosture(body, posture), body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map((r): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r]),
-    );
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, resolveHumanPosture(body, posture));
     const out: IHumanPosture["limbs"] = {};
     for (const side of ["left", "right"] as const) {
       const frame = body.surfaces.regions[`thighFront${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion];
@@ -170,9 +169,7 @@ export namespace seated {
     if (share <= 0) return posture;
     const onThighs: IHumanPosture["limbs"] = hands(body, posture);
     if (share >= 1) return { ...posture, limbs: { ...posture.limbs, ...onThighs } };
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      resolvePose(resolveHumanPosture(body, posture), body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map((r): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r]),
-    );
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, resolveHumanPosture(body, posture));
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     for (const side of ["left", "right"] as const) {
       const limb: "leftArm" | "rightArm" = side === "left" ? "leftArm" : "rightArm";

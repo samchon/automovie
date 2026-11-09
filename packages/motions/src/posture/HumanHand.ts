@@ -4,9 +4,9 @@ import {
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
+  quaternionFromAutoMovieBasis,
   resolveAutoMovieHumanoidSurfaces,
   resolvePose,
-  rotationBetween,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -81,7 +81,7 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  * @evidence contracts/development/design.md#principled-representation Surfaces are the body's own resolved frames; a rotation is a world quaternion from rest aligned from two directions.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One owner for hand effector goals, shared by gestures, rest places and grasping.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine surfaces, FK and quaternion helpers.
- * @evidence contracts/development/implementation.md#principled-implementation Rigid offset of a socket from the wrist (an effector offset), shortest-arc swing then twist about the aligned axis.
+ * @evidence contracts/development/implementation.md#principled-implementation Rigid offset of a socket from the wrist (an effector offset); alignment completes each direction pair to a frame and composes the engine's basis rotations.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Offsets, alignment, placement and read-back as separate small functions over one frame type.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A forward parallel to the normal throws instead of picking an arbitrary twist.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call; the fingertip FK runs once per body, side and shape.
@@ -187,24 +187,26 @@ export namespace HumanHand {
 
   /**
    * The rotation that turns a rest frame's normal onto a world normal exactly
-   * and its forward onto a world forward as closely as possible: a
-   * shortest-arc swing of the normal, then a twist about it until the swung
-   * forward meets the requested forward's component across the normal.
+   * and its forward onto a world forward as closely as possible: each pair is
+   * completed to a right-handed orthonormal frame (the normal, the forward's
+   * component across it, and their cross product), and the rotation is the
+   * world frame times the inverse of the rest frame, both read by the
+   * engine's `quaternionFromAutoMovieBasis`.
    *
    * @param rest The surface's rest normal and forward.
    * @param world The requested world normal and forward.
    * @returns The rotation.
-   * @throws {Error} When the requested forward is parallel to the requested normal.
+   * @throws {Error} When a forward is parallel to its normal.
    */
   export function align(rest: Pick<IFrame, "normal" | "forward">, world: Pick<IFrame, "normal" | "forward">): IAutoMovieQuaternion {
-    const normal: IAutoMovieVector3 = Vector3.normalize(world.normal);
-    const swing: IAutoMovieQuaternion = rotationBetween(rest.normal, normal);
-    const across = (v: IAutoMovieVector3): IAutoMovieVector3 => Vector3.subtract(v, Vector3.scale(normal, Vector3.dot(v, normal)));
-    const a: IAutoMovieVector3 = across(Quaternion.rotateVector(swing, rest.forward));
-    const b: IAutoMovieVector3 = across(world.forward);
-    if (Vector3.length(b) < 1e-9) throw new Error("A forward direction must not be parallel to its normal");
-    const angle: number = (Math.atan2(Vector3.dot(normal, Vector3.cross(a, b)), Vector3.dot(a, b)) * 180) / Math.PI;
-    return Quaternion.normalize(Quaternion.multiply(Quaternion.fromAxisAngle(normal, angle), swing));
+    const basis = (frame: Pick<IFrame, "normal" | "forward">): IAutoMovieQuaternion => {
+      const n: IAutoMovieVector3 = Vector3.normalize(frame.normal);
+      const across: IAutoMovieVector3 = Vector3.subtract(frame.forward, Vector3.scale(n, Vector3.dot(frame.forward, n)));
+      if (Vector3.length(across) < 1e-9) throw new Error("A forward direction must not be parallel to its normal");
+      const f: IAutoMovieVector3 = Vector3.normalize(across);
+      return quaternionFromAutoMovieBasis(n, f, Vector3.cross(n, f));
+    };
+    return Quaternion.normalize(Quaternion.multiply(basis(world), Quaternion.inverse(basis(rest))));
   }
 
   /**

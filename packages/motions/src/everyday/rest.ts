@@ -1,12 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  resolvePose,
-} from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -20,6 +12,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
+import { poseBones } from "./poseBones";
 
 /**
  * Standing with the hands at rest places: in the front pockets, on the hips,
@@ -105,9 +98,7 @@ export namespace rest {
 
     // Goals, solved once in the performer's frame and carried by the body.
     const goals: Partial<Record<HumanHand.Side, IGoal>> = rest.goals(body, at0, places);
-    const entry: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      resolvePose(context.entry.pose, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map((r): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r]),
-    );
+    const entry: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, context.entry.pose);
     const begin: Partial<Record<HumanHand.Side, { point: IAutoMovieVector3; rotation: IAutoMovieQuaternion; travel: number }>> = {};
     for (const side of ["left", "right"] as const) {
       const goal: IGoal | undefined = goals[side];
@@ -246,9 +237,7 @@ function crossed(body: IHumanBody, posture: IHumanPosture): Record<HumanHand.Sid
   let solved: IHumanPosture = posture;
   let goals: Record<HumanHand.Side, rest.IGoal> | undefined;
   for (let round: number = 0; round < 2; round++) {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      resolvePose(resolveHumanPosture(body, solved), body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map((r): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r]),
-    );
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, resolveHumanPosture(body, solved));
     const on = (side: HumanHand.Side): rest.IGoal => {
       const other: "Left" | "Right" = side === "left" ? "Right" : "Left";
       const frame = body.surfaces.regions[`upperArm${other}` as AutoMovieHumanoidRegion];
