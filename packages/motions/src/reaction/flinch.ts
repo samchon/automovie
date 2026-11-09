@@ -122,7 +122,7 @@ export namespace flinch {
             bend: Vector3.add(bones.get(`${side}UpperArm`)!.worldPosition, { x: 0, y: -m.upperArm, z: 0 }),
             rotation,
           };
-          const from: IHumanPosture.IGoal = limbs[arm] ?? guard[arm]!;
+          const from: IHumanPosture.IGoal = limbs[arm] ?? guard[arm] ?? goal;
           limbs[arm] = {
             point: Vector3.lerp(from.point, goal.point, k),
             bend: Vector3.lerp(from.bend, goal.bend, k),

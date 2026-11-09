@@ -303,7 +303,10 @@ export namespace defend {
           out[attackedSide === "left" ? "leftLeg" : "rightLeg"] = { point: ankle, bend: Vector3.add(knee, Vector3.scale(Vector3.normalize(forward), -0.2)), rotation };
           break;
         }
-        default:
+        case "slip":
+        case "roll":
+        case "sway":
+          // Evasions move the whole body; the gloves keep their guard.
           break;
       }
       return out;
