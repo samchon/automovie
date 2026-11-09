@@ -3,7 +3,7 @@ import {
   encodeAutoMovieRasterPng,
   rasterizeAutoMovieScene,
   stampAutoMovieRasterLabel,
-} from "../../../../packages/template/scaffold/src/integrations/viewer/node/raster";
+} from "../../../../packages/template/scaffold/production/src/integrations/viewer/node/raster";
 import { TestValidator } from "@nestia/e2e";
 import { PNG } from "pngjs";
 import * as THREE from "three";

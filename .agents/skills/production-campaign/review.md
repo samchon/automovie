@@ -1,6 +1,6 @@
 # Review connection
 
-The production's [review](../../../packages/template/scaffold/.agents/skills/review/SKILL.md) owns verdicts, repair and current acceptance, including its [independent reading](../../../packages/template/scaffold/.agents/skills/review/reading.md), [narrative rounds](../../../packages/template/scaffold/.agents/skills/review/rounds.md) and [delivery review](../../../packages/template/scaffold/.agents/skills/review/delivery.md). The campaign connects a fixed submission to an independent reviewer and keeps the verdict verbatim.
+The production's [review](../../../packages/template/scaffold/instructions/.agents/skills/review/SKILL.md) owns verdicts, repair and current acceptance, including its [independent reading](../../../packages/template/scaffold/instructions/.agents/skills/review/reading.md), [narrative rounds](../../../packages/template/scaffold/instructions/.agents/skills/review/rounds.md) and [delivery review](../../../packages/template/scaffold/instructions/.agents/skills/review/delivery.md). The campaign connects a fixed submission to an independent reviewer and keeps the verdict verbatim.
 
 ## Submit
 

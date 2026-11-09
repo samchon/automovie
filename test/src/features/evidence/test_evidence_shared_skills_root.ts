@@ -1,16 +1,14 @@
 import {
   type IAutoMovieEvidenceConfigProps,
+  type IProductionConfigProps,
   createDevelopmentContractClaims,
   createEngineeringClaims,
   createEvidenceConfig,
-  createResearchClaims,
-} from "@automovie/evidence";
-import {
-  type IProductionConfigProps,
   createPackageChecklistClaim,
   createPackagePopulationContract,
   createProductionConfig,
-} from "@automovie/evidence/narrative";
+  createResearchClaims,
+} from "@automovie/evidence";
 import { TestValidator } from "@nestia/e2e";
 import type {
   IEvidenceClaim,

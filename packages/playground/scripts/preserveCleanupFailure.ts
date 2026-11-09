@@ -1,1 +1,1 @@
-export { preserveCleanupFailure } from "../../template/scaffold/src/integrations/render/node/capture/preserveCleanupFailure";
+export { preserveCleanupFailure } from "../../template/scaffold/production/src/integrations/render/node/capture/preserveCleanupFailure";
