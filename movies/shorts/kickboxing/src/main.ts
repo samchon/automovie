@@ -176,7 +176,6 @@ async function frameDigest(time: number): Promise<string> {
 Object.assign(window, {
   __afSeek: seek,
   ...(production.digest ? { __afFrameDigest: frameDigest } : {}),
-  __afSoundtrack: (): IFilmProduction["soundtrack"] => production.soundtrack,
   __afReport: (): IFilmProduction["report"] => production.report,
 });
 document.querySelector<HTMLButtonElement>("#play")!.onclick = (): void => {

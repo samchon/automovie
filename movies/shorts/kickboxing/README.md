@@ -26,7 +26,7 @@ pnpm --filter kickboxing render --film kickboxing http://127.0.0.1:5199/
 pnpm --filter kickboxing render --film kickboxing --at 61.2,150 http://127.0.0.1:5199/?rig=1
 ```
 
-The video mode captures 5400 frames at 1280x720 and 30 fps through the frame cache, writes the picture-only `media/automovie/kickboxing/videos/film.mp4` with `capture-report.json`, then decodes the whole file and writes `decode-report.json`. The film carries no soundtrack: video diffusion generates the audio from the screenplay's sound lines, as [audio](.agents/skills/audio/SKILL.md) sets. Still mode writes PNGs to `media/automovie/kickboxing/frames/` or `--out`.
+The video mode captures 5400 frames at 1280x720 and 30 fps through the frame cache, writes the picture-only `media/automovie/kickboxing/videos/film.mp4` with `capture-report.json`, then decodes the whole file and writes `decode-report.json`. The film carries no soundtrack: video diffusion generates all audio, as [audio](.agents/skills/audio/SKILL.md) sets. Still mode writes PNGs to `media/automovie/kickboxing/frames/` or `--out`.
 
 ## Stills
 

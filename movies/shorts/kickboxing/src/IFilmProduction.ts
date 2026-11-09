@@ -10,7 +10,7 @@ import type * as THREE from "three";
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment names what one mount holds; each member states what it owns and when it runs.
  * @evidence contracts/development/design.md#principled-representation Playback, seeking and capture all place the scene through one seek per second, so a second reached by any path draws the same state.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members the Viewer entry reads to draw, seek, publish and release a film; the soundtrack, report and named review views are optional for films without sound, audits or inspection cameras.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The members the Viewer entry reads to draw, seek, publish and release a film; the report and named review views are optional for films without audits or inspection cameras.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists.
  */
 export interface IFilmProduction {
@@ -32,20 +32,6 @@ export interface IFilmProduction {
     maximumContacts: number;
     /** Inspection vector length per newton of step-mean force. */
     metresPerNewton: number;
-  };
-
-  /** The soundtrack's cues, from the same preparation as the picture; the render mixes them and the Viewer may play them. */
-  soundtrack?: {
-    /** Cues in film seconds with linear gains. */
-    cues: readonly {
-      asset: string;
-      seconds: number;
-      gain: number;
-      offsetSeconds?: number;
-      durationSeconds?: number;
-    }[];
-    /** Production-relative WAV path of every asset. */
-    assets: Readonly<Record<string, string>>;
   };
 
   /** Inspection report of the mount: legality violations and audit findings, empty when clean, and named measurements. */

@@ -10,7 +10,6 @@ One three-minute round between two champions in an indoor ring at night, filmed 
 - Sets: [ring](../settings/sets/ring.md#zones)
 - Wardrobe and makeup: [A's kit](../settings/cast/fighter-a.md#kit), [B's kit](../settings/cast/fighter-b.md#kit), [referee's uniform](../settings/cast/referee.md#uniform); both fighters unmarked
 - Effects: sweat on landed blows
-- Sound: [ring sound](../settings/sound/ring-sound.md)
 - Camera: [ring coverage](../settings/cinematography/ring-coverage.md)
 - Lighting: [neutral](../settings/cinematography/ring-coverage.md#neutral)
 
@@ -27,7 +26,6 @@ Fight!
 - Consequence: Both fighters stand in guard in the centre, unmarked.
 - Space: A on the red side and B on the cyan side of the centre; the referee across their line at the perimeter.
 - Camera: wide two-shot, slightly elevated, side-on across the fighters' line from the side away from the referee.
-- Sound: dialogue "Fight!"; foley shoe scuffs; ambience room tone; effects bell; music none.
 - Continuity: start of the film.
 
 ### The glove touch {#s01-b02}
@@ -40,7 +38,6 @@ They advance, each lead foot landing before the rear foot follows. Their left gl
 - Consequence: Both back at kicking distance by 1.550, guards up.
 - Space: Both step into the centre and back out to kicking distance; the referee steps back along the perimeter.
 - Camera: wide two-shot, holding.
-- Sound: dialogue none; foley glove tap, foot landings; ambience room tone; effects none; music none.
 - Continuity: as the bell.
 
 ### The pump jab and the teep {#s01-b03}
@@ -53,7 +50,6 @@ Both men circle toward their lead sides on short steps, the line between them tu
 - Consequence: A's stomach takes the sole; sweat leaves the struck skin; A gives two steps.
 - Space: The pair circles toward their lead sides in the open ring, then A steps in and is pushed back out to kicking distance.
 - Camera: medium two-shot while the exchange is live, back to wide as A resets.
-- Sound: dialogue none; foley glove whip, sole on skin, A's exhale; ambience room tone; effects none; music none.
 - Continuity: A's stomach reddened from here on.
 
 ### A's combination, B's counter {#s01-b04}
@@ -66,7 +62,6 @@ A cuts across B's path as B gives ground on the diagonal, taking away his lead s
 - Consequence: No mark; both back in guard at kicking distance.
 - Space: A presses and cuts across at half B's lateral speed while B gives ground on a diagonal toward his lead side; A steps in to punching range; both leave on an angle after the sway.
 - Camera: medium two-shot, following the turn of their line.
-- Sound: dialogue none; foley foot friction, glove on glove, glove on forearm, air past heads, exhales; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### B's low kick meets the check {#s01-b05}
@@ -79,7 +74,6 @@ They circle toward their lead sides. B drags his rear foot and turns his hip as 
 - Consequence: Both shins sting; no visible mark.
 - Space: The pair circles toward their lead sides; B steps in to kicking range; A replants and steps in for his counter; B slips out on an angle.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley glove taps, shin-on-shin knock, foot landings; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### Feint, slip and the body shot {#s01-b06}
@@ -92,7 +86,6 @@ They circle toward their lead sides; then B hops through southpaw and straight b
 - Consequence: No mark.
 - Space: The pair circles a quarter turn toward their lead sides and B switches in place before he steps in; both angle out after the body shot.
 - Camera: wide while they circle, medium at the feint.
-- Sound: dialogue none; foley glove on forearm, foot friction, breaths; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ## INT. KICKBOXING RING - CONTINUOUS {#s02}
@@ -102,7 +95,6 @@ They circle toward their lead sides; then B hops through southpaw and straight b
 - Sets: [ring](../settings/sets/ring.md#zones)
 - Wardrobe and makeup: A's stomach reddened
 - Effects: sweat on landed blows
-- Sound: [ring sound](../settings/sound/ring-sound.md)
 - Camera: [ring coverage](../settings/cinematography/ring-coverage.md)
 - Lighting: [neutral](../settings/cinematography/ring-coverage.md#neutral)
 
@@ -116,7 +108,6 @@ From 15 seconds, B steps in behind a double jab. A takes the first on his closed
 - Consequence: B's head snaps back; sweat flies off his forehead, which reddens.
 - Space: B steps in from kicking distance; A steps in for the counter and leaves on an angle.
 - Camera: medium two-shot, push in on B as the jab lands.
-- Sound: dialogue none; foley glove on skin, B's exhale; ambience room tone; effects none; music none.
 - Continuity: B's forehead reddened from here on.
 
 ### The low kick behind the hook {#s02-b02}
@@ -129,7 +120,6 @@ A walks B back, cutting across each time B steps toward his lead side. Then A co
 - Consequence: B's left thigh reddens; sweat leaves it; B rebalances on his rear foot.
 - Space: A presses and cuts across while B gives ground on a diagonal; A steps in to kicking range; B gives a step back toward the open ring.
 - Camera: medium two-shot, push in on the landed kick.
-- Sound: dialogue none; foley foot friction, glove on glove, heavy shin-on-thigh slap, B's grunt; ambience room tone; effects none; music none.
 - Continuity: B's left thigh reddened from here on.
 
 ### The liver hook {#s02-b03}
@@ -142,7 +132,6 @@ Both circle toward their lead sides. B bends his knees and dips his right should
 - Consequence: B's right ribs redden; sweat flies; his right elbow clamps down and from here on guards that side.
 - Space: The pair circles; B steps in to punching range; A steps in for the hook; B gives ground on a diagonal while A presses after him.
 - Camera: medium two-shot, push in on B.
-- Sound: dialogue none; foley glove on ribs, B's grunt; ambience room tone; effects none; music none.
 - Continuity: B's right ribs reddened from here on.
 
 ### B comes back kick first {#s02-b03a}
@@ -155,7 +144,6 @@ Breath back, B stops giving ground and comes in kick first: his right shin swing
 - Consequence: No mark.
 - Space: B gives ground, then steps in to kicking range and leaves on an angle.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley shin-on-shin knock, glove on glove; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### The teep is swept aside {#s02-b04}
@@ -168,7 +156,6 @@ B gives ground and pushes a left teep at A's stomach to make room. A's right for
 - Consequence: No mark.
 - Space: B gives ground on a diagonal toward his lead side; A circles after him.
 - Camera: wide as they separate.
-- Sound: dialogue none; foley sole on forearm, foot friction; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### The straight to the body {#s02-b05}
@@ -181,7 +168,6 @@ A cuts across and walks B back toward the ropes. This time there is no feint: A 
 - Consequence: No mark.
 - Space: A presses B toward the ropes, cutting across; B circles out toward the open side after the block.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley glove on forearm; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ## INT. KICKBOXING RING - CONTINUOUS {#s03}
@@ -191,7 +177,6 @@ A cuts across and walks B back toward the ropes. This time there is no feint: A 
 - Sets: [ring](../settings/sets/ring.md#zones)
 - Wardrobe and makeup: A's stomach reddened; B's forehead, left thigh and right ribs reddened
 - Effects: sweat; blood from B's nose
-- Sound: [ring sound](../settings/sound/ring-sound.md)
 - Camera: [ring coverage](../settings/cinematography/ring-coverage.md)
 - Lighting: [neutral](../settings/cinematography/ring-coverage.md#neutral)
 
@@ -205,7 +190,6 @@ From 30 seconds, B drags his rear foot forward and turns his hip as if to kick l
 - Consequence: A's left thigh reddens; sweat leaves it; his lead knee dips.
 - Space: B drags in to kicking range in the open ring and angles out.
 - Camera: medium two-shot, push in on A.
-- Sound: dialogue none; foley foot drag, shin-on-thigh slap, A's exhale; ambience room tone; effects none; music none.
 - Continuity: A's left thigh reddened from here on.
 
 ### B's four, A's check {#s03-b02}
@@ -218,7 +202,6 @@ A tries to circle away on the hurt leg; B cuts across and closes the lane. B fol
 - Consequence: No new mark.
 - Space: B presses and cuts across while A gives ground on a diagonal; B steps in to kicking range; both angle out after the cross.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley foot friction, glove on glove, shin-on-shin clack; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### The stand-off and the double jab {#s03-b02a}
@@ -231,7 +214,6 @@ A walks to the centre and plants there; B backs off to kicking distance. For a m
 - Consequence: No new mark.
 - Space: A at the centre, B at kicking distance off it; B steps in twice and angles back out.
 - Camera: wide on the stand-off, medium as B steps in.
-- Sound: dialogue none; foley foot friction, glove on glove; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### The pump jab and the jab {#s03-b03}
@@ -244,7 +226,6 @@ A takes the centre back, walking B down and cutting across. He shows the pump ja
 - Consequence: B's nose bleeds a little; his face reddens; his eyes squeeze shut.
 - Space: A presses and cuts across; B gives ground on a diagonal toward his lead side.
 - Camera: medium, push in on B.
-- Sound: dialogue none; foley glove on glove, glove on face; ambience room tone; effects none; music none.
 - Continuity: B's face reddened and his nose bloodied from here on.
 
 ### The feint and the body hook {#s03-b04}
@@ -257,7 +238,6 @@ B steps back out of range while A circles toward his lead side, and comes back w
 - Consequence: A's right ribs redden; sweat flies; he exhales hard.
 - Space: B steps out while A circles, then B steps back in to punching range and angles out.
 - Camera: wide as B steps out, medium as he returns, push in on A.
-- Sound: dialogue none; foley glove on ribs, A's exhale; ambience room tone; effects none; music none.
 - Continuity: A's right ribs reddened from here on.
 
 ### Check and counter {#s03-b05}
@@ -270,7 +250,6 @@ They circle. A dips his right shoulder as if to throw the cross and B's right gl
 - Consequence: No new mark.
 - Space: The pair circles, A steps in to kicking range; both step out to kicking distance on an angle.
 - Camera: medium, then wide.
-- Sound: dialogue none; foley shin-on-shin knock, air past A's head; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ## INT. KICKBOXING RING - CONTINUOUS {#s04}
@@ -280,7 +259,6 @@ They circle. A dips his right shoulder as if to throw the cross and B's right gl
 - Sets: [ring](../settings/sets/ring.md#zones)
 - Wardrobe and makeup: A's stomach, left thigh and right ribs reddened; B's face, left thigh and right ribs reddened, nose bloodied
 - Effects: sweat
-- Sound: [ring sound](../settings/sound/ring-sound.md)
 - Camera: [ring coverage](../settings/cinematography/ring-coverage.md)
 - Lighting: [neutral](../settings/cinematography/ring-coverage.md#neutral)
 
@@ -294,7 +272,6 @@ From 45 seconds, B walks to the centre and steps in behind a pump jab and a jab.
 - Consequence: No mark.
 - Space: B walks to the centre and steps in; A gives ground on a diagonal.
 - Camera: medium two-shot, moving with them.
-- Sound: dialogue none; foley glove on glove, foot friction; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### The uppercut from the roll {#s04-b02}
@@ -307,7 +284,6 @@ B keeps walking A back toward the ropes, cutting across, then dips as if to go t
 - Consequence: B's chin snaps up; sweat flies.
 - Space: B presses A into the rope zone and steps in; A answers from the ropes.
 - Camera: medium, push in on B.
-- Sound: dialogue none; foley foot friction, glove on chin; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### A leaves the ropes behind the teep {#s04-b02a}
@@ -320,7 +296,6 @@ A cut-steps sideways along the ropes toward the side with more room, out of the 
 - Consequence: No new mark.
 - Space: A escapes the rope zone toward the open side and steps in to teep range.
 - Camera: medium, widening as A comes off the ropes.
-- Sound: dialogue none; foley foot friction, sole on forearm; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### The clinch knee {#s04-b03}
@@ -333,7 +308,6 @@ B walks him back again. He lunges forward, wraps both gloves behind A's head and
 - Consequence: A's stomach reddens further; he folds and straightens.
 - Space: B presses and lunges to clinch range by the ropes; the referee closes from the perimeter.
 - Camera: medium, push in on A.
-- Sound: dialogue none; foley knee on stomach, A's grunt; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### The pivot hook {#s04-b04}
@@ -346,7 +320,6 @@ A pivots off the line instead of backing straight up, and B circles after him. B
 - Consequence: B's jaw reddens; he staggers half a step.
 - Space: A pivots a quarter circle out of the rope zone into the open ring; B circles after him.
 - Camera: medium, orbiting with the pivot; push in on B.
-- Sound: dialogue none; foley glove on jaw, B's stumble; ambience room tone; effects none; music none.
 - Continuity: B's jaw reddened from here on.
 
 ### The low kick again {#s04-b05}
@@ -359,7 +332,6 @@ They circle. A steps straight in with a cross into B's high guard and a left hoo
 - Consequence: B's left thigh reddens further; his leg gives a little.
 - Space: The pair circles; A steps in to kicking range in the open ring and leaves on an angle.
 - Camera: medium, push in on B.
-- Sound: dialogue none; foley glove on forearm, shin-on-thigh slap; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ## INT. KICKBOXING RING - CONTINUOUS {#s05}
@@ -369,7 +341,6 @@ They circle. A steps straight in with a cross into B's high guard and a left hoo
 - Sets: [ring](../settings/sets/ring.md#zones)
 - Wardrobe and makeup: marks as before
 - Effects: sweat
-- Sound: [ring sound](../settings/sound/ring-sound.md)
 - Camera: [ring coverage](../settings/cinematography/ring-coverage.md)
 - Lighting: [neutral](../settings/cinematography/ring-coverage.md#neutral)
 
@@ -383,7 +354,6 @@ From 60 seconds, A pivots to an outside angle while B circles toward his lead si
 - Consequence: B's left ribs redden; sweat sprays; from here on B drops his left arm whenever A's right knee rises.
 - Space: A pivots to a new angle in the open ring while B circles; A steps in to kicking range.
 - Camera: medium, push in on B.
-- Sound: dialogue none; foley shin on ribs, B's sharp breath; ambience room tone; effects none; music none.
 - Continuity: B's left ribs reddened from here on.
 
 ### The switch kick and the answers {#s05-b02}
@@ -396,7 +366,6 @@ They circle. B switches his feet in a quick hop and kicks with his left leg at A
 - Consequence: No new mark.
 - Space: The pair circles; B's switch hop closes to kicking range; both angle out after the hook.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley shin on forearm, glove on glove; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### B's drag feint and jab {#s05-b02a}
@@ -409,7 +378,6 @@ Both step straight back to kicking distance, guards up, and reset their feet. B 
 - Consequence: No new mark.
 - Space: Both step back to kicking distance; B drags in to kicking range.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley foot drag, glove on glove; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### The pattern repeats {#s05-b03}
@@ -422,7 +390,6 @@ Both circle toward their lead sides; then A repeats the pattern on a step in: cr
 - Consequence: No new mark; B's left arm lingers low.
 - Space: The pair circles; A steps in to kicking range and angles off.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley shin on forearm; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### B answers {#s05-b04}
@@ -435,7 +402,6 @@ They circle. B dips his right shoulder as if to throw the cross and A's right gl
 - Consequence: No new mark.
 - Space: The pair circles, B steps in; both step out on an angle and circle.
 - Camera: medium, then wide.
-- Sound: dialogue none; foley glove on glove, glove on elbow; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ## INT. KICKBOXING RING - CONTINUOUS {#s06}
@@ -445,7 +411,6 @@ They circle. B dips his right shoulder as if to throw the cross and A's right gl
 - Sets: [ring](../settings/sets/ring.md#zones)
 - Wardrobe and makeup: marks as before
 - Effects: sweat
-- Sound: [ring sound](../settings/sound/ring-sound.md)
 - Camera: [ring coverage](../settings/cinematography/ring-coverage.md)
 - Lighting: [neutral](../settings/cinematography/ring-coverage.md#neutral)
 
@@ -459,7 +424,6 @@ From 75 seconds, A flicks a jab feint at B's eyes. B's right glove reacts. A tur
 - Consequence: B's face reddens further; sweat sprays; he hops to recover.
 - Space: A steps in; B is driven back a step toward the ropes.
 - Camera: medium, push in on B.
-- Sound: dialogue none; foley glove on face, B's hop; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### B's high kick {#s06-b02}
@@ -472,7 +436,6 @@ B cut-steps sideways along the ropes and out into the open ring while A gives gr
 - Consequence: No new mark.
 - Space: B escapes the rope zone sideways into the open ring; A gives ground on a diagonal.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley shin-on-forearm crack; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### The double jab {#s06-b02a}
@@ -485,7 +448,6 @@ They circle. A steps in behind a double jab, two quick lead hands that land on B
 - Consequence: No new mark.
 - Space: The pair circles; A steps in to punching range and leaves on an angle.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley glove on glove; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### Teep, slip, body shot {#s06-b03}
@@ -498,7 +460,6 @@ They circle. A pushes a left teep into B's stomach to restore distance. B walks 
 - Consequence: B's stomach and left side redden; he exhales.
 - Space: The pair circles; B steps back in after the teep; A steps in for the body shot.
 - Camera: medium, push in on B.
-- Sound: dialogue none; foley sole on skin, glove on body, B's exhale; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### Check and land {#s06-b04}
@@ -511,7 +472,6 @@ They circle. B lifts his right knee as if to kick the body and sets it back down
 - Consequence: B's head snaps back; no new mark.
 - Space: The pair circles, B steps in to kicking range; both step out on an angle.
 - Camera: medium, then wide.
-- Sound: dialogue none; foley shin-on-shin, glove on face; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ## INT. KICKBOXING RING - CONTINUOUS {#s07}
@@ -521,7 +481,6 @@ They circle. B lifts his right knee as if to kick the body and sets it back down
 - Sets: [ring](../settings/sets/ring.md#zones)
 - Wardrobe and makeup: marks as before
 - Effects: sweat; blood from A's cheek
-- Sound: [ring sound](../settings/sound/ring-sound.md)
 - Camera: [ring coverage](../settings/cinematography/ring-coverage.md)
 - Lighting: [neutral](../settings/cinematography/ring-coverage.md#neutral)
 
@@ -535,7 +494,6 @@ From 90 seconds, after a circle toward their lead sides, B steps in and commits 
 - Consequence: No new mark.
 - Space: The pair circles; B steps in to kicking range in the open ring.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley glove on glove, glove on elbow, shin on shin; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### The hook from the slip {#s07-b02}
@@ -548,7 +506,6 @@ B comes up from the slip with a left hook to A's head, and it lands. A's head tu
 - Consequence: A's cheek reddens and bleeds a streak; sweat flies; he staggers half a step.
 - Space: A gives a step back toward the ropes.
 - Camera: medium, push in on A.
-- Sound: dialogue none; foley glove on face, glove on forearm; ambience room tone; effects none; music none.
 - Continuity: A's cheek reddened and cut from here on.
 
 ### A resets with the teep {#s07-b03}
@@ -561,7 +518,6 @@ A pivots away as B circles after him, gets his feet back under him and pushes a 
 - Consequence: B's stomach reddens; he stops short.
 - Space: A pivots out of the rope zone while B circles after him; the referee walks around to keep his side view.
 - Camera: wide, orbiting with the pivot.
-- Sound: dialogue none; foley sole on skin; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### The stand-off and B's teep {#s07-b03a}
@@ -574,7 +530,6 @@ Both drift back to the centre and stop there, guards high, a long step apart, ea
 - Consequence: No new mark.
 - Space: Both at the centre at kicking distance; B switches in place, steps in to teep range and back out.
 - Camera: wide on the stand-off, medium as B steps in.
-- Sound: dialogue none; foley foot friction, glove on glove, sole on forearm; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### B's body kick {#s07-b04}
@@ -587,7 +542,6 @@ B walks A back, cutting across. His lead hand flicks out exactly as the pump jab
 - Consequence: A's face reddens; sweat flies off his forehead.
 - Space: B presses and cuts across; A gives ground on a diagonal, then steps in for his counter; both angle out.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley shin on elbow; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ## INT. KICKBOXING RING - CONTINUOUS {#s08}
@@ -597,7 +551,6 @@ B walks A back, cutting across. His lead hand flicks out exactly as the pump jab
 - Sets: [ring](../settings/sets/ring.md#zones)
 - Wardrobe and makeup: marks as before
 - Effects: sweat; blood from B's face
-- Sound: [ring sound](../settings/sound/ring-sound.md)
 - Camera: [ring coverage](../settings/cinematography/ring-coverage.md)
 - Lighting: [neutral](../settings/cinematography/ring-coverage.md#neutral)
 
@@ -611,7 +564,6 @@ From 105 seconds, both step straight back out of range and reset their feet, gua
 - Consequence: No new mark; B lingers on his kicking leg.
 - Space: Both step back to kicking distance, then B presses and cuts across, walking A back toward the ropes; B steps in to kicking range.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley glove on glove, shin on shin; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### A punishes the beat {#s08-b02}
@@ -624,7 +576,6 @@ A punishes the beat, stepping in. His left hook goes for B's liver again, but B 
 - Consequence: B's face reddens; blood sprays from his face.
 - Space: A steps in; B moves away on short steps into the open ring.
 - Camera: medium, push in on B.
-- Sound: dialogue none; foley glove on ribs, glove on face; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### A's clinch knee {#s08-b03}
@@ -637,7 +588,6 @@ A follows, cutting across B's retreat, wraps both gloves behind B's head and dri
 - Consequence: B's stomach reddens; he folds and straightens.
 - Space: A presses and closes to clinch range; the referee closes from the perimeter.
 - Camera: medium, push in on B.
-- Sound: dialogue none; foley knee on stomach, B's grunt; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### A's drag feint and jab {#s08-b03a}
@@ -650,7 +600,6 @@ They circle apart; then A hops through southpaw and back to orthodox in place. A
 - Consequence: No new mark.
 - Space: The pair circles toward their lead sides and A switches in place; A drags in to kicking range and angles out.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley foot drag, glove on glove; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### B regroups {#s08-b04}
@@ -663,7 +612,6 @@ They circle. B regroups with a shoulder feint; A's right glove rises to parry th
 - Consequence: No new mark.
 - Space: The pair circles; B steps in; both angle out and circle.
 - Camera: medium, then wide.
-- Sound: dialogue none; foley glove on elbow; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ## INT. KICKBOXING RING - CONTINUOUS {#s09}
@@ -673,7 +621,6 @@ They circle. B regroups with a shoulder feint; A's right glove rises to parry th
 - Sets: [ring](../settings/sets/ring.md#zones)
 - Wardrobe and makeup: marks as before
 - Effects: sweat
-- Sound: [ring sound](../settings/sound/ring-sound.md)
 - Camera: [ring coverage](../settings/cinematography/ring-coverage.md)
 - Lighting: [neutral](../settings/cinematography/ring-coverage.md#neutral)
 
@@ -687,7 +634,6 @@ From 120 seconds, A walks B down, cutting across, and steps in behind a pump jab
 - Consequence: The left side of B's face reddens; his head turns.
 - Space: A presses and cuts across; B gives ground on a diagonal; A steps in to kicking range.
 - Camera: medium, push in on B.
-- Sound: dialogue none; foley glove on face; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### B's shoulder feint and two {#s09-b02}
@@ -700,7 +646,6 @@ A pivots off to a new angle as B circles after him. B dips his right shoulder as
 - Consequence: No new mark.
 - Space: A pivots a quarter circle while B circles after him; B steps in to punching range; both angle out.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley glove on glove; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### B's level change and cross {#s09-b02a}
@@ -713,7 +658,6 @@ They circle. B bends his knees and dips his right shoulder as if to drive a righ
 - Consequence: No new mark.
 - Space: The pair circles toward their lead sides; B steps in and angles out.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley foot friction, air past A's head; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### B keeps his guard high {#s09-b03}
@@ -726,7 +670,6 @@ Both circle; then A steps in with pump jab, cross and right body kick. B's right
 - Consequence: B's left ribs redden further; he relearns to drop his arm to the rising knee.
 - Space: The pair circles; A steps in to kicking range and angles off.
 - Camera: medium two-shot, push in on B.
-- Sound: dialogue none; foley shin on ribs, B's sharp breath; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### The still read {#s09-b03a}
@@ -739,7 +682,6 @@ For two and a half seconds neither man moves: both stand in guard at kicking dis
 - Consequence: none.
 - Space: Both at kicking distance where the body kick left them.
 - Camera: medium two-shot, holding.
-- Sound: dialogue none; foley breaths; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### B's drag and cross {#s09-b04}
@@ -752,7 +694,6 @@ B breaks the stillness: he drags his rear foot as if to kick low. A lifts his ch
 - Consequence: A's face reddens; sweat flies.
 - Space: B drags in from kicking distance; both step out on an angle and circle.
 - Camera: medium, push in on A, then wide.
-- Sound: dialogue none; foley foot drag, glove on face; ambience room tone; effects none; music none.
 - Continuity: A's face reddened from here on.
 
 ## INT. KICKBOXING RING - CONTINUOUS {#s10}
@@ -762,7 +703,6 @@ B breaks the stillness: he drags his rear foot as if to kick low. A lifts his ch
 - Sets: [ring](../settings/sets/ring.md#zones)
 - Wardrobe and makeup: marks as before
 - Effects: sweat; blood from B's nose and mouth; blood on the canvas
-- Sound: [ring sound](../settings/sound/ring-sound.md)
 - Camera: [ring coverage](../settings/cinematography/ring-coverage.md#finish)
 - Lighting: [neutral](../settings/cinematography/ring-coverage.md#neutral)
 
@@ -776,7 +716,6 @@ From 135 seconds, B bends his knees as if to go to the body, and A's left elbow 
 - Consequence: B's nose bleeds; his face reddens further.
 - Space: B steps in to kicking range in the open ring.
 - Camera: medium, push in on B.
-- Sound: dialogue none; foley shin on shin, glove on face; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### Body hook, checked low kick {#s10-b02}
@@ -789,7 +728,6 @@ They circle. B jabs to cover his retreat; A slips it. A steps in and digs a left
 - Consequence: No new mark.
 - Space: The pair circles; A steps in to kicking range after B's jab; both angle out after B's counter.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley glove on elbow, shin on shin, glove on glove; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### A's pump jab and jab {#s10-b02a}
@@ -802,7 +740,6 @@ They circle. A flicks the pump jab; B's right glove jumps to it. A's real jab fo
 - Consequence: No new mark.
 - Space: The pair circles; A steps in to punching range and angles out.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley glove on glove; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### The camera widens {#s10-b03}
@@ -815,7 +752,6 @@ At 143 seconds the camera begins widening into the side-on view of the finish. A
 - Consequence: No new mark; B's tell shows once more.
 - Space: A presses and cuts across while B gives ground; both step in and out of kicking range.
 - Camera: widening from medium to the wide side-on view of the finish.
-- Sound: dialogue none; foley shin on forearm; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### The Brazilian kick {#s10-b04}
@@ -830,7 +766,6 @@ At 150.000, the top of A's right foot and the lower end of his shin come down be
 - Consequence: B's head is driven toward his right shoulder; blood from his mouth marks the canvas; he begins to fall.
 - Space: A steps in to kicking range in the open ring.
 - Camera: wide side-on view, held.
-- Sound: dialogue none; foley short heavy crack of instep on neck; ambience the crowd erupts at 150.000; effects none; music none.
 - Continuity: B's left neck and jaw reddened; blood on the canvas from here on.
 
 ## INT. KICKBOXING RING - CONTINUOUS {#s11}
@@ -840,7 +775,6 @@ At 150.000, the top of A's right foot and the lower end of his shin come down be
 - Sets: [ring](../settings/sets/ring.md#neutral-corners)
 - Wardrobe and makeup: marks as before
 - Effects: [blood on the canvas](../settings/sets/ring.md#blood)
-- Sound: [ring sound](../settings/sound/ring-sound.md)
 - Camera: [the finish](../settings/cinematography/ring-coverage.md#finish)
 - Lighting: [neutral](../settings/cinematography/ring-coverage.md#neutral)
 
@@ -861,7 +795,6 @@ B's right hip and side take the canvas before the right shoulder. His head settl
 - Consequence: B lies on his right side by 151.600, breathing.
 - Space: B falls in the open ring; A replants clear of him; the referee advances outside the falling body's path.
 - Camera: wide side-on view, held.
-- Sound: dialogue "Down!"; foley successive dull canvas landings; ambience the crowd roars; effects none; music none.
 - Continuity: blood on the canvas beside B's face.
 
 ### The neutral corner {#s11-b02}
@@ -884,7 +817,6 @@ Now A steps clear and retreats diagonally in short supported steps, keeping B in
 - Consequence: The referee picks up the timekeeper's count only now, as the rules require.
 - Space: A hovers in the open ring near B, then walks to the farthest neutral corner; the referee walks to a point beside B that keeps the corner in view.
 - Camera: wide side-on view, held.
-- Sound: dialogue "Neutral corner!", "Corner! Go!"; foley footsteps; ambience the crowd roars; effects none; music none.
 - Continuity: as before.
 
 ### The count to seven {#s11-b03}
@@ -932,7 +864,6 @@ At 164.000, the referee keeps the count steady, one full second between numbers.
 - Consequence: B lies on his right side again, breathing.
 - Space: A in the neutral corner; the referee beside B; B on the canvas.
 - Camera: medium two-shot of the referee counting over B from the other neutral corner, A in his corner in the background.
-- Sound: dialogue "One!" at 158.000 through "Seven!" at 164.000; foley B's glove on canvas, breaths; ambience the crowd's tense murmur under the count; effects none; music none.
 - Continuity: as before.
 
 ### Eight, nine, ten {#s11-b04}
@@ -958,7 +889,6 @@ At 167.000, the tenth full second expires. B is still down.
 - Consequence: The contest is over.
 - Space: unchanged.
 - Camera: the count's two-shot, A in the background corner, until the wide view returns after "Ten!".
-- Sound: dialogue "Eight!" at 165.000, "Nine!" at 166.000, "Ten!" at 167.000; foley breaths; ambience the crowd's tension peaks; effects none; music none.
 - Continuity: as before.
 
 ## INT. KICKBOXING RING - CONTINUOUS {#s12}
@@ -969,7 +899,6 @@ At 167.000, the tenth full second expires. B is still down.
 - Sets: [ring](../settings/sets/ring.md#use)
 - Wardrobe and makeup: marks as before
 - Effects: [blood on the canvas](../settings/sets/ring.md#blood)
-- Sound: [ring sound](../settings/sound/ring-sound.md)
 - Camera: [the finish](../settings/cinematography/ring-coverage.md#finish)
 - Lighting: [neutral](../settings/cinematography/ring-coverage.md#neutral)
 
@@ -986,7 +915,6 @@ That's it!
 - Consequence: The bout is over.
 - Space: The referee beside B.
 - Camera: wide side-on view, cut back from the count's two-shot.
-- Sound: dialogue "That's it!"; foley none; ambience the crowd erupts at 167.600; effects none; music none.
 - Continuity: as before.
 
 ### The referee goes to B; A celebrates {#s12-b02}
@@ -999,7 +927,6 @@ The referee turns straight to B and lowers into a shallow supported crouch over 
 - Consequence: A's breath is excited and loud; B stays down, breathing.
 - Space: The referee crouches beside B; A moves along his side of the ring out of the neutral corner, never toward B.
 - Camera: wide side-on view, held.
-- Sound: dialogue none; foley quick footsteps, A's excited breath; ambience the crowd's roar decaying; effects a rapid burst of bell strikes from 170.100; music none.
 - Continuity: as before.
 
 ### A checks on B {#s12-b03}
@@ -1012,7 +939,6 @@ At about 172 the unseen ringside doctor, called by the referee's lifted hand, ar
 - Consequence: A stands a stride from B; with the doctor at B's side, the referee is free to leave B.
 - Space: A walks from his side to B in the open ring.
 - Camera: wide side-on view, held.
-- Sound: dialogue none; foley footsteps, breaths; ambience the crowd's swell; effects none; music none.
 - Continuity: as before.
 
 ### The raised hand {#s12-b04}
@@ -1025,5 +951,4 @@ From 174.000 the referee rises from B, takes A by the wrist a step away from the
 - Consequence: B stays down, breathing.
 - Space: The referee and A beside B in the open ring.
 - Camera: wide side-on view, held to the end.
-- Sound: dialogue none; foley breaths; ambience the crowd swells, then decays toward 180; effects none; music none.
 - Continuity: end of the film.
