@@ -84,13 +84,13 @@ export function test_motion_center_of_mass(): void {
   // 2. Metamorphic root transforms.
   const moved: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
     model,
-    posed({ translation: { x: 1, y: 1, z: 2 }, rotation: { x: 0, y: 0, z: 0, w: 1 }, scale: { x: 1, y: 1, z: 1 } }),
+    posed({ translation: { x: 1, y: 0, z: 2 }, rotation: { x: 0, y: 0, z: 0, w: 1 }, scale: { x: 1, y: 1, z: 1 } }),
   );
   near("translated centre", moved, { x: rest.x + 1, y: rest.y, z: rest.z + 2 });
   const s: number = Math.SQRT1_2;
   const turned: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
     model,
-    posed({ translation: { x: 0, y: 1, z: 0 }, rotation: { x: 0, y: s, z: 0, w: s }, scale: { x: 1, y: 1, z: 1 } }),
+    posed({ translation: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: s, z: 0, w: s }, scale: { x: 1, y: 1, z: 1 } }),
   );
   near("turned centre", turned, { x: 0, y: rest.y, z: -rest.x });
 

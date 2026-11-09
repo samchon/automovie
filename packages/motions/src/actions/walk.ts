@@ -86,6 +86,21 @@ export namespace walk {
 
     /** The pace; `normal` when absent. */
     pace?: "slow" | "normal" | "fast";
+
+    /** Floor points passed in order before `to`, world metres. */
+    via?: IAutoMovieVector3[];
+
+    /** The heading at arrival, degrees about +Y (0 faces +Z); the last leg's direction when absent. */
+    face?: number;
+
+    /** Step-length scale, an Effort hook (a hurried or a dragging gait), in [0.6, 1.3]; 1 when absent. */
+    stride?: number;
+
+    /** Arm-swing scale, an Effort hook, in [0, 2]; 1 when absent. */
+    armSwing?: number;
+
+    /** Elbows held out from the body, shoulder abduction added, degrees in [0, 30]; 0 when absent. */
+    elbows?: number;
   }
 
   /** Froude number of each pace (Alexander 1984; Bohannon 1997 speeds at a 0.93 m hip). */
@@ -103,11 +118,20 @@ export namespace walk {
     const l: number = m.hipHeight;
     const froude: number = FROUDE[context.params.pace ?? "normal"];
     const speed: number = Math.sqrt(froude * 9.81 * l);
-    const longest: number = 1.2 * l * Math.sqrt(Math.sqrt(froude));
+    const p = context.params;
+    const stride: number = p.stride ?? 1;
+    const arms: number = p.armSwing ?? 1;
+    const elbows: number = p.elbows ?? 0;
+    if (!(stride >= 0.6 && stride <= 1.3)) throw new Error(`walk.stride must lie in [0.6, 1.3], got ${stride}`);
+    if (!(arms >= 0 && arms <= 2)) throw new Error(`walk.armSwing must lie in [0, 2], got ${arms}`);
+    if (!(elbows >= 0 && elbows <= 30)) throw new Error(`walk.elbows must lie in [0, 30], got ${elbows}`);
+    const longest: number = stride * 1.2 * l * Math.sqrt(Math.sqrt(froude));
     const steps: walkSteps.IPlan = walkSteps.plan({
       body,
       entry: context.entry,
-      to: context.params.to,
+      to: p.to,
+      ...(p.via === undefined ? {} : { via: p.via }),
+      ...(p.face === undefined ? {} : { face: p.face }),
       speed,
       longest,
       period: (seconds: number): number => HumanSkill.jitter(context.skill, context.random("period"), seconds),
@@ -143,10 +167,10 @@ export namespace walk {
           leftToes: [reached.toes.left, 0, 0],
           rightToes: [reached.toes.right, 0, 0],
           chest: [upright.joints.chest?.[0] ?? 0, 0, -4 * swing],
-          leftUpperArm: [-15 * swing, 5, 0],
-          rightUpperArm: [15 * swing, 5, 0],
-          leftLowerArm: [22 - 8 * swing, 0, 0],
-          rightLowerArm: [22 + 8 * swing, 0, 0],
+          leftUpperArm: [-15 * arms * swing, 5 + elbows, 0],
+          rightUpperArm: [15 * arms * swing, 5 + elbows, 0],
+          leftLowerArm: [22 - 8 * arms * swing, 0, 0],
+          rightLowerArm: [22 + 8 * arms * swing, 0, 0],
         };
         const limbs: IHumanPosture["limbs"] = {};
         for (const side of ["left", "right"] as const) {

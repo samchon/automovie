@@ -1,4 +1,4 @@
-import type { AutoMovieHumanoidBone, IAutoMovieMotionEvent } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { IHumanContactWindow } from "./IHumanContactWindow";
@@ -60,6 +60,25 @@ export interface IHumanActionPlan {
    * drives a held hand without taking its prop over is refused.
    */
   hands?: readonly ("left" | "right")[];
+
+  /**
+   * Striking surfaces this action moves on free paths, for the
+   * performance's simultaneous-contact resolution: every active weapon of
+   * every person is stopped at its first contact with another person's
+   * colliders, in time order, each later weapon seeing the earlier stops
+   * (`resolveAutoMovieContactEvents`).
+   */
+  weapons?: readonly IHumanActionPlan.IWeapon[];
+
+  /**
+   * Receive this action's resolved contacts, once, after the schedule is
+   * placed and before any pose is shown; a law that takes them replaces its
+   * own contact scan. A stop changes the pose only, never the duration, the
+   * events or the decisive instant.
+   *
+   * @param events This action's weapons' first contacts, in time order.
+   */
+  stop?(events: readonly IHumanActionPlan.IContactEvent[]): void;
 }
 /**
  * Companion types of {@link IHumanActionPlan}.
@@ -70,6 +89,44 @@ export interface IHumanActionPlan {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses clinical joint triples.
  */
 export namespace IHumanActionPlan {
+  /** A striking surface on its free path. */
+  export interface IWeapon {
+    /** Id, unique within the plan. */
+    id: string;
+
+    /** The limb that carries it; frozen at its stop while contacts resolve. */
+    limb: "leftArm" | "rightArm" | "leftLeg" | "rightLeg";
+
+    /** Radius of the striking sphere, metres. */
+    radius: number;
+
+    /** Film second it becomes live. */
+    from: number;
+
+    /** Film second it stops being live. */
+    to: number;
+
+    /**
+     * The surface's centre on its free path, ignoring its own stop.
+     *
+     * @param seconds Film seconds.
+     * @returns World metres.
+     */
+    path(seconds: number): IAutoMovieVector3;
+  }
+
+  /** A resolved first contact. */
+  export interface IContactEvent {
+    /** The weapon's id within its plan. */
+    weapon: string;
+
+    /** The person it met. */
+    against: string;
+
+    /** Film second of contact. */
+    seconds: number;
+  }
+
   /** A prop left held in one hand. */
   export interface IHold {
     /** The holding hand. */

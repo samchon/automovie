@@ -15,8 +15,9 @@ import { MotionBodies } from "../MotionBodies";
 
 /**
  * The capture case of quiet standing on the polygon man (`stand`): the
- * smallest, the average and the tallest sweep bodies stand side by side for
- * 2 s, drawn at the start, after settling and at the end.
+ * smallest, the average and the tallest sweep bodies stand for 2 s on a
+ * diagonal, 0.8 m apart along each axis, drawn at the start, after settling
+ * and at the end.
  *
  * The verdicts are the clinical standing alignment the stand law claims, read
  * on the displayed bones at the end: the shoulder joints' midpoint and the
@@ -51,7 +52,8 @@ export function standCases(): IMotionCaptureCase[] {
     performers: bodies.map((body: IHumanBody, i: number) => ({
       subject: `s${i}`,
       body,
-      at: { x: (i - 1) * 0.8, y: 0, z: 0 },
+      // A diagonal lane, so the bodies part in the front and the side views alike.
+      at: { x: (i - 1) * 0.8, y: 0, z: (i - 1) * 0.8 },
       yaw: 0,
       proficiency: { level: "trained" as const },
     })),

@@ -46,6 +46,7 @@ export * from "./perform/HumanPerformance";
 export * from "./perform/HumanSegment";
 export * from "./perform/IHumanPerformer";
 export * from "./perform/IHumanProp";
+export * from "./posture/HumanColliders";
 export * from "./posture/HumanFoot";
 export * from "./posture/HumanFrame";
 export * from "./posture/HumanHand";

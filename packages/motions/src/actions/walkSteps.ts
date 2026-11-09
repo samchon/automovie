@@ -13,11 +13,16 @@ import { stand } from "./stand";
  * times, each foot's rockers and swings, and the pelvis path, all as closed
  * functions of seconds.
  *
- * Footprints lie along the straight line from the feet's midpoint to the
- * destination, at most `longest` apart, alternately half a step width to
+ * Footprints lie along the path from the feet's midpoint through the `via`
+ * points to the destination, at even arc lengths at most `longest` apart,
+ * each turned to the path's heading averaged over one step so a corner is
+ * taken over a step, alternately half a step width to
  * either side (step width 0.1 hip heights, about 9 cm, inside the 7 to 12 cm
  * of normal adult gait, Perry and Burnfield), the foot behind stepping
- * first and the last two ending at the body's rest separation. Each step's
+ * first and the last two ending at the body's rest separation, facing `face`
+ * when given: the closing pair turns half of the way each, a stepping turn,
+ * and the pelvis turns over the last two steps, so neither foot needs more
+ * hip rotation than the pelvis gives it. Each step's
  * heel strike comes one step period after the previous; its toe-off one swing
  * (0.8 step periods, 40 % of a stride) before its heel strike; the first
  * toe-off comes 0.25 s after the start, a provisional gait-initiation delay
@@ -51,6 +56,12 @@ export namespace walkSteps {
 
     /** The destination floor point, world metres. */
     to: IAutoMovieVector3;
+
+    /** Floor points passed in order before the destination, world metres. */
+    via?: readonly IAutoMovieVector3[];
+
+    /** The heading at arrival, degrees; the last leg's direction when absent. */
+    face?: number;
 
     /** Walking speed, m/s. */
     speed: number;
@@ -127,14 +138,19 @@ export namespace walkSteps {
     });
     const start: Record<"left" | "right", HumanFoot.IPlacement> = { left: flatten("left"), right: flatten("right") };
     const S: IAutoMovieVector3 = { x: (start.left.ankle.x + start.right.ankle.x) / 2, y: 0, z: (start.left.ankle.z + start.right.ankle.z) / 2 };
-    const dx: number = input.to.x - S.x;
-    const dz: number = input.to.z - S.z;
-    const D: number = Math.hypot(dx, dz);
-    let heading: number = D < 1e-6 ? yaw0 : (Math.atan2(dx, dz) * 180) / Math.PI;
-    while (heading - yaw0 > 180) heading -= 360;
-    while (heading - yaw0 < -180) heading += 360;
+    const path: Path = new Path([S, ...(input.via ?? []), input.to].map((p: IAutoMovieVector3): IAutoMovieVector3 => ({ x: p.x, y: 0, z: p.z })));
+    const D: number = path.length;
     const n: number = Math.max(1, Math.ceil(D / input.longest - 1e-9));
     const delta: number = D / n;
+    const unwrap = (angle: number, near: number): number => {
+      let a: number = angle;
+      while (a - near > 180) a -= 360;
+      while (a - near < -180) a += 360;
+      return a;
+    };
+    const heading: number = D < 1e-6 ? yaw0 : unwrap(path.heading(0, delta / 2), yaw0);
+    const along$ = (s: number): number => (D < 1e-6 ? heading : unwrap(path.heading(s, delta / 2), heading));
+    const ending: number = unwrap(input.face ?? (D < 1e-6 ? heading : path.heading(D, delta / 2)), along$(D));
     const frame: HumanFrame.IFrame = { origin: S, yaw: heading };
     const along = (side: "left" | "right"): number => HumanFrame.local(frame, start[side].ankle).z;
     const lead: "left" | "right" = along("left") < along("right") - 1e-6 ? "left" : "right";
@@ -149,8 +165,10 @@ export namespace walkSteps {
       const side: "left" | "right" = j % 2 === 1 ? lead : other(lead);
       const d: number = Math.min(D, j * delta);
       const lateral: number = (side === "left" ? 1 : -1) * (j >= n ? rest(side) : half);
-      const point: IAutoMovieVector3 = HumanFrame.point(frame, { x: lateral, y: m.ankleHeight, z: d });
-      const footHeading: number = heading + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT);
+      // The closing pair turns to the arrival heading over two steps, half each.
+      const toward: number = j > n ? ending : j === n ? (along$(d) + ending) / 2 : along$(d);
+      const point: IAutoMovieVector3 = HumanFrame.point({ origin: path.at(d), yaw: toward }, { x: lateral, y: m.ankleHeight, z: 0 });
+      const footHeading: number = toward + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT);
       const heelStrike: number = first + swing + (j - 1) * T;
       steps.push({ side, heelStrike, toeOff: heelStrike - swing, flat: { ankle: point, rotation: HumanFoot.rotation(footHeading, 0) }, heading: footHeading });
     }
@@ -200,7 +218,11 @@ export namespace walkSteps {
       const b: IAutoMovieVector3 = body.rest.get("rightFoot")!;
       return HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, { x: (a.x + b.x) / 2, y: 0, z: (a.z + b.z) / 2 });
     };
-    const yawAt = (t: number): number => yaw0 + (heading - yaw0) * minimumJerk(t / (first + T)).s;
+    const turn: number = steps[Math.max(0, steps.length - 3)]!.toeOff;
+    const yawAt = (t: number): number => {
+      const travel: number = yaw0 + (along$(progress(t)) - yaw0) * minimumJerk(t / (first + T)).s;
+      return travel + (ending - travel) * minimumJerk((t - turn) / Math.max(1e-6, last - turn)).s;
+    };
     const amount = (t: number): number => Math.max(0, Math.min(1, ramp(t)));
     const foot = (side: "left" | "right", t: number): IFoot => footAt(body, side, steps, start[side], t);
     const planned = (t: number): IAutoMovieVector3 => {
@@ -209,7 +231,8 @@ export namespace walkSteps {
       const a: number = amount(t);
       const sway: number = 0.02 * (l / 0.93) * a * Math.cos((2 * Math.PI * (t - (firstLeft + 0.6 * T))) / (2 * T));
       const bob: number = a * (-0.015 + 0.025 * Math.cos((2 * Math.PI * (t - (firstLeft + 0.6 * T))) / T));
-      const p: IAutoMovieVector3 = HumanFrame.point({ origin: S, yaw: heading }, { x: sway, y: 0, z: progress(t) });
+      const s: number = progress(t);
+      const p: IAutoMovieVector3 = HumanFrame.point({ origin: path.at(s), yaw: along$(s) }, { x: sway, y: 0, z: 0 });
       return { x: p.x - c.x, y: -0.005 + bob, z: p.z - c.z };
     };
     const offset: IAutoMovieVector3 = { x: rootStart.x - planned(0).x, y: rootStart.y - planned(0).y, z: rootStart.z - planned(0).z };
@@ -466,4 +489,55 @@ function swingAt(
   const clearance: number = 0.012 * Math.sin(Math.PI * Math.min(1, Math.max(0, u)));
   if (low < clearance && u > 0 && u < 1) ankle.y += clearance - low;
   return placement;
+}
+
+/** A floor polyline by arc length. */
+class Path {
+  /** Cumulative arc length at each point. */
+  private readonly cumulative: number[];
+
+  /** Total length, metres. */
+  public readonly length: number;
+
+  public constructor(private readonly points: readonly IAutoMovieVector3[]) {
+    this.cumulative = [0];
+    for (let i: number = 1; i < points.length; i++)
+      this.cumulative.push(this.cumulative[i - 1]! + Math.hypot(points[i]!.x - points[i - 1]!.x, points[i]!.z - points[i - 1]!.z));
+    this.length = this.cumulative.at(-1)!;
+  }
+
+  /**
+   * The point at an arc length, clamped to the ends.
+   *
+   * @param s Arc length, metres.
+   * @returns The floor point.
+   */
+  public at(s: number): IAutoMovieVector3 {
+    const c: number = Math.min(this.length, Math.max(0, s));
+    let i: number = 1;
+    while (i < this.points.length - 1 && this.cumulative[i]! < c) i++;
+    const a: IAutoMovieVector3 = this.points[i - 1]!;
+    const b: IAutoMovieVector3 = this.points[i]!;
+    const span: number = this.cumulative[i]! - this.cumulative[i - 1]!;
+    const u: number = span < 1e-12 ? 0 : (c - this.cumulative[i - 1]!) / span;
+    return { x: a.x + (b.x - a.x) * u, y: 0, z: a.z + (b.z - a.z) * u };
+  }
+
+  /**
+   * The heading of the chord across an arc length's neighbourhood, degrees about +Y (0 faces +Z).
+   *
+   * @param s Arc length, metres.
+   * @param width Half the neighbourhood, metres.
+   * @returns The heading.
+   */
+  public heading(s: number, width: number): number {
+    const w: number = Math.max(width, 1e-3);
+    let lo: number = s - w;
+    let hi: number = s + w;
+    if (lo < 0) [lo, hi] = [0, 2 * w];
+    if (hi > this.length) [lo, hi] = [Math.max(0, this.length - 2 * w), this.length];
+    const a: IAutoMovieVector3 = this.at(lo);
+    const b: IAutoMovieVector3 = this.at(hi);
+    return (Math.atan2(b.x - a.x, b.z - a.z) * 180) / Math.PI;
+  }
 }

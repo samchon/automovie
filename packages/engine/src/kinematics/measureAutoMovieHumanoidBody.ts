@@ -18,8 +18,9 @@ import { physicalShapeBounds } from "../physics/physicalShapeBounds";
  * The rig must be in the canonical VRM 1.0 frame at its T-pose rest (+Y up,
  * facing +Z, the left toward +X, the floor at Y = 0). Heights and spacings are
  * read from rest joint centres (sides averaged); segment lengths are
- * joint-to-joint distances; the stature, the head radius, the foot extents,
- * the chest extents and the limb radii are read from the colliders of the
+ * joint-to-joint distances; the stature, the head radius, the foot extents
+ * (over the foot and, when the profile jointed them, the toes), the chest
+ * extents and the limb radii are read from the colliders of the
  * matching profile segments by their exact axis bounds at rest
  * (`physicalShapeBounds`). The hand runs from the wrist to the farthest point
  * of the hand segment's colliders along the forearm. A limb radius is the
@@ -110,7 +111,16 @@ export function measureAutoMovieHumanoidBody(
           far = Math.max(far, Vector3.dot(Vector3.subtract({ x, y, z }, wrist), axis));
     return far;
   };
-  const foot = (side: "left" | "right"): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => bounds(bone(side, "Foot"));
+  // The foot's extents span the toes too when the profile gives them their own segment.
+  const foot = (side: "left" | "right"): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
+    const rear: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(bone(side, "Foot"));
+    if (!profile.segments.some((x: P.ISegment): boolean => x.bone === bone(side, "Toes"))) return rear;
+    const toes: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(bone(side, "Toes"));
+    return {
+      min: { x: Math.min(rear.min.x, toes.min.x), y: Math.min(rear.min.y, toes.min.y), z: Math.min(rear.min.z, toes.min.z) },
+      max: { x: Math.max(rear.max.x, toes.max.x), y: Math.max(rear.max.y, toes.max.y), z: Math.max(rear.max.z, toes.max.z) },
+    };
+  };
   const eyes: boolean = rest.has("leftEye") && rest.has("rightEye");
   return {
     stature: top,

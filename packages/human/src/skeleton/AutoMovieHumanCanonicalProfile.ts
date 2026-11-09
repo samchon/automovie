@@ -22,8 +22,10 @@ import type {
  *
  * Colliders follow the drawn primitives: each limb segment and each phalanx
  * is a capsule of its girth radius whose axis runs from its joint to its child
- * joint (a distal phalanx to its tip), so its caps are the drawn joint balls
- * and every joint lies inside its own segment's collider; the pelvis, abdomen
+ * joint, so its caps are the drawn joint balls and every joint lies inside its
+ * own segment's collider, while a capsule to a surface tip (a distal phalanx
+ * to its fingertip, the head to its crown) ends with its cap on the tip, so
+ * the stature and the fingertips are where they are drawn; the pelvis, abdomen
  * and thorax are boxes between their joints whose half breadths and half
  * depths are the drawing's elliptical sections scaled by `sqrt(pi / 4)` (a box
  * of the ellipse's area); the neck is a capsule to the head joint and the head
@@ -103,7 +105,12 @@ export namespace AutoMovieHumanCanonicalProfile {
         origin,
       );
     };
-    const capsule = (bone: AutoMovieHumanoidBone, share: number, from: IAutoMovieVector3, to: IAutoMovieVector3, radius: number): void => {
+    // A capsule between two joints ends in the joints' balls; one to a surface
+    // tip (the crown, a fingertip) ends with its cap on the tip.
+    const capsule = (bone: AutoMovieHumanoidBone, share: number, from: IAutoMovieVector3, end: IAutoMovieVector3, radius: number, tip: boolean = false): void => {
+      const span: number = Vector3.length(Vector3.subtract(end, from));
+      const inward: number = tip ? Math.min(radius, span) : 0;
+      const to: IAutoMovieVector3 = span > 1e-9 ? Vector3.subtract(end, Vector3.scale(Vector3.subtract(end, from), inward / span)) : end;
       const axis: IAutoMovieVector3 = Vector3.subtract(to, from);
       const length: number = Vector3.length(axis);
       const rotation: IAutoMovieQuaternion = length > 1e-9 ? rotationBetween({ x: 0, y: 1, z: 0 }, axis) : identity;
@@ -134,7 +141,7 @@ export namespace AutoMovieHumanCanonicalProfile {
     trunk("chest", 0.216, chest.position.y, at("neck").y, (thorax + shoulderBreadth) / 2, chest.radius, chest.position.z);
     capsule("neck", 0.081 - 0.0694, at("neck"), at("head"), j("neck").radius);
     const crown: IAutoMovieVector3 = j("head").tip ?? Vector3.add(at("head"), { x: 0, y: 2 * j("head").radius, z: 0 });
-    capsule("head", 0.0694, at("head"), crown, j("head").radius);
+    capsule("head", 0.0694, at("head"), crown, j("head").radius, j("head").tip !== null);
 
     for (const side of ["left", "right"] as const) {
       const b = (name: string): AutoMovieHumanoidBone => `${side}${name}` as AutoMovieHumanoidBone;
@@ -145,7 +152,7 @@ export namespace AutoMovieHumanCanonicalProfile {
       const thick: number = k * j(b("Hand")).radius;
       const wrist: IAutoMovieVector3 = at(b("Hand"));
       const xs: number[] = [wrist.x, ...knuckles.flatMap((n: IJoint): number[] => [n.position.x - n.radius, n.position.x + n.radius])];
-      const digits: { bone: AutoMovieHumanoidBone; from: IAutoMovieVector3; to: IAutoMovieVector3; radius: number }[] = DIGITS.flatMap(
+      const digits: { bone: AutoMovieHumanoidBone; from: IAutoMovieVector3; to: IAutoMovieVector3; radius: number; tip: boolean }[] = DIGITS.flatMap(
         (chain: readonly string[]) =>
           chain.map((name: string, i: number) => {
             const joint: IJoint = j(b(name));
@@ -154,6 +161,7 @@ export namespace AutoMovieHumanCanonicalProfile {
               bone: b(name),
               from: joint.position,
               to: next === undefined ? (joint.tip ?? joint.position) : at(b(next)),
+              tip: next === undefined && joint.tip !== null,
               radius: joint.radius,
             };
           }),
@@ -170,7 +178,7 @@ export namespace AutoMovieHumanCanonicalProfile {
         { x: Math.min(...xs), y: wrist.y - thick, z: wrist.z - across },
         { x: Math.max(...xs), y: wrist.y + thick, z: wrist.z + across },
       );
-      digits.forEach((d, i: number): void => capsule(d.bone, (0.006 * volumes[i]!) / handVolume, d.from, d.to, d.radius));
+      digits.forEach((d, i: number): void => capsule(d.bone, (0.006 * volumes[i]!) / handVolume, d.from, d.to, d.radius, d.tip));
       capsule(b("UpperLeg"), 0.1, at(b("UpperLeg")), at(b("LowerLeg")), j(b("UpperLeg")).radius);
       capsule(b("LowerLeg"), 0.0465, at(b("LowerLeg")), at(b("Foot")), j(b("LowerLeg")).radius);
       // The rear foot to the balls of the toes' roots, and the toes from their roots to their tips.

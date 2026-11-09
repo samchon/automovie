@@ -72,6 +72,20 @@ export namespace HumanSegment {
 
     /** Props this person's actions left held, in placement order. */
     holds: IHeld[];
+
+    /** Resolved stops of this person's weapons, film seconds, keyed by `weapon(segment, id)`. */
+    stops: Map<string, number>;
+  }
+
+  /**
+   * A weapon's key among its person's stops.
+   *
+   * @param segment The action.
+   * @param id The weapon's id within its plan.
+   * @returns The key.
+   */
+  export function weapon(segment: ISegment, id: string): string {
+    return `${segment.index}:${id}`;
   }
 
   /** A prop held across actions. */
@@ -317,6 +331,25 @@ export namespace HumanSegment {
       }
       posture = { ...posture, limbs };
     }
+    // A stopped weapon's limb holds its contact: while contacts resolve, and
+    // in display for a law that does not take its stops itself.
+    if (person.resolving || segment.plan.stop === undefined)
+      for (const w of segment.plan.weapons ?? []) {
+        const s: number | undefined = person.stops.get(weapon(segment, w.id));
+        if (s === undefined || seconds <= s) continue;
+        const side: "left" | "right" = w.limb.startsWith("left") ? "left" : "right";
+        const arm: boolean = w.limb.endsWith("Arm");
+        const map = bones(person, of(person, segment, s));
+        const effector: IAutoMovieResolvedBone = map.get(`${side}${arm ? "Hand" : "Foot"}`)!;
+        const goal: IHumanPosture.IGoal = {
+          point: effector.worldPosition,
+          rotation: effector.worldRotation,
+          bend: map.get(`${side}${arm ? "LowerArm" : "LowerLeg"}`)!.worldPosition,
+          planted: true,
+        };
+        posture = { ...posture, limbs: { ...posture.limbs, [w.limb]: goal } };
+        pose = resolveHumanPosture.limb(body, pose, w.limb, goal);
+      }
     const transition = segment.transition;
     if (transition !== undefined && transition.kind !== "redirect" && seconds - transition.cut < transition.blend) {
       transition.offset ??= inertializePose(

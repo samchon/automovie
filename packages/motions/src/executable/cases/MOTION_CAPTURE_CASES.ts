@@ -1,9 +1,11 @@
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { MotionBodies } from "../MotionBodies";
 import { everydayCases } from "./everydayCases";
 import { galleryCases } from "./galleryCases";
 import { locomotionCases } from "./locomotionCases";
 import { standCases } from "./standCases";
 import { handlingCases } from "./handlingCases";
+import { strikingCases } from "./strikingCases";
 
 /**
  * Every capture case by name: each factory builds one or more cases, so a
@@ -26,5 +28,15 @@ export const MOTION_CAPTURE_CASES: Readonly<Record<string, () => IMotionCaptureC
   "everyday-seat": (): IMotionCaptureCase[] => everydayCases("seat"),
   "everyday-bend": (): IMotionCaptureCase[] => everydayCases("bend"),
   "everyday-step": (): IMotionCaptureCase[] => everydayCases("step"),
+  "everyday-rest-sweep": (): IMotionCaptureCase[] => everydayCases("rest", MotionBodies.SWEEP.filter((b: string): boolean => b !== "f-short")),
+  "everyday-seat-sweep": (): IMotionCaptureCase[] => everydayCases("seat", MotionBodies.SWEEP.filter((b: string): boolean => b !== "f-short")),
   "handling-handshake": (): IMotionCaptureCase[] => handlingCases("handshake"),
+  striking: (): IMotionCaptureCase[] => strikingCases(),
+  "striking-jab-cover": (): IMotionCaptureCase[] => strikingCases("striking-jab-cover"),
+  "striking-crosses": (): IMotionCaptureCase[] => strikingCases("striking-crosses"),
+  "striking-kicks": (): IMotionCaptureCase[] => strikingCases("striking-kicks"),
+  "striking-redirect": (): IMotionCaptureCase[] => strikingCases("striking-redirect"),
+  "striking-fooled": (): IMotionCaptureCase[] => strikingCases("striking-fooled"),
+  "striking-knee": (): IMotionCaptureCase[] => strikingCases("striking-knee"),
+  "striking-air": (): IMotionCaptureCase[] => strikingCases("striking-air"),
 };

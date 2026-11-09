@@ -12,7 +12,11 @@ import { MotionBodies } from "../MotionBodies";
 /**
  * Capture cases of the walk law on the polygon man (E0): the smallest, the
  * average and the tallest sweep bodies each walk 4 m ahead alone, one case
- * per body and pace (`walk-<pace>-<body>`).
+ * per body and pace (`walk-<pace>-<body>`), and the average body walking
+ * a bent path through a via point, turning to face +X at the end with a
+ * shorter stride, a wider arm swing and the elbows out (`walk-path-m-average`),
+ * whose verdicts add passing within 15 cm of the via point and the final
+ * heading within 3°; its steady speed is not judged, the path being bent.
  *
  * Instants are every 0.2 s, every heel strike and toe-off, and the end. The overlays are each ankle's trail and a drift marker for every 24 Hz
  * sample of a heel or ball on the floor in stance, coloured against the 5 mm
@@ -43,12 +47,18 @@ export function locomotionCases(): IMotionCaptureCase[] {
   const names = [who] as const;
   const men = names.map((name) => MotionBodies.population(name));
   const bodies: IHumanBody[] = men.map((man) => createHumanBody(man.body.skeleton, man.body.profile));
-  return (["slow", "normal", "fast"] as const).map((pace): IMotionCaptureCase => {
+  const configs: { pace: "slow" | "normal" | "fast"; label: string; to: IAutoMovieVector3; extra: Omit<walk.IParams, "to" | "pace"> }[] = [
+    ...(["slow", "normal", "fast"] as const).map((pace) => ({ pace, label: pace, to: { x: 0, y: 0, z: 4 }, extra: {} })),
+    ...(who === "m-average"
+      ? [{ pace: "normal" as const, label: "path", to: { x: 1.5, y: 0, z: 4 }, extra: { via: [{ x: 1.5, y: 0, z: 1.5 }], face: 90, stride: 0.9, armSwing: 1.5, elbows: 10 } }]
+      : []),
+  ];
+  return configs.map(({ pace, label, to, extra }): IMotionCaptureCase => {
     const lanes: number[] = names.map((): number => 0);
-    const goals: IAutoMovieVector3[] = lanes.map((x: number): IAutoMovieVector3 => ({ x, y: 0, z: 4 }));
+    const goals: IAutoMovieVector3[] = names.map((): IAutoMovieVector3 => to);
     let chain: HumanChain | undefined;
     names.forEach((_, i: number): void => {
-      const one: HumanChain = HumanChain.subject(`w${i}`).walk({ to: goals[i]!, pace });
+      const one: HumanChain = HumanChain.subject(`w${i}`).walk({ to: goals[i]!, pace, ...extra });
       chain = chain === undefined ? one : chain.with(one);
     });
     const performance: HumanPerformance = new HumanPerformance({
@@ -70,6 +80,8 @@ export function locomotionCases(): IMotionCaptureCase[] {
     let reach: { value: number; where: string } = { value: 0, where: "none" };
     const turn: Record<"stance" | "swing", { value: number; where: string }> = { stance: { value: 0, where: "none" }, swing: { value: 0, where: "none" } };
     const misses: number[] = [];
+    let via: number = Infinity;
+    let facing: number = 0;
     const speeds: string[] = [];
     let speedOk: boolean = true;
     names.forEach((_, i: number): void => {
@@ -88,6 +100,7 @@ export function locomotionCases(): IMotionCaptureCase[] {
         const t: number = Math.min(end, k / 24);
         const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = performance.bones(subject, t);
         const posture = performance.posture(subject, t);
+        for (const v of extra.via ?? []) via = Math.min(via, Math.hypot(bones.get("hips")!.worldPosition.x - v.x, bones.get("hips")!.worldPosition.z - v.z));
         for (const side of ["left", "right"] as const) {
           const ankle: IAutoMovieVector3 = bones.get(`${side}Foot`)!.worldPosition;
           ankles[side].push(ankle);
@@ -139,6 +152,8 @@ export function locomotionCases(): IMotionCaptureCase[] {
       trails.push({ color: 0x3070c0, points: ankles.left }, { color: 0xc07030, points: ankles.right });
       const hips: IAutoMovieVector3 = performance.bones(subject, segment.end).get("hips")!.worldPosition;
       misses.push(Math.hypot(hips.x - goals[i]!.x, hips.z - goals[i]!.z));
+      const ahead: IAutoMovieVector3 = rotate(performance.bones(subject, segment.end).get("hips")!.worldRotation, { x: 0, y: 0, z: 1 });
+      facing = (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI;
       // Steady speed: the pelvis between the first and the last left heel strike after it.
       const strikes: number[] = segment.plan.events.filter((e) => /^leftHeelStrike\d+$/.test(e.name)).map((e) => at(e.name));
       const a: IAutoMovieVector3 = performance.bones(subject, strikes[0]!).get("hips")!.worldPosition;
@@ -151,7 +166,7 @@ export function locomotionCases(): IMotionCaptureCase[] {
       if (Math.abs(speed / froude - 1) > 0.1) speedOk = false;
     });
     return {
-      name: `walk-${pace}-${who}`,
+      name: `walk-${label}-${who}`,
       times: instants(performance, end),
       performers: names.map((_, i: number): IMotionCaptureCase.IPerformer => ({
         id: `w${i}`,
@@ -167,8 +182,12 @@ export function locomotionCases(): IMotionCaptureCase[] {
         { name: "stance feet meet their goal rotations within 1 degree", passed: turn.stance.value <= 1, detail: `max ${turn.stance.value.toFixed(2)} deg at ${turn.stance.where}` },
         { name: "swing feet meet their goal rotations within 1 degree", passed: turn.swing.value <= 1, detail: `max ${turn.swing.value.toFixed(2)} deg at ${turn.swing.where}` },
         { name: "displayed ankles meet their goals within 2 mm", passed: reach.value <= 0.002, detail: `max ${(reach.value * 1000).toFixed(2)} mm at ${reach.where}` },
+        ...(extra.via === undefined ? [] : [{ name: "passes within 15 cm of every via point", passed: via <= 0.15, detail: `closest ${(via * 100).toFixed(1)} cm` }]),
+        ...(extra.face === undefined
+          ? []
+          : [{ name: "faces the requested heading within 3 degrees", passed: Math.abs(((facing - extra.face + 540) % 360) - 180) <= 3, detail: `${facing.toFixed(1)} against ${extra.face}` }]),
         { name: "stops within 2 cm of the destination", passed: Math.max(...misses) <= 0.02, detail: misses.map((m: number): string => `${(m * 100).toFixed(1)} cm`).join(", ") },
-        { name: "steady speed within 10 % of the Froude speed", passed: speedOk, detail: speeds.join("; ") },
+        ...(extra.via === undefined ? [{ name: "steady speed within 10 % of the Froude speed", passed: speedOk, detail: speeds.join("; ") }] : []),
       ],
     };
   });

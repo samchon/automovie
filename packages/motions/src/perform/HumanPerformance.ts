@@ -7,6 +7,7 @@ import {
   type IAutoMovieSchedule,
   Quaternion,
   Vector3,
+  resolveAutoMovieContactEvents,
   resolveAutoMovieHumanoidSurfaces,
   resolveAutoMovieSchedule,
   resolvePose,
@@ -23,7 +24,9 @@ import { HUMAN_ACTIONS } from "../actions/HUMAN_ACTIONS";
 import { stand } from "../actions/stand";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanLayer } from "../law/IHumanLayer";
+import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanSegment } from "./HumanSegment";
@@ -94,6 +97,7 @@ export class HumanPerformance {
         cache: new Map(),
         resolving: true,
         holds: [],
+        stops: new Map(),
         layers: input.layers?.[performer.subject] ?? [],
         layer: {
           subject: performer.subject,
@@ -121,6 +125,7 @@ export class HumanPerformance {
       until: (intent: IAutoMovieIntent, placed: { start: number; duration: number }): number | undefined =>
         this.proximity(intent, placed),
     });
+    this.contacts();
     for (const person of this.people.values()) HumanSegment.settle(person);
     this.resolving = false;
     for (const entry of this.schedule.entries) {
@@ -429,6 +434,61 @@ export class HumanPerformance {
       previous = t;
     }
     return undefined;
+  }
+
+  /**
+   * Resolve every weapon's first contact at once, in time order, each later
+   * weapon seeing the earlier stops through the frozen limbs, then hand each
+   * plan its events. Weapons are live only inside their window clipped to
+   * their action's span; bodies are the other people's colliders.
+   */
+  private contacts(): void {
+    const weapons: resolveAutoMovieContactEvents.IWeapon[] = [];
+    const owners: Map<string, { person: HumanSegment.IPerson; segment: HumanSegment.ISegment; id: string }> = new Map();
+    const far: IAutoMovieVector3 = { x: 1e6, y: 1e6, z: 1e6 };
+    let from: number = Infinity;
+    let to: number = -Infinity;
+    for (const person of this.people.values())
+      for (const segment of person.segments)
+        for (const w of segment.plan.weapons ?? []) {
+          const a: number = Math.max(w.from, segment.entryTime);
+          const b: number = Math.min(w.to, segment.end);
+          if (!(b > a)) continue;
+          const key: string = `${person.performer.subject}|${HumanSegment.weapon(segment, w.id)}`;
+          owners.set(key, { person, segment, id: w.id });
+          weapons.push({ id: key, owner: person.performer.subject, radius: w.radius, position: (t: number) => (t < a || t > b ? far : w.path(t)) });
+          from = Math.min(from, a);
+          to = Math.max(to, b);
+        }
+    if (weapons.length === 0) return;
+    const apply = (stops: resolveAutoMovieContactEvents.IStops): void => {
+      for (const person of this.people.values()) person.stops.clear();
+      for (const [key, seconds] of stops) {
+        const owner = owners.get(key)!;
+        owner.person.stops.set(HumanSegment.weapon(owner.segment, owner.id), seconds);
+      }
+    };
+    const events: resolveAutoMovieContactEvents.IEvent[] = resolveAutoMovieContactEvents({
+      weapons,
+      bodies: [...this.people.values()].map((person: HumanSegment.IPerson) => ({
+        id: person.performer.subject,
+        distance: (point: IAutoMovieVector3, seconds: number, stops: resolveAutoMovieContactEvents.IStops): number => {
+          apply(stops);
+          return HumanColliders.distance(person.performer.body, this.bones(person.performer.subject, seconds), point).distance;
+        },
+      })),
+      from,
+      to,
+      step: 1 / 120,
+    });
+    apply(new Map(events.map((e): [string, number] => [e.weapon, e.seconds])));
+    const plans: Map<HumanSegment.ISegment, IHumanActionPlan.IContactEvent[]> = new Map();
+    for (const owner of owners.values()) plans.set(owner.segment, []);
+    for (const e of events) {
+      const owner = owners.get(e.weapon)!;
+      plans.get(owner.segment)!.push({ weapon: owner.id, against: e.against, seconds: e.seconds });
+    }
+    for (const [segment, own] of plans) segment.plan.stop?.(own);
   }
 
   /** Every grip window on a prop across every person, in film order, computed once after construction. */
