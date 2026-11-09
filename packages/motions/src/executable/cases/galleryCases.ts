@@ -29,7 +29,7 @@ import type { IMotionCaptureCase } from "../IMotionCaptureCase";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 export function galleryCases(): IMotionCaptureCase[] {
-  const body: AutoMovieHumanCanonicalBody.IBody = MotionBodies.standard("male", 1800).body;
+  const body: AutoMovieHumanCanonicalBody.IBody = MotionBodies.population("m-average").body;
   const poses: { label: string; joints: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>> }[] = [
     { label: "neutral", joints: {} },
     { label: "L sh flex 90", joints: { leftUpperArm: [90, 0, 0] } },
@@ -66,9 +66,8 @@ export function galleryCases(): IMotionCaptureCase[] {
   const bodies: IMotionCaptureCase = {
     name: "bodies",
     times: [{ seconds: 0, label: "neutral" }],
-    performers: ([["female", 1600], ["male", 1800], ["male", 1950]] as const).map(([sex, stature], i: number): IMotionCaptureCase.IPerformer => {
-      const b: AutoMovieHumanCanonicalBody.IBody = MotionBodies.standard(sex, stature).body;
-      const id: string = `${sex}-${stature}`;
+    performers: (["f-short", "m-average", "m-tall"] as const).map((id: string, i: number): IMotionCaptureCase.IPerformer => {
+      const b: AutoMovieHumanCanonicalBody.IBody = MotionBodies.population(id).body;
       return {
         id,
         body: b,
