@@ -1,9 +1,10 @@
 import { AutoMovieComposition } from "@automovie/engine";
 
 import type { IBodyMeasure } from "../../../laws/body/IBodyMeasure";
-import { BodyProportion } from "../../../laws/body/BodyProportion";
 import type { IStudentProfile } from "./IStudentProfile";
+import { StudentBody } from "./StudentBody";
 import { StudentChain } from "./StudentChain";
+import { StudentHuman } from "./StudentHuman";
 
 /**
  * A student of the films, built from a settings record: identity, the body
@@ -23,7 +24,7 @@ import { StudentChain } from "./StudentChain";
  * @evidence docs/body/settings/cast/carina-malfoy.md#measures The stature the measures scale from.
  * @evidence docs/body/settings/cast/harry-potter.md#measures The stature the measures scale from.
  * @evidence docs/body/settings/crowds/practice-teams.md#players Each player's stature.
- * @evidence contracts/development/entities.md#settings-realization Measures derive from the record's stature by the stated proportion convention; habits come from the record.
+ * @evidence contracts/development/entities.md#settings-realization Measures are read from the student's Human body built from the record's parameters and stature; habits come from the record.
  * @evidence contracts/development/entities.md#object-shape A frozen class constructed only from its record, whose capabilities return intent chains.
  * @evidence contracts/development/entities.md#controls-and-source Controls are the record's Human parameters, rebuilt by the stage from the same source.
  * @evidence contracts/development/common.md#meaningful-documentation States what the student holds and what it leaves to the stage.
@@ -41,6 +42,9 @@ export class Student {
   /** Body lengths the motion laws scale from. */
   public readonly measure: IBodyMeasure;
 
+  /** The student's Human skeleton segments, which `body()` solves with. */
+  public readonly skeleton: StudentHuman.ISkeletonPoints;
+
   /**
    * Build a student.
    *
@@ -49,8 +53,15 @@ export class Student {
   public constructor(profile: IStudentProfile) {
     this.id = profile.id;
     this.profile = profile;
-    this.measure = BodyProportion.measure(profile.stature);
+    // Measured on the student's own Human body, so laws scale from the body that is drawn.
+    this.measure = StudentHuman.measure(profile);
+    this.skeleton = StudentHuman.points(profile);
     Object.freeze(this);
+  }
+
+  /** @returns The student's solver on its own Human skeleton, so solved and drawn joints coincide. */
+  public body(): StudentBody {
+    return new StudentBody(this.measure, this.skeleton);
   }
 
   /** @returns An empty chain of this student. */

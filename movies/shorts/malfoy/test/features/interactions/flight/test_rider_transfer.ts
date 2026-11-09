@@ -45,7 +45,7 @@ export function test_rider_transfer(): void {
     ),
   });
   const performance: StagePerformance = resolved.performance;
-  const bodies = { carina: new StudentBody(carina.measure), harry: new StudentBody(harry.measure) };
+  const bodies = { carina: carina.body(), harry: harry.body() };
   const joints = (who: "carina" | "harry", t: number): StudentBody.IJoints => bodies[who].solve(performance.posture(who, t)!);
   const begins: number = 9.0 - BroomLaw.TRANSFER_PHASES[0]!;
   const transfer = resolved.schedule.entries.find((e) => e.subject === "harry" && e.intent.capability === "transfer")!;

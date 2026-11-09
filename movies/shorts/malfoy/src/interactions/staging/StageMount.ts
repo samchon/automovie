@@ -219,7 +219,7 @@ export namespace StageMount {
     scene.add(light.object, scenery.object);
     const bodies: Map<string, { body: StudentBody; figure: StudentFigure }> = new Map();
     for (const student of input.students) {
-      const body: StudentBody = new StudentBody(student.measure);
+      const body: StudentBody = student.body();
       const figure: StudentFigure = new StudentFigure(student.profile, body);
       scene.add(figure.object);
       bodies.set(student.id, { body, figure });

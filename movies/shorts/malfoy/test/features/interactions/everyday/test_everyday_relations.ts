@@ -36,7 +36,7 @@ export function test_everyday_relations(): void {
   const carina: Student = new Student(carinaMalfoy);
   const harry: Student = new Student(harryPotter);
   const note: InvitationNote = new InvitationNote();
-  const bodies = { carina: new StudentBody(carina.measure), harry: new StudentBody(harry.measure) };
+  const bodies = { carina: carina.body(), harry: harry.body() };
   const point = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
   const resolve = (...parts: AutoMovieComposition[]) => StageMount.resolve({ set: yard, students: [carina, harry], props: [note], composition: AutoMovieComposition.sequence(...parts) });
   const floor = (a: IAutoMovieVector3, b: IAutoMovieVector3): number => Math.hypot(a.x - b.x, a.z - b.z);

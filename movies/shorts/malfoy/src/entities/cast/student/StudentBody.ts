@@ -2,15 +2,16 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IBodyMeasure } from "../../../laws/body/IBodyMeasure";
 import type { IBodyPosture } from "../../../laws/body/IBodyPosture";
+import type { StudentHuman } from "./StudentHuman";
 
 /**
  * A student's skeleton as joints solved from a posture: the pelvis and the
  * trunk frame, shoulders, neck and head, and both arms and legs fitted to
  * their goals by analytic two-bone inverse kinematics with the elbow or knee
- * turned toward its aim. Segment lengths are the body's measures (upper arm
- * 0.186, forearm 0.146 and hand centre 0.057 of stature; thigh and shank
- * from the hip, knee at 0.285 and ankle heights), so every view of the body
- * keeps the settings' proportions.
+ * turned toward its aim. Given the student's Human skeleton, every segment
+ * and the shoulder line's offset are that skeleton's own, so solved joints
+ * coincide with the drawn polygon bones; without it the segment convention
+ * applies (upper arm 0.186 and forearm 0.146 of stature, knee at 0.285).
  *
  * ```ts
  * const body = new StudentBody(student.measure);
@@ -37,21 +38,41 @@ export class StudentBody {
    *
    * @param measure The body's measures.
    */
-  public constructor(measure: IBodyMeasure) {
+  public constructor(measure: IBodyMeasure, human?: StudentHuman.ISkeletonPoints) {
     this.measure = measure;
     const h: number = measure.stature;
     const knee: number = 0.285 * h;
-    this.lengths = Object.freeze({
-      upperArm: 0.186 * h,
-      forearm: 0.146 * h,
-      hand: Math.max(0.03, measure.armReach - 0.332 * h),
-      thigh: measure.hip - knee,
-      shank: knee - measure.ankle,
-      trunk: measure.shoulder - measure.hip,
-      neck: 0.052 * h,
-      headRadius: 0.065 * h,
-      toe: 0.72 * measure.foot,
-    });
+
+    // With the student's Human skeleton, every segment is that skeleton's own,
+    // so the solved joints are the drawn bones' joints and contacts and
+    // collisions computed on them are what the picture shows.
+    this.lengths = Object.freeze(
+      human === undefined
+        ? {
+            upperArm: 0.186 * h,
+            forearm: 0.146 * h,
+            hand: Math.max(0.03, measure.armReach - 0.332 * h),
+            thigh: measure.hip - knee,
+            shank: knee - measure.ankle,
+            trunk: measure.shoulder - measure.hip,
+            shoulderForward: 0,
+            neck: 0.052 * h,
+            headRadius: 0.065 * h,
+            toe: 0.72 * measure.foot,
+          }
+        : {
+            upperArm: human.upperArm,
+            forearm: human.forearm,
+            hand: human.hand,
+            thigh: human.thigh,
+            shank: human.shank,
+            trunk: human.shoulder - human.hip,
+            shoulderForward: human.shoulderForward,
+            neck: human.neck,
+            headRadius: 0.065 * h,
+            toe: 0.72 * measure.foot,
+          },
+    );
     Object.freeze(this);
   }
 
@@ -74,7 +95,7 @@ export class StudentBody {
       left: sub(scale(frame.left, Math.cos(posture.twist)), scale(lf, Math.sin(posture.twist))),
     };
     const pelvis: V = posture.pelvis;
-    const chest: V = add(pelvis, scale(trunk.up, L.trunk));
+    const chest: V = add(add(pelvis, scale(trunk.up, L.trunk)), scale(trunk.forward, L.shoulderForward));
     const neck: V = add(chest, scale(trunk.up, L.neck));
     // The head: yaw about the trunk's up, then pitch down about the head's left.
     const yf: V = add(scale(trunk.forward, Math.cos(posture.headYaw)), scale(trunk.left, Math.sin(posture.headYaw)));
@@ -133,6 +154,8 @@ export namespace StudentBody {
     thigh: number;
     shank: number;
     trunk: number;
+    /** The shoulder line ahead of the pelvis along the trunk's forward. */
+    shoulderForward: number;
     neck: number;
     headRadius: number;
     toe: number;
