@@ -17,6 +17,7 @@ export * from "./aimRotation";
 export * from "./aimYawPitch";
 export * from "./armChainFault";
 export * from "./clinicalDeviation";
+export * from "./curlChainUntilContact";
 export * from "./constants";
 export * from "./decomposeJointRotation";
 export * from "./IAutoMovieJointRotationDomain";

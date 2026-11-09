@@ -13,5 +13,6 @@ export * from "./measureAutoMovieSchedule";
 export * from "./resolveAutoMovieFraming";
 export * from "./resolveAutoMovieOutcome";
 export * from "./resolveAutoMovieRelationalGoal";
+export * from "./resolveAutoMovieMutualGoal";
 export * from "./resolveAutoMovieSchedule";
 export * from "./resolveAutoMovieZone";
