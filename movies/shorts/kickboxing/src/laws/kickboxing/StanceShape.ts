@@ -284,6 +284,23 @@ export namespace StanceShape {
   }
 
   /**
+   * Ankle placements of ordinary walking about a point of the path: each
+   * foot on its own hip track with no stagger, the step pattern's passing
+   * steps setting how far along the path each one lands.
+   *
+   * @param measure The fighter's measure.
+   * @returns Ankle points in the stance frame, metres.
+   */
+  export function walk(
+    measure: IFighterMeasure,
+  ): Record<"left" | "right", IAutoMovieVector3> {
+    return {
+      left: { x: 0, y: measure.ankle, z: measure.hipHalfWidth },
+      right: { x: 0, y: measure.ankle, z: -measure.hipHalfWidth },
+    };
+  }
+
+  /**
    * The root drop that bends the legs to a knee flexion: the straight leg's
    * height less the height of the bent leg's chord, which leans over the
    * floor run from its hip joint to its ankle, so a spread stance sinks

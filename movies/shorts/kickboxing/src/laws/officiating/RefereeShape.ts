@@ -46,6 +46,15 @@ export namespace RefereeShape {
   /** Forward reach of a raised hand toward its subject, as a share of the arm's reach. */
   const RAISE_REACH: number = 0.3;
 
+  /** Share of the winner signal spent walking to the winner before the raise: four metres at the brisk 2.53 m/s over the 2.4 s signal. */
+  const WINNER_ARRIVAL: number = 0.6;
+
+  /** Share of the winner signal over which the raised arm rises or lowers. */
+  const RAISE_SHARE: number = 0.1;
+
+  /** Crossings of the arms over the head in the knockout wave-off: crossed and opened twice (WAKO and GLORY practice). */
+  const WAVES: number = 2;
+
   /** Knee flexion of the crouch beside B, degrees: "shallow supported crouch", read as a quarter of the knee range. */
   const CROUCH_KNEES: number = 35;
 
@@ -118,31 +127,40 @@ export namespace RefereeShape {
     let signal: IBoutPosture;
     switch (input.signal) {
       case "fight": {
-        // The palm rises beside the shoulder, then sweeps down between them.
-        const up: number = s < 0.5 ? s * 2 : 1 - (s - 0.5) * 2;
+        // The hand held low and extended between the fighters, then swept up
+        // and back out of the line as he steps out.
+        const low: IAutoMovieVector3 = out(-1, -reach * COUNT_DROP).point;
+        const high: IAutoMovieVector3 = {
+          x: -reach * 0.2,
+          y: shoulder + reach * RAISE_HEIGHT,
+          z: -measure.shoulderHalfWidth * 1.5,
+        };
+        const sweep: number = Math.max(0, Math.min(1, (s - 0.4) / 0.4));
         signal = {
           ...base,
           hands: {
             ...base.hands,
-            right: {
-              point: {
-                x: reach * 0.4,
-                y: shoulder + up * measure.headRadius * 2,
-                z: -measure.shoulderHalfWidth,
-              },
-            },
+            right: { point: Vector3.lerp(low, high, sweep) },
           },
         };
         break;
       }
       case "down":
+        // The arm points down at the man on the canvas, fully extended.
+        signal = {
+          ...base,
+          hands: { ...base.hands, right: out(-1, -reach * COUNT_DROP) },
+        };
+        break;
       case "neutral-corner":
+        // The arm points at the far neutral corner at shoulder height.
         signal = { ...base, hands: { ...base.hands, right: out(-1, 0) } };
         break;
-      case "winner":
-        // He raises the winner's hand: his arm goes up toward the winner,
-        // the hand above his own head (referee.md#count).
-        signal = {
+      case "winner": {
+        // He walks to the winner first, then holds his wrist and raises it
+        // straight up: his arm goes up toward the winner, the hand above his
+        // own head (referee.md#count).
+        const raised: IBoutPosture = {
           ...base,
           hands: {
             ...base.hands,
@@ -155,7 +173,12 @@ export namespace RefereeShape {
             },
           },
         };
-        break;
+        const up: number = Math.max(
+          0,
+          Math.min(1, (s - WINNER_ARRIVAL) / RAISE_SHARE, (1 - s) / RAISE_SHARE),
+        );
+        return blendPosture(base, raised, up, rest);
+      }
       case "count": {
         // One downward motion of the arm per number, toward the fallen man:
         // up beside the head in the first part of the second, then down
@@ -178,26 +201,16 @@ export namespace RefereeShape {
         break;
       }
       case "knockout": {
-        const cross: number = s < 0.5 ? s * 2 : 1;
-        signal = {
-          ...base,
-          hands: {
-            left: {
-              point: {
-                x: reach * 0.5,
-                y: shoulder - measure.headRadius,
-                z: measure.shoulderHalfWidth * (2 - 3 * cross),
-              },
-            },
-            right: {
-              point: {
-                x: reach * 0.5,
-                y: shoulder - measure.headRadius,
-                z: -measure.shoulderHalfWidth * (2 - 3 * cross),
-              },
-            },
+        // Both arms over the head, crossing and opening twice: the wave-off.
+        const cross: number = Math.cos(2 * Math.PI * WAVES * s);
+        const over = (side: 1 | -1): { point: IAutoMovieVector3 } => ({
+          point: {
+            x: reach * 0.2,
+            y: shoulder + reach * RAISE_HEIGHT,
+            z: side * measure.shoulderHalfWidth * 2 * cross,
           },
-        };
+        });
+        signal = { ...base, hands: { left: over(1), right: over(-1) } };
         break;
       }
       case "attend": {

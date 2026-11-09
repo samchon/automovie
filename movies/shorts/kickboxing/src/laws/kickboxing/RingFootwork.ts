@@ -48,8 +48,8 @@ export namespace RingFootwork {
   /** The presser's share of the receiver's lateral speed. */
   const CUT_SHARE: number = 0.5;
 
-  /** A quarter circle, the pivot's arc, radians. */
-  const PIVOT_ARC: number = Math.PI / 2;
+  /** The pivot's turn, radians: the rear foot swings 45 degrees around the planted lead foot, the smaller of the pivot's taught 45 to 90 degrees. */
+  const PIVOT_ARC: number = Math.PI / 4;
 
   /** Steps of the rope zone beyond the margin. */
   const ROPE_ZONE_STEPS: number = 2;
@@ -102,13 +102,10 @@ export namespace RingFootwork {
       case "circle":
         return clamp(orbit(mover, opponent, length, 1), ring);
       case "pivot":
+        // The pivot turns the whole body through its angle about the
+        // opponent's line, however short the stepping, so the turn reads.
         return clamp(
-          orbit(
-            mover,
-            opponent,
-            Math.min(length, PIVOT_ARC * dist(mover, opponent)),
-            1,
-          ),
+          orbit(mover, opponent, PIVOT_ARC * dist(mover, opponent), 1),
           ring,
         );
       case "escape":

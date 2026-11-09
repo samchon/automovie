@@ -40,17 +40,31 @@ export namespace StepPattern {
    * @evidence docs/research/kickboxing/ring-generalship.md#sources Alternating, leading with the direction-side foot.
    */
   export function foot(
-    input: { steps: number; first: "left" | "right"; share: number },
+    input: {
+      steps: number;
+      first: "left" | "right";
+      share: number;
+      walking?: boolean;
+    },
     side: "left" | "right",
   ): IFoot {
     const n: number = Math.max(1, Math.round(input.steps));
     const position: number = Math.max(0, Math.min(1, input.share)) * n;
     const index: number = Math.min(n - 1, Math.floor(position));
     const own: number = side === input.first ? 0 : 1;
-    // The leading foot steps a step ahead of the origin and the following
-    // foot restores the stance; each foot's last step reaches the end.
+    // Fighting steps: the leading foot steps a step ahead of the origin and
+    // the following foot restores the stance. Walking: each foot passes the
+    // other and lands half a step ahead of the origin, so the feet stand a
+    // step apart about it (Perry and Burnfield: a stride is two steps). Each
+    // foot's last step reaches the end.
     const target = (step: number): number =>
-      step < 0 ? 0 : step + 2 >= n ? 1 : (step + 1 + (own === 0 ? 1 : 0)) / n;
+      step < 0
+        ? 0
+        : step + 2 >= n
+          ? 1
+          : input.walking
+            ? (step + 1.5) / n
+            : (step + 1 + (own === 0 ? 1 : 0)) / n;
     if (index % 2 === own)
       return {
         from: target(index - 2),

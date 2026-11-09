@@ -55,6 +55,24 @@ export namespace KickboxingTiming {
   export const STEP_PERIOD: number = 0.35;
 
   /**
+   * Seconds per step of ordinary walking, to the corner and in the victory
+   * lap: the comfortable adult cadence of about 110 steps per minute (Perry
+   * and Burnfield, Gait Analysis, normal gait parameters).
+   */
+  export const WALK_PERIOD: number = 60 / 110;
+
+  /**
+   * Whether a movement is ordinary walking rather than the fighting stance's
+   * short steps.
+   *
+   * @param movement The movement.
+   * @returns True for walking to the corner and the celebration.
+   */
+  export function walking(movement: KickboxingAction.Movement): boolean {
+    return movement === "corner" || movement === "celebrate";
+  }
+
+  /**
    * Seconds from a strike's launch to its contact or shown peak.
    *
    * @param technique The technique.
@@ -199,7 +217,12 @@ export namespace KickboxingTiming {
           `An unpaired ${action.answer} has no timing; an exchange pairs it first`,
         );
       case "move":
-        return { duration: action.seconds ?? action.steps * STEP_PERIOD };
+        return {
+          duration:
+            action.seconds ??
+            action.steps *
+              (walking(action.movement) ? WALK_PERIOD : STEP_PERIOD),
+        };
       case "touch":
         return { duration: action.seconds, contact: action.reach };
       case "phase":

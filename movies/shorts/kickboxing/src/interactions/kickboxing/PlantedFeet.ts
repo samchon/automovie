@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { Fighter } from "../../entities/cast/fighter/Fighter";
 import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
+import { KickboxingTiming } from "../../laws/kickboxing/KickboxingTiming";
 import type { RingFootwork } from "../../laws/kickboxing/RingFootwork";
 import { StanceShape } from "../../laws/kickboxing/StanceShape";
 import { StepPattern } from "../../laws/kickboxing/StepPattern";
@@ -98,10 +99,25 @@ export namespace PlantedFeet {
         entry.start + s * (entry.end - entry.start),
         cast,
       ).point;
+    // Walking leaves the fighting stance at the first step and returns to it
+    // at the last; between them the feet walk on their hip tracks.
+    const walking: boolean = KickboxingTiming.walking(action.movement);
+    const gait: Record<"left" | "right", IAutoMovieVector3> = walking
+      ? StanceShape.walk(measure)
+      : stance;
+    const placement = (s: number, side: "left" | "right"): IAutoMovieVector3 =>
+      s <= 0 || s >= 1 ? stance[side] : gait[side];
     const foot = (side: "left" | "right"): IAutoMovieVector3 => {
-      const f = StepPattern.foot({ steps: action.steps, first, share }, side);
-      const a: IAutoMovieVector3 = place(along(f.from), stance[side], 0);
-      const b: IAutoMovieVector3 = place(along(f.to), stance[side], 0);
+      const f = StepPattern.foot(
+        { steps: action.steps, first, share, walking },
+        side,
+      );
+      const a: IAutoMovieVector3 = place(
+        along(f.from),
+        placement(f.from, side),
+        0,
+      );
+      const b: IAutoMovieVector3 = place(along(f.to), placement(f.to, side), 0);
       return {
         ...Vector3.lerp(a, b, Math.min(1, f.swing)),
         y: a.y + lifted(StepPattern.lift(f.swing)),

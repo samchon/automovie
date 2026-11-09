@@ -19,6 +19,7 @@ import type {
 
 import type { IBoutPosture } from "../../../laws/kickboxing/IBoutPosture";
 import type { IFighterMeasure } from "../../../laws/kickboxing/IFighterMeasure";
+import { StanceShape } from "../../../laws/kickboxing/StanceShape";
 import { FighterGloves } from "./FighterGloves";
 import { FighterSurfaces } from "./FighterSurfaces";
 import type { IFighterProfile } from "./IFighterProfile";
@@ -154,7 +155,7 @@ export class FighterBody {
     const hip: IAutoMovieVector3 = v(at("leftUpperLeg").position);
     const knee: IAutoMovieVector3 = v(at("leftLowerLeg").position);
     const ankle: IAutoMovieVector3 = v(at("leftFoot").position);
-    this.measure = Object.freeze({
+    const lengths: Omit<IFighterMeasure, "front"> = {
       hip: hip.y,
       hipHalfWidth: Math.abs(hip.z),
       shoulder: shoulder.y,
@@ -172,10 +173,50 @@ export class FighterBody {
       foot:
         (FighterBody.FOOT_SHARE * profile.parameters.body.anatomy.stature!) /
         1000,
-    });
+    };
     const surfaces = FighterSurfaces.derive(this.profile);
     this.regions = surfaces.regions;
     this.weapons = surfaces.weapons;
+    this.measure = Object.freeze({
+      ...lengths,
+      front: this.front(lengths),
+    });
+  }
+
+  /**
+   * How far the guard carries each struck level ahead of the stance origin:
+   * the guard placed by limb fitting at the origin facing +X, read on the
+   * face, the stomach and the lead thigh's surfaces, so a range measured
+   * between stance origins keeps the displayed bodies apart.
+   *
+   * @param lengths The measured lengths.
+   * @returns Metres ahead of the stance origin per level.
+   */
+  private front(
+    lengths: Omit<IFighterMeasure, "front">,
+  ): IFighterMeasure["front"] {
+    const measure: IFighterMeasure = {
+      ...lengths,
+      front: { head: 0, body: 0, leg: 0 },
+    };
+    const placed = this.place(StanceShape.guard(measure), {
+      origin: { x: 0, y: 0, z: 0 },
+      facing: { x: 1, z: 0 },
+      feet: StanceShape.feet(measure),
+    });
+    const ahead = (region: string): number => {
+      const r: resolveAutoMovieRelationalGoal.IRegion = this.regions[region]!;
+      const s: P.ITransform = placed.segments[r.bone]!;
+      return Vector3.add(
+        s.position,
+        Quaternion.rotateVector(s.rotation, r.localPoint),
+      ).x;
+    };
+    return {
+      head: ahead("face"),
+      body: ahead("stomach"),
+      leg: Math.max(ahead("thigh-left"), ahead("thigh-right")),
+    };
   }
 
   /** The body controls this body was built from. */

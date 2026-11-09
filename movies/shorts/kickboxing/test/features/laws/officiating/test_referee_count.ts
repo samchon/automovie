@@ -27,6 +27,16 @@ export function test_referee_count(): void {
   assert.ok(high.y > shoulder, `${high.y} <= ${shoulder}`);
   assert.ok(low.y < high.y);
   assert.ok(low.x > high.x);
-  const raised = hand("winner", 0.5);
+  // He walks to the winner first and raises the hand once beside him.
+  assert.ok(hand("winner", 0.3).y < shoulder);
+  const raised = hand("winner", 0.8);
   assert.ok(raised.y > measure.head);
+  // The wave-off crosses both hands over the head.
+  const wave = RefereeShape.posture(measure, rest, {
+    signal: "knockout",
+    share: 0.5,
+    toward,
+  }).hands;
+  assert.ok(wave.left.point.y > measure.head);
+  assert.ok(wave.right.point.y > measure.head);
 }

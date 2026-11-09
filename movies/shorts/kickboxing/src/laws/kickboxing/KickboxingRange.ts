@@ -29,6 +29,13 @@ export namespace KickboxingRange {
   export const REACH_SHARE: number = 0.9;
 
   /**
+   * Share of the arm's reach a hook or uppercut lands at: the elbow held at
+   * about ninety degrees (coaching of both punches), so the shoulder to
+   * glove chord over two near-equal segments is the reach over root two.
+   */
+  export const BENT_SHARE: number = Math.SQRT1_2;
+
+  /**
    * The range of one technique.
    *
    * @param attacker The attacker's measure.
@@ -45,36 +52,96 @@ export namespace KickboxingRange {
     const spec: KickboxingTechnique.ISpec = KickboxingTechnique.performed(
       KickboxingTechnique.table[technique],
     );
-    // Depth of the struck region in front of the receiver's stance origin.
-    const depth: number =
-      spec.level === "head"
-        ? receiver.headRadius
-        : spec.level === "body"
-          ? receiver.shoulderHalfWidth / 2
-          : receiver.hipHalfWidth;
+    // The struck surface's distance ahead of the receiver's stance origin
+    // in his guard, so the range is measured between the bodies.
+    const depth: number = receiver.front[spec.level];
+    // The weapon's root joint ahead of the attacker's stance origin once the
+    // strike's turn has brought its side to the line: the stance turn carries
+    // the lead shoulder or hip forward, and a rear strike's drive turns the
+    // rear one through to the same place.
+    const shoulder: number = attacker.shoulderHalfWidth * Math.sin(StanceShape.TURN);
+    const hip: number = attacker.hipHalfWidth * Math.sin(StanceShape.TURN);
     switch (spec.family) {
       case "punch":
-        return REACH_SHARE * attacker.armReach + attacker.gloveRadius + depth;
+        // A straight lands nearly extended; a hook or uppercut keeps the
+        // elbow at about ninety degrees, so the glove stands the chord of two
+        // equal arm segments from the shoulder.
+        return (
+          shoulder +
+          (spec.line === "straight" ? REACH_SHARE : BENT_SHARE) *
+            attacker.armReach +
+          attacker.gloveRadius +
+          depth
+        );
       case "round-kick":
         // The shin lands with its lower part; the descending kick's instep
         // comes down from the turnover's raised knee, so its range is that
-        // geometry's horizontal run.
+        // geometry's horizontal run to the head's centre line.
         return spec.line === "descending"
-          ? TurnoverShape.range(attacker, receiver)
-          : REACH_SHARE *
-              (attacker.thigh + StrikeShape.SHIN_SHARE * attacker.shank) +
+          ? TurnoverShape.range(attacker, receiver) +
+              receiver.front.head -
+              receiver.headRadius
+          : hip +
+              Math.sqrt(
+                Math.max(
+                  0,
+                  (REACH_SHARE *
+                    (attacker.thigh + StrikeShape.SHIN_SHARE * attacker.shank)) **
+                    2 -
+                    (height(receiver, spec.level) -
+                      (attacker.hip - StanceShape.sink(attacker))) **
+                      2,
+                ),
+              ) +
               depth;
       case "push-kick":
         return (
+          hip +
           REACH_SHARE * (attacker.thigh + attacker.shank) +
           attacker.foot / 2 +
           depth
         );
       case "knee":
-        return attacker.thigh + depth;
+        // The knee rises from the hip onto the region, so its floor run is
+        // the thigh less that rise.
+        return (
+          hip +
+          Math.sqrt(
+            Math.max(
+              0,
+              attacker.thigh ** 2 -
+                (height(receiver, spec.level) -
+                  (attacker.hip - StanceShape.sink(attacker))) **
+                  2,
+            ),
+          ) +
+          depth
+        );
       case "feint":
         throw new Error("A feint performs another technique");
     }
+  }
+
+  /**
+   * Height of a struck level in the receiver's guard: the head's centre, the
+   * ribs a third of the way down from the shoulders to the hips, the thigh
+   * halfway down it. A round kick's shin reaches it from the kicking hip, so
+   * its floor run is the leg's reach less this rise.
+   *
+   * @param receiver The receiver's measure.
+   * @param level The struck level.
+   * @returns Metres above the floor.
+   */
+  function height(
+    receiver: IFighterMeasure,
+    level: KickboxingTechnique.Level,
+  ): number {
+    const sink: number = StanceShape.sink(receiver);
+    return level === "head"
+      ? receiver.head - sink
+      : level === "body"
+        ? receiver.shoulder - (receiver.shoulder - receiver.hip) / 3 - sink
+        : receiver.hip - receiver.thigh / 2 - sink;
   }
 
   /**

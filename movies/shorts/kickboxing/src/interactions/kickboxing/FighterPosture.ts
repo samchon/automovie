@@ -249,7 +249,9 @@ export namespace FighterPosture {
         posture.feet.left !== null || posture.feet.right !== null;
       const upright: boolean =
         raised || corner || movedTo(schedule, subject, seconds, ["celebrate"]);
-      // The planted feet in the root frame of the final body turn.
+      // The planted feet in the root frame of the final body turn. A foot
+      // swinging through a step counts at the floor, so the stance's sink is
+      // kept while moving and the stepping leg never reaches out straight.
       const turn: number = posture.yaw - guard.yaw;
       const c: number = Math.cos(turn);
       const s: number = Math.sin(turn);
@@ -258,7 +260,7 @@ export namespace FighterPosture {
           ? null
           : {
               x: rest[side].x * c - rest[side].z * s,
-              y: rest[side].y,
+              y: Math.min(rest[side].y, measure.ankle),
               z: rest[side].x * s + rest[side].z * c,
             };
       posture = {
