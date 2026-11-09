@@ -175,6 +175,10 @@ export namespace punch {
 
     // Geometry reads the target, which may only be read from postures: it is
     // built on first use and dropped when the performance settles.
+    // A contact resolved jointly by the performance, once it is known: the
+    // fist's free path is offered as a weapon, and its stop replaces the
+    // punch's own scan from then on (null: it met nothing).
+    let fixed: number | null | undefined;
     let built: IGeometry | undefined;
     let building: boolean = false;
     const geometry = (): IGeometry => {
@@ -182,12 +186,13 @@ export namespace punch {
       if (building) throw new Error(`${context.subject}: the punch was read back while it was being planned`);
       building = true;
       try {
-        built = build(context, timing);
+        built = build(context, timing, fixed);
       } finally {
         building = false;
       }
       return built;
     };
+    const strikes: boolean = p.feint === undefined && p.at.kind === "person" && StrikingQuality.stops(p.accuracy);
     const out: IHumanActionPlan = {
       duration,
       events,
@@ -199,6 +204,23 @@ export namespace punch {
       settle: (): void => {
         built = undefined;
       },
+      ...(strikes
+        ? {
+            weapons: [
+              {
+                id: "fist",
+                limb: side === "left" ? ("leftArm" as const) : ("rightArm" as const),
+                radius: 0.005,
+                from: context.start,
+                to: context.start + shown + 0.1,
+                path: (seconds: number): IAutoMovieVector3 => geometry().fist(seconds),
+              },
+            ],
+            stop: (found: readonly IHumanActionPlan.IContactEvent[]): void => {
+              fixed = found.find((e) => e.weapon === "fist")?.seconds ?? null;
+            },
+          }
+        : {}),
     };
     StrikingRecord.register(out, (): StrikingRecord.IRecord => geometry().record);
     return out;
@@ -234,10 +256,13 @@ export namespace punch {
 
     /** What the punch decided. */
     record: StrikingRecord.IRecord;
+
+    /** The fist's knuckles on the free path at a film second, world metres. */
+    fist(seconds: number): IAutoMovieVector3;
   }
 
   /** Build a punch's geometry from its first posture evaluation. */
-  function build(context: IHumanActionContext<IParams>, timing: ITiming): IGeometry {
+  function build(context: IHumanActionContext<IParams>, timing: ITiming, fixed: number | null | undefined): IGeometry {
     const p: IParams = context.params;
     const { side, lead, which, delivery, shown, recoil, drop, duration } = timing;
     const body = context.body;
@@ -407,6 +432,7 @@ export namespace punch {
             ),
           }),
       scan: { from: t0, to: t0 + shown + 0.1, step: 1 / 96 },
+      ...(fixed === undefined ? {} : { fixed }),
     });
 
     // The feet's contact windows, as shares of the punch.
@@ -424,6 +450,7 @@ export namespace punch {
     return {
       contacts,
       record: { offset, planned: tracker.planned, reached: Vector3.add(solved.end, socket), status: solved.status, stop: stroke.stop },
+      fist: (seconds: number): IAutoMovieVector3 => Vector3.add(stroke.free(seconds), StrikingBody.socket(body, fist, rotationAt(seconds - t0))),
       posture: (t: number): IHumanPosture => {
         const posture: IHumanPosture = base(t);
         const guard = StrikingStance.guard(body, posture, { lead });

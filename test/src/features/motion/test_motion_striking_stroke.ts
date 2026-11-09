@@ -91,7 +91,7 @@ export function test_motion_striking_stroke(): void {
   for (let t: number = 1; t <= 1.7; t += 0.002) deepest = Math.max(deepest, lateFirst.end(t).z - wall);
   TestValidator.predicate(
     "stops on the wall in either order",
-    lateStop !== undefined && lateStop === earlyStop && lateStop < 1.3 && Math.abs(crossing - wall) < 1e-6 && deepest <= 1e-6 && near(lateFirst.end(lateStop + 0.36), back),
+    lateStop !== undefined && lateStop === earlyStop && lateStop < 1.3 && Math.abs(crossing - wall) < 1e-6 && deepest <= 1e-6 && near(lateFirst.end(lateStop + StrikingStroke.DWELL + 0.36), back) && near(lateFirst.end(lateStop + 0.5 * StrikingStroke.DWELL), lateFirst.end(lateStop)),
   );
 
   const capsule: StrikingContact.ICollider = { kind: "capsule", name: "c", a: { x: 0, y: 0, z: 0 }, b: { x: 0, y: 1, z: 0 }, radius: 0.1 };
@@ -109,7 +109,8 @@ export function test_motion_striking_stroke(): void {
       Math.abs(StrikingContact.distance({ x: 0, y: 1.5, z: 0 }, capsule) - 0.4) < 1e-12 &&
       Math.abs(StrikingContact.distance({ x: 2, y: 0, z: 0.5 }, sphere) - 0.3) < 1e-12 &&
       Math.abs(StrikingContact.distance({ x: 0, y: 0, z: 3.8 }, box) - 0.3) < 1e-9 &&
-      Math.abs(StrikingContact.distance({ x: 0.3, y: 0, z: 3 }, box) + 0.2) < 1e-9 &&
+      Math.abs(StrikingContact.distance({ x: 0, y: 0, z: 3.3 }, box) + 0.1) < 1e-9 &&
+      Math.abs(StrikingContact.distance({ x: 0.3, y: 0, z: 3 }, box) - 0.2) < 1e-9 &&
       StrikingContact.nearest({ x: 1.7, y: 0, z: 0 }, [capsule, sphere, box])?.name === "s",
   );
   const crossed: number | undefined = StrikingContact.first((t: number): number => 0.37 - t, 0, 1, 0.1);

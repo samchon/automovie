@@ -8,6 +8,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
@@ -128,14 +129,18 @@ export namespace step {
           down[side] = !g.swinging;
         }
         const carried: number = count * length * minimumJerk(t / duration).s;
-        const posture: IHumanPosture = {
-          root: Vector3.add(entry.root, Vector3.scale(unit, carried)),
-          yaw: entry.yaw,
-          pitch: entry.pitch,
-          roll: entry.roll,
-          joints: { ...entry.joints, ...StrikingStance.joints() },
-          limbs: StrikingStance.legs(body, placed, down),
-        };
+        const posture: IHumanPosture = resolveHumanPosture.lower(
+          body,
+          {
+            root: Vector3.add(entry.root, Vector3.scale(unit, carried)),
+            yaw: entry.yaw,
+            pitch: entry.pitch,
+            roll: entry.roll,
+            joints: { ...entry.joints, ...StrikingStance.joints() },
+            limbs: StrikingStance.legs(body, placed, down),
+          },
+          5,
+        );
         return { ...posture, limbs: { ...posture.limbs, ...StrikingStance.guard(body, posture, { lead }) } };
       },
     };

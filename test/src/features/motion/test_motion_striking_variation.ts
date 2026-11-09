@@ -70,7 +70,7 @@ export function test_motion_striking_variation(): void {
   TestValidator.predicate("scatter shrinks with skill", all.every((v: number, i: number): boolean => i === 0 || v < all[i - 1]!));
 
   const exact: HumanSkill.ISkill = HumanSkill.resolve({ level: "elite" }, "e3");
-  const still = { skill: exact, random: createAutoMovieRandom("still"), direction, radius: 0.04, distance: 0, seconds };
+  const still = { skill: exact, random: createAutoMovieRandom(deriveAutoMovieSeed("still")), direction, radius: 0.04, distance: 0, seconds };
   const near = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean => Vector3.length(Vector3.subtract(a, b)) < 1e-12;
   TestValidator.predicate("hit", near(StrikingQuality.offset({ ...still, accuracy: "hit" }), { x: 0, y: 0, z: 0 }));
   TestValidator.predicate("graze", Math.abs(Vector3.length(StrikingQuality.offset({ ...still, accuracy: "graze" })) - 0.08) < 1e-12);

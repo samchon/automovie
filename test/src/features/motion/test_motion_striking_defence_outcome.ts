@@ -62,7 +62,7 @@ export function test_motion_striking_defence_outcome(): void {
             d.warnings.length === 0 &&
             d.reaction >= r0 - 1e-12 && d.reaction <= r1 + 1e-12 &&
             d.lead >= a0 - 1e-12 && d.lead <= a1 + 1e-12 &&
-            close(d.start, 1 + d.reaction - d.lead) &&
+            close(d.start, 1 + d.reaction - 0.5 * d.lead) &&
             close(d.margin, d.hit - d.start - movement),
         );
       }

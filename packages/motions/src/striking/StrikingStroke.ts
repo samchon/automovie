@@ -134,6 +134,13 @@ export namespace StrikingStroke {
 
     /** The contact scan's span and step, film seconds. */
     scan: { from: number; to: number; step: number };
+
+    /**
+     * The contact second the performance resolved jointly with every other
+     * weapon (`resolveAutoMovieContactEvents`), or null when it resolved that
+     * the weapon meets nothing; the stroke's own scan runs only when absent.
+     */
+    fixed?: number | null;
   }
 
   /** An evaluated stroke. */
@@ -153,6 +160,15 @@ export namespace StrikingStroke {
      * @returns The contact second, or undefined.
      */
     stop(seconds: number): number | undefined;
+
+    /**
+     * The end joint on its free path, as if it met nothing: what a joint
+     * contact resolution sweeps.
+     *
+     * @param seconds Film seconds.
+     * @returns World metres.
+     */
+    free(seconds: number): IAutoMovieVector3;
   }
 
   /**
@@ -202,6 +218,7 @@ export namespace StrikingStroke {
     let found: number | undefined;
     let scanning: boolean = false;
     const stop = (seconds: number): number | undefined => {
+      if (input.fixed !== undefined) return input.fixed !== null && input.fixed <= seconds ? input.fixed : undefined;
       if (found !== undefined) return found <= seconds ? found : undefined;
       const gap = input.gap;
       if (gap === undefined || scanning) return undefined;
@@ -219,6 +236,24 @@ export namespace StrikingStroke {
         const until: number = Math.min(seconds, input.scan.to);
         while (clear < until - 1e-12) {
           const next: number = Math.min(input.scan.to, clear + input.scan.step);
+
+          // The struck body is never read beyond the second asked about: a
+          // grid point past it is decided by reading at that second instead,
+          // and the bisection takes any midpoint past it as already in
+          // contact, so the found second is the grid's whenever the weapon
+          // stays in contact once it touches.
+          if (next > until + 1e-12) {
+            if (gap(free(until), until) > 0) return undefined;
+            let lo: number = clear;
+            let hi: number = next;
+            for (let i: number = 0; i < 24; i++) {
+              const mid: number = (lo + hi) / 2;
+              if (mid >= until || gap(free(mid), mid) <= 0) hi = mid;
+              else lo = mid;
+            }
+            found = hi;
+            return found <= seconds ? found : undefined;
+          }
           const g: number = gap(free(next), next);
           if (g <= 0) {
             found = StrikingContact.first((t: number): number => gap(free(t), t), clear, next, next - clear);
@@ -233,6 +268,7 @@ export namespace StrikingStroke {
     };
     return {
       stop,
+      free,
       end: (seconds: number): IAutoMovieVector3 => {
         const at: number | undefined = stop(seconds);
         if (at === undefined) return free(seconds);

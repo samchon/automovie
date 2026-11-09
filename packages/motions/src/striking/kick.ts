@@ -171,6 +171,9 @@ export namespace kick {
       ...(p.feint === true ? [] : [{ name: "impact", share: share(timing.impact) }]),
       { name: "replant", share: 1 },
     ];
+    // A contact resolved jointly by the performance, once known (null: the
+    // shin met nothing); until then the kick's own scan decides.
+    let fixed: number | null | undefined;
     let built: IGeometry | undefined;
     let building: boolean = false;
     const geometry = (): IGeometry => {
@@ -178,12 +181,13 @@ export namespace kick {
       if (building) throw new Error(`${context.subject}: the kick was read back while it was being planned`);
       building = true;
       try {
-        built = source === undefined ? build(context, timing, t0) : redirect(context, timing, source);
+        built = source === undefined ? build(context, timing, t0, fixed) : redirect(context, timing, source, fixed);
       } finally {
         building = false;
       }
       return built;
     };
+    const strikes: boolean = p.feint !== true && p.at.kind === "person" && StrikingQuality.stops(p.accuracy);
     const out: IHumanActionPlan = {
       duration,
       events,
@@ -201,6 +205,23 @@ export namespace kick {
       settle: (): void => {
         built = undefined;
       },
+      ...(strikes
+        ? {
+            weapons: [
+              {
+                id: "shin",
+                limb: timing.side === "left" ? ("leftLeg" as const) : ("rightLeg" as const),
+                radius: context.body.measure.shankRadius,
+                from: Math.max(context.start, t0 + timing.prep),
+                to: t0 + timing.impact + 0.1,
+                path: (seconds: number): IAutoMovieVector3 => geometry().shin!(seconds),
+              },
+            ],
+            stop: (found: readonly IHumanActionPlan.IContactEvent[]): void => {
+              fixed = found.find((e) => e.weapon === "shin")?.seconds ?? null;
+            },
+          }
+        : {}),
     };
     SOURCES.set(out, { timing, geometry, params: p, start: t0, context: source?.context ?? context });
     StrikingRecord.register(out, (): StrikingRecord.IRecord => geometry().record);
@@ -243,6 +264,10 @@ export namespace kick {
     stroke: StrikingStroke.IInput;
     /** What the kick decided. */
     record: StrikingRecord.IRecord;
+    /** The kicking ankle on its free path at a film second, as if it met nothing. */
+    free(seconds: number): IAutoMovieVector3;
+    /** The lower shin's axis point on the free path at a film second. */
+    shin?(seconds: number): IAutoMovieVector3;
   }
 
   /** A kick another kick may continue from. */
@@ -302,7 +327,7 @@ export namespace kick {
   }
 
   /** Build a fresh kick's geometry. */
-  function build(context: IHumanActionContext<IParams>, timing: ITiming, t0: number): IGeometry {
+  function build(context: IHumanActionContext<IParams>, timing: ITiming, t0: number, fixed: number | null | undefined): IGeometry {
     const p: IParams = context.params;
     const body = context.body;
     const m = body.measure;
@@ -398,28 +423,11 @@ export namespace kick {
     // hip at contact, with a step-up when short.
     const sole: IAutoMovieQuaternion = StrikingBody.foot(up, Vector3.scale(line, -1));
     const ball: IAutoMovieVector3 = StrikingBody.socket(body, side === "left" ? "ballLeft" : "ballRight", sole);
-    const wantedPoint: IAutoMovieVector3 = round ? Vector3.subtract(tracker.planned, Vector3.scale(direction, m.shankRadius)) : Vector3.subtract(tracker.planned, ball);
-
-    // The hip swings at most 120 degrees from the pelvis's down axis
-    // (`DEFAULT_HUMANOID_ROM`'s cone), kept 5 % inside: a point beyond that
-    // cone is brought onto its edge at the same distance, so the leg stops
-    // short along its highest reachable line, the declared rule for a target
-    // the body cannot reach.
-    const within = (hip: IAutoMovieVector3, posture: IHumanPosture): IAutoMovieVector3 => {
-      const down: IAutoMovieVector3 = Quaternion.rotateVector(StrikingBody.trunk(body, posture).get("hips")!.worldRotation, { x: 0, y: -1, z: 0 });
-      const toward: IAutoMovieVector3 = Vector3.subtract(wantedPoint, hip);
-      const length: number = Vector3.length(toward);
-      const limit: number = (0.95 * 120 * Math.PI) / 180;
-      const angle: number = Math.acos(Math.max(-1, Math.min(1, Vector3.dot(toward, down) / length)));
-      if (angle <= limit) return wantedPoint;
-      const across: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(toward, Vector3.scale(down, Vector3.dot(toward, down))));
-      return Vector3.add(hip, Vector3.scale(Vector3.add(Vector3.scale(down, Math.cos(limit)), Vector3.scale(across, Math.sin(limit))), length));
-    };
-    let point: IAutoMovieVector3 = wantedPoint;
-    const solveFrom = (hip: IAutoMovieVector3, posture: IHumanPosture): StrikingReach.ISolution =>
+    const point: IAutoMovieVector3 = round ? Vector3.subtract(tracker.planned, Vector3.scale(direction, m.shankRadius)) : Vector3.subtract(tracker.planned, ball);
+    const solveFrom = (hip: IAutoMovieVector3): StrikingReach.ISolution =>
       StrikingReach.chain({
         root: hip,
-        point: (point = within(hip, posture)),
+        point,
         upper: m.thigh,
         along: round ? SHIN_SHARE * m.shank : m.shank,
         lower: m.shank,
@@ -427,21 +435,45 @@ export namespace kick {
         flexion: FLEXION[p.technique],
         slide: round,
       });
-    let solved: StrikingReach.ISolution = solveFrom(hipAt(baseAt(impact, 0)), baseAt(impact, 0));
+    let solved: StrikingReach.ISolution = solveFrom(hipAt(baseAt(impact, 0)));
     let step: number = 0;
     if (p.feint !== true && solved.status === "short") {
       step = Math.min(0.5 * stanceLength, solved.gap);
-      solved = solveFrom(hipAt(baseAt(impact, step)), baseAt(impact, step));
+      solved = solveFrom(hipAt(baseAt(impact, step)));
     }
-    const reachedWeapon: IAutoMovieVector3 = round
-      ? Vector3.add(solved.point, Vector3.scale(direction, m.shankRadius))
-      : Vector3.add(solved.end, ball);
     const base = (t: number): IHumanPosture => baseAt(t, step);
     const hip: IAutoMovieVector3 = hipAt(base(impact));
 
     // A round kick's foot is pointed along the shank with the instep facing
     // the travel, so the instep and the lower shin present one surface.
     const rotationAt: IAutoMovieQuaternion = round ? StrikingBody.foot(Vector3.normalize(Vector3.subtract(solved.end, solved.middle)), direction) : sole;
+
+    // What the leg actually reaches is the engine's limb fit's answer, not
+    // the planner's triangle: the leg goal at contact is fitted once and the
+    // weapon read back from the fitted bones, so a target beyond the hip's
+    // range of motion is the declared miss at maximum reach with the
+    // solver's own residual, and planner and solver cannot disagree.
+    const fitted: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
+      resolvePose(
+        resolveHumanPosture(body, {
+          ...base(impact),
+          limbs: {
+            ...base(impact).limbs,
+            [side === "left" ? "leftLeg" : "rightLeg"]: { point: solved.end, bend: StrikingReach.hint(hip, solved, round ? Vector3.add(direction, Vector3.scale(up, 0.3)) : Vector3.add(up, line), 0.25 * m.thigh), rotation: rotationAt },
+          },
+        }),
+        body.skeleton,
+        HUMANOID_JOINT_AXES,
+        HUMANOID_REST_FRAME,
+      ).map((r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r]),
+    );
+    const fittedKnee: IAutoMovieVector3 = fitted.get(`${side}LowerLeg` as AutoMovieHumanoidBone)!.worldPosition;
+    const fittedAnkle: IAutoMovieVector3 = fitted.get(`${side}Foot` as AutoMovieHumanoidBone)!.worldPosition;
+    const reachedWeapon: IAutoMovieVector3 = round
+      ? Vector3.add(Vector3.lerp(fittedKnee, fittedAnkle, solved.along / m.shank), Vector3.scale(direction, m.shankRadius))
+      : Vector3.add(fittedAnkle, ball);
+    const residual: number = Vector3.length(Vector3.subtract(reachedWeapon, tracker.planned));
+    const status: StrikingReach.ISolution["status"] = residual > 0.015 ? "short" : solved.status;
 
     // The chamber: the knee raised toward the target's height, the foot
     // folded behind it, both scaled by the range share skill uses.
@@ -498,18 +530,20 @@ export namespace kick {
       rechamber: Vector3.add(ankleChamber, Vector3.scale(line, step)),
       ...(struck === undefined ? {} : { gap: exact(body, struck, side, (t: number): IHumanPosture => posed(t - t0)) }),
       scan: { from: t0 + prep, to: t0 + impact + 0.1, step: 1 / 96 },
+      ...(fixed === undefined ? {} : { fixed }),
     };
     const stroke: StrikingStroke.IStroke = StrikingStroke.create(input);
     let posed: (t: number) => IHumanPosture = base;
     const built: IGeometry = compose(context, timing, t0, {
       base,
       ankle: (t: number): IAutoMovieVector3 => stroke.end(t0 + t),
+      free: (seconds: number): IAutoMovieVector3 => stroke.free(seconds),
       hint: hintAt,
       rotation,
       goal: solved.end,
       contacts: windows(timing, side, support, step > 0),
       stroke: input,
-      record: { offset, planned: tracker.planned, reached: reachedWeapon, status: solved.status, stop: stroke.stop },
+      record: { offset, planned: tracker.planned, reached: reachedWeapon, status, stop: stroke.stop },
     });
     posed = built.posture;
     return built;
@@ -539,13 +573,13 @@ export namespace kick {
   }
 
   /** Build a redirect: the source's path plus one unit toward the new goal, the body moving to the new level's lean. */
-  function redirect(context: IHumanActionContext<IParams>, timing: ITiming, source: ISource): IGeometry {
+  function redirect(context: IHumanActionContext<IParams>, timing: ITiming, source: ISource, fixed: number | null | undefined): IGeometry {
     const old: IGeometry = source.geometry();
 
     // The new kick planned as if thrown from the source's own entry, with
     // this instance's parameters and draws.
     const t0: number = source.start;
-    const fresh: IGeometry = build({ ...source.context, params: context.params, random: context.random, start: t0 }, timing, t0);
+    const fresh: IGeometry = build({ ...source.context, params: context.params, random: context.random, start: t0 }, timing, t0, undefined);
     const cut: number = context.start - t0;
     const span: number = Math.max(1e-3, timing.impact - cut);
     const blend = (t: number): number => minimumJerk((t - cut) / span).s;
@@ -562,6 +596,7 @@ export namespace kick {
       units: [...old.stroke.units, { displacement: Vector3.subtract(fresh.goal, old.goal), start: t0 + cut, duration: span }],
       ...(struck === undefined ? {} : { gap: exact(context.body, struck, timing.side, (t: number): IHumanPosture => posed(t - t0)) }),
       scan: { ...fresh.stroke.scan, from: t0 + cut },
+      ...(fixed === undefined ? {} : { fixed }),
     };
     const stroke: StrikingStroke.IStroke = StrikingStroke.create(input);
     const built: IGeometry = compose(context, timing, t0, {
@@ -580,6 +615,7 @@ export namespace kick {
         return { ...b, joints, yaw: a.yaw + (b.yaw - a.yaw) * w, roll: a.roll + (b.roll - a.roll) * w, pitch: a.pitch + (b.pitch - a.pitch) * w, root: Vector3.lerp(a.root, b.root, w) };
       },
       ankle: (t: number): IAutoMovieVector3 => stroke.end(t0 + t),
+      free: (seconds: number): IAutoMovieVector3 => stroke.free(seconds),
       hint: (t: number): IAutoMovieVector3 => Vector3.lerp(old.hint(t), fresh.hint(t), blend(t)),
       rotation: (t: number): IAutoMovieQuaternion => Quaternion.slerp(old.rotation(t), fresh.rotation(t), blend(t)),
       goal: fresh.goal,
@@ -615,6 +651,12 @@ export namespace kick {
     };
     return {
       ...parts,
+      shin: (seconds: number): IAutoMovieVector3 => {
+        const t: number = seconds - t0;
+        const hip: IAutoMovieVector3 = StrikingBody.trunk(body, parts.base(t)).get(`${timing.side}UpperLeg` as AutoMovieHumanoidBone)!.worldPosition;
+        const ankle: IAutoMovieVector3 = parts.free(seconds);
+        return Vector3.lerp(StrikingLeg.knee(body, hip, ankle, parts.hint(t)), ankle, SHIN_SHARE);
+      },
       posture: (t: number): IHumanPosture => {
         const held = chain(t);
         const posture: IHumanPosture = held.base;

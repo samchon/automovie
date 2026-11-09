@@ -8,6 +8,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { HumanFoot } from "../posture/HumanFoot";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
@@ -155,8 +156,12 @@ export namespace guard {
         const feet: Record<"left" | "right", HumanFoot.IPlacement> = { left: foot("left", t), right: foot("right", t) };
         const down = (side: "left" | "right"): boolean => !moves(side) || t <= window[side][0] || t >= window[side][1];
         const legs = StrikingStance.legs(body, feet, { left: down("left"), right: down("right") });
-        const hands = StrikingStance.guard(body, posture, { lead });
-        return { ...posture, limbs: { ...legs, ...blendArms(context, hands, s) } };
+
+        // The root lowered until each planted leg reaches its foot, as the
+        // stance turns and travels over feet that have not moved yet.
+        const lowered: IHumanPosture = resolveHumanPosture.lower(body, { ...posture, limbs: legs }, 5);
+        const hands = StrikingStance.guard(body, lowered, { lead });
+        return { ...lowered, limbs: { ...lowered.limbs, ...blendArms(context, hands, s) } };
       },
     };
   }
