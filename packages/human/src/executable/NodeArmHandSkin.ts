@@ -15,6 +15,7 @@ import type { CaptureModel } from "../inspection/CaptureModel";
 import { HumanNodePaths } from "./HumanNodePaths";
 import { NodeArmDraw } from "./NodeArmDraw";
 import { NodeArmFingerFan } from "./NodeArmFingerFan";
+import { NodeArmNativeSaddle } from "./NodeArmNativeSaddle";
 
 /** Assemble native hand and digit surfaces on their observed world-space rims. */
 export namespace NodeArmHandSkin {
@@ -363,7 +364,10 @@ export namespace NodeArmHandSkin {
       if (!ring) throw new Error("The generated branch did not preserve its original distal ring");
       return ring.points;
     };
-    const mesh = { positions: generation.mesh.positions, indices: generation.mesh.indices };
+    const generated: CaptureModel.ITriangles = { positions: generation.mesh.positions, indices: generation.mesh.indices };
+    const mesh: CaptureModel.ITriangles = side === "l"
+      ? NodeArmNativeSaddle.create(generated, name, verticesMm, triangles, normal, u, beforeMm, afterMm, event.id, upper.map(({ curve }, index): { name: string; points: V3[] } => ({ name: curve.name, points: loop(index) })))
+      : generated;
     return { mesh, palm, root: exactFreeRim(mesh, origin, normal), host: loop(1 - thumb), thumb: loop(thumb), afterOrigin, normal };
   }
 

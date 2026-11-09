@@ -39,6 +39,7 @@ export namespace NodeArmCaptureSource {
     files: [
       "packages/human/src/executable/NodeArmCaptureSource.ts",
       "packages/human/src/executable/NodeArmHandSkin.ts",
+      "packages/human/src/executable/NodeArmNativeSaddle.ts",
       "packages/human/src/executable/NodeArmFingerFan.ts",
       "packages/human/src/executable/NodeArmCaptureGeometry.ts",
       "packages/human/src/executable/NodeTrunkCaptureSource.ts",
