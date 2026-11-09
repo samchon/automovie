@@ -1,6 +1,6 @@
 # Acquire generated video
 
-Use this only when the commission calls for generated video; a motion hint or a direct 3D film never silently requires a generator. Read the provider and setup authority in [project context](profile.md) and use the selected service's existing connector, CLI or API.
+Use this only when the commission calls for generated video; a motion hint or a direct 3D film never silently requires a generator. [Video](../video/SKILL.md) chooses the model, plans requests within its limits and writes the prompts; read the provider and setup authority in [project context](profile.md) and use the selected service's existing connector, CLI or API.
 
 ## Establish the input path
 

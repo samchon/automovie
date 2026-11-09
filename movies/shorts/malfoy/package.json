@@ -45,7 +45,7 @@
     "@types/pngjs": "catalog:media",
     "@types/three": "catalog:three",
     "@wrtnlabs/evidence": "catalog:samchon",
-    "ffmpeg-static": "^5.2.0",
+    "ffmpeg-static": "catalog:media",
     "playwright": "catalog:media",
     "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",

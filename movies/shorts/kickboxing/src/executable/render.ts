@@ -6,12 +6,11 @@ import path from "node:path";
 
 import type { IFilm } from "../IFilm";
 import { films } from "../composition/films";
-import { type IAutoMovieViewerVideoResult } from "../integrations/render/node/IAutoMovieViewerVideoResult";
-import { decodeAutoMovieDelivery } from "../integrations/render/node/decodeAutoMovieDelivery";
-import { mixAutoMovieAudioCues } from "../integrations/render/node/mixAutoMovieAudioCues";
-import { renderViewerFrames } from "../integrations/render/node/renderViewerFrames";
-import { renderViewerVideo } from "../integrations/render/node/renderViewerVideo";
 import { selectFilm } from "../selectFilm";
+import { type IAutoMovieViewerVideoResult } from "./render/node/IAutoMovieViewerVideoResult";
+import { decodeAutoMovieDelivery } from "./render/node/decodeAutoMovieDelivery";
+import { renderViewerFrames } from "./render/node/renderViewerFrames";
+import { renderViewerVideo } from "./render/node/renderViewerVideo";
 
 /**
  * Export one film of the running Viewer as a video, or as stills of chosen frames.

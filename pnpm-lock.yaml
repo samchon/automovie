@@ -22,6 +22,12 @@ catalogs:
     '@types/pngjs':
       specifier: ^6.0.5
       version: 6.0.5
+    ffmpeg-static:
+      specifier: ^5.2.0
+      version: 5.3.0
+    ffprobe-static:
+      specifier: ^3.1.0
+      version: 3.1.0
     gifenc:
       specifier: ^1.0.3
       version: 1.0.3
@@ -522,11 +528,11 @@ importers:
         specifier: catalog:samchon
         version: 12.1.0
       '@ttsc/lint':
-        specifier: ^0.36.0
+        specifier: catalog:samchon
         version: 0.36.3(ttsc@0.36.3(typescript@7.0.2))
       '@types/node':
-        specifier: ^22.19.17
-        version: 22.20.5
+        specifier: catalog:utils
+        version: 22.19.20
       '@types/pngjs':
         specifier: catalog:media
         version: 6.0.5
@@ -534,26 +540,26 @@ importers:
         specifier: catalog:three
         version: 0.186.0
       '@wrtnlabs/evidence':
-        specifier: ^0.8.2
+        specifier: catalog:samchon
         version: 0.8.2(ttsc@0.36.3(typescript@7.0.2))
       ffmpeg-static:
-        specifier: ^5.2.0
+        specifier: catalog:media
         version: 5.3.0
       ffprobe-static:
-        specifier: ^3.1.0
+        specifier: catalog:media
         version: 3.1.0
       three:
         specifier: catalog:three
         version: 0.186.0
       ttsc:
-        specifier: ^0.36.0
+        specifier: catalog:samchon
         version: 0.36.3(typescript@7.0.2)
       typescript:
-        specifier: ^7.0.2
+        specifier: catalog:typescript
         version: 7.0.2
       vite:
         specifier: catalog:vite
-        version: 5.4.21(@types/node@22.20.5)
+        version: 5.4.21(@types/node@22.19.20)
 
   movies/shorts/malfoy:
     dependencies:
@@ -622,7 +628,7 @@ importers:
         specifier: catalog:samchon
         version: 0.8.2(ttsc@0.36.3(typescript@7.0.2))
       ffmpeg-static:
-        specifier: ^5.2.0
+        specifier: catalog:media
         version: 5.3.0
       playwright:
         specifier: catalog:media
@@ -4875,15 +4881,6 @@ snapshots:
       rollup: 4.61.1
     optionalDependencies:
       '@types/node': 22.19.20
-      fsevents: 2.3.3
-
-  vite@5.4.21(@types/node@22.20.5):
-    dependencies:
-      esbuild: 0.21.5
-      postcss: 8.5.15
-      rollup: 4.61.1
-    optionalDependencies:
-      '@types/node': 22.20.5
       fsevents: 2.3.3
 
   w3c-xmlserializer@5.0.0:

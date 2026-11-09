@@ -1,6 +1,6 @@
 # Maintain project context
 
-The project-root [PROJECT.md](../../../PROJECT.md) holds the current overview, commissioned scope, adopted choices and constraints. Read it when starting or resuming work, and update it whenever a consequential choice is adopted or changed, before later work relies on it. Keep one concise current account for the user and the next agent; Git keeps superseded choices.
+The production's `PROJECT.md` holds the current overview, commissioned scope, adopted choices and constraints. Read it when starting or resuming work, and update it whenever a consequential choice is adopted or changed, before later work relies on it. Keep one concise current account for the user and the next agent; Git keeps superseded choices.
 
 ## What to record
 

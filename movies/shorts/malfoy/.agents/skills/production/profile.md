@@ -1,10 +1,10 @@
 # Maintain project context
 
-The project-root [PROJECT.md](../../../PROJECT.md) holds the current overview, commissioned scope, adopted choices and constraints. Read it when starting or resuming work, and update it whenever a consequential choice is adopted or changed, before later work relies on it. Keep one concise current account for the user and the next agent; Git keeps superseded choices.
+The production's `PROJECT.md` holds the current overview, commissioned scope, adopted choices and constraints. Read it when starting or resuming work, and update it whenever a consequential choice is adopted or changed, before later work relies on it. Keep one concise current account for the user and the next agent; Git keeps superseded choices.
 
 ## What to record
 
-Record only what this project needs; an instance-only request needs no story or soundtrack, and a screenplay-only request no renderer. Leave an undecided nonblocking choice explicit and continue the work that does not depend on it.
+Record only what this project needs; an instance-only request needs no story, and a screenplay-only request no renderer. Leave an undecided nonblocking choice explicit and continue the work that does not depend on it.
 
 | Topic | Record when relevant |
 | --- | --- |

@@ -14,8 +14,10 @@ import type { IRasterizeAutoMovieSceneProps } from "./IRasterizeAutoMovieScenePr
  * as flat-shaded triangles with a per-pixel depth buffer, honouring each
  * material's side, visibility, opacity, vertex or instance colours and
  * emissive colour; lit materials take the scene's lights through three.js's
- * Lambert convention and `MeshBasicMaterial` is unlit. Lines and points are
- * drawn one pixel wide, transparent surfaces are blended back to front after
+ * Lambert convention and `MeshBasicMaterial` is unlit. Lines are drawn one
+ * pixel wide; points are squares of their `PointsMaterial` size in output
+ * pixels, attenuated by distance as three.js does when `sizeAttenuation` is
+ * on; transparent surfaces are blended back to front after
  * opaque ones, and the result is converted to sRGB. Textures, shadows, fog,
  * sprites and post-processing are not drawn; the statistics count them.
  *
@@ -82,6 +84,7 @@ export function rasterizeAutoMovieScene(
     forward: new THREE.Vector3(0, 0, -1).transformDirection(camera.matrixWorld),
     orthographic: camera instanceof THREE.OrthographicCamera,
     transparent: [],
+    factor,
   };
 
   // Opaque primitives first, in traversal order; the depth buffer resolves visibility.
@@ -120,33 +123,51 @@ interface IFrame {
   forward: THREE.Vector3;
   orthographic: boolean;
   transparent: ITransparent[];
+  /** Supersampling factor: target pixels per output pixel along each axis. */
+  factor: number;
 }
 
 /** One queued transparent triangle in screen coordinates. */
 interface ITransparent {
-  vertices: [number, number, number, number, number, number, number, number, number];
+  vertices: [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+  ];
   rgb: [number, number, number];
   alpha: number;
   depth: number;
 }
 
 /** Count a visible object this rasterizer does not draw. */
-function skip(statistics: IAutoMovieSceneRaster.IStatistics, type: string): void {
+function skip(
+  statistics: IAutoMovieSceneRaster.IStatistics,
+  type: string,
+): void {
   statistics.skipped[type] = (statistics.skipped[type] ?? 0) + 1;
 }
 
 /** Submit every triangle of a mesh, once per instance. */
 function submitMesh(frame: IFrame, mesh: THREE.Mesh): void {
   const geometry: THREE.BufferGeometry = mesh.geometry;
-  const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute | undefined =
-    geometry.getAttribute("position");
+  const position:
+    | THREE.BufferAttribute
+    | THREE.InterleavedBufferAttribute
+    | undefined = geometry.getAttribute("position");
   if (position === undefined) return;
   const materials: THREE.Material[] = Array.isArray(mesh.material)
     ? mesh.material
     : [mesh.material];
   for (const material of materials) {
     if ((material as { map?: unknown }).map) frame.statistics.untextured++;
-    if (material instanceof THREE.ShaderMaterial) frame.statistics.approximated++;
+    if (material instanceof THREE.ShaderMaterial)
+      frame.statistics.approximated++;
   }
 
   // Local vertex positions with morph targets and skinning applied once.
@@ -170,7 +191,11 @@ function submitMesh(frame: IFrame, mesh: THREE.Mesh): void {
   const ranges: { start: number; count: number; materialIndex: number }[] =
     Array.isArray(mesh.material) && geometry.groups.length > 0
       ? geometry.groups.map(
-          (g: { start: number; count: number; materialIndex?: number }): {
+          (g: {
+            start: number;
+            count: number;
+            materialIndex?: number;
+          }): {
             start: number;
             count: number;
             materialIndex: number;
@@ -183,9 +208,12 @@ function submitMesh(frame: IFrame, mesh: THREE.Mesh): void {
       : [{ start: 0, count: total, materialIndex: 0 }];
   const drawStart: number = geometry.drawRange.start;
   const drawEnd: number = Math.min(total, drawStart + geometry.drawRange.count);
-  const colors: THREE.BufferAttribute | THREE.InterleavedBufferAttribute | undefined =
-    geometry.getAttribute("color");
-  const instances: number = mesh instanceof THREE.InstancedMesh ? mesh.count : 1;
+  const colors:
+    | THREE.BufferAttribute
+    | THREE.InterleavedBufferAttribute
+    | undefined = geometry.getAttribute("color");
+  const instances: number =
+    mesh instanceof THREE.InstancedMesh ? mesh.count : 1;
   const world: THREE.Matrix4 = new THREE.Matrix4();
   const instance: THREE.Matrix4 = new THREE.Matrix4();
   const tint: THREE.Color = new THREE.Color();
@@ -230,7 +258,8 @@ function submitMesh(frame: IFrame, mesh: THREE.Mesh): void {
     }
 
     for (const range of ranges) {
-      const material: THREE.Material | undefined = materials[range.materialIndex];
+      const material: THREE.Material | undefined =
+        materials[range.materialIndex];
       if (material === undefined || !material.visible || material.opacity <= 0)
         continue;
       const start: number = Math.max(range.start, drawStart);
@@ -239,7 +268,18 @@ function submitMesh(frame: IFrame, mesh: THREE.Mesh): void {
         const a: number = index === null ? t : index.getX(t);
         const b: number = index === null ? t + 1 : index.getX(t + 1);
         const c: number = index === null ? t + 2 : index.getX(t + 2);
-        submitTriangle(frame, material, worlds, clips, a, b, c, mirrored, colors, tint);
+        submitTriangle(
+          frame,
+          material,
+          worlds,
+          clips,
+          a,
+          b,
+          c,
+          mirrored,
+          colors,
+          tint,
+        );
       }
     }
   }
@@ -308,18 +348,29 @@ function submitTriangle(
     for (let k: number = 0; k < 3; k++)
       base[k] =
         base[k]! *
-        ((colors.getComponent(a, k) + colors.getComponent(b, k) + colors.getComponent(c, k)) / 3);
+        ((colors.getComponent(a, k) +
+          colors.getComponent(b, k) +
+          colors.getComponent(c, k)) /
+          3);
   base[0] *= tint.r;
   base[1] *= tint.g;
   base[2] *= tint.b;
-  const rgb: [number, number, number] = shade(frame, material, base, centroid, normal);
+  const rgb: [number, number, number] = shade(
+    frame,
+    material,
+    base,
+    centroid,
+    normal,
+  );
 
-  const polygon: number[][] = clipNear([a, b, c].map((i: number): number[] => [
-    clips[i * 4]!,
-    clips[i * 4 + 1]!,
-    clips[i * 4 + 2]!,
-    clips[i * 4 + 3]!,
-  ]));
+  const polygon: number[][] = clipNear(
+    [a, b, c].map((i: number): number[] => [
+      clips[i * 4]!,
+      clips[i * 4 + 1]!,
+      clips[i * 4 + 2]!,
+      clips[i * 4 + 3]!,
+    ]),
+  );
   if (polygon.length < 3) return;
   const screen: number[][] = polygon.map((q: number[]): number[] =>
     toScreen(frame.target, q),
@@ -327,9 +378,15 @@ function submitTriangle(
   const transparent: boolean = material.transparent && material.opacity < 1;
   for (let k: number = 1; k + 1 < screen.length; k++) {
     const vertices: ITransparent["vertices"] = [
-      screen[0]![0]!, screen[0]![1]!, screen[0]![2]!,
-      screen[k]![0]!, screen[k]![1]!, screen[k]![2]!,
-      screen[k + 1]![0]!, screen[k + 1]![1]!, screen[k + 1]![2]!,
+      screen[0]![0]!,
+      screen[0]![1]!,
+      screen[0]![2]!,
+      screen[k]![0]!,
+      screen[k]![1]!,
+      screen[k]![2]!,
+      screen[k + 1]![0]!,
+      screen[k + 1]![1]!,
+      screen[k + 1]![2]!,
     ];
     frame.statistics.triangles++;
     if (transparent)
@@ -346,7 +403,10 @@ function submitTriangle(
 /** A material's linear base colour, or neutral clay for shader materials. */
 function baseColor(material: THREE.Material): [number, number, number] {
   const color: unknown = (material as { color?: unknown }).color;
-  if (material instanceof THREE.ShaderMaterial || !(color instanceof THREE.Color))
+  if (
+    material instanceof THREE.ShaderMaterial ||
+    !(color instanceof THREE.Color)
+  )
     return [0.6, 0.6, 0.6];
   return [color.r, color.g, color.b];
 }
@@ -365,8 +425,12 @@ function shade(
     material instanceof THREE.ShaderMaterial;
   let rgb: [number, number, number] = base;
   if (!unlit) {
-    const metalness: number = (material as { metalness?: number }).metalness ?? 0;
-    const irradiance: [number, number, number] = frame.lighting.irradiance(point, normal);
+    const metalness: number =
+      (material as { metalness?: number }).metalness ?? 0;
+    const irradiance: [number, number, number] = frame.lighting.irradiance(
+      point,
+      normal,
+    );
     const diffuse: number = (1 - metalness) / Math.PI;
     rgb = [
       base[0] * irradiance[0] * diffuse,
@@ -398,7 +462,11 @@ function clipNear(polygon: number[][]): number[][] {
     if (dc >= 0) out.push(current);
     if (dc >= 0 !== dn >= 0) {
       const t: number = dc / (dc - dn);
-      out.push(current.map((value: number, k: number): number => value + (next[k]! - value) * t));
+      out.push(
+        current.map(
+          (value: number, k: number): number => value + (next[k]! - value) * t,
+        ),
+      );
     }
   }
   return out;
@@ -417,12 +485,15 @@ function toScreen(target: AutoMovieRasterTarget, q: number[]): number[] {
 
 /** Draw a line object's segments, depth-tested unless its material disables it. */
 function submitLine(frame: IFrame, line: THREE.Line): void {
-  const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute | undefined =
-    line.geometry.getAttribute("position");
+  const position:
+    | THREE.BufferAttribute
+    | THREE.InterleavedBufferAttribute
+    | undefined = line.geometry.getAttribute("position");
   const material: THREE.Material = Array.isArray(line.material)
     ? line.material[0]!
     : line.material;
-  if (position === undefined || material === undefined || !material.visible) return;
+  if (position === undefined || material === undefined || !material.visible)
+    return;
   const rgb: [number, number, number] = baseColor(material);
   const stride: number = line instanceof THREE.LineSegments ? 2 : 1;
   const index: THREE.BufferAttribute | null = line.geometry.getIndex();
@@ -437,14 +508,33 @@ function submitLine(frame: IFrame, line: THREE.Line): void {
   const a: THREE.Vector4 = new THREE.Vector4();
   const b: THREE.Vector4 = new THREE.Vector4();
   for (let k: number = 0; k + 1 < count + (loop ? 1 : 0); k += stride) {
-    a.set(position.getX(at(k)), position.getY(at(k)), position.getZ(at(k)), 1).applyMatrix4(matrix);
+    a.set(
+      position.getX(at(k)),
+      position.getY(at(k)),
+      position.getZ(at(k)),
+      1,
+    ).applyMatrix4(matrix);
     const j: number = at((k + 1) % count);
-    b.set(position.getX(j), position.getY(j), position.getZ(j), 1).applyMatrix4(matrix);
-    const clipped: number[][] = clipSegment([a.x, a.y, a.z, a.w], [b.x, b.y, b.z, b.w]);
+    b.set(position.getX(j), position.getY(j), position.getZ(j), 1).applyMatrix4(
+      matrix,
+    );
+    const clipped: number[][] = clipSegment(
+      [a.x, a.y, a.z, a.w],
+      [b.x, b.y, b.z, b.w],
+    );
     if (clipped.length < 2) continue;
     const p: number[] = toScreen(frame.target, clipped[0]!);
     const q: number[] = toScreen(frame.target, clipped[1]!);
-    frame.target.line(p[0]!, p[1]!, p[2]!, q[0]!, q[1]!, q[2]!, rgb, material.depthTest);
+    frame.target.line(
+      p[0]!,
+      p[1]!,
+      p[2]!,
+      q[0]!,
+      q[1]!,
+      q[2]!,
+      rgb,
+      material.depthTest,
+    );
     frame.statistics.lines++;
   }
 }
@@ -456,29 +546,49 @@ function clipSegment(a: number[], b: number[]): number[][] {
   if (da < 0 && db < 0) return [];
   if (da >= 0 && db >= 0) return [a, b];
   const t: number = da / (da - db);
-  const cut: number[] = a.map((value: number, k: number): number => value + (b[k]! - value) * t);
+  const cut: number[] = a.map(
+    (value: number, k: number): number => value + (b[k]! - value) * t,
+  );
   return da >= 0 ? [a, cut] : [cut, b];
 }
 
 /** Draw a points object's vertices as small depth-tested squares. */
 function submitPoints(frame: IFrame, points: THREE.Points): void {
-  const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute | undefined =
-    points.geometry.getAttribute("position");
+  const position:
+    | THREE.BufferAttribute
+    | THREE.InterleavedBufferAttribute
+    | undefined = points.geometry.getAttribute("position");
   const material: THREE.Material = Array.isArray(points.material)
     ? points.material[0]!
     : points.material;
-  if (position === undefined || material === undefined || !material.visible) return;
+  if (position === undefined || material === undefined || !material.visible)
+    return;
   const rgb: [number, number, number] = baseColor(material);
   const matrix: THREE.Matrix4 = new THREE.Matrix4().multiplyMatrices(
     frame.viewProjection,
     points.matrixWorld,
   );
+  // three.js draws a point `size` drawing-buffer pixels wide, times half the
+  // buffer height over view depth when attenuated in perspective.
+  const size: number =
+    material instanceof THREE.PointsMaterial ? material.size : 1;
+  const attenuate: boolean =
+    material instanceof THREE.PointsMaterial &&
+    material.sizeAttenuation &&
+    !frame.orthographic;
   const p: THREE.Vector4 = new THREE.Vector4();
   for (let k: number = 0; k < position.count; k++) {
-    p.set(position.getX(k), position.getY(k), position.getZ(k), 1).applyMatrix4(matrix);
+    p.set(position.getX(k), position.getY(k), position.getZ(k), 1).applyMatrix4(
+      matrix,
+    );
     if (p.w <= 0 || p.z < -p.w) continue;
     const s: number[] = toScreen(frame.target, [p.x, p.y, p.z, p.w]);
-    frame.target.point(s[0]!, s[1]!, s[2]!, 1, rgb, material.depthTest);
+    const width: number =
+      size *
+      frame.factor *
+      (attenuate ? frame.target.height / (2 * frame.factor) / p.w : 1);
+    const radius: number = Math.max(0, Math.round((width - 1) / 2));
+    frame.target.point(s[0]!, s[1]!, s[2]!, radius, rgb, material.depthTest);
     frame.statistics.points++;
   }
 }

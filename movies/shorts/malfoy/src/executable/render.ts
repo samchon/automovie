@@ -1,7 +1,4 @@
 import { planViewerFrameTimes } from "@automovie/render";
-import { type IAutoMovieViewerVideoResult } from "../integrations/render/node/IAutoMovieViewerVideoResult";
-import { renderViewerFrames } from "../integrations/render/node/renderViewerFrames";
-import { renderViewerVideo } from "../integrations/render/node/renderViewerVideo";
 import ffmpeg from "ffmpeg-static";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -9,6 +6,9 @@ import path from "node:path";
 import type { IFilm } from "../IFilm";
 import { films } from "../composition/films";
 import { selectFilm } from "../selectFilm";
+import { type IAutoMovieViewerVideoResult } from "./render/node/IAutoMovieViewerVideoResult";
+import { renderViewerFrames } from "./render/node/renderViewerFrames";
+import { renderViewerVideo } from "./render/node/renderViewerVideo";
 
 /**
  * Export one film of the running Viewer as a video, or as stills of chosen frames.

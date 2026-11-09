@@ -63,11 +63,14 @@ export class AutoMovieRasterSheet {
         (value: number): boolean => Number.isSafeInteger(value) && value > 0,
       )
     )
-      throw new Error("Sheet capacity, columns and cell size must be positive integers");
+      throw new Error(
+        "Sheet capacity, columns and cell size must be positive integers",
+      );
     const used: number = Math.min(columns, capacity);
     const width: number = used * cellWidth;
     const height: number = Math.ceil(capacity / used) * cellHeight;
-    if (width * height > 64_000_000) throw new Error("Sheet exceeds 64 megapixels");
+    if (width * height > 64_000_000)
+      throw new Error("Sheet exceeds 64 megapixels");
     this.sheet = {
       width,
       height,
@@ -110,10 +113,16 @@ export class AutoMovieRasterSheet {
     };
     for (let y: number = 0; y < this.cellHeight; y++) {
       const y0: number = Math.floor((y * frame.height) / this.cellHeight);
-      const y1: number = Math.max(y0 + 1, Math.floor(((y + 1) * frame.height) / this.cellHeight));
+      const y1: number = Math.max(
+        y0 + 1,
+        Math.floor(((y + 1) * frame.height) / this.cellHeight),
+      );
       for (let x: number = 0; x < this.cellWidth; x++) {
         const x0: number = Math.floor((x * frame.width) / this.cellWidth);
-        const x1: number = Math.max(x0 + 1, Math.floor(((x + 1) * frame.width) / this.cellWidth));
+        const x1: number = Math.max(
+          x0 + 1,
+          Math.floor(((x + 1) * frame.width) / this.cellWidth),
+        );
         let r: number = 0;
         let g: number = 0;
         let b: number = 0;
@@ -132,10 +141,17 @@ export class AutoMovieRasterSheet {
         cell.pixels[target + 3] = 255;
       }
     }
-    stampAutoMovieRasterLabel(cell, caption, Math.max(1, Math.round(this.cellHeight / 90)));
+    stampAutoMovieRasterLabel(
+      cell,
+      caption,
+      Math.max(1, Math.round(this.cellHeight / 90)),
+    );
     for (let y: number = 0; y < this.cellHeight; y++)
       this.sheet.pixels.set(
-        cell.pixels.subarray(y * this.cellWidth * 4, (y + 1) * this.cellWidth * 4),
+        cell.pixels.subarray(
+          y * this.cellWidth * 4,
+          (y + 1) * this.cellWidth * 4,
+        ),
         ((top + y) * this.sheet.width + left) * 4,
       );
     this.count++;

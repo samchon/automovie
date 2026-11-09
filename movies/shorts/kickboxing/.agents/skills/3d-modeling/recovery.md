@@ -4,7 +4,7 @@ Use `@automovie/recovery` to observe a fixed external mesh, save its curve or su
 
 ## Observe And Save
 
-Read the installed `@automovie/recovery` README, public types and JSDoc for inputs, supported operations, saved formats and diagnostic meanings. Run through its public API or the installed `automovie-recovery` commands, using `--help` for invocation.
+Read the installed `@automovie/recovery` README, public types and JSDoc for inputs, supported operations, saved formats and diagnostic meanings. Run through its public API; file publication and command dispatch live in the production's `src/integrations/recovery`, copied from the scaffold.
 
 Prepare evaluated triangles under the package's coordinate, unit, pose and face-orientation contracts. Bind the observation to the exact source bytes, selected components, evaluated pose and applied transform, converting coordinate conventions at one named boundary, and keep that registration fixed for comparison.
 

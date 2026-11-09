@@ -1,12 +1,12 @@
 ---
 name: audio
-description: Acquires and verifies speech, music, effects, and ambience for this production. Use when sourcing or generating audio, arranging dialogue, or checking the finished soundtrack.
+description: Decides what each shot sounds like for the video model to generate and, only when the user wants to hear voices before video generation, makes a voice preview for the user to listen to. Use when writing a shot's sound into a generation prompt or when the user requests a voice preview.
 ---
 
 # Audio
 
-Apply only the commissioned sound scope recorded in [production decisions](../production/profile.md); an instance or screenplay request does not trigger a soundtrack or provider setup. Use supplied recordings or the user's chosen provider first. Follow [acquisition and listening](acquisition.md), [sound effects](sound-effects.md) for Foley and designed sounds, and [local speech](local-speech.md) when local speech setup is requested; an existing setup approval remains sufficient.
+The agent observes a film only as extracted image frames and cannot hear, so it cannot judge or tune audio it produces. The film's voices, effects and ambience therefore come from the video model, which generates them in sync with the picture, and the production's audio work is to decide what each shot sounds like, from the screenplay's speech and sound decisions, and write it into that shot's prompt in the selected model's syntax under [video](../video/SKILL.md). The model times and lip-syncs speech inside the clip it generates, so keep each shot's lines speakable at a natural pace within that clip's duration, about one or two short exchanges per four seconds. No stage or delivery waits on a soundtrack, and a direct 3D film is silent unless its commission asks for sound.
 
-Acquire audio before finalizing its timing, adopt the resulting bytes with their provenance, then connect them through the installed package APIs and this production's host. Generation stays outside deterministic replay. Hand accepted takes and measured timing to [editing and finishing](../production/finishing.md); recheck synchronization when that edit changes the take or picture. Source changes follow [development](../development/SKILL.md).
+When the selected model or mode generates no sound, report it to the user with two choices, a sound-generating model or mode, or a separate video-to-audio pass over the accepted take, and follow their choice.
 
-For commissioned sound, listen to adopted takes and the actual delivered audio before claiming completion, with picture when the commission includes video. Report unavailable playback or missing delivery wiring as an unresolved check; [delivery review](../review/delivery.md) owns final assembled acceptance.
+Only the user can hear the result, so any audio the agent makes exists for the user's ears. Generate audio only when the user wants to hear the voices before video generation. Make that preview with [local speech](local-speech.md) or another speech service under [acquisition](acquisition.md), adding [sound effects](sound-effects.md) only when the user asks for them too, play it with the hint film in the Viewer and ask the user to listen. A preview is never delivered or required, and the video prompt still carries the film's sound. Source changes follow [development](../development/SKILL.md).

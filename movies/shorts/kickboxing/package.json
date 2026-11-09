@@ -39,17 +39,17 @@
   "devDependencies": {
     "@automovie/evidence": "workspace:^",
     "@nestia/e2e": "catalog:samchon",
-    "@ttsc/lint": "^0.36.0",
-    "@types/node": "^22.19.17",
+    "@ttsc/lint": "catalog:samchon",
+    "@types/node": "catalog:utils",
     "@types/pngjs": "catalog:media",
     "@types/three": "catalog:three",
-    "@wrtnlabs/evidence": "^0.8.2",
-    "ffmpeg-static": "^5.2.0",
-    "ffprobe-static": "^3.1.0",
+    "@wrtnlabs/evidence": "catalog:samchon",
+    "ffmpeg-static": "catalog:media",
+    "ffprobe-static": "catalog:media",
     "playwright-core": "catalog:media",
     "three": "catalog:three",
-    "ttsc": "^0.36.0",
-    "typescript": "^7.0.2",
+    "ttsc": "catalog:samchon",
+    "typescript": "catalog:typescript",
     "vite": "catalog:vite"
   }
 }

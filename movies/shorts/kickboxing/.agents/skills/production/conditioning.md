@@ -8,7 +8,7 @@ Select only the inputs the actual receiver needs, such as motion video, referenc
 
 ## Keep channels aligned
 
-Give time-matched channels one frame format, camera, crop and time mapping, resolved through the [timeline](../motion/timeline.md), and capture each from the same evaluated performance and view; switching render mode must not advance or restart motion. A matching frame count does not prove matching poses or events. Read each pass's limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities or only positional colors. A structural pass keeps its values free of exposure, tone mapping or overlays. Return borrowed scene and renderer state after each pass. When a generator works in segments, give each segment the previous segment's accepted last frames as its reference input, so identity and motion continue across the seam.
+Give time-matched channels one frame format, camera, crop and time mapping, resolved through the [timeline](../motion/timeline.md), and capture each from the same evaluated performance and view; switching render mode must not advance or restart motion. A matching frame count does not prove matching poses or events. Read each pass's limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities or only positional colors. A structural pass keeps its values free of exposure, tone mapping or overlays. Return borrowed scene and renderer state after each pass. When a generator works in segments, give each segment the previous segment's accepted last frames as its reference input so motion continues across the seam, and the canon references with them, because identity and colour drift with every segment chained from generated frames.
 
 ## Hand off
 

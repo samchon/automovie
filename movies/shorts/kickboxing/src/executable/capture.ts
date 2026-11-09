@@ -1,9 +1,4 @@
 import { planViewerFrameTimes } from "@automovie/render";
-import { AutoMovieRasterSheet } from "../integrations/viewer/node/raster/AutoMovieRasterSheet";
-import { type IAutoMovieSceneRaster } from "../integrations/viewer/node/raster/IAutoMovieSceneRaster";
-import { encodeAutoMovieRasterPng } from "../integrations/viewer/node/raster/encodeAutoMovieRasterPng";
-import { rasterizeAutoMovieScene } from "../integrations/viewer/node/raster/rasterizeAutoMovieScene";
-import { stampAutoMovieRasterLabel } from "../integrations/viewer/node/raster/stampAutoMovieRasterLabel";
 import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -14,6 +9,11 @@ import type { IFilmProduction } from "../IFilmProduction";
 import { films } from "../composition/films";
 import { selectFilm } from "../selectFilm";
 import { planCaptureStills } from "./planCaptureStills";
+import { AutoMovieRasterSheet } from "./viewer/node/raster/AutoMovieRasterSheet";
+import { type IAutoMovieSceneRaster } from "./viewer/node/raster/IAutoMovieSceneRaster";
+import { encodeAutoMovieRasterPng } from "./viewer/node/raster/encodeAutoMovieRasterPng";
+import { rasterizeAutoMovieScene } from "./viewer/node/raster/rasterizeAutoMovieScene";
+import { stampAutoMovieRasterLabel } from "./viewer/node/raster/stampAutoMovieRasterLabel";
 
 /**
  * Draw film frames straight from Node, with no Viewer server, browser or
@@ -197,7 +197,12 @@ export async function capture(): Promise<void> {
               (
                 f: { file: string; seconds: number },
                 index: number,
-              ): { row: number; column: number; seconds: number; file: string } => ({
+              ): {
+                row: number;
+                column: number;
+                seconds: number;
+                file: string;
+              } => ({
                 row: Math.floor(index / columns),
                 column: index % columns,
                 seconds: f.seconds,
@@ -244,7 +249,12 @@ export async function capture(): Promise<void> {
       for (const [type, count] of Object.entries(raster.statistics.skipped))
         skipped[type] = Math.max(skipped[type] ?? 0, count);
       if (!options.has("--no-sheet")) {
-        sheet ??= new AutoMovieRasterSheet(perSheet, columns, cellWidth, cellHeight);
+        sheet ??= new AutoMovieRasterSheet(
+          perSheet,
+          columns,
+          cellWidth,
+          cellHeight,
+        );
         sheet.add(raster, `${seconds.toFixed(2)}s`);
         group.push({ file, seconds });
         if (group.length === perSheet) await flush();
@@ -277,10 +287,14 @@ export async function capture(): Promise<void> {
       JSON.stringify(manifest, null, 2),
       "utf8",
     );
-    console.log(`capture ${selected.name}: ${times.length} frames in ${directory}`);
+    console.log(
+      `capture ${selected.name}: ${times.length} frames in ${directory}`,
+    );
     console.log(
       `create ${((mounted - started) / 1000).toFixed(1)} s, draw ${((drawn - mounted) / 1000).toFixed(1)} s` +
-        (Object.keys(skipped).length === 0 ? "" : `, not drawn: ${JSON.stringify(skipped)}`),
+        (Object.keys(skipped).length === 0
+          ? ""
+          : `, not drawn: ${JSON.stringify(skipped)}`),
     );
     for (const sheet of sheets) console.log(sheet);
   } finally {
@@ -343,18 +357,19 @@ async function loadModuleFilm(
     throw new Error(`${file}#${chosen} is not an IFilm or a factory of one`);
   const base: string = path.basename(file).replace(/\.[cm]?[jt]s$/u, "");
   return {
-    name: path.join(
-      "modules",
-      name === undefined ? base : `${base}-${chosen}`,
-    ),
+    name: path.join("modules", name === undefined ? base : `${base}-${chosen}`),
     film: candidate as IFilm,
   };
 }
 
 /** Match a perspective camera's aspect to the raster, as the Viewer does for its canvas. */
 function fitAspect(camera: THREE.Camera, width: number, height: number): void {
-  const perspective: THREE.PerspectiveCamera = camera as THREE.PerspectiveCamera;
-  if (perspective.isPerspectiveCamera === true && perspective.aspect !== width / height) {
+  const perspective: THREE.PerspectiveCamera =
+    camera as THREE.PerspectiveCamera;
+  if (
+    perspective.isPerspectiveCamera === true &&
+    perspective.aspect !== width / height
+  ) {
     perspective.aspect = width / height;
     perspective.updateProjectionMatrix();
   }
@@ -371,7 +386,9 @@ function inspectionCamera(
     .map((part: string): number[] => part.split(",").map(Number));
   if (
     points.length !== 2 ||
-    points.some((p: number[]): boolean => p.length !== 3 || !p.every(Number.isFinite))
+    points.some(
+      (p: number[]): boolean => p.length !== 3 || !p.every(Number.isFinite),
+    )
   )
     throw new Error("--view must be x,y,z:tx,ty,tz in metres");
   const inspection: THREE.PerspectiveCamera = camera.clone();
