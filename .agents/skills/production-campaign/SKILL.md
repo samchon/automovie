@@ -1,18 +1,18 @@
 ---
 name: production-campaign
-description: Coordinates writing, review and media execution across commissioned productions, tracks actual runs and repairs blocked handoffs. Use for sustained authoring campaigns, explicit single-production observation and production comparisons.
+description: Coordinates writing, review and media execution across commissioned productions by launching each writer and reviewer as its own CLI process, keeping an observer subagent on them and connecting independent review. Use for sustained authoring campaigns, explicit single-production observation and production comparisons.
 ---
 
 # Production campaign
 
-Carry the commissioned work through its actual authoring and delivery owners. Read each production's AGENTS, PROJECT, current bodies, source, installed instructions and existing run records. The production's [campaign guide](../../../packages/template/scaffold/.agents/skills/production/campaign.md) owns execution records and resumption; its specialist skills own creation and acceptance. Repository [issue campaigns](../issue-campaign/SKILL.md) own broad engineering audits and issue publication.
+Carry the commissioned work through its actual authoring and delivery owners. The production's [campaign guide](../../../packages/template/scaffold/.agents/skills/production/campaign.md) owns its run record, dispatch, film and module ownership and resumption; its specialist skills own creation and acceptance. This skill owns how the coordinator of a campaign run from this repository launches, watches and connects those workers and compares productions. Repository [issue campaigns](../issue-campaign/SKILL.md) own broad engineering audits and issue publication.
 
-Keep the scope and current baseline explicit. A single episode's observed execution establishes that episode's behavior, not comparative quality across productions. For a requested comparison, state the input revisions, changed conditions, protected achievements and evaluation question before running; distinguish exploratory observations from a controlled comparison. Instruction edits alone establish no improvement in a manuscript or film.
+Keep these rules here rather than in the scaffold, because the scaffold ships to everyone who installs AutoMovie and their productions are not bound to this repository's process launching or observation. Within the production's guide, which leaves observation to an available scheduler and additional agents to the user's authorization, this repository chooses an observer subagent as that scheduler and CLI processes as those agents.
 
-The coordinator writes when no separate writer is assigned. Use additional agents only under the user's authorization, give each a nonoverlapping write scope, and keep reviewers independent of author conclusions. Record actual role, session or agent identity, inputs, result and limits rather than inventing a role from a report heading. Preserve requested model and runtime choices; unavailable identity remains unknown.
+A campaign the user starts authorizes its writers, reviewers and observer within the requested productions and scope; a request only to observe authorizes resuming existing runs, not starting new writers. Keep that scope and the current baseline explicit. A single film's observed execution establishes that film's behavior, not comparative quality across productions, and instruction edits alone establish no improvement in a screenplay or film.
 
-When a real authoring or playback task exposes a missing capability, trace it through [project ownership](../project/SKILL.md#packages), implement and validate it through [development](../development/SKILL.md), then reconnect its actual production consumer. Use [scaffold](../scaffold/SKILL.md) for explicit instruction sync; source, configuration and contract migrations remain deliberate project changes. A missing capability is work to complete, not a reason to lower the commission or hide a local substitute.
+Read the procedure for the current task.
 
-Apply the production's viewer recovery priority before continuing dependent creative or visual judgments. A working preview does not certify capture, encoded-video playback or final delivery. Follow the exact failing path through repair and report observed and unperformed checks separately.
-
-For a requested recurring check, use the app's thread automation at the requested interval. Inspect original artifacts, current worker state and relevant history; resume a stopped run or supply the missing dependency instead of duplicating a healthy writer. Stay within the user's scope and process ownership. Quietly record unchanged checks, notify on meaningful progress or a failure needing attention, and stop starting work after cancellation or completion. A schedule is not proof that an inspection ran; each actual intervention belongs in the production's run record.
+- [Run](run.md): preparation, CLI launch, run records, write scope, missing capabilities, comparison and Git ownership.
+- [Observe](observe.md): the observer subagent's ticks and the revival of a stopped run. Give it to the observer as its brief.
+- [Review](review.md): fixing a submission, launching an independent reviewer, relaying verdicts and rebuttals.
