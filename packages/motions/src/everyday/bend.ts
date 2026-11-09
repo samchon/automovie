@@ -7,6 +7,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -34,9 +35,14 @@ import { poseBones } from "./poseBones";
  * The inclination is shared by the lumbopelvic rhythm of forward bending:
  * about 40 degrees of lumbar flexion against 70 of hip flexion at full
  * bending (Esola et al. 1996, Spine 21:71), so the pelvis pitches 0.64 of
- * it, the lumbar spine flexes 0.28 and the thorax 0.08.
- * The legs are solved onto the planted feet, the arm onto the palm's goal and
- * the gaze onto the target. No lifting technique is shown to be better than
+ * it, the lumbar spine flexes 0.28 and the thorax 0.08 (`HumanTrunk.incline`).
+ * The legs are solved onto the planted feet, lowering the pelvis where a
+ * leg could not reach (`resolveHumanPosture.lower`); a squat, which outruns
+ * the ankles' 20 degree dorsiflexion range, lets the heels rise up to 30
+ * degrees, the feet rolling on their balls (provisional). The arm goes onto the palm's goal and
+ * the gaze onto the target, and the free hand braces on its own thigh just
+ * above the knee (Kingma, Faber and van Dieen 2016, J Biomech 49:881, on
+ * supporting the trunk with a hand on the thigh while lifting). No lifting technique is shown to be better than
  * another (van Dieen, Hoozemans and Toussaint 1999, Clin Biomech 14:685), so
  * `auto` takes the semi-squat for targets below mid-shank and the stoop above,
  * the rule the campaign sets.
@@ -142,10 +148,25 @@ export namespace bend {
         const aimed: IHumanPosture = HumanGaze.aim(body, lowered, target, "head", { eyes: s, head: s, trunk: 0 });
 
         // The palm from where it hangs to the target, facing down onto it.
-        const from: IAutoMovieVector3 = HumanHand.frame(body, bones(body, lowered), side, "palm").point;
+        const hanging = bones(body, lowered);
+        const from: IAutoMovieVector3 = HumanHand.frame(body, hanging, side, "palm").point;
         const turn = HumanHand.rotation(side, { fingers: HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: lowered.yaw }, { x: 0, y: -0.3, z: 1 }), palm: { x: 0, y: -1, z: 0 } });
+
+        // The free palm braces on its own thigh just above the knee, as people
+        // support the trunk in one-handed lifting (Kingma, Faber and van Dieen
+        // 2016, J Biomech 49:881), moving there from where it hangs.
+        const free: HumanHand.Side = side === "left" ? "right" : "left";
+        const thigh = hanging.get(`${free}UpperLeg`)!;
+        const kneeAt: IAutoMovieVector3 = hanging.get(`${free}LowerLeg`)!.worldPosition;
+        const region = body.surfaces.regions[free === "left" ? "thighFrontLeft" : "thighFrontRight"];
+        const onThigh: IAutoMovieVector3 = Vector3.add(thigh.worldPosition, Quaternion.rotateVector(thigh.worldRotation, region.point));
+        const brace: IAutoMovieVector3 = Vector3.lerp(onThigh, Vector3.add(kneeAt, Vector3.subtract(onThigh, Vector3.lerp(thigh.worldPosition, kneeAt, 0.5))), 0.6);
+        const normal: IAutoMovieVector3 = Quaternion.rotateVector(thigh.worldRotation, region.normal);
+        const rest: IAutoMovieVector3 = HumanHand.frame(body, hanging, free, "palm").point;
+        const freeTurn = HumanHand.rotation(free, { fingers: Vector3.subtract(kneeAt, thigh.worldPosition), palm: Vector3.scale(normal, -1) });
         return handGoals(body, { ...aimed, joints: { ...aimed.joints, ...HumanHand.shape(side, "flat") } }, [
           { side, surface: "palm", shape: "flat", point: Vector3.lerp(from, target, s), rotation: turn, bend: HumanHand.elbow(body, lowered, side, 0.2) },
+          { side: free, surface: "palm", shape: "relaxed", point: Vector3.lerp(rest, brace, s), rotation: Quaternion.slerp(hanging.get(`${free}Hand`)!.worldRotation, freeTurn, s), bend: HumanHand.elbow(body, lowered, free, 0.3) },
         ]);
       },
     };
@@ -182,17 +203,32 @@ export namespace bend {
     const drop: number = (1 - HIPS[strategy]) * body.measure.hipHeight * share;
     const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
     const goal: IAutoMovieVector3 = HumanFrame.point(frame, { x: hips.x, y: hips.y - drop, z: hips.z - back });
-    const tipped: IHumanPosture = { ...posture, pitch: posture.pitch + RHYTHM.pelvis * pitch };
-    const joints: IHumanPosture["joints"] = { ...posture.joints };
-    for (const [bone, part] of [["spine", RHYTHM.lumbar], ["chest", RHYTHM.thorax]] as const) {
-      const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
-      joints[bone] = [was[0] + part * pitch, was[1], was[2]];
-    }
-    return { ...tipped, joints, root: Vector3.subtract(goal, Quaternion.rotateVector(resolveHumanPosture.heading(tipped), hips)) };
+    const level: IAutoMovieVector3 = Vector3.subtract(goal, HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, hips));
+    const tilt = HumanTrunk.incline(posture.joints, pitch, HumanTrunk.pelvisLimit(body, level, posture.yaw, { left: posture.limbs.leftLeg!.point, right: posture.limbs.rightLeg!.point }));
+    const tipped: IHumanPosture = { ...posture, pitch: posture.pitch + tilt.pitch };
+    const joints: IHumanPosture["joints"] = tilt.joints;
+
+    // A squat deeper than the ankles' 20 degree dorsiflexion range lets the
+    // heels rise, each foot rolling on its ball (provisional heel lift).
+    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+    const heel: number = HEEL[strategy] * share;
+    if (heel > 0)
+      for (const leg of ["leftLeg", "rightLeg"] as const) {
+        const goal0: IHumanPosture.IGoal | undefined = posture.limbs[leg];
+        if (goal0 === undefined || goal0.rotation === undefined) continue;
+        const side: "left" | "right" = leg === "leftLeg" ? "left" : "right";
+        const flat: HumanFoot.IPlacement = { ankle: goal0.point, rotation: goal0.rotation };
+        const lifted: HumanFoot.IPlacement = HumanFoot.pivot(body, side, "ball", HumanFoot.point(body, side, "ball", flat), HumanFrame.heading(goal0.rotation), -heel);
+        limbs[leg] = { ...goal0, point: lifted.ankle, rotation: lifted.rotation };
+      }
+
+    // With the heels up the toes bend at their joints and stay flat on the floor.
+    const toes: IHumanPosture["joints"] = heel > 0 ? { leftToes: [heel, 0, 0], rightToes: [heel, 0, 0] } : {};
+    return resolveHumanPosture.lower(body, { ...tipped, joints: { ...joints, ...toes }, limbs, root: Vector3.subtract(goal, Quaternion.rotateVector(resolveHumanPosture.heading(tipped), hips)) });
   }
 
-  /** Shares of a forward trunk inclination taken by the pelvis, the lumbar spine and the thorax (Esola et al. 1996). */
-  export const RHYTHM: Readonly<{ pelvis: number; lumbar: number; thorax: number }> = { pelvis: 0.64, lumbar: 0.28, thorax: 0.08 };
+  /** Heel lift by strategy at full depth, degrees (provisional: only the squat outruns the ankle's dorsiflexion). */
+  export const HEEL: Readonly<Record<Exclude<Strategy, "auto">, number>> = { stoop: 0, semiSquat: 0, squat: 30 };
 
   /**
    * The least trunk pitch that brings the shoulder within reach of the

@@ -1,6 +1,6 @@
 import { type IAutoMovieResolvedBone, Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, AutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
-import { HumanChain, HumanPerformance, HumanProxemics, type IHumanBody, createHumanBody } from "@automovie/motions";
+import { HumanChain, HumanPerformance, HumanProxemics, type IHumanBody, approach, createHumanBody } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { MotionBodies } from "../../../../packages/motions/src/executable/MotionBodies";
@@ -23,6 +23,10 @@ import { MotionBodies } from "../../../../packages/motions/src/executable/Motion
  *    target once settled, and neither ankle moves more than 5 mm.
  * 5. An uncued look 100 degrees off the heading is refused; with a cue it
  *    starts after a reaction time between 0.1 and 0.6 s.
+ * 6. An approach to a person's left side stops at the personal gap on that
+ *    side facing them within 5 degrees, and walks round a third person
+ *    standing on the straight line, the pelvises never nearer than the
+ *    walker's lateral clearance.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs whole performances and reads the posed bones; a stop off its gap, a body not facing its partner, sliding plants, an eye off its target or a missing refusal fails.
  * @evidence contracts/development/testing.md#independent-expectations Gaps are Hall's bands and the handing gap's own formula from each body's measure; bounds are the campaign's 0.02 m, 5 degree, 2 degree and 5 mm acceptance values; eye directions are read from forward kinematics, not from the law's angles.
@@ -83,6 +87,39 @@ export function test_human_motion_everyday_approach_look(): void {
       composition: HumanChain.subject("a").approach({ target: { kind: "person", subject: "b", region: "sternum" } }).with(HumanChain.subject("b").stand()).node,
     });
   TestValidator.error("an approach from inside its gap is refused", near);
+
+  // Stopping at a person's left side, walking round a third person in the way.
+  {
+    const performance: HumanPerformance = new HumanPerformance({
+      seed: "side",
+      performers: [
+        { subject: "a", body: bodies.get("m-tall")!, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } },
+        { subject: "b", body: bodies.get("f-small")!, at: { x: 0, y: 0, z: 4 }, yaw: 180, proficiency: { level: "trained" } },
+        { subject: "c", body: bodies.get("m-short-legged")!, at: { x: 0.1, y: 0, z: 2 }, yaw: 0, proficiency: { level: "trained" } },
+      ],
+      composition: HumanChain.subject("a")
+        .approach({ target: { kind: "person", subject: "b", region: "sternum" }, side: "left", avoid: ["c"] })
+        .with(HumanChain.subject("b").stand({ seconds: 14 }))
+        .with(HumanChain.subject("c").stand({ seconds: 14 })).node,
+    });
+    const walking = performance.segments("a")[0]!;
+    const self: IHumanBody = bodies.get("m-tall")!;
+    const pa: IAutoMovieVector3 = region(self, performance.bones("a", walking.end), "sternum");
+    const pb: IAutoMovieVector3 = region(bodies.get("f-small")!, performance.bones("b", walking.end), "sternum");
+    const gap: number = Math.hypot(pa.x - pb.x, pa.z - pb.z);
+    check(`side gap ${gap.toFixed(3)}`, Math.abs(gap - HumanProxemics.GAPS.personal) <= 0.02);
+    check(`side is b's left (x ${(pa.x - pb.x).toFixed(3)})`, pa.x - pb.x < -0.9 * HumanProxemics.GAPS.personal);
+    const forward: IAutoMovieVector3 = Quaternion.rotateVector(performance.bones("a", walking.end).get("hips")!.worldRotation, { x: 0, y: 0, z: 1 });
+    const facing: number = (Math.acos(Math.max(-1, Math.min(1, (forward.x * (pb.x - pa.x) + forward.z * (pb.z - pa.z)) / (Math.hypot(forward.x, forward.z) * gap)))) * 180) / Math.PI;
+    check(`side facing ${facing.toFixed(2)}`, facing <= 5);
+    let nearest: number = Infinity;
+    for (let t: number = walking.entryTime; t <= walking.end; t += 1 / 24) {
+      const a: IAutoMovieVector3 = performance.bones("a", t).get("hips")!.worldPosition;
+      const c: IAutoMovieVector3 = performance.bones("c", t).get("hips")!.worldPosition;
+      nearest = Math.min(nearest, Math.hypot(a.x - c.x, a.z - c.z));
+    }
+    check(`walked round c (${nearest.toFixed(3)} m)`, nearest >= approach.CLEARANCE);
+  }
 
   for (const name of names) {
     const body: IHumanBody = bodies.get(name)!;

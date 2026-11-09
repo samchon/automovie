@@ -17,7 +17,9 @@ import { MotionBodies } from "../../../../packages/motions/src/executable/Motion
  *    socket or the thighs' undersides at the hips) lies on the seat's
  *    surface within 10 mm, and the socket between the front edge and the
  *    seat's depth.
- * 2. Both feet stay within 5 mm through the sit, the shift and the rise.
+ * 2. Each planted foot's rolling contact stays within 5 mm in every plant
+ *    window of the sit, the shift and the rise (the rise may draw the feet
+ *    back between its windows).
  * 3. A shift of 0.1 m to the left moves the socket 0.1 m along the seat
  *    within 10 mm and sets it back on the surface.
  * 4. After the rise the hip joints stand within 3 % of their rest height
@@ -86,17 +88,31 @@ export function test_human_motion_everyday_seat(): void {
   TestValidator.predicate(failures.join("; ") || "all checks", failures.length === 0);
 }
 
-/** The largest horizontal drift of each foot's sole centre over the whole performance. */
+/**
+ * The largest slip of a planted foot: within each plant window of the
+ * person's actions, the drift of the foot's lowest sole socket (its rolling
+ * contact) from where it first became the contact in the window.
+ */
 function slip(performance: HumanPerformance, body: IHumanBody): number {
   let worst: number = 0;
-  for (const side of ["Left", "Right"] as const) {
-    const frame = body.surfaces.sockets[`sole${side}`];
-    let first: IAutoMovieVector3 | undefined;
-    for (let t: number = 0; t <= performance.duration + 1e-9; t += 1 / 24) {
-      const p: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(frame, performance.bones("a", t).get(frame.bone)!).point;
-      first ??= p;
-      worst = Math.max(worst, Vector3.length({ x: p.x - first.x, y: 0, z: p.z - first.z }));
+  for (const segment of performance.segments("a"))
+    for (const contact of segment.plan.contacts) {
+      if (contact.kind !== "plant" || (contact.part !== "leftFoot" && contact.part !== "rightFoot")) continue;
+      const side: "Left" | "Right" = contact.part === "leftFoot" ? "Left" : "Right";
+      const anchors: Map<string, IAutoMovieVector3> = new Map();
+      for (let t: number = Math.max(segment.entryTime, segment.start + contact.from * segment.plan.duration); t <= Math.min(segment.end, segment.start + contact.to * segment.plan.duration) + 1e-9; t += 1 / 24) {
+        const bones = performance.bones("a", t);
+        let lowest: [string, IAutoMovieVector3] | undefined;
+        for (const name of ["heel", "ball", "toe"] as const) {
+          const frame = body.surfaces.sockets[`${name}${side}`];
+          const p: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!).point;
+          if (lowest === undefined || p.y < lowest[1].y - 1e-6) lowest = [name, p];
+        }
+        const [name, p] = lowest!;
+        const anchor: IAutoMovieVector3 = anchors.get(name) ?? p;
+        anchors.set(name, anchor);
+        worst = Math.max(worst, Vector3.length({ x: p.x - anchor.x, y: 0, z: p.z - anchor.z }));
+      }
     }
-  }
   return worst;
 }

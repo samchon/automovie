@@ -20,26 +20,39 @@ import type { IMotionCaptureCase } from "../IMotionCaptureCase";
  */
 export namespace everydayVerdicts {
   /**
-   * The largest drift of a planted foot's sole centre within any plant window, metres.
+   * The largest slip of a planted foot within any plant window, metres, and
+   * where it happens. A planted foot rolls on its heel, flat and on its ball
+   * (the rockers of stance), so its contact is its lowest sole socket (heel,
+   * ball or toe), and the slip is that socket's horizontal drift from where
+   * it first became the contact in the window, on the 24 Hz grid.
    *
    * @param performance The performance.
    * @param subject The person.
    * @param body The person's body.
-   * @returns Metres.
+   * @returns Metres, with the action, the foot and the film second of the worst slip.
    */
-  export function slip(performance: HumanPerformance, subject: string, body: IHumanBody): number {
-    let worst: number = 0;
+  export function slip(performance: HumanPerformance, subject: string, body: IHumanBody): { value: number; where: string } {
+    let worst: { value: number; where: string } = { value: 0, where: "none" };
     for (const segment of performance.segments(subject))
       for (const contact of segment.plan.contacts) {
         if (contact.kind !== "plant" || (contact.part !== "leftFoot" && contact.part !== "rightFoot")) continue;
-        const frame = body.surfaces.sockets[contact.part === "leftFoot" ? "soleLeft" : "soleRight"];
+        const side: "Left" | "Right" = contact.part === "leftFoot" ? "Left" : "Right";
         const from: number = Math.max(segment.entryTime, segment.start + contact.from * segment.plan.duration);
         const to: number = Math.min(segment.end, segment.start + contact.to * segment.plan.duration);
-        let first: IAutoMovieVector3 | undefined;
+        const anchors: Map<string, IAutoMovieVector3> = new Map();
         for (let t: number = from; t <= to + 1e-9; t += 1 / 24) {
-          const p: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(frame, performance.bones(subject, t).get(frame.bone)!).point;
-          first ??= p;
-          worst = Math.max(worst, Math.hypot(p.x - first.x, p.z - first.z));
+          const bones = performance.bones(subject, t);
+          let lowest: [string, IAutoMovieVector3] | undefined;
+          for (const name of ["heel", "ball", "toe"] as const) {
+            const frame = body.surfaces.sockets[`${name}${side}`];
+            const p: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!).point;
+            if (lowest === undefined || p.y < lowest[1].y - 1e-6) lowest = [name, p];
+          }
+          const [name, p] = lowest!;
+          const anchor: IAutoMovieVector3 = anchors.get(name) ?? p;
+          anchors.set(name, anchor);
+          const value: number = Math.hypot(p.x - anchor.x, p.z - anchor.z);
+          if (value > worst.value) worst = { value, where: `${segment.name} ${contact.part} at ${t.toFixed(2)} s` };
         }
       }
     return worst;
@@ -115,6 +128,8 @@ export namespace everydayVerdicts {
    * @returns The verdicts.
    */
   export function standard(performance: HumanPerformance, subject: string, body: IHumanBody): IMotionCaptureCase.IVerdict[] {
-    return [within(`${subject} foot slip`, slip(performance, subject, body), 0.005, "mm"), within(`${subject} ROM overshoot`, overshoot(performance, subject), 1e-6, "deg")];
+    const slipped = slip(performance, subject, body);
+    const verdict: IMotionCaptureCase.IVerdict = within(`${subject} foot slip`, slipped.value, 0.005, "mm");
+    return [{ ...verdict, detail: `${verdict.detail}, worst in ${slipped.where}` }, within(`${subject} ROM overshoot`, overshoot(performance, subject), 1e-6, "deg")];
   }
 }

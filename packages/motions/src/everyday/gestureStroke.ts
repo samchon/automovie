@@ -399,12 +399,13 @@ export namespace gestureStroke {
   }
 
   /**
-   * How far the finger's axis stands off the skin it touches: the hand's
-   * thinnest collider half-extent, so a fingertip laid on a surface touches
-   * it rather than sinking its axis into it.
+   * How far the finger's axis stands off the skin it touches: the distal
+   * index phalanx's collider radius (the hand's thinnest half-extent on a
+   * profile without finger colliders), so a fingertip laid on a surface
+   * touches it rather than sinking its axis into it.
    */
   function padding(body: IHumanBody, side: HumanHand.Side): number {
-    const segment = body.profile.segments.find((s) => s.bone === `${side}Hand`);
+    const segment = body.profile.segments.find((s) => s.bone === `${side}IndexDistal`) ?? body.profile.segments.find((s) => s.bone === `${side}Hand`);
     let thin: number = 0;
     for (const shape of segment?.shapes ?? []) {
       const half: number =

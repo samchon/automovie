@@ -25,10 +25,13 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * (1993, Gait Posture 1:45) found that the lead toe clears an obstacle by a
  * roughly constant margin whatever its height, so the lift grows with the
  * obstacle and the margin does not; 0.1 m is the margin used (provisional,
- * of the order they report). The lead foot lands one tenth of a foot length
- * beyond the obstacle's far side, the trail foot beside it at the body's
- * rest separation; the pelvis moves on a minimum-jerk path from over the
- * feet's start to over their end, lowered wherever a planted leg could not
+ * of the order they report). The lead foot lands so the obstacle's middle
+ * falls at mid-swing, where the lift is fullest, and at least one tenth of a
+ * foot length beyond the far side; the trail foot lands beside it at the
+ * body's rest separation. The pelvis moves halfway between the feet while
+ * the lead foot swings, stays there through the double support, and moves
+ * over the landed feet while the trail foot swings, each leg on a
+ * minimum-jerk path, lowered wherever a planted leg could not
  * reach its foot with the knee 0.5 % short of straight, so no plant is
  * stretched off its footprint.
  *
@@ -102,7 +105,7 @@ export namespace stepOver {
       throw new Error(`${context.subject}: an obstacle ${obstacle.height.toFixed(3)} m high is above the ${(0.55 * m.hipHeight).toFixed(3)} m this body steps over`);
     const far: number = near + obstacle.depth;
     const heelBack: number = -HumanFoot.offset(body, lead, "heel").z;
-    const landing: number = far + 0.1 * m.footLength + heelBack;
+    const landing: number = Math.max(far + 0.1 * m.footLength + heelBack, near + far - HumanFrame.local(frame, feet[lead]).z);
     if (landing - HumanFrame.local(frame, feet[trail]).z > 0.95 * 2 * Math.sqrt(Math.max(0, leg * leg - (0.9 * m.hipHeight - m.ankleHeight) ** 2)))
       throw new Error(`${context.subject}: an obstacle ${obstacle.depth.toFixed(3)} m deep is too deep to cross in one step`);
 
@@ -154,7 +157,7 @@ export namespace stepOver {
     const startRoot: IAutoMovieVector3 = context.entry.posture.root;
     const endMid: IAutoMovieVector3 = { x: (end.left.x + end.right.x) / 2 - centre.x, y: -0.005, z: (end.left.z + end.right.z) / 2 - centre.z };
     const rootAt = (t: number): IAutoMovieVector3 => {
-      const s: number = minimumJerk((t - 0.05 * duration) / (0.9 * duration)).s;
+      const s: number = 0.5 * minimumJerk((t - 0.05 * duration) / (0.5 * duration)).s + 0.5 * minimumJerk((t - 0.6 * duration) / (0.38 * duration)).s;
       return { x: startRoot.x + (endMid.x - startRoot.x) * s, y: startRoot.y + (endMid.y - startRoot.y) * s, z: startRoot.z + (endMid.z - startRoot.z) * s };
     };
 

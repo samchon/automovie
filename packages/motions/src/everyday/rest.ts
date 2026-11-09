@@ -31,10 +31,11 @@ import { poseBones } from "./poseBones";
  *   fingers down, as a hand slipped into a front pocket shows from outside.
  * - `hip`: the palm on the side of the pelvis midway between the hip
  *   region and the waist, fingers forward and down, elbow out (akimbo).
- * - `crossed`: each palm wraps the outside of the other upper arm near its
- *   elbow, the upper arms hanging 20 degrees forward (provisional) so the
- *   forearms cross in front of the lower chest; the goal is placed where that
- *   hanging arm is, since the other arm's own pose depends on its goal.
+ * - `crossed`: each palm lies on the front of the other upper arm near its
+ *   elbow, so the forearms cross in front of the lower chest. The other
+ *   arm's pose depends on its own goal, so the goals start from upper arms
+ *   hanging 20 degrees forward (provisional) and are then re-placed twice on
+ *   the arms as solved.
  * - `claspedFront`: the left palm faces the body ahead of the groin, fingers
  *   toward the right, and the right palm lies on the back of the left hand.
  * - `claspedBehind`: the back of the left hand rests on the sacrum, palm
@@ -267,8 +268,23 @@ export namespace rest {
       }
     }
     if (places.left === "crossed") {
-      out.left = crossed(body, posture, "left", elbow("left", "crossed"));
-      out.right = crossed(body, posture, "right", elbow("right", "crossed"));
+      // Each palm rests on the other arm, whose pose depends on its own goal:
+      // start from upper arms hanging CROSSED_FLEXION forward, then place each
+      // palm on the other arm as solved, twice.
+      const forward = (side: HumanHand.Side): { shoulder: IAutoMovieVector3; elbow: IAutoMovieVector3 } => {
+        const shoulder: IAutoMovieVector3 = HumanFrame.point(frame, body.rest.get(`${side}UpperArm`)!);
+        const a: number = (CROSSED_FLEXION * Math.PI) / 180;
+        return { shoulder, elbow: Vector3.add(shoulder, Vector3.scale(dir(0, -Math.cos(a), Math.sin(a)), body.measure.upperArm)) };
+      };
+      out.left = crossed(body, posture, "left", elbow("left", "crossed"), forward("right"));
+      out.right = crossed(body, posture, "right", elbow("right", "crossed"), forward("left"));
+      for (let round: number = 0; round < 2; round++) {
+        const solved: IHumanPosture = handGoals(body, { ...posture, joints: { ...posture.joints, ...HumanHand.shape("left", "relaxed"), ...HumanHand.shape("right", "relaxed") } }, (["left", "right"] as const).map((side) => ({ side, surface: out[side]!.surface, shape: out[side]!.shape, point: out[side]!.point, rotation: out[side]!.rotation, bend: out[side]!.elbow })));
+        const bones = poseBones(body, resolveHumanPosture(body, solved));
+        const arm = (side: HumanHand.Side): { shoulder: IAutoMovieVector3; elbow: IAutoMovieVector3 } => ({ shoulder: bones.get(`${side}UpperArm`)!.worldPosition, elbow: bones.get(`${side}LowerArm`)!.worldPosition });
+        out.left = crossed(body, posture, "left", elbow("left", "crossed"), arm("right"));
+        out.right = crossed(body, posture, "right", elbow("right", "crossed"), arm("left"));
+      }
     }
     for (const side of ["left", "right"] as const) {
       if (places[side] !== "elbowSupport") continue;
@@ -304,22 +320,19 @@ function onPalm(body: IHumanBody, left: rest.IGoal, side: HumanHand.Side, elbow:
 }
 
 /**
- * A crossed-arms goal: the palm lies on the front of the other upper arm
- * three quarters of the way to its elbow, the other arm hanging
- * `CROSSED_FLEXION` degrees forward of vertical, the fingers pointing round
- * its outside; the forearm then crosses in front of the chest with the palm
+ * A crossed-arms goal: the palm lies on the front of the other upper arm,
+ * given by its shoulder and elbow, three quarters of the way to its elbow,
+ * the fingers pointing round its outside; the forearm then crosses in front of the chest with the palm
  * facing back, the turn an internally rotated arm gives without forearm
  * twist.
  */
-function crossed(body: IHumanBody, posture: IHumanPosture, side: HumanHand.Side, elbow: IAutoMovieVector3): rest.IGoal {
+function crossed(body: IHumanBody, posture: IHumanPosture, side: HumanHand.Side, elbow: IAutoMovieVector3, arm: { shoulder: IAutoMovieVector3; elbow: IAutoMovieVector3 }): rest.IGoal {
   const other: HumanHand.Side = side === "left" ? "right" : "left";
-  const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
-  const shoulder: IAutoMovieVector3 = HumanFrame.point(frame, body.rest.get(`${other}UpperArm`)!);
-  const a: number = (rest.CROSSED_FLEXION * Math.PI) / 180;
-  const axis: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, { x: 0, y: -Math.cos(a), z: Math.sin(a) });
+  const axis: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(arm.elbow, arm.shoulder));
+  const ahead: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, { x: 0, y: 0, z: 1 });
+  const front: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(ahead, Vector3.scale(axis, Vector3.dot(ahead, axis))));
   const lateral: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, { x: other === "left" ? 1 : -1, y: 0, z: 0 });
-  const front: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(lateral, axis));
-  const point: IAutoMovieVector3 = Vector3.add(Vector3.add(shoulder, Vector3.scale(axis, 0.75 * body.measure.upperArm)), Vector3.scale(front, body.measure.upperArmRadius));
+  const point: IAutoMovieVector3 = Vector3.add(Vector3.add(arm.shoulder, Vector3.scale(axis, 0.75 * body.measure.upperArm)), Vector3.scale(front, body.measure.upperArmRadius));
   return { surface: "palm", shape: "relaxed", point, rotation: HumanHand.rotation(side, { fingers: lateral, palm: Vector3.scale(front, -1) }), elbow };
 }
 

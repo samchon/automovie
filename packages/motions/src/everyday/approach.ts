@@ -151,16 +151,29 @@ export namespace approach {
     }
 
     const mods: HumanEffort.IModifiers = HumanEffort.modifiers(p.effort);
-    return walk.plan({
-      ...context,
-      params: {
-        to: stop.at,
-        face: stop.yaw,
-        ...(via.length === 0 ? {} : { via }),
-        ...(p.pace === undefined ? {} : { pace: p.pace }),
-        ...(p.effort === undefined ? {} : { stride: Math.min(1.3, Math.max(0.6, mods.step)), armSwing: Math.min(2, Math.max(0, mods.swing)), elbows: Math.min(30, Math.max(0, 100 * mods.elbow)) }),
-      },
-    });
+    const walkTo = (at: IAutoMovieVector3): IHumanActionPlan =>
+      walk.plan({
+        ...context,
+        params: {
+          to: at,
+          face: (Math.atan2(point.x - at.x, point.z - at.z) * 180) / Math.PI,
+          ...(via.length === 0 ? {} : { via }),
+          ...(p.pace === undefined ? {} : { pace: p.pace }),
+          ...(p.effort === undefined ? {} : { stride: Math.min(1.3, Math.max(0.6, mods.step)), armSwing: Math.min(2, Math.max(0, mods.swing)), elbows: Math.min(30, Math.max(0, 100 * mods.elbow)) }),
+        },
+      });
+
+    // The gap is a goal on the arriving chest: plan, read where the sternum
+    // actually arrives, and move the stop along the line to the target by the
+    // gap's error once (the walk's arrival posture, with its lean and its
+    // closing step, places the chest a few centimetres off the standing
+    // estimate).
+    const first: IHumanActionPlan = walkTo(stop.at);
+    const arrived: IAutoMovieVector3 = HumanTrunk.region(body, first.posture(first.duration), "sternum").point;
+    const error: number = Math.hypot(point.x - arrived.x, point.z - arrived.z) - gap;
+    if (Math.abs(error) <= 0.002) return first;
+    const length: number = Math.hypot(point.x - stop.at.x, point.z - stop.at.z);
+    return walkTo({ x: stop.at.x + ((point.x - stop.at.x) / length) * error, y: 0, z: stop.at.z + ((point.z - stop.at.z) / length) * error });
   }
 
   /**

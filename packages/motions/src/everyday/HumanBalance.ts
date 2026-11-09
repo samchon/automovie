@@ -17,48 +17,66 @@ import { poseBones } from "./poseBones";
  * Biomechanics and Motor Control of Human Movement, ch. 4) lies over the
  * middle of the feet's soles along the heading, the static balance
  * condition. The posture is solved (legs on their planted goals, arms on
- * theirs) and the centre placed from the solved bones at each trial; a
- * secant iteration on the shift converges in a few trials because the
- * centre moves almost linearly with it. Laws solve it once per plan at the
+ * theirs) and the centre placed from the solved bones at each trial of a
+ * scan and bisection over the shift. Laws solve it once per plan at the
  * movement's deepest pitch and scale the shift with the sine of the pitch in
  * between, which is exact for a rigid upper body and leaves only the legs'
  * reconfiguration unmodelled at intermediate pitches; their captures check
  * the margin of stability (Hof et al. 2005) on every frame they draw.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the engine owner, the iteration and how laws use the result.
- * @evidence contracts/development/implementation.md#principled-implementation Static balance: the engine's whole-body centre of mass over the base of support, by a secant root find on the solved posture.
+ * @evidence contracts/development/implementation.md#principled-implementation Static balance: the engine's whole-body centre of mass over the base of support, by a scan and bisection on the solved posture.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One root find over a caller's posture builder.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No population table stands in for the body's own solved mass distribution.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most `TRIALS` posture solves, once per plan.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most `STEPS` plus a dozen posture solves, once per plan.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Callers solve once per plan and reuse the result.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The mass model is memoized per body in a WeakMap, released with the body.
  */
 export namespace HumanBalance {
-  /** Most posture solves a balance search takes. */
-  export const TRIALS: number = 6;
+  /** Grid steps of the balance search over shifts from 0 to 0.4 hip heights. */
+  export const STEPS: number = 16;
 
   /**
    * The hips' backward shift that puts the whole-body centre of mass over
    * the middle of the feet's soles along the heading.
    *
+   * The shifts from 0 to 0.4 hip heights are scanned on a grid for the first
+   * one at which the centre of mass no longer lies ahead of the soles, and
+   * the crossing is refined by bisection to 0.5 mm. The scan is needed
+   * because the centre stops following the hips once the planted legs reach
+   * the limit of their range (in a deep squat the ankles cannot dorsiflex
+   * further), where an iteration on the slope diverges. When no shift in the
+   * range balances the body, the one that comes nearest is returned, and the
+   * law's margin-of-stability verdict reports the remaining imbalance.
+   *
    * @param body The body.
    * @param build The posture for a backward shift of the hips, metres.
-   * @returns The shift, metres; within 0.1 mm of balance or the best of `TRIALS` trials.
+   * @returns The shift, metres.
    */
   export function shift(body: IHumanBody, build: (back: number) => IHumanPosture): number {
     const error = (back: number): number => offset(body, build(back));
-    let x0: number = 0;
-    let e0: number = error(x0);
-    let x1: number = 0.05;
-    let e1: number = error(x1);
-    for (let trial: number = 2; trial < TRIALS && Math.abs(e1) > 1e-4 && Math.abs(e1 - e0) > 1e-12; trial++) {
-      const x2: number = x1 - (e1 * (x1 - x0)) / (e1 - e0);
-      x0 = x1;
-      e0 = e1;
-      x1 = x2;
-      e1 = error(x1);
+    const top: number = 0.4 * body.measure.hipHeight;
+    let previous: number = 0;
+    const before: number = error(0);
+    if (before <= 0) return 0;
+    let best: { back: number; error: number } = { back: 0, error: before };
+    for (let k: number = 1; k <= STEPS; k++) {
+      const back: number = (top * k) / STEPS;
+      const e: number = error(back);
+      if (e <= 0) {
+        let lo: number = previous;
+        let hi: number = back;
+        while (hi - lo > 5e-4) {
+          const mid: number = (lo + hi) / 2;
+          if (error(mid) > 0) lo = mid;
+          else hi = mid;
+        }
+        return (lo + hi) / 2;
+      }
+      if (e < best.error) best = { back, error: e };
+      previous = back;
     }
-    return x1;
+    return best.back;
   }
 
   /**

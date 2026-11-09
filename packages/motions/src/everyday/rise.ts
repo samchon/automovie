@@ -13,6 +13,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanBalance } from "./HumanBalance";
+import { HumanTrunk } from "./HumanTrunk";
 import { seated } from "./seated";
 
 /**
@@ -167,9 +168,9 @@ export namespace rise {
     const flex: number = 0.5 * rising;
     const pitchAt = (t: number, peak: number): number => pitch0 + (peak - pitch0) * minimumJerk(t / flex).s;
     const seatedAt = (peak: number) => (t: number): IHumanPosture => {
-      const pitch: number = pitchAt(t, peak);
-      const root: IAutoMovieVector3 = seated.root(body, begin, { yaw, pitch, roll: 0 });
-      return resolveHumanPosture.lower(body, { root, yaw, pitch, roll: 0, joints: { ...stand.RELAXED, ...upright }, limbs: stand.legs(body, root, yaw, drawn) });
+      const tilt = HumanTrunk.incline({ ...stand.RELAXED, ...upright }, pitchAt(t, peak), HumanTrunk.pelvisLimit(body, seated.root(body, begin, { yaw, pitch: 0, roll: 0 }), yaw, drawn));
+      const root: IAutoMovieVector3 = seated.root(body, begin, { yaw, pitch: tilt.pitch, roll: 0 });
+      return resolveHumanPosture.lower(body, { root, yaw, pitch: tilt.pitch, roll: 0, joints: tilt.joints, limbs: stand.legs(body, root, yaw, drawn) });
     };
     let peak: number = 35 + 50 * (1 - r);
     let off: number | undefined;
@@ -221,8 +222,9 @@ export namespace rise {
           z: begin.z + (goal.z - begin.z) * forward,
         };
         const pitch: number = u < flex ? pitchAt(u, peak) : peak * (1 - minimumJerk((u - flex) / (rising - flex)).s);
-        const root: IAutoMovieVector3 = seated.root(body, socket, { yaw, pitch, roll: 0 });
-        const posture: IHumanPosture = resolveHumanPosture.lower(body, { root, yaw, pitch, roll: 0, joints, limbs: stand.legs(body, root, yaw, drawn) });
+        const tilt = HumanTrunk.incline(joints, pitch, HumanTrunk.pelvisLimit(body, seated.root(body, socket, { yaw, pitch: 0, roll: 0 }), yaw, drawn));
+        const root: IAutoMovieVector3 = seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 });
+        const posture: IHumanPosture = resolveHumanPosture.lower(body, { root, yaw, pitch: tilt.pitch, roll: 0, joints: tilt.joints, limbs: stand.legs(body, root, yaw, drawn) });
         return seated.arms(body, posture, 1 - minimumJerk((u - away) / (0.3 * rising)).s);
       },
     };

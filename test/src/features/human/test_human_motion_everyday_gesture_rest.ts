@@ -14,8 +14,10 @@ import { MotionBodies } from "../../../../packages/motions/src/executable/Motion
  * short-legged man:
  * 1. Pointing at a point up and to the left puts the index fingertip within
  *    2 degrees of the line from the right eye to the target in mid-stroke.
- * 2. Touching the forehead and pushing up glasses bring the hand's collider
- *    within 10 mm of the forehead or nose-bridge region in mid-stroke.
+ * 2. Touching the forehead and pushing up glasses bring the index finger's
+ *    distal phalanx collider (the hand's, on a profile without finger
+ *    colliders) within 10 mm of the forehead or nose-bridge region in
+ *    mid-stroke.
  * 3. Clapping brings the palms within 10 mm of each other at every beat.
  * 4. Waving, nodding, shrugging and bowing keep both feet planted within
  *    5 mm, and a bow lowers the head.
@@ -65,7 +67,7 @@ export function test_human_motion_everyday_gesture_rest(): void {
       const touch = one({ kind, side: "right", region: "forehead" });
       const t: number = (touch.start + touch.end) / 2;
       const b = touch.performance.bones("a", t);
-      const d: number = handDistance(body, b, "right", place(body, b, region));
+      const d: number = boneDistance(body, b, body.profile.segments.some((x) => x.bone === "rightIndexDistal") ? "rightIndexDistal" : "rightHand", place(body, b, region));
       check(`${name} ${kind} ${(d * 1000).toFixed(1)} mm`, Math.abs(d) <= 0.01);
     }
 
@@ -130,9 +132,14 @@ function place(body: IHumanBody, bones: Map<AutoMovieHumanoidBone, IAutoMovieRes
 
 /** Signed distance from a point to the hand's colliders (negative inside), metres. */
 function handDistance(body: IHumanBody, bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, side: "left" | "right", point: IAutoMovieVector3): number {
-  const segment = body.profile.segments.find((s) => s.bone === `${side}Hand`)!;
-  const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-  const rest: IAutoMovieVector3 = body.rest.get(`${side}Hand`)!;
+  return boneDistance(body, bones, `${side}Hand`, point);
+}
+
+/** Signed distance from a point to one bone's colliders (negative inside), metres. */
+function boneDistance(body: IHumanBody, bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, bone: AutoMovieHumanoidBone, point: IAutoMovieVector3): number {
+  const segment = body.profile.segments.find((s) => s.bone === bone)!;
+  const hand: IAutoMovieResolvedBone = bones.get(bone)!;
+  const rest: IAutoMovieVector3 = body.rest.get(bone)!;
   let best: number = Infinity;
   for (const shape of segment.shapes) {
     const restCentre: IAutoMovieVector3 = Vector3.add(segment.neutral.position, Quaternion.rotateVector(segment.neutral.rotation, shape.transform.position));

@@ -61,6 +61,74 @@ export namespace HumanTrunk {
   }
 
   /**
+   * Shares of a forward trunk inclination taken by the pelvis, the lumbar
+   * spine and the thorax: at full forward bending about 40 degrees of lumbar
+   * flexion against 70 of hip flexion (Esola et al. 1996, Spine 21:71), so
+   * the pelvis takes 0.64 and the spine 0.36, split 0.28 lumbar and 0.08
+   * thoracic.
+   */
+  export const RHYTHM: Readonly<{ pelvis: number; lumbar: number; thorax: number }> = { pelvis: 0.64, lumbar: 0.28, thorax: 0.08 };
+
+  /**
+   * A trunk inclined forward by an angle shared by the lumbopelvic rhythm:
+   * the pelvis pitch it takes and the spine and chest flexion added to the
+   * given joints. A backward inclination is the pelvis alone, since leaning
+   * back is a pelvic tilt.
+   *
+   * @param joints The posture's joints.
+   * @param inclination Forward inclination of the trunk, degrees.
+   * @param pelvisLimit The most the pelvis may take, degrees (`pelvisLimit`); the spine takes the rest.
+   * @returns The pelvis pitch, degrees, and the joints with the flexion added.
+   */
+  export function incline(joints: IHumanPosture["joints"], inclination: number, pelvisLimit: number = Infinity): { pitch: number; joints: IHumanPosture["joints"] } {
+    if (inclination <= 0) return { pitch: inclination, joints };
+    const pelvis: number = Math.max(0, Math.min(RHYTHM.pelvis * inclination, pelvisLimit));
+    const spine: number = inclination - pelvis;
+    const out: IHumanPosture["joints"] = { ...joints };
+    const share: number = RHYTHM.lumbar / (RHYTHM.lumbar + RHYTHM.thorax);
+    for (const [bone, part] of [["spine", share], ["chest", 1 - share]] as const) {
+      const was: readonly [number, number, number] = out[bone] ?? [0, 0, 0];
+      out[bone] = [was[0] + part * spine, was[1], was[2]];
+    }
+    return { pitch: pelvis, joints: out };
+  }
+
+  /** The hip flexion a forward-tilted pelvis leaves room for, degrees: 10 short of the 120 degree range (provisional margin). */
+  export const HIP_FLEXION: number = 110;
+
+  /**
+   * The most the pelvis may tilt forward before a planted leg's hip flexion
+   * passes `HIP_FLEXION`: each thigh's angle from vertical, with the knee
+   * bending forward, from the law of cosines on the hip-to-ankle distance,
+   * subtracted from that limit. Squatting and sitting fold the thighs, so
+   * the trunk's inclination then comes more from the spine than from the
+   * pelvis, as it does when the hips are already flexed.
+   *
+   * @param body The body.
+   * @param root The rig origin with the pelvis level, world metres.
+   * @param yaw The heading, degrees.
+   * @param ankles The planted ankles, world metres.
+   * @returns Degrees, at least 0.
+   */
+  export function pelvisLimit(body: IHumanBody, root: IAutoMovieVector3, yaw: number, ankles: Record<"left" | "right", IAutoMovieVector3>): number {
+    const m = body.measure;
+    const turn: number = (yaw * Math.PI) / 180;
+    const forward: IAutoMovieVector3 = { x: Math.sin(turn), y: 0, z: Math.cos(turn) };
+    let thighs: number = 0;
+    for (const side of ["left", "right"] as const) {
+      const rest: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
+      const hip: IAutoMovieVector3 = { x: root.x + rest.x * Math.cos(turn) + rest.z * Math.sin(turn), y: root.y + rest.y, z: root.z - rest.x * Math.sin(turn) + rest.z * Math.cos(turn) };
+      const ankle: IAutoMovieVector3 = ankles[side];
+      const d: number = Math.min(m.thigh + m.shank, Math.hypot(ankle.x - hip.x, ankle.y - hip.y, ankle.z - hip.z));
+      const opening: number = Math.acos(Math.max(-1, Math.min(1, (m.thigh * m.thigh + d * d - m.shank * m.shank) / (2 * m.thigh * d))));
+      const along: number = (ankle.x - hip.x) * forward.x + (ankle.z - hip.z) * forward.z;
+      const toward: number = Math.atan2(along, hip.y - ankle.y);
+      thighs = Math.max(thighs, ((toward + opening) * 180) / Math.PI);
+    }
+    return Math.max(0, HIP_FLEXION - thighs);
+  }
+
+  /**
    * A trunk or head region's world point and outward normal on a posture.
    *
    * @param body The body.

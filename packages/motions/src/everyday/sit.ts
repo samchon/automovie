@@ -11,6 +11,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanTrunk } from "./HumanTrunk";
 import { seated } from "./seated";
 
 /**
@@ -142,13 +143,14 @@ export namespace sit {
         const settle: number = minimumJerk((t - 0.6 * descent) / (0.4 * descent)).s;
         const pitch: number = t < 0.6 * descent ? peak * minimumJerk(t / (0.45 * descent)).s : peak + (final.pitch - peak) * settle;
         const yaw: number = yaw0 + turn * across;
-        const root: IAutoMovieVector3 = seated.root(body, socket, { yaw, pitch, roll: 0 });
         const joints: IHumanPosture["joints"] = { ...stand.RELAXED, ...upright };
         for (const [bone, a] of Object.entries(final.joints) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
           const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
           joints[bone] = [was[0] + a[0] * settle, was[1] + a[1] * settle, was[2] + a[2] * settle];
         }
-        const posture: IHumanPosture = resolveHumanPosture.lower(body, { root, yaw, pitch, roll: 0, joints, limbs: stand.legs(body, root, yaw, feet) });
+        const tilt = HumanTrunk.incline(joints, pitch, HumanTrunk.pelvisLimit(body, seated.root(body, socket, { yaw, pitch: 0, roll: 0 }), yaw, feet));
+        const root: IAutoMovieVector3 = seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 });
+        const posture: IHumanPosture = resolveHumanPosture.lower(body, { root, yaw, pitch: tilt.pitch, roll: 0, joints: tilt.joints, limbs: stand.legs(body, root, yaw, feet) });
         return seated.arms(body, posture, minimumJerk((t - 0.5 * descent) / (0.5 * descent)).s);
       },
     };
