@@ -66,12 +66,12 @@ export function test_kickboxing_targets(): void {
   const groups = [...exchanges.values()];
   const combos: number = groups.filter((g) => g.length >= 2).length;
   // The study's exceptions: single counters (exchanges answering another in
-  // the same beat), the range-resetting teep and the clinch knee.
+  // the same beat, suffixed `c`), the range-resetting teep and the clinch knee.
   const exceptions: number = groups.filter(
     (g) =>
       g.length === 1 &&
       (["teep", "knee"].includes(strike(g[0]!).technique) ||
-        !/-b\d+$/.test(g[0]!.intent.anchor!.split("/")[0]!)),
+        COUNTER.test(g[0]!.intent.anchor!.split("/")[0]!)),
   ).length;
   assert.ok(
     combos / (groups.length - exceptions) >= 0.85,
@@ -96,20 +96,14 @@ export function test_kickboxing_targets(): void {
       `${subject} opens ${opened}/${groups.length}`,
     );
   }
-  const beats = [
-    ...new Set(
-      strikes.map((e) =>
-        e.intent.anchor!.replace(/c?\/\d+$/, "").replace(/[a-z]$/, ""),
-      ),
-    ),
-  ];
+  // A screenplay beat, inserted ones (`s03-b02a`) included, is one exchange;
+  // its counters (`c`, `c2`) belong to it.
+  const beat = (e: IAutoMovieSchedule.IEntry): string =>
+    e.intent.anchor!.split("/")[0]!.replace(COUNTER, "");
+  const beats = [...new Set(strikes.map(beat))];
   const starts = beats
     .map((id) =>
-      Math.min(
-        ...strikes
-          .filter((e) => e.intent.anchor!.startsWith(id))
-          .map((e) => e.start),
-      ),
+      Math.min(...strikes.filter((e) => beat(e) === id).map((e) => e.start)),
     )
     .sort((x, y) => x - y);
   const gaps = starts.slice(1).map((s, k) => s - starts[k]!);
@@ -171,3 +165,6 @@ export function test_kickboxing_targets(): void {
     `ropes share ${ropes / samples}`,
   );
 }
+
+/** The suffix of a counter exchange inside its beat. */
+const COUNTER: RegExp = /c\d*$/;

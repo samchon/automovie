@@ -10,6 +10,8 @@ Record Foley when the required material or movement is missing. Capture isolated
 
 ## Edit with picture
 
-Select dry takes that match the depicted event; layer, trim and shape them to distinguish contact types and intensities. Set each cue from its audible onset, preserve an appropriate decay, and place it through gain, pan and room sound consistent with the scene. Use movement sound for a pass-by and contact sound for an impact.
+Select dry takes that match the depicted event; layer, trim and shape them to distinguish contact types and intensities. Set each cue from its audible onset, end it with its event and decay, and place it through gain, pan and room sound consistent with the scene. Use movement sound for a pass-by and contact sound for an impact.
+
+Cap overlapping instances per sound and per source, as game engines bound [sound concurrency](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/FSoundConcurrencySettings?lang=en-US), and duck beds and effects under speech. Measure on the decoded mix that every spoken line rises clearly over the bed and that loudness, measured as [ITU-R BS.1770](https://www.itu.int/rec/R-REC-BS.1770) defines it, meets the [delivery profile](../production/finishing.md#render)'s target, which may be dialogue-gated.
 
 Listen to the complete working passage with moving picture at normal speed, then replay uncertain contacts and transitions. Judge synchronization, repetition, perspective and balance with speech and ambience together. Hand accepted bytes and measured cues to [editing and finishing](../production/finishing.md), and repeat the affected listening checks after either picture or sound changes.

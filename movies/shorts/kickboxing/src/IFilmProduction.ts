@@ -37,7 +37,13 @@ export interface IFilmProduction {
   /** The soundtrack's cues, from the same preparation as the picture; the render mixes them and the Viewer may play them. */
   soundtrack?: {
     /** Cues in film seconds with linear gains. */
-    cues: readonly { asset: string; seconds: number; gain: number }[];
+    cues: readonly {
+      asset: string;
+      seconds: number;
+      gain: number;
+      offsetSeconds?: number;
+      durationSeconds?: number;
+    }[];
     /** Production-relative WAV path of every asset. */
     assets: Readonly<Record<string, string>>;
   };

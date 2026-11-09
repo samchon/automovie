@@ -5,6 +5,7 @@
   "description": "Coding-agent-native deterministic filmmaking: tracked authoring, compilation, rendering, review, and delivery.",
   "packageManager": "pnpm@10.6.4",
   "scripts": {
+    "automovie": "ttsx --no-plugins -P packages/cli/tsconfig.json packages/cli/src/bin.ts",
     "build": "pnpm --filter=./packages/** -r build",
     "test": "pnpm --filter @automovie/test start",
     "format": "prettier --write \"**/*.{ts,cts,mts}\"",

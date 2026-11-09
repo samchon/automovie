@@ -1,7 +1,5 @@
-import { planViewerFrameTimes } from "@automovie/render";
 import {
   type IAutoMovieViewerVideoResult,
-  renderViewerFrames,
   renderViewerVideo,
 } from "@automovie/render/node";
 import ffmpeg from "ffmpeg-static";
@@ -13,20 +11,18 @@ import { films } from "../composition/films";
 import { selectFilm } from "../selectFilm";
 
 /**
- * Export one film of the running Viewer as a video, or as stills of chosen frames.
+ * Export one film of the running Viewer as a picture-only video.
  *
  * `npm run render -- --film <name>` writes the whole film to
- * `media/automovie/<film>/videos/film.mp4` with its capture report.
- * `--from 120 --to 150 --every 20` (or `--step <seconds>`) writes every 20th
- * frame of that range as stills, and `--at 12,30.5` writes those seconds, to
- * `media/automovie/<film>/frames/` or `--out <dir>`, named
- * `f<frame>-t<seconds>.png`. `--film` may be omitted while only one film exists.
+ * `media/automovie/<film>/videos/film.mp4`, or `--out <dir>`, with its
+ * capture report. `--film` may be omitted while only one film exists. Stills
+ * of a window come from `npm run capture`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation The comment gives both modes, every option and its unit, the default folders and the still names.
- * @evidence contracts/development/implementation.md#principled-implementation One parser, film selection and capture URL serve both modes, so a still and the video's frame at the same second come from the same Viewer, raster and frame grid; the installed planViewerFrameTimes plans the seconds on the film's frame rate, and the installed renderViewerVideo and renderViewerFrames capture through the Viewer's own seek hook.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment gives the command, its options, the default folder and where stills come from instead.
+ * @evidence contracts/development/implementation.md#principled-implementation The film is selected from the registry and captured through the Viewer's own seek hook by the installed renderViewerVideo on the film's frame rate and raster.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The command parses arguments and composes the film registry with the installed planner and capture; capture, encoding and planning are not reimplemented here.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown option, a missing value, a missing CHROME_PATH or an ambiguous film throws instead of falling back to a guess.
- * @evidence contracts/development/implementation.md#efficient-algorithms Parsing is linear in the argument count; capture and encoding cost belong to the installed runners, and stills capture only the planned frames.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Parsing is linear in the argument count; capture and encoding cost belong to the installed runners.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One Viewer load serves every frame of a run.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The installed runners release the browser and encoder on every outcome; the command keeps only the result it prints or writes.
  */
@@ -38,11 +34,6 @@ export async function render(): Promise<void> {
     if (
       ![
         "--film",
-        "--at",
-        "--from",
-        "--to",
-        "--every",
-        "--step",
         "--out",
       ].includes(key)
     )
@@ -52,11 +43,6 @@ export async function render(): Promise<void> {
       throw new Error(`${key} needs a value`);
     options.set(key, value);
   }
-  const number: (key: string) => number | undefined = (
-    key: string,
-  ): number | undefined =>
-    options.has(key) ? Number(options.get(key)) : undefined;
-
   const selected: { name: string; film: IFilm } = selectFilm(
     films,
     options.get("--film") ?? null,
@@ -73,34 +59,6 @@ export async function render(): Promise<void> {
   url.searchParams.set("w", String(width));
   url.searchParams.set("h", String(height));
   url.searchParams.set("film", selected.name);
-
-  // Any frame option asks for stills of those frames instead of the video.
-  if (
-    ["--at", "--from", "--to", "--every", "--step"].some(
-      (key: string): boolean => options.has(key),
-    )
-  ) {
-    const stills: { file: string }[] = await renderViewerFrames({
-      url: url.href,
-      width,
-      height,
-      fps: selected.film.fps,
-      times: planViewerFrameTimes({
-        fps: selected.film.fps,
-        durationSeconds: selected.film.durationSeconds,
-        at: options.get("--at")?.split(",").map(Number),
-        from: number("--from"),
-        to: number("--to"),
-        every: number("--every"),
-        step: number("--step"),
-      }),
-      outputDir:
-        options.get("--out") ?? `media/automovie/${selected.name}/frames`,
-      chromeExecutable,
-    });
-    for (const still of stills) console.log(still.file);
-    return;
-  }
 
   const directory: string =
     options.get("--out") ?? `media/automovie/${selected.name}/videos`;

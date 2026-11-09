@@ -4,7 +4,7 @@
 
 ### Room {#room}
 
-A quiet indoor room tone under everything. The unseen audience is not heard; the fighters' breaths, foot friction on the canvas and the referee's voice carry the room.
+A low arena crowd murmur under everything, dropping away whenever the referee speaks; the fighters' exhales on their kicks, foot friction on the canvas and the referee's voice carry over it.
 
 ### Contacts {#contacts}
 

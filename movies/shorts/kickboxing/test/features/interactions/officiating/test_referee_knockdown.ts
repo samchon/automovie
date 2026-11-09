@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { BoutLaws } from "../../../../src/interactions/kickboxing/BoutLaws";
 import { RefereeTrack } from "../../../../src/interactions/officiating/RefereeTrack";
 import { StanceShape } from "../../../../src/laws/kickboxing/StanceShape";
+import { OfficiatingAction } from "../../../../src/laws/officiating/OfficiatingAction";
 import { RefereePosition } from "../../../../src/laws/officiating/RefereePosition";
 import { polygonFilm } from "../../../internal/polygonFilm";
 
@@ -32,6 +33,20 @@ export function test_referee_knockdown(): void {
     const r = referee.points[k]!;
     const gap = RefereePosition.gap(r, body);
     assert.ok(gap >= step - 1e-6, `gap ${gap.toFixed(3)} m at ${t}`);
+    // While raising the winner's hand he stands by the winner and looks at him.
+    const raising = schedule.entries.some(
+      (e) =>
+        e.subject === cast.referee.id &&
+        e.start <= t &&
+        t < e.end &&
+        OfficiatingAction.read(e.intent).signal === "winner",
+    );
+    if (raising) {
+      const a = BoutLaws.origin(schedule, cast.a.id, t, cast).point;
+      const look = referee.looks[k]!;
+      assert.ok(Math.hypot(look.x - a.x, look.z - a.z) < 1e-9);
+      continue;
+    }
     if (t < 157) continue;
     const look = referee.looks[k]!;
     assert.ok(

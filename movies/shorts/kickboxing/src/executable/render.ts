@@ -145,7 +145,13 @@ export async function render(): Promise<void> {
         undefined,
       )) as
         | {
-            cues: { asset: string; seconds: number; gain: number }[];
+            cues: {
+              asset: string;
+              seconds: number;
+              gain: number;
+              offsetSeconds?: number;
+              durationSeconds?: number;
+            }[];
             assets: Record<string, string>;
           }
         | undefined;

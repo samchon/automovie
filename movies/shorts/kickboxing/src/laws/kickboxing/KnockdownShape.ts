@@ -24,11 +24,11 @@ export namespace KnockdownShape {
   /** Seconds from the blow until he lies on his side: the screenplay's 150.000 to 151.600. */
   export const FALL_SECONDS: number = 1.6;
 
-  /** Share of the fall at which the right knee has folded and the hip meets the canvas. */
-  const HIP_DOWN: number = 0.55;
+  /** Share of the fall at which the knees have buckled and the limp body is down to the canvas: postural tone is lost within the first second of a knockout (fight-footage reading). */
+  const HIP_DOWN: number = 0.4;
 
-  /** Share of the fall at which the head is driven to the right shoulder. */
-  const HEAD_DRIVEN: number = 0.15;
+  /** Share of the fall at which the head has snapped along the kick's travel: a tenth of the fall, about 0.16 s, inside the 0.1 to 0.3 s of the fencing response. */
+  const HEAD_DRIVEN: number = 0.1;
 
   /**
    * The falling posture at seconds since the blow.
@@ -47,30 +47,46 @@ export namespace KnockdownShape {
     seconds: number,
   ): IBoutPosture {
     const share: number = Math.max(0, Math.min(1, seconds / FALL_SECONDS));
+    // The head snaps along the kick's travel to the right shoulder, turned and
+    // thrown back, while both arms stiffen forward and up in the fencing
+    // response.
+    const fencing = (side: 1 | -1): { point: IAutoMovieVector3 } => ({
+      point: {
+        x: measure.armReach * 0.8,
+        y: measure.shoulder - guard.drop + measure.headRadius,
+        z: side * measure.shoulderHalfWidth,
+      },
+    });
     const struck: IBoutPosture = {
       ...guard,
-      cervical: { flexion: 0, lateralFlexion: -40, rotation: 10 },
+      cervical: { flexion: -20, lateralFlexion: -45, rotation: -35 },
       thoracic: { ...guard.thoracic, lateralFlexion: -15 },
+      hands: { left: fencing(1), right: fencing(-1) },
       wince: 1,
     };
+    // Tone is lost: the knees buckle under the hips, the trunk and head fall
+    // limp forward and toward the right, the arms hang without a catch.
     const folding: IBoutPosture = {
       ...struck,
-      drop: measure.hip * 0.5,
-      roll: Math.PI / 6,
-      pitch: Math.PI / 12,
+      drop: measure.hip * 0.65,
+      roll: Math.PI / 4,
+      pitch: Math.PI / 9,
+      thoracic: { flexion: 25, lateralFlexion: -20, rotation: 0 },
+      lumbar: { flexion: 15, lateralFlexion: 0 },
+      cervical: { flexion: 30, lateralFlexion: -35, rotation: -20 },
       hands: {
         left: {
           point: {
-            x: measure.headRadius * 2,
-            y: measure.shoulder - measure.hip * 0.5,
+            x: measure.headRadius,
+            y: measure.shoulder - measure.hip * 0.65 - measure.armReach * 0.6,
             z: measure.shoulderHalfWidth,
           },
         },
         right: {
           point: {
             x: measure.headRadius,
-            y: measure.hip * 0.3,
-            z: -measure.shoulderHalfWidth * 1.5,
+            y: measure.shoulder - measure.hip * 0.65 - measure.armReach * 0.6,
+            z: -measure.shoulderHalfWidth * 1.2,
           },
         },
       },
@@ -127,9 +143,15 @@ export namespace KnockdownShape {
   ): IFootprint {
     // His right is -Z of his own frame facing +X.
     const right: { x: number; z: number } = { x: facing.z, z: -facing.x };
-    const length: number = measure.head - measure.hip;
+    // Rolled onto his right side, the trunk and head reach toward his right
+    // and the legs toward his left: the head's top a stature to one side and
+    // the feet a leg's length to the other bound the lying body.
+    const length: number = measure.head + measure.headRadius;
     return {
-      from: { x: origin.x, z: origin.z },
+      from: {
+        x: origin.x - right.x * measure.hip,
+        z: origin.z - right.z * measure.hip,
+      },
       to: { x: origin.x + right.x * length, z: origin.z + right.z * length },
       radius: measure.thigh,
     };
@@ -166,11 +188,14 @@ export namespace KnockdownShape {
     share: number,
     effort: number,
   ): IBoutPosture {
+    // He rolls toward his front onto the braced forearm, pushes the shoulders
+    // up off the canvas through it and draws the top knee up under the hip.
+    const top = lyingPosture.feet.left;
     const pushed: IBoutPosture = {
       ...lyingPosture,
-      roll: lyingPosture.roll * (1 - 0.35 * effort),
-      thoracic: { ...lyingPosture.thoracic, lateralFlexion: 10 * effort },
-      cervical: { ...lyingPosture.cervical, lateralFlexion: 10 * effort },
+      roll: lyingPosture.roll * (1 - 0.5 * effort),
+      thoracic: { ...lyingPosture.thoracic, lateralFlexion: 25 * effort },
+      cervical: { ...lyingPosture.cervical, lateralFlexion: 20 * effort },
       hands: {
         ...lyingPosture.hands,
         left: {
@@ -178,6 +203,26 @@ export namespace KnockdownShape {
             x: measure.headRadius * 2,
             y: measure.shoulder - measure.hip * 0.9,
             z: -measure.shoulderHalfWidth * 0.2,
+          },
+          elbow: {
+            x: measure.headRadius * 2,
+            y: measure.shoulder - measure.hip * 0.9,
+            z: measure.shoulderHalfWidth,
+          },
+        },
+      },
+      feet: {
+        ...lyingPosture.feet,
+        left: {
+          point: {
+            x: measure.thigh * 0.3,
+            y: measure.ankle,
+            z: top?.point.z ?? measure.hipHalfWidth,
+          },
+          knee: {
+            x: measure.thigh,
+            y: measure.hip * 0.4,
+            z: top?.point.z ?? measure.hipHalfWidth,
           },
         },
       },
