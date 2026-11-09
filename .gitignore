@@ -9,6 +9,8 @@
 node_modules/
 packages/cli/.cache/
 packages/template/.cache/
+packages/motions/.cache/
+packages/motions/media/
 lib/
 dist/
 
