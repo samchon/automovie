@@ -131,6 +131,7 @@ export { createAutoMoviePhysicalPoseAdapter } from "./createAutoMoviePhysicalPos
 export * from "./audio/index.js";
 export * from "./transport/index.js";
 export * from "./human-polygon/index.js";
+export * from "./motion-overlay/index.js";
 export * from "./AutoMovieResourceRetirementScope.js";
 export * from "./IViewerCameraStateSnapshot.js";
 export * from "./constructAutoMovieOwnedResources.js";
