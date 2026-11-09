@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { StrikingReach } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -23,16 +23,14 @@ import { TestValidator } from "@nestia/e2e";
  *    band, still meeting the target, up to the jam limit.
  * 4. Metamorphic: scaling every length and point by 1.3 scales the joints by
  *    1.3 and keeps the flexion; mirroring x mirrors the joints.
- * 5. Alignment: the rotation maps the primary direction exactly and the
- *    secondary into its half-plane, for several bases, and is a unit
- *    quaternion.
- * 6. The advance clamps to its limit either way.
+ * 5. The advance clamps to its limit either way; a target at the root
+ *    throws.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the solve's joints, status, gap and flexion and the rotation's action on vectors; a wrong triangle, a missing clamp, a lost bend side or a rotation off its basis fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the solve's joints, status, gap and flexion; a wrong triangle, a missing clamp or a lost bend side fails.
  * @evidence contracts/development/testing.md#independent-expectations Reach is the closed form `sqrt(u^2 + a^2 + 2 u a cos phi)`; segment lengths and the flexion are measured back from the returned points; scaling and mirroring are exact symmetries of the geometry.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers reached, short, both jammed modes, the symmetries and several bases.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers reached, short, both jammed modes, the symmetries and the advance clamp.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 scenarios and what each pins.
  */
 export function test_motion_striking_reach(): void {
   const near = (a: IAutoMovieVector3, b: IAutoMovieVector3, e: number = 1e-9): boolean => Vector3.length(Vector3.subtract(a, b)) <= e;
@@ -92,24 +90,6 @@ export function test_motion_striking_reach(): void {
   const mirror = (v: IAutoMovieVector3): IAutoMovieVector3 => ({ x: -v.x, y: v.y, z: v.z });
   const mirrored: StrikingReach.ISolution = StrikingReach.chain({ ...base, root: mirror(root), point: mirror(at30) });
   TestValidator.predicate("mirror", near(mirrored.middle, mirror(r.middle), 1e-9) && near(mirrored.end, mirror(r.end), 1e-9));
-
-  const bases: [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3][] = [
-    [{ x: 1, y: 0, z: 0 }, { x: 0, y: -1, z: 0 }, { x: 0, y: 0, z: 1 }, { x: 0, y: -1, z: 0.2 }],
-    [{ x: -1, y: 0, z: 0 }, { x: 0, y: -1, z: 0 }, Vector3.normalize({ x: 1, y: 1, z: 1 }), { x: 1, y: 0, z: 0 }],
-    [{ x: 0, y: 0, z: 1 }, { x: 0, y: 1, z: 0 }, { x: 0, y: 0, z: -1 }, { x: 0, y: 1, z: 0 }],
-    [{ x: 0, y: 0, z: 1 }, { x: 0, y: 1, z: 0 }, Vector3.normalize({ x: -0.2, y: 0.9, z: 0.3 }), { x: 1, y: 0, z: 0 }],
-  ];
-  for (const [a, b, ta, tb] of bases) {
-    const q = StrikingReach.align(a, b, ta, tb);
-    const ra: IAutoMovieVector3 = Quaternion.rotateVector(q, a);
-    const rb: IAutoMovieVector3 = Quaternion.rotateVector(q, b);
-    const perp: IAutoMovieVector3 = Vector3.subtract(tb, Vector3.scale(ta, Vector3.dot(tb, ta)));
-    TestValidator.predicate(
-      "alignment maps the basis",
-      near(ra, Vector3.normalize(ta), 1e-9) && Vector3.dot(rb, perp) > 0 && Math.abs(Vector3.dot(rb, ta)) < 1e-9 &&
-        Math.abs(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w - 1) < 1e-12,
-    );
-  }
 
   TestValidator.predicate("advance clamps", StrikingReach.advance(2, 0.5, 0.4) === 0.4 && StrikingReach.advance(0, 0.5, 0.4) === -0.4 && Math.abs(StrikingReach.advance(0.7, 0.5, 0.4) - 0.2) < 1e-12);
   TestValidator.error("target at the root", (): unknown => StrikingReach.chain({ ...base, point: root }));

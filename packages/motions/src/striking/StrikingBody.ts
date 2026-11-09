@@ -16,10 +16,10 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { StrikingContact } from "./StrikingContact";
-import { StrikingReach } from "./StrikingReach";
+import type { StrikingContact } from "./StrikingContact";
 
 /**
  * The body facts striking laws read: where a posture puts the shoulders,
@@ -97,7 +97,7 @@ export namespace StrikingBody {
    */
   export function fist(body: IHumanBody, side: "left" | "right", knuckles: IAutoMovieVector3, palm: IAutoMovieVector3): IAutoMovieQuaternion {
     const fingers: IAutoMovieVector3 = Vector3.subtract(body.rest.get(`${side}MiddleProximal`)!, body.rest.get(`${side}Hand`)!);
-    return StrikingReach.align(fingers, { x: 0, y: -1, z: 0 }, knuckles, palm);
+    return HumanHand.align({ normal: fingers, forward: { x: 0, y: -1, z: 0 } }, { normal: knuckles, forward: palm });
   }
 
   /**
@@ -110,7 +110,7 @@ export namespace StrikingBody {
    * @returns The rotation.
    */
   export function foot(toes: IAutoMovieVector3, instep: IAutoMovieVector3): IAutoMovieQuaternion {
-    return StrikingReach.align({ x: 0, y: 0, z: 1 }, { x: 0, y: 1, z: 0 }, toes, instep);
+    return HumanHand.align({ normal: { x: 0, y: 0, z: 1 }, forward: { x: 0, y: 1, z: 0 } }, { normal: toes, forward: instep });
   }
 
   /**

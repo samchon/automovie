@@ -1,5 +1,5 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * The goal maths of bringing a weapon surface onto a target point: where a
@@ -166,54 +166,6 @@ export namespace StrikingReach {
     const e1: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(solution.end, root));
     const side: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(bend, Vector3.scale(e1, Vector3.dot(bend, e1))));
     return Vector3.add(solution.middle, Vector3.scale(side, distance));
-  }
-
-  /**
-   * The rotation taking a rest basis onto a world basis: `primary` maps
-   * exactly onto `toPrimary`, and `secondary` onto the part of `toSecondary`
-   * orthogonal to it (Gram-Schmidt), converted to a quaternion by Shepperd's
-   * method on the rotation matrix. Used to turn a fist's knuckles along the
-   * punch or a foot's instep or sole onto the target.
-   *
-   * @param primary A rest direction.
-   * @param secondary A second rest direction, not parallel to the first.
-   * @param toPrimary Where the first goes.
-   * @param toSecondary Roughly where the second goes.
-   * @returns The rotation.
-   */
-  export function align(
-    primary: IAutoMovieVector3,
-    secondary: IAutoMovieVector3,
-    toPrimary: IAutoMovieVector3,
-    toSecondary: IAutoMovieVector3,
-  ): IAutoMovieQuaternion {
-    const basis = (a: IAutoMovieVector3, b: IAutoMovieVector3): [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3] => {
-      const x: IAutoMovieVector3 = Vector3.normalize(a);
-      const y: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(b, Vector3.scale(x, Vector3.dot(b, x))));
-      return [x, y, Vector3.cross(x, y)];
-    };
-    const from = basis(primary, secondary);
-    const to = basis(toPrimary, toSecondary);
-
-    // R = To * From^T, entry (i, j) = sum_k to_k[i] from_k[j].
-    const keys = ["x", "y", "z"] as const;
-    const m = (i: number, j: number): number => to.reduce((sum: number, t: IAutoMovieVector3, k: number): number => sum + t[keys[i]!] * from[k]![keys[j]!], 0);
-    const trace: number = m(0, 0) + m(1, 1) + m(2, 2);
-    let q: IAutoMovieQuaternion;
-    if (trace > 0) {
-      const s: number = 2 * Math.sqrt(1 + trace);
-      q = { w: s / 4, x: (m(2, 1) - m(1, 2)) / s, y: (m(0, 2) - m(2, 0)) / s, z: (m(1, 0) - m(0, 1)) / s };
-    } else if (m(0, 0) > m(1, 1) && m(0, 0) > m(2, 2)) {
-      const s: number = 2 * Math.sqrt(1 + m(0, 0) - m(1, 1) - m(2, 2));
-      q = { w: (m(2, 1) - m(1, 2)) / s, x: s / 4, y: (m(0, 1) + m(1, 0)) / s, z: (m(0, 2) + m(2, 0)) / s };
-    } else if (m(1, 1) > m(2, 2)) {
-      const s: number = 2 * Math.sqrt(1 + m(1, 1) - m(0, 0) - m(2, 2));
-      q = { w: (m(0, 2) - m(2, 0)) / s, x: (m(0, 1) + m(1, 0)) / s, y: s / 4, z: (m(1, 2) + m(2, 1)) / s };
-    } else {
-      const s: number = 2 * Math.sqrt(1 + m(2, 2) - m(0, 0) - m(1, 1));
-      q = { w: (m(1, 0) - m(0, 1)) / s, x: (m(0, 2) + m(2, 0)) / s, y: (m(1, 2) + m(2, 1)) / s, z: s / 4 };
-    }
-    return Quaternion.normalize(q);
   }
 
   /**

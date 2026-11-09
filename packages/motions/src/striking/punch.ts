@@ -27,6 +27,7 @@ import { StrikingAim } from "./StrikingAim";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingReach } from "./StrikingReach";
+import { StrikingRecord } from "./StrikingRecord";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingStroke } from "./StrikingStroke";
@@ -173,7 +174,7 @@ export namespace punch {
     // built on first use and dropped when the performance settles.
     let built: IGeometry | undefined;
     const geometry = (): IGeometry => (built ??= build(context, timing));
-    return {
+    const out: IHumanActionPlan = {
       duration,
       events,
       get contacts(): IHumanContactWindow[] {
@@ -185,6 +186,8 @@ export namespace punch {
         built = undefined;
       },
     };
+    StrikingRecord.register(out, (): StrikingRecord.IRecord => geometry().record);
+    return out;
   }
 
   /** A punch's timing. */
@@ -214,6 +217,9 @@ export namespace punch {
 
     /** The feet's contact windows. */
     contacts: IHumanContactWindow[];
+
+    /** What the punch decided. */
+    record: StrikingRecord.IRecord;
   }
 
   /** Build a punch's geometry from its first posture evaluation. */
@@ -389,6 +395,7 @@ export namespace punch {
 
     return {
       contacts,
+      record: { offset, planned: tracker.planned, status: solved.status, stop: stroke.stop },
       posture: (t: number): IHumanPosture => {
         const posture: IHumanPosture = base(t);
         const guard = StrikingStance.guard(body, posture, { lead });
