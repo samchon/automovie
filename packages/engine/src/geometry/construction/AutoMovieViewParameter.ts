@@ -5,13 +5,10 @@ import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCT
 /**
  * Source parameter arithmetic shared by radial outlines and nonzero world-coordinate curves.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Implements the existing monotone station/root/angle maps, analytic inverse and station derivatives independently of radial closure.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner admits, maps, inverts and differentiates source parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Outside-domain stations remain invalid and singular endpoint jets remain absent; scalar values are never changed here.
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes parameter endpoints, scalar values and radial closure, with kernel millimetre units.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic per map, inverse or derivative.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure scalar arithmetic coordinates no work.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds no global state or handles.
+ * @evidence contracts/development/design.md#principled-representation Represents Source parameter arithmetic shared by radial outlines and nonzero world-coordinate curves: companion namespace of 6 members (`prepare`, `at`, `station`, `jet`, `inverseJet`, `transferJet`); units and frames named in its text: second, frame. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieViewParameter` in packages/engine/src/geometry/construction/AutoMovieViewParameter.ts; its surface is the 6 members listed and the text shows 23 other files naming it, mostly packages/human (12), packages/engine (9), test (2), so no member is declared for a presumed future need.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace AutoMovieViewParameter {
   /**
