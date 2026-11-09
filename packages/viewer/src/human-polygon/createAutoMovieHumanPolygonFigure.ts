@@ -16,6 +16,10 @@ import { buildHumanPolygon } from "./buildHumanPolygon.js";
  * structural function (a Human skeleton evaluator fits); the Viewer imports
  * no figure generator.
  *
+ * The figure stays deliberately simple: a fix corrects a wrong value within
+ * the same primitives, never adds geometry, detail or realism, because its job
+ * is a cheap, deterministic silhouette for motion checks and diffusion hints.
+ *
  * @returns The figure's root object, its drawing, the pose port and disposal.
  * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (A posed polygon figure with its cartoon face: the original polygon drawing () built once from the evaluator's neutral output, and a face () on its actual head front) and documents the returned value as stated in this comment.
  * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (A posed polygon figure with its cartoon face: the original polygon drawing () built once from the evaluator's neutral output, and a face () on its actual head front) directly over its typed inputs (`input`) as a fixed number of statements with no loop or recursion in the body, delegating to `buildHumanPolygon`, `input.evaluate`, `drawing.setPose`, `JSON.stringify`, `buildHumanCartoonFace`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (1 throw site). Apart from structural 0, 1 and 2 the body uses no numeric literal.

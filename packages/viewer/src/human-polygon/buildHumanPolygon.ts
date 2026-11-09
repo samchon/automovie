@@ -20,6 +20,11 @@ import { humanPolygonSections as Sections } from "./humanPolygonSections.js";
  * rest-space module is moved once by its bone's world placement. Adjacent rigid modules can overlap
  * or separate when posed; this is not skin binding or a watertight skin.
  *
+ * The blockout stays deliberately simple: a fix corrects a wrong value (a
+ * radius, a length, a frame) within the same primitives and section count,
+ * never adds geometry, smoothing, anatomy or realism, because its job is a
+ * cheap, deterministic silhouette for motion checks and diffusion hints.
+ *
  * The head attachment uses the head joint's rest axes: +X forward, +Y up and
  * +Z left. Its bounds describe the emitted polygon, before the posed transform.
  * The caller may attach a face to `head.object` in that same local frame.
