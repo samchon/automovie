@@ -11,11 +11,11 @@ One folder owns each responsibility, and the folders follow the chain from setti
 | `src/entities/<kind>/<subject>/`, with `<kind>` one of `cast`, `crowds`, `props`, `sets`, `cameras`, `lights` | One subject: its public entry class `<Subject>.ts` and the fragments it composes, such as body, look, rig, wardrobe, habits or affordances | Its settings record's facts, [entities](../contracts/development/entities.md) |
 | `src/laws/<discipline>/` | Pure laws of a practice: shape priors, timing windows, reach, legality, outcome tables and variation ranges | `docs/research/<discipline>/`, [behaviors](../contracts/development/behaviors.md) |
 | `src/interactions/<discipline>/` | Relations between entities by role: alignment, timing and rule-first outcomes, including how cameras and lights follow the action | Research and world rules, behaviors |
-| `src/consequences/effects/`, `src/consequences/sound/` | What computed outcomes leave: sweat, scuffs, dust and other marks, and contact, foley and reaction cues | Research, behaviors |
+| `src/consequences/effects/`, `src/consequences/sound/` | What computed outcomes leave: sweat, scuffs, dust and other marks, and the effect cues a requested preview uses | Research, behaviors |
 | `src/composition/scenes/<film>/<scene>/` | One screenplay scene's composition | That scene and its beats, [composition](../contracts/development/composition.md) |
 | `src/composition/scenes/catalog/<case>/` | One isolated case played alone: a technique against a defense and outcome, a movement, an official or bystander behavior, a fall or an entity state the screenplay uses | The research section or settings fact it exhibits, composition |
 | `src/composition/films/catalog.ts`, registered in `src/composition/films/index.ts` | The review catalog: every case in its own labelled interval with named review views; never delivered | Its cases' research and settings, composition |
-| `src/composition/films/<film>.ts`, registered in `src/composition/films/index.ts` | One delivered video: scene order, transitions, titles and subtitles, score placement, grade, delivery profile and conditioning passes | The screenplay file, composition |
+| `src/composition/films/<film>.ts`, registered in `src/composition/films/index.ts` | One delivered video: scene order, transitions, titles and subtitles, grade, delivery profile and conditioning passes | The screenplay file, composition |
 | `src/*.ts` | The Viewer host entry, the film interfaces and the film selector | Nothing |
 | `src/executable/` | Node commands such as `render`, `review` and `physics` | Nothing |
 | `src/integrations/<provider>/`, when needed | Provider or local-tool integration code | The generation requests in `docs/prompts/` |
@@ -24,7 +24,7 @@ One folder owns each responsibility, and the folders follow the chain from setti
 | Runtime `README.md` and `.env.example` | Nonsecret setup, commands, environment-variable names and example configuration | Nothing |
 | Ignored local `.env` | Secret values required by adopted integrations | Nothing |
 
-Settings domains map onto code: cast, crowds, props and sets become entities of the same kind, cinematography becomes camera and light entities, world rules become laws and interactions, and sound palettes become sound consequences and the film's score placement. Weather and atmosphere are a set's state by story day, and ambience reads the same state. `<film>` is the screenplay file's name, such as `duet` or `001-episode`, and the same name reaches `media/automovie/<film>/`, so screenplay, scene, film and video pair by path. Rendered frames, videos and conditioning passes go there, never into `src`.
+Settings domains map onto code: cast, crowds, props and sets become entities of the same kind, cinematography becomes camera and light entities, world rules become laws and interactions, and sound palettes become each shot's sound description in the video-diffusion prompt under [audio](../audio/SKILL.md). Weather and atmosphere are a set's state by story day, and ambience reads the same state. `<film>` is the screenplay file's name, such as `duet` or `001-episode`, and the same name reaches `media/automovie/<film>/`, so screenplay, scene, film and video pair by path. Rendered frames, videos and conditioning passes go there, never into `src`.
 
 ## How the parts work together
 
