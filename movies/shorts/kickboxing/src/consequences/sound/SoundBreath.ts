@@ -1,14 +1,19 @@
 import type { IAutoMovieSchedule } from "@automovie/engine";
 
 import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
+import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
 
 /**
- * Where a fighter's breath is heard: only where the story motivates it, as
- * one short exhale cut from the breath recording.
+ * Where a fighter's breath is heard: only where the story or the technique
+ * motivates it, each time as one short excerpt cut from the breath
+ * recording.
  *
- * - Exertion: once at the end of a combination of at least
- *   {@link SoundBreath.COMBINATION} strikes, the striker blowing out after
- *   the work.
+ * - The strike exhale: a sharp {@link SoundBreath.STRIKE} hiss through the
+ *   mouthguard on every thrown strike, peaking at its contact, as kickboxing
+ *   and Muay Thai coaching teaches; a feint is not thrown and has none.
+ * - Exertion: one longer {@link SoundBreath.EXHALE} once at the end of a
+ *   combination of at least {@link SoundBreath.COMBINATION} strikes, the
+ *   striker blowing out after the work.
  * - The knockdown: once when the fallen fighter lands, then every
  *   {@link SoundBreath.LABORED} seconds while he lies or tries to rise.
  * - The celebration: every {@link SoundBreath.EXCITED} seconds while the
@@ -18,11 +23,12 @@ import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
  * the cap keeps one breath per fighter at a time.
  *
  * ```ts
- * SoundBreath.of(schedule, [[158, 158.55]]); // [{ subject: "a", seconds: 12.4, gain: 0.35 }, ...]
+ * SoundBreath.of(schedule, [[158, 158.55]]); // [{ subject: "a", seconds: 10.1, gain: 0.15, offset: 1.44, duration: 0.2 }, ...]
  * ```
  *
  * @evidence docs/body/settings/cast/fighter-a.md#silent Effort exhales only.
  * @evidence docs/research/sound/ring-mix.md#law Breath only where motivated, one excerpt, one per fighter.
+ * @evidence docs/research/sound/ring-mix.md#practice Coaches teach a sharp exhale on every strike.
  */
 export namespace SoundBreath {
   /** One motivated breath. */
@@ -35,6 +41,21 @@ export namespace SoundBreath {
 
     /** Linear gain. */
     gain: number;
+
+    /** Source offset of the excerpt, seconds. */
+    offset: number;
+
+    /** Length of the excerpt, seconds. */
+    duration: number;
+  }
+
+  /** An excerpt of the breath recording. */
+  export interface IExcerpt {
+    /** Source offset, seconds. */
+    offset: number;
+
+    /** Length, seconds. */
+    seconds: number;
   }
 
   /**
@@ -42,9 +63,22 @@ export namespace SoundBreath {
    * rise out of the dip at 1.40 s to 30 dB under the file's peak at 2.00 s,
    * measured on the file's 50 ms RMS envelope.
    */
-  export const EXHALE: { offset: number; seconds: number } = Object.freeze({
+  export const EXHALE: Readonly<IExcerpt> = Object.freeze({
     offset: 1.4,
     seconds: 0.6,
+  });
+
+  /**
+   * The strike hiss: the front of the same burst, from its onset out of the
+   * dip at 1.44 s through its -13 dB peak at 1.54 s to where it has fallen
+   * 6 dB under that peak at 1.64 s, measured on the file's 10 ms RMS
+   * envelope. `peak` is the seconds from the excerpt's start to its peak,
+   * which lands on the strike's contact.
+   */
+  export const STRIKE: Readonly<IExcerpt & { peak: number }> = Object.freeze({
+    offset: 1.44,
+    seconds: 0.2,
+    peak: 0.1,
   });
 
   /** Fewest strikes in a combination that earns an exertion breath: a three-strike combination. */
@@ -55,6 +89,9 @@ export namespace SoundBreath {
 
   /** Seconds between breaths of the celebrating winner: 60 a minute, excited. */
   export const EXCITED: number = 1;
+
+  /** Gain of the strike hiss, about -16.5 dB: 15 dB under a landed impact, felt rather than heard. */
+  export const STRIKE_GAIN: number = 0.15;
 
   /** Gain of an exertion exhale, about -9 dB: under the impacts. */
   export const EXERTION_GAIN: number = 0.35;
@@ -77,26 +114,46 @@ export namespace SoundBreath {
     words: readonly (readonly [number, number])[],
   ): IBreath[] {
     const breaths: IBreath[] = [];
-    const add = (subject: string, seconds: number, gain: number): void => {
+    const add = (
+      subject: string,
+      seconds: number,
+      gain: number,
+      excerpt: IExcerpt = EXHALE,
+    ): void => {
       if (
-        !words.some(([s, e]) => seconds < e && seconds + EXHALE.seconds > s)
+        !words.some(([s, e]) => seconds < e && seconds + excerpt.seconds > s)
       )
-        breaths.push({ subject, seconds, gain });
+        breaths.push({
+          subject,
+          seconds,
+          gain,
+          offset: excerpt.offset,
+          duration: excerpt.seconds,
+        });
     };
     const every = (
       entry: IAutoMovieSchedule.IEntry,
       period: number,
       gain: number,
     ): void => {
-      for (let t: number = entry.start; t + EXHALE.seconds <= entry.end + 1e-9; t += period)
+      for (
+        let t: number = entry.start;
+        t + EXHALE.seconds <= entry.end + 1e-9;
+        t += period
+      )
         add(entry.subject, t, gain);
     };
+    // The strike hiss of a thrown strike: its peak on the contact.
+    const hiss = (entry: IAutoMovieSchedule.IEntry): number =>
+      Math.max(0, (entry.contact ?? entry.end) - STRIKE.peak);
     // Each fighter's strikes: a combination continues while a strike follows.
     const chains: Record<string, IAutoMovieSchedule.IEntry[]> = {};
     for (const entry of schedule.entries) {
       if (entry.intent.capability === "strike") {
         const action = KickboxingAction.read(entry.intent);
         if (action.kind !== "strike") continue;
+        if (KickboxingTechnique.table[action.technique].shows === undefined)
+          add(entry.subject, hiss(entry), STRIKE_GAIN, STRIKE);
         const chain: IAutoMovieSchedule.IEntry[] =
           action.follows !== undefined ? (chains[entry.subject] ?? []) : [];
         if (action.follows === undefined) flush(chains[entry.subject]);
@@ -119,10 +176,15 @@ export namespace SoundBreath {
     for (const chain of Object.values(chains)) flush(chain);
     return breaths.sort((x, y) => x.seconds - y.seconds);
 
+    // The exertion exhale follows the last strike, after its hiss ends.
     function flush(chain: IAutoMovieSchedule.IEntry[] | undefined): void {
       if (chain !== undefined && chain.length >= COMBINATION) {
         const last: IAutoMovieSchedule.IEntry = chain.at(-1)!;
-        add(last.subject, last.end, EXERTION_GAIN);
+        add(
+          last.subject,
+          Math.max(last.end, hiss(last) + STRIKE.seconds),
+          EXERTION_GAIN,
+        );
       }
     }
   }

@@ -15,7 +15,7 @@ import { soundSchedule } from "./internal/soundSchedule";
  * positive duration, starts inside the film and ends by its end; no cue
  * reads past its asset (offset plus duration within the file); every
  * one-shot lasts at most its measured audible length and every breath is
- * the exhale excerpt; at no instant does a source sound twice or a sound
+ * the exhale or the strike-hiss excerpt; at no instant does a source sound twice or a sound
  * more than its limit, and a droppable cue starts only while fewer than
  * the foreground limit sound; the measured film overlap stays at most the
  * foreground limit plus the never-dropped words and bell; a film cut short
@@ -45,10 +45,13 @@ export function test_sound_bounds(): void {
       c.offsetSeconds + c.durationSeconds <= SoundAssets.seconds[c.asset]! + 1e-9,
       `${c.asset} at ${c.seconds} runs past its source`,
     );
-    if (c.asset === "breath") {
-      assert.equal(c.offsetSeconds, SoundBreath.EXHALE.offset);
-      assert.equal(c.durationSeconds, SoundBreath.EXHALE.seconds);
-    } else if (c.asset !== SoundCues.BED)
+    if (c.asset === "breath")
+      assert.ok(
+        [SoundBreath.EXHALE, SoundBreath.STRIKE].some(
+          (x) => c.offsetSeconds === x.offset && c.durationSeconds === x.seconds,
+        ),
+        `breath at ${c.seconds} is not a measured excerpt`,
+      ); else if (c.asset !== SoundCues.BED)
       assert.ok(c.durationSeconds <= SoundAssets.audible[c.asset]! + 1e-9, c.asset);
   }
   const foreground = cues.filter((c) => c.asset !== SoundCues.BED);

@@ -10,6 +10,7 @@ import { OfficiatingAction } from "../../../../../src/laws/officiating/Officiati
  * - 0: the bell; 0.5: "Fight!".
  * - 10: A's jab, cross and body kick, a three-strike combination ending at 11.5.
  * - 20: B's jab and cross, a two-strike combination ending at 20.8.
+ * - 25: A's jab feint, shown to 25.2 but never thrown.
  * - 30: A's four-step press to 32, the same in the same 2 s by B.
  * - 40: B's jab evaded at 40.3; 41: A's cross evaded at 41.3.
  * - 50: B falls to 51.6; "Down!" at 50.2.
@@ -53,6 +54,7 @@ export function soundSchedule(): IAutoMovieSchedule {
   add(KickboxingAction.intent("a", { kind: "strike", technique: "body-kick", follows: "cross" }), 10.9, 11.5, { contact: 11.2 });
   add(KickboxingAction.intent("b", { kind: "strike", technique: "jab" }), 20, 20.4, { contact: 20.2 });
   add(KickboxingAction.intent("b", { kind: "strike", technique: "cross", follows: "jab" }), 20.4, 20.8, { contact: 20.6 });
+  add(KickboxingAction.intent("a", { kind: "strike", technique: "feint-jab" }), 25, 25.4, { contact: 25.2 });
   add(KickboxingAction.intent("a", { kind: "move", movement: "press", steps: 4 }), 30, 32);
   add(KickboxingAction.intent("b", { kind: "move", movement: "give", steps: 4 }), 30, 32);
   add(

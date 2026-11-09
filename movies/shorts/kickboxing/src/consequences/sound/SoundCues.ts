@@ -19,7 +19,8 @@ import { SoundConcurrency } from "./SoundConcurrency";
  * he speaks them, an impact for every measured contact (heavier for kicks
  * and the finish, softer for blocks), footfalls on the fighters' steps, the
  * canvas landings of the fall, air past the head of an evaded strike, the
- * motivated breaths of {@link SoundBreath}, and the crowd bed of
+ * strike exhale on every thrown strike and the motivated breaths of
+ * {@link SoundBreath}, and the crowd bed of
  * {@link SoundBed}, ducked under every word and raised for the knockout and
  * the celebration. {@link SoundConcurrency} caps the one-shots. Nothing
  * sounds for a feint or for a decided contact the bodies did not make.
@@ -33,6 +34,7 @@ import { SoundConcurrency } from "./SoundConcurrency";
  * @evidence docs/body/settings/sound/ring-sound.md#no-music No music.
  * @evidence docs/body/settings/cast/referee.md#voice His commands and count.
  * @evidence docs/research/sound/ring-mix.md#law Cues bounded to their events, capped concurrency and the bed ducked under speech.
+ * @evidence docs/research/sound/ring-mix.md#practice The strike exhale: a sharp hiss through the mouthguard on every thrown strike.
  */
 export namespace SoundCues {
   /** One cue in the render and viewer audio form. */
@@ -79,6 +81,18 @@ export namespace SoundCues {
 
   /** Gain of air past a head, about -10 dB. */
   export const AIR_GAIN: number = 0.3;
+
+  /** Cap rank of a motivated breath: after impacts and falls, before air and steps. */
+  export const BREATH_RANK: number = 2;
+
+  /**
+   * Cap rank of the strike exhale law, {@link SoundBreath.STRIKE}: a fighter
+   * exhales sharply through the mouthguard on every thrown strike, never on
+   * a feint, at {@link SoundBreath.STRIKE_GAIN}, one per fighter at a time
+   * and never over a word. It yields to impacts, falls and the motivated
+   * breaths, as the rush of air does.
+   */
+  export const HISS_RANK: number = 3;
 
   /** Shares of a fall at which the hip, shoulder and head land. */
   export const LANDINGS: readonly number[] = Object.freeze([0.55, 0.8, 1]);
@@ -225,10 +239,10 @@ export namespace SoundCues {
         "breath",
         b.seconds,
         b.gain,
-        2,
+        b.offset === SoundBreath.STRIKE.offset ? HISS_RANK : BREATH_RANK,
         `breath/${b.subject}`,
-        SoundBreath.EXHALE.offset,
-        SoundBreath.EXHALE.seconds,
+        b.offset,
+        b.duration,
       );
     const foreground: ICue[] = SoundConcurrency.cap(candidates).map(
       ({ asset, seconds, gain, offsetSeconds, durationSeconds }) => ({

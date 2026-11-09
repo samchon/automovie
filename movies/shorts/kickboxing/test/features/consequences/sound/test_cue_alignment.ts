@@ -17,7 +17,8 @@ import { polygonFilm } from "../../../internal/polygonFilm";
  * measured contact, itself within one frame of the strike's scheduled
  * contact; each footfall at a step's landing;
  * each canvas landing inside the fall; each breath at a strike's end (a
- * combination's last), the fall's end, or a breathing period of the
+ * combination's last) or after its hiss, a hiss peaking on a strike's
+ * contact, the fall's end, or a breathing period of the
  * fallen fighter's lying or the winner's celebration;
  * each rush of air at an evaded strike's contact; no cue without its event.
  */
@@ -51,7 +52,13 @@ export function test_cue_alignment(): void {
     else if (e.intent.capability === "signal") {
       const words = OfficiatingAction.read(e.intent).words;
       if (words !== undefined) add(`words:${words}`, e.start);
-    } else if (e.intent.capability === "strike") add("breath", e.end);
+    } else if (e.intent.capability === "strike") {
+      add("breath", e.end);
+      if (e.contact !== undefined) {
+        add("breath", e.contact - SoundBreath.STRIKE.peak);
+        add("breath", e.contact - SoundBreath.STRIKE.peak + SoundBreath.STRIKE.seconds);
+      }
+    }
     else if (e.intent.capability === "answer" && e.outcome === "evaded")
       add("air", e.contact!);
     else if (e.intent.capability === "move") {
