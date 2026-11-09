@@ -2,9 +2,12 @@ import { AutoMovieChain, AutoMovieComposition, type IAutoMovieIntent } from "@au
 
 import type { HumanActionName } from "./HumanActionName";
 import type { stand } from "./actions/stand";
+import type { jump } from "./actions/jump";
+import type { run } from "./actions/run";
 import type { walk } from "./actions/walk";
 import type { approach } from "./everyday/approach";
 import type { bend } from "./everyday/bend";
+import type { brace } from "./everyday/brace";
 import type { gesture } from "./everyday/gesture";
 import type { look } from "./everyday/look";
 import type { rest } from "./everyday/rest";
@@ -14,6 +17,7 @@ import type { stepOver } from "./everyday/stepOver";
 import type { handshake } from "./handling/handshake";
 import type { pickUp } from "./handling/pickUp";
 import type { putDown } from "./handling/putDown";
+import type { handOver } from "./handling/handOver";
 import type { punch } from "./striking/punch";
 import type { kick } from "./striking/kick";
 import type { guard } from "./striking/guard";
@@ -73,8 +77,23 @@ export class HumanChain extends AutoMovieChain {
    * @param b The other's.
    * @returns The mutual actions, each returning the joined composition.
    */
-  public static pair(a: HumanChain, b: HumanChain): { handshake(params?: Omit<handshake.IParams, "partner">): AutoMovieChain } {
+  public static pair(
+    a: HumanChain,
+    b: HumanChain,
+  ): {
+    handshake(params?: Omit<handshake.IParams, "partner">): AutoMovieChain;
+    handOver(params: Omit<handOver.IParams, "to">): AutoMovieChain;
+  } {
+    const together = (first: AutoMovieComposition, second: AutoMovieComposition): AutoMovieChain =>
+      new AutoMovieChain({ kind: "sequence", parts: [{ kind: "parallel", parts: [a.node, b.node] }, { kind: "parallel", parts: [first, second] }] });
     return {
+      handOver: (params: Omit<handOver.IParams, "to">): AutoMovieChain => {
+        const shared = { prop: params.prop, handle: params.handle, ...(params.mass === undefined ? {} : { mass: params.mass }), ...(params.outcome === undefined ? {} : { outcome: params.outcome }) };
+        return together(
+          HumanChain.subject(a.subject).act("handOver", { ...params, to: b.subject }).node,
+          HumanChain.subject(b.subject).act("receive", { ...shared, from: a.subject, ...(params.receiverHand === undefined ? {} : { hand: params.receiverHand }), ...(params.hand === undefined ? {} : { giverHand: params.hand }) }).node,
+        );
+      },
       handshake: (params: Omit<handshake.IParams, "partner"> = {}): AutoMovieChain =>
         new AutoMovieChain({
           kind: "sequence",
@@ -161,6 +180,28 @@ export class HumanChain extends AutoMovieChain {
    */
   public walk(params: walk.IParams, anchor?: string): this {
     return this.act("walk", params, anchor);
+  }
+
+  /**
+   * Run to a floor point at a jog, a run or a sprint.
+   *
+   * @param params Destination, pace and path.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public run(params: run.IParams, anchor?: string): this {
+    return this.act("run", params, anchor);
+  }
+
+  /**
+   * Jump to a floor point: push off a planted foot, fly and land on both feet.
+   *
+   * @param params Where to land and the flight's apex.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public jump(params: jump.IParams, anchor?: string): this {
+    return this.act("jump", params, anchor);
   }
 
   /**
@@ -259,6 +300,17 @@ export class HumanChain extends AutoMovieChain {
    */
   public stepOver(params: stepOver.IParams, anchor?: string): this {
     return this.act("stepOver", params, anchor);
+  }
+
+  /**
+   * Brace for an expected impact, push or falling body.
+   *
+   * @param params Where the force comes from, what it is and how long.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public brace(params: brace.IParams = {}, anchor?: string): this {
+    return this.act("brace", params, anchor);
   }
 
   /**

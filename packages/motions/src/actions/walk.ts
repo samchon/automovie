@@ -65,13 +65,15 @@ export namespace walk {
   export const name: HumanActionName = "walk";
 
   /**
-   * Cancel table. Another walk, an approach or a stop may cut any step: each
-   * plans from the entry feet. A standing action (looking, gesturing, resting,
+   * Cancel table. Another walk, an approach, a jump or a stop may cut any
+   * step: a stance foot is always planted, and each plans from the entry feet. A standing action (looking, gesturing, resting,
    * sitting) may cut only after the last footfall, once both feet are down.
    */
   export const interrupts: IHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
     walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    jump: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
+    run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
     approach: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
     look: [{ window: ["lastFootfall", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
     gesture: [{ window: ["lastFootfall", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
@@ -106,6 +108,45 @@ export namespace walk {
   /** Froude number of each pace (Alexander 1984; Bohannon 1997 speeds at a 0.93 m hip). */
   export const FROUDE: Readonly<Record<NonNullable<IParams["pace"]>, number>> = { slow: 0.12, normal: 0.2, fast: 0.32 };
 
+  /** A gait the stepping plan runs: its speed, its step and swing, its pelvis and its arms. */
+  export interface IGait {
+    /** Froude number, `v² / (g l)`. */
+    froude: number;
+
+    /** The longest step in hip heights for the Froude number. */
+    step(froude: number): number;
+
+    /** Swing duration in step periods. */
+    swing: number;
+
+    /** Vertical oscillation lowest at mid-stance, hip heights; a walk's own when absent. */
+    bob?: { mean: number; amplitude: number };
+
+    /** Mid-swing ankle lift, hip heights. */
+    lift: number;
+
+    /** Shoulder swing amplitude, elbow flexion and its swing, degrees. */
+    arms: { shoulder: number; elbow: number; swing: number };
+
+    /** Forward trunk lean added to the upright alignment, degrees of chest and spine flexion each. */
+    lean: number;
+  }
+
+  /**
+   * The walking gait of a Froude number: a step of `1.2 l Fr^0.25`, at most
+   * 0.85 hip heights, the fast-walking step that keeps the trailing hip's
+   * extension at toe-off inside its range (about 0.8 m at 1.75 m stature), and
+   * 40 % of the stride in swing.
+   */
+  export const walking = (froude: number): IGait => ({
+    froude,
+    step: (fr: number): number => Math.min(0.85, 1.2 * Math.sqrt(Math.sqrt(fr))),
+    swing: 0.8,
+    lift: 0.07,
+    arms: { shoulder: 15, elbow: 22, swing: 8 },
+    lean: 0,
+  });
+
   /**
    * Plan a walk.
    *
@@ -113,10 +154,22 @@ export namespace walk {
    * @returns The plan.
    */
   export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+    return locomote(context, walking(FROUDE[context.params.pace ?? "normal"]));
+  }
+
+  /**
+   * Plan stepping locomotion in a gait: footprints, their timing, the pelvis
+   * and the arms, shared by walking and running.
+   *
+   * @param context The action's context; `pace` is read by the caller only.
+   * @param gait The gait.
+   * @returns The plan.
+   */
+  export function locomote(context: IHumanActionContext<Omit<IParams, "pace">>, gait: IGait): IHumanActionPlan {
     const body: IHumanBody = context.body;
     const m = body.measure;
     const l: number = m.hipHeight;
-    const froude: number = FROUDE[context.params.pace ?? "normal"];
+    const froude: number = gait.froude;
     const speed: number = Math.sqrt(froude * 9.81 * l);
     const p = context.params;
     const stride: number = p.stride ?? 1;
@@ -125,7 +178,7 @@ export namespace walk {
     if (!(stride >= 0.6 && stride <= 1.3)) throw new Error(`walk.stride must lie in [0.6, 1.3], got ${stride}`);
     if (!(arms >= 0 && arms <= 2)) throw new Error(`walk.armSwing must lie in [0, 2], got ${arms}`);
     if (!(elbows >= 0 && elbows <= 30)) throw new Error(`walk.elbows must lie in [0, 30], got ${elbows}`);
-    const longest: number = stride * 1.2 * l * Math.sqrt(Math.sqrt(froude));
+    const longest: number = stride * l * gait.step(froude);
     const steps: walkSteps.IPlan = walkSteps.plan({
       body,
       entry: context.entry,
@@ -135,6 +188,9 @@ export namespace walk {
       speed,
       longest,
       period: (seconds: number): number => HumanSkill.jitter(context.skill, context.random("period"), seconds),
+      swing: gait.swing,
+      lift: gait.lift,
+      ...(gait.bob === undefined ? {} : { bob: gait.bob }),
     });
     const duration: number = steps.duration;
     const events: IAutoMovieMotionEvent[] = steps.events.map((e) => ({ name: e.name, share: e.seconds / duration }));
@@ -163,14 +219,15 @@ export namespace walk {
         const joints: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = {
           ...stand.RELAXED,
           ...upright.joints,
+          spine: [(upright.joints.spine?.[0] ?? 0) + gait.lean, 0, 0],
           hips,
           leftToes: [reached.toes.left, 0, 0],
           rightToes: [reached.toes.right, 0, 0],
-          chest: [upright.joints.chest?.[0] ?? 0, 0, -4 * swing],
-          leftUpperArm: [-15 * arms * swing, 5 + elbows, 0],
-          rightUpperArm: [15 * arms * swing, 5 + elbows, 0],
-          leftLowerArm: [22 - 8 * arms * swing, 0, 0],
-          rightLowerArm: [22 + 8 * arms * swing, 0, 0],
+          chest: [(upright.joints.chest?.[0] ?? 0) + gait.lean, 0, -4 * swing],
+          leftUpperArm: [-gait.arms.shoulder * arms * swing, 5 + elbows, 0],
+          rightUpperArm: [gait.arms.shoulder * arms * swing, 5 + elbows, 0],
+          leftLowerArm: [gait.arms.elbow - gait.arms.swing * arms * swing, 0, 0],
+          rightLowerArm: [gait.arms.elbow + gait.arms.swing * arms * swing, 0, 0],
         };
         const limbs: IHumanPosture["limbs"] = {};
         for (const side of ["left", "right"] as const) {
@@ -186,6 +243,7 @@ export namespace walk {
             bend: knee,
             rotation: reached.rotations[side],
             ...(foot.planted ? { planted: true } : {}),
+            ...(reached.contacts[side] === undefined ? {} : { contact: reached.contacts[side] }),
           };
         }
         return { root, yaw, pitch: 0, roll: 0, joints, limbs };

@@ -3,6 +3,7 @@ import {
   HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
   Quaternion,
+  Vector3,
   clampPose,
   fitChainToTarget,
   resolvePose,
@@ -16,6 +17,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanFoot } from "./HumanFoot";
 import type { IHumanPosture } from "./IHumanPosture";
 
 /**
@@ -159,8 +161,40 @@ export namespace resolveHumanPosture {
   }
 }
 
-/** The fit of one limb by the engine's two-bone solver. */
+/**
+ * The fit of one limb by the engine's two-bone solver; with a contact, the end
+ * joint is re-aimed twice so the contact stays put under the rotation the
+ * limb actually reached (`HumanFoot.heelOff`), and a foot's toes take back
+ * the pitch it lost.
+ */
 function fitLimb(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb, goal: IHumanPosture.IGoal): IAutoMoviePose {
+  let fitted: IAutoMoviePose = fitOnce(body, pose, limb, goal);
+  if (goal.contact === undefined || goal.rotation === undefined) return fitted;
+  const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+  const leg: boolean = limb.endsWith("Leg");
+  const effector: AutoMovieHumanoidBone = leg ? `${side}Foot` : `${side}Hand`;
+  const anchor: IAutoMovieVector3 = Vector3.add(goal.point, Quaternion.rotateVector(goal.rotation, goal.contact));
+  let toes: number = 0;
+  for (let i: number = 0; i < 2; i++) {
+    const reached: IAutoMovieQuaternion = resolvePose(fitted, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).find(
+      (r: IAutoMovieResolvedBone): boolean => r.bone === effector,
+    )!.worldRotation;
+    const dot: number = Math.abs(reached.x * goal.rotation.x + reached.y * goal.rotation.y + reached.z * goal.rotation.z + reached.w * goal.rotation.w);
+    if (dot > Math.cos((0.1 * Math.PI) / 360)) break;
+    const off = HumanFoot.heelOff(goal.rotation, reached, anchor, goal.contact);
+    toes = off.toes;
+    fitted = fitOnce(body, pose, limb, { ...goal, point: off.ankle });
+  }
+  if (!leg || toes === 0) return fitted;
+  const bone: AutoMovieHumanoidBone = `${side}Toes`;
+  return {
+    ...fitted,
+    joints: fitted.joints.map((j: IAutoMovieJointPose): IAutoMovieJointPose => (j.bone === bone ? { ...j, flexion: (j.flexion ?? 0) + toes } : j)),
+  };
+}
+
+/** One fit of a limb by the engine's two-bone solver. */
+function fitOnce(body: IHumanBody, pose: IAutoMoviePose, limb: IHumanPosture.Limb, goal: IHumanPosture.IGoal): IAutoMoviePose {
   const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
   const arm: boolean = limb.endsWith("Arm");
   return fitChainToTarget({

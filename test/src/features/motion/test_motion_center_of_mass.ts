@@ -21,8 +21,9 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  * 1. At rest the centre is (0.1/3, 2.8/3, 0), the weighted mean by hand.
  * 2. Metamorphic: translating the root by (1, 0, 2) translates the centre by
- *    the same; turning the root 90° about +Y turns the centre's offset from
- *    the root the same way.
+ *    the same; turning the root 90° about +Y turns the centre about the
+ *    origin the same way. A pose's root translation is added to the rest
+ *    root's, so a zero translation keeps the rest height.
  * 3. The extrapolated centre of (0, 1, 0) moving at 1 m/s along +X with a
  *    1 m pendulum lies 1 / sqrt(9.81) m ahead.
  * 4. The margin from a 0.2 m square's centre is +0.1 m, from 0.3 m outside

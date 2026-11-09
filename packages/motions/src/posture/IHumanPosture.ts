@@ -66,5 +66,14 @@ export namespace IHumanPosture {
 
     /** Whether the limb bears on a fixed contact the transition must not move. */
     planted?: boolean;
+
+    /**
+     * The contact the hand or foot turns about, in its rest frame relative to
+     * its joint (a heel, a ball, a palm): when `rotation` cannot be met
+     * exactly within the limb's range, the end joint is re-aimed so this
+     * point stays where the goal puts it, and the rotation gives way, as a
+     * foot pivots on its ball.
+     */
+    contact?: IAutoMovieVector3;
   }
 }

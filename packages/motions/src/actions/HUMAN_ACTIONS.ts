@@ -9,10 +9,13 @@ import { rise } from "../everyday/rise";
 import { shift } from "../everyday/shift";
 import { sit } from "../everyday/sit";
 import { stepOver } from "../everyday/stepOver";
+import { brace } from "../everyday/brace";
 import { kick } from "../striking/kick";
 import { handshake } from "../handling/handshake";
 import { pickUp } from "../handling/pickUp";
 import { putDown } from "../handling/putDown";
+import { handOver } from "../handling/handOver";
+import { receive } from "../handling/receive";
 import { flinch } from "../reaction/flinch";
 import { knockdown } from "../reaction/knockdown";
 import { knee } from "../striking/knee";
@@ -21,6 +24,8 @@ import { defend } from "../striking/defend";
 import { guard } from "../striking/guard";
 import { punch } from "../striking/punch";
 import { step } from "../striking/step";
+import { jump } from "./jump";
+import { run } from "./run";
 import { stand } from "./stand";
 import { walk } from "./walk";
 
@@ -33,6 +38,8 @@ import { walk } from "./walk";
 export const HUMAN_ACTIONS: Readonly<Record<HumanActionName, IHumanActionLaw<never>>> = {
   stand,
   walk,
+  run,
+  jump,
   approach,
   look,
   gesture,
@@ -52,6 +59,9 @@ export const HUMAN_ACTIONS: Readonly<Record<HumanActionName, IHumanActionLaw<nev
   handshake,
   pickUp,
   putDown,
+  handOver,
+  receive,
   bend,
   stepOver,
+  brace,
 };

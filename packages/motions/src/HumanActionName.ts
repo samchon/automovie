@@ -6,6 +6,8 @@
  *
  * - `stand`: quiet standing on both feet.
  * - `walk`: walking to a floor point in whole steps.
+ * - `run`: jogging, running or sprinting to a floor point, with a flight phase each step.
+ * - `jump`: a push-off, a ballistic flight and a two-footed landing on a floor point.
  * - `approach`: walking up to a target and stopping at an interpersonal gap.
  * - `look`: standing and turning the eyes, head and trunk to a target.
  * - `gesture`: a communicative gesture of the hands, head or trunk while standing.
@@ -15,8 +17,13 @@
  * - `shift`: edging sideways along a seat while seated.
  * - `bend`: bending down to bring a hand to a low point, feet planted.
  * - `stepOver`: stepping over a low obstacle, lead foot then trail foot.
+ * - `brace`: bracing for an expected impact, push or falling body.
  * - `punch`: a straight, hook or uppercut brought onto a target, or a feint of one.
  * - `handshake`: shaking hands with a partner at a shared meeting point.
+ * - `pickUp`: reaching for a prop's grip, grasping it and lifting it.
+ * - `putDown`: setting a held prop down at a place and letting go.
+ * - `handOver`: handing a held prop to a receiver, letting go only after the receiver's grip closes.
+ * - `receive`: taking a prop a giver holds out.
  * - `kick`: a round kick's shin or a push kick's foot brought onto a target, or a feint of one.
  * - `guard`: taking and holding the fighting stance with the gloves up.
  * - `step`: fighting-stance footwork that keeps the stance.
@@ -26,4 +33,4 @@
  * - `knockdown`: the legs giving way and the body going down to lie supine.
  * - `knee`: a knee driven onto a target, in the clinch or free.
  */
-export type HumanActionName = "stand" | "walk" | "approach" | "look" | "gesture" | "rest" | "punch" | "kick" | "guard" | "step" | "defend" | "flinch" | "stagger" | "knockdown" | "knee" | "sit" | "rise" | "shift" | "bend" | "handshake" | "pickUp" | "putDown" | "stepOver";
+export type HumanActionName = "stand" | "walk" | "run" | "jump" | "approach" | "look" | "gesture" | "rest" | "punch" | "kick" | "guard" | "step" | "defend" | "flinch" | "stagger" | "knockdown" | "knee" | "sit" | "rise" | "shift" | "bend" | "handshake" | "pickUp" | "putDown" | "handOver" | "receive" | "stepOver" | "brace";

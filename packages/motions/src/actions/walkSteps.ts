@@ -18,11 +18,12 @@ import { stand } from "./stand";
  * each turned to the path's heading averaged over one step so a corner is
  * taken over a step, alternately half a step width to
  * either side (step width 0.1 hip heights, about 9 cm, inside the 7 to 12 cm
- * of normal adult gait, Perry and Burnfield), the foot behind stepping
+ * of normal adult gait, Perry and Burnfield; a run passes its swing share,
+ * mid-swing lift and vertical oscillation), the foot behind stepping
  * first and the last two ending at the body's rest separation, facing `face`
- * when given: the closing pair turns half of the way each, a stepping turn,
- * and the pelvis turns over the last two steps, so neither foot needs more
- * hip rotation than the pelvis gives it. Each step's
+ * when given: the last three footfalls turn a third of the way each, a
+ * stepping turn, and the pelvis turns over the last three steps, so no foot
+ * needs more hip rotation than the hip's range. Each step's
  * heel strike comes one step period after the previous; its toe-off one swing
  * (0.8 step periods, 40 % of a stride) before its heel strike; the first
  * toe-off comes 0.25 s after the start, a provisional gait-initiation delay
@@ -71,6 +72,15 @@ export namespace walkSteps {
 
     /** The realised step period for a planned one, seconds (timing variability). */
     period(seconds: number): number;
+
+    /** Swing duration in step periods; 0.8 (a walk's 40 % of the stride) when absent, above 1 for a run's flight. */
+    swing?: number;
+
+    /** A run's vertical oscillation, hip heights: the mean drop and the amplitude, lowest at mid-stance; a walk's when absent. */
+    bob?: { mean: number; amplitude: number };
+
+    /** Mid-swing ankle lift, hip heights; 0.07 when absent. */
+    lift?: number;
   }
 
   /** A foot at an instant. */
@@ -158,15 +168,15 @@ export namespace walkSteps {
     const half: number = 0.05 * l;
     const rest = (side: "left" | "right"): number => Math.abs(body.rest.get(`${side}Foot`)!.x);
     const T: number = input.period(Math.max(delta, 0.05) / input.speed);
-    const swing: number = 0.8 * T;
+    const swing: number = (input.swing ?? 0.8) * T;
     const first: number = 0.25;
     const steps: IStep[] = [];
     for (let j: number = 1; j <= n + 1; j++) {
       const side: "left" | "right" = j % 2 === 1 ? lead : other(lead);
       const d: number = Math.min(D, j * delta);
       const lateral: number = (side === "left" ? 1 : -1) * (j >= n ? rest(side) : half);
-      // The closing pair turns to the arrival heading over two steps, half each.
-      const toward: number = j > n ? ending : j === n ? (along$(d) + ending) / 2 : along$(d);
+      // The closing steps turn to the arrival heading over three footfalls, a third each.
+      const toward: number = j > n ? ending : j >= n - 1 ? along$(d) + ((ending - along$(d)) * (j - n + 2)) / 3 : along$(d);
       const point: IAutoMovieVector3 = HumanFrame.point({ origin: path.at(d), yaw: toward }, { x: lateral, y: m.ankleHeight, z: 0 });
       const footHeading: number = toward + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT);
       const heelStrike: number = first + swing + (j - 1) * T;
@@ -218,19 +228,22 @@ export namespace walkSteps {
       const b: IAutoMovieVector3 = body.rest.get("rightFoot")!;
       return HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, { x: (a.x + b.x) / 2, y: 0, z: (a.z + b.z) / 2 });
     };
-    const turn: number = steps[Math.max(0, steps.length - 3)]!.toeOff;
+    const turn: number = steps[Math.max(0, steps.length - 4)]!.toeOff;
     const yawAt = (t: number): number => {
       const travel: number = yaw0 + (along$(progress(t)) - yaw0) * minimumJerk(t / (first + T)).s;
       return travel + (ending - travel) * minimumJerk((t - turn) / Math.max(1e-6, last - turn)).s;
     };
     const amount = (t: number): number => Math.max(0, Math.min(1, ramp(t)));
-    const foot = (side: "left" | "right", t: number): IFoot => footAt(body, side, steps, start[side], t);
+    const foot = (side: "left" | "right", t: number): IFoot => footAt(body, side, steps, start[side], t, input.lift ?? 0.07);
     const planned = (t: number): IAutoMovieVector3 => {
       const yaw: number = yawAt(t);
       const c: IAutoMovieVector3 = centre(yaw);
       const a: number = amount(t);
       const sway: number = 0.02 * (l / 0.93) * a * Math.cos((2 * Math.PI * (t - (firstLeft + 0.6 * T))) / (2 * T));
-      const bob: number = a * (-0.015 + 0.025 * Math.cos((2 * Math.PI * (t - (firstLeft + 0.6 * T))) / T));
+      const bob: number =
+        input.bob === undefined
+          ? a * (-0.015 + 0.025 * Math.cos((2 * Math.PI * (t - (firstLeft + 0.6 * T))) / T))
+          : a * l * (input.bob.mean - input.bob.amplitude * Math.cos((2 * Math.PI * (t - (firstLeft + (2 * T - swing) / 2))) / T));
       const s: number = progress(t);
       const p: IAutoMovieVector3 = HumanFrame.point({ origin: path.at(s), yaw: along$(s) }, { x: sway, y: 0, z: 0 });
       return { x: p.x - c.x, y: -0.005 + bob, z: p.z - c.z };
@@ -260,9 +273,12 @@ export namespace walkSteps {
    * trailing further behind the hip than `EXTENSION` degrees forward, inside
    * the hip's 30° extension range (DEFAULT_HUMANOID_ROM), since the thigh
    * cannot carry it further back. A planted foot whose shank leans past the
-   * ankle's dorsal limit raises its heel about its ball, and a swinging foot's
-   * pitch is held inside the ankle's range relative to its shank, both `ANKLE`
-   * degrees inside the limits, so the displayed foot is the goal foot. The hip
+   * ankle's dorsal limit raises its heel about its ball, or lowers its toes
+   * about its heel in the heel rocker, and names that point as its contact; a
+   * swinging foot's pitch is held inside the ankle's range relative to its
+   * shank and its heading within `TWIST` of the pelvis, the limits less
+   * `ANKLE` and 5 degrees, and it is lifted again wherever those clamps put a
+   * toe or heel under the floor. The hip
    * joints are read from the pelvis posed by the root, the heading and the
    * pelvis joint, so its rotation and list count.
    *
@@ -279,7 +295,13 @@ export namespace walkSteps {
     yaw: number,
     hips: readonly [number, number, number],
     feet: Readonly<Record<"left" | "right", IFoot>>,
-  ): { root: IAutoMovieVector3; ankles: Record<"left" | "right", IAutoMovieVector3>; rotations: Record<"left" | "right", IAutoMovieQuaternion>; toes: Record<"left" | "right", number> } {
+  ): {
+    root: IAutoMovieVector3;
+    ankles: Record<"left" | "right", IAutoMovieVector3>;
+    rotations: Record<"left" | "right", IAutoMovieQuaternion>;
+    toes: Record<"left" | "right", number>;
+    contacts: Partial<Record<"left" | "right", IAutoMovieVector3>>;
+  } {
     const m = body.measure;
     const limit: number = Math.sqrt(m.thigh ** 2 + m.shank ** 2 + 2 * m.thigh * m.shank * Math.cos((KNEE * Math.PI) / 180));
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
@@ -314,6 +336,7 @@ export namespace walkSteps {
     const ankles = {} as Record<"left" | "right", IAutoMovieVector3>;
     const rotations: Record<"left" | "right", IAutoMovieQuaternion> = { left: feet.left.placement.rotation, right: feet.right.placement.rotation };
     const toes: Record<"left" | "right", number> = { left: feet.left.toes, right: feet.right.toes };
+    const contacts: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
     const forward: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, { x: 0, y: 0, z: 1 });
     const extension: number = (EXTENSION * Math.PI) / 180;
     for (const side of ["left", "right"] as const) {
@@ -323,20 +346,24 @@ export namespace walkSteps {
         // The heel rises about the ball once the shank leans past the ankle's
         // dorsal limit: the forefoot rocker begins where the ankle can bend no
         // further (Perry and Burnfield), so the ball never slides.
+        // A heel strike's toes come down about the heel the same way, once the
+        // shank leans past that limit: the heel rocker ends no later.
         let placement: HumanFoot.IPlacement = feet[side].placement;
         const heading: number = HumanFrame.heading(placement.rotation);
         let pitch: number = pitchOf(placement.rotation);
-        const ball: IAutoMovieVector3 = HumanFoot.point(body, side, "ball", placement);
-        if (pitch <= 1e-6 && ball.y < 0.01)
+        const about: "heel" | "mtp" = pitch > 1e-6 ? "heel" : "mtp";
+        const pivot: IAutoMovieVector3 = HumanFoot.point(body, side, about, placement);
+        if (HumanFoot.point(body, side, about === "heel" ? "heel" : "toe", placement, feet[side].toes).y < 0.01)
           for (let k: number = 0; k < 4; k++) {
             const top: number = -lean(body, h, placement.ankle, heading) + 20 - ANKLE;
             if (pitch <= top + 1e-6) break;
-            pitch = top;
-            placement = HumanFoot.pivot(body, side, "ball", ball, heading, pitch);
+            pitch = about === "heel" ? Math.max(0, top) : top;
+            placement = HumanFoot.pivot(body, side, about, pivot, heading, pitch);
           }
         ankles[side] = placement.ankle;
         rotations[side] = placement.rotation;
         toes[side] = Math.max(feet[side].toes, -pitch);
+        contacts[side] = HumanFoot.offset(body, side, about);
         continue;
       }
       // A swinging ankle within reach and no further behind the hip than the
@@ -352,9 +379,20 @@ export namespace walkSteps {
         v = { x: lateral.x - back * forward.x, y: -sagittal * Math.cos(extension), z: lateral.z - back * forward.z };
       }
       ankles[side] = { x: h.x + v.x, y: h.y + v.y, z: h.z + v.z };
-      rotations[side] = ankleRange(body, h, ankles[side], feet[side].placement.rotation);
+      // The swinging foot's heading within the hip's rotation of the pelvis.
+      let rotation: IAutoMovieQuaternion = feet[side].placement.rotation;
+      const turned: number = HumanFrame.heading(rotation);
+      let off: number = turned - yaw;
+      while (off > 180) off -= 360;
+      while (off < -180) off += 360;
+      if (Math.abs(off) > TWIST) rotation = HumanFoot.rotation(yaw + Math.sign(off) * TWIST, pitchOf(rotation));
+      rotations[side] = ankleRange(body, h, ankles[side], rotation);
+      // Clearance again after the clamps: neither toe nor heel below the floor.
+      const placed: HumanFoot.IPlacement = { ankle: ankles[side], rotation: rotations[side] };
+      const low: number = Math.min(HumanFoot.point(body, side, "toe", placed, toes[side]).y, HumanFoot.point(body, side, "heel", placed).y);
+      if (low < 0) ankles[side] = { ...ankles[side], y: ankles[side].y - low };
     }
-    return { root: { ...root, y: root.y - drop }, ankles, rotations, toes };
+    return { root: { ...root, y: root.y - drop }, ankles, rotations, toes, contacts };
   }
 
   /** A foot's pitch from its rotation, degrees, positive toes up. */
@@ -406,6 +444,9 @@ export namespace walkSteps {
 
   /** The least knee flexion of a planted or reaching leg, degrees: a walking knee never locks straight. */
   const KNEE: number = 10;
+
+  /** The largest heading, degrees, a swinging foot may turn from the pelvis: 5° inside the hip's 45° rotation (DEFAULT_HUMANOID_ROM). */
+  const TWIST: number = 40;
 }
 
 /** A foot's placement at an instant: the rocker of its stance or its swing between footprints. */
@@ -415,6 +456,7 @@ function footAt(
   steps: readonly { side: "left" | "right"; heelStrike: number; toeOff: number; flat: HumanFoot.IPlacement; heading: number }[],
   start: HumanFoot.IPlacement,
   t: number,
+  lift: number,
 ): walkSteps.IFoot {
   const own = steps.filter((s) => s.side === side);
   let flat: HumanFoot.IPlacement = start;
@@ -425,11 +467,11 @@ function footAt(
       return stance(body, side, flat, headingOf(flat, heading), strike, step.toeOff, t);
     }
     if (t < step.heelStrike) {
-      const lift: HumanFoot.IPlacement = rocked(body, side, flat, headingOf(flat, heading), -40, "ball");
+      const off: HumanFoot.IPlacement = rocked(body, side, flat, headingOf(flat, heading), -40, "mtp");
       const land: HumanFoot.IPlacement = rocked(body, side, step.flat, step.heading, 15, "heel");
       const u: number = (t - step.toeOff) / (step.heelStrike - step.toeOff);
       const toes: number = 40 * (1 - minimumJerk(Math.min(1, 2 * u)).s);
-      return { placement: swingAt(body, side, lift, land, headingOf(flat, heading), step.heading, u, toes), planted: false, toes };
+      return { placement: swingAt(body, side, off, land, headingOf(flat, heading), step.heading, u, toes, lift), planted: false, toes };
     }
     flat = step.flat;
     heading = step.heading;
@@ -444,7 +486,7 @@ function headingOf(flat: HumanFoot.IPlacement, heading: number | undefined): num
 }
 
 /** A flat footprint pitched about its heel or ball. */
-function rocked(body: IHumanBody, side: "left" | "right", flat: HumanFoot.IPlacement, heading: number, pitch: number, about: "heel" | "ball"): HumanFoot.IPlacement {
+function rocked(body: IHumanBody, side: "left" | "right", flat: HumanFoot.IPlacement, heading: number, pitch: number, about: "heel" | "mtp"): HumanFoot.IPlacement {
   return HumanFoot.pivot(body, side, about, HumanFoot.point(body, side, about, flat), heading, pitch);
 }
 
@@ -459,7 +501,7 @@ function stance(body: IHumanBody, side: "left" | "right", flat: HumanFoot.IPlace
     const rise: number = toeOff - 0.4 * (Number.isFinite(strike) ? length : 0.6);
     if (t > rise) {
       const pitch: number = -40 * minimumJerk((t - rise) / (toeOff - rise)).s;
-      return { placement: rocked(body, side, flat, heading, pitch, "ball"), planted: true, toes: -pitch };
+      return { placement: rocked(body, side, flat, heading, pitch, "mtp"), planted: true, toes: -pitch };
     }
   }
   return { placement: { ankle: flat.ankle, rotation: HumanFoot.rotation(heading, 0) }, planted: true, toes: 0 };
@@ -475,13 +517,14 @@ function swingAt(
   toHeading: number,
   u: number,
   toes: number,
+  height: number,
 ): HumanFoot.IPlacement {
   const s: number = minimumJerk(u).s;
   const pitch: number = -40 + 55 * s;
   const heading: number = fromHeading + (toHeading - fromHeading) * s;
   const ankle: IAutoMovieVector3 = {
     x: lift.ankle.x + (land.ankle.x - lift.ankle.x) * s,
-    y: lift.ankle.y + (land.ankle.y - lift.ankle.y) * s + 0.07 * body.measure.hipHeight * Math.sin(Math.PI * Math.min(1, Math.max(0, u))),
+    y: lift.ankle.y + (land.ankle.y - lift.ankle.y) * s + height * body.measure.hipHeight * Math.sin(Math.PI * Math.min(1, Math.max(0, u))),
     z: lift.ankle.z + (land.ankle.z - lift.ankle.z) * s,
   };
   const placement: HumanFoot.IPlacement = { ankle, rotation: HumanFoot.rotation(heading, pitch) };

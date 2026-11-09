@@ -2,6 +2,7 @@ import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import { everydayCases } from "./everydayCases";
 import { galleryCases } from "./galleryCases";
+import { jumpCases } from "./jumpCases";
 import { locomotionCases } from "./locomotionCases";
 import { standCases } from "./standCases";
 import { handlingCases } from "./handlingCases";
@@ -19,7 +20,12 @@ import { strikingCases } from "./strikingCases";
 export const MOTION_CAPTURE_CASES: Readonly<Record<string, () => IMotionCaptureCase[]>> = {
   gallery: (): IMotionCaptureCase[] => galleryCases().filter((c: IMotionCaptureCase): boolean => c.name === "gallery"),
   bodies: (): IMotionCaptureCase[] => galleryCases().filter((c: IMotionCaptureCase): boolean => c.name === "bodies"),
-  walk: (): IMotionCaptureCase[] => locomotionCases(),
+  walk: (): IMotionCaptureCase[] => locomotionCases("walk"),
+  run: (): IMotionCaptureCase[] => locomotionCases("run"),
+  "jump-e1": (): IMotionCaptureCase[] => (["f-small", "m-average", "m-tall"] as const).flatMap((who) => jumpCases(who)),
+  "jump-e1-f-small": (): IMotionCaptureCase[] => jumpCases("f-small"),
+  "jump-e1-m-average": (): IMotionCaptureCase[] => jumpCases("m-average"),
+  "jump-e1-m-tall": (): IMotionCaptureCase[] => jumpCases("m-tall"),
   stand: (): IMotionCaptureCase[] => standCases(),
   "everyday-approach": (): IMotionCaptureCase[] => everydayCases("approach"),
   "everyday-look": (): IMotionCaptureCase[] => everydayCases("look"),
@@ -28,9 +34,11 @@ export const MOTION_CAPTURE_CASES: Readonly<Record<string, () => IMotionCaptureC
   "everyday-seat": (): IMotionCaptureCase[] => everydayCases("seat"),
   "everyday-bend": (): IMotionCaptureCase[] => everydayCases("bend"),
   "everyday-step": (): IMotionCaptureCase[] => everydayCases("step"),
+  "everyday-brace": (): IMotionCaptureCase[] => everydayCases("brace"),
   "everyday-rest-sweep": (): IMotionCaptureCase[] => everydayCases("rest", MotionBodies.SWEEP.filter((b: string): boolean => b !== "f-short")),
   "everyday-seat-sweep": (): IMotionCaptureCase[] => everydayCases("seat", MotionBodies.SWEEP.filter((b: string): boolean => b !== "f-short")),
   "handling-handshake": (): IMotionCaptureCase[] => handlingCases("handshake"),
+  "handling-grasp": (): IMotionCaptureCase[] => handlingCases("grasp"),
   striking: (): IMotionCaptureCase[] => strikingCases(),
   "striking-jab-cover": (): IMotionCaptureCase[] => strikingCases("striking-jab-cover"),
   "striking-crosses": (): IMotionCaptureCase[] => strikingCases("striking-crosses"),

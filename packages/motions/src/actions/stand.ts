@@ -7,6 +7,7 @@ import type { HumanActionName } from "../HumanActionName";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
@@ -153,9 +154,10 @@ export namespace stand {
     // axial joint, so its toe-out comes from the hip's twist that this hint sets.
     const knee = (side: "left" | "right"): IAutoMovieVector3 =>
       HumanFrame.point({ origin: HumanFrame.point(frame, body.rest.get(`${side}LowerLeg`)!), yaw: yaw + (side === "left" ? TOE_OUT : -TOE_OUT) }, { x: 0, y: 0, z: 1 });
+    // Each foot turns about its toes' joint when the ankle cannot hold it flat (HumanFoot.heelOff).
     return {
-      leftLeg: { point: feet.left, bend: knee("left"), rotation: HumanFrame.turn(yaw + TOE_OUT), planted: true },
-      rightLeg: { point: feet.right, bend: knee("right"), rotation: HumanFrame.turn(yaw - TOE_OUT), planted: true },
+      leftLeg: { point: feet.left, bend: knee("left"), rotation: HumanFrame.turn(yaw + TOE_OUT), planted: true, contact: HumanFoot.offset(body, "left", "mtp") },
+      rightLeg: { point: feet.right, bend: knee("right"), rotation: HumanFrame.turn(yaw - TOE_OUT), planted: true, contact: HumanFoot.offset(body, "right", "mtp") },
     };
   }
 
