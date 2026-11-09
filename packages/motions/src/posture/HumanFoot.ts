@@ -16,9 +16,14 @@ import type { IHumanBody } from "../body/IHumanBody";
  * moves, which is what keeps a planted foot from sliding.
  *
  * The foot's geometry is read from the body's own sockets: the heel and ball
- * points relative to the ankle joint at rest. `pitch` is in degrees about
- * the foot's lateral axis, positive lifting the toes; `heading` is the foot's
- * yaw about +Y in degrees (0 faces +Z).
+ * points relative to the ankle joint at rest. A socket riding the toes bone
+ * (the toe tip, when the profile jointed the toes) bends at the ball by the
+ * toes' flexion: through the forefoot rocker the toes extend at the
+ * metatarsophalangeal joints and stay flat on the floor while the heel rises
+ * (Perry and Burnfield), so a walk extends them by the rocker's angle.
+ * `pitch` is in degrees about the foot's lateral axis, positive lifting the
+ * toes; `toes` is the toes' flexion from the foot in degrees, positive
+ * lifting them; `heading` is the foot's yaw about +Y in degrees (0 faces +Z).
  */
 export namespace HumanFoot {
   /** A foot's world placement. */
@@ -47,16 +52,21 @@ export namespace HumanFoot {
   }
 
   /**
-   * A sole point's offset from the ankle at rest, in the foot's rest frame.
+   * A sole point's offset from the ankle in the foot's rest frame, the toes
+   * flexed by an angle.
    *
    * @param body The body.
    * @param side The foot.
    * @param point Which sole point.
+   * @param toes The toes' flexion, degrees, positive lifting them.
    * @returns The offset, metres.
    */
-  export function offset(body: IHumanBody, side: "left" | "right", point: "heel" | "ball" | "toe" | "sole"): IAutoMovieVector3 {
+  export function offset(body: IHumanBody, side: "left" | "right", point: "heel" | "ball" | "toe" | "sole", toes: number = 0): IAutoMovieVector3 {
     const socket = body.surfaces.sockets[`${point}${side === "left" ? "Left" : "Right"}`];
-    return socket.point;
+    const foot: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
+    if (socket.bone === `${side}Foot`) return socket.point;
+    const joint: IAutoMovieVector3 = Vector3.subtract(body.rest.get(socket.bone)!, foot);
+    return Vector3.add(joint, Quaternion.rotateVector(Quaternion.fromAxisAngle({ x: -1, y: 0, z: 0 }, toes), socket.point));
   }
 
   /**
@@ -90,9 +100,10 @@ export namespace HumanFoot {
    * @param side The foot.
    * @param point Which sole point.
    * @param foot The foot's placement.
+   * @param toes The toes' flexion, degrees, positive lifting them.
    * @returns The point, world metres.
    */
-  export function point(body: IHumanBody, side: "left" | "right", point: "heel" | "ball" | "toe" | "sole", foot: IPlacement): IAutoMovieVector3 {
-    return Vector3.add(foot.ankle, Quaternion.rotateVector(foot.rotation, offset(body, side, point)));
+  export function point(body: IHumanBody, side: "left" | "right", point: "heel" | "ball" | "toe" | "sole", foot: IPlacement, toes: number = 0): IAutoMovieVector3 {
+    return Vector3.add(foot.ankle, Quaternion.rotateVector(foot.rotation, offset(body, side, point, toes)));
   }
 }

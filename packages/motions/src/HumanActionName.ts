@@ -14,6 +14,7 @@
  * - `rise`: standing up from a seat.
  * - `shift`: edging sideways along a seat while seated.
  * - `bend`: bending down to bring a hand to a low point, feet planted.
+ * - `stepOver`: stepping over a low obstacle, lead foot then trail foot.
  * - `punch`: a straight, hook or uppercut brought onto a target, or a feint of one.
  * - `handshake`: shaking hands with a partner at a shared meeting point.
  * - `kick`: a round kick's shin or a push kick's foot brought onto a target, or a feint of one.
@@ -23,5 +24,6 @@
  * - `flinch`: the protective startle away from a threat or a blow.
  * - `stagger`: one unplanned capture step after a push.
  * - `knockdown`: the legs giving way and the body going down to lie supine.
+ * - `knee`: a knee driven onto a target, in the clinch or free.
  */
-export type HumanActionName = "stand" | "walk" | "approach" | "look" | "gesture" | "rest" | "punch" | "kick" | "guard" | "step" | "defend" | "flinch" | "stagger" | "knockdown" | "sit" | "rise" | "shift" | "bend" | "handshake";
+export type HumanActionName = "stand" | "walk" | "approach" | "look" | "gesture" | "rest" | "punch" | "kick" | "guard" | "step" | "defend" | "flinch" | "stagger" | "knockdown" | "knee" | "sit" | "rise" | "shift" | "bend" | "handshake" | "pickUp" | "putDown" | "stepOver";

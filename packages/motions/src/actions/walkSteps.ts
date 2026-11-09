@@ -1,10 +1,11 @@
-import { minimumJerk } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, type IAutoMovieResolvedBone, Quaternion, Vector3, minimumJerk, resolvePose } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
 
 /**
@@ -24,12 +25,22 @@ import { stand } from "./stand";
  * Brenière, Do and Bouisset 1987). In stance a foot rolls on its heel from
  * 15° toes-up to flat over 12 % of stance and, from 60 % of stance, on its
  * ball to 40° toes-down at toe-off (provisional angles inside the ranges of
- * Perry and Burnfield's rockers). In swing the ankle travels between the
- * toe-off and heel-strike placements on a minimum-jerk path lifted 0.07 hip
- * heights at mid-swing and raised further wherever the toe or heel would come
- * within 12 mm of the floor.
+ * Perry and Burnfield's rockers), the toes extending at the ball by the same
+ * angle so they stay flat on the floor, and relaxing to neutral over the first
+ * half of the swing. In swing the ankle travels between the toe-off and
+ * heel-strike placements on a minimum-jerk path lifted 0.07 hip heights at
+ * mid-swing and raised further wherever the toe or heel would come within
+ * 12 mm of the floor.
+ *
+ * The plan's root is the unconstrained pelvis path; `reach` then makes every
+ * foot goal reachable on the actual pelvis, the footskate cleanup of Kovar,
+ * Schreiner and Gleicher (2002): the contacts are enforced by IK, and the
+ * root moves so the IK can meet them.
  */
 export namespace walkSteps {
+  /** The largest angle, degrees, a swinging ankle may trail behind its hip, 2° inside the hip's 30° extension. */
+  export const EXTENSION: number = 28;
+
   /** Planner input. */
   export interface IInput {
     /** The body. */
@@ -58,6 +69,9 @@ export namespace walkSteps {
 
     /** Whether it bears on the floor. */
     planted: boolean;
+
+    /** The toes' flexion from the foot, degrees, positive lifting them. */
+    toes: number;
   }
 
   /** The plan. */
@@ -71,7 +85,7 @@ export namespace walkSteps {
     /** Stance spans per foot, seconds. */
     stances: { side: "left" | "right"; from: number; to: number }[];
 
-    /** The rig origin, world metres. */
+    /** The rig origin before `reach`, world metres. */
     root(seconds: number): IAutoMovieVector3;
 
     /** The heading, degrees. */
@@ -202,8 +216,7 @@ export namespace walkSteps {
     const root = (t: number): IAutoMovieVector3 => {
       const fade: number = 1 - minimumJerk(t / 0.3).s;
       const p: IAutoMovieVector3 = planned(t);
-      const r: IAutoMovieVector3 = { x: p.x + offset.x * fade, y: p.y + offset.y * fade, z: p.z + offset.z * fade };
-      return reach(body, r, yawAt(t), [foot("left", t), foot("right", t)]);
+      return { x: p.x + offset.x * fade, y: p.y + offset.y * fade, z: p.z + offset.z * fade };
     };
     return {
       duration,
@@ -216,6 +229,160 @@ export namespace walkSteps {
       foot,
     };
   }
+
+  /**
+   * Make every foot goal reachable on the actual pelvis: lower the root until
+   * each planted ankle is reached with the knee at least `KNEE` degrees bent
+   * (`resolveHumanPosture.lower`), then pull an unreachable swinging ankle toward its hip and turn one
+   * trailing further behind the hip than `EXTENSION` degrees forward, inside
+   * the hip's 30° extension range (DEFAULT_HUMANOID_ROM), since the thigh
+   * cannot carry it further back. A planted foot whose shank leans past the
+   * ankle's dorsal limit raises its heel about its ball, and a swinging foot's
+   * pitch is held inside the ankle's range relative to its shank, both `ANKLE`
+   * degrees inside the limits, so the displayed foot is the goal foot. The hip
+   * joints are read from the pelvis posed by the root, the heading and the
+   * pelvis joint, so its rotation and list count.
+   *
+   * @param body The body.
+   * @param root The unconstrained root, world metres.
+   * @param yaw The heading, degrees.
+   * @param hips The pelvis joint's clinical angles, degrees.
+   * @param feet Each foot.
+   * @returns The lowered root and each foot's reachable ankle.
+   */
+  export function reach(
+    body: IHumanBody,
+    root: IAutoMovieVector3,
+    yaw: number,
+    hips: readonly [number, number, number],
+    feet: Readonly<Record<"left" | "right", IFoot>>,
+  ): { root: IAutoMovieVector3; ankles: Record<"left" | "right", IAutoMovieVector3>; rotations: Record<"left" | "right", IAutoMovieQuaternion>; toes: Record<"left" | "right", number> } {
+    const m = body.measure;
+    const limit: number = Math.sqrt(m.thigh ** 2 + m.shank ** 2 + 2 * m.thigh * m.shank * Math.cos((KNEE * Math.PI) / 180));
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
+      resolvePose(
+        {
+          skeleton: body.skeleton.id,
+          root: { translation: root, rotation: resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }), scale: { x: 1, y: 1, z: 1 } },
+          joints: [{ bone: "hips", flexion: hips[0], abduction: hips[1], twist: hips[2] }],
+        },
+        body.skeleton,
+        HUMANOID_JOINT_AXES,
+        HUMANOID_REST_FRAME,
+      ).map((r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r]),
+    );
+    const hip = (side: "left" | "right"): IAutoMovieVector3 => bones.get(`${side}UpperLeg`)!.worldPosition;
+    const lowered: IAutoMovieVector3 = resolveHumanPosture.lower(
+      body,
+      {
+        root,
+        yaw,
+        pitch: 0,
+        roll: 0,
+        joints: { hips },
+        limbs: {
+          leftLeg: { point: feet.left.placement.ankle, bend: feet.left.placement.ankle, planted: feet.left.planted },
+          rightLeg: { point: feet.right.placement.ankle, bend: feet.right.placement.ankle, planted: feet.right.planted },
+        },
+      },
+      KNEE,
+    ).root;
+    const drop: number = root.y - lowered.y;
+    const ankles = {} as Record<"left" | "right", IAutoMovieVector3>;
+    const rotations: Record<"left" | "right", IAutoMovieQuaternion> = { left: feet.left.placement.rotation, right: feet.right.placement.rotation };
+    const toes: Record<"left" | "right", number> = { left: feet.left.toes, right: feet.right.toes };
+    const forward: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, { x: 0, y: 0, z: 1 });
+    const extension: number = (EXTENSION * Math.PI) / 180;
+    for (const side of ["left", "right"] as const) {
+      const ankle: IAutoMovieVector3 = feet[side].placement.ankle;
+      const h: IAutoMovieVector3 = { ...hip(side), y: hip(side).y - drop };
+      if (feet[side].planted) {
+        // The heel rises about the ball once the shank leans past the ankle's
+        // dorsal limit: the forefoot rocker begins where the ankle can bend no
+        // further (Perry and Burnfield), so the ball never slides.
+        let placement: HumanFoot.IPlacement = feet[side].placement;
+        const heading: number = HumanFrame.heading(placement.rotation);
+        let pitch: number = pitchOf(placement.rotation);
+        const ball: IAutoMovieVector3 = HumanFoot.point(body, side, "ball", placement);
+        if (pitch <= 1e-6 && ball.y < 0.01)
+          for (let k: number = 0; k < 4; k++) {
+            const top: number = -lean(body, h, placement.ankle, heading) + 20 - ANKLE;
+            if (pitch <= top + 1e-6) break;
+            pitch = top;
+            placement = HumanFoot.pivot(body, side, "ball", ball, heading, pitch);
+          }
+        ankles[side] = placement.ankle;
+        rotations[side] = placement.rotation;
+        toes[side] = Math.max(feet[side].toes, -pitch);
+        continue;
+      }
+      // A swinging ankle within reach and no further behind the hip than the
+      // hip's extension allows: the thigh cannot carry it further back.
+      let v: IAutoMovieVector3 = { x: ankle.x - h.x, y: ankle.y - h.y, z: ankle.z - h.z };
+      const d: number = Math.hypot(v.x, v.y, v.z);
+      if (d > limit) v = { x: (v.x * limit) / d, y: (v.y * limit) / d, z: (v.z * limit) / d };
+      const ahead: number = v.x * forward.x + v.z * forward.z;
+      const sagittal: number = Math.hypot(ahead, v.y);
+      if (v.y < 0 && Math.atan2(-ahead, -v.y) > extension) {
+        const lateral: IAutoMovieVector3 = { x: v.x - ahead * forward.x, y: 0, z: v.z - ahead * forward.z };
+        const back: number = sagittal * Math.sin(extension);
+        v = { x: lateral.x - back * forward.x, y: -sagittal * Math.cos(extension), z: lateral.z - back * forward.z };
+      }
+      ankles[side] = { x: h.x + v.x, y: h.y + v.y, z: h.z + v.z };
+      rotations[side] = ankleRange(body, h, ankles[side], feet[side].placement.rotation);
+    }
+    return { root: { ...root, y: root.y - drop }, ankles, rotations, toes };
+  }
+
+  /** A foot's pitch from its rotation, degrees, positive toes up. */
+  function pitchOf(rotation: IAutoMovieQuaternion): number {
+    const toes: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
+    return (Math.asin(Math.max(-1, Math.min(1, toes.y))) * 180) / Math.PI;
+  }
+
+  /**
+   * The shank's forward lean from vertical along a heading, degrees, with the
+   * knee placed by the two-bone geometry in the plane of the hip, the ankle
+   * and the heading.
+   */
+  function lean(body: IHumanBody, hip: IAutoMovieVector3, ankle: IAutoMovieVector3, heading: number): number {
+    const forward: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: heading }, { x: 0, y: 0, z: 1 });
+    const v: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
+    const d: number = Vector3.length(v);
+    const a: number = body.measure.thigh;
+    const b: number = body.measure.shank;
+    if (d < 1e-6) return 0;
+    const axis: IAutoMovieVector3 = Vector3.scale(v, 1 / d);
+    const along: number = (a * a - b * b + d * d) / (2 * d);
+    const across: number = Math.sqrt(Math.max(0, a * a - along * along));
+    let perpendicular: IAutoMovieVector3 = Vector3.subtract(forward, Vector3.scale(axis, Vector3.dot(forward, axis)));
+    if (Vector3.length(perpendicular) < 1e-9) return 0;
+    perpendicular = Vector3.normalize(perpendicular);
+    const knee: IAutoMovieVector3 = Vector3.add(hip, Vector3.add(Vector3.scale(axis, along), Vector3.scale(perpendicular, across)));
+    const shank: IAutoMovieVector3 = Vector3.subtract(knee, ankle);
+    return (Math.atan2(Vector3.dot(shank, forward), shank.y) * 180) / Math.PI;
+  }
+
+  /**
+   * A swinging foot's rotation kept inside the ankle's range: the knee is
+   * placed by the two-bone geometry in the plane of the hip, the ankle and
+   * the foot's heading, the shank's inclination read from it, and the foot's
+   * pitch held within `ANKLE` of the ankle's 50° plantar and 20° dorsal limits
+   * (DEFAULT_HUMANOID_ROM) relative to the shank.
+   */
+  function ankleRange(body: IHumanBody, hip: IAutoMovieVector3, ankle: IAutoMovieVector3, rotation: IAutoMovieQuaternion): IAutoMovieQuaternion {
+    const heading: number = HumanFrame.heading(rotation);
+    const shank: number = lean(body, hip, ankle, heading);
+    const pitch: number = pitchOf(rotation);
+    const clamped: number = Math.min(-shank + 20 - ANKLE, Math.max(-shank - 50 + ANKLE, pitch));
+    return clamped === pitch ? rotation : HumanFoot.rotation(heading, clamped);
+  }
+
+  /** Degrees a swinging foot keeps inside the ankle's range. */
+  const ANKLE: number = 2;
+
+  /** The least knee flexion of a planted or reaching leg, degrees: a walking knee never locks straight. */
+  const KNEE: number = 10;
 }
 
 /** A foot's placement at an instant: the rocker of its stance or its swing between footprints. */
@@ -237,7 +404,9 @@ function footAt(
     if (t < step.heelStrike) {
       const lift: HumanFoot.IPlacement = rocked(body, side, flat, headingOf(flat, heading), -40, "ball");
       const land: HumanFoot.IPlacement = rocked(body, side, step.flat, step.heading, 15, "heel");
-      return { placement: swingAt(body, side, lift, land, headingOf(flat, heading), step.heading, (t - step.toeOff) / (step.heelStrike - step.toeOff)), planted: false };
+      const u: number = (t - step.toeOff) / (step.heelStrike - step.toeOff);
+      const toes: number = 40 * (1 - minimumJerk(Math.min(1, 2 * u)).s);
+      return { placement: swingAt(body, side, lift, land, headingOf(flat, heading), step.heading, u, toes), planted: false, toes };
     }
     flat = step.flat;
     heading = step.heading;
@@ -261,16 +430,16 @@ function stance(body: IHumanBody, side: "left" | "right", flat: HumanFoot.IPlace
   const length: number = Number.isFinite(strike) && Number.isFinite(toeOff) ? toeOff - strike : 1;
   if (Number.isFinite(strike) && t < strike + 0.12 * length) {
     const pitch: number = 15 * (1 - minimumJerk((t - strike) / (0.12 * length)).s);
-    return { placement: rocked(body, side, flat, heading, pitch, "heel"), planted: true };
+    return { placement: rocked(body, side, flat, heading, pitch, "heel"), planted: true, toes: 0 };
   }
   if (Number.isFinite(toeOff)) {
     const rise: number = toeOff - 0.4 * (Number.isFinite(strike) ? length : 0.6);
     if (t > rise) {
       const pitch: number = -40 * minimumJerk((t - rise) / (toeOff - rise)).s;
-      return { placement: rocked(body, side, flat, heading, pitch, "ball"), planted: true };
+      return { placement: rocked(body, side, flat, heading, pitch, "ball"), planted: true, toes: -pitch };
     }
   }
-  return { placement: { ankle: flat.ankle, rotation: HumanFoot.rotation(heading, 0) }, planted: true };
+  return { placement: { ankle: flat.ankle, rotation: HumanFoot.rotation(heading, 0) }, planted: true, toes: 0 };
 }
 
 /** A swinging foot between its toe-off and heel-strike placements, clear of the floor. */
@@ -282,6 +451,7 @@ function swingAt(
   fromHeading: number,
   toHeading: number,
   u: number,
+  toes: number,
 ): HumanFoot.IPlacement {
   const s: number = minimumJerk(u).s;
   const pitch: number = -40 + 55 * s;
@@ -292,25 +462,8 @@ function swingAt(
     z: lift.ankle.z + (land.ankle.z - lift.ankle.z) * s,
   };
   const placement: HumanFoot.IPlacement = { ankle, rotation: HumanFoot.rotation(heading, pitch) };
-  const low: number = Math.min(HumanFoot.point(body, side, "toe", placement).y, HumanFoot.point(body, side, "heel", placement).y);
+  const low: number = Math.min(HumanFoot.point(body, side, "toe", placement, toes).y, HumanFoot.point(body, side, "heel", placement).y);
   const clearance: number = 0.012 * Math.sin(Math.PI * Math.min(1, Math.max(0, u)));
   if (low < clearance && u > 0 && u < 1) ankle.y += clearance - low;
   return placement;
-}
-
-/** Lower the root where a planted leg could not reach its foot with the knee 0.5 % short of straight. */
-function reach(body: IHumanBody, root: IAutoMovieVector3, yaw: number, feet: walkSteps.IFoot[]): IAutoMovieVector3 {
-  const m = body.measure;
-  const limit: number = 0.995 * (m.thigh + m.shank);
-  let y: number = root.y;
-  (["left", "right"] as const).forEach((side, i): void => {
-    const foot: walkSteps.IFoot = feet[i]!;
-    if (!foot.planted) return;
-    const hip: IAutoMovieVector3 = HumanFrame.point({ origin: { ...root, y }, yaw }, body.rest.get(`${side}UpperLeg`)!);
-    const dh: number = Math.hypot(hip.x - foot.placement.ankle.x, hip.z - foot.placement.ankle.z);
-    const dv: number = hip.y - foot.placement.ankle.y;
-    if (Math.hypot(dh, dv) <= limit || dh >= limit) return;
-    y -= dv - Math.sqrt(limit * limit - dh * dh);
-  });
-  return { ...root, y };
 }

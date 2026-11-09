@@ -10,6 +10,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { stand } from "./stand";
+import { standUpright } from "./standUpright";
 import { walkSteps } from "./walkSteps";
 
 /**
@@ -126,15 +127,22 @@ export namespace walk {
       contacts,
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const root: IAutoMovieVector3 = steps.root(t);
         const yaw: number = steps.yaw(t);
         const phase: number = steps.phase(t);
         const amount: number = steps.amount(t);
         const swing: number = Math.sin(2 * Math.PI * phase) * amount;
+        const hips: readonly [number, number, number] = [0, 4 * Math.cos(2 * Math.PI * phase) * amount, 4 * swing];
+        const feet: Record<"left" | "right", walkSteps.IFoot> = { left: steps.foot("left", t), right: steps.foot("right", t) };
+        const reached = walkSteps.reach(body, steps.root(t), yaw, hips, feet);
+        const root: IAutoMovieVector3 = reached.root;
+        const upright: standUpright.IAlignment = standUpright.of(body);
         const joints: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = {
           ...stand.RELAXED,
-          hips: [0, 4 * Math.cos(2 * Math.PI * phase) * amount, 4 * swing],
-          chest: [0, 0, -4 * swing],
+          ...upright.joints,
+          hips,
+          leftToes: [reached.toes.left, 0, 0],
+          rightToes: [reached.toes.right, 0, 0],
+          chest: [upright.joints.chest?.[0] ?? 0, 0, -4 * swing],
           leftUpperArm: [-15 * swing, 5, 0],
           rightUpperArm: [15 * swing, 5, 0],
           leftLowerArm: [22 - 8 * swing, 0, 0],
@@ -142,12 +150,17 @@ export namespace walk {
         };
         const limbs: IHumanPosture["limbs"] = {};
         for (const side of ["left", "right"] as const) {
-          const foot: walkSteps.IFoot = steps.foot(side, t);
-          const knee: IAutoMovieVector3 = HumanFrame.point({ origin: root, yaw }, { ...body.rest.get(`${side}LowerLeg`)!, z: body.rest.get(`${side}LowerLeg`)!.z + 1 });
+          const foot: walkSteps.IFoot = feet[side];
+          // The knee points over the foot's own heading: the foot has no axial
+          // joint, so its toe-out comes from the hip's twist this hint sets.
+          const knee: IAutoMovieVector3 = HumanFrame.point(
+            { origin: HumanFrame.point({ origin: root, yaw }, body.rest.get(`${side}LowerLeg`)!), yaw: HumanFrame.heading(foot.placement.rotation) },
+            { x: 0, y: 0, z: 1 },
+          );
           limbs[side === "left" ? "leftLeg" : "rightLeg"] = {
-            point: foot.placement.ankle,
+            point: reached.ankles[side],
             bend: knee,
-            rotation: foot.placement.rotation,
+            rotation: reached.rotations[side],
             ...(foot.planted ? { planted: true } : {}),
           };
         }

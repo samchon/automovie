@@ -28,8 +28,11 @@ import type {
  * depths are the drawing's elliptical sections scaled by `sqrt(pi / 4)` (a box
  * of the ellipse's area); the neck is a capsule to the head joint and the head
  * a capsule from the head joint to the crown; the palm is a box from the wrist
- * to the finger roots' balls, as broad as the finger roots, and the foot the
- * box of its joints' spheres, standing on the floor.
+ * to the finger roots' balls, as broad as the finger roots; the rear foot is
+ * the box of the ankle, subtalar and midfoot joints' spheres and the toe
+ * roots' (the ball), standing on the floor, and the toes the box of the toe
+ * joints' spheres to their tips, riding the toes bone so they bend at the
+ * ball as the drawn toes do.
  *
  * Masses are Dempster's shares of body mass as tabulated by Winter
  * (Biomechanics and Motor Control of Human Movement, 4th ed., table 4.1):
@@ -37,7 +40,8 @@ import type {
  * 0.0145, thorax 0.216, abdomen 0.139, pelvis 0.142 and head with neck 0.081,
  * the head taking de Leva's (1996) 0.0694 and the neck the rest; the hand's
  * share is split over the palm and the phalanges by collider volume, a
- * uniform density within the hand. Each
+ * uniform density within the hand, and the foot's over the rear foot and
+ * the toes by box volume. Each
  * segment's centre of mass is its collider's centre and its inertia the
  * collider's as a uniform solid, the way physics engines derive inertia from
  * shapes. Joints sit at each child joint with identity frames; every clinical
@@ -76,11 +80,11 @@ export namespace AutoMovieHumanCanonicalProfile {
     const k: number = Math.sqrt(Math.PI / 4);
     const identity: IAutoMovieQuaternion = Quaternion.identity();
     const segments: P.ISegment[] = [];
-    const add = (bone: AutoMovieHumanoidBone, share: number, shape: P.IShape, inertia: IAutoMovieVector3): void => {
+    const add = (bone: AutoMovieHumanoidBone, share: number, shape: P.IShape, inertia: IAutoMovieVector3, origin: IAutoMovieVector3 = j(bone).position): void => {
       const m: number = share * mass;
       segments.push({
         bone,
-        neutral: { position: j(bone).position, rotation: identity },
+        neutral: { position: origin, rotation: identity },
         mass: m,
         centerOfMass: shape.transform.position,
         inertia: Vector3.scale(inertia, m),
@@ -88,14 +92,15 @@ export namespace AutoMovieHumanCanonicalProfile {
         shapes: [shape],
       });
     };
-    const box = (bone: AutoMovieHumanoidBone, share: number, min: IAutoMovieVector3, max: IAutoMovieVector3): void => {
+    const box = (bone: AutoMovieHumanoidBone, share: number, min: IAutoMovieVector3, max: IAutoMovieVector3, origin: IAutoMovieVector3 = j(bone).position): void => {
       const half: IAutoMovieVector3 = Vector3.scale(Vector3.subtract(max, min), 0.5);
-      const centre: IAutoMovieVector3 = Vector3.subtract(Vector3.scale(Vector3.add(min, max), 0.5), j(bone).position);
+      const centre: IAutoMovieVector3 = Vector3.subtract(Vector3.scale(Vector3.add(min, max), 0.5), origin);
       add(
         bone,
         share,
         { id: "body", material: "skin", transform: { position: centre, rotation: identity }, kind: "box", halfExtents: half },
         { x: (half.y ** 2 + half.z ** 2) / 3, y: (half.x ** 2 + half.z ** 2) / 3, z: (half.x ** 2 + half.y ** 2) / 3 },
+        origin,
       );
     };
     const capsule = (bone: AutoMovieHumanoidBone, share: number, from: IAutoMovieVector3, to: IAutoMovieVector3, radius: number): void => {
@@ -168,19 +173,29 @@ export namespace AutoMovieHumanCanonicalProfile {
       digits.forEach((d, i: number): void => capsule(d.bone, (0.006 * volumes[i]!) / handVolume, d.from, d.to, d.radius));
       capsule(b("UpperLeg"), 0.1, at(b("UpperLeg")), at(b("LowerLeg")), j(b("UpperLeg")).radius);
       capsule(b("LowerLeg"), 0.0465, at(b("LowerLeg")), at(b("Foot")), j(b("LowerLeg")).radius);
-      const feet: IJoint[] = [...joints.entries()]
-        .filter(([name]): boolean => name.startsWith(side) && /(Foot|Subtalar|Midfoot|Hallux|Toe\d)/.test(name))
-        .map(([, joint]): IJoint => joint);
-      const min: IAutoMovieVector3 = { x: Infinity, y: 0, z: Infinity };
-      const max: IAutoMovieVector3 = { x: -Infinity, y: at(b("Foot")).y, z: -Infinity };
-      for (const joint of feet)
-        for (const p of [joint.position, ...(joint.tip === null ? [] : [joint.tip])]) {
-          min.x = Math.min(min.x, p.x - joint.radius);
-          min.z = Math.min(min.z, p.z - joint.radius);
-          max.x = Math.max(max.x, p.x + joint.radius);
-          max.z = Math.max(max.z, p.z + joint.radius);
-        }
-      box(b("Foot"), 0.0145, min, max);
+      // The rear foot to the balls of the toes' roots, and the toes from their roots to their tips.
+      const named = (pattern: RegExp): IJoint[] =>
+        [...joints.entries()].filter(([name]): boolean => name.startsWith(side) && pattern.test(name)).map(([, joint]): IJoint => joint);
+      const roots: IJoint[] = named(/(HalluxProximal|Toe\dProximal)$/);
+      const extent = (parts: IJoint[], floor: number, top: number, tips: boolean): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
+        const min: IAutoMovieVector3 = { x: Infinity, y: floor, z: Infinity };
+        const max: IAutoMovieVector3 = { x: -Infinity, y: top, z: -Infinity };
+        for (const joint of parts)
+          for (const p of [joint.position, ...(tips && joint.tip !== null ? [joint.tip] : [])]) {
+            min.x = Math.min(min.x, p.x - joint.radius);
+            min.z = Math.min(min.z, p.z - joint.radius);
+            max.x = Math.max(max.x, p.x + joint.radius);
+            max.z = Math.max(max.z, p.z + joint.radius);
+          }
+        return { min, max };
+      };
+      const toes: IJoint[] = named(/(Hallux|Toe\d)/);
+      const rear = extent([...named(/(Foot|Subtalar|Midfoot)$/), ...roots], 0, at(b("Foot")).y, false);
+      const front = extent(toes, Math.min(...toes.map((t: IJoint): number => Math.min(t.position.y, t.tip?.y ?? Infinity) - t.radius)), Math.max(...toes.map((t: IJoint): number => t.position.y + t.radius)), true);
+      const volume = (e: { min: IAutoMovieVector3; max: IAutoMovieVector3 }): number => (e.max.x - e.min.x) * (e.max.y - e.min.y) * (e.max.z - e.min.z);
+      const share: number = volume(front) / (volume(front) + volume(rear));
+      box(b("Foot"), 0.0145 * (1 - share), rear.min, rear.max);
+      box(b("Toes"), 0.0145 * share, front.min, front.max, at(b("HalluxProximal")));
     }
 
     const parentOf: Partial<Record<AutoMovieHumanoidBone, AutoMovieHumanoidBone>> = {
@@ -200,6 +215,8 @@ export namespace AutoMovieHumanCanonicalProfile {
       rightLowerLeg: "rightUpperLeg",
       leftFoot: "leftLowerLeg",
       rightFoot: "rightLowerLeg",
+      leftToes: "leftFoot",
+      rightToes: "rightFoot",
     };
     const hands: AutoMovieHumanoidBone[][] = [];
     for (const side of ["left", "right"] as const) {
@@ -216,13 +233,14 @@ export namespace AutoMovieHumanCanonicalProfile {
       (Object.keys(parentOf) as AutoMovieHumanoidBone[]).filter((c: AutoMovieHumanoidBone): boolean => parentOf[c] === bone);
     const downstream = (bone: AutoMovieHumanoidBone): number =>
       segments.find((s: P.ISegment): boolean => s.bone === bone)!.mass + children(bone).reduce((sum: number, c: AutoMovieHumanoidBone): number => sum + downstream(c), 0);
+    const origin = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 => segments.find((s: P.ISegment): boolean => s.bone === bone)!.neutral.position;
     const links: P.IJoint[] = (Object.keys(parentOf) as AutoMovieHumanoidBone[]).map((child: AutoMovieHumanoidBone): P.IJoint => {
       const parent: AutoMovieHumanoidBone = parentOf[child]!;
       return {
         id: child,
         parent,
         child,
-        parentFrame: { position: Vector3.subtract(at(child), at(parent)), rotation: identity },
+        parentFrame: { position: Vector3.subtract(origin(child), origin(parent)), rotation: identity },
         childFrame: { position: { x: 0, y: 0, z: 0 }, rotation: identity },
         axes: axesOf(child, 50 * downstream(child)),
       };

@@ -93,6 +93,7 @@ export class HumanPerformance {
         initial,
         cache: new Map(),
         resolving: true,
+        holds: [],
         layers: input.layers?.[performer.subject] ?? [],
         layer: {
           subject: performer.subject,
@@ -182,8 +183,10 @@ export class HumanPerformance {
    * prop is a child of the hand while held: the rigid coupling of the
    * engine's `IAutoMovieAttachment`, a bone plus an offset, with the offset
    * captured at the grip's start instead of authored. When grips overlap (a
-   * handover), the one that closed last carries the prop. Released props stay
-   * where they were released; falling is the physics layer's.
+   * handover), the one that closed last carries the prop. A hold an action
+   * leaves (`IHumanActionPlan.holds`) is a grip lasting until a later action
+   * takes that hand over. Released props stay where the last grip to end
+   * released them; falling is the physics layer's.
    *
    * @param subject The prop.
    * @param seconds Film seconds.
@@ -193,8 +196,15 @@ export class HumanPerformance {
     const prop: IHumanProp | undefined = this.props.get(subject);
     if (prop === undefined) throw new Error(`No prop ${subject}; props are ${[...this.props.keys()].join(", ") || "none"}`);
     const grips = this.grips(subject);
-    let window: (typeof grips)[number] | undefined;
-    for (const g of grips) if (g.from <= seconds) window = g;
+    // The latest grip still holding carries it; with none holding, the one released last left it.
+    let active: (typeof grips)[number] | undefined;
+    let released: (typeof grips)[number] | undefined;
+    for (const g of grips) {
+      if (g.from > seconds) continue;
+      if (seconds <= g.to) active = g;
+      else if (released === undefined || g.to >= released.to) released = g;
+    }
+    const window: (typeof grips)[number] | undefined = active ?? released;
     if (window === undefined) return prop.frame;
     const at: number = Math.min(seconds, window.to);
     window.offset ??= ((): IHumanProp.IFrame => {
@@ -359,7 +369,28 @@ export class HumanPerformance {
           ? undefined
           : { kind: row?.kind ?? "inertialize", blend: row?.blend ?? 0.25, source: previous, cut: start },
     };
+    // A held hand: a grip window on its prop takes it over; any other use of it is refused.
+    for (const held of person.holds) {
+      if (held.until !== Infinity) continue;
+      const take = plan.contacts.find(
+        (c) => c.part === `${held.side}Hand` && c.kind === "grip" && c.support.kind === "prop" && c.support.subject === held.prop,
+      );
+      if (take !== undefined) held.until = Math.max(held.from, context.start + take.from * plan.duration);
+      else if (HumanSegment.drives(plan, held.side))
+        throw new Error(
+          `${intent.subject}: ${name} needs the ${held.side} hand, which holds ${held.prop} since ${held.source.name} (${held.source.id}); put it down or hand it over first`,
+        );
+    }
     person.segments.push(segment);
+    for (const hold of plan.holds ?? [])
+      person.holds.push({
+        side: hold.side,
+        prop: hold.prop,
+        fingers: hold.fingers ?? {},
+        source: segment,
+        from: context.start + hold.from * plan.duration,
+        until: Infinity,
+      });
     if (intent.anchor !== undefined) this.anchors.set(intent.anchor, Object.assign(segment, { subject: intent.subject }));
     return {
       duration: active,
@@ -405,7 +436,9 @@ export class HumanPerformance {
     const known = this.gripCache.get(subject);
     if (known !== undefined) return known;
     const out: { subject: string; side: "left" | "right"; from: number; to: number; offset?: IHumanProp.IFrame }[] = [];
-    for (const person of this.people.values())
+    for (const person of this.people.values()) {
+      for (const held of person.holds)
+        if (held.prop === subject) out.push({ subject: person.performer.subject, side: held.side, from: held.from, to: held.until });
       for (const segment of person.segments)
         for (const c of segment.plan.contacts)
           if (c.kind === "grip" && c.support.kind === "prop" && c.support.subject === subject && (c.part === "leftHand" || c.part === "rightHand")) {
@@ -413,6 +446,7 @@ export class HumanPerformance {
             const to: number = Math.min(segment.end, segment.start + c.to * segment.plan.duration);
             if (to >= from) out.push({ subject: person.performer.subject, side: c.part === "leftHand" ? "left" : "right", from, to });
           }
+    }
     out.sort((a, b): number => a.from - b.from);
     if (!this.resolving) this.gripCache.set(subject, out);
     return out;

@@ -3,12 +3,14 @@ import {
   HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
   type IAutoMovieSchedule,
+  Quaternion,
+  Vector3,
   clampPose,
   inertializePose,
   resolvePose,
   samplePoseVelocity,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -34,7 +36,11 @@ import type { IHumanPerformer } from "./IHumanPerformer";
  * every planted or gripping limb re-solved onto its posture goal, so a contact
  * is never moved by the offset (Holden, Dead Blending); and the range-of-motion
  * clamp. A redirect transition adds no offset: its law continues the source's
- * state by construction. Before a person's first action the standing posture
+ * state by construction. A prop an earlier action left held is carried by an
+ * action that does not drive that hand: the hand rides the chest with the
+ * offset it had when the holding action ended, the trunk-relative goal of
+ * carrying an object, its fingers keep their grip, and it is re-solved like a
+ * planted limb. Before a person's first action the standing posture
  * at their starting place is shown.
  */
 export namespace HumanSegment {
@@ -63,6 +69,44 @@ export namespace HumanSegment {
 
     /** What a layer can read. */
     layer: IHumanLayer.IContext;
+
+    /** Props this person's actions left held, in placement order. */
+    holds: IHeld[];
+  }
+
+  /** A prop held across actions. */
+  export interface IHeld {
+    /** The holding hand. */
+    side: "left" | "right";
+
+    /** The prop's subject. */
+    prop: string;
+
+    /** The holding fingers' clinical angles. */
+    fingers: Readonly<Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>>;
+
+    /** The action that took hold. */
+    source: ISegment;
+
+    /** Film second the hold starts. */
+    from: number;
+
+    /** Film second a later action takes the hand over; infinite while none has. */
+    until: number;
+
+    /** The hand's grip frame in the chest's frame, captured when the carry starts. */
+    carry?: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
+  }
+
+  /**
+   * Whether a plan drives a hand: it has a contact window on it or names it.
+   *
+   * @param plan The plan.
+   * @param side The hand.
+   * @returns Whether it drives the hand.
+   */
+  export function drives(plan: IHumanActionPlan, side: "left" | "right"): boolean {
+    return plan.contacts.some((c: IHumanContactWindow): boolean => c.part === `${side}Hand`) || (plan.hands ?? []).includes(side);
   }
 
   /** One placed action. */
@@ -248,8 +292,31 @@ export namespace HumanSegment {
   export function of(person: IPerson, segment: ISegment, seconds: number): IAutoMoviePose {
     const body = person.performer.body;
     const local: number = Math.min(segment.plan.duration, Math.max(0, seconds - segment.start));
-    const posture: IHumanPosture = layered(person, segment.plan.posture(local), seconds);
+    let posture: IHumanPosture = layered(person, segment.plan.posture(local), seconds);
+    const carried: IHeld[] = person.holds.filter(
+      (h: IHeld): boolean => h.source !== segment && h.from <= seconds && seconds < h.until && !drives(segment.plan, h.side),
+    );
+    for (const h of carried) posture = { ...posture, joints: { ...posture.joints, ...h.fingers } };
     let pose: IAutoMoviePose = resolveHumanPosture(body, posture);
+    if (carried.length !== 0) {
+      // The carry: each held hand rides the chest with the offset it had when
+      // its action ended, the trunk-relative goal of a carried object.
+      const chest: IAutoMovieResolvedBone = bones(person, pose).get("chest")!;
+      const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+      for (const h of carried) {
+        h.carry ??= capture(person, h);
+        const goal: IHumanPosture.IGoal = {
+          point: Vector3.add(chest.worldPosition, Quaternion.rotateVector(chest.worldRotation, h.carry.position)),
+          rotation: Quaternion.normalize(Quaternion.multiply(chest.worldRotation, h.carry.rotation)),
+          bend: Vector3.add(chest.worldPosition, Quaternion.rotateVector(chest.worldRotation, { x: h.side === "left" ? 0.5 : -0.5, y: -0.5, z: -0.3 })),
+          planted: true,
+        };
+        const limb: "leftArm" | "rightArm" = h.side === "left" ? "leftArm" : "rightArm";
+        limbs[limb] = goal;
+        pose = resolveHumanPosture.limb(body, pose, limb, goal);
+      }
+      posture = { ...posture, limbs };
+    }
     const transition = segment.transition;
     if (transition !== undefined && transition.kind !== "redirect" && seconds - transition.cut < transition.blend) {
       transition.offset ??= inertializePose(
@@ -282,8 +349,31 @@ export namespace HumanSegment {
       segment.plan.settle?.();
       if (segment.transition !== undefined) delete segment.transition.offset;
     }
+    for (const held of person.holds) delete held.carry;
     person.cache.clear();
     person.resolving = false;
+  }
+
+  /** A pose's world bones. */
+  function bones(person: IPerson, pose: IAutoMoviePose): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    return new Map(
+      resolvePose(pose, person.performer.body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
+        (r): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+      ),
+    );
+  }
+
+  /** A held hand's frame in the chest's frame at the end of the action that took hold. */
+  function capture(person: IPerson, held: IHeld): { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion } {
+    const at: number = Math.max(held.from, held.source.end);
+    const map = bones(person, of(person, held.source, at));
+    const chest: IAutoMovieResolvedBone = map.get("chest")!;
+    const hand: IAutoMovieResolvedBone = map.get(`${held.side}Hand`)!;
+    const inverse = Quaternion.inverse(chest.worldRotation);
+    return {
+      position: Quaternion.rotateVector(inverse, Vector3.subtract(hand.worldPosition, chest.worldPosition)),
+      rotation: Quaternion.normalize(Quaternion.multiply(inverse, hand.worldRotation)),
+    };
   }
 
   /** A posture with the person's layers added in order. */

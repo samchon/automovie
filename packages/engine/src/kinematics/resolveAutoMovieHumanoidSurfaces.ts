@@ -36,7 +36,9 @@ import { resolvePose } from "./resolvePose";
  * Sockets of the foot, seat and back are read
  * from the exact axis bounds of their segment's colliders at rest (heel at
  * the back of the sole, ball under the toe joint, toe at the front, sole at
- * the middle, seat under the pelvis, back behind the thorax); the palm is the
+ * the middle, seat under the pelvis, back behind the thorax; when the profile
+ * gives the toes their own segment, the toe socket is the front of the toes'
+ * colliders and rides the toes bone, so it bends at the ball); the palm is the
  * ray exit below the palm's middle, the grip lies 0.025 m out from it, the
  * radius of a 50 mm handle, the power grip's optimal handle size (Grant,
  * Habes and Steward 1992), and the fist lies 0.012 m ahead of the middle
@@ -145,11 +147,13 @@ export function resolveAutoMovieHumanoidSurfaces(
     const foot = bounds(bone("Foot"));
     const ankle: IAutoMovieVector3 = at(bone("Foot")).worldPosition;
     const toes: IAutoMovieVector3 = at(bone("Toes")).worldPosition;
+    const jointed: boolean = profile.segments.some((x: P.ISegment): boolean => x.bone === bone("Toes"));
+    const front = jointed ? bounds(bone("Toes")) : foot;
     const sole = (z: number): IAutoMovieVector3 => ({ x: ankle.x, y: foot.min.y, z });
     sockets[`heel${Side}` as AutoMovieHumanoidSocket] = local(bone("Foot"), sole(foot.min.z), down, forward);
     sockets[`ball${Side}` as AutoMovieHumanoidSocket] = local(bone("Foot"), { x: toes.x, y: foot.min.y, z: toes.z }, down, forward);
-    sockets[`toe${Side}` as AutoMovieHumanoidSocket] = local(bone("Foot"), sole(foot.max.z), down, forward);
-    sockets[`sole${Side}` as AutoMovieHumanoidSocket] = local(bone("Foot"), sole((foot.min.z + foot.max.z) / 2), down, forward);
+    sockets[`toe${Side}` as AutoMovieHumanoidSocket] = local(jointed ? bone("Toes") : bone("Foot"), { x: ankle.x, y: front.min.y, z: front.max.z }, down, forward);
+    sockets[`sole${Side}` as AutoMovieHumanoidSocket] = local(bone("Foot"), sole((foot.min.z + front.max.z) / 2), down, forward);
   }
   const pelvis = bounds("hips");
   sockets.seat = local("hips", { x: 0, y: pelvis.min.y, z: (pelvis.min.z + pelvis.max.z) / 2 }, down, forward);

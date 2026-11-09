@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionEvent } from "@automovie/interface";
+import type { AutoMovieHumanoidBone, IAutoMovieMotionEvent } from "@automovie/interface";
 
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { IHumanContactWindow } from "./IHumanContactWindow";
@@ -43,4 +43,45 @@ export interface IHumanActionPlan {
    * `contacts` may be a getter over the same memo.
    */
   settle?(): void;
+
+  /**
+   * Props this action leaves held: each persists into the performer's later
+   * actions until one of them declares its own grip window on that hand for
+   * that prop (a put-down, a hand-over, a drink), which takes the hand over.
+   * While a hold persists and the active action does not drive that hand, the
+   * performance carries the hand with the trunk and keeps its fingers, and
+   * the prop rides the hand.
+   */
+  holds?: readonly IHumanActionPlan.IHold[];
+
+  /**
+   * Hands this action drives with no contact window, such as a wave or a
+   * point. A hand with a contact window is driven anyway. An action that
+   * drives a held hand without taking its prop over is refused.
+   */
+  hands?: readonly ("left" | "right")[];
+}
+/**
+ * Companion types of {@link IHumanActionPlan}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents each member's unit.
+ * @evidence contracts/development/design.md#principled-representation A held prop by hand, share and finger angles.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface What the performance needs to carry a prop across actions.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses clinical joint triples.
+ */
+export namespace IHumanActionPlan {
+  /** A prop left held in one hand. */
+  export interface IHold {
+    /** The holding hand. */
+    side: "left" | "right";
+
+    /** The prop's subject. */
+    prop: string;
+
+    /** Share of this action from which the prop is held. */
+    from: number;
+
+    /** The holding fingers' clinical angles, kept while carried. */
+    fingers?: Readonly<Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>>;
+  }
 }

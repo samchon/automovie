@@ -1,15 +1,18 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
+  type IAutoMovieResolvedBone,
   Quaternion,
   clampPose,
   fitChainToTarget,
+  resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
@@ -93,6 +96,53 @@ export namespace resolveHumanPosture {
         ),
       ),
     );
+  }
+
+  /**
+   * A posture with its root lowered along gravity to the highest height at
+   * which every planted leg reaches its goal with at least `knee` degrees of
+   * knee flexion: a standing body bends its knees rather than letting a foot
+   * leave its plant, the root adjustment of footskate cleanup (Kovar,
+   * Schreiner and Gleicher 2002). The hip joints are read from the posture's
+   * root, heading and trunk joints, so a turned or listed pelvis counts. A
+   * leg whose goal lies horizontally beyond its reach cannot be helped by
+   * lowering and is left to the audits.
+   *
+   * @param body The performer's body.
+   * @param posture The posture; legs with `planted` goals are kept reachable.
+   * @param knee The least knee flexion, degrees; 5 when absent.
+   * @returns The posture, its root lowered when needed.
+   */
+  export function lower(body: IHumanBody, posture: IHumanPosture, knee: number = 5): IHumanPosture {
+    const a: number = body.measure.thigh;
+    const b: number = body.measure.shank;
+    const phi: number = (knee * Math.PI) / 180;
+    const limit: number = Math.sqrt(a * a + b * b + 2 * a * b * Math.cos(phi));
+    const legs = (["left", "right"] as const).filter((side) => posture.limbs[`${side}Leg`]?.planted === true);
+    if (legs.length === 0) return posture;
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
+      resolvePose(
+        {
+          skeleton: body.skeleton.id,
+          root: { translation: posture.root, rotation: heading(posture), scale: { x: 1, y: 1, z: 1 } },
+          joints: Object.entries(posture.joints)
+            .filter(([bone]) => bone === "hips")
+            .map(([bone, j]) => ({ bone: bone as AutoMovieHumanoidBone, flexion: j![0], abduction: j![1], twist: j![2] })),
+        },
+        body.skeleton,
+        HUMANOID_JOINT_AXES,
+        HUMANOID_REST_FRAME,
+      ).map((r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r]),
+    );
+    let drop: number = 0;
+    for (const side of legs) {
+      const hip: IAutoMovieVector3 = bones.get(`${side}UpperLeg`)!.worldPosition;
+      const goal: IAutoMovieVector3 = posture.limbs[`${side}Leg`]!.point;
+      const dh: number = Math.hypot(hip.x - goal.x, hip.z - goal.z);
+      const dv: number = hip.y - goal.y;
+      if (Math.hypot(dh, dv) > limit && dh < limit) drop = Math.max(drop, dv - Math.sqrt(limit * limit - dh * dh));
+    }
+    return drop === 0 ? posture : { ...posture, root: { ...posture.root, y: posture.root.y - drop } };
   }
 
   /**

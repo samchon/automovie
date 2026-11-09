@@ -10,7 +10,10 @@ import type { look } from "./everyday/look";
 import type { rest } from "./everyday/rest";
 import type { shift } from "./everyday/shift";
 import type { sit } from "./everyday/sit";
+import type { stepOver } from "./everyday/stepOver";
 import type { handshake } from "./handling/handshake";
+import type { pickUp } from "./handling/pickUp";
+import type { putDown } from "./handling/putDown";
 import type { punch } from "./striking/punch";
 import type { kick } from "./striking/kick";
 import type { guard } from "./striking/guard";
@@ -114,6 +117,28 @@ export class HumanChain extends AutoMovieChain {
    */
   public handshake(params: handshake.IParams, anchor?: string): this {
     return this.act("handshake", params, anchor);
+  }
+
+  /**
+   * Reach for a prop's grip affordance, grasp it and lift it.
+   *
+   * @param params The prop, its grip, the hand and the lift.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public pickUp(params: pickUp.IParams, anchor?: string): this {
+    return this.act("pickUp", params, anchor);
+  }
+
+  /**
+   * Set a held prop down at a place and let go.
+   *
+   * @param params The prop, where it goes and the hand.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public putDown(params: putDown.IParams, anchor?: string): this {
+    return this.act("putDown", params, anchor);
   }
 
   /**
@@ -223,6 +248,17 @@ export class HumanChain extends AutoMovieChain {
    */
   public bend(params: bend.IParams, anchor?: string): this {
     return this.act("bend", params, anchor);
+  }
+
+  /**
+   * Step over a low obstacle ahead, lead foot then trail foot.
+   *
+   * @param params The obstacle and the leading foot.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public stepOver(params: stepOver.IParams, anchor?: string): this {
+    return this.act("stepOver", params, anchor);
   }
 
   /**

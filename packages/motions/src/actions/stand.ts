@@ -10,11 +10,13 @@ import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
+import { standUpright } from "./standUpright";
 
 /**
  * Quiet standing: both feet planted where they are (or under the hips when
- * entered from the air), the pelvis settling over them, arms hanging relaxed,
- * and the body swaying slightly.
+ * entered from the air), the pelvis settling over them, the column upright on
+ * the plumb line and inclined slightly forward at the ankles
+ * ({@link standUpright}), arms hanging relaxed, and the body swaying slightly.
  *
  * The feet keep their entry plants so a stop never slides them; a foot that
  * was not planted lands at its rest place beside the other. The root moves
@@ -51,11 +53,14 @@ export namespace stand {
     if (!(duration > 0)) throw new Error("A stand lasts a positive time");
     const yaw: number = context.entry.posture.yaw;
     const footing: Record<"left" | "right", IAutoMovieVector3> = feet(context.body, context.entry, yaw);
+    const upright: standUpright.IAlignment = standUpright.of(context.body);
+    const lean: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, { x: 0, y: 0, z: upright.lean });
     const middle: IAutoMovieVector3 = {
-      x: (footing.left.x + footing.right.x) / 2 - centre(context.body, yaw).x,
+      x: (footing.left.x + footing.right.x) / 2 - centre(context.body, yaw).x + lean.x,
       y: -0.005,
-      z: (footing.left.z + footing.right.z) / 2 - centre(context.body, yaw).z,
+      z: (footing.left.z + footing.right.z) / 2 - centre(context.body, yaw).z + lean.z,
     };
+    const joints = { ...RELAXED, ...upright.joints };
     const settle: number = Math.min(0.5, duration);
     const from: IAutoMovieVector3 = context.entry.posture.root;
     const sway: number = 0.003 * HumanSkill.sway(context.skill);
@@ -79,7 +84,7 @@ export namespace stand {
           yaw,
           pitch: 0,
           roll: 0,
-          joints: RELAXED,
+          joints,
           limbs: legs(context.body, root, yaw, footing),
         };
       },
@@ -144,10 +149,10 @@ export namespace stand {
     feet: Record<"left" | "right", IAutoMovieVector3>,
   ): IHumanPosture["limbs"] {
     const frame: HumanFrame.IFrame = { origin: root, yaw };
-    const knee = (side: "left" | "right"): IAutoMovieVector3 => {
-      const rest: IAutoMovieVector3 = body.rest.get(`${side}LowerLeg`)!;
-      return HumanFrame.point(frame, { x: rest.x, y: rest.y, z: rest.z + 1 });
-    };
+    // The knee points over the foot (Perry and Burnfield): the foot has no
+    // axial joint, so its toe-out comes from the hip's twist that this hint sets.
+    const knee = (side: "left" | "right"): IAutoMovieVector3 =>
+      HumanFrame.point({ origin: HumanFrame.point(frame, body.rest.get(`${side}LowerLeg`)!), yaw: yaw + (side === "left" ? TOE_OUT : -TOE_OUT) }, { x: 0, y: 0, z: 1 });
     return {
       leftLeg: { point: feet.left, bend: knee("left"), rotation: HumanFrame.turn(yaw + TOE_OUT), planted: true },
       rightLeg: { point: feet.right, bend: knee("right"), rotation: HumanFrame.turn(yaw - TOE_OUT), planted: true },
@@ -170,8 +175,9 @@ export namespace stand {
       const rest: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
       feet[side] = HumanFrame.point(frame, { x: rest.x, y: body.measure.ankleHeight, z: rest.z });
     }
-    const root: IAutoMovieVector3 = { x: at.x, y: at.y - 0.005, z: at.z };
-    return { root, yaw, pitch: 0, roll: 0, joints: RELAXED, limbs: legs(body, root, yaw, feet) };
+    const upright: standUpright.IAlignment = standUpright.of(body);
+    const root: IAutoMovieVector3 = HumanFrame.point(frame, { x: 0, y: -0.005, z: upright.lean });
+    return { root, yaw, pitch: 0, roll: 0, joints: { ...RELAXED, ...upright.joints }, limbs: legs(body, root, yaw, feet) };
   }
 }
 

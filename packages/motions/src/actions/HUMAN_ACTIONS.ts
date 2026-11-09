@@ -8,10 +8,14 @@ import { rest } from "../everyday/rest";
 import { rise } from "../everyday/rise";
 import { shift } from "../everyday/shift";
 import { sit } from "../everyday/sit";
+import { stepOver } from "../everyday/stepOver";
 import { kick } from "../striking/kick";
 import { handshake } from "../handling/handshake";
+import { pickUp } from "../handling/pickUp";
+import { putDown } from "../handling/putDown";
 import { flinch } from "../reaction/flinch";
 import { knockdown } from "../reaction/knockdown";
+import { knee } from "../striking/knee";
 import { stagger } from "../reaction/stagger";
 import { defend } from "../striking/defend";
 import { guard } from "../striking/guard";
@@ -41,9 +45,13 @@ export const HUMAN_ACTIONS: Readonly<Record<HumanActionName, IHumanActionLaw<nev
   flinch,
   stagger,
   knockdown,
+  knee,
   sit,
   rise,
   shift,
   handshake,
+  pickUp,
+  putDown,
   bend,
+  stepOver,
 };
