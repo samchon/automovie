@@ -220,7 +220,7 @@ export async function capture(): Promise<void> {
     for (const seconds of times) {
       production.seek(seconds);
       if (preset) {
-        const pose: ReturnType<typeof preset> = preset(seconds);
+        const pose: ReturnType<NonNullable<typeof preset>> = preset(seconds);
         camera.position.set(...pose.position);
         camera.lookAt(...pose.target);
         camera.updateMatrixWorld();
