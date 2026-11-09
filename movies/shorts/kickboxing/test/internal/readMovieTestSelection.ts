@@ -1,4 +1,4 @@
-/** Parse explicit module selection independently from the existing filename-or-function selection. Import filtering never guesses which functions an unimported module might export. Repeated includes form a union, exclusions take precedence, and invalid options fail before discovery. */
+/** Parse test selection by filename, so every rule is decided before a module is imported and an unselected module costs nothing; only `--exclude` also drops exported functions by name. Repeated includes form a union, exclusions take precedence, and invalid options fail before discovery. */
 export function readMovieTestSelection(
   args: readonly string[],
 ): readMovieTestSelection.ISelection {
@@ -27,22 +27,21 @@ export function readMovieTestSelection(
       value.replaceAll("\\", "/").includes(needle),
     );
   }
-  /** Only explicit file rules and filename exclusions can eliminate a module before import. */
+  const includes: string[] = [
+    ...values["--include"],
+    ...values["--include-file"],
+  ];
+  /** Every include and exclusion is a filename rule, decided before import. */
   function acceptFile(file: string): boolean {
     return (
-      (!values["--include-file"].length ||
-        matches(file, values["--include-file"])) &&
+      (!includes.length || matches(file, includes)) &&
       !matches(file, [...values["--exclude-file"], ...values["--exclude"]])
     );
   }
   return {
     acceptFile,
     acceptCase: (file: string, name: string): boolean =>
-      acceptFile(file) &&
-      (!values["--include"].length ||
-        matches(file, values["--include"]) ||
-        matches(name, values["--include"])) &&
-      !matches(name, values["--exclude"]),
+      acceptFile(file) && !matches(name, values["--exclude"]),
   };
 }
 
