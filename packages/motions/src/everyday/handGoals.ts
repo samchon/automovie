@@ -16,12 +16,12 @@ import { poseBones } from "./poseBones";
  * forearm does not pronate or supinate in the current solver, and wrist
  * flexion and deviation are clamped to their range), a wrist placed for the
  * asked rotation leaves the surface off its point by the turn it missed. So
- * the goals are solved twice: the first pass places each wrist for the asked
- * rotation, the arms are solved, and the second pass re-places each wrist
- * from the rotation the hand actually reached, keeping the asked rotation as
- * the solver's aim. The contact point then holds to within the change the
- * re-placement itself causes, and a reachable rotation is unchanged, since
- * its second pass equals its first.
+ * each wrist is first placed for the asked rotation, the arms are solved, and
+ * each wrist is re-placed from the rotation the hand actually reached,
+ * keeping the asked rotation as the solver's aim; `PASSES` such corrections
+ * run, each shrinking the change the previous re-placement caused. A
+ * reachable rotation is unchanged, since its corrections equal its first
+ * placement.
  *
  * @param body The body.
  * @param posture The posture the arms are added to; its legs and trunk are solved with them.
@@ -32,7 +32,7 @@ import { poseBones } from "./poseBones";
  * @evidence contracts/development/implementation.md#principled-implementation A fixed-point step on the rigid socket offset: the wrist is the point less the reached rotation applied to the socket offset.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Place, solve, re-place; one shared helper for every everyday hand goal.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The asked rotation stays the solver's aim; the correction only moves the wrist.
- * @evidence contracts/development/implementation.md#efficient-algorithms One extra posture solve for all hands together.
+ * @evidence contracts/development/implementation.md#efficient-algorithms `PASSES` extra posture solves for all hands together.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -44,15 +44,22 @@ export function handGoals(body: IHumanBody, posture: IHumanPosture, requests: re
     const wrist: HumanHand.IWrist = HumanHand.place(body, r.side, r.surface, r.point, r.rotation, r.shape);
     first[limb(r.side)] = { point: wrist.point, rotation: wrist.rotation, bend: r.bend };
   }
-  const bones = poseBones(body, resolveHumanPosture(body, { ...posture, limbs: first }));
-  const second: IHumanPosture["limbs"] = { ...posture.limbs };
-  for (const r of requests) {
-    const reached: IAutoMovieQuaternion = bones.get(`${r.side}Hand`)!.worldRotation;
-    const offset: IAutoMovieVector3 = HumanHand.offset(body, r.side, r.surface, r.shape).point;
-    second[limb(r.side)] = { point: Vector3.subtract(r.point, Quaternion.rotateVector(reached, offset)), rotation: r.rotation, bend: r.bend };
+  let limbs: IHumanPosture["limbs"] = first;
+  for (let pass: number = 0; pass < PASSES; pass++) {
+    const bones = poseBones(body, resolveHumanPosture(body, { ...posture, limbs }));
+    const next: IHumanPosture["limbs"] = { ...posture.limbs };
+    for (const r of requests) {
+      const reached: IAutoMovieQuaternion = bones.get(`${r.side}Hand`)!.worldRotation;
+      const offset: IAutoMovieVector3 = HumanHand.offset(body, r.side, r.surface, r.shape).point;
+      next[limb(r.side)] = { point: Vector3.subtract(r.point, Quaternion.rotateVector(reached, offset)), rotation: r.rotation, bend: r.bend };
+    }
+    limbs = next;
   }
-  return { ...posture, limbs: second };
+  return { ...posture, limbs };
 }
+
+/** Correction passes: two bring the contact within a few millimetres where one leaves up to two centimetres (measured on the rest places). */
+const PASSES: number = 2;
 
 /**
  * Companion types of {@link handGoals}.

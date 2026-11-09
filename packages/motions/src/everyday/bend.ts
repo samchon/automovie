@@ -109,7 +109,13 @@ export namespace bend {
     const strategy: Exclude<Strategy, "auto"> = bend.choose(body, target, context.params.strategy ?? "auto");
     const probe: IHumanActionPlan = stand.plan({ ...context, params: { seconds: 1 } });
     const upright: IHumanPosture = probe.posture(0);
-    const pitch: number = bend.pitch(body, upright, target, side, strategy);
+    // Balance: the hips' shift found on the solved posture at a nominal pitch, then again at the pitch the reach needs.
+    let lean: number = HumanBalance.shift(body, (back: number): IHumanPosture => bend.lower(body, upright, strategy, 60, 1, back)) / Math.sin(Math.PI / 3);
+    let pitch: number = bend.pitch(body, upright, target, side, strategy, lean);
+    if (pitch > 5) {
+      lean = HumanBalance.shift(body, (back: number): IHumanPosture => bend.lower(body, upright, strategy, pitch, 1, back)) / Math.sin((pitch * Math.PI) / 180);
+      pitch = bend.pitch(body, upright, target, side, strategy, lean);
+    }
 
     // Fitts's time for the hand's travel, scaled by skill.
     const hand: IAutoMovieVector3 = HumanHand.frame(body, bones(body, upright), side, "palm").point;
@@ -132,7 +138,7 @@ export namespace bend {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const s: number = t <= down + hold ? minimumJerk(t / down).s : 1 - minimumJerk((t - down - hold) / down).s;
         const standing: IHumanPosture = base.posture(t);
-        const lowered: IHumanPosture = bend.lower(body, standing, strategy, pitch * s, s);
+        const lowered: IHumanPosture = bend.lower(body, standing, strategy, pitch * s, s, lean * Math.sin((pitch * s * Math.PI) / 180));
         const aimed: IHumanPosture = HumanGaze.aim(body, lowered, target, "head", { eyes: s, head: s, trunk: 0 });
 
         // The palm from where it hangs to the target, facing down onto it.
@@ -168,13 +174,14 @@ export namespace bend {
    * @param strategy The strategy.
    * @param pitch Trunk inclination, degrees, shared by the lumbopelvic rhythm.
    * @param share How far down, 0 to 1.
+   * @param back How far the hips move back for balance, metres.
    * @returns The lowered posture.
    */
-  export function lower(body: IHumanBody, posture: IHumanPosture, strategy: Exclude<Strategy, "auto">, pitch: number, share: number): IHumanPosture {
+  export function lower(body: IHumanBody, posture: IHumanPosture, strategy: Exclude<Strategy, "auto">, pitch: number, share: number, back: number): IHumanPosture {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
     const drop: number = (1 - HIPS[strategy]) * body.measure.hipHeight * share;
     const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
-    const goal: IAutoMovieVector3 = HumanFrame.point(frame, { x: hips.x, y: hips.y - drop, z: hips.z - HumanBalance.hipShift(body.measure, pitch) });
+    const goal: IAutoMovieVector3 = HumanFrame.point(frame, { x: hips.x, y: hips.y - drop, z: hips.z - back });
     const tipped: IHumanPosture = { ...posture, pitch: posture.pitch + RHYTHM.pelvis * pitch };
     const joints: IHumanPosture["joints"] = { ...posture.joints };
     for (const [bone, part] of [["spine", RHYTHM.lumbar], ["chest", RHYTHM.thorax]] as const) {
@@ -196,13 +203,14 @@ export namespace bend {
    * @param target The target.
    * @param side The hand.
    * @param strategy The strategy.
+   * @param lean The balance shift per unit sine of the inclination, metres.
    * @returns Degrees.
    * @throws {Error} When even 150 degrees leaves the target out of reach.
    */
-  export function pitch(body: IHumanBody, posture: IHumanPosture, target: IAutoMovieVector3, side: HumanHand.Side, strategy: Exclude<Strategy, "auto">): number {
+  export function pitch(body: IHumanBody, posture: IHumanPosture, target: IAutoMovieVector3, side: HumanHand.Side, strategy: Exclude<Strategy, "auto">, lean: number): number {
     const reach: number = 0.92 * (body.measure.upperArm + body.measure.forearm) + Vector3.length(HumanHand.offset(body, side, "palm").point);
     const gap = (deg: number): number => {
-      const lowered: IHumanPosture = lower(body, posture, strategy, deg, 1);
+      const lowered: IHumanPosture = lower(body, posture, strategy, deg, 1, lean * Math.sin((deg * Math.PI) / 180));
       const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, lowered).get(`${side}UpperArm`)!.worldPosition;
       return Vector3.length(Vector3.subtract(target, shoulder)) - reach;
     };

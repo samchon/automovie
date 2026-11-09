@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
+import { standUpright } from "../actions/standUpright";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -10,6 +11,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * Stepping over a low obstacle from standing in front of it: the lead foot
@@ -153,17 +155,7 @@ export namespace stepOver {
     const endMid: IAutoMovieVector3 = { x: (end.left.x + end.right.x) / 2 - centre.x, y: -0.005, z: (end.left.z + end.right.z) / 2 - centre.z };
     const rootAt = (t: number): IAutoMovieVector3 => {
       const s: number = minimumJerk((t - 0.05 * duration) / (0.9 * duration)).s;
-      let root: IAutoMovieVector3 = { x: startRoot.x + (endMid.x - startRoot.x) * s, y: startRoot.y + (endMid.y - startRoot.y) * s, z: startRoot.z + (endMid.z - startRoot.z) * s };
-      for (const side of ["left", "right"] as const) {
-        const f = footAt(side, t);
-        if (!f.planted) continue;
-        const hip: IAutoMovieVector3 = HumanFrame.point({ origin: root, yaw }, body.rest.get(`${side}UpperLeg`)!);
-        const dh: number = Math.hypot(hip.x - f.placement.ankle.x, hip.z - f.placement.ankle.z);
-        const dv: number = hip.y - f.placement.ankle.y;
-        const limit: number = 0.995 * leg;
-        if (Math.hypot(dh, dv) > limit && dh < limit) root = { ...root, y: root.y - (dv - Math.sqrt(limit * limit - dh * dh)) };
-      }
-      return root;
+      return { x: startRoot.x + (endMid.x - startRoot.x) * s, y: startRoot.y + (endMid.y - startRoot.y) * s, z: startRoot.z + (endMid.z - startRoot.z) * s };
     };
 
     const share = (t: number): number => t / duration;
@@ -189,7 +181,7 @@ export namespace stepOver {
           const knee: IAutoMovieVector3 = HumanFrame.point({ origin: root, yaw }, { ...body.rest.get(`${side}LowerLeg`)!, z: body.rest.get(`${side}LowerLeg`)!.z + 1 });
           limbs[side === "left" ? "leftLeg" : "rightLeg"] = { point: f.placement.ankle, bend: knee, rotation: f.placement.rotation, ...(f.planted ? { planted: true } : {}) };
         }
-        return { root, yaw, pitch: 0, roll: 0, joints: stand.RELAXED, limbs };
+        return resolveHumanPosture.lower(body, { root, yaw, pitch: 0, roll: 0, joints: { ...stand.RELAXED, ...standUpright.of(body).joints }, limbs });
       },
     };
   }

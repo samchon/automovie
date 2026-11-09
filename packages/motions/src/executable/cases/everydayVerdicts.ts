@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, jointRomOvershoot, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, jointRomOvershoot, resolveAutoMovieCenterOfMass, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type { IAutoMovieJointPose, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../../body/IHumanBody";
@@ -58,6 +58,37 @@ export namespace everydayVerdicts {
       for (const joint of performance.pose(subject, t).joints as IAutoMovieJointPose[])
         worst = Math.max(worst, jointRomOvershoot(joint, DEFAULT_HUMANOID_ROM[joint.bone] ?? null));
     return worst;
+  }
+
+  /**
+   * The margin of stability at a film second (Hof, Gazendam and Sinke 2005):
+   * the extrapolated centre of mass, the engine's whole-body centre plus its
+   * velocity (a central difference over 1/240 s) over the pendulum's
+   * eigenfrequency with a length of 1.34 hip heights, measured to the edge of
+   * the hull of both feet's heel, ball and toe points; positive inside.
+   *
+   * @param performance The performance.
+   * @param subject The person.
+   * @param body The person's body.
+   * @param seconds Film seconds.
+   * @returns Metres.
+   */
+  export function stability(performance: HumanPerformance, subject: string, body: IHumanBody, seconds: number): number {
+    const model: resolveAutoMovieCenterOfMass.IModel = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+    const com = (t: number): IAutoMovieVector3 => resolveAutoMovieCenterOfMass.place(model, performance.bones(subject, t));
+    const h: number = 1 / 240;
+    const a: IAutoMovieVector3 = com(seconds - h);
+    const b: IAutoMovieVector3 = com(seconds + h);
+    const velocity: IAutoMovieVector3 = { x: (b.x - a.x) / (2 * h), y: (b.y - a.y) / (2 * h), z: (b.z - a.z) / (2 * h) };
+    const xcom: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.extrapolate(com(seconds), velocity, 1.34 * body.measure.hipHeight);
+    const bones = performance.bones(subject, seconds);
+    const support: IAutoMovieVector3[] = [];
+    for (const side of ["Left", "Right"] as const)
+      for (const point of ["heel", "ball", "toe"] as const) {
+        const frame = body.surfaces.sockets[`${point}${side}`];
+        support.push(resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!).point);
+      }
+    return resolveAutoMovieCenterOfMass.margin(xcom, support);
   }
 
   /**

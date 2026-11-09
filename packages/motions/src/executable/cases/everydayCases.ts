@@ -34,11 +34,17 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *   its region, claps meeting within 10 mm.
  * - `everyday-rest`: each rest place held; each hand surface within 15 mm of
  *   its place and not inside the region beyond 10 mm.
- * - `everyday-seat`: sitting on a box at the knee's height, shifting and
- *   rising; the seat socket within 15 mm of the seat surface at contact and
- *   seated, and the thighs not inside the seat beyond 10 mm.
- * - `everyday-bend`: a stoop, a semi-squat and a squat to a floor point; the
- *   palm within 15 mm of it at the deepest.
+ * - `everyday-seat`: sitting on a box at the popliteal height, shifting and
+ *   rising; the seated body's lowest bearing point (the seat socket or the
+ *   thighs' undersides) within 15 mm of the seat surface at contact and
+ *   seated, the thighs not inside the seat beyond 10 mm, and the
+ *   extrapolated centre of mass inside the feet's base at seat-off.
+ * - `everyday-bend`: a stoop to a point above mid-shank (the `auto` rule's
+ *   stoop range; a straight-legged reach to the floor needs more hamstring
+ *   length than most adults have) and a semi-squat and a squat to a floor
+ *   point; the
+ *   palm within 15 mm of it and the extrapolated centre of mass over the
+ *   feet at the deepest.
  * - `everyday-step`: stepping over a 0.3 m box, at tenths of the crossing;
  *   every sole point at least 5 cm above the box while over it.
  *
@@ -135,6 +141,10 @@ export function everydayCases(family?: "approach" | "look" | "gesture" | "rest" 
           const at: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(region, mid.get(region.bone)!).point;
           verdicts.push(within("fingertip at the face region", Vector3.length(Vector3.subtract(HumanHand.frame(body, mid, "right", "indexTip", "flat").point, at)), 0.015 + 0.012, "mm"));
         }
+        if (kind === "bow") {
+          const margin: number = everydayVerdicts.stability(performance, "a", body, (s + e) / 2);
+          verdicts.push({ name: "bowed body balanced over the feet", passed: margin >= 0, detail: `${(margin * 1000).toFixed(1)} mm margin` });
+        }
         if (kind === "clap")
           for (let k: number = 0; k < 4; k++) {
             const b = performance.bones("a", s + ((k + 0.5) / 4) * (e - s));
@@ -182,7 +192,7 @@ export function everydayCases(family?: "approach" | "look" | "gesture" | "rest" 
     }
 
     if (wants("seat")) {
-      const seat: seated.ISeat = { at: { x: 0, y: seated.knee(body), z: body.rest.get("leftFoot")!.z - 0.1 }, yaw: 0, depth: 0.45 };
+      const seat: seated.ISeat = { at: { x: 0, y: seated.popliteal(body), z: body.rest.get("leftFoot")!.z - 0.1 }, yaw: 0, depth: 0.45 };
       const performance: HumanPerformance = one(HumanChain.subject("a").sit({ seat, seconds: 0.5 }).shift({ by: 0.12 }).rise());
       const [sit, shift, rise] = performance.segments("a");
       const contact: number = event(performance, "a", 0, "seatContact");
@@ -212,30 +222,37 @@ export function everydayCases(family?: "approach" | "look" | "gesture" | "rest" 
         performers: [figure(performance, "a", man)],
         boxes: [{ centre: { x: seat.at.x + 0.1, y: seat.at.y / 2, z: seat.at.z - 0.225 }, half: { x: 0.45, y: seat.at.y / 2, z: 0.225 }, color: 0x9a7b55 }],
         verdicts: [
-          within("seat socket on the seat at contact", Math.abs(socket(contact).y - seat.at.y), 0.015, "mm"),
-          within("seat socket on the seat while seated", Math.abs(socket(sit!.end).y - seat.at.y), 0.015, "mm"),
+          within("seated body on the seat at contact", Math.abs(Math.min(socket(contact).y - seat.at.y, thighs(contact))), 0.015, "mm"),
+          within("seated body on the seat while seated", Math.abs(Math.min(socket(sit!.end).y - seat.at.y, thighs(sit!.end))), 0.015, "mm"),
           within("thighs not inside the seat", Math.max(0, -thighs(sit!.end)), 0.01, "mm"),
+          { name: "extrapolated centre of mass over the feet at seat-off", passed: everydayVerdicts.stability(performance, "a", body, event(performance, "a", 2, "seatOff")) >= 0, detail: `${(everydayVerdicts.stability(performance, "a", body, event(performance, "a", 2, "seatOff")) * 1000).toFixed(1)} mm margin` },
           ...everydayVerdicts.standard(performance, "a", body),
         ],
       });
     }
 
     if (wants("bend")) {
-      const point: IAutoMovieVector3 = { x: -0.15, y: 0, z: 0.45 };
       const strategies = ["stoop", "semiSquat", "squat"] as const;
+      const points: Record<(typeof strategies)[number], IAutoMovieVector3> = {
+        stoop: { x: -0.15, y: body.measure.ankleHeight + 0.6 * body.measure.shank, z: 0.45 },
+        semiSquat: { x: -0.15, y: 0, z: 0.3 },
+        squat: { x: -0.15, y: 0, z: 0.3 },
+      };
       let chain: HumanChain = HumanChain.subject("a");
-      for (const strategy of strategies) chain = chain.bend({ toward: { kind: "point", at: point, frame: "world" }, strategy });
+      for (const strategy of strategies) chain = chain.bend({ toward: { kind: "point", at: points[strategy], frame: "world" }, strategy });
       const performance: HumanPerformance = one(chain);
       const verdicts: IMotionCaptureCase.IVerdict[] = everydayVerdicts.standard(performance, "a", body);
       strategies.forEach((strategy, i: number): void => {
         const t: number = event(performance, "a", i, "deepest");
-        verdicts.push(within(`${strategy} palm at the point`, Vector3.length(Vector3.subtract(HumanHand.frame(body, performance.bones("a", t), "right", "palm", "flat").point, point)), 0.015, "mm"));
+        verdicts.push(within(`${strategy} palm at the point`, Vector3.length(Vector3.subtract(HumanHand.frame(body, performance.bones("a", t), "right", "palm", "flat").point, points[strategy])), 0.015, "mm"));
+        const margin: number = everydayVerdicts.stability(performance, "a", body, t);
+        verdicts.push({ name: `${strategy} balanced over the feet`, passed: margin >= 0, detail: `${(margin * 1000).toFixed(1)} mm margin` });
       });
       out.push({
         name: `everyday-bend${suffix}`,
         times: strategies.map((strategy, i: number) => ({ seconds: event(performance, "a", i, "deepest"), label: strategy })),
         performers: [figure(performance, "a", man)],
-        targets: [{ at: point, radius: 0.03, color: 0xd04040 }],
+        targets: strategies.map((strategy) => ({ at: points[strategy], radius: 0.03, color: 0xd04040 })),
         verdicts,
       });
     }

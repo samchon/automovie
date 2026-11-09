@@ -3,6 +3,7 @@ import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interf
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
+import { standUpright } from "../actions/standUpright";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
@@ -30,7 +31,7 @@ import { seated } from "./seated";
  * half.
  *
  * Peak trunk flexion `35 + 50 (1 - r)` degrees and descent time
- * `2 (1 + 0.6 (1 - r))` seconds for a seat at `r` of the knee height
+ * `2 (1 + 0.6 (1 - r))` seconds for a seat at `r` of the popliteal height
  * (provisional coefficients; a lower seat needs more trunk flexion and more
  * time, Janssen, Bussmann and Stam 2002, and sit-to-stand takes about 1.5 to
  * 2.5 s in healthy adults). Contact comes at 75 % of the descent. The seated
@@ -114,6 +115,7 @@ export namespace sit {
     const yaw0: number = context.entry.posture.yaw;
     const start: IAutoMovieVector3 = seated.socket(body, context.entry.posture);
     const final = BACKS[back];
+    const upright = standUpright.of(body).joints;
 
     const contacts: IHumanContactWindow[] = [
       { part: "leftFoot", kind: "plant", from: 0, to: 1, support: { kind: "ground" } },
@@ -141,10 +143,12 @@ export namespace sit {
         const pitch: number = t < 0.6 * descent ? peak * minimumJerk(t / (0.45 * descent)).s : peak + (final.pitch - peak) * settle;
         const yaw: number = yaw0 + turn * across;
         const root: IAutoMovieVector3 = seated.root(body, socket, { yaw, pitch, roll: 0 });
-        const joints: IHumanPosture["joints"] = { ...stand.RELAXED };
-        for (const [bone, a] of Object.entries(final.joints) as [AutoMovieHumanoidBone, readonly [number, number, number]][])
-          joints[bone] = [a[0] * settle, a[1] * settle, a[2] * settle];
-        const posture: IHumanPosture = { root, yaw, pitch, roll: 0, joints, limbs: stand.legs(body, root, yaw, feet) };
+        const joints: IHumanPosture["joints"] = { ...stand.RELAXED, ...upright };
+        for (const [bone, a] of Object.entries(final.joints) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
+          const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
+          joints[bone] = [was[0] + a[0] * settle, was[1] + a[1] * settle, was[2] + a[2] * settle];
+        }
+        const posture: IHumanPosture = resolveHumanPosture.lower(body, { root, yaw, pitch, roll: 0, joints, limbs: stand.legs(body, root, yaw, feet) });
         return seated.arms(body, posture, minimumJerk((t - 0.5 * descent) / (0.5 * descent)).s);
       },
     };

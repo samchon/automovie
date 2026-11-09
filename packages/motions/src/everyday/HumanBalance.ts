@@ -1,37 +1,143 @@
-import type { IAutoMovieBodyMeasure } from "@automovie/interface";
+import { Quaternion, Vector3, resolveAutoMovieCenterOfMass, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
+import type { IHumanBody } from "../body/IHumanBody";
+import type { IHumanPosture } from "../posture/IHumanPosture";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "./poseBones";
 
 /**
- * How far the hips move back when the trunk pitches forward over planted
- * feet, so the body's centre of mass stays over the feet.
+ * How far the hips move back so the whole-body centre of mass stands over
+ * the feet, found on the solved posture itself.
  *
- * TEMPORARY: this is a closed-form estimate standing in for the engine's
- * whole-body centre of mass and margin of stability (Hof et al. 2005), which
- * are being added to the engine; it is replaced by them in the first commit
- * after they land, and it is the one place everyday laws ask for a balance
- * correction so that switch touches nothing else. The estimate uses Winter's segment table
- * (Biomechanics and Motor Control of Human Movement, 4th ed., table 4.1): the
- * head, arms and trunk (HAT) carry 0.678 of the body's mass with their centre
- * 0.626 of the hip-to-shoulder length above the hips. Pitching the HAT by
- * `theta` about the hips moves its centre forward by `0.626 L sin(theta)`;
- * moving the hips back by `x` carries the HAT back by `x` and the legs, the
- * remaining 0.322 of the mass, back by about `x / 2` (their centre lies about
- * halfway between the hips and the planted ankles). Setting the whole-body
- * shift to zero gives
- * `x = 0.678 * 0.626 L sin(theta) / (0.678 + 0.161) = 0.506 L sin(theta)`.
+ * A law that pitches the trunk forward over planted feet (a bow, a stoop)
+ * builds its posture as a function of the hips' backward shift; this finds
+ * the shift at which the engine's whole-body centre of mass
+ * (`resolveAutoMovieCenterOfMass.place`, the segmental method of Winter,
+ * Biomechanics and Motor Control of Human Movement, ch. 4) lies over the
+ * middle of the feet's soles along the heading, the static balance
+ * condition. The posture is solved (legs on their planted goals, arms on
+ * theirs) and the centre placed from the solved bones at each trial; a
+ * secant iteration on the shift converges in a few trials because the
+ * centre moves almost linearly with it. Laws solve it once per plan at the
+ * movement's deepest pitch and scale the shift with the sine of the pitch in
+ * between, which is exact for a rigid upper body and leaves only the legs'
+ * reconfiguration unmodelled at intermediate pitches; their captures check
+ * the margin of stability (Hof et al. 2005) on every frame they draw.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Derives the coefficient and states it is a placeholder for the engine's centre of mass.
- * @evidence contracts/development/implementation.md#principled-implementation Moment balance over Winter's anthropometric mass fractions.
+ * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the engine owner, the iteration and how laws use the result.
+ * @evidence contracts/development/implementation.md#principled-implementation Static balance: the engine's whole-body centre of mass over the base of support, by a secant root find on the solved posture.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One root find over a caller's posture builder.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No population table stands in for the body's own solved mass distribution.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most `TRIALS` posture solves, once per plan.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Callers solve once per plan and reuse the result.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The mass model is memoized per body in a WeakMap, released with the body.
  */
 export namespace HumanBalance {
+  /** Most posture solves a balance search takes. */
+  export const TRIALS: number = 6;
+
   /**
-   * The hips' backward shift for a forward trunk pitch.
+   * The hips' backward shift that puts the whole-body centre of mass over
+   * the middle of the feet's soles along the heading.
    *
-   * @param measure The body.
-   * @param pitch Trunk pitch forward, degrees.
-   * @returns Metres backward; negative for a backward pitch.
+   * @param body The body.
+   * @param build The posture for a backward shift of the hips, metres.
+   * @returns The shift, metres; within 0.1 mm of balance or the best of `TRIALS` trials.
    */
-  export function hipShift(measure: IAutoMovieBodyMeasure, pitch: number): number {
-    const L: number = measure.shoulderHeight - measure.hipHeight;
-    return 0.506 * L * Math.sin((pitch * Math.PI) / 180);
+  export function shift(body: IHumanBody, build: (back: number) => IHumanPosture): number {
+    const error = (back: number): number => offset(body, build(back));
+    let x0: number = 0;
+    let e0: number = error(x0);
+    let x1: number = 0.05;
+    let e1: number = error(x1);
+    for (let trial: number = 2; trial < TRIALS && Math.abs(e1) > 1e-4 && Math.abs(e1 - e0) > 1e-12; trial++) {
+      const x2: number = x1 - (e1 * (x1 - x0)) / (e1 - e0);
+      x0 = x1;
+      e0 = e1;
+      x1 = x2;
+      e1 = error(x1);
+    }
+    return x1;
   }
+
+  /**
+   * The static margin of stability of a posture: the horizontal distance
+   * from the engine's whole-body centre of mass to the edge of the hull of
+   * both feet's heel, ball and toe points (Hof et al. 2005, with zero
+   * velocity), positive inside.
+   *
+   * @param body The body.
+   * @param posture The posture.
+   * @returns Metres.
+   */
+  export function margin(body: IHumanBody, posture: IHumanPosture): number {
+    const bones = poseBones(body, resolveHumanPosture(body, posture));
+    const support: IAutoMovieVector3[] = [];
+    for (const side of ["Left", "Right"] as const)
+      for (const point of ["heel", "ball", "toe"] as const) {
+        const frame = body.surfaces.sockets[`${point}${side}`];
+        support.push(resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!).point);
+      }
+    return resolveAutoMovieCenterOfMass.margin(resolveAutoMovieCenterOfMass.place(model(body), bones), support);
+  }
+
+  /**
+   * The dynamic margin of stability at an instant of a movement (Hof,
+   * Gazendam and Sinke 2005): the engine's whole-body centre of mass plus
+   * its velocity (a central difference over 1/240 s) over the inverted
+   * pendulum's eigenfrequency `sqrt(g / l)` with `l` 1.34 hip heights (Hof's
+   * leg length), measured to the edge of the feet's base, positive inside.
+   *
+   * @param body The body.
+   * @param at The movement's posture at a second.
+   * @param seconds The instant.
+   * @returns Metres.
+   */
+  export function extrapolated(body: IHumanBody, at: (seconds: number) => IHumanPosture, seconds: number): number {
+    const h: number = 1 / 240;
+    const com = (t: number): IAutoMovieVector3 => resolveAutoMovieCenterOfMass.place(model(body), poseBones(body, resolveHumanPosture(body, at(t))));
+    const a: IAutoMovieVector3 = com(seconds - h);
+    const b: IAutoMovieVector3 = com(seconds + h);
+    const velocity: IAutoMovieVector3 = Vector3.scale(Vector3.subtract(b, a), 1 / (2 * h));
+    const bones = poseBones(body, resolveHumanPosture(body, at(seconds)));
+    const xcom: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.extrapolate(resolveAutoMovieCenterOfMass.place(model(body), bones), velocity, 1.34 * body.measure.hipHeight);
+    const support: IAutoMovieVector3[] = [];
+    for (const side of ["Left", "Right"] as const)
+      for (const point of ["heel", "ball", "toe"] as const) {
+        const frame = body.surfaces.sockets[`${point}${side}`];
+        support.push(resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!).point);
+      }
+    return resolveAutoMovieCenterOfMass.margin(xcom, support);
+  }
+
+  /**
+   * How far the whole-body centre of mass lies ahead of the middle of the
+   * feet's soles along a posture's heading, metres.
+   *
+   * @param body The body.
+   * @param posture The posture.
+   * @returns Metres; positive ahead.
+   */
+  export function offset(body: IHumanBody, posture: IHumanPosture): number {
+    const bones = poseBones(body, resolveHumanPosture(body, posture));
+    const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(model(body), bones);
+    const soles: IAutoMovieVector3[] = (["soleLeft", "soleRight"] as const).map((name) => resolveAutoMovieHumanoidSurfaces.place(body.surfaces.sockets[name], bones.get(body.surfaces.sockets[name].bone)!).point);
+    const middle: IAutoMovieVector3 = Vector3.scale(Vector3.add(soles[0]!, soles[1]!), 0.5);
+    const forward: IAutoMovieVector3 = Quaternion.rotateVector(Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, posture.yaw), { x: 0, y: 0, z: 1 });
+    return Vector3.dot(Vector3.subtract(com, middle), forward);
+  }
+}
+
+/** Mass models by body. */
+const MODELS: WeakMap<IHumanBody, resolveAutoMovieCenterOfMass.IModel> = new WeakMap();
+
+/** The engine's mass model of a body, made once. */
+function model(body: IHumanBody): resolveAutoMovieCenterOfMass.IModel {
+  let out: resolveAutoMovieCenterOfMass.IModel | undefined = MODELS.get(body);
+  if (out === undefined) {
+    out = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+    MODELS.set(body, out);
+  }
+  return out;
 }

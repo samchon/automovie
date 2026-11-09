@@ -165,6 +165,10 @@ export namespace gesture {
     const duration: number = retractAt + retract;
     const base: IHumanActionPlan = stand.plan({ ...context, params: { seconds: duration } });
 
+    // A bow's balance: the hips' shift at the deepest pitch, scaled by the pitch's sine in between.
+    const peak: number = depth * mods.extent;
+    const lean: number = p.kind === "bow" ? HumanBalance.shift(body, (back: number): IHumanPosture => bow(body, at0, peak, back)) / Math.sin((peak * Math.PI) / 180) : 0;
+
     return {
       duration,
       events: [
@@ -179,7 +183,7 @@ export namespace gesture {
         const envelope: number = t < prepare ? minimumJerk(t / prepare).s : t <= retractAt ? 1 : 1 - minimumJerk((t - retractAt) / retract).s;
         const u: number = Math.min(1, Math.max(0, (t - prepare) / stroke));
         let posture: IHumanPosture = base.posture(t);
-        if (p.kind === "bow") posture = bow(body, posture, depth * mods.extent * envelope);
+        if (p.kind === "bow") posture = bow(body, posture, peak * envelope, lean * Math.sin(((peak * envelope) * Math.PI) / 180));
 
         // Head, shoulder and trunk angles, added to what the stand holds.
         const joints: IHumanPosture["joints"] = { ...posture.joints };
@@ -224,12 +228,13 @@ export namespace gesture {
    * @param body The body.
    * @param posture The standing posture.
    * @param pitch Forward pitch, degrees.
+   * @param back How far the hips move back, metres.
    * @returns The bowed posture.
    */
-  export function bow(body: IHumanBody, posture: IHumanPosture, pitch: number): IHumanPosture {
+  export function bow(body: IHumanBody, posture: IHumanPosture, pitch: number, back: number): IHumanPosture {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
     const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
-    const target: IAutoMovieVector3 = HumanFrame.point(frame, { x: hips.x, y: hips.y, z: hips.z - HumanBalance.hipShift(body.measure, pitch) });
+    const target: IAutoMovieVector3 = HumanFrame.point(frame, { x: hips.x, y: hips.y, z: hips.z - back });
     const tipped: IHumanPosture = { ...posture, pitch: posture.pitch + pitch };
     const offset: IAutoMovieVector3 = Quaternion.rotateVector(resolveHumanPosture.heading(tipped), hips);
     return { ...tipped, root: Vector3.subtract(target, offset) };

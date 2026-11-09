@@ -28,11 +28,12 @@ import { poseBones } from "./poseBones";
  * than the buttock-to-popliteal length); a shallower seat moves the socket
  * forward to 2 cm inside its depth.
  *
- * A seat suits a body when its height lies within 0.8 to 1.2 of the knee
- * joint's height, the popliteal-height ratio the campaign sets: a lower seat
+ * A seat suits a body when its height lies within 0.8 to 1.2 of the
+ * popliteal height, the ratio the campaign sets: a lower seat
  * needs more trunk flexion and a longer rise (Janssen, Bussmann and Stam 2002,
  * Phys Ther 82:866), and beyond these ratios a body is better served by
- * another posture. The knee joint's height stands in for the popliteal height.
+ * another posture. The popliteal height is the knee joint's height less the
+ * thigh's radius, where the thigh's underside meets a level seat.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the seat frame, the socket placement rule and the suitability band with sources.
  * @evidence contracts/development/implementation.md#principled-implementation The seat socket is an effector placed by solving the root for a pitch; the legs and arms are inverse-kinematics goals.
@@ -53,18 +54,18 @@ export namespace seated {
     back?: number;
   }
 
-  /** Accepted seat heights as shares of the knee joint's height. */
+  /** Accepted seat heights as shares of the popliteal height. */
   export const RATIO: readonly [number, number] = [0.8, 1.2];
 
   /**
-   * The seat height's share of the knee joint's height.
+   * The seat height's share of the popliteal height.
    *
    * @param body The body.
    * @param seat The seat.
    * @returns The ratio.
    */
   export function ratio(body: IHumanBody, seat: ISeat): number {
-    return seat.at.y / knee(body);
+    return seat.at.y / popliteal(body);
   }
 
   /**
@@ -78,23 +79,28 @@ export namespace seated {
     const r: number = ratio(body, seat);
     if (r < RATIO[0] || r > RATIO[1])
       throw new Error(
-        `A seat ${seat.at.y.toFixed(3)} m high is ${r.toFixed(2)} of this body's knee height; seats from ${(RATIO[0] * knee(body)).toFixed(3)} to ${(RATIO[1] * knee(body)).toFixed(3)} m suit it`,
+        `A seat ${seat.at.y.toFixed(3)} m high is ${r.toFixed(2)} of this body's popliteal height; seats from ${(RATIO[0] * popliteal(body)).toFixed(3)} to ${(RATIO[1] * popliteal(body)).toFixed(3)} m suit it`,
       );
   }
 
   /**
-   * Where the seat socket rests on a seat, world metres.
+   * Where the seat socket goes when seated, world metres: back from the
+   * front edge as the class comment states, and raised above the surface by
+   * however far the thighs' undersides hang below the socket at rest, since
+   * a seated body bears on whichever is lower, the ischial tuberosities or
+   * the backs of the thighs, and neither may sink into the seat.
    *
    * @param body The body.
    * @param seat The seat.
-   * @returns The point on the sitting surface.
+   * @returns The socket's seated point.
    */
   export function point(body: IHumanBody, seat: ISeat): IAutoMovieVector3 {
     const socket: IAutoMovieVector3 = offset(body);
-    const hipJoint: number = body.rest.get("leftUpperLeg")!.z;
-    let back: number = body.measure.thigh - 0.05 + hipJoint - socket.z;
+    const hipJoint: IAutoMovieVector3 = body.rest.get("leftUpperLeg")!;
+    let back: number = body.measure.thigh - 0.05 + hipJoint.z - socket.z;
     if (seat.depth !== undefined) back = Math.min(back, seat.depth - 0.02);
-    return HumanFrame.point({ origin: seat.at, yaw: seat.yaw }, { x: 0, y: 0, z: -back });
+    const lift: number = Math.max(0, socket.y - (hipJoint.y - body.measure.thighRadius));
+    return HumanFrame.point({ origin: seat.at, yaw: seat.yaw }, { x: 0, y: lift, z: -back });
   }
 
   /**
@@ -185,12 +191,15 @@ export namespace seated {
   }
 
   /**
-   * The knee joint's height at rest, the stand-in for the popliteal height.
+   * The popliteal height at rest, metres: the floor to the underside of the
+   * thigh just behind the knee, the knee joint's height less the thigh's
+   * radius, the height a seat is measured against (seated anthropometry,
+   * ANSI/HFES 100-2007).
    *
    * @param body The body.
    * @returns Metres.
    */
-  export function knee(body: IHumanBody): number {
-    return body.measure.ankleHeight + body.measure.shank;
+  export function popliteal(body: IHumanBody): number {
+    return body.measure.ankleHeight + body.measure.shank - body.measure.thighRadius;
   }
 }
