@@ -90,7 +90,9 @@ export function test_template_scaffold_workspace(): void {
     TestValidator.equals(`root omits ${relative}`, root[relative], undefined);
 
   // Every catalog dependency resolves to the single production's range.
-  const catalogs: Map<string, Map<string, string>> = readCatalogs(workspaceYaml);
+  const catalogs: Map<string, Map<string, string>> = readCatalogs(
+    workspaceYaml,
+  );
   const singleManifest: IManifest = JSON.parse(single["package.json"]!);
   const memberManifest: IManifest = JSON.parse(member["package.json"]!);
   TestValidator.equals(
