@@ -9,14 +9,22 @@ type Outlines = readonly [
   AutoMovieViewOutline.IOutline,
 ];
 
-/** Existing direct fullness ownership, after scalar source admission. */
+/** One admitted split point's sources: point u, point v, tangent angle, the shoulder of the piece it starts. */
+type Split = readonly [
+  AutoMovieViewOutline.IOutline,
+  AutoMovieViewOutline.IOutline,
+  AutoMovieViewOutline.IOutline,
+  AutoMovieViewOutline.IOutline,
+];
+
+/** Existing direct fullness ownership, after scalar source admission; `touch`, `splits` and `pieces` are null when the part declares none. */
 type Fullness =
   | {
       kind: "shoulder";
       owner: AutoMovieViewOutline.IOutline;
       departures: Outlines | null;
     }
-  | { kind: "top"; shoulders: Outlines };
+  | { kind: "top"; shoulders: Outlines; touch: Outlines | null; splits: readonly [Split, Split, Split, Split] | null; pieces: readonly [readonly Split[], readonly Split[], readonly Split[], readonly Split[]] | null };
 
 /** A null span denotes the existing constant ellipse cap law. */
 interface Cap {
@@ -98,7 +106,7 @@ export namespace AutoMovieLoftViewSource {
    *
    * @evidence contracts/development/implementation.md#principled-implementation Uses original signed outlines and the existing pole parameter, while direct fullness retains its own scalar parameter.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One exhaustive ownership branch follows shared curve admission and cap preparation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Collects all independent failures without sorting or changing inputs; no incomplete girth derivative provider is attached.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Collects all independent failures without sorting or changing inputs; no incomplete girth derivative provider is attached, and a part declaring both one split and a split list per quarter is refused rather than one of them dropped.
    * @evidence contracts/development/common.md#meaningful-documentation Distinguishes explicit generic-girth absence from a failed direct source and states immutable borrowed input.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear original-outline preparation plus fixed end/quarter traversal; no native phase inverse or girth solve occurs.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each admitted scalar spline is retained once for subsequent station reads.
@@ -174,7 +182,30 @@ export namespace AutoMovieLoftViewSource {
         "top shoulder",
         diagnostics,
       );
-      admitted = shoulders === null ? null : { kind: "top", shoulders };
+      const touch: Outlines | null = fullness.touch === undefined ? null : group(fullness.touch, {}, "touch", diagnostics);
+      const admit = (split: IAutoMovieViewPart.ISplit, name: string): Split | null => {
+        const parts: (AutoMovieViewOutline.IOutline | null)[] = [curve(split.u, {}, `${name} u`, diagnostics), curve(split.v, {}, `${name} v`, diagnostics), curve(split.angle, {}, `${name} angle`, diagnostics), curve(split.shoulder, {}, `${name} shoulder`, diagnostics)];
+        return parts.some((p: AutoMovieViewOutline.IOutline | null): boolean => p === null) ? null : [parts[0]!, parts[1]!, parts[2]!, parts[3]!];
+      };
+      const splits: (Split | null)[] | null = fullness.splits === undefined ? null : fullness.splits.map((split: IAutoMovieViewPart.ISplit, q: number): Split | null => admit(split, `split ${q}`));
+      const pieces: (Split | null)[][] | null = fullness.pieces === undefined ? null : fullness.pieces.map((list: IAutoMovieViewPart.ISplit[], q: number): (Split | null)[] => list.map((split: IAutoMovieViewPart.ISplit, j: number): Split | null => admit(split, `quarter ${q} point ${j}`)));
+      const both: boolean = fullness.splits !== undefined && fullness.pieces !== undefined;
+      if (both) diagnostics.push({ contract: "outline", detail: "A top fullness declares both one split per quarter and a split list per quarter; it declares one of them." });
+      const failed: boolean =
+        both ||
+        shoulders === null ||
+        (fullness.touch !== undefined && touch === null) ||
+        (splits !== null && splits.some((s: Split | null): boolean => s === null)) ||
+        (pieces !== null && (pieces.length !== 4 || pieces.some((list: (Split | null)[]): boolean => list.some((s: Split | null): boolean => s === null))));
+      admitted = failed
+        ? null
+        : {
+            kind: "top",
+            shoulders: shoulders!,
+            touch,
+            splits: splits === null ? null : [splits[0]!, splits[1]!, splits[2]!, splits[3]!],
+            pieces: pieces === null ? null : [pieces[0] as Split[], pieces[1] as Split[], pieces[2] as Split[], pieces[3] as Split[]],
+          };
     } else {
       const owner: AutoMovieViewOutline.IOutline | null = curve(
         fullness.shoulder,

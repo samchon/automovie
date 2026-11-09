@@ -205,7 +205,8 @@ export namespace IAutoMovieLoftChain {
     /**
      * The view box and shoulders the view-to-section operator
      * (`AutoMovieViewLoft`) drew this layer from; present exactly on
-     * layers it emitted. The section touches the box at the guide phases 0,
+     * layers it emitted from a four-quarter section (a touch/split conic
+     * chain's layer has none). The section touches the box at the guide phases 0,
      * `pi / 2`, `pi` and `3 pi / 2`: the point there is the outline's value
      * on its chart axis (a knot of the section's B-spline), so an audit reads
      * the guide-touch rule on the layers that carry it.

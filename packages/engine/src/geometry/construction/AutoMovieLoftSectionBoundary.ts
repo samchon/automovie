@@ -23,10 +23,16 @@ interface Controls {
 /**
  * A continuation-owned native generating law on one changed station span.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Distinguishes continuation ownership, physical station jets, effective inputs and finite-arithmetic admission.
- * @evidence contracts/development/design.md#principled-representation Represents A continuation-owned native generating law on one changed station span: companion namespace of 6 members (`IEnd`, `IBridge`, `create`, `read`, `values`, `orient`); units and frames named in its text: second. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieLoftSectionBoundary` in packages/engine/src/geometry/construction/AutoMovieLoftSectionBoundary.ts; its surface is the 6 members listed and the text shows 3 other files naming it, mostly packages/engine (2), test (1), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
+ * A source declaring touch offsets or quarter splits is a G1 conic chain
+ * (`AutoMovieViewChain`), whose phase reading is C1 with sided second
+ * derivatives at its joins and whose inputs are more than these eight
+ * scalars; it has no law here, and every entry refuses it by name rather
+ * than carrying its four-quarter part alone.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Distinguishes continuation ownership, physical station jets, effective inputs and finite-arithmetic admission, and names the chain refusal.
+ * @evidence contracts/development/design.md#principled-representation Stores a native continuation span through its original endpoint jets and transformed controls, with physical stations in millimetres.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the endpoint and bridge records and their creation, value, jet and orientation readers to construction and inspection.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The eight-scalar law refuses touch and split chains because their extra controls cannot be recovered from the four extents and four shoulders.
  */
 export namespace AutoMovieLoftSectionBoundary {
   /**
@@ -69,13 +75,14 @@ export namespace AutoMovieLoftSectionBoundary {
    *
    * @evidence contracts/development/implementation.md#principled-implementation Transforms actual derivatives by the log/logit chain rule and retains their original endpoint tuples exactly.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, copying and fixed-size transformation are one preparation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses missing/nonfinite jets and invalid source values; no derivative limiting, fitting or fallback is selected.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses missing/nonfinite jets, invalid source values and chain endpoints; no derivative limiting, fitting or fallback is selected.
    * @evidence contracts/development/common.md#meaningful-documentation Requires increasing physical stations and actual native-family rather than composed endpoint data.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant eight-scalar endpoint work without phase inverses or layer traversal.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The transformed endpoint rows serve all later station reads.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns copied endpoint/control arrays or a diagnostic and retains no caller object globally.
    */
   export function create(first: IEnd, last: IEnd): IBridge | string {
+    if (chained(first?.inputs) || chained(last?.inputs)) return CHAIN;
     if (
       first === null ||
       first === undefined ||
@@ -200,13 +207,14 @@ export namespace AutoMovieLoftSectionBoundary {
    *
    * @evidence contracts/development/implementation.md#principled-implementation Matching ends reflect +v/-v, reverse quarter ownership and negate the actual first station derivative; second derivatives retain their sign.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One signed permutation covers the two end-direction cases.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Native geometry already contains this phase reflection afterward, so callers must not apply another minus-phi transform.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Native geometry already contains this phase reflection afterward, so callers must not apply another minus-phi transform; a chain endpoint is refused rather than reflected in its four-quarter part alone.
    * @evidence contracts/development/common.md#meaningful-documentation States station/quarter reflection separately from the native provider's internal ray reflection.
    * @evidence contracts/development/implementation.md#efficient-algorithms Copies eight triples with constant indexing work.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This value transform owns no reusable station plan.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent tuples and retains no source or output.
    */
   export function orient(inputs: Inputs, sign: 1 | -1): Inputs {
+    if (chained(inputs)) throw new Error(CHAIN);
     if (!valid(inputs) || (sign !== 1 && sign !== -1))
       throw new Error(
         "A native endpoint reflection needs actual scalar2 and a direction sign of 1 or -1.",
@@ -226,6 +234,19 @@ export namespace AutoMovieLoftSectionBoundary {
       ),
     };
   }
+}
+
+/** The refusal of a chain source at a boundary. */
+const CHAIN: string =
+  "A touch-offset or split-quarter source is a G1 conic chain, phase C1 with sided second derivatives at its joins; it has no eight-scalar boundary law.";
+
+/** Inputs declaring touch offsets or splits belong to a chain. */
+function chained(inputs: Inputs | null | undefined): boolean {
+  return (
+    inputs !== null &&
+    inputs !== undefined &&
+    (inputs.touch !== undefined || inputs.splits !== undefined || inputs.pieces !== undefined)
+  );
 }
 
 /** Validate the explicit generating-law coefficients without evaluating a requested derivative. */
@@ -275,11 +296,12 @@ function admit(
   return null;
 }
 
-/** Actual scalar2 admission is distinct from value-only source availability. */
+/** Actual scalar2 admission is distinct from value-only source availability; a chain's inputs are not eight scalars. */
 function valid(inputs: Inputs): boolean {
   return (
     inputs !== null &&
     inputs !== undefined &&
+    !chained(inputs) &&
     Array.isArray(inputs.extents) &&
     Array.isArray(inputs.shoulders) &&
     inputs.extents.length === 4 &&

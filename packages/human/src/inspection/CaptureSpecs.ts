@@ -30,6 +30,9 @@ type IOutline = AutoMovieHumanArmCurveSpec.IOutline;
  * `(1 + rho) / 2 (a d_a + b d_b)` of each quarter, an exact quarter-ellipse
  * point at `rho = sqrt 2 - 1`. A conic loop needs the course frame at its
  * station, which the spec does not carry, so it is reported unavailable.
+ * A part built in separate domains hands every domain's chain (`chains`);
+ * they are drawn together, each with its own rings, guides, course and
+ * clay, and nothing joins them.
  */
 export namespace CaptureSpecs {
   /** What a region hands the capture for one part. */
@@ -64,6 +67,12 @@ export namespace CaptureSpecs {
 
     /** The loft chain, or null with the loft's diagnostics. */
     chain: IAutoMovieLoftChain | null;
+
+    /** Every chain of a part built in separate domains, drawn together and not joined; when present it replaces `chain`. */
+    chains?: readonly IAutoMovieLoftChain[];
+
+    /** Keep independently drawable charts and name any native admission refusals. */
+    allowDomainRefusal?: true;
 
     /** Loft and constructor diagnostics. */
     diagnostics: readonly string[];
@@ -103,7 +112,7 @@ export namespace CaptureSpecs {
       frames: bundle.frames.map((f: AutoMovieHumanArmCurveSpec.ISegmentFrame): CaptureModel.IFrame => ({ name: f.name, parent: f.parent, world: world(f.name) })),
       curves,
       ports: bundle.ports.map((p: { name: string; frame: string; point: V3; radius: number }): CaptureModel.IPort => ({ name: p.name, point: S.apply(world(p.frame), p.point), radius: p.radius })),
-      loft: loft(bundle.chain, bundle.diagnostics),
+      loft: bundle.chains === undefined ? loft(bundle.chain, bundle.diagnostics) : lofts(bundle.chains, bundle.diagnostics, bundle.allowDomainRefusal),
       reference: bundle.reference,
       relations: bundle.relations,
       milliseconds: bundle.milliseconds,
@@ -268,6 +277,33 @@ export namespace CaptureSpecs {
       }
     fans([chain.pole, chain.opposite], ys.length, phases, positions, indices);
     return { status: "available", lines, clay: { positions, indices }, diagnostics: counted(diagnostics) };
+  }
+
+  /** Every domain's {@link loft}, drawn together: lines prefixed by their domain, clay meshes appended with their own vertices; nothing joins them. */
+  export function lofts(chains: readonly IAutoMovieLoftChain[], diagnostics: readonly string[], allowDomainRefusal: boolean = false): CaptureModel.ILoft {
+    if (chains.length === 0) return { status: "unavailable", cause: `no loft chain in any domain: ${counted(diagnostics).join(" | ") || "the engine returned none"}` };
+    const lines: CaptureModel.ILine[] = [];
+    const positions: number[] = [];
+    const indices: number[] = [];
+    const refusals: string[] = [];
+    chains.forEach((chain: IAutoMovieLoftChain, k: number): void => {
+      let one: CaptureModel.ILoft;
+      try {
+        one = loft(chain, []);
+      } catch (error: unknown) {
+        if (!allowDomainRefusal || !(error instanceof Error && error.name === "AutoMovieLoftAdmissionError")) throw error;
+        refusals.push(`domain ${chain.name}: ${error.message}`);
+        return;
+      }
+      if (one.status !== "available") return;
+      for (const line of one.lines) lines.push({ ...line, id: `domain ${k}:${line.id}` });
+      const base: number = positions.length / 3;
+      for (const position of one.clay.positions) positions.push(position);
+      for (const index of one.clay.indices) indices.push(index + base);
+    });
+    const details: string[] = counted([...diagnostics, ...refusals]);
+    if (allowDomainRefusal && positions.length === 0) return { status: "unavailable", cause: `no drawable loft domain: ${details.join(" | ")}` };
+    return { status: "available", lines, clay: { positions, indices }, diagnostics: details };
   }
 
   /**

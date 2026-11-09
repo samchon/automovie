@@ -14,6 +14,12 @@ type V3 = CaptureModel.Vec3;
  * the display frame; a local display frame is the inverse of that frame's
  * composed placement. Display meshes are built once per part, kind and frame
  * and reused by identity, which the reference-background cache keys on.
+ *
+ * Each part's reference mesh is drawn where its provider placed it: a
+ * provider may register the reference to its own datums or keep her own
+ * world, and the part's `reference.method` in the manifest says which. Parts
+ * placed differently are not in one shared world, so a whole-figure
+ * reference can show the same body more than once.
  */
 export namespace NodeCaptureRender {
   /** Reference clay colour, linear RGB: light, so the original curves drawn over it keep their contrast. */
@@ -45,7 +51,7 @@ export namespace NodeCaptureRender {
     /** Line visibility rule. */
     lineMode: "xray" | "depth";
 
-    /** Whether the first mesh is the registered reference. */
+    /** Whether the first mesh is a part's reference, as its provider placed it. */
     reference: boolean;
 
     /** Related names the cell does not draw, with causes. */
@@ -147,9 +153,11 @@ export namespace NodeCaptureRender {
    * The reference slab of a part row: the display height range of the part's
    * own clay, widened by the existing 15 mm reference crop margin, so the
    * reference stage and the framing show the reference's same region rather
-   * than the whole registered body. Null without a loft.
+   * than the part's whole reference body. A provider can preserve its own
+   * selected reference extent. Null without a loft.
    */
   export function regionCrop(part: CaptureModel.IPart, d: IDisplay): ICrop | null {
+    if (part.reference.status === "available" && part.reference.cropToLoft === false) return null;
     if (part.loft.status !== "available") return null;
     const s: CaptureModel.ITriangles = part.loft.clay;
     let low: number = Infinity;
@@ -165,11 +173,12 @@ export namespace NodeCaptureRender {
 
   /**
    * The scene of one cell, or the cause it cannot be drawn. The original
-   * stage draws the selected curves with their aids and datums over the
-   * registered reference, lines always visible (xray); the loft stages draw
-   * the generated loft curves alone, over the clay with depth-tested lines,
-   * and the clay alone. A missing loft makes the loft stages unavailable; a
-   * missing reference is named in the cell's unavailable list.
+   * stage draws the selected curves with their aids and datums over each
+   * part's reference as its provider placed it, lines always visible (xray);
+   * the loft stages draw the generated loft curves alone, over the clay with
+   * depth-tested lines, and the clay alone. A missing loft makes the loft
+   * stages unavailable; a missing reference is named in the cell's
+   * unavailable list.
    */
   export function scene(
     selection: CaptureSelection.ISelection,
@@ -207,13 +216,13 @@ export namespace NodeCaptureRender {
       return { meshes, curves, datums, lineMode: "xray", reference: meshes.length !== 0, unavailable };
     }
     if (stage === "reference") {
-      // The registered reference mesh of each drawn part as clay, under the
-      // cameras every stage of the row shares, so each view pairs with the
-      // clay stage's view of the same row.
+      // Each drawn part's reference mesh as clay, as its provider placed it,
+      // under the cameras every stage of the row shares, so each view pairs
+      // with the clay stage's view of the same row.
       const meshes: N.Mesh[] = [];
       const sources: Set<CaptureModel.ITriangles> = new Set();
       for (const part of drawn) {
-        // The whole figure shows each registered reference body once, uncut;
+        // The whole figure shows each distinct reference mesh once, uncut;
         // a part row shows the reference at its own clay's height range.
         const whole: boolean = selection.kind === "whole";
         if (whole && part.reference.status === "available") {
@@ -224,10 +233,11 @@ export namespace NodeCaptureRender {
         if (ref !== null) meshes.push(ref);
         else unavailable.push({ name: `reference:${part.name}`, cause: part.reference.status === "unavailable" ? part.reference.cause : "no reference mesh" });
       }
-      if (meshes.length === 0) return { cause: `no registered reference mesh for ${selection.parts.join(", ")}` };
+      if (meshes.length === 0) return { cause: `no reference mesh for ${selection.parts.join(", ")}` };
       return { meshes, curves: [], datums: [], lineMode: "depth", reference: false, unavailable };
     }
     const meshes: N.Mesh[] = [];
+    const candidates: Map<CaptureModel.IPart, N.Mesh> = new Map();
     const curves: N.Curve[] = [];
     const refused: string[] = [];
     for (const part of drawn) {
@@ -236,8 +246,23 @@ export namespace NodeCaptureRender {
         continue;
       }
       if (stage !== "clay") for (const l of part.loft.lines) curves.push(line(l));
-      if (stage !== "loft") meshes.push(mesh(part, "clay", d)!);
+      if (stage !== "loft") {
+        const clay: N.Mesh | null = mesh(part, "clay", d);
+        if (clay !== null) candidates.set(part, clay);
+      }
     }
+
+    // Only a displayed host replaces the separate clay meshes it contains.
+    const included: Set<string> = new Set();
+    for (const part of candidates.keys())
+      for (const name of part.included ?? []) if (name !== part.name) included.add(name);
+    const covered: Set<string> = new Set();
+    for (const part of candidates.keys()) {
+      if (included.has(part.name)) continue;
+      for (const name of part.included ?? []) if (name !== part.name) covered.add(name);
+    }
+    for (const [part, clay] of candidates) if (!covered.has(part.name)) meshes.push(clay);
+
     if (refused.length === drawn.length) return { cause: `no loft: ${refused.join(" | ")}` };
     for (const r of refused) unavailable.push({ name: `loft:${r.split(":")[0]}`, cause: r });
     return { meshes, curves, datums: [], lineMode: "depth", reference: false, unavailable };
@@ -248,7 +273,7 @@ export namespace NodeCaptureRender {
    * same for every stage so the stages of a row share their cameras: a curve
    * row frames its curve, aids and datums; other rows frame every drawn
    * part's curves and aids, its clay or, without a loft, nothing more, and
-   * its registered reference.
+   * its reference as its provider placed it.
    */
   export function framing(selection: CaptureSelection.ISelection, parts: ReadonlyMap<string, CaptureModel.IPart>, d: IDisplay): N.Point[] {
     const out: N.Point[] = [];

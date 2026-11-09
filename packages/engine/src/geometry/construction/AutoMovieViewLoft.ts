@@ -5,6 +5,7 @@ import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
+import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 import { AutoMovieLoftViewSource } from "./AutoMovieLoftViewSource";
@@ -12,6 +13,7 @@ import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 import { AutoMovieSeamStation } from "./AutoMovieSeamStation";
 import { AutoMovieSolidChain } from "./AutoMovieSolidChain";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
+import { AutoMovieViewChain } from "./AutoMovieViewChain";
 import { AutoMovieViewLoftInputs } from "./AutoMovieViewLoftInputs";
 import { AutoMovieViewSection } from "./AutoMovieViewSection";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
@@ -21,6 +23,14 @@ import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 /** Existing ordered quarter layout shared with the view input owner. */
 type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
 
+/** One emitted station's plane, radius reader and four-quarter metadata, in station order. */
+interface Row {
+  station: number;
+  frame: AutoMovieLoftFrame.IFrame;
+  radius: (phi: number) => number;
+  view: IAutoMovieLoftChain.IView | undefined;
+}
+
 /**
  * Loft a view part through its four signed source outlines and fullness owner.
  * Direct shoulder/top fields retain their original scalar generators for final
@@ -28,6 +38,17 @@ type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
  * cubic coefficients remain the explicit compatibility representation; generic
  * girth retains that existing representation. Analytic frames keep actual source
  * jets, while numerical axes retain their existing smooth plane fit.
+ *
+ * A top fullness declaring touch offsets or splits makes each station a
+ * conic chain (`AutoMovieViewChain`, through the native reader's mapping),
+ * returned in `chains`; its compatibility rows sample that chain and carry no
+ * four-quarter metadata, and its outlines join the same knot coverage as the
+ * extents and shoulders. Such a result declares C1 in phase and in station:
+ * a chain join moves with the station at phase theta(s), and where its two
+ * arcs' curvatures differ the radius keeps r and r_phi continuous across it
+ * while r_phiphi jumps; differentiating the two continuities along the join
+ * gives the jumps [r_sphi] = -theta' [r_phiphi] and [r_ss] = theta'^2
+ * [r_phiphi], so C2 holds only within the smooth pieces between joins.
  *
  * Regular C2 requires the admitted scalar/section/frame derivative premises.
  * Physical pole jets and geometric G2 at an apex are not supplied here. The
@@ -39,10 +60,10 @@ type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
  * Unreachable girth keeps its reach endpoint with a diagnostic. Fewer than two
  * surviving sections publish no final chain. Source records and inputs remain immutable.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the inputs' premises, the poles' domes and the result's fields.
- * @evidence contracts/development/design.md#principled-representation Represents Loft a view part through its four signed source outlines and fullness owner: companion namespace of 3 members (`IResult`, `IStation`, `create`); units and frames named in its text: frame, local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieViewLoft` in packages/engine/src/geometry/construction/AutoMovieViewLoft.ts; its surface is the 3 members listed and the text shows 46 other files naming it, mostly test (22), packages/human (19), packages/engine (5), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
+ * @evidence contracts/development/common.md#meaningful-documentation States the inputs' premises, the poles' domes, the chain stations' continuity with its derivation and the result's fields.
+ * @evidence contracts/development/design.md#principled-representation The result carries its actual four-quarter sections and split chains separately, with their source frames, the final field and its continuity.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One create operation owns view-part admission and publication. Station records expose the admitted geometry to inspection and the compatibility layer.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A rejected source keeps its diagnostic, never publishes a replacement shape, and a split chain declares only the continuity of its joins.
  */
 export namespace AutoMovieViewLoft {
   /**
@@ -60,14 +81,17 @@ export namespace AutoMovieViewLoft {
     /** Regular surface for merge/diff, null for an absent chain, unavailable physical2 or failed anchor admission. */
     surface: IAutoMovieSolidSurface | null;
 
-    /** Each surviving station's section, by station. */
+    /** Each surviving four-quarter station's section, by station. */
     sections: IStation[];
+
+    /** Each surviving chain station's section, by station, for a source declaring touch offsets or splits. */
+    chains: IChainStation[];
 
     /** Every broken premise. */
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
 
-    /** C2 phase and regular-station interpolation. A true pole has no finite station 2-jet; geometric G2 of the complete phase approximation is not certified by this literal. */
-    continuity: { phase: "C2"; station: "C2" };
+    /** C2 in phase and regular station for four-quarter sections; C1 in both once a chain station is present (moving G1 joins with unequal curvatures; C2 only within the pieces between them). A true pole has no finite station 2-jet; geometric G2 of the complete phase approximation is not certified by this literal. */
+    continuity: { phase: "C2" | "C1"; station: "C2" | "C1" };
   }
 
   /**
@@ -90,16 +114,35 @@ export namespace AutoMovieViewLoft {
   }
 
   /**
+   * One emitted chain station.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members distinguish source station units, plane and the chain with its join curvatures.
+   * @evidence contracts/development/design.md#principled-representation Stores one admitted conic chain with its physical station and exact input plane.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The loft result exposes its split station to the compatibility layer and inspection alongside ordinary section stations.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only an admitted chain is stored and its individual arc geometry remains available.
+   */
+  export interface IChainStation {
+    /** Station, mm. */
+    station: number;
+
+    /** Its section plane. */
+    frame: AutoMovieLoftFrame.IFrame;
+
+    /** Its chain section. */
+    chain: AutoMovieViewChain.ISection;
+  }
+
+  /**
    * Loft a part from its views.
    *
    * @param part The part.
    * @returns The chain, its surface, its sections and its diagnostics.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Retains original direct scalar sources as final local authority and actual analytic frame jets; explicit compatibility coefficients keep their existing common closing coordinate or ordinary SeamStation law.
+   * @evidence contracts/development/implementation.md#principled-implementation Retains original direct scalar sources as final local authority and actual analytic frame jets; explicit compatibility coefficients keep their existing common closing coordinate or ordinary SeamStation law, sampled from each station's own section or chain.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Source admission, section construction and final chain construction remain consecutive stages with explicit diagnostics.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid source/fullness/sections retain their diagnostics. A direct field with a rejected prepared station is not published through surviving compatibility rows, and no fallback section is introduced.
-   * @evidence contracts/development/common.md#meaningful-documentation The namespace describes ownership, totality, the pole rule and the final coefficient interpolation; source values use the value-only owner.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each source is prepared once. An O(L+K) station-set and declared-knot coverage pass precedes section solves; each station then solves one section, and coefficient/frame preparation and ordinary field solves are linear in layer rows and component widths.
+   * @evidence contracts/development/common.md#meaningful-documentation The namespace describes ownership, totality, the pole rule, the chain stations and the final coefficient interpolation; source values use the value-only owner.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each source is prepared once. An O(L+K) station-set and declared-knot coverage pass precedes section solves; each station then solves one section or prepares one chain, and coefficient/frame preparation and ordinary field solves are linear in layer rows and component widths.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses prepared scalar sources across station values; SeamStation skips source-owned tables and reuses each ordinary curvature table for its slope solve.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned direct chain owns original scalar preparations and O(LN) compatibility bindings alongside its sections; temporary samples are call-local and no cross-part cache is added.
    */
@@ -118,6 +161,7 @@ export namespace AutoMovieViewLoft {
       chain: null,
       surface: null,
       sections: [],
+      chains: [],
       diagnostics,
       continuity: CONTINUITY,
     });
@@ -186,24 +230,21 @@ export namespace AutoMovieViewLoft {
       ["side positive", part.side.positive],
       ["side negative", part.side.negative],
     ];
-    if (fullness.kind === "top")
-      required.push(
-        ...fullness.shoulders.map(
-          (
-            outline: IAutoMovieViewPart.IOutline,
-            q: number,
-          ): [string, IAutoMovieViewPart.IOutline] => [
-            `top shoulder ${q}`,
-            outline,
-          ],
-        ),
-      );
-    else {
-      required.push(
-        fullness.kind === "girth"
-          ? ["girth", fullness.girth]
-          : ["shoulder", fullness.shoulder],
-      );
+    if (fullness.kind === "top") {
+      required.push(...fullness.shoulders.map((outline: IAutoMovieViewPart.IOutline, q: number): [string, IAutoMovieViewPart.IOutline] => [`top shoulder ${q}`, outline]));
+      if (fullness.touch !== undefined)
+        required.push(...fullness.touch.map((outline: IAutoMovieViewPart.IOutline, q: number): [string, IAutoMovieViewPart.IOutline] => [`touch ${q}`, outline]));
+      if (fullness.splits !== undefined)
+        required.push(
+          ...fullness.splits.flatMap((split: IAutoMovieViewPart.ISplit, q: number): [string, IAutoMovieViewPart.IOutline][] => [
+            [`split ${q} u`, split.u],
+            [`split ${q} v`, split.v],
+            [`split ${q} angle`, split.angle],
+            [`split ${q} shoulder`, split.shoulder],
+          ]),
+        );
+    } else {
+      required.push(fullness.kind === "girth" ? ["girth", fullness.girth] : ["shoulder", fullness.shoulder]);
       if (fullness.departures !== undefined)
         required.push(
           ...fullness.departures.map(
@@ -301,6 +342,7 @@ export namespace AutoMovieViewLoft {
     };
 
     const sections: IStation[] = [];
+    const chains: IChainStation[] = [];
     for (const s of stations) {
       const at: string = `station ${s} mm`;
       const actual: AutoMovieLoftViewRead.IValues | string | null =
@@ -339,6 +381,21 @@ export namespace AutoMovieViewLoft {
           "half extent",
           `${at}: half extents [${extents.join(", ")}] mm; the axis must lie strictly inside the box`,
         );
+        continue;
+      }
+
+      // A declared touch/split source: the station's own conic chain.
+      if (
+        actual !== null &&
+        (actual.touch !== undefined || actual.splits !== undefined || actual.pieces !== undefined)
+      ) {
+        const prepared: AutoMovieViewChain.ISection | string =
+          AutoMovieLoftSectionNative.chain(actual);
+        if (typeof prepared === "string") {
+          report("view chain", `${at}: ${prepared}`);
+          continue;
+        }
+        chains.push({ station: s, frame: part.axis.at(s), chain: prepared });
         continue;
       }
       const box: AutoMovieViewSection.IBox = { extents };
@@ -387,48 +444,74 @@ export namespace AutoMovieViewLoft {
       if (section === null) continue;
       sections.push({ station: s, frame: part.axis.at(s), section });
     }
-    if (sections.length < 2) {
+    const emitted: number = sections.length + chains.length;
+    if (emitted < 2) {
       report(
         "stations",
-        `${sections.length} of ${part.stations.length} stations carry a section; a chain needs two`,
+        `${emitted} of ${part.stations.length} stations carry a section; a chain needs two`,
       );
-      return { ...empty(), sections };
+      return { ...empty(), sections, chains };
     }
 
     // A skipped compatibility row does not erase the original source there.
     // Keep the diagnosed sections for inspection without publishing that field.
-    if (direct !== null && sections.length !== stations.length)
-      return { ...empty(), sections };
+    if (direct !== null && emitted !== stations.length)
+      return { ...empty(), sections, chains };
 
     const N: number = part.order;
-    const layers: IAutoMovieLoftChain.ILayer[] = sections.map(
-      (st: IStation): IAutoMovieLoftChain.ILayer => {
-        const points: [number, number][] = Array.from(
-          { length: N },
-          (_: unknown, m: number): [number, number] => {
-            const phi: number = (2 * Math.PI * m) / N;
-            const r: number = AutoMovieViewSection.radius(st.section, phi)[0];
-            return [r * Math.cos(phi), r * Math.sin(phi)];
-          },
-        );
-        const coefficients: number[] = AutoMovieSplineCurve.interpolate(points);
-        const s: AutoMovieViewSection.ISection = st.section;
-        return {
-          y: st.station,
+    const rows: Row[] = [
+      ...sections.map(
+        (st: IStation): Row => ({
+          station: st.station,
           frame: st.frame,
-          coefficients,
-          slopes: new Array<number>(coefficients.length).fill(0),
+          radius: (phi: number): number =>
+            AutoMovieViewSection.radius(st.section, phi)[0],
           view: {
-            extents: [...s.box.extents],
-            shoulders: [...s.shoulders],
-            curvatures: s.guides.map(
+            extents: [...st.section.box.extents],
+            shoulders: [...st.section.shoulders],
+            curvatures: st.section.guides.map(
               (g: AutoMoviePolarSector.IGuide): number =>
                 (g.value - g.curvature) / (g.value * g.value),
             ) as Quarters<number>,
           },
-        };
-      },
-    );
+        }),
+      ),
+      ...chains.map(
+        (st: IChainStation): Row => ({
+          station: st.station,
+          frame: st.frame,
+          radius: (phi: number): number =>
+            AutoMovieViewChain.radius(st.chain, phi),
+          view: undefined,
+        }),
+      ),
+    ].sort((a: Row, b: Row): number => a.station - b.station);
+    const layers: IAutoMovieLoftChain.ILayer[] = [];
+    for (const row of rows) {
+      const points: [number, number][] = Array.from(
+        { length: N },
+        (_: unknown, m: number): [number, number] => {
+          const phi: number = (2 * Math.PI * m) / N;
+          const r: number = row.radius(phi);
+          return [r * Math.cos(phi), r * Math.sin(phi)];
+        },
+      );
+      if (!points.every((p: [number, number]): boolean => p.every(Number.isFinite))) {
+        report(
+          "view chain",
+          `station ${row.station} mm: a compatibility row sample has no finite radius`,
+        );
+        return { ...empty(), sections, chains };
+      }
+      const coefficients: number[] = AutoMovieSplineCurve.interpolate(points);
+      layers.push({
+        y: row.station,
+        frame: row.frame,
+        coefficients,
+        slopes: new Array<number>(coefficients.length).fill(0),
+        ...(row.view === undefined ? {} : { view: row.view }),
+      });
+    }
     const poles: { end: "bottom" | "top"; point: [number, number, number] }[] =
       closes.map(
         (
@@ -458,7 +541,7 @@ export namespace AutoMovieViewLoft {
         AutoMovieLoftCoefficientSource.prepare(chain, parameter);
       if (typeof coefficients === "string") {
         report("coefficient parameter", coefficients);
-        return { ...empty(), sections };
+        return { ...empty(), sections, chains };
       }
       chain = coefficients;
     }
@@ -466,7 +549,7 @@ export namespace AutoMovieViewLoft {
       AutoMovieLoftFrameSource.retain(chain, part.axis);
     if (typeof source === "string") {
       report("axis jet", source);
-      return { ...empty(), sections };
+      return { ...empty(), sections, chains };
     }
     chain = AutoMovieSeamStation.continuous(source);
     if (direct !== null)
@@ -483,11 +566,18 @@ export namespace AutoMovieViewLoft {
         "solid surface",
         "the chain does not read as a solid surface (no jets or a degenerate middle section)",
       );
-    return { chain, surface, sections, diagnostics, continuity: CONTINUITY };
+    return {
+      chain,
+      surface,
+      sections,
+      chains,
+      diagnostics,
+      continuity: chains.length === 0 ? CONTINUITY : { phase: "C1", station: "C1" },
+    };
   }
 }
 
-/** The continuity every emitted chain carries. */
+/** The continuity every four-quarter chain carries. */
 const CONTINUITY: AutoMovieViewLoft.IResult["continuity"] = {
   phase: "C2",
   station: "C2",

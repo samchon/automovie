@@ -138,6 +138,9 @@ export namespace CaptureModel {
         /** Registered reference triangles, world mm. */
         mesh: ITriangles;
 
+        /** Keep the provider's selected reference extent when the generated clay covers only part of it. */
+        cropToLoft?: false;
+
         /** Registration measurements, calibration mm or radians. */
         measures: Record<string, number>;
 
@@ -189,6 +192,9 @@ export namespace CaptureModel {
 
     /** The loft. */
     loft: ILoft;
+
+    /** Other named capture parts already present in this part's available clay. */
+    included?: readonly string[];
 
     /** The registered reference. */
     reference: IReference;
