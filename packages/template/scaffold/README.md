@@ -27,9 +27,15 @@ The public Render runner writes `media/automovie/<film>/videos/film.mp4` and the
 
 [Physical feedback](.agents/skills/motion/physics.md) chooses each scene's physical mode; the installed Engine's README and public declarations own its profiles, simulation, checkpoints, archives and audits. Supply `IFilmProduction.performance` from the displayed state to enable the shared inspection overlays; the starter's empty scene supplies none.
 
-Run `npm run review:setup` once to install Playwright's recording FFmpeg, and set `CHROME_PATH` to an installed Chrome or Chromium executable. `npm run review -- still <viewer-url> <duration-seconds>` captures one still at the URL's `at=<seconds>`; `sheet <viewer-url> <duration-seconds>` captures 200 evenly spaced stills of the URL's `start`–`end` segment, the whole film when omitted, into contact sheets of 50 whose JSON index labels each cell's film second; `playback <viewer-url> <observation-seconds>` records actual Play-button playback as a silent video with its displayed clock and browser errors, so listen to the soundtrack separately. Output goes to `media/automovie/<film>/frames/review/` or `media/automovie/<film>/videos/review/` unless a final directory argument names another.
+Run `npm run review:setup` once to install Playwright's recording FFmpeg, and set `CHROME_PATH` to an installed Chrome or Chromium executable. `npm run review -- still <viewer-url> <duration-seconds>` captures one still at the URL's `at=<seconds>`; `playback <viewer-url> <observation-seconds>` records actual Play-button playback as a silent video with its displayed clock and browser errors, so listen to the soundtrack separately. Output goes to `media/automovie/<film>/frames/review/` or `media/automovie/<film>/videos/review/` unless a final directory argument names another.
 
-URL parameters `rig=1` and `contacts=1` show the review skeleton and contact force vectors, and `view=x,y,z:tx,ty,tz` a static inspection camera in world metres; omit them for delivered captures. Judge a correction at the same source revision, film seconds and camera.
+`npm run review -- sheet <viewer-url> [output-directory]` captures the URL's `start`–`end` interval, the whole film when omitted, at 5 stills per second into contact sheets of 50, each with a JSON index of its cells' film seconds. `--rate <n>` samples up to 10 per second, `--events <s,…>` adds 10 per second within half a second of each event second, such as a contact, and each repeated `--view <label>=<view>` captures the same frames through that `view` parameter into its own `<label>/` folder. Other URL parameters pass through, so `?film=catalog&start=<s>&end=<s>` captures one isolated case of the catalog film:
+
+```bash
+npm run review -- sheet "http://127.0.0.1:5173/?film=<name>&start=60&end=70" --events 63.4 --view side=side --view high=6,6,6:0,1,0
+```
+
+URL parameters `rig=1` and `contacts=1` show the review skeleton and contact force vectors, and `view` an inspection camera: a name from the film's `IFilmProduction.views`, such as a side-on view, one behind a subject or a high 45° view, or `x,y,z:tx,ty,tz` in world metres. Omit them for delivered captures. Judge a correction at the same source revision, film seconds and camera.
 
 `npm run physics -- <input-module.ts> <output.amphys> [maximum-bytes]` computes a simulated performance once from a Node module exporting `createPhysicalInput()` and writes the archive with its JSON manifest, limited to 256 MiB by default. Keep the archive as a [saved stage](.agents/skills/production/stages.md) under `.cache/` and regenerate it after changing physical inputs; playback, seeking and capture read it through the installed Engine's physical playback, which checks it against the current input's identity.
 
@@ -37,9 +43,10 @@ URL parameters `rig=1` and `contacts=1` show the review skeleton and contact for
 
 1. Adopt the request, output boundary and operating choices, including the intended execution/capture path, in [PROJECT.md](PROJECT.md) through [project context](.agents/skills/production/profile.md). Make routine choices within the user's delegation and keep creative requirements with their owners.
 2. Study every practice and style the film shows through [research](.agents/skills/story/planning/research.md), write the [settings](.agents/skills/story/layers/settings.md) that draw on it, then write the complete [screenplay](.agents/skills/story/SKILL.md) along its [writing route](.agents/skills/story/workflow.md#route-and-parents), with evidence and independent review.
-3. Build the entities, laws, interactions and consequences through [motion](.agents/skills/motion/SKILL.md) with their tests, then compose every required main scene through [staging for the camera](.agents/skills/motion/staging.md), in the folders [source layout](.agents/skills/development/layout.md) gives. Use suitable retained assets or start newly authored [representations and controls](.agents/skills/3d-modeling/SKILL.md) at low cost, preserving actual interactions and reactions, readable views and continued state across cuts before selective detail upgrades. [Accepted audio](.agents/skills/audio/SKILL.md) supplies performed sound and measured timing when required.
-4. Prepare the [motion hint and requested companion controls](.agents/skills/production/conditioning.md) from the same actual performance, with aligned frame/camera mapping for time-matched channels. Use the supplied Viewer/export host or document the production's adopted replacement here.
-5. Assemble and encode the complete work through [finishing](.agents/skills/production/finishing.md), then inspect the actual output through [delivery review](.agents/skills/review/delivery.md). Hand off the fixed inputs, source, commands, observed result and remaining limits.
+3. Build the entities, laws, interactions and consequences through [motion](.agents/skills/motion/SKILL.md) with their tests, from suitable retained assets or newly authored [representations and controls](.agents/skills/3d-modeling/SKILL.md) at low cost, and perfect each one in its isolated catalog cases on screen.
+4. Compose every required main scene from those accepted modules through their APIs and the screenplay alone, under [staging for the camera](.agents/skills/motion/staging.md) in the folders [source layout](.agents/skills/development/layout.md) gives, reviewing each 10-second segment in film order. [Accepted audio](.agents/skills/audio/SKILL.md) supplies performed sound and measured timing when required.
+5. Prepare the [motion hint and requested companion controls](.agents/skills/production/conditioning.md) from the same actual performance, with aligned frame/camera mapping for time-matched channels. Use the supplied Viewer/export host or document the production's adopted replacement here.
+6. Assemble and encode the complete work through [finishing](.agents/skills/production/finishing.md), then inspect the actual output through [delivery review](.agents/skills/review/delivery.md). Hand off the fixed inputs, source, commands, observed result and remaining limits.
 
 A separately commissioned screenplay ends with its text duties; a standalone asset needs no invented narrative. A whole motion hint needs no finished diffusion film. A requested direct 3D film finishes through its actual renderer and sound path; [generated video](.agents/skills/production/generation.md) uses a selected service and accepted fixed takes before the final edit. Their delivery boundaries stay explicit in PROJECT.md.
 
@@ -47,7 +54,8 @@ A separately commissioned screenplay ends with its text duties; a standalone ass
 
 | Command | Purpose |
 | --- | --- |
-| `npm run lint` | TypeScript and source correctness; `npm run lint -- --watch` keeps one checker reporting compile errors while you edit |
+| `pnpm ttsc --watch`, run in `test/` | The single compile checker kept running while you edit; read compile errors from its output |
+| `npm run lint` | TypeScript and source correctness |
 | `npm run evidence` | Source/test checklists and the selected path's active evidence obligations |
 | `npm test` | Run exported `test_*` functions under `test/features` through `tsconfig.test.json`; an empty selection fails |
 | `npm run format` | Source formatting |
