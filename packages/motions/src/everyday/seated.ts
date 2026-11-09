@@ -6,6 +6,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { handGoals } from "./handGoals";
 import { poseBones } from "./poseBones";
 
 /**
@@ -139,18 +140,17 @@ export namespace seated {
    */
   export function hands(body: IHumanBody, posture: IHumanPosture): IHumanPosture["limbs"] {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, resolveHumanPosture(body, posture));
-    const out: IHumanPosture["limbs"] = {};
+    const requests: handGoals.IRequest[] = [];
     for (const side of ["left", "right"] as const) {
       const frame = body.surfaces.regions[`thighFront${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion];
       const thigh: IAutoMovieResolvedBone = bones.get(frame.bone)!;
       const point: IAutoMovieVector3 = Vector3.add(thigh.worldPosition, Quaternion.rotateVector(thigh.worldRotation, frame.point));
       const normal: IAutoMovieVector3 = Quaternion.rotateVector(thigh.worldRotation, frame.normal);
       const along: IAutoMovieVector3 = Vector3.subtract(bones.get(`${side}LowerLeg`)!.worldPosition, thigh.worldPosition);
-      const turn = HumanHand.rotation(side, { fingers: along, palm: Vector3.scale(normal, -1) });
-      const wrist: HumanHand.IWrist = HumanHand.place(body, side, "palm", point, turn, "relaxed");
-      out[side === "left" ? "leftArm" : "rightArm"] = { point: wrist.point, rotation: wrist.rotation, bend: HumanHand.elbow(body, posture, side, 0.2) };
+      requests.push({ side, surface: "palm", shape: "relaxed", point, rotation: HumanHand.rotation(side, { fingers: along, palm: Vector3.scale(normal, -1) }), bend: HumanHand.elbow(body, posture, side, 0.2) });
     }
-    return out;
+    const placed: IHumanPosture = handGoals(body, posture, requests);
+    return { leftArm: placed.limbs.leftArm!, rightArm: placed.limbs.rightArm! };
   }
 
   /**

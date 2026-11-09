@@ -14,6 +14,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanGaze } from "./HumanGaze";
+import { HumanTrunk } from "./HumanTrunk";
+import { handGoals } from "./handGoals";
 import { poseBones } from "./poseBones";
 
 /**
@@ -25,10 +27,14 @@ import { poseBones } from "./poseBones";
  * found from that goal: the strategy sets how far the hips drop (a stoop
  * keeps the knees nearly straight, a squat lowers the hips to 0.45 of their
  * height, a semi-squat to 0.75; provisional shares, the postures the lifting
- * literature compares), and the trunk then pitches forward about the hips just
- * enough to bring the shoulder within the arm's reach of the target (`0.92`
- * of the arm's length plus the palm's offset), found by bisection, while the
- * hips move back to keep the body balanced over the feet ({@link HumanBalance}).
+ * literature compares), and the trunk then inclines forward just enough to
+ * bring the shoulder within the arm's reach of the target (`0.92` of the
+ * arm's length plus the palm's offset), found by bisection, while the hips
+ * move back to keep the body balanced over the feet ({@link HumanBalance}).
+ * The inclination is shared by the lumbopelvic rhythm of forward bending:
+ * about 40 degrees of lumbar flexion against 70 of hip flexion at full
+ * bending (Esola et al. 1996, Spine 21:71), so the pelvis pitches 0.64 of
+ * it, the lumbar spine flexes 0.28 and the thorax 0.08.
  * The legs are solved onto the planted feet, the arm onto the palm's goal and
  * the gaze onto the target. No lifting technique is shown to be better than
  * another (van Dieen, Hoozemans and Toussaint 1999, Clin Biomech 14:685), so
@@ -41,6 +47,17 @@ import { poseBones } from "./poseBones";
  * the hand holds for `hold` seconds and the rise takes the same time. Events:
  * `contact` and `deepest` at the bottom, `upright` at the end. A target the
  * strategy cannot reach is refused with the lowest height it reaches.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
+ * @evidence contracts/development/implementation.md#principled-implementation Effector goals (sockets, footprints, the gaze line) solved by the shared inverse kinematics, with balance and timing from the cited laws.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans once, then evaluates each posture in closed form.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond a few forward-kinematics passes and limb fits.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance and every posture reads it.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
  */
 export namespace bend {
   /** The action's name. */
@@ -121,12 +138,9 @@ export namespace bend {
         // The palm from where it hangs to the target, facing down onto it.
         const from: IAutoMovieVector3 = HumanHand.frame(body, bones(body, lowered), side, "palm").point;
         const turn = HumanHand.rotation(side, { fingers: HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: lowered.yaw }, { x: 0, y: -0.3, z: 1 }), palm: { x: 0, y: -1, z: 0 } });
-        const wrist: HumanHand.IWrist = HumanHand.place(body, side, "palm", Vector3.lerp(from, target, s), turn, "flat");
-        return {
-          ...aimed,
-          joints: { ...aimed.joints, ...HumanHand.shape(side, "flat") },
-          limbs: { ...aimed.limbs, [side === "left" ? "leftArm" : "rightArm"]: { point: wrist.point, rotation: wrist.rotation, bend: HumanHand.elbow(body, lowered, side, 0.2) } },
-        };
+        return handGoals(body, { ...aimed, joints: { ...aimed.joints, ...HumanHand.shape(side, "flat") } }, [
+          { side, surface: "palm", shape: "flat", point: Vector3.lerp(from, target, s), rotation: turn, bend: HumanHand.elbow(body, lowered, side, 0.2) },
+        ]);
       },
     };
   }
@@ -152,7 +166,7 @@ export namespace bend {
    * @param body The body.
    * @param posture The standing posture.
    * @param strategy The strategy.
-   * @param pitch Trunk pitch, degrees.
+   * @param pitch Trunk inclination, degrees, shared by the lumbopelvic rhythm.
    * @param share How far down, 0 to 1.
    * @returns The lowered posture.
    */
@@ -161,13 +175,21 @@ export namespace bend {
     const drop: number = (1 - HIPS[strategy]) * body.measure.hipHeight * share;
     const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
     const goal: IAutoMovieVector3 = HumanFrame.point(frame, { x: hips.x, y: hips.y - drop, z: hips.z - HumanBalance.hipShift(body.measure, pitch) });
-    const tipped: IHumanPosture = { ...posture, pitch: posture.pitch + pitch };
-    return { ...tipped, root: Vector3.subtract(goal, Quaternion.rotateVector(resolveHumanPosture.heading(tipped), hips)) };
+    const tipped: IHumanPosture = { ...posture, pitch: posture.pitch + RHYTHM.pelvis * pitch };
+    const joints: IHumanPosture["joints"] = { ...posture.joints };
+    for (const [bone, part] of [["spine", RHYTHM.lumbar], ["chest", RHYTHM.thorax]] as const) {
+      const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
+      joints[bone] = [was[0] + part * pitch, was[1], was[2]];
+    }
+    return { ...tipped, joints, root: Vector3.subtract(goal, Quaternion.rotateVector(resolveHumanPosture.heading(tipped), hips)) };
   }
+
+  /** Shares of a forward trunk inclination taken by the pelvis, the lumbar spine and the thorax (Esola et al. 1996). */
+  export const RHYTHM: Readonly<{ pelvis: number; lumbar: number; thorax: number }> = { pelvis: 0.64, lumbar: 0.28, thorax: 0.08 };
 
   /**
    * The least trunk pitch that brings the shoulder within reach of the
-   * target under a strategy, by bisection over 0 to 110 degrees.
+   * target under a strategy, by bisection over 0 to 150 degrees of inclination.
    *
    * @param body The body.
    * @param posture The standing posture.
@@ -175,19 +197,19 @@ export namespace bend {
    * @param side The hand.
    * @param strategy The strategy.
    * @returns Degrees.
-   * @throws {Error} When even 110 degrees leaves the target out of reach.
+   * @throws {Error} When even 150 degrees leaves the target out of reach.
    */
   export function pitch(body: IHumanBody, posture: IHumanPosture, target: IAutoMovieVector3, side: HumanHand.Side, strategy: Exclude<Strategy, "auto">): number {
     const reach: number = 0.92 * (body.measure.upperArm + body.measure.forearm) + Vector3.length(HumanHand.offset(body, side, "palm").point);
     const gap = (deg: number): number => {
       const lowered: IHumanPosture = lower(body, posture, strategy, deg, 1);
-      const shoulder: IAutoMovieVector3 = Vector3.add(lowered.root, Quaternion.rotateVector(resolveHumanPosture.heading(lowered), body.rest.get(`${side}UpperArm`)!));
+      const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, lowered).get(`${side}UpperArm`)!.worldPosition;
       return Vector3.length(Vector3.subtract(target, shoulder)) - reach;
     };
     if (gap(0) <= 0) return 0;
-    if (gap(110) > 0) throw new Error(`A ${strategy} cannot bring the hand to a point ${target.y.toFixed(3)} m high there; bring the target nearer or choose a deeper strategy`);
+    if (gap(150) > 0) throw new Error(`A ${strategy} cannot bring the hand to a point ${target.y.toFixed(3)} m high there; bring the target nearer or choose a deeper strategy`);
     let lo: number = 0;
-    let hi: number = 110;
+    let hi: number = 150;
     for (let i: number = 0; i < 30; i++) {
       const mid: number = (lo + hi) / 2;
       if (gap(mid) > 0) lo = mid;

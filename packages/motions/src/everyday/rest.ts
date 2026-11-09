@@ -1,4 +1,4 @@
-import { type IAutoMovieResolvedBone, Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Quaternion, Vector3, minimumJerk, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -12,6 +12,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
+import { handGoals } from "./handGoals";
 import { poseBones } from "./poseBones";
 
 /**
@@ -22,37 +23,52 @@ import { poseBones } from "./poseBones";
  * Every rest place is an effector goal on the body's own surface: a hand
  * surface is laid on a region with the palm facing into it; the palm and
  * fist sockets lie on the hand's own collider surface, so a laid hand touches
- * the region rather than sinking into it ({@link HumanHand}). The places, with the surface and region each uses:
+ * the region rather than sinking into it ({@link HumanHand}). The places, with
+ * the surface and region each uses:
  *
  * - `side`: no goal; the arm hangs relaxed as the stand law holds it.
  * - `pocket`: the palm on the front pocket region of the same side's thigh,
  *   fingers down, as a hand slipped into a front pocket shows from outside.
  * - `hip`: the palm on the side of the pelvis midway between the hip
  *   region and the waist, fingers forward and down, elbow out (akimbo).
- * - `crossed`: each palm on the other arm's upper arm. The other arm's pose
- *   depends on its own goal, so the goals are found by two rounds of
- *   solving at the start of the action, each placing every palm on the other
- *   arm as the previous round solved it.
+ * - `crossed`: each palm wraps the outside of the other upper arm near its
+ *   elbow, the upper arms hanging 20 degrees forward (provisional) so the
+ *   forearms cross in front of the lower chest; the goal is placed where that
+ *   hanging arm is, since the other arm's own pose depends on its goal.
  * - `claspedFront`: the left palm faces the body ahead of the groin, fingers
  *   toward the right, and the right palm lies on the back of the left hand.
- * - `claspedBehind`: the same behind the lower back, palms facing back.
+ * - `claspedBehind`: the back of the left hand rests on the sacrum, palm
+ *   facing back, and the right palm lies in it.
  * - `behindHead`: each palm on the back of the head beside the midline,
  *   elbows wide.
- * - `chinRest`: the fist under the chin, the elbow low (for a seated
- *   performer the elbow would rest on a knee or a table).
+ * - `chinRest`: the top of the fist under the chin, fingers up and palm
+ *   facing in, the elbow low and forward.
+ * - `elbowSupport`: the palm under the other arm's elbow while that hand is
+ *   at `chinRest`, the thinking pose.
  *
  * Each hand travels from where the entry left it to its place on a
  * minimum-jerk path over `0.25 + 0.5 D` seconds for `D` metres (provisional,
  * as the gesture preparation) and holds there; the place follows the body,
  * so breathing and sway carry the hands with it. A hand at `side` is not
  * moved.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
+ * @evidence contracts/development/implementation.md#principled-implementation Effector goals (sockets, footprints, the gaze line) solved by the shared inverse kinematics, with balance and timing from the cited laws.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans once, then evaluates each posture in closed form.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond a few forward-kinematics passes and limb fits.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance and every posture reads it.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
  */
 export namespace rest {
   /** The action's name. */
   export const name: HumanActionName = "rest";
 
   /** A rest place. */
-  export type Place = "side" | "pocket" | "hip" | "crossed" | "claspedFront" | "claspedBehind" | "behindHead" | "chinRest";
+  export type Place = "side" | "pocket" | "hip" | "crossed" | "claspedFront" | "claspedBehind" | "behindHead" | "chinRest" | "elbowSupport";
 
   /** Cancel table: holding a rest place has no stroke, so it can be cut anywhere. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
@@ -90,6 +106,9 @@ export namespace rest {
     const places: Record<HumanHand.Side, Place> = { left: context.params.left ?? "side", right: context.params.right ?? "side" };
     for (const place of PAIRED)
       if ((places.left === place) !== (places.right === place)) throw new Error(`${context.subject}: ${place} holds both hands; name it for both`);
+    for (const side of ["left", "right"] as const)
+      if (places[side] === "elbowSupport" && places[side === "left" ? "right" : "left"] !== "chinRest")
+        throw new Error(`${context.subject}: elbowSupport holds the other arm's elbow; the other hand must be at chinRest`);
     const duration: number = context.params.seconds ?? 2;
     if (!(duration > 0)) throw new Error("A rest lasts a positive time");
     const base: IHumanActionPlan = stand.plan({ ...context, params: { seconds: duration } });
@@ -113,7 +132,7 @@ export namespace rest {
     const local: Partial<Record<HumanHand.Side, IGoal>> = {};
     for (const side of ["left", "right"] as const) {
       const goal: IGoal | undefined = goals[side];
-      if (goal !== undefined) local[side] = { ...goal, point: HumanFrame.local(frame0, goal.point), rotation: Quaternion.multiply(HumanFrame.turn(-frame0.yaw), goal.rotation) };
+      if (goal !== undefined) local[side] = { ...goal, point: HumanFrame.local(frame0, goal.point), rotation: Quaternion.multiply(HumanFrame.turn(-frame0.yaw), goal.rotation), elbow: HumanFrame.local(frame0, goal.elbow) };
     }
     const arrive: number = Math.max(0, ...Object.values(begin).map((b) => b!.travel));
 
@@ -127,19 +146,23 @@ export namespace rest {
         const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
         const turn: IAutoMovieQuaternion = HumanFrame.turn(frame.yaw);
         const joints: IHumanPosture["joints"] = { ...posture.joints };
-        const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+        const requests: handGoals.IRequest[] = [];
         for (const side of ["left", "right"] as const) {
           const goal: IGoal | undefined = local[side];
           const from = begin[side];
           if (goal === undefined || from === undefined) continue;
           const s: number = minimumJerk(t / from.travel).s;
-          const point: IAutoMovieVector3 = HumanFrame.point(frame, Vector3.lerp(from.point, goal.point, s));
-          const rotation: IAutoMovieQuaternion = Quaternion.multiply(turn, Quaternion.slerp(from.rotation, goal.rotation, s));
-          const wrist: HumanHand.IWrist = HumanHand.place(body, side, goal.surface, point, rotation, goal.shape);
-          limbs[side === "left" ? "leftArm" : "rightArm"] = { point: wrist.point, rotation: wrist.rotation, bend: HumanHand.elbow(body, posture, side, goal.out) };
+          requests.push({
+            side,
+            surface: goal.surface,
+            shape: goal.shape,
+            point: HumanFrame.point(frame, Vector3.lerp(from.point, goal.point, s)),
+            rotation: Quaternion.multiply(turn, Quaternion.slerp(from.rotation, goal.rotation, s)),
+            bend: HumanFrame.point(frame, goal.elbow),
+          });
           Object.assign(joints, HumanHand.shape(side, goal.shape));
         }
-        return { ...posture, joints, limbs };
+        return handGoals(body, { ...posture, joints }, requests);
       },
     };
   }
@@ -158,12 +181,17 @@ export namespace rest {
     /** The hand's world rotation from rest. */
     rotation: IAutoMovieQuaternion;
 
-    /** Extra outward elbow share. */
-    out: number;
+    /** The elbow's bend hint, world metres. */
+    elbow: IAutoMovieVector3;
   }
 
   /**
    * Both hands' rest goals on a posture.
+   *
+   * Each place states where the elbow points, as a hint beside the shoulder
+   * in the body's frame (`ELBOWS`, in upper-arm lengths out, up and forward):
+   * akimbo and behind-the-head elbows go out wide, crossed and chin-rest
+   * elbows forward and down, the others down beside the body.
    *
    * @param body The body.
    * @param posture The standing posture.
@@ -172,99 +200,142 @@ export namespace rest {
    */
   export function goals(body: IHumanBody, posture: IHumanPosture, places: Record<HumanHand.Side, Place>): Partial<Record<HumanHand.Side, IGoal>> {
     const out: Partial<Record<HumanHand.Side, IGoal>> = {};
+    const m = body.measure;
     const region = (name: AutoMovieHumanoidRegion): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } => HumanTrunk.region(body, posture, name);
     const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
     const dir = (x: number, y: number, z: number): IAutoMovieVector3 => HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw }, { x, y, z });
-    const lay = (side: HumanHand.Side, surface: HumanHand.Surface, shape: HumanHand.Shape, at: { point: IAutoMovieVector3; normal: IAutoMovieVector3 }, fingers: IAutoMovieVector3, wide: number): IGoal => ({
+    const elbow = (side: HumanHand.Side, place: Exclude<Place, "side">): IAutoMovieVector3 => {
+      const shoulder: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
+      const [o, u, f] = ELBOWS[place];
+      return HumanFrame.point(frame, { x: shoulder.x + (side === "left" ? 1 : -1) * o * m.upperArm, y: shoulder.y + u * m.upperArm, z: shoulder.z + f * m.upperArm });
+    };
+    const lay = (side: HumanHand.Side, place: Exclude<Place, "side">, surface: HumanHand.Surface, shape: HumanHand.Shape, point: IAutoMovieVector3, fingers: IAutoMovieVector3, palm: IAutoMovieVector3): IGoal => ({
       surface,
       shape,
-      point: at.point,
-      rotation: HumanHand.rotation(side, { fingers, palm: Vector3.scale(at.normal, -1) }),
-      out: wide,
+      point,
+      rotation: HumanHand.rotation(side, { fingers, palm }),
+      elbow: elbow(side, place),
     });
     for (const side of ["left", "right"] as const) {
       const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
       const sign: number = side === "left" ? 1 : -1;
-      switch (places[side]) {
+      const place: Place = places[side];
+      switch (place) {
         case "side":
+        case "crossed":
+        case "elbowSupport":
           break;
-        case "pocket":
-          out[side] = lay(side, "palm", "relaxed", region(`pocketFront${Side}`), dir(0.2 * sign, -1, 0.3), 0.1);
-          break;
-        case "hip": {
-          const hip = region(`hip${Side}`);
-          const up: number = 0.5 * (body.measure.waistHeight - body.measure.hipHeight);
-          out[side] = lay(side, "palm", "flat", { point: Vector3.add(hip.point, { x: 0, y: up, z: 0 }), normal: hip.normal }, dir(0, -0.6, 0.8), 0.7);
+        case "pocket": {
+          const pocket = region(`pocketFront${Side}`);
+          out[side] = lay(side, place, "palm", "relaxed", pocket.point, dir(0, -1, 0.35), dir(-sign, 0, -0.4));
           break;
         }
-        case "claspedFront":
+        case "hip": {
+          const hip = region(`hip${Side}`);
+          const up: number = 0.5 * (m.waistHeight - m.hipHeight);
+          out[side] = lay(side, place, "palm", "flat", Vector3.add(hip.point, { x: 0, y: up, z: 0 }), dir(0, -0.6, 0.8), Vector3.scale(hip.normal, -1));
+          break;
+        }
+        case "claspedFront": {
+          if (side === "right") break;
+          const groin = region("groin");
+          const ahead: IAutoMovieVector3 = dir(0, 0, 1);
+          const centre: IAutoMovieVector3 = Vector3.add({ ...groin.point, y: groin.point.y + 0.03 * m.stature }, Vector3.scale(ahead, 0.04 * m.stature));
+          out.left = lay("left", place, "palm", "relaxed", centre, dir(-1, -0.3, 0), Vector3.scale(ahead, -1));
+          out.right = onPalm(body, out.left, "right", elbow("right", place), dir(1, -0.3, 0));
+          break;
+        }
         case "claspedBehind": {
           if (side === "right") break;
-          const front: boolean = places[side] === "claspedFront";
-          const groin = region(front ? "groin" : "lowerBack");
-          const ahead: IAutoMovieVector3 = dir(0, 0, front ? 1 : -1);
-          const centre: IAutoMovieVector3 = Vector3.add({ ...groin.point, y: groin.point.y + 0.03 * body.measure.stature }, Vector3.scale(ahead, 0.04 * body.measure.stature));
-          const left: IGoal = lay("left", "palm", "relaxed", { point: centre, normal: ahead }, dir(-1, -0.3, 0), 0.1);
-          out.left = left;
-          const wrist: HumanHand.IWrist = HumanHand.place(body, "left", "palm", left.point, left.rotation, "relaxed");
-          const back = HumanHand.offset(body, "left", "handBack");
-          const top = { point: Vector3.add(wrist.point, Quaternion.rotateVector(wrist.rotation, back.point)), normal: Quaternion.rotateVector(wrist.rotation, back.normal) };
-          out.right = lay("right", "palm", "relaxed", top, dir(1, -0.3, 0), 0.1);
+          const back = region("lowerBack");
+          const low: IAutoMovieVector3 = { ...back.point, y: back.point.y - 0.03 * m.stature };
+          out.left = lay("left", place, "handBack", "relaxed", low, dir(-0.5, -1, 0), back.normal);
+          out.right = onPalm(body, out.left, "right", elbow("right", place), dir(0.5, -1, 0));
           break;
         }
         case "behindHead": {
           const head = region("headBack");
-          const beside: IAutoMovieVector3 = Vector3.add(head.point, Vector3.scale(dir(1, 0, 0), sign * 0.25 * body.measure.headRadius));
-          out[side] = lay(side, "palm", "flat", { point: beside, normal: head.normal }, dir(-sign, 0.6, 0), 1.0);
+          const beside: IAutoMovieVector3 = Vector3.add(head.point, Vector3.scale(dir(1, 0, 0), sign * 0.25 * m.headRadius));
+          out[side] = lay(side, place, "palm", "flat", beside, dir(-sign, 0.6, 0), Vector3.scale(head.normal, -1));
           break;
         }
         case "chinRest": {
           const chin = region("chin");
-          out[side] = { surface: "fist", shape: "fist", point: chin.point, rotation: HumanHand.rotation(side, { fingers: dir(-sign, 0.3, 0), palm: dir(0, 0, -1) }), out: -0.2 };
+          out[side] = lay(side, place, "fist", "fist", chin.point, dir(0, 1, 0), dir(-sign, 0, 0));
           break;
         }
-        case "crossed":
-          break;
       }
     }
-    if (places.left === "crossed") Object.assign(out, crossed(body, posture));
+    if (places.left === "crossed") {
+      out.left = crossed(body, posture, "left", elbow("left", "crossed"));
+      out.right = crossed(body, posture, "right", elbow("right", "crossed"));
+    }
+    for (const side of ["left", "right"] as const) {
+      if (places[side] !== "elbowSupport") continue;
+      const other: HumanHand.Side = side === "left" ? "right" : "left";
+      out[side] = support(body, posture, side, out[other]!, elbow(side, "elbowSupport"));
+    }
     return out;
   }
+
+  /** Elbow hints by place: upper-arm lengths out, up and forward of the shoulder (provisional). */
+  export const ELBOWS: Readonly<Record<Exclude<Place, "side">, readonly [number, number, number]>> = {
+    pocket: [0.35, -1, -0.3],
+    hip: [0.9, -0.4, -0.1],
+    crossed: [0.15, -0.95, 0.35],
+    claspedFront: [0.3, -0.9, 0.1],
+    claspedBehind: [0.35, -0.9, -0.4],
+    behindHead: [0.9, 0.5, 0.3],
+    chinRest: [0.1, -0.8, 0.6],
+    elbowSupport: [0.3, -0.9, 0.3],
+  };
+
+  /** How far forward each upper arm hangs when the arms are crossed, degrees (provisional). */
+  export const CROSSED_FLEXION: number = 20;
 }
 
-/** The two rounds of the crossed-arms goals: each palm on the other upper arm as last solved. */
-function crossed(body: IHumanBody, posture: IHumanPosture): Record<HumanHand.Side, rest.IGoal> {
-  let solved: IHumanPosture = posture;
-  let goals: Record<HumanHand.Side, rest.IGoal> | undefined;
-  for (let round: number = 0; round < 2; round++) {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, resolveHumanPosture(body, solved));
-    const on = (side: HumanHand.Side): rest.IGoal => {
-      const other: "Left" | "Right" = side === "left" ? "Right" : "Left";
-      const frame = body.surfaces.regions[`upperArm${other}` as AutoMovieHumanoidRegion];
-      const bone: IAutoMovieResolvedBone = bones.get(frame.bone)!;
-      const point: IAutoMovieVector3 = Vector3.add(bone.worldPosition, Quaternion.rotateVector(bone.worldRotation, frame.point));
-
-      // The palm wraps the outside of the other arm: its normal points from the arm's axis to the arm's outer side.
-      const axis: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(bones.get(`${other === "Left" ? "left" : "right"}LowerArm`)!.worldPosition, bone.worldPosition));
-      const lateral: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, { x: other === "Left" ? 1 : -1, y: 0, z: 0.3 });
-      const normal: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(lateral, Vector3.scale(axis, Vector3.dot(lateral, axis))));
-      const surfacePoint: IAutoMovieVector3 = Vector3.add(Vector3.add(bone.worldPosition, Vector3.scale(axis, Vector3.dot(Vector3.subtract(point, bone.worldPosition), axis))), Vector3.scale(normal, body.measure.upperArmRadius));
-      return {
-        surface: "palm",
-        shape: "relaxed",
-        point: surfacePoint,
-        rotation: HumanHand.rotation(side, { fingers: Vector3.scale(axis, -1), palm: Vector3.scale(normal, -1) }),
-        out: 0,
-      };
-    };
-    goals = { left: on("left"), right: on("right") };
-    const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
-    for (const side of ["left", "right"] as const) {
-      const wrist: HumanHand.IWrist = HumanHand.place(body, side, "palm", goals[side].point, goals[side].rotation, "relaxed");
-      limbs[side === "left" ? "leftArm" : "rightArm"] = { point: wrist.point, rotation: wrist.rotation, bend: HumanHand.elbow(body, posture, side) };
-    }
-    solved = { ...posture, limbs };
-  }
-  return goals!;
+/** The other hand's palm laid on the left hand's palm. */
+function onPalm(body: IHumanBody, left: rest.IGoal, side: HumanHand.Side, elbow: IAutoMovieVector3, fingers: IAutoMovieVector3): rest.IGoal {
+  const wrist: HumanHand.IWrist = HumanHand.place(body, "left", left.surface, left.point, left.rotation, left.shape);
+  const palm = HumanHand.offset(body, "left", "palm");
+  const point: IAutoMovieVector3 = Vector3.add(wrist.point, Quaternion.rotateVector(wrist.rotation, palm.point));
+  const normal: IAutoMovieVector3 = Quaternion.rotateVector(wrist.rotation, palm.normal);
+  return { surface: "palm", shape: "relaxed", point, rotation: HumanHand.rotation(side, { fingers, palm: Vector3.scale(normal, -1) }), elbow };
 }
 
+/**
+ * A crossed-arms goal: the palm lies on the front of the other upper arm
+ * three quarters of the way to its elbow, the other arm hanging
+ * `CROSSED_FLEXION` degrees forward of vertical, the fingers pointing round
+ * its outside; the forearm then crosses in front of the chest with the palm
+ * facing back, the turn an internally rotated arm gives without forearm
+ * twist.
+ */
+function crossed(body: IHumanBody, posture: IHumanPosture, side: HumanHand.Side, elbow: IAutoMovieVector3): rest.IGoal {
+  const other: HumanHand.Side = side === "left" ? "right" : "left";
+  const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
+  const shoulder: IAutoMovieVector3 = HumanFrame.point(frame, body.rest.get(`${other}UpperArm`)!);
+  const a: number = (rest.CROSSED_FLEXION * Math.PI) / 180;
+  const axis: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, { x: 0, y: -Math.cos(a), z: Math.sin(a) });
+  const lateral: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, { x: other === "left" ? 1 : -1, y: 0, z: 0 });
+  const front: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(lateral, axis));
+  const point: IAutoMovieVector3 = Vector3.add(Vector3.add(shoulder, Vector3.scale(axis, 0.75 * body.measure.upperArm)), Vector3.scale(front, body.measure.upperArmRadius));
+  return { surface: "palm", shape: "relaxed", point, rotation: HumanHand.rotation(side, { fingers: lateral, palm: Vector3.scale(front, -1) }), elbow };
+}
+
+/**
+ * The supporting hand's goal: its palm under the other arm's elbow (the
+ * olecranon region) as that arm holds its chin-rest goal, fingers toward the
+ * outside of that elbow.
+ */
+function support(body: IHumanBody, posture: IHumanPosture, side: HumanHand.Side, chin: rest.IGoal, elbow: IAutoMovieVector3): rest.IGoal {
+  const other: HumanHand.Side = side === "left" ? "right" : "left";
+  const solved: IHumanPosture = handGoals(body, { ...posture, joints: { ...posture.joints, ...HumanHand.shape(other, chin.shape) } }, [
+    { side: other, surface: chin.surface, shape: chin.shape, point: chin.point, rotation: chin.rotation, bend: chin.elbow },
+  ]);
+  const bones = poseBones(body, resolveHumanPosture(body, solved));
+  const frame = body.surfaces.regions[other === "left" ? "elbowLeft" : "elbowRight"];
+  const placed = resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!);
+  const outward: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, { x: other === "left" ? 1 : -1, y: 0, z: 0 });
+  return { surface: "palm", shape: "relaxed", point: placed.point, rotation: HumanHand.rotation(side, { fingers: outward, palm: Vector3.scale(placed.normal, -1) }), elbow };
+}

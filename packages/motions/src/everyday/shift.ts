@@ -22,12 +22,24 @@ import { seated } from "./seated";
  * edges along by unweighting the buttocks briefly; the lift follows
  * `0.03 sin(pi s)` metres over the slide's minimum-jerk share `s`, and the
  * slide lasts `0.6 + |d|` seconds for `d` metres (provisional). The feet do
- * not step, so a shift is limited to the side-to-side reach the planted legs
- * allow: half the hip breadth either way (provisional); a longer shift is
- * refused and takes several shifts, each a few tens of centimetres as people
- * edge along a bench.
+ * not step, so a shift is limited to what the planted legs allow sideways:
+ * 0.35 thigh lengths, which turns each thigh about 19 degrees in abduction
+ * or adduction, inside their 30 degree range (provisional); a longer shift is
+ * refused and takes several shifts, as people edge along a bench a few tens
+ * of centimetres at a time.
  *
  * Events `seatOff` and `seatContact`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
+ * @evidence contracts/development/implementation.md#principled-implementation Effector goals (sockets, footprints, the gaze line) solved by the shared inverse kinematics, with balance and timing from the cited laws.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans once, then evaluates each posture in closed form.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond a few forward-kinematics passes and limb fits.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance and every posture reads it.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
  */
 export namespace shift {
   /** The action's name. */
@@ -60,7 +72,7 @@ export namespace shift {
    */
   export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
     const body: IHumanBody = context.body;
-    const limit: number = body.measure.hipHalfWidth;
+    const limit: number = 0.35 * body.measure.thigh;
     if (!(Math.abs(context.params.by) <= limit))
       throw new Error(`${context.subject}: a seated shift moves at most ${limit.toFixed(3)} m without stepping; shift several times`);
     const entry: IHumanPosture = context.entry.posture;

@@ -14,6 +14,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanEffort } from "./HumanEffort";
 import { gestureStroke } from "./gestureStroke";
+import { handGoals } from "./handGoals";
 import { poseBones } from "./poseBones";
 
 /**
@@ -47,6 +48,17 @@ import { poseBones } from "./poseBones";
  * cut into another during its retraction, making a gesture unit, and into
  * standing or moving before its stroke or after it; its stroke is never cut,
  * since a cut stroke loses the gesture's meaning.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
+ * @evidence contracts/development/implementation.md#principled-implementation Effector goals (sockets, footprints, the gaze line) solved by the shared inverse kinematics, with balance and timing from the cited laws.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans once, then evaluates each posture in closed form.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond a few forward-kinematics passes and limb fits.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance and every posture reads it.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
  */
 export namespace gesture {
   /** The action's name. */
@@ -177,7 +189,7 @@ export namespace gesture {
         }
 
         // Hands: transported to the stroke, through it, and back to rest.
-        const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
+        const requests: handGoals.IRequest[] = [];
         const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
         for (const side of sides) {
           const goal: gestureStroke.IHand = gestureStroke.hand(p.kind, side, u, cycles, input(posture, t, side));
@@ -189,12 +201,7 @@ export namespace gesture {
             point = Vector3.lerp(HumanFrame.point(frame, from.point), goal.point, s);
             rotation = Quaternion.slerp(Quaternion.multiply(HumanFrame.turn(frame.yaw), from.rotation), goal.rotation, s);
           }
-          const wrist: HumanHand.IWrist = HumanHand.place(body, side, goal.surface, point, rotation, goal.shape);
-          limbs[side === "left" ? "leftArm" : "rightArm"] = {
-            point: wrist.point,
-            rotation: wrist.rotation,
-            bend: HumanHand.elbow(body, posture, side, goal.out + mods.elbow),
-          };
+          requests.push({ side, surface: goal.surface, shape: goal.shape, point, rotation, bend: HumanHand.elbow(body, posture, side, goal.out + mods.elbow) });
           const shape = HumanHand.shape(side, goal.shape);
           const relaxed = HumanHand.shape(side, "relaxed");
           for (const bone of Object.keys(shape) as AutoMovieHumanoidBone[]) {
@@ -204,7 +211,7 @@ export namespace gesture {
             joints[bone] = [r[0] + (a[0] + curl - r[0]) * envelope, 0, 0];
           }
         }
-        return { ...posture, joints, limbs };
+        return handGoals(body, { ...posture, joints }, requests);
       },
     };
   }

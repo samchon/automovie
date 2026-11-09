@@ -23,6 +23,17 @@ import { HumanGaze } from "./HumanGaze";
  *
  * The result is a gaze layer's requests, so the conversation's gaze never
  * cuts the bodies' actions.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the law, its sources, its units and frames, and which values are provisional.
+ * @evidence contracts/development/design.md#principled-representation Pure functions and constants over the interface's vectors and the engine's streams.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The functions and constants the everyday laws and their tests read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses engine and interface types; no consumer is special-cased.
+ * @evidence contracts/development/implementation.md#principled-implementation Closed-form evaluation of the cited law.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One small function per quantity.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Out-of-range inputs throw; provisional constants are named and marked.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call, or linear in the requests a call builds.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Pure functions of their inputs.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanConversation {
   /** One speaking turn. */
