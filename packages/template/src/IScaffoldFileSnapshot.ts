@@ -1,7 +1,7 @@
 /**
- * Captured pathname generation of one existing ordinary single-link file.
+ * Captured pathname generation of one existing ordinary file, with whether another directory entry also names it.
  *
- * @evidence contracts/common.md#principled-implementation Pathname identity and written versus change-time generations capture an existing ordinary single-link file for in-place replacement.
+ * @evidence contracts/common.md#principled-implementation Pathname identity, written versus change-time generations and the shared-link flag capture an existing ordinary file, so a writer can choose in-place replacement for a single-link file and entry replacement for a shared one.
  * @evidence contracts/common.md#clear-and-simple-design Separate written and full versions let Windows handle-open change-time effects be distinguished from real content changes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The snapshot compares pathname stats with pathname stats instead of assuming Windows descriptor and path device numbers match.
  * @evidence contracts/common.md#meaningful-documentation Members state identity provenance, absolute path and the contents of each version key.
@@ -17,6 +17,11 @@ export interface IScaffoldFileSnapshot {
 
   /** Absolute pathname whose resident was captured. */
   path: string;
+
+  /**
+   * Whether more than one directory entry names this file, such as a build cache's hard link. Rewriting a shared file in place would change every other name, so a writer replaces its entry instead.
+   */
+  shared: boolean;
 
   /** `written` plus the change time. */
   version: string;
