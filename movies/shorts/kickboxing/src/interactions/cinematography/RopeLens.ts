@@ -89,8 +89,8 @@ export namespace RopeLens {
     apron: IApron,
     elevation: number,
     overhead: number,
-    subjects: readonly ISubject[] = [],
-    clearance: Clearance = "between",
+    subjects: readonly ISubject[],
+    clearance: Clearance,
   ): IHeld {
     const limit: number = apron.canvasHalf;
     let x: number = Math.max(-limit, Math.min(limit, frame.position.x));
@@ -178,7 +178,7 @@ export namespace RopeLens {
     subjects: readonly ISubject[],
     apron: IApron,
     overhead: number,
-    clearance: Clearance = "between",
+    clearance: Clearance,
   ): number {
     if (apron.ropes.length === 0) return wanted;
     // A sightline to a point at height h crossing the rope line at share c

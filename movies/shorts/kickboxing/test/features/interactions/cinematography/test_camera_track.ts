@@ -49,9 +49,10 @@ export function test_camera_track(): void {
       radius: measure.head / 2 + measure.head * 0.1,
     };
   };
+  const shot = CountCoverage.shot(schedule, cast);
   const counted = (t: number): string[] | undefined =>
-    count && t >= count.start && t < count.end
-      ? [...CountCoverage.SUBJECTS]
+    count && shot && t >= count.start && t < count.end
+      ? shot.subjects
       : undefined;
   let moving = 0;
   const changes: number[] = [];

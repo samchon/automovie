@@ -29,6 +29,8 @@ export function test_rope_lens(): void {
     apron,
     elevation,
     overhead,
+    [],
+    "between",
   );
   assert.equal(onIt.clamped, false);
   near(onIt.position.x, 3.1);
@@ -40,22 +42,28 @@ export function test_rope_lens(): void {
     apron,
     elevation,
     overhead,
+    [],
+    "between",
   );
   near(inside.position.x, 3);
   near(inside.position.z, 1.5);
 
   const framing = { position: { x: 5, y: 2, z: 0 }, target };
-  const held = RopeLens.hold(framing, apron, elevation, 10);
+  const held = RopeLens.hold(framing, apron, elevation, 10, [], "between");
   assert.equal(held.clamped, true);
   near(held.position.x, 3.6);
   near(
     Math.hypot(held.position.x, held.position.y - target.y, held.position.z),
     Math.hypot(5, 1),
   );
-  near(RopeLens.hold(framing, apron, elevation, overhead).position.y, overhead);
+  near(
+    RopeLens.hold(framing, apron, elevation, overhead, [], "between").position
+      .y,
+    overhead,
+  );
   const steep: number = (80 * Math.PI) / 180;
   near(
-    RopeLens.hold(framing, apron, steep, overhead).position.y,
+    RopeLens.hold(framing, apron, steep, overhead, [], "between").position.y,
     1 + 3.6 * Math.tan(steep),
   );
 
@@ -93,7 +101,14 @@ export function test_rope_lens(): void {
   near(whole, (1.3 + RopeLens.ROPE_GAP) / (1 - footShare));
   // An apron handheld shoots between the ropes: the sightlines to the head
   // and sphere centre cross the rope line between two ropes.
-  const gap = RopeLens.clear({ x: 3.3, z: 0 }, 1.2, [fighter], roped, 2.2);
+  const gap = RopeLens.clear(
+    { x: 3.3, z: 0 },
+    1.2,
+    [fighter],
+    roped,
+    2.2,
+    "between",
+  );
   const c: number = RopeLens.ropeCrossing({ x: 3.3, z: 0 }, { x: 2.4, z: 0 }, 3);
   const at = (h: number): number => gap * (1 - c) + h * c;
   const ropes: number[] = roped.ropes;
@@ -111,7 +126,14 @@ export function test_rope_lens(): void {
   // frame: wanting the top rope, it drops into the gap under it, the law's
   // gap from the rope.
   for (const wanted of [0.4, 0.7, 1, 1.3, 1.9]) {
-    const y: number = RopeLens.clear({ x: 3, z: 0 }, wanted, [], roped, 2.2);
+    const y: number = RopeLens.clear(
+      { x: 3, z: 0 },
+      wanted,
+      [],
+      roped,
+      2.2,
+      "between",
+    );
     for (const rope of roped.ropes)
       assert.ok(
         Math.abs(y - rope) >= RopeLens.ROPE_GAP - 1e-9,
@@ -119,11 +141,14 @@ export function test_rope_lens(): void {
       );
   }
   near(
-    RopeLens.clear({ x: 3, z: 0 }, 1.3, [], roped, 2.2),
+    RopeLens.clear({ x: 3, z: 0 }, 1.3, [], roped, 2.2, "between"),
     1.3 - RopeLens.ROPE_GAP,
   );
   // No ropes keep the wanted height.
-  near(RopeLens.clear({ x: 3.3, z: 0 }, 1.2, [fighter], apron, 2.2), 1.2);
+  near(
+    RopeLens.clear({ x: 3.3, z: 0 }, 1.2, [fighter], apron, 2.2, "between"),
+    1.2,
+  );
   near(RopeLens.onApron({ x: 1, y: 2, z: -2.5 }, apron).z, -3);
   near(RopeLens.onApron({ x: 1, y: 2, z: -2.5 }, apron).x, 1);
   near(RopeLens.onApron({ x: 3.1, y: 2, z: 0 }, apron).x, 3.1);

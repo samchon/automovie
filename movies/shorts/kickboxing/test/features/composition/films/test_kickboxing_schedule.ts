@@ -22,7 +22,8 @@ import { polygonFilm } from "../../../internal/polygonFilm";
  * and the match-ending bell at 170.100; B drops his left arm to every rising
  * right knee of A after the first landed body kick, but for his one
  * high-guard adjustment, under which the body kick lands, and never before
- * it; no man performs two movements at once; resolving the same composition
+ * it; no fighter performs two movements or whole-body phases at once, and
+ * the standing fighter reaches the neutral corner before the count; resolving the same composition
  * with the same seed twice gives the same entries.
  */
 export function test_kickboxing_schedule(): void {
@@ -122,17 +123,37 @@ export function test_kickboxing_schedule(): void {
   }
   assert.equal(adjusted.length, 1, "B's one high-guard adjustment");
   assert.equal(adjusted[0]!.outcome, "landed");
-  // No man performs two movements at once.
-  for (const subject of ["a", "b", "referee"]) {
-    const moves = schedule.entries
-      .filter((e) => e.subject === subject && e.intent.capability === "move")
+  // No fighter performs two movements or whole-body phases at once.
+  for (const subject of ["a", "b"]) {
+    const body = schedule.entries
+      .filter(
+        (e) =>
+          e.subject === subject &&
+          (e.intent.capability === "move" || e.intent.capability === "phase"),
+      )
       .sort((p, q) => p.start - q.start);
-    for (let k = 1; k < moves.length; k++)
+    for (let k = 1; k < body.length; k++)
       assert.ok(
-        moves[k]!.start >= moves[k - 1]!.end - 1e-9,
-        `${subject} moves overlap at ${moves[k]!.start}`,
+        body[k]!.start >= body[k - 1]!.end - 1e-9,
+        `${subject}'s ${body[k - 1]!.intent.capability} and ${body[k]!.intent.capability} overlap at ${body[k]!.start}`,
       );
   }
+  // The standing fighter reaches the neutral corner before the count starts.
+  const corner = schedule.entries.find(
+    (e) =>
+      e.intent.capability === "move" &&
+      (KickboxingAction.read(e.intent) as { movement?: string }).movement ===
+        "corner",
+  )!;
+  const firstCount = schedule.entries.find(
+    (e) =>
+      e.intent.capability === "signal" &&
+      OfficiatingAction.read(e.intent).signal === "count",
+  )!;
+  assert.ok(
+    corner.end <= firstCount.start + 1e-9,
+    `corner reached at ${corner.end}, count from ${firstCount.start}`,
+  );
   assert.ok(
     !answers.some((e) => {
       const action = KickboxingAction.read(e.intent);

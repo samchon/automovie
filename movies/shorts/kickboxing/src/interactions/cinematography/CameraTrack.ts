@@ -103,6 +103,7 @@ export namespace CameraTrack {
     // standing fighter was not sent to: the referee counting over the fallen
     // man, the winner in his corner behind them (fight-coverage.md#practice).
     const counting = CountCoverage.window(schedule, cast.referee.id);
+    const counted = CountCoverage.shot(schedule, cast);
     const corner = counting
       ? CountCoverage.corner(
           cast,
@@ -128,15 +129,21 @@ export namespace CameraTrack {
       const b = BoutLaws.origin(schedule, cast.b.id, t, cast).point;
       const r = RefereeTrack.at(referee, t).point;
       return {
-        a: { center: { x: a.x, y: ha.body, z: a.z }, radius: ha.bodyRadius },
-        b: { center: { x: b.x, y: hb.body, z: b.z }, radius: hb.bodyRadius },
-        referee: {
+        [cast.a.id]: {
+          center: { x: a.x, y: ha.body, z: a.z },
+          radius: ha.bodyRadius,
+        },
+        [cast.b.id]: {
+          center: { x: b.x, y: hb.body, z: b.z },
+          radius: hb.bodyRadius,
+        },
+        [cast.referee.id]: {
           center: { x: r.x, y: hr.body, z: r.z },
           radius: hr.bodyRadius,
         },
       };
     };
-    const wide: string[] = ["a", "b", "referee"];
+    const wide: string[] = [cast.a.id, cast.b.id, cast.referee.id];
     // The subjects' spheres at every step, shared by every candidate view.
     const cached: Record<
       string,
@@ -198,7 +205,10 @@ export namespace CameraTrack {
           (l) => t >= l.contact && t < l.contact + CoverageLaw.HOLD,
         );
         const count: boolean =
-          counting !== undefined && t >= counting.start && t < counting.end;
+          counting !== undefined &&
+          counted !== undefined &&
+          t >= counting.start &&
+          t < counting.end;
         const shown: CoverageLaw.Size = s.size;
         const wanted: CoverageLaw.Size = count
           ? "medium"
@@ -221,12 +231,12 @@ export namespace CameraTrack {
         // stands and where he will stand one operator's lag ahead, so the
         // following lens keeps his path.
         const men: string[] = count
-          ? [...CountCoverage.SUBJECTS]
+          ? counted!.subjects
           : s.size === "wide" ||
               s.size === "finish" ||
               officiating.some((i) => t >= i.start && t < i.end)
             ? wide
-            : ["a", "b"];
+            : [cast.a.id, cast.b.id];
         const subjects: string[] = men.flatMap((id) => [id, `${id}${AHEAD}`]);
         const framed = { ...state, ...ahead(k) };
         // A change between the wide camera and the apron handheld is a cut to
@@ -239,7 +249,7 @@ export namespace CameraTrack {
         const aim: SightLaw.IView = count
           ? {
               bearing: CountCoverage.bearing(
-                CountCoverage.COUNTED.map((id) => floor(state[id]!)),
+                counted!.counted.map((id) => floor(state[id]!)),
                 corner!,
               ),
               elevation: CoverageLaw.ELEVATION,
@@ -259,13 +269,13 @@ export namespace CameraTrack {
             : {
                 bearing: CoverageLaw.unblocked(
                   CoverageLaw.bearing(
-                    floor(state.a!),
-                    floor(state.b!),
-                    floor(state.referee!),
+                    floor(state[cast.a.id]!),
+                    floor(state[cast.b.id]!),
+                    floor(state[cast.referee.id]!),
                   ),
-                  floor(state.a!),
-                  floor(state.b!),
-                  floor(state.referee!),
+                  floor(state[cast.a.id]!),
+                  floor(state[cast.b.id]!),
+                  floor(state[cast.referee.id]!),
                   cast.referee.body.measure.shoulderHalfWidth,
                 ),
                 elevation: CoverageLaw.ELEVATION,
