@@ -155,11 +155,19 @@ function frame(world: IStageWorld, performance: StagePerformance, shot: StageAct
   const baseY: number = points.reduce((s, p) => s + p.y, 0) / points.length;
   const seated: boolean = shot.height === "seated";
   const bodyHeight: number = airborne ? stature * 0.7 : seated ? stature * 0.72 : stature;
+  // Keeping the hands frames the chest-to-hip band where hands handle things, tighter than the head-to-hips medium.
+  const hands: boolean = shot.keep === "hands";
   const span: number =
-    shot.size === "medium" ? bodyHeight * 0.5 : shot.size === "close" ? bodyHeight * (shot.keep === "hands" ? 0.4 : 0.3) : bodyHeight;
+    shot.size === "medium" ? bodyHeight * (hands ? 0.36 : 0.5) : shot.size === "close" ? bodyHeight * (hands ? 0.3 : 0.3) : bodyHeight;
   const centreY: number =
     (airborne ? baseY : 0) +
-    (shot.size === "medium" ? bodyHeight * 0.72 : shot.size === "close" ? (shot.keep === "hands" ? bodyHeight * 0.55 : bodyHeight * 0.85) : bodyHeight * 0.5);
+    (shot.size === "medium"
+      ? bodyHeight * (hands ? 0.6 : 0.72)
+      : shot.size === "close"
+        ? hands
+          ? bodyHeight * 0.58
+          : bodyHeight * 0.85
+        : bodyHeight * 0.5);
   const target: IAutoMovieVector3 = { x: centreXZ.x, y: centreY, z: centreXZ.z };
   let bearing: number = bearingOf(world, shot, target, points, performance, t, kept);
   // Spread of the subjects across the frame: their extent along the lens's right axis plus a body's width.
@@ -192,7 +200,9 @@ function frame(world: IStageWorld, performance: StagePerformance, shot: StageAct
   const lens: number = shot.height === "seated" ? 1.05 : shot.height === "low" ? 0.65 : shot.height === "high" ? 3.2 : 1.4;
   const station: IAutoMovieVector3 | undefined = shot.from !== undefined ? world.set.stations[shot.from] : undefined;
   // A wide shot from a station keeps the station's bearing and height and moves in to the distance its subjects need; every shot keeps the lens inside the set's walls.
-  const heightAt = (far: number): number => (airborne ? centreY + far * 0.12 : Math.max(0.3, station !== undefined && shot.size === "wide" ? station.y : lens));
+  // An alongside shot may stand higher than the riders by `above`, which separates two riders flying level side by side.
+  const raise: number = shot.motion === "alongside" ? (shot.alongside?.above ?? 0) : 0;
+  const heightAt = (far: number): number => (airborne ? centreY + far * 0.12 + raise : Math.max(0.3, station !== undefined && shot.size === "wide" ? station.y : lens));
   const eyeAt = (far: number, b: number = bearing): IAutoMovieVector3 => ({ x: target.x + Math.sin(b) * far, y: heightAt(far), z: target.z + Math.cos(b) * far });
   // The fit above treats every subject as equally far; a near subject takes more of the frame, so move out until each body's sides,
   // and for whole-body sizes its head and feet, sit inside 6% margins of the frame as the lens projects them.
@@ -225,6 +235,24 @@ function frame(world: IStageWorld, performance: StagePerformance, shot: StageAct
       const candidate: IAutoMovieVector3 = inside(eyeAt(far, bearing + (turn * Math.PI) / 180));
       if (back(candidate) > back(position) + 0.05) position = candidate;
       if (back(position) >= 0.95 * far) break;
+    }
+
+  // The lens never stands inside a person on the ground: when it is within 0.5 m of anyone, swing the bearing the least turn that clears everyone.
+  const clearance = (eye: IAutoMovieVector3): number => {
+    let nearest: number = Infinity;
+    for (const id of world.students.keys()) {
+      const p: IAutoMovieVector3 | undefined = performance.position(id, t);
+      if (p !== undefined && p.y < 1.0 && eye.y < 2.0) nearest = Math.min(nearest, Math.hypot(eye.x - p.x, eye.z - p.z));
+    }
+    return nearest;
+  };
+  if (shot.motion !== "alongside" && clearance(position) < 0.5)
+    for (const turn of [15, -15, 30, -30, 45, -45, 60, -60, 90, -90, 120, -120, 150, -150, 180]) {
+      const candidate: IAutoMovieVector3 = inside(eyeAt(far, bearing + (turn * Math.PI) / 180));
+      if (clearance(candidate) >= 0.5) {
+        position = candidate;
+        break;
+      }
     }
   return { position, target };
 }

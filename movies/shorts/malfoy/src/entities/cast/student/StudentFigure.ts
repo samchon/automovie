@@ -51,6 +51,7 @@ export class StudentFigure {
     this.polygon = new StudentPolygon(profile);
     this.uniform = new StudentUniform(profile, body);
     this.uniform.hideSkin();
+    this.uniform.attach(this.polygon);
     this.object.add(this.polygon.object, this.uniform.object);
   }
 

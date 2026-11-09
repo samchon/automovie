@@ -244,6 +244,6 @@ From 54.5 seconds, as Carina hurries out through the gap and the passage beyond 
 - Outcome: He walks to the bench centre and sits, as the [walking table](../../research/everyday/walking.md#outcomes) gives for a free landmark and the [sitting table](../../research/everyday/sitting.md#outcomes) gives when the calves reach the seat edge.
 - Consequence: Harry sits with his feet flat and the note on his knee; the seat Carina rehearsed to is filled. Carina is gone into the side passage. The film ends at 60 seconds.
 - Space: Carina walks from the west gap out of view into the passage; Harry walks from the edge of the west gap along the clear paving to the bench front and sits on the bench at its centre.
-- Camera: the two-shot from the south-east holds Carina going out through the gap as Harry walks away from her; at 56.3 seconds, as she goes, cut to a wide from the open south side that holds Harry walking to the bench and sitting down on it, the lit wall behind him, to the end.
+- Camera: at 54.7 seconds, as Harry turns back toward the bench, cut from the south-east two-shot to a wide from the open south side that holds his walk across the paving while Carina goes out through the gap; at 56.3 seconds, as he nears the bench, cut in from the same side to hold him sitting down on it, the lit wall behind him, to the end.
 - Sound: dialogue none; foley none; ambience none; effects none; music none.
 - Continuity: end of the film; the note on Harry's knee; Carina out of view.

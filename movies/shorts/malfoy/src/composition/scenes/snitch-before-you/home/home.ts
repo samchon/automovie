@@ -21,9 +21,10 @@ import type { PitchStage } from "../PitchStage";
  * seat the library places behind her; her levelling-out is a slow climb to
  * the pitch's `tandem.level`, the U-turn through `tandem.turn` and
  * `tandem.back` stays at 5 m/s inside the tandem's bank limit, and the run
- * home at 8 m/s through `tandem.home` to `keeper.runoff` closes to about
- * forty metres of the east goals by the last frame; the final view frames
- * the pair alone, so they stay centred and large; G-K's waiting and escort
+ * home at 7.5 m/s through `tandem.home` to `keeper.runoff` closes to about
+ * forty metres of the east goals and is still flying at the last frame, so
+ * no route end falls inside the film; the final view from behind stands 3 m
+ * above the pair so Carina's head shows beyond Harry's; G-K's waiting and escort
  * are in `practiceTeams`, the Snitch's hang in `theSnitch`.
  *
  * @param stage The pitch stage.
@@ -53,10 +54,10 @@ export function home(stage: PitchStage): AutoMovieComposition {
       .fly("tandem.out", { speed: 3 })
       .touchForehead({ hand: "left" })
       .fly(["tandem.turn", "tandem.back"], { speed: 5 })
-      .fly(["tandem.home", "keeper.runoff"], { speed: 8 }),
+      .fly(["tandem.home", "keeper.runoff"], { speed: 7.5 }),
     camera.alongside([carina, harry], { start: 43, side: "left", view: "front", distance: 4, size: "medium" }),
     camera.shot([stage.snitch], { start: 43.4, size: "close", motion: "follow" }),
     camera.alongside([carina, harry], { start: 44.5, side: "left", view: "front", distance: 4, size: "medium" }),
-    camera.alongside([carina, harry], { start: 53, view: "behind", distance: 4.5 }),
+    camera.alongside([carina, harry], { start: 53, view: "behind", distance: 4.5, above: 3 }),
   );
 }

@@ -17,8 +17,11 @@ import type { CorridorStage } from "../CorridorStage";
  * Concretization: Harry lowers his open palms before the near miss, so his
  * sidestep is the library's same-gap step to his right, into her way out,
  * and she stops a hand's breadth from him; she sets off for the sill as he
- * pushes his glasses up, ahead of his walk to the bench; his hands go into
- * his pockets as he walks, as his walking habit gives.
+ * pushes his glasses up, ahead of his walk to the bench, and at the sill
+ * turns to face it, her back to him; his hands go into his pockets as he
+ * walks, as his walking habit gives. The full two-shot from 17.9 holds a
+ * framing that keeps both of them over its whole span, through his step back
+ * and the near miss.
  *
  * ```ts
  * theTug(new CorridorStage().cast);
@@ -66,7 +69,10 @@ export function theTug(cast: CorridorStage.ICast): AutoMovieComposition {
       ),
       sameGap(carina, harry, { start: 21.1 }),
       AutoMovieComposition.parallel(
-        carina.hold(0.6).walkTo("rightEndStanding", { pace: "hesitant", facing: "sill.rightEnd" }),
+        carina
+          .hold(0.6)
+          .walkTo("rightEndStanding", { pace: "hesitant", facing: "sill.rightEnd" })
+          .turnTo("sill.rightEnd"),
         harry
           .giveRoom(carina)
           .pushGlasses()
@@ -78,7 +84,7 @@ export function theTug(cast: CorridorStage.ICast): AutoMovieComposition {
     camera
       .twoShot([harry, carina], { start: 15 })
       .next(camera.twoShot([harry, carina], { start: 16, size: "medium", keep: "hands" }))
-      .next(camera.twoShot([harry, carina], { start: 17.9 }))
+      .next(camera.twoShot([harry, carina], { start: 17.9, motion: "hold" }))
       .next(camera.twoShot([harry, carina], { start: 23.9, from: "front" })),
   );
 }

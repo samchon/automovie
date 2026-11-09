@@ -41,6 +41,7 @@ export function theGoalGap(stage: PitchStage): AutoMovieComposition {
       ["eastSouthGap.south", "hook.south", "eastSouthPost.hookInsideOut", "runoff.south", "climb.south", "chase.south"],
       { speed: 7.2 },
     ),
+    camera.alongside([carina, harry], { start: 15, side: "left", view: "front", distance: 6 }),
     camera.alongside([carina, harry], { start: 18.6, side: "left", view: "front", distance: 4.5 }),
   );
 }

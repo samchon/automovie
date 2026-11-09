@@ -46,7 +46,7 @@ Harry's eyes are elsewhere, roving the game below. They find her already going, 
 - Outcome: both Seekers race, as [Seekers and the Snitch](../../research/quidditch/practice-play.md#seekers) gives on a sighting; the game below goes on without them, its players watching their [own balls](../settings/crowds/practice-teams.md#attention).
 - Consequence: Carina leads by a few lengths; Harry gains from behind her right shoulder.
 - Space: both Seekers leave the middle of the pitch at Seekers' height toward the east goals; the game stays in the middle third beneath them.
-- Camera: the wide cranes up and forward onto the two Seekers as they go, then settles beside them on Carina's side, travelling with them.
+- Camera: as they go, a cut to beside the two Seekers on Carina's side, travelling with them.
 - Sound: dialogue none; foley none; ambience none; effects none; music none.
 - Continuity: the Snitch near the east goals.
 
@@ -98,7 +98,7 @@ The east hoops come up fast ahead. The Gryffindor Keeper [G-K] patrols in front 
 - Outcome: level, then half a broom behind again, by the same [steering](../../research/flight/broom-riding.md#steering); G-K faces the ball, as the [Keeper's law](../../research/quidditch/practice-play.md#keepers) gives.
 - Consequence: Carina half a broom ahead as they reach the east goals.
 - Space: the Seekers cross above the east goal front toward the east goals.
-- Camera: alongside, as before; the hoops rise into the top of the frame.
+- Camera: alongside, as before, for his answer; then, as they run level knee to knee, a cut to just behind and above the two, Carina screen left and Harry screen right, the hoops rising ahead of them into the top of the frame.
 - Sound: dialogue "Already am."; foley none; ambience none; effects none; music none.
 - Continuity: as before.
 
@@ -125,7 +125,7 @@ Both noses go down after it. The posts swell on either side, the hoops sweep ove
 - Outcome: both dive and pass the gap without touching a post or each other, within the [dive limit](../settings/world/flight.md#seat) and the [Seekers' conduct](../settings/world/quidditch.md#conduct).
 - Consequence: both below hoop height, past the goal line; Carina still half a broom ahead.
 - Space: from above the east goal front down through the south gap to just beyond the east goal line.
-- Camera: alongside, diving with them; the middle post passes between the camera and Carina; the south post beyond Harry.
+- Camera: a cut back to alongside on Carina's side, diving with them; the middle post passes between the camera and Carina; the south post beyond Harry.
 - Sound: dialogue none; foley none; ambience none; effects none; music none.
 - Continuity: as before.
 
@@ -200,7 +200,7 @@ At 30 seconds his thighs lose the wood. He drops off the broom's left side, and 
 - Outcome: unseated and hanging, the right hand still on the shaft, as the [overreach law](../../research/flight/broom-riding.md#overreach) and its [outcome table](../../research/flight/broom-riding.md#outcomes) give.
 - Consequence: Harry hangs one-handed beneath his broom from 30.000; the broom keeps its line and sinks under the load, as [hanging](../settings/world/flight.md#falling) gives; his one-handed hold has about ten seconds in it.
 - Space: Harry on the left of his broom's line, below it; Carina behind that left side.
-- Camera: a cut, as he reaches again, to the full two-shot alongside on Carina's side from her rear quarter, Carina near, Harry ahead and beyond; it runs unbroken through the slip, the hang and her open hand.
+- Camera: a cut, as he reaches again, to the full two-shot alongside, square to their left side: Carina near and behind on screen left, Harry ahead and beyond, his reaching arm clear of her; it runs unbroken through the slip, the hang and her open hand.
 - Sound: dialogue none; foley none; ambience none; effects none; music none.
 - Continuity: Harry hanging by his right hand from 30.000.
 
@@ -236,7 +236,7 @@ She tips the nose down. The Snitch slips past her right shoulder and climbs away
 - Outcome: no catch, because the hand never closes on the Snitch, as [the Snitch's flight](../settings/props/snitch.md#flight) gives; her eyes fix on the danger one reaction time after it appears, her settings tell without the wand; her threshold puts his danger above winning.
 - Consequence: the Snitch flies on, uncaught; Carina dives toward the left side of Harry's line with both hands on her broom.
 - Space: Carina leaves her place behind Harry's left shoulder, going down.
-- Camera: alongside, full two-shot from Carina's rear quarter: her open hand and the Snitch near in frame, Harry hanging beyond; the same unbroken shot as the two beats before.
+- Camera: alongside, full two-shot square to their left side: her open hand and the Snitch near in frame, Harry hanging beyond; the same unbroken shot as the two beats before.
 - Sound: dialogue none; foley none; ambience none; effects none; music none.
 - Continuity: the Snitch uncaught for the rest of the film.
 
@@ -428,6 +428,6 @@ Two Seekers ride back on one broom. The image ends at 60 seconds.
 - Outcome: a turn within the tandem's bank limit, as [two riders](../settings/world/flight.md#tandem) gives; G-K stays outside three metres, as [the stopping rule](../settings/world/quidditch.md#stopping) gives.
 - Consequence: the film ends with the two riding home on one broom, the Snitch gone and Harry's broom riderless far behind.
 - Space: the tandem turns in the runoff and heads west toward the east goals, about forty metres short of them at the end; G-K, waiting off their right, flies on that side three and a half metres off once they pass him; the other players hold in their zones over the pitch.
-- Camera: a cut to a view from just behind and above the pair as they come out of the turn, looking along their course: the pair near and large in the lower frame, the east hoops ahead of them growing to the end; G-K's place on their right lies outside this narrow frame; held to the end.
+- Camera: a cut to a view from just behind and well above the pair as they come out of the turn, looking along their course: the pair near and large in the lower frame, Carina's pale head beyond Harry's dark one, the east hoops ahead of them growing to the end; G-K's place on their right lies outside this narrow frame; held to the end.
 - Sound: dialogue none; foley none; ambience none; effects none; music none.
 - Continuity: end of the film.

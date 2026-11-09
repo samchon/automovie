@@ -17,9 +17,11 @@ import type { CourtyardStage } from "../CourtyardStage";
  * she turns away, once she is past Harry and his eyes are back on the note;
  * she walks to the gap at her ordinary pace and leaves at her hurried pace;
  * Harry starts for the bench as she reaches the gap; the two-shot from the
- * south-east holds them both until 56.3 s, when, as she goes, the camera cuts
- * to a wide from the open south that holds his walk to the bench and his
- * sitting to the end.
+ * south-east holds them both through her forehead touch, and at 54.7 s, as he
+ * turns back toward the bench, the camera cuts to a wide from the open south
+ * that holds his walk while she goes out through the gap, and at 56.3 s, as
+ * he nears the bench, cuts in from the same side to hold his sitting to the
+ * end.
  *
  * ```ts
  * AutoMovieComposition.sequence(theRehearsal(stage.cast), theNote(stage.cast), thisOne(stage.cast));
@@ -67,6 +69,9 @@ export function thisOne(cast: CourtyardStage.ICast): AutoMovieComposition {
       .walkTo("passage", { pace: "hurried" }),
     camera
       .twoShot([harry, carina], { start: 50.7, from: "southEast" })
+      .next(
+        camera.wide([harry, "bench.centre"], { start: 54.7, from: "openSouth" }),
+      )
       .next(
         camera.wide([harry, "bench.centre"], { start: 56.3, from: "openSouth" }),
       ),

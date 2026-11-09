@@ -91,10 +91,32 @@ export namespace PostureFrame {
   export function blend(a: IBodyPosture, b: IBodyPosture, k: number): IBodyPosture {
     const turn: number = Math.atan2(Math.sin(b.heading - a.heading), Math.cos(b.heading - a.heading));
     const foot = (x: IBodyPosture.IFoot, y: IBodyPosture.IFoot): IBodyPosture.IFoot => ({ point: lerp(x.point, y.point, k), toes: lerp(x.toes, y.toes, k), knee: lerp(x.knee, y.knee, k) });
-    const hand = (x: IBodyPosture.IHand, y: IBodyPosture.IHand): IBodyPosture.IHand => ({ point: lerp(x.point, y.point, k), elbow: lerp(x.elbow, y.elbow, k), palm: lerp(x.palm, y.palm, k) });
+
+    // Hands ride the body: their points blend in each posture's own pelvis
+    // and heading frame, so a turn carries the arms round instead of
+    // swinging them along the chord between two world points.
+    const pelvis: IAutoMovieVector3 = lerp(a.pelvis, b.pelvis, k);
+    const heading: number = a.heading + turn * k;
+    const local = (p: IAutoMovieVector3, from: IBodyPosture): IAutoMovieVector3 => {
+      const f: IFrame = frame(from.heading);
+      const v: IAutoMovieVector3 = { x: p.x - from.pelvis.x, y: p.y - from.pelvis.y, z: p.z - from.pelvis.z };
+      return { x: v.x * f.forward.x + v.z * f.forward.z, y: v.y, z: v.x * f.left.x + v.z * f.left.z };
+    };
+    const blended: IFrame = frame(heading);
+    const world = (q: IAutoMovieVector3): IAutoMovieVector3 => ({
+      x: pelvis.x + blended.forward.x * q.x + blended.left.x * q.z,
+      y: pelvis.y + q.y,
+      z: pelvis.z + blended.forward.z * q.x + blended.left.z * q.z,
+    });
+    const carried = (x: IAutoMovieVector3, y: IAutoMovieVector3): IAutoMovieVector3 => world(lerp(local(x, a), local(y, b), k));
+    const hand = (x: IBodyPosture.IHand, y: IBodyPosture.IHand): IBodyPosture.IHand => ({
+      point: carried(x.point, y.point),
+      elbow: carried(x.elbow, y.elbow),
+      palm: lerp(x.palm, y.palm, k),
+    });
     return {
-      pelvis: lerp(a.pelvis, b.pelvis, k),
-      heading: a.heading + turn * k,
+      pelvis,
+      heading,
       pitch: a.pitch + (b.pitch - a.pitch) * k,
       roll: a.roll + (b.roll - a.roll) * k,
       lean: a.lean + (b.lean - a.lean) * k,

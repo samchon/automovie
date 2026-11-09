@@ -40,6 +40,54 @@ export class StudentUniform {
     for (const o of this.skin) o.visible = false;
   }
 
+  /** The leg cylinders (tights or trousers), which the dressed polygon legs replace. */
+  private readonly legs: THREE.Object3D[] = [];
+
+  /** Whether the layers ride the polygon's bones instead of the solved joints. */
+  private riding: boolean = false;
+
+  /**
+   * Put the clothing layers on a Human polygon figure: the trunk's collar,
+   * tie, knit, robe, lining and crest ride its chest, the hair and glasses
+   * its head, the skirt and the robe's lower panels its thighs, each fitted
+   * once in the neutral pose so it follows every later pose of those bones.
+   * Sleeves, leg cylinders, shoes, the pelvis block and the bare neck and
+   * hands are hidden: the polygon's own parts, dressed in the uniform's
+   * colours, draw them.
+   *
+   * @param polygon The figure's bone groups, neutral placements and forward.
+   */
+  public attach(polygon: {
+    bone(name: string): THREE.Group | undefined;
+    rest(name: string): { position: THREE.Vector3; rotation: THREE.Quaternion } | undefined;
+    facing(): THREE.Vector3;
+  }): void {
+    const up: THREE.Vector3 = new THREE.Vector3(0, 1, 0);
+    const forward: THREE.Vector3 = polygon.facing();
+    const right: THREE.Vector3 = new THREE.Vector3().crossVectors(forward, up).normalize();
+    const frame: THREE.Quaternion = new THREE.Quaternion().setFromRotationMatrix(
+      new THREE.Matrix4().makeBasis(forward, up, right),
+    );
+    const fit = (group: string, bone: string, origin: string, lift: number): void => {
+      const parent: THREE.Group | undefined = polygon.bone(bone);
+      const rest = polygon.rest(bone);
+      const at = polygon.rest(origin);
+      if (parent === undefined || rest === undefined || at === undefined) return;
+      const inverse: THREE.Quaternion = rest.rotation.clone().invert();
+      const g: THREE.Group = this.groups[group]!;
+      g.position.copy(at.position.clone().add(new THREE.Vector3(0, lift, 0)).sub(rest.position).applyQuaternion(inverse));
+      g.quaternion.copy(inverse.multiply(frame));
+      parent.add(g);
+    };
+    // Only the hair and glasses ride the polygon's head; every clothing layer is dropped.
+    fit("head", "head", "head", 0.03);
+    for (const name of ["pelvis", "neck", "trunk"]) this.groups[name]!.visible = false;
+    for (const side of ["left", "right"])
+      for (const part of ["upperArm", "forearm", "hand", "thigh", "shin", "foot"]) this.groups[`${side}.${part}`]!.visible = false;
+    for (const o of this.legs) o.visible = false;
+    this.riding = true;
+  }
+
   /**
    * Dress the mannequin.
    *
@@ -104,11 +152,11 @@ export class StudentUniform {
       this.skin.push(this.box(`${side}.hand`, [0.03, L.hand * 2, 0.08], [0, -L.hand, 0], C.skin));
       // Legs: skirt over the thigh and tights below, or trousers; the robe's lower panels; shoes.
       if (profile.bottoms === "skirt") {
-        this.cyl(`${side}.thigh`, 0.072, L.thigh, [0, -L.thigh / 2, 0], C.tights);
+        this.legs.push(this.cyl(`${side}.thigh`, 0.072, L.thigh, [0, -L.thigh / 2, 0], C.tights));
         this.box(`${side}.thigh`, [0.2, L.thigh * 0.82, 0.17], [0, -L.thigh * 0.41, 0], C.bottoms);
         this.cyl(`${side}.shin`, 0.05, L.shank, [0, -L.shank / 2, 0], C.tights);
       } else {
-        this.cyl(`${side}.thigh`, 0.075, L.thigh, [0, -L.thigh / 2, 0], C.bottoms);
+        this.legs.push(this.cyl(`${side}.thigh`, 0.075, L.thigh, [0, -L.thigh / 2, 0], C.bottoms));
         this.cyl(`${side}.shin`, 0.058, L.shank, [0, -L.shank / 2, 0], C.bottoms);
       }
       const s: number = side === "left" ? -1 : 1;
@@ -125,7 +173,15 @@ export class StudentUniform {
    * @param riding Whether the uniform is in its riding state.
    */
   public place(j: StudentBody.IJoints, riding: boolean): void {
-    const frame = (name: string, origin: IAutoMovieVector3, up: IAutoMovieVector3, forward: IAutoMovieVector3): void => {
+    if (this.riding) {
+      for (const o of this.tucked) o.visible = !riding;
+      if (this.hairRiding.length > 0) {
+        for (const o of this.hairDown) o.visible = !riding;
+        for (const o of this.hairRiding) o.visible = riding;
+      }
+      return;
+    }
+    const frame =(name: string, origin: IAutoMovieVector3, up: IAutoMovieVector3, forward: IAutoMovieVector3): void => {
       const g: THREE.Group = this.groups[name]!;
       const u: THREE.Vector3 = new THREE.Vector3(up.x, up.y, up.z).normalize();
       let f: THREE.Vector3 = new THREE.Vector3(forward.x, forward.y, forward.z);

@@ -47,7 +47,7 @@ export class StudentPolygon {
     this.figure = createAutoMovieHumanPolygonFigure({
       evaluate: (): AutoMovieHumanSkeleton.IOutput => neutral,
       partColors: Object.fromEntries(
-        neutral.bones.map((b: AutoMovieHumanSkeleton.IBone): [string, number] => [b.bone, profile.skin]),
+        neutral.bones.map((b: AutoMovieHumanSkeleton.IBone): [string, number] => [b.bone, dressed(b.bone, profile)]),
       ),
     });
     this.object = this.figure.object;
@@ -55,6 +55,26 @@ export class StudentPolygon {
     const at = (bone: string): THREE.Vector3 => position(neutral, bone) ?? new THREE.Vector3();
     const left: THREE.Vector3 = at("leftUpperLeg").sub(at("rightUpperLeg")).normalize();
     this.forward = new THREE.Vector3().crossVectors(left, UP).normalize();
+  }
+
+  /** The polygon drawing's group of a bone, which `place` poses; children ride the bone. */
+  public bone(name: string): THREE.Group | undefined {
+    return this.figure.drawing.bones.get(name);
+  }
+
+  /** A bone's neutral world placement (template metres), the pose its group's children are fitted in. */
+  public rest(name: string): { position: THREE.Vector3; rotation: THREE.Quaternion } | undefined {
+    const p: AutoMovieHumanSkeleton.IPlacement | undefined = this.human.neutral.posed.find(
+      (placement: AutoMovieHumanSkeleton.IPlacement): boolean => placement.bone === name,
+    );
+    return p === undefined
+      ? undefined
+      : { position: new THREE.Vector3(...p.position), rotation: new THREE.Quaternion(...p.rotation) };
+  }
+
+  /** The neutral body's forward direction. */
+  public facing(): THREE.Vector3 {
+    return this.forward.clone();
   }
 
   /**
@@ -83,12 +103,18 @@ export class StudentPolygon {
         case "spine":
         case "chest":
         case "upperChest":
-        case "neck":
         case "leftShoulder":
         case "rightShoulder":
           return { dir: j.trunk.up, ref: j.trunk.forward, neutralDir: UP, neutralRef: this.forward };
-        case "head":
-          return { dir: j.head.up, ref: j.head.forward, neutralDir: UP, neutralRef: this.forward };
+        case "neck":
+          // The neck's base sits on the solved shoulder line, so the head above it lands where the body solved it.
+          return { dir: j.trunk.up, ref: j.trunk.forward, neutralDir: UP, neutralRef: this.forward, anchor: j.chest };
+        case "head": {
+          // The head joint lies between the ears, just below the solved head centre that face touches and meets aim at.
+          const centre: IAutoMovieVector3 = j.headCentre;
+          const anchor: IAutoMovieVector3 = { x: centre.x - j.head.up.x * 0.03, y: centre.y - j.head.up.y * 0.03, z: centre.z - j.head.up.z * 0.03 };
+          return { dir: j.head.up, ref: j.head.forward, neutralDir: UP, neutralRef: this.forward, anchor };
+        }
         case "leftUpperArm":
         case "rightUpperArm":
           return { dir: sub(arm.elbow, arm.shoulder), ref: j.trunk.forward, neutralDir: between(bone, `${side}LowerArm`, down), neutralRef: this.forward, anchor: arm.shoulder };
@@ -119,23 +145,28 @@ export class StudentPolygon {
     neutral.bones.forEach((bone: AutoMovieHumanSkeleton.IBone, i: number): void => {
       const parent: number | undefined = bone.parent === null ? undefined : index.get(bone.parent);
       const t = target(bone.bone);
-      const turn: THREE.Quaternion =
+      const inherited: THREE.Quaternion = parent === undefined ? new THREE.Quaternion() : turns[parent]!.clone();
+      let turn: THREE.Quaternion =
         t === undefined
-          ? parent === undefined
-            ? new THREE.Quaternion()
-            : turns[parent]!.clone()
+          ? inherited
           : new THREE.Quaternion().setFromRotationMatrix(
               basis(vec(t.dir), vec(t.ref)).multiply(basis(t.neutralDir, t.neutralRef).invert()),
             );
+
+      // A degenerate segment (zero length, or a non-finite solved joint) keeps its parent's turn, so the drawing always receives unit rotations.
+      if (![turn.x, turn.y, turn.z, turn.w].every(Number.isFinite) || turn.lengthSq() < 0.5) turn = inherited;
+      turn.normalize();
       turns[i] = turn;
       const own: THREE.Vector3 = n(bone.bone)!;
       let at: THREE.Vector3;
       if (t?.anchor !== undefined) at = vec(t.anchor).divideScalar(s);
       else if (parent === undefined) at = vec(j.pelvis).divideScalar(s);
       else at = positions[parent]!.clone().add(own.clone().sub(n(neutral.bones[parent]!.bone)!).applyQuaternion(turns[parent]!));
+      if (![at.x, at.y, at.z].every(Number.isFinite))
+        at = parent === undefined ? own.clone() : positions[parent]!.clone().add(own.clone().sub(n(neutral.bones[parent]!.bone)!));
       positions[i] = at;
       const rest: AutoMovieHumanSkeleton.IPlacement = neutral.posed[i]!;
-      const q: THREE.Quaternion = turn.clone().multiply(new THREE.Quaternion(...rest.rotation));
+      const q: THREE.Quaternion = turn.clone().multiply(new THREE.Quaternion(...rest.rotation)).normalize();
       posed.push({ bone: bone.bone, position: [at.x, at.y, at.z], rotation: [q.x, q.y, q.z, q.w] });
     });
     this.figure.place({ posed });
@@ -150,6 +181,14 @@ export class StudentPolygon {
 
 /** World up. */
 const UP: THREE.Vector3 = new THREE.Vector3(0, 1, 0);
+
+/** A bone's drawn colour: skin on the head, neck and hands, black shoes and legs, the house colour (Slytherin green, Gryffindor red) on the trunk and arms. */
+function dressed(bone: string, profile: IStudentProfile): number {
+  if (/Foot|Toe/u.test(bone)) return 0x0c0c0c;
+  if (/UpperLeg$|LowerLeg$/u.test(bone)) return 0x1a1a1c;
+  if (/^(head|neck|jaw)$|Eye$|Hand$|Thumb|Index|Middle|Ring|Little/u.test(bone)) return profile.skin;
+  return profile.house === "slytherin" ? 0x1d5e3a : 0x8e1c22;
+}
 
 /** A bone's neutral world position. */
 function position(neutral: AutoMovieHumanSkeleton.IOutput, bone: string): THREE.Vector3 | undefined {

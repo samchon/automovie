@@ -56,9 +56,9 @@ export class DuelEffects {
     private readonly masonry?: MasonryTrack,
     cap?: FallingMasonry,
   ) {
-    // A streak is a deep-blue (or scarlet) 2 cm bar with a white core showing at both tips, so it reads over the pale sky and the floor alike.
-    const bar: THREE.BoxGeometry = new THREE.BoxGeometry(0.4, 0.02, 0.02);
-    const core: THREE.BoxGeometry = new THREE.BoxGeometry(0.46, 0.009, 0.009);
+    // A streak is a deep-blue (or scarlet) 6 cm bar with a white core showing at both tips, so it reads over the pale sky and the floor alike at film distance.
+    const bar: THREE.BoxGeometry = new THREE.BoxGeometry(0.7, 0.06, 0.06);
+    const core: THREE.BoxGeometry = new THREE.BoxGeometry(0.8, 0.025, 0.025);
     const ball: THREE.SphereGeometry = new THREE.SphereGeometry(0.06, 8, 6);
     const blue: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({ color: 0x1f56d0 });
     const white: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({ color: 0xeef6ff });

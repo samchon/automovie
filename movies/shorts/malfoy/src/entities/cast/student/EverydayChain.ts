@@ -387,7 +387,7 @@ export namespace EverydayChain {
     /** What to face on arrival, or throughout when walking backward. */
     facing?: Where;
 
-    /** Stop this far from a person: conversation 1.0 m, handing 0.7 m, a hand's breadth chest to chest (0.32 m between pelvis points), or metres. */
+    /** Stop this far from a person: conversation 1.0 m, handing 0.7 m, a hand's breadth chest to chest (0.42 m between pelvis points), or metres. */
     distance?: "conversation" | "handing" | "faceToFace" | number;
 
     /** A forehead touch or a glasses push made while walking, starting some seconds into the walk (0.3 by default). */
