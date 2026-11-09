@@ -4,7 +4,7 @@ import type { AutoMovieCommand } from "./AutoMovieCommand";
  * Admit one explicit instruction-sync request before reading the production.
  *
  * @evidence contracts/development/implementation.md#principled-implementation A complete left-to-right token scan admits one target, at most one check flag and one nonblank baseline, rejecting unknown or repeated options before filesystem work.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure This sync grammar is separate from start's force semantics; run owns resolution and template owns planning/publication.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This sync grammar is separate from create's and add's force semantics; run owns resolution and template owns planning/publication.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No default target, wildcard expansion, force overwrite or inferred baseline is admitted; directory names beginning with a dash require ./ spelling.
  * @evidence contracts/development/common.md#meaningful-documentation The comment identifies admission before reads, while errors give flag, value and target corrections.
  * @evidence contracts/development/implementation.md#efficient-algorithms One argument scan and value blank checks cost total input characters; the local positional list is bounded by argument count.

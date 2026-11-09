@@ -5,6 +5,7 @@ import type {
 import fs from "node:fs";
 import path from "node:path";
 
+import type { IContractLocation } from "../../../internal/IContractLocation";
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import type { NarrativeScope } from "../../NarrativeScope";
@@ -12,6 +13,7 @@ import type { ProductionStage } from "../../ProductionStage";
 import { createLocalContractReference } from "../references/createLocalContractReference";
 import { createSharedReference } from "../references/createSharedReference";
 import { layerFiles } from "../references/layerFiles";
+import { createContractDirectory } from "../utilities/createContractDirectory";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 import { passRoot } from "../utilities/passRoot";
 
@@ -28,7 +30,7 @@ import { passRoot } from "../utilities/passRoot";
  * Unit duties use checklists. Naturalness population comparisons have separate
  * expression obligation claims rather than repeating their question per unit.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Construction stage controls whole-layer file-level obligation coverage, with one answering document per shared/language population item and no per-H2 repetition of the same comparison.
+ * @evidence contracts/development/implementation.md#principled-implementation Construction stage controls whole-layer file-level obligation coverage, with one answering document per shared/language population item and no per-H2 repetition of the same comparison; createContractDirectory probes shared documents in the shared skills tree and language documents in the production's own `docs/contracts`.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The exported factory delegates one family build while keeping population scope distinct from principle checklists and expression obligations.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Required shared common/narrative files stay selected even when missing so the compiler reports a broken tree; only realized and layer-specific optional documents are conditionally selected.
  * @evidence contracts/development/common.md#meaningful-documentation The prose explains whole-layer respondents, unique evidence and the boundary with per-unit and naturalness families; the helper comment identifies optional-file compatibility.
@@ -61,8 +63,7 @@ function family(
   const shared: IEvidenceClaim[] = layerFiles(layer)
     .filter(
       (file: string): boolean =>
-        !optional(file) ||
-        exists(props.location, "shared", `${directory}/${file}`),
+        !optional(file) || exists(props, "shared", `${directory}/${file}`),
     )
     .map(
       (file: string): IEvidenceClaim =>
@@ -71,7 +72,7 @@ function family(
           layer,
           scope: props.narrativeScope,
           reference: createSharedReference({
-            location: props.location,
+            contracts: props,
             file: `${directory}/${file}`,
             checklist: false,
             exclusion: false,
@@ -118,17 +119,13 @@ function claim(props: {
 
 /** Reports whether one optional contract-family document is installed. */
 function exists(
-  location: string,
+  contracts: IContractLocation,
   scope: "shared" | "language",
   file: string,
 ): boolean {
   return fs.existsSync(
     path.join(
-      location,
-      ".agents",
-      "skills",
-      "contracts",
-      "story",
+      createContractDirectory(contracts, scope),
       scope,
       ...file.split("/"),
     ),

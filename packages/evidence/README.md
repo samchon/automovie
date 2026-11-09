@@ -14,6 +14,20 @@ export default createEvidenceConfig({ location: import.meta.dirname });
 
 The default selects exported source types, interfaces and classes under `src/**/*.ts` against `.agents/skills/contracts/development/design.md`, exported source functions and class methods against `contracts/development/implementation.md`, and exported test functions under `test/**/test_*.ts` against `contracts/development/testing.md`; every one of them also answers `contracts/development/common.md`. It selects no narrative. Location is the absolute project directory; native Evidence resolves selected inputs relative to the authored configuration.
 
+A production in a pnpm workspace whose root holds one shared `.agents/skills` tree passes that tree's absolute directory as `skills`:
+
+```ts
+import { createEvidenceConfig } from "@automovie/evidence";
+import { resolve } from "node:path";
+
+export default createEvidenceConfig({
+  location: import.meta.dirname,
+  skills: resolve(import.meta.dirname, "../../../.agents/skills"),
+});
+```
+
+The bundled contracts resolve under `skills`: `contracts/development/**` for the engineering and development claims, and `contracts/story/shared/**` for research and the shared narrative contracts. The production's own contracts never live in a skills tree: `work/**` and `language/**` always resolve under `<location>/docs/contracts`, so `work/discovery/results.md` is `docs/contracts/work/discovery/results.md`. Citation addresses (`contracts/development/...`, `shared/...`, `work/...`, `language/...`) are the same in both layouts; only reference roots change. A production that still has `.agents/skills/contracts/story/work` or `.agents/skills/contracts/story/language` is refused with an error naming each directory and its new home under `docs/contracts`; move them there, because nothing reads the old location. `skills` must be absolute and defaults to `<location>/.agents/skills`, the standalone layout. Engineering, development and research helpers used directly take the same tree as `skills`, a root relative to `evidence.config.ts`, defaulting to `.agents/skills`: `createEngineeringClaims({ skills })`, `createDevelopmentContractClaims(stages, { skills })` and `createResearchClaims({ skills })`.
+
 A production whose checklists predate that layout keeps them by passing `claims: createEngineeringClaims({ common: null, design: "contracts/common.md", implementation: "contracts/common.md", tests: "contracts/testing.md" })`.
 
 Add narrative when commissioned:

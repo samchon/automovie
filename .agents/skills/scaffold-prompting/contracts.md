@@ -1,6 +1,6 @@
 # Design the quality questions
 
-Ask what the respondent can establish with its actual work. Use the scaffold's [adoption guide](../../../packages/template/scaffold/.agents/skills/evidence/adoption.md) for production requirements and [graph configuration](../../../packages/template/scaffold/.agents/skills/evidence/configuration.md) for selection and ownership. A scene can establish its experience; cross-scene continuity needs the relevant population, and a rendered-output promise needs the actual output observations.
+Ask what the respondent can establish with its actual work. Use the scaffold's [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) for production requirements and [graph configuration](../../../packages/template/scaffold/instructions/.agents/skills/evidence/configuration.md) for selection and ownership. A scene can establish its experience; cross-scene continuity needs the relevant population, and a rendered-output promise needs the actual output observations.
 
 ## Scope and failure
 
@@ -14,7 +14,7 @@ Keep an overall achievement independently answerable when detailed negatives can
 
 Compare proposed questions with existing ones for overlap, contradiction and feasible joint satisfaction. Trace a failing case and a similar legitimate case through judgment and repair. Check that preserving meaning does not freeze defective wording, that removing a failure does not delete setup or promised tone, and that correcting expression does not invent new facts or events.
 
-Keep stable family paths and explicit H2 identities where Evidence addresses them. Change callers, selected respondents and actual dependencies with a moved question; its existing answers and approvals do not certify a changed obligation. Follow the production's [closed-pass boundary](../../../packages/template/scaffold/.agents/skills/story/correction/repair.md#closed-passes), preserving historical proof and unresolved diagnostics.
+Keep stable family paths and explicit H2 identities where Evidence addresses them. Change callers, selected respondents and actual dependencies with a moved question; its existing answers and approvals do not certify a changed obligation. Follow the production's [closed-pass boundary](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/repair.md#closed-passes), preserving historical proof and unresolved diagnostics.
 
 Keep the reason for a failure or protection in the text the recipient reads. Retain verified source support and limits in the appropriate source record or comment, without assuming the materializer strips comments or provides a novel-style migration tool. Shared criteria must work across subjects; local observations remain local until their proposed generalization is supported.
 
