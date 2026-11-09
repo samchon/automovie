@@ -46,10 +46,10 @@ export namespace RefereeShape {
   /** Forward reach of a raised hand toward its subject, as a share of the arm's reach. */
   const RAISE_REACH: number = 0.3;
 
-  /** Share of the winner signal spent walking to the winner before the raise: four metres at the brisk 2.53 m/s over the 2.4 s signal. */
-  const WINNER_ARRIVAL: number = 0.6;
+  /** Shares of the attend crouch between which his hand is raised for the doctor: its middle two fifths. */
+  const DOCTOR_CALL: readonly [number, number] = [0.3, 0.7];
 
-  /** Share of the winner signal over which the raised arm rises or lowers. */
+  /** Share of a raise over which the arm goes up, and again comes down: a tenth, a quick lift that then holds. */
   const RAISE_SHARE: number = 0.1;
 
   /** Crossings of the arms over the head in the knockout wave-off: crossed and opened twice (WAKO and GLORY practice). */
@@ -57,6 +57,35 @@ export namespace RefereeShape {
 
   /** Knee flexion of the crouch beside B, degrees: "shallow supported crouch", read as a quarter of the knee range. */
   const CROUCH_KNEES: number = 35;
+
+  /** Trunk flexion of the crouch over the fallen man, degrees: leaning over him, a third of the thoracic range. */
+  const CROUCH_TRUNK: number = 25;
+
+  /** Neck flexion of the crouch, degrees: looking down at him. */
+  const CROUCH_NECK: number = 20;
+
+  /** Low point of the fight signal's hand, as a share of the arm's reach behind the shoulder at the end of its sweep. */
+  const SWEEP_BACK: number = 0.2;
+
+  /** How far out to his side a raised or swept hand goes, in shoulder half-widths: clear of his own head and body so it reads from the front and the side. */
+  const OUT_TO_SIDE: number = 1.5;
+
+  /** Shares of the fight signal between which the low hand sweeps up and back: held low first, then swept, then held up. */
+  const SWEEP: readonly [number, number] = [0.4, 0.8];
+
+  /**
+   * How far a raised arm is up over a raise's progress: up quickly from its
+   * start, held, lowered at its end.
+   *
+   * @param progress Progress of the raise; below 0 before it starts.
+   * @returns Raise in [0, 1].
+   */
+  export function raise(progress: number): number {
+    return Math.max(
+      0,
+      Math.min(1, progress / RAISE_SHARE, (1 - progress) / RAISE_SHARE),
+    );
+  }
 
   /**
    * The officiating stance.
@@ -131,11 +160,14 @@ export namespace RefereeShape {
         // and back out of the line as he steps out.
         const low: IAutoMovieVector3 = out(-1, -reach * COUNT_DROP).point;
         const high: IAutoMovieVector3 = {
-          x: -reach * 0.2,
+          x: -reach * SWEEP_BACK,
           y: shoulder + reach * RAISE_HEIGHT,
-          z: -measure.shoulderHalfWidth * 1.5,
+          z: -measure.shoulderHalfWidth * OUT_TO_SIDE,
         };
-        const sweep: number = Math.max(0, Math.min(1, (s - 0.4) / 0.4));
+        const sweep: number = Math.max(
+          0,
+          Math.min(1, (s - SWEEP[0]) / (SWEEP[1] - SWEEP[0])),
+        );
         signal = {
           ...base,
           hands: {
@@ -173,11 +205,7 @@ export namespace RefereeShape {
             },
           },
         };
-        const up: number = Math.max(
-          0,
-          Math.min(1, (s - WINNER_ARRIVAL) / RAISE_SHARE, (1 - s) / RAISE_SHARE),
-        );
-        return blendPosture(base, raised, up, rest);
+        return blendPosture(base, raised, raise(s), rest);
       }
       case "count": {
         // One downward motion of the arm per number, toward the fallen man:
@@ -214,15 +242,34 @@ export namespace RefereeShape {
         break;
       }
       case "attend": {
+        // Crouched over the fallen man, he raises one hand high to call the
+        // doctor through the middle of the crouch, then lowers it.
         const drop: number = StanceShape.drop(measure, CROUCH_KNEES);
+        const crouch: IBoutPosture = {
+          ...base,
+          drop,
+          thoracic: { ...base.thoracic, flexion: CROUCH_TRUNK },
+          cervical: { ...base.cervical, flexion: CROUCH_NECK },
+        };
+        const calling: IBoutPosture = {
+          ...crouch,
+          hands: {
+            ...crouch.hands,
+            right: {
+              point: {
+                x: 0,
+                y: measure.shoulder - drop + reach * RAISE_HEIGHT,
+                z: -measure.shoulderHalfWidth * OUT_TO_SIDE,
+              },
+            },
+          },
+        };
+        const call: number = raise(
+          (s - DOCTOR_CALL[0]) / (DOCTOR_CALL[1] - DOCTOR_CALL[0]),
+        );
         return blendPosture(
           base,
-          {
-            ...base,
-            drop,
-            thoracic: { ...base.thoracic, flexion: 25 },
-            cervical: { ...base.cervical, flexion: 20 },
-          },
+          blendPosture(crouch, calling, call, rest),
           Math.min(1, s * 3),
           rest,
         );

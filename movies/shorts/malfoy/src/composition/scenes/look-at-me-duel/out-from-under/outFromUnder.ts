@@ -73,9 +73,9 @@ export function outFromUnder(cast: CourtStage.ICast): AutoMovieComposition {
       .guidedTo("centre.south", { start: 31.37, quick: true }),
     cap.fail({ tipping: 1.5 }),
     camera
-      .shot([carina, harry, "supportZone"], { size: "full", start: 27.0, from: "southEast", screen: [carina, harry] })
-      .next(camera.wide([carina, harry, "supportZone"], { start: 30.3, from: "southEast" }))
-      .next(camera.wide([carina, harry, "supportZone"], { start: 31.6, from: "south", cut: false, motion: "arc", seconds: 1.5 }))
+      .shot([carina, harry, "capFrontEdge"], { size: "full", start: 27.0, from: "southEast", screen: [carina, harry] })
+      .next(camera.shot([carina, harry, "capFrontEdge"], { size: "full", start: 30.3, from: "southEast" }))
+      .next(camera.shot([carina, harry, "capFrontEdge"], { size: "full", start: 31.6, from: "south", cut: false, motion: "arc", seconds: 1.5 }))
       .next(camera.shot([carina, harry], { size: "medium", start: 34.0, screen: [carina, harry], cut: false, motion: "push", seconds: 2.0 })),
   );
 }

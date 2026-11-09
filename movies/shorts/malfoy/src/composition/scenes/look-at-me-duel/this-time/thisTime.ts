@@ -72,6 +72,7 @@ export function thisTime(cast: CourtStage.ICast): AutoMovieComposition {
       .onGuard(carina, { start: 54.4 }),
     camera
       .shot([carina, harry], { size: "full", start: 45.0, from: "south" })
-      .next(camera.shot([carina, harry, "supportZone"], { size: "full", screen: [carina, harry], start: 49.0, cut: false, motion: "arc", seconds: 2.5 })),
+      .next(camera.shot([carina, harry, "underCap"], { size: "full", screen: [carina, harry], start: 49.0, cut: false, motion: "arc", seconds: 2.5 }))
+      .next(camera.twoShot([carina, harry], { start: 55.0, size: "medium", motion: "hold" })),
   );
 }

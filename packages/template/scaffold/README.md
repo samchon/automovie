@@ -38,7 +38,8 @@ The public Render runner writes `media/automovie/<film>/videos/film.mp4` and the
 | `--width`, `--height`, `--supersample <1-4>` | Raster override and antialiasing |
 | `--per-sheet`, `--columns`, `--no-label`, `--no-sheet` | Sheet layout, or no stamp or sheet |
 | `--out <dir>`, `--list` | Another directory, or print the films |
-| `--module <file.ts>` [`--export <name>`] | An unregistered film module, into `media/automovie/modules/<module>/` |
+| `--module <file.ts>[,<file.ts>…]` [`--export <name>`] | Unregistered film modules such as motion rehearsals, whole by default, into `media/automovie/modules/<module>/`; several share one run |
+| `--video` | Every frame of the film's grid in the window (whole film by default), encoded with the installed FFmpeg into `media/automovie/<film>/videos/capture.mp4` as a quick review copy before the Viewer render |
 
 A catalog case is one window of the catalog film, and a review segment one ten-second window of a delivered film:
 

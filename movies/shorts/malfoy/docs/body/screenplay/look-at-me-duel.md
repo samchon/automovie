@@ -56,7 +56,7 @@ He checks on his lead foot and circles back the way he came. She turns back with
 - Outcome: No opening; the circle returns them to their places, the stance width kept by the [footwork](../../research/duelling/practice-duel.md#footwork).
 - Consequence: none on either body.
 - Space: Harry circles round her along the centre's north edge and back to its north-east edge; Carina pivots in place at its south-west edge.
-- Camera: full two-shot in profile, arcing with Harry's circle so Carina stays at the left and Harry at the right, then back.
+- Camera: full two-shot in profile as Harry starts to circle; at 6.000 a medium on Carina for her line; at 8.000 a held full shot of Harry as he circles back; at 10.000 a medium on Carina as she takes aim.
 - Sound: dialogue "Look at me, Potter. Not the wand." at 6.200 and "The wand's the dangerous part." at 8.100, as text only; foley none; ambience none; effects none; music none.
 - Continuity: as before.
 
@@ -170,7 +170,7 @@ From 23.000 they part. Carina gives ground in short steps, rear foot first, to t
 - Outcome: They stand at the near end of [casting distance](../../research/duelling/practice-duel.md#distance), still far enough apart for a watched shot to be turned ([deflection](../../research/duelling/practice-duel.md#deflection)).
 - Consequence: none on either body.
 - Space: Harry backs out of the centre into [the support zone](../settings/sets/training-court.md#zone-list), under [the cap's front edge](../settings/sets/training-court.md#landmarks), just inside [the danger region](../settings/sets/training-court.md#danger-region) where it comes nearest the centre; Carina gives ground to the centre's south-west side.
-- Camera: cuts to a wide from the court's south-east corner, Carina nearer and lower at the left, Harry farther and higher at the right, the cap high above him in the tall frame; held.
+- Camera: cuts to a full shot from the court's south-east corner, framed for the whole parting, Carina nearer and lower at the left, Harry farther and higher at the right, the cap's front edge high above him in the tall frame; held.
 - Sound: dialogue none; foley none; ambience none; effects none; music none.
 - Continuity: Harry stands under the cap from here until he is moved out from under it.
 
@@ -200,7 +200,7 @@ At 29.290 the streak leaves her tip and crosses the short gap fast. Harry sweeps
 - Outcome: Deflected, as the [outcome table](../../research/duelling/practice-duel.md#outcomes) gives for a watched shot at the near end of casting distance; the deflected jinx keeps its effect ([deflection](../settings/world/magic.md#deflection)) and breaks the cracked lower fillet, and the cap is struck ([failure](../settings/props/falling-masonry.md#failure)).
 - Consequence: the lower fillet broken; two mortar chips on the floor beside the base; neither student touched.
 - Space: unchanged: Carina on the centre's south-west side, Harry under the cap's front edge.
-- Camera: full two-shot from the court's south-east, Carina at the left, Harry at the right with the support and the cap above his head in frame.
+- Camera: full two-shot from the court's south-east, Carina at the left, Harry at the right with the cap's front edge above his head in frame.
 - Sound: dialogue "Flipendo!" as text only; foley none; ambience none; effects none; music none.
 - Continuity: the chips lie beside the base from here on.
 
@@ -218,7 +218,7 @@ Potter!
 - Outcome: The cap tips while the upper web holds ([stages](../../research/physics/falling-masonry.md#stages)); Carina's wand drops one [reaction time](../../research/duelling/practice-duel.md#reaction) after the tipping shows, and her [run](../../research/duelling/practice-duel.md#run-in) begins.
 - Consequence: grit running from the joint; Carina's wand pointing at the floor.
 - Space: Carina runs from her place toward Harry under the cap's front edge.
-- Camera: as she runs, a cut to a wide from the court's south-east corner, so the tipping cap, the run and the meeting of their hands read side on; one shot from here until Harry lets go of her.
+- Camera: as she runs, a cut to a full shot from the court's south-east corner, so the tipping cap, the run and the meeting of their hands read side on; one shot from here until Harry lets go of her.
 - Sound: dialogue "Potter!" as text only; foley none; ambience none; effects none; music none.
 - Continuity: the cap tipping.
 
@@ -231,7 +231,7 @@ Harry sees her coming fast and braces. His left hand opens toward her right wris
 - Outcome: His grip lands on her forearm, not her wand wrist; her wand hand stays free.
 - Consequence: Harry's left hand round her right forearm; her left shoulder against his chest; both with their feet planted.
 - Space: they meet under the cap's front edge, just inside the danger region.
-- Camera: the same shot, wide, holding the cap, both whole bodies and the open floor toward the centre.
+- Camera: the same full shot, holding the cap, both whole bodies and the open floor toward the centre.
 - Sound: dialogue none; foley none; ambience none; effects none; music none.
 - Continuity: the second grip begins.
 
@@ -266,7 +266,7 @@ Carina holds the shield, wand raised and feet planted, until the dust has gone. 
 - Outcome: Blocked: the fragments drop on its far side, as the [outcome table](../../research/physics/falling-masonry.md#outcomes) gives for a shield standing between the fragments and the people ([the shield](../settings/props/shield.md#does)).
 - Consequence: three fragments lying on the block's side of where the shield stood; the dust gone; nobody hurt.
 - Space: the pair stays in the centre; the shield forms and fades between them and the block.
-- Camera: the same shot, wide, beginning to push in as the dust thins.
+- Camera: the same full shot, beginning to push in as the dust thins.
 - Sound: dialogue "Protego!" as text only; foley none; ambience none; effects none; music none.
 - Continuity: the chips and fragments lie where they stopped for the rest of the film; Harry's hand still round her forearm.
 
@@ -354,6 +354,6 @@ At 54.400 he brings his wand up level with hers. They hold there on guard across
 - Outcome: none; both stand on guard as the film ends.
 - Consequence: both on guard at [casting distance](../../research/duelling/practice-duel.md#distance), unmarked.
 - Space: Carina on the centre's south side, Harry on its north side, the fallen block beyond him.
-- Camera: the camera arcs round as she turns, settling into a full two-shot with Carina at the left and Harry at the right as at the start, the support and the fallen block in frame behind him; held to the end.
+- Camera: the camera arcs round as she turns, settling into a full two-shot with Carina at the left and Harry at the right as at the start, the fallen block in frame behind him; at 55.000 a medium two-shot in profile holds them on guard to the end.
 - Sound: dialogue "This time, look at me." at 50.800 and "I am." at 53.400, as text only; foley none; ambience none; effects none; music none.
 - Continuity: end of the film; the fallen cap, chips and fragments on the floor.

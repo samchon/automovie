@@ -332,14 +332,18 @@ export namespace AutoMovieHumanHeadMassSource {
       positive: front,
       negative: { knots: back },
     };
+    // The side edges keep only their sign bound. The lateral support is
+    // generated from the section solves, which can exceed the published
+    // half-breadth by a fraction of a millimetre near tragion; declaring that
+    // half-breadth as a hard cap then leaves no in-range control hull there.
     const sideEdges: IAutoMovieViewPart["side"] = {
       positive: {
         knots: left,
-        range: { minimum: 0, maximum: plan.breadth / 2 },
+        range: { minimum: 0, maximum: null },
       },
       negative: {
         knots: right,
-        range: { minimum: -plan.breadth / 2, maximum: 0 },
+        range: { minimum: null, maximum: 0 },
       },
     };
 

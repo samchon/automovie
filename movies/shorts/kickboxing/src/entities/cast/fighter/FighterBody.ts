@@ -173,6 +173,7 @@ export class FighterBody {
       foot:
         (FighterBody.FOOT_SHARE * profile.parameters.body.anatomy.stature!) /
         1000,
+      shinRadius: radius(segment("leftLowerLeg").shapes[0]!),
     };
     const surfaces = FighterSurfaces.derive(this.profile);
     this.regions = surfaces.regions;

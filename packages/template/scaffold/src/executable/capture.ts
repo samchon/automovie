@@ -4,6 +4,8 @@ import { type IAutoMovieSceneRaster } from "../integrations/viewer/node/raster/I
 import { encodeAutoMovieRasterPng } from "../integrations/viewer/node/raster/encodeAutoMovieRasterPng";
 import { rasterizeAutoMovieScene } from "../integrations/viewer/node/raster/rasterizeAutoMovieScene";
 import { stampAutoMovieRasterLabel } from "../integrations/viewer/node/raster/stampAutoMovieRasterLabel";
+import ffmpeg from "ffmpeg-static";
+import { spawnSync } from "node:child_process";
 import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -43,8 +45,12 @@ import { planCaptureStills } from "./planCaptureStills";
  * 5 per second), `--no-label` and `--no-sheet` drop the stamp and the
  * sheets, and `--list` prints the registered films. `--module <file.ts>`
  * (with `--export <name>` when the module has several exports) captures a
- * film that is not registered into
- * `media/automovie/modules/<module>/`. Run it with `ttsx --no-plugins --noCheck` so no
+ * film that is not registered, such as a motion rehearsal, whole by default,
+ * into `media/automovie/modules/<module>/`; several comma-separated modules
+ * share one run. `--video` draws every frame of the film's grid in
+ * `[from, to)` (default the whole film) and encodes them at the film's rate
+ * with the installed FFmpeg into `media/automovie/<film>/videos/capture.mp4`.
+ * Run it with `ttsx --no-plugins --noCheck` so no
  * type check or compiler plugin runs before drawing; the type-check watch owns
  * compile errors.
  *
@@ -95,14 +101,36 @@ export async function capture(): Promise<void> {
   // Plan the seconds before mounting, so a bad request costs nothing.
   if (options.has("--module") && options.has("--film"))
     throw new Error("Give either --film or --module, not both");
-  const selected: { name: string; film: IFilm } = options.has("--module")
-    ? await loadModuleFilm(options.get("--module")!, options.get("--export"))
-    : selectFilm(films, options.get("--film") ?? null);
+  // Several comma-separated modules share one process, one compile and one Human calibration memo.
+  const modules: (string | undefined)[] = options.has("--module")
+    ? options.get("--module")!.split(",")
+    : [undefined];
+  if (modules.length > 1 && options.has("--out"))
+    throw new Error("--out names one film's folder; omit it with several modules");
+  for (const moduleFile of modules) {
+  const selected: { name: string; film: IFilm } =
+    moduleFile !== undefined
+      ? await loadModuleFilm(moduleFile, options.get("--export"))
+      : selectFilm(films, options.get("--film") ?? null);
   const film: IFilm = selected.film;
   const from: number = number("--from", 0)!;
-  const to: number = number("--to", Math.min(from + 10, film.durationSeconds))!;
+  const video: boolean = options.has("--video");
+  const to: number = number(
+    "--to",
+    moduleFile !== undefined || video
+      ? film.durationSeconds
+      : Math.min(from + 10, film.durationSeconds),
+  )!;
   const view: string | undefined = options.get("--view");
-  const times: number[] = options.has("--at")
+
+  // A video draws every frame of the film's grid in [from, to) and encodes them at the film's rate.
+  const first: number = Math.ceil(from * film.fps - 1e-9);
+  const times: number[] = video
+    ? Array.from(
+        { length: Math.max(0, Math.ceil(to * film.fps - 1e-9) - first) },
+        (_: unknown, k: number): number => (first + k) / film.fps,
+      )
+    : options.has("--at")
     ? planViewerFrameTimes({
         fps: film.fps,
         durationSeconds: film.durationSeconds,
@@ -140,17 +168,19 @@ export async function capture(): Promise<void> {
       "automovie",
       selected.name,
       "frames",
-      "capture",
-      `${label(times[0]!)}-${label(times.at(-1)!)}` +
-        (view === undefined
-          ? ""
-          : `-${/^[a-z0-9-]+$/u.test(view) ? view : "inspection"}`),
+      video ? "video" : "capture",
+      video
+        ? ""
+        : `${label(times[0]!)}-${label(times.at(-1)!)}` +
+            (view === undefined
+              ? ""
+              : `-${/^[a-z0-9-]+$/u.test(view) ? view : "inspection"}`),
     );
   await mkdir(directory, { recursive: true });
 
   // Replace only this command's earlier outputs in the directory.
   for (const entry of await readdir(directory))
-    if (/^(t\d+\.\d+\.png|sheet-.*\.png(\.json)?|manifest\.json)$/.test(entry))
+    if (/^(t\d+\.\d+\.png|f\d{5}\.png|sheet-.*\.png(\.json)?|manifest\.json)$/.test(entry))
       await rm(path.join(directory, entry));
 
   const started: number = performance.now();
@@ -231,19 +261,22 @@ export async function capture(): Promise<void> {
         height,
         supersample,
       });
-      if (!options.has("--no-label"))
+      if (!options.has("--no-label") && !video)
         stampAutoMovieRasterLabel(
           raster,
           `${seconds.toFixed(2)}s`,
           Math.max(2, Math.round(Math.min(width, height) / 240)),
         );
-      const file: string = path.join(directory, `t${label(seconds)}.png`);
+      const file: string = path.join(
+        directory,
+        video ? `f${String(frames.length).padStart(5, "0")}.png` : `t${label(seconds)}.png`,
+      );
       await writeFile(file, encodeAutoMovieRasterPng(raster));
       frames.push({ file, seconds });
       triangles = Math.max(triangles, raster.statistics.triangles);
       for (const [type, count] of Object.entries(raster.statistics.skipped))
         skipped[type] = Math.max(skipped[type] ?? 0, count);
-      if (!options.has("--no-sheet")) {
+      if (!options.has("--no-sheet") && !video) {
         sheet ??= new AutoMovieRasterSheet(perSheet, columns, cellWidth, cellHeight);
         sheet.add(raster, `${seconds.toFixed(2)}s`);
         group.push({ file, seconds });
@@ -283,13 +316,42 @@ export async function capture(): Promise<void> {
         (Object.keys(skipped).length === 0 ? "" : `, not drawn: ${JSON.stringify(skipped)}`),
     );
     for (const sheet of sheets) console.log(sheet);
+
+    // Encode the drawn frames at the film's own rate into one H.264 file.
+    if (video) {
+      const output: string = path.join("media", "automovie", selected.name, "videos", "capture.mp4");
+      await mkdir(path.dirname(output), { recursive: true });
+      const encoder: string = process.env.FFMPEG_PATH ?? ffmpeg ?? "";
+      if (encoder === "") throw new Error("Set FFMPEG_PATH; ffmpeg-static found no binary");
+      const result: ReturnType<typeof spawnSync> = spawnSync(
+        encoder,
+        [
+          "-y",
+          "-framerate",
+          String(film.fps),
+          "-i",
+          path.join(directory, "f%05d.png"),
+          "-c:v",
+          "libx264",
+          "-pix_fmt",
+          "yuv420p",
+          "-crf",
+          "18",
+          output,
+        ],
+        { stdio: "inherit" },
+      );
+      if (result.status !== 0) throw new Error(`ffmpeg exited with ${result.status}`);
+      console.log(output);
+    }
   } finally {
     production.dispose();
+  }
   }
 }
 
 /** Options that take no value. */
-const FLAGS: readonly string[] = ["--list", "--no-label", "--no-sheet"];
+const FLAGS: readonly string[] = ["--list", "--no-label", "--no-sheet", "--video"];
 
 /** Options that take a value. */
 const VALUED: readonly string[] = [

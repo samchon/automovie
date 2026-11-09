@@ -5,20 +5,24 @@ import { RingPhase } from "../../../../interactions/kickboxing/RingPhase";
 import { exchange } from "../../../../interactions/kickboxing/exchange";
 
 /**
- * Scene 10, 135 to 150 s: B steps in with his four into A's parry, slip,
- * roll and check and A's cross from the check lands; they circle, B's
+ * Scene 10, 135 to 150 s: B changes level, then steps in with cross, hook
+ * and low kick into A's dropped elbow, slip, roll and check, and A's cross off the check
+ * lands; they circle, B's
  * covering jab meets A's slip and A's body hook and low kick meet B's elbow
  * and early check, and B's jab off the check's rebound meets A's parry; A
  * circles in with the pump jab and a jab that B's glove and
- * guard meet; B gives ground and A cuts across, B's jab and cross meet A's
- * parry and slip and A's cross and body kick meet B's guard and dropped arm;
- * A circles once more and steps in with jab, cross, body hook and the
- * Brazilian kick into B's guard, right elbow and the dropped left arm, and
- * the kick lands behind his left ear at 150.000.
+ * guard meet; B gives ground and A cuts across, B's covering cross meets A's
+ * slip and A's cross and body kick meet B's guard and dropped arm; A circles once more and steps in with pump jab, cross, body
+ * hook and the Brazilian kick into B's chasing glove, guard, right elbow and
+ * the dropped left arm, and the kick lands behind his left ear at 150.000.
  *
  * Concretization: the phase is timed so the Brazilian kick's contact is the
  * window's end; the camera's widening at 143 is composed by the film from the
- * round's opening anchor.
+ * round's opening anchor. The pump jab keeps the Brazilian kick the fourth
+ * technique of the finish, so its anchor stays s10-b04/3; pump jabs are
+ * feints, not strikes, so each fighter throws at the elite rate. The four
+ * stretches leave room for no further feint, so B's cross at 143 and A's
+ * cross off the check stand alone.
  *
  * @param cast The cast.
  * @returns The scene's composition, its finishing contact at fifteen seconds.
@@ -39,8 +43,8 @@ export function theBrazilianKick(cast: IRingCast): AutoMovieComposition {
         exchange(
           cast,
           "s10-b01",
-          b.jab().cross().hook().lowKick(),
-          a.parry().slip().roll().check(),
+          b.feintLevel().cross().hook().lowKick(),
+          a.tell("feint-level").slip().roll().check(),
         ),
         exchange(cast, "s10-b01c", a.cross(), b.take()),
       ),
@@ -64,7 +68,7 @@ export function theBrazilianKick(cast: IRingCast): AutoMovieComposition {
       ),
       RingPhase.reset([b, "give"], [a, "press"]),
       then(
-        exchange(cast, "s10-b03", b.jab().cross(), a.parry().slip()),
+        exchange(cast, "s10-b03", b.cross(), a.slip()),
         exchange(
           cast,
           "s10-b03c",
@@ -76,8 +80,12 @@ export function theBrazilianKick(cast: IRingCast): AutoMovieComposition {
       exchange(
         cast,
         "s10-b04",
-        a.jab().cross().bodyHook().brazilianKick(),
-        b.cover().cover().elbowBlock().next(b.tell("brazilian-kick")),
+        a.feintJab().cross().bodyHook().brazilianKick(),
+        b
+          .tell("feint-jab")
+          .cover()
+          .elbowBlock()
+          .next(b.tell("brazilian-kick")),
       ),
     ],
     "s10-b04/3",

@@ -2,6 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IFighterMeasure } from "./IFighterMeasure";
 import { StanceShape } from "./StanceShape";
+import { StepPattern } from "./StepPattern";
 
 /**
  * A standing figure never locks both knees: wherever he holds his weight on
@@ -66,9 +67,13 @@ export namespace KneeSupport {
     shift: { forward: number; left: number },
   ): ILeg[] {
     const out: ILeg[] = [];
+    // A foot stepping through a supported step, no higher than the step's
+    // clearance, keeps the stance's knee bend too, so the stepping leg never
+    // reaches out straight.
+    const stepping: number = measure.ankle * (1 + StepPattern.LIFT_SHARE);
     for (const side of ["left", "right"] as const) {
       const p = feet[side];
-      if (p === null || p.y > measure.ankle + PLANTED) continue;
+      if (p === null || p.y > stepping + PLANTED) continue;
       const z: number =
         shift.left + (side === "left" ? 1 : -1) * measure.hipHalfWidth;
       out.push({ run: Math.hypot(p.x - shift.forward, p.z - z), ankle: p.y });

@@ -1,7 +1,7 @@
 import {
+  type IAutoMovieSchedule,
   Quaternion,
   Vector3,
-  type IAutoMovieSchedule,
   type preparePhysicalGeometry,
 } from "@automovie/engine";
 import type {

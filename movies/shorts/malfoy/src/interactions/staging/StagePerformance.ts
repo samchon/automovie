@@ -4,6 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { Student } from "../../entities/cast/student/Student";
 import { BodyFrame } from "../../laws/body/BodyFrame";
 import type { IBodyPosture } from "../../laws/body/IBodyPosture";
+import { PostureFrame } from "../../laws/body/PostureFrame";
 import { Gait } from "../../laws/everyday/Gait";
 import { BroomLaw } from "../../laws/flight/BroomLaw";
 import { RiderMotion } from "../flight/RiderMotion";
@@ -99,7 +100,41 @@ export class StagePerformance {
       limb: (id: string, side: "left" | "right") => (depth > 0 ? undefined : this.posture(id, seconds, depth + 1)?.hands[side].point),
     });
     const live: RiderMotion.IBroom | undefined = tandem ? undefined : this.broom(subject, seconds);
-    return StudentMotion.posture(student, found.step, found.local, seconds, locate, host, live);
+    const current: IBodyPosture = StudentMotion.posture(student, found.step, found.local, seconds, locate, host, live);
+
+    // A step's first instant need not equal the previous step's last, so the
+    // body crosses over from the previous step's end pose during the first
+    // quarter second instead of jumping in one frame.
+    const previous: IAutoMovieSchedule.IEntry | undefined = this.before(subject, found.entry);
+    if (
+      previous === undefined ||
+      found.step.action.kind === "enter" ||
+      found.local >= StagePerformance.CROSSFADE ||
+      found.entry.start - previous.end > 1e-6
+    )
+      return current;
+    const from: IBodyPosture = StudentMotion.posture(
+      student,
+      previous.state as IStageWorld.IStudentStep,
+      previous.end - previous.start,
+      found.entry.start,
+      locate,
+      host,
+      live,
+    );
+    // A previous step whose end pose is not finite cannot be crossed from.
+    if (![from.pelvis.x, from.pelvis.y, from.pelvis.z, from.heading].every(Number.isFinite)) return current;
+    return PostureFrame.blend(from, current, PostureFrame.smooth(found.local / StagePerformance.CROSSFADE));
+  }
+
+  /** Seconds over which a step crosses over from the previous step's end pose. */
+  public static readonly CROSSFADE: number = 0.25;
+
+  /** The subject's entry placed just before an entry, if any. */
+  private before(subject: string, entry: IAutoMovieSchedule.IEntry): IAutoMovieSchedule.IEntry | undefined {
+    const list: IAutoMovieSchedule.IEntry[] | undefined = this.steps.get(subject);
+    const index: number = list?.indexOf(entry) ?? -1;
+    return index > 0 ? list![index - 1] : undefined;
   }
 
   /** Where a student stands or rides at a second (the floor point or the seat point), or undefined before entering. */

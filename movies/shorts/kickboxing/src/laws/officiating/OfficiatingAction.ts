@@ -1,4 +1,4 @@
-import type { IAutoMovieIntent } from "@automovie/engine";
+import type { IAutoMovieIntent, IAutoMovieSchedule } from "@automovie/engine";
 import type { RefereeShape } from "./RefereeShape";
 
 /**
@@ -47,6 +47,28 @@ export namespace OfficiatingAction {
         `Intent ${intent.subject}.${intent.capability} carries no signal`,
       );
     return action as IAction;
+  }
+
+  /**
+   * The schedule entry of a signal under way at a second.
+   *
+   * @param schedule The resolved schedule.
+   * @param seconds Film seconds.
+   * @param signal The signal asked about.
+   * @returns Its entry, or undefined when it is not being given.
+   */
+  export function active(
+    schedule: IAutoMovieSchedule,
+    seconds: number,
+    signal: RefereeShape.Signal,
+  ): IAutoMovieSchedule.IEntry | undefined {
+    return schedule.entries.find(
+      (e: IAutoMovieSchedule.IEntry): boolean =>
+        e.intent.capability === "signal" &&
+        e.start <= seconds &&
+        seconds < e.end &&
+        read(e.intent).signal === signal,
+    );
   }
 
   /**

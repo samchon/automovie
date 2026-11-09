@@ -65,6 +65,6 @@ export function theFirstGrip(cast: CourtStage.ICast): AutoMovieComposition {
     camera
       .twoShot([carina, harry], { start: 15.0 })
       .next(camera.twoShot([carina, harry], { start: 16.0, size: "medium", keep: "hands" }))
-      .next(camera.wide([carina, harry, "supportZone"], { start: 23.0, from: "southEast" })),
+      .next(camera.shot([carina, harry, "capFrontEdge"], { size: "full", start: 23.0, from: "southEast", motion: "hold" })),
   );
 }

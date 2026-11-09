@@ -1,5 +1,6 @@
 import type { IAutoMovieConstructionOutlineRange } from "@automovie/interface";
 
+import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE";
 import type { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
@@ -68,8 +69,14 @@ export namespace AutoMovieViewHermite {
       return "source range needs finite ordered bounds or null unbounded sides";
     const minimum: number = range?.minimum ?? -Infinity;
     const maximum: number = range?.maximum ?? Infinity;
+    const allowance: number =
+      AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE *
+      Math.max(
+        ...ys.map(Math.abs),
+        ...[minimum, maximum].filter(Number.isFinite).map(Math.abs),
+      );
     for (let i: number = 0; i < n; i++) {
-      if (ys[i]! < minimum || ys[i]! > maximum)
+      if (ys[i]! < minimum - allowance || ys[i]! > maximum + allowance)
         return `source knot ${knots[i]!.site}=${ys[i]} is outside its declared range [${minimum}, ${maximum}]`;
       const k: number = i + 1 < n ? i : i - 1;
       const h: number = xs[k + 1]! - xs[k]!;

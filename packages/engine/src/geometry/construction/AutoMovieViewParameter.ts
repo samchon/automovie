@@ -1,12 +1,17 @@
 import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
 
+import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE";
+
 /**
  * Source parameter arithmetic shared by radial outlines and nonzero world-coordinate curves.
  *
+ * @evidence contracts/development/implementation.md#principled-implementation Implements the existing monotone station/root/angle maps, analytic inverse and station derivatives independently of radial closure.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One owner admits, maps, inverts and differentiates source parameters.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Outside-domain stations remain invalid and singular endpoint jets remain absent; scalar values are never changed here.
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes parameter endpoints, scalar values and radial closure, with kernel millimetre units.
- * @evidence contracts/development/design.md#principled-representation Represents Source parameter arithmetic shared by radial outlines and nonzero world-coordinate curves: companion namespace of 6 members (`prepare`, `at`, `station`, `jet`, `inverseJet`, `transferJet`); units and frames named in its text: second, frame. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieViewParameter` in packages/engine/src/geometry/construction/AutoMovieViewParameter.ts; its surface is the 6 members listed and the text shows 23 other files naming it, mostly packages/human (12), packages/engine (9), test (2), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant arithmetic per map, inverse or derivative.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure scalar arithmetic coordinates no work.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds no global state or handles.
  */
 export namespace AutoMovieViewParameter {
   /**
@@ -38,11 +43,11 @@ export namespace AutoMovieViewParameter {
   }
 
   /**
-   * Map a station; nonfinite or outside-domain requests return NaN.
+   * Map a station; a station outside the domain by at most {@link AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE} of its span (of the root coordinate magnitude for a root map) reads as its endpoint, and nonfinite or farther requests return NaN.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Uses signed square root or the equivalent angle root/asin expression from the nearer endpoint to avoid cancellation.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One map serves all scalar meanings, with omission as identity.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not clamp a station or alter any scalar value.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Clamps only a floating-point excess within the shared construction tolerance onto the endpoint; a larger excess is still refused, and no scalar value is altered.
    * @evidence contracts/development/common.md#meaningful-documentation States admitted-domain and invalid-query behavior.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work with at most one root and asin.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure scalar mapping schedules no work.
@@ -54,17 +59,26 @@ export namespace AutoMovieViewParameter {
   ): number {
     if (!Number.isFinite(station)) return NaN;
     if (parameter === undefined) return station;
+    const extent: number =
+      parameter.type === "root"
+        ? Math.max(Math.abs(parameter.pole), Math.abs(station))
+        : parameter.top - parameter.bottom;
+    const within = (gap: number): number =>
+      gap < 0 && gap >= -AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE * extent
+        ? 0
+        : gap;
     if (parameter.type === "root") {
-      const d: number =
+      const d: number = within(
         parameter.end === "bottom"
           ? station - parameter.pole
-          : parameter.pole - station;
+          : parameter.pole - station,
+      );
       return d >= 0
         ? (parameter.end === "bottom" ? 1 : -1) * Math.sqrt(d)
         : NaN;
     }
-    const a: number = station - parameter.bottom;
-    const b: number = parameter.top - station;
+    const a: number = within(station - parameter.bottom);
+    const b: number = within(parameter.top - station);
     if (a < 0 || b < 0) return NaN;
     const span: number = parameter.top - parameter.bottom;
     return a <= b

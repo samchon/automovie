@@ -48,6 +48,7 @@ export function practiceTeams(stage: PitchStage): AutoMovieComposition {
       seed: "snitch-before-you",
       quaffle: stage.quaffle.id,
       bludgers: stage.bludgers.map((b) => b.id),
+      bats: Object.fromEntries(Object.entries(stage.bats).map(([beater, bat]): [string, string] => [beater, bat.id])),
       passes: [
         { from: "G-C1", to: "G-C2", at: 1.5 },
         { from: "G-C2", to: "G-C3", at: 9.6 },

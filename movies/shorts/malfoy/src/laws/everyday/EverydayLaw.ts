@@ -23,7 +23,7 @@ import type { IBodyMeasure } from "../body/IBodyMeasure";
  * @evidence docs/body/settings/cast/harry-potter.md#gives-room Palms and a half-metre step back within 0.6 s.
  * @evidence docs/body/settings/cast/harry-potter.md#pushes-glasses Finger to the bridge within 1 s.
  * @evidence docs/body/settings/cast/carina-malfoy.md#chin-up The chin lifts about 10° and holds about a second, shoulders square.
- * @evidence docs/research/everyday/walking.md#transitions A walker stopped by someone stepping into the path stops a hand's breadth short, 0.32 m between pelvis points.
+ * @evidence docs/research/everyday/walking.md#transitions A walker stopped by someone stepping into the path stops a hand's breadth short, 0.42 m between pelvis points.
  * @evidence contracts/development/common.md#meaningful-documentation States every value's unit and source.
  * @evidence contracts/development/design.md#principled-representation Seconds and metres; each action's duration and contact offset in one table.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The values the schedule timing and the motion laws read.
@@ -81,7 +81,7 @@ export namespace EverydayLaw {
   export const CHIN_LIFT: number = (10 * Math.PI) / 180;
 
   /** Distance between two people's pelvis points when they stand a hand's breadth apart chest to chest, metres: 0.1 m between fronts plus two half chest depths. */
-  export const FACE_TO_FACE: number = 0.32;
+  export const FACE_TO_FACE: number = 0.42;
 
   /** Most a seated person shifts in one move, metres. */
   export const SHIFT_LIMIT: number = 0.6;

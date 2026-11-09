@@ -14,6 +14,8 @@ import type { RingFootwork } from "../../laws/kickboxing/RingFootwork";
 import { StanceShape } from "../../laws/kickboxing/StanceShape";
 import { StrikeShape } from "../../laws/kickboxing/StrikeShape";
 import { blendPosture } from "../../laws/kickboxing/blendPosture";
+import { RefereeShape } from "../../laws/officiating/RefereeShape";
+import { RefereeTrack } from "../officiating/RefereeTrack";
 import { BoutLaws } from "./BoutLaws";
 import { GuardRhythm } from "./GuardRhythm";
 import type { IRingCast } from "./IRingCast";
@@ -131,6 +133,8 @@ export namespace FighterPosture {
     let posture: IBoutPosture = guard;
     // The turnover rises onto a straightened support (brazilian-kick.md#law).
     let rising: boolean = false;
+    // Standing relaxed after the bout, out of the fighting stance.
+    let relaxed: boolean = false;
     for (const entry of schedule.entries) {
       if (entry.subject !== subject || entry.start > seconds) continue;
       const action = read(entry);
@@ -235,10 +239,37 @@ export namespace FighterPosture {
           );
         else if (action.phase === "victory")
           posture = CelebrationShape.posture(measure, guard, t);
+        else if (action.phase === "relax" && seconds < entry.end) {
+          // He lets the guard go over one step period.
+          posture = blendPosture(
+            posture,
+            CelebrationShape.relax(measure, guard),
+            Math.min(1, t / KickboxingTiming.STEP_PERIOD),
+            rest,
+          );
+          relaxed = true;
+        }
       }
     }
+    // While the referee raises the winner, the winner's arm, held at the
+    // wrist, goes straight up with the referee's hand from his arrival.
+    const raising: number | null =
+      subject === RefereeTrack.winner(cast, schedule)
+        ? RefereeTrack.raising(cast, schedule, seconds)
+        : null;
+    if (raising !== null)
+      posture = blendPosture(
+        posture,
+        CelebrationShape.raised(
+          measure,
+          posture,
+          RefereeTrack.raisedFor(cast, schedule, seconds)!,
+        ),
+        RefereeShape.raise(raising),
+        rest,
+      );
     // Between busy actions the guard keeps its rhythm.
-    if (seconds < after && !corner)
+    if (seconds < after && !corner && !relaxed)
       posture = GuardRhythm.apply(posture, measure, schedule, subject, seconds);
     // Standing, the supporting knees keep their least bend: both in the
     // fighting stance; at least one upright in the corner and the
@@ -248,10 +279,12 @@ export namespace FighterPosture {
       const raised: boolean =
         posture.feet.left !== null || posture.feet.right !== null;
       const upright: boolean =
-        raised || corner || movedTo(schedule, subject, seconds, ["celebrate"]);
-      // The planted feet in the root frame of the final body turn. A foot
-      // swinging through a step counts at the floor, so the stance's sink is
-      // kept while moving and the stepping leg never reaches out straight.
+        raised ||
+        corner ||
+        relaxed ||
+        movedTo(schedule, subject, seconds, ["celebrate", "walk"]);
+      // The planted and stepping feet in the root frame of the final body
+      // turn.
       const turn: number = posture.yaw - guard.yaw;
       const c: number = Math.cos(turn);
       const s: number = Math.sin(turn);
@@ -260,7 +293,7 @@ export namespace FighterPosture {
           ? null
           : {
               x: rest[side].x * c - rest[side].z * s,
-              y: Math.min(rest[side].y, measure.ankle),
+              y: rest[side].y,
               z: rest[side].x * s + rest[side].z * c,
             };
       posture = {
@@ -421,20 +454,24 @@ export namespace FighterPosture {
     seconds: number,
     movements: string[],
   ): boolean {
-    return schedule.entries.some((e) => {
+    // Only his latest movement counts: walking back toward the opponent
+    // after the corner or the celebration turns him to the opponent again.
+    let latest: IAutoMovieSchedule.IEntry | undefined;
+    for (const e of schedule.entries)
       if (
-        e.subject !== subject ||
-        e.start > seconds ||
-        e.intent.capability !== "move"
+        e.subject === subject &&
+        e.start <= seconds &&
+        e.intent.capability === "move" &&
+        (latest === undefined || e.start >= latest.start)
       )
-        return false;
-      const action = KickboxingAction.read(e.intent);
-      return (
-        action.kind === "move" &&
-        movements.includes(action.movement) &&
-        e.start + (e.end - e.start) * 0.5 <= seconds
-      );
-    });
+        latest = e;
+    if (latest === undefined) return false;
+    const action = KickboxingAction.read(latest.intent);
+    return (
+      action.kind === "move" &&
+      movements.includes(action.movement) &&
+      latest.start + (latest.end - latest.start) * 0.5 <= seconds
+    );
   }
 
   /** World points into the posture's root frame (after the posture yaw). */
