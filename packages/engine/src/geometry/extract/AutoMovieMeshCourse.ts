@@ -411,9 +411,15 @@ export namespace AutoMovieMeshCourse {
    * @param arc Actual chart points from the first contact through the last.
    * @param start Tangent at the first contact, oriented along the arc.
    * @param end Tangent at the last contact, oriented along the arc.
-   * @returns The signed shoulder and corner reach in millimetres, or null readings where the arc is refused.
+   * @returns The signed, dimensionless shoulder and the corner reach in millimetres. The reach can be known even when the arc misses the crossing.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the order and directions of the measured contacts, the two units, and the partial result when the arc misses the chord-to-corner ray.
    * @evidence contracts/development/implementation.md#principled-implementation Uses the same tangent intersection and measured M-to-A crossing as the split quarter.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure After checking both contacts exist, form consecutive segments and delegate the intersection and crossing to the shared piece reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the supplied measured contacts and tangents without replacing a failed conic.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear work in the ordered arc size for segment construction and the crossing scan.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure arc reading has no shared requests across calls.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Segment pairs are temporary. Only the two scalar readings are returned.
    */
   export function shoulder(arc: readonly V2[], start: V2, end: V2): [number | null, number | null] {
     if (arc.length < 2) return [null, null];

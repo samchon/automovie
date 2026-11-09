@@ -289,15 +289,13 @@ export namespace IAutoMovieViewPart {
   }
 
   /**
-   * One quarter's split point, its tangent and the second piece's shoulder, each a scalar source in station.
+   * One quarter's split point, its tangent and the shoulder of the piece
+   * that starts there, each supplied as an outline in station.
    *
-   * @evidence contracts/common.md#principled-implementation A conic piece is fixed by its two end points, their tangent lines and one shoulder; the split supplies the shared point, its tangent and the second piece's shoulder.
-   * @evidence contracts/common.md#clear-and-simple-design Four scalar sources per split reuse the outline evaluator.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts The record does not choose its point; its producer reads it from the section it traces.
-   * @evidence contracts/common.md#meaningful-documentation States chart millimetres, the tangent angle's reference and orientation, and the shoulder's piece.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms Source data has no runtime algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Source data coordinates no requests.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The producer owns its four outlines.
+   * @evidence contracts/development/common.md#meaningful-documentation States chart millimetres, the tangent angle's reference and orientation, and which piece owns the shoulder.
+   * @evidence contracts/development/design.md#principled-representation Two chart coordinates and one tangent locate the shared conic contact. The following conic owns the dimensionless shoulder.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The four outlines reuse the existing scalar evaluator and carry only the extra data the native chain needs at this contact.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required. The producer supplies the measured contact and tangent from the traced section.
    */
   export interface ISplit {
     /** The split point's `u`, chart millimetres. */
@@ -309,7 +307,7 @@ export namespace IAutoMovieViewPart {
     /** The tangent direction there, radians from `+u` toward `+v`, oriented in increasing phase. */
     angle: IOutline;
 
-    /** The second piece's shoulder, in (0, 1). */
+    /** The shoulder of the piece starting at this split, in (0, 1). */
     shoulder: IOutline;
   }
 }
