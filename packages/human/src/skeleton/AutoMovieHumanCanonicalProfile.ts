@@ -1,184 +1,303 @@
 import {
+  DEFAULT_HUMANOID_ROM,
+  DEFAULT_JOINT_AXES,
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
   Quaternion,
   Vector3,
-  combinePhysicalMassProperties,
+  rotationBetween,
+  toRigAngle,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieJointAxes,
+  IAutoMoviePhysicalProfile as P,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
-  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 /**
- * Human's physical profile moved onto the canonical humanoid rig: the
- * reflection from Human's registered frame, the arms' T-pose and the merge of
- * Human-only segments into the rig bone that carries them.
+ * The contact and mass profile of a polygon man, built from the same joints
+ * and girth radii its drawing is built from, at the canonical T-pose rest.
  *
- * Every Human segment frame is reflected by `(x, y, z) -> (z, y, x)` and then
- * moved by the rigid map its joint underwent while the arms were straightened.
- * Segments of joints the humanoid vocabulary lacks (atlas, scapula, subtalar,
- * midfoot) merge into their carrier by the parallel-axis theorem
- * (`combinePhysicalMassProperties`) and their shapes into the carrier's
- * frame. Joints between merged segments are dropped; the rest move their
- * frames into their carrier's frame, and each physical axis follows the
- * reflection: a rotation about a reflected frame's axis is the reflected
- * rotation about the image axis with its sense reversed, so x and z exchange,
- * every limit reverses and the coordinate sign flips, which keeps every
- * clinical channel's meaning. The body's centre of mass is recomputed at the
- * T-pose.
+ * Colliders follow the drawn primitives: each limb segment and each phalanx
+ * is a capsule of its girth radius whose axis runs from its joint to its child
+ * joint (a distal phalanx to its tip), so its caps are the drawn joint balls
+ * and every joint lies inside its own segment's collider; the pelvis, abdomen
+ * and thorax are boxes between their joints whose half breadths and half
+ * depths are the drawing's elliptical sections scaled by `sqrt(pi / 4)` (a box
+ * of the ellipse's area); the neck is a capsule to the head joint and the head
+ * a capsule from the head joint to the crown; the palm is a box from the wrist
+ * to the finger roots' balls, as broad as the finger roots, and the foot the
+ * box of its joints' spheres, standing on the floor.
+ *
+ * Masses are Dempster's shares of body mass as tabulated by Winter
+ * (Biomechanics and Motor Control of Human Movement, 4th ed., table 4.1):
+ * hand 0.006, forearm 0.016, upper arm 0.028, thigh 0.100, leg 0.0465, foot
+ * 0.0145, thorax 0.216, abdomen 0.139, pelvis 0.142 and head with neck 0.081,
+ * the head taking de Leva's (1996) 0.0694 and the neck the rest; the hand's
+ * share is split over the palm and the phalanges by collider volume, a
+ * uniform density within the hand. Each
+ * segment's centre of mass is its collider's centre and its inertia the
+ * collider's as a uniform solid, the way physics engines derive inertia from
+ * shapes. Joints sit at each child joint with identity frames; every clinical
+ * axis of `DEFAULT_HUMANOID_ROM` becomes a physical axis along its
+ * `HUMANOID_JOINT_AXES` direction with limits read through
+ * `HUMANOID_REST_FRAME`, so the physical zero is the T-pose. Drive gains are
+ * placeholders kinematic motion never reads: 50 N m per downstream kilogram.
  */
 export namespace AutoMovieHumanCanonicalProfile {
-  /** A rigid map `x -> rotation x + translation`, metres. */
-  export interface IRigid {
-    /** Rotation. */
-    rotation: IAutoMovieQuaternion;
+  /** One drawn joint: its canonical rest position, its girth radius and its carrier. */
+  export interface IJoint {
+    /** Rest joint centre, canonical metres. */
+    position: IAutoMovieVector3;
 
-    /** Translation, metres. */
-    translation: IAutoMovieVector3;
+    /** Rest tip of a leaf segment, canonical metres. */
+    tip: IAutoMovieVector3 | null;
+
+    /** Girth radius, metres. */
+    radius: number;
   }
 
   /**
-   * Convert a Human profile.
+   * Build the profile.
    *
-   * @param source Human's profile at its neutral, registered frame.
-   * @param carrier The rig bone carrying every Human joint.
-   * @param rigid The canonical-frame rigid map each Human joint underwent into the T-pose.
-   * @returns The canonical profile, segments keyed by rig bones.
+   * @param joints Every drawn Human joint by id.
+   * @param mass Body mass, kilograms.
+   * @param id Profile id.
+   * @returns The profile on the rig's bones.
    */
-  export function convert(
-    source: P,
-    carrier: ReadonlyMap<string, AutoMovieHumanoidBone>,
-    rigid: ReadonlyMap<string, IRigid>,
-  ): P {
-    const frame: Map<string, P.ITransform> = new Map();
-    for (const s of source.segments) {
-      const g: IRigid = rigid.get(s.bone)!;
-      frame.set(s.bone, {
-        position: Vector3.add(
-          Quaternion.rotateVector(g.rotation, reflect(s.neutral.position)),
-          g.translation,
-        ),
-        rotation: Quaternion.multiply(g.rotation, reflectRotation(s.neutral.rotation)),
+  export function build(joints: ReadonlyMap<string, IJoint>, mass: number, id: string): P {
+    const j = (name: string): IJoint => {
+      const found: IJoint | undefined = joints.get(name);
+      if (found === undefined) throw new Error(`The polygon profile needs the joint ${name}`);
+      return found;
+    };
+    const k: number = Math.sqrt(Math.PI / 4);
+    const identity: IAutoMovieQuaternion = Quaternion.identity();
+    const segments: P.ISegment[] = [];
+    const add = (bone: AutoMovieHumanoidBone, share: number, shape: P.IShape, inertia: IAutoMovieVector3): void => {
+      const m: number = share * mass;
+      segments.push({
+        bone,
+        neutral: { position: j(bone).position, rotation: identity },
+        mass: m,
+        centerOfMass: shape.transform.position,
+        inertia: Vector3.scale(inertia, m),
+        inertiaRotation: shape.transform.rotation,
+        shapes: [shape],
       });
+    };
+    const box = (bone: AutoMovieHumanoidBone, share: number, min: IAutoMovieVector3, max: IAutoMovieVector3): void => {
+      const half: IAutoMovieVector3 = Vector3.scale(Vector3.subtract(max, min), 0.5);
+      const centre: IAutoMovieVector3 = Vector3.subtract(Vector3.scale(Vector3.add(min, max), 0.5), j(bone).position);
+      add(
+        bone,
+        share,
+        { id: "body", material: "skin", transform: { position: centre, rotation: identity }, kind: "box", halfExtents: half },
+        { x: (half.y ** 2 + half.z ** 2) / 3, y: (half.x ** 2 + half.z ** 2) / 3, z: (half.x ** 2 + half.y ** 2) / 3 },
+      );
+    };
+    const capsule = (bone: AutoMovieHumanoidBone, share: number, from: IAutoMovieVector3, to: IAutoMovieVector3, radius: number): void => {
+      const axis: IAutoMovieVector3 = Vector3.subtract(to, from);
+      const length: number = Vector3.length(axis);
+      const rotation: IAutoMovieQuaternion = length > 1e-9 ? rotationBetween({ x: 0, y: 1, z: 0 }, axis) : identity;
+      const centre: IAutoMovieVector3 = Vector3.subtract(Vector3.scale(Vector3.add(from, to), 0.5), j(bone).position);
+      const half: number = length / 2;
+      const full: number = 2 * half + 2 * radius;
+      const axial: number = (radius * radius) / 2;
+      const transverse: number = (3 * radius * radius + full * full) / 12;
+      add(bone, share, { id: "body", material: "skin", transform: { position: centre, rotation }, kind: "capsule", radius, halfLength: half }, { x: transverse, y: axial, z: transverse });
+    };
+    const at = (name: string): IAutoMovieVector3 => j(name).position;
+    const span = (a: string, b: string): number => Math.abs(at(a).x - at(b).x) / 2;
+
+    // Trunk boxes from the drawing's sections (half breadth, half depth = girth radius).
+    const hips: IJoint = j("hips");
+    const spine: IJoint = j("spine");
+    const chest: IJoint = j("chest");
+    const legRadius: number = Math.max(j("leftUpperLeg").radius, j("rightUpperLeg").radius);
+    const armRadius: number = Math.max(j("leftUpperArm").radius, j("rightUpperArm").radius);
+    const hipBreadth: number = Math.max(hips.radius, span("leftUpperLeg", "rightUpperLeg") + legRadius);
+    const shoulderBreadth: number = Math.max(chest.radius, span("leftUpperArm", "rightUpperArm") + armRadius);
+    const lumbar: number = Math.max(spine.radius, 0.75 * shoulderBreadth);
+    const thorax: number = Math.max(chest.radius, 0.85 * shoulderBreadth);
+    const trunk = (bone: AutoMovieHumanoidBone, share: number, bottom: number, top: number, breadth: number, depth: number, z: number): void =>
+      box(bone, share, { x: -k * breadth, y: bottom, z: z - k * depth }, { x: k * breadth, y: top, z: z + k * depth });
+    trunk("hips", 0.142, hips.position.y - Math.min(j("leftUpperLeg").radius, j("rightUpperLeg").radius), spine.position.y, hipBreadth, hips.radius, hips.position.z);
+    trunk("spine", 0.139, spine.position.y, chest.position.y, (lumbar + thorax) / 2, (spine.radius + chest.radius) / 2, spine.position.z);
+    trunk("chest", 0.216, chest.position.y, at("neck").y, (thorax + shoulderBreadth) / 2, chest.radius, chest.position.z);
+    capsule("neck", 0.081 - 0.0694, at("neck"), at("head"), j("neck").radius);
+    const crown: IAutoMovieVector3 = j("head").tip ?? Vector3.add(at("head"), { x: 0, y: 2 * j("head").radius, z: 0 });
+    capsule("head", 0.0694, at("head"), crown, j("head").radius);
+
+    for (const side of ["left", "right"] as const) {
+      const b = (name: string): AutoMovieHumanoidBone => `${side}${name}` as AutoMovieHumanoidBone;
+      capsule(b("UpperArm"), 0.028, at(b("UpperArm")), at(b("LowerArm")), j(b("UpperArm")).radius);
+      capsule(b("LowerArm"), 0.016, at(b("LowerArm")), at(b("Hand")), j(b("LowerArm")).radius);
+      const knuckles: IJoint[] = FINGERS.map((d: string): IJoint => j(b(`${d}Proximal`)));
+      const across: number = Math.abs(at(b("IndexProximal")).z - at(b("LittleProximal")).z) / 2 + j(b("IndexProximal")).radius;
+      const thick: number = k * j(b("Hand")).radius;
+      const wrist: IAutoMovieVector3 = at(b("Hand"));
+      const xs: number[] = [wrist.x, ...knuckles.flatMap((n: IJoint): number[] => [n.position.x - n.radius, n.position.x + n.radius])];
+      const digits: { bone: AutoMovieHumanoidBone; from: IAutoMovieVector3; to: IAutoMovieVector3; radius: number }[] = DIGITS.flatMap(
+        (chain: readonly string[]) =>
+          chain.map((name: string, i: number) => {
+            const joint: IJoint = j(b(name));
+            const next: string | undefined = chain[i + 1];
+            return {
+              bone: b(name),
+              from: joint.position,
+              to: next === undefined ? (joint.tip ?? joint.position) : at(b(next)),
+              radius: joint.radius,
+            };
+          }),
+      );
+      // The hand's Dempster share split over its palm and phalanges by volume (uniform density).
+      const palmHalf: IAutoMovieVector3 = { x: (Math.max(...xs) - Math.min(...xs)) / 2, y: thick, z: across };
+      const capsuleVolume = (r: number, length: number): number => Math.PI * r * r * length + (4 / 3) * Math.PI * r ** 3;
+      const volumes: number[] = digits.map((d): number => capsuleVolume(d.radius, Vector3.length(Vector3.subtract(d.to, d.from))));
+      const palmVolume: number = 8 * palmHalf.x * palmHalf.y * palmHalf.z;
+      const handVolume: number = palmVolume + volumes.reduce((s: number, v: number): number => s + v, 0);
+      box(
+        b("Hand"),
+        (0.006 * palmVolume) / handVolume,
+        { x: Math.min(...xs), y: wrist.y - thick, z: wrist.z - across },
+        { x: Math.max(...xs), y: wrist.y + thick, z: wrist.z + across },
+      );
+      digits.forEach((d, i: number): void => capsule(d.bone, (0.006 * volumes[i]!) / handVolume, d.from, d.to, d.radius));
+      capsule(b("UpperLeg"), 0.1, at(b("UpperLeg")), at(b("LowerLeg")), j(b("UpperLeg")).radius);
+      capsule(b("LowerLeg"), 0.0465, at(b("LowerLeg")), at(b("Foot")), j(b("LowerLeg")).radius);
+      const feet: IJoint[] = [...joints.entries()]
+        .filter(([name]): boolean => name.startsWith(side) && /(Foot|Subtalar|Midfoot|Hallux|Toe\d)/.test(name))
+        .map(([, joint]): IJoint => joint);
+      const min: IAutoMovieVector3 = { x: Infinity, y: 0, z: Infinity };
+      const max: IAutoMovieVector3 = { x: -Infinity, y: at(b("Foot")).y, z: -Infinity };
+      for (const joint of feet)
+        for (const p of [joint.position, ...(joint.tip === null ? [] : [joint.tip])]) {
+          min.x = Math.min(min.x, p.x - joint.radius);
+          min.z = Math.min(min.z, p.z - joint.radius);
+          max.x = Math.max(max.x, p.x + joint.radius);
+          max.z = Math.max(max.z, p.z + joint.radius);
+        }
+      box(b("Foot"), 0.0145, min, max);
     }
-    const local = (bone: string): P.ITransform =>
-      compose(inverse(frame.get(carrier.get(bone)!)!), frame.get(bone)!);
-    const owners: AutoMovieHumanoidBone[] = [
-      ...new Set(source.segments.map((s: P.ISegment): AutoMovieHumanoidBone => carrier.get(s.bone)!)),
-    ];
-    const segments: P.ISegment[] = owners.map((owner: AutoMovieHumanoidBone): P.ISegment => {
-      const members: P.ISegment[] = source.segments.filter(
-        (s: P.ISegment): boolean => carrier.get(s.bone) === owner,
-      );
-      const parts: combinePhysicalMassProperties.IPart[] = members.map(
-        (s: P.ISegment): combinePhysicalMassProperties.IPart => {
-          const x: P.ITransform = local(s.bone);
-          return {
-            mass: s.mass,
-            centerOfMass: apply(x, reflect(s.centerOfMass)),
-            inertia: s.inertia,
-            inertiaRotation: Quaternion.multiply(x.rotation, reflectRotation(s.inertiaRotation)),
-          };
-        },
-      );
-      const mass: combinePhysicalMassProperties.IPart =
-        parts.length === 1 ? parts[0]! : combinePhysicalMassProperties(parts);
+
+    const parentOf: Partial<Record<AutoMovieHumanoidBone, AutoMovieHumanoidBone>> = {
+      spine: "hips",
+      chest: "spine",
+      neck: "chest",
+      head: "neck",
+      leftUpperArm: "chest",
+      rightUpperArm: "chest",
+      leftLowerArm: "leftUpperArm",
+      rightLowerArm: "rightUpperArm",
+      leftHand: "leftLowerArm",
+      rightHand: "rightLowerArm",
+      leftUpperLeg: "hips",
+      rightUpperLeg: "hips",
+      leftLowerLeg: "leftUpperLeg",
+      rightLowerLeg: "rightUpperLeg",
+      leftFoot: "leftLowerLeg",
+      rightFoot: "rightLowerLeg",
+    };
+    const hands: AutoMovieHumanoidBone[][] = [];
+    for (const side of ["left", "right"] as const) {
+      const b = (name: string): AutoMovieHumanoidBone => `${side}${name}` as AutoMovieHumanoidBone;
+      const hand: AutoMovieHumanoidBone[] = [b("Hand")];
+      for (const chain of DIGITS)
+        chain.forEach((name: string, i: number): void => {
+          parentOf[b(name)] = i === 0 ? b("Hand") : b(chain[i - 1]!);
+          hand.push(b(name));
+        });
+      hands.push(hand);
+    }
+    const children = (bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone[] =>
+      (Object.keys(parentOf) as AutoMovieHumanoidBone[]).filter((c: AutoMovieHumanoidBone): boolean => parentOf[c] === bone);
+    const downstream = (bone: AutoMovieHumanoidBone): number =>
+      segments.find((s: P.ISegment): boolean => s.bone === bone)!.mass + children(bone).reduce((sum: number, c: AutoMovieHumanoidBone): number => sum + downstream(c), 0);
+    const links: P.IJoint[] = (Object.keys(parentOf) as AutoMovieHumanoidBone[]).map((child: AutoMovieHumanoidBone): P.IJoint => {
+      const parent: AutoMovieHumanoidBone = parentOf[child]!;
       return {
-        bone: owner,
-        neutral: frame.get(owner)!,
-        mass: mass.mass,
-        centerOfMass: mass.centerOfMass,
-        inertia: mass.inertia,
-        inertiaRotation: mass.inertiaRotation,
-        shapes: members.flatMap((s: P.ISegment): P.IShape[] => {
-          const x: P.ITransform = local(s.bone);
-          return s.shapes.map(
-            (shape: P.IShape): P.IShape => ({
-              ...shape,
-              id: s.bone === owner ? shape.id : `${s.bone}.${shape.id}`,
-              transform: compose(x, reflectTransform(shape.transform)),
-            }),
-          );
-        }),
+        id: child,
+        parent,
+        child,
+        parentFrame: { position: Vector3.subtract(at(child), at(parent)), rotation: identity },
+        childFrame: { position: { x: 0, y: 0, z: 0 }, rotation: identity },
+        axes: axesOf(child, 50 * downstream(child)),
       };
     });
-    const joints: P.IJoint[] = source.joints
-      .filter((j: P.IJoint): boolean => carrier.get(j.parent) !== carrier.get(j.child))
-      .map(
-        (j: P.IJoint): P.IJoint => ({
-          id: j.id,
-          parent: carrier.get(j.parent)!,
-          child: carrier.get(j.child)!,
-          parentFrame: compose(local(j.parent), reflectTransform(j.parentFrame)),
-          childFrame: compose(local(j.child), reflectTransform(j.childFrame)),
-          axes: j.axes.map(
-            (a: P.IAxis): P.IAxis => ({
-              ...a,
-              axis: a.axis === "x" ? "z" : a.axis === "z" ? "x" : "y",
-              minimum: -a.maximum,
-              maximum: -a.minimum,
-              coordinateSign: (a.coordinateSign ?? 1) === 1 ? -1 : 1,
-            }),
-          ),
-        }),
-      );
-    const pairs: Map<string, { a: string; b: string; reason: string }> = new Map();
-    for (const e of source.collisionExclusions ?? []) {
-      const a: string = carrier.get(e.a)!;
-      const b: string = carrier.get(e.b)!;
-      if (a === b) continue;
-      const key: string = a < b ? `${a}|${b}` : `${b}|${a}`;
-      if (!pairs.has(key)) pairs.set(key, { a, b, reason: e.reason });
-    }
     const total: number = segments.reduce((sum: number, s: P.ISegment): number => sum + s.mass, 0);
     return {
-      id: source.id,
+      id,
       mass: total,
       centerOfMass: segments.reduce(
         (sum: IAutoMovieVector3, s: P.ISegment): IAutoMovieVector3 =>
-          Vector3.add(sum, Vector3.scale(apply(s.neutral, s.centerOfMass), s.mass / total)),
-        Vector3.create(0, 0, 0),
+          Vector3.add(sum, Vector3.scale(Vector3.add(s.neutral.position, s.centerOfMass), s.mass / total)),
+        { x: 0, y: 0, z: 0 },
       ),
       segments,
-      joints,
-      collisionExclusions: [...pairs.values()],
-      materials: source.materials,
-      provenance: `${source.provenance} Reflected into the canonical VRM frame at its T-pose rest; Human-only segments merged into their carrier bones.`,
+      joints: links,
+      collisionExclusions: [
+        ...links.map((jt: P.IJoint): { a: string; b: string; reason: string } => ({
+          a: jt.parent,
+          b: jt.child,
+          reason: "adjacent polygon modules overlap at their shared joint",
+        })),
+        ...hands.flatMap((hand: AutoMovieHumanoidBone[]) =>
+          hand.flatMap((a: AutoMovieHumanoidBone, i: number) =>
+            hand
+              .slice(i + 1)
+              .filter((c: AutoMovieHumanoidBone): boolean => parentOf[c] !== a && parentOf[a] !== c)
+              .map((c: AutoMovieHumanoidBone): { a: string; b: string; reason: string } => ({
+                a,
+                b: c,
+                reason: "the palm and digits of one hand touch at rest; finger contact is the grasp's",
+              })),
+          ),
+        ),
+      ],
+      materials: [{ id: "skin", friction: 0.7, restitution: 0, compliance: 0, damping: 0 }],
+      provenance: "Polygon-man contact profile: drawn primitives, Dempster segment masses (Winter table 4.1), uniform-solid collider inertia.",
     };
   }
+}
 
-  /** The reflection `(x, y, z) -> (z, y, x)` from Human's frame to the canonical one. */
-  export function reflect(v: IAutoMovieVector3): IAutoMovieVector3 {
-    return { x: v.z, y: v.y, z: v.x };
+/** The four fingers, by rig name. */
+const FINGERS: readonly string[] = ["Index", "Middle", "Ring", "Little"];
+
+/** Every digit's phalanx chain from the hand outward, by rig name. */
+const DIGITS: readonly (readonly string[])[] = [
+  ["ThumbMetacarpal", "ThumbProximal", "ThumbDistal"],
+  ...FINGERS.map((d: string): string[] => [`${d}Proximal`, `${d}Intermediate`, `${d}Distal`]),
+];
+
+/** The physical axes of one joint from its clinical ranges, read onto the T-pose rig. */
+function axesOf(bone: AutoMovieHumanoidBone, torque: number): P.IAxis[] {
+  const rom = DEFAULT_HUMANOID_ROM[bone];
+  const axes: IAutoMovieJointAxes = HUMANOID_JOINT_AXES[bone] ?? DEFAULT_JOINT_AXES;
+  const out: P.IAxis[] = [];
+  for (const clinical of ["flexion", "abduction", "twist"] as const) {
+    const range = rom?.[clinical];
+    if (range === null || range === undefined) continue;
+    const d: IAutoMovieVector3 = axes[clinical];
+    const letter: "x" | "y" | "z" =
+      Math.abs(d.x) >= Math.abs(d.y) && Math.abs(d.x) >= Math.abs(d.z) ? "x" : Math.abs(d.y) >= Math.abs(d.z) ? "y" : "z";
+    if (out.some((a: P.IAxis): boolean => a.axis === letter)) continue;
+    const sign: number = Math.sign(d[letter]);
+    const frame = HUMANOID_REST_FRAME[bone]?.[clinical];
+    const physical = (c: number): number => (sign * toRigAngle(c, frame)! * Math.PI) / 180;
+    const ends: number[] = [physical(range.min), physical(range.max)].sort((a: number, b: number): number => a - b);
+    out.push({
+      axis: letter,
+      minimum: Math.max(-Math.PI, ends[0]!),
+      maximum: Math.min(Math.PI, ends[1]!),
+      stiffness: torque,
+      damping: torque / 10,
+      maximumTorque: torque,
+      channel: `${bone}.${clinical}`,
+      coordinateSign: (sign * (frame?.sign ?? 1)) as 1 | -1,
+    });
   }
-
-  /** A rotation conjugated by the reflection: its axis reflects and its sense reverses. */
-  export function reflectRotation(q: IAutoMovieQuaternion): IAutoMovieQuaternion {
-    return { x: -q.z, y: -q.y, z: -q.x, w: q.w };
-  }
-}
-
-/** A local transform conjugated by the reflection. */
-function reflectTransform(t: P.ITransform): P.ITransform {
-  return {
-    position: AutoMovieHumanCanonicalProfile.reflect(t.position),
-    rotation: AutoMovieHumanCanonicalProfile.reflectRotation(t.rotation),
-  };
-}
-
-/** `a ∘ b`: apply b, then a. */
-function compose(a: P.ITransform, b: P.ITransform): P.ITransform {
-  return { position: apply(a, b.position), rotation: Quaternion.multiply(a.rotation, b.rotation) };
-}
-
-/** The inverse rigid transform. */
-function inverse(t: P.ITransform): P.ITransform {
-  const rotation: IAutoMovieQuaternion = Quaternion.inverse(t.rotation);
-  return { position: Vector3.scale(Quaternion.rotateVector(rotation, t.position), -1), rotation };
-}
-
-/** A point under a rigid transform. */
-function apply(t: P.ITransform, p: IAutoMovieVector3): IAutoMovieVector3 {
-  return Vector3.add(t.position, Quaternion.rotateVector(t.rotation, p));
+  return out;
 }
