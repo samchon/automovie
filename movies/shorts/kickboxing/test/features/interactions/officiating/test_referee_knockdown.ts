@@ -33,13 +33,14 @@ export function test_referee_knockdown(): void {
     const r = referee.points[k]!;
     const gap = RefereePosition.gap(r, body);
     assert.ok(gap >= step - 1e-6, `gap ${gap.toFixed(3)} m at ${t}`);
-    // While raising the winner's hand he stands by the winner and looks at him.
+    // While waving it off he blocks the winner, and while raising the
+    // winner's hand he stands by him: both times he looks at the winner.
     const raising = schedule.entries.some(
       (e) =>
         e.subject === cast.referee.id &&
         e.start <= t &&
         t < e.end &&
-        OfficiatingAction.read(e.intent).signal === "winner",
+        ["winner", "knockout"].includes(OfficiatingAction.read(e.intent).signal),
     );
     if (raising) {
       const a = BoutLaws.origin(schedule, cast.a.id, t, cast).point;

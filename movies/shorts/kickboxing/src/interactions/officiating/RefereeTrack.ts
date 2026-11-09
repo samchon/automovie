@@ -90,7 +90,25 @@ export namespace RefereeTrack {
       let target: RingFootwork.IPoint;
       let look: RingFootwork.IPoint;
       const winner = signalled(schedule, t, "winner");
-      if (winner) {
+      if (t >= fall && signalled(schedule, t, "knockout")) {
+        // Waving it off, he steps between the standing fighter and the
+        // fallen man, a step clear of the body, facing the standing fighter
+        // to keep him off.
+        const standing: RingFootwork.IPoint = origin(cast.a.id, t);
+        const centre: RingFootwork.IPoint = {
+          x: (body.from.x + body.to.x) / 2,
+          z: (body.from.z + body.to.z) / 2,
+        };
+        target = RefereePosition.clear(
+          {
+            x: (standing.x + centre.x) / 2,
+            z: (standing.z + centre.z) / 2,
+          },
+          body,
+          clearance,
+        );
+        look = standing;
+      } else if (winner) {
         // He goes to the winner and stands beside him on the fallen man's
         // side, an arm's reach off his shoulder, to raise his arm.
         const standing: RingFootwork.IPoint = origin(cast.a.id, t);
