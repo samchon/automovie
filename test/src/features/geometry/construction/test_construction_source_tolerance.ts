@@ -13,6 +13,7 @@ import type { AutoMovieConstructionOutlineParameter, IAutoMovieConstructionOutli
  * @evidence contracts/development/testing.md#independent-expectations Allowances are the stated fraction times each outline's largest value or span, computed by hand; the endpoint reading is compared with the same source read exactly at the endpoint.
  * @evidence contracts/development/testing.md#distinguishing-cases Each boundary has an admitted case inside the allowance and a refused case beyond it, so an exact check and an unbounded tolerance both fail.
  * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU unit through --include construction_source_tolerance; synthetic three-knot sources start no Human generation, viewer or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Range: a knot 0.1 past its declared maximum 100 is admitted and a knot 1 past it is refused).
  */
 export function test_construction_source_tolerance(): void {
   const failures: string[] = [];
