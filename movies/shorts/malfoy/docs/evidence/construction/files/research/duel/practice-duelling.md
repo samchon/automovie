@@ -1,0 +1,9 @@
+# docs/research/duel/practice-duelling.md
+
+## @evidence shared/principles/research.md#depicted-practice
+
+The wand duel is an invented action; the study names fencing as its closest real analogue and states where it departs (range instead of blade contact, the tip pointing rather than touching, footwork for balance rather than reach). It gives the laws of stance, cast (the lunge sequence and arm-before-foot order, reduced to a wrist-and-elbow cast and a short lunging step), shield, footwork and the coaching and rescue wrist grips with their body mechanics, the rescue's time window and the position a rescuer must already hold for a rescue to be possible (bodies 0.5–0.8 m apart, hand within 0.3 m of the wrist, already moving). The outcome table lists which attacker actions against which defender states yield disarm, failure on a shield, knock-back, miss or a fall from an edge. "Sequences, distance and tempo" gives phrase structure, casting range, phrase and reset lengths and reaction times; "Level markers" separates the skilled from the less polished duellist; "Conduct" covers the absent referee and the bow; "Filming" gives the depth staging the vertical frame needs; "Measurable targets" tabulates each value.
+
+## @evidence shared/principles/research.md#traceable-sources
+
+Fencing values cite chen-2017 by page, figure and table (p. 2 stance; Fig. 2 p. 4 lunge sequence; p. 17 arm-first order and plantar loading; Table 2 lunge length, weapon velocity, reaction and response times, high-intensity duration). The grip is recorded as the production's choice because no retained source describes it, with the hand and wrist dimensions cited to the installed Human anatomy notes by file and line, and the rescue window marked as an inference. Wand duelling itself is canon adopted, with its spells owned by the settings, not claimed from a source.
