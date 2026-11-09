@@ -38,8 +38,8 @@ export namespace NodeF1Body {
   /** Draw the measured body or inspect the construction tree on request. */
   export async function run(): Promise<void> {
     const construction: boolean = process.argv.includes("--construction") || process.env.F1_BODY_STATUS === "1";
-    if (process.argv.includes("--direct")) return (await import("./NodeF1BodyDirect")).NodeF1BodyDirect.run();
-    if (!construction) return (await import("./NodeF1BodyFixed")).NodeF1BodyFixed.run(process.argv.includes("--reference"));
+    if (process.argv.includes("--direct")) return (await import("./NodeF1BodyDirect.js")).NodeF1BodyDirect.run();
+    if (!construction) return (await import("./NodeF1BodyFixed.js")).NodeF1BodyFixed.run(process.argv.includes("--reference"));
     const t0: number = performance.now();
     const person: Awaited<ReturnType<typeof HumanNodeInput.of>> = await HumanNodeInput.of();
     const t1: number = performance.now();

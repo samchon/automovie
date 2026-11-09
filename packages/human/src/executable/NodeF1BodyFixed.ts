@@ -28,7 +28,7 @@ export namespace NodeF1BodyFixed {
   /** Generate once, then optionally acquire an explicit original comparison. */
   export async function run(compare: boolean): Promise<void> {
     const identities: Record<string, string> = snapshot();
-    const { AutoMovieHumanF1Body } = await import("../generation/AutoMovieHumanF1Body");
+    const { AutoMovieHumanF1Body } = await import("../generation/AutoMovieHumanF1Body.js");
     const start: number = performance.now();
     const body: AutoMovieHumanF1BodyAssembly.IFixed = AutoMovieHumanF1Body.create();
     await draw(body, compare, { identities, generationMs: performance.now() - start });
@@ -117,7 +117,7 @@ export namespace NodeF1BodyFixed {
 
   async function comparison(): Promise<{ points: Point[]; mesh: NodeCanvasTypes.Mesh; sha256: string }> {
     const [{ NodeCaptureSources }, { NodeTrunkReference }, { NodeCaptureRender }] = await Promise.all([
-      import("./NodeCaptureSources"), import("./NodeTrunkReference"), import("./NodeCaptureRender"),
+      import("./NodeCaptureSources.js"), import("./NodeTrunkReference.js"), import("./NodeCaptureRender.js"),
     ]);
     const context: import("./NodeCaptureSources").NodeCaptureSources.IContext = await NodeCaptureSources.context("reference");
     const reference: import("./NodeCaptureSources").NodeCaptureSources.IReference = await context.reference();
