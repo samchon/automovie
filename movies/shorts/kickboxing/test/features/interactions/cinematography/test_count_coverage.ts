@@ -6,19 +6,14 @@ import { polygonCast } from "../../../internal/polygonCast";
 /**
  * The count's coverage from the neutral corner.
  *
- * Scenarios: the shot cuts between the referee with the fallen man and the
- * winner each hold; the camera takes the neutral corner the standing
- * fighter was not sent to; its bearing points from the framed men toward
- * that corner.
+ * Scenarios: the shot is the two-shot of the referee over the fallen man
+ * with the winner framed behind it; the camera takes the neutral corner the
+ * standing fighter was not sent to; its bearing points from the two-shot
+ * toward that corner.
  */
 export function test_count_coverage(): void {
-  const hold: number = 2.4;
-  assert.deepEqual(CountCoverage.subjects(0, hold), ["referee", "b"]);
-  assert.deepEqual(CountCoverage.subjects(hold + 0.1, hold), ["a"]);
-  assert.deepEqual(CountCoverage.subjects(2 * hold + 0.1, hold), [
-    "referee",
-    "b",
-  ]);
+  assert.deepEqual(CountCoverage.COUNTED, ["referee", "b"]);
+  assert.deepEqual(CountCoverage.SUBJECTS, ["referee", "b", "a"]);
   const cast = polygonCast();
   const h: number = cast.ring.half;
   const corner = CountCoverage.corner(cast, { x: h - 0.4, z: h - 0.4 });

@@ -18,7 +18,9 @@ import { polygonFilm } from "../../../internal/polygonFilm";
  * exchanges.md#targets and ring-generalship.md#targets): at least 75% of
  * strikes thrown in combinations of two or more; at least 85% of exchanges
  * contain a combination; every round kick prepares or finishes a
- * combination; each fighter throws 20 to 40 strikes per minute of action;
+ * combination; each fighter throws 16 to 22 strikes per minute of round
+ * time, feints excluded (GLORY's landed-per-minute over its near-half
+ * accuracy, exchanges.md#output);
  * each fighter opens at least a third of the exchanges; exchanges start on
  * average within one standard deviation of 3.4 s apart; at least 30% of the
  * footwork path is lateral to the fighters' line; the line turns at least
@@ -85,7 +87,7 @@ export function test_kickboxing_targets(): void {
     ).length;
     const perMinute: number = own / (action / 60);
     assert.ok(
-      perMinute >= 20 && perMinute <= 40,
+      perMinute >= 16 && perMinute <= 22,
       `${subject} ${perMinute} per minute`,
     );
     const opened: number = groups.filter(
@@ -108,6 +110,7 @@ export function test_kickboxing_targets(): void {
     .sort((x, y) => x - y);
   const gaps = starts.slice(1).map((s, k) => s - starts[k]!);
   const mean: number = gaps.reduce((s, g) => s + g, 0) / gaps.length;
+  console.log("TMPMETRICS", JSON.stringify({ share, followed: measured.combinationShare, combos, groups: groups.length, beats: beats.length, mean, a: strikes.filter((e) => e.subject === "a" && !KickboxingTechnique.table[strike(e).technique].shows).length, b: strikes.filter((e) => e.subject === "b" && !KickboxingTechnique.table[strike(e).technique].shows).length }));
   assert.ok(Math.abs(mean - 3.4) <= 1.2, `mean exchange interval ${mean}`);
   // Footwork: lateral share, ring revolution, ropes and bounds, sampled every frame of the action.
   const ring: RingFootwork.IRing = {

@@ -7,16 +7,38 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * backs out along its own sightline to the rope line; one that wants it
  * beyond the canvas stops at the edge and the operator raises the camera
  * toward the framing distance, but never above the height he can hold it
- * overhead.
+ * overhead. The ropes occlude, and each standpoint clears them its own way:
+ * the far wide camera looks down from well over the top rope, so the ropes
+ * pass below the fighters' feet; an apron handheld shoots through the gap
+ * between two ropes (or under the bottom one) that holds its subjects' upper
+ * bodies, never at a rope's height where the rope would fill the frame.
  *
  * ```ts
- * RopeLens.hold(resolveAutoMovieFraming(goal, spheres), ring, goal.elevation, overhead);
+ * RopeLens.hold(resolveAutoMovieFraming(goal, spheres), ring, goal.elevation, overhead, spheres, "between");
  * ```
  *
- * @evidence docs/research/cinematography/fight-coverage.md#practice Handheld operators work from the apron outside the ropes; nobody films from inside the fighting square.
+ * @evidence docs/research/cinematography/fight-coverage.md#practice Handheld operators work from the apron outside the ropes and shoot between them; the wide camera looks down over the top rope; nobody films from inside the fighting square.
  * @evidence docs/research/cinematography/fight-coverage.md#law The camera rises no higher than an operator can hold it overhead.
  */
 export namespace RopeLens {
+  /**
+   * How a standpoint clears the ropes: `over` the top rope, as the far wide
+   * camera does, or `between` two ropes, as an apron handheld does.
+   */
+  export type Clearance = "over" | "between";
+
+  /**
+   * Least height of the wide camera's lens over the top rope, metres: the
+   * broadcast wide camera's lens stands about 1 to 1.5 m above it.
+   */
+  export const OVER_TOP: number = 1;
+
+  /**
+   * Least gap kept between the lens and any rope, metres: a 2 cm rope's
+   * radius and the lens's own hood, so no rope ever fills the frame.
+   */
+  export const ROPE_GAP: number = 0.08;
+
   /** A held lens. */
   export interface IHeld {
     /** Lens position, world metres. */
@@ -41,13 +63,25 @@ export namespace RopeLens {
     ropes: readonly number[];
   }
 
+  /** A framed subject's bounding sphere, world metres. */
+  export interface ISubject {
+    /** Sphere centre. */
+    center: IAutoMovieVector3;
+
+    /** Sphere radius. */
+    radius: number;
+  }
+
   /**
-   * The lens of a framing held on the apron.
+   * The lens of a framing held on the apron, its sightlines to the subjects
+   * clear of the ropes.
    *
    * @param frame The resolved framing's position and target.
    * @param apron The rope line and canvas edge.
    * @param elevation The framing's elevation above the target, radians.
    * @param overhead Greatest lens height a canvas stop may raise it to, metres: the operator's overhead reach.
+   * @param subjects The framed subjects, whose bodies the ropes must not cross.
+   * @param clearance How the standpoint clears the ropes.
    * @returns The held lens.
    */
   export function hold(
@@ -55,6 +89,8 @@ export namespace RopeLens {
     apron: IApron,
     elevation: number,
     overhead: number,
+    subjects: readonly ISubject[] = [],
+    clearance: Clearance = "between",
   ): IHeld {
     const limit: number = apron.canvasHalf;
     let x: number = Math.max(-limit, Math.min(limit, frame.position.x));
@@ -73,6 +109,17 @@ export namespace RopeLens {
       x += ux * s;
       z += uz * s;
     }
+    // A handheld puts its lens through the ropes, at the rope line on its
+    // sightline, so no rope of the near side crosses the frame.
+    if (clearance === "between" && apron.ropes.length !== 0) {
+      const lens: IAutoMovieVector3 = through(
+        { x, y: 0, z },
+        frame.target,
+        apron,
+      );
+      x = lens.x;
+      z = lens.z;
+    }
     const run: number = Math.hypot(x - frame.target.x, z - frame.target.z);
     const needed: number = Math.hypot(
       frame.position.x - frame.target.x,
@@ -89,21 +136,119 @@ export namespace RopeLens {
           ),
         )
       : level;
-    // The lens shoots over the top rope: the sightline to the floor under the
-    // target passes above it where it crosses the rope line, as high as the
-    // operator or the wide camera reaches.
-    const top: number = Math.max(0, ...apron.ropes);
-    const crossing: number = ropeCrossing({ x, z }, frame.target, apron.half);
-    const over: number = crossing < 1 ? top / (1 - crossing) : 0;
     return {
       position: {
         x,
-        y: Math.max(frame.target.y + rise, Math.min(over, overhead)),
+        y: clear(
+          { x, z },
+          frame.target.y + rise,
+          subjects,
+          apron,
+          overhead,
+          clearance,
+        ),
         z,
       },
       target: frame.target,
       clamped,
     };
+  }
+
+  /**
+   * A lens height whose sightlines the ropes do not cross and that no rope
+   * fills. Over the top rope: at least {@link OVER_TOP} above it, and high
+   * enough that every subject is seen whole from the floor nearest the lens
+   * up, within the lens's reach. Between the ropes: the gap (the canvas to
+   * the bottom rope counting as one) through which every subject's upper
+   * body, head to sphere centre, shows, the lens itself at least
+   * {@link ROPE_GAP} from both its ropes, nearest the wanted height; failing
+   * every subject, the lens alone kept in the gap nearest the wanted height.
+   *
+   * @param lens The lens's floor point.
+   * @param wanted The height the framing wants, metres.
+   * @param subjects The framed subjects.
+   * @param apron The rope line and its rope heights.
+   * @param overhead Greatest lens height, metres.
+   * @param clearance How the standpoint clears the ropes.
+   * @returns The lens height, metres.
+   */
+  export function clear(
+    lens: { x: number; z: number },
+    wanted: number,
+    subjects: readonly ISubject[],
+    apron: IApron,
+    overhead: number,
+    clearance: Clearance = "between",
+  ): number {
+    if (apron.ropes.length === 0) return wanted;
+    // A sightline to a point at height h crossing the rope line at share c
+    // is at y (1 - c) + h c there.
+    const sights = subjects.flatMap((s) => {
+      const dx: number = lens.x - s.center.x;
+      const dz: number = lens.z - s.center.z;
+      const l: number = Math.hypot(dx, dz) || 1;
+      const foot = {
+        x: s.center.x + (dx / l) * s.radius,
+        z: s.center.z + (dz / l) * s.radius,
+      };
+      const c: number = ropeCrossing(lens, s.center, apron.half);
+      const f: number = ropeCrossing(lens, foot, apron.half);
+      return c < 1 && f < 1
+        ? [
+            { h: 0, c: f, upper: false },
+            { h: s.center.y, c, upper: true },
+            { h: s.center.y + s.radius, c, upper: true },
+          ]
+        : [];
+    });
+    const ropes: number[] = [...apron.ropes].sort((p, q) => p - q);
+    const top: number = ropes[ropes.length - 1]!;
+    if (clearance === "over")
+      return Math.min(
+        overhead,
+        Math.max(
+          wanted,
+          top + OVER_TOP,
+          ...sights.map((s) => (top + ROPE_GAP - s.h * s.c) / (1 - s.c)),
+        ),
+      );
+    const gaps: [number, number][] = ropes.map((r, k) => [
+      k === 0 ? 0 : ropes[k - 1]!,
+      r,
+    ]);
+    const nearest = (
+      bound: (gap: [number, number]) => [number, number],
+    ): number | undefined => {
+      let best: number | undefined;
+      for (const gap of gaps) {
+        const [lo, hi] = bound(gap);
+        if (lo > hi) continue;
+        const y: number = Math.max(lo, Math.min(hi, wanted));
+        if (
+          best === undefined ||
+          Math.abs(y - wanted) < Math.abs(best - wanted)
+        )
+          best = y;
+      }
+      return best;
+    };
+    // The lens itself stays clear of the gap's two ropes.
+    const own = ([below, above]: [number, number]): [number, number] => [
+      below === 0 ? ROPE_GAP : below + ROPE_GAP,
+      Math.min(overhead, above - ROPE_GAP),
+    ];
+    return (
+      nearest((gap) => {
+        let [lo, hi] = own(gap);
+        for (const s of sights.filter((t) => t.upper)) {
+          lo = Math.max(lo, (gap[0] - s.h * s.c) / (1 - s.c));
+          hi = Math.min(hi, (gap[1] - s.h * s.c) / (1 - s.c));
+        }
+        return [lo, hi];
+      }) ??
+      nearest(own) ??
+      wanted
+    );
   }
 
   /**
@@ -134,6 +279,32 @@ export namespace RopeLens {
       enter = Math.max(enter, (Math.abs(p) - half) / Math.abs(d));
     }
     return enter;
+  }
+
+  /**
+   * A lens point brought through the ropes: a point out on the apron moves
+   * along its floor sightline toward the target to the rope line, where a
+   * handheld puts its lens between two ropes; a point already at or inside
+   * the rope line, or whose sightline never crosses it, stays.
+   *
+   * @param p The lens point.
+   * @param target The look-at point.
+   * @param apron The rope line.
+   * @returns The lens point at the rope line.
+   */
+  export function through(
+    p: IAutoMovieVector3,
+    target: { x: number; z: number },
+    apron: Pick<IApron, "half">,
+  ): IAutoMovieVector3 {
+    const share: number = ropeCrossing(p, target, apron.half);
+    return share > 0 && share < 1
+      ? {
+          ...p,
+          x: p.x + (target.x - p.x) * share,
+          z: p.z + (target.z - p.z) * share,
+        }
+      : p;
   }
 
   /**

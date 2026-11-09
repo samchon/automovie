@@ -11,13 +11,13 @@ import type { IRingCast } from "../kickboxing/IRingCast";
  * Coverage of the knockdown count. Broadcasts keep a camera at a neutral
  * corner so the referee's count over the fallen man and the standing fighter
  * sent to the far neutral corner are both covered: the count is shot at
- * medium from the apron at the other neutral corner, cutting from the referee
- * and the fallen man to the winner in his corner and back, each held at least
- * the coverage law's hold.
+ * medium from the apron at the other neutral corner, a two-shot of the
+ * referee counting over the fallen man aimed from that corner, so the winner
+ * stands in his corner in the background of the same frame.
  *
  * ```ts
  * const count = CountCoverage.window(schedule, "referee");
- * CountCoverage.subjects(seconds - count.start, CoverageLaw.HOLD); // ["referee", "b"] or ["a"]
+ * CountCoverage.bearing(CountCoverage.COUNTED.map(floorOf), corner); // framing CountCoverage.SUBJECTS
  * ```
  *
  * @evidence docs/research/cinematography/fight-coverage.md#practice Neutral-corner cameras cover the count and the standing fighter.
@@ -49,17 +49,14 @@ export namespace CountCoverage {
     };
   }
 
+  /** The count's two-shot: the referee counting over the fallen man. */
+  export const COUNTED: readonly string[] = Object.freeze(["referee", "b"]);
+
   /**
-   * Who the count's shot frames at a moment: the referee and the fallen man
-   * for one hold, the winner in his corner for the next, and so on.
-   *
-   * @param elapsed Seconds since the count began.
-   * @param hold The least hold of a shot, seconds.
-   * @returns The framed subjects' ids.
+   * Who the count's shot frames: the two-shot, and the winner in his neutral
+   * corner behind it, so the shot also shows him keeping to his corner.
    */
-  export function subjects(elapsed: number, hold: number): string[] {
-    return Math.floor(elapsed / hold) % 2 === 0 ? ["referee", "b"] : ["a"];
-  }
+  export const SUBJECTS: readonly string[] = Object.freeze([...COUNTED, "a"]);
 
   /**
    * The neutral corner the camera stands at: the one the standing fighter
