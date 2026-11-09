@@ -49,6 +49,9 @@ export namespace RefereeShape {
   /** Share of the winner signal spent walking to the winner before the raise: four metres at the brisk 2.53 m/s over the 2.4 s signal. */
   const WINNER_ARRIVAL: number = 0.6;
 
+  /** Shares of the attend crouch between which his hand is raised for the doctor. */
+  const DOCTOR_CALL: readonly [number, number] = [0.3, 0.7];
+
   /** Share of the winner signal over which the raised arm rises or lowers. */
   const RAISE_SHARE: number = 0.1;
 
@@ -57,6 +60,25 @@ export namespace RefereeShape {
 
   /** Knee flexion of the crouch beside B, degrees: "shallow supported crouch", read as a quarter of the knee range. */
   const CROUCH_KNEES: number = 35;
+
+  /**
+   * How far the winner's arm is raised at a share of the winner signal: down
+   * while the referee walks to him, then straight up together with the
+   * referee's hand, lowered at the end.
+   *
+   * @param share Progress of the winner signal in [0, 1].
+   * @returns Raise in [0, 1].
+   */
+  export function raise(share: number): number {
+    return Math.max(
+      0,
+      Math.min(
+        1,
+        (share - WINNER_ARRIVAL) / RAISE_SHARE,
+        (1 - share) / RAISE_SHARE,
+      ),
+    );
+  }
 
   /**
    * The officiating stance.
@@ -173,11 +195,7 @@ export namespace RefereeShape {
             },
           },
         };
-        const up: number = Math.max(
-          0,
-          Math.min(1, (s - WINNER_ARRIVAL) / RAISE_SHARE, (1 - s) / RAISE_SHARE),
-        );
-        return blendPosture(base, raised, up, rest);
+        return blendPosture(base, raised, raise(s), rest);
       }
       case "count": {
         // One downward motion of the arm per number, toward the fallen man:
@@ -214,15 +232,39 @@ export namespace RefereeShape {
         break;
       }
       case "attend": {
+        // Crouched over the fallen man, he raises one hand high to call the
+        // doctor through the middle of the crouch, then lowers it.
         const drop: number = StanceShape.drop(measure, CROUCH_KNEES);
+        const crouch: IBoutPosture = {
+          ...base,
+          drop,
+          thoracic: { ...base.thoracic, flexion: 25 },
+          cervical: { ...base.cervical, flexion: 20 },
+        };
+        const calling: IBoutPosture = {
+          ...crouch,
+          hands: {
+            ...crouch.hands,
+            right: {
+              point: {
+                x: 0,
+                y: measure.shoulder - drop + reach * RAISE_HEIGHT,
+                z: -measure.shoulderHalfWidth * 1.5,
+              },
+            },
+          },
+        };
+        const call: number = Math.max(
+          0,
+          Math.min(
+            1,
+            (s - DOCTOR_CALL[0]) / RAISE_SHARE,
+            (DOCTOR_CALL[1] - s) / RAISE_SHARE,
+          ),
+        );
         return blendPosture(
           base,
-          {
-            ...base,
-            drop,
-            thoracic: { ...base.thoracic, flexion: 25 },
-            cervical: { ...base.cervical, flexion: 20 },
-          },
+          blendPosture(crouch, calling, call, rest),
           Math.min(1, s * 3),
           rest,
         );

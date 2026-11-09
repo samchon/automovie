@@ -86,10 +86,15 @@ export namespace KickboxingRange {
                 Math.max(
                   0,
                   (REACH_SHARE *
-                    (attacker.thigh + StrikeShape.SHIN_SHARE * attacker.shank)) **
+                    (attacker.thigh +
+                      (spec.level === "head" ? 1 : StrikeShape.SHIN_SHARE) *
+                        attacker.shank)) **
                     2 -
                     (height(receiver, spec.level) -
-                      (attacker.hip - StanceShape.sink(attacker))) **
+                      ((spec.level === "head"
+                        ? TurnoverShape.hip(attacker)
+                        : attacker.hip) -
+                        StanceShape.sink(attacker))) **
                       2,
                 ),
               ) +

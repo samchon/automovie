@@ -141,6 +141,25 @@ export namespace DefenseShape {
     const cheek = guard.hands[side];
     switch (input.answer) {
       case "parry":
+        // Against a teep the rear glove sweeps the foot aside at the
+        // stomach line, forward of the body, so the foot never lands.
+        if (spec.family === "push-kick")
+          return {
+            ...guard,
+            hands: {
+              ...guard.hands,
+              right: {
+                point: {
+                  x: measure.armReach * 0.6,
+                  y:
+                    measure.hip -
+                    guard.drop +
+                    (measure.shoulder - measure.hip) * 0.3,
+                  z: -measure.shoulderHalfWidth,
+                },
+              },
+            },
+          };
         // The rear glove meets the incoming line across the face and turns it aside.
         return {
           ...guard,
@@ -235,11 +254,18 @@ export namespace DefenseShape {
         };
       case "slip": {
         // Outside the punch: toward the side of the throwing arm.
+        // The knees and waist bend into it, so the head drops and leans
+        // forward as well as off the line (coaching of the slip: 15 to 25 cm
+        // off the centreline).
         return {
           ...guard,
-          drop: guard.drop + measure.headRadius * 0.5,
+          drop: guard.drop + measure.headRadius,
           shift: { forward: 0, left: sign * measure.headRadius },
-          thoracic: { ...guard.thoracic, lateralFlexion: sign * SLIP_BEND },
+          thoracic: {
+            ...guard.thoracic,
+            flexion: guard.thoracic.flexion + SLIP_BEND / 2,
+            lateralFlexion: sign * SLIP_BEND,
+          },
           lumbar: { ...guard.lumbar, lateralFlexion: (sign * SLIP_BEND) / 2 },
           cervical: {
             ...guard.cervical,
@@ -324,6 +350,22 @@ export namespace DefenseShape {
                   : 0),
             },
             shift: { forward: -measure.headRadius * s, left: 0 },
+            wince: s,
+          };
+        if (spec.level === "body" && spec.family === "push-kick")
+          // The teep's push folds him at the waist and drives his hips back.
+          return {
+            ...guard,
+            shift: { forward: -measure.headRadius * 2 * s, left: 0 },
+            thoracic: {
+              ...guard.thoracic,
+              flexion: guard.thoracic.flexion + REACTION.trunk * 2 * s,
+            },
+            lumbar: {
+              ...guard.lumbar,
+              flexion: guard.lumbar.flexion + REACTION.trunk * s,
+            },
+            jaw: 10 * s,
             wince: s,
           };
         if (spec.level === "body")

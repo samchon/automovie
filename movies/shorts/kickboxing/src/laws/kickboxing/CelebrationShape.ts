@@ -1,6 +1,10 @@
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { IBoutPosture } from "./IBoutPosture";
 import type { IFighterMeasure } from "./IFighterMeasure";
 import { KickboxingTiming } from "./KickboxingTiming";
+import { StanceShape } from "./StanceShape";
+import { blendPosture } from "./blendPosture";
 
 /**
  * The winner's celebration: both gloves thrown overhead with the chest open
@@ -71,4 +75,55 @@ export namespace CelebrationShape {
       wince: 0,
     };
   }
+
+  /**
+   * The winner checking on the fallen man in front of him: he crouches to a
+   * right-angled knee bend, bends over him and lays his lead glove on him,
+   * then rises again.
+   *
+   * @param measure The winner's measure.
+   * @param guard His guard posture.
+   * @param rest Body-frame foot points.
+   * @param share Progress of the check in [0, 1].
+   * @returns The posture.
+   * @evidence docs/body/screenplay/kickboxing.md#s12-b03 A checks on B.
+   */
+  export function attend(
+    measure: IFighterMeasure,
+    guard: IBoutPosture,
+    rest: Record<"left" | "right", IAutoMovieVector3>,
+    share: number,
+  ): IBoutPosture {
+    const drop: number = StanceShape.drop(measure, CROUCH_KNEES);
+    const crouched: IBoutPosture = {
+      ...guard,
+      drop,
+      thoracic: { ...guard.thoracic, flexion: 30 },
+      lumbar: { ...guard.lumbar, flexion: 15 },
+      hands: {
+        ...guard.hands,
+        left: {
+          point: {
+            x: measure.armReach * 0.8,
+            y: measure.hip * 0.35,
+            z: measure.shoulderHalfWidth * 0.5,
+          },
+        },
+      },
+      wince: 0,
+    };
+    const s: number = Math.max(0, Math.min(1, share));
+    return blendPosture(
+      guard,
+      crouched,
+      Math.min(1, s / TOUCH_SHARE, (1 - s) / TOUCH_SHARE),
+      rest,
+    );
+  }
+
+  /** Knee flexion of the crouch beside the fallen man, degrees: a right-angled knee. */
+  const CROUCH_KNEES: number = 90;
+
+  /** Share of the check spent crouching down, and again rising. */
+  const TOUCH_SHARE: number = 0.3;
 }
