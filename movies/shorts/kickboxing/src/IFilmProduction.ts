@@ -10,7 +10,7 @@ import type * as THREE from "three";
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment names what one mount holds; each member states what it owns and when it runs.
  * @evidence contracts/development/design.md#principled-representation Playback, seeking and capture all place the scene through one seek per second, so a second reached by any path draws the same state.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members the Viewer entry reads to draw, seek, publish and release a film; the soundtrack and report are optional for films without sound or audits.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The members the Viewer entry reads to draw, seek, publish and release a film; the soundtrack, report and named review views are optional for films without sound, audits or inspection cameras.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists.
  */
 export interface IFilmProduction {
@@ -54,6 +54,24 @@ export interface IFilmProduction {
     findings: readonly string[];
     measures?: Readonly<Record<string, number>>;
   };
+
+  /**
+   * Optional named review cameras that the capture command's `--view`
+   * selects, such as a side-on view, one behind each subject or a high 45°
+   * view; each places the inspection camera for the drawn second and leaves
+   * the film camera untouched.
+   */
+  views?: Readonly<
+    Record<
+      string,
+      (seconds: number) => {
+        /** Camera position in world metres. */
+        position: readonly [number, number, number];
+        /** Point the camera looks at, in world metres. */
+        target: readonly [number, number, number];
+      }
+    >
+  >;
 
   /**
    * Places every displayed object and the camera for an exact film second.
