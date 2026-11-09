@@ -5,6 +5,7 @@ import {
   Quaternion,
   Vector3,
   minimumJerk,
+  resolveAutoMovieHumanoidSurfaces,
   resolvePose,
 } from "@automovie/engine";
 import type {
@@ -107,6 +108,9 @@ export namespace kick {
   /** Share of the shank from the knee at which the round kick's shin lands: the lower shin (kickboxing research, surfaces table). */
   export const SHIN_SHARE: number = 0.7;
 
+  /** Stations along the shank, shares from the knee, whose spheres make up the leg's striking segment with the ball of the foot. */
+  export const LEG_STATIONS: readonly number[] = [0, 0.35, 0.7, 1];
+
   /**
    * Where the target lies from the turned pelvis's forward toward the
    * kicking side at contact, degrees, by height band. A full turnover puts it
@@ -207,18 +211,17 @@ export namespace kick {
       },
       ...(strikes
         ? {
-            weapons: [
-              {
-                id: "shin",
-                limb: timing.side === "left" ? ("leftLeg" as const) : ("rightLeg" as const),
-                radius: context.body.measure.shankRadius,
-                from: Math.max(context.start, t0 + timing.prep),
-                to: t0 + timing.impact + 0.1,
-                path: (seconds: number): IAutoMovieVector3 => geometry().shin!(seconds),
-              },
-            ],
+            weapons: [...LEG_STATIONS, 1].map((_: number, i: number): IHumanActionPlan.IWeapon => ({
+              id: `leg${i}`,
+              limb: timing.side === "left" ? "leftLeg" : "rightLeg",
+              radius: i < LEG_STATIONS.length ? context.body.measure.shankRadius : 0.5 * context.body.measure.ankleHeight,
+              from: Math.max(context.start, t0 + timing.prep),
+              to: t0 + timing.impact + 0.1,
+              path: (seconds: number): IAutoMovieVector3 => geometry().segment!(seconds)[i]!,
+            })),
             stop: (found: readonly IHumanActionPlan.IContactEvent[]): void => {
-              fixed = found.find((e) => e.weapon === "shin")?.seconds ?? null;
+              const mine: number[] = found.filter((e) => e.weapon.startsWith("leg")).map((e) => e.seconds);
+              fixed = mine.length === 0 ? null : Math.min(...mine);
             },
           }
         : {}),
@@ -266,8 +269,8 @@ export namespace kick {
     record: StrikingRecord.IRecord;
     /** The kicking ankle on its free path at a film second, as if it met nothing. */
     free(seconds: number): IAutoMovieVector3;
-    /** The lower shin's axis point on the free path at a film second. */
-    shin?(seconds: number): IAutoMovieVector3;
+    /** The striking segment's stations on the free path at a film second: the knee, three down the shank, and the ball of the foot. */
+    segment?(seconds: number): IAutoMovieVector3[];
   }
 
   /** A kick another kick may continue from. */
@@ -637,23 +640,28 @@ export namespace kick {
   function compose(context: IHumanActionContext<IParams>, timing: ITiming, t0: number, parts: Omit<IGeometry, "posture">): IGeometry {
     const body = context.body;
     const limb: "leftLeg" | "rightLeg" = timing.side === "left" ? "leftLeg" : "rightLeg";
-    const chain = (t: number): { base: IHumanPosture; hint: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => {
+    let cached: { seconds: number; points: IAutoMovieVector3[] } | undefined;
+    const chain =(t: number): { base: IHumanPosture; hint: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => {
       const at: number | undefined = parts.record.stop(t0 + t);
       const s: number | undefined = at === undefined ? undefined : at - t0;
       if (s === undefined || t <= s || s >= timing.impact) return { base: parts.base(t), hint: parts.hint(t), rotation: parts.rotation(t) };
-      const w: number = minimumJerk((t - s - StrikingStroke.DWELL) / Math.max(1e-3, timing.duration - s - StrikingStroke.DWELL)).s;
-      const end: number = timing.duration;
-      return {
-        base: blend(parts.base(s), parts.base(end), w),
-        hint: Vector3.lerp(parts.hint(s), parts.hint(end), w),
-        rotation: Quaternion.slerp(parts.rotation(s), parts.rotation(end), w),
-      };
+
+      // Held for the dwell, then the kick's own return played from the stop
+      // to its end on a warped clock, so the pivoting support foot turns back
+      // about its ball on the kick's own profile (a blend of two postures
+      // would slide it).
+      const rest: number = Math.max(1e-3, timing.duration - s - StrikingStroke.DWELL);
+      const tau: number = t <= s + StrikingStroke.DWELL ? s : s + ((t - s - StrikingStroke.DWELL) * (timing.duration - s)) / rest;
+      return { base: parts.base(tau), hint: parts.hint(tau), rotation: parts.rotation(tau) };
     };
     return {
       ...parts,
-      // The lower shin on the free path, read from the leg the engine's fit
-      // solves for the free ankle goal, the same limb the display shows.
-      shin: (seconds: number): IAutoMovieVector3 => {
+      // The whole striking segment on the free path, read from the leg the
+      // engine's fit solves for the free ankle goal (the limb the display
+      // shows): the knee, three stations down the shank and the ball of the
+      // foot, so a kick stops where any part of the leg first meets a body.
+      segment: (seconds: number): IAutoMovieVector3[] => {
+        if (cached?.seconds === seconds) return cached.points;
         const t: number = seconds - t0;
         const posture: IHumanPosture = parts.base(t);
         const bones = new Map(
@@ -665,7 +673,13 @@ export namespace kick {
           ).map((r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r]),
         );
         const knee: IAutoMovieVector3 = bones.get(`${timing.side}LowerLeg` as AutoMovieHumanoidBone)!.worldPosition;
-        return Vector3.lerp(knee, bones.get(`${timing.side}Foot` as AutoMovieHumanoidBone)!.worldPosition, SHIN_SHARE);
+        const foot = bones.get(`${timing.side}Foot` as AutoMovieHumanoidBone)!;
+        const points: IAutoMovieVector3[] = [
+          ...LEG_STATIONS.map((k: number): IAutoMovieVector3 => Vector3.lerp(knee, foot.worldPosition, k)),
+          resolveAutoMovieHumanoidSurfaces.place(body.surfaces.sockets[timing.side === "left" ? "ballLeft" : "ballRight"], foot).point,
+        ];
+        cached = { seconds, points };
+        return points;
       },
       posture: (t: number): IHumanPosture => {
         const held = chain(t);
@@ -680,35 +694,6 @@ export namespace kick {
           },
         };
       },
-    };
-  }
-
-  /** Two postures blended by a share: root, heading and angles linearly, limb goals by point, hint and rotation; planted flags from the first. */
-  function blend(a: IHumanPosture, b: IHumanPosture, w: number): IHumanPosture {
-    const joints: IHumanPosture["joints"] = { ...a.joints };
-    for (const [bone, value] of Object.entries(b.joints) as [keyof IHumanPosture["joints"], readonly [number, number, number]][]) {
-      const from: readonly [number, number, number] | undefined = a.joints[bone];
-      if (from !== undefined) joints[bone] = [from[0] + (value[0] - from[0]) * w, from[1] + (value[1] - from[1]) * w, from[2] + (value[2] - from[2]) * w];
-    }
-    const limbs: IHumanPosture["limbs"] = { ...a.limbs };
-    for (const limb of ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
-      const p: IHumanPosture.IGoal | undefined = a.limbs[limb];
-      const q: IHumanPosture.IGoal | undefined = b.limbs[limb];
-      if (p === undefined || q === undefined) continue;
-      limbs[limb] = {
-        ...p,
-        point: Vector3.lerp(p.point, q.point, w),
-        bend: Vector3.lerp(p.bend, q.bend, w),
-        ...(p.rotation !== undefined && q.rotation !== undefined ? { rotation: Quaternion.slerp(p.rotation, q.rotation, w) } : {}),
-      };
-    }
-    return {
-      root: Vector3.lerp(a.root, b.root, w),
-      yaw: a.yaw + (b.yaw - a.yaw) * w,
-      pitch: a.pitch + (b.pitch - a.pitch) * w,
-      roll: a.roll + (b.roll - a.roll) * w,
-      joints,
-      limbs,
     };
   }
 

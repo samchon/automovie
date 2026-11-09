@@ -167,10 +167,17 @@ export function strikingCases(family?: string): IMotionCaptureCase[] {
       const leg: boolean = end === "leftFoot" || end === "rightFoot";
       const point = (bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): IAutoMovieVector3[] =>
         leg
-          ? [0.2, 0.4, 0.6, 0.8, 1].map((k: number): IAutoMovieVector3 =>
+          ? [0, 0.2, 0.35, 0.5, 0.7, 0.85, 1].map((k: number): IAutoMovieVector3 =>
               Vector3.lerp(bones.get(end === "leftFoot" ? "leftLowerLeg" : "rightLowerLeg")!.worldPosition, bones.get(end)!.worldPosition, k),
             )
-          : [resolveAutoMovieHumanoidSurfaces.place(strike.body.surfaces.sockets[end === "leftHand" ? "fistLeft" : "fistRight"], bones.get(end)!).point];
+          : [
+              resolveAutoMovieHumanoidSurfaces.place(strike.body.surfaces.sockets[end === "leftHand" ? "fistLeft" : "fistRight"], bones.get(end)!).point,
+              bones.get(end)!.worldPosition,
+            ];
+
+      // The same stations the laws offer as weapons: the whole shank from the
+      // knee for a kick, the knuckles and the wrist for a punch (the wrist with
+      // the forearm's radius is approximated by the knuckles' zero radius).
       const radius: number = leg ? strike.body.measure.shankRadius : 0;
       const gap = (t: number): { distance: number; name: string } => {
         if (strike.other === undefined) return { distance: Infinity, name: "nothing" };
