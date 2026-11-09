@@ -10,6 +10,7 @@ This is an AutoMovie production. It primarily turns an LLM-authored screenplay i
 - Write everything the user sees in the user's language.
 - Divide programming by responsibility, give each module meaningful unit tests, and assemble verified parts through their actual consumers under [development](.agents/skills/development/SKILL.md).
 - Finish each inspection round, group all findings by cause, then repair their owners and affected consumers together before the next full round.
+- Perfect each entity and motion module on screen in its isolated [catalog cases](.agents/skills/motion/SKILL.md) first; a film only composes the accepted modules through their APIs along the screenplay, so a film defect is repaired in its module.
 - Keep external generation outside deterministic playback; retain the actual media used.
 - Save each expensive stage's result and resume from it under [stage caches](.agents/skills/production/stages.md).
 - Use installed package READMEs, public types, and JSDoc for APIs; do not copy them into instructions.
