@@ -1,0 +1,31 @@
+packages:
+  - movies/shorts/*
+  - movies/series/*
+  - packages/*
+
+# Productions depend on these through `catalog:`, so every production in the workspace resolves the same AutoMovie release.
+catalog:
+  "@automovie/archetypes": "{{version:archetypes}}"
+  "@automovie/engine": "{{version:engine}}"
+  "@automovie/evidence": "{{version:evidence}}"
+  "@automovie/human": "{{version:human}}"
+  "@automovie/ingest": "{{version:ingest}}"
+  "@automovie/interface": "{{version:interface}}"
+  "@automovie/recovery": "{{version:recovery}}"
+  "@automovie/render": "{{version:render}}"
+  "@automovie/viewer": "{{version:viewer}}"
+  "@nestia/e2e": "{{version:nestiaE2e}}"
+  "@ttsc/lint": "{{version:ttscLint}}"
+  "@types/node": "{{version:nodeTypes}}"
+  "@types/three": "{{version:threeTypes}}"
+  "@wrtnlabs/evidence": "{{version:evidenceCli}}"
+  automovie: "{{version:cli}}"
+  playwright: "{{version:playwright}}"
+  three: "{{version:three}}"
+  ttsc: "{{version:ttsc}}"
+  typescript: "{{version:typescript}}"
+  vite: "{{version:vite}}"
+
+onlyBuiltDependencies:
+  - esbuild
+  - ffmpeg-static

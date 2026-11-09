@@ -3,6 +3,7 @@ import type {
   IEvidenceReference,
 } from "@wrtnlabs/evidence";
 
+import type { IContractLocation } from "../../../internal/IContractLocation";
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import { createLanguageDiscoveryReferences } from "./createLanguageDiscoveryReferences";
 import { createSharedReference } from "./createSharedReference";
@@ -21,7 +22,7 @@ import { createSharedReference } from "./createSharedReference";
  * must be able to record that the search found nothing, which is what makes
  * requiring it honest.
  *
- * @evidence contracts/development/implementation.md#principled-implementation A fixed shared discovery family selects common and layer duties, adds narrative duties only for inheriting layers, and appends installed language calibration; discovery permits exclusions for truthful negative searches.
+ * @evidence contracts/development/implementation.md#principled-implementation A fixed shared discovery family selects common and layer duties, adds narrative duties only for inheriting layers, and appends installed language calibration; shared duties resolve in the shared skills tree and language calibration in the production's own `docs/contracts`, each through its own reference root, and discovery permits exclusions for truthful negative searches.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The relation builder centralizes discovery target selection independently of the work-contract hosts created by createDiscoveryClaim.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Settings omits narrative discovery because its backcast owns anticipation rather than rechecking authored inherited units; this is the declared layer responsibility.
  * @evidence contracts/development/common.md#meaningful-documentation The prose explains settings backcast, narrative-layer recheck and why negative search findings remain admissible.
@@ -30,7 +31,7 @@ import { createSharedReference } from "./createSharedReference";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The bounded reference array is returned to the claim owner; only temporary path strings are discarded and no filesystem handles or tasks remain retained.
  */
 export function createDiscoveryReferences(
-  location: string,
+  contracts: IContractLocation,
   layer: AuthoredLayer,
 ): IEvidenceReference[] {
   return [
@@ -41,12 +42,12 @@ export function createDiscoveryReferences(
     ].map(
       (file: string): IEvidenceMarkdownReference =>
         createSharedReference({
-          location,
+          contracts,
           file: `discovery/${file}`,
           checklist: false,
           exclusion: true,
         }),
     ),
-    ...createLanguageDiscoveryReferences(location),
+    ...createLanguageDiscoveryReferences(contracts.location),
   ];
 }

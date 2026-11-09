@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { exportModelToGLB } from "../../template/scaffold/src/integrations/render/node/exportModelToGLB";
+import { exportModelToGLB } from "../../template/scaffold/production/src/integrations/render/node/exportModelToGLB";
 import { DEFAULT_STICKMAN } from "../src/DEFAULT_STICKMAN";
 import { buildStickman } from "../src/buildStickman";
 
