@@ -1,6 +1,6 @@
 import fs from "node:fs";
 
-import { AutoMovieMeshCourse, AutoMovieMeshExtract, generateAutoMovieContourLoft64, type IAutoMovieContourLoft64, type IAutoMovieCurve64 } from "@automovie/engine";
+import { AutoMovieContourLoftCurves64, AutoMovieMeshCourse, AutoMovieMeshExtract, generateAutoMovieContourLoft64, type IAutoMovieContourLoft64, type IAutoMovieCurve64 } from "@automovie/engine";
 
 import type { CaptureModel } from "../inspection/CaptureModel";
 import { CaptureSpecs } from "../inspection/CaptureSpecs";
@@ -49,12 +49,11 @@ export namespace NodeHeadJunction {
     qualified: boolean;
   }
 
-  /** Loft each independent closed eye shell from its signed source rows and its own two observed extrema. */
+  /** Read each closed source globe and its signed curve track, using the original loft if closure refuses. */
   export function globes(archive: string, mesh: AutoMovieMeshExtract.IMesh): IResult {
-    const loft: IArchive["loft"] = read<{ loft: IArchive["loft"] }>(archive, "global.json").loft;
-    const { intervals: links } = read<{ intervals: SavedLink[] }>(archive, "links.json");
-    const paths: string[] = Array.from({ length: 25 }, (_: unknown, i: number): string => `sections/head_detail/${String(i + 8).padStart(3, "0")}.json`);
-    const source: SavedRow[] = paths.flatMap((path: string): SavedRow[] => read<{ sections: SavedRow[] }>(archive, path).sections);
+    const data: IArchive = readArchive(archive, Array.from({ length: 25 }, (_: unknown, i: number): string =>
+      `sections/head_detail/${String(i + 8).padStart(3, "0")}.json`));
+    const { links, loft }: IArchive = data;
     const positions: number[] = [];
     const indices: number[] = [];
     const lines: CaptureModel.ILine[] = [];
@@ -72,30 +71,25 @@ export namespace NodeHeadJunction {
         const last: number = links.findIndex((link: SavedLink): boolean => link.beforeMm === maximum.beforeMm && link.afterMm === maximum.afterMm);
         const ordinals: number[][] = globeOrdinals(links, first, last, minimum, maximum);
         const raw: AutoMovieMeshExtract.IMesh = globeSource(mesh, roots, world(minimum.terminal), world(maximum.terminal));
-        const result: IResult = build({ name, first, ordinals, events: [birth, death] }, raw, { source, links, loft });
+        let native: CaptureModel.ITriangles | undefined;
+        let refusal: string = "";
+        try { native = originalGlobe(world(minimum.terminal), world(maximum.terminal)); }
+        catch (error) { refusal = error instanceof Error ? error.message : String(error); }
+        const result: IResult = build({ name, first, ordinals, events: [birth, death] }, raw, data, native);
         if (!result.qualified) throw new Error(result.receipt);
-        const topology = globeTopology(result.clay);
+        const topology: ReturnType<typeof globeTopology> = globeTopology(result.clay);
         if (topology.open !== 0 || topology.invalid !== 0) throw new Error(`${topology.open} free and ${topology.invalid} non-reciprocal indexed edges`);
+        const drawnSource: string = native === undefined
+          ? `${topology.paired} reciprocal loft edges, 0 free, 0 invalid; original loft retained (${refusal})`
+          : `${result.clay.indices.length / 3} closed source faces, 0 free, 0 invalid`;
         const centre: V3 = minimum.terminal.map((coordinate: number, i: number): number => (coordinate + maximum.terminal![i]!) / 2) as V3;
-        const firstY: number = minimum.coordinateMm;
-        const lastY: number = maximum.coordinateMm;
-        const planes: AutoMovieMeshCourse.IPlane[] = CaptureSpecs.steps(firstY + 0.0625, lastY - 0.0625, 1)
+        const planes: AutoMovieMeshCourse.IPlane[] = CaptureSpecs.steps(minimum.coordinateMm + 0.0625, maximum.coordinateMm - 0.0625, 1)
           .map((station: number): AutoMovieMeshCourse.IPlane => horizontalPlane(station, centre));
-        // The archived loft preserves the source contour wire. When the exact
-        // source is a closed shell, its own faces avoid near-pole loft folds.
-        let drawn: CaptureModel.ITriangles = result.clay;
-        let drawnSource: string;
-        try {
-          drawn = originalGlobe(world(minimum.terminal), world(maximum.terminal));
-          drawnSource = `${drawn.indices.length / 3} closed source faces`;
-        } catch (error) {
-          drawnSource = `original loft retained (${error instanceof Error ? error.message : String(error)})`;
-        }
         const offset: number = positions.length / 3;
-        for (const value of drawn.positions) positions.push(value);
-        for (const value of drawn.indices) indices.push(offset + value);
+        for (const value of result.clay.positions) positions.push(value);
+        for (const value of result.clay.indices) indices.push(offset + value);
         for (const line of result.lines) lines.push({ ...line, id: `${name}:${line.id}` });
-        receipts.push(`${result.receipt}; ${ordinals.length - 2} original closed profiles; ${topology.paired} reciprocal loft edges, 0 free, 0 invalid; ${drawnSource}; ${surfaceResidual(raw, drawn, planes, false)}`);
+        receipts.push(`${result.receipt}; ${ordinals.length - 2} original closed profiles; ${drawnSource}; ${surfaceResidual(raw, result.clay, planes, false)}`);
       } catch (error) {
         receipts.push(`${name} refused: ${error instanceof Error ? error.message : String(error)}`);
       }
@@ -325,7 +319,7 @@ export namespace NodeHeadJunction {
   }
 
   /** Preserve the published section identities and ordered native curve controls. */
-  function build(layout: Omit<ILayout, "file">, mesh: AutoMovieMeshExtract.IMesh, { source, links, loft }: IArchive): IResult {
+  function build(layout: Omit<ILayout, "file">, mesh: AutoMovieMeshExtract.IMesh, { source, links, loft }: IArchive, native?: CaptureModel.ITriangles): IResult {
     const { first, ordinals } = layout;
     const sections: IAutoMovieContourLoft64.ISection[] = ordinals.map((ids: number[], offset: number): IAutoMovieContourLoft64.ISection => {
       const row: SavedRow | undefined = source.find((section: SavedRow): boolean => section.index === first + offset);
@@ -361,6 +355,17 @@ export namespace NodeHeadJunction {
     });
     if (events.length !== layout.events.length || events.some((event: IAutoMovieContourLoft64.IEvent): boolean => !event.regular))
       throw new Error("the published regular original events are unavailable");
+    // The closed source globe has a single signed contour per row, so its
+    // wire needs the same Bernstein sampling but no slab or triangle work.
+    if (native !== undefined) {
+      const lines: CaptureModel.ILine[] = sections
+        .filter((section): boolean => section.loops.length !== 0 || !events.some((event): boolean => event.coordinateMm === section.coordinateMm))
+        .flatMap(({ loops }, i: number): CaptureModel.ILine[] => loops.map(({ curve, winding }, j: number): CaptureModel.ILine => {
+          const points: V3[] = AutoMovieContourLoftCurves64.tessellate(curve, loft.chordToleranceMm).map(({ p }): V3 => world(p));
+          return { id: `${curve.name || "unresolved"}.section.${i}.loop.${j}`, points: winding < 0 ? points.reverse() : points, closed: true, colour: "9e4c74" };
+        }));
+      return { clay: native, lines, rails: new Map(), receipt: layout.name, qualified: true };
+    }
     const terminal: IAutoMovieCurve64.Vector | null = layout.name === "crown closure"
       ? events.find((event: IAutoMovieContourLoft64.IEvent): boolean => event.kind === "maximum")?.terminal ?? null : null;
     let inserted: number = 0;
