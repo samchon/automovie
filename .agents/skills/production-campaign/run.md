@@ -6,7 +6,7 @@ Before assigning work, read each production's AGENTS, PROJECT, current bodies, s
 
 ## Launch workers as processes
 
-Start each writer and each reviewer as a new CLI process with a new session, as the production's campaign guide requires, never as a subagent of the coordinator. A subagent shares the coordinator's context and ends with its turn, so it skips the production's own AGENTS and workflow and leaves no session to resume; a Malfoy film owner run as a subagent skipped its production's workflow this way. Only the [observer](observe.md) is a subagent.
+Start each writer and each reviewer as a new CLI process with a new session, never as a subagent of the coordinator. This is a repository rule for running productions from this repository; it does not ship with the scaffold, whose users run their productions their own way. A subagent shares the coordinator's context and ends with its turn, so it skips the production's own AGENTS and workflow and leaves no session to resume; a Malfoy film owner run as a subagent skipped its production's workflow this way. Only the [observer](observe.md) is a subagent.
 
 The brief names the working path, role, requested scope, the film or module, the production's AGENTS, the owning skill, the completion condition from the production's delivery review, the user's instructions, the current edition and its unresolved conditions. Earlier verdicts reach a worker only in the order [review](review.md) allows.
 

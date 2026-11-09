@@ -23,7 +23,7 @@ Run one tick every 15 minutes, or at the user's interval, waiting between ticks 
 
 ## Failure and resumption
 
-A failure is proven only as the production's [campaign guide](../../../packages/template/scaffold/.agents/skills/production/campaign.md#observe) defines it.
+A failure is proven only when the process is gone, the log has stopped for well past its usual gap, and neither a completion nor an intended-stop marker exists. A quiet or slow run, or one waiting on a user decision or a review, has not failed.
 
 Before resuming, confirm that the old run ended, which outputs to keep and the cause. Issue the resume command once, confirm the new process started and move to the next tick; never run the same work twice. If the session cannot be resumed, start a new process that reads the production and its run record and takes over.
 
