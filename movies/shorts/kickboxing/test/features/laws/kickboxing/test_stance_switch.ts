@@ -14,7 +14,7 @@ import { polygonCast } from "../../../internal/polygonCast";
  * Scenarios: a switch holds the stance origin; it starts and ends in the
  * orthodox stance and passes through the mirrored southpaw stance at its
  * half, each foot on its own hip track, landing between hops; the shoulder
- * feint shows the cross and the level feint the body cross for the load
+ * feint shows the jab's lead-shoulder push and the level feint the body cross for the load
  * share of their delivery; A and B read the level feint with the elbow
  * block and the shoulder feint with the parry, and B throws the body-kick
  * feint.

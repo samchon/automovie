@@ -140,9 +140,17 @@ export function test_picture_measures(): void {
   );
   assert.deepEqual(
     PictureTargets.outside(measures, ranges).map((l) => l.split(":")[0]),
-    ["distance-exchange", "punch-peak-speed", "kick-peak-speed"],
+    [
+      "distance-exchange",
+      "punch-peak-speed",
+      "kick-peak-speed",
+      "strikes-thrown-per-minute-a",
+      "strikes-landed-per-minute-a",
+      "strikes-thrown-per-minute-b",
+      "strikes-landed-per-minute-b",
+    ],
   );
-  assert.equal(annotated["picture-out-of-range"], 3);
+  assert.equal(annotated["picture-out-of-range"], 7);
 
   near(
     PictureGeometry.flexion({

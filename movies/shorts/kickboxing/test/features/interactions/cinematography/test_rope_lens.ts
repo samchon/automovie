@@ -11,10 +11,11 @@ import { RopeLens } from "../../../../src/interactions/cinematography/RopeLens";
  * canvas stops at the edge and rises until it is as far from the target as
  * the framing wanted, but no higher than the operator's overhead reach, and
  * never below the elevation's height; a followed point carried inside the
- * ropes steps back to the nearest rope side.
+ * ropes steps back to the nearest rope side; the lens rises until its
+ * sightline to the floor under the target clears the top rope.
  */
 export function test_rope_lens(): void {
-  const apron = { half: 3, canvasHalf: 3.6 };
+  const apron = { half: 3, canvasHalf: 3.6, ropes: [] as number[] };
   const overhead: number = 2.2;
   const elevation: number = (10 * Math.PI) / 180;
   const target = { x: 0, y: 1, z: 0 };
@@ -56,6 +57,17 @@ export function test_rope_lens(): void {
     1 + 3.6 * Math.tan(steep),
   );
 
+  // Over the top rope: the floor sightline to the target clears the rope.
+  const roped = { ...apron, ropes: [0.4, 0.7, 1, 1.3] };
+  const over = RopeLens.hold(
+    { position: { x: 3.3, y: 1.2, z: 0 }, target: { x: 0, y: 0.9, z: 0 } },
+    roped,
+    elevation,
+    overhead,
+  );
+  const share: number = RopeLens.ropeCrossing(over.position, { x: 0, z: 0 }, 3);
+  near(share, 0.3 / 3.3);
+  assert.ok(over.position.y * (1 - share) >= 1.3 - 1e-9);
   near(RopeLens.onApron({ x: 1, y: 2, z: -2.5 }, apron).z, -3);
   near(RopeLens.onApron({ x: 1, y: 2, z: -2.5 }, apron).x, 1);
   near(RopeLens.onApron({ x: 3.1, y: 2, z: 0 }, apron).x, 3.1);

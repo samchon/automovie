@@ -164,8 +164,12 @@ export namespace RingFootwork {
         // strike finished on, one step across: the arc whose chord is a step
         // on the circle of the exit range.
         const range: number = action.range ?? dist(mover, opponent);
+        // An attacker who has his opponent nearer the ropes than himself
+        // keeps the line and steps straight back, holding the cut-off
+        // (ring-generalship.md#exit); otherwise he steps off it.
+        const cutting: boolean = gap(opponent, ring) < gap(mover, ring);
         const angle: number =
-          action.side === undefined
+          action.side === undefined || cutting
             ? 0
             : 2 * Math.asin(Math.min(1, ring.step / (2 * range)));
         const across: number = action.side === "right" ? -1 : 1;
@@ -340,6 +344,11 @@ export namespace RingFootwork {
 
   function scale(a: IPoint, s: number): IPoint {
     return { x: a.x * s, z: a.z * s };
+  }
+
+  /** Distance from a point to the nearest rope line, metres. */
+  function gap(p: IPoint, ring: IRing): number {
+    return ring.half - Math.max(Math.abs(p.x), Math.abs(p.z));
   }
 
   function dist(a: IPoint, b: IPoint): number {

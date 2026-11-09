@@ -33,6 +33,7 @@ export function test_lens_zoom(): void {
   assert.ok(range.narrowest < portable.narrowest);
   near(
     portable.widest,
-    2 * Math.atan(CoverageLaw.SENSOR_HEIGHT / (2 * CoverageLaw.PORTABLE_ZOOM[0])),
+    2 *
+      Math.atan(CoverageLaw.SENSOR_HEIGHT / (2 * CoverageLaw.PORTABLE_ZOOM[0])),
   );
 }

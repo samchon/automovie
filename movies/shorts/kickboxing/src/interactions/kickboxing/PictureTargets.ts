@@ -22,6 +22,7 @@ import { StanceShape } from "../../laws/kickboxing/StanceShape";
  * @evidence docs/research/cinematography/fight-coverage.md#targets Both fighters' feet in frame for at least 80% of the film.
  * @evidence docs/research/kickboxing/techniques.md#kick-timing Peak metatarsal speed of the measured Muay Thai kicks.
  * @evidence docs/research/kickboxing/techniques.md#standing-knees No standing frame with its supporting knees straight.
+ * @evidence docs/research/kickboxing/exchanges.md#targets Strikes thrown and landed per fighter-minute at GLORY.
  */
 export namespace PictureTargets {
   /** An accepted range of one measure. */
@@ -56,6 +57,12 @@ export namespace PictureTargets {
     13.24 - 2.3,
     13.24 + 2.3,
   ];
+
+  /** Strikes thrown per fighter-minute: about 17-21 at GLORY, landed per minute over accuracy (Petrosyan 8.22 at 48.7%, Verhoeven 10.26, Pereira 10.30), stated as 16-22. */
+  export const THROWN_PER_MINUTE: readonly [number, number] = [16, 22];
+
+  /** Strikes landed per fighter-minute: GLORY's 8.22-10.30 (Petrosyan, Verhoeven, Pereira), stated as 8-11. */
+  export const LANDED_PER_MINUTE: readonly [number, number] = [8, 11];
 
   /** Least share of the film showing both fighters' feet (fight-coverage targets). */
   export const FEET_IN_FRAME_MIN: number = 0.8;
@@ -138,6 +145,26 @@ export namespace PictureTargets {
         KICK_PEAK_SPEED[0],
         KICK_PEAK_SPEED[1],
         "docs/research/kickboxing/techniques.md#kick-timing",
+      ),
+      ...Object.fromEntries(
+        ["a", "b"].flatMap((id) => [
+          [
+            `strikes-thrown-per-minute-${id}`,
+            range(
+              THROWN_PER_MINUTE[0],
+              THROWN_PER_MINUTE[1],
+              "docs/research/kickboxing/exchanges.md#targets",
+            ),
+          ],
+          [
+            `strikes-landed-per-minute-${id}`,
+            range(
+              LANDED_PER_MINUTE[0],
+              LANDED_PER_MINUTE[1],
+              "docs/research/kickboxing/exchanges.md#targets",
+            ),
+          ],
+        ]),
       ),
       "feet-in-frame": range(
         FEET_IN_FRAME_MIN,

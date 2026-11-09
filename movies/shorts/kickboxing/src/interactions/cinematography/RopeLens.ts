@@ -36,6 +36,9 @@ export namespace RopeLens {
 
     /** Half the side of the canvas, metres. */
     canvasHalf: number;
+
+    /** Rope heights above the canvas, metres. */
+    ropes: readonly number[];
   }
 
   /**
@@ -86,11 +89,51 @@ export namespace RopeLens {
           ),
         )
       : level;
+    // The lens shoots over the top rope: the sightline to the floor under the
+    // target passes above it where it crosses the rope line, as high as the
+    // operator or the wide camera reaches.
+    const top: number = Math.max(0, ...apron.ropes);
+    const crossing: number = ropeCrossing({ x, z }, frame.target, apron.half);
+    const over: number = crossing < 1 ? top / (1 - crossing) : 0;
     return {
-      position: { x, y: frame.target.y + rise, z },
+      position: {
+        x,
+        y: Math.max(frame.target.y + rise, Math.min(over, overhead)),
+        z,
+      },
       target: frame.target,
       clamped,
     };
+  }
+
+  /**
+   * Where the floor sightline from a lens to a target first meets the rope
+   * line, as a share of the way: 0 for a lens on the ropes, 1 or more when
+   * it never crosses.
+   *
+   * @param lens The lens's floor point.
+   * @param target The target's floor point.
+   * @param half Half the side of the fighting square inside the ropes, metres.
+   * @returns The share of the floor sightline.
+   */
+  export function ropeCrossing(
+    lens: { x: number; z: number },
+    target: { x: number; z: number },
+    half: number,
+  ): number {
+    if (Math.max(Math.abs(lens.x), Math.abs(lens.z)) <= half) return 0;
+    const dx: number = target.x - lens.x;
+    const dz: number = target.z - lens.z;
+    let enter: number = 0;
+    for (const [p, d] of [
+      [lens.x, dx],
+      [lens.z, dz],
+    ] as const) {
+      if (Math.abs(p) <= half) continue;
+      if (d === 0 || Math.sign(d) === Math.sign(p)) return Infinity;
+      enter = Math.max(enter, (Math.abs(p) - half) / Math.abs(d));
+    }
+    return enter;
   }
 
   /**

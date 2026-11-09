@@ -114,7 +114,7 @@ export class FighterChain {
   public feintBodyKick(): FighterChain {
     return this.strike("feint-body-kick");
   }
-  /** Rear-shoulder dip showing the cross. @returns The chain with it. */
+  /** Lead-shoulder push showing the jab. @returns The chain with it. */
   public feintShoulder(): FighterChain {
     return this.strike("feint-shoulder");
   }

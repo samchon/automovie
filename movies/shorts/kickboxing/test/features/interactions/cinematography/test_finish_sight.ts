@@ -3,6 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import assert from "node:assert/strict";
 
 import { CameraTrack } from "../../../../src/interactions/cinematography/CameraTrack";
+import { CountCoverage } from "../../../../src/interactions/cinematography/CountCoverage";
 import { FinishVolumes } from "../../../../src/interactions/cinematography/FinishVolumes";
 import { BoutLaws } from "../../../../src/interactions/kickboxing/BoutLaws";
 import { FighterPosture } from "../../../../src/interactions/kickboxing/FighterPosture";
@@ -22,8 +23,8 @@ import { polygonFilm } from "../../../internal/polygonFilm";
  * finish view keeps that leg (knee, shin and ankle over the descent) and
  * the struck region clear of every body and inside the frame from the lens
  * the track delivers at the contact, and holds the wide view on that side
- * with all three men in frame through the fall, the count and the
- * celebration; the lens stands on the
+ * with all three men in frame through the fall and the celebration, the
+ * count being covered at medium from the neutral corner; the lens stands on the
  * open side of the attacker–receiver line; the same
  * lens mirrored onto the closed side is occluded by the receiver, so the
  * measurement can fail; the open side lies where the contact is and views
@@ -104,7 +105,16 @@ export function test_finish_sight(): void {
   };
   assert.ok(SightLaw.clearance(closed, scene) <= 0, "closed side is occluded");
   // The wide view holds on the open side through the fall, the count and the end.
+  const count = CountCoverage.window(schedule, cast.referee.id);
   for (let t = scene.seconds; t <= 180; t += 0.5) {
+    // The count is covered at medium from the neutral corner (CountCoverage).
+    // After it, the orbit takes the lens back to the open side at its rate.
+    if (
+      count &&
+      t >= count.start &&
+      t < count.end + Math.PI / CoverageLaw.ORBIT
+    )
+      continue;
     const s = CameraTrack.at(camera, t);
     assert.equal(s.size, "finish", `finish size at ${t}`);
     assert.ok(side(s.position) * side(scene.contact) > 0, `open side at ${t}`);

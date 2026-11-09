@@ -1,7 +1,4 @@
-import {
-  type IAutoMovieSchedule,
-  resolveAutoMovieFraming,
-} from "@automovie/engine";
+import type { IAutoMovieSchedule } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { CoverageLaw } from "../../laws/cinematography/CoverageLaw";
@@ -9,8 +6,10 @@ import { SightLaw } from "../../laws/cinematography/SightLaw";
 import { BoutLaws } from "../kickboxing/BoutLaws";
 import type { IRingCast } from "../kickboxing/IRingCast";
 import { RefereeTrack } from "../officiating/RefereeTrack";
+import { CountCoverage } from "./CountCoverage";
 import { FinishHold } from "./FinishHold";
 import type { FinishSight } from "./FinishSight";
+import { LensStandpoint } from "./LensStandpoint";
 import { LensZoom } from "./LensZoom";
 import { RopeLens } from "./RopeLens";
 
@@ -96,6 +95,16 @@ export namespace CameraTrack {
     const officiating: { start: number; end: number }[] = schedule.entries
       .filter((e) => e.subject === cast.referee.id && e.end > e.start)
       .map((e) => ({ start: e.start, end: e.end }));
+    // The count is covered at medium from the apron at the neutral corner the
+    // standing fighter was not sent to, cutting between the referee over the
+    // fallen man and the winner in his corner (fight-coverage.md#practice).
+    const counting = CountCoverage.window(schedule, cast.referee.id);
+    const corner = counting
+      ? CountCoverage.corner(
+          cast,
+          BoutLaws.origin(schedule, cast.a.id, counting.start, cast).point,
+        )
+      : undefined;
     const height = (measure: {
       head: number;
     }): {
@@ -151,7 +160,7 @@ export namespace CameraTrack {
       framed: Record<string, { center: IAutoMovieVector3; radius: number }>,
     ): number =>
       FinishHold.margin(
-        place(
+        LensStandpoint.place(
           cast,
           "finish",
           CoverageLaw.goal("finish", everyone, bearing, elevation),
@@ -184,8 +193,11 @@ export namespace CameraTrack {
         const hit = landed.some(
           (l) => t >= l.contact && t < l.contact + CoverageLaw.HOLD,
         );
-        const wanted: CoverageLaw.Size =
-          t >= finish
+        const count: boolean =
+          counting !== undefined && t >= counting.start && t < counting.end;
+        const wanted: CoverageLaw.Size = count
+          ? "medium"
+          : t >= finish
             ? "finish"
             : hit
               ? "close"
@@ -194,7 +206,7 @@ export namespace CameraTrack {
                 : "wide";
         if (
           wanted !== s.size &&
-          (t - s.since >= CoverageLaw.HOLD || wanted === "finish")
+          (t - s.since >= CoverageLaw.HOLD || wanted === "finish" || count)
         ) {
           s.size = wanted;
           s.since = t;
@@ -203,8 +215,11 @@ export namespace CameraTrack {
         // the referee joins while he officiates. Each man is framed where he
         // stands and where he will stand one operator's lag ahead, so the
         // following lens keeps his path.
-        const men: string[] =
-          s.size === "wide" || s.size === "finish" || busy(officiating, t)
+        const men: string[] = count
+          ? CountCoverage.subjects(t - counting!.start, CoverageLaw.HOLD)
+          : s.size === "wide" ||
+              s.size === "finish" ||
+              officiating.some((i) => t >= i.start && t < i.end)
             ? wide
             : ["a", "b"];
         const subjects: string[] = men.flatMap((id) => [id, `${id}${AHEAD}`]);
@@ -212,8 +227,15 @@ export namespace CameraTrack {
         // Side-on opposite the referee; from the finish, the visibility law's
         // view, which after the blow turns within its open side by the least
         // amount that keeps every man in frame.
-        const aim: SightLaw.IView =
-          s.size === "finish" && view !== undefined
+        const aim: SightLaw.IView = count
+          ? {
+              bearing: CountCoverage.bearing(
+                men.map((id) => floor(state[id]!)),
+                corner!,
+              ),
+              elevation: CoverageLaw.ELEVATION,
+            }
+          : s.size === "finish" && view !== undefined
             ? t <= blow.release || s.bearing === undefined
               ? view
               : {
@@ -245,7 +267,7 @@ export namespace CameraTrack {
             : CoverageLaw.orbit(s.bearing, aim.bearing, STEP);
         s.elevation = CoverageLaw.orbit(s.elevation, aim.elevation, STEP);
         const goal = CoverageLaw.goal(s.size, subjects, s.bearing, s.elevation);
-        const wantedFrame = place(cast, s.size, goal, framed);
+        const wantedFrame = LensStandpoint.place(cast, s.size, goal, framed);
         // The lens zooms so the subjects fill the size's share from where it stands.
         const zoom: number = LensZoom.fieldOfView(
           wantedFrame,
@@ -305,7 +327,7 @@ export namespace CameraTrack {
     // The hold: the contact, then every second to the end of the film.
     const hold: number[] = [scene.seconds];
     for (let t: number = Math.ceil(scene.seconds); t <= duration; t++)
-      hold.push(t);
+      if (!counting || t < counting.start || t >= counting.end) hold.push(t);
     const states = new Map(hold.map((t) => [t, spheres(t)]));
     const finishWith = (view: SightLaw.IView): ISample[] => {
       const samples: ISample[] = [...prefix];
@@ -320,7 +342,7 @@ export namespace CameraTrack {
     for (const view of FinishHold.views(
       scene,
       (v: SightLaw.IView, t: number) =>
-        place(
+        LensStandpoint.place(
           cast,
           "finish",
           CoverageLaw.goal("finish", wide, v.bearing, v.elevation),
@@ -449,42 +471,6 @@ export namespace CameraTrack {
     return typeof keep === "string"
       ? schedule.entries.find((e) => e.intent.anchor === keep)
       : undefined;
-  }
-
-  /** A framing goal's lens held on the apron by {@link RopeLens.hold}. */
-  function place(
-    cast: IRingCast,
-    size: CoverageLaw.Size,
-    goal: ReturnType<typeof CoverageLaw.goal>,
-    spheres: Record<string, { center: IAutoMovieVector3; radius: number }>,
-  ): RopeLens.IHeld {
-    // The wide sizes are the wide camera's, standing anywhere outside the
-    // ropes up to its distance and height; the closer sizes are handheld on
-    // the apron, no higher than the operator holds the camera.
-    const far: boolean = size === "wide" || size === "finish";
-    return RopeLens.hold(
-      resolveAutoMovieFraming(goal, spheres),
-      far
-        ? { half: cast.ring.half, canvasHalf: CoverageLaw.WIDE_DISTANCE }
-        : cast.ring,
-      goal.elevation,
-      far ? CoverageLaw.WIDE_HEIGHT - cast.ring.platform : overhead(cast),
-    );
-  }
-
-  /** The highest lens an operator in the ring holds overhead: shoulder height plus arm reach of the referee's adult build. */
-  function overhead(cast: IRingCast): number {
-    return (
-      cast.referee.body.measure.shoulder + cast.referee.body.measure.armReach
-    );
-  }
-
-  /** Whether an instant falls inside any interval. */
-  function busy(
-    intervals: readonly { start: number; end: number }[],
-    seconds: number,
-  ): boolean {
-    return intervals.some((i) => seconds >= i.start && seconds < i.end);
   }
 
   function floor(sphere: { center: IAutoMovieVector3 }): {

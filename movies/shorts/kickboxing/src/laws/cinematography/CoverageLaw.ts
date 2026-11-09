@@ -147,7 +147,7 @@ export namespace CoverageLaw {
   /**
    * The least turn from a bearing that keeps the referee off the fighters'
    * sightline: seen from that bearing, his body stands beside theirs on the
-   * screen, not behind or in front of either.
+   * screen, not behind or in front of either, and the fighters stay apart.
    *
    * @param bearing The wanted bearing, radians.
    * @param a Fighter A's floor point.
@@ -166,7 +166,10 @@ export namespace CoverageLaw {
   ): number {
     const across = (p: { x: number; z: number }, at: number): number =>
       p.x * Math.cos(at) - p.z * Math.sin(at);
+    // The turn never trades one overlap for another: the fighters themselves
+    // stay apart across the view.
     const clear = (at: number): boolean =>
+      Math.abs(across(a, at) - across(b, at)) >= 2 * width &&
       [a, b].every(
         (f) => Math.abs(across(f, at) - across(referee, at)) >= 2 * width,
       );

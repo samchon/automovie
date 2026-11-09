@@ -140,7 +140,7 @@ export class Fighter {
   public feintBodyKick(): FighterChain {
     return this.chain().feintBodyKick();
   }
-  /** Shoulder feint of the cross. @returns The chain. */
+  /** Shoulder feint: the lead shoulder pushed forward, the start of the jab. @returns The chain. */
   public feintShoulder(): FighterChain {
     return this.chain().feintShoulder();
   }

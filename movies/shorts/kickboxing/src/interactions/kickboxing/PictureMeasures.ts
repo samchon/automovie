@@ -352,6 +352,32 @@ export namespace PictureMeasures {
         PictureGeometry.peak(path),
       );
     }
+    // Strike volume over the bout's action, per fighter: every thrown
+    // strike that is not a feint, and every strike whose receiver's answer
+    // the outcome law resolved as landed.
+    const action: number = film.finish.fall;
+    const minutes: number = action / 60;
+    for (const subject of ["a", "b"]) {
+      const thrown: number = film.schedule.entries.filter((e) => {
+        if (e.subject !== subject || e.intent.capability !== "strike")
+          return false;
+        if (e.start >= action) return false;
+        const read = KickboxingAction.read(e.intent);
+        return (
+          read.kind === "strike" &&
+          !KickboxingTechnique.table[read.technique].shows
+        );
+      }).length;
+      const landed: number = film.schedule.entries.filter(
+        (e) =>
+          e.outcome === "landed" &&
+          e.subject !== subject &&
+          (e.subject === "a" || e.subject === "b") &&
+          e.start < action,
+      ).length;
+      result[`strikes-thrown-per-minute-${subject}`] = thrown / minutes;
+      result[`strikes-landed-per-minute-${subject}`] = landed / minutes;
+    }
     for (const [kind, list] of Object.entries(peaks))
       if (list.length > 0)
         result[`${kind}-peak-speed`] = PictureGeometry.median(list);

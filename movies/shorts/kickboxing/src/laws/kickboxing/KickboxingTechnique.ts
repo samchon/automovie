@@ -132,11 +132,12 @@ export namespace KickboxingTechnique {
   export const PUMP_SHARE: number = 0.5;
 
   /**
-   * Share of a rear punch's delivery a shoulder or level feint shows: about
-   * the first 0.3 of the delivery, the startup in which the rear shoulder
-   * dips (cross) or the knees bend to change level (body cross) before the
-   * fist leaves, the part a receiver reads ([feint
-   * law](docs/research/kickboxing/exchanges.md#feints)).
+   * Share of a punch's delivery a shoulder or level feint shows: about the
+   * first 0.3 of the delivery. The shoulder feint pushes the lead shoulder
+   * toward the opponent with a small forward step, the start of the jab
+   * (The Arena Gym: feints and level changes; Fight Primer on Adesanya); the
+   * level feint bends the knees to change level, the start of the body cross
+   * ([feint law](docs/research/kickboxing/exchanges.md#feints)).
    */
   export const LOAD_SHARE: number = 0.3;
 
