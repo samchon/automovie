@@ -1,10 +1,12 @@
 import { AutoMovieViewAxis, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
 
+import { AutoMovieHumanLoftMesh } from "../../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import type { IAutoMovieHumanHeadEyeOpening } from "../IAutoMovieHumanHeadEyeOpening";
+import f1Rings from "./AutoMovieHumanHeadEyeF1Rings.json";
 import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
 
 /**
@@ -29,6 +31,41 @@ import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned source records and retains fixed immutable diameter data, without a global person, source image or prepared callback.
  */
 export namespace AutoMovieHumanHeadEyeParts {
+  /**
+   * Recreate the two closed F1 globes from their measured axial contour walks.
+   * The source is in ISB world millimetres. It records two poles and 24
+   * 32-point rings per eye, with the original correspondence at each ring.
+   * Only the last two bands advance phase 22 on the distal ring first.
+   */
+  export function f1(): AutoMovieHumanLoftMesh.IContext {
+    const mesh: AutoMovieHumanLoftMesh.IContext = AutoMovieHumanLoftMesh.create();
+    const point = (value: readonly number[]): [number, number, number] => [value[0]!, value[1]!, value[2]!];
+    for (const globe of f1Rings) {
+      const firstTriangle: number = mesh.indices.length;
+      const rings: number[][] = globe.rings.map((ring) => AutoMovieHumanLoftMesh.vertices(mesh, ring.map(point)));
+      for (let i: number = 1; i < rings.length; ++i) {
+        const lower: number[] = rings[i - 1]!;
+        const upper: number[] = rings[i]!;
+        const early: number[] = globe.early[i - 1]!;
+        if (early.length === 0) AutoMovieHumanLoftMesh.band(mesh, lower, upper);
+        else {
+          // These phase ranks reproduce the observed quad diagonals. They
+          // order the existing vertices and do not move or resample a ring.
+          const phase = (j: number, offset: number): number => (j + offset) * 2 * Math.PI / lower.length;
+          AutoMovieHumanLoftMesh.zipper(mesh, lower, lower.map((_, j: number): number => phase(j, 0.5)),
+            upper, upper.map((_, j: number): number => phase(j, early.includes(j) ? 0.25 : 0.5)));
+        }
+      }
+      const [back, front]: number[] = AutoMovieHumanLoftMesh.vertices(mesh, globe.poles.map(point));
+      AutoMovieHumanLoftMesh.cap(mesh, rings[0]!, back!, false);
+      AutoMovieHumanLoftMesh.cap(mesh, rings.at(-1)!, front!, true);
+      if (globe.reverseWinding)
+        for (let i: number = firstTriangle; i < mesh.indices.length; i += 3)
+          [mesh.indices[i + 1], mesh.indices[i + 2]] = [mesh.indices[i + 2]!, mesh.indices[i + 1]!];
+    }
+    return mesh;
+  }
+
   /**
    * External radii [AP, superior-inferior, lateral], world mm, from
    * Bekerman 2014 Table 1: axial Group II and sclera-to-sclera rows.

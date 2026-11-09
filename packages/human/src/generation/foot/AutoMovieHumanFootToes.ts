@@ -1,7 +1,11 @@
-import { AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
+import { AutoMovieCurveMath64, AutoMovieMeshExtract, AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
 
+import { AutoMovieHumanLoftMesh } from "../../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanArmCurveSpec } from "../arm/AutoMovieHumanArmCurveSpec";
 import { AutoMovieHumanFairOutline } from "../arm/AutoMovieHumanFairOutline";
+import left from "../leg/AutoMovieHumanLegF1Left.json";
+import right from "../leg/AutoMovieHumanLegF1Right.json";
+import { AutoMovieHumanLegF1World } from "../leg/AutoMovieHumanLegF1World";
 import type { AutoMovieHumanLegLandmarks } from "../leg/AutoMovieHumanLegLandmarks";
 import type { AutoMovieHumanLegSegmentFrames } from "../leg/AutoMovieHumanLegSegmentFrames";
 import { AutoMovieHumanFootToeRoots } from "./AutoMovieHumanFootToeRoots";
@@ -41,6 +45,92 @@ type IFrame = AutoMovieHumanArmCurveSpec.ISegmentFrame;
  * minimum bending energy (`AutoMovieHumanFairOutline`).
  */
 export namespace AutoMovieHumanFootToes {
+  /**
+   * Build one fixed F1 toe from its captured conic and ordinary inputs in
+   * ISB world millimetres. The supplied root is the exact web-owned rim.
+   * The small toe's separate native terminal has its own measured rail.
+   */
+  export function f1(side: "left" | "right", digit: number, root: Vec3[]): AutoMovieHumanLoftMesh.IContext {
+    const source = (side === "left" ? left : right).toes[digit - 1];
+    if (source === undefined) throw new Error(`No measured F1 toe ${side}.${digit}`);
+    const World: typeof AutoMovieHumanLegF1World = AutoMovieHumanLegF1World;
+    const V: typeof AutoMovieCurveMath64 = AutoMovieCurveMath64;
+    const stations: number[] = source.profiles.map(row => row.station);
+    const frames = source.profiles.map(({ frame }): ReturnType<AutoMovieViewAxis.IAxis["at"]> => ({
+      origin: V.clone(frame[0]!), u: V.clone(frame[1]!), v: V.clone(frame[2]!),
+    }));
+    const axis: AutoMovieViewAxis.IAxis = World.archivedAxis(stations, frames);
+    const layers: AutoMovieMeshExtract.IStationLoop[] = source.profiles.map(({ station, loop }): AutoMovieMeshExtract.IStationLoop => ({
+      station,
+      loop: {
+        length: loop.length,
+        knots: loop.knots.map((k, index: number): AutoMovieMeshExtract.ILoopKnot => ({
+          index, t: k[0]!, point: [k[1]!, k[2]!], tangent: [k[3]!, k[4]!],
+        })),
+      },
+    }));
+    const section = (s: number, profile: ReturnType<typeof AutoMovieMeshExtract.profileCurve>): Vec3[] => {
+      const frame = axis.at(s);
+      return Array.from({ length: 72 }, (_, k: number): Vec3 => {
+        const [u, v] = profile.point(s, k / 72);
+        return [
+          frame.origin[0]! + u! * frame.u[0]! + v! * frame.v[0]!,
+          frame.origin[1]! + u! * frame.u[1]! + v! * frame.v[1]!,
+          frame.origin[2]! + u! * frame.u[2]! + v! * frame.v[2]!,
+        ];
+      });
+    };
+    const mesh: AutoMovieHumanLoftMesh.IContext = AutoMovieHumanLoftMesh.create();
+    const append = (points: Vec3[]): number[] => AutoMovieHumanLoftMesh.vertices(mesh, points);
+    type Rim = { station: number; row: number[] };
+    const attach = (a: Rim, b: Rim, seam: boolean): void => {
+      if (seam) World.stitchSeam(a, b, axis, mesh.positions, mesh.indices);
+      else World.stitchRows(a.row, b.row, mesh.positions, mesh.indices);
+    };
+    let last: Rim = { station: stations[0]!, row: append(World.forkClock(root, frames[0]!)) };
+    for (const part of source.parts) {
+      const shoulder = part.fullness.shoulders;
+      const shape: IAutoMovieViewPart = { ...part, axis, fullness: { kind: "top", shoulders: [shoulder[0]!, shoulder[1]!, shoulder[2]!, shoulder[3]!] } };
+      const { chain }: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(shape);
+      if (chain === null) throw new Error(`The recorded conic of ${source.name} refused`);
+      const first: number = chain.layers[0]!.y;
+      const end: number = chain.layers.at(-1)!.y;
+      const rows: number = Math.max(1, Math.ceil((end - first) / 1.5));
+      const ys: number[] = Array.from({ length: rows + 1 }, (_, k: number): number => first + (end - first) * k / rows);
+      const generated: AutoMovieHumanLoftMesh.IContext = AutoMovieHumanLoftMesh.sampled(chain, ys, 72);
+      const from: number = mesh.positions.length / 3;
+      for (const value of generated.positions) mesh.positions.push(value);
+      for (const id of generated.indices) mesh.indices.push(from + id);
+      const next: Rim = { station: first, row: Array.from({ length: 72 }, (_, k: number): number => from + k) };
+      const ordinary = layers.filter(row => row.station >= last.station && row.station <= first);
+      const profile = AutoMovieMeshExtract.profileCurve(ordinary);
+      for (const { station } of ordinary.slice(1, -1)) {
+        const intermediate: Rim = { station, row: append(section(station, profile)) };
+        attach(last, intermediate, last.station !== stations[0]);
+        last = intermediate;
+      }
+      attach(last, next, last.station !== stations[0]);
+      last = { station: end, row: next.row.map((i: number): number => i + rows * 72) };
+    }
+    const tail = layers.filter(row => row.station >= last.station);
+    if (tail.length > 1) {
+      const profile = AutoMovieMeshExtract.profileCurve(tail);
+      for (const { station } of tail.slice(1)) {
+        const points: Vec3[] = source.cap !== null && station === stations.at(-1)
+          ? World.forkClock(source.cap.rim.map(V.clone), axis.at(station))
+          : section(station, profile);
+        const next: Rim = { station, row: append(points) };
+        attach(last, next, last.station !== stations[0] && last.station === tail[0]!.station);
+        last = next;
+      }
+    }
+    const terminal = source.tip ?? source.cap?.end;
+    if (terminal === undefined || terminal === null) throw new Error(`The measured terminal of ${source.name} is unavailable`);
+    const apex: number = append([V.clone(terminal)])[0]!;
+    for (let i: number = 0; i < last.row.length; ++i) mesh.indices.push(last.row[i]!, apex, last.row[(i + 1) % last.row.length]!);
+    return mesh;
+  }
+
   /** One lofted toe. */
   export interface IToe {
     /** Part name, `toe.<side>.<digit>`. */

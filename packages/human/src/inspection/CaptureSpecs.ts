@@ -2,6 +2,7 @@ import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine"
 
 import { AutoMovieHumanArmCurveSpec } from "../generation/arm/AutoMovieHumanArmCurveSpec";
 import { AutoMovieHumanFairOutline } from "../generation/arm/AutoMovieHumanFairOutline";
+import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import type { CaptureModel } from "./CaptureModel";
 
 type V3 = CaptureModel.Vec3;
@@ -264,18 +265,7 @@ export namespace CaptureSpecs {
 
     // The course through the layer frame origins; a frameless layer is horizontal at height y on the world Y axis.
     lines.push({ id: "loft:course", closed: false, colour: "888888", points: chain.layers.map((l: IAutoMovieLoftChain.ILayer): V3 => (l.frame === undefined ? [0, l.y, 0] : (l.frame.origin as V3))) });
-    const phases: number = 72;
-    const positions: number[] = [];
-    const indices: number[] = [];
-    const around: number[] = Array.from({ length: phases }, (_: unknown, k: number): number => (2 * Math.PI * k) / phases);
-    for (const y of ys) for (const p of AutoMovieLoftChain.ring(chain, y, around)) positions.push(p[0]!, p[1]!, p[2]!);
-    for (let i: number = 0; i + 1 < ys.length; ++i)
-      for (let k: number = 0; k < phases; ++k) {
-        const a: number = i * phases + k;
-        const c: number = i * phases + ((k + 1) % phases);
-        indices.push(a, a + phases, c + phases, a, c + phases, c);
-      }
-    fans([chain.pole, chain.opposite], ys.length, phases, positions, indices);
+    const { positions, indices }: AutoMovieHumanLoftMesh.IContext = AutoMovieHumanLoftMesh.sampled(chain, ys, 72);
     return { status: "available", lines, clay: { positions, indices }, diagnostics: counted(diagnostics) };
   }
 
@@ -306,23 +296,8 @@ export namespace CaptureSpecs {
     return { status: "available", lines, clay: { positions, indices }, diagnostics: details };
   }
 
-  /**
-   * Close a station-by-phase ring grid (`rows` rings of `phases` vertices,
-   * ring `i` vertex `k` at index `i * phases + k`) with a fan from each cap's
-   * pole to the ring of the end it closes: `bottom` is the first
-   * (lowest-station) ring and `top` the last, as `IAutoMovieLoftChain.pole`
-   * and `opposite` declare their `end`. An absent cap leaves its end open.
-   * Appends each pole vertex to `positions` and its triangles to `indices`.
-   */
-  export function fans(caps: readonly ({ end: "bottom" | "top"; point: [number, number, number] } | undefined)[], rows: number, phases: number, positions: number[], indices: number[]): void {
-    for (const cap of caps)
-      if (cap !== undefined) {
-        const row: number = cap.end === "bottom" ? 0 : rows - 1;
-        const v: number = positions.length / 3;
-        positions.push(cap.point[0], cap.point[1], cap.point[2]);
-        for (let k: number = 0; k < phases; ++k) indices.push(v, row * phases + k, row * phases + ((k + 1) % phases));
-      }
-  }
+  /** Append the capture grid's original pole fans in their declared order. */
+  export const fans: typeof AutoMovieHumanLoftMesh.fans = AutoMovieHumanLoftMesh.fans;
 
   /** `a` to `b` inclusive in equal steps no wider than `step`. */
   export function steps(a: number, b: number, step: number): number[] {

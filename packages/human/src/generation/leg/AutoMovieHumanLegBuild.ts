@@ -1,16 +1,21 @@
-import { AutoMovieSolidChain, type IAutoMovieLoftChain, type IAutoMovieSolidSurface, type IAutoMovieViewPart } from "@automovie/engine";
+import { AutoMovieCurveMath64, AutoMovieMeshCourse, AutoMovieSolidChain, AutoMovieViewAxis, type IAutoMovieLoftChain, type IAutoMovieSolidSurface, type IAutoMovieViewPart } from "@automovie/engine";
 
 import type { IAutoMovieHumanParameters } from "../../structures/IAutoMovieHumanParameters";
+import { AutoMovieHumanLoftMesh } from "../../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanBodyAnatomy } from "../AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLaw } from "../AutoMovieHumanBodyLaw";
+import type { AutoMovieHumanF1Body } from "../AutoMovieHumanF1Body";
 import { AutoMovieHumanArmCurveSpec } from "../arm/AutoMovieHumanArmCurveSpec";
 import { AutoMovieHumanFootToes } from "../foot/AutoMovieHumanFootToes";
 import { AutoMovieHumanFootToeTree } from "../foot/AutoMovieHumanFootToeTree";
+import type { AutoMovieHumanF1Fork } from "../trunk/AutoMovieHumanF1Fork";
 import { AutoMovieHumanTrunkGlutealContour } from "../trunk/AutoMovieHumanTrunkGlutealContour";
 import { AutoMovieHumanTrunkJointDatums } from "../trunk/AutoMovieHumanTrunkJointDatums";
 import { AutoMovieHumanTrunkPelvisSplit } from "../trunk/AutoMovieHumanTrunkPelvisSplit";
 import type { AutoMovieHumanTrunkS00 } from "../trunk/AutoMovieHumanTrunkS00";
 import { AutoMovieHumanLegF1World } from "./AutoMovieHumanLegF1World";
+import { AutoMovieHumanLegF1Lines } from "./AutoMovieHumanLegF1Lines";
+import { AutoMovieHumanLegF1Web } from "./AutoMovieHumanLegF1Web";
 import { AutoMovieHumanLegHeelAnkle } from "./AutoMovieHumanLegHeelAnkle";
 import { AutoMovieHumanLegLandmarks } from "./AutoMovieHumanLegLandmarks";
 import { AutoMovieHumanLegSegmentFrames } from "./AutoMovieHumanLegSegmentFrames";
@@ -135,6 +140,72 @@ export namespace AutoMovieHumanLegBuild {
 
   /** The heel-ankle loop's closure tolerance, mm, and the most neutral lofts the secant may take. */
   export const HEEL_ANKLE: { tolerance: number; lofts: number } = { tolerance: 0.3, lofts: 8 };
+
+  /**
+   * Realize the F1 leg's regular thigh, shank and instep between the measured
+   * native-thigh and forefoot rails. This partial region deliberately exposes
+   * both rims; only the final branch owner can produce the complete leg.
+   */
+  export function f1Regular(side: "left" | "right"): AutoMovieHumanLoftMesh.IContext {
+    const { rows, refinements } = AutoMovieHumanLegF1Lines.fixed(side);
+    const mesh: AutoMovieHumanLoftMesh.IContext = AutoMovieHumanLoftMesh.create();
+    const frames: Map<number, AutoMovieHumanLegF1Lines.IFixedSection["frame"]> = new Map(rows.map(({ station, frame }) => [station, frame]));
+    const axis: AutoMovieViewAxis.IAxis = { at: (station: number) => frames.get(station)! };
+    const rings = rows.map(({ station, points }, index: number) => ({
+      station, row: AutoMovieHumanLoftMesh.vertices(mesh, index + 1 === rows.length ? AutoMovieHumanLegF1World.forkClock(points, axis.at(station)) : points),
+    }));
+    for (let i: number = 1; i < rings.length; ++i) {
+      const before = rings[i - 1]!;
+      const after = rings[i]!;
+      if (i + 1 === rings.length) {
+        if (!AutoMovieHumanLegF1World.stitchForefoot(before, after, axis, mesh.positions, mesh.indices))
+          AutoMovieHumanLegF1World.stitchSeam(before, after, axis, mesh.positions, mesh.indices);
+      } else if (i === 1) AutoMovieHumanLegF1World.stitchSeam(before, after, axis, mesh.positions, mesh.indices);
+      else if (refinements.includes(before.station) || refinements.includes(after.station)) {
+        const upstream: V3 = axis.at(before.station).u as V3;
+        const transported: AutoMovieViewAxis.IAxis = {
+          at(station: number): ReturnType<AutoMovieViewAxis.IAxis["at"]> {
+            const frame = axis.at(station);
+            const normal: V3 = AutoMovieViewAxis.normal(frame) as V3;
+            const u: V3 = AutoMovieHumanArmCurveSpec.unit(AutoMovieCurveMath64.sub(upstream, AutoMovieCurveMath64.scale(normal, AutoMovieHumanArmCurveSpec.dot(upstream, normal))));
+            return { origin: frame.origin, u, v: AutoMovieHumanArmCurveSpec.cross(u, normal) };
+          },
+        };
+        AutoMovieHumanLegF1World.stitchSeam(before, after, transported, mesh.positions, mesh.indices);
+      } else AutoMovieHumanLegF1World.stitchRows(before.row, after.row, mesh.positions, mesh.indices);
+    }
+    return mesh;
+  }
+
+  /** Assemble one fixed-coordinate leg and its five measured digits. */
+  export function f1(side: "left" | "right", fork: AutoMovieHumanF1Fork.IResult): AutoMovieHumanF1Body.IFixedPart {
+    const mesh: AutoMovieHumanLoftMesh.IContext = f1Proximal(side, fork);
+    const included: string[] = AutoMovieHumanLegF1Web.f1(mesh, side, AutoMovieHumanLegF1Lines.fixedFoot(side));
+    return { mesh, included };
+  }
+
+  /** Attach the exact surveyed fork half using its measured tilted leg contours. */
+  export function f1Proximal(side: "left" | "right", fork: AutoMovieHumanF1Fork.IResult): AutoMovieHumanLoftMesh.IContext {
+    const mesh: AutoMovieHumanLoftMesh.IContext = f1Regular(side);
+    const { entry, frame, rings, arcs } = AutoMovieHumanLegF1Lines.fixedHip(side);
+    const World: typeof AutoMovieHumanLegF1World = AutoMovieHumanLegF1World;
+    const boundary: number[] = AutoMovieHumanLoftMesh.vertices(mesh, World.forkClock(fork[side], frame));
+    let row: number[] = AutoMovieHumanLoftMesh.vertices(mesh, World.forkClock(entry, frame));
+    World.fixedCollar(boundary, row, arcs, mesh.positions, mesh.indices);
+    const direction: V3 = AutoMovieViewAxis.normal(frame) as V3;
+    for (const points of rings.slice(1)) {
+      let normal: V3 = AutoMovieHumanArmCurveSpec.unit(AutoMovieMeshCourse.newell(points));
+      if (AutoMovieHumanArmCurveSpec.dot(direction, normal) < 0) normal = AutoMovieCurveMath64.scale(normal, -1);
+      const u: V3 = AutoMovieHumanArmCurveSpec.unit(AutoMovieCurveMath64.sub(frame.u, AutoMovieCurveMath64.scale(normal, AutoMovieHumanArmCurveSpec.dot(frame.u as V3, normal))));
+      const local: ReturnType<AutoMovieViewAxis.IAxis["at"]> = { origin: points[0]!, u, v: AutoMovieHumanArmCurveSpec.cross(u, normal) };
+      const next: number[] = AutoMovieHumanLoftMesh.vertices(mesh, World.forkClock(points, local));
+      World.stitchRows(row, next, mesh.positions, mesh.indices, "length");
+      row = next;
+    }
+    const first = AutoMovieHumanLegF1Lines.fixed(side).rows[0]!;
+    World.stitchRows(row, first.points.map((_, index: number): number => index), mesh.positions, mesh.indices, "length");
+    return mesh;
+  }
 
   /** Resolve one leg's inputs from the public parameters, the trunk's hip port included. */
   export function inputs(parameters: Parameters<typeof AutoMovieHumanBodyLaw.limbInputs>[0], side: "left" | "right" = "left"): IInputs {

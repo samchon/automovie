@@ -2,9 +2,12 @@ import type { IAutoMovieLoftChain } from "@automovie/engine";
 
 import type { IAutoMovieHumanParameters } from "../../structures/IAutoMovieHumanParameters";
 import { AutoMovieHumanBodyAnatomy } from "../AutoMovieHumanBodyAnatomy";
+import type { AutoMovieHumanF1Body } from "../AutoMovieHumanF1Body";
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
 import { AutoMovieHumanHeadThroat } from "../head/AutoMovieHumanHeadThroat";
+import { AutoMovieHumanTrunkF1Skin } from "./AutoMovieHumanTrunkF1Skin";
 import { AutoMovieHumanTrunkJointDatums } from "./AutoMovieHumanTrunkJointDatums";
+import type { AutoMovieHumanTrunkPorts } from "./AutoMovieHumanTrunkPorts";
 import { AutoMovieHumanTrunkViewCurves } from "./AutoMovieHumanTrunkViewCurves";
 import { AutoMovieHumanTrunkViewLoft } from "./AutoMovieHumanTrunkViewLoft";
 
@@ -21,6 +24,11 @@ import { AutoMovieHumanTrunkViewLoft } from "./AutoMovieHumanTrunkViewLoft";
  * 62.7 / 1628.5); the crotch height is the inseam over it (ISO 8559-1 5.7.6).
  */
 export namespace AutoMovieHumanTrunkS00 {
+  /** Build the fixed-coordinate F1 trunk from its measured world contours and shared ports. */
+  export function f1(ports: AutoMovieHumanTrunkPorts.IFixed): AutoMovieHumanF1Body.IFixedPart {
+    return { mesh: AutoMovieHumanTrunkF1Skin.f1(ports) };
+  }
+
   /** One build. */
   export interface IOutput {
     /** Resolved measures. */

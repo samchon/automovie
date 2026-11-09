@@ -1,9 +1,10 @@
-import { type AutoMovieLoftContract, AutoMovieLoftFrame, AutoMovieSolidChain, type AutoMovieViewAxis, type IAutoMovieLoftChain, type IAutoMovieSolidSurface, type IAutoMovieViewPart } from "@automovie/engine";
+import { type AutoMovieLoftContract, AutoMovieLoftFrame, type AutoMovieMeshExtract, AutoMovieSolidChain, type AutoMovieViewAxis, type IAutoMovieLoftChain, type IAutoMovieSolidSurface, type IAutoMovieViewPart } from "@automovie/engine";
 import type { AutoMovieConstructionNode, IAutoMovieConstructionContinuation, IAutoMovieConstructionPort, IAutoMovieConstructionSplit } from "@automovie/interface";
 
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import { AutoMovieHumanBodyTree } from "./AutoMovieHumanBodyTree";
 import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
+import { AutoMovieHumanF1BodyAssembly } from "./AutoMovieHumanF1BodyAssembly";
 import { AutoMovieHumanArmCurveSpec } from "./arm/AutoMovieHumanArmCurveSpec";
 import { AutoMovieHumanArmShoulderJoin } from "./arm/AutoMovieHumanArmShoulderJoin";
 import { AutoMovieHumanFootToeTree } from "./foot/AutoMovieHumanFootToeTree";
@@ -69,6 +70,18 @@ import { AutoMovieHumanTrunkS00 } from "./trunk/AutoMovieHumanTrunkS00";
  * the reason, never faked.
  */
 export namespace AutoMovieHumanF1Body {
+  /** One fixed-coordinate F1 part after its own local ports have been sewn. */
+  export interface IFixedPart {
+    /** Newly generated indexed surface in absolute capture-world millimetres. */
+    readonly mesh: AutoMovieMeshExtract.IMesh;
+
+    /** Stable digit names already emitted as part of this surface. */
+    readonly included?: readonly string[];
+
+    /** Local construction observations and unresolved measured relationships. */
+    readonly diagnostics?: readonly string[];
+  }
+
   /** One operator node's outcome in the realized tree. */
   export interface IStatus {
     /** The node's name in the tree. */
@@ -231,8 +244,12 @@ export namespace AutoMovieHumanF1Body {
     return { knots, corner: (Math.PI * Math.min(spans[0]!, spans[spans.length - 1]!)) / total };
   }
 
-  /** Build every published part once, compose the tree and realize it. */
-  export function create(params: IAutoMovieHumanParameters): IOutput {
+  /** Build the recorded F1 in world millimetres, with no reference or parameter source. */
+  export function create(): AutoMovieHumanF1BodyAssembly.IFixed;
+  /** Build every published parameterized part once, compose the tree and realize it. */
+  export function create(params: IAutoMovieHumanParameters): IOutput;
+  export function create(params?: IAutoMovieHumanParameters): IOutput | AutoMovieHumanF1BodyAssembly.IFixed {
+    if (params === undefined) return AutoMovieHumanF1BodyAssembly.fixed();
     const ms: Record<string, number> = {};
     let t: number = performance.now();
     const lap: (name: string) => void = (name: string): void => {
