@@ -28,7 +28,7 @@ Out of use, a wand is carried in an inner robe pocket (Carina) or in a back trou
 
 ### When it is disarmed {#disarmed}
 
-A disarmed wand spins out of the hand and flies toward the caster at about the jet's speed, end over end; the caster catches it in the free hand if it comes within reach, otherwise it falls and rolls ([disarm outcome](../world/practice-duelling.md#disarm-outcome)).
+Production's invention: a disarmed wand spins out of the hand and flies toward the caster in a lazy arc, end over end, at about 4–6 m/s, rising about 0.5 m and coming down toward the caster's chest, so it takes 0.7–1.2 s to cross a 4–5 m practice distance. That leaves the caster time to see it leave the hand (0.3–0.6 s) and bring the free hand — the left, since the right holds her own wand — to its path; she catches it like any one-handed catch, which can fail ([catching](../../../research/flight/broom-riding-and-snitch-catch.md#catching)). Uncaught, it lands 0.5–1.5 m in front of her and rolls ([disarm outcome](../world/practice-duelling.md#disarm-outcome)).
 
 ## State changes {#state-changes}
 

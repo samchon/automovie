@@ -64,19 +64,19 @@ It sets the movement style; which move a shot uses is left to each screenplay.
 
 ## @evidence shared/principles/common.md#scope-preservation
 
-The facet states the lighting style for all three places and the only cause of brightness change within a film.
+The facet states the lighting style for all four places and the only cause of brightness change within a film.
 
 ## @evidence shared/principles/common.md#specificity
 
-It ties light to the films' sets and hour — window bars in the duelling room, sunlit court and shaded arcade, riders "side-lit against open sky" — and to spell jets.
+It ties light to the films' own sets and hour — window bars in the duelling room, the sunlit court and shaded arcade, the corridor's "slanting panels across the floor and up the north wall", riders "side-lit against open sky" — and to spell jets.
 
 ## @evidence shared/principles/settings.md#usable-facts
 
-The single-source rule ("All light comes from the afternoon sun") and its consequence are checkable: "a change of brightness comes only from where people and camera are", with the three named transitions.
+The single-source rule ("All light comes from the afternoon sun") and its consequence are checkable: "a change of brightness comes only from where people and camera are", with the three named transitions, "from the shaded arcade into the sunlit court, from the room's or the corridor's shade into a window's bar of light, from the low play into open high air".
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-Sun height and each set's light are linked to their owners (four-films, duelling room, courtyard, magic) instead of restated.
+Sun height and each set's light are linked to their owners (four-films, duelling room, courtyard, corridor, magic) instead of restated.
 
 # docs/body/settings/cinematography/vertical-look.md#grade
 

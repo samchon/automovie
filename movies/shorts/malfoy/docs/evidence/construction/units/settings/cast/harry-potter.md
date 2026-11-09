@@ -24,19 +24,19 @@ It realizes the commission's second lead: Harry Potter, "fifteen in every film",
 
 ## @evidence shared/principles/common.md#scope-preservation
 
-The facet delivers his measurable body, planning reach, recognition on the bare-body hint and appearance for reference images.
+The facet delivers his measurable body, planning reach, which hand does what, recognition on the bare-body hint and appearance for reference images.
 
 ## @evidence shared/principles/common.md#specificity
 
-The values serve this production's effector targeting and bare figures: "he can bring a hand to a point about 0.65–0.7 m from his shoulder without moving his feet, and about 0.95 m by leaning", and he is "told from Carina by the male body form, by being 4 cm taller and by his carriage".
+The values serve this production's effector targeting and bare figures: "he can bring a hand to a point about 0.65–0.7 m from his shoulder without moving his feet, and about 0.95 m by leaning", his tells move hands when his right is busy ("when it is holding, they move to his left hand"), and he is "told from Carina by the male body form, by being 4 cm taller and by his carriage".
 
 ## @evidence shared/principles/settings.md#usable-facts
 
-Values carry units and authority: "167 cm tall", "about 55 kg", "shoulder to fingertip about 75 cm", eyes "about 156 cm … standing and about 122 cm seated", marked "an inference; the figure's measured lengths replace them in code"; "His right hand is dominant". Recognition gives front, profile and back views.
+Values carry units and authority: "167 cm tall", "about 55 kg", "shoulder to fingertip about 75 cm", eyes "about 156 cm above the floor standing and about 122 cm seated", marked "an inference; the figure's measured lengths replace them in code". The hand rule is checkable and has a priority: right hand for "his wand, the broom's forward grip and anything he reaches for first"; "when both hands are holding — both on the broom handle in fast flight — the tell is skipped. Holding always takes priority over a tell." Recognition gives front, profile and back views.
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-Body, reach, recognition and appearance are kept together in his body facet; appearance is a world fact for reference images and "Not modelled on the hint", leaving rendering to source.
+Body, reach, hand assignment, recognition and appearance are kept together in his body facet; the habits facet links back to the hand rule rather than restating it; appearance is a world fact for reference images and "Not modelled on the hint", leaving rendering to source.
 
 ## @evidence instructions/commission.md#bare-bodies
 
@@ -64,19 +64,19 @@ Wardrobe by story day is held here; the desk where his robe goes belongs to the 
 
 ## @evidence shared/principles/common.md#scope-preservation
 
-The facet names what he carries: his wand, his broom and his Potions textbook, with their location per film.
+The facet names what he carries and holds in each film: his wand, his broom, his Potions textbook in the crane film, and nothing but his wand at the corridor window in `three-oclock`.
 
 ## @evidence shared/principles/common.md#specificity
 
-The book is chosen for the courtyard films: he "sits reading or half-reading it", and its handling decides what his hands can do: "When he needs both hands he shuts it on his finger or puts it down beside him on the bench".
+Each film's opening activity is his own: in `paper-crane-invitation` he "sits reading or half-reading" the book; in `three-oclock` he stands "forearms resting on the sill, weight on one leg, watching the distant Quidditch pitch, with his back to the corridor", chosen "so that this film's opening differs from the crane film's seated reading".
 
 ## @evidence shared/principles/settings.md#usable-facts
 
-The book has size, cover and weight ("about 24 × 17 × 4 cm in a dark green cloth cover, about 1 kg") and a stated fragility ("it can fall from his knee if he moves suddenly"); the wand's places are "back trouser pocket or robe", matching the [wands record](../../../../../body/settings/props/wands.md#carrying).
+The book has size, cover and weight ("about 24 × 17 × 4 cm in a dark green cloth cover, about 1 kg"), handling ("When he needs both hands he shuts it on his finger or puts it down beside him on the bench") and a fragility ("it can fall from his knee if he moves suddenly"). The window activity has a perception limit and a response: "Facing the window he sees nothing behind him; he notices someone walking behind him only by their footsteps' echo or a word, and turns his head over his right shoulder first." The wand's places match the [wands record](../../../../../body/settings/props/wands.md#carrying).
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-Wand and broom form live in the props records and are linked; only the book, which has no other owner, is described here, and only as a baseline object with possible states.
+Wand and broom form live in the props records and the window in the corridor set record, all linked; only the book, which has no other owner, is described here, as a baseline object with possible states.
 
 # docs/body/settings/cast/harry-potter.md#movement-style
 
@@ -104,37 +104,37 @@ The states describe how his body travels to its targets — fast, loose reaches 
 
 ## @evidence shared/principles/common.md#scope-preservation
 
-The facet covers his duelling and his flying and seeking.
+The facet covers his duelling, with his shield timed against Carina's casts, and his flying and seeking.
 
 ## @evidence shared/principles/common.md#specificity
 
-His duelling is defined against Carina's: "watches his opponent's wand rather than her eyes, and retreats along a line without glancing back", the faults her coaching addresses.
+His duelling is defined against Carina's: he "watches his opponent's wand rather than her eyes, and retreats along a line without glancing back", the faults her coaching addresses, and his shield's chances are given for exactly that matchup.
 
 ## @evidence shared/principles/settings.md#usable-facts
 
-The skills are measured at the depicted level: a disarm "in 0.25–0.3 s" that "pushes a target back up to a full step (0.4–0.5 m)", reactions "about 0.35–0.45 s", a shield needing "about 0.5 s" that is "late every time unless he reads her eyes and shoulders before her wand moves", flying at "8–15 m/s", dives "up to 30 m/s", pull-out "only 2–3 m above the grass", Bludgers passed "within 1–2 m", a right-hand catch.
+The skills are measured at the depicted level and their consequences recomputed from the records' own values: a disarm "in 0.25–0.3 s" that "pushes a target back up to a full step (0.4–0.5 m)"; reactions "about 0.35–0.45 s"; a shield needing "about 0.5 s"; against Carina, "whose jet arrives 0.41–0.68 s after her wand first moves", his shield "is up only after 0.85–0.95 s when he watches her wand, so it is late every time", and "when he reads her eyes and shoulders it is up after 0.55–0.75 s, in time against her slower casts on his quicker reactions and still late against her quicker ones". In the air: "8–15 m/s", dives "up to 30 m/s", pull-out "only 2–3 m above the grass", Bludgers passed "within 1–2 m", a right-hand catch.
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-Skill facts link to the duelling outcome rules and studies; no duel or match outcome is decided.
+Skill facts link to the duelling timing table at [watch the person](../../../../../body/settings/world/practice-duelling.md#watch-the-person) and the studies; no duel or match outcome is decided.
 
 # docs/body/settings/cast/harry-potter.md#habits
 
 ## @evidence shared/principles/common.md#scope-preservation
 
-The facet gives five habits, each with trigger, response, speed and reliability.
+The facet gives five habits, each with trigger, response, speed and reliability, and names the hand each tell uses.
 
 ## @evidence shared/principles/common.md#specificity
 
-The habits drive these premises: "Reads her late" ("he takes it at face value first, then understands one to two seconds later") and "Retreats without looking" on the duelling platform.
+The habits drive these premises: "Reads her late" ("he takes it at face value first, then understands one to two seconds later") and "Retreats without looking" on the duelling platform; the tells keep working with his wand or broom in his right hand, using "his left when his right is holding".
 
 ## @evidence shared/principles/settings.md#usable-facts
 
-Each is checkable: glasses push "about half a second before he speaks"; retreat "backward steps of 0.3–0.4 m … one step per half second", and "two or three such steps from a chalk cross put his rear foot over the end"; leaning in closes "0.1–0.2 m … over about one second".
+Each is checkable: the glasses push comes "about half a second before he speaks"; the head rub "within half a second"; the retreat is "backward steps of 0.3–0.4 m along a straight line without glancing behind", "one step per half second", and "two or three such steps from a chalk cross put his rear foot over the end"; leaning in closes "0.1–0.2 m" "over about one second".
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-The habits are character facts; the platform geometry is linked to [the edge](../../../../../body/settings/world/practice-duelling.md#edge) rule that owns it, and the habit states a consequence of geometry rather than an event.
+The habits are character facts; the hand priority is owned by his body facet's hand rule and the platform geometry by [the edge](../../../../../body/settings/world/practice-duelling.md#edge), both linked; the habit states a consequence of geometry rather than an event.
 
 # docs/body/settings/cast/harry-potter.md#speech
 

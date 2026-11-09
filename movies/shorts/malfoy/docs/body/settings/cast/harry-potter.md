@@ -26,6 +26,10 @@ Gryffindor's Seeker since his first year, the youngest house player in a century
 
 Approximate values for planning, from conventional adult segment ratios scaled to his height with arms a little long for it (an inference; the figure's measured lengths replace them in code): shoulder to fingertip about 75 cm, of which the hand is about 18 cm; shoulder width about 38 cm; hip joint about 88 cm above the floor; eyes about 156 cm above the floor standing and about 122 cm seated on a 0.45 m bench. Standing still, he can bring a hand to a point about 0.65–0.7 m from his shoulder without moving his feet, and about 0.95 m by leaning. His right hand is dominant: he casts, catches and reaches first with it.
 
+### Which hand does what {#hands}
+
+He holds his wand, the broom's forward grip and anything he reaches for first in his right hand. His tells ([glasses push](#glasses-push), [head rub](#head-rub)) use his right hand when it is free; when it is holding, they move to his left hand, and when both hands are holding — both on the broom handle in fast flight — the tell is skipped. Holding always takes priority over a tell.
+
 ### How he is recognized {#recognition}
 
 On the bare-body hint he is told from Carina by the male body form, by being 4 cm taller and by his carriage: shoulders slightly rounded forward, head a little forward of his shoulders, feet wider apart, weight often on one leg. From the front his wider stance; in profile his forward head; from behind his rounded shoulders.
@@ -64,7 +68,11 @@ In `snitch-before-you` he rides his own [Firebolt](../props/broomsticks.md#fireb
 
 ### A book {#book}
 
-In `paper-crane-invitation` and `three-oclock` he carries his Potions textbook — a thick hardback about 24 × 17 × 4 cm in a dark green cloth cover, about 1 kg — and sits reading or half-reading it, holding it open in his left hand or on his knee, a finger keeping his page. When he needs both hands he shuts it on his finger or puts it down beside him on the bench; it can fall from his knee if he moves suddenly.
+In `paper-crane-invitation` he carries his Potions textbook — a thick hardback about 24 × 17 × 4 cm in a dark green cloth cover, about 1 kg — and sits reading or half-reading it, holding it open in his left hand or on his knee, a finger keeping his page. When he needs both hands he shuts it on his finger or puts it down beside him on the bench; it can fall from his knee if he moves suddenly.
+
+### At the corridor window {#window}
+
+In `three-oclock` he carries nothing but his wand in his back pocket: he stands at the middle window of the [Charms corridor](../sets/charms-corridor.md#window-use), forearms resting on the sill, weight on one leg, watching the distant Quidditch pitch, with his back to the corridor. Facing the window he sees nothing behind him; he notices someone walking behind him only by their footsteps' echo or a word, and turns his head over his right shoulder first. Production's choice, so that this film's opening differs from the crane film's seated reading.
 
 ## Movement style {#movement-style}
 
@@ -84,7 +92,7 @@ On a broom he is bold and fast: dives at up to 30 m/s pulled out 2–3 m above t
 
 ### Duelling {#duelling}
 
-His Disarming Charm is unusually strong and fast: he casts it in 0.25–0.3 s and it pushes a target back up to a full step (0.4–0.5 m), against half a step for an ordinary caster ([disarm outcome](../world/practice-duelling.md#disarm-outcome)). His reactions are quick, a Seeker's (about 0.35–0.45 s), but his Shield Charm is ordinary: he needs about 0.5 s to raise it, and because he watches the wand rather than the caster's eyes and shoulders he starts it late; against a quick caster at 4–5 m it is late every time unless he reads her eyes and shoulders before her wand moves, which gives him just enough time against all but her quickest casts ([watch the person](../world/practice-duelling.md#watch-the-person)). His form is untidy: he casts with a wide swing from the shoulder, steps before extending his arm, watches his opponent's wand rather than her eyes, and retreats along a line without glancing back — the less polished markers of the [duelling study](../../../research/duel/practice-duelling.md#level-markers).
+His Disarming Charm is unusually strong and fast: he casts it in 0.25–0.3 s and it pushes a target back up to a full step (0.4–0.5 m), against half a step for an ordinary caster ([disarm outcome](../world/practice-duelling.md#disarm-outcome)). His reactions are quick, a Seeker's (about 0.35–0.45 s), but his Shield Charm is ordinary: he needs about 0.5 s to raise it, and because he watches the wand rather than the caster's eyes and shoulders he starts it late; against Carina, whose jet arrives 0.41–0.68 s after her wand first moves, his shield is up only after 0.85–0.95 s when he watches her wand, so it is late every time; when he reads her eyes and shoulders it is up after 0.55–0.75 s, in time against her slower casts on his quicker reactions and still late against her quicker ones ([watch the person](../world/practice-duelling.md#watch-the-person)). His form is untidy: he casts with a wide swing from the shoulder, steps before extending his arm, watches his opponent's wand rather than her eyes, and retreats along a line without glancing back — the less polished markers of the [duelling study](../../../research/duel/practice-duelling.md#level-markers).
 
 ### Flying and seeking {#flying}
 
@@ -94,11 +102,11 @@ An exceptional natural flyer and Seeker; he flies by instinct and takes risks: h
 
 ### Pushes up his glasses {#glasses-push}
 
-Trigger: he is about to speak after a pause, or he is puzzled. Response: his right index finger pushes his glasses up the bridge of his nose. Speed: about half a second before he speaks. Reliability: most times.
+Trigger: he is about to speak after a pause, or he is puzzled. Response: his right index finger (his left when his right is holding, as [his hands](#hands) give) pushes his glasses up the bridge of his nose. Speed: about half a second before he speaks. Reliability: most times.
 
 ### Rubs the back of his head {#head-rub}
 
-Trigger: embarrassment, or being thanked or praised. Response: his right hand goes to the back of his head and rubs his hair, eyes down and to the side. Speed: within half a second. Reliability: reliable.
+Trigger: embarrassment, or being thanked or praised. Response: his right hand (his left when his right is holding) goes to the back of his head and rubs his hair, eyes down and to the side. Speed: within half a second. Reliability: reliable.
 
 ### Reads her late {#reads-late}
 

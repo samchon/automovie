@@ -1,6 +1,6 @@
 # Clock Tower courtyard
 
-A stone courtyard enclosed on three sides at the foot of the castle's clock tower, with a covered walk along two sides, a bench and a great clock; the place of `paper-crane-invitation` and `three-oclock`. Production's invention within canon's Hogwarts; the two films use the same courtyard, each from the same baseline.
+A stone courtyard enclosed on three sides at the foot of the castle's clock tower, with a covered walk along two sides, a bench and a great clock; the place of `paper-crane-invitation`. Production's invention within canon's Hogwarts. `three-oclock` has its own place, the [Charms corridor](charms-corridor.md).
 
 ## Shape, zones and landmarks {#shape}
 
@@ -28,11 +28,11 @@ On the clock tower at the court's north-east corner, a large round clock face 3 
 
 ### Entrances {#entrances}
 
-An archway passage at the south end of the west arcade, from the main castle corridor, is the way in and out used in both films. The open south parapet is not a way in; nobody climbs it. A small door at the east end of the north arcade leads to the clock-tower stairs and is not used.
+An archway passage at the south end of the west arcade, from the main castle corridor, is the way in and out used in the film. The open south parapet is not a way in; nobody climbs it. A small door at the east end of the north arcade leads to the clock-tower stairs and is not used.
 
 ### The arcade walk {#arcade-walk}
 
-The west arcade is a straight 20 m walk from the archway passage, past the bench at its middle (10 m in), to the north-west corner, where it turns along the north arcade. Someone walking it passes the bench at arm's length.
+The west arcade is a straight 20 m walk from the archway passage, past the bench at its middle (10 m in), to the north-west corner, where it turns along the north arcade. Someone walking it passes the bench at arm's length; it is how anyone reaches the bench.
 
 ### Steps between arcade and court {#steps}
 
@@ -56,14 +56,14 @@ Stone on three sides: footsteps and voices carry and echo softly; the clock tick
 
 ### How the two use it {#bench-use}
 
-Harry sits on the bench to read in the shade of the west arcade. Anyone coming from the archway passage approaches him along the arcade from his right (south) and can walk past and on to the north-west corner, then turn and come back. From the bench Harry can see the whole court, the fountain and the clock; someone standing in the court is seen through the arches. The bench seats two side by side, so moving from standing in front of it to sitting on it is the closing move the [crane premise](../../../instructions/commission.md#paper-crane-invitation) names.
+Harry sits on the bench to read in the shade of the west arcade ([Harry's book](../cast/harry-potter.md#book)). Anyone coming from the archway passage approaches him along the arcade from his right (south). A paper crane charmed to fly to him can reach the bench along the arcade or across the open court ([paper flight](../world/magic.md#paper-flight)). From the bench Harry can see the whole court, the fountain and the clock; someone standing in the court is seen through the arches. The bench seats two side by side, so moving from standing in front of it to sitting on it is the closing move the [crane premise](../../../instructions/commission.md#paper-crane-invitation) names.
 
 ### Occupancy {#occupancy}
 
-In both films the court is empty except for the two: it is out of the way, and at that hour other students are at lessons, at the lake or in the common rooms. No one enters during either film.
+In `paper-crane-invitation` the court is empty except for the two: it is out of the way, and at that hour other students are at lessons, at the lake or in the common rooms. No one enters during the film.
 
 ## State changes {#state-changes}
 
 ### Baseline and change {#baseline}
 
-At the start of each film the court is as described and the bench empty or with Harry on it, as the screenplay decides. Within a film a note or a crane can fall on the flagstones or the steps; leaves can be scuffed. Nothing carries over.
+At the start of the film the court is as described and the bench empty or with Harry on it, as the screenplay decides. Within the film the crane can fall on the flagstones or the steps; leaves can be scuffed. Nothing carries over.

@@ -20,11 +20,11 @@ The note has one file and links Carina's stationery to her record; its wording i
 
 ## @evidence shared/principles/common.md#scope-preservation
 
-The facet states how the note is held, offered, withdrawn, dropped, picked up and carried, including the meeting point of two people bending at once from standing or from the bench.
+The facet states how the note is held, offered, withdrawn, dropped, picked up and carried, including where two standing people bending to it at once meet.
 
 ## @evidence shared/principles/common.md#specificity
 
-The handling is fitted to this film's set and people: Carina holds it "between her right thumb and index finger", it lies "on the flagstones", and "a standing person and a person seated on the bench, 0.6–0.9 m apart, bending at once toward it between them meet at about 0.7–0.9 m above the floor".
+The handling is fitted to this film's place and people: Carina holds it "between her right thumb and index finger", and a dropped note "lies on the corridor's flagstones", in front of the window where the two meet standing.
 
 ## @evidence shared/principles/settings.md#usable-facts
 
@@ -32,11 +32,11 @@ Each action is defined against its research law: offering is carrying it "toward
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-The handover, interrupted handover and bending laws link the movement study; the facet states conditions under which actions are possible and leaves which happen to the screenplay.
+The handover, interrupted handover and bending laws link the movement study and the floor links the corridor record; the facet states conditions under which actions are possible and leaves which happen to the screenplay.
 
 ## @evidence instructions/commission.md#three-oclock
 
-The facet makes the premise's note offered and withdrawn a handover and an interrupted handover, and gives the geometry under which two people bending at once meet, standing or seated.
+The facet makes the premise's note offered and withdrawn a handover and an interrupted handover, and gives the geometry under which two people bending at once over the dropped note meet.
 
 ## @evidence instructions/motion.md#effectors-to-targets
 

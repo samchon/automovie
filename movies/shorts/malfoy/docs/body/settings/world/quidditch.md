@@ -18,11 +18,11 @@ Production's invention: before the season Madam Hooch referees a practice match 
 
 ### No wands in play {#no-wands}
 
-Players leave their wands with Madam Hooch before play begins; nobody in the air carries a wand. Only Madam Hooch has hers.
+Production's invention: players leave their wands with Madam Hooch before play begins; nobody in the air carries a wand. Only Madam Hooch has hers.
 
 ### Stopping play {#stopping-play}
 
-Madam Hooch stops play with a long blast of her whistle when a rider is in danger or a foul is committed; at the whistle every rider stops where they are and hovers — except a rider already near enough to save the one in danger ([saving a rider in the air](#air-rescue)), whom the rule of the air expects to help rather than hover. The Quaffle and the Bludgers are charmed to answer the referee's whistle: at the long blast they stop and hang where they are within about a second. The Snitch does not answer the whistle and flies on. Play restarts at a short blast. A Bludger already striking when the whistle sounds completes that strike.
+Madam Hooch stops play with a long blast of her whistle when a rider is in danger or a foul is committed; at the whistle every rider stops where they are and hovers — except a rider already near enough to save the one in danger ([saving a rider in the air](#air-rescue)), whom the rule of the air expects to help rather than hover. The Quaffle and the Bludgers are charmed to answer the referee's whistle (production's invention): at the long blast they stop and hang where they are within about a second. The Snitch does not answer the whistle and flies on, and a Snitch caught while play is stopped still counts: whenever it is made, a Seeker's catch ends the match and wins the 150 points (production's invention). So the whistle that follows a danger takes nothing away from a Seeker within reach of the Snitch; turning away from it costs the catch at any moment. Play restarts at a short blast. A Bludger already striking when the whistle sounds completes that strike.
 
 ### Riding two to a broom {#two-to-a-broom}
 
@@ -38,7 +38,18 @@ Players call a catch "almost certain" when a Seeker's open hand is within about 
 
 ### Saving a rider in the air {#air-rescue}
 
-A rider can save another only with their broom: by taking the wrist or arm of someone still holding onto a broom and steering so they can swing a leg over the shaft, or by diving onto a falling rider's path, matching their fall so that they weigh almost nothing in the hand, and guiding them onto the shaft before levelling out ([reaching a falling rider](../../../research/flight/broom-riding-and-snitch-catch.md#reaching-a-falling-rider)). A rescuer must be within about 3–5 m and dive at once; nobody catches a falling body at arm's length without matching it. The match and the take must happen within the first 1–1.5 s of the fall, when the faller has dropped 5–11 m and is falling at 10–15 m/s; braking from that speed to a level two-rider flight then costs another 8–12 m of height. So a free fall can be saved only if it begins about 25 m or more above the grass — in the Seekers' upper air — and a rider hanging from a sinking broom, which descends at only 2–5 m/s ([broken tail](../props/broomsticks.md#broken-tail)), can be taken from any height. Once on the shaft, the broom carries both ([broom flight](magic.md#broom-flight)).
+A rider can save another only with their broom: by taking the wrist or arm of someone still holding onto a broom and steering so they can swing a leg over the shaft, or by diving onto a falling rider's path, matching their fall so that they weigh almost nothing in the hand, and guiding them onto the shaft before levelling out ([reaching a falling rider](../../../research/flight/broom-riding-and-snitch-catch.md#reaching-a-falling-rider)). A rescuer must be within about 3–5 m and dive at once; nobody catches a falling body at arm's length without matching it. The match and the take must happen within the first 1–1.5 s of the fall, when the faller has dropped 5–11 m and is falling at 10–15 m/s; braking from that speed to a level two-rider flight then costs another 8–12 m of height. So a free fall can be saved by a rider only if it begins about 25 m or more above the grass — in the Seekers' upper air. A rider hanging from a broken broom ([broken tail](../props/broomsticks.md#broken-tail)) can be taken only during the 1–2 s before the spinning shaft shakes them off, by a rescuer who comes alongside the sinking broom, which needs the rescuer to be within about 5–10 m when the tail breaks; once shaken off, the rider falls freely from 2–10 m below where the broom was hit. Once on the shaft, the broom carries both ([broom flight](magic.md#broom-flight)).
+
+### Who can reach a rider in time {#who-can-reach}
+
+For a Seeker hit in the upper air (25–30 m), the records combine as follows ([air rescue](#air-rescue), [Madam Hooch's charm](magic.md#limits), [the riders](../crowds/quidditch-riders.md#positions)):
+
+| Branch | Time before the ground | A rider within reach | Madam Hooch from mid-pitch | The twelve riders (5–15 m) |
+| --- | --- | --- | --- | --- |
+| Thrown off: free fall from 25–30 m | 2.3–2.5 s | Yes, if within 3–5 m and diving at once | Only if within about 25 m of her wand | No: 10 m or more below the start |
+| Hanging, then shaken off after 1–2 s | 1–2 s to take the hanging rider, then 1.7–2.4 s of free fall from 15–28 m | Yes during the hold, if within about 5–10 m; not after, since the fall now begins below 25 m | Only if within about 30–60 m of her wand | No: 10 m or more below during the hold, and the fall that follows begins too low to save |
+
+So a Seeker hit more than about 60 m from Madam Hooch's post — over either end of the pitch, which lies about 76 m from mid-pitch — can be saved by nobody but a rider already within those few metres; nearer to her, she can slow the fall with her charm.
 
 ## Time, weather and season {#time-weather-season}
 

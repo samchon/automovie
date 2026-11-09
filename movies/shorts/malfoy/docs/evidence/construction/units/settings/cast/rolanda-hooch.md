@@ -92,19 +92,19 @@ Movement style is in her file; her flight speed is owned by her repertoire facet
 
 ## @evidence shared/principles/common.md#scope-preservation
 
-The facet gives her refereeing conduct for the whole match: releasing balls, hovering, whistles, and her response to danger.
+The facet gives her refereeing conduct for the whole match — releasing the balls, hovering, whistles, her response to danger and her charm's reach — and which hand does each.
 
 ## @evidence shared/principles/common.md#specificity
 
-Her response is stated against the rescue the film needs: "because she starts from mid-pitch she arrives after any rider who was already close", and her slowing charm is "usable only within about 10 m of her wand".
+Her response is stated against the rescue the film needs: "because she starts from mid-pitch she arrives after any rider who was already close", and her slowing charm gives "a reach of about 15–25 m for a free fall and 30–60 m for a rider who first hangs from a broken broom". The release is this match's opening practice: the Snitch "hovers a moment at head height and darts off, out of sight within 2–3 s".
 
 ## @evidence shared/principles/settings.md#usable-facts
 
-Values are checkable: she hovers "at mid-pitch 10–15 m up", blows "the long blast within half a second", flies "at up to 20 m/s, wand drawn"; whistle meanings are linked to [stopping play](../../../../../body/settings/world/quidditch.md#stopping-play).
+Values and contacts are checkable: the release is a chain of hand actions ("she unbuckles the two Bludgers' straps with both hands", "takes the Quaffle in both hands, mounts, rises to about 5 m and throws it straight up with both hands"); she hovers "at mid-pitch 10–15 m up", blows "the long blast within half a second", flies "at up to 20 m/s, wand drawn". Her hands are assigned: "She flies with her left hand on the handle and her right hand free", the whistle is brought up and dropped "on its cord to draw her wand from the holster strapped inside her left sleeve", and "she never whistles and casts at once".
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-The limit of her charm is owned by the magic record and linked; no incident is decided here.
+The whistle meanings are owned by [stopping play](../../../../../body/settings/world/quidditch.md#stopping-play) and her charm's limits by the magic record and the who-can-reach table, all linked; no incident is decided here.
 
 # docs/body/settings/cast/rolanda-hooch.md#habits
 

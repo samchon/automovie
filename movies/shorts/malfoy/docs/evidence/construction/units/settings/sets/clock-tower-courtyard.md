@@ -6,7 +6,7 @@ The facet gives the court and its four sides — arcades on two, the castle wall
 
 ## @evidence shared/principles/common.md#specificity
 
-The landmarks are the two films' own: the bench "inside the west arcade at its middle, against the back wall and facing east into the court", on which "Two people can sit on it with about a hand's width between them, or closer", and a clock that "shows the real time of each film" for `three-oclock`.
+The landmarks are the crane film's own: the bench "inside the west arcade at its middle, against the back wall and facing east into the court", on which "Two people can sit on it with about a hand's width between them, or closer", and a clock that "shows the real time of each film".
 
 ## @evidence shared/principles/settings.md#usable-facts
 
@@ -14,26 +14,25 @@ Dimensions are human-relative and consistent: court "20 m by 20 m"; arcade "3 m 
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-The courtyard is one file shared by both films; the hour shown links the four-films record. Nothing here places a person.
+The courtyard is the place of `paper-crane-invitation` only, as the file's opening states, routing `three-oclock` to its own corridor record; the hour shown links the four-films record. Nothing here places a person.
 
 # docs/body/settings/sets/clock-tower-courtyard.md#routes
 
 ## @evidence shared/principles/common.md#scope-preservation
 
-The facet gives the entrances, the arcade walk and the steps between arcade and court.
+The facet gives the entrances, the arcade walk and the steps between arcade and court for the one film that uses the court.
 
 ## @evidence shared/principles/common.md#specificity
 
-The arcade walk is the route `three-oclock`'s repeated walk can use: "a straight 20 m walk from the archway passage, past the bench at its middle (10 m in), to the north-west corner", and "Someone walking it passes the bench at arm's length."
+The arcade walk is the only approach to the crane film's bench: "a straight 20 m walk from the archway passage, past the bench at its middle (10 m in), to the north-west corner", and "it is how anyone reaches the bench."
 
 ## @evidence shared/principles/settings.md#usable-facts
 
-Routes are measurable and closed: one used entrance, the parapet "not a way in", the tower door "not used"; steps "each 0.15 m high and 0.35 m deep", and "Anyone crossing from the bench to the court steps down them."
+Routes are measurable and closed: one entrance, "the way in and out used in the film", the parapet "not a way in", the tower door "not used"; steps "each 0.15 m high and 0.35 m deep", and "Anyone crossing from the bench to the court steps down them."
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-Routes are owned here; who walks them, and how often, is left to the screenplays.
-
+Routes are owned here; who walks them and when is left to the screenplay.
 # docs/body/settings/sets/clock-tower-courtyard.md#dressing
 
 ## @evidence shared/principles/common.md#scope-preservation
@@ -56,37 +55,33 @@ The sun's height links the four-films record and silence links the sound palette
 
 ## @evidence shared/principles/common.md#scope-preservation
 
-The facet states how the two use the court and that it is empty: "In both films the court is empty except for the two".
+The facet states how the two use the court in its one film and that it is empty: "In `paper-crane-invitation` the court is empty except for the two".
 
 ## @evidence shared/principles/common.md#specificity
 
-It gives this court's sight lines and approach: an arrival "approaches him along the arcade from his right (south)", and "From the bench Harry can see the whole court, the fountain and the clock".
+It gives this court's sight lines and approaches for the crane film: a walker "approaches him along the arcade from his right (south)", a crane "can reach the bench along the arcade or across the open court", and "From the bench Harry can see the whole court, the fountain and the clock".
 
 ## @evidence shared/principles/settings.md#usable-facts
 
-The occupancy is a checkable condition with its reason ("at that hour other students are at lessons, at the lake or in the common rooms") and "No one enters during either film"; the bench's two seats make sitting together a defined move.
+The occupancy is a checkable condition with its reason ("at that hour other students are at lessons, at the lake or in the common rooms") and "No one enters during the film"; the bench's two seats make sitting together a defined move.
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-It describes how the space can be used — Harry reading on the bench, a walker passing and returning — without choosing either film's events.
+It describes how the space can be used — Harry reading on the bench, a walker or a crane arriving — without choosing the film's events.
 
 ## @evidence instructions/commission.md#paper-crane-invitation
 
-The bench that "seats two side by side" and the approach and sight lines give the crane premise its bench, so moving from standing in front of it to sitting on it is a defined move in the space.
-
-## @evidence instructions/commission.md#three-oclock
-
-The approach along the arcade, the walk past the bench "and on to the north-west corner, then turn and come back", and the empty court give the repeated walk its route.
+The bench that "seats two side by side", the crane's two approaches and the sight lines give the crane premise its bench, so "moving from standing in front of it to sitting on it is the closing move" the premise names.
 
 # docs/body/settings/sets/clock-tower-courtyard.md#state-changes
 
 ## @evidence shared/principles/common.md#scope-preservation
 
-The facet gives the court's baseline in each film and the changes a film can make, with the reset.
+The facet gives the court's baseline in its film and the changes the film can make, with the reset.
 
 ## @evidence shared/principles/common.md#specificity
 
-The changes are the two films' objects: "a note or a crane can fall on the flagstones or the steps".
+The change is the film's own object: "the crane can fall on the flagstones or the steps".
 
 ## @evidence shared/principles/settings.md#usable-facts
 

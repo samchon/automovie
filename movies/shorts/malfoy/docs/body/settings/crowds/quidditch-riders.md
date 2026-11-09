@@ -33,4 +33,4 @@ When a rider falls or is struck, the nearest riders slow and turn their heads to
 
 ### After the danger {#after}
 
-They stay hovering, watching, until Madam Hooch signals; they react with relief — straightening, a rider's fist raised — rather than with cheering. Nothing they do changes the outcome between the two Seekers.
+They stay hovering, watching, until Madam Hooch signals; they react with relief — straightening, a rider's fist raised — rather than with cheering. Because none of them can reach a Seeker hit in the upper air in time, in either the falling or the hanging case ([who can reach a rider in time](../world/quidditch.md#who-can-reach)), nothing they do changes the outcome between the two Seekers.

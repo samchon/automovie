@@ -92,11 +92,11 @@ Her touches go exactly to their targets: she brings her hand to a wrist, the edg
 
 ### Duelling {#duelling}
 
-Above her year's level, from private tutoring at home. She uses the Disarming and Shield Charms cleanly, casting from wrist and elbow without a wind-up in 0.25–0.35 s, raising a shield in about 0.3 s and starting it as her opponent's eyes and shoulders begin a cast, before the wand moves ([watch the person](../world/practice-duelling.md#watch-the-person)), extending her arm before she steps, keeping a narrow quiet stance and recovering to it at once — the skilled markers of the [duelling study](../../../research/duel/practice-duelling.md#level-markers). Her disarm pushes a target back about half a step. She never retreats without a glance behind.
+Above her year's level, from private tutoring at home. She uses the Disarming and Shield Charms cleanly, casting from wrist and elbow without a wind-up in 0.25–0.35 s, raising a shield in about 0.3 s and starting it as her opponent's eyes and shoulders begin a cast, before the wand moves, so that against Harry's casts (arriving 0.41–0.63 s after his wand first moves) her shield is up after about 0.33–0.45 s, in time against nearly all of them ([watch the person](../world/practice-duelling.md#watch-the-person)), extending her arm before she steps, keeping a narrow quiet stance and recovering to it at once — the skilled markers of the [duelling study](../../../research/duel/practice-duelling.md#level-markers). Her disarm pushes a target back about half a step. She never retreats without a glance behind.
 
 ### Coaching {#coaching}
 
-She teaches by touch: she corrects a partner's wand arm with the coaching wrist grip — her hand from outside the forearm, closing just above the wrist, thumb on the inner wrist, turning the wrist to the right angle and letting go after 1–3 s ([wrist grip](../../../research/duel/practice-duelling.md#wrist-grip)). Her one rule, which she repeats: watch the person, not the wand ([watch the person](../world/practice-duelling.md#watch-the-person)).
+She teaches by touch: she corrects a partner's wand arm with the coaching wrist grip — her hand from outside the forearm, closing just above the wrist, thumb on the inner wrist, turning the wrist to the right angle and letting go after 1–3 s ([wrist grip](../../../research/duel/practice-duelling.md#wrist-grip)). Her one rule, which she repeats: watch the person, not the wand ([watch the person](../world/practice-duelling.md#watch-the-person)) — a rule that improves a partner's chances of shielding in time rather than guaranteeing it.
 
 ### Flying and seeking {#flying}
 

@@ -42,12 +42,12 @@ The facet gives the balls' starting state and the Snitch's limit: "The Snitch is
 
 ## @evidence shared/principles/common.md#specificity
 
-It states what this film's Snitch does if not caught: "it flies on, even after Madam Hooch stops play, since it does not answer her whistle".
+It states what this film's Snitch does if not caught and what a late catch is worth: "it flies on, even after Madam Hooch stops play, since it does not answer her whistle, and a catch made while play is stopped still ends the match and wins".
 
 ## @evidence shared/principles/settings.md#usable-facts
 
-The start state has two stated options ("released and in play, or in their crate at mid-pitch if the screenplay begins with the release"), and the reset is stated.
+The start state has two stated options ("released and in play, or in their crate at mid-pitch if the screenplay begins with the release"), the catch rule is unconditional, and the reset is stated.
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-It links the stopping-play rule rather than restating it and leaves the start option to the screenplay.
+It links the stopping-play rule that owns the catch rule rather than restating its reasons, and leaves the start option to the screenplay.

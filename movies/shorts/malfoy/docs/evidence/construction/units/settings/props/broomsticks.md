@@ -50,8 +50,8 @@ The change is the one this film's danger can use: "A Bludger striking a broom's 
 
 ## @evidence shared/principles/settings.md#usable-facts
 
-The broken broom's behaviour is quantified ("sinks in a descending spiral at about 2–5 m/s") and the rider's two outcomes have stated limits ("can hold on for several seconds; one thrown off falls freely"); "A broken broom does not mend within the film".
+The broken broom's behaviour is quantified ("sinks in a descending spiral at about 2–5 m/s") and the hanging rider's hold has a limit with its basis: "A rider hanging from the bucking, spinning shaft is shaken off within 1–2 s (production's choice: the spin, not grip strength, sets the limit); one thrown off falls freely at once." "A broken broom does not mend within the film".
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-How a rider is saved is routed to the Quidditch rescue rule; whether a broom breaks is left to the screenplay.
+How a rider is saved in either case, and who can arrive in time, is routed to the Quidditch rescue rules; whether a broom breaks is left to the screenplay.

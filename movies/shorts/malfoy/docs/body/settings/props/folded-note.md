@@ -24,7 +24,7 @@ Carina holds it in a pinch between her right thumb and index finger. Offering it
 
 ### Dropped and picked up {#dropped}
 
-If dropped, it falls flat or on edge within about a second and lies on the flagstones; being so light, it can skid a little but does not blow away in the [still air](../world/four-films.md#weather). Picking it up is a bend to the floor and a pinch from the stone ([bending](../../../research/movement/teen-bodies-and-everyday-movement.md#bending)). Two standing people bending to it from facing positions less than about 0.8 m apart bring their heads together over it; a standing person and a person seated on the bench, 0.6–0.9 m apart, bending at once toward it between them meet at about 0.7–0.9 m above the floor ([seated bend](../../../research/movement/teen-bodies-and-everyday-movement.md#bending)).
+If dropped, it falls flat or on edge within about a second and lies on the corridor's flagstones ([Charms corridor](../sets/charms-corridor.md#window-use)); being so light, it can skid a little but does not blow away in the [still air](../world/four-films.md#weather). Picking it up is a bend to the floor and a pinch from the stone ([bending](../../../research/movement/teen-bodies-and-everyday-movement.md#bending)). Two standing people bending to it from facing positions less than about 0.8 m apart bring their heads together over it.
 
 ### Carried {#carried}
 

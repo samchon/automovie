@@ -20,19 +20,19 @@ Both wands share one file because they are one prop kind used together; what a w
 
 ## @evidence shared/principles/common.md#scope-preservation
 
-The facet states how a wand is held, carried and what happens when it is disarmed, ending with the effector rule "The tip is the effector of every cast".
+The facet states how a wand is held, carried and what happens when it is disarmed, ending its grip fact with the effector rule "The tip is the effector of every cast".
 
 ## @evidence shared/principles/common.md#specificity
 
-The grip and carrying places are specific to the two leads: "Both leads cast right-handed"; carried "in an inner robe pocket (Carina) or in a back trouser pocket or robe pocket (Harry)".
+The grip and carrying places are specific to the two leads: "Both leads cast right-handed"; carried "in an inner robe pocket (Carina) or in a back trouser pocket or robe pocket (Harry)"; a disarmed wand is caught with "the left, since the right holds her own wand".
 
 ## @evidence shared/principles/settings.md#usable-facts
 
-The grip is described by contact points ("thumb and index finger along the handle", "the butt resting against the heel of the palm") with "the tip extending about 17–19 cm beyond the hand"; a disarmed wand "flies toward the caster at about the jet's speed, end over end" and is caught or "falls and rolls". A motion author can place the effector and the tip target from this.
+The grip is described by contact points ("thumb and index finger along the handle", "the butt resting against the heel of the palm") with "the tip extending about 17–19 cm beyond the hand". The disarmed wand's flight is timed so a catch is possible but not certain: "at about 4–6 m/s", "it takes 0.7–1.2 s to cross a 4–5 m practice distance", which "leaves the caster time to see it leave the hand (0.3–0.6 s)"; "Uncaught, it lands 0.5–1.5 m in front of her and rolls". The flight is marked "Production's invention".
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-Disarm outcomes link the duelling rule and the cast law links the duelling study; this record owns only the object's handling.
+Disarm outcomes link the duelling rule, the catch law links the catching study and the cast law the duelling study; this record owns only the object's handling.
 
 # docs/body/settings/props/wands.md#state-changes
 

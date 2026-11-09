@@ -14,11 +14,19 @@ Only the Disarming Charm and the Shield Charm are used in a private practice ([m
 
 ### What a disarm does in practice {#disarm-outcome}
 
-A Disarming Charm that reaches an unshielded wand hand opens the hand, sends the wand toward the caster, who catches it or lets it fall, and jolts the target's arm; the target may be pushed back about half a step (0.2–0.3 m), or up to a full step (0.4–0.5 m) from a strong caster such as Harry ([Harry's duelling](../cast/harry-potter.md#duelling)). A Shield Charm takes 0.3–0.5 s to raise and stops the jet only if it is up before the jet arrives; at 4–5 m the jet arrives 0.16–0.33 s after the cast ends ([spell jet](magic.md#spell-jet)), so a shield must be started as the opponent's cast begins, not when the jet is seen. A jet that misses passes on and fades at the far wall. The outcomes the movement can produce are tabled in the [duelling study](../../../research/duel/practice-duelling.md#outcome-table).
+A Disarming Charm that reaches an unshielded wand hand opens the hand, sends the wand toward the caster in a slow arc ([disarmed](../props/wands.md#disarmed)), who catches it with the free hand or lets it fall, and jolts the target's arm; the target may be pushed back about half a step (0.2–0.3 m), or up to a full step (0.4–0.5 m) from a strong caster such as Harry ([Harry's duelling](../cast/harry-potter.md#duelling)). A Shield Charm takes 0.3–0.5 s to raise and stops the jet only if it is up before the jet arrives; at 4–5 m the jet arrives 0.16–0.33 s after the cast ends ([spell jet](magic.md#spell-jet)), so a shield must be started as the opponent's cast begins, not when the jet is seen. A jet that misses passes on and fades at the far wall. The outcomes the movement can produce are tabled in the [duelling study](../../../research/duel/practice-duelling.md#outcome-table).
 
 ### Watch the person, not the wand {#watch-the-person}
 
-A practised duellist watches the opponent's eyes and shoulders, which begin a cast about 0.2–0.3 s before the wand moves, rather than the wand tip; a student who watches only the wand starts reacting that much later. At practice distance the difference decides a shield: from the wand's first movement, a cast and its jet take 0.4–0.7 s to arrive ([spell jet](magic.md#spell-jet)), while seeing it and raising a shield takes 0.6–1.1 s ([reaction](../../../research/duel/practice-duelling.md#sequences-distance-and-tempo), [shield](#disarm-outcome)); only a duellist who reads the eyes and shoulders, gaining 0.2–0.3 s, can shield in time. This is taught practice in this world and the core of Carina's coaching ([Carina's coaching](../cast/carina-malfoy.md#coaching)).
+A practised duellist watches the opponent's eyes and shoulders rather than the wand tip, because they begin a cast before the wand moves; production's invention (no retained source measures it): they lead the wand by about 0.2–0.3 s, so a student who watches only the wand starts reacting that much later. Counted from the wand's first movement, at practice distance:
+
+| Quantity | Range | Basis |
+| --- | --- | --- |
+| Cast and jet arrival | 0.41–0.83 s (0.41–0.68 s for Carina's casts, 0.41–0.63 s for Harry's) | cast 0.25–0.5 s ([cast](../../../research/duel/practice-duelling.md#measurable-targets)), jet 0.16–0.33 s ([spell jet](magic.md#spell-jet)) |
+| Shield up, watching the wand | 0.63–1.11 s | reaction 0.33–0.61 s ([reaction](../../../research/duel/practice-duelling.md#sequences-distance-and-tempo)) plus raising 0.3–0.5 s ([shield](#disarm-outcome)) |
+| Shield up, reading the person | 0.33–0.91 s | the same, less the 0.2–0.3 s lead |
+
+The ranges overlap, so reading moves the odds without deciding every exchange: a wand-watcher's shield is in time only when a slow caster's jet meets a quick defender, while a reader's is in time against most casts and late only when a slow reader meets a quick caster. This is taught practice in this world and the core of Carina's coaching ([Carina's coaching](../cast/carina-malfoy.md#coaching)).
 
 ### The edge {#edge}
 

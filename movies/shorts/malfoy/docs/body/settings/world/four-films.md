@@ -18,7 +18,7 @@ Each film begins from the baseline states these settings record — the two lead
 - **Central experience:** watching two shy fifteen-year-olds move closer through one physical exchange — a grip, a shared hold, a catch, two people bending at once.
 - **Recurring reward:** the moment a touch that began as a pretext, an accident or a rescue becomes an invitation both of them accept.
 - **Engine:** Carina attempts something she cannot quite say; Harry reads her late; a contact between their bodies, or between their hands and one object, does what words could not.
-- **Variation:** each film changes the arena (a duelling room, a courtyard bench, a Quidditch pitch, a courtyard walk) and the contact (a repeated wrist grip, a two-handed tug on a paper crane, a Snitch given up for Harry's sake, two people bending at the same moment).
+- **Variation:** each film changes the arena (a duelling room, a courtyard bench in shade, a Quidditch pitch, a sunlit castle corridor) and the contact (a repeated wrist grip, a two-handed tug on a paper crane, a Snitch given up for Harry's sake, two people bending at the same moment).
 - **Title promise:** each title names its film's device — a demand to be looked at, a paper crane, a Snitch given up, an hour named in an invitation.
 
 ### The canon frame {#canon-frame}
@@ -27,7 +27,7 @@ Hogwarts, its houses, wands, spells, brooms and Quidditch are taken from Harry P
 
 ### Who appears {#population}
 
-Carina and Harry appear in all four films and are the only people in `look-at-me-duel`, `paper-crane-invitation` and `three-oclock`, each of which happens in a place that is empty at that hour ([duelling room](../sets/duelling-room.md#empty-room), [courtyard](../sets/clock-tower-courtyard.md#occupancy)). `snitch-before-you` adds Madam Hooch, who referees ([Hooch](../cast/rolanda-hooch.md)), and the twelve other riders of the two teams ([riders](../crowds/quidditch-riders.md)). Nobody else is seen or heard; friends, family and teachers exist offscreen and are not mentioned.
+Carina and Harry appear in all four films and are the only people in `look-at-me-duel`, `paper-crane-invitation` and `three-oclock`, each of which happens in a place that is empty at that hour ([duelling room](../sets/duelling-room.md#empty-room), [courtyard](../sets/clock-tower-courtyard.md#occupancy), [corridor](../sets/charms-corridor.md#occupancy)). `snitch-before-you` adds Madam Hooch, who referees ([Hooch](../cast/rolanda-hooch.md)), and the twelve other riders of the two teams ([riders](../crowds/quidditch-riders.md)). Nobody else is seen or heard; friends, family and teachers exist offscreen and are not mentioned.
 
 ### People are bare bodies in the hint {#bare-bodies}
 
@@ -41,7 +41,7 @@ All four films happen in the middle of October in the autumn term of the leads' 
 
 ### Mid-afternoon {#afternoon}
 
-Each film happens between 14:30 and 16:30 by the castle clocks, after the day's last lesson for the two leads; light is warm and low. Hogwarts lies in the Scottish Highlands (canon adopted), taken as about 57° N. Inference for that latitude in mid-October, on British Summer Time: the sun stands about 20° above the horizon toward the south-south-west at 14:30 and sinks to about 10° toward the south-west by 16:30 (each value uncertain by about 3°), so shadows are long — about two and a half to six times the height of what casts them (1/tan 20° ≈ 2.7; 1/tan 10° ≈ 5.7). The [courtyard clock](../sets/clock-tower-courtyard.md#clock-face) shows the hour where a film needs it.
+Each film happens between 14:30 and 16:30 by the castle clocks, after the day's last lesson for the two leads; light is warm and low. Hogwarts lies in the Scottish Highlands (canon adopted), taken as about 57° N. Inference for that latitude in mid-October, on British Summer Time: the sun stands about 20° above the horizon toward the south-south-west at 14:30 and sinks to about 10° toward the south-west by 16:30 (each value uncertain by about 3°), so shadows are long — about two and a half to six times the height of what casts them (1/tan 20° ≈ 2.7; 1/tan 10° ≈ 5.7). The [courtyard clock](../sets/clock-tower-courtyard.md#clock-face) and the [corridor clock](../sets/charms-corridor.md#door-and-clock) show the hour where a film needs it.
 
 ### Cool, dry and still {#weather}
 

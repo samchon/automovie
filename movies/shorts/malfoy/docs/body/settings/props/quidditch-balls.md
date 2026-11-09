@@ -38,4 +38,4 @@ A Seeker catches it in one gloved hand: the open hand is brought to the Snitch's
 
 ### Released and in play {#released}
 
-All four balls start the film released and in play, or in their crate at mid-pitch if the screenplay begins with the release. The Snitch is caught at most once; if no Seeker catches it, it flies on, even after Madam Hooch stops play, since it does not answer her whistle ([stopping play](../world/quidditch.md#stopping-play)). Nothing carries over.
+All four balls start the film released and in play, or in their crate at mid-pitch if the screenplay begins with the release. The Snitch is caught at most once; if no Seeker catches it, it flies on, even after Madam Hooch stops play, since it does not answer her whistle, and a catch made while play is stopped still ends the match and wins ([stopping play](../world/quidditch.md#stopping-play)). Nothing carries over.

@@ -6,7 +6,7 @@ The facet promises the work-level rules and states each: the release units ("The
 
 ## @evidence shared/principles/common.md#specificity
 
-The rules come from this commission: the four named films, the reset that the no-carry-over requirement forces, a promise built on "a contact between their bodies, or between their hands and one object", and a population justified by the actual places ("each of which happens in a place that is empty at that hour"). No institution or interest is borrowed from the author's process.
+The rules come from this commission: the four named films, the reset that the no-carry-over requirement forces, a promise built on "a contact between their bodies, or between their hands and one object" whose variation gives each film its own place ("a duelling room, a courtyard bench in shade, a Quidditch pitch, a sunlit castle corridor"), and a population justified by the actual places ("each of which happens in a place that is empty at that hour", linking the duelling room, the courtyard and the corridor). No institution or interest is borrowed from the author's process.
 
 ## @evidence shared/principles/settings.md#usable-facts
 
@@ -52,7 +52,7 @@ Each value is checkable and bounded: the year is never shown; days are "not orde
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-Time and weather are owned once here and linked by the magic, duelling, Quidditch and set records; the courtyard clock is linked rather than redescribed. No event is placed on a day or hour.
+Time and weather are owned once here and linked by the magic, duelling, Quidditch and set records; the courtyard and corridor clocks are linked rather than redescribed. No event is placed on a day or hour.
 
 ## @evidence instructions/direction.md#quiet-autumn-fifth-year
 

@@ -50,8 +50,8 @@ Their reactions fit the film's rescue: "none of them is within 3–5 m of a Seek
 
 ## @evidence shared/principles/settings.md#usable-facts
 
-Each behaviour is timed or measured: "a pass every 2–4 s"; Beaters swing at a Bludger "within about 3 m of a teammate" with "a short wooden bat about 0.6 m long held in one hand"; heads turn "within about half a second"; all stop "within about 2 s" of the whistle; rescue is possible only "from within about 3–5 m when the fall begins" and only if "it begins about 25 m or more up", against the twelve's heights "at 5–15 m (the Keepers at hoop height, 15 m)".
+Each behaviour is timed or measured: "a pass every 2–4 s"; Beaters swing at a Bludger "within about 3 m of a teammate" with "a short wooden bat about 0.6 m long held in one hand"; heads turn "within about half a second"; all stop "within about 2 s" of the whistle; rescue is possible only "from within about 3–5 m when the fall begins" and only if "it begins about 25 m or more up", against the twelve's heights "at 5–15 m (the Keepers at hoop height, 15 m)". Their limit is derived for both branches, not only a free fall: "none of them can reach a Seeker hit in the upper air in time, in either the falling or the hanging case".
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-The stopping and rescue rules are owned by the Quidditch record and linked; the group's reactions are baseline conduct, and "Nothing they do changes the outcome between the two Seekers."
+The stopping and rescue rules and the who-can-reach comparison are owned by the Quidditch record and linked; the group's reactions are baseline conduct, and the claim that "nothing they do changes the outcome between the two Seekers" is stated as a consequence of that linked comparison.

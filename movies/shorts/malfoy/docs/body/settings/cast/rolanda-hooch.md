@@ -44,7 +44,11 @@ She moves in short decisive bursts and then stops: a turn of the head, a whistle
 
 ### Refereeing a match {#refereeing}
 
-She releases the balls at the start from the centre of the pitch, then hovers at mid-pitch 10–15 m up, turning to follow the play. She blows a short blast to start or restart and a long blast to stop ([stopping play](../world/quidditch.md#stopping-play)). When a rider falls or is in danger she blows the long blast within half a second of seeing it and flies straight toward the rider at up to 20 m/s, wand drawn; because she starts from mid-pitch she arrives after any rider who was already close. She knows a charm that slows a falling body, usable only within about 10 m of her wand ([limits](../world/magic.md#limits)).
+To release the balls she stands on the grass beside the open crate at the centre circle: she unbuckles the two Bludgers' straps with both hands and they shoot up and away; she opens the Snitch's small catch, and it hovers a moment at head height and darts off, out of sight within 2–3 s; she takes the Quaffle in both hands, mounts, rises to about 5 m and throws it straight up with both hands, and play begins as it leaves her hands with a short blast. She then hovers at mid-pitch 10–15 m up, turning to follow the play. She blows a short blast to start or restart and a long blast to stop ([stopping play](../world/quidditch.md#stopping-play)). When a rider falls or is in danger she blows the long blast within half a second of seeing it and flies straight toward the rider at up to 20 m/s, wand drawn; because she starts from mid-pitch she arrives after any rider who was already close. She knows a charm that slows a falling body, usable only within about 10 m of her wand, which gives her a reach of about 15–25 m for a free fall and 30–60 m for a rider who first hangs from a broken broom ([limits](../world/magic.md#limits), [who can reach a rider in time](../world/quidditch.md#who-can-reach)).
+
+### Her hands {#hands}
+
+She flies with her left hand on the handle and her right hand free. The silver whistle hangs on its cord; her right hand brings it to her lips and holds it there while she watches a dangerous moment, and lets it drop on its cord to draw her wand from the holster strapped inside her left sleeve. With the wand drawn she steers with her left hand alone and casts with her right. Holding always takes priority: she never whistles and casts at once.
 
 ## Habits, tells and mannerisms {#habits}
 

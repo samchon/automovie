@@ -2,23 +2,23 @@
 
 ## @evidence shared/principles/common.md#scope-preservation
 
-The facet delivers the rules of the private practice duel in full: its form from positions to bow to count to reset, the spells allowed, what a disarm and a shield do with timings, the watching rule, the edge with its distances, and "Practice keeps no score and has no winner."
+The facet gives the form of a private practice duel, the spells allowed, what a disarm does and how a shield can be in time, the timing law of watching the person, the edge of the platform and that practice keeps no score.
 
 ## @evidence shared/principles/common.md#specificity
 
-The rules are fitted to `look-at-me-duel`: "Only the Disarming Charm and the Shield Charm are used in a private practice", positions are tied to the room's chalk crosses, the edge rule gives "0.7–0.8 m of platform behind the rear heel, so two or three blind backward steps of 0.3–0.4 m put the rear foot over the end", and the watching rule ("watches the opponent's eyes and shoulders") is the core of Carina's coaching.
+The rules are built for this duel's title and rescue: the law "Watch the person, not the wand" is the core of Carina's coaching, and the edge is measured from the chalk crosses — "0.7–0.8 m of platform behind the rear heel, so two or three blind backward steps of 0.3–0.4 m put the rear foot over the end".
 
 ## @evidence shared/principles/settings.md#usable-facts
 
-The facts are measurable and conditional: casting distance "4–5 m apart", rear foot "0.45–0.55 m behind", bow "about 15–30°", push-back "about half a step (0.2–0.3 m), or up to a full step (0.4–0.5 m) from a strong caster", a shield that "takes 0.3–0.5 s to raise" against a jet that "arrives 0.16–0.33 s after the cast ends", a reading lead of "about 0.2–0.3 s before the wand moves" set against "a cast and its jet take 0.4–0.7 s to arrive" and "seeing it and raising a shield takes 0.6–1.1 s", so that "only a duellist who reads the eyes and shoulders, gaining 0.2–0.3 s, can shield in time", and the rescue condition "must already be within arm's reach and moving before the tip begins". Each points to the duelling study or the room record for its basis.
+The timing law is a table recomputed from the records' own values and its uncertain value is marked: the 0.2–0.3 s lead of eyes and shoulders is "production's invention (no retained source measures it)"; from the wand's first movement, "Cast and jet arrival" is "0.41–0.83 s", a wand-watcher's shield is up at "0.63–1.11 s" and a reader's at "0.33–0.91 s", and the consequence states the overlap rather than an absolute: "reading moves the odds without deciding every exchange". A disarm sends the wand "in a slow arc", caught "with the free hand" or let fall; the push is "about half a step (0.2–0.3 m), or up to a full step (0.4–0.5 m)"; a shield "takes 0.3–0.5 s to raise". The rescue condition is stated: whoever would stop a fall "must already be within arm's reach and moving before the tip begins".
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-Duelling rules are owned here; spells and looks are routed to the magic record, positions and edges to the room record, and movement laws to the study. The edge fact states a danger and a feasibility condition without deciding that anyone retreats, falls or is caught.
+The rules link the platform, the stance and cast laws, the jet, the wand's flight and the cast records rather than restating them; no exchange, disarm or fall is decided.
 
 ## @evidence instructions/commission.md#look-at-me-duel
 
-The facet makes the premise's duel private (no referee or audience) and practice (allowed spells, no score), places the wrist grip in its coaching form through the watching rule's link to Carina's coaching, and supplies the edge and rescue condition a rescue by grip needs.
+The rules make the premise's duel private and practice ("Two students practise without a referee or audience"; "Practice keeps no score"), give the coaching that repeats the wrist grip its reason, and give the edge where the grip can become a rescue.
 
 # docs/body/settings/world/practice-duelling.md#time-weather-season
 

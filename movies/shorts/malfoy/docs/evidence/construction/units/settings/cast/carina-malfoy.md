@@ -112,15 +112,15 @@ The facet covers every practised skill the films can use: duelling, coaching, fl
 
 ## @evidence shared/principles/common.md#specificity
 
-Her coaching is this work's wrist grip — "her hand from outside the forearm, closing just above the wrist, thumb on the inner wrist" — and her repeated rule "watch the person, not the wand" gives the duel its title's sense.
+Her coaching is this work's wrist grip — "her hand from outside the forearm, closing just above the wrist, thumb on the inner wrist" — and her repeated rule "watch the person, not the wand" gives the duel its title's sense, stated with its real force: "a rule that improves a partner's chances of shielding in time rather than guaranteeing it".
 
 ## @evidence shared/principles/settings.md#usable-facts
 
-The skills carry the studied vocabulary and level: casts "in 0.25–0.35 s", a shield "in about 0.3 s" started "as her opponent's eyes and shoulders begin a cast, before the wand moves", "extending her arm before she steps", a disarm that "pushes a target back about half a step"; flying "cruises at 8–15 m/s and dives at up to 30 m/s", pulling out "about 5 m above the grass"; a one-handed right-hand catch.
+The skills carry the studied vocabulary and level, with her shield timed against Harry's casts from the records' own values: casts "in 0.25–0.35 s", a shield "in about 0.3 s" started "as her opponent's eyes and shoulders begin a cast, before the wand moves, so that against Harry's casts (arriving 0.41–0.63 s after his wand first moves) her shield is up after about 0.33–0.45 s, in time against nearly all of them"; "extending her arm before she steps"; a disarm that "pushes a target back about half a step"; flying "cruises at 8–15 m/s and dives at up to 30 m/s", pulling out "about 5 m above the grass"; a one-handed right-hand catch.
 
 ## @evidence shared/principles/settings.md#record-and-boundary
 
-Skill facts stay in the repertoire facet with their laws linked to the duelling and riding studies and the world rules; no match or duel outcome is decided.
+Skill facts stay in the repertoire facet with their laws linked to the duelling timing table, the duelling and riding studies and the world rules; no match or duel outcome is decided.
 
 ## @evidence instructions/commission.md#look-at-me-duel
 
