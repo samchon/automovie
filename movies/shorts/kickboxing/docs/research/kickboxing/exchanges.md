@@ -24,12 +24,16 @@ Dutch kickboxing, as taught by Ernesto Hoost, Peter Aerts and Ramon Dekkers, thr
 - [Bloody Elbow: Dutch Muay Thai moves to remember](https://bloodyelbow.com/2018/05/10/dutch-muay-thai-moves-to-remember-part-1-ernesto-hoost-k1-peter-aerts-ramon-dekkers-rob-kaman-glory)
 - [Evolve MMA: Dutch kickboxing's influence on modern Muay Thai](https://evolve-mma.com/blog/the-influence-of-dutch-kickboxing-on-modern-muay-thai-fighters/)
 - [GLORY: The Art of Low Kicks](https://glorykickboxing.com/news/the-art-of-low-kicks)
+- [Muay Thai Guy: how to KO and break legs with leg kicks](https://www.muay-thai-guy.com/blog/how-to-ko-and-break-legs-with-leg-kicks)
+- [Evolve MMA: 5 effective low-kick combinations in Muay Thai](https://evolve-mma.com/blog/5-effective-low-kicks-combinations-in-muay-thai/)
+
+Coaches time the low kick to the moment the receiver's weight sits on the target leg: as he steps, or after a setup loads the lead leg, such as a body shot that brings the elbows down or a hook that pushes the weight sideways. A faked low kick followed by a cross punishes a receiver who checks early.
 
 Law: a combination is two to five strikes of one fighter whose launches follow each other at the [combination intervals](techniques.md#punch-timing); a kick in it stands first or last. A hook to the body or head before a rear low kick loads the receiver's lead leg, so a low kick that follows a hook in the same combination lands unless the receiver is already standing on one leg to check.
 
 ## Defense keeps attacking {#defense}
 
-Checking raises the bent lead leg so the shin meets the incoming kick. Coaches stress countering at once from the check, before the kicker recovers; a late counter gives the kicker time for another attack. Elite counter-strikers such as Giorgio Petrosyan work at the edge of punching range, slip or step back into counters, and draw predictable returns by attacking the guard.
+Checking raises the bent lead leg so the shin meets the incoming kick. The check must start early: a shin still rising when the kick arrives lets it land. Coaches stress countering at once from the check, firing off its rebound as the foot lands, before the kicker recovers; a late counter gives the kicker time for another attack. Elite counter-strikers such as Giorgio Petrosyan work at the edge of punching range, slip or step back into counters, and draw predictable returns by attacking the guard.
 
 - [Evolve MMA: how to check kicks](https://evolve-mma.com/blog/how-to-check-kicks-in-muay-thai)
 - [Diesel Gym: how to defend low kicks](https://dieselgym.co.uk/how-to-defend-low-kicks-diesel-technique-of-the-week/)

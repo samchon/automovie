@@ -8,7 +8,8 @@ import { exchange } from "../../../../interactions/kickboxing/exchange";
  * Scene 10, 135 to 150 s: B steps in with his four into A's parry, slip,
  * roll and check and A's cross from the check lands; they circle, B's
  * covering jab meets A's slip and A's body hook and low kick meet B's elbow
- * and check; A circles in with the pump jab and a jab that B's glove and
+ * and early check, and B's jab off the check's rebound meets A's parry; A
+ * circles in with the pump jab and a jab that B's glove and
  * guard meet; B gives ground and A cuts across, B's jab and cross meet A's
  * parry and slip and A's cross and body kick meet B's guard and dropped arm;
  * A circles once more and steps in with jab, cross, body hook and the
@@ -23,7 +24,7 @@ import { exchange } from "../../../../interactions/kickboxing/exchange";
  * @returns The scene's composition, its finishing contact at fifteen seconds.
  * @evidence docs/body/screenplay/kickboxing.md#s10 The scene.
  * @evidence docs/body/screenplay/kickboxing.md#s10-b01 Check and cross.
- * @evidence docs/body/screenplay/kickboxing.md#s10-b02 Body hook, checked low kick.
+ * @evidence docs/body/screenplay/kickboxing.md#s10-b02 Body hook, checked low kick, B's counter off the check.
  * @evidence docs/body/screenplay/kickboxing.md#s10-b02a A's pump jab and jab.
  * @evidence docs/body/screenplay/kickboxing.md#s10-b03 The tell once more.
  * @evidence docs/body/screenplay/kickboxing.md#s10-b04 The Brazilian kick lands at 150.000.
@@ -52,6 +53,7 @@ export function theBrazilianKick(cast: IRingCast): AutoMovieComposition {
           a.bodyHook().lowKick(),
           b.elbowBlock().check(),
         ),
+        exchange(cast, "s10-b02c2", b.jab(), a.parry()),
       ),
       RingPhase.reset([a, "circle"], [b, "circle"]),
       exchange(

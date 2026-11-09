@@ -527,7 +527,7 @@ They circle. B lifts his right knee as if to kick the body and sets it back down
 
 ### B's longest combination {#s07-b01}
 
-From 90 seconds, after a circle toward their lead sides, B steps in and commits to his longest combination: a jab, a cross, a left hook to A's liver and a right low kick behind it. A blocks the jab on his gloves, parries the cross, takes the liver hook on his lowered right elbow, then lifts his left shin and checks the low kick. From the check he fires back with jab and cross. B slips outside the jab and then outside the cross.
+From 90 seconds, after a circle toward their lead sides, B steps in and commits to his longest combination: a jab, a cross, a left hook to A's liver and a right low kick behind it. A blocks the jab on his gloves, parries the cross, takes the liver hook on his lowered right elbow, his left shin already lifting before the hook has left, and checks the low kick well before it arrives. From the check he fires back with jab and cross. B slips outside the jab and then outside the cross.
 
 - Cast: [Fighter B](../settings/cast/fighter-b.md#weapons), [Fighter A](../settings/cast/fighter-a.md#defense)
 - Intent: B throws jab, cross, body hook, low kick; A covers, parries, blocks and checks, then counters; B slips twice.
@@ -603,7 +603,7 @@ B walks A back, cutting across, and resumes the pressure with a jab and a cross 
 
 ### A weathers the pressure {#s08-b01}
 
-From 105 seconds, both circle toward their lead sides; then B cuts A off, walks him back and steps in with jab, cross and uppercut. A parries the jab, catches the cross on his glove and takes the uppercut on his joined gloves. B goes to the body with a left hook; A drops his elbow onto it. B kicks low once more; A checks it and B's shin knocks hard against the raised leg. B lands and stays on that leg a beat too long.
+From 105 seconds, both circle toward their lead sides; then B cuts A off, walks him back and steps in with jab, cross and uppercut. A parries the jab, catches the cross on his glove and takes the uppercut on his joined gloves. B goes to the body with a left hook; A drops his elbow onto it and lifts his lead shin early, before B's hips turn. B kicks low once more into the raised leg and his shin knocks hard against it. B lands and stays on that leg a beat too long.
 
 - Cast: [Fighter B](../settings/cast/fighter-b.md#stays-on-leg), [Fighter A](../settings/cast/fighter-a.md#defense)
 - Intent: B presses and throws jab, cross, uppercut, body hook, low kick; A parries, covers, covers, blocks and checks.
@@ -768,15 +768,15 @@ From 135 seconds, B steps in with jab, cross, left hook and right low kick. A pa
 
 ### Body hook, checked low kick {#s10-b02}
 
-They circle. B jabs to cover his retreat; A slips it. A steps in and digs a left hook into B's body, and B's right elbow drops onto it. A's right shin follows low into B's lead thigh; B checks it, and both men replant.
+They circle. B jabs to cover his retreat; A slips it. A steps in and digs a left hook into B's body, and B's right elbow drops onto it while his lead shin is already rising, having read the kick behind the hook. A's right shin follows low and meets B's raised shin. B fires a jab off the rebound of the check as his foot lands, and A's right glove turns it aside as both men angle out.
 
 - Cast: [Fighter B](../settings/cast/fighter-b.md#weapons), [Fighter A](../settings/cast/fighter-a.md#weapons)
-- Intent: B covers his retreat with a jab; A slips it and attacks body and leg; B blocks and checks.
-- Outcome: Evaded; blocked, checked.
+- Intent: B covers his retreat with a jab; A slips it and attacks body and leg; B blocks, checks early and counters off the check; A parries.
+- Outcome: Evaded; blocked, checked; parried.
 - Consequence: No new mark.
-- Space: The pair circles; A steps in to kicking range after B's jab; both angle out.
+- Space: The pair circles; A steps in to kicking range after B's jab; both angle out after B's counter.
 - Camera: medium two-shot.
-- Sound: dialogue none; foley glove on elbow, shin on shin; ambience room tone; effects none; music none.
+- Sound: dialogue none; foley glove on elbow, shin on shin, glove on glove; ambience room tone; effects none; music none.
 - Continuity: as before.
 
 ### A's pump jab and jab {#s10-b02a}
