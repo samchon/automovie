@@ -26,10 +26,12 @@ import * as THREE from "three";
  * 5. The PNG decodes to the same size and centre pixel, and a stamped label
  *    whitens part of the top-left corner.
  * 6. A zero-sized raster is refused.
+ * 7. A point of fixed size 9 covers pixels 4 away from its centre but not 6,
+ *    and a default size-1 point covers only its own pixel.
  *
  * @evidence contracts/testing.md#behavioral-verification Draws actual three.js scenes through the public rasterizer and reads its RGBA output and decoded PNG bytes, so coverage, depth, clipping, skinning and encoding are observed in pixels rather than in internal state.
  * @evidence contracts/testing.md#independent-expectations Expected colours are the authored sRGB bytes of unlit materials and the background; quad placements are chosen so the centre pixel lies well inside or outside each quad, independent of the rasterizer's arithmetic.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts covered and uncovered pixels, both submission orders, fully behind and partly behind geometry, bone before and after a move, and an invalid size.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts covered and uncovered pixels, both submission orders, fully behind and partly behind geometry, bone before and after a move, an invalid size, and a sized point against a default one.
  * @evidence contracts/testing.md#execution-ownership This named portable unit builds its own scenes and camera and starts no browser, server or GPU.
  */
 export function test_viewer_node_raster(): void {
@@ -115,4 +117,17 @@ export function test_viewer_node_raster(): void {
   TestValidator.error("a zero-sized raster is refused", (): void => {
     rasterizeAutoMovieScene({ scene: new THREE.Scene(), camera, width: 0, height: 64 });
   });
+
+  // 7. Point size in output pixels.
+  const dot = (size?: number): THREE.Points =>
+    new THREE.Points(
+      new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute([0, 0, 0], 3)),
+      new THREE.PointsMaterial({ color: 0xffffff, ...(size === undefined ? {} : { size }), sizeAttenuation: false }),
+    );
+  const sized: IAutoMovieSceneRaster = draw(scene(dot(9)));
+  TestValidator.equals("a size-9 point covers 4 pixels out", at(sized, 36, 32), [255, 255, 255]);
+  TestValidator.equals("a size-9 point stops before 6 pixels out", at(sized, 38, 32), [0, 0, 255]);
+  const plain: IAutoMovieSceneRaster = draw(scene(dot()));
+  TestValidator.equals("a default point covers its pixel", at(plain, 32, 32), [255, 255, 255]);
+  TestValidator.equals("a default point covers only its pixel", at(plain, 34, 32), [0, 0, 255]);
 }

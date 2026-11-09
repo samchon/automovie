@@ -150,8 +150,8 @@ export namespace StudentHuman {
     const left: [number, number, number] = [lUpLeg[0] - rUpLeg[0], 0, lUpLeg[2] - rUpLeg[2]];
     const ln: number = Math.hypot(left[0], left[2]) || 1;
 
-    // Forward is left × up, as StudentPolygon defines it: (-lz, 0, lx) for a horizontal left.
-    const forward: [number, number] = [-left[2] / ln, left[0] / ln];
+    // Forward is up × (left-named side), the eyes' direction, as StudentPolygon defines it: (lz, 0, -lx).
+    const forward: [number, number] = [left[2] / ln, -left[0] / ln];
     const shoulderMid: [number, number, number] = [(lUpArm[0] + rUpArm[0]) / 2, 0, (lUpArm[2] + rUpArm[2]) / 2];
     return {
       hip: (lUpLeg[1] + rUpLeg[1]) / 2,

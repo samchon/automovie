@@ -63,15 +63,19 @@ export function buildHumanPolygonParts(
     hips.radius,
     hipBreadth,
   );
+  // A trunk is wider than deep: the waist and chest keep their girth radius
+  // as depth and widen to the anthropometric share of the shoulder breadth
+  // (waist breadth about 0.75 and chest breadth about 0.85 of biacromial),
+  // so the torso does not pinch between the hips and the shoulders.
   const lumbarRing: buildHumanPolygonModule.ISection = Sections.section(
     new THREE.Vector3(...spine.position),
     spine.radius,
-    spine.radius,
+    Math.max(spine.radius, WAIST_SHARE * shoulderBreadth),
   );
   const chestRing: buildHumanPolygonModule.ISection = Sections.section(
     new THREE.Vector3(...chest.position),
     chest.radius,
-    chest.radius,
+    Math.max(chest.radius, CHEST_SHARE * shoulderBreadth),
   );
   const pelvisBottom: THREE.Vector3 = new THREE.Vector3(...hips.position);
   pelvisBottom.y -= Math.min(
@@ -233,6 +237,12 @@ export function buildHumanPolygonParts(
   }
   return { headObject, headMesh, headBox };
 }
+
+/** Waist breadth over shoulder breadth (convention: adult waist breadth about three quarters of biacromial). */
+const WAIST_SHARE: number = 0.75;
+
+/** Chest breadth over shoulder breadth (convention: adult chest breadth about 0.85 of biacromial). */
+const CHEST_SHARE: number = 0.85;
 
 /** Leaf caps narrow in the original display convention. */
 const TIP_BEVEL: number = 0.5;
