@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { minimumJerk, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -12,6 +12,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { poseBones } from "./poseBones";
 
 /**
  * Stepping over a low obstacle from standing in front of it: the lead foot
@@ -21,7 +22,9 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * The goals are footprints and clearance: each swinging foot travels from
  * its footprint to its landing on a minimum-jerk path and is lifted so its
  * lowest sole point (heel, ball or toe) stays at least `MARGIN` above the
- * obstacle's top while any part of the foot is over it. Patla and Rietdyk
+ * obstacle's top while any part of the foot is over it; where the ankle
+ * cannot dorsiflex enough to keep the foot level and the toes droop, the
+ * ankle is raised until the lowest sole point is at the lift. Patla and Rietdyk
  * (1993, Gait Posture 1:45) found that the lead toe clears an obstacle by a
  * roughly constant margin whatever its height, so the lift grows with the
  * obstacle and the margin does not; 0.1 m is the margin used (provisional,
@@ -141,17 +144,17 @@ export namespace stepOver {
       left: [reachAt("left", "toe", near - 0.02), reachAt("left", "heel", far + 0.02)],
       right: [reachAt("right", "toe", near - 0.02), reachAt("right", "heel", far + 0.02)],
     };
-    const swing = (side: "left" | "right", s: number): HumanFoot.IPlacement => {
+    const swing = (side: "left" | "right", s: number): { placement: HumanFoot.IPlacement; lift: number } => {
       const [s0, s1] = spans[side];
       const w: number = s < s0 ? minimumJerk(s / s0).s : s > s1 ? 1 - minimumJerk((s - s1) / (1 - s1)).s : 1;
       const ankle: IAutoMovieVector3 = lerp(feet[side], end[side], minimumJerk(s).s);
-      return flat(side, { ...ankle, y: m.ankleHeight + top * w });
+      return { placement: flat(side, { ...ankle, y: m.ankleHeight + top * w }), lift: top * w };
     };
-    const footAt = (side: "left" | "right", t: number): { placement: HumanFoot.IPlacement; planted: boolean } => {
+    const footAt = (side: "left" | "right", t: number): { placement: HumanFoot.IPlacement; planted: boolean; lift: number } => {
       const [a, b] = windows[side];
-      if (t <= a) return { placement: flat(side, feet[side]), planted: true };
-      if (t >= b) return { placement: flat(side, end[side]), planted: true };
-      return { placement: swing(side, (t - a) / (b - a)), planted: false };
+      if (t <= a) return { placement: flat(side, feet[side]), planted: true, lift: 0 };
+      if (t >= b) return { placement: flat(side, end[side]), planted: true, lift: 0 };
+      return { ...swing(side, (t - a) / (b - a)), planted: false };
     };
 
     // The pelvis: from over the start to over the end, lowered where a planted leg needs it.
@@ -184,9 +187,35 @@ export namespace stepOver {
         for (const side of ["left", "right"] as const) {
           const f = footAt(side, t);
           const knee: IAutoMovieVector3 = HumanFrame.point({ origin: root, yaw }, { ...body.rest.get(`${side}LowerLeg`)!, z: body.rest.get(`${side}LowerLeg`)!.z + 1 });
-          limbs[side === "left" ? "leftLeg" : "rightLeg"] = { point: f.placement.ankle, bend: knee, rotation: f.placement.rotation, ...(f.planted ? { planted: true } : {}) };
+          limbs[side === "left" ? "leftLeg" : "rightLeg"] = {
+            point: f.placement.ankle,
+            bend: knee,
+            rotation: f.placement.rotation,
+            ...(f.planted ? { planted: true, contact: HumanFoot.offset(body, side, "ball") } : {}),
+          };
         }
-        return resolveHumanPosture.lower(body, { root, yaw, pitch: 0, roll: 0, joints: { ...stand.RELAXED, ...standUpright.of(body).joints }, limbs });
+        let posture: IHumanPosture = resolveHumanPosture.lower(body, { root, yaw, pitch: 0, roll: 0, joints: { ...stand.RELAXED, ...standUpright.of(body).joints }, limbs });
+
+        // A swinging foot whose ankle cannot dorsiflex enough to stay level
+        // droops its toes; raise its ankle until its lowest sole point is at
+        // the planned lift, twice, so the clearance holds on the sole itself.
+        for (let round: number = 0; round < 2; round++) {
+          const lifted = (["left", "right"] as const).filter((side) => footAt(side, t).lift > 0);
+          if (lifted.length === 0) break;
+          const bones = poseBones(body, resolveHumanPosture(body, posture));
+          const next: IHumanPosture["limbs"] = { ...posture.limbs };
+          for (const side of lifted) {
+            const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
+            const lowest: number = Math.min(...(["heel", "ball", "toe"] as const).map((name) => resolveAutoMovieHumanoidSurfaces.place(body.surfaces.sockets[`${name}${Side}`], bones.get(`${side}Foot`)!).point.y));
+            const raise: number = footAt(side, t).lift - lowest;
+            if (raise <= 0) continue;
+            const limb: "leftLeg" | "rightLeg" = side === "left" ? "leftLeg" : "rightLeg";
+            const goal = next[limb]!;
+            next[limb] = { ...goal, point: { ...goal.point, y: goal.point.y + raise } };
+          }
+          posture = { ...posture, limbs: next };
+        }
+        return posture;
       },
     };
   }

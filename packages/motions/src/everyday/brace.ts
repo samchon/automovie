@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, convexHull2D, minimumJerk } from "@automovie/engine";
 import type { AutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -13,6 +13,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
 import { handGoals } from "./handGoals";
 import { poseBones } from "./poseBones";
@@ -26,11 +27,16 @@ import { poseBones } from "./poseBones";
  * People preparing for a predictable perturbation adjust their posture in
  * advance, anticipatory postural adjustments (Massion 1992, Prog Neurobiol
  * 38:35): they enlarge the base of support along the expected force, lower
- * the centre of mass and lean against the force. The goals: the foot on the
- * side away from the force steps back along the force's line by 0.3 leg
- * lengths and out by 0.05 (a staggered, wider base); the pelvis settles over
- * the middle of the new base and drops by 4 % of the hip height (knees
- * flexed); the trunk inclines 10 degrees toward the force; and both palms
+ * the centre of mass and lean against the force, keeping the feet in place
+ * once set (Horak and Nashner 1986, J Neurophysiol 55:1369; Maki and
+ * McIlroy 1997, Phys Ther 77:488, on changing the base of support). The
+ * goals: the foot on the side away from the force steps back along the
+ * force's line by `STAGGER` leg lengths and out until the feet stand a
+ * shoulder width apart (a staggered, wider base); the pelvis drops until
+ * the knees flex `KNEE` degrees and is then moved so the engine's
+ * whole-body centre of mass stands over the middle of the new base's hull,
+ * found on the solved posture; the trunk inclines 10 degrees toward the
+ * force; and both palms
  * come up ahead of the chest, facing the force for an `impact` or a `push`,
  * turned up and lower to receive a `catchBody`. Step size, drop, lean and
  * timing are provisional (Massion describes the adjustments, not these
@@ -73,6 +79,12 @@ export namespace brace {
     seconds?: number;
   }
 
+  /** Knee flexion of the set posture, degrees (20 to 30 in a braced stance). */
+  export const KNEE: number = 25;
+
+  /** How far the rear foot steps back along the force's line, leg lengths (provisional). */
+  export const STAGGER: number = 0.3;
+
   /** Lead time to the set posture, seconds (provisional). */
   export const SET: number = 0.6;
 
@@ -100,7 +112,9 @@ export namespace brace {
     const back: "left" | "right" = Vector3.dot(Vector3.subtract(feet.left, feet.right), toward) < 0 ? "left" : "right";
     const out: IAutoMovieVector3 = Vector3.scale(left, back === "left" ? 1 : -1);
     const leg: number = m.thigh + m.shank;
-    const placed: IAutoMovieVector3 = Vector3.add(feet[back], Vector3.add(Vector3.scale(toward, -0.3 * leg), Vector3.scale(out, 0.05 * leg)));
+    const across: number = Math.abs(Vector3.dot(Vector3.subtract(feet.left, feet.right), out));
+    const widen: number = Math.max(0, 2 * m.shoulderHalfWidth - across);
+    const placed: IAutoMovieVector3 = Vector3.add(feet[back], Vector3.add(Vector3.scale(toward, -STAGGER * leg), Vector3.scale(out, widen)));
     const swing: [number, number] = [0.1, 0.5];
     const footAt = (side: "left" | "right", t: number): { ankle: IAutoMovieVector3; planted: boolean } => {
       if (side !== back || t <= swing[0]) return { ankle: feet[side], planted: true };
@@ -117,10 +131,24 @@ export namespace brace {
     );
     const settled: IAutoMovieVector3 = Vector3.lerp(feet[back === "left" ? "right" : "left"], placed, 0.5);
     const start: IAutoMovieVector3 = context.entry.posture.root;
-    const goal: IAutoMovieVector3 = { x: settled.x - centre.x, y: -0.005 - 0.04 * m.hipHeight, z: settled.z - centre.z };
+    const bent: number = Math.sqrt(m.thigh * m.thigh + m.shank * m.shank + 2 * m.thigh * m.shank * Math.cos((KNEE * Math.PI) / 180));
     const lean: number = 10;
     const forward: number = (Math.atan2(toward.x, toward.z) * 180) / Math.PI - yaw;
     const upright = standUpright.of(body).joints;
+    const setAt = (root: IAutoMovieVector3): IHumanPosture => {
+      const tilt = HumanTrunk.incline({ ...stand.RELAXED, ...upright }, lean * Math.cos((forward * Math.PI) / 180));
+      return resolveHumanPosture.lower(body, { root, yaw, pitch: tilt.pitch, roll: 0, joints: tilt.joints, limbs: stand.legs(body, root, yaw, { left: back === "left" ? placed : feet.left, right: back === "right" ? placed : feet.right }) });
+    };
+
+    // The set root: lowered by the knee flexion, then moved twice so the
+    // engine's centre of mass stands over the middle of the new base's hull.
+    let goal: IAutoMovieVector3 = { x: settled.x - centre.x, y: -0.005 - (leg - bent), z: settled.z - centre.z };
+    for (let round: number = 0; round < 2; round++) {
+      const held = HumanBalance.support(body, setAt(goal));
+      const hull: IAutoMovieVector3[] = convexHull2D(held.points);
+      const mid: IAutoMovieVector3 = Vector3.scale(hull.reduce((a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 => Vector3.add(a, b), { x: 0, y: 0, z: 0 }), 1 / hull.length);
+      goal = { x: goal.x + mid.x - held.centre.x, y: goal.y, z: goal.z + mid.z - held.centre.z };
+    }
 
     const contacts: IHumanContactWindow[] = [
       { part: back === "left" ? "rightFoot" : "leftFoot", kind: "plant", from: 0, to: 1, support: { kind: "ground" } },

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, resolveAutoMovieCenterOfMass, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { Quaternion, Vector3, convexHull2D, pointInHull, resolveAutoMovieCenterOfMass, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
@@ -127,6 +127,57 @@ export namespace HumanBalance {
         support.push(resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!).point);
       }
     return resolveAutoMovieCenterOfMass.margin(xcom, support);
+  }
+
+  /**
+   * The engine's whole-body centre of mass of a posture and the support
+   * points of its feet (heel, ball and toe of each), world metres.
+   *
+   * @param body The body.
+   * @param posture The posture.
+   * @returns The centre and the support points.
+   */
+  export function support(body: IHumanBody, posture: IHumanPosture): { centre: IAutoMovieVector3; points: IAutoMovieVector3[] } {
+    const bones = poseBones(body, resolveHumanPosture(body, posture));
+    const points: IAutoMovieVector3[] = [];
+    for (const side of ["Left", "Right"] as const)
+      for (const point of ["heel", "ball", "toe"] as const) {
+        const frame = body.surfaces.sockets[`${point}${side}`];
+        points.push(resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!).point);
+      }
+    return { centre: resolveAutoMovieCenterOfMass.place(model(body), bones), points };
+  }
+
+  /**
+   * The margin of stability along one horizontal direction: how far a point
+   * may move that way before it leaves the convex hull of the support
+   * points, the margin against a perturbation pushing it that way (Hof et
+   * al. 2005 measure the margin along the perturbation's direction).
+   *
+   * @param point The point (a centre of mass or its extrapolation), world metres; its height is ignored.
+   * @param points The support points.
+   * @param direction The direction, horizontal; normalized here.
+   * @returns Metres to the hull's edge along the direction; negative when the point is outside the hull.
+   */
+  export function along(point: IAutoMovieVector3, points: readonly IAutoMovieVector3[], direction: IAutoMovieVector3): number {
+    const hull: IAutoMovieVector3[] = convexHull2D(points);
+    const d: number = Math.hypot(direction.x, direction.z);
+    const dx: number = direction.x / d;
+    const dz: number = direction.z / d;
+    let exit: number = -Infinity;
+    for (let i: number = 0; i < hull.length; i++) {
+      const a: IAutoMovieVector3 = hull[i]!;
+      const b: IAutoMovieVector3 = hull[(i + 1) % hull.length]!;
+      const ex: number = b.x - a.x;
+      const ez: number = b.z - a.z;
+      const denominator: number = dx * ez - dz * ex;
+      if (Math.abs(denominator) < 1e-12) continue;
+      const t: number = ((a.x - point.x) * ez - (a.z - point.z) * ex) / denominator;
+      const u: number = ((a.x - point.x) * dz - (a.z - point.z) * dx) / denominator;
+      if (u >= -1e-12 && u <= 1 + 1e-12) exit = Math.max(exit, t);
+    }
+    if (exit === -Infinity) return -Infinity;
+    return hull.length >= 3 && pointInHull(point, hull) ? exit : -Math.abs(exit);
   }
 
   /**

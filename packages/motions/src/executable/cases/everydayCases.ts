@@ -4,8 +4,9 @@ import type { AutoMovieMotionTarget, IAutoMoviePose, IAutoMovieVector3 } from "@
 import { HumanChain } from "../../HumanChain";
 import type { IHumanBody } from "../../body/IHumanBody";
 import { createHumanBody } from "../../body/createHumanBody";
+import { HumanBalance } from "../../everyday/HumanBalance";
 import { HumanProxemics } from "../../everyday/HumanProxemics";
-import type { gestureStroke } from "../../everyday/gestureStroke";
+import { gestureStroke } from "../../everyday/gestureStroke";
 import { rest } from "../../everyday/rest";
 import { seated } from "../../everyday/seated";
 import { HumanPerformance } from "../../perform/HumanPerformance";
@@ -13,6 +14,7 @@ import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
+import { everydayGestureVerdicts } from "./everydayGestureVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
@@ -31,7 +33,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * - `everyday-gesture-<kind>`: each gesture at rest, mid-preparation, the
  *   stroke's start, middle and end, mid-retraction and the end; pointing
  *   within 2 degrees of the eye-to-target line, self-touch within 15 mm of
- *   its region, claps meeting within 10 mm.
+ *   its region, claps meeting within 10 mm, and each gesture's own goal
+ *   (`everydayGestureVerdicts`).
  * - `everyday-rest`: each rest place held; each hand surface within 15 mm of
  *   its place and not inside the region beyond 10 mm.
  * - `everyday-seat`: sitting on a box at the popliteal height, shifting and
@@ -45,8 +48,9 @@ import { everydayVerdicts } from "./everydayVerdicts";
  *   point; the
  *   palm within 15 mm of it and the extrapolated centre of mass over the
  *   feet at the deepest.
- * - `everyday-brace`: bracing for a push from ahead; the margin of
- *   stability higher at `set` than at the start (Massion 1992).
+ * - `everyday-brace`: bracing for a push from ahead; the centre of mass's
+ *   margin to the base's edge along the push higher at `set` than at the
+ *   start, and laterally not lower (Massion 1992; Hof et al. 2005).
  * - `everyday-step`: stepping over a 0.3 m box, at tenths of the crossing;
  *   every sole point at least 5 cm above the box while over it.
  *
@@ -147,6 +151,7 @@ export function everydayCases(family?: "approach" | "look" | "gesture" | "rest" 
           const margin: number = everydayVerdicts.stability(performance, "a", body, (s + e) / 2);
           verdicts.push({ name: "bowed body balanced over the feet", passed: margin >= 0, detail: `${(margin * 1000).toFixed(1)} mm margin` });
         }
+        verdicts.push(...everydayGestureVerdicts(kind, performance, body, s, e, gestureStroke.RHYTHM[kind].cycles));
         if (kind === "clap")
           for (let k: number = 0; k < 4; k++) {
             const b = performance.bones("a", s + ((k + 0.5) / 4) * (e - s));
@@ -284,8 +289,15 @@ export function everydayCases(family?: "approach" | "look" | "gesture" | "rest" 
     if (wants("brace")) {
       const performance: HumanPerformance = one(HumanChain.subject("a").brace({ toward: { kind: "point", at: { x: 0, y: 1.2, z: 2 }, frame: "world" }, kind: "push" }));
       const set: number = event(performance, "a", 0, "set");
-      const before: number = everydayVerdicts.stability(performance, "a", body, 0.02);
-      const after: number = everydayVerdicts.stability(performance, "a", body, set);
+      const margins = (t: number): { push: number; side: number } => {
+        const held = HumanBalance.support(body, performance.posture("a", t));
+        return {
+          push: HumanBalance.along(held.centre, held.points, { x: 0, y: 0, z: -1 }),
+          side: Math.min(HumanBalance.along(held.centre, held.points, { x: 1, y: 0, z: 0 }), HumanBalance.along(held.centre, held.points, { x: -1, y: 0, z: 0 })),
+        };
+      };
+      const before = margins(0);
+      const after = margins(set);
       out.push({
         name: `everyday-brace${suffix}`,
         times: [
@@ -296,7 +308,8 @@ export function everydayCases(family?: "approach" | "look" | "gesture" | "rest" 
         ],
         performers: [figure(performance, "a", man)],
         verdicts: [
-          { name: "margin of stability higher at set", passed: after > before, detail: `${(before * 1000).toFixed(1)} mm before, ${(after * 1000).toFixed(1)} mm at set` },
+          { name: "margin along the push higher at set", passed: after.push > before.push, detail: `${(before.push * 1000).toFixed(1)} mm before, ${(after.push * 1000).toFixed(1)} mm at set` },
+          { name: "lateral margin not lower at set", passed: after.side >= before.side - 1e-3, detail: `${(before.side * 1000).toFixed(1)} mm before, ${(after.side * 1000).toFixed(1)} mm at set` },
           ...everydayVerdicts.standard(performance, "a", body),
         ],
       });
