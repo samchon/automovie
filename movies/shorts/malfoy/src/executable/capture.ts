@@ -91,12 +91,23 @@ export async function capture(): Promise<void> {
   // Plan the seconds before mounting, so a bad request costs nothing.
   if (options.has("--module") && options.has("--film"))
     throw new Error("Give either --film or --module, not both");
-  const selected: { name: string; film: IFilm } = options.has("--module")
-    ? await loadModuleFilm(options.get("--module")!, options.get("--export"))
-    : selectFilm(films, options.get("--film") ?? null);
+  // Several comma-separated modules share one process, one compile and one Human calibration memo.
+  const modules: (string | undefined)[] = options.has("--module")
+    ? options.get("--module")!.split(",")
+    : [undefined];
+  if (modules.length > 1 && options.has("--out"))
+    throw new Error("--out names one film's folder; omit it with several modules");
+  for (const moduleFile of modules) {
+  const selected: { name: string; film: IFilm } =
+    moduleFile !== undefined
+      ? await loadModuleFilm(moduleFile, options.get("--export"))
+      : selectFilm(films, options.get("--film") ?? null);
   const film: IFilm = selected.film;
   const from: number = number("--from", 0)!;
-  const to: number = number("--to", Math.min(from + 10, film.durationSeconds))!;
+  const to: number = number(
+    "--to",
+    moduleFile !== undefined ? film.durationSeconds : Math.min(from + 10, film.durationSeconds),
+  )!;
   const rate: number = number("--rate", 5)!;
   if (rate > 10)
     throw new Error("--rate is at most 10 frames per second; use --at for single frames");
@@ -260,6 +271,7 @@ export async function capture(): Promise<void> {
     for (const sheet of sheets) console.log(sheet);
   } finally {
     production.dispose();
+  }
   }
 }
 

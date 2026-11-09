@@ -106,7 +106,7 @@ export class StudentPolygon {
           return { dir: sub(leg.ankle, leg.knee), ref: j.frame.forward, neutralDir: between(bone, `${side}Foot`, down), neutralRef: this.forward, anchor: leg.knee };
         case "leftFoot":
         case "rightFoot":
-          return { dir: sub(leg.toe, leg.ankle), ref: j.frame.up, neutralDir: this.forward.clone(), neutralRef: UP, anchor: leg.ankle };
+          return { dir: sub(leg.toe, leg.ankle), ref: j.frame.up, neutralDir: between(bone, `${side}Toes`, this.forward), neutralRef: UP, anchor: leg.ankle };
         default:
           return undefined;
       }
