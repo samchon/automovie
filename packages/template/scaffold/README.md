@@ -19,13 +19,26 @@ The project includes instructions, contracts and a working empty Viewer with exa
 
 Run `npm run dev`, then open [the Viewer](http://127.0.0.1:5173/). Play, pause and seek use the same deterministic performance as export. Each delivered video is one film in `src/composition/films/`, registered in `src/composition/films/index.ts` under its screenplay file's name, with its running time, frame rate and optional `width` × `height` delivery raster (1280 × 720 by default; 720 × 1280 for a vertical short); `?film=<name>` selects one, and may be omitted while only one exists. URL parameters `start`, `end`, `rate` and `play=1` select interval playback, for example [0–15 seconds at half speed](http://127.0.0.1:5173/?film=starter&start=0&end=15&rate=0.5&play=1). The starter film `src/composition/films/starter.ts` holds an empty scene; each film composes its scenes and sets its own running time.
 
-Keep the server running, set `CHROME_PATH` to an installed Chrome or Chromium executable, then run `npm run render -- --film <name>`, omitting `--film` while only one film exists. `src/executable/render.ts` sets the selected film's capture URL, raster, frame rate, duration and destinations, and takes an optional complete soundtrack through `audioMix`. FFmpeg is supplied by `ffmpeg-static`; `FFMPEG_PATH` selects another executable. `VIEWER_URL` selects another running host. Capture mode uses `?capture=1&w=1280&h=720&film=<name>` and the completed `__afSeek(seconds)` hook.
+Keep the server running, set `CHROME_PATH` to an installed Chrome or Chromium executable, then run `npm run render -- --film <name>`, omitting `--film` while only one film exists. `src/executable/render.ts` sets the selected film's capture URL, raster, frame rate, duration and destinations. FFmpeg is supplied by `ffmpeg-static`; `FFMPEG_PATH` selects another executable. `VIEWER_URL` selects another running host. Capture mode uses `?capture=1&w=1280&h=720&film=<name>` and the completed `__afSeek(seconds)` hook.
 
-The public Render runner writes `media/automovie/<film>/videos/film.mp4` and the command retains `capture-report.json` beside it, so each film's renders stay apart. Export requires a whole number of frames and captures actual Viewer pixels at `i / fps`, followed by one video/audio encode. Its hashes and timings describe capture; inspect continuous playback before accepting the film.
+The public Render runner writes `media/automovie/<film>/videos/film.mp4` and the command retains `capture-report.json` beside it, so each film's renders stay apart. Export requires a whole number of frames and captures actual Viewer pixels at `i / fps`, followed by one picture-only encode. Its hashes and timings describe capture; inspect continuous playback before accepting the film.
 
 ## Node frame capture
 
-`npm run capture -- --film <name>` draws film frames directly in Node, with no Viewer server, browser or GPU: it mounts the film through its own `create()` and `seek()` and rasterizes each second on the CPU through the installed Viewer's Node rasterizer. By default it samples the ten-second window from `--from <s>` (0) at 5 frames per second on the film's frame grid, so one run writes 50 frames `t<seconds>.png` with the second stamped in the corner, one 50-cell contact sheet `sheet-<from>-<to>.png` with a JSON cell index, and `manifest.json`, into `media/automovie/<film>/frames/capture/<from>-<to>/`, the same path on every run. `--to <s>` ends the half-open window, `--rate <n>` samples up to 10 per second, `--events <s,…>` adds 10 per second within half a second of each event second, such as a contact, `--every <frames>` samples the film's frame grid instead, `--at <s,…>` draws exact seconds, `--view <name>` draws through one of the film's named `IFilmProduction.views`, such as a side-on view, one behind a subject or a high 45° view, into a folder suffixed with that name, and `--view x,y,z:tx,ty,tz` through a static inspection camera in world metres. `--width`/`--height` override the film's raster, `--supersample <1-4>` antialiases, `--per-sheet`/`--columns` lay out sheets, `--no-label`/`--no-sheet` drop them, `--out <dir>` redirects, and `--list` prints the films. `--module <file.ts>` (with `--export <name>` for a module with several exports) captures an unregistered film module instead, into `media/automovie/modules/<module>/`. The script runs through `ttsx --no-plugins --noCheck`, so no type check or compiler plugin delays the drawing; the [compile checker](.agents/skills/development/SKILL.md) reports compile errors.
+`npm run capture -- --film <name>` draws film frames directly in Node, with no Viewer server, browser or GPU: it mounts the film through its own `create()` and `seek()` and rasterizes each second on the CPU through the installed Viewer's Node rasterizer. It is the one route to stills: by default it samples the ten-second window from `--from <s>` (0) at 5 frames per second on the film's frame grid and writes 50 frames `t<seconds>.png` with the second stamped in the corner, one 50-cell contact sheet `sheet-<from>-<to>.png` with a JSON cell index, and `manifest.json` into `media/automovie/<film>/frames/capture/<from>-<to>/`, the same path on every run. The script runs through `ttsx --no-plugins --noCheck`, so no type check or compiler plugin delays the drawing; the [compile checker](.agents/skills/development/SKILL.md) reports compile errors.
+
+| Option | Effect |
+| --- | --- |
+| `--from <s>`, `--to <s>` | Half-open window, ten seconds from `--from` by default |
+| `--rate <n>` | Stills per second, 5 by default and at most 10 |
+| `--events <s,…>` | Adds 10 per second within half a second of each second, such as a contact |
+| `--every <frames>`, `--at <s,…>` | The film's frame grid, or exact seconds, instead of the rate |
+| `--view <name>` | One of the film's named `IFilmProduction.views`, such as side-on, behind a subject or high 45°, into a folder suffixed with that name |
+| `--view x,y,z:tx,ty,tz` | A static inspection camera in world metres |
+| `--width`, `--height`, `--supersample <1-4>` | Raster override and antialiasing |
+| `--per-sheet`, `--columns`, `--no-label`, `--no-sheet` | Sheet layout, or no stamp or sheet |
+| `--out <dir>`, `--list` | Another directory, or print the films |
+| `--module <file.ts>` [`--export <name>`] | An unregistered film module, into `media/automovie/modules/<module>/` |
 
 A catalog case is one window of the catalog film, and a review segment one ten-second window of a delivered film:
 
@@ -40,7 +53,7 @@ The frames are flat-shaded diagnostics of pose, contact, staging and framing und
 
 [Physical feedback](.agents/skills/motion/physics.md) chooses each scene's physical mode; the installed Engine's README and public declarations own its profiles, simulation, checkpoints, archives and audits. Supply `IFilmProduction.performance` from the displayed state to enable the shared inspection overlays; the starter's empty scene supplies none.
 
-Run `npm run review:setup` once to install Playwright's recording FFmpeg, and set `CHROME_PATH` to an installed Chrome or Chromium executable. `npm run review -- still <viewer-url> <duration-seconds>` captures one still at the URL's `at=<seconds>`; `playback <viewer-url> <observation-seconds>` records actual Play-button playback as a silent video with its displayed clock and browser errors, so listen to the soundtrack separately. Output goes to `media/automovie/<film>/frames/review/` or `media/automovie/<film>/videos/review/` unless a final directory argument names another.
+Run `npm run review:setup` once to install Playwright's recording FFmpeg, and set `CHROME_PATH` to an installed Chrome or Chromium executable. `npm run review -- playback <viewer-url> <observation-seconds>` records actual Play-button playback as a video with its displayed clock and browser errors into `media/automovie/<film>/videos/review/`, unless a final directory argument names another.
 
 In the Viewer, URL parameters `rig=1` and `contacts=1` show the review skeleton and contact force vectors, and `view` an inspection camera: a named view or `x,y,z:tx,ty,tz` in world metres, as for capture. Omit them for delivered captures. Judge a correction at the same source revision, film seconds and camera.
 
@@ -50,12 +63,12 @@ In the Viewer, URL parameters `rig=1` and `contacts=1` show the review skeleton 
 
 1. Adopt the request, output boundary and operating choices, including the intended execution/capture path, in [PROJECT.md](PROJECT.md) through [project context](.agents/skills/production/profile.md). Make routine choices within the user's delegation and keep creative requirements with their owners.
 2. Study every practice and style the film shows through [research](.agents/skills/story/planning/research.md), write the [settings](.agents/skills/story/layers/settings.md) that draw on it, then write the complete [screenplay](.agents/skills/story/SKILL.md) along its [writing route](.agents/skills/story/workflow.md#route-and-parents), with evidence and independent review.
-3. Build the entities, laws, interactions and consequences through [motion](.agents/skills/motion/SKILL.md) with their tests, from suitable retained assets or newly authored [representations and controls](.agents/skills/3d-modeling/SKILL.md) at low cost, and perfect each one in its isolated catalog cases on screen.
-4. Compose every required main scene from those accepted modules through their APIs and the screenplay alone, under [staging for the camera](.agents/skills/motion/staging.md) in the folders [source layout](.agents/skills/development/layout.md) gives, reviewing each 10-second segment in film order. [Audio](.agents/skills/audio/SKILL.md) describes each shot's sound for the video-diffusion prompt.
+3. Build the entities, laws, interactions and consequences with their tests, from suitable retained assets or newly authored [representations and controls](.agents/skills/3d-modeling/SKILL.md) at low cost, and accept them case by case under [motion](.agents/skills/motion/SKILL.md).
+4. Compose every required main scene from the accepted modules under [motion](.agents/skills/motion/SKILL.md) and [staging for the camera](.agents/skills/motion/staging.md), in the folders [source layout](.agents/skills/development/layout.md) gives. [Audio](.agents/skills/audio/SKILL.md) describes each shot's sound for the video-diffusion prompt.
 5. Prepare the [motion hint and requested companion controls](.agents/skills/production/conditioning.md) from the same actual performance, with aligned frame/camera mapping for time-matched channels. Use the supplied Viewer/export host or document the production's adopted replacement here.
 6. Assemble and encode the complete work through [finishing](.agents/skills/production/finishing.md), then inspect the actual output through [delivery review](.agents/skills/review/delivery.md). Hand off the fixed inputs, source, commands, observed result and remaining limits.
 
-A separately commissioned screenplay ends with its text duties; a standalone asset needs no invented narrative. A whole motion hint needs no finished diffusion film. A requested direct 3D film finishes through its actual renderer and sound path; [generated video](.agents/skills/production/generation.md) uses a selected service and accepted fixed takes before the final edit. Their delivery boundaries stay explicit in PROJECT.md.
+A separately commissioned screenplay ends with its text duties; a standalone asset needs no invented narrative. A whole motion hint needs no finished diffusion film. A requested direct 3D film finishes through its actual renderer, with sound only as [audio](.agents/skills/audio/SKILL.md) sets; [generated video](.agents/skills/production/generation.md) uses a selected service and accepted fixed takes before the final edit. Their delivery boundaries stay explicit in PROJECT.md.
 
 ## Commands
 
@@ -69,9 +82,8 @@ A separately commissioned screenplay ends with its text duties; a standalone ass
 | `npm run dev` | Actual production Viewer on `127.0.0.1:5173` |
 | `npm run build` | Bundle the production Viewer |
 | `npm run physics -- <input-module.ts> <output.amphys> [maximum-bytes]` | Precompute an adopted physical performance outside the browser |
-| `npm run render -- --film <name>` | Export one film of the running Viewer |
-| `npm run render -- --film <name> --from <s> --to <s> --every <frames>` | Write stills of one film's frames, or `--at <s,…>` seconds, into `--out <dir>` (default `media/automovie/<film>/frames/`) |
-| `npm run capture -- --film <name> --from <s>` | Draw a ten-second window at 5 frames per second (`--rate` up to 10, `--events` around contacts) in Node into one 50-cell sheet, without a server or browser |
+| `npm run render -- --film <name>` | Export one film of the running Viewer as a picture-only video |
+| `npm run capture -- --film <name> --from <s>` | Stills and one 50-cell sheet of a ten-second window, drawn in Node at 5 per second |
 
 The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: mark type-only imports and exports with `type`, and keep each file transformable on its own.
 
