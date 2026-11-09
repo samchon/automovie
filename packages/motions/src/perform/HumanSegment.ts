@@ -331,9 +331,9 @@ export namespace HumanSegment {
       }
       posture = { ...posture, limbs };
     }
-    // A stopped weapon's limb holds its contact: while contacts resolve, and
-    // in display for a law that does not take its stops itself.
-    if (person.resolving || segment.plan.stop === undefined)
+    // A stopped weapon's limb holds its contact when its law does not take its
+    // stops itself; a law that does shows its own dwell and recoil.
+    if (segment.plan.stop === undefined)
       for (const w of segment.plan.weapons ?? []) {
         const s: number | undefined = person.stops.get(weapon(segment, w.id));
         if (s === undefined || seconds <= s) continue;

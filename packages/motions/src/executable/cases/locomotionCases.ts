@@ -31,10 +31,10 @@ import { MotionBodies } from "../MotionBodies";
  * and Gleicher (2002), since the ankle itself moves as the foot rolls over
  * its rockers; no heel, ball or toe sinks more than 5 mm under the floor;
  * every displayed ankle meets its IK goal within 2 mm and every swinging foot
- * its goal rotation within 1 degree, so a range-of-motion clamp shows (a
- * stance foot may turn on its contact when the ankle runs out of range, the
- * heel-off of `HumanFoot.heelOff`, so its rotation is reported as a metric
- * and its slip is the bound); the walker stops
+ * its goal rotation within 1 degree, so a range-of-motion clamp shows, and
+ * every stance foot too, except that a goal naming a contact declares the
+ * heel-off of `HumanFoot.heelOff`, so such a foot may be more toes-down than
+ * asked while its heading, roll and any toes-up miss still count; the walker stops
  * within 2 cm of the destination; and the steady speed, the pelvis between
  * the first and the second-to-last left heel strikes, lies within 10 % of
  * the pace's Froude speed `sqrt(Fr g l)`. Each failing verdict names the
@@ -130,7 +130,26 @@ export function locomotionCases(kind: "walk" | "run"): IMotionCaptureCase[] {
             if (limb.rotation !== undefined) {
               const q = bones.get(`${side}Foot`)!.worldRotation;
               const r = limb.rotation;
-              const angle: number = (2 * Math.acos(Math.min(1, Math.abs(q.x * r.x + q.y * r.y + q.z * r.z + q.w * r.w))) * 180) / Math.PI;
+              // Heading, pitch and roll of a rotation, degrees.
+              const parts = (o: typeof q): { h: number; p: number; r: number } => {
+                const fw = rotate(o, { x: 0, y: 0, z: 1 });
+                const up = rotate(o, { x: 0, y: 1, z: 0 });
+                const h: number = Math.atan2(fw.x, fw.z);
+                return {
+                  h: (h * 180) / Math.PI,
+                  p: (Math.asin(Math.max(-1, Math.min(1, fw.y))) * 180) / Math.PI,
+                  r: (Math.atan2(up.x * Math.cos(h) - up.z * Math.sin(h), up.y) * 180) / Math.PI,
+                };
+              };
+              const full: number = (2 * Math.acos(Math.min(1, Math.abs(q.x * r.x + q.y * r.y + q.z * r.z + q.w * r.w))) * 180) / Math.PI;
+              // A planted goal naming a contact declares the heel-off: the foot may
+              // be more toes-down than asked; heading, roll and any toes-up miss count.
+              const a = parts(r);
+              const b = parts(q);
+              let dh: number = b.h - a.h;
+              while (dh > 180) dh -= 360;
+              while (dh < -180) dh += 360;
+              const angle: number = limb.contact === undefined ? full : Math.max(Math.abs(dh), Math.abs(b.r - a.r), Math.max(0, b.p - a.p));
               error = angle;
               if (angle > turn[phase].value) {
                 // Read both rotations as heading, pitch and roll, and the shank's lean.
@@ -195,10 +214,10 @@ export function locomotionCases(kind: "walk" | "run"): IMotionCaptureCase[] {
       trails,
       drift: [{ samples: drift, limit: 0.005 }],
       targets: goals.map((at: IAutoMovieVector3) => ({ at, radius: 0.04, color: 0xd04040 })),
-      metrics: { stanceRotation: { degrees: turn.stance.value, where: turn.stance.where } },
       verdicts: [
         { name: "contact points on the floor slide under 5 mm", passed: slip.value <= 0.005, detail: `max ${(slip.value * 1000).toFixed(2)} mm at ${slip.where}` },
         { name: "heel, ball and toe stay above the floor within 5 mm", passed: sink.value <= 0.005, detail: `max sink ${(sink.value * 1000).toFixed(2)} mm at ${sink.where}` },
+        { name: "stance feet meet their goal rotations, a declared heel-off allowed, within 1 degree", passed: turn.stance.value <= 1, detail: `max ${turn.stance.value.toFixed(2)} deg at ${turn.stance.where}` },
         { name: "swing feet meet their goal rotations within 1 degree", passed: turn.swing.value <= 1, detail: `max ${turn.swing.value.toFixed(2)} deg at ${turn.swing.where}` },
         { name: "displayed ankles meet their goals within 2 mm", passed: reach.value <= 0.002, detail: `max ${(reach.value * 1000).toFixed(2)} mm at ${reach.where}` },
         ...(extra.via === undefined ? [] : [{ name: "passes within 15 cm of every via point", passed: via <= 0.15, detail: `closest ${(via * 100).toFixed(1)} cm` }]),

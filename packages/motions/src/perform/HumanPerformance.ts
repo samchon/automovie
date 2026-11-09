@@ -438,9 +438,12 @@ export class HumanPerformance {
 
   /**
    * Resolve every weapon's first contact at once, in time order, each later
-   * weapon seeing the earlier stops through the frozen limbs, then hand each
-   * plan its events. Weapons are live only inside their window clipped to
-   * their action's span; bodies are the other people's colliders.
+   * weapon seeing the earlier stops as they will be shown: a plan that takes
+   * its stops is handed each one as it is committed and settled, so its own
+   * dwell and recoil are what later weapons meet; a plan that does not is
+   * shown with that limb frozen at the stop. Weapons are live only inside
+   * their window clipped to their action's span; bodies are the other
+   * people's colliders, and the person a stop met is the nearest of them.
    */
   private contacts(): void {
     const weapons: resolveAutoMovieContactEvents.IWeapon[] = [];
@@ -461,12 +464,41 @@ export class HumanPerformance {
           to = Math.max(to, b);
         }
     if (weapons.length === 0) return;
+    const paths: Map<string, (t: number) => IAutoMovieVector3> = new Map(weapons.map((w) => [w.id, (t: number) => w.position(t, new Map())]));
+    const met: Map<string, IHumanActionPlan.IContactEvent & { key: string }> = new Map();
+    let applied: string = "";
     const apply = (stops: resolveAutoMovieContactEvents.IStops): void => {
+      const signature: string = [...stops].map(([k, s]) => `${k}@${s}`).sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0)).join(";");
+      if (signature === applied) return;
+      applied = signature;
       for (const person of this.people.values()) person.stops.clear();
+      const changed: Set<HumanSegment.ISegment> = new Set();
       for (const [key, seconds] of stops) {
         const owner = owners.get(key)!;
         owner.person.stops.set(HumanSegment.weapon(owner.segment, owner.id), seconds);
+        if (met.get(key)?.seconds !== seconds) {
+          met.set(key, { key, weapon: owner.id, against: nearest(owner.person, paths.get(key)!(seconds), seconds), seconds });
+          changed.add(owner.segment);
+        }
       }
+      for (const [key, event] of [...met]) if (!stops.has(key)) {
+        met.delete(key);
+        changed.add(owners.get(event.key)!.segment);
+      }
+      for (const segment of changed) {
+        if (segment.plan.stop === undefined) continue;
+        segment.plan.stop([...met.values()].filter((e) => owners.get(e.key)!.segment === segment).map(({ weapon, against, seconds }) => ({ weapon, against, seconds })));
+        segment.plan.settle?.();
+      }
+    };
+    const nearest = (owner: HumanSegment.IPerson, point: IAutoMovieVector3, seconds: number): string => {
+      let best: { subject: string; distance: number } = { subject: "", distance: Infinity };
+      for (const person of this.people.values()) {
+        if (person === owner) continue;
+        const d: number = HumanColliders.distance(person.performer.body, this.bones(person.performer.subject, seconds), point).distance;
+        if (d < best.distance) best = { subject: person.performer.subject, distance: d };
+      }
+      return best.subject;
     };
     const events: resolveAutoMovieContactEvents.IEvent[] = resolveAutoMovieContactEvents({
       weapons,

@@ -207,13 +207,14 @@ export namespace walk {
       contacts,
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const yaw: number = steps.yaw(t);
+        const planned: number = steps.yaw(t);
         const phase: number = steps.phase(t);
         const amount: number = steps.amount(t);
         const swing: number = Math.sin(2 * Math.PI * phase) * amount;
         const hips: readonly [number, number, number] = [0, 4 * Math.cos(2 * Math.PI * phase) * amount, 4 * swing];
         const feet: Record<"left" | "right", walkSteps.IFoot> = { left: steps.foot("left", t), right: steps.foot("right", t) };
-        const reached = walkSteps.reach(body, steps.root(t), yaw, hips, feet);
+        const reached = walkSteps.reach(body, steps.root(t), planned, hips, feet);
+        const yaw: number = reached.yaw;
         const root: IAutoMovieVector3 = reached.root;
         const upright: standUpright.IAlignment = standUpright.of(body);
         const joints: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = {
