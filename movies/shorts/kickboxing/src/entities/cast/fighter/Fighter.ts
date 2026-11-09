@@ -291,7 +291,7 @@ export class Fighter {
    * @returns The chain.
    */
   public phase(
-    phase: "guard" | "fall" | "attempt" | "lie" | "victory",
+    phase: Extract<KickboxingAction.IAction, { kind: "phase" }>["phase"],
     seconds: number,
     anchor?: string,
   ): AutoMovieChain {

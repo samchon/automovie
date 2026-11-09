@@ -5,18 +5,20 @@ import { RingPhase } from "../../../../interactions/kickboxing/RingPhase";
 import { exchange } from "../../../../interactions/kickboxing/exchange";
 
 /**
- * Scene 5, 60 to 75 s: A pivots to a new angle while B circles, and steps
- * in with jab and cross that draw B's guard high, and the body kick lands;
- * the pair circles, B switches into his switch kick and follows with jab and
- * cross into A's elbow, slip and parry, and A's hook from the parry meets
- * B's glove; they circle and B shows the drag feint, A checks it at once and
+ * Scene 5, 60 to 75 s: A pivots to an outside angle while B circles, and
+ * steps in with a cross that draws B's guard high, and the body kick lands;
+ * the pair circles, B switches into his switch kick and follows with a
+ * cross into A's elbow and parry, and A's hook from the parry meets B's
+ * glove; both step back to range with their guards up, and B shows the
+ * drag feint, A checks it at once and
  * covers the jab that follows; both circle and A repeats the pattern, and B
  * now drops his left arm onto the kick; they circle and B's shoulder feint
- * draws A's parry before his jab, body cross and hook meet A's cover, elbow
- * and roll, and A's cross from the roll meets B's slip.
+ * draws A's parry before his body cross and hook meet A's elbow and roll,
+ * and A rises from the roll showing the body, B's elbow drops and A's cross
+ * meets B's slip.
  *
  * Concretization: A's change of angle is a pivot; B's answers to A's rising
- * right knee are his settings habit rather than chosen blocks, and A's
+ * right knee is his settings habit rather than a chosen block, and A's
  * answers to the drag and shoulder feints are his own habits.
  *
  * @param cast The cast.
@@ -33,23 +35,18 @@ export function theBodyKickLands(cast: IRingCast): AutoMovieComposition {
   const then = AutoMovieComposition.sequence;
   return RingPhase.fill(15, [
     RingPhase.reset([a, "pivot"], [b, "circle"]),
-    exchange(
-      cast,
-      "s05-b01",
-      a.jab().cross().bodyKick(),
-      b.cover().cover().take(),
-    ),
+    exchange(cast, "s05-b01", a.cross().bodyKick(), b.cover().take()),
     RingPhase.reset([a, "circle"], [b, "circle"]),
     then(
       exchange(
         cast,
         "s05-b02",
-        b.switchKick().jab().cross(),
-        a.elbowBlock().slip().parry(),
+        b.switchKick().cross(),
+        a.elbowBlock().parry(),
       ),
       exchange(cast, "s05-b02c", a.hook(), b.cover()),
     ),
-    RingPhase.reset([b, "circle"], [a, "circle"]),
+    RingPhase.reset([b, "separate"], [a, "separate"]),
     exchange(
       cast,
       "s05-b02a",
@@ -60,18 +57,23 @@ export function theBodyKickLands(cast: IRingCast): AutoMovieComposition {
     exchange(
       cast,
       "s05-b03",
-      a.jab().cross().bodyKick(),
-      b.cover().cover().next(b.tell("body-kick")),
+      a.cross().bodyKick(),
+      b.cover().next(b.tell("body-kick")),
     ),
     RingPhase.reset([b, "circle"], [a, "circle"]),
     then(
       exchange(
         cast,
         "s05-b04",
-        b.feintShoulder().jab().bodyCross().hook(),
-        a.tell("feint-shoulder").cover().elbowBlock().roll(),
+        b.feintShoulder().bodyCross().hook(),
+        a.tell("feint-shoulder").elbowBlock().roll(),
       ),
-      exchange(cast, "s05-b04c", a.cross(), b.slip()),
+      exchange(
+        cast,
+        "s05-b04c",
+        a.feintLevel().cross(),
+        b.tell("feint-level").slip(),
+      ),
     ),
   ]);
 }

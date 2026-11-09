@@ -52,7 +52,6 @@ export function kickboxing(): IFilm {
           maximumContacts: 1,
           metresPerNewton: 0.001,
         },
-        soundtrack: { cues: mounted.cues, assets: RingStage.SOUND },
         report: {
           violations: mounted.violations,
           findings: mounted.findings,

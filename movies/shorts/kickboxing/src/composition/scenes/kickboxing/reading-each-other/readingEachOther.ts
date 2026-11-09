@@ -8,13 +8,14 @@ import { exchange } from "../../../../interactions/kickboxing/exchange";
  * Scene 1, 0 to 15 s: the bell, the referee's start and the glove touch,
  * then the first exchanges in which both men read each other while the ring
  * turns. They circle toward their lead sides; A's pump jab draws B's glove
- * and B's teep resets the range; A cuts across and steps in with jab, cross
- * and hook into B's parry, cover and roll, and B's counter hook and cross
- * meet A's roll and sway; they circle and B shows the drag feint that A
+ * and B's teep resets the range; A cuts across and steps in with pump jab,
+ * cross and hook into B's chasing glove, cover and roll, and B's counter
+ * hook meets A's roll; they circle and B shows the drag feint that A
  * checks at once, then steps in with jab and low kick into A's cover and
- * check, and A counters from the check; they circle and B hops through
+ * check, and A's cross off the check meets B's slip; they circle and B hops through
  * southpaw and back in place, and B's jab feint and jab meet A's read and
- * slip, and A's body shot meets B's elbows.
+ * slip, and A's slip-counter, a right straight to the body, meets B's
+ * elbows.
  *
  * Concretization: the screenplay leaves the share of each stretch open; the
  * phase gives every stretch the same whole steps. The circling stretches
@@ -23,7 +24,8 @@ import { exchange } from "../../../../interactions/kickboxing/exchange";
  * give; B's switch hop is the two whole steps that close the last stretch,
  * so both men still circle through it; and each
  * exchange closes the distance on its own entries and leaves on its exit as
- * the screenplay writes.
+ * the screenplay writes. A pump jab opening a combination is a feint, not a
+ * strike, so the combination keeps its length at the elite thrown rate.
  *
  * @param cast The cast.
  * @returns The scene's composition, filling its fifteen seconds.
@@ -31,9 +33,9 @@ import { exchange } from "../../../../interactions/kickboxing/exchange";
  * @evidence docs/body/screenplay/kickboxing.md#s01-b01 The bell and "Fight!".
  * @evidence docs/body/screenplay/kickboxing.md#s01-b02 The glove touch at 1.000, back at kicking distance by 1.550.
  * @evidence docs/body/screenplay/kickboxing.md#s01-b03 Circling; pump jab read; teep lands.
- * @evidence docs/body/screenplay/kickboxing.md#s01-b04 The cut-off; A's three against parry, cover, roll; B's counter against roll and sway.
- * @evidence docs/body/screenplay/kickboxing.md#s01-b05 B's drag feint, jab and low kick against check, cover and check; A's counter.
- * @evidence docs/body/screenplay/kickboxing.md#s01-b06 B's switch hop, jab feint and jab; A's body shot on B's elbows.
+ * @evidence docs/body/screenplay/kickboxing.md#s01-b04 The cut-off; A's pump jab, cross and hook against read, cover, roll; B's hook against the roll.
+ * @evidence docs/body/screenplay/kickboxing.md#s01-b05 B's drag feint, jab and low kick against check, cover and check; A's cross off the check.
+ * @evidence docs/body/screenplay/kickboxing.md#s01-b06 B's switch hop, jab feint and jab; A's slip-counter to the body on B's elbows.
  */
 export function readingEachOther(cast: IRingCast): AutoMovieComposition {
   const { a, b } = cast;
@@ -55,10 +57,10 @@ export function readingEachOther(cast: IRingCast): AutoMovieComposition {
       exchange(
         cast,
         "s01-b04",
-        a.jab().cross().hook(),
-        b.parry().cover().roll(),
+        a.feintJab().cross().hook(),
+        b.tell("feint-jab").cover().roll(),
       ),
-      exchange(cast, "s01-b04c", b.hook().cross(), a.roll().sway()),
+      exchange(cast, "s01-b04c", b.hook(), a.roll()),
     ),
     RingPhase.reset([a, "circle"], [b, "circle"]),
     then(
@@ -68,7 +70,7 @@ export function readingEachOther(cast: IRingCast): AutoMovieComposition {
         b.feintLowKick().jab().lowKick(),
         a.tell("feint-low-kick").cover().check(),
       ),
-      exchange(cast, "s01-b05c", a.jab().cross(), b.parry().slip()),
+      exchange(cast, "s01-b05c", a.cross(), b.slip()),
     ),
     RingPhase.reset([a, "circle"], [b, "circle"]),
     then(

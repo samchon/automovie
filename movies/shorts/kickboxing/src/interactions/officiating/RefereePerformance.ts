@@ -77,7 +77,11 @@ export namespace RefereePerformance {
       const action: OfficiatingAction.IAction = OfficiatingAction.read(
         entry.intent,
       );
-      const share: number = (seconds - entry.start) / (entry.end - entry.start);
+      // The winner's raise runs from the referee's arrival beside him.
+      const share: number =
+        action.signal === "winner"
+          ? (RefereeTrack.raising(cast, schedule, seconds) ?? 0)
+          : (seconds - entry.start) / (entry.end - entry.start);
       const toward: IAutoMovieVector3 | undefined = direction(
         action.signal,
         cast,

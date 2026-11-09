@@ -4,7 +4,7 @@ The project-root [PROJECT.md](../../../PROJECT.md) holds the current overview, c
 
 ## What to record
 
-Record only what this project needs; an instance-only request needs no story or soundtrack, and a screenplay-only request no renderer. Leave an undecided nonblocking choice explicit and continue the work that does not depend on it.
+Record only what this project needs; an instance-only request needs no story, and a screenplay-only request no renderer. Leave an undecided nonblocking choice explicit and continue the work that does not depend on it.
 
 | Topic | Record when relevant |
 | --- | --- |

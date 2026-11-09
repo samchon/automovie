@@ -16,8 +16,6 @@ import * as THREE from "three";
 
 import { ImpactMarks } from "../../../consequences/effects/ImpactMarks";
 import { ImpactSpray } from "../../../consequences/effects/ImpactSpray";
-import { SoundAssets } from "../../../consequences/sound/SoundAssets";
-import { SoundCues } from "../../../consequences/sound/SoundCues";
 import { RingCamera } from "../../../entities/cameras/ring-camera/RingCamera";
 import { Fighter } from "../../../entities/cast/fighter/Fighter";
 import type { FighterFigure } from "../../../entities/cast/fighter/FighterFigure";
@@ -165,12 +163,6 @@ export class RingStage {
       camera,
       duration,
     );
-    const cues: SoundCues.ICue[] = SoundCues.of(
-      seed,
-      schedule,
-      measured.receipts,
-      duration,
-    );
     const scene: THREE.Scene = new THREE.Scene();
     scene.background = new THREE.Color(RingStage.BACKGROUND);
     const lights: RingLights = new RingLights();
@@ -274,15 +266,11 @@ export class RingStage {
       ],
       measures: {
         ...picture,
-        "foreground-overlap": SoundCues.overlap(
-          cues.filter((c) => c.asset !== SoundCues.BED),
-        ),
         ...(clearance === undefined || framing === undefined
           ? {}
           : { "finish-clearance": clearance, "finish-in-frame": framing }),
       },
       receipts: measured.receipts,
-      cues,
       seek,
       bodies: [
         { id: cast.a.id, profile: cast.a.body.profile },
@@ -356,10 +344,6 @@ export class RingStage {
   /** The development server's source digests of Human and this production. */
   public static readonly SOURCES: string = "/__automovie/sources";
 
-  /** The soundtrack's assets. */
-  public static readonly SOUND: Readonly<Record<string, string>> =
-    SoundAssets.paths;
-
   /** Arena darkness behind the ring. */
   public static readonly BACKGROUND: number = 0x0b0e14;
 }
@@ -397,9 +381,6 @@ export namespace RingStage {
 
     /** Measured contacts. */
     receipts: ContactReceipts.IReceipt[];
-
-    /** The soundtrack's cues. */
-    cues: SoundCues.ICue[];
 
     /** Place everything for a second. */
     seek(seconds: number): void;
