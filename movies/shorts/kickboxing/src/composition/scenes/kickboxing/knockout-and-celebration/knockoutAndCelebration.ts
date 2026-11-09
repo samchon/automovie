@@ -16,9 +16,10 @@ import type { IRingCast } from "../../../../interactions/kickboxing/IRingCast";
  * Concretization: A's gloves stay in the victory pose through the five
  * walking steps of his lap, to about 171.8; he walks to a stride from B in
  * three walking steps by about 173.7; none of his phases and movements
- * overlap. The referee's raise begins when his walk brings him beside A,
- * about 0.6 s into the winner signal, which holds five seconds for the walk
- * and the raise; A's free glove goes up at that arrival.
+ * overlap. A stands relaxed from 174.000 to the end; the winner signal holds
+ * five seconds for the referee's walk and raise, and the raise itself, with
+ * A's free glove going up at the referee's arrival, is the referee and
+ * winner motion's, so the two line up by construction.
  *
  * @param cast The cast.
  * @returns The scene, aligned to the "Ten!" anchor at 167.000.
@@ -41,15 +42,10 @@ export function knockoutAndCelebration(cast: IRingCast): AutoMovieComposition {
     at(2.1, a.move("celebrate", 5)),
     at(3.1, bell.ring()),
     at(5.1, a.move("walk", 3, CHECK_RANGE)),
-    at(7, a.phase("relax", RAISE_ARRIVAL)),
+    at(7, a.phase("relax", 6)),
     at(7, referee.signal("winner", 5)),
-    at(7 + RAISE_ARRIVAL, a.phase("victory", 1)),
-    at(8 + RAISE_ARRIVAL, a.phase("relax", 5 - RAISE_ARRIVAL)),
   );
 }
 
 /** How near A comes to check on B, metres between their stance origins (film choice: a stride from the fallen man). */
 const CHECK_RANGE: number = 1.5;
-
-/** Seconds from the winner signal to the referee's arrival beside A, when the raise starts: his walk of about 1.5 m from B at 2.53 m/s. */
-const RAISE_ARRIVAL: number = 0.6;
