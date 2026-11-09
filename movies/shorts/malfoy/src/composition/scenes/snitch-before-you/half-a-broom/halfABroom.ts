@@ -8,7 +8,10 @@ import type { PitchStage } from "../PitchStage";
  * Carina's right while she challenges him ("Try to keep up, Potter."); he
  * draws level again and answers ("Already am."); both sprint on and start
  * down toward the east goals. The camera rides alongside on Carina's side,
- * three-quarter front.
+ * three-quarter front, for the two lines, then cuts behind and above them
+ * for the knee-to-knee run at the goals: from her side, a rider level with
+ * her is in line with the lens and hidden, while from behind the two read
+ * side by side with the hoops ahead.
  *
  * Concretization: Carina's half-broom lead is the line and speed she flies
  * until the library has her chest-down race habit and chin lift (R5); the
@@ -37,5 +40,6 @@ export function halfABroom(stage: PitchStage): AutoMovieComposition {
       .say("Already am.", { start: 10.6 })
       .fly(["seekers.south.approach", "seekers.south.dive"], { speed: 10, lean: 1 }),
     camera.alongside([carina, harry], { start: 8, side: "left", view: "front", distance: 6 }),
+    camera.alongside([carina, harry], { start: 11.5, view: "behind", distance: 6, above: 2 }),
   );
 }

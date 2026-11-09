@@ -9,7 +9,9 @@ import type { PitchStage } from "../PitchStage";
  * low beside the east south post and sprints east, and Harry, whose eyes
  * find her moving first, goes after her a beat later and closes from behind
  * her right shoulder. The wide from above the west goal front holds the game
- * and the Seekers, then pushes onto the two Seekers as they go.
+ * and the Seekers, then cuts to the alongside position on Carina's side as
+ * they go: a push toward riders sprinting at 13–16 m/s never reaches them,
+ * so the lens joins their speed instead.
  *
  * Concretization: the scanning drift is a slow glide toward the east;
  * Harry's later start stands for his roaming eyes, because a rider's gaze
@@ -40,6 +42,6 @@ export function theGame(stage: PitchStage): AutoMovieComposition {
       .fly("seekers.south.scan", { speed: 1.1 })
       .fly("seekers.south.race", { speed: 16, lean: 1, start: 6.2 }),
     camera.wide([carina, harry, players["G-C2"]!], { start: 0, from: "aboveWestGoalFront", motion: "follow" }),
-    camera.shot([carina, harry], { start: 5.5, size: "full", motion: "push", cut: false, seconds: 2.4 }),
+    camera.alongside([carina, harry], { start: 5.5, side: "left", view: "front", distance: 6 }),
   );
 }

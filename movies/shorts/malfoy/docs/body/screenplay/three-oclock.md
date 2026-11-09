@@ -231,7 +231,7 @@ She steps past his shoulder toward the gap. Harry's eyes go back to the note. Wi
 - Outcome: She walks to the west gap, as the [walking table](../../research/everyday/walking.md#outcomes) gives for a free landmark; once Harry looks back at the note nobody faces her, so her habit brings her fingertips to her forehead about a second after she turns away, once she is past him.
 - Consequence: Carina is at the gap with her back to him; Harry's head is down over the note.
 - Space: Carina walks from in front of Harry, around his shoulder, to the west gap; Harry stays at the gap's edge.
-- Camera: cut to a full two-shot from the south-east as he reads; it holds them both as she steps past him toward the gap; at 54.3 seconds, as her hand rises to her forehead, cut to a full two-shot from the open south side, Carina at the gap at the left and Harry at the right.
+- Camera: cut to a full two-shot from the south-east as he reads; it holds them both as she steps past him toward the gap and her hand rises to her forehead.
 - Sound: dialogue "Courtyard.", "This one?" and "This one."; foley none; ambience none; effects none; music none.
 - Continuity: the note in Harry's right hand.
 
@@ -244,6 +244,6 @@ From 54.5 seconds, as Carina hurries out through the gap and the passage beyond 
 - Outcome: He walks to the bench centre and sits, as the [walking table](../../research/everyday/walking.md#outcomes) gives for a free landmark and the [sitting table](../../research/everyday/sitting.md#outcomes) gives when the calves reach the seat edge.
 - Consequence: Harry sits with his feet flat and the note on his knee; the seat Carina rehearsed to is filled. Carina is gone into the side passage. The film ends at 60 seconds.
 - Space: Carina walks from the west gap out of view into the passage; Harry walks from the edge of the west gap along the clear paving to the bench front and sits on the bench at its centre.
-- Camera: the two-shot from the open south holds Carina going out through the gap as Harry walks away from her; at 56.3 seconds, as she goes, cut to a wide from the open south side that holds Harry walking to the bench and sitting down on it, the lit wall behind him, to the end.
+- Camera: at 54.7 seconds, as Harry turns back toward the bench, cut from the south-east two-shot to a wide from the open south side that holds his walk across the paving while Carina goes out through the gap; at 56.3 seconds, as he nears the bench, cut in from the same side to hold him sitting down on it, the lit wall behind him, to the end.
 - Sound: dialogue none; foley none; ambience none; effects none; music none.
 - Continuity: end of the film; the note on Harry's knee; Carina out of view.

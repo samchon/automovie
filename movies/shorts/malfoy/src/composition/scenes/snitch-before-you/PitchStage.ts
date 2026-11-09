@@ -5,6 +5,7 @@ import { carinaMalfoy } from "../../../entities/cast/student/carinaMalfoy";
 import { harryPotter } from "../../../entities/cast/student/harryPotter";
 import { practicePlayers } from "../../../entities/cast/student/practicePlayers";
 import { Student } from "../../../entities/cast/student/Student";
+import { BeaterBat } from "../../../entities/props/beater-bat/BeaterBat";
 import { Broom } from "../../../entities/props/broom/Broom";
 import type { IStageProp } from "../../../entities/props/IStageProp";
 import { QuidditchBall } from "../../../entities/props/quidditch-ball/QuidditchBall";
@@ -14,7 +15,7 @@ import { StageMount } from "../../../interactions/staging/StageMount";
 /**
  * The practice-pitch stage of the `snitch-before-you` film: the pitch, the
  * two Seekers, the twelve supporting players, the fourteen brooms, the four
- * balls and the vertical camera every scene composes, and the mount that
+ * balls, the four Beaters' bats and the vertical camera every scene composes, and the mount that
  * resolves the film once through the library's `StageMount`. It only wires
  * library entities; every decision lives in the scenes and the library.
  *
@@ -52,6 +53,11 @@ export class PitchStage {
   /** The two Bludgers, west and east. */
   public readonly bludgers: readonly QuidditchBall[] = [new QuidditchBall("B-1", "bludger"), new QuidditchBall("B-2", "bludger")];
 
+  /** The four Beaters' bats by Beater id, `bat-<id>`, each held from the first frame. */
+  public readonly bats: Readonly<Record<string, BeaterBat>> = Object.freeze(
+    Object.fromEntries(["S-B1", "S-B2", "G-B1", "G-B2"].map((id: string): [string, BeaterBat] => [id, new BeaterBat(`bat-${id}`)])),
+  );
+
   /** The film's one camera. */
   public readonly camera: VerticalCamera = new VerticalCamera();
 
@@ -60,13 +66,14 @@ export class PitchStage {
     return [this.carina, this.harry, ...Object.values(this.players)];
   }
 
-  /** @returns Every prop: one broom per rider, `broom-<id>` in its house colour, and the four balls. */
+  /** @returns Every prop: one broom per rider, `broom-<id>` in its house colour, the four balls and the four bats. */
   public props(): IStageProp[] {
     return [
       ...this.students().map((s: Student) => new Broom(`broom-${s.id}`, s.profile.house)),
       this.snitch,
       this.quaffle,
       ...this.bludgers,
+      ...Object.values(this.bats),
     ];
   }
 

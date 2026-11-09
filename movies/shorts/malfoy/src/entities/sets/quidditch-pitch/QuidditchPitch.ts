@@ -119,7 +119,7 @@ export class QuidditchPitch implements IStageSet {
       "snitch.runoff": p(95, 12.5, 12, 0.5),
       "snitch.climb": p(112, 15.6, 11.2, 0.5),
       "snitch.ahead": p(128.2, 16.3, 10.6, 0.5),
-      "snitch.first": p(128.9, 16.8, 9.9, 0.5),
+      "snitch.first": p(128.9, 16.0, 9.9, 0.5),
       "snitch.away": p(130.5, 17.3, 9.0, 0.5),
       "snitch.beyond": p(135.8, 16.7, 9.4, 0.5),
       "snitch.atNorthRider": p(135.2, 16.6, 10.1, 0.5),
