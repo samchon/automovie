@@ -1,5 +1,4 @@
-import { DEFAULT_CHROME_EXECUTABLE, frameTimes } from "@automovie/render";
-import { createViewerCaptureSession } from "@automovie/viewer";
+import { frameTimes } from "@automovie/render";
 import { spawn } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import { createWriteStream } from "node:fs";
@@ -7,6 +6,9 @@ import { lstat, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { finished } from "node:stream/promises";
 import { type Browser, chromium } from "playwright";
+
+import { DEFAULT_CHROME_EXECUTABLE } from "../src/integrations/render/node/capture/DEFAULT_CHROME_EXECUTABLE";
+import { createViewerCaptureSession } from "../src/integrations/viewer/node/capture/createViewerCaptureSession";
 
 const root = path.resolve(import.meta.dirname, "..");
 const repository = path.resolve(root, "../..");

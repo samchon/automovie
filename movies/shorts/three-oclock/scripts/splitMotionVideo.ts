@@ -1,8 +1,9 @@
-import { probeProductionVideoMp4 } from "@automovie/render";
 import ffmpeg from "ffmpeg-static";
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+
+import { probeProductionVideoMp4 } from "../src/integrations/render/node/probeProductionVideoMp4";
 
 /**
  * Encode five causal reference clips from the actual complete silent hint.

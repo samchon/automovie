@@ -1,4 +1,3 @@
-import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render";
 import ffmpeg from "ffmpeg-static";
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -10,6 +9,7 @@ import { promisify } from "node:util";
 
 import type { IPerformancePoseFrame } from "../src/IPerformancePoseFrame";
 import type { IPerformancePreparation } from "../src/IPerformancePreparation";
+import { DEFAULT_CHROME_EXECUTABLE } from "../src/integrations/render/node/capture/DEFAULT_CHROME_EXECUTABLE";
 
 /** Installed public Playwright surface used by this durable, isolated observer. */
 interface Driver {
@@ -503,8 +503,8 @@ export async function inspectMotionViewer(): Promise<void> {
       try {
         if (relativeVideo.startsWith("..") || path.isAbsolute(relativeVideo))
           throw new Error("Encoded artifact must belong to this production");
-        const mediaApi: typeof import("@automovie/render") =
-          await import("@automovie/render");
+        const mediaApi: typeof import("../src/integrations/render/node/probeProductionVideoMp4") =
+          await import("../src/integrations/render/node/probeProductionVideoMp4");
         const bytes: Buffer = await fs.readFile(videoPath);
         const probe: ReturnType<typeof mediaApi.probeProductionVideoMp4> =
           mediaApi.probeProductionVideoMp4(bytes);

@@ -1,9 +1,10 @@
-import { archiveAutoMovieRecoveryModel } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
+
+import { archiveAutoMovieRecoveryModel } from "../../../../packages/template/scaffold/src/integrations/recovery/node/artifact/archiveAutoMovieRecoveryModel";
 
 /**
  * Lossless model storage preserves logical bytes and limits served-file retirement.

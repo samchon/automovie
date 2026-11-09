@@ -1,10 +1,10 @@
-import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { DEFAULT_CHROME_EXECUTABLE } from "../src/integrations/render/node/capture/DEFAULT_CHROME_EXECUTABLE";
 import type {
   IGripPreparationInput,
   IGripPreparationResult,

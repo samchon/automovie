@@ -32,9 +32,6 @@ export const playgroundViteConfig: UserConfig = defineConfig({
   preview: { host: "127.0.0.1", port: 4173, strictPort: true },
   build: {
     rollupOptions: {
-      // Package roots now also export their Node-only modules; the pages never
-      // reach them, so a browser build must not fail on their builtin imports.
-      shimMissingExports: true,
       input: {
         main: resolve(__dirname, "../index.html"),
         drivers: resolve(__dirname, "../drivers.html"),

@@ -1,11 +1,9 @@
-import {
-  type IAutoMovieViewerVideoResult,
-  renderViewerVideo,
-} from "@automovie/render";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import config from "../render.config";
+import { type IAutoMovieViewerVideoResult } from "../src/integrations/render/node/IAutoMovieViewerVideoResult";
+import { renderViewerVideo } from "../src/integrations/render/node/renderViewerVideo";
 
 /**
  * Prove the real full-profile capture/encode path for a bounded scene interval.

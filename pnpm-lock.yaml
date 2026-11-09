@@ -116,6 +116,27 @@ importers:
 
   .:
     devDependencies:
+      '@automovie/engine':
+        specifier: workspace:^
+        version: link:packages/engine
+      '@automovie/ingest':
+        specifier: workspace:^
+        version: link:packages/ingest
+      '@automovie/interface':
+        specifier: workspace:^
+        version: link:packages/interface
+      '@automovie/recovery':
+        specifier: workspace:^
+        version: link:packages/recovery
+      '@automovie/render':
+        specifier: workspace:^
+        version: link:packages/render
+      '@automovie/viewer':
+        specifier: workspace:^
+        version: link:packages/viewer
+      '@gltf-transform/core':
+        specifier: catalog:gltf
+        version: 4.5.0
       '@trivago/prettier-plugin-sort-imports':
         specifier: catalog:typescript
         version: 5.2.2(prettier@3.8.3)
@@ -128,12 +149,27 @@ importers:
       '@types/node':
         specifier: catalog:utils
         version: 22.19.20
+      '@types/pngjs':
+        specifier: catalog:media
+        version: 6.0.5
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
         version: 0.8.2(ttsc@0.36.3(typescript@7.0.2))
       bumpp:
         specifier: catalog:utils
         version: 12.3.0
+      h264-mp4-encoder:
+        specifier: catalog:media
+        version: 1.0.12
+      mp4box:
+        specifier: catalog:media
+        version: 2.4.1
+      playwright-core:
+        specifier: catalog:media
+        version: 1.60.0
+      pngjs:
+        specifier: catalog:media
+        version: 7.0.0
       prettier:
         specifier: catalog:typescript
         version: 3.8.3
@@ -384,6 +420,21 @@ importers:
       '@automovie/viewer':
         specifier: workspace:^
         version: link:../../packages/viewer
+      '@gltf-transform/core':
+        specifier: catalog:gltf
+        version: 4.5.0
+      h264-mp4-encoder:
+        specifier: catalog:media
+        version: 1.0.12
+      mp4box:
+        specifier: catalog:media
+        version: 2.4.1
+      playwright-core:
+        specifier: catalog:media
+        version: 1.60.0
+      pngjs:
+        specifier: catalog:media
+        version: 7.0.0
       three:
         specifier: catalog:three
         version: 0.186.0
@@ -394,6 +445,9 @@ importers:
       '@types/node':
         specifier: catalog:utils
         version: 22.19.20
+      '@types/pngjs':
+        specifier: catalog:media
+        version: 6.0.5
       '@types/three':
         specifier: catalog:three
         version: 0.186.0
@@ -439,6 +493,21 @@ importers:
       '@automovie/viewer':
         specifier: workspace:^
         version: link:../../../packages/viewer
+      '@gltf-transform/core':
+        specifier: catalog:gltf
+        version: 4.5.0
+      h264-mp4-encoder:
+        specifier: catalog:media
+        version: 1.0.12
+      mp4box:
+        specifier: catalog:media
+        version: 2.4.1
+      playwright-core:
+        specifier: catalog:media
+        version: 1.60.0
+      pngjs:
+        specifier: catalog:media
+        version: 7.0.0
     devDependencies:
       '@automovie/evidence':
         specifier: workspace:^
@@ -449,6 +518,9 @@ importers:
       '@types/node':
         specifier: ^22.19.17
         version: 22.20.5
+      '@types/pngjs':
+        specifier: catalog:media
+        version: 6.0.5
       '@types/three':
         specifier: catalog:three
         version: 0.186.0
@@ -461,9 +533,6 @@ importers:
       ffprobe-static:
         specifier: ^3.1.0
         version: 3.1.0
-      playwright-core:
-        specifier: catalog:media
-        version: 1.60.0
       three:
         specifier: catalog:three
         version: 0.186.0
@@ -503,6 +572,21 @@ importers:
       '@automovie/viewer':
         specifier: workspace:*
         version: link:../../../packages/viewer
+      '@gltf-transform/core':
+        specifier: catalog:gltf
+        version: 4.5.0
+      h264-mp4-encoder:
+        specifier: catalog:media
+        version: 1.0.12
+      mp4box:
+        specifier: catalog:media
+        version: 2.4.1
+      playwright-core:
+        specifier: catalog:media
+        version: 1.60.0
+      pngjs:
+        specifier: catalog:media
+        version: 7.0.0
       three:
         specifier: ^0.186.0
         version: 0.186.0
@@ -519,6 +603,9 @@ importers:
       '@types/node':
         specifier: ^22.19.17
         version: 22.20.5
+      '@types/pngjs':
+        specifier: catalog:media
+        version: 6.0.5
       '@types/three':
         specifier: ^0.186.0
         version: 0.186.0
@@ -564,6 +651,21 @@ importers:
       '@automovie/viewer':
         specifier: workspace:*
         version: link:../../../packages/viewer
+      '@gltf-transform/core':
+        specifier: catalog:gltf
+        version: 4.5.0
+      h264-mp4-encoder:
+        specifier: catalog:media
+        version: 1.0.12
+      mp4box:
+        specifier: catalog:media
+        version: 2.4.1
+      playwright-core:
+        specifier: catalog:media
+        version: 1.60.0
+      pngjs:
+        specifier: catalog:media
+        version: 7.0.0
       three:
         specifier: ^0.186.0
         version: 0.186.0
@@ -580,6 +682,9 @@ importers:
       '@types/node':
         specifier: ^22.19.17
         version: 22.20.5
+      '@types/pngjs':
+        specifier: catalog:media
+        version: 6.0.5
       '@types/three':
         specifier: ^0.186.0
         version: 0.186.0
@@ -625,6 +730,21 @@ importers:
       '@automovie/viewer':
         specifier: workspace:*
         version: link:../../../packages/viewer
+      '@gltf-transform/core':
+        specifier: catalog:gltf
+        version: 4.5.0
+      h264-mp4-encoder:
+        specifier: catalog:media
+        version: 1.0.12
+      mp4box:
+        specifier: catalog:media
+        version: 2.4.1
+      playwright-core:
+        specifier: catalog:media
+        version: 1.60.0
+      pngjs:
+        specifier: catalog:media
+        version: 7.0.0
       three:
         specifier: ^0.186.0
         version: 0.186.0
@@ -641,6 +761,9 @@ importers:
       '@types/node':
         specifier: ^22.19.17
         version: 22.20.5
+      '@types/pngjs':
+        specifier: catalog:media
+        version: 6.0.5
       '@types/three':
         specifier: ^0.186.0
         version: 0.186.0
@@ -686,6 +809,21 @@ importers:
       '@automovie/viewer':
         specifier: workspace:*
         version: link:../../../packages/viewer
+      '@gltf-transform/core':
+        specifier: catalog:gltf
+        version: 4.5.0
+      h264-mp4-encoder:
+        specifier: catalog:media
+        version: 1.0.12
+      mp4box:
+        specifier: catalog:media
+        version: 2.4.1
+      playwright-core:
+        specifier: catalog:media
+        version: 1.60.0
+      pngjs:
+        specifier: catalog:media
+        version: 7.0.0
       three:
         specifier: ^0.186.0
         version: 0.186.0
@@ -702,6 +840,9 @@ importers:
       '@types/node':
         specifier: ^22.19.17
         version: 22.20.5
+      '@types/pngjs':
+        specifier: catalog:media
+        version: 6.0.5
       '@types/three':
         specifier: ^0.186.0
         version: 0.186.0
@@ -1021,9 +1162,6 @@ importers:
       '@automovie/engine':
         specifier: workspace:^
         version: link:../engine
-      '@automovie/ingest':
-        specifier: workspace:^
-        version: link:../ingest
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
@@ -1061,24 +1199,12 @@ importers:
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
-      '@automovie/viewer':
-        specifier: workspace:^
-        version: link:../viewer
-      '@gltf-transform/core':
-        specifier: catalog:gltf
-        version: 4.5.0
       h264-mp4-encoder:
         specifier: catalog:media
         version: 1.0.12
       mp4box:
         specifier: catalog:media
         version: 2.4.1
-      playwright-core:
-        specifier: catalog:media
-        version: 1.60.0
-      pngjs:
-        specifier: catalog:media
-        version: 7.0.0
     devDependencies:
       '@ttsc/evidence':
         specifier: catalog:samchon
@@ -1086,9 +1212,6 @@ importers:
       '@ttsc/lint':
         specifier: catalog:samchon
         version: 0.36.3(ttsc@0.36.3(typescript@7.0.2))
-      '@types/pngjs':
-        specifier: catalog:media
-        version: 6.0.5
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
         version: 0.8.2(ttsc@0.36.3(typescript@7.0.2))

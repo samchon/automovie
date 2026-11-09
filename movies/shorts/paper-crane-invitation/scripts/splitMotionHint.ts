@@ -1,10 +1,11 @@
 import type { IAutoMovieProductionVideoProbe } from "@automovie/interface";
-import { probeProductionVideoMp4 } from "@automovie/render";
 import ffmpeg from "ffmpeg-static";
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { promisify } from "node:util";
+
+import { probeProductionVideoMp4 } from "../src/integrations/render/node/probeProductionVideoMp4";
 
 /**
  * Derive the three causal input clips from the actual complete silent motion MP4.

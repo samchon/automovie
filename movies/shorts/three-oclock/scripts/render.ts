@@ -1,10 +1,8 @@
-import {
-  type IAutoMovieViewerVideoResult,
-  renderViewerVideo,
-} from "@automovie/render";
 import { writeFile } from "node:fs/promises";
 
 import config from "../render.config";
+import { type IAutoMovieViewerVideoResult } from "../src/integrations/render/node/IAutoMovieViewerVideoResult";
+import { renderViewerVideo } from "../src/integrations/render/node/renderViewerVideo";
 
 /**
  * Export the running viewer once and retain its actual capture/encode observations.

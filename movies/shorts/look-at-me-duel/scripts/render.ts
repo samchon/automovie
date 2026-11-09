@@ -1,11 +1,9 @@
-import {
-  type IAutoMovieViewerVideoResult,
-  renderViewerVideo,
-} from "@automovie/render";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 
 import config from "../render.config";
+import { type IAutoMovieViewerVideoResult } from "../src/integrations/render/node/IAutoMovieViewerVideoResult";
+import { renderViewerVideo } from "../src/integrations/render/node/renderViewerVideo";
 import { motionFileDigest, motionSourceIdentity } from "./motionSourceIdentity";
 
 /**

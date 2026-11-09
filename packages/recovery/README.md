@@ -20,7 +20,7 @@ const {
   convertAutoMovieRecoveryCurves,
   reconstructAutoMovieRecoveryModel,
 } = require("@automovie/recovery");
-const { publishAutoMovieRecoveryArtifact } = require("@automovie/recovery");
+const { publishAutoMovieRecoveryArtifact } = require("./src/integrations/recovery");
 
 const curves = JSON.parse(fs.readFileSync("curves.json", "utf8"));
 const hermite = convertAutoMovieRecoveryCurves(curves, "hermite");
@@ -60,20 +60,13 @@ All saved cuts are verified before any target is fitted. Published curves, inclu
 
 The result keeps original publication addresses in `sections`, untargeted artifact references in `preservedOriginals`, original raw indices in `targets` and newly fitted coefficients in `fits`. A target's `patchCurveIndex` addresses only the new `fits` array. Commit this patch separately and resolve both artifact namespaces in an explicit acquisition ledger. Only new cubics undergo official basis conversion; normal coefficients, including high-degree and rational data, remain external byte references with their original actual widths, units and directions. `complete` means the requested patches met the original polyline tolerance, independently of unresolved untargeted publications. It establishes no surface error, continuation, material phase or transverse jets. Progress exceptions fail without a value; cooperative abort stops later work but cannot interrupt a synchronous numeric solve.
 
-## CLI
+## Node tooling
 
-```sh
-automovie-recovery recovery --source-epoch <source-sha> extract input.json curves.json --curve-format hermite
-automovie-recovery recovery --source-epoch <source-sha> reconstruct curves.json model.json
-```
-
-The extraction specification contains `units: "mm"`, `frame`, `pose`, `meshes` with file paths and SHA-256 hashes, and an observation `policy`. Each mesh file contains `vertices` and oriented `triangles`. Paths resolve from the specification's directory. `extract-prefix` adds a section count after the output path and explicitly saves incomplete coverage. Both extraction commands accept `--curve-format bezier|hermite`; reconstruction reads the saved basis.
-
-`--source-epoch` requires the generating source's 40-to-64-digit hexadecimal identity. Outputs do not overwrite existing files. Exit 0 means command execution ended; inspect the saved outcome and diagnostics. `automovie-recovery --help` lists open-contour, local, atlas, contour-path and image commands.
+File publication and the `automovie-recovery` command dispatcher are Node tooling that the generated scaffold ships under `src/integrations/recovery`; this package stays free of file and process access.
 
 ## Public API
 
-The only entrypoint exports observation, fitting, reconstruction, compilation and curve conversion functions, together with named data contracts and closed type unions. Filesystem publication and command dispatch are exported beside them; registration input contracts belong to `@automovie/interface`.
+The only entrypoint exports observation, fitting, reconstruction, compilation and curve conversion functions, together with named data contracts and closed type unions. Registration input contracts belong to `@automovie/interface`.
 
 | Function | Purpose |
 | --- | --- |
@@ -91,8 +84,6 @@ The only entrypoint exports observation, fitting, reconstruction, compilation an
 | `estimateAutoMovieRecoveryCameraMap` | Register a calibrated three-camera sparse map from shared automatic tracks |
 | `fitAutoMovieRecoveryImageLoft` / `compileAutoMovieRecoveryImageLoft` | Fit and realize an aligned elliptical section model |
 | `fitAutoMovieRecoveryImageSupportLoft` / `compileAutoMovieRecoverySupportLoft` | Fit and realize finite-view convex section support |
-| `publishAutoMovieRecoveryArtifact` from `/node` | Publish immutable JSON and its byte hash |
-| `runAutoMovieRecoveryCommand` from `/node` | Dispatch installed CLI commands |
 
 Operations carrying `complete` or `partial` return a value; `refused`, `failed` and `cancelled` return diagnostics. Cancellation and progress are cooperative synchronous checkpoints. Unknown or unsupported domains remain explicit. Coefficient conversion does not repair missing geometry or surface defects.
 

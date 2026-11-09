@@ -1,14 +1,12 @@
-import {
-  createAutoMovieRecoveryMeshSpool,
-  readAutoMovieRecoveryMeshFrontier,
-  writeAutoMovieRecoveryArtifact,
-} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
 import type { tessellateAutoMovieLocalHermite64 as T } from "../../../../packages/engine/src/geometry/curve/tessellateAutoMovieLocalHermite64";
+import { writeAutoMovieRecoveryArtifact } from "../../../../packages/template/scaffold/src/integrations/recovery/node/artifact/writeAutoMovieRecoveryArtifact";
+import { createAutoMovieRecoveryMeshSpool } from "../../../../packages/template/scaffold/src/integrations/recovery/node/mesh/createAutoMovieRecoveryMeshSpool";
+import { readAutoMovieRecoveryMeshFrontier } from "../../../../packages/template/scaffold/src/integrations/recovery/node/mesh/readAutoMovieRecoveryMeshFrontier";
 
 /**
  * Batched source-free channels retain one complete indexed publication frontier.

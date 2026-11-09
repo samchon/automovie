@@ -1,7 +1,8 @@
-import { renderAndSeeCommand as main } from "@automovie/render";
 import path from "node:path";
 
-export { renderAndSeeCommand as main } from "@automovie/render";
+import { renderAndSeeCommand as main } from "../../template/scaffold/src/integrations/render/node/capture/renderAndSeeCommand";
+
+export { renderAndSeeCommand as main } from "../../template/scaffold/src/integrations/render/node/capture/renderAndSeeCommand";
 
 if (path.resolve(process.argv[1] ?? "") === path.resolve(import.meta.filename))
   void main().catch((error: unknown): void => {

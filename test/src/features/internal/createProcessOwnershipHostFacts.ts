@@ -1,4 +1,4 @@
-import type { IProcessOwnershipHost } from "@automovie/viewer";
+import type { IProcessOwnershipHost } from "../../../../packages/template/scaffold/src/integrations/viewer/process/internal/IProcessOwnershipHost";
 
 /** Values arranged by existing portable admission tests, without native effects. */
 type ProcessHostFacts = {

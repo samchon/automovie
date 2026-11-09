@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { createRecoveryFileVectorTable } from "../../../../packages/recovery/src/node/internal/createRecoveryFileVectorTable";
+import { createRecoveryFileVectorTable } from "../../../../packages/template/scaffold/src/integrations/recovery/node/internal/createRecoveryFileVectorTable";
 import { nclose } from "../internal/nclose";
 
 /**

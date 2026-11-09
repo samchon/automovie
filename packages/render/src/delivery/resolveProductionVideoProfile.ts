@@ -1,7 +1,7 @@
 import type { IAutoMovieProductionFrameRate } from "@automovie/interface";
 
-import { AUTOMOVIE_MP4_SRGB_COLOUR } from "../node/AUTOMOVIE_MP4_SRGB_COLOUR";
-import { AUTOMOVIE_MP4_UNITY_MATRIX } from "../node/AUTOMOVIE_MP4_UNITY_MATRIX";
+import { AUTOMOVIE_MP4_SRGB_COLOUR } from "./AUTOMOVIE_MP4_SRGB_COLOUR";
+import { AUTOMOVIE_MP4_UNITY_MATRIX } from "./AUTOMOVIE_MP4_UNITY_MATRIX";
 import type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVideoProfile";
 
 /**

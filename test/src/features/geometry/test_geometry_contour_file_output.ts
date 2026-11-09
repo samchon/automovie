@@ -4,15 +4,13 @@ import {
   generateAutoMovieContourLoft64,
   tessellateAutoMovieContourLoft64,
 } from "@automovie/engine";
-import {
-  createAutoMovieRecoveryContourFileMesh,
-  writeAutoMovieRecoveryArtifact,
-} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+import { writeAutoMovieRecoveryArtifact } from "../../../../packages/template/scaffold/src/integrations/recovery/node/artifact/writeAutoMovieRecoveryArtifact";
+import { createAutoMovieRecoveryContourFileMesh } from "../../../../packages/template/scaffold/src/integrations/recovery/node/mesh/createAutoMovieRecoveryContourFileMesh";
 import { nclose } from "../internal/nclose";
 
 /**

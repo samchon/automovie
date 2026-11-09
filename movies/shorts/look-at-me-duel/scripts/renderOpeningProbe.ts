@@ -1,11 +1,9 @@
-import {
-  type IAutoMovieViewerVideoOptions,
-  type IAutoMovieViewerVideoResult,
-  renderViewerVideo,
-} from "@automovie/render";
 import { mkdir, writeFile } from "node:fs/promises";
 
 import config from "../render.config";
+import { type IAutoMovieViewerVideoOptions } from "../src/integrations/render/node/IAutoMovieViewerVideoOptions";
+import { type IAutoMovieViewerVideoResult } from "../src/integrations/render/node/IAutoMovieViewerVideoResult";
+import { renderViewerVideo } from "../src/integrations/render/node/renderViewerVideo";
 
 /**
  * Exercise the actual final-profile capture path across the opening's first camera cut.

@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "description": "automovie deterministic engine, kinematics, ROM validation, motion sampling, tessellation",
   "main": "src/index.ts",
-  "sideEffects": false,
   "exports": {
     ".": "./src/index.ts",
     "./package.json": "./package.json"

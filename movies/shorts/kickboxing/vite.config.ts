@@ -13,8 +13,8 @@ const humanSource: string = join(
   "src",
 );
 
-/** Render's Node entry, loaded through the server's own module loader because it ships TypeScript source. */
-type RenderNode = typeof import("@automovie/render");
+/** The production's own Node render integration, loaded through the server's own module loader because it is TypeScript source. */
+type RenderNode = typeof import("./src/integrations/render/node/index");
 
 /**
  * The development server's artifact routes: the production's artifact store
@@ -28,7 +28,7 @@ function artifacts(server: ViteDevServer): void {
   let loaded: Promise<RenderNode> | undefined;
   const node = (): Promise<RenderNode> =>
     (loaded ??= server.ssrLoadModule(
-      "@automovie/render",
+      "/src/integrations/render/node/index.ts",
     ) as Promise<RenderNode>);
   let store:
     | Promise<ReturnType<RenderNode["createAutoMovieArtifactMiddleware"]>>

@@ -1,13 +1,11 @@
-import {
-  createAutoMovieRecoveryArtifact,
-  writeAutoMovieRecoveryArtifact,
-} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+import { createAutoMovieRecoveryArtifact } from "../../../../packages/template/scaffold/src/integrations/recovery/node/artifact/createAutoMovieRecoveryArtifact";
+import { writeAutoMovieRecoveryArtifact } from "../../../../packages/template/scaffold/src/integrations/recovery/node/artifact/writeAutoMovieRecoveryArtifact";
 import { createBicubicPlaneRecipe } from "../internal/createBicubicPlaneRecipe";
 
 /**

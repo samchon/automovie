@@ -1,5 +1,6 @@
-import { normalizeProductionH264Mp4 } from "@automovie/render";
 import { createFile } from "mp4box";
+
+import { normalizeProductionH264Mp4 } from "../../../../../packages/template/scaffold/src/integrations/render/node/normalizeProductionH264Mp4";
 
 /**
  * Author resident AVC sample-table inputs without running a video encoder.

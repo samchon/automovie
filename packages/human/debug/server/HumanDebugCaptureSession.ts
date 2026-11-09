@@ -1,4 +1,3 @@
-import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render";
 import { createHash } from "node:crypto";
 import {
   type Browser,
@@ -10,6 +9,7 @@ import {
   chromium,
 } from "playwright-core";
 
+import { DEFAULT_CHROME_EXECUTABLE } from "../../../template/scaffold/src/integrations/render/node/capture/DEFAULT_CHROME_EXECUTABLE";
 import { HUMAN_DEBUG_ROUTES } from "../contracts/HUMAN_DEBUG_ROUTES";
 import { HumanDebugOptions } from "../contracts/HumanDebugOptions";
 import type { IHumanDebugOptions } from "../contracts/IHumanDebugOptions";

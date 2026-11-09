@@ -1,6 +1,6 @@
-import { ProcessOwnership } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
+import { ProcessOwnership } from "../../../../packages/template/scaffold/src/integrations/viewer/process/ProcessOwnership";
 import { throwsError } from "../internal/predicates";
 
 /**

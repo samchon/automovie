@@ -1,11 +1,4 @@
-import {
-  type IAutoMovieViewerVideoResult,
-  decodeAutoMovieDelivery,
-  mixAutoMovieAudioCues,
-  planViewerFrameTimes,
-  renderViewerFrames,
-  renderViewerVideo,
-} from "@automovie/render";
+import { planViewerFrameTimes } from "@automovie/render";
 import ffmpeg from "ffmpeg-static";
 import ffprobe from "ffprobe-static";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -13,6 +6,11 @@ import path from "node:path";
 
 import type { IFilm } from "../IFilm";
 import { films } from "../composition/films";
+import { type IAutoMovieViewerVideoResult } from "../integrations/render/node/IAutoMovieViewerVideoResult";
+import { decodeAutoMovieDelivery } from "../integrations/render/node/decodeAutoMovieDelivery";
+import { mixAutoMovieAudioCues } from "../integrations/render/node/mixAutoMovieAudioCues";
+import { renderViewerFrames } from "../integrations/render/node/renderViewerFrames";
+import { renderViewerVideo } from "../integrations/render/node/renderViewerVideo";
 import { selectFilm } from "../selectFilm";
 
 /**

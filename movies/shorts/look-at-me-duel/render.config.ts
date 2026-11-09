@@ -1,10 +1,8 @@
-import {
-  DEFAULT_CHROME_EXECUTABLE,
-  type IAutoMovieViewerVideoOptions,
-} from "@automovie/render";
 import ffmpeg from "ffmpeg-static";
 
 import { durationSeconds } from "./src/durationSeconds";
+import { type IAutoMovieViewerVideoOptions } from "./src/integrations/render/node/IAutoMovieViewerVideoOptions";
+import { DEFAULT_CHROME_EXECUTABLE } from "./src/integrations/render/node/capture/DEFAULT_CHROME_EXECUTABLE";
 
 /** Exact-time export of the running production viewer; the production owns the optional soundtrack. */
 export default {

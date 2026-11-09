@@ -1,10 +1,11 @@
-import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import { createServer } from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { DEFAULT_CHROME_EXECUTABLE } from "../src/integrations/render/node/capture/DEFAULT_CHROME_EXECUTABLE";
 
 /** Installed public Playwright operations used by this durable observer. */
 interface Driver {

@@ -1,1 +1,1 @@
-export { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render";
+export { DEFAULT_CHROME_EXECUTABLE } from "../../template/scaffold/src/integrations/render/node/capture/DEFAULT_CHROME_EXECUTABLE";

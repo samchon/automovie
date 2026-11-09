@@ -1,12 +1,10 @@
-import {
-  type IAutoMovieViewerVideoResult,
-  renderViewerVideo,
-} from "@automovie/render";
 import { mkdir, writeFile } from "node:fs/promises";
 
 import config from "../render.config";
 import type { IPerformancePoseFrame } from "../src/IPerformancePoseFrame";
 import type { IPerformancePreparation } from "../src/IPerformancePreparation";
+import { type IAutoMovieViewerVideoResult } from "../src/integrations/render/node/IAutoMovieViewerVideoResult";
+import { renderViewerVideo } from "../src/integrations/render/node/renderViewerVideo";
 
 /**
  * Export actual prepared Human frames through the installed public Render host.

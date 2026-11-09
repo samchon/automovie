@@ -49,9 +49,6 @@ export const websiteViteConfig: UserConfig = defineConfig({
     // source in one bundle; one chunk is the point, not an oversight.
     chunkSizeWarningLimit: 4096,
     rollupOptions: {
-      // Package roots now also export their Node-only modules; the pages never
-      // reach them, so a browser build must not fail on their builtin imports.
-      shimMissingExports: true,
       input: {
         main: resolve(__dirname, "index.html"),
         manor: resolve(__dirname, "manor/index.html"),

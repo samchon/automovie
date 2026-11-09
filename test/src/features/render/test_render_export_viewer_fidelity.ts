@@ -3,7 +3,6 @@ import {
   IAutoMovieModel,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { exportModelToGLB } from "@automovie/render";
 import {
   Accessor,
   Document,
@@ -15,6 +14,7 @@ import {
 } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
+import { exportModelToGLB } from "../../../../packages/template/scaffold/src/integrations/render/node/exportModelToGLB";
 import { nclose, vclose } from "../internal/predicates";
 
 const material: (

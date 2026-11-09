@@ -1,4 +1,3 @@
-import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render";
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import fs from "node:fs/promises";
@@ -6,6 +5,8 @@ import { createRequire } from "node:module";
 import { type Server, createServer } from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { DEFAULT_CHROME_EXECUTABLE } from "../src/integrations/render/node/capture/DEFAULT_CHROME_EXECUTABLE";
 
 /** Actual public driver subset used by this observer, with no browser transport implementation. */
 interface BrowserDriver {
@@ -374,14 +375,12 @@ export async function inspectViewer(): Promise<void> {
             throw new Error("Actual completed seek port missing");
           await seek(time);
         }, seconds);
-        await page
-          .locator("#view")
-          .screenshot({
-            path: path.join(
-              output,
-              `pose-${String(seconds).replace(".", "-")}.png`,
-            ),
-          });
+        await page.locator("#view").screenshot({
+          path: path.join(
+            output,
+            `pose-${String(seconds).replace(".", "-")}.png`,
+          ),
+        });
       } catch (error: unknown) {
         observationFailures.push(`Sample${seconds}: ${String(error)}`);
       }

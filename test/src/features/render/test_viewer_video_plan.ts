@@ -1,7 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieViewerVideoOptions } from "../../../../packages/render/src/node/IAutoMovieViewerVideoOptions";
-import { planViewerVideo } from "../../../../packages/render/src/node/planViewerVideo";
+import type { IAutoMovieViewerVideoOptions } from "../../../../packages/template/scaffold/src/integrations/render/node/IAutoMovieViewerVideoOptions";
+import { planViewerVideo } from "../../../../packages/template/scaffold/src/integrations/render/node/planViewerVideo";
 
 /**
  * Exact film clocks and stream mapping remain independent of browser execution.

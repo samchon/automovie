@@ -1,5 +1,4 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { exportModelToGLB } from "@automovie/render";
 import {
   type Accessor,
   type Document,
@@ -9,6 +8,7 @@ import {
 } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
+import { exportModelToGLB } from "../../../../packages/template/scaffold/src/integrations/render/node/exportModelToGLB";
 import { nclose } from "../internal/predicates";
 import {
   vertexColourMesh,
