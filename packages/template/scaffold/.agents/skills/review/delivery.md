@@ -8,11 +8,11 @@ Check the required [passes and handoff](../story/workflow.md#completion), and lo
 
 ## Video
 
-Watch the whole assembled artifact as an audience that has not read its plans, and lock that response before opening the screenplay or code, covering the opening, ending, middle and every join. A whole-video hint contains the programmed main scenes and the complete timeline, and carries staging, identity, camera, action and timing at its adopted representation; stick figures and coarse meshes can do that. Inspect contacts, support, facing, reactions, occlusion and continuity through the motion. Every screenplay beat reaches the picture through the scene that cites it; a function name or citation proves neither invocation nor visibility.
+Review the whole assembled artifact through its dense stills as an audience that has not read its plans, and lock that response before opening the screenplay or code, covering the opening, ending, middle and every join. A whole-video hint contains the programmed main scenes and the complete timeline, and carries staging, identity, camera, action and timing at its adopted representation; stick figures and coarse meshes can do that. Inspect contacts, support, facing, reactions, occlusion and continuity through the motion. Every screenplay beat reaches the picture through the scene that cites it; a function name or citation proves neither invocation nor visibility.
 
 Check control channels against the [conditioning handoff](../production/conditioning.md) at matched frames, and a selected generator's actual accepted inputs and outputs under [generation](../production/generation.md). A finished direct 3D or generated film is judged by its own picture and sound for preserved action, identity, continuity and audience effect, not by its conditioning.
 
-Record the checklist, its observations and the [measures](#measure-and-compare) in `docs/acceptance/<film>.md`: every scene and beat seen, on-model entities, contacts, presences, camera and continuity, so a later revision is accepted against the same list. Take runtime from performed and measured timing, never page or word count, and judge a generated film's sound with its picture. Measure the delivered file's profile and synchronization through actual playback in the intended consumer, as [finishing](../production/finishing.md) records them; an encoder exit or a matching nominal duration is not playback.
+Record the checklist, its observations and the [measures](#measure-and-compare) in `docs/acceptance/<film>.md`: every scene and beat seen, on-model entities, contacts, presences, camera and continuity, so a later revision is accepted against the same list. Take runtime from performed and measured timing, never page or word count, and have the user judge a generated film's sound with its picture. Measure the delivered file's profile and synchronization through actual playback in the intended consumer, as [finishing](../production/finishing.md) records them; an encoder exit or a matching nominal duration is not playback.
 
 ## Measure and compare {#measure-and-compare}
 
@@ -22,7 +22,7 @@ Every delivery claim after the first also sets each segment's sheets and measure
 
 ## Assets
 
-Inspect a model or visual export through its intended consumer, required views and promised controls, and its shape, contact, deformation and motion by [visual debugging](../3d-modeling/visual-debugging.md) at the uses [entity work](../development/entities.md#inspect-and-hand-off) sets. Listen to standalone audio as delivered.
+Inspect a model or visual export through its intended consumer, required views and promised controls, and its shape, contact, deformation and motion by [visual debugging](../3d-modeling/visual-debugging.md) at the uses [entity work](../development/entities.md#inspect-and-hand-off) sets. Have the user listen to standalone audio as delivered.
 
 ## Record and repair
 

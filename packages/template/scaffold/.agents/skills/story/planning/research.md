@@ -8,10 +8,10 @@ Study real practice at the depicted level, such as a sport, fight, dance, craft 
 
 ## Sources
 
-Use originals: rulebooks, coaching and training texts, measured studies, analyses of real top-level performances and productions, official documentation and footage of qualified practitioners; search results only locate them. Read each passage in context and watch footage at normal speed through its connected phases. Keep each value as a range from the depicted discipline and level with its unit, method and conditions; a value taken from another discipline or read from an adjective states its translation. Cross-check disputed claims and record what stays unavailable.
+Use originals: rulebooks, coaching and training texts, measured studies, analyses of real top-level performances and productions, official documentation and footage of qualified practitioners; search results only locate them. Read each passage in context and study footage as consecutive frames through its connected phases. Keep each value as a range from the depicted discipline and level with its unit, method and conditions; a value taken from another discipline or read from an adjective states its translation. Cross-check disputed claims and record what stays unavailable.
 
 Save permitted originals in `references/`, rights-unconfirmed ones in ignored `references/private/` and footage in ignored `media/acquired/videos/`, then open the saved files. Keep one `docs/research/index.md` naming each original's creator, URL, retrieval date, locator, rights and use, and write each study in `docs/research/<discipline>/<topic>.md`. A URL or an empty index is not a retained source.
 
 ## Use
 
-Test the adopted values in the real entity, behavior or sound and watch the result beside the footage. The study informs the work; [delivery review](../../review/delivery.md) measures its targets on the picture and sound and judges what it produced.
+Test the adopted values in the real entity, behavior or sound and compare the result with the footage frame by frame. The study informs the work; [delivery review](../../review/delivery.md) measures its targets on the picture and sound and judges what it produced.

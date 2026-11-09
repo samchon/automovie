@@ -16,7 +16,7 @@ Give each subject one file in its domain under the [document layout](../layout.m
 | `cinematography` | The look: lens kit, framing grammar, camera movement style, lighting style and grade |
 | `sound` | Ambience and music palettes; voices belong to the cast |
 
-User-fixed interpretations are canon. Research open facts through [research](../planning/research.md), attaching support and uncertainty to the facts they qualify, and report a conflict between an instruction and its source instead of changing canon. Embed a subject's canon images from `media/diffusion/images/<domain>/`, such as `![Mara, front](../../../../media/diffusion/images/cast/mara-front.png)` in `docs/body/settings/cast/mara.md`; when an image and the text disagree, repair whichever is wrong.
+User-fixed interpretations are canon. Research open facts through [research](../planning/research.md), attaching support and uncertainty to the facts they qualify, and report a conflict between an instruction and its source instead of changing canon. Embed a subject's canon images, generated under [image](../../image/SKILL.md), from `media/diffusion/images/<domain>/`, such as `![Mara, front](../../../../media/diffusion/images/cast/mara-front.png)` in `docs/body/settings/cast/mara.md`; when an image and the text disagree, repair whichever is wrong.
 
 ## Outline and changes
 

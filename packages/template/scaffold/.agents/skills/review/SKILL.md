@@ -15,4 +15,4 @@ Review in a fresh context without the author's working memory, because an author
 | Accept the complete commissioned output: text, video or asset | [Delivery review](delivery.md) |
 | Estimate quality or compare editions without approving anything | [Estimation](estimation.md) |
 
-Watching segments while implementing motion belongs to the author, under [motion segments](../motion/segments.md).
+Reviewing segments while implementing motion belongs to the author, under [motion segments](../motion/segments.md).

@@ -11,6 +11,7 @@ This is an AutoMovie production. It primarily turns an LLM-authored screenplay i
 - Divide programming by responsibility, give each module meaningful unit tests, and assemble verified parts through their actual consumers under [development](.agents/skills/development/SKILL.md).
 - Finish each inspection round, group all findings by cause, then repair their owners and affected consumers together before the next full round.
 - Perfect each entity and motion module on screen in its isolated [catalog cases](.agents/skills/motion/SKILL.md) first; a film only composes the accepted modules through their APIs along the screenplay, so a film defect is repaired in its module.
+- You see pictures only as still images and cannot hear, so judge motion from consecutive frames dense enough to show it, as [delivery review](.agents/skills/review/delivery.md#measure-and-compare) samples them, and ask the user to listen to any sound.
 - Keep external generation outside deterministic playback; retain the actual media used.
 - Save each expensive stage's result and resume from it under [stage caches](.agents/skills/production/stages.md).
 - Use installed package READMEs, public types, and JSDoc for APIs; do not copy them into instructions.
@@ -39,7 +40,9 @@ Read [PROJECT.md](PROJECT.md) for the adopted scope, then enter the requested ta
 - [story](.agents/skills/story/SKILL.md): researching what the film shows before writing it, and planning, writing, continuing or revising a brief, settings, treatments, scripts, final screenplay, expression pass, narrative evidence or cause-based repair. Its parts route to the needed documents.
 - [3d-modeling](.agents/skills/3d-modeling/SKILL.md): creating, importing, recovering, or inspecting asset representations, geometry, rigs, and authored controls; [entity work](.agents/skills/development/entities.md) sets what the commission needs from them.
 - [motion](.agents/skills/motion/SKILL.md): programmed performance from researched laws, staging, camera, physical responses, frame-time evaluation and motion verification.
-- [audio](.agents/skills/audio/SKILL.md): describing a shot's sound for the video-diffusion prompt, or a voice preview the user asks for while reviewing the hint film.
+- [image](.agents/skills/image/SKILL.md): generating canon reference images, shot frames, style frames or turnaround views.
+- [video](.agents/skills/video/SKILL.md): choosing the video model, planning requests within its limits and writing video prompts.
+- [audio](.agents/skills/audio/SKILL.md): deciding a shot's sound for the video model's prompt, or a voice preview the user asks to hear before video generation.
 
 ### Implementation and evidence
 
