@@ -271,18 +271,25 @@ export namespace StrikeShape {
       );
     const target: IAutoMovieVector3 =
       input.target === null ? folded.knee : local(input.target);
+    // The lower leg's line stops a shin radius short of the region, so its
+    // surface meets the region's surface and never sinks into it.
+    const contact: IAutoMovieVector3 = StrikeShape.standoff(
+      hip,
+      target,
+      measure.shinRadius,
+    );
     // The shin crosses the target toward the kicker's other side; the
     // descending kick's instep comes down onto it from the highest knee.
     const impact: { knee: IAutoMovieVector3; point: IAutoMovieVector3 } =
       turnover
-        ? TurnoverShape.impact(hip, target, measure)
+        ? TurnoverShape.impact(hip, contact, measure)
         : {
-            knee: Vector3.add(target, {
+            knee: Vector3.add(contact, {
               x: 0,
               y: 0,
               z: sign * measure.shank * SHIN_SHARE,
             }),
-            point: Vector3.add(target, {
+            point: Vector3.add(contact, {
               x: 0,
               y: 0,
               z: -sign * measure.shank * (1 - SHIN_SHARE),
@@ -422,6 +429,32 @@ export namespace StrikeShape {
       -p.x +
       Math.sqrt(Math.max(0, p.x * p.x - Vector3.dot(p, p) + reach * reach));
     return { x: head.x + s, y: head.y, z: head.z };
+  }
+
+  /**
+   * A struck point moved back toward the striking joint across the floor by
+   * a limb's radius: where the limb's joint line must pass so its surface,
+   * not its axis, meets the region.
+   *
+   * @param joint The striking limb's root joint, body frame.
+   * @param target The region's surface point, body frame.
+   * @param radius The limb collider's radius, metres.
+   * @returns The joint line's contact point.
+   */
+  export function standoff(
+    joint: IAutoMovieVector3,
+    target: IAutoMovieVector3,
+    radius: number,
+  ): IAutoMovieVector3 {
+    const dx: number = target.x - joint.x;
+    const dz: number = target.z - joint.z;
+    const length: number = Math.hypot(dx, dz);
+    if (length === 0) return target;
+    return {
+      x: target.x - (dx / length) * radius,
+      y: target.y,
+      z: target.z - (dz / length) * radius,
+    };
   }
 
   /** A guard-frame point in the frame of a body turned further by `angle` about +Y (right-handed). */

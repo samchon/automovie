@@ -82,21 +82,16 @@ export namespace KickboxingRange {
               receiver.front.head -
               receiver.headRadius
           : hip +
-              Math.sqrt(
-                Math.max(
-                  0,
-                  (REACH_SHARE *
-                    (attacker.thigh +
-                      (spec.level === "head" ? 1 : StrikeShape.SHIN_SHARE) *
-                        attacker.shank)) **
-                    2 -
-                    (height(receiver, spec.level) -
-                      ((spec.level === "head"
-                        ? TurnoverShape.hip(attacker)
-                        : attacker.hip) -
-                        StanceShape.sink(attacker))) **
-                      2,
-                ),
+              run(
+                REACH_SHARE *
+                  (attacker.thigh +
+                    (spec.level === "head" ? 1 : StrikeShape.SHIN_SHARE) *
+                      attacker.shank),
+                height(receiver, spec.level) -
+                  ((spec.level === "head"
+                    ? TurnoverShape.hip(attacker)
+                    : attacker.hip) -
+                    StanceShape.sink(attacker)),
               ) +
               depth;
       case "push-kick":
@@ -111,20 +106,28 @@ export namespace KickboxingRange {
         // the thigh less that rise.
         return (
           hip +
-          Math.sqrt(
-            Math.max(
-              0,
-              attacker.thigh ** 2 -
-                (height(receiver, spec.level) -
-                  (attacker.hip - StanceShape.sink(attacker))) **
-                  2,
-            ),
+          run(
+            attacker.thigh,
+            height(receiver, spec.level) -
+              (attacker.hip - StanceShape.sink(attacker)),
           ) +
           depth
         );
       case "feint":
         throw new Error("A feint performs another technique");
     }
+  }
+
+  /**
+   * The floor run of a limb reaching a point above or below its root: the
+   * reach's horizontal leg over the rise, none when the rise exceeds it.
+   *
+   * @param reach The limb's reach from its root, metres.
+   * @param rise The point's height over the root, metres.
+   * @returns Metres.
+   */
+  export function run(reach: number, rise: number): number {
+    return Math.sqrt(Math.max(0, reach * reach - rise * rise));
   }
 
   /**

@@ -14,8 +14,8 @@ import type { RingFootwork } from "../../laws/kickboxing/RingFootwork";
 import { StanceShape } from "../../laws/kickboxing/StanceShape";
 import { StrikeShape } from "../../laws/kickboxing/StrikeShape";
 import { blendPosture } from "../../laws/kickboxing/blendPosture";
-import { OfficiatingAction } from "../../laws/officiating/OfficiatingAction";
 import { RefereeShape } from "../../laws/officiating/RefereeShape";
+import { RefereeTrack } from "../officiating/RefereeTrack";
 import { BoutLaws } from "./BoutLaws";
 import { GuardRhythm } from "./GuardRhythm";
 import type { IRingCast } from "./IRingCast";
@@ -133,6 +133,8 @@ export namespace FighterPosture {
     let posture: IBoutPosture = guard;
     // The turnover rises onto a straightened support (brazilian-kick.md#law).
     let rising: boolean = false;
+    // Standing relaxed after the bout, out of the fighting stance.
+    let relaxed: boolean = false;
     for (const entry of schedule.entries) {
       if (entry.subject !== subject || entry.start > seconds) continue;
       const action = read(entry);
@@ -237,50 +239,37 @@ export namespace FighterPosture {
           );
         else if (action.phase === "victory")
           posture = CelebrationShape.posture(measure, guard, t);
-        else if (action.phase === "attend" && seconds < entry.end)
-          posture = CelebrationShape.attend(
-            measure,
-            guard,
+        else if (action.phase === "relax" && seconds < entry.end) {
+          // He lets the guard go over one step period.
+          posture = blendPosture(
+            posture,
+            CelebrationShape.relax(measure, guard),
+            Math.min(1, t / KickboxingTiming.STEP_PERIOD),
             rest,
-            t / action.seconds,
           );
+          relaxed = true;
+        }
       }
     }
-    // While the referee raises the winner, the winner's rear arm, held at the
-    // wrist, goes straight up with the referee's hand.
-    if (seconds < after)
-      for (const entry of schedule.entries) {
-        if (
-          entry.intent.capability !== "signal" ||
-          entry.start > seconds ||
-          seconds >= entry.end ||
-          OfficiatingAction.read(entry.intent).signal !== "winner"
-        )
-          continue;
-        const up: number = RefereeShape.raise(
-          (seconds - entry.start) / (entry.end - entry.start),
-        );
-        posture = blendPosture(
+    // While the referee raises the winner, the winner's arm, held at the
+    // wrist, goes straight up with the referee's hand from his arrival.
+    const raising: number | null =
+      subject === RefereeTrack.winner(cast, schedule)
+        ? RefereeTrack.raising(cast, schedule, seconds)
+        : null;
+    if (raising !== null)
+      posture = blendPosture(
+        posture,
+        CelebrationShape.raised(
+          measure,
           posture,
-          {
-            ...posture,
-            hands: {
-              ...posture.hands,
-              right: {
-                point: {
-                  x: measure.headRadius,
-                  y: measure.shoulder - posture.drop + measure.armReach * 0.95,
-                  z: -measure.shoulderHalfWidth,
-                },
-              },
-            },
-          },
-          up,
-          rest,
-        );
-      }
+          RefereeTrack.raisedFor(cast, schedule, seconds)!,
+        ),
+        RefereeShape.raise(raising),
+        rest,
+      );
     // Between busy actions the guard keeps its rhythm.
-    if (seconds < after && !corner)
+    if (seconds < after && !corner && !relaxed)
       posture = GuardRhythm.apply(posture, measure, schedule, subject, seconds);
     // Standing, the supporting knees keep their least bend: both in the
     // fighting stance; at least one upright in the corner and the
@@ -290,10 +279,12 @@ export namespace FighterPosture {
       const raised: boolean =
         posture.feet.left !== null || posture.feet.right !== null;
       const upright: boolean =
-        raised || corner || movedTo(schedule, subject, seconds, ["celebrate"]);
-      // The planted feet in the root frame of the final body turn. A foot
-      // swinging through a step counts at the floor, so the stance's sink is
-      // kept while moving and the stepping leg never reaches out straight.
+        raised ||
+        corner ||
+        relaxed ||
+        movedTo(schedule, subject, seconds, ["celebrate", "walk"]);
+      // The planted and stepping feet in the root frame of the final body
+      // turn.
       const turn: number = posture.yaw - guard.yaw;
       const c: number = Math.cos(turn);
       const s: number = Math.sin(turn);
@@ -302,7 +293,7 @@ export namespace FighterPosture {
           ? null
           : {
               x: rest[side].x * c - rest[side].z * s,
-              y: Math.min(rest[side].y, measure.ankle),
+              y: rest[side].y,
               z: rest[side].x * s + rest[side].z * c,
             };
       posture = {

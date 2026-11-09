@@ -7,7 +7,6 @@ import { RingFootwork } from "../../laws/kickboxing/RingFootwork";
 import { StanceShape } from "../../laws/kickboxing/StanceShape";
 import { OfficiatingAction } from "../../laws/officiating/OfficiatingAction";
 import { RefereePosition } from "../../laws/officiating/RefereePosition";
-import type { RefereeShape } from "../../laws/officiating/RefereeShape";
 import { BoutLaws } from "../kickboxing/BoutLaws";
 import type { IRingCast } from "../kickboxing/IRingCast";
 
@@ -66,11 +65,7 @@ export namespace RefereeTrack {
     const origin = (id: string, s: number): RingFootwork.IPoint =>
       BoutLaws.origin(schedule, id, Math.max(0, s), cast).point;
     const body: KnockdownShape.IFootprint = footprint(cast, schedule, fall);
-    // Over the fallen fighter his feet, not only his origin, keep a step
-    // clear of the lying body: a step beyond his own stance half-width and
-    // half a foot.
-    const clearance: number =
-      ring.step + measure.hipHalfWidth + measure.foot / 2;
+    const clear: number = clearance(cast);
     let side: 1 | -1 = 1;
     const start = RefereePosition.goal({
       a: origin(cast.a.id, 0),
@@ -89,48 +84,36 @@ export namespace RefereeTrack {
       const b: RingFootwork.IPoint = origin(cast.b.id, t - RefereePosition.LAG);
       let target: RingFootwork.IPoint;
       let look: RingFootwork.IPoint;
-      const winner = signalled(schedule, t, "winner");
-      if (t >= fall && signalled(schedule, t, "knockout")) {
+      const up: string | undefined = winner(cast, schedule);
+      if (
+        up !== undefined &&
+        OfficiatingAction.active(schedule, t, "knockout") !== undefined
+      ) {
         // Waving it off, he steps between the standing fighter and the
         // fallen man, a step clear of the body, facing the standing fighter
         // to keep him off.
-        const standing: RingFootwork.IPoint = origin(cast.a.id, t);
-        const centre: RingFootwork.IPoint = {
-          x: (body.from.x + body.to.x) / 2,
-          z: (body.from.z + body.to.z) / 2,
-        };
+        const standing: RingFootwork.IPoint = origin(up, t);
+        const middle: RingFootwork.IPoint = centre(body);
         target = RefereePosition.clear(
           {
-            x: (standing.x + centre.x) / 2,
-            z: (standing.z + centre.z) / 2,
+            x: (standing.x + middle.x) / 2,
+            z: (standing.z + middle.z) / 2,
           },
           body,
-          clearance,
+          clear,
         );
         look = standing;
-      } else if (winner) {
-        // He goes to the winner and stands beside him on the fallen man's
-        // side, an arm's reach off his shoulder, to raise his arm.
-        const standing: RingFootwork.IPoint = origin(cast.a.id, t);
-        const centre: RingFootwork.IPoint = {
-          x: (body.from.x + body.to.x) / 2,
-          z: (body.from.z + body.to.z) / 2,
-        };
-        const u: RingFootwork.IPoint = unit({
-          x: centre.x - standing.x,
-          z: centre.z - standing.z,
-        });
-        const beside: number =
-          measure.shoulderHalfWidth + measure.armReach / 2;
-        target = {
-          x: standing.x + u.x * beside,
-          z: standing.z + u.z * beside,
-        };
-        look = standing;
+      } else if (
+        up !== undefined &&
+        OfficiatingAction.active(schedule, t, "winner") !== undefined
+      ) {
+        // He goes to the winner and stands beside him to raise his arm.
+        target = beside(cast, schedule, t)!;
+        look = origin(up, t);
       } else if (t >= fall) {
         // A step clear of the lying body, beyond it from the standing
         // fighter, facing the fallen man with the other ahead of him.
-        target = RefereePosition.attend(body, a, clearance);
+        target = attendPoint(cast, schedule, t)!;
         look = {
           x: (body.from.x + body.to.x) / 2,
           z: (body.from.z + body.to.z) / 2,
@@ -157,7 +140,7 @@ export namespace RefereeTrack {
           ? RefereePosition.clear(
               RefereePosition.walk(current, target, STEP),
               body,
-              clearance,
+              clear,
             )
           : RefereePosition.walk(
               current,
@@ -216,10 +199,12 @@ export namespace RefereeTrack {
     fall: number,
   ): KnockdownShape.IFootprint {
     const at: number = Number.isFinite(fall) ? fall : 0;
-    const fallen = BoutLaws.origin(schedule, cast.b.id, at, cast).point;
-    const opponent = BoutLaws.origin(schedule, cast.a.id, at, cast).point;
+    const down = fallEntry(schedule)?.subject === cast.a.id ? cast.a : cast.b;
+    const up = down === cast.a ? cast.b : cast.a;
+    const fallen = BoutLaws.origin(schedule, down.id, at, cast).point;
+    const opponent = BoutLaws.origin(schedule, up.id, at, cast).point;
     return KnockdownShape.footprint(
-      cast.b.body.measure,
+      down.body.measure,
       fallen,
       unit({ x: opponent.x - fallen.x, z: opponent.z - fallen.z }),
     );
@@ -227,12 +212,7 @@ export namespace RefereeTrack {
 
   /** The start of the knockdown fall, or infinity. */
   export function fallStart(schedule: IAutoMovieSchedule): number {
-    const fall = schedule.entries.find((e) => {
-      if (e.intent.capability !== "phase") return false;
-      const action = KickboxingAction.read(e.intent);
-      return action.kind === "phase" && action.phase === "fall";
-    });
-    return fall ? fall.start : Infinity;
+    return fallEntry(schedule)?.start ?? Infinity;
   }
 
   /**
@@ -265,19 +245,167 @@ export namespace RefereeTrack {
     };
   }
 
-  /** Whether the referee is giving a signal at a second. */
-  function signalled(
+  /**
+   * The fighter left standing after a knockdown: the one who did not fall.
+   *
+   * @param cast The cast.
+   * @param schedule The schedule.
+   * @returns His id, or undefined while nobody has fallen.
+   */
+  export function winner(
+    cast: IRingCast,
     schedule: IAutoMovieSchedule,
-    t: number,
-    signal: RefereeShape.Signal,
-  ): boolean {
-    return schedule.entries.some(
-      (e) =>
-        e.intent.capability === "signal" &&
-        e.start <= t &&
-        t < e.end &&
-        OfficiatingAction.read(e.intent).signal === signal,
+  ): string | undefined {
+    const fall = fallEntry(schedule);
+    if (fall === undefined) return undefined;
+    return fall.subject === cast.a.id ? cast.b.id : cast.a.id;
+  }
+
+  /**
+   * Where the referee attends the fallen man at a second: a step clear of
+   * the lying body, beyond it from the standing fighter as he stood half a
+   * second earlier.
+   *
+   * @param cast The cast.
+   * @param schedule The schedule.
+   * @param seconds Film seconds.
+   * @returns The point, or undefined while nobody has fallen.
+   */
+  export function attendPoint(
+    cast: IRingCast,
+    schedule: IAutoMovieSchedule,
+    seconds: number,
+  ): RingFootwork.IPoint | undefined {
+    const up: string | undefined = winner(cast, schedule);
+    if (up === undefined) return undefined;
+    const body = footprint(cast, schedule, fallStart(schedule));
+    const standing = BoutLaws.origin(
+      schedule,
+      up,
+      Math.max(0, seconds - RefereePosition.LAG),
+      cast,
+    ).point;
+    return RefereePosition.attend(body, standing, clearance(cast));
+  }
+
+  /**
+   * Where the referee stands to raise the winner's arm at a second: beside
+   * the winner toward the fallen man, the referee's shoulder half-width
+   * and half his arm's reach off the winner's origin, kept a step clear of
+   * the lying body.
+   *
+   * @param cast The cast.
+   * @param schedule The schedule.
+   * @param seconds Film seconds.
+   * @returns The point, or undefined while nobody has fallen.
+   */
+  export function beside(
+    cast: IRingCast,
+    schedule: IAutoMovieSchedule,
+    seconds: number,
+  ): RingFootwork.IPoint | undefined {
+    const up: string | undefined = winner(cast, schedule);
+    if (up === undefined) return undefined;
+    const measure = cast.referee.body.measure;
+    const body = footprint(cast, schedule, fallStart(schedule));
+    const standing = BoutLaws.origin(schedule, up, seconds, cast).point;
+    const middle: RingFootwork.IPoint = centre(body);
+    const u: RingFootwork.IPoint = unit({
+      x: middle.x - standing.x,
+      z: middle.z - standing.z,
+    });
+    const off: number = measure.shoulderHalfWidth + measure.armReach / 2;
+    return RefereePosition.clear(
+      { x: standing.x + u.x * off, z: standing.z + u.z * off },
+      body,
+      clearance(cast),
     );
+  }
+
+  /**
+   * Progress of the winner's raise at a second: negative while the referee
+   * still walks from the fallen man to the winner at his brisk pace, then
+   * from 0 at his arrival to 1 at the signal's end.
+   *
+   * @param cast The cast.
+   * @param schedule The schedule.
+   * @param seconds Film seconds.
+   * @returns The progress, or null outside a winner signal.
+   * @throws When the referee's walk outlasts the signal, so the raise would never show.
+   */
+  export function raising(
+    cast: IRingCast,
+    schedule: IAutoMovieSchedule,
+    seconds: number,
+  ): number | null {
+    const entry = OfficiatingAction.active(schedule, seconds, "winner");
+    if (entry === undefined) return null;
+    const arrival: number | undefined = arrived(cast, schedule, entry);
+    if (arrival === undefined) return null;
+    if (arrival >= entry.end)
+      throw new Error(
+        `The winner signal from ${entry.start} s needs more than ${(arrival - entry.start).toFixed(2)} s: the referee's walk to the winner outlasts it`,
+      );
+    return (seconds - arrival) / (entry.end - arrival);
+  }
+
+  /**
+   * Seconds since the referee arrived beside the winner and began the raise.
+   *
+   * @param cast The cast.
+   * @param schedule The schedule.
+   * @param seconds Film seconds.
+   * @returns Seconds since the raise began, negative before it, or null outside a winner signal.
+   */
+  export function raisedFor(
+    cast: IRingCast,
+    schedule: IAutoMovieSchedule,
+    seconds: number,
+  ): number | null {
+    const entry = OfficiatingAction.active(schedule, seconds, "winner");
+    if (entry === undefined) return null;
+    const arrival: number | undefined = arrived(cast, schedule, entry);
+    return arrival === undefined ? null : seconds - arrival;
+  }
+
+  /** When the referee, walking at his brisk pace from the fallen man, arrives beside the winner during a winner signal. */
+  function arrived(
+    cast: IRingCast,
+    schedule: IAutoMovieSchedule,
+    entry: IAutoMovieSchedule.IEntry,
+  ): number | undefined {
+    const from = attendPoint(cast, schedule, entry.start);
+    const to = beside(cast, schedule, entry.start);
+    if (from === undefined || to === undefined) return undefined;
+    return (
+      entry.start +
+      Math.hypot(to.x - from.x, to.z - from.z) / RefereePosition.BRISK
+    );
+  }
+
+  /** The referee's feet, not only his origin, keep a step clear of a lying body: a step beyond his own stance half-width and half a foot. */
+  function clearance(cast: IRingCast): number {
+    const measure = cast.referee.body.measure;
+    return StanceShape.step(measure) + measure.hipHalfWidth + measure.foot / 2;
+  }
+
+  /** The centre of a lying body's floor capsule. */
+  function centre(body: KnockdownShape.IFootprint): RingFootwork.IPoint {
+    return {
+      x: (body.from.x + body.to.x) / 2,
+      z: (body.from.z + body.to.z) / 2,
+    };
+  }
+
+  /** The knockdown fall's entry, if any. */
+  function fallEntry(
+    schedule: IAutoMovieSchedule,
+  ): IAutoMovieSchedule.IEntry | undefined {
+    return schedule.entries.find((e) => {
+      if (e.intent.capability !== "phase") return false;
+      const action = KickboxingAction.read(e.intent);
+      return action.kind === "phase" && action.phase === "fall";
+    });
   }
 
   function clinch(schedule: IAutoMovieSchedule, t: number): boolean {

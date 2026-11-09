@@ -60,31 +60,34 @@ export class RefereeBody {
       },
     },
     head: {
-      length: 195,
-      cephalicIndex: 78,
-      circumference: 575,
-      height: 230,
-      faceHeight: 120,
-      faceWidth: 145,
-      mandibularWidth: 110,
-      minimumFrontalWidth: 110,
-      mouthOpening: 48,
-      mandibularLaterotrusion: 10,
+      length: 200.364,
+      cephalicIndex: 77.13361681739232,
+      circumference: 576.286,
+      height: 222.5,
+      faceHeight: 127.2,
+      faceWidth: 142.972,
+      mandibularWidth: 104.5,
+      minimumFrontalWidth: 111.4,
+      mouthOpening: 55.3,
+      mandibularLaterotrusion: 10.4,
       face: {
         eyePair: {
-          left: { palpebralFissureLength: 29, palpebralFissureHeight: 10 },
-          right: { palpebralFissureLength: 29, palpebralFissureHeight: 10 },
+          left: { palpebralFissureLength: 28.8, palpebralFissureHeight: 11.61 },
+          right: { palpebralFissureLength: 28.8, palpebralFissureHeight: 11.61 },
         },
-        intercanthalWidth: 33,
-        nose: { width: 36, height: 52, protrusion: 20 },
-        mouth: { width: 50, upperVermilionHeight: 7, lowerVermilionHeight: 9 },
+        intercanthalWidth: 32.7,
+        nose: { width: 36.1, height: 56.6, protrusion: 21 },
+        mouth: { width: 50.9, upperVermilionHeight: 7.5, lowerVermilionHeight: 8.7 },
       },
       earPair: {
-        left: { length: 66, breadth: 29, protrusion: 18 },
-        right: { length: 66, breadth: 29, protrusion: 18 },
+        left: { length: 67, breadth: 29.05, protrusion: 19.5 },
+        right: { length: 67, breadth: 29.05, protrusion: 19.5 },
       },
     },
   };
+
+  /** Foot length as a share of stature (anthropometric convention: about 15%). */
+  public static readonly FOOT_SHARE: number = 0.15;
 
   /** His mass, kilograms. */
   public static readonly MASS: number = 76;
@@ -153,7 +156,18 @@ export class RefereeBody {
       thigh: length("leftUpperLeg", "leftLowerLeg"),
       shank: length("leftLowerLeg", "leftFoot"),
       ankle: at("leftFoot").y,
-      foot: 0.15 * 1.78,
+      foot:
+        (RefereeBody.FOOT_SHARE *
+          RefereeBody.PARAMETERS.body.anatomy.stature!) /
+        1000,
+      shinRadius: (() => {
+        const shin: P.IShape = this.profile.segments.find(
+          (s) => s.bone === "leftLowerLeg",
+        )!.shapes[0]!;
+        return shin.kind === "sphere" || shin.kind === "capsule"
+          ? shin.radius
+          : 0;
+      })(),
       // He stands upright, so each level's front surface stands over his
       // origin: the head's radius, half the shoulder half-width of chest
       // depth and the hip half-width of thigh.

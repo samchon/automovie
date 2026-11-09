@@ -44,7 +44,30 @@ export namespace KickboxingAction {
     | "separate"
     | "switch"
     | "corner"
-    | "celebrate";
+    | "celebrate"
+    | "walk";
+
+  /**
+   * The movements and whether each is ordinary walking rather than the
+   * fighting stance's short steps: walking to the corner, the victory steps
+   * and walking up to the opponent after the bout.
+   */
+  export const movements: Readonly<
+    Record<Movement, { readonly walking: boolean }>
+  > = Object.freeze({
+    circle: { walking: false },
+    press: { walking: false },
+    give: { walking: false },
+    escape: { walking: false },
+    pivot: { walking: false },
+    centre: { walking: false },
+    approach: { walking: false },
+    separate: { walking: false },
+    switch: { walking: false },
+    corner: { walking: true },
+    celebrate: { walking: true },
+    walk: { walking: true },
+  });
 
   /** One action. */
   export type IAction =
@@ -85,7 +108,7 @@ export namespace KickboxingAction {
         movement: Movement;
         /** Whole steps it takes. */
         steps: number;
-        /** For `approach` and `separate`: stance-origin distance to reach, metres. */
+        /** For `approach`, `walk` and `separate`: stance-origin distance to reach, metres. */
         range?: number;
         /** For `separate`: the own side the exit steps off the opponent's line to. */
         side?: "left" | "right";
@@ -104,7 +127,13 @@ export namespace KickboxingAction {
         /** A whole-body performance phase without an opponent relation: guard, fall, attempt to rise, lying still, victory. */
         kind: "phase";
         /** The phase. */
-        phase: "guard" | "fall" | "attempt" | "lie" | "victory" | "attend";
+        phase:
+          | "guard"
+          | "fall"
+          | "attempt"
+          | "lie"
+          | "victory"
+          | "relax";
         /** Seconds it lasts. */
         seconds: number;
       };

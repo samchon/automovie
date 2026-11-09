@@ -3,8 +3,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IBoutPosture } from "./IBoutPosture";
 import type { IFighterMeasure } from "./IFighterMeasure";
 import { KickboxingTiming } from "./KickboxingTiming";
-import { StanceShape } from "./StanceShape";
-import { blendPosture } from "./blendPosture";
 
 /**
  * The winner's celebration: both gloves thrown overhead with the chest open
@@ -77,53 +75,104 @@ export namespace CelebrationShape {
   }
 
   /**
-   * The winner checking on the fallen man in front of him: he crouches to a
-   * right-angled knee bend, bends over him and lays his lead glove on him,
-   * then rises again.
+   * The winner's arm raised by the referee: held at the wrist and lifted
+   * straight up over his shoulder, the arm nearly extended.
+   *
+   * His free glove lifts with it for {@link FREE_LIFT} seconds from the
+   * raise, then comes back down.
    *
    * @param measure The winner's measure.
-   * @param guard His guard posture.
-   * @param rest Body-frame foot points.
-   * @param share Progress of the check in [0, 1].
-   * @returns The posture.
-   * @evidence docs/body/screenplay/kickboxing.md#s12-b03 A checks on B.
+   * @param posture His posture of the instant, for its drop.
+   * @param since Seconds since the referee began the raise.
+   * @returns The posture with the arm up.
+   * @evidence docs/body/screenplay/kickboxing.md#s12-b04 The referee raises A's arm; A lifts his free glove briefly, then lowers it.
    */
-  export function attend(
+  export function raised(
     measure: IFighterMeasure,
-    guard: IBoutPosture,
-    rest: Record<"left" | "right", IAutoMovieVector3>,
-    share: number,
+    posture: IBoutPosture,
+    since: number,
   ): IBoutPosture {
-    const drop: number = StanceShape.drop(measure, CROUCH_KNEES);
-    const crouched: IBoutPosture = {
-      ...guard,
-      drop,
-      thoracic: { ...guard.thoracic, flexion: 30 },
-      lumbar: { ...guard.lumbar, flexion: 15 },
+    const free: number = Math.max(
+      0,
+      Math.min(1, since / FREE_RISE, (FREE_LIFT - since) / FREE_RISE),
+    );
+    const lowered = posture.hands.left.point;
+    const lifted = {
+      x: measure.headRadius,
+      y: measure.shoulder - posture.drop + measure.armReach * RAISED_REACH,
+      z: measure.shoulderHalfWidth,
+    };
+    return {
+      ...posture,
       hands: {
-        ...guard.hands,
         left: {
           point: {
-            x: measure.armReach * 0.8,
-            y: measure.hip * 0.35,
-            z: measure.shoulderHalfWidth * 0.5,
+            x: lowered.x + (lifted.x - lowered.x) * free,
+            y: lowered.y + (lifted.y - lowered.y) * free,
+            z: lowered.z + (lifted.z - lowered.z) * free,
+          },
+        },
+        right: {
+          point: {
+            x: measure.headRadius,
+            y: measure.shoulder - posture.drop + measure.armReach * RAISED_REACH,
+            z: -measure.shoulderHalfWidth,
           },
         },
       },
-      wince: 0,
     };
-    const s: number = Math.max(0, Math.min(1, share));
-    return blendPosture(
-      guard,
-      crouched,
-      Math.min(1, s / TOUCH_SHARE, (1 - s) / TOUCH_SHARE),
-      rest,
-    );
   }
 
-  /** Knee flexion of the crouch beside the fallen man, degrees: a right-angled knee. */
-  const CROUCH_KNEES: number = 90;
+  /**
+   * Standing relaxed after the bout, no longer fighting: square to the
+   * fallen man he faces, the gloves lowered to the waist, looking down at
+   * him.
+   *
+   * @param measure His measure.
+   * @param guard His guard posture.
+   * @returns The posture.
+   * @evidence docs/body/screenplay/kickboxing.md#s12-b03 A stands over B without threat.
+   */
+  export function relax(
+    measure: IFighterMeasure,
+    guard: IBoutPosture,
+  ): IBoutPosture {
+    const waist = (side: 1 | -1): { point: IAutoMovieVector3 } => ({
+      point: {
+        x: measure.headRadius * WAIST_REACH,
+        y: measure.hip + (measure.shoulder - measure.hip) * WAIST_SHARE,
+        z: side * measure.shoulderHalfWidth,
+      },
+    });
+    return {
+      ...guard,
+      drop: 0,
+      yaw: 0,
+      thoracic: { flexion: RELAXED_TRUNK, lateralFlexion: 0, rotation: 0 },
+      cervical: { flexion: RELAXED_NECK, lateralFlexion: 0, rotation: 0 },
+      hands: { left: waist(1), right: waist(-1) },
+      wince: 0,
+    };
+  }
 
-  /** Share of the check spent crouching down, and again rising. */
-  const TOUCH_SHARE: number = 0.3;
+  /** Seconds the winner's free glove stays up with the raise: about a second, "briefly" (s12-b04). */
+  const FREE_LIFT: number = 1;
+
+  /** Seconds the free glove takes to go up, and again to come down. */
+  const FREE_RISE: number = 0.2;
+
+  /** Share of the arm's reach the raised arm stands above the shoulder: nearly straight, the elbow just unlocked. */
+  const RAISED_REACH: number = 0.95;
+
+  /** Height of the relaxed gloves above the hip joints, as a share of the hip-to-shoulder height: hanging at the waist. */
+  const WAIST_SHARE: number = 0.15;
+
+  /** Forward reach of the relaxed gloves, in head radii: just in front of the hips. */
+  const WAIST_REACH: number = 1.5;
+
+  /** Neck flexion standing relaxed, degrees: looking down at the fallen man a stride ahead, the eye line dropping about 1.6 m over 1.5 m; the neck carries half of it and the trunk a quarter (staging reading of s12-b03). */
+  const RELAXED_NECK: number = 25;
+
+  /** Trunk flexion standing relaxed over the fallen man, degrees. */
+  const RELAXED_TRUNK: number = 10;
 }

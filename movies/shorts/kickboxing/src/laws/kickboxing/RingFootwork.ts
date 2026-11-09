@@ -152,6 +152,7 @@ export namespace RingFootwork {
         // A switch changes the feet in place; the origin holds.
         return clamp(mover, ring);
       case "approach":
+      case "walk":
         return clamp(
           sub(opponent, scale(toward, action.range ?? dist(mover, opponent))),
           ring,
