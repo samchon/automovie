@@ -1,0 +1,408 @@
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  resolvePose,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionTarget,
+  IAutoMovieMotionEvent,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import type { HumanActionName } from "../HumanActionName";
+import type { IHumanActionContext } from "../law/IHumanActionContext";
+import type { IHumanActionLaw } from "../law/IHumanActionLaw";
+import type { IHumanActionPlan } from "../law/IHumanActionPlan";
+import type { IHumanContactWindow } from "../law/IHumanContactWindow";
+import type { HumanFoot } from "../posture/HumanFoot";
+import type { IHumanPosture } from "../posture/IHumanPosture";
+import { HumanSkill } from "../skill/HumanSkill";
+import { StrikingAim } from "./StrikingAim";
+import { StrikingBody } from "./StrikingBody";
+import { StrikingQuality } from "./StrikingQuality";
+import { StrikingReach } from "./StrikingReach";
+import { StrikingSkill } from "./StrikingSkill";
+import { StrikingStance } from "./StrikingStance";
+import { StrikingStroke } from "./StrikingStroke";
+import { StrikingTarget } from "./StrikingTarget";
+
+/**
+ * A punch: the fist's knuckles brought onto the target along a measured path
+ * and returned to the guard, with the trunk turning and the feet stepping or
+ * pivoting to carry the shoulder.
+ *
+ * The law writes effector goals, not joint angles. The fist socket is
+ * brought from where it is at the launch onto the target region's point
+ * (another person's actual region, a prop point, a free point, or a virtual
+ * opponent at range) on a minimum-jerk delivery that aims through the target
+ * so the fist lands at 0.78 of its peak speed (Liu et al. 2022); the wrist
+ * goal is the fist point less the hand-rotated socket offset, the elbow bend
+ * hint and the shoulder carried by the trunk turn shape the arm, and the
+ * engine's limb fit solves the joints. The target is tracked online with the
+ * visuomotor latency ({@link StrikingAim}); the fist stops on the first
+ * surface of the struck body it meets ({@link StrikingStroke}), so a guard on
+ * the line is struck instead of the face it covers, and two punches thrown at
+ * once meet whichever arm or head is in the way.
+ *
+ * Techniques (IBA coaching manual pp. 42 to 45 and the kickboxing research
+ * of #3201): `straight` lands nearly extended (elbow 5 to 25 degrees) along the
+ * line, palm down; `hook` lands with the elbow near a right angle (70 to 100
+ * degrees), arriving across the line, palm down; `uppercut` rises from below
+ * with the elbow at 60 to 100 degrees, palm toward the puncher. A rear-hand
+ * punch turns the trunk through to bring the rear shoulder forward and
+ * pivots the rear foot on its ball; a lead hook turns the other way. A body
+ * punch lowers the root through the knees. When the arm's band falls short,
+ * the lead foot steps in by up to one stance length and the rear foot drags
+ * after the contact (the IBA stepping jab); beyond that the fist extends
+ * along the line at the band's reach and falls short, the declared
+ * miss-at-maximum-reach rule.
+ *
+ * Timing: a lone punch takes the single maximal jab's 0.405 s (Stanley et al.
+ * 2018); a punch that follows another punch's contact keeps the measured
+ * combination intervals, 0.35 s between alternating hands and 0.45 s for the
+ * same hand (Piorkowski et al. 2011), counted from that contact. The return
+ * to the guard takes one alternating interval. Skill scales them
+ * ({@link StrikingSkill}), and a seeded guard drop may hold the returning
+ * glove low before it reaches the guard. A feint shows a share of the
+ * delivery without contact and returns in the same time.
+ */
+export namespace punch {
+  /** The action's name. */
+  export const name: HumanActionName = "punch";
+
+  /** Cancel table: a punch chains into the next punch from its contact on. */
+  export const interrupts: IHumanActionLaw["interrupts"] = {
+    punch: [{ window: ["impact", 1], kind: "inertialize", entry: 0, blend: 0.12, keep: ["stanceFoot"] }],
+  };
+
+  /** Parameters. */
+  export interface IParams {
+    /** The technique. */
+    technique: "straight" | "hook" | "uppercut";
+
+    /** Which hand: the stance's lead or rear; lead for a straight or a hook and rear for an uppercut when absent. */
+    hand?: "lead" | "rear";
+
+    /** What it strikes. */
+    at: AutoMovieMotionTarget;
+
+    /** Declared accuracy; `hit` when absent. */
+    accuracy?: StrikingQuality.Accuracy;
+
+    /** A feint: the share of the delivery shown before returning, in (0, 1). */
+    feint?: number;
+  }
+
+  /** Elbow flexion band at contact by technique, degrees (IBA drawings read; hook and uppercut near a right angle). */
+  export const FLEXION: Readonly<Record<IParams["technique"], readonly [number, number]>> = {
+    straight: [5, 25],
+    hook: [70, 100],
+    uppercut: [60, 100],
+  };
+
+  /**
+   * Trunk turn at contact by technique and hand, degrees toward bringing the
+   * rear shoulder forward (negative turns the lead shoulder through, as the
+   * lead hook does). Provisional readings of the coached rotations: the rear
+   * straight squares the hips and shoulders past the line (twice the 30 degree
+   * stance turn), the jab barely turns, the lead hook turns the lead shoulder
+   * through by more than the stance turn. Skill scales the turn's share
+   * ({@link StrikingSkill.amplitude}).
+   */
+  export const TURN: Readonly<Record<IParams["technique"], Readonly<Record<"lead" | "rear", number>>>> = {
+    straight: { lead: 8, rear: 60 },
+    hook: { lead: -40, rear: 50 },
+    uppercut: { lead: -20, rear: 40 },
+  };
+
+  /** Rear heel raise of a rear-hand punch's ball pivot at contact, degrees (provisional reading of the IBA cross drawing's released heel). */
+  export const HEEL_RAISE: number = 15;
+
+  /**
+   * The hand a punch's parameters resolve to.
+   *
+   * @param params The parameters.
+   * @returns The lead or the rear hand.
+   */
+  export function hand(params: IParams): "lead" | "rear" {
+    return params.hand ?? (params.technique === "uppercut" ? "rear" : "lead");
+  }
+
+  /**
+   * Plan a punch.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   */
+  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+    const p: IParams = context.params;
+    if (p.feint !== undefined && !(p.feint > 0 && p.feint < 1)) throw new Error("A feint shows a share of the delivery in (0, 1)");
+    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
+    const which: "lead" | "rear" = hand(p);
+    const side: "left" | "right" = which === "lead" ? lead : StrikingStance.rear({ lead });
+
+    // Delivery: from the previous punch's contact at the combination
+    // interval, or a lone punch's measured delivery.
+    const from = context.entry.from;
+    let delivery: number = StrikingSkill.JAB_DELIVERY;
+    if (from !== undefined && from.name === "punch" && from.plan.contact !== undefined) {
+      const elapsed: number = from.share * from.plan.duration - from.plan.contact;
+      const same: boolean = hand(from.params as IParams) === which;
+      delivery = Math.max(0.12, (same ? StrikingSkill.SAME_HAND_INTERVAL : StrikingSkill.ALTERNATING_INTERVAL) - Math.max(0, elapsed));
+    }
+    delivery = HumanSkill.jitter(context.skill, context.random("delivery"), delivery * StrikingSkill.strike(context.skill));
+    const shown: number = p.feint === undefined ? delivery : p.feint * delivery;
+    const drop: StrikingSkill.IGuardDrop =
+      p.feint === undefined ? StrikingSkill.guardDrop(context.skill, context.random("guard"), 0) : { depth: 0, seconds: 0 };
+    const recoil: number = p.feint === undefined ? StrikingSkill.HAND_RECOVERY * StrikingSkill.recovery(context.skill) : shown;
+    const duration: number = shown + recoil + drop.seconds;
+    const timing: ITiming = { side, lead, which, delivery, shown, recoil, drop, duration };
+    const events: IAutoMovieMotionEvent[] = [
+      { name: "launch", share: 0 },
+      { name: p.feint === undefined ? "impact" : "shown", share: shown / duration },
+      { name: "recovered", share: 1 },
+    ];
+
+    // Geometry reads the target, which may only be read from postures: it is
+    // built on first use and dropped when the performance settles.
+    let built: IGeometry | undefined;
+    const geometry = (): IGeometry => (built ??= build(context, timing));
+    return {
+      duration,
+      events,
+      get contacts(): IHumanContactWindow[] {
+        return geometry().contacts;
+      },
+      ...(p.feint === undefined ? { contact: delivery } : {}),
+      posture: (seconds: number): IHumanPosture => geometry().posture(Math.min(duration, Math.max(0, seconds))),
+      settle: (): void => {
+        built = undefined;
+      },
+    };
+  }
+
+  /** A punch's timing. */
+  interface ITiming {
+    /** The punching side. */
+    side: "left" | "right";
+    /** The stance's lead side. */
+    lead: "left" | "right";
+    /** Lead or rear hand. */
+    which: "lead" | "rear";
+    /** Launch to contact, seconds. */
+    delivery: number;
+    /** Launch to the contact or the feint's shown peak, seconds. */
+    shown: number;
+    /** The return to the guard, seconds. */
+    recoil: number;
+    /** The guard drop. */
+    drop: StrikingSkill.IGuardDrop;
+    /** The whole punch, seconds. */
+    duration: number;
+  }
+
+  /** A built punch. */
+  interface IGeometry {
+    /** The posture at seconds since the start. */
+    posture(seconds: number): IHumanPosture;
+
+    /** The feet's contact windows. */
+    contacts: IHumanContactWindow[];
+  }
+
+  /** Build a punch's geometry from its first posture evaluation. */
+  function build(context: IHumanActionContext<IParams>, timing: ITiming): IGeometry {
+    const p: IParams = context.params;
+    const { side, lead, which, delivery, shown, recoil, drop, duration } = timing;
+    const body = context.body;
+    const m = body.measure;
+    const t0: number = context.start;
+    const entry: IHumanPosture = context.entry.posture;
+    const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+    const arm: "leftArm" | "rightArm" = side === "left" ? "leftArm" : "rightArm";
+    const fist: "fistLeft" | "fistRight" = side === "left" ? "fistLeft" : "fistRight";
+    const aim = (seconds: number): IAutoMovieVector3 => context.aim(p.at, seconds).point;
+
+    // The line to the target at the launch and the trunk turn it calls for.
+    const first: IAutoMovieVector3 = aim(t0);
+    const line: IAutoMovieVector3 = StrikingTarget.line(entry.root, first, entry.yaw);
+    const turn: number = (lead === "left" ? 1 : -1) * TURN[p.technique][which] * StrikingSkill.amplitude(context.skill);
+    const outward: IAutoMovieVector3 = Vector3.scale(Vector3.cross(up, line), side === "left" ? 1 : -1);
+
+    // The shoulder at contact: the entry turned, lowered for a body shot so
+    // the fist meets a low target from about its own level.
+    const shoulder0: IAutoMovieVector3 = StrikingBody.trunk(body, { ...entry, yaw: entry.yaw + turn }).get(
+      `${side}UpperArm` as AutoMovieHumanoidBone,
+    )!.worldPosition;
+    const dip: number = Math.min(0.15 * m.hipHeight, Math.max(0, 0.5 * (shoulder0.y - first.y - 0.25 * (m.upperArm + m.forearm))));
+    const lowered: IAutoMovieVector3 = { ...shoulder0, y: shoulder0.y - dip };
+
+    // The fist's rotation and its travel at contact by technique.
+    const straight: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(first, lowered));
+    const direction: IAutoMovieVector3 =
+      p.technique === "straight"
+        ? straight
+        : p.technique === "hook"
+          ? Vector3.normalize(Vector3.add(Vector3.scale(outward, -0.8), Vector3.scale(line, 0.6)))
+          : Vector3.normalize(Vector3.add(Vector3.scale(up, 0.8), Vector3.scale(line, 0.6)));
+    const rotation: IAutoMovieQuaternion =
+      p.technique === "uppercut"
+        ? StrikingBody.fist(body, side, direction, Vector3.scale(line, -1))
+        : StrikingBody.fist(body, side, straight, Vector3.scale(up, -1));
+    const socket: IAutoMovieVector3 = StrikingBody.socket(body, fist, rotation);
+
+    // Tracking with the declared accuracy and the seeded scatter.
+    const offset: IAutoMovieVector3 = StrikingQuality.offset({
+      skill: context.skill,
+      random: context.random("scatter"),
+      ...(p.accuracy === undefined ? {} : { accuracy: p.accuracy }),
+      direction,
+      radius: StrikingQuality.fist(m.hand),
+      distance: Vector3.length(Vector3.subtract(first, lowered)),
+      seconds: delivery,
+    });
+    const tracker: StrikingAim.ITracker = StrikingAim.track(
+      aim,
+      { launch: t0, impact: t0 + delivery, latency: StrikingSkill.CORRECTION_LATENCY, step: 1 / 24, shortest: 0.04 },
+      offset,
+    );
+
+    // Reach: the step-in along the line that brings the wrist the fist needs
+    // within the arm's comfortable reach, then the arm's goals at contact.
+    const band: readonly [number, number] = FLEXION[p.technique];
+    const wristAt: IAutoMovieVector3 = Vector3.subtract(tracker.planned, socket);
+    const comfortable: number = StrikingReach.reach(m.upperArm, m.forearm, (band[0] + band[1]) / 2);
+    const relative: IAutoMovieVector3 = Vector3.subtract(wristAt, lowered);
+    const along: number = Vector3.dot(relative, line);
+    const across: number = Math.sqrt(Math.max(0, Vector3.dot(relative, relative) - along * along));
+    const needed: number = Math.sqrt(Math.max(0, comfortable * comfortable - across * across));
+    const advance: number = p.feint === undefined ? Math.max(0, StrikingReach.advance(along, needed, StrikingStance.length(body))) : 0;
+    const shoulder: IAutoMovieVector3 = Vector3.add(lowered, Vector3.scale(line, advance));
+    const bendToward: IAutoMovieVector3 =
+      p.technique === "hook" ? Vector3.add(outward, Vector3.scale(up, 0.1)) : Vector3.add(Vector3.scale(up, -1), Vector3.scale(outward, 0.3));
+    const solved: StrikingReach.ISolution = StrikingReach.chain({
+      root: shoulder,
+      point: wristAt,
+      upper: m.upperArm,
+      along: m.forearm,
+      lower: m.forearm,
+      bend: bendToward,
+      flexion: band,
+      slide: false,
+    });
+
+    // The arm at the launch, read from the displayed entry pose.
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
+      resolvePose(context.entry.pose, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
+        (r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+      ),
+    );
+    const origin: IAutoMovieVector3 = bones.get(`${side}Hand` as AutoMovieHumanoidBone)!.worldPosition;
+    const startRotation: IAutoMovieQuaternion = bones.get(`${side}Hand` as AutoMovieHumanoidBone)!.worldRotation;
+    const startElbow: IAutoMovieVector3 = bones.get(`${side}LowerArm` as AutoMovieHumanoidBone)!.worldPosition;
+
+    // Shares through the punch: out to the contact, back to the guard.
+    const out = (t: number): number => minimumJerk(t / shown).s;
+    const back = (t: number): number => minimumJerk((t - shown) / recoil).s;
+    const sag = (t: number): number => (drop.seconds > 0 ? back(t) - minimumJerk((t - shown - recoil) / drop.seconds).s : 0);
+
+    // Root, heading and feet: the lead foot steps in by the advance with a
+    // small lift, the rear foot drags after the contact, and a rear-hand
+    // punch pivots the rear foot on its ball.
+    const feet: Record<"left" | "right", HumanFoot.IPlacement> = StrikingTarget.feet(context.entry);
+    const rear: "left" | "right" = StrikingStance.rear({ lead });
+    const stepping: boolean = advance > 0.02;
+    const lift: number = 0.015 * m.stature;
+    const base = (t: number): IHumanPosture => {
+      const turning: number = out(t) - back(t);
+      const moved: number = stepping ? advance * out(t) : 0;
+      const dragged: number = stepping ? advance * back(t) : 0;
+      const leadFoot: HumanFoot.IPlacement = StrikingTarget.slide(feet[lead], line, moved, stepping ? lift * 4 * out(t) * (1 - out(t)) : 0);
+      const slid: HumanFoot.IPlacement = StrikingTarget.slide(feet[rear], line, dragged, stepping ? lift * 4 * back(t) * (1 - back(t)) : 0);
+      const rearFoot: HumanFoot.IPlacement =
+        which === "rear" ? StrikingTarget.pivot(body, rear, slid, 0.5 * turn * turning, HEEL_RAISE * turning) : slid;
+      const placed: Record<"left" | "right", HumanFoot.IPlacement> =
+        lead === "left" ? { left: leadFoot, right: rearFoot } : { left: rearFoot, right: leadFoot };
+      const leadDown: boolean = !stepping || t >= shown;
+      const rearDown: boolean = !stepping || t <= shown || t >= shown + recoil;
+      return {
+        root: Vector3.add({ ...entry.root, y: entry.root.y - dip * turning }, Vector3.scale(line, 0.5 * (moved + dragged))),
+        yaw: entry.yaw + turn * turning,
+        pitch: entry.pitch,
+        roll: entry.roll,
+        joints: { ...entry.joints, ...StrikingStance.joints() },
+        limbs: StrikingStance.legs(body, placed, lead === "left" ? { left: leadDown, right: rearDown } : { left: rearDown, right: leadDown }),
+      };
+    };
+
+    // The guard the hand returns to, and the stroke from the launch through
+    // the contact back to it, stopping on the struck body's first surface.
+    const guardEnd: IHumanPosture.IGoal = StrikingStance.guard(body, base(duration), { lead })[arm]!;
+    const rotationAt = (t: number): IAutoMovieQuaternion =>
+      Quaternion.slerp(Quaternion.slerp(startRotation, rotation, out(t)), guardEnd.rotation!, back(t));
+    const lag: number = StrikingSkill.lag(context.skill) * shown;
+    const reached: IAutoMovieVector3 = p.feint === undefined ? solved.end : Vector3.lerp(origin, solved.end, minimumJerk(p.feint).s);
+    const units = StrikingStroke.delivery({
+      origin,
+      impact: reached,
+      direction: p.feint === undefined ? direction : Vector3.subtract(reached, origin),
+      launch: t0 + lag,
+      contact: t0 + shown,
+      speed: p.feint === undefined ? StrikingSkill.IMPACT_SPEED_SHARE.punch : 1,
+    });
+    const struck: IHumanActionContext.IPerformer | undefined =
+      p.at.kind === "person" && p.feint === undefined && StrikingQuality.stops(p.accuracy) ? context.performer(p.at.subject) : undefined;
+    const stroke: StrikingStroke.IStroke = StrikingStroke.create({
+      origin,
+      units,
+      ...(p.feint === undefined ? { tracker } : {}),
+      contact: t0 + shown,
+      back: guardEnd.point,
+      recoil,
+      ...(struck === undefined
+        ? {}
+        : {
+            gap: StrikingTarget.gap(struck, (end: IAutoMovieVector3, seconds: number): IAutoMovieVector3 =>
+              Vector3.add(end, StrikingBody.socket(body, fist, rotationAt(seconds - t0))),
+            ),
+          }),
+      scan: { from: t0 + lag, to: t0 + shown + 0.1, step: 1 / 96 },
+    });
+
+    // The feet's contact windows, as shares of the punch.
+    const contacts: IHumanContactWindow[] = [];
+    const window = (part: "leftFoot" | "rightFoot", kind: "plant" | "pivot", from: number, to: number): void => {
+      if (to > from) contacts.push({ part, kind, from: from / duration, to: to / duration, support: { kind: "ground" } });
+    };
+    const rearKind: "plant" | "pivot" = which === "rear" ? "pivot" : "plant";
+    window(`${lead}Foot`, "plant", stepping ? shown : 0, duration);
+    if (stepping) {
+      window(`${rear}Foot`, rearKind, 0, shown);
+      window(`${rear}Foot`, "plant", shown + recoil, duration);
+    } else window(`${rear}Foot`, rearKind, 0, duration);
+
+    return {
+      contacts,
+      posture: (t: number): IHumanPosture => {
+        const posture: IHumanPosture = base(t);
+        const guard = StrikingStance.guard(body, posture, { lead });
+        const elbow: IAutoMovieVector3 = Vector3.lerp(
+          Vector3.lerp(startElbow, StrikingReach.hint(shoulder, solved, bendToward, 0.25 * m.upperArm), out(t)),
+          guard[arm]!.bend,
+          back(t),
+        );
+        const wrist: IAutoMovieVector3 = Vector3.add(stroke.end(t0 + t), { x: 0, y: -drop.depth * sag(t), z: 0 });
+        return {
+          ...posture,
+          limbs: { ...posture.limbs, ...guard, [arm]: { point: wrist, bend: elbow, rotation: rotationAt(t) } },
+        };
+      },
+    };
+  }
+}
