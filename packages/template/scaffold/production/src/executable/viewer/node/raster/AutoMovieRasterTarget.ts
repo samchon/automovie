@@ -141,7 +141,9 @@ export class AutoMovieRasterTarget {
     rgb: readonly [number, number, number],
     test: boolean,
   ): void {
-    const steps: number = Math.ceil(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)));
+    const steps: number = Math.ceil(
+      Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)),
+    );
     for (let step: number = 0; step <= steps; step++) {
       const t: number = steps === 0 ? 0 : step / steps;
       this.point(
@@ -203,7 +205,9 @@ export class AutoMovieRasterTarget {
    */
   public toSrgb(factor: number): Uint8ClampedArray {
     if (this.width % factor !== 0 || this.height % factor !== 0)
-      throw new Error("Supersampled raster size is not a multiple of its factor");
+      throw new Error(
+        "Supersampled raster size is not a multiple of its factor",
+      );
     const width: number = this.width / factor;
     const height: number = this.height / factor;
     const out: Uint8ClampedArray = new Uint8ClampedArray(width * height * 4);

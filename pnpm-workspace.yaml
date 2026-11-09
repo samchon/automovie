@@ -44,6 +44,7 @@ catalogs:
     playwright-core: ^1.60.0
     pngjs: ^7.0.0
     "@types/pngjs": ^6.0.5
+    ffmpeg-static: ^5.2.0
   utils:
     "@types/node": ^22.19.17
     bumpp: ^12.3.0

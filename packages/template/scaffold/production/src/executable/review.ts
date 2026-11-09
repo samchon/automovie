@@ -3,9 +3,9 @@ import path from "node:path";
 
 import type { IFilm } from "../IFilm";
 import { films } from "../composition/films";
-import { DEFAULT_CHROME_EXECUTABLE } from "../integrations/render/node/capture/DEFAULT_CHROME_EXECUTABLE";
-import { recordViewerPlayback } from "../integrations/render/node/recordViewerPlayback";
 import { selectFilm } from "../selectFilm";
+import { DEFAULT_CHROME_EXECUTABLE } from "./render/node/capture/DEFAULT_CHROME_EXECUTABLE";
+import { recordViewerPlayback } from "./render/node/recordViewerPlayback";
 
 const USAGE: string =
   "Usage: review playback <viewer-url> <observation-seconds> [output-directory]";
@@ -17,14 +17,20 @@ const USAGE: string =
 async function main(): Promise<void> {
   const [kind, url, duration, output] = process.argv.slice(2);
   const seconds: number = Number(duration);
-  if (kind !== "playback" || !url || !(seconds > 0) || !Number.isFinite(seconds))
+  if (
+    kind !== "playback" ||
+    !url ||
+    !(seconds > 0) ||
+    !Number.isFinite(seconds)
+  )
     throw new Error(USAGE);
   const selected: { name: string; film: IFilm } = selectFilm(
     films,
     new URL(url).searchParams.get("film"),
   );
   const directory: string =
-    output ?? path.join("media", "automovie", selected.name, "videos", "review");
+    output ??
+    path.join("media", "automovie", selected.name, "videos", "review");
   await mkdir(directory, { recursive: true });
   const recorded: Awaited<ReturnType<typeof recordViewerPlayback>> =
     await recordViewerPlayback({

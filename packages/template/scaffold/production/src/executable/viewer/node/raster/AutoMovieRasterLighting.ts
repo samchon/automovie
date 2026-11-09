@@ -104,7 +104,10 @@ export class AutoMovieRasterLighting {
     if (this.lights.length === 0) {
       camera.updateMatrixWorld();
       this.lights.push(
-        { kind: "ambient", color: [0.3 * Math.PI, 0.3 * Math.PI, 0.3 * Math.PI] },
+        {
+          kind: "ambient",
+          color: [0.3 * Math.PI, 0.3 * Math.PI, 0.3 * Math.PI],
+        },
         {
           kind: "directional",
           color: [0.8 * Math.PI, 0.8 * Math.PI, 0.8 * Math.PI],
@@ -159,8 +162,11 @@ export class AutoMovieRasterLighting {
         weight = cosine * attenuation(distance, light.distance, light.decay);
         if (light.cone !== undefined) {
           const along: number =
-            -(light.cone.axis.x * dx + light.cone.axis.y * dy + light.cone.axis.z * dz) /
-            distance;
+            -(
+              light.cone.axis.x * dx +
+              light.cone.axis.y * dy +
+              light.cone.axis.z * dz
+            ) / distance;
           weight *= smoothstep(light.cone.outer, light.cone.inner, along);
         }
       }
@@ -199,7 +205,10 @@ type ILight =
 function attenuation(distance: number, cutoff: number, decay: number): number {
   let falloff: number = 1 / Math.max(Math.pow(distance, decay), 0.01);
   if (cutoff > 0) {
-    const ratio: number = Math.min(1, Math.max(0, 1 - Math.pow(distance / cutoff, 4)));
+    const ratio: number = Math.min(
+      1,
+      Math.max(0, 1 - Math.pow(distance / cutoff, 4)),
+    );
     falloff *= ratio * ratio;
   }
   return falloff;

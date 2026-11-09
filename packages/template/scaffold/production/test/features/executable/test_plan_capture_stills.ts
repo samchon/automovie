@@ -25,12 +25,18 @@ export function test_plan_capture_stills(): void {
   TestValidator.equals(
     "default rate",
     planCaptureStills(segment),
-    Array.from({ length: 50 }, (_: unknown, i: number): number => (1800 + 6 * i) / 30),
+    Array.from(
+      { length: 50 },
+      (_: unknown, i: number): number => (1800 + 6 * i) / 30,
+    ),
   );
   TestValidator.equals(
     "maximum rate",
     planCaptureStills({ ...segment, rate: 10 }),
-    Array.from({ length: 100 }, (_: unknown, i: number): number => (1800 + 3 * i) / 30),
+    Array.from(
+      { length: 100 },
+      (_: unknown, i: number): number => (1800 + 3 * i) / 30,
+    ),
   );
 
   const withEvent: number[] = planCaptureStills({ ...segment, events: [64] });
@@ -52,8 +58,7 @@ export function test_plan_capture_stills(): void {
     "24 fps frame spacing",
     film24.every(
       (seconds: number, i: number): boolean =>
-        i === 0 ||
-        [4, 5].includes(Math.round((seconds - film24[i - 1]!) * 24)),
+        i === 0 || [4, 5].includes(Math.round((seconds - film24[i - 1]!) * 24)),
     ),
   );
 

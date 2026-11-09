@@ -31,11 +31,11 @@
     "@automovie/render": "{{version:render}}",
     "@automovie/viewer": "{{version:viewer}}",
     "three": "{{version:three}}",
-    "@gltf-transform/core": "^4.5.0",
-    "h264-mp4-encoder": "^1.0.12",
-    "mp4box": "^2.4.1",
-    "playwright-core": "^1.60.0",
-    "pngjs": "^7.0.0"
+    "@gltf-transform/core": "{{version:gltfTransformCore}}",
+    "h264-mp4-encoder": "{{version:h264Mp4Encoder}}",
+    "mp4box": "{{version:mp4box}}",
+    "playwright-core": "{{version:playwrightCore}}",
+    "pngjs": "{{version:pngjs}}"
   },
   "devDependencies": {
     "playwright": "{{version:playwright}}",
@@ -48,7 +48,7 @@
     "@wrtnlabs/evidence": "{{version:evidenceCli}}",
     "@types/three": "{{version:threeTypes}}",
     "vite": "{{version:vite}}",
-    "ffmpeg-static": "^5.2.0",
-    "@types/pngjs": "^6.0.5"
+    "ffmpeg-static": "{{version:ffmpegStatic}}",
+    "@types/pngjs": "{{version:pngjsTypes}}"
   }
 }

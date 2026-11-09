@@ -19,7 +19,9 @@ import type { IAutoMovieSceneRaster } from "./IAutoMovieSceneRaster.js";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The CRC table is shared by every chunk and call.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates the packed rows and the returned buffer; nothing is retained.
  */
-export function encodeAutoMovieRasterPng(raster: IAutoMovieSceneRaster): Buffer {
+export function encodeAutoMovieRasterPng(
+  raster: IAutoMovieSceneRaster,
+): Buffer {
   const { width, height, pixels } = raster;
   if (pixels.length !== width * height * 4)
     throw new Error("Raster pixels do not match its size");
