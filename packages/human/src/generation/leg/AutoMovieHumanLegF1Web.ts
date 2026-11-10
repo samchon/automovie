@@ -2,7 +2,6 @@ import {
   AutoMovieCurveMath64,
   AutoMovieViewAxis,
   generateAutoMovieContourLoft64,
-  tessellateAutoMovieContourStrip64,
   type IAutoMovieContourLoft64,
   type IAutoMovieCurve64,
 } from "@automovie/engine";
@@ -40,9 +39,6 @@ type Patch = (typeof native.patches)[number];
 /** Recorded F1 branch curves, events and declared component incidence. */
 type Branch = NonNullable<(typeof branches.records)[number]["branches"]>;
 
-/** Observed fixed-root transverse curves; the original port domains remain authoritative. */
-type Transition = NonNullable<Patch["info"]["rootTransitions"]>[number];
-
 /** Generate the observed forefoot web in its original seed-normal chart. */
 export namespace AutoMovieHumanLegF1Web {
   /**
@@ -79,10 +75,9 @@ export namespace AutoMovieHumanLegF1Web {
       if (matches.length !== 1) throw new Error(`The fixed ${side} web lost its unique retained toe cut`);
       return { ring: matches[0]!.ring, port };
     });
-    const observations: Transition[] = native.patches.find((piece: Patch): boolean => piece.name === `leg.${side}.toe-web seed.terminal`)?.info.rootTransitions ?? [];
-    const trims: (ReturnType<typeof AutoMovieHumanFootWebTrim.withdrawBand> & { port: Port; transition: Transition | undefined })[] = rims.map(
-      ({ ring, port }: typeof rims[number], i: number): typeof trims[number] =>
-        ({ ...AutoMovieHumanFootWebTrim.withdrawBand(skin, ring), port, transition: observations.find((item: Transition): boolean => item.digit === i + 1) }));
+    const trims: (ReturnType<typeof AutoMovieHumanFootWebTrim.withdrawBand> & { port: Port })[] = rims.map(
+      ({ ring, port }: typeof rims[number]): typeof trims[number] =>
+        ({ ...AutoMovieHumanFootWebTrim.withdrawBand(skin, ring), port }));
     const seedIds: number[] = existing(seed.points, mesh.positions);
     const seedSign: 1 | -1 = direction(mesh.indices, seedIds);
     const generated: number[] = existing(seed.points, skin.points.flat());
@@ -92,7 +87,7 @@ export namespace AutoMovieHumanLegF1Web {
     const used: Set<number> = new Set(flat);
     for (const id of used) if (!shared.has(id)) shared.set(id, AutoMovieHumanLoftMesh.vertices(mesh, [skin.points[id]!])[0]!);
     for (const [a, b, c] of skin.faces) mesh.indices.push(shared.get(a)!, shared.get(same ? c : b)!, shared.get(same ? b : c)!);
-    return trims.map(({ before, guide, port, transition }: typeof trims[number], i: number): string => {
+    return trims.map(({ before, guide, port }: typeof trims[number], i: number): string => {
       const toe: Context = AutoMovieHumanFootToes.f1(side, i + 1, port.points);
       const root: number[] = existing(port.points, toe.positions);
       const off: number = mesh.positions.length / 3;
@@ -100,11 +95,12 @@ export namespace AutoMovieHumanLegF1Web {
       for (const index of toe.indices) mesh.indices.push(index + off);
       const a: number[] = before.map((id: number): number => shared.get(id)!);
       const b: number[] = root.map((id: number): number => id + off);
-      if (transition === undefined) bridge(mesh, a, b);
-      else {
-        // The observed failing roots keep the same finite indexed rails.
-        // Repair their complete interior from both healthy neighboring faces,
-        // rather than interpolating every recorded artifact section again.
+      {
+        // The 7b73276ad6 whole-foot witnesses also reach the fifth root
+        // (|Z| about 188 mm). An absent extraction-only transition record
+        // must not select the old flat fallback for digits three and five.
+        // All five roots retain their actual boundaries and use both healthy
+        // neighboring face fields in the same complete curve loft.
         const tiles: number[] = AutoMovieHumanFootWebTrim.f1RootLoft(mesh.positions, a, b, port.frame, guide, mesh.indices);
         const flip: boolean = direction(tiles, a) === direction(mesh.indices, a);
         if ((direction(tiles, b) === direction(mesh.indices, b)) !== flip)
@@ -424,25 +420,4 @@ export namespace AutoMovieHumanLegF1Web {
     return signed > 0 ? 1 : -1;
   }
 
-
-  /** Existing ordinary seam retained only where no failing transition was replaced. */
-  function bridge(mesh: Context, lower: number[], upper: number[]): void {
-    const before: number[] = direction(mesh.indices, lower) < 0 ? lower : lower.slice().reverse();
-    const after: number[] = direction(mesh.indices, upper) > 0 ? upper : upper.slice().reverse();
-    const ids: Map<V3, number> = new Map();
-
-    /** Keep each original vertex object associated with its exact output index. */
-    const world: (rail: number[]) => V3[] = (rail: number[]): V3[] => rail.map((id: number): V3 => {
-      const point: V3 = AutoMovieHumanLoftMesh.position(mesh, id);
-      ids.set(point, id);
-      return point;
-    });
-    tessellateAutoMovieContourStrip64(world(before), world(after),
-      (a: V3, b: V3, c: V3): void => { mesh.indices.push(ids.get(a)!, ids.get(b)!, ids.get(c)!); },
-      (point: V3): string => String(ids.get(point)!),
-      (observation: Parameters<NonNullable<Parameters<typeof tessellateAutoMovieContourStrip64>[4]>>[0]): void => {
-        if (!observation.qualified) throw new Error(observation.diagnostics.join(" | "));
-      },
-    );
-  }
 }
