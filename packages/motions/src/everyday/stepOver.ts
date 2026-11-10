@@ -40,9 +40,13 @@ import { poseBones } from "./poseBones";
  * stretched off its footprint.
  *
  * Time scales with leg length by dynamic similarity (Alexander 1984): the
- * whole action takes `2 sqrt(l / 0.93)` seconds for a hip height `l`
+ * whole action takes `2.4 sqrt(l / 0.93)` seconds for a hip height `l`
  * (provisional: a deliberate two-step crossing near 1 s a step for an adult),
- * the lead swinging over 10 to 50 % and the trail over 60 to 100 %.
+ * the lead swinging over 8 to 42 % and the trail over 50 to 82 %, the
+ * pelvis staying between the feet until 70 % so the trail limb crosses with
+ * the hip above the obstacle, where hip and knee flexion can lift its toe
+ * (trail-limb clearance comes from hip and knee flexion, Chou and Draganich
+ * 1997, J Biomech 30:331), then moving over the landed feet.
  *
  * The obstacle lies ahead along the performer's heading; its near side must
  * be within one leg length of the feet and its height at most 0.55 of the hip
@@ -125,8 +129,8 @@ export namespace stepOver {
     };
     const heading = (side: "left" | "right"): number => yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT);
     const flat = (side: "left" | "right", ankle: IAutoMovieVector3): HumanFoot.IPlacement => ({ ankle, rotation: HumanFoot.rotation(heading(side), 0) });
-    const duration: number = 2 * Math.sqrt(m.hipHeight / 0.93);
-    const windows: Record<"left" | "right", [number, number]> = { [lead]: [0.1 * duration, 0.5 * duration], [trail]: [0.6 * duration, duration] } as Record<"left" | "right", [number, number]>;
+    const duration: number = 2.4 * Math.sqrt(m.hipHeight / 0.93);
+    const windows: Record<"left" | "right", [number, number]> = { [lead]: [0.08 * duration, 0.42 * duration], [trail]: [0.5 * duration, 0.82 * duration] } as Record<"left" | "right", [number, number]>;
 
     // Lift each swing so the foot's sole clears the top by the margin over the
     // whole span in which any part of the foot is above the obstacle, easing
@@ -165,7 +169,7 @@ export namespace stepOver {
     const startRoot: IAutoMovieVector3 = context.entry.posture.root;
     const endMid: IAutoMovieVector3 = { x: (end.left.x + end.right.x) / 2 - centre.x, y: -0.005, z: (end.left.z + end.right.z) / 2 - centre.z };
     const rootAt = (t: number): IAutoMovieVector3 => {
-      const s: number = 0.5 * minimumJerk((t - 0.05 * duration) / (0.5 * duration)).s + 0.5 * minimumJerk((t - 0.6 * duration) / (0.38 * duration)).s;
+      const s: number = 0.5 * minimumJerk((t - 0.04 * duration) / (0.42 * duration)).s + 0.5 * minimumJerk((t - 0.7 * duration) / (0.28 * duration)).s;
       return { x: startRoot.x + (endMid.x - startRoot.x) * s, y: startRoot.y + (endMid.y - startRoot.y) * s, z: startRoot.z + (endMid.z - startRoot.z) * s };
     };
 
@@ -176,12 +180,13 @@ export namespace stepOver {
         { name: "leadToeOff", share: share(windows[lead][0]) },
         { name: "leadContact", share: share(windows[lead][1]) },
         { name: "trailToeOff", share: share(windows[trail][0]) },
-        { name: "trailContact", share: 1 },
+        { name: "trailContact", share: share(windows[trail][1]) },
       ],
       contacts: [
-        { part: lead === "left" ? "leftFoot" : "rightFoot", kind: "plant", from: 0, to: 0.1, support: { kind: "ground" } },
-        { part: lead === "left" ? "leftFoot" : "rightFoot", kind: "plant", from: 0.5, to: 1, support: { kind: "ground" } },
-        { part: trail === "left" ? "leftFoot" : "rightFoot", kind: "plant", from: 0, to: 0.6, support: { kind: "ground" } },
+        { part: lead === "left" ? "leftFoot" : "rightFoot", kind: "plant", from: 0, to: 0.08, support: { kind: "ground" } },
+        { part: lead === "left" ? "leftFoot" : "rightFoot", kind: "plant", from: 0.42, to: 1, support: { kind: "ground" } },
+        { part: trail === "left" ? "leftFoot" : "rightFoot", kind: "plant", from: 0, to: 0.5, support: { kind: "ground" } },
+        { part: trail === "left" ? "leftFoot" : "rightFoot", kind: "plant", from: 0.82, to: 1, support: { kind: "ground" } },
       ],
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
@@ -200,23 +205,31 @@ export namespace stepOver {
         let posture: IHumanPosture = resolveHumanPosture.lower(body, { root, yaw, pitch: 0, roll: 0, joints: { ...stand.RELAXED, ...standUpright.of(body).joints }, limbs });
 
         // A swinging foot whose ankle cannot dorsiflex enough to stay level
-        // droops its toes; raise its ankle until its lowest sole point is at
-        // the planned lift, up to four times (each raise tips the foot a little
-        // further), so the clearance holds on the sole itself.
-        for (let round: number = 0; round < 4; round++) {
-          const lifted = (["left", "right"] as const).filter((side) => footAt(side, t).lift > 0);
-          if (lifted.length === 0) break;
+        // droops its toes, and raising its ankle folds the knee and droops them
+        // further, so each lifted ankle rises by secant steps on its lowest sole
+        // point's height (the step scaled by the last round's ankle-to-sole
+        // ratio, 1 to 4) until that point is within 2 mm of the planned lift,
+        // in at most six rounds, so the clearance holds on the sole itself.
+        const lifted = (["left", "right"] as const).filter((side) => footAt(side, t).lift > 0);
+        const last: Partial<Record<"left" | "right", { ankle: number; lowest: number }>> = {};
+        for (let round: number = 0; round < 6 && lifted.length > 0; round++) {
           const bones = poseBones(body, resolveHumanPosture(body, posture));
           const next: IHumanPosture["limbs"] = { ...posture.limbs };
+          let moved: boolean = false;
           for (const side of lifted) {
             const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
             const lowest: number = Math.min(...(["heel", "ball", "toe"] as const).map((name) => resolveAutoMovieHumanoidSurfaces.place(body.surfaces.sockets[`${name}${Side}`], bones.get(`${side}Foot`)!).point.y));
-            const raise: number = footAt(side, t).lift - lowest;
-            if (raise <= 0.002) continue;
+            const short: number = footAt(side, t).lift - lowest;
+            if (short <= 0.002) continue;
             const limb: "leftLeg" | "rightLeg" = side === "left" ? "leftLeg" : "rightLeg";
             const goal = next[limb]!;
-            next[limb] = { ...goal, point: { ...goal.point, y: goal.point.y + raise } };
+            const previous = last[side];
+            const ratio: number = previous === undefined ? 1 : Math.min(4, Math.max(1, (goal.point.y - previous.ankle) / Math.max(1e-4, lowest - previous.lowest)));
+            last[side] = { ankle: goal.point.y, lowest };
+            next[limb] = { ...goal, point: { ...goal.point, y: goal.point.y + short * ratio } };
+            moved = true;
           }
+          if (!moved) break;
           posture = { ...posture, limbs: next };
         }
         return posture;
