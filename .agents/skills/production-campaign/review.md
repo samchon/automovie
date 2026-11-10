@@ -12,6 +12,6 @@ Start the review as a new CLI process with a new session, launched as [run](run.
 
 ## Relay and re-review
 
-Relay the reviewer's verdict verbatim to the writer, and link each finding to the writer's decision, repair and re-review. For a finding the writer objects to, resume the reviewer's actual session to resolve it and pass the result back to the writer's session, until the production's review ends the exchange. A closing round after body repair starts a fresh reviewer process, as the production's rounds require. Check the submission, scope, frames read, citations and required records; a partial review or another edition's verdict is not current acceptance, and a repeated handled finding or a missing reply is not a new verdict.
+Relay the reviewer's verdict verbatim to the writer, and link each finding to the writer's decision, repair and re-review. For a finding the writer objects to, resume the reviewer's actual session to resolve it and pass the result back to the writer's session, until the production's review ends the exchange. A closing round after body repair starts a fresh reviewer process, as the production's rounds require. Check the submission, scope, frames read and required records; a partial review or another edition's verdict is not current acceptance, and a repeated handled finding or a missing reply is not a new verdict.
 
 Resumption and liveness follow [observe](observe.md). Record the submissions, verdicts and author decisions, and confirm completion by the review and repair the production requires.
