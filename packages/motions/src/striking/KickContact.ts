@@ -1,12 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import type { IKickGeometry } from "./IKickGeometry";
 import { KickCarriage } from "./KickCarriage";
 import { KickChain } from "./KickChain";
 import { KickForm } from "./KickForm";
-import type { StrikingReach } from "./StrikingReach";
+import { StrikingReach } from "./StrikingReach";
 import { StrikingStance } from "./StrikingStance";
 
 /**
@@ -21,7 +22,11 @@ import { StrikingStance } from "./StrikingStance";
  * foot up along the line by what it lacks, unless the step is given: first by
  * the solve's gap, then by what the fitted weapon still lacks toward the
  * point, because the hip's range of motion can leave the fitted leg shorter
- * than the free solve promised.
+ * than the free solve promised. The step up never brings the kicking hip
+ * nearer the point along the line than {@link KickForm.STEP_ROOM_SHARE} of
+ * the thigh, where the knee would pass the target. A leg jammed by a point
+ * closer than its flexion band's shortest reach steps the support foot back
+ * by the difference instead, so the weapon it declared lands, not the knee.
  */
 export namespace KickContact {
   /** A carriage with the leg fitted under it. */
@@ -63,6 +68,7 @@ export namespace KickContact {
         if (lean !== prefer) leans.push(lean);
       }
     else if (prefer !== 0) leans.push(0);
+    const m: IHumanBody["measure"] = props.body.measure;
     const limit: number =
       KickForm.STEP_SHARE * StrikingStance.length(props.body);
     const under = (carriage: IKickGeometry.ICarriage): IContact => {
@@ -77,13 +83,53 @@ export namespace KickContact {
     let least: number = Number.POSITIVE_INFINITY;
     for (const lean of leans) {
       let carriage: IKickGeometry.ICarriage = { ...set, lean, step: step ?? 0 };
+      let forward: number = limit;
       if (step === undefined) {
-        const solved: StrikingReach.ISolution = KickChain.solve(
-          chain,
-          KickCarriage.posture(props, carriage, props.timing.impact),
+        const base: IHumanPosture = KickCarriage.posture(
+          props,
+          carriage,
+          props.timing.impact,
+        );
+        const hip: IAutoMovieVector3 = KickCarriage.hip(
+          props.body,
+          base,
+          props.side,
+        );
+        const solved: StrikingReach.ISolution = KickChain.solve(chain, base);
+        const reach: IAutoMovieVector3 = Vector3.subtract(solved.point, hip);
+        const span: number = Vector3.length(reach);
+        const ahead: number = Vector3.dot(reach, props.line) / span;
+        forward = Math.max(
+          0,
+          Math.min(
+            limit,
+            Vector3.dot(Vector3.subtract(chain.planned, hip), props.line) -
+              KickForm.STEP_ROOM_SHARE * m.thigh,
+          ),
         );
         if (solved.status === "short")
-          carriage = { ...carriage, step: Math.min(limit, solved.gap) };
+          carriage = { ...carriage, step: Math.min(forward, solved.gap) };
+        else if (solved.status === "jammed" && ahead > 1e-3)
+          // The hip stands `span + gap` from the point, inside the band's
+          // shortest reach by the difference, which the step back takes up
+          // along the line.
+          carriage = {
+            ...carriage,
+            step: -Math.min(
+              limit,
+              Math.max(
+                0,
+                StrikingReach.reach(
+                  m.thigh,
+                  chain.technique === "round"
+                    ? KickForm.SHIN_SHARE * m.shank
+                    : m.shank,
+                  KickForm.FLEXION[chain.technique][1],
+                ) -
+                  (span + solved.gap),
+              ) / ahead,
+            ),
+          };
       }
       for (let round: number = 0; round < KickForm.STEP_ROUNDS; round++) {
         const candidate: IContact = under(carriage);
@@ -104,7 +150,7 @@ export namespace KickContact {
         // the support foot along the line: a step of `d` shortens the hip's
         // distance to the point by `d` times the line's share of that
         // direction.
-        if (step !== undefined || carriage.step >= limit) break;
+        if (step !== undefined || carriage.step >= forward) break;
         const toward: IAutoMovieVector3 = Vector3.normalize(
           Vector3.subtract(
             chain.planned,
@@ -119,7 +165,7 @@ export namespace KickContact {
         if (!(lack > 0 && ahead > 1e-3)) break;
         carriage = {
           ...carriage,
-          step: Math.min(limit, carriage.step + lack / ahead),
+          step: Math.min(forward, carriage.step + lack / ahead),
         };
       }
     }

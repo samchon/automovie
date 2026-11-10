@@ -23,10 +23,11 @@ import { StrikingTarget } from "./StrikingTarget";
  * support hip, which is what raises the kicking hip so the leg reaches a
  * high target inside the hip's range of motion.
  *
- * The turn, the tilt and the travel rise on one minimum-jerk profile to the
- * chamber key and fall on another from the contact to the replant. A step-up
- * of the support foot slides on its own clock between the launch and the
- * chamber key, and the root rides it.
+ * The turn, the tilt, the travel and the rise onto the support leg grow on
+ * one minimum-jerk profile to the chamber key and fall on another from the
+ * contact to the replant. A step of the support foot (up toward a target out
+ * of reach, back from one too close) slides on its own clock between the
+ * launch and the chamber key, and the root rides it.
  */
 export namespace KickCarriage {
   /** What a kick's carriage is built from. */
@@ -51,6 +52,14 @@ export namespace KickCarriage {
 
     /** The skill's range share: how much of the support foot's pivot is shown. */
     amplitude: number;
+
+    /**
+     * How far the entry's support hip stands below its standing height,
+     * metres, never negative: the kick rises onto its support leg by this
+     * much, so a kick thrown from a sunk stance has the hip height its range
+     * was read at.
+     */
+    rise: number;
   }
 
   /**
@@ -107,7 +116,7 @@ export namespace KickCarriage {
       KickForm.PIVOT.raise * w,
     );
     const flat: IHumanPosture = {
-      root: { x: centre.x, y: entry.root.y, z: centre.z },
+      root: { x: centre.x, y: entry.root.y + props.rise * w, z: centre.z },
       yaw: entry.yaw + carriage.turn * w,
       pitch: entry.pitch + carriage.pitch * w,
       roll: entry.roll,

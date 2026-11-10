@@ -60,24 +60,25 @@ export namespace StrikingLimb {
 
   /**
    * The end joint carrying a strike: the hand (a punch) or the foot (a kick
-   * or a knee) that moves farthest from the segment's entry to its planned
-   * contact, or to half its duration when it plans none.
+   * or a knee) that moves farthest from the segment's entry to the instant
+   * the strike is audited at: its stop when it met something, its peak
+   * otherwise. A strike stopped early has not moved its limb at the planned
+   * contact it never reaches, so that instant is not the one read.
    *
    * @param performance The performance.
    * @param subject The striker.
    * @param segment The strike's segment.
+   * @param until The audited instant, film seconds.
    * @returns The end joint.
    */
   export function end(
     performance: HumanPerformance,
     subject: string,
     segment: HumanSegment.ISegment,
+    until: number,
   ): End {
     const start: Bones = performance.bones(subject, segment.entryTime);
-    const mid: Bones = performance.bones(
-      subject,
-      segment.start + (segment.plan.contact ?? segment.plan.duration / 2),
-    );
+    const mid: Bones = performance.bones(subject, until);
     const candidates: readonly End[] =
       segment.name === "punch"
         ? ["leftHand", "rightHand"]

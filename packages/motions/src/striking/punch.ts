@@ -5,7 +5,6 @@ import {
   Quaternion,
   Vector3,
   minimumJerk,
-  resolveAutoMovieHumanoidSurfaces,
   resolvePose,
 } from "@automovie/engine";
 import type {
@@ -26,14 +25,17 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingAim } from "./StrikingAim";
+import { StrikingArrest } from "./StrikingArrest";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingReach } from "./StrikingReach";
 import { StrikingRecord } from "./StrikingRecord";
+import { StrikingRide } from "./StrikingRide";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingStroke } from "./StrikingStroke";
 import { StrikingTarget } from "./StrikingTarget";
+import { StrikingWeapon } from "./StrikingWeapon";
 
 /**
  * A punch: the fist's knuckles brought onto the target along a measured path
@@ -262,6 +264,48 @@ export namespace punch {
       p.at.kind === "person" &&
       StrikingQuality.stops(p.accuracy);
     let fixed: number | null | undefined = strikes ? null : undefined;
+
+    // The whole arm as three capsules read from the performer's shown bones,
+    // which are the free path until the performance commits the stop: the
+    // upper arm from the shoulder to the elbow, the forearm from the elbow to
+    // the wrist and the fist from the wrist to the knuckles, so a punch stops
+    // where its arm first meets a body anywhere along it (as when two crosses
+    // cross), and the resolution meets exactly the arm the figure shows.
+    const limb: "leftArm" | "rightArm" =
+      side === "left" ? "leftArm" : "rightArm";
+    const chain: StrikingWeapon.IChain = {
+      ids: ["upperArm", "forearm", "fist"],
+      limb,
+      radii: [
+        context.body.measure.upperArmRadius,
+        context.body.measure.forearmRadius,
+        context.body.measure.forearmRadius,
+      ],
+      from: context.start,
+      to: context.start + shown + 0.1,
+      ends: (seconds: number): IAutoMovieVector3[] =>
+        StrikingWeapon.arm(context, side, seconds),
+    };
+
+    // The contact the performance committed, and the stopped arm's ride on
+    // the body it met ({@link StrikingRide}), built on first use.
+    let met: IHumanActionPlan.IContactEvent | null = null;
+    let ride: StrikingRide.IRide | undefined;
+    const carried = (posture: IHumanPosture, seconds: number): IHumanPosture => {
+      if (met === null) return posture;
+      const event: IHumanActionPlan.IContactEvent = met;
+      ride ??= StrikingRide.create({
+        other: (): IHumanActionContext.IPerformer =>
+          context.performer(event.against),
+        stop: event.seconds,
+        end: context.start + duration,
+        axis: (
+          at: number,
+        ): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
+          StrikingWeapon.axis(chain, event.weapon, at),
+      });
+      return ride.carry(posture, limb, context.start + seconds);
+    };
     let built: IGeometry | undefined;
     let building: boolean = false;
     const geometry = (): IGeometry => {
@@ -284,40 +328,22 @@ export namespace punch {
       get contacts(): IHumanContactWindow[] {
         return geometry().contacts;
       },
-      ...(p.feint === undefined ? { contact: delivery } : {}),
-      posture: (seconds: number): IHumanPosture =>
-        geometry().posture(Math.min(duration, Math.max(0, seconds))),
+      ...(p.feint === undefined ? { contact: delivery } : { feigned: delivery }),
+      posture: (seconds: number): IHumanPosture => {
+        const t: number = Math.min(duration, Math.max(0, seconds));
+        return carried(geometry().posture(t), t);
+      },
       settle: (): void => {
         built = undefined;
+        ride = undefined;
       },
       ...(strikes
         ? {
-            // The whole arm as three capsules read from the performer's shown
-            // bones, which are the free path until the performance commits
-            // the stop: the upper arm from the shoulder to the elbow, the
-            // forearm from the elbow to the wrist and the fist from the wrist
-            // to the knuckles, so a punch stops where its arm first meets a
-            // body anywhere along it (as when two crosses cross), and the
-            // resolution meets exactly the arm the figure shows.
-            weapons: (["upperArm", "forearm", "fist"] as const).map(
-              (id, i: number): IHumanActionPlan.IWeapon => ({
-                id,
-                limb: side === "left" ? "leftArm" : "rightArm",
-                radius:
-                  i === 0
-                    ? context.body.measure.upperArmRadius
-                    : context.body.measure.forearmRadius,
-                from: context.start,
-                to: context.start + shown + 0.1,
-                path: (seconds: number): IAutoMovieVector3 =>
-                  shownArm(context, side, seconds)[i]!,
-                tail: (seconds: number): IAutoMovieVector3 =>
-                  shownArm(context, side, seconds)[i + 1]!,
-              }),
-            ),
+            weapons: StrikingWeapon.capsules(chain),
             stop: (found: readonly IHumanActionPlan.IContactEvent[]): void => {
-              const mine: number[] = found.map((e) => e.seconds);
-              fixed = mine.length === 0 ? null : Math.min(...mine);
+              met = StrikingWeapon.first(found);
+              fixed = met === null ? null : met.seconds;
+              ride = undefined;
             },
           }
         : {}),
@@ -359,42 +385,6 @@ export namespace punch {
 
     /** What the punch decided. */
     record: StrikingRecord.IRecord;
-  }
-
-  /**
-   * A performer's shown arm as its striking capsules' ends at a film second:
-   * the shoulder, the elbow, the wrist, and the fist's axis end one forearm
-   * radius behind the knuckles, so a capsule of that radius from the wrist
-   * ends on the knuckles.
-   */
-  function shownArm(
-    context: IHumanActionContext<IParams>,
-    side: "left" | "right",
-    seconds: number,
-  ): IAutoMovieVector3[] {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = context
-      .performer(context.subject)
-      .bones(seconds);
-    const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-    const knuckles: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
-      context.body.surfaces.sockets[side === "left" ? "fistLeft" : "fistRight"],
-      hand,
-    ).point;
-    const reach: IAutoMovieVector3 = Vector3.subtract(
-      knuckles,
-      hand.worldPosition,
-    );
-    const length: number = Vector3.length(reach);
-    const r: number = context.body.measure.forearmRadius;
-    return [
-      bones.get(`${side}UpperArm`)!.worldPosition,
-      bones.get(`${side}LowerArm`)!.worldPosition,
-      hand.worldPosition,
-      Vector3.add(
-        hand.worldPosition,
-        Vector3.scale(reach, Math.max(0, length - r) / Math.max(1e-9, length)),
-      ),
-    ];
   }
 
   /** Build a punch's geometry from its first posture evaluation. */
@@ -613,10 +603,57 @@ export namespace punch {
     // The feet keep the punch's clock; the trunk's turn may run on another
     // (a withdrawal's), so a stopped punch can turn back without moving a
     // planted foot.
+    //
+    // A stepping punch that meets a body before its lead foot has landed does
+    // not finish the step into that body: from the stop the lead foot's
+    // travel is arrested from the speed it had ({@link StrikingArrest}),
+    // landing at the planned second, and the rear foot drags up to where the
+    // lead foot came to rest, so the stance keeps its length.
+    let travel = (t: number): number => (stepping ? advance * out(t) : 0);
+    let follow = (t: number): number => (stepping ? advance * drag(t) : 0);
+    if (
+      stepping &&
+      fixed !== undefined &&
+      fixed !== null &&
+      fixed - t0 < shown
+    ) {
+      const s: number = Math.max(0, fixed - t0);
+      const from: number = advance * out(s);
+      const rest: number = StrikingArrest.rest(
+        from,
+        (advance * minimumJerk(s / shown).ds) / shown,
+        shown - s,
+      );
+      travel = (t: number): number =>
+        t <= s
+          ? advance * out(t)
+          : StrikingArrest.settle(
+              from,
+              (advance * minimumJerk(s / shown).ds) / shown,
+              rest,
+              shown - s,
+              t - s,
+            );
+      follow =
+        s <= dragFrom
+          ? (t: number): number => rest * drag(t)
+          : (t: number): number =>
+              t <= s
+                ? advance * drag(t)
+                : StrikingArrest.settle(
+                    advance * drag(s),
+                    (advance *
+                      minimumJerk((s - dragFrom) / (dragTo - dragFrom)).ds) /
+                      (dragTo - dragFrom),
+                    rest,
+                    dragTo - s,
+                    t - s,
+                  );
+    }
     const base = (t: number, clock: number = t): IHumanPosture => {
       const turning: number = out(clock) - turnBack(clock);
-      const moved: number = stepping ? advance * out(t) : 0;
-      const dragged: number = stepping ? advance * drag(t) : 0;
+      const moved: number = travel(t);
+      const dragged: number = follow(t);
       const leadFoot: HumanFoot.IPlacement = StrikingTarget.slide(
         feet[lead],
         line,
@@ -692,10 +729,49 @@ export namespace punch {
         back(t),
       );
     const lag: number = StrikingSkill.lag(context.skill) * shown;
+
+    // How deep a feint is shown, as a share of the way to the committed
+    // punch's wrist: the declared share, but never into a person's guard. The
+    // guard's depth is the farthest that person's hands and forearms stood
+    // toward the puncher from the aimed point when the punch was read, and
+    // the fist keeps clear of it by its own reach past the wrist and the two
+    // forearms' radii (derived: the surfaces that would otherwise touch).
+    const depth = (): number => {
+      const declared: number = minimumJerk(p.feint ?? 1).s;
+      if (p.at.kind !== "person") return declared;
+      const other: IHumanActionContext.IPerformer = context.performer(
+        p.at.subject,
+      );
+      const theirs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        other.bones(t0 - StrikingTarget.LOOK);
+      const guard: number = Math.max(
+        0,
+        ...(
+          ["leftHand", "rightHand", "leftLowerArm", "rightLowerArm"] as const
+        ).map((bone): number =>
+          Vector3.dot(
+            Vector3.subtract(first, theirs.get(bone)!.worldPosition),
+            line,
+          ),
+        ),
+      );
+      const whole: number = Vector3.dot(
+        Vector3.subtract(solved.end, origin),
+        line,
+      );
+      if (!(whole > 1e-6)) return declared;
+      const clear: number =
+        Vector3.dot(Vector3.subtract(first, origin), line) -
+        guard -
+        Vector3.length(socket) -
+        m.forearmRadius -
+        other.body.measure.forearmRadius;
+      return Math.min(declared, Math.max(0, clear / whole));
+    };
     const reached: IAutoMovieVector3 =
       p.feint === undefined
         ? solved.end
-        : Vector3.lerp(origin, solved.end, minimumJerk(p.feint).s);
+        : Vector3.lerp(origin, solved.end, depth());
     const units = StrikingStroke.delivery({
       origin,
       impact: reached,

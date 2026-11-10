@@ -74,23 +74,40 @@ export namespace KickGeometry {
     const round: boolean = p.technique === "round";
     const feint: boolean = p.feint === true;
 
-    // Where the target is, and the range a standing target is read at: the
-    // leg's comfortable length for the push kick, and for the round kick the
-    // horizontal reach of the lower shin at the target's height.
+    const feet: Record<"left" | "right", HumanFoot.IPlacement> =
+      StrikingTarget.feet(context.entry);
+
+    // Where the target is, and the range a standing target is read at, from
+    // the stance centre: how far ahead of it the root stands over the support
+    // foot at contact, plus the leg's comfortable length for the push kick,
+    // or for the round kick the comfortable share of the lower shin's
+    // horizontal reach at the target's height from the hip's standing height.
+    const stance: StrikingTarget.IStance = StrikingTarget.stance(context.entry);
+    const ahead: number = Vector3.dot(
+      Vector3.subtract(
+        Vector3.lerp(
+          { ...entry.root, y: 0 },
+          { ...feet[support].ankle, y: 0 },
+          KickForm.CENTRE_SHARE,
+        ),
+        stance.centre,
+      ),
+      stance.forward,
+    );
     const aim = (seconds: number): IAutoMovieVector3 =>
       StrikingTarget.aim(context, p.at, seconds, (height: number): number =>
         round
-          ? 0.5 * m.hipHalfWidth +
-            Math.sqrt(
-              Math.max(
-                0,
-                (KickForm.RANGE_SHARE *
-                  (m.thigh + KickForm.SHIN_SHARE * m.shank)) **
-                  2 -
-                  (height - m.hipHeight) ** 2,
-              ),
-            )
-          : KickForm.RANGE_SHARE * (m.thigh + m.shank),
+          ? ahead +
+            0.5 * m.hipHalfWidth +
+            KickForm.RANGE_SHARE *
+              Math.sqrt(
+                Math.max(
+                  0,
+                  (m.thigh + KickForm.SHIN_SHARE * m.shank) ** 2 -
+                    (height - m.hipHeight) ** 2,
+                ),
+              )
+          : ahead + KickForm.RANGE_SHARE * (m.thigh + m.shank),
       );
     const first: IAutoMovieVector3 = aim(t0 - StrikingTarget.LOOK);
     const line: IAutoMovieVector3 =
@@ -101,8 +118,6 @@ export namespace KickGeometry {
     );
     const level: "low" | "middle" | "high" = band(body, first);
     const amplitude: number = StrikingSkill.amplitude(context.skill);
-    const feet: Record<"left" | "right", HumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
 
     // The round kick's pelvis turns until the target lies the band's azimuth
     // to the kicking side of its forward; the push kick tips back instead.
@@ -156,6 +171,7 @@ export namespace KickGeometry {
       line,
       timing,
       amplitude,
+      rise: Math.max(0, m.hipHeight - KickCarriage.hip(body, entry, support).y),
     };
     const origin: IAutoMovieVector3 = feet[side].ankle;
     const knee: IAutoMovieVector3 = poseBones(body, context.entry.pose).get(
@@ -245,7 +261,7 @@ export namespace KickGeometry {
       leg: plans.leg,
       origin,
       back: Vector3.add(origin, Vector3.scale(line, carriage.step)),
-      contacts: windows(timing, side, support, carriage.step > 0),
+      contacts: windows(timing, side, support, carriage.step !== 0),
       record: {
         offset,
         planned: tracker.planned,
@@ -372,7 +388,7 @@ export namespace KickGeometry {
    * The feet's contact windows, as shares of the kick's duration: the
    * kicking foot is planted until the launch and at the replant, and the
    * support foot pivots on its ball throughout, except while it slides a
-   * step-up between the launch and the chamber key.
+   * step (up or back) between the launch and the chamber key.
    */
   function windows(
     timing: IKickGeometry.ITiming,

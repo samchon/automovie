@@ -31,6 +31,14 @@ export interface IHumanActionPlan {
   contact?: number;
 
   /**
+   * Seconds from the start to the contact a feint pretends: the instant its
+   * committed twin would land, which an observer who takes the feint for the
+   * real action prepares for. Present only on an action that shows a decisive
+   * instant it never reaches, so it never accompanies `contact`.
+   */
+  feigned?: number;
+
+  /**
    * The posture at a second of the action.
    *
    * @param seconds Seconds since the action's start, in [0, duration]; outside, the nearest end.

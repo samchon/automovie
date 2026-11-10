@@ -163,8 +163,13 @@ function build(
         g.plan,
       );
       const stop: number | undefined = record?.stop(g.end);
-      const limb: StrikingLimb.End = StrikingLimb.end(performance, p.id, g);
       const contact: number = stop ?? StrikingVerdicts.peak(g);
+      const limb: StrikingLimb.End = StrikingLimb.end(
+        performance,
+        p.id,
+        g,
+        contact,
+      );
       const chamber: number | undefined = StrikingVerdicts.at(g, "chamber");
       times.push({ seconds: g.entryTime, label: `${p.id} ${g.id} launch` });
       times.push(

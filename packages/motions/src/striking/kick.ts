@@ -1,9 +1,4 @@
-import {
-  type IAutoMovieResolvedBone,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
   IAutoMovieMotionEvent,
   IAutoMovieVector3,
@@ -22,9 +17,11 @@ import { KickGeometry } from "./KickGeometry";
 import { KickRedirect } from "./KickRedirect";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingRecord } from "./StrikingRecord";
+import { StrikingRide } from "./StrikingRide";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
+import { StrikingWeapon } from "./StrikingWeapon";
 
 /**
  * A kick: the round kick's lower shin or the push kick's ball of the foot
@@ -171,6 +168,48 @@ export namespace kick {
       p.at.kind === "person" &&
       StrikingQuality.stops(p.accuracy);
     let fixed: number | null | undefined = strikes ? null : undefined;
+
+    // The whole leg as three capsules read from the performer's shown bones,
+    // which are the free path until the performance commits the stop: the
+    // thigh from the hip to the knee, the shank from the knee to the ankle
+    // and the foot from the ankle to the ball, so whatever part of the leg
+    // first meets a body stops it, and the resolution meets exactly the leg
+    // the figure shows.
+    const limb: "leftLeg" | "rightLeg" =
+      timing.side === "left" ? "leftLeg" : "rightLeg";
+    const chain: StrikingWeapon.IChain = {
+      ids: ["thigh", "shin", "foot"],
+      limb,
+      radii: [
+        context.body.measure.thighRadius,
+        context.body.measure.shankRadius,
+        KickForm.FOOT_RADIUS_SHARE * context.body.measure.ankleHeight,
+      ],
+      from: Math.max(context.start, t0 + timing.prep),
+      to: t0 + timing.impact + KickForm.WEAPON_TAIL,
+      ends: (seconds: number): IAutoMovieVector3[] =>
+        StrikingWeapon.leg(context, timing.side, seconds),
+    };
+
+    // The contact the performance committed, and the stopped leg's ride on
+    // the body it met ({@link StrikingRide}), built on first use.
+    let met: IHumanActionPlan.IContactEvent | null = null;
+    let ride: StrikingRide.IRide | undefined;
+    const carried = (posture: IHumanPosture, seconds: number): IHumanPosture => {
+      if (met === null) return posture;
+      const event: IHumanActionPlan.IContactEvent = met;
+      ride ??= StrikingRide.create({
+        other: (): IHumanActionContext.IPerformer =>
+          context.performer(event.against),
+        stop: event.seconds,
+        end: t0 + timing.duration,
+        axis: (
+          at: number,
+        ): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
+          StrikingWeapon.axis(chain, event.weapon, at),
+      });
+      return ride.carry(posture, limb, t0 + seconds);
+    };
     let built: IKickGeometry | undefined;
     let building: boolean = false;
     const geometry = (): IKickGeometry => {
@@ -206,49 +245,35 @@ export namespace kick {
             (c: IHumanContactWindow): boolean => c.to > c.from || c.to === 1,
           );
       },
-      ...(p.feint === true ? {} : { contact: timing.impact - offset }),
-      posture: (seconds: number): IHumanPosture =>
-        geometry().posture(
-          Math.min(timing.duration, Math.max(0, seconds + offset)),
-        ),
+      // A feint's chamber is the committed kick's, so the contact it
+      // pretends is one extension past its chamber key.
+      ...(p.feint === true
+        ? {
+            feigned:
+              timing.chamber +
+              StrikingSkill.KICK_EXTENSION *
+                StrikingSkill.strike(context.skill) -
+              offset,
+          }
+        : { contact: timing.impact - offset }),
+      posture: (seconds: number): IHumanPosture => {
+        const t: number = Math.min(
+          timing.duration,
+          Math.max(0, seconds + offset),
+        );
+        return carried(geometry().posture(t), t);
+      },
       settle: (): void => {
         built = undefined;
+        ride = undefined;
       },
       ...(strikes
         ? {
-            // The whole leg as three capsules read from the performer's shown
-            // bones, which are the free path until the performance commits
-            // the stop: the thigh from the hip to the knee, the shank from the
-            // knee to the ankle and the foot from the ankle to the ball, so
-            // whatever part of the leg first meets a body stops it, and the
-            // resolution meets exactly the leg the figure shows.
-            weapons: (["thigh", "shin", "foot"] as const).map(
-              (id, i: number): IHumanActionPlan.IWeapon => ({
-                id,
-                limb: timing.side === "left" ? "leftLeg" : "rightLeg",
-                radius: [
-                  context.body.measure.thighRadius,
-                  context.body.measure.shankRadius,
-                  KickForm.FOOT_RADIUS_SHARE * context.body.measure.ankleHeight,
-                ][i]!,
-                from: Math.max(context.start, t0 + timing.prep),
-                to: t0 + timing.impact + KickForm.WEAPON_TAIL,
-                path: (seconds: number): IAutoMovieVector3 =>
-                  shownLeg(context, timing.side, seconds)[i]!,
-                tail: (seconds: number): IAutoMovieVector3 =>
-                  shownLeg(context, timing.side, seconds)[i + 1]!,
-              }),
-            ),
+            weapons: StrikingWeapon.capsules(chain),
             stop: (found: readonly IHumanActionPlan.IContactEvent[]): void => {
-              fixed =
-                found.length === 0
-                  ? null
-                  : Math.min(
-                      ...found.map(
-                        (e: IHumanActionPlan.IContactEvent): number =>
-                          e.seconds,
-                      ),
-                    );
+              met = StrikingWeapon.first(found);
+              fixed = met === null ? null : met.seconds;
+              ride = undefined;
             },
           }
         : {}),
@@ -261,32 +286,6 @@ export namespace kick {
         context: source?.context ?? context,
       },
     };
-  }
-
-  /**
-   * A performer's shown leg at a film second: the hip, the knee, the ankle
-   * and the ball of the foot.
-   */
-  function shownLeg(
-    context: IHumanActionContext<IParams>,
-    side: "left" | "right",
-    seconds: number,
-  ): IAutoMovieVector3[] {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = context
-      .performer(context.subject)
-      .bones(seconds);
-    const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
-    return [
-      bones.get(`${side}UpperLeg`)!.worldPosition,
-      bones.get(`${side}LowerLeg`)!.worldPosition,
-      foot.worldPosition,
-      resolveAutoMovieHumanoidSurfaces.place(
-        context.body.surfaces.sockets[
-          side === "left" ? "ballLeft" : "ballRight"
-        ],
-        foot,
-      ).point,
-    ];
   }
 
   /** Whether a plan is a kick's, carrying what a redirect continues. */
