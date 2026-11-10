@@ -22,13 +22,9 @@ Reconcile measured guide intersections before interpolation, using sections and 
 
 When several authored regions share a physical section, compose their defining 2D pieces in that declared plane and frame before generating the surface. Keep the source controls and coordinate maps, reconcile guide/profile correspondence and preserve actual components, concavities, holes and topology changes. A projected silhouette Boolean loses depth, and a tape hull that bridges concavities is a different boundary.
 
-Build a relief's height, and every target it blends between, from C2 functions: a C2 ramp and a C2 max over the roll. A hard clamp, max, min or polyline corner in the target becomes a crease in the surface, however finely it is sampled.
+Build a relief's height, and every target it blends between, from C2 functions: a C2 ramp and a C2 max over the roll. A hard clamp, max, min or polyline corner in the target becomes a crease in the surface, however finely it is sampled. A relief's window must contain the whole region where its height is nonzero, because a window edge that cuts through a nonzero height leaves a crease as well.
 
-A relief's window must contain the whole region where its height is nonzero: a window edge that cuts through a nonzero height leaves a crease as well.
-
-Choose sections, sweeps, local curve networks and retained volume operations by their geometric and editing contracts. An anatomical or logical name may identify a subdomain of one generating stream rather than another loft. Compare exact conversion and explicitly bounded approximation under their actual premises;
-
-keep valid input meanings and independent expectations. Fewer streams or patches alone establish neither a faster nor a correct result.
+Choose sections, sweeps, local curve networks and retained volume operations by their geometric and editing contracts. An anatomical or logical name may identify a subdomain of one generating stream rather than another loft. Compare exact conversion and explicitly bounded approximation under their actual premises, keeping valid input meanings and independent expectations. Fewer streams or patches alone establish neither a faster nor a correct result.
 
 ## Connections
 

@@ -8,8 +8,14 @@ Apply [Modularization](modularization.md) to direct placement and rebuilds alike
 
 ## Source
 
-1. Use the model or service the user chooses, local or paid, choosing between a generated mesh, multiview acquisition with recovery, or a 3D service by the control the asset needs.
-2. Freeze the selected file and its sidecars with their hashes, the model, version, seed, prompt, inputs, acquisition settings and usage terms. The frozen file, not the prompt, is the reproducible source; a URL, model name or seed alone does not identify it.
+1. Use the model or service the user chooses, local or paid.
+
+   Choose between a generated mesh, multiview acquisition with recovery, or a 3D service by the control the asset needs.
+
+2. Freeze the selected file and its sidecars with their hashes.
+
+   Record the model, version, seed, prompt, inputs, acquisition settings and usage terms beside them. The frozen file, not the prompt, is the reproducible source; a URL, model name or seed alone does not identify it.
+
 3. Keep the original apart from converted, simplified or recovered derivatives, and record which source each derivative consumes.
 4. Treat the source as approximate: views of one generation disagree, and hidden sides are invented.
 
