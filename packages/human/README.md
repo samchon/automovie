@@ -54,7 +54,7 @@ figure.add(drawing.object);
 drawing.setPose({ posed: AutoMovieHumanCanonicalBody.display(body, pose).posed });
 ```
 
-The figure stays plain on purpose. It exists to show motion cheaply, so nothing about it stands for skin or clothing.
+The figure is plain because it only has to show motion cheaply. Nothing about it stands for skin or clothing.
 
 ## More
 

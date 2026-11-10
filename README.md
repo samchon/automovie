@@ -4,7 +4,7 @@ AutoMovie lets an LLM write a film's screenplay and then program the staging, mo
 
 You direct a coding agent in natural language. The agent writes the screenplay and authors the scenes as code, and AutoMovie's engine computes the same frames from that code every time, so a result can be inspected and corrected instead of regenerated. AutoMovie contains no LLM and no authoring server: you bring the coding agent, any media providers and the machine that renders.
 
-Stick figures and coarse meshes are enough for a hint as long as the performance, contacts and timing are right, and surface detail is added only where a shot needs it. A production can stop at the screenplay, at the motion-hint video, or at a finished film rendered directly in 3D or through a diffusion workflow you choose. An accurate hint does not guarantee what an external generator makes of it.
+A polygon man and coarse meshes are enough for a hint as long as the performance, contacts and timing are right, and surface detail is added only where a shot needs it. A production can stop at the screenplay, at the motion-hint video, or at a finished film rendered directly in 3D or through a diffusion workflow you choose. An accurate hint does not guarantee what an external generator makes of it.
 
 The scenes at [samchon.github.io/AutoMovie](https://samchon.github.io/AutoMovie/) are rendered from the sources under [`experimental`](./experimental). They show assets and their inspection, not an end-to-end film.
 

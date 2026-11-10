@@ -25,7 +25,7 @@ Functions named `validate*` return a result that lists every violation with its 
 
 ## Finding things
 
-Everything is exported from the package root, and each function's JSDoc states its units, limits and what it does not guarantee. The source folders are the map:
+Import from the package root. Each function's JSDoc states its units, limits and what it does not guarantee, and the source folders show where a subject lives:
 
 | Folder | Owns |
 | --- | --- |
