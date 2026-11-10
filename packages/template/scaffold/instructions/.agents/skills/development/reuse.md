@@ -1,22 +1,33 @@
 # Reuse
 
-Look for a capability before writing it. These rules also decide what to do when an installed package misbehaves or lacks something, and when a subject needs a second version or an action a second performance.
+Look for a capability before writing it. This page says what each installed package is for and where its API is written, what to do when a package misbehaves or lacks something, and how a subject gets a second version or an action a second performance.
 
 ## Installed packages {#installed-packages}
 
-Search the installed packages before writing a capability, and use what they provide: their READMEs, public types and JSDoc say what exists. A capability written a second time in the production diverges from the package at its first repair.
+A production is built with the AutoMovie packages its `package.json` lists. Search them before writing a capability, and use what they provide. A capability written a second time in the production diverges from the package at its first repair.
 
-The skills name installed packages by role, and this table is the one place that says which package each role is:
+The skills name installed packages by role. This table is the one place that says which package each role is and what a production uses it for:
 
-| Role in the skills | Package |
-| --- | --- |
-| Motion vocabulary | `@automovie/motions` |
-| Human package, which prepares the canonical body | `@automovie/human` |
-| Viewer, which draws the polygon man | `@automovie/viewer` |
-| Engine | `@automovie/engine` |
-| Evidence package | `@automovie/evidence` |
-| Renderer | `@automovie/render` |
-| Command-line tool | `automovie` |
+| Role in the skills | Package | A production uses it to |
+| --- | --- | --- |
+| Interface package | `@automovie/interface` | Write what a film holds as typed data that every other package reads |
+| Human package | `@automovie/human` | Prepare a person's canonical body from parameters |
+| Motion vocabulary | `@automovie/motions` | Chain a person's actions and read the pose at any film second |
+| Engine | `@automovie/engine` | Validate the authored data, compose a scene's actions on one schedule and compute what each film second holds |
+| Viewer | `@automovie/viewer` | Draw the polygon man and every other form, and capture or inspect the picture |
+| Renderer | `@automovie/render` | Plan the frames, the edit and the encode that the production's own commands carry out |
+| Ingest package | `@automovie/ingest` | Decode external model, motion, audio and image bytes into AutoMovie records |
+| Recovery package | `@automovie/recovery` | Recover curves from a fixed mesh, so code can deform it or drive it by parameters |
+| Evidence package | `@automovie/evidence` | Configure the check that the production's code and writing answer their contracts |
+| Command-line tool | `automovie` | Create a production, add one to a workspace and sync these instructions |
+
+The first six rows are in the order a film passes through them, from authored data to an encoded video. [How the parts work together](source-layout.md#how-the-parts-work-together) says how the production's own modules carry them into a film.
+
+### Reading a package {#reading-a-package}
+
+A package's README, public types and JSDoc are its API, and the skills repeat none of it. Read them in the package's folder under `node_modules` instead of recalling a call from memory: the packages change between releases, and the installed version is the one the production runs.
+
+Read the README first, for what the package owns and how a use of it begins. Then read the declaration and JSDoc of each export you use, for its units, limits and refusals.
 
 ### A defect or a gap
 
