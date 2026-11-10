@@ -6,7 +6,7 @@ Author every movement as goals, and let inverse kinematics find the joint angles
 
 ## Write the goal
 
-A goal names five things, the effector, its target and window among them:
+A goal names five things:
 
 | Part | Names | Example |
 | --- | --- | --- |
