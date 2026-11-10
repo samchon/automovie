@@ -30,8 +30,6 @@ export const resolveAutoMovieTemplateDependencyVersions: (
     dependency: string,
   ): string => catalogVersion(catalog, dependency).replace(/^[~^]/u, "");
   return {
-
-
     cli: props.packages.cli,
     engine: props.packages.engine,
     evidence: props.packages.evidence,

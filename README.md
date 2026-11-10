@@ -31,8 +31,6 @@ To keep several productions in one repository, `npx automovie create <directory>
 | --- | --- |
 | [`@automovie/interface`](./packages/interface) | The pure-type authoring AST an LLM emits |
 | [`@automovie/engine`](./packages/engine) | Deterministic validation and computation of everything a frame needs |
-
-
 | [`@automovie/human`](./packages/human) | A human figure generated from typed parameters by code (being rebuilt) |
 | [`@automovie/motions`](./packages/motions) | Human action laws that author deterministic motion |
 | [`@automovie/ingest`](./packages/ingest) | Deterministic import of glTF, GLB, VRM, WAVE and PPM inputs |
