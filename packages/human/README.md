@@ -22,7 +22,7 @@ declare const parameters: IAutoMovieHumanParameters;
 const { model } = AutoMovieHuman.generate(parameters);
 ```
 
-`body` and `head` are required and everything else is optional. Each field's JSDoc gives its unit and what an unknown value means. Four complete parameter sets are in the playground's [`human-parameters`](../playground/src/human-parameters).
+`body` and `head` are required and everything else is optional. Each field's JSDoc gives its unit and what an unknown value means.
 
 ## Entry points
 

@@ -33,7 +33,7 @@ The structures `IAutoMovieHumanIdentity`, `IAutoMovieHumanBodyIdentity`, `IAutoM
 
 ## Present body controls
 
-Unit mm unless stated. "Kind" is anatomical (a published measurement at a published site) or slider (a shape coordinate with no anatomical definition). The four reference columns are the values in `packages/playground/src/human-parameters/{f1,f2,m1,m2}.ts`, M marking a value the file states was measured on the reference by the field's definition.
+Unit mm unless stated. "Kind" is anatomical (a published measurement at a published site) or slider (a shape coordinate with no anatomical definition). The four reference columns are the values in the f1, f2, m1 and m2 reference parameter files, M marking a value the file states was measured on the reference by the field's definition.
 
 | Control | Definition source | Population, F / M (mean, SD) | Readers | Kind | Verdict |
 | --- | --- | --- | --- | --- | --- |
@@ -205,7 +205,7 @@ An unknown tape or length takes its line on stature by sex (`TAPE_ON_STATURE`): 
 
 ### The public shape after phase 4
 
-Once the pieces read only the resolved record, the public body input becomes one record of optional measured numbers under the published names above: `sex`, `stature`, the trunk, arm and leg tapes and lengths, the skeletal breadths, the landmark heights and the composition. Each field has its definition, unit, survey range and default. `controls` with its `{ value, pinned }` wrappers goes. The reference files, the editor (`packages/playground/src/human-editor/mountHumanEditor.ts`) and the tests that build or perturb inputs (`HumanPopulationBuild`, `HumanInputResponse*`, the anatomy audits) move with it in one batch.
+Once the pieces read only the resolved record, the public body input becomes one record of optional measured numbers under the published names above: `sex`, `stature`, the trunk, arm and leg tapes and lengths, the skeletal breadths, the landmark heights and the composition. Each field has its definition, unit, survey range and default. `controls` with its `{ value, pinned }` wrappers goes. The reference files, the parameter editor and the tests that build or perturb inputs (`HumanPopulationBuild`, `HumanInputResponse*`, the anatomy audits) move with it in one batch.
 
 ### Head defaults
 

@@ -40,7 +40,6 @@ To keep several productions in one repository, `npx automovie create <directory>
 | [`@automovie/evidence`](./packages/evidence) | Checks that a production's code and writing answer their checklists |
 | [`@automovie/template`](./packages/template) | The scaffold every production starts from |
 | [`automovie`](./packages/cli) | The CLI that installs the scaffold |
-| [`@automovie/playground`](./packages/playground) | Browser pages for developing this repository |
 | [`@automovie/website`](./website) | The site published at samchon.github.io/automovie |
 
 ## Repository development
@@ -54,7 +53,7 @@ pnpm run evidence
 pnpm run test
 ```
 
-`pnpm automovie <command>` runs the CLI from source. `pnpm --filter @automovie/playground dev` serves the playground, and `pnpm --filter @automovie/website dev` serves the website that `.github/workflows/website.yml` publishes to GitHub Pages from `master`.
+`pnpm automovie <command>` runs the CLI from source. `pnpm --filter @automovie/website dev` serves the website that `.github/workflows/website.yml` publishes to GitHub Pages from `master`.
 
 ## License
 

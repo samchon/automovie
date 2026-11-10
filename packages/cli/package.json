@@ -1,6 +1,6 @@
 {
   "name": "automovie",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Scaffold a coding-agent-first AutoMovie production repository.",
   "main": "src/index.ts",
   "bin": {
@@ -13,7 +13,6 @@
   "scripts": {
     "build": "rimraf lib && ttsc",
     "start": "ttsx src/bin.ts",
-    "prepack": "pnpm run build",
     "evidence": "evidence"
   },
   "keywords": [

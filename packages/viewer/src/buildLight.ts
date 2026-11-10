@@ -19,7 +19,7 @@ import { applyLightState } from "./applyLightState.js";
  * statement of the same fact, and the kind of duplicate that survives right up
  * until the two copies disagree.
  *
- * Exported because a host that assembles its own scene graph (the playground's
+ * Exported because a host that assembles its own scene graph (a production's
  * film page) must light it from `scene.lights` rather than from a hardcoded
  * source of its own: a page that lights itself proves nothing about the film's
  * lighting, which is how the aim defect in #1356 survived every capture.

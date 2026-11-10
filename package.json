@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@automovie/station",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Coding-agent-native deterministic filmmaking: tracked authoring, compilation, rendering, review, and delivery.",
   "packageManager": "pnpm@10.6.4",
   "scripts": {
@@ -11,9 +11,9 @@
     "format": "prettier --write \"**/*.{ts,cts,mts}\"",
     "format:check": "prettier --check \"**/*.{ts,cts,mts}\"",
     "evidence": "pnpm --filter=./packages/** --filter=./test --no-bail --no-sort -r evidence",
-    "package:latest": "pnpm --filter=./packages/* -r publish --tag latest --access public",
-    "package:next": "pnpm --filter=./packages/* -r publish --tag next --access public",
-    "package:rc": "pnpm --filter=./packages/* -r publish --tag rc --access public",
+    "package:latest": "pnpm run build && pnpm --filter=./packages/* -r publish --tag latest --access public",
+    "package:next": "pnpm run build && pnpm --filter=./packages/* -r publish --tag next --access public",
+    "package:rc": "pnpm run build && pnpm --filter=./packages/* -r publish --tag rc --access public",
     "release": "bumpp -r"
   },
   "keywords": [

@@ -1,6 +1,6 @@
 {
   "name": "@automovie/evidence",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Evidence configuration and optional narrative lifecycle validation for AutoMovie productions",
   "engines": {
     "node": ">=22.23.2"
@@ -12,7 +12,6 @@
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
-    "prepack": "pnpm run build",
     "evidence": "evidence"
   },
   "keywords": [

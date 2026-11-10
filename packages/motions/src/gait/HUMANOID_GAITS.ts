@@ -24,8 +24,8 @@ import { IAutoMovieGait } from "@automovie/interface";
  *
  * Periods are seconds, phases are turns and angular channels are degrees.
  * These are conventional schematic performance targets rather than measured
- * anatomical motion capacities. Module-owned rows are shared by profile and
- * playground contexts; the engine validates and samples them. Fixed table
+ * anatomical motion capacities. Module-owned rows are shared by every profile
+ * context; the engine validates and samples them. Fixed table
  * construction happens once and retains no per-frame task or host resource.
  */
 export const HUMANOID_GAITS: Record<
