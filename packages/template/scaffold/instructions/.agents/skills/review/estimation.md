@@ -6,17 +6,15 @@ Use this only for a requested read-only quality assessment. Do not edit files, r
 
 Fix the requested scope and artifact role; without a narrower request, assess every selected layer under `docs/body` and its frozen edition under `docs/revision`.
 
-A motion hint is assessed for its visible action, staging and conditioning information, not as an uncommissioned generated film, and media in scope is inspected as stills of the actual complete file, at the spacing [delivery review](delivery.md#measure-and-compare) gives. Before judging the screenplay or video, choose at most two central experience axes from the declared promise, or state that none was declared.
+A motion hint is assessed for its visible action, staging and conditioning information, not as an uncommissioned generated film, and media in scope is inspected as stills of the actual complete file, at the spacing [delivery review](delivery.md#measure-and-compare) gives.
+
+Before judging the screenplay or video, choose at most two central experience axes from the declared promise, or state that none was declared.
 
 ## Judges
 
-Use at least two fresh judges with the author's model, each making two independent judgments; a light request may use one and must say so.
+Use at least two fresh judges with the author's model, each making two independent judgments; a light request may use one and must say so. Give them the promise, scope, this method and annotation-free bodies or media, and withhold author identity, generation method, contracts, evidence, reviews and each other's results.
 
-Give them the promise, scope, this method and annotation-free bodies or media, and withhold author identity, generation method, contracts, evidence, reviews and each other's results.
-
-The coordinator assigns and aggregates without voting.
-
-Judges read every selected unit, in non-overlapping chunks with a read inventory when needed, and lock reactions per file for settings, brief and treatments and per scene or sequence for scripts, screenplay and video before scoring.
+The coordinator assigns and aggregates without voting. Judges read every selected unit, in non-overlapping chunks with a read inventory when needed, and lock reactions per file for settings, brief and treatments and per scene or sequence for scripts, screenplay and video before scoring.
 
 ## Axes and anchors
 

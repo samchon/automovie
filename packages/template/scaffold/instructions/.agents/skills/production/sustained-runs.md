@@ -12,9 +12,7 @@ Dispatch each task through the skill that owns it in the production's [routing t
 
 Use additional agents only when authorized and give them disjoint write scopes. [Review](../review/SKILL.md) owns who may review and what counts as independent.
 
-Inspect the actual process, artifacts and errors before calling a quiet run stalled, and resume a stopped run from its last valid output and [saved stages](stage-caches.md), keeping its failure.
-
-A changed input starts a new result; a restart inherits no verdict.
+Inspect the actual process, artifacts and errors before calling a quiet run stalled, and resume a stopped run from its last valid output and [saved stages](stage-caches.md), keeping its failure. A changed input starts a new result; a restart inherits no verdict.
 
 A capability an installed package lacks is handled under [installed packages](../development/reuse.md#installed-packages) while independent work continues.
 

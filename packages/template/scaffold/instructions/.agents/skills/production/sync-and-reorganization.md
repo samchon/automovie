@@ -1,6 +1,6 @@
-# Project ownership and customization
+# Sync and reorganization
 
-Use this resource when syncing instructions or reorganizing the production.
+Use this when syncing instructions or reorganizing the production.
 
 ## Sync and ownership
 

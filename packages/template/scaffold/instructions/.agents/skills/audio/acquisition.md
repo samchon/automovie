@@ -6,9 +6,7 @@ Audio generation and recording happen outside deterministic replay. Read the ins
 
 ## Choose a source
 
-Use the user's supplied recordings or chosen provider first, and [research](../story/planning/research.md) reference sounds when needed.
-
-Otherwise compare an existing recording or licensed library, a hosted speech or audio service, and local generation against the required language, performance, privacy, cost, hardware and turnaround, using existing connectors and command-line tools before writing acquisition code.
+Use the user's supplied recordings or chosen provider first, and [research](../story/planning/research.md) reference sounds when needed. Otherwise compare an existing recording or licensed library, a hosted speech or audio service, and local generation against the required language, performance, privacy, cost, hardware and turnaround, using existing connectors and command-line tools before writing acquisition code.
 
 Check each asset's license for commercial use, adaptation, attribution and delivery; permission to synchronize sound with a film differs from permission to publish its raw files, and a free download grants neither.
 

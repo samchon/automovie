@@ -21,7 +21,9 @@ These are representative examples, not a complete or required list; read the cho
 
 ## Decide how much the hint controls
 
-Prompting alone suffices when no camera or pose has to match: canon sheets, set plates, style frames and early exploration. Use the hint when the image must agree with it, as for a shot's first or last frame, figures whose eyelines, contact or depth order matter, a specific pose, a held prop or a screen direction that must survive a cut, or when a control-conditioned video model will follow the hint. In rising cost and precision:
+Prompting alone suffices when no camera or pose has to match: canon sheets, set plates, style frames and early exploration.
+
+Use the hint when the image must agree with it, as for a shot's first or last frame, figures whose eyelines, contact or depth order matter, a specific pose, a held prop or a screen direction that must survive a cut, or when a control-conditioned video model will follow the hint. In rising cost and precision:
 
 1. A prompt with canon references.
 2. The hint render as an extra input labelled "pose and camera reference only", which hosted models follow loosely.

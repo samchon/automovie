@@ -25,9 +25,15 @@ Do not make every scene testify for an entire film or attach a conditional requi
 | Actual speech | [Speakers and action order](shared/principles/realized.md) | [Finished voice distribution](shared/naturalness/obligations/realized.md) |
 | Independent review | [Grounded reading and literal audit](shared/principles/review.md) | [Complete rounds and verdict](shared/obligations/review.md) |
 
+## The short route
+
 A short has no treatments, scripts or settings index, so those rows have no respondent there. Its event design and scene execution are asked of the screenplay instead: [audiovisual realization](shared/principles/screenplay.md#audiovisual-realization) and [beat decisions](shared/principles/screenplay.md#beat-decisions) for each scene, and [continuity](shared/obligations/narratives.md#continuity-and-progression), [promises](shared/obligations/narratives.md#promises-and-distribution) and [complete realization](shared/obligations/screenplay.md#complete-realization) for the whole, which cover setup and payoff, the ending and the established space.
 
+## Statements
+
 Each contract's statements sit at the same path under `shared/statements`, such as `shared/statements/principles/screenplay.md` for the screenplay principles, with one section per item anchor. Check them before answering, as [items and statements](../SKILL.md#items-and-statements) describes.
+
+## Discovery, expression and upstream
 
 Use [common discovery](shared/discovery/common.md), then [settings](shared/discovery/settings.md) or [brief](shared/discovery/brief.md), [treatments](shared/discovery/treatments.md), [scripts](shared/discovery/scripts.md), [screenplay](shared/discovery/screenplay.md), and [narrative](shared/discovery/narratives.md) for the actual selected populations; [discovery](../../story/planning/discovery.md) writes their result.
 

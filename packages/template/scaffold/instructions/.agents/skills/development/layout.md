@@ -38,7 +38,9 @@ A scene chains capabilities in sequence and in parallel through the installed co
 
 The whole composition resolves once per film into a frozen schedule, and every film second is a pure function of that schedule. Each film has one seed, and every seeded stream derives from it, the motion vocabulary's included, so reseeding a film reseeds every performer together. A film that continues another starts from that film's final state snapshots.
 
-A film only composes: the catalog and the screenplay films call the same capabilities with the same parameters, so a case accepted in the catalog plays the same way in the film, and a film defect is repaired in its module. The [composition contract](../contracts/development/composition.md#composition-only) holds every scene to this. The object shell over a functional core is the production's own style; installed packages keep theirs.
+A film only composes: the catalog and the screenplay films call the same capabilities with the same parameters, so a case accepted in the catalog plays the same way in the film, and a film defect is repaired in its module. The [composition contract](../contracts/development/composition.md#composition-only) holds every scene to this.
+
+The object shell over a functional core is the production's own style; installed packages keep theirs.
 
 ## Dependencies and files
 
@@ -46,9 +48,13 @@ Imports point down the chain: host and commands to films, films to scenes, scene
 
 A subject never imports another subject and a scene never imports another scene: an interaction relates subjects by role, and a film orders scenes.
 
-Playback, transport, controls, inspection overlays, the physics runtime and mixing serve every production, so they belong to the installed packages and never grow as a production folder; a missing one follows [installed packages](reuse.md#installed-packages). Node-only tooling (processes, files, browser launch, FFmpeg) is not published: the production owns the scaffold-supplied copy under `src/executable` and keeps it in step with the scaffold.
+Playback, transport, controls, inspection overlays, the physics runtime and mixing serve every production, so they belong to the installed packages and never grow as a production folder; a missing one follows [installed packages](reuse.md#installed-packages).
 
-Each file exports one declaration named as the file and stays under 500 lines; a larger one is a responsibility to split into fragments. A new subject starts from its settings or brief record, then its entity folder and tests. A new action starts from the installed motion vocabulary, and only when the vocabulary lacks it from its research, then its law and the interaction that uses it. A new scene starts from its screenplay H2 and beats, then its composition folder and its place in the film.
+Node-only tooling (processes, files, browser launch, FFmpeg) is not published: the production owns the scaffold-supplied copy under `src/executable` and keeps it in step with the scaffold.
+
+Each file exports one declaration named as the file and stays under 500 lines; a larger one is a responsibility to split into fragments.
+
+A new subject starts from its settings or brief record, then its entity folder and tests. A new action starts from the installed motion vocabulary, and only when the vocabulary lacks it from its research, then its law and the interaction that uses it. A new scene starts from its screenplay H2 and beats, then its composition folder and its place in the film.
 
 ## Shared modules {#shared-modules}
 
