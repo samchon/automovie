@@ -7,7 +7,7 @@ description: Maintains the generated-project scaffold under packages/template an
 
 A production's own `AGENTS.md`, `README.md`, and source own its meaning; read them and the installed package APIs before interpreting, authoring, or reviewing it. Repository instructions never override them.
 
-[Scaffold prompting](../scaffold-prompting/SKILL.md) owns the design of shipped task skills, contracts and routers, with the [product principles](../scaffold-prompting/SKILL.md#product-principles) they serve. This skill owns their distribution and production ownership boundaries; [development](../development/SKILL.md) owns implementation changes to the materializer and checker.
+[Scaffold prompting](../scaffold-prompting/SKILL.md) owns the design of shipped task skills, contracts and routers, with the [product principles](../scaffold-prompting/SKILL.md#product-principles) they serve. This skill owns their distribution and production ownership boundaries; [development](../development/SKILL.md) owns implementation changes to the checker and to the materializer, the template library that renders the scaffold into a project's files.
 
 ## What the scaffold owns
 
@@ -27,7 +27,7 @@ The [product contract](../project/SKILL.md#commissions) defines the commissions 
 
 Keep the separately commissioned outputs distinct: a screenplay, a whole motion hint, a finished direct 3D film and a finished post-diffusion film. Direct 3D needs no diffusion, and a motion hint needs no finished diffusion film.
 
-Long-form work keeps its four story layers, settings → treatments → scripts → screenplay, with construction, expression revision, evidence, current independent review and whole-work completion, and asset-only work has no narrative. Compact questions within those responsibilities rather than removing the architecture.
+Long-form work keeps its four story layers, settings → treatments → scripts → screenplay, with construction, expression revision, evidence, current independent review and whole-work completion, and asset-only work has no narrative. Compact items within those responsibilities rather than removing the architecture.
 
 Default lint and evidence configurations serve ordinary TypeScript development; narrative work opts into its additional workflow while retaining engineering checks.
 

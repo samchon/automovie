@@ -75,7 +75,7 @@ An uncomputed surface is unavailable evidence, and hiding a joining surface can 
 
 ## Light and material
 
-Judge form under raking light with fine material detail such as normal maps turned off, and judge materials and lighting in beauty. Use structural passes only for the quantities they document.
+Judge form under raking light with fine material detail such as normal maps turned off, and judge materials and lighting in the beauty render, the fully shaded image. Use structural passes only for the quantities they document.
 
 ## Cost
 

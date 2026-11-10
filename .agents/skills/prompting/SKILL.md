@@ -15,7 +15,7 @@ Before editing a prompt, fetch and read in full the current prompting guide for 
 
 State only facts the code does not show, rules the user set, and mistakes an agent made. Leave dates and history to git.
 
-Writing gives a reason when it is not obvious. For a consequential instruction, the reason also says who loses what when it is missed, and it sits in the instruction the recipient reads, because a source comment or an unexplained prohibition cannot guide a case the instruction did not list.
+The writing rules ask for a reason when it is not obvious. For a consequential instruction, the reason also says who loses what when it is missed, and it sits in the instruction the recipient reads, because a source comment or an unexplained prohibition cannot guide a case the instruction did not list.
 
 Keep method choices open unless the failure requires a particular order or boundary.
 
@@ -33,7 +33,7 @@ A skill gives a job's goal, order and boundaries, and points to the checklists i
 
 An agent does not reliably follow long, detailed or conditional prose. A rule that every declaration must meet therefore belongs in a [contracts](../contracts/SKILL.md) checklist as one question under its own H2. Evidence makes each selected declaration answer it, and [review](../review/SKILL.md) checks that the answer is true and complete.
 
-Group judgments the agent can make together, and split them when their task, respondent or repair owner differs. Keep overall achievement distinct from passing its detailed tests.
+Group judgments the agent can make together, and split them when their task, respondent (whoever answers the question) or repair owner differs. Keep overall achievement distinct from passing its detailed tests.
 
 ## Layout
 

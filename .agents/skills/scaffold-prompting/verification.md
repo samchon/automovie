@@ -1,4 +1,4 @@
-# Verify the design and its reach
+# Verification
 
 Prompting's [verification](../prompting/SKILL.md#verification) holds for a scaffold change. This page adds what the scaffold needs beyond it: the rendered distribution and a comparison of real decisions.
 

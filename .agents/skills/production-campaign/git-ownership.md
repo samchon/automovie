@@ -1,8 +1,6 @@
 # Git ownership
 
-Workers of one campaign share one Git index, so each stages only its own paths and commits under a lock.
-
-A worker never mixes in or unstages another worker's staged changes, because a commit takes whatever is staged.
+Workers of one campaign share one Git index, so each stages only its own paths and commits under a lock. A worker never mixes in or unstages another worker's staged changes, because a commit takes whatever is staged. Commit and push authority follows AGENTS and the [pull-request](../pull-request/SKILL.md) skill.
 
 ## The lock
 
@@ -21,4 +19,4 @@ Codex's `workspace-write` sandbox keeps `.git` and `.agents` read-only, so a Cod
 
 ## What does not block
 
-Another worker's unstaged changes or an unrelated production's failing build do not block a film. Commit and push authority follows AGENTS and the [pull-request](../pull-request/SKILL.md) skill.
+Another worker's unstaged changes or an unrelated production's failing build do not block a film.

@@ -2,8 +2,6 @@
 
 A shipped task skill tells an author how to reach a commissioned result. Identify the task's recipient, needed achievement and usable handoff from the actual request and current work. Give the author choices that lead toward that result rather than a list of symptoms to avoid. An executable scene, final audiovisual plan and rendered performance serve different recipients even when they realize the same event.
 
-Move callers and references with a renamed resource so installed agents can still reach it.
-
 ## Connect creation to judgment
 
 Describe the achievement, the decisions that make it possible and what the next owner may choose afresh. Connect it to [contract design](contract-design.md) without restating the items.

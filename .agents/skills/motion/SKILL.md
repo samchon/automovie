@@ -5,9 +5,9 @@ description: Defines how body motion is designed, authored and verified in this 
 
 # Motion
 
-This repository develops the motion vocabulary that productions install. A production composes its actions, writes a law of its own only for an action the vocabulary lacks, and reports a defect in a shipped action back here. So an action here is finished only when it works for any body and any partner without a production patching it.
+This repository develops the motion vocabulary, the set of actions that productions install. A production composes its actions, writes a law of its own only for an action the vocabulary lacks, and reports a defect in a shipped action back here. So an action here is finished only when it works for any body and any partner without a production patching it.
 
-Motion starts from interaction: the body's contact with the floor, a prop, a partner or a point it aims at. An action is written as a law, a function that, given a body and its inputs, produces the same motion every time. Each rule file covers one part of designing or checking a law:
+Motion starts from interaction: the body acting on the floor, a prop, a partner or a point it aims at. An action is written as a law, a function that, given a body and its inputs, produces the same motion every time. Each rule file covers one part of designing or checking a law:
 
 | Rule | Covers |
 | --- | --- |
@@ -44,7 +44,7 @@ Work in this order, because each step fixes what the next one builds on.
 5. Give the action isolated cases with bounded checks under [verification](verification.md).
 6. Capture the cases, review their frames, and repair every finding of the round together by cause.
 
-   Keep a round only under the [round rule](verification.md#judge-rounds-honestly).
+   Keep a round only as [verification](verification.md#judge-rounds-honestly) allows.
 
 7. Record every remaining failure with its numbers in the family's sub-issue.
 8. Cite each source in the law's documentation and add it to the sub-issue.

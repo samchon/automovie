@@ -4,7 +4,7 @@ Two takes of one action differ and a novice differs from an expert, yet the same
 
 ## One law, many performances
 
-A different flavor of an action, such as a tired walk, a taller performer or a second take, is the same law at other parameters, another skill or another seed. Copying a law and editing its constants makes a variant that the next repair does not reach, so the copies drift apart. When a flavor needs something the law cannot express, give the law that parameter with the study that bounds it.
+A different performance of an action, such as a tired walk, a taller performer or a second take, is the same law at other parameters, another skill or another seed. Copying a law and editing its constants makes a variant that the next repair does not reach, so the copies drift apart. When a performance needs something the law cannot express, give the law that parameter with the study that bounds it.
 
 ## Skill moves measured quantities
 
@@ -14,7 +14,7 @@ Skill changes how well the same action is done. It never widens a range of motio
 
 ## Variability that holds across tasks
 
-Scale each draw's spread by two laws that hold across tasks. The variance of a timed interval is a constant motor part plus a part that grows with the interval (Wing and Kristofferson 1973). Endpoint scatter grows with the distance moved and shrinks with the movement time (Schmidt et al. 1979), because motor noise grows with the size of the command (Harris and Wolpert 1998).
+Scale each draw's spread by two regularities that hold across tasks. The variance of a timed interval is a constant motor part plus a part that grows with the interval (Wing and Kristofferson 1973). Endpoint scatter grows with the distance moved and shrinks with the movement time (Schmidt et al. 1979), because motor noise grows with the size of the command (Harris and Wolpert 1998).
 
 ## Draws that do not disturb each other
 

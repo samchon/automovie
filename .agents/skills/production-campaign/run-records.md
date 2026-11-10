@@ -1,6 +1,6 @@
 # Run records
 
-The run record is the one shared file where every worker, the observer and the coordinator write what each run did, so a successor can continue without the private session.
+The run record is the one shared file where every worker, the observer and the coordinator write what each run did.
 
 ## Appending
 

@@ -27,7 +27,7 @@ A source file has fewer than 500 lines and exports one symbol named after it, ba
 
 ## Comments and layout
 
-Write code for the agent who changes it next. Give every declaration a JSDoc comment written to the contracts [Meaningful documentation](../contracts/development/common.md#meaningful-documentation) chapter, including in a package that selects no checklist.
+Write code for the agent who changes it next. Give every declaration a JSDoc comment written to the contracts [Meaningful documentation](../contracts/development/common.md#meaningful-documentation) question, including in a package that selects no checklist.
 
 Inside a body, separate the logical steps with blank lines so each step reads as one paragraph of code. Open each step whose purpose the code does not make obvious with a comment saying what it does and why.
 

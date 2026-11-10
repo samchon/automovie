@@ -32,4 +32,4 @@ Never narrow a selector or lower a severity to pass the check. Exclude only:
 
 ## Editing the checklists
 
-Tens of thousands of tags cite their paths and H2s, so adding, renaming, or removing an H2 needs an authorized migration of every answer. Keep one chapter per question.
+Tens of thousands of tags cite their paths and H2s, so adding, renaming, or removing an H2 needs an authorized migration of every answer. Keep one H2 per question.

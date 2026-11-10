@@ -36,7 +36,7 @@ Look for a displaced bind pose, double transforms, collapsing or bulging joints,
 
 ### Skinning method and variants
 
-Read the current API before choosing linear or dual-quaternion skinning and its scale constraints, and compare their actual results where the asset needs that choice. A DCC's preserve-volume preview shows the DCC, not the imported consumer.
+Read the current API before choosing linear or dual-quaternion skinning and its scale constraints, and compare their actual results where the asset needs that choice. The preserve-volume preview of a DCC, a digital content creation tool such as Blender or Maya, shows the DCC, not the imported consumer.
 
 Keep proportions and control identities stable across detail variants, and recheck weights, rig assumptions and attachments when topology or proportions change.
 

@@ -25,7 +25,7 @@ Run the cases across bodies of different statures and proportions, and against d
 
 ## Look at the frames
 
-Review consecutive stills of every case from several named views, with a joint overlay where the project's capture offers one and with every held prop drawn at every frame. Numbers alone miss what a still shows at once: a carry crossed in one split lunge, or a bottle that is not where the hand is.
+Review stills of every case, in order, from several named views, with a joint overlay where the project's capture offers one and with every held prop drawn at every frame. Numbers alone miss what a still shows at once: a carry crossed in one split lunge, or a bottle that is not where the hand is.
 
 Space the stills more densely where more happens. Around every contact, cut and decisive instant, review the output's own consecutive frames, because a contact shorter than the gap between two stills leaves an arm out and an arm back with nothing wrong between them. A sparser, even spacing serves what changes slowly: staging, travel and camera.
 

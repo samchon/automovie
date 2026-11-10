@@ -1,12 +1,12 @@
 # Author by effector goals
 
-Almost every action is an interaction: a part of the body meets the floor, a prop, a partner, or a point the performer aims at. That part is the end effector, what it reaches is the target, and the pair with its window is a goal.
+Almost every action is an interaction: a part of the body meets the floor, a prop, a partner, or a point the performer aims at. That part is the end effector, effector for short, what it reaches is the target, and a goal puts the effector on its target for a window.
 
 Author every movement as goals, and let inverse kinematics find the joint angles within the rig's range of motion. A goal survives a taller body, a longer arm, a different opponent or a moved prop; a joint angle fitted to one body puts the next body's hand beside the cup.
 
 ## Write the goal
 
-A goal names five things:
+A goal names five things, the effector, its target and window among them:
 
 | Part | Names | Example |
 | --- | --- | --- |
@@ -22,11 +22,11 @@ A tracked target is followed as a person follows one: the goal reads the target 
 
 Take every distance, height and reach from the performer's own measured segments and the target's measured parts. A constant measured on one figure ties the action to that figure and fails on the next; when no measure can supply a value, name it as provisional with its source.
 
-The action's study supplies the key poses and timing, and the windows. Take joint values straight from those key poses only where no goal determines the pose, such as a guard's carriage or a follow-through.
+The action's study supplies the key poses, the timing and the windows. Take joint values straight from those key poses only where no goal determines the pose, such as a guard's carriage or a follow-through.
 
 ## Shape the path in time
 
-Move an effector to its target on a smooth, bell-shaped speed profile, that of minimum jerk (Flash and Hogan 1985), because a constant-speed path reads as mechanical. A movement that delivers speed at its end, such as a throw or a strike, sequences from proximal to distal segments (Putnam 1993) and meets its target before the speed falls to zero.
+Move an effector to its target on a smooth, bell-shaped speed profile, that of minimum jerk (Flash and Hogan 1985), because a constant-speed path reads as mechanical. A movement that delivers speed at its end, such as a throw or a strike, sequences from proximal to distal segments (Putnam 1993) and reaches its target before the speed falls to zero.
 
 ## Decide what happens out of reach
 
