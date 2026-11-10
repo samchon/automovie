@@ -54,12 +54,6 @@ import { poseBones } from "./poseBones";
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, hand, trunk and contact types.
- * @evidence contracts/development/implementation.md#principled-implementation Footprint, pelvis and palm goals solved by the shared inverse kinematics, with the anticipatory adjustments Massion describes.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans the step once, then evaluates each posture in closed form.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Provisional magnitudes are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms A few posture solves per frame.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's inputs.
  */
 export namespace brace {
   /** The action's name. */
@@ -70,7 +64,15 @@ export namespace brace {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
   };
 
-  /** Parameters. */
+  /**
+   * Parameters of a brace: where the force comes from, what is braced for
+   * and how long the brace lasts.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each field states its meaning, unit and the default an absent value takes.
+   * @evidence contracts/development/design.md#principled-representation The source is the shared motion target union, read once at the start and projected to the floor; the kind is a closed union selecting the palms' facing; the duration is seconds, raised to at least the set time plus 0.2 s by the plan rather than refused.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the target type is imported from the interface package.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No field names a scene or body, and every combination is meaningful.
+   */
   export interface IParams {
     /** Where the force comes from; straight ahead when absent. */
     toward?: AutoMovieMotionTarget;
@@ -92,10 +94,20 @@ export namespace brace {
   export const SET: number = 0.6;
 
   /**
-   * Plan a brace.
+   * Plan a brace: the rear foot's step, the lowered and centred set root,
+   * and postures that reach the set at `SET` seconds with the palms up toward
+   * the force, then hold it.
    *
    * @param context The action's context.
-   * @returns The plan.
+   * @returns The plan; a duration shorter than `SET + 0.2` s is raised to it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is planned, when the set is reached and how a short duration is treated; the law's doc gives the sources and the provisional magnitudes.
+   * @evidence contracts/development/implementation.md#principled-implementation The anticipatory adjustments of Massion 1992: the foot away from the force steps back along its line and out to shoulder width, the pelvis drops by the leg-length change of a `KNEE` flexion (law of cosines over thigh and shank), and the root moves so the engine's centre of mass stands over the mean of the new base's hull vertices, measured on the solved posture; the trunk inclines toward the force by the cosine of its bearing, so a force from the side adds no lean.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans the step and the set root once; the posture closure interpolates root, lean and palms on one minimum-jerk set curve and delegates legs to the stand law and hands to handGoals.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts KNEE, STAGGER, SET, the 10 degree lean, the 0.55 reach share and the 0.4 s step with its 3 cm lift are named provisional magnitudes; the centring runs exactly two corrections, a fixed precision policy, and the hull centre is the vertex mean, not the area centroid.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning costs two posture solves with centre-of-mass and hull evaluation; each posture costs one leg solve, one bone resolve for the hanging palms and a two-hand solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The step, set root and lean are computed once per instance and every posture reads them.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's body, feet, set root and parameters, released with the performance; nothing grows per call.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

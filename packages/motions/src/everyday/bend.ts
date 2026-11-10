@@ -62,12 +62,6 @@ import { poseBones } from "./poseBones";
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
- * @evidence contracts/development/implementation.md#principled-implementation Effector goals (sockets, footprints, the gaze line) solved by the shared inverse kinematics, with balance and timing from the cited laws.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans once, then evaluates each posture in closed form.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond a few forward-kinematics passes and limb fits.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance and every posture reads it.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
  */
 export namespace bend {
   /** The action's name. */
@@ -79,10 +73,27 @@ export namespace bend {
     bend: [{ window: ["deepest", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** A lowering strategy. */
+  /**
+   * A lowering strategy: `stoop` keeps the knees nearly straight, `squat`
+   * lowers the hips to 0.45 of their height, `semiSquat` to 0.75, and `auto`
+   * lets the plan choose by the target's height (`choose`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what each strategy does to the hips and what `auto` defers to.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the three postures the lifting literature compares plus the deferred choice; each concrete strategy keys the `HIPS` and `HEEL` tables, so no other value can be written.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the bend law; read by its parameters, its helpers and the capture cases that sweep the strategies.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Variation enters as table rows keyed by the union, not as members per strategy; `auto` is excluded from the tables by `Exclude`, so it cannot reach the posture code unresolved.
+   */
   export type Strategy = "stoop" | "semiSquat" | "squat" | "auto";
 
-  /** Parameters. */
+  /**
+   * Parameters of a bend: the point the hand goes to, which hand, the
+   * strategy and how long the hand stays there.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each field states its meaning, unit and the default an absent value takes.
+   * @evidence contracts/development/design.md#principled-representation The target is the shared motion target union, read once at the start; the hand is the shared hand side; the hold is seconds, and a negative hold is refused at plan time, the one invalid value the type does not rule out.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the target and hand types are imported from their owners.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No field names a scene or body, and every combination of fields is meaningful.
+   */
   export interface IParams {
     /** The point the hand goes to. */
     toward: AutoMovieMotionTarget;
@@ -112,11 +123,22 @@ export namespace bend {
   };
 
   /**
-   * Plan a bend.
+   * Plan a bend: choose the strategy, solve the balance shift and the least
+   * trunk inclination that brings the palm to the target, time the descent by
+   * Fitts's law, and return postures that lower the body, put the palm on the
+   * target and the free palm on its thigh, hold, and rise.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the target lies beyond the strategy's reach.
+   * @throws {Error} When the target lies beyond the strategy's reach, or the hold is negative.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the solve, the timing, the postures and both refusals; the law's doc gives the sources and the provisional constants.
+   * @evidence contracts/development/implementation.md#principled-implementation The palm goal is solved by the arm's inverse kinematics on a body lowered by the strategy and inclined by the lumbopelvic rhythm (Esola et al. 1996); the hips' back shift keeps the engine's centre of mass over the feet (HumanBalance.shift), found once at 60 degrees and again at the needed pitch; descent time is Fitts's law; the free hand braces on the thigh (Kingma et al. 2016). Limitation: the doc promises the refusal names the lowest height the strategy reaches, but the message names only the target's height.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The choice is `choose`, the lowered body `lower`, the inclination `pitch`; the plan composes them and the posture closure only interpolates and adds the hand goals.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The only fallback, `auto` squatting where the semi-squat refuses, is the documented strategy rule; HIPS, HEEL, FITTS, the 0.2 and 0.3 elbow hints and the 0.6 brace point are named provisional values.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning runs two balance solves and two 30-step bisections, each step one lowered posture with a trunk forward-kinematics pass (one more set when `auto` falls back); each posture then costs one lowering, a gaze aim, one bone resolve and a two-hand solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The strategy, lean, pitch, timing and stand base are computed once per instance and every posture reads them.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's body, target, solved quantities and stand base, released with the performance; nothing grows per call.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -331,6 +353,14 @@ export namespace bend {
    * @param target The target point.
    * @param strategy The requested strategy.
    * @returns A concrete strategy.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rule, its mid-shank threshold and that the plan may still replace the semi-squat by a squat.
+   * @evidence contracts/development/implementation.md#principled-implementation Compares the target's height with the body's own ankle height plus half its shank, so the threshold scales with the body; no study ranks the techniques (van Dieen et al. 1999), so the threshold is the campaign's rule.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A pure decision kept apart from the reach solve, which owns the fallback.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The mid-shank threshold is the documented campaign rule, not a tuned value.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function with nothing to share.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function choose(
     body: IHumanBody,
@@ -355,6 +385,14 @@ export namespace bend {
    * @param share How far down, 0 to 1.
    * @param back How far the hips move back for balance, metres.
    * @returns The lowered posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is lowered, moved and pitched, each parameter's unit and range, and the squat's heel lift in the implementation comments.
+   * @evidence contracts/development/implementation.md#principled-implementation Moves the hips' goal down by the strategy's share of the hip height and back by `back` in the posture's frame, inclines the trunk by the lumbopelvic rhythm with the pelvis limited by hip flexion (HumanTrunk.pelvisLimit), lifts a squat's heels about the ball (HumanFoot.pivot) with the toes bent to stay flat, and re-solves the planted legs, lowering the pelvis where a leg cannot reach.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture transform shared by the plan, the balance solve and the reach bisection; the inclination split, foot pivot and leg solve are imported from their owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts HIPS and HEEL are named provisional shares; no body or case is special-cased. Known defect: the squat's heel lift moves the ball contact by 36 to 46 mm in the local step and bend test, so the lift does not yet hold the ball fixed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: one trunk incline, at most two foot pivots and one leg-lowering solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function; callers that need the same lowered posture call it once per sample.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture and retains nothing.
    */
   export function lower(
     body: IHumanBody,
@@ -454,6 +492,14 @@ export namespace bend {
    * @param lean The balance shift per unit sine of the inclination, metres.
    * @returns Degrees.
    * @throws {Error} When even 150 degrees leaves the target out of reach.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the quantity solved, the search range, the reach model and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Bisects the inclination on the gap between the shoulder-to-target distance and the arm's reach (0.92 of upper arm plus forearm, near full extension, plus the palm offset), reading the shoulder from the lowered trunk's forward kinematics. Premise: the gap falls as the trunk inclines; this holds while the shoulder descends toward the target and is not checked beyond, and the 150 degree end is only a refusal test.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One solve that reuses `lower` for the body and HumanTrunk for the shoulder.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 0.92 reach share (provisional) and the 150 degree bound are named in the doc; an unreachable target is refused, not clamped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms 32 gap evaluations at most (two ends and 30 bisection steps), each one lowered posture and one trunk forward-kinematics pass; the 30 steps bound the error below 1.5e-7 degrees.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each evaluation depends on its own inclination, so nothing repeats within a call.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pitch(
     body: IHumanBody,

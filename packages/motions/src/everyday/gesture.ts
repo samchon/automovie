@@ -58,12 +58,6 @@ import { poseBones } from "./poseBones";
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
- * @evidence contracts/development/implementation.md#principled-implementation Effector goals (sockets, footprints, the gaze line) solved by the shared inverse kinematics, with balance and timing from the cited laws.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans once, then evaluates each posture in closed form.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond a few forward-kinematics passes and limb fits.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance and every posture reads it.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
  */
 export namespace gesture {
   /** The action's name. */
@@ -83,7 +77,16 @@ export namespace gesture {
     gesture: [{ window: ["retract", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** Parameters. */
+  /**
+   * Parameters of a gesture: which gesture, which hand, what it points at or
+   * touches, how many strokes, the hold, a bow's depth and the movement
+   * quality.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each field states its meaning, unit, the gestures it applies to and the default an absent value takes.
+   * @evidence contracts/development/design.md#principled-representation The kind is gestureStroke's closed union; the target is the shared motion target union, read at each instant so pointing follows a moving target; count, hold and depth are a whole number, seconds and degrees, validated at plan time (positive whole count, non-negative hold, a bow in (0, 60]) since the types cannot express those ranges.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the kind, face region, hand and Effort types are imported from their owners.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The fields that apply to only some kinds (target, region, depth) stay optional on one record rather than a union per kind: a field a kind does not read is ignored, and the one required pairing, `point` with a target, is refused at plan time. A per-kind discriminated union would rule that state out by type.
+   */
   export interface IParams {
     /** The gesture. */
     kind: gestureStroke.Kind;
@@ -111,11 +114,21 @@ export namespace gesture {
   }
 
   /**
-   * Plan a gesture.
+   * Plan a gesture: the phase times from the hands' transport, the stroke's
+   * rhythm and the Effort, a bow's balance shift, and postures that move the
+   * hands, head and trunk through preparation, stroke, hold and retraction.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} On a missing pointing target, a non-positive count or hold, or a bow outside (0, 60] degrees.
+   * @throws {Error} On a missing pointing target, a count that is not a positive whole number, a negative hold, or a bow outside (0, 60] degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is planned and every refusal; the law's doc gives the phases, timing laws and provisional values.
+   * @evidence contracts/development/implementation.md#principled-implementation Kendon's phases (Kendon 1980; McNeill 1992): hand goals from gestureStroke solved by the arm's inverse kinematics, transported on minimum-jerk paths with spherical interpolation of the hand's turn; joint gestures added under an envelope; a bow's hip shift from the engine's centre of mass (HumanBalance.shift) at the peak pitch, scaled by the pitch's sine between. Start and rest points are stored in the performer's frame so they follow the standing body.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan owns phase timing and transport; gestureStroke owns each gesture's goals and angles, `bow` the pitched posture, handGoals the arm solve.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The `0.25 + 0.5 D` transport, the 0.3 s joint-gesture preparation and the second per 30 degrees of a bow are named provisional values; Effort modifiers come from HumanEffort; no gesture or body is special-cased beyond the kind's own table rows.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning costs two bone resolves for the start and rest hands and, for a bow, one balance solve; each posture costs one stand posture, one stroke goal per moving hand (each may aim at the target) and one hand solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Phase times, start and rest hands and the bow's shift are computed once per instance and every posture reads them.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's body, parameters, phase times and start and rest hands, released with the performance; nothing grows per call.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -333,6 +346,14 @@ export namespace gesture {
    * @param pitch Forward pitch, degrees.
    * @param back How far the hips move back, metres.
    * @returns The bowed posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the pivot, what moves, the units of the pitch and the shift, and that the legs keep their goals.
+   * @evidence contracts/development/implementation.md#principled-implementation Adds the pitch to the posture's root pitch and places the root so the rest hips land at their standing point moved back by `back` in the posture's frame, a rotation about the hips; the leg goals stay on the feet and are solved when the posture is resolved.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure posture transform shared by the plan and its balance solve.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No constants; the pitch and shift come from the caller.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time: one heading quaternion and one rotated offset.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function with nothing to share.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture and retains nothing.
    */
   export function bow(
     body: IHumanBody,

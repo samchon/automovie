@@ -45,12 +45,6 @@ import { HumanGaze } from "./HumanGaze";
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
- * @evidence contracts/development/implementation.md#principled-implementation Effector goals (sockets, footprints, the gaze line) solved by the shared inverse kinematics, with balance and timing from the cited laws.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans once, then evaluates each posture in closed form.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond a few forward-kinematics passes and limb fits.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance and every posture reads it.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
  */
 export namespace look {
   /** The action's name. */
@@ -63,7 +57,15 @@ export namespace look {
     look: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** Parameters. */
+  /**
+   * Parameters of a look: the target, which segments may join, the cue that
+   * drew the look and how long the action lasts.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each field states its meaning, unit and the default an absent value takes, including that an absent cue means an immediate willed look.
+   * @evidence contracts/development/design.md#principled-representation The target is the shared motion target union, tracked every instant; the recruitment is HumanGaze's closed union; the cue is a closed union of the two sensory channels whose reaction times differ; the duration is seconds, and a non-positive one is refused at plan time.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the target and recruitment types are imported from their owners.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No field names a scene or body; the one invalid combination, an uncued target outside the attended field, depends on where the target is at the start and is refused at plan time.
+   */
   export interface IParams {
     /** What to look at. */
     target: AutoMovieMotionTarget;
@@ -82,11 +84,22 @@ export namespace look {
   export const FIELD: number = 60;
 
   /**
-   * Plan a look.
+   * Plan a look: refuse an uncued target outside the attended field, draw a
+   * cued look's reaction time, split the gaze shift over eyes, head and
+   * trunk, time each part, and return standing postures aimed at the tracked
+   * target.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When an uncued target lies outside the attended field.
+   * @throws {Error} When an uncued target lies outside the attended field, or the duration is not positive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the steps and both refusals; the law's doc gives the field, the reaction-time sources and the events.
+   * @evidence contracts/development/implementation.md#principled-implementation The gaze goal is the eyes' lines on the target, recruited eyes, head and trunk in that order by HumanGaze.split; the eyes take the saccade's main-sequence duration (capped at twice the eyes' range) and head and trunk their turn durations, each on a minimum-jerk weight from the reaction delay; the target is re-aimed every instant, so a moving target is tracked.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan times the shift and the stand law places the body; direction, split, durations and the aiming solve are owned by HumanGaze, and the reaction draw is `reaction`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts FIELD is a named constant and the 0.6 s hold after settling is the documented default duration; nothing is special-cased per target or body.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning is constant work plus one stand plan; each posture costs one aim of the target, one stand posture and one gaze solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The split, durations and delay are computed once per instance; the target is re-read per instant because it may move.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's context, timing and stand base, released with the performance; nothing grows per call.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -162,6 +175,14 @@ export namespace look {
    * @param random The stream; reads indices 0 to 2.
    * @param cue Visual or acoustic.
    * @returns Seconds; at least 0.1.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the distribution, the skill scaling, the stream indices read, the unit and the floor.
+   * @evidence contracts/development/implementation.md#principled-implementation Draws an ex-Gaussian, the distribution simple reaction times follow (Hohle 1965): a normal from HumanSkill.normal plus an inverse-transform exponential, with mu, sigma and tau interpolated on the `reaction` axis and mu 40 ms lower for an acoustic cue (Welford 1980).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure draw from the caller's seeded stream, kept apart from the plan that uses it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The parameter values are documented as provisional; the 0.1 s floor cuts the rare draw below the shortest simple reaction instead of letting a look start before its cue could be sensed, and the 1e-12 guard only keeps the logarithm finite.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time, three stream reads.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Deterministic in its stream; the plan calls it once.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reaction(
     skill: HumanSkill.ISkill,

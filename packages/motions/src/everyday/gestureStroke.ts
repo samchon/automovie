@@ -71,15 +71,18 @@ import { HumanTrunk } from "./HumanTrunk";
  * @evidence contracts/development/design.md#principled-representation Pure functions and constants over the interface's vectors and the engine's streams.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The functions and constants the everyday laws and their tests read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses engine and interface types; no consumer is special-cased.
- * @evidence contracts/development/implementation.md#principled-implementation Closed-form evaluation of the cited law.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One small function per quantity.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Out-of-range inputs throw; provisional constants are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call, or linear in the requests a call builds.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Pure functions of their inputs.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace gestureStroke {
-  /** A gesture. */
+  /**
+   * A gesture: the hand gestures, whose strokes are hand goals, and the head,
+   * shoulder and trunk gestures, whose strokes are joint angles; `bow` is
+   * the trunk's pitch, which the gesture law applies.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two families of gesture and where `bow` is handled; the namespace doc describes each gesture's goal.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the communicative gestures supported; `RHYTHM` and `HANDS` are total records over it, so every kind has a timing and a hand count by type.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here and read by the gesture law's parameters, the capture cases, the gesture verdicts and the CI breath and gaze test that walks the tables.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Variation enters as table rows keyed by the union and exhaustive switches, not as per-gesture members.
+   */
   export type Kind =
     | "wave"
     | "raiseHand"
@@ -101,7 +104,15 @@ export namespace gestureStroke {
     | "squareShoulders"
     | "slump";
 
-  /** A face region a self-touch reaches. */
+  /**
+   * A face region a self-touch reaches: the subset of the body's surface
+   * regions on the head that `touchFace` may name.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which gesture names it and that its members are the head's surface regions.
+   * @evidence contracts/development/design.md#principled-representation A closed union whose every member is a humanoid surface region name, so a value is always a region the body's surfaces define and `touch` passes it straight to the region lookup.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here and read by the gesture law's `region` parameter and `IInput`; the region names themselves are owned by the interface package's region union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Narrows the interface's region union to the head instead of redeclaring regions; `pushGlasses` and `scratchHead` choose their own regions and ignore it.
+   */
   export type FaceRegion =
     | "forehead"
     | "noseBridge"
@@ -113,7 +124,16 @@ export namespace gestureStroke {
     | "earRight"
     | "nape";
 
-  /** What a stroke is computed from at one instant. */
+  /**
+   * What a stroke is computed from at one instant: the body, its posture
+   * without the gesture's arms, the target and face region, and the Effort
+   * extent.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each field states its role, unit or frame, and the gesture that reads it.
+   * @evidence contracts/development/design.md#principled-representation The posture is the instant's world posture the goals are built in; the target is a world point in metres; the extent is a dimensionless multiplier; a missing target for `point` is refused when the goal is built.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here and built by the gesture law once per hand per instant; body, posture, hand side and region types are imported from their owners.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Remaining violation: `side` is written by the gesture law but read by no stroke, since `hand` takes the side as its own parameter; the member can go in a follow-up.
+   */
   export interface IInput {
     /** The body. */
     body: IHumanBody;
@@ -134,7 +154,16 @@ export namespace gestureStroke {
     extent: number;
   }
 
-  /** One hand's goal. */
+  /**
+   * One hand's goal: which hand surface goes to which world point, turned
+   * how, in which shape, with an outward elbow share and an optional finger
+   * curl.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each field states its role, unit and frame, and the curl's absent meaning (no extra flexion).
+   * @evidence contracts/development/design.md#principled-representation An effector goal: a named hand surface, a world point in metres and a world rotation from rest, the form the shared hand solver takes; the shape and surface are closed unions from HumanHand.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here and read by the gesture law, which turns it into a hand request; surface, shape and rotation types are imported from their owners.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts `curl` is optional because only the beckon flexes the fingers over its shape; every other field is always set, so no combination is meaningless.
+   */
   export interface IHand {
     /** The surface brought to the point. */
     surface: HumanHand.Surface;
@@ -212,6 +241,15 @@ export namespace gestureStroke {
    * @param cycles Stroke cycles.
    * @param input The instant's inputs.
    * @returns The goal.
+   * @throws {Error} For a gesture that moves no hand, or `point` without a target.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result, the stroke share's range and meaning, and the refusals; the namespace doc gives each gesture's goal and its provisional values.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds each goal in the performer's frame from the body's own measure (arm length, shoulder and waist heights), on the eye-to-target line for pointing (Henriques and Crawford 2002, the reach solved as a ray-sphere intersection from the shoulder), or on the body's face regions offset by the finger's collider radius for self-touch, so every gesture fits any stature; periodic strokes ride `oscillation`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One exhaustive switch over the kind; pointing and self-touch, which need the posed trunk, are private helpers; joint gestures live in `joints`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arm-length shares, swing sizes and outward elbow shares are documented provisional values; no body or scene is special-cased.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for the frame gestures; pointing and self-touch add one trunk forward-kinematics pass.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function of the instant's input; the gesture law calls it once per hand per evaluated posture, since the base posture changes each instant.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new goal and retains nothing.
    */
   export function hand(
     kind: Kind,
@@ -366,6 +404,14 @@ export namespace gestureStroke {
    * @param envelope How far into the gesture the body is, in [0, 1].
    * @param extent Effort extent multiplier.
    * @returns Clinical degrees to add.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result's unit (clinical degrees added to the posture) and each argument's range; the namespace doc gives each gesture's angles and sources.
+   * @evidence contracts/development/implementation.md#principled-implementation Joint angles because these gestures bring no body point anywhere: the movement is the segment's own rotation (head nods after Hadar et al. 1985, shrug inside the 30 degree elevation range); each amplitude scales by the envelope times the Effort extent, with nods and shakes on the stroke's cycles.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One exhaustive switch; hand gestures and the bow return no angles, since their movement is owned by `hand` and the gesture law.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The amplitudes are documented provisional values; no body is special-cased.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function with nothing to share.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record and retains nothing.
    */
   export function joints(
     kind: Kind,
@@ -432,7 +478,15 @@ export namespace gestureStroke {
    *
    * @param u Stroke share.
    * @param cycles Cycles.
-   * @returns The signal in [-1, 1].
+   * @returns The signal in [-1, 1]; 0 at and outside the stroke's ends.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the signal, the window and its 15 % ramps, the range and the value outside the stroke.
+   * @evidence contracts/development/implementation.md#principled-implementation A sine of the stroke's cycles under the smaller of two minimum-jerk ramps, so the signal and its slope start and end at zero and the hand joins its held goal without a jump.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure signal shared by the wave, rub, scratch and head-shake strokes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 15 % ramp is a provisional shaping value named in the doc.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function with nothing to share.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function oscillation(u: number, cycles: number): number {
     if (!(u > 0 && u < 1)) return 0;

@@ -60,12 +60,6 @@ import { HumanTrunk } from "./HumanTrunk";
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
- * @evidence contracts/development/implementation.md#principled-implementation Effector goals (sockets, footprints, the gaze line) solved by the shared inverse kinematics, with balance and timing from the cited laws.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans once, then evaluates each posture in closed form.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Infeasible requests are refused with the feasible range instead of clamped; provisional constants are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond a few forward-kinematics passes and limb fits.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance and every posture reads it.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold only the instance's own inputs and are released with the performance.
  */
 export namespace approach {
   /** The action's name. */
@@ -74,7 +68,17 @@ export namespace approach {
   /** Cancel table: an approach is a walk and is cut as one. */
   export const interrupts: IHumanActionLaw["interrupts"] = walk.interrupts;
 
-  /** Parameters. */
+  /**
+   * Parameters of an approach: what to walk up to, the gap to stop at, the
+   * side to stop on, the pace, the movement quality and the people to walk
+   * round. Every field but the target is optional with the default its doc
+   * names.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each field states its meaning, frame and the default an absent value takes.
+   * @evidence contracts/development/design.md#principled-representation The target is the shared motion target union; the gap is a named proxemic band or metres; the side is a closed union in the person's own frame; invalid metres and a side on a non-person target are refused at plan time.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the band, pace and Effort types are imported from their owners (HumanProxemics, walk, HumanEffort).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No field names one scene or body; `side` and `avoid` combine freely, and the one meaningless combination, a side of a prop or point, is refused rather than encoded.
+   */
   export interface IParams {
     /** What to approach. */
     target: AutoMovieMotionTarget;
@@ -103,11 +107,21 @@ export namespace approach {
   export const CLEARANCE: number = 0.5;
 
   /**
-   * Plan an approach.
+   * Plan an approach: the stop point from the gap, waypoints round the
+   * people to avoid, and the walk law's plan to that stop, corrected once by
+   * where the arriving sternum actually lands.
    *
    * @param context The action's context.
    * @returns The walk's plan to the stop point.
    * @throws {Error} When the target is already nearer than the gap, or a side is asked of a target that is not a person.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is planned, the arrival correction, the returned plan and both refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation The stop is the proxemic gap (Hall) measured from the sternum region along the line to the target, the partner's own measure for the handing gap; the walk law places whole footprints to it, and one correction moves the stop by the arriving sternum's measured gap error, since the walk's arrival lean shifts the chest off the standing estimate.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Computes the stop, then the waypoints through `abeam`, then delegates stepping to the walk law; the gap arithmetic lives in HumanProxemics and the chest lead in `chest`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 0.002 m acceptance of the arrival error and the single correction are the law's precision policy, not a tuned case; the 0.5 m clearance is a named provisional constant; Effort modifiers are clamped to the walk's documented parameter ranges.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most two walk plans and one posture evaluation for the arrival check, plus one aim per avoided person; linear in the avoid list.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns the first walk plan when its arrival is within tolerance instead of planning again; nothing is shared across instances.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the returned walk plan, whose closures hold this instance's inputs and are released with the performance; the first plan is dropped when a corrected one replaces it.
    */
   export function plan(
     context: IHumanActionContext<IParams>,
@@ -243,6 +257,14 @@ export namespace approach {
    * @param point The point to pass.
    * @param pass The least passing distance, metres.
    * @returns The waypoint on the floor, or undefined.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the waypoint's placement, the side chosen and the three cases that return none, with the floor frame and metres.
+   * @evidence contracts/development/implementation.md#principled-implementation Projects the point onto the leg's horizontal direction (along) and its normal (across) and places the waypoint at the passing distance on the far side; a degenerate leg shorter than 1e-9 m returns none.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure function of the leg, the point and the distance; the plan chains legs by calling it per avoided person.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No case-specific values; a point beyond either end of the leg is left to the walk, which never passes it on this leg.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time and space.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function with nothing to share.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates only the returned point and retains nothing.
    */
   export function abeam(
     from: IAutoMovieVector3,
@@ -275,6 +297,14 @@ export namespace approach {
    *
    * @param body The body.
    * @returns Metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the quantity, its reference points, the posture it is read on and its unit.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the sternum region on the stand law's own posture at the origin facing +Z, so the lead includes the body's upright alignment and lean exactly as standing places them.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the posture to the stand law and the region to HumanTrunk; this function only differences the two points.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No constant or fitted value; the plan corrects any difference the walk's arrival posture makes by measurement.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One standing posture and one trunk forward-kinematics pass.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Called once per plan; nothing is cached, since it depends only on the body and is cheap.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function chest(body: IHumanBody): number {
     const posture: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);

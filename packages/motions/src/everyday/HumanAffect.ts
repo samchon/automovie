@@ -41,22 +41,30 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
  * Amplitudes and timings are provisional except where cited; an intensity
  * scales every amplitude.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the law, its sources, its units and frames, and which values are provisional.
- * @evidence contracts/development/design.md#principled-representation Pure functions and constants over the interface's vectors and the engine's streams.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The functions and constants the everyday laws and their tests read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses engine and interface types; no consumer is special-cased.
- * @evidence contracts/development/implementation.md#principled-implementation Closed-form evaluation of the cited law.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One small function per quantity.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Out-of-range inputs throw; provisional constants are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call, or linear in the requests a call builds.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Pure functions of their inputs.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation States the law, each display's pattern with its sources, its units and frames, and which values are provisional.
+ * @evidence contracts/development/design.md#principled-representation A namespace of the display union, the scheduled display record, the per-display lengths and pure functions from a display and a time to clinical joint degrees.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the affect displays; the CI affect test and layer callers read `Kind`, `IDisplay`, `LENGTH`, `NOTE`, `angles` and `layer`; it reuses the motions layer and posture types.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No shortcut present: no consumer or body is special-cased, and the layer type is the shared `IHumanLayer`.
  */
 export namespace HumanAffect {
-  /** A display. */
+  /**
+   * A display, one of the six affect patterns the namespace documents.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the closed set of displays; each one's pattern is documented on the namespace.
+   * @evidence contracts/development/design.md#principled-representation A string union over the six displays, so an unknown display cannot be written; `angles` switches over it exhaustively.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; read by `IDisplay`, `LENGTH`, `angles` and the affect test.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No shortcut present: one discriminant for all displays, no per-consumer member.
+   */
   export type Kind = "laugh" | "sigh" | "yawn" | "cough" | "sneeze" | "shiver";
 
-  /** One display at a film time. */
+  /**
+   * One display at a film time, as the affect layer schedules it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents each member's unit (film seconds, seconds, a scale) and the meaning of an absent length or intensity.
+   * @evidence contracts/development/design.md#principled-representation A display's kind, its start on the film timebase, its length in seconds and an amplitude scale; positive length is validated at runtime by `angles`, intensity is not range-checked.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here; read by `layer` and the affect test; the optional length and intensity default to `LENGTH` and 1.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No shortcut present: the optional members default independently and combine into no meaningless state.
+   */
   export interface IDisplay {
     /** The display. */
     kind: Kind;
@@ -92,6 +100,15 @@ export namespace HumanAffect {
    * @param seconds Its length, seconds.
    * @param intensity Amplitude scale.
    * @returns Clinical degrees to add; empty outside the display.
+   * @throws {Error} When the length is not positive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs' units, the clinical-degree output, the empty result outside the display and the refusal; each pattern is documented on the namespace.
+   * @evidence contracts/development/implementation.md#principled-implementation Joint-angle pulses under minimum-jerk envelopes, zero with zero velocity at both ends; the laugh note interval is Provine's 210 ms and the yawn length Provine's, other amplitudes and timings provisional as documented. Angles are the rig's clinical degrees per bone.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One switch over the display with two local profile helpers (envelope ramp and pulse) shared by its cases.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case: the amplitudes are named in the namespace documentation as cited or provisional, and a non-positive length throws instead of being clamped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call: at most three pulses for a cough and a fixed set of bones per display.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to reuse across calls.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates one small record per call and retains nothing.
    */
   export function angles(
     kind: Kind,
@@ -185,6 +202,14 @@ export namespace HumanAffect {
    *
    * @param displays The displays, in any order; overlapping ones add.
    * @returns The layer, named `affect`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States that displays add in any order and overlap, and the layer's name; the layer adds clinical degrees to the posture's joints at film seconds.
+   * @evidence contracts/development/implementation.md#principled-implementation An additive animation layer: each display's angles are summed onto the posture's joints, leaving limb goals untouched so the arms are solved after the trunk and contacts stay.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The layer only sums; the patterns live in `angles` and the defaults in `LENGTH`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case: every display is summed the same way.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the displays per posture, each adding a constant number of bones.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Postures are evaluated independently; nothing is cached between seconds.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer retains only the caller's display list for its lifetime and allocates one joint record per posture.
    */
   export function layer(displays: readonly IDisplay[]): IHumanLayer {
     return {
