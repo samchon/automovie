@@ -11,6 +11,10 @@ The tasks and their order live in the issue tracker. An explicit stop overrides 
 
 Human browser debugging UI and HTTP capture clients belong in `packages/human/debug`. Direct Node image and measurement entries belong in `packages/human/src/executable`, use the Human package's `tsconfig.json` and run through its `node:*` scripts with `ttsx --no-plugins --noCheck`. Shared pure source and display adapters belong in `src/inspection`; keep Node file access and native Canvas imports in executable modules so browser and ordinary Human consumers need neither. Playground owns the ordinary parameter editor, and the generic viewer supplies rendering without Human-specific features.
 
+## Polygon Man
+
+The polygon man in `packages/viewer/src/human-polygon` is a deliberately simple stand-in of a few rigid primitives on Human's skeleton, for motion verification and diffusion hints. Keep its primitives, segment count and style: a fix corrects a wrong value, such as a radius, a length or a frame, and a change that would need more geometry, segments, smoothing, anatomy, a face or realism goes to the user as a report instead. Its value is a cheap, readable and deterministic silhouette; realism costs render time and pulls the hint toward surface detail the diffusion model supplies.
+
 ## Three Steps
 
 Conquer one person before generalizing. Follow the owner's authorized campaign order and pass the previous step's [gates](verification.md#steps-one-and-two) before advancing, because a formula fitted to an unmatched shape generalizes the error.

@@ -9,7 +9,7 @@ import { scaffoldSharedSkillPath } from "../src/scaffoldSharedSkillPath";
 
 const HERE: string = __dirname;
 const ROOT_SKILLS: string = resolve(HERE, "../../../.agents/skills");
-const SCAFFOLD: string = resolve(HERE, "../scaffold");
+const SCAFFOLD: string = resolve(HERE, "../scaffold/instructions");
 
 // `lib/skills` is the directory `src/scaffoldSharedSkillDirectory.ts` reads;
 // it is rebuilt whole so an item a placeholder no longer names cannot ship.

@@ -28,7 +28,7 @@ import path from "node:path";
  * @evidence contracts/development/testing.md#independent-expectations Literal old/local text and an independent SHA-256 seed establish the prior edition; current render bytes are sync inputs rather than approval. Project-owned sentinels must remain exact, and a stale inspected generation must never overwrite later bytes.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers update, no-op, dry-run, full-plan conflict, missing generated input, explicit versus absent legacy baseline, invalid state, retained retired instructions, linked parent and stale generation. Existing publication tests retain partial writes, hard links, native handles and platform error cases.
  * @evidence contracts/development/testing.md#execution-ownership Runs filesystem semantics in-process through public APIs with owned temporary roots, no installed consumer or child host. The junction is verified and removed before recursive fixture cleanup, preserving its target until ordinary owned-root cleanup.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A recorded older router updates, check is read-only, and a second sync is unchanged.).
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
  */
 export function test_template_scaffold_sync(): void {
   const root: string = fs.realpathSync.native(
@@ -55,13 +55,12 @@ export function test_template_scaffold_sync(): void {
       "PROJECT.md": "The adopted output remains a screenplay.\n",
       "README.md": "Actual local execution commands.\n",
       "evidence.config.ts": "export default { claims: [] };\n",
-      ".agents/skills/contracts/story/work/local.md":
-        "Authored work contract.\n",
+      "docs/contracts/work/local.md": "Authored work contract.\n",
       ".agents/skills/custom/SKILL.md": "An independent local skill.\n",
       "docs/body/screenplay/local.md": "A preserved screenplay.\n",
     };
     writeFiles(root, sentinels, { force: true });
-    const props: IScaffoldSyncProps = { location: root, name: "sync-case" };
+    const props: IScaffoldSyncProps = { location: root };
     const initial: IScaffoldSyncPlan = planScaffoldSync(props);
     const before: string = fs.readFileSync(
       path.join(root, SCAFFOLD_SYNC_STATE_FILE),
@@ -124,7 +123,7 @@ export function test_template_scaffold_sync(): void {
       expectedRouter,
     );
 
-    const missing: string = ".agents/skills/motion/physics.md";
+    const missing: string = ".agents/skills/motion/physical-feedback.md";
     fs.unlinkSync(path.join(root, missing));
     fs.writeFileSync(path.join(root, "AGENTS.md"), "Local author choice.\n");
     const conflict: ReturnType<typeof syncScaffold> = syncScaffold(props);

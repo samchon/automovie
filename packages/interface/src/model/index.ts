@@ -11,6 +11,7 @@ export * from "./IAutoMovieModel";
 export * from "./IAutoMovieLookAt";
 export * from "./IAutoMovieMeshDeformationField";
 export * from "./AutoMovieAffordanceKind";
+export * from "./AutoMovieGripKind";
 export * from "./IAutoMovieBoxShape";
 export * from "./IAutoMovieCapsuleShape";
 export * from "./IAutoMovieConeShape";

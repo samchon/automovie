@@ -8,6 +8,7 @@ import {
 } from "@automovie/interface";
 
 import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
+import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { Quaternion } from "../math/Quaternion";
@@ -15,6 +16,8 @@ import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
+import { fitHingedChainCandidate } from "./fitHingedChainCandidate";
+import { orientChainEffector } from "./orientChainEffector";
 import { prepareChainPlant } from "./prepareChainPlant";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
@@ -23,17 +26,33 @@ import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
 /**
  * Fit a reachable two-bone chain to a model-frame target under the rig's effective ROM, retaining authored non-chain joints. A deterministic finite bend-plane search scores clamped FK and keeps the original pose unless its 1e-7-metre residual bucket improves or equal-bucket continuity improves toward an explicit prior pose; it is a bounded search, not a global-optimum guarantee.
  *
+ * For a hinged mid joint (an elbow or a knee, whose abduction is immobile) the swivel parameterisation of Tolani, Goswami and Badler (2000) comes first and wins whenever it reaches: the hinge angle follows from the span and the swivel about the root-to-target axis is swept for the least range-of-motion overshoot and then the least continuous cost of effector-rotation error, swing from the hint's side and turn from the `referencePose` (`fitHingedChainCandidate`), because a free-swing candidate turns the hinge about the plane normal and the clamp of its abduction moves the effector. Otherwise, and for other chains, the bend hint's plane and then the 32-plane sweep follow, the first exact one winning. When nothing reaches, the least clamped residual is returned, so an unreachable target leaves the effector on the reachable shell, not a pretended reach.
+ *
+ * With `effectorRotation`, a mid bone that declares a distal twist (a forearm) first takes the twist share of the requested rotation about its own length (swing-twist decomposition), clamped to its range, and the effector the remaining swing, so pronation and supination are the forearm's and the wrist keeps its place.
+ *
  * @evidence contracts/development/implementation.md#principled-implementation Prepares actual chain frames, solves analytic two-bone candidates, clamps upper/lower joints to rig ROM and measures their actual effector; residual buckets rank first, then squared sign-insensitive quaternion geodesic distance to the prior pose and finally exact residual.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Search policy stays here while preparation, analytic candidate solve and fast candidate FK have single owners; this split exposes the geometry shared by all bend candidates.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing/invalid/degenerate preparation and analytic solve preserve the original pose; no ideal target measurement replaces post-clamp FK. A 32-angle sweep and ten local halvings bound the heuristic, with 1e-12 continuity and 1e-6 normal-degeneracy thresholds.
  * @evidence contracts/development/common.md#meaningful-documentation States model-metre target, unchanged joints, residual-bucket ranking, prior-pose tie meaning and the bounded-search limitation without claiming every unreachable pin can be solved.
- * @evidence contracts/development/implementation.md#efficient-algorithms Preparation and authored/reference FK scale with rig/joints; at most34 initial candidates plus at most32minima times20 refinement candidates use constant-size fast FK, though candidate pose copies scale with authored joints. Early exact-bucket/continuity satisfaction stops the search.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Preparation and authored/reference FK scale with rig/joints; at most34 initial candidates plus at most32minima times20 refinement candidates use constant-size fast FK, though candidate pose copies scale with authored joints. Early exact-bucket/continuity satisfaction stops the search. A hinged chain adds up to two swivel sweeps of 720 decomposed candidates (360 one-degree swivels per bend branch), each with constant-size quaternion work and, with an effector rotation, two more decompositions; they run only when the hint plane misses or a rotation is requested.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work All bend candidates share prepared frames/domains and reference-angle maps; only candidate joints and scores vary, while per-frame parent pose changes force new preparation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sweep/minima arrays are bounded by32 entries and all temporary poses/maps are released after completion; the caller owns the selected pose, which may be the original, and no handles or background tasks exist.
  */
 export const fitChainToTarget: (
   props: IFitChainToTargetProps,
-) => IAutoMoviePose = (input: IFitChainToTargetProps): IAutoMoviePose => {
+) => IAutoMoviePose = (input: IFitChainToTargetProps): IAutoMoviePose =>
+  orientChainEffector(input, fitChainBend(input));
+
+/**
+ * The bend-plane fit of {@link fitChainToTarget}, before its effector is
+ * oriented.
+ *
+ * @param input The fit request.
+ * @returns The fitted pose.
+ */
+const fitChainBend: (input: IFitChainToTargetProps) => IAutoMoviePose = (
+  input: IFitChainToTargetProps,
+): IAutoMoviePose => {
   // Declared bone axes take precedence over the host table, once, so the
   // preparation, the analytic solve and the candidate FK read one basis.
   const props: IFitChainToTargetProps = {
@@ -56,7 +75,16 @@ export const fitChainToTarget: (
       restFrames: props.restFrames,
     });
 
-  const pole: ReturnType<typeof solve> = solve();
+  // A bend hint picks the bend plane the way a pole vector does in game-engine
+  // two-bone IK (Unreal's Two Bone IK joint target, Unity's
+  // TwoBoneIKConstraint hint): the mid joint is displaced toward the hint's
+  // component across the root-to-target axis. Without a hint, the analytic
+  // default bends toward world-down and the search below takes over.
+  const pole: ReturnType<typeof solve> = solve(
+    props.bend === undefined
+      ? undefined
+      : hintNormal(prepared.upper.worldPosition, props.target, props.bend),
+  );
   if (pole === null) return props.pose;
   const authored: IAutoMovieVector3 = resolveBoneMap(
     props.skeleton,
@@ -183,6 +211,70 @@ export const fitChainToTarget: (
     plantResidualBucket(best.residual) === 0 &&
     (props.referencePose === undefined ||
       best.continuity <= PLANT_CONTINUITY_EPSILON);
+
+  // A hinged mid joint (an elbow or a knee, whose abduction is immobile) can
+  // bend only about its own flexion axis, while the free-swing candidates
+  // turn it about the bend-plane normal and leave an abduction the ROM clamp
+  // then removes, moving the effector. The swivel parameterisation (Tolani,
+  // Goswami and Badler 2000) fixes the hinge angle from the span and spends
+  // the remaining swivel about the root-to-effector axis on the rig's range
+  // of motion; `hingedArmArticulation` sweeps it and keeps the candidate with
+  // the least ROM overshoot, then the one nearest the bend hint. With a
+  // requested effector rotation the swivel also decides whether that rotation
+  // is reachable, since the end joint cannot twist about its own length (a
+  // wrist turns only with the forearm's distal twist, an ankle only with the
+  // whole leg's swivel, the hip's rotation): Tolani's analysis chooses the
+  // swivel inside the end joint's limits too, so that candidate leads.
+  const hingeAxes: IAutoMovieJointAxes | undefined =
+    props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES;
+  const hingedMid: boolean =
+    prepared.lowerDomain.constraint !== null &&
+    prepared.lowerDomain.constraint.abduction === null &&
+    hingeAxes !== undefined;
+  // A hinged chain takes the swivel candidate whenever it reaches, so the
+  // choice never alternates between two methods from frame to frame; the
+  // hint plane and the sweep remain for a chain the swivel cannot solve.
+  if (hingedMid) {
+    const hinged: NonNullable<ReturnType<typeof solve>> | null =
+      fitHingedChainCandidate(
+        props,
+        prepared,
+        hingeAxes!,
+        props.effectorRotation,
+      );
+    if (hinged !== null) {
+      const upper: IAutoMovieJointPose = clampJointToSkeleton(
+        hinged.upper,
+        props.skeleton,
+      );
+      const lower: IAutoMovieJointPose = clampJointToSkeleton(
+        hinged.lower,
+        props.skeleton,
+      );
+      const residual: number = distance(
+        resolvePreparedChainEffector({
+          prepared,
+          upper,
+          lower,
+          jointAxes: props.jointAxes,
+          restFrames: props.restFrames,
+        }),
+      );
+      if (plantResidualBucket(residual) === 0)
+        return {
+          ...props.pose,
+          joints: [
+            ...props.pose.joints.filter(
+              (j: IAutoMovieJointPose): boolean =>
+                j.bone !== props.chain.upper && j.bone !== props.chain.lower,
+            ),
+            upper,
+            lower,
+          ],
+        };
+      consider(hinged);
+    }
+  }
 
   consider(pole);
   if (canFinish()) return best.pose;
@@ -372,3 +464,31 @@ const jointRotationDistance: (
   const angle: number = 2 * Math.acos(dot);
   return angle * angle;
 };
+
+/**
+ * The bend-plane normal that displaces the mid joint toward a hint: the
+ * hint's component across the root-to-target axis, crossed as the analytic
+ * default crosses world-down (`axis x pole`). A hint on the axis gives no
+ * plane, so the default is used.
+ *
+ * @param root The chain root, model metres.
+ * @param target The effector target, model metres.
+ * @param bend The hint, model metres.
+ * @returns The unit normal, or undefined when the hint lies on the axis.
+ */
+function hintNormal(
+  root: IAutoMovieVector3,
+  target: IAutoMovieVector3,
+  bend: IAutoMovieVector3,
+): IAutoMovieVector3 | undefined {
+  const axis: IAutoMovieVector3 = Vector3.subtract(target, root);
+  if (Vector3.length(axis) < 1e-9) return undefined;
+  const unitAxis: IAutoMovieVector3 = Vector3.normalize(axis);
+  const toward: IAutoMovieVector3 = Vector3.subtract(bend, root);
+  const across: IAutoMovieVector3 = Vector3.subtract(
+    toward,
+    Vector3.scale(unitAxis, Vector3.dot(toward, unitAxis)),
+  );
+  if (Vector3.length(across) < 1e-9) return undefined;
+  return Vector3.normalize(Vector3.cross(unitAxis, Vector3.normalize(across)));
+}

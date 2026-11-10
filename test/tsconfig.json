@@ -6,7 +6,9 @@
     "allowImportingTsExtensions": true,
     "rewriteRelativeImportExtensions": true,
     "resolveJsonModule": true,
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "plugins": [
       {
         "transform": "@ttsc/lint",
@@ -18,7 +20,10 @@
     "src",
     "../packages/human/src/executable/NodeCanvasExperiment.ts",
     "../packages/human/src/executable/RunHumanTorsoObservation.ts",
-    "../packages/human/src/executable/HumanCurveCost.ts"
+    "../packages/human/src/executable/HumanCurveCost.ts",
+    "../packages/motions/src/executable/motionCapture.ts"
   ],
-  "exclude": ["src/executable"]
+  "exclude": [
+    "src/executable"
+  ]
 }

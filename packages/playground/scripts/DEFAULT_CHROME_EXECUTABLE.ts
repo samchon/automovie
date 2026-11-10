@@ -1,1 +1,1 @@
-export { DEFAULT_CHROME_EXECUTABLE } from "../../template/scaffold/src/integrations/render/node/capture/DEFAULT_CHROME_EXECUTABLE";
+export { DEFAULT_CHROME_EXECUTABLE } from "../../template/scaffold/production/src/executable/render/node/capture/DEFAULT_CHROME_EXECUTABLE";

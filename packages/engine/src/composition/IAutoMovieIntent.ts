@@ -1,3 +1,8 @@
+import type {
+  AutoMovieHumanoidRegion,
+  AutoMovieMotionTarget,
+} from "@automovie/interface";
+
 import type { IAutoMovieRelationalGoal } from "./IAutoMovieRelationalGoal";
 
 /**
@@ -28,4 +33,36 @@ export interface IAutoMovieIntent {
 
   /** Production data the timing, outcome and state functions read; the engine copies it untouched. */
   parameters?: Readonly<Record<string, unknown>>;
+
+  /**
+   * Cut the action short, as an interrupt (a cancel window in fighting-game
+   * terms, an interruption source in Unity's animator):
+   *
+   * - `{ share }`: at a share of its duration in [0, 1];
+   * - `{ event }`: at one of its own named events
+   *   (`resolveAutoMovieSchedule.ITiming.events`);
+   * - `{ of, event }`: when an event of the intent anchored `of`, usually
+   *   another subject's action, happens;
+   * - `{ proximity }`: when the subject's `effector` region first comes within
+   *   `distance` metres of `target` (zero is contact), which the production's
+   *   `until` law finds from its motion.
+   *
+   * The entry then ends at the cut and the next part of a sequence starts
+   * there. The production's legality rules decide whether the cut is declared;
+   * the resolver only places it. Absent, the action runs to its end.
+   */
+  until?:
+    | { share: number }
+    | { event: string }
+    | { of: string; event: string }
+    | {
+        proximity: {
+          /** The subject's own region that approaches. */
+          effector: AutoMovieHumanoidRegion;
+          /** What it approaches. */
+          target: AutoMovieMotionTarget;
+          /** Distance at which the cut happens, metres; zero is contact. */
+          distance: number;
+        };
+      };
 }

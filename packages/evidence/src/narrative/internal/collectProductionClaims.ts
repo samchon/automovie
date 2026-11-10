@@ -32,12 +32,12 @@ export function collectProductionClaims(
     props.mode === "long"
       ? (["settings", "treatments"] as const)
       : props.mode === "short"
-        ? (["screenplay"] as const)
-        : props.mode === "short-with-settings"
-          ? (["settings", "screenplay"] as const)
-          : []
+        ? (["brief", "screenplay"] as const)
+        : []
   ).flatMap(
-    (layer: "settings" | "treatments" | "screenplay"): IEvidenceClaim[] => {
+    (
+      layer: "settings" | "brief" | "treatments" | "screenplay",
+    ): IEvidenceClaim[] => {
       const claim: IEvidenceClaim | undefined = createInstructionCoverageClaim(
         props,
         layer,

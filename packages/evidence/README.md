@@ -1,10 +1,10 @@
 # @automovie/evidence
 
-Compose native Evidence claims for engineering and optional narrative work. Each production owns its instructions, contracts, creative bodies, evidence and independent reviews.
+Configures the evidence check of an AutoMovie production. A production's `evidence.config.ts` calls `createEvidenceConfig`, and `@wrtnlabs/evidence` then checks that the production's code, and its writing once `narrative` is set, answers the checklists in its contracts. A production created by `automovie create` already has this package and a working configuration.
 
-## Configuration
+## Configure
 
-Export one configuration from `evidence.config.ts`:
+To add the package to a project made another way, run `npm install --save-dev @automovie/evidence @wrtnlabs/evidence` and place the checklists it reads under `.agents/skills`. The package needs Node.js 22.23.2 or later.
 
 ```ts
 import { createEvidenceConfig } from "@automovie/evidence";
@@ -12,26 +12,53 @@ import { createEvidenceConfig } from "@automovie/evidence";
 export default createEvidenceConfig({ location: import.meta.dirname });
 ```
 
-The default selects exported source types, interfaces and classes under `src/**/*.ts` against `.agents/skills/contracts/development/design.md`, exported source functions and class methods against `contracts/development/implementation.md`, and exported test functions under `test/**/test_*.ts` against `contracts/development/testing.md`; every one of them also answers `contracts/development/common.md`. It selects no narrative. Location is the absolute project directory; native Evidence resolves selected inputs relative to the authored configuration.
+`location` is the production's absolute directory. With nothing else set, these engineering defaults apply, and the narrative checks are off:
 
-A production whose checklists predate that layout keeps them by passing `claims: createEngineeringClaims({ common: null, design: "contracts/common.md", implementation: "contracts/common.md", tests: "contracts/testing.md" })`.
+| Declarations | Answer |
+| --- | --- |
+| Exported types, interfaces and classes under `src/**/*.ts` | `contracts/development/design.md` |
+| Exported functions and class methods under `src/**/*.ts` | `contracts/development/implementation.md` |
+| Exported test functions under `test/**/test_*.ts` | `contracts/development/testing.md` |
+| All of the above | `contracts/development/common.md` |
 
-Add narrative when commissioned:
+A declaration answers a checklist in its doc comment, with one `@evidence <checklist>#<item>` tag per item followed by the answer.
+
+The bundled contracts are read from `<location>/.agents/skills`. A production inside a pnpm workspace, where the root holds the one shared skills tree, passes that tree's absolute path:
+
+```ts
+import { createEvidenceConfig } from "@automovie/evidence";
+import { resolve } from "node:path";
+
+export default createEvidenceConfig({
+  location: import.meta.dirname,
+  skills: resolve(import.meta.dirname, "../../../.agents/skills"),
+});
+```
+
+The production's own contracts, `work/**` and `language/**`, hold the questions specific to that work and to its language, and live under `<location>/docs/contracts` in either layout.
+
+### Narrative
+
+Add `narrative` when the production writes a screenplay:
 
 ```ts
 export default createEvidenceConfig({
   location: import.meta.dirname,
   narrative: {
-    mode: "short-with-settings",
-    construction: { settings: "evidence", screenplay: "evidence" },
+    mode: "short",
+    construction: { brief: "evidence", screenplay: "evidence" },
     naturalness: { screenplay: "evidence" },
   },
 });
 ```
 
-Use `short` for direct screenplay, `short-with-settings` for compact canon plus screenplay, and `long` for settings ??treatments ??scripts ??screenplay. Unspecified stages remain disabled drafts. Scripts completes content and expression within construction; screenplay alone has a separate naturalness pass. An omitted outline stage follows settings. Complete work is the default scope; an explicitly commissioned first-part pilot selects its exact part.
+`construction` checks how each layer is built from the one before it, and `naturalness` is the separate check of the screenplay's expression. Setting a layer to `"evidence"` turns its check on.
 
-Turn on the research and the production's own development contracts when the commission needs them:
+`short` is a brief under `docs/body/brief` followed by the screenplay, and `long`, the mode of a series, has four layers: settings, treatments, scripts and screenplay. A layer you leave out stays a disabled draft. The checks cover the complete work unless `scope` names the first part that a pilot covers.
+
+### Research and development contracts
+
+Add `research` when the production keeps research studies, and `development` when it builds the film's entities, behaviors and scenes in code:
 
 ```ts
 export default createEvidenceConfig({
@@ -45,18 +72,25 @@ export default createEvidenceConfig({
 });
 ```
 
-`research` holds each study in `docs/research/` (apart from its index) to the story research principles, answered in `docs/evidence/construction/files/research/` under an H1 naming the study. `development.entities` holds exported types, classes, functions and methods under `src/entities/` to `contracts/development/entities.md`. `development.behaviors` holds exported functions and methods under `src/laws/`, `src/interactions/` and `src/consequences/` to `contracts/development/behaviors.md`, and each cites the study it follows; every study must be cited. `development.composition` holds exported functions and methods under `src/composition/` to `contracts/development/composition.md`: scenes in `src/composition/scenes/` cite the screenplay scenes (H2) and beats (H3) they realize, and every one must be realized; films in `src/composition/films/` cite the screenplay file they deliver, and every screenplay file must become a film. Omitted stages stay disabled.
+| Option | Checks | Against |
+| --- | --- | --- |
+| `research` | Each study in `docs/research/` | `contracts/story/shared/principles/research.md` |
+| `development.entities` | Exports under `src/entities/` | `contracts/development/entities.md` |
+| `development.behaviors` | Exports under `src/laws/`, `src/interactions/` and `src/consequences/` | `contracts/development/behaviors.md`, each citing the study it follows |
+| `development.composition` | Exports under `src/composition/` | `contracts/development/composition.md`, citing the screenplay scenes, beats and files they realize |
 
-## Native checking
+Every study must be cited by some behavior, and every screenplay scene, beat and file must be realized by some composition. An option you leave out stays disabled.
 
-Run `pnpm evidence` to evaluate every enabled claim and reference. Native Evidence owns coverage, checklist completeness, relationship cardinality and current fingerprint reviews. Exit codes are 0 for a complete analysis without errors, 1 for graph violations, and 2 for invalid configuration or incomplete analysis. A passing graph does not grant creative or delivered-output acceptance, and an inactive population does not establish that work exists.
+### Your own claims
 
-Use `pnpm evidence list` to find configured targets, `pnpm evidence inspect <target>` to inspect them, and `pnpm evidence graph` to export the graph. Native `--only <targets...>` checks named configured units and their descendants after complete analysis; `--shallow` omits descendants. Counts, diagnostics and status then describe that selected scope. Read the installed `@wrtnlabs/evidence` documentation for selectors, addresses, annotations, detached evidence and fingerprints.
+A claim binds a set of declarations to the checklist they answer. Top-level `claims` replaces the engineering defaults, so start from `createEngineeringClaims()` to extend them. `narrative.claims` adds claims to the ones `narrative` configures. Both take `IEvidenceClaim[]` from `@wrtnlabs/evidence`.
 
-## Extending the graph
+## Run
 
-Top-level `claims` replaces the engineering defaults; use `createEngineeringClaims()` when extending them. `narrative.claims` appends ordinary `IEvidenceClaim[]` without changing the baseline. Native claim/reference fields determine respondents and relationships.
+```bash
+npm run evidence
+```
 
-The `@automovie/evidence` entry exports narrative selectors, graph factories and local contract helpers. Construction evidence uses detached carriers under `docs/evidence/construction/{files,units}`. Screenplay naturalness uses working text under `docs/naturalness`, preserving its frozen construction lineage under `docs/revision`. Existing review claims compare their actual authored H2s with native current fingerprints; independent reviewers own their judgments.
+The exit code is 0 for a complete analysis without errors, 1 for violations and 2 for an invalid configuration or incomplete analysis. `npx evidence list` prints the configured targets, `npx evidence inspect <target>` explains one, and `npm run evidence -- --only <targets...>`, optionally with `--shallow`, checks only those targets. The [`@wrtnlabs/evidence` documentation](https://github.com/wrtnlabs/evidence#readme) covers addresses, annotations and fingerprints.
 
-`stripNaturalnessComments` removes HTML comments while retaining other bytes. `verifyEvidenceMetadataRewrite` checks an explicitly owned metadata-only rewrite against protected authored bytes. Neither helper evaluates narrative approval.
+A passing check means the checklists were answered. Whether the writing and the delivered video are good is still decided in review.

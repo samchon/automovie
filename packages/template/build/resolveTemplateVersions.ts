@@ -34,13 +34,13 @@ const resolveTemplateVersions: () => Record<string, string> = (): Record<
   resolveAutoMovieTemplateDependencyVersions({
     workspace: workspaceYaml(),
     packages: {
-      archetypes: packageVersion("packages/archetypes"),
       cli: packageVersion("packages/cli"),
       engine: packageVersion("packages/engine"),
       evidence: packageVersion("packages/evidence"),
       human: packageVersion("packages/human"),
       ingest: packageVersion("packages/ingest"),
       interface: packageVersion("packages/interface"),
+      motions: packageVersion("packages/motions"),
       recovery: packageVersion("packages/recovery"),
       render: packageVersion("packages/render"),
       template: packageVersion("packages/template"),

@@ -1,32 +1,38 @@
 # @automovie/template
 
-`@automovie/template` renders and installs the bundled `scaffold` for a new AutoMovie production. The installed project owns its content and contracts. Package upgrades never overwrite them; explicit instruction sync updates only the generated instruction surface.
+The scaffold every AutoMovie production starts from, together with the functions that render it and write it to disk. Most people reach it through the [`automovie` CLI](../cli/README.md). Use this package directly when your own tool has to install or update a scaffold.
 
-## Generated project
+## Use
 
-- `AGENTS.md` routes the shipped skills, and `CLAUDE.md` only imports it.
-- Ten entry points group production, story, 3D modeling, motion and audio under creation, development and evidence under implementation, documentation and prompting under writing, and review under assessment. Each skill links its conditional task resources directly; installed packages own API behavior.
-- The scaffold owns its skills and compact contracts, except where an empty `$<name>` placeholder under `.agents/skills` ships the repository item of that name at the same place, a whole folder or a single file. `build/syncScaffoldInstructions.ts` copies the named items into `lib/skills` on `prepare` and `build`, and `renderScaffold` ships them in the placeholders' place.
-- `evidence.config.ts` calls `@automovie/evidence` with one options object. By default, exported types and functions under `src` answer two engineering questions, and exported test functions answer two testing questions. Adding narrative options to that same object retains the engineering checks and selects stage, scope, evidence, current independent review, and expression-transfer duties. The reusable implementation stays in the package. Asset and delivery obligations retain their own respondents; the [evidence skill](scaffold/.agents/skills/evidence/SKILL.md) explains ownership. `lint.config.ts` configures ordinary source correctness lint independently of narrative selection.
-- `test/index.ts` runs every exported `test_*` function under `test` through `node:test` for `npm test`, and passes when there is none; the development skill's [testing guide](scaffold/.agents/skills/development/testing.md) decides when a production has tests.
-- The scaffold ships no production content, viewer stub, or provider-specific hook.
+```bash
+npm install @automovie/template
+```
 
-`renderScaffold` excludes working artifacts from its source population: a `node_modules`, `.git`, or `.cache` directory, or a file with a builder-output shape, belongs to whoever ran a tool there, and a generated project's loader would prefer an emitted `.js` to the `.ts` beside it. The scaffold's ignore rules ship as `scaffold/_gitignore` and install as `.gitignore`, because npm renames a packed `.gitignore` to `.npmignore`; supplying both root identities is refused.
+```ts
+import { renderScaffold, writeFiles } from "@automovie/template";
 
-The [generated production workflow](scaffold/README.md#make-a-motion-hint) carries the screenplay into programmed performance, camera staging, requested conditioning channels, the actual capture host, whole edit and inspected output. Long work retains settings, treatments, scripts, final screenplay, with scripts expression completed in construction and a separate screenplay naturalness pass; a short can enter at final screenplay. Low-cost representations can carry accurate motion; Human is optional. Stills or pilot clips cannot complete a whole motion hint, while separately commissioned text, assets, direct 3D films and post-diffusion films retain their actual boundaries.
+const written: string[] = writeFiles("my-film", renderScaffold({ name: "my-film" }));
+```
 
-The installed project-root `PROJECT.md` owns adopted scope, delivery method, representation, tools, runtime and setup authority. Creative instructions stay under `docs/instructions`. Runtime READMEs and `.env.example` hold nonsecret setup and variable names; actual secrets remain in ignored local `.env`. Optional integration code belongs under `src/integrations`.
+## Rendering a scaffold
 
-## Public API
+A renderer returns a `{ path: content }` map and writes nothing. The map is the same for the same name and package version.
 
-`renderScaffold` returns a deterministic project-relative file map with `{{name}}` and the catalog-resolved `{{version:*}}` tokens substituted. `publishFiles` validates and freezes that candidate, then returns a receipt naming every completed file and the first refused or parent-bound partial effect; `writeFiles` keeps the throwing API. New slots are created through Koffi-backed POSIX `openat` or Windows `NtCreateFile` parent-handle-relative adapters, so neither creation nor verification follows a successor child pathname.
+| Renderer | Produces |
+| --- | --- |
+| `renderScaffold` | A single production in its own repository |
+| `renderWorkspaceScaffold` | A pnpm workspace root with shared instructions and dependency catalogs |
+| `renderWorkspaceProductionScaffold` | One production for `movies/<shorts\|series>/<name>` inside such a workspace |
+| `renderScaffoldInstructions` | Only the instruction files: `AGENTS.md`, `CLAUDE.md` and `.agents/skills` |
 
-## Explicit instruction updates
+## Writing it to disk
 
-`planScaffoldSync` inspects one existing production; `syncScaffold` applies its fresh conflict-free plan through the same verified publication path. They update routers and bundled non-contract skill resources, preserving project scope, configuration, contracts, custom extra skills, authored content and historical proof. Creation records `.automovie/scaffold-state.json`. Sync compares current LF-normalized digests with that baseline and the new bundle, refuses all writes on a local conflict and publishes the new state last. `baseline` names an explicit prior adopted instruction root for legacy projects; `check` inspects without writing. Retired paths are reported and retained. File-generation preconditions prevent a changed inspected file from being adopted as a fresh replacement; partial publication retains its receipt and never silently retries or rolls back. The [CLI](../cli/README.md) exposes this as `automovie sync`.
+`writeFiles(location, files, options)` writes a rendered map and returns the paths written, or throws `ScaffoldPublicationError`. `publishFiles` takes the same arguments and returns a receipt instead: every completed file and the first one that did not complete. Both refuse a non-empty directory unless `force` is set, and neither deletes or rolls back what was already written when a later file fails.
 
-## Development checks
+## Updating an installed project
 
-For shipped instruction design, use the repository's [scaffold-prompting skill](../../.agents/skills/scaffold-prompting/SKILL.md); [scaffold](../../.agents/skills/scaffold/SKILL.md) owns distribution and project ownership. Review task strategy, quality questions and their actual consumers together. Existing productions adopt an update explicitly; changing this bundle does not update their files or renew their earlier reviews.
+An installed project changes only through sync, never through a package upgrade. `planScaffoldSync({ location, baseline? })` compares a project's instruction files with the current bundle, and `syncScaffold` applies that plan when it has no conflict; with `check: true` it only reports. Sync rewrites `AGENTS.md`, `CLAUDE.md` and the bundled skill files, never the contracts (the checklists a production answers), configuration, source or written content. A file edited locally is a conflict, and a conflict stops every write. The CLI exposes this as `automovie sync`.
 
-`pnpm run build` syncs the scaffold's version placeholders and shared instructions, then compiles with source correctness lint and the shared evidence declaration guards. `pnpm run evidence` checks the declarations' checklist answers with `@wrtnlabs/evidence`.
+## What the scaffold contains
+
+The scaffold contains instructions for the coding agent (`AGENTS.md`, `CLAUDE.md` and the skills), an `evidence.config.ts` and `lint.config.ts`, a `PROJECT.md` for the choices a production adopts, a test runner with the tests of the bundled tooling, and Node tooling under `src/executable`. It ships no film content. The generated [README](./scaffold/production/README.md#make-a-motion-hint) is the user's guide to the workflow and commands.

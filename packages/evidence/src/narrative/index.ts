@@ -9,6 +9,7 @@ export * from "./ProductionStage";
 export * from "./createProductionClaims";
 export * from "./createProductionConfig";
 export * from "./createSettingsFiles";
+export * from "./createBriefFiles";
 export * from "./stripNaturalnessComments";
 export * from "./createNarrativeUnitFiles";
 export * from "./IPackageChecklistClaimProps";

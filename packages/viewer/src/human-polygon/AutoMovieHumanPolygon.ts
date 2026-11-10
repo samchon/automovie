@@ -5,6 +5,11 @@ import type * as THREE from "three";
  * mannequin. Human's public skeleton output is structurally assignable; no
  * generator or example motion is imported by this optional Viewer entry.
  *
+ * The mannequin stays deliberately simple: a fix corrects a wrong value within
+ * the same primitives and segment count, never adds geometry, detail or
+ * realism, because its job is a cheap, deterministic silhouette for motion
+ * checks and diffusion hints.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation Documents frames, units, source exterior requirements, actual mesh registries and rigid-joint limitations.
  * @evidence contracts/development/design.md#principled-representation Represents Structural inputs and actual drawing handles for the original polygon mannequin: companion namespace of 4 members (`IInput`, `IBone`, `IPlacement`, `IDrawing`); units and frames named in its text: frame, metres, metre, quaternion, local. It has no optional member, so no absent-value state combines with another.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieHumanPolygon` in packages/viewer/src/human-polygon/AutoMovieHumanPolygon.ts; its surface is the 4 members listed and the text shows 21 other files naming it, mostly movies (10), packages/viewer (8), test (3), so no member is declared for a presumed future need.

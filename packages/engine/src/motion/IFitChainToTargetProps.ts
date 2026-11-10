@@ -2,6 +2,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
   IAutoMoviePose,
+  IAutoMovieQuaternion,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -47,7 +48,28 @@ export interface IFitChainToTargetProps {
 
   /**
    * Prior corrected pose used only to stabilize equal-residual bend branches;
-   * its root and non-chain joints do not replace the current pose.
+   * its root and non-chain joints do not replace the current pose. A hinged
+   * chain's swivel prefers the candidate nearest it (degrees of joint turn
+   * counted like degrees of effector error). It must be a grid-free reference,
+   * such as the solution at a contact event, never the previous frame, so a
+   * displayed pose stays a pure function of time.
    */
   referencePose?: IAutoMoviePose;
+
+  /**
+   * A model-frame point the mid joint (a knee or an elbow) bends toward, the
+   * pole vector of game-engine two-bone IK. Omitted, a hinged chain (elbow,
+   * knee) keeps the side its posed hinge already bends toward, the
+   * plane-preserving default of analytic two-bone IK, since world-down lies
+   * almost along a standing leg and flips its knee between frames; another
+   * chain bends toward world-down and searches bend planes by residual and
+   * continuity.
+   */
+  bend?: IAutoMovieVector3;
+
+  /**
+   * The effector's model-frame rotation, as `resolvePose` reports world
+   * rotations; omitted, the effector keeps the pose's own angles.
+   */
+  effectorRotation?: IAutoMovieQuaternion;
 }

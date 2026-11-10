@@ -1,12 +1,12 @@
 /**
  * One admitted CLI request, discriminated by `command`.
  *
- * `help` and `version` carry nothing because they are standalone requests. `start` and `sync` carry their target exactly as typed; `run` resolves it against the working directory. Sync additionally carries its dry-run choice and optional explicit previous instruction root.
+ * `help` and `version` carry nothing because they are standalone requests. `create`, `add` and `sync` carry their targets exactly as typed; `run` resolves them against the working directory. An explicit `name` is carried as typed; `run` chooses the name when it is absent.
  *
- * @evidence contracts/development/design.md#principled-representation A string-literal discriminated union lets TypeScript narrow each request by `command`, so `run` cannot read a `start` field on a help or version request; the `start` directory stays unresolved because resolution depends on the caller's working directory, which `run` owns.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The union has exactly the admitted standalone, creation and synchronization requests the CLI admits and only the two `start` facts the scaffold publication consumes, with no option bag for flags the parser refuses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No member encodes a default directory or a test fixture; `force` is always present as a boolean, so absence never stands for a hidden third state.
- * @evidence contracts/development/common.md#meaningful-documentation The comment says that help and version are standalone and carry nothing, that the directory is unresolved and who resolves it, and each `start` member says how `run` uses it.
+ * @evidence contracts/development/design.md#principled-representation Each variant carries exactly what its command needs after admission, so `run` performs no further argument parsing.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface A closed union over the command name lets `run` switch on one field, and the workspace family is a closed pair instead of a free path.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No variant has an escape field for unparsed tokens.
+ * @evidence contracts/development/common.md#meaningful-documentation Every variant and member states its meaning and who resolves it.
  */
 export type AutoMovieCommand =
   | {
@@ -18,22 +18,47 @@ export type AutoMovieCommand =
       command: "version";
     }
   | {
-      /** Install the scaffold into `directory`. */
-      command: "start";
+      /** Install a single production, or with `workspace` a workspace root, into `directory`. */
+      command: "create";
 
       /** Target directory as typed, never blank; `run` resolves it against the working directory. */
       directory: string;
 
+      /** Install a pnpm workspace root instead of a single production. */
+      workspace: boolean;
+
       /** Admit a non-empty target, as `publishFiles`' `force` option defines it. */
       force: boolean;
+
+      /** Package name as typed; absent, `run` derives or asks for one. */
+      name?: string;
     }
   | {
-      /** Update only generated production instructions. */
-      command: "sync";
-      /** One existing production directory, resolved by run. */
+      /** Add one production to the workspace whose root is the working directory. */
+      command: "add";
+
+      /** `shorts` for brief → screenplay, `series` for the whole long route. */
+      family: "shorts" | "series";
+
+      /** The production's directory under `movies/<family>`, one admitted path segment. */
       directory: string;
+
+      /** Admit a non-empty production directory, as `publishFiles`' `force` option defines it. */
+      force: boolean;
+
+      /** Package name as typed; absent, `run` derives one from the directory segment. */
+      name?: string;
+    }
+  | {
+      /** Update only generated instructions. */
+      command: "sync";
+
+      /** The directory holding `AGENTS.md`, resolved by run. */
+      directory: string;
+
       /** Inspect pending changes and conflicts without writing. */
       check: boolean;
-      /** Explicit prior adopted instruction root for an unbased legacy installation. */
+
+      /** Explicit prior adopted instruction root; the files it supplies govern over stored sync state. */
       baseline?: string;
     };

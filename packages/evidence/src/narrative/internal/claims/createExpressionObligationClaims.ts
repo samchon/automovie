@@ -5,14 +5,17 @@ import type {
 import fs from "node:fs";
 import path from "node:path";
 
+import type { IContractLocation } from "../../../internal/IContractLocation";
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import type { ProductionStage } from "../../ProductionStage";
 import { REALIZED_LAYERS } from "../REALIZED_LAYERS";
+import { constructionStage } from "../constructionStage";
 import { hasNaturalness } from "../hasNaturalness";
 import { createLocalContractReference } from "../references/createLocalContractReference";
 import { createSharedReference } from "../references/createSharedReference";
 import { layerFiles } from "../references/layerFiles";
+import { createContractDirectory } from "../utilities/createContractDirectory";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 import { passRoot } from "../utilities/passRoot";
 
@@ -29,7 +32,7 @@ import { passRoot } from "../utilities/passRoot";
  * checklists never select, so a population duty cannot leak into a per-unit
  * checklist. A package whose contract predates the folder has no such claim.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Only expression-bearing layers receive file-level obligation claims in their finished edition; installed shared and language files are selected separately, each requiring exactly one respondent for every population item.
+ * @evidence contracts/development/implementation.md#principled-implementation Only expression-bearing layers receive file-level obligation claims in their finished edition; installed shared and language files are selected separately, each requiring exactly one respondent for every population item; createContractDirectory probes shared documents in the shared skills tree and language documents in the production's own `docs/contracts`.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Expression population questions have their own file-level family; scripts use construction and screenplay uses naturalness without leaking whole-population duties into unit checklists.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An absent optional obligation document produces no claim under the supported older-contract layout; settings/treatments have no independent naturalness stage by contract.
  * @evidence contracts/development/common.md#meaningful-documentation The prose identifies finished-text respondents, file-level population semantics, layer-specific activation and optional older contract families.
@@ -45,13 +48,13 @@ export function createExpressionObligationClaims(
   const revised: boolean = hasNaturalness(layer);
   const stage: ProductionStage = revised
     ? props.naturalness.screenplay
-    : props.construction[layer];
+    : constructionStage(props, layer);
   const disabled: boolean = stage === "disabled";
   const directory: string = "naturalness/obligations";
 
   const shared: IEvidenceClaim[] = layerFiles(layer)
     .filter((file: string): boolean =>
-      exists(props.location, "shared", `${directory}/${file}`),
+      exists(props, "shared", `${directory}/${file}`),
     )
     .map(
       (file: string): IEvidenceClaim =>
@@ -61,7 +64,7 @@ export function createExpressionObligationClaims(
           layer,
           scope: props.narrativeScope,
           reference: createSharedReference({
-            location: props.location,
+            contracts: props,
             file: `${directory}/${file}`,
             checklist: false,
             exclusion: false,
@@ -117,17 +120,13 @@ function claim(props: {
 
 /** Reports whether one optional contract-family document is installed. */
 function exists(
-  location: string,
+  contracts: IContractLocation,
   scope: "shared" | "language",
   file: string,
 ): boolean {
   return fs.existsSync(
     path.join(
-      location,
-      ".agents",
-      "skills",
-      "contracts",
-      "story",
+      createContractDirectory(contracts, scope),
       scope,
       ...file.split("/"),
     ),

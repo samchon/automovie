@@ -7,7 +7,7 @@ import type { IAutoMovieArtifactStore } from "../../../../packages/engine/src/ca
 import { composeAutoMovieArtifactKey } from "../../../../packages/engine/src/cache/composeAutoMovieArtifactKey";
 import { resolveAutoMovieArtifact } from "../../../../packages/engine/src/cache/resolveAutoMovieArtifact";
 import { createAutoMovieHttpArtifactStore } from "../../../../packages/render/src/cache/createAutoMovieHttpArtifactStore";
-import { createAutoMovieArtifactMiddleware } from "../../../../packages/template/scaffold/src/integrations/render/node/cache/createAutoMovieArtifactMiddleware";
+import { createAutoMovieArtifactMiddleware } from "../../../../packages/template/scaffold/production/src/executable/render/node/cache/createAutoMovieArtifactMiddleware";
 
 /**
  * A page-side HTTP store and the server middleware carry verified entries.

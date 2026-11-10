@@ -2,7 +2,7 @@
  * Production-specific development contracts a commissioned film turns on.
  *
  * Each stage selects the exported declarations of its source folders against
- * one checklist under `.agents/skills/contracts/development/`, answered in
+ * one checklist under `contracts/development/` of the shared skills tree, answered in
  * their doc comments: entities in `src/entities/` answer `entities.md`, laws,
  * interactions and consequences in `src/laws/`, `src/interactions/` and
  * `src/consequences/` answer `behaviors.md` and cite the research they follow,

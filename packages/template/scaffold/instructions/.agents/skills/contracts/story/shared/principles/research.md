@@ -1,0 +1,13 @@
+# Research principles
+
+Each study in `docs/research/`, apart from its index, answers these items in the research location of the [document layout](../../../../story/document-layout.md#documents), under an H1 naming the study's path. Its originals stay in `references/`, and the index names them. Settings or brief, screenplay, entities and behaviors cite the study they draw from.
+
+Statements: [statements/principles/research.md](../statements/principles/research.md).
+
+## Does the study capture the depicted practice? {#depicted-practice}
+
+Can settings or brief, screenplay and code authors use the study to write and program the practice at the depicted level without inventing it? A rank or an adjective, a list of technique names without laws, an outcome no table covers or a value with no source leaves the next author to invent the practice. A deliberately stylized departure is recorded as a choice and is not a gap.
+
+## Can each observation be traced to its source? {#traceable-sources}
+
+Does every observation name its retained source with a locator such as a page, figure or timestamp, and say what kind of observation it is? A search summary, a portal page or a remembered fact is a route to evidence, not a source.

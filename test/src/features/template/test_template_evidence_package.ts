@@ -30,7 +30,7 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * @evidence contracts/development/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, a type answering the design checklist against one answering the implementation checklist, coding and explicit narrative, additional native requirements, inherited outline stages, relative location rejection, independent default objects, a law's answers with and without its study citation, and a scene citing one beat against one citing the whole scene.
  * @evidence contracts/development/testing.md#execution-ownership Runs in-process through workspace source exports with temporary files beneath the existing monorepo cache so normal ancestor dependency resolution finds already linked compiler packages. It installs no consumer, starts no process/browser/GPU, and removes its owned fixtures in finally.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Actual default source/test claims reject missing answers and accept complete answers beside unfinished narrative; a type answering...).
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
  */
 export async function test_template_evidence_package(): Promise<void> {
   const cache: string = path.resolve(
@@ -182,7 +182,7 @@ export async function test_template_evidence_package(): Promise<void> {
       location: narrative,
       narrative: {
         mode: "short",
-        construction: { screenplay: "evidence" },
+        construction: { brief: "evidence", screenplay: "evidence" },
         naturalness: { screenplay: "evidence" },
       },
     });
@@ -196,14 +196,14 @@ export async function test_template_evidence_package(): Promise<void> {
     );
     ProductionWorkflowFixture.write(
       narrative,
-      ".agents/skills/contracts/story/work/extra/cues.md",
+      "docs/contracts/work/extra/cues.md",
       "# Additional work\n\n## Fixed cue {#fixed-cue}\n\nEstablish the commissioned cue.\n",
     );
     const extended: IEvidenceConfig = createEvidenceConfig({
       location: narrative,
       narrative: {
         mode: "short",
-        construction: { screenplay: "evidence" },
+        construction: { brief: "evidence", screenplay: "evidence" },
         claims: [
           {
             name: "commissioned cue",
@@ -213,7 +213,7 @@ export async function test_template_evidence_package(): Promise<void> {
             symbol: "h2",
             reference: {
               type: "markdown",
-              root: ".agents/skills/contracts/story/work/extra",
+              root: "docs/contracts/work/extra",
               files: ["cues.md"],
               symbol: "h2",
               checklist: true,
@@ -236,7 +236,7 @@ export async function test_template_evidence_package(): Promise<void> {
     ProductionWorkflowFixture.complete(long, "long");
     ProductionWorkflowFixture.write(
       long,
-      ".agents/skills/contracts/story/work/discovery/results.md",
+      "docs/contracts/work/discovery/results.md",
       "<!--\n@evidenceExclude shared/discovery/common.md#scope The settings fixture needs no additional common rule.\n@evidenceExclude shared/discovery/settings.md#scope The settings fixture needs no additional canon rule.\n-->\n# Discovery\n\nOnly settings is submitted.\n",
     );
     const settings: IEvidenceConfig = createEvidenceConfig({
@@ -291,7 +291,7 @@ export async function test_template_evidence_package(): Promise<void> {
         fs.readFileSync(
           path.resolve(
             __dirname,
-            "../../../../packages/template/scaffold/.agents/skills/contracts",
+            "../../../../packages/template/scaffold/instructions/.agents/skills/contracts",
             file,
           ),
           "utf8",

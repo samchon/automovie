@@ -23,7 +23,6 @@ A figure, an animal, a tree, a wall, a hill, a river, a field, the map: each is 
 A class owns four things, and the reason it is a class rather than a factory returning a record is that these four belong together:
 
 ```ts
-import { createAutoMovieStickman } from "@automovie/archetypes";
 import {
   AutoMovieSubject,
   type IAutoMovieSubjectContribution,
@@ -33,6 +32,8 @@ import type {
   IAutoMovieModel,
   IAutoMovieShotBuildContext,
 } from "@automovie/interface";
+
+import { createFigureModel } from "./createFigureModel";
 
 export class Figure extends AutoMovieSubject<IAutoMovieModel> {
   public readonly id = "figure";
@@ -46,7 +47,7 @@ export class Figure extends AutoMovieSubject<IAutoMovieModel> {
   }
 
   public design(): IAutoMovieModel {
-    return createAutoMovieStickman({
+    return createFigureModel({
       id: this.id,
       height: this.height,
       headRadius: 0.16,
@@ -82,7 +83,7 @@ export class Figure extends AutoMovieSubject<IAutoMovieModel> {
 }
 ```
 
-`design()` returns the subject's typed design value for its consumers to validate and use; a figure's design is the `IAutoMovieModel` group a typed producer such as `createAutoMovieStickman` returns. Equal declared inputs produce equal values; calling the method does not require publishing or reopening a design file.
+`design()` returns the subject's typed design value for its consumers to validate and use; a figure's design is the `IAutoMovieModel` group a typed producer of the production, here `createFigureModel`, returns. Equal declared inputs produce equal values; calling the method does not require publishing or reopening a design file.
 
 ## A group of subjects is a subject
 

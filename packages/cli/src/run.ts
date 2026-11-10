@@ -4,25 +4,45 @@ import {
   ScaffoldPublicationError,
   publishFiles,
   renderScaffold,
+  renderWorkspaceProductionScaffold,
+  renderWorkspaceScaffold,
   syncScaffold,
 } from "@automovie/template";
+import * as fs from "node:fs";
 import * as path from "node:path";
 
 import type { AutoMovieCommand } from "./AutoMovieCommand";
+import type { IAutoMoviePackageManager } from "./IAutoMoviePackageManager";
 import { deriveAutoMovieProjectName } from "./deriveAutoMovieProjectName";
+import { promptAutoMovieProjectName } from "./promptAutoMovieProjectName";
 import { readAutoMovieCommandArguments } from "./readAutoMovieCommandArguments";
 import { renderAutoMovieScaffoldNextSteps } from "./renderAutoMovieScaffoldNextSteps";
+import { selectAutoMoviePackageManager } from "./selectAutoMoviePackageManager";
+import { selectAutoMovieProjectName } from "./selectAutoMovieProjectName";
 
 const USAGE: string = `automovie: scaffold an automovie project
 
 Usage:
-  npx automovie start <directory> [--force]
+  npx automovie create <directory> [--workspace] [--name <name>] [--force]
+  pnpm automovie add <shorts|series>/<name> [--name <name>] [--force]
   npx automovie sync <directory> [--check] [--baseline <directory>]
 
+Commands:
+  create          A single production, or with --workspace a pnpm workspace
+                  root for movies/shorts, movies/series and packages.
+  add             From a workspace root, a production at movies/<family>/<name>:
+                  shorts run brief -> screenplay, series the long route.
+  sync            Update the generated instructions of a single production
+                  or a workspace root.
+
 Options:
-  --force         Scaffold into a non-empty directory.
+  --workspace     Create a pnpm workspace root instead of a single production.
+  --name          Package name; create asks for one when the target is the
+                  current directory, and add defaults to the directory name.
+  --force         Install into a non-empty directory, replacing same-path files.
   --check         Report a sync plan; exit 1 when updates or conflicts remain.
-  --baseline      Previous adopted instructions for a legacy sync.
+  --baseline      Previous adopted instructions the files came from; they
+                  override the stored sync state for the files they hold.
   -h, --help      Show this help as a standalone request.
   -v, --version   Print the version as a standalone request.
 `;
@@ -31,20 +51,26 @@ Options:
  * The `automovie` CLI entry. `argv` is the full process vector; its first two positions (executable and script) are skipped.
  *
  * - `help` and `version` write to stdout; the version is read from this package's `package.json`.
- * - `sync` plans explicit generated-instruction updates, preserves project contracts/content and refuses local conflicts; check reports pending updates without writing.
- * - `start` renders the scaffold, naming the project with `deriveAutoMovieProjectName`, and publishes it into the directory resolved against the working directory, refusing a non-empty one without `--force`. On success it lists the written files relative to the target, then the next steps. Completed and partial file effects stay after failure; the error names the completed files and the stopping entry. Prepared directories can remain even when no file was written.
+ * - `create` renders a single production, or with `--workspace` a workspace root, and publishes it into the directory resolved against the working directory. The name is the typed `--name`, else derived from the target's basename; for the working directory itself the terminal is asked, offering `automovie-examples`, which is used without asking when no terminal is attached.
+ * - `add` requires `pnpm-workspace.yaml` in the working directory, which it takes as the workspace root without searching elsewhere, and publishes a workspace production into `movies/<family>/<directory>`, named by `--name`, else by the npm-safe name derived from the directory segment as `create` derives one.
+ * - `sync` plans explicit generated-instruction updates for the directory holding `AGENTS.md`, preserves project contracts and content and refuses local conflicts; check reports pending updates without writing.
  *
- * Returns the process exit code, 0 after queuing the requested stdout text or 1 after queuing a caught error's message and distinct `cause` objects' messages without stacks. A repeated cause ends the chain. Reading or stringifying an unusual thrown value, or writing stderr, can itself throw; asynchronous stream failures are outside this synchronous catch. The executable assigns the result to `process.exitCode` so queued output can drain.
+ * `create` and `add` refuse a non-empty target without `--force`. On success they list the written files relative to the target, then the next steps. Completed and partial file effects stay after failure; the error names the completed files and the stopping entry. Prepared directories can remain even when no file was written.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Parsing finishes before rendering or publication, and path.resolve binds the supplied directory to the current working directory. A non-completed receipt becomes ScaffoldPublicationError, preserving the completed prefix and stopping outcome; describeError follows distinct cause values with a set to terminate cycles, but assumes their message access and string conversion do not throw.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure This dispatcher delegates admission, name normalization, and closing text to CLI owners and rendering and publication to the template package. Only bin.ts invokes it at module load, so importing run does not execute a request.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The catch deliberately reports synchronous failures without stacks and never retries publication or rolls back files. It does not special-case callers or fixtures; failure while formatting the caught value or writing stderr can still escape instead of returning exit 1.
- * @evidence contracts/development/common.md#meaningful-documentation The comment gives argv ownership, command effects, name and target derivation, retained file and directory effects, and the distinction between queued output, the returned status, and failures outside the synchronous catch.
- * @evidence contracts/development/implementation.md#efficient-algorithms For n files, rendering reads total bytes and sorts directory entries and the n rendered paths for deterministic order and collision reporting. Publication encodes those bytes and checks each path's ancestors before writing; listing scans completed paths once. Thus bytes, path lengths and depths, and n log n path comparisons drive start, rather than file count alone. Sync adds linear instruction reads and digests and the existing conditional publication path. Failure formatting additionally walks the distinct cause chain.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Start and sync take fresh filesystem observations and cannot reuse an earlier receipt. Check observes without publishing. Rendering reads the installed scaffold anew; only the template's per-call directory captures are reused and revalidated during that publication.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Rendered strings, encoded candidate bytes, receipt entries, and listing text scale with scaffold size; the cause set scales with chain length without a fixed cap. Template adapters attempt release on each outcome and report close failures without proving release. This dispatcher owns no descriptor or asynchronous task; queued stdout and stderr bytes belong to the process streams.
+ * Resolves to the process exit code, 0 after queuing the requested stdout text or 1 after queuing a caught error's message and distinct `cause` objects' messages without stacks. A repeated cause ends the chain. Reading or stringifying an unusual thrown value, or writing stderr, can itself throw. The executable assigns the result to `process.exitCode` so queued output can drain.
+ *
+ * @param argv The full process vector.
+ * @returns The exit code.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation Parsing finishes before rendering or publication, and path.resolve binds every target to the current working directory. A non-completed receipt becomes ScaffoldPublicationError, preserving the completed prefix and stopping outcome; describeError follows distinct cause values with a set to terminate cycles, but assumes their message access and string conversion do not throw.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure This dispatcher delegates admission, name choice, the prompt and closing text to CLI owners and rendering and publication to the template package. Only bin.ts invokes it at module load, so importing run does not execute a request.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `add` checks only the working directory for `pnpm-workspace.yaml` and never searches ancestors; only `create`'s next steps detect a package manager. The catch reports failures without stacks and never retries publication or rolls back files.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment gives argv ownership, every command's effect, name and target choice, retained file and directory effects, and the returned status.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For n files, rendering reads total bytes and sorts directory entries and the n rendered paths for deterministic order and collision reporting. Publication encodes those bytes and checks each path's ancestors before writing; listing scans completed paths once. Sync adds linear instruction reads and digests and the existing conditional publication path. Failure formatting additionally walks the distinct cause chain.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Every command takes fresh filesystem observations and cannot reuse an earlier receipt. Check observes without publishing. Rendering reads the installed scaffold anew; only the template's per-call directory captures are reused and revalidated during that publication.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Rendered strings, encoded candidate bytes, receipt entries, and listing text scale with scaffold size; the cause set scales with chain length without a fixed cap. The prompt closes its terminal interface before returning. This dispatcher owns no descriptor; queued stdout and stderr bytes belong to the process streams.
  */
-export function run(argv: readonly string[]): number {
+export async function run(argv: readonly string[]): Promise<number> {
   try {
     const command: AutoMovieCommand = readAutoMovieCommandArguments(
       argv.slice(2),
@@ -57,11 +83,10 @@ export function run(argv: readonly string[]): number {
       process.stdout.write(`${packageVersion()}\n`);
       return 0;
     }
-    const targetDir: string = path.resolve(process.cwd(), command.directory);
     if (command.command === "sync") {
+      const targetDir: string = path.resolve(process.cwd(), command.directory);
       const result: ReturnType<typeof syncScaffold> = syncScaffold({
         location: targetDir,
-        name: deriveAutoMovieProjectName(targetDir),
         check: command.check,
         baseline: command.baseline,
       });
@@ -88,28 +113,83 @@ export function run(argv: readonly string[]): number {
         ? 1
         : 0;
     }
-    const receipt: IScaffoldPublicationReceipt = publishFiles(
+    if (command.command === "add") {
+      const root: string = process.cwd();
+      if (!fs.existsSync(path.join(root, "pnpm-workspace.yaml")))
+        throw new Error(
+          `add runs at an AutoMovie workspace root, and ${root} has no pnpm-workspace.yaml; create one with automovie create <directory> --workspace.`,
+        );
+      const targetDir: string = path.join(
+        root,
+        "movies",
+        command.family,
+        command.directory,
+      );
+      publish(
+        targetDir,
+        renderWorkspaceProductionScaffold({
+          name: command.name ?? deriveAutoMovieProjectName(command.directory),
+        }),
+        command.force,
+        "workspace-production",
+      );
+      return 0;
+    }
+
+    // Create: a typed or derived name, else the terminal's answer for the working directory itself.
+    const targetDir: string = path.resolve(process.cwd(), command.directory);
+    const name: string =
+      selectAutoMovieProjectName({
+        directory: command.directory,
+        cwd: process.cwd(),
+        ...(command.name === undefined ? {} : { name: command.name }),
+      }) ?? (await promptAutoMovieProjectName());
+    publish(
       targetDir,
-      renderScaffold({ name: deriveAutoMovieProjectName(targetDir) }),
-      { force: command.force },
-    );
-    if (receipt.status !== "completed")
-      throw new ScaffoldPublicationError(receipt);
-    process.stdout.write(
-      `Scaffolded ${receipt.completed.length} files into ${targetDir}\n\n` +
-        receipt.completed
-          .map(
-            ({ entry }: IScaffoldCompletedPublication): string =>
-              `  ${entry.relative}`,
-          )
-          .join("\n") +
-        renderAutoMovieScaffoldNextSteps(targetDir),
+      command.workspace
+        ? renderWorkspaceScaffold({ name })
+        : renderScaffold({ name }),
+      command.force,
+      command.workspace ? "workspace" : "production",
+      selectAutoMoviePackageManager({
+        directory: targetDir,
+        ...(process.env.npm_config_user_agent === undefined
+          ? {}
+          : { userAgent: process.env.npm_config_user_agent }),
+      }),
     );
     return 0;
   } catch (error) {
     process.stderr.write(describeError(error));
     return 1;
   }
+}
+
+/**
+ * Publish one rendered installation, then list the written files and the next steps; a refused or partial receipt throws with its completed prefix.
+ */
+function publish(
+  targetDir: string,
+  files: Record<string, string>,
+  force: boolean,
+  kind: "production" | "workspace" | "workspace-production",
+  packageManager?: IAutoMoviePackageManager,
+): void {
+  const receipt: IScaffoldPublicationReceipt = publishFiles(targetDir, files, {
+    force,
+  });
+  if (receipt.status !== "completed")
+    throw new ScaffoldPublicationError(receipt);
+  process.stdout.write(
+    `Scaffolded ${receipt.completed.length} files into ${targetDir}\n\n` +
+      receipt.completed
+        .map(
+          ({ entry }: IScaffoldCompletedPublication): string =>
+            `  ${entry.relative}`,
+        )
+        .join("\n") +
+      renderAutoMovieScaffoldNextSteps(targetDir, kind, packageManager),
+  );
 }
 
 /**

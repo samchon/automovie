@@ -9,6 +9,8 @@
 node_modules/
 packages/cli/.cache/
 packages/template/.cache/
+packages/motions/.cache/
+packages/motions/media/
 lib/
 dist/
 
@@ -31,9 +33,9 @@ packages/*/src/**/*.js.map
 # declarations emitted beside a source are compiler output, just like JavaScript.
 packages/*/src/**/*.d.ts
 # the scaffold nests a whole project, so its own sources need the same rule
-packages/template/scaffold/src/**/*.js
-packages/template/scaffold/src/**/*.js.map
-packages/template/scaffold/src/**/*.d.ts
+packages/template/scaffold/production/src/**/*.js
+packages/template/scaffold/production/src/**/*.js.map
+packages/template/scaffold/production/src/**/*.d.ts
 # the suite is run straight through `ttsx`, so anything emitted beside a case is
 # transpiler spill rather than a source file.
 test/src/**/*.js

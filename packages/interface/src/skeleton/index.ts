@@ -7,3 +7,6 @@ export * from "./IAutoMovieJointAxes";
 export * from "./IAutoMovieJointConstraint";
 export * from "./IAutoMovieBone";
 export * from "./IAutoMovieSkeleton";
+export * from "./IAutoMovieBodyMeasure";
+export * from "./AutoMovieHumanoidRegion";
+export * from "./AutoMovieHumanoidSocket";

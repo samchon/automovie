@@ -1,6 +1,6 @@
 # @automovie/playground
 
-Private browser pages for developing AutoMovie: pages that exercise engine motion, film and physics. It is not published.
+Browser pages for developing AutoMovie. Each page exercises one part of the engine and viewer with its own example content. The package is private.
 
 ## Run
 
@@ -17,12 +17,10 @@ pnpm --filter @automovie/playground preview   # dist/ at http://127.0.0.1:4173
 | `index.html`, `drivers.html`, `stickman.html` | Procedural proportions, poses, IK, drivers and hand-authored clips |
 | `gesture.html`, `showcase.html`, `film.html` | Engine gestures, actions and the script-to-cut film pipeline |
 | `launch.html`, `impact.html`, `attach.html`, `trampoline.html` | Projectile, impact, attachment and jump actions |
-| `spar.html` | Boxing scene |
-| `recovery.html` | Saved image-loft coefficients, independent dimension edits, matched surface/construction passes and an optional independent static mesh reference |
-| `human.html` | Ordinary Human parameter editing, Apply, orbit controls and parameter JSON download |
+| `spar.html` | A boxing scene |
+| `recovery.html` | Saved image-loft coefficients, dimension edits, matched surface and construction passes, and an optional static mesh reference |
+| `human.html` | Human parameter editing |
 
-## Human
+On `human.html`, choose an example, edit the body controls in the parameters' units and select Apply; the figure is generated only then. Download saves the edited parameters as JSON.
 
-Open `human.html`, choose a typed example, edit body controls in their public units and select Apply. The page uses `AutoMovieHuman.generate` and the generic `buildModel` renderer; it generates only after Apply. Download saves the edited parameter document.
-
-Construction views, curve selection, part views, compiler diagnostics and Human PNG routes live in the Human package's [debug viewer](../human/debug/README.md). Run `pnpm debug` in `packages/human` to open it on port 5197.
+Construction views, curve selection and PNG frames served over HTTP are in the [debug viewer](../human/debug/README.md) of `@automovie/human`.

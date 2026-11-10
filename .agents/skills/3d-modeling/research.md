@@ -1,6 +1,6 @@
 # Research
 
-Use primary sources to choose a method and understand its limits, then read the contracts of the packages in use and inspect the actual result. These references supply options, not supported features, mandatory dependencies or reproduced benchmark results. Model, code and data licences and hardware support are separate checks at adoption; a research preview is not an accepted asset.
+Use primary sources to choose a method and understand its limits, then read the contracts of the packages in use and inspect the actual result. These references supply options, not supported features, mandatory dependencies or reproduced benchmark results. Model, code and data licenses and hardware support are separate checks at adoption; a research preview is not an accepted asset.
 
 | Primary source | Decision informed here |
 | --- | --- |
@@ -9,7 +9,5 @@ Use primary sources to choose a method and understand its limits, then read the 
 | [UniRig paper](https://arxiv.org/abs/2504.12451) and [official implementation](https://github.com/VAST-AI-Research/UniRig) | Learned skeleton and skinning acquisition can reduce manual work; inferred controls still need semantic characterization, supported conversion and pose and motion inspection |
 | [RigAnything](https://arxiv.org/abs/2502.09615) | Template-free joint, topology and skin-weight prediction is an optional rig source, not proof of usable controls for this asset or its target runtime |
 | [TRELLIS official implementation](https://github.com/microsoft/TRELLIS.2) | Image-to-3D geometry and material acquisition is separate from rigging and animation; check current platform and device requirements before adopting a local setup |
-| [Hunyuan3D](https://github.com/Tencent-Hunyuan/Hunyuan3D-2) | Shape and material generation can provide a fixed source for direct use or supported recovery; select by required edits and deformation |
-| [SMPL](https://smpl.is.tue.mpg.de/) and [AMASS](https://amass.is.tue.mpg.de/) | Parametric bodies and motion collections carry their own skeleton, pose, shape and rights conventions; map them explicitly to the target skeleton and rig |
 
 [Diffusion](diffusion.md), [Recovery](recovery.md), [Rigging](rigging.md) and [Visual Debugging](visual-debugging.md) own application. Research claims never waive fixed-source provenance or rendered-use checks.

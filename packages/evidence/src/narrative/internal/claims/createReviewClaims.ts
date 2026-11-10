@@ -6,14 +6,17 @@ import {
 import fs from "node:fs";
 import path from "node:path";
 
+import type { IContractLocation } from "../../../internal/IContractLocation";
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { AuthoredPass } from "../../AuthoredPass";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import type { ProductionStage } from "../../ProductionStage";
+import { constructionStage } from "../constructionStage";
 import { hasNaturalness } from "../hasNaturalness";
 import { createLineageReference } from "../references/createLineageReference";
 import { createSharedReference } from "../references/createSharedReference";
 import { PACKAGE_DOCS_ROOT } from "../utilities/PACKAGE_DOCS_ROOT";
+import { createContractDirectory } from "../utilities/createContractDirectory";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 import { passRoot } from "../utilities/passRoot";
 
@@ -41,7 +44,7 @@ import { passRoot } from "../utilities/passRoot";
  *
  * @evidence contracts/development/implementation.md#principled-implementation Actual in-scope direct review files or a verdict select the canonical population exclusively; otherwise the highest numeric legacy round supplies exact current-review lineage and a separate file-level verdict obligation, with stages preserved.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One root selector keeps current-versus-legacy admission separate from the unchanged unit bijection, freshness and whole-population verdict claims.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Older contract families and not-yet-created review roots yield no claims; native inactive populations do not establish that independent review occurred.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Older contract families, probed in the shared skills tree that also roots their references, and not-yet-created review roots yield no claims; native inactive populations do not establish that independent review occurred.
  * @evidence contracts/development/common.md#meaningful-documentation The prose states canonical admission, exclusive legacy fallback, current-review invalidation, H2 bijection, verdict ownership and optional roots/contracts.
  * @evidence contracts/development/implementation.md#efficient-algorithms Up to two editions scan entries only as deep as their actual selectors; directory entries and native glob matching dominate, with a linear root scan for legacy selection when no canonical file exists.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each edition reuses its resolved files, selected root and lineage for both claims; filesystem observation repeats per config build so new current files replace legacy selection.
@@ -52,7 +55,7 @@ export function createReviewClaims(
   layer: AuthoredLayer,
 ): IEvidenceClaim[] {
   const passes: [AuthoredPass, ProductionStage][] = [
-    ["draft", props.construction[layer]],
+    ["draft", constructionStage(props, layer)],
     ...(hasNaturalness(layer)
       ? [
           ["final", props.naturalness.screenplay] as [
@@ -62,11 +65,8 @@ export function createReviewClaims(
         ]
       : []),
   ];
-  const principles: boolean = installed(props.location, "principles/review.md");
-  const obligations: boolean = installed(
-    props.location,
-    "obligations/review.md",
-  );
+  const principles: boolean = installed(props, "principles/review.md");
+  const obligations: boolean = installed(props, "obligations/review.md");
   if (!principles && !obligations) return [];
   const files: string[] = createUnitFiles(layer, props.narrativeScope);
 
@@ -108,7 +108,7 @@ export function createReviewClaims(
             ...(principles
               ? [
                   createSharedReference({
-                    location: props.location,
+                    contracts: props,
                     file: "principles/review.md",
                     checklist: true,
                     exclusion: false,
@@ -128,7 +128,7 @@ export function createReviewClaims(
                 disabled,
                 reference: {
                   ...createSharedReference({
-                    location: props.location,
+                    contracts: props,
                     file: "obligations/review.md",
                     checklist: false,
                     exclusion: false,
@@ -252,7 +252,7 @@ function hasCurrentReview(
 /**
  * Reports whether one review-family document is installed.
  *
- * Principled implementation: The fixed scaffold contract root and the requested relative family path identify the installed optional review question document.
+ * Principled implementation: The shared story tree from createContractDirectory and the requested relative family path identify the installed optional review question document, wherever a workspace keeps the shared tree.
  * Clear and simple design: This private predicate keeps optional-family discovery separate from review host selection and native evaluation.
  * Prohibited implementation shortcuts: Existence only determines whether the optional family is installed; native extraction still owns readable valid contract content and cannot be replaced by this probe.
  * Meaningful documentation: The comment identifies optional review-family document discovery; the caller supplies the two supported relative contract paths.
@@ -260,14 +260,10 @@ function hasCurrentReview(
  * Reuse equivalent work: Each factory build observes current installation instead of caching a mutable contract path's existence.
  * Bound retention and release resources: The temporary path and synchronous probe retain no cache, open handle or task.
  */
-function installed(location: string, file: string): boolean {
+function installed(contracts: IContractLocation, file: string): boolean {
   return fs.existsSync(
     path.join(
-      location,
-      ".agents",
-      "skills",
-      "contracts",
-      "story",
+      createContractDirectory(contracts, "shared"),
       "shared",
       ...file.split("/"),
     ),

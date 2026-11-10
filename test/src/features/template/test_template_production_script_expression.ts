@@ -29,7 +29,7 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * @evidence contracts/development/testing.md#independent-expectations The lifecycle requires script unit expression and population duties during construction, independently of screenplay revision; a missing answer must block rather than be deferred to a frozen edition. Fixture certification supplies native fingerprints, not creative approval.
  * @evidence contracts/development/testing.md#distinguishing-cases Missing unit and population answers distinguish their independent native duties; restored answers establish complete coverage. Language and work duties exercise the same construction respondents. Unsupported script naturalness settings and both legacy source tuples fail configuration validation.
  * @evidence contracts/development/testing.md#execution-ownership The exported asynchronous entry evaluates public APIs in process and owns its temporary files under finally, without an installed consumer, subprocess, browser, GPU or replacement of a foreign method.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Missing unit expression answers block construction despite valid content.).
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
  */
 export async function test_template_production_script_expression(): Promise<void> {
   const root: string = ProductionWorkflowFixture.create();
@@ -85,12 +85,12 @@ export async function test_template_production_script_expression(): Promise<void
 
     ProductionWorkflowFixture.write(
       root,
-      ".agents/skills/contracts/story/language/naturalness/scripts.md",
+      "docs/contracts/language/naturalness/scripts.md",
       "# Language\n\n## Idiom {#idiom}\n\nUse the scene's adopted idiom.\n",
     );
     ProductionWorkflowFixture.write(
       root,
-      ".agents/skills/contracts/story/language/naturalness/obligations/scripts.md",
+      "docs/contracts/language/naturalness/obligations/scripts.md",
       "# Language population\n\n## Voices {#voices}\n\nCompare voices across the population.\n",
     );
     assert.equal((await inspect()).report.success, false);
@@ -132,12 +132,12 @@ export async function test_template_production_script_expression(): Promise<void
       } else {
         ProductionWorkflowFixture.write(
           root,
-          ".agents/skills/contracts/story/work/naturalness/scripts.md",
+          "docs/contracts/work/naturalness/scripts.md",
           "# Work\n\n## Expression {#expression}\n\nRealize the adopted expression.\n",
         );
         ProductionWorkflowFixture.write(
           root,
-          ".agents/skills/contracts/story/work/obligations/expression-scripts.md",
+          "docs/contracts/work/obligations/expression-scripts.md",
           "# Work population\n\n## Expression {#expression}\n\nCompare the adopted expression.\n",
         );
         const claims: IEvidenceClaim[] = [...unitClaim(), ...populationClaim()];

@@ -1,6 +1,6 @@
 # @automovie/website
 
-The public site at [samchon.github.io/automovie](https://samchon.github.io/automovie/). It presents four productions from [`experimental`](../experimental), an ancient temple, a medieval manor, a modern suburban house and a future citizen house, as 3D tours built from each production's source.
+The public site at [samchon.github.io/automovie](https://samchon.github.io/automovie/). It presents four buildings, an ancient temple, a medieval manor, a modern suburban house and a future citizen house, as 3D tours built from source.
 
 ## Commands
 

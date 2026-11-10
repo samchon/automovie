@@ -4,8 +4,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { createAutoMovieRecoveryArtifact } from "../../../../packages/template/scaffold/src/integrations/recovery/node/artifact/createAutoMovieRecoveryArtifact";
-import { writeAutoMovieRecoveryArtifact } from "../../../../packages/template/scaffold/src/integrations/recovery/node/artifact/writeAutoMovieRecoveryArtifact";
+import { createAutoMovieRecoveryArtifact } from "../../../../packages/template/scaffold/production/src/executable/recovery/node/artifact/createAutoMovieRecoveryArtifact";
+import { writeAutoMovieRecoveryArtifact } from "../../../../packages/template/scaffold/production/src/executable/recovery/node/artifact/writeAutoMovieRecoveryArtifact";
 import { createBicubicPlaneRecipe } from "../internal/createBicubicPlaneRecipe";
 
 /**

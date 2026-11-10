@@ -1,0 +1,33 @@
+# Video diffusion models
+
+The models below are representative examples, not a complete or required list; any model the user prefers or a newer release can serve. Their values change between versions, so the linked documentation, read when planning, owns them; the table only shows how differently models take a motion hint.
+
+| Model | Takes the hint as | Output | References | Prompt | Sound | Documentation |
+| --- | --- | --- | --- | --- | --- | --- |
+| Runway Aleph 2.0 | Video to edit or restyle, 2 to 30 s at up to 30 fps | Input length, up to 1080p | Up to 5 timed keyframe images | Up to 1,000 characters | None documented | [Models](https://docs.dev.runwayml.com/guides/models.md), [prompting](https://help.runwayml.com/hc/en-us/articles/52150503729171-Aleph-2-0-Prompting-Guide) |
+| Kling 4.0 Omni | Video to edit, plus up to 5 reference videos totaling 3 to 30 s | 3 to 30 s, 720p or 1080p, 24 fps | Up to 15 assets per request | Up to 26,000 characters, no negative field or seed | Depends on the mode | [API](https://kling.ai/document-api/api/video/4-0/video-omni), [guide](https://kling.ai/quickstart/kling-4-model-user-guide) |
+| Kling Motion Control | One figure's body motion from a continuous take, 3 to 30 s | Length of the motion video | One character image | Up to 2,500 characters | Not documented | [Guide](https://kling.ai/quickstart/motion-control-user-guide) |
+| Seedance 2.5 | Video to edit or extend, or up to 10 reference videos totaling 30 s | 4 to 30 s, 24 fps | Images and videos; references with real human faces are rejected | Not documented | Generated, mono | [Model](https://docs.byteplus.com/en/docs/ModelArk/seedance-2-5), [prompting](https://docs.byteplus.com/en/docs/ModelArk/seedance-2-0-prompt-guide) |
+| MiniMax-H3 | Up to 3 reference videos totaling 15 s | 4 to 15 s, 768P or 2K, 24 fps | Images and videos | Up to 7,000 characters | Generated, stereo | [Guide](https://platform.minimax.io/docs/guides/video-generation), [prompting](https://huggingface.co/MiniMaxAI/MiniMax-H3/raw/main/docs/VIDEO_PROMPT_WRITING_GUIDE_ref_en.md) |
+| Gemini Omni Flash | Video to edit, up to 15 s; not offered in the EEA, Switzerland or the UK | 3 to 15 s, 24 fps | Up to 6 images, at most 3 per character for 2 characters | No negative field | Generated | [Omni](https://aistudio.google.com/docs/omni) |
+| Veo 3.1 | Still frames only: a first frame, or first and last frames | 4, 6 or 8 s, 24 fps | Up to 3 images of one subject | Negative prompt and seed | Generated | [Reference](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/model-reference/veo-video-generation), [prompting](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/video-gen-prompt-guide) |
+| Luma Ray 3.2 | Video to edit, up to 18 s, at one of nine strengths from adhere to reimagine | 5 or 10 s generated, 24 fps | Start or end frame | Up to 6,000 characters, no negative field | None | [Editing](https://docs.agents.lumalabs.ai/guides/videos/editing) |
+| LTX-2.5, open weights | The RGB hint through the Layout-To-Render adapter, or one depth, edge or pose pass through Union Control | Frame count 8n+1, 24 fps, sides divisible by 32 | A first frame carries the look | One or two sentences for Layout-To-Render | Generated | [Layout-To-Render](https://docs.ltx.io/open-source-model/vfx-post-production/layout-to-render.md), [IC-LoRA](https://docs.ltx.io/open-source-model/usage-guides/ic-lo-ra.md), [prompting](https://docs.ltx.io/api-documentation/implementation-guides/prompting-guide.md) |
+| Wan VACE and Wan Fun Control, open weights | Depth, pose, edge, scribble, layout or mask passes, combinable | 81 frames at 16 fps, frame count 4n+1, sides divisible by 16 | Reference images | Up to 512 text-encoder tokens | None | [VACE](https://github.com/ali-vilab/VACE), [Wan2.2](https://github.com/Wan-Video/Wan2.2) |
+
+## Match how the model takes the hint
+
+How closely a model keeps the hint follows from how it takes it:
+
+| Model kind | What it keeps of the hint |
+| --- | --- |
+| Open weights with control channels | The hint's own pose, depth or layout channels, exactly |
+| Hosted, edits or restyles a video | Motion and camera, most directly among hosted models |
+| Hosted, reads a reference video | Motion and camera as guidance; it may move figures |
+| Hosted, takes still frames | Only the first and last frames |
+
+Hosted models take the hint as RGB video at most and derive any structure from it themselves. Choose an open model with control channels when exact positions, contacts and camera outweigh its setup cost.
+
+Render the hint at the model's frame rate, frame grid and size, because a model snaps other lengths to its grid and drops or shortens frames.
+
+Read each model's terms before adopting it: territory limits, rejected reference content such as real faces, revenue thresholds and labeling duties for open weights, and price per second.

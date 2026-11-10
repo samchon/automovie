@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
 
-import { archiveAutoMovieRecoveryModel } from "../../../../packages/template/scaffold/src/integrations/recovery/node/artifact/archiveAutoMovieRecoveryModel";
+import { archiveAutoMovieRecoveryModel } from "../../../../packages/template/scaffold/production/src/executable/recovery/node/artifact/archiveAutoMovieRecoveryModel";
 
 /**
  * Lossless model storage preserves logical bytes and limits served-file retirement.

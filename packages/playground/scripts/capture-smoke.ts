@@ -6,7 +6,7 @@ import type { Readable } from "node:stream";
 import { chromium } from "playwright-core";
 import { PNG } from "pngjs";
 
-import { createHeadlessCaptureAdapter } from "../../template/scaffold/src/integrations/render/headlessCapture/createHeadlessCaptureAdapter";
+import { createHeadlessCaptureAdapter } from "../../template/scaffold/production/src/executable/render/headlessCapture/createHeadlessCaptureAdapter";
 import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE";
 import { preserveCleanupFailure } from "./preserveCleanupFailure";
 

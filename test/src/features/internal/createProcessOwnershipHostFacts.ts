@@ -1,4 +1,4 @@
-import type { IProcessOwnershipHost } from "../../../../packages/template/scaffold/src/integrations/viewer/process/internal/IProcessOwnershipHost";
+import type { IProcessOwnershipHost } from "../../../../packages/template/scaffold/production/src/executable/viewer/process/internal/IProcessOwnershipHost";
 
 /** Values arranged by existing portable admission tests, without native effects. */
 type ProcessHostFacts = {

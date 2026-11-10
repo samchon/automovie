@@ -1,0 +1,9 @@
+# Brief requirement discovery
+
+The discovery result covers all instructions, adopted promises, references, assets and planned films under the [common discovery boundary](common.md#requirement-ownership).
+
+Statements: [statements/discovery/brief.md](../statements/discovery/brief.md).
+
+## Were instructions and planned films translated into needed owners and a usable form? {#instructions-and-backcast}
+
+Before bulk brief writing, was each instruction taken apart into what it actually requires, with an owner for every part, and were the planned films read for the decisions they would otherwise make up? A requirement left whole is easy to believe kept and hard to check.

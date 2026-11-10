@@ -6,7 +6,7 @@ import type { ProductionStage } from "./ProductionStage";
  * @evidence contracts/development/design.md#principled-representation The stage object selects route-specific construction claims and a long-route outline override; native references carry the actual parents, while independent review judges their completion.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Scalar layer stages and the optional outline override express the actual construction chain without an alternate scripts edition.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Runtime source validation rejects invalid stages and unsupported tuples rather than treating the interface as proof of validity.
- * @evidence contracts/development/common.md#meaningful-documentation Members define the long-route outline fallback and actual screenplay prerequisites for all three narrative routes.
+ * @evidence contracts/development/common.md#meaningful-documentation Members define the long-route outline fallback, the optional short-route brief and actual screenplay prerequisites for all three narrative routes.
  */
 export interface IProductionConstruction {
   /**
@@ -19,8 +19,16 @@ export interface IProductionConstruction {
    */
   index?: ProductionStage;
 
-  /** Settings is the source layer and has no upstream references. */
+  /** Settings is the long route's source layer and has no upstream references. */
   settings: ProductionStage;
+
+  /**
+   * Sets the short route's brief construction stage.
+   *
+   * The brief is the short route's source layer and has no upstream references.
+   * Omitted, it is disabled.
+   */
+  brief?: ProductionStage;
 
   /**
    * Sets the treatments construction stage.
@@ -40,8 +48,8 @@ export interface IProductionConstruction {
    * Sets the screenplay construction stage.
    *
    * Requires approved scripts and treatments construction in long productions.
-   * Compact short productions require approved settings construction.
-   * Direct short productions enter without invented parents.
+   * Short productions require approved brief construction, and compact
+   * short productions approved settings construction.
    */
   screenplay: ProductionStage;
 }

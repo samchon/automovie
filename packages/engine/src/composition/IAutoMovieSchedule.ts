@@ -50,5 +50,17 @@ export namespace IAutoMovieSchedule {
 
     /** The production's state snapshot after this entry, when its state function gives one. */
     readonly state?: unknown;
+
+    /** Where the intent was cut, when it was: the share of its full duration and the event named, if any. */
+    readonly cut?: { readonly share: number; readonly event?: string };
+
+    /** The intent's named events in film seconds, as its timing declared them, before any cut. */
+    readonly events?: readonly {
+      readonly name: string;
+      readonly seconds: number;
+    }[];
+
+    /** The walk-order index of the entry that starts at this one's cut, when one does. */
+    readonly interruptedBy?: number;
   }
 }

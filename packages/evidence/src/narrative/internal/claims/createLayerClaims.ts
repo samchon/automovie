@@ -4,7 +4,9 @@ import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import type { ProductionStage } from "../../ProductionStage";
 import { createNarrativeUnitFiles } from "../../createNarrativeUnitFiles";
+import { constructionStage } from "../constructionStage";
 import { hasNaturalness } from "../hasNaturalness";
+import { isCanonLayer } from "../isCanonLayer";
 import { createCoverageReference } from "../references/createCoverageReference";
 import { createLanguagePrincipleReferences } from "../references/createLanguagePrincipleReferences";
 import { createLineageReference } from "../references/createLineageReference";
@@ -23,8 +25,9 @@ import { createSettingCoverageClaim } from "./createSettingCoverageClaim";
  * while the file claim carries relationships an authored file holds with
  * surrounding layers.
  *
- * What differs between layers is which parents exist. Settings inherits
- * nothing, so it has no construction file claim. Treatments account for settings.
+ * What differs between layers is which parents exist. Canon, settings or a
+ * short's brief, inherits nothing, so it has no construction file claim.
+ * Treatments account for settings, and a short's screenplay for its brief.
  * Scripts realize the treatments they divide, and screenplay additionally preserves
  * the script partition exactly.
  *
@@ -35,23 +38,23 @@ import { createSettingCoverageClaim } from "./createSettingCoverageClaim";
  *
  * @evidence contracts/development/implementation.md#principled-implementation Construction H2 claims, file inheritance and independent naturalness claims use native reference flags for per-unit checklists, treatment coverage and exact script/frozen lineage; naturalness hosts the working tree and targets its frozen construction.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One layer factory centralizes stage/root/parent choices, while population obligations, discovery and review remain separate factories with their distinct respondents.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Direct screenplay invents no treatment or script parents; compact short cites its actual settings; settings has no inherited file claim, and only screenplay receives separate naturalness claims, while scripts construction selects its expression questions.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Short screenplay cites its actual brief and compact short its actual settings without invented treatment or script parents; canon has no inherited file claim, and only screenplay receives separate naturalness claims, while scripts construction selects its expression questions.
  * @evidence contracts/development/common.md#meaningful-documentation The prose distinguishes unit/population duties, layer-specific parents and body versus working hosts; nearby comments explain topology capture and frozen-reference ownership.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of claims and reference families are constructed per layer; helper existence probes dominate most layers, while treatments and compact screenplay also enumerate settings files for coverage, whose scans and sorting scale with the installed canon.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of claims and reference families are constructed per layer; helper existence probes dominate most layers, while treatments and short screenplay also enumerate canon files for coverage, whose scans and sorting scale with the installed canon.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Unit/topology selectors, parent-reference builders and scalar stages are reused within the construction; each build refreshes filesystem-dependent contract/canon observations instead of retaining stale config results.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned native claims own their layer-family objects and any settings-derived references; synchronous discovery leaves no filesystem handle or background task open.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned native claims own their layer-family objects and any canon-derived references; synchronous discovery leaves no filesystem handle or background task open.
  */
 export function createLayerClaims(
   props: IProductionConfigProps,
   layer: AuthoredLayer,
 ): IEvidenceClaim[] {
-  const stage: ProductionStage = props.construction[layer];
+  const stage: ProductionStage = constructionStage(props, layer);
   const disabled: boolean = stage === "disabled";
   const files: string[] = createUnitFiles(layer, props.narrativeScope);
 
   // Indexes and invalid paths must enter the same snapshot as the authored H2s.
   const topology: string[] =
-    layer === "settings"
+    isCanonLayer(layer)
       ? files
       : createTopologyFiles(layer, props.narrativeScope);
 
@@ -80,7 +83,7 @@ export function createLayerClaims(
 
   const naturalness: IEvidenceReference[] = [
     ...createPrincipleReferences({
-      location: props.location,
+      contracts: props,
       layer,
       gate: "naturalness",
     }),
@@ -96,7 +99,7 @@ export function createLayerClaims(
     layer === "scripts" ? naturalness : [];
 
   const inherits: string =
-    layer === "settings" ? "" : ", and account for the layers they inherit";
+    isCanonLayer(layer) ? "" : ", and account for the layers they inherit";
   const unit: IEvidenceClaim = {
     name: `${layer} H2 units answer their principle checklists${inherits}`,
     type: "markdown",
@@ -106,7 +109,7 @@ export function createLayerClaims(
     disabled,
     reference: [
       ...createPrincipleReferences({
-        location: props.location,
+        contracts: props,
         layer,
         gate: "layer",
       }),
@@ -115,9 +118,7 @@ export function createLayerClaims(
         layer,
         gate: "layer",
       }),
-      ...(layer === "settings"
-        ? []
-        : [createUpstreamReference(props.location, layer)]),
+      ...(isCanonLayer(layer) ? [] : [createUpstreamReference(props, layer)]),
       ...expression,
       ...parents("h2"),
     ],
@@ -152,13 +153,14 @@ export function createLayerClaims(
         },
       ]
     : [];
-  if (layer === "settings") return [unit, ...surface];
+  if (isCanonLayer(layer)) return [unit, ...surface];
 
   const coverage: IEvidenceClaim | undefined =
-    layer === "treatments" ||
-    (layer === "screenplay" && props.mode === "short-with-settings")
+    layer === "treatments"
       ? createSettingCoverageClaim(props, layer)
-      : undefined;
+      : layer === "screenplay" && props.mode === "short"
+        ? createSettingCoverageClaim(props, layer, "brief")
+        : undefined;
   return [
     {
       name: `${layer} unit files account for the layers they inherit`,

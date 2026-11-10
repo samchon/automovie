@@ -7,14 +7,14 @@ import type { NarrativeScope } from "./NarrativeScope";
 /**
  * Selects narrative claim families, their stages and additional native claims.
  *
- * @evidence contracts/development/design.md#principled-representation The route, absolute location, authored scope and stage maps select native narrative respondents; extra claims and engineering support remain ordinary native claims.
+ * @evidence contracts/development/design.md#principled-representation The route, absolute location, optional absolute shared skills tree, authored scope and stage maps select native narrative respondents; extra claims and engineering support remain ordinary native claims.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One configuration object groups the options needed by the shared claim collector.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Stages select structural evidence and never certify creative completion; native Evidence evaluates the resulting graph.
- * @evidence contracts/development/common.md#meaningful-documentation Members explain route, location, scope, stages and additive claims; the production owns independent creative review.
+ * @evidence contracts/development/common.md#meaningful-documentation Members explain route, location, the shared skills tree and its default, scope, stages and additive claims; the production owns independent creative review.
  */
 export interface IProductionConfigProps {
-  /** Chooses four-layer long work, direct short screenplay, compact settings plus screenplay, or standalone assets. */
-  mode: "long" | "short" | "short-with-settings" | "asset";
+  /** Chooses four-layer long work, short brief plus screenplay, or standalone assets. */
+  mode: "long" | "short" | "asset";
 
   /** Engineering duties participate globally without a narrative parent. */
   supportClaims?: IEvidenceClaim[];
@@ -25,6 +25,19 @@ export interface IProductionConfigProps {
    * Use its absolute directory so package and shared files resolve correctly.
    */
   location: string;
+
+  /**
+   * Points to the shared `.agents/skills` tree holding the bundled contracts.
+   *
+   * Use its absolute directory. A workspace passes its root tree, so the shared
+   * story contracts resolve there, while the production's own `work` and
+   * `language` contracts always stay under `<location>/docs/contracts`. Omit it for a
+   * standalone production, whose shared contracts sit under its own
+   * `.agents/skills`.
+   *
+   * @default path.join(location, ".agents", "skills")
+   */
+  skills?: string;
 
   /** Selects the complete work or one exact first-part pilot slice. */
   narrativeScope: NarrativeScope;

@@ -5,7 +5,9 @@ import type {
 import fs from "node:fs";
 import path from "node:path";
 
+import type { IContractLocation } from "../../../internal/IContractLocation";
 import type { AuthoredLayer } from "../../AuthoredLayer";
+import { createContractDirectory } from "../utilities/createContractDirectory";
 import { createSharedReference } from "./createSharedReference";
 import { layerFiles } from "./layerFiles";
 
@@ -24,8 +26,8 @@ import { layerFiles } from "./layerFiles";
  * the questions a layer can be content-complete while still failing.
  * Both gates ask a unit about its own body; they differ in when.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Common, inherited narrative, realized-text and layer-specific files become non-excludable per-unit H2 checklists in the selected construction/naturalness family; only declared optional family files are filtered by installation.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One layer axis is reused for both gates, while family admission remains distinct from language modules and population obligations.
+ * @evidence contracts/development/implementation.md#principled-implementation Common, inherited narrative, realized-text and layer-specific files become non-excludable per-unit H2 checklists in the selected construction/naturalness family; only declared optional family files are filtered by installation, probed in the shared skills tree that createContractDirectory resolves, where createSharedReference also roots the references.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One layer axis is reused for both gates, while family admission remains distinct from language modules and population obligations; the owning tree is decided by createContractDirectory, not rebuilt here.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Required construction files stay selected when missing so native compilation diagnoses the broken tree; sparse naturalness files and older realized contracts are the explicit compatibility cases.
  * @evidence contracts/development/common.md#meaningful-documentation The prose explains who can answer each scope, why literal-text questions apply only to realized layers, and the two gate timings.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most four layer-file candidates require a bounded number of optional-file probes and fixed-size reference constructions; no manuscript traversal occurs.
@@ -33,7 +35,7 @@ import { layerFiles } from "./layerFiles";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Intermediate file lists and returned references have a fixed family bound; config owns the result and synchronous existence checks retain no handle or running task.
  */
 export function createPrincipleReferences(props: {
-  location: string;
+  contracts: IContractLocation;
   layer: AuthoredLayer;
   gate: "layer" | "naturalness";
 }): IEvidenceReference[] {
@@ -42,11 +44,7 @@ export function createPrincipleReferences(props: {
   const installed: (file: string) => boolean = (file: string): boolean =>
     fs.existsSync(
       path.join(
-        props.location,
-        ".agents",
-        "skills",
-        "contracts",
-        "story",
+        createContractDirectory(props.contracts, "shared"),
         "shared",
         ...family.split("/"),
         file,
@@ -64,7 +62,7 @@ export function createPrincipleReferences(props: {
     .map(
       (file: string): IEvidenceMarkdownReference =>
         createSharedReference({
-          location: props.location,
+          contracts: props.contracts,
           file: `${family}/${file}`,
           checklist: true,
           exclusion: false,

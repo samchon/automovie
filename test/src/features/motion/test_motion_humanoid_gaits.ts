@@ -1,4 +1,3 @@
-import { HUMANOID_GAITS, HUMANOID_PROFILE } from "@automovie/archetypes";
 import {
   bindProfileGaits,
   gaitMotion,
@@ -11,6 +10,7 @@ import {
   IAutoMovieGaitLimb,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
+import { HUMANOID_GAITS, HUMANOID_PROFILE } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";

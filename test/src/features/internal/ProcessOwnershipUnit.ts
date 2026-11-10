@@ -1,11 +1,11 @@
 import type { ChildProcess, SpawnSyncReturns } from "node:child_process";
 
-import { type ProcessOwnership } from "../../../../packages/template/scaffold/src/integrations/viewer/process/ProcessOwnership";
-import { ProcessOwnershipController } from "../../../../packages/template/scaffold/src/integrations/viewer/process/internal/ProcessOwnershipController";
-import { decodeLinuxProcessIdentity } from "../../../../packages/template/scaffold/src/integrations/viewer/process/internal/decodeLinuxProcessIdentity";
-import { decodePosixProcessIdentity } from "../../../../packages/template/scaffold/src/integrations/viewer/process/internal/decodePosixProcessIdentity";
-import { decodeWindowsProcessResult } from "../../../../packages/template/scaffold/src/integrations/viewer/process/internal/decodeWindowsProcessResult";
-import { resolveProcessIdentityReadError } from "../../../../packages/template/scaffold/src/integrations/viewer/process/internal/resolveProcessIdentityReadError";
+import { type ProcessOwnership } from "../../../../packages/template/scaffold/production/src/executable/viewer/process/ProcessOwnership";
+import { ProcessOwnershipController } from "../../../../packages/template/scaffold/production/src/executable/viewer/process/internal/ProcessOwnershipController";
+import { decodeLinuxProcessIdentity } from "../../../../packages/template/scaffold/production/src/executable/viewer/process/internal/decodeLinuxProcessIdentity";
+import { decodePosixProcessIdentity } from "../../../../packages/template/scaffold/production/src/executable/viewer/process/internal/decodePosixProcessIdentity";
+import { decodeWindowsProcessResult } from "../../../../packages/template/scaffold/production/src/executable/viewer/process/internal/decodeWindowsProcessResult";
+import { resolveProcessIdentityReadError } from "../../../../packages/template/scaffold/production/src/executable/viewer/process/internal/resolveProcessIdentityReadError";
 import type { createProcessOwnershipHostFacts } from "./createProcessOwnershipHostFacts";
 
 type ChildObservation = Pick<ChildProcess, "pid" | "exitCode" | "signalCode">;

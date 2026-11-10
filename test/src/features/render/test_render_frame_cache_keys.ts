@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { composeAutoMovieArtifactKey } from "../../../../packages/engine/src/cache/composeAutoMovieArtifactKey";
 import { planAutoMovieArtifacts } from "../../../../packages/engine/src/cache/planAutoMovieArtifacts";
-import { composeViewerFrameKeys } from "../../../../packages/template/scaffold/src/integrations/render/node/cache/composeViewerFrameKeys";
+import { composeViewerFrameKeys } from "../../../../packages/template/scaffold/production/src/executable/render/node/cache/composeViewerFrameKeys";
 
 /**
  * Viewer frame keys change exactly when a frame's pixels may change.

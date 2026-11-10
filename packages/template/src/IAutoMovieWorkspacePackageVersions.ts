@@ -9,9 +9,6 @@
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the keys, where each value comes from, its form, and where it ends up; the members name the published package each range belongs to.
  */
 export interface IAutoMovieWorkspacePackageVersions {
-  /** Range of `@automovie/archetypes`. */
-  archetypes: string;
-
   /** Range of `automovie`, the command-line package. */
   cli: string;
 
@@ -29,6 +26,9 @@ export interface IAutoMovieWorkspacePackageVersions {
 
   /** Range of `@automovie/interface`. */
   interface: string;
+
+  /** Range of `@automovie/motions`. */
+  motions: string;
 
   /** Range of `@automovie/recovery`. */
   recovery: string;

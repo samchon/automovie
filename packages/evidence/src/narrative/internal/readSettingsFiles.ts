@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { SETTINGS_DOMAINS } from "./SETTINGS_DOMAINS";
+
 /**
  * Lists canon paths in reading order: the scaffold's domain folders, numbered
  * subject folders, or legacy flat settings retained without rewriting them.
@@ -27,18 +29,20 @@ export function readSettingsFiles(root: string): string[] {
   for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
     if (entry.isFile() && entry.name.endsWith(".md")) files.push(entry.name);
     else if (entry.isDirectory() && entry.name !== "outline") {
-      if (DOMAINS.includes(entry.name)) domains.push(entry.name);
+      if (SETTINGS_DOMAINS.includes(entry.name)) domains.push(entry.name);
       else if (NUMBERED.test(entry.name)) numbered.push(entry.name);
       else
         throw new Error(
-          `${path.join(root, entry.name)}: settings folders are the domains ${DOMAINS.join(", ")}, or NNN-lower-kebab-case subject folders.`,
+          `${path.join(root, entry.name)}: settings folders are the domains ${SETTINGS_DOMAINS.join(", ")}, or NNN-lower-kebab-case subject folders.`,
         );
     } else if (entry.isSymbolicLink())
       throw new Error(
         `${path.join(root, entry.name)}: settings does not follow symbolic links.`,
       );
   }
-  if ([files.length, numbered.length, domains.length].filter(Boolean).length > 1)
+  if (
+    [files.length, numbered.length, domains.length].filter(Boolean).length > 1
+  )
     throw new Error(
       `${root}: flat, domain and numbered settings layouts cannot be mixed.`,
     );
@@ -46,7 +50,7 @@ export function readSettingsFiles(root: string): string[] {
   // Domain folders read in the scaffold's domain order, files alphabetically.
   if (domains.length) {
     const classified: string[] = [];
-    for (const domain of DOMAINS.filter((d: string): boolean =>
+    for (const domain of SETTINGS_DOMAINS.filter((d: string): boolean =>
       domains.includes(d),
     )) {
       const entries: string[] = list(root, domain, KEBAB_FILE);
@@ -76,17 +80,6 @@ export function readSettingsFiles(root: string): string[] {
   }
   return numbered.length ? classified : files.sort(compare);
 }
-
-/** The scaffold's settings domains, in reading order. */
-const DOMAINS: readonly string[] = [
-  "world",
-  "cast",
-  "crowds",
-  "props",
-  "sets",
-  "cinematography",
-  "sound",
-];
 
 /** A numbered subject folder name. */
 const NUMBERED: RegExp = /^[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*$/u;
