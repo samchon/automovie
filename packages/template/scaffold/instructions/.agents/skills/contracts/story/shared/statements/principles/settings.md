@@ -29,6 +29,6 @@ Contract: [principles/settings.md](../../principles/settings.md).
 4. The record states facts in prose for readers and never describes code. Rendering and generation controls belong to the production's source.
 5. The record establishes world facts, baseline states and change conditions.
 6. Chosen events, causal progression, choices, results, setups, payoffs and reveal order are left to treatments.
-7. A fixed historical result or time-specific status may constrain treatments without prewriting how the film reaches or reveals it.
+7. Where a fixed historical result or time-specific status constrains treatments, the record does not prewrite how the film reaches or reveals it.
 8. A lasting state a later layer established, such as a wound or a revealed relationship, is recorded here and cites the unit that established it.
 9. The cinematography domain owns the film's look. Editing and audience access belong to production instructions or work contracts, and a character's voice remains a world property.

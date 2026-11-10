@@ -30,7 +30,7 @@ Contract: [principles/narratives.md](../../principles/narratives.md).
 6. Changed vocabulary or a few search matches do not establish the comparison.
 7. Needed inherited values are carried without an inert inventory, and already complete short artifacts are preserved without ornamental variation.
 8. Copied realization is judged apart from defective parent design.
-9. A parent with one of these defects goes to this layer's upstream item ([treatments](../../upstream/treatments.md#settings-repair), [scripts](../../upstream/scripts.md#script-upstream-repair) or [screenplay](../../upstream/screenplay.md#screenplay-upstream-repair)), and the repair covers that owner and its affected descendants:
+9. A parent goes to this layer's upstream item ([treatments](../../upstream/treatments.md#settings-repair), [scripts](../../upstream/scripts.md#script-upstream-repair) or [screenplay](../../upstream/screenplay.md#screenplay-upstream-repair)), where the repair covers that owner and its affected descendants, when it has one of these defects:
     - it consumed the next layer's work;
     - it forced a defined failure;
     - it blocked an adopted promise;
