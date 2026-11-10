@@ -59,7 +59,7 @@ Runtime README and `.env.example` own nonsecret operational setup and variable n
 
 ## Updating productions
 
-Package upgrades do not rewrite productions. Explicit instruction updates use the CLI sync documented in the [CLI README](../../../packages/cli/README.md), which updates routers and bundled task resources while preserving contracts, project decisions, configuration and authored content. Reusable package implementation stays with its package. A scaffold edit alone reaches only future installations until sync is run.
+Package upgrades do not rewrite productions. Explicit instruction updates use the CLI sync documented in the [root README](../../../README.md#commands), which updates routers and bundled task resources while preserving contracts, project decisions, configuration and authored content. Reusable package implementation stays with its package. A scaffold edit alone reaches only future installations until sync is run.
 
 For an authorized update to an existing production:
 

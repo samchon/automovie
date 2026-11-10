@@ -44,7 +44,7 @@ Everything is exported from the package root.
 - Passes and transitions: `applyRenderMode`, `applyAutoMovieSemanticMask`, `renderAutoMovieFilmFrame`.
 - Mount and capture: `mountViewer`, `captureViewerSnapshot`.
 
-Formations, effects, fluids, soft bodies, section planes and the metric capture helpers are exported the same way. Units and the owner of each returned object are in the JSDoc. A CPU rasterizer for Node ships with a generated production, under `src/executable/viewer/node/raster`.
+Formations, effects, fluids, soft bodies, section planes and the metric capture helpers are exported the same way. Units and the owner of each returned object are in the JSDoc. `rasterizeAutoMovieScene` draws a scene on the CPU for Node captures, with `AutoMovieRasterSheet` contact sheets and `encodeAutoMovieRasterPng`.
 
 ## Ownership
 

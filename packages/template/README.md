@@ -1,6 +1,6 @@
 # @automovie/template
 
-The scaffold every AutoMovie production starts from, together with the functions that render it and write it to disk. Most people reach it through the [`automovie` CLI](../cli/README.md). Use this package directly when your own tool has to install or update a scaffold.
+The scaffold every AutoMovie production starts from, together with the functions that render it and write it to disk. Most people reach it through the [`automovie` CLI](../../README.md#commands). Use this package directly when your own tool has to install or update a scaffold.
 
 ## Use
 
