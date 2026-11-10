@@ -68,18 +68,27 @@ export const MOTION_CAPTURE_CASES: Readonly<
   "handling-handshake": (): IMotionCaptureCase[] => handlingCases("handshake"),
   "handling-grasp": (): IMotionCaptureCase[] => handlingCases("grasp"),
   "handling-handover": (): IMotionCaptureCase[] => handlingCases("handover"),
-  striking: (): IMotionCaptureCase[] => strikingCases(),
-  "striking-jab-cover": (): IMotionCaptureCase[] =>
-    strikingCases("striking-jab-cover"),
-  "striking-crosses": (): IMotionCaptureCase[] =>
-    strikingCases("striking-crosses"),
-  "striking-kicks": (): IMotionCaptureCase[] => strikingCases("striking-kicks"),
-  "striking-redirect": (): IMotionCaptureCase[] =>
-    strikingCases("striking-redirect"),
-  "striking-redirect-tall": (): IMotionCaptureCase[] =>
-    strikingCases("striking-redirect-tall"),
-  "striking-fooled": (): IMotionCaptureCase[] =>
-    strikingCases("striking-fooled"),
-  "striking-knee": (): IMotionCaptureCase[] => strikingCases("striking-knee"),
-  "striking-air": (): IMotionCaptureCase[] => strikingCases("striking-air"),
+  striking: (only?: (name: string) => boolean): Iterable<IMotionCaptureCase> =>
+    strikingCases(undefined, only),
+  "striking-jab-cover": (
+    only?: (name: string) => boolean,
+  ): Iterable<IMotionCaptureCase> => strikingCases("striking-jab-cover", only),
+  "striking-crosses": (
+    only?: (name: string) => boolean,
+  ): Iterable<IMotionCaptureCase> => strikingCases("striking-crosses", only),
+  "striking-kicks": (
+    only?: (name: string) => boolean,
+  ): Iterable<IMotionCaptureCase> => strikingCases("striking-kicks", only),
+  "striking-redirect": (
+    only?: (name: string) => boolean,
+  ): Iterable<IMotionCaptureCase> => strikingCases("striking-redirect", only),
+  "striking-fooled": (
+    only?: (name: string) => boolean,
+  ): Iterable<IMotionCaptureCase> => strikingCases("striking-fooled", only),
+  "striking-knee": (
+    only?: (name: string) => boolean,
+  ): Iterable<IMotionCaptureCase> => strikingCases("striking-knee", only),
+  "striking-air": (
+    only?: (name: string) => boolean,
+  ): Iterable<IMotionCaptureCase> => strikingCases("striking-air", only),
 };
