@@ -392,11 +392,14 @@ export namespace HumanSegment {
       segment.plan.posture(local),
       seconds,
     );
+    // A hold rides every action entered before its takeover, at any second:
+    // an interrupted action evaluated past its cut (a transition's source, an
+    // entry state) still carries what it carried when it was cut.
     const carried: IHeld[] = person.holds.filter(
       (h: IHeld): boolean =>
         h.source !== segment &&
         h.from <= seconds &&
-        seconds < h.until &&
+        (seconds < h.until || segment.entryTime < h.until) &&
         !drives(segment.plan, h.side),
     );
     for (const h of carried)
