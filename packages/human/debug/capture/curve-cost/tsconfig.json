@@ -1,8 +1,0 @@
-{
-  "extends": "../tsconfig.node-canvas.json",
-  "compilerOptions": {
-    "plugins": [{ "transform": "@ttsc/lint", "configFile": "../../../../../config/lint.config.ts" }]
-  },
-  "files": ["./HumanCurveCost.ts"],
-  "include": []
-}
