@@ -1,6 +1,6 @@
-# Primary research routes
+# Research routes
 
-Read the relevant original before adopting a new instruction, and keep its support separate from the production judgment. These sources inform design; none proves that a changed prompt improved a film.
+Read the relevant original before adopting a new instruction, and keep its support separate from the production judgment. These sources inform design: a source's existence or another medium's successful example does not establish improvement here.
 
 | Source | What to examine | Application limit |
 | --- | --- | --- |

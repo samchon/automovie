@@ -1,16 +1,12 @@
-# Design the task strategy
+# Task design
 
-Read this when changing a shipped strategy, responsibility or route.
+A shipped task skill tells an author how to reach a commissioned result. Identify the task's recipient, needed achievement and usable handoff from the actual request and current work. Give the author choices that lead toward that result rather than a list of symptoms to avoid. An executable scene, final audiovisual plan and rendered performance serve different recipients even when they realize the same event.
 
-Identify the task's recipient, needed achievement and usable handoff from the actual request and current work. Give the author choices that lead toward that result rather than a list of symptoms to avoid. An executable scene, final audiovisual plan and rendered performance serve different recipients even when they realize the same event.
-
-Keep the entry point short enough to reveal its task, goal, authority and next resource. Put a branch behind its actual trigger; always-needed decisions stay together.
-
-Move callers and references with a renamed resource so installed agents can still reach it. Production entry points must not depend on repository skills that will not ship.
+Move callers and references with a renamed resource so installed agents can still reach it.
 
 ## Connect creation to judgment
 
-Describe the achievement, the decisions that make it possible and what the next owner may choose afresh. Connect it to [contract design](contracts.md) without restating the questions.
+Describe the achievement, the decisions that make it possible and what the next owner may choose afresh. Connect it to [contract design](contract-design.md) without restating the items.
 
 Detailed failures guide diagnosis after creation; writing only to avoid them can remove motivation, humor, rhythm or the work's promised form.
 
@@ -22,7 +18,7 @@ Read the complete result after detailed repairs to check whether the goal and pr
 
 Trace a proposed instruction through the actual brief or parents, author's decision, contract respondent, repair owner and next consumer. Use the production's [writing workflow](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow.md), [source layout](../../../packages/template/scaffold/instructions/.agents/skills/development/layout.md) and [delivery review](../../../packages/template/scaffold/instructions/.agents/skills/review/delivery.md) for those boundaries.
 
-A whole hint must still reach coded performance, usable camera staging, the complete edit and observed output. Preserve identities, contacts, timing and requested controls on the polygon man and coarse forms, where development stays; detail is an option a delivery selects.
+A whole hint must still reach coded performance, usable camera staging, the complete edit and observed output. Preserve identities, contacts, timing and requested controls on the coarse forms the [product contract](../project/SKILL.md#coarse-models-detailed-motion) sets.
 
 Inspect audiovisual expression as a plan at screenplay time and the actual captured, heard and encoded result at media delivery; neither observation establishes the other.
 

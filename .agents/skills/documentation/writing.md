@@ -1,6 +1,6 @@
 # Writing
 
-The rules every document follows, from a skill to a README to a doc comment.
+How the text of any document is put together, from its sentences up to its lists.
 
 ## Sentences
 
@@ -17,9 +17,9 @@ Completeness means covering what the reader needs, never longer phrasing.
 
 ## Terms
 
-Use one term per concept across a set of documents, because a second word reads as a second thing. Explain a term where a newcomer to that document first meets it, or link the document that explains it.
+Use one term per concept across a set of documents, because a second word reads as a second thing. Take the term the field already uses over a coined one, and plain words where the field has none. Explain a field term in plain words where a newcomer to that document first meets it, or link the document that explains it.
 
-## A person wrote it {#a-person-wrote-it}
+## A person wrote it
 
 Text reads as written by a person for this reader. These habits mark text as produced without thought, and a reader who spots one stops trusting the rest:
 
@@ -28,13 +28,13 @@ Text reads as written by a person for this reader. These habits mark text as pro
 - one template stamped on every document, whatever it holds;
 - three parallel items where the content has two or four.
 
-## Paragraphs {#paragraphs}
+## Paragraphs
 
 A paragraph is one topic. Start a new one when the topic changes, keep sentences on the same topic together, and write each paragraph on one source line.
 
 Gluing several topics into one long paragraph to keep the paragraph count low is a failure, not concision, because the reader cannot find the second topic. Giving every sentence its own paragraph is the opposite failure, because the reader cannot see which sentences belong together.
 
-## Lists, tables and code {#lists}
+## Lists, tables and code
 
 A list is for parallel items short enough to take in at a glance, one line each, and for steps whose order changes the result. Mark a sublist differently from its parent, such as `-` items under a numbered list.
 
