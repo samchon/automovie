@@ -28,15 +28,17 @@ A failure is proven only when the process is gone, the log has stopped well past
 
 Before resuming, confirm that the old run ended, which outputs to keep and the cause. Issue the resume command once, confirm the new process started and move to the next tick; never run the same work twice.
 
-A session that cannot be resumed is replaced by role:
+A session that cannot be resumed is handled by role:
 
-- a writer under a campaign: start a new writer process that reads the production and its run record and takes over, with verdicts standing as the production's campaign guide sets for a restart;
-- a writer under a request only to observe: mark the run `ATTENTION` and start nothing;
-- a reviewer: relaunch it fresh as [review](connecting-review.md#launch-the-reviewer) describes, receiving earlier verdicts only in the order it sets.
+| Session | Handling |
+| --- | --- |
+| A writer, under a campaign | Start a new writer process that reads the production and its run record and takes over, with verdicts standing as the production's campaign guide sets for a restart |
+| A writer, under a request only to observe | Mark the run `ATTENTION` and start nothing |
+| A reviewer | Relaunch it fresh as [connecting review](connecting-review.md#launch-the-reviewer) describes, receiving earlier verdicts only in the order it sets |
 
 Report an intended stop with its marker instead of reviving it; a user's cancellation is one, and after it the observer starts no work. A retry count or a missed record line does not stop the film.
 
-Remove a stale Git lock as [run](launching-workers.md#git-ownership) allows. Leave unrelated productions, paths and processes alone, and take no commit, publication or merge authority from observation.
+Remove a stale Git lock as [Git ownership](git-ownership.md#the-lock) allows. Leave unrelated productions, paths and processes alone, and take no commit, publication or merge authority from observation.
 
 ## Report
 

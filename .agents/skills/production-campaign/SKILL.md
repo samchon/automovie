@@ -9,9 +9,14 @@ Carry the commissioned work through its actual authoring and delivery owners. Th
 
 | Task | Read |
 | --- | --- |
-| Preparing, launching workers, recording runs, write scope, missing capabilities, comparison, Git ownership | [Launching workers](launching-workers.md) |
-| The observer subagent's ticks and the revival of a stopped run; give it to the observer as its brief | [Observing runs](observing-runs.md) |
+| Preparing a production, launching writers and reviewers, their write scope | [Launching workers](launching-workers.md) |
+| Writing the run record, resuming a run, handing off | [Run records](run-records.md) |
+| The observer subagent's ticks and the revival of a stopped run | [Observing runs](observing-runs.md) |
 | Fixing a submission, launching an independent reviewer, relaying verdicts and rebuttals | [Connecting review](connecting-review.md) |
+| Staging and committing beside other workers | [Git ownership](git-ownership.md) |
+| Comparing productions | [Comparing productions](comparing-productions.md) |
+
+Give [Observing runs](observing-runs.md) to the observer as its brief.
 
 ## Owners
 
@@ -24,3 +29,11 @@ These rules stay here rather than in the scaffold, because the scaffold ships to
 A campaign the user starts authorizes its writers, reviewers and observer within the requested productions and scope. A request only to observe authorizes resuming existing runs, not starting new writers. Keep that scope and the current baseline explicit.
 
 A single film's observed execution establishes that film's behavior, not comparative quality across productions, and instruction edits alone establish no improvement in a screenplay or film.
+
+## Missing capabilities and viewers
+
+A missing capability that a real authoring or playback task exposes is work to complete, not a reason to lower the commission or hide a local substitute. Trace it through [project ownership](../project/SKILL.md#packages), implement and validate it through [development](../development/SKILL.md), then reconnect its actual production consumer.
+
+Use [scaffold](../scaffold/SKILL.md) for explicit instruction sync; source, configuration and contract migrations remain deliberate project changes.
+
+Apply the production's viewer recovery priority before continuing dependent creative or visual judgments. A working preview does not certify capture, encoded-video playback or final delivery. Follow the exact failing path through repair and report observed and unperformed checks separately.
