@@ -44,7 +44,10 @@ import { MotionBodies } from "../MotionBodies";
  * asked while its heading, roll and any toes-up miss still count; the walker stops
  * within 2 cm of the destination; and the steady speed, the pelvis between
  * the first and the second-to-last left heel strikes, lies within 10 % of
- * the pace's Froude speed `sqrt(Fr g l)`. Each failing verdict names the
+ * the pace's Froude speed `sqrt(Fr g l)`; and every displayed channel, the
+ * root translation and every clinical angle, is continuous at every heel
+ * strike and toe-off, within 0.5 degree and the root within 0.5 mm from 1
+ * microsecond before the event to 1 after. Each failing verdict names the
  * walker, foot, point and second of its worst sample.
  *
  * @param kind Walking or running cases.
@@ -163,6 +166,10 @@ export function locomotionCases(kind: "walk" | "run"): IMotionCaptureCase[] {
         > = {
           stance: { value: 0, where: "none" },
           swing: { value: 0, where: "none" },
+        };
+        let pop: { value: number; where: string } = {
+          value: 0,
+          where: "none",
         };
         const misses: number[] = [];
         let via: number = Infinity;
@@ -379,6 +386,41 @@ export function locomotionCases(kind: "walk" | "run"): IMotionCaptureCase[] {
             `${names[i]} ${speed.toFixed(2)}/${froude.toFixed(2)} m/s`,
           );
           if (Math.abs(speed / froude - 1) > 0.1) speedOk = false;
+          // Continuity of every displayed channel at every contact event.
+          const channels = (seconds: number): Map<string, number> => {
+            const pose: IAutoMoviePose = performance.pose(subject, seconds);
+            const r: IAutoMovieVector3 = pose.root?.translation ?? {
+              x: 0,
+              y: 0,
+              z: 0,
+            };
+            const out: Map<string, number> = new Map([
+              ["root.tx", r.x * 1000],
+              ["root.ty", r.y * 1000],
+              ["root.tz", r.z * 1000],
+            ]);
+            for (const j of pose.joints) {
+              out.set(`${j.bone}.flexion`, j.flexion ?? 0);
+              out.set(`${j.bone}.abduction`, j.abduction ?? 0);
+              out.set(`${j.bone}.twist`, j.twist ?? 0);
+            }
+            return out;
+          };
+          for (const e of segment.plan.events) {
+            if (!/HeelStrike|ToeOff/.test(e.name)) continue;
+            const t: number = at(e.name);
+            if (t <= 1e-3 || t >= end - 1e-3) continue;
+            const before: Map<string, number> = channels(t - 1e-6);
+            const after: Map<string, number> = channels(t + 1e-6);
+            for (const [key, x] of before) {
+              const d: number = Math.abs((after.get(key) ?? 0) - x);
+              if (d > pop.value)
+                pop = {
+                  value: d,
+                  where: `${names[i]} ${e.name} t=${t.toFixed(3)} ${key} ${x.toFixed(2)}->${(after.get(key) ?? 0).toFixed(2)}`,
+                };
+            }
+          }
         });
         return {
           name: `${law}-${label}-${who}`,
@@ -443,6 +485,11 @@ export function locomotionCases(kind: "walk" | "run"): IMotionCaptureCase[] {
                     detail: `${facing.toFixed(1)} against ${extra.face}`,
                   },
                 ]),
+            {
+              name: "every displayed channel is continuous at every heel strike and toe-off, under 0.5 degree or 0.5 mm",
+              passed: pop.value <= 0.5,
+              detail: `max ${pop.value.toFixed(2)} (degrees, root millimetres) at ${pop.where}`,
+            },
             {
               name: "stops within 2 cm of the destination",
               passed: Math.max(...misses) <= 0.02,

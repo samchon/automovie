@@ -41,9 +41,9 @@ import { stand } from "./stand";
  * (0.8 step periods, 40 % of a stride) before its heel strike; the first
  * toe-off comes 0.25 s after the start, a provisional gait-initiation delay
  * (anticipatory postural adjustments take a few tenths of a second,
- * Brenière, Do and Bouisset 1987). In stance a foot rolls on its heel from
- * 15° toes-up to flat over 12 % of stance and, from 60 % of stance, on its
- * ball to 40° toes-down at toe-off (provisional angles inside the ranges of
+ * Breni챔re, Do and Bouisset 1987). In stance a foot rolls on its heel from
+ * 15째 toes-up to flat over 12 % of stance and, from 60 % of stance, on its
+ * ball to 40째 toes-down at toe-off (provisional angles inside the ranges of
  * Perry and Burnfield's rockers), the toes extending at the ball by the same
  * angle so they stay flat on the floor, and relaxing to neutral over the first
  * half of the swing. In swing the ankle travels between the toe-off and
@@ -60,8 +60,11 @@ export namespace walkSteps {
   /** The toe-off pitch of a straight step, degrees toes-down (provisional, inside Perry and Burnfield's forefoot rocker). */
   export const PUSH: number = 40;
 
-  /** The largest angle, degrees, a swinging ankle may trail behind its hip, 2° inside the hip's 30° extension. */
+  /** The largest extension, degrees, of a swinging leg's thigh, 2째 inside the hip's 30째 extension; the ankle trails further by the knee's bend. */
   export const EXTENSION: number = 28;
+
+  /** The share of a swing over which its foot's claim on the root's drop fades out after toe-off and in before heel strike. */
+  export const FADE: number = 0.25;
 
   /** Planner input. */
   export interface IInput {
@@ -402,10 +405,12 @@ export namespace walkSteps {
   /**
    * Make every foot goal reachable on the actual pelvis: lower the root until
    * each planted ankle is reached with the knee at least `KNEE` degrees bent
-   * (`resolveHumanPosture.lower`), then pull an unreachable swinging ankle toward its hip and turn one
-   * trailing further behind the hip than `EXTENSION` degrees forward, inside
-   * the hip's 30° extension range (DEFAULT_HUMANOID_ROM), since the thigh
-   * cannot carry it further back. A planted foot whose shank leans past the
+   * (`resolveHumanPosture.lower`), a swinging foot's claim on that drop fading
+   * out over the first `FADE` of its swing and in over the last so the drop
+   * is continuous through every contact event, then pull an unreachable
+   * swinging ankle toward its hip and turn one trailing further behind the
+   * hip than a thigh `EXTENSION` degrees back and the knee's bend carry it,
+   * inside the hip's 30째 extension range (DEFAULT_HUMANOID_ROM). A planted foot whose shank leans past the
    * ankle's dorsal limit raises its heel about its ball, or lowers its toes
    * about its heel in the heel rocker, and names that point as its contact; a
    * swinging foot's pitch is held inside the ankle's range relative to its
@@ -513,35 +518,51 @@ export namespace walkSteps {
     // The planted feet are placed first (their heel rise and pivot turn) and
     // the root lowered for the ankles they end at, then placed again against
     // the lowered hips, so the root is lowered for the feet actually shown.
+    // Each foot claims the drop its own ankle needs: a planted foot fully, a
+    // swinging one fading out over the first FADE of its swing and back in
+    // over the last, on a minimum-jerk weight (Flash and Hogan 1985), so the
+    // drop is continuous with its rate through toe-off and heel strike.
+    const weight = (side: "left" | "right"): number => {
+      const foot: IFoot = feet[side];
+      if (foot.planted) return 1;
+      const u: number = foot.swing?.u ?? 0.5;
+      return u < 0.5
+        ? 1 - minimumJerk(Math.min(1, u / FADE)).s
+        : minimumJerk(Math.max(0, (u - (1 - FADE)) / FADE)).s;
+    };
     const lowering = (): number =>
-      root.y -
-      resolveHumanPosture.lower(
-        body,
-        {
-          root,
-          yaw,
-          pitch: 0,
-          roll: 0,
-          joints: { hips },
-          limbs: {
-            leftLeg: {
-              point: feet.left.planted
-                ? ankles.left
-                : feet.left.placement.ankle,
-              bend: feet.left.placement.ankle,
-              planted: feet.left.planted,
-            },
-            rightLeg: {
-              point: feet.right.planted
-                ? ankles.right
-                : feet.right.placement.ankle,
-              bend: feet.right.placement.ankle,
-              planted: feet.right.planted,
-            },
-          },
-        },
-        KNEE,
-      ).root.y;
+      Math.max(
+        0,
+        ...(["left", "right"] as const).map((side): number => {
+          const w: number = weight(side);
+          if (w <= 0) return 0;
+          const placed: IAutoMovieVector3 = feet[side].planted
+            ? ankles[side]
+            : feet[side].placement.ankle;
+          return (
+            w *
+            (root.y -
+              resolveHumanPosture.lower(
+                body,
+                {
+                  root,
+                  yaw,
+                  pitch: 0,
+                  roll: 0,
+                  joints: { hips },
+                  limbs: {
+                    [`${side}Leg`]: {
+                      point: placed,
+                      bend: feet[side].placement.ankle,
+                      planted: true,
+                    },
+                  },
+                },
+                KNEE,
+              ).root.y)
+          );
+        }),
+      );
     const place = (drop: number): void => {
       for (const side of ["left", "right"] as const) {
         if (!feet[side].planted) continue;
@@ -627,13 +648,15 @@ export namespace walkSteps {
       { origin: { x: 0, y: 0, z: 0 }, yaw },
       { x: 0, y: 0, z: 1 },
     );
-    const extension: number = (EXTENSION * Math.PI) / 180;
     for (const side of ["left", "right"] as const) {
       if (feet[side].planted) continue;
       const ankle: IAutoMovieVector3 = feet[side].placement.ankle;
       const h: IAutoMovieVector3 = { ...hip(side), y: hip(side).y - drop };
       // A swinging ankle within reach and no further behind the hip than the
-      // hip's extension allows: the thigh cannot carry it further back.
+      // hip's extension allows: the thigh cannot carry it further back, and
+      // the bent knee carries the ankle behind the thigh by the angle between
+      // the thigh and the hip-to-ankle line, fixed by their lengths (the law
+      // of cosines), so a foot leaving a trailing stance is not pulled forward.
       let v: IAutoMovieVector3 = {
         x: ankle.x - h.x,
         y: ankle.y - h.y,
@@ -648,6 +671,18 @@ export namespace walkSteps {
         };
       const ahead: number = v.x * forward.x + v.z * forward.z;
       const sagittal: number = Math.hypot(ahead, v.y);
+      const reach: number = Math.hypot(v.x, v.y, v.z);
+      const behind: number = Math.acos(
+        Math.min(
+          1,
+          Math.max(
+            -1,
+            (m.thigh ** 2 + reach ** 2 - m.shank ** 2) /
+              (2 * m.thigh * Math.max(reach, 1e-9)),
+          ),
+        ),
+      );
+      const extension: number = (EXTENSION * Math.PI) / 180 + behind;
       if (v.y < 0 && Math.atan2(-ahead, -v.y) > extension) {
         const lateral: IAutoMovieVector3 = {
           x: v.x - ahead * forward.x,
@@ -771,7 +806,7 @@ export namespace walkSteps {
    * A swinging foot's rotation kept inside the ankle's range: the knee is
    * placed by the two-bone geometry in the plane of the hip, the ankle and
    * the foot's heading, the shank's inclination read from it, and the foot's
-   * pitch held within `ANKLE` of the ankle's 50° plantar and 20° dorsal limits
+   * pitch held within `ANKLE` of the ankle's 50째 plantar and 20째 dorsal limits
    * (DEFAULT_HUMANOID_ROM) relative to the shank.
    */
   function ankleRange(
@@ -796,7 +831,7 @@ export namespace walkSteps {
   /** The least knee flexion of a planted or reaching leg, degrees: a walking knee never locks straight. */
   const KNEE: number = 10;
 
-  /** The largest heading, degrees, a foot may keep from the pelvis: 25° inside the hip's 45° rotation (DEFAULT_HUMANOID_ROM), room for the pitch a toe-off and the list a turned leg also ask of it. */
+  /** The largest heading, degrees, a foot may keep from the pelvis: 25째 inside the hip's 45째 rotation (DEFAULT_HUMANOID_ROM), room for the pitch a toe-off and the list a turned leg also ask of it. */
   const TWIST: number = 20;
 
   /** Pitch, degrees toes-down, at which a planted foot's heel is far enough up to take the whole pivot turn on its toe pad. */

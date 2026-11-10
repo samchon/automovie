@@ -1,3 +1,4 @@
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
@@ -16,6 +17,9 @@ import { HumanSkill } from "../skill/HumanSkill";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
 import { walkSteps } from "./walkSteps";
+
+/** Seconds either side of a contact event at which its stance and swing are read. */
+const EPSILON: number = 1e-6;
 
 /**
  * Walking to a floor point in whole steps, ending with the feet side by side.
@@ -37,7 +41,16 @@ import { walkSteps } from "./walkSteps";
  * and stop, rises and falls 2.5 cm about its mean twice a stride (the 4 to 5
  * cm vertical excursion of the centre of mass), sways 2 cm toward the stance
  * foot, and is lowered wherever a planted leg could not otherwise reach its
- * foot, so no plant is ever stretched off its point. The pelvis turns 4° and
+ * foot, so no plant is ever stretched off its point. Where a foot lands or
+ * leaves, the stance and the swing are reached under different limits (the
+ * heel and forefoot rockers' dorsal clamps, the swing's reach and ankle
+ * range), so the swing absorbs the difference: from toe-off its foot goal,
+ * the root and the heading carry the stance's values at the event as an
+ * offset decaying over the first `walkSteps.FADE` of the swing, and before
+ * heel strike they gather the stance's offset over the last, on a
+ * minimum-jerk weight. A plant is never moved, and every displayed channel
+ * is continuous through every contact event (Bollo 2018's offset decay,
+ * applied to the foot goals at the contact switch). The pelvis turns 4° and
  * tilts 4° with the stride, the chest counter-rotates, and the arms swing
  * opposite the legs about 15° with the elbows bent 15 to 30° (Perry and
  * Burnfield, normal gait kinematics).
@@ -247,34 +260,120 @@ export namespace walk {
       to: s.to / duration,
       support: { kind: "ground" },
     }));
+    // The unconstrained reach at a second, memoised for the contact events'
+    // two sides, which every swing sample near them reads.
+    const solved: Map<number, ReturnType<typeof solveAt>> = new Map();
+    const solveAt = (t: number) => {
+      const phase: number = steps.phase(t);
+      const amount: number = steps.amount(t);
+      const hips: readonly [number, number, number] = [
+        0,
+        4 * Math.cos(2 * Math.PI * phase) * amount,
+        4 * Math.sin(2 * Math.PI * phase) * amount,
+      ];
+      const feet: Record<"left" | "right", walkSteps.IFoot> = {
+        left: steps.foot("left", t),
+        right: steps.foot("right", t),
+      };
+      return {
+        hips,
+        feet,
+        reached: walkSteps.reach(body, steps.root(t), steps.yaw(t), hips, feet),
+      };
+    };
+    const solve = (t: number): ReturnType<typeof solveAt> => {
+      const cached = solved.get(t);
+      if (cached !== undefined) return cached;
+      const out = solveAt(t);
+      if (steps.events.some((e) => Math.abs(e.seconds - t) <= 2 * EPSILON))
+        solved.set(t, out);
+      return out;
+    };
+    // A side's last contact event of a kind at or before a second (-1) or its next after it (+1).
+    const contact = (
+      side: "left" | "right",
+      kind: "ToeOff" | "HeelStrike",
+      t: number,
+      direction: -1 | 1,
+    ): number | undefined => {
+      let best: number | undefined;
+      for (const e of steps.events) {
+        if (!e.name.startsWith(`${side}${kind}`)) continue;
+        if (direction < 0 ? e.seconds > t : e.seconds <= t) continue;
+        if (
+          best === undefined ||
+          (direction < 0 ? e.seconds > best : e.seconds < best)
+        )
+          best = e.seconds;
+      }
+      return best;
+    };
     return {
       duration,
       events,
       contacts,
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const planned: number = steps.yaw(t);
         const phase: number = steps.phase(t);
         const amount: number = steps.amount(t);
         const swing: number = Math.sin(2 * Math.PI * phase) * amount;
-        const hips: readonly [number, number, number] = [
-          0,
-          4 * Math.cos(2 * Math.PI * phase) * amount,
-          4 * swing,
-        ];
-        const feet: Record<"left" | "right", walkSteps.IFoot> = {
-          left: steps.foot("left", t),
-          right: steps.foot("right", t),
-        };
-        const reached = walkSteps.reach(
-          body,
-          steps.root(t),
-          planned,
-          hips,
-          feet,
-        );
-        const yaw: number = reached.yaw;
-        const root: IAutoMovieVector3 = reached.root;
+        const { feet, hips, reached: raw } = solve(t);
+        // The swing absorbs the stance's values at its toe-off and heel strike.
+        const ankles = { ...raw.ankles };
+        const rotations = { ...raw.rotations };
+        const toes = { ...raw.toes };
+        let root: IAutoMovieVector3 = raw.root;
+        let yaw: number = raw.yaw;
+        for (const side of ["left", "right"] as const) {
+          const off: number | undefined = contact(side, "ToeOff", t, -1);
+          const on: number | undefined = contact(side, "HeelStrike", t, 1);
+          if (feet[side].planted || off === undefined || on === undefined)
+            continue;
+          const fade: number = walkSteps.FADE * (on - off);
+          const event: number | undefined =
+            t - off < fade ? off : on - t < fade ? on : undefined;
+          if (event === undefined) continue;
+          const weight: number =
+            event === off
+              ? 1 - minimumJerk((t - off) / fade).s
+              : minimumJerk(1 - (on - t) / fade).s;
+          const stance = solve(
+            event === off ? off - EPSILON : on + EPSILON,
+          ).reached;
+          const free = solve(
+            event === off ? off + EPSILON : on - EPSILON,
+          ).reached;
+          ankles[side] = Vector3.add(
+            ankles[side],
+            Vector3.scale(
+              Vector3.subtract(stance.ankles[side], free.ankles[side]),
+              weight,
+            ),
+          );
+          rotations[side] = Quaternion.normalize(
+            Quaternion.multiply(
+              Quaternion.slerp(
+                Quaternion.identity(),
+                Quaternion.multiply(
+                  stance.rotations[side],
+                  Quaternion.inverse(free.rotations[side]),
+                ),
+                weight,
+              ),
+              rotations[side],
+            ),
+          );
+          toes[side] += (stance.toes[side] - free.toes[side]) * weight;
+          root = Vector3.add(
+            root,
+            Vector3.scale(Vector3.subtract(stance.root, free.root), weight),
+          );
+          let turn: number = stance.yaw - free.yaw;
+          while (turn > 180) turn -= 360;
+          while (turn < -180) turn += 360;
+          yaw += turn * weight;
+        }
+        const reached = { ...raw, ankles, rotations, toes };
         const upright: standUpright.IAlignment = standUpright.of(body);
         const joints: Partial<
           Record<AutoMovieHumanoidBone, readonly [number, number, number]>
