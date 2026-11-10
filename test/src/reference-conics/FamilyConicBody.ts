@@ -98,6 +98,10 @@ namespace FamilyConicBody {
           { name: "torso.back", stations: [-20, 556], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 61, columns: 39, mirror: true },
           { name: "torso.front", stations: [-20, 556], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 61, columns: 39, mirror: true },
         ] },
+        { name: "upper", centres: [[0, 780, 0], [0, 1705, 0]], halves: [], up: [1, 0, 0], domain: [514, 912], whole: true, step: 2, gap: 8, mirrored: false, layouts: LIMB, reliefs: [
+          { name: "upper.back", stations: [440, 990], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 111, columns: 43, mirror: true },
+          { name: "upper.front", stations: [440, 990], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 111, columns: 63, mirror: true },
+        ] },
         { name: "shoulders", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [514, 626], whole: true, step: 2, gap: 8, mirrored: false, layouts: LIMB, reliefs: [
           { name: "shoulders.back", stations: [440, 686], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 31, columns: 39, mirror: true },
           { name: "shoulders.front", stations: [440, 686], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 31, columns: 39, mirror: true },
