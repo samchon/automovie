@@ -28,10 +28,10 @@ import { HumanTrunk } from "./HumanTrunk";
  *
  * The target is read once, at the start: a person's region (the `sternum`
  * for Hall's chest-to-chest gaps, `upperBack` to stop behind someone), a
- * prop's point or a free point. For `handing` the partner's arm is
- * estimated from their stature, read as the height of their crown, scaling
- * the performer's own measure by the stature ratio, so a short and a tall
- * partner meet at a gap both can reach. A target already nearer than the
+ * prop's point or a free point. For `handing` the gap comes from both
+ * people's own measures, so a short and a tall partner meet at a gap both
+ * can reach; a prop or point target uses the performer's measure alone. A
+ * target already nearer than the
  * requested gap is refused with both distances, since an approach never
  * backs away.
  *
@@ -111,10 +111,7 @@ export namespace approach {
     const target: AutoMovieMotionTarget = p.target;
     const aimed = context.aim(target, context.start);
     const point: IAutoMovieVector3 = aimed.point;
-    const other: IAutoMovieBodyMeasure =
-      target.kind === "person"
-        ? HumanProxemics.scaled(body.measure, context.aim({ ...target, region: "crown" }, context.start).point.y / body.measure.stature)
-        : body.measure;
+    const other: IAutoMovieBodyMeasure = target.kind === "person" ? context.performer(target.subject).body.measure : body.measure;
     const gap: number = HumanProxemics.gap(p.at ?? "personal", body.measure, other);
     const feet: IAutoMovieVector3 = {
       x: (context.entry.feet.left.ankle.x + context.entry.feet.right.ankle.x) / 2,
