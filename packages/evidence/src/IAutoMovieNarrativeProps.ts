@@ -13,7 +13,7 @@ import type { NarrativeScope } from "./narrative/NarrativeScope";
  * @evidence contracts/development/common.md#meaningful-documentation Fields define the route, stage defaults, authored scope and ordinary additional claims.
  */
 export interface IAutoMovieNarrativeProps {
-  /** Long retains four layers; short enters at screenplay; short-with-settings first establishes compact canon without treatments, scripts or an outline. */
+  /** Long retains four layers; short writes its brief canon, then the screenplay; short-with-settings first establishes compact settings canon; neither short route has treatments, scripts or an outline. */
   mode: "long" | "short" | "short-with-settings";
 
   /** Unspecified layers are disabled drafts; an omitted outline follows settings. */

@@ -14,7 +14,7 @@ Use at least two fresh judges with the author's model, each making two independe
 
 | Card | Experience axes |
 | --- | --- |
-| Settings | World appeal, generative potential, credibility, agents, concrete realization, navigation, expressive quality, distinctiveness |
+| Settings or brief | World appeal, generative potential, credibility, agents, concrete realization, navigation, expressive quality, distinctiveness |
 | Treatments | Story force, structure, attention and tension, consequential choices, emotional progression, ending, distinctiveness, usable specificity, expressive quality |
 | Scripts | Unit composition, playable scene force, attention and tension, spoken language, agents, staging, distinctiveness |
 | Final screenplay | Comprehension and attention, engagement, structure, agents, emotion and aftermath, audiovisual voice and rhythm, concrete realization, distinctiveness |

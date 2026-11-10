@@ -36,14 +36,14 @@ Add narrative when commissioned:
 export default createEvidenceConfig({
   location: import.meta.dirname,
   narrative: {
-    mode: "short-with-settings",
-    construction: { settings: "evidence", screenplay: "evidence" },
+    mode: "short",
+    construction: { brief: "evidence", screenplay: "evidence" },
     naturalness: { screenplay: "evidence" },
   },
 });
 ```
 
-Use `short` for direct screenplay, `short-with-settings` for compact canon plus screenplay, and `long` for settings ??treatments ??scripts ??screenplay. Unspecified stages remain disabled drafts. Scripts completes content and expression within construction; screenplay alone has a separate naturalness pass. An omitted outline stage follows settings. Complete work is the default scope; an explicitly commissioned first-part pilot selects its exact part.
+Use `short` for brief canon under `docs/body/brief` plus screenplay, `short-with-settings` for compact settings canon plus screenplay, and `long` for settings ??treatments ??scripts ??screenplay. Unspecified stages remain disabled drafts. Scripts completes content and expression within construction; screenplay alone has a separate naturalness pass. An omitted outline stage follows settings. Complete work is the default scope; an explicitly commissioned first-part pilot selects its exact part.
 
 Turn on the research and the production's own development contracts when the commission needs them:
 
