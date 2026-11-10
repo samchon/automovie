@@ -1,10 +1,6 @@
 # @automovie/archetypes
 
-Typed producers of shipped model groups. Each producer takes named dimensions and returns one `IAutoMovieModel`, the group a film references directly. The humanoid gait tables moved to `@automovie/motions`.
-
-Shipped figure and prop definitions belong here. `interface`, `engine`, and `viewer` stay independent of this catalogue.
-
-## Use
+Ready-made figures and props for AutoMovie scenes. Each function takes a few named dimensions and returns one `IAutoMovieModel` that a film references directly, so a production can stage and move something before it has modelled anything of its own.
 
 ```bash
 npm install @automovie/archetypes
@@ -33,11 +29,11 @@ const figure: IAutoMovieModel = createAutoMovieStickman({
 });
 ```
 
-| Export | Returns |
+| Function | Returns |
 | --- | --- |
-| `createAutoMovieStickman` | A thirteen-bone primitive figure scaled by height, head radius and limb radius. |
-| `createAutoMoviePrimitiveProp` | A skeletonless model of one primitive shape. |
+| `createAutoMovieStickman` | A stick figure of thirteen bones and thirteen primitive parts, sized by height, head radius and limb radius |
+| `createAutoMoviePrimitiveProp` | A model without a skeleton, made of one primitive shape |
 
-## What may enter
+Dimensions are in metres. A value outside its range is refused; `IAutoMovieStickmanProps` and `IAutoMoviePrimitivePropProps` state the ranges.
 
-An entry is a typed producer or a table the engine reads, never finished content for one production's subject, and never a stand-in for a capability the engine lacks. Removing it must cost a production only its own choice.
+Human motion tables are not here. `@automovie/motions` owns them.

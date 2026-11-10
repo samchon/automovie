@@ -1,20 +1,12 @@
 # AutoMovie
 
-**LLM-authored screenplays and reproducible motion hints for video diffusion.**
+AutoMovie lets an LLM write a film's screenplay and then program the staging, motion and camera that convey it. The output is a reproducible motion video that a video diffusion model takes as a hint.
 
-A user directs an LLM in natural language. The agent writes the film's screenplay, then authors the staging, motion and camera needed to convey it. AutoMovie's deterministic engine makes those choices reproducible and inspectable. The production can deliver the whole motion-video hint or use its chosen diffusion workflow for finished imagery.
+You direct a coding agent in natural language. The agent writes the screenplay and authors the scenes as code, and AutoMovie's engine computes the same frames from that code every time, so a result can be inspected and corrected instead of regenerated. AutoMovie contains no LLM and no authoring server: you bring the coding agent, any media providers and the machine that renders.
 
-Stick figures and coarse meshes can carry the hint. Their performance, contacts, trajectories, reactions and timing must express the intended action accurately; surface detail follows the shot's needs and budget. Human is an optional way to express character information. Important objects may need only an approximate frame, while objects unnecessary to the conditioning can stay in the screenplay's description.
+Stick figures and coarse meshes are enough for a hint as long as the performance, contacts and timing are right, and surface detail is added only where a shot needs it. A production can stop at the screenplay, at the motion-hint video, or at a finished film rendered directly in 3D or through a diffusion workflow you choose. An accurate hint does not guarantee what an external generator makes of it.
 
-Productions can combine code-authored geometry, fixed images and imported or generated meshes. Use an existing asset directly when it has the needed controls. When deformation or code control requires an editable construction, Recovery provides supported paths toward saved curves and reconstructed geometry. Fixed images can supply appearance references or supported control inputs; multiview generation and image-to-3D services are optional routes for detail a shot actually needs. Package documentation defines their supported inputs and limits.
-
-The scaffold's skills guide the agent through settings → treatments → scripts → final audiovisual screenplay for long work, with scripts expression assessed in construction, a separate final-screenplay naturalness pass, evidence and independent review. A short video can start directly at final screenplay or establish compact character, object and location settings first, with no invented treatments or script layer. A film-generation hint programs motion and staging for the main scenes and assembles the whole video; stills and isolated clips support that work without replacing it. A screenplay-only request can end at text. A requested finished video can use direct 3D rendering or the chosen diffusion workflow. Start with low-cost instances and verified motion, then upgrade selected objects through code options within the production budget. When a generator is selected, verify its actual input compatibility; a good hint does not guarantee the generated film's quality.
-
-Record adopted production choices in the generated project-root `PROJECT.md`; keep creative writing instructions under `docs/instructions`. Production choices include output route, representation, providers or local tools, and authorized setup. Keep run instructions in the production README, required environment names in `.env.example`, and secrets in a Git-ignored `.env`. Use the selected tool's existing interface; add integration source only where the production needs it.
-
-There is no internal LLM or authoring server. Use your chosen coding agent, media providers and production host; generation produces fixed inputs with provenance outside deterministic replay.
-
-Explore the architectural examples at [samchon.github.io/AutoMovie](https://samchon.github.io/AutoMovie/), rendered from their authored production source under [`experimental`](./experimental). These examples demonstrate assets and their inspection; they do not establish an end-to-end film delivery.
+The scenes at [samchon.github.io/AutoMovie](https://samchon.github.io/AutoMovie/) are rendered from the sources under [`experimental`](./experimental). They show assets and their inspection, not an end-to-end film.
 
 ## Start a production
 
@@ -29,11 +21,9 @@ npm run evidence
 npm test
 ```
 
-`npx automovie create <directory> --workspace` creates a pnpm workspace instead: one shared `AGENTS.md` and `.agents/skills`, productions under `movies/shorts/<name>` (settings → screenplay) and `movies/series/<name>` (the whole long route), and the workspace's own libraries under `packages/<name>`. From that root, `pnpm install` then `pnpm automovie add shorts/<name>` adds a production. For the current directory, `create .` asks for a name and offers `automovie-examples`; `--name <name>` supplies it.
+Open the directory in your coding agent and tell it what you want made. The generated `AGENTS.md` routes the agent to the shipped skills, `PROJECT.md` records the scope and choices it adopts, and the generated [README](./packages/template/scaffold/production/README.md#make-a-motion-hint) describes the workflow from screenplay to delivered video. A new project holds instructions, configuration and dependencies but no film, so the three checks above only confirm that the empty project is sound.
 
-Open the generated directory in your coding agent and give it the intended production request. `AGENTS.md` routes eight skills; `PROJECT.md` records the adopted scope and choices. Follow the [production workflow](./packages/template/scaffold/production/README.md#make-a-motion-hint) from screenplay through programmed staging, any required companion controls, the actual host and whole edit, and delivery review. The blank scaffold supplies instructions, configuration and package dependencies; it contains no film, viewer host or media provider. Its initial checks validate that empty harness and produce no movie. As the production is authored, its README records the actual execution and delivery commands.
-
-Film productions live under `movies/`; the architectural demonstrations under `experimental/` retain their existing roles. Explicit `automovie sync <directory> --check` inspects instruction updates for a production or workspace root; inside this repository, run it from source as `pnpm automovie sync <directory> --check`. Sync preserves project content, configuration and contracts and reports local instruction conflicts; package upgrades alone change no project files.
+To keep several productions in one repository, `npx automovie create <directory> --workspace` makes a pnpm workspace, and `pnpm automovie add shorts/<name>` or `pnpm automovie add series/<name>` adds a production to it. After upgrading, `npx automovie sync <directory>` updates the generated instructions of an existing project. The [CLI README](./packages/cli/README.md) covers each command.
 
 ## Packages
 
@@ -41,21 +31,21 @@ Film productions live under `movies/`; the architectural demonstrations under `e
 | --- | --- |
 | [`@automovie/interface`](./packages/interface) | The pure-type authoring AST an LLM emits |
 | [`@automovie/engine`](./packages/engine) | Deterministic validation and computation of everything a frame needs |
-| [`@automovie/archetypes`](./packages/archetypes) | Typed producers of shipped model groups |
+| [`@automovie/archetypes`](./packages/archetypes) | Ready-made figures and props |
 | [`@automovie/human`](./packages/human) | A human figure generated from typed parameters by code (being rebuilt) |
-| [`@automovie/motions`](./packages/motions) | Human action laws that author deterministic motion, and the humanoid gait tables |
-| [`@automovie/ingest`](./packages/ingest) | Deterministic import of glTF, GLB, VRM, and WAVE inputs |
-| [`@automovie/recovery`](./packages/recovery) | Registered-mesh observation, saved-curve reconstruction, and immutable artifact hosts |
-| [`@automovie/viewer`](./packages/viewer) | Three.js display, capture, and inspection |
-| [`@automovie/render`](./packages/render) | Frame/edit planning and orchestration through host-supplied capture and encoding adapters |
-| [`@automovie/evidence`](./packages/evidence) | Engineering evidence defaults and optional narrative lifecycle checking |
+| [`@automovie/motions`](./packages/motions) | Human action laws that author deterministic motion |
+| [`@automovie/ingest`](./packages/ingest) | Deterministic import of glTF, GLB, VRM, WAVE and PPM inputs |
+| [`@automovie/recovery`](./packages/recovery) | Curves recovered from a reference mesh, and geometry rebuilt from them |
+| [`@automovie/viewer`](./packages/viewer) | Three.js display, capture and inspection |
+| [`@automovie/render`](./packages/render) | Frame and edit planning, with capture and encoding supplied by the host |
+| [`@automovie/evidence`](./packages/evidence) | Evidence configuration for a production's code and writing |
 | [`@automovie/template`](./packages/template) | The scaffold every production starts from |
 | [`automovie`](./packages/cli) | The CLI that installs the scaffold |
-| [`@automovie/playground`](./packages/playground) | Browser demonstrations of engine motion, film, and physics |
+| [`@automovie/playground`](./packages/playground) | Browser pages for developing this repository |
 
 ## Repository development
 
-Node.js 22.23.2 or newer and pnpm 10.
+Node.js 22.23.2 or later and pnpm 10.
 
 ```bash
 pnpm install
@@ -64,7 +54,7 @@ pnpm run evidence
 pnpm run test
 ```
 
-`pnpm --filter @automovie/playground dev` runs the playground, and `pnpm --filter @automovie/website dev` runs the website that `.github/workflows/website.yml` publishes to GitHub Pages from `master`.
+`pnpm automovie <command>` runs the CLI from source. `pnpm --filter @automovie/playground dev` serves the playground, and `pnpm --filter @automovie/website dev` serves the website that `.github/workflows/website.yml` publishes to GitHub Pages from `master`.
 
 ## License
 
