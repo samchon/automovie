@@ -1,6 +1,16 @@
-import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { HumanChain, HumanPerformance, type IHumanBody, createHumanBody, seated } from "@automovie/motions";
+import {
+  HumanChain,
+  HumanPerformance,
+  type IHumanBody,
+  createHumanBody,
+  seated,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { MotionBodies } from "../../../../packages/motions/src/executable/MotionBodies";
@@ -41,51 +51,131 @@ export function test_human_motion_everyday_seat(): void {
   };
   for (const name of ["f-small", "m-tall", "m-long-armed", "m-short-legged"]) {
     const man = MotionBodies.population(name);
-    const body: IHumanBody = createHumanBody(man.body.skeleton, man.body.profile);
+    const body: IHumanBody = createHumanBody(
+      man.body.skeleton,
+      man.body.profile,
+    );
     const ankle: number = body.rest.get("leftFoot")!.z;
-    const performer = { subject: "a", body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" as const } };
+    const performer = {
+      subject: "a",
+      body,
+      at: { x: 0, y: 0, z: 0 },
+      yaw: 0,
+      proficiency: { level: "trained" as const },
+    };
     for (const share of [0.85, 1.0]) {
-      const seat: seated.ISeat = { at: { x: 0, y: share * seated.popliteal(body), z: ankle - 0.1 }, yaw: 0, depth: 0.45 };
-      const performance: HumanPerformance = new HumanPerformance({
-        seed: `seat-${name}-${share}`,
-        performers: [performer],
-        composition: HumanChain.subject("a").sit({ seat, seconds: 0.5 }).shift({ by: 0.1 }).rise().node,
-      });
+      const seat: seated.ISeat = {
+        at: { x: 0, y: share * seated.popliteal(body), z: ankle - 0.1 },
+        yaw: 0,
+        depth: 0.45,
+      };
+      let performance: HumanPerformance;
+      try {
+        performance = new HumanPerformance({
+          seed: `seat-${name}-${share}`,
+          performers: [performer],
+          composition: HumanChain.subject("a")
+            .sit({ seat, seconds: 0.5 })
+            .shift({ by: 0.1 })
+            .rise().node,
+        });
+      } catch (error) {
+        check(
+          `${name} ${share} sit, shift and rise refused: ${(error as Error).message}`,
+          false,
+        );
+        continue;
+      }
       const [sitting, shifting, rising] = performance.segments("a");
       const socket = (t: number): IAutoMovieVector3 => {
         const frame = body.surfaces.sockets.seat;
-        return resolveAutoMovieHumanoidSurfaces.place(frame, performance.bones("a", t).get(frame.bone)!).point;
+        return resolveAutoMovieHumanoidSurfaces.place(
+          frame,
+          performance.bones("a", t).get(frame.bone)!,
+        ).point;
       };
-      const contact: number = sitting!.start + sitting!.plan.events.find((e) => e.name === "seatContact")!.share * sitting!.plan.duration;
+      const contact: number =
+        sitting!.start +
+        sitting!.plan.events.find((e) => e.name === "seatContact")!.share *
+          sitting!.plan.duration;
       const atContact: IAutoMovieVector3 = socket(contact);
       const bearing = (t: number): number => {
         const b = performance.bones("a", t);
-        const hips: number = Math.min(b.get("leftUpperLeg")!.worldPosition.y, b.get("rightUpperLeg")!.worldPosition.y) - body.measure.thighRadius;
+        const hips: number =
+          Math.min(
+            b.get("leftUpperLeg")!.worldPosition.y,
+            b.get("rightUpperLeg")!.worldPosition.y,
+          ) - body.measure.thighRadius;
         return Math.min(socket(t).y, hips) - seat.at.y;
       };
-      check(`${name} ${share} seated bearing ${(bearing(contact) * 1000).toFixed(1)} mm`, Math.abs(bearing(contact)) <= 0.01 && Math.abs(bearing(sitting!.end)) <= 0.01);
-      check(`${name} ${share} socket on the seat (z ${atContact.z.toFixed(3)})`, atContact.z <= seat.at.z && atContact.z >= seat.at.z - seat.depth!);
+      check(
+        `${name} ${share} seated bearing ${(bearing(contact) * 1000).toFixed(1)} mm`,
+        Math.abs(bearing(contact)) <= 0.01 &&
+          Math.abs(bearing(sitting!.end)) <= 0.01,
+      );
+      check(
+        `${name} ${share} socket on the seat (z ${atContact.z.toFixed(3)})`,
+        atContact.z <= seat.at.z && atContact.z >= seat.at.z - seat.depth!,
+      );
       const before: IAutoMovieVector3 = socket(shifting!.entryTime);
       const after: IAutoMovieVector3 = socket(shifting!.end);
-      check(`${name} ${share} shift ${((after.x - before.x) * 1000).toFixed(1)} mm`, Math.abs(after.x - before.x - 0.1) <= 0.01 && Math.abs(after.y - seat.at.y) <= 0.01);
-      check(`${name} ${share} slip ${slip(performance, body).toFixed(4)}`, slip(performance, body) <= 0.005);
+      check(
+        `${name} ${share} shift ${((after.x - before.x) * 1000).toFixed(1)} mm`,
+        Math.abs(after.x - before.x - 0.1) <= 0.01 &&
+          Math.abs(after.y - seat.at.y) <= 0.01,
+      );
+      check(
+        `${name} ${share} slip ${slip(performance, body).toFixed(4)}`,
+        slip(performance, body) <= 0.005,
+      );
       const end = performance.bones("a", rising!.end);
-      const hip: number = (end.get("leftUpperLeg")!.worldPosition.y + end.get("rightUpperLeg")!.worldPosition.y) / 2;
-      check(`${name} ${share} stands up (${hip.toFixed(3)} of ${body.measure.hipHeight.toFixed(3)})`, Math.abs(hip / body.measure.hipHeight - 1) <= 0.03);
-      const up: IAutoMovieVector3 = Quaternion.rotateVector(end.get("hips")!.worldRotation, { x: 0, y: 1, z: 0 });
-      check(`${name} ${share} upright`, (Math.acos(Math.min(1, up.y)) * 180) / Math.PI <= 3);
+      const hip: number =
+        (end.get("leftUpperLeg")!.worldPosition.y +
+          end.get("rightUpperLeg")!.worldPosition.y) /
+        2;
+      check(
+        `${name} ${share} stands up (${hip.toFixed(3)} of ${body.measure.hipHeight.toFixed(3)})`,
+        Math.abs(hip / body.measure.hipHeight - 1) <= 0.03,
+      );
+      const up: IAutoMovieVector3 = Quaternion.rotateVector(
+        end.get("hips")!.worldRotation,
+        { x: 0, y: 1, z: 0 },
+      );
+      check(
+        `${name} ${share} upright`,
+        (Math.acos(Math.min(1, up.y)) * 180) / Math.PI <= 3,
+      );
     }
     const refuse = (label: string, seat: seated.ISeat, back?: "lean"): void =>
-      TestValidator.error(`${name} ${label}`, (): unknown =>
-        new HumanPerformance({ seed: "r", performers: [performer], composition: HumanChain.subject("a").sit({ seat, ...(back === undefined ? {} : { back }) }).node }),
+      TestValidator.error(
+        `${name} ${label}`,
+        (): unknown =>
+          new HumanPerformance({
+            seed: "r",
+            performers: [performer],
+            composition: HumanChain.subject("a").sit({
+              seat,
+              ...(back === undefined ? {} : { back }),
+            }).node,
+          }),
       );
     const knee: number = seated.popliteal(body);
     refuse("low seat", { at: { x: 0, y: 0.6 * knee, z: ankle - 0.1 }, yaw: 0 });
-    refuse("high seat", { at: { x: 0, y: 1.4 * knee, z: ankle - 0.1 }, yaw: 0 });
+    refuse("high seat", {
+      at: { x: 0, y: 1.4 * knee, z: ankle - 0.1 },
+      yaw: 0,
+    });
     refuse("seat faced", { at: { x: 0, y: knee, z: ankle - 0.1 }, yaw: 180 });
-    refuse("lean on no back", { at: { x: 0, y: knee, z: ankle - 0.1 }, yaw: 0 }, "lean");
+    refuse(
+      "lean on no back",
+      { at: { x: 0, y: knee, z: ankle - 0.1 }, yaw: 0 },
+      "lean",
+    );
   }
-  TestValidator.predicate(failures.join("; ") || "all checks", failures.length === 0);
+  TestValidator.predicate(
+    failures.join("; ") || "all checks",
+    failures.length === 0,
+  );
 }
 
 /**
@@ -97,21 +187,45 @@ function slip(performance: HumanPerformance, body: IHumanBody): number {
   let worst: number = 0;
   for (const segment of performance.segments("a"))
     for (const contact of segment.plan.contacts) {
-      if (contact.kind !== "plant" || (contact.part !== "leftFoot" && contact.part !== "rightFoot")) continue;
-      const side: "Left" | "Right" = contact.part === "leftFoot" ? "Left" : "Right";
+      if (
+        contact.kind !== "plant" ||
+        (contact.part !== "leftFoot" && contact.part !== "rightFoot")
+      )
+        continue;
+      const side: "Left" | "Right" =
+        contact.part === "leftFoot" ? "Left" : "Right";
       const anchors: Map<string, IAutoMovieVector3> = new Map();
-      for (let t: number = Math.max(segment.entryTime, segment.start + contact.from * segment.plan.duration); t <= Math.min(segment.end, segment.start + contact.to * segment.plan.duration) + 1e-9; t += 1 / 24) {
+      for (
+        let t: number = Math.max(
+          segment.entryTime,
+          segment.start + contact.from * segment.plan.duration,
+        );
+        t <=
+        Math.min(
+          segment.end,
+          segment.start + contact.to * segment.plan.duration,
+        ) +
+          1e-9;
+        t += 1 / 24
+      ) {
         const bones = performance.bones("a", t);
         let lowest: [string, IAutoMovieVector3] | undefined;
         for (const name of ["heel", "ball", "toe"] as const) {
           const frame = body.surfaces.sockets[`${name}${side}`];
-          const p: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!).point;
-          if (lowest === undefined || p.y < lowest[1].y - 1e-6) lowest = [name, p];
+          const p: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+            frame,
+            bones.get(frame.bone)!,
+          ).point;
+          if (lowest === undefined || p.y < lowest[1].y - 1e-6)
+            lowest = [name, p];
         }
         const [name, p] = lowest!;
         const anchor: IAutoMovieVector3 = anchors.get(name) ?? p;
         anchors.set(name, anchor);
-        worst = Math.max(worst, Vector3.length({ x: p.x - anchor.x, y: 0, z: p.z - anchor.z }));
+        worst = Math.max(
+          worst,
+          Vector3.length({ x: p.x - anchor.x, y: 0, z: p.z - anchor.z }),
+        );
       }
     }
   return worst;
