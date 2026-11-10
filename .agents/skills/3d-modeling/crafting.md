@@ -59,7 +59,7 @@ On a subdivision surface, place extraordinary vertices where curvature is low an
 
 Set up each section or segment once, with its coefficients and derivatives, and evaluate each point from that setup in constant time. Invert a parametrization with a table or an analytic step, such as Newton's method on the analytic derivative, rather than a long bisection over full evaluations. Solve a dimension on the part it controls instead of regenerating the whole form inside a solver loop.
 
-Slow generation lengthens every [correction round](visual-debugging.md#correction-rounds), and a round that costs too much invites local patches in place of repairs at the cause.
+Slow generation lengthens every [correction round](../visual-debugging/correction-rounds.md), and a round that costs too much invites local patches in place of repairs at the cause.
 
 ## Tests
 
@@ -77,6 +77,6 @@ Express stylization, such as exaggerated proportions or fantasy features, as a s
 
 Build the whole form first, then each finer detail as the block-out of a smaller region placed on the coarser form, so a coarse change carries its details with it.
 
-Scale orders construction and inspection, never correction. Each [correction round](visual-debugging.md#correction-rounds) inspects the whole form and every finer region, neighbor and close-up, then fixes every cause it found in one combined change; a traced cause at a finer scale is fixed in that round, not saved for a later round or scale.
+Scale orders construction and inspection, never correction. Each [correction round](../visual-debugging/correction-rounds.md) inspects the whole form and every finer region, neighbor and close-up, then fixes every cause it found in one combined change; a traced cause at a finer scale is fixed in that round, not saved for a later round or scale.
 
 Regenerate anything derived when its basis changes, and repair an unsound representation at its foundation instead of stacking corrections on it.

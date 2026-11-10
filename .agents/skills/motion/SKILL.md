@@ -44,7 +44,7 @@ Work in this order, because each step fixes what the next one builds on.
 5. Give the action isolated cases with bounded checks under [verification](verification.md).
 6. Capture the cases, review their frames, and repair every finding of the round together by cause.
 
-   Keep a round only as [verification](verification.md#judge-rounds-honestly) allows.
+   Keep a round only as [correction rounds](../visual-debugging/correction-rounds.md#compare-again) allow.
 
 7. Record every remaining failure with its numbers in the family's sub-issue.
 8. Cite each source in the law's documentation and add it to the sub-issue.

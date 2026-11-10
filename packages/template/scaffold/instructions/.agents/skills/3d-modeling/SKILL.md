@@ -1,6 +1,6 @@
 ---
 name: 3d-modeling
-description: Defines the form each subject of a production takes, namely the polygon man for a person, a coarse form of a few primitives for anything else, and on the user's request a generated, crafted or recovered form with its rig. Use before building or changing a subject's form and before claiming a visual change works; body motion belongs to the motion skill.
+description: Defines the form each subject of a production takes, namely the polygon man for a person, a coarse form of a few primitives for anything else, and on the user's request a generated, crafted or recovered form with its rig. Use before building or changing a subject's form; judging any picture belongs to the visual-debugging skill and body motion to the motion skill.
 ---
 
 # 3D modeling
@@ -27,6 +27,6 @@ Build only what the request names and the subject's visible role needs. Finer ge
 | Rebuild a fixed mesh as curves or surfaces | [Recovery](recovery.md) |
 | Define parts, groups, placements or shared boundaries | [Modularization](modularization.md) |
 | Add or change a skeleton, skin, attachment or deformation control | [Rigging](rigging.md) |
-| Plan a correction or judge a visual result | [Visual debugging](visual-debugging.md) |
+| Inspect a form's measures, coverage, construction or light | [Inspecting a form](inspection.md) |
 
-Whatever its source, a form is reproducible, rigged when it moves and judged on screen: a completed generation, fit, compilation or test establishes no visual result. The installed packages' documentation owns data formats and callable behavior.
+Whatever its source, a form is reproducible, rigged when it moves and judged on screen under [visual debugging](../visual-debugging/SKILL.md): a completed generation, fit, compilation or test establishes no visual result. The installed packages' documentation owns data formats and callable behavior.

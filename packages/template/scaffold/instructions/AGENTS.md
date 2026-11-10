@@ -35,7 +35,7 @@ In a workspace the production's folder fixes its [story route](.agents/skills/st
 
 ### What you can observe
 
-You see pictures only as still images and cannot hear. Judge motion from stills dense enough to show it, on consecutive frames at every contact and cut, as [delivery review](.agents/skills/review/delivery-review.md#measure-and-compare) samples them. Ask the user to watch playback where continuous motion is the claim, and to listen to any sound.
+You see pictures only as still images and cannot hear. Judge motion from stills dense enough to show it, on consecutive frames at every contact and cut, as [visual debugging](.agents/skills/visual-debugging/capture.md#times) samples them. Ask the user to watch playback where continuous motion is the claim, and to listen to any sound.
 
 Keep the Viewer and the frame capture working, and restore a broken one before other work, because every judgment of the film passes through them.
 
@@ -90,4 +90,5 @@ Read the production's `PROJECT.md` for the adopted scope, then enter the request
 
 | Skill | Use for |
 | --- | --- |
+| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Judging any picture on stills: planning a capture, choosing passes, comparing captures, running correction rounds, and restoring the Viewer or frame capture |
 | [review](.agents/skills/review/SKILL.md) | Source and narrative review, delivery acceptance, or a requested read-only experience estimation |

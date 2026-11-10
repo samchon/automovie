@@ -52,7 +52,7 @@ Correct a texture's baked light and shadow only where it shows wrong in the actu
 
 Reduce to the triangle count the asset's closest required view needs, at one of the places [Clean](#clean) lists. Merge duplicate vertices first, because a simplifier cannot collapse an edge across split vertices, and reduce before rigging, because weights belong to the final vertices and tools differ in whether a later simplification carries them.
 
-Reduce any other cost only when [measurement](visual-debugging.md#cost) shows it limits the render:
+Reduce any other cost only when [measurement](../visual-debugging/rendering-cost.md) shows it limits the render:
 
 | Measured cost | Remedy |
 | --- | --- |
@@ -79,4 +79,4 @@ A few fixed variants need no parameter. Generate or fetch each as its own frozen
 
 ## Check
 
-Load the conditioned derivative through the actual consumer and judge it under [Visual debugging](visual-debugging.md), beside the frozen source, at the views and motion it is used for.
+Load the conditioned derivative through the actual consumer and judge it under [form inspection](inspection.md), beside the frozen source, at the views and motion it is used for.

@@ -52,7 +52,7 @@ A wardrobe change is its own set. Give each set a plate without people in the sh
 
 A first frame gives an image-to-video model the look while the hint gives the motion; when the two disagree on pose or camera, the result drifts.
 
-Render the hint's first frame at the video model's exact output size and aspect, generate the frame from that structure and the canon identity, then overlay it on the hint render and regenerate when silhouettes, horizon or facing move. Make a last frame the same way only when the shot's end pose matters, such as a matched cut.
+Render the hint's first frame at the video model's exact output size and aspect, generate the frame from that structure and the canon identity, then [overlay](../visual-debugging/comparison.md#read-the-difference) it on the hint render and regenerate when silhouettes, horizon or facing move. Make a last frame the same way only when the shot's end pose matters, such as a matched cut.
 
 ## Turnaround views for modeling
 
