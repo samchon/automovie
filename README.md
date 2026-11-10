@@ -1,10 +1,10 @@
 # AutoMovie
 
-AutoMovie lets an LLM write a film's screenplay and then program the staging, motion and camera that convey it. The output is a reproducible motion-hint video for a video diffusion model.
+AutoMovie lets a coding agent write a film's screenplay and then program the staging, motion and camera that convey it. The output is a reproducible motion-hint video: a plain rendering of the performance that a video diffusion model takes as its guide.
 
-You direct a coding agent in natural language. The agent writes the screenplay and authors the scenes as code, and AutoMovie's engine computes the same frames from that code every time, so a result can be inspected and corrected instead of regenerated. AutoMovie contains no LLM and no authoring server: you bring the coding agent, any media providers and the machine that renders.
+You direct the agent in natural language. AutoMovie's engine computes the same frames from the agent's code every time, so a result can be inspected and corrected instead of regenerated. AutoMovie contains no LLM and no authoring server: you bring the coding agent, any media providers and the machine that renders.
 
-A polygon man, a figure of plain primitives over a body's joints, and coarse meshes are enough for a hint as long as the performance, contacts and timing are right, and surface detail is added only where a shot needs it. A production can stop at the screenplay, at the motion-hint video, or at a finished film rendered directly in 3D or through a diffusion workflow you choose. An accurate hint does not guarantee what an external generator makes of it.
+A hint needs the performance, contacts and timing to be right, not surface detail. People are drawn as a polygon man, plain primitives over a body's joints, and everything else as coarse meshes, with detail added only where a shot needs it. A production, the project of one film, can stop at the screenplay, at the motion-hint video, or at a finished film rendered directly in 3D or through a diffusion workflow you choose. An accurate hint does not guarantee what the diffusion model makes of it.
 
 The scenes at [samchon.github.io/AutoMovie](https://samchon.github.io/AutoMovie/) are rendered from the sources under [`experimental`](./experimental). They show assets and their inspection, not an end-to-end film.
 
@@ -21,30 +21,31 @@ npm run evidence
 npm test
 ```
 
-Open the directory in your coding agent and tell it what you want made. The generated `AGENTS.md` routes the agent to the shipped skills, `PROJECT.md` records the scope and choices it adopts, and the generated [README](./packages/template/scaffold/production/README.md#make-a-motion-hint) describes the workflow from screenplay to delivered video. A new project holds instructions, configuration and dependencies but no film, so the three checks above only confirm that the empty project is sound.
+Open the directory in your coding agent and tell it what you want made. The generated `AGENTS.md` routes the agent to the bundled skills, the task instructions under `.agents/skills`, `PROJECT.md` records the scope and choices it adopts, and the generated [README](./packages/template/scaffold/production/README.md#make-a-motion-hint) describes the workflow from screenplay to delivered video. A new production holds instructions, configuration and dependencies but no film, so the three checks above (lint, the evidence check of code against the bundled checklists, and the tests) only confirm that the empty production is sound.
 
-To keep several productions in one repository, `npx automovie create <directory> --workspace` makes a pnpm workspace, and `pnpm automovie add shorts/<name>` or `pnpm automovie add series/<name>` adds a production to it. After upgrading, `npx automovie sync <directory>` updates the generated instructions of an existing project. The [CLI README](./packages/cli/README.md) covers each command.
+To keep several productions in one repository, `npx automovie create <directory> --workspace` makes a pnpm workspace, and `pnpm automovie add shorts/<name>` or `pnpm automovie add series/<name>` adds a short or a series to it. After upgrading `automovie`, `npx automovie sync <directory>` updates the generated instructions of an existing production or workspace. The [CLI README](./packages/cli) covers each command.
 
 ## Packages
 
 | Package | Purpose |
 | --- | --- |
-| [`@automovie/interface`](./packages/interface) | The pure-type authoring AST an LLM emits |
+| [`@automovie/interface`](./packages/interface) | The authoring AST: the types a coding agent fills in |
 | [`@automovie/engine`](./packages/engine) | Deterministic validation and computation of everything a frame needs |
-| [`@automovie/human`](./packages/human) | A human figure generated from typed parameters by code (being rebuilt) |
-| [`@automovie/motions`](./packages/motions) | Human action laws that author deterministic motion |
+| [`@automovie/human`](./packages/human) | A human figure generated by code from typed parameters (being rebuilt) |
+| [`@automovie/motions`](./packages/motions) | Human actions, such as walk, sit and pick up, computed as deterministic motion |
 | [`@automovie/ingest`](./packages/ingest) | Deterministic import of glTF, GLB, VRM, WAVE and PPM inputs |
 | [`@automovie/recovery`](./packages/recovery) | Curves recovered from a reference mesh, and geometry rebuilt from them |
 | [`@automovie/viewer`](./packages/viewer) | Three.js display, capture and inspection |
-| [`@automovie/render`](./packages/render) | Frame and edit planning, with capture and encoding supplied by the host |
-| [`@automovie/evidence`](./packages/evidence) | Evidence configuration for a production's code and writing |
+| [`@automovie/render`](./packages/render) | Frame and edit planning, with capture and encoding supplied by the calling program |
+| [`@automovie/evidence`](./packages/evidence) | Checks that a production's code and writing answer their checklists |
 | [`@automovie/template`](./packages/template) | The scaffold every production starts from |
 | [`automovie`](./packages/cli) | The CLI that installs the scaffold |
 | [`@automovie/playground`](./packages/playground) | Browser pages for developing this repository |
+| [`@automovie/website`](./website) | The site published at samchon.github.io/AutoMovie |
 
 ## Repository development
 
-Use Node.js 22.23.2 or later and pnpm 10.
+Use the same Node.js version and pnpm 10.
 
 ```bash
 pnpm install

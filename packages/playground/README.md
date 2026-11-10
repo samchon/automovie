@@ -1,6 +1,6 @@
 # @automovie/playground
 
-Browser pages for developing AutoMovie. Each page exercises one part of the engine and viewer with its own example content. The package is private and is not published.
+Browser pages for developing AutoMovie. Each page exercises one part of the engine and viewer with its own example content. The package is private.
 
 ## Run
 
@@ -21,6 +21,6 @@ pnpm --filter @automovie/playground preview   # dist/ at http://127.0.0.1:4173
 | `recovery.html` | Saved image-loft coefficients, dimension edits, matched surface and construction passes, and an optional static mesh reference |
 | `human.html` | Human parameter editing |
 
-On `human.html`, choose an example, edit the body controls in their public units and select Apply; the figure is generated only then. Download saves the edited parameters as JSON.
+On `human.html`, choose an example, edit the body controls in the parameters' units and select Apply; the figure is generated only then. Download saves the edited parameters as JSON.
 
-Construction views, curve selection and Human image routes are in the Human package's [debug viewer](../human/debug/README.md), which `pnpm debug` in `packages/human` serves on port 5197.
+Construction views, curve selection and PNG frames served over HTTP are in the [debug viewer](../human/debug/README.md) of `@automovie/human`, which `pnpm debug` in `packages/human` serves on port 5197.
