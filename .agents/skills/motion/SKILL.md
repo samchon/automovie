@@ -9,16 +9,16 @@ This repository develops the motion vocabulary that productions install. A produ
 
 Author every action by [effector goals](authoring.md), the rule the rest depends on. Then follow, as the work needs:
 
-- [Transitions](transitions.md): time purity, declared cuts, inertialization and redirection.
+- [Transitions](transitions.md): pose as a function of time, declared cuts, inertialization and redirection.
 - [Contacts](contacts.md): support frames, feet, held objects and contact between performers.
-- [Verification](verification.md): capture verdicts, body sweeps and frame review.
+- [Verification](verification.md): bounded checks, body sweeps and frame review.
 
 Those four files ship unchanged to productions, so they name roles rather than this repository's packages and paths. This file holds what applies only here.
 
 ## Owners
 
 - The [package boundaries](../project/SKILL.md#packages) place action content in `motions` and universal motion primitives in `engine`.
-- Retargeting a recorded or generated clip onto the canonical humanoid rig belongs to `engine` (`retargetHumanoidMotion`, with `preserveRetargetContacts` and `validateRetargetContacts` keeping its contacts); [contacts](contacts.md) and [verification](verification.md) judge the result like any authored motion.
+- Retargeting a recorded or generated clip between humanoid rigs belongs to `engine`'s `retargetHumanoidMotion`, which keeps enabled contacts through `preserveRetargetContacts`; [contacts](contacts.md) and [verification](verification.md) judge the result like any authored motion.
 - Each algorithm has one owner. Read the owning package's exports before writing a helper; a second segment distance or angle wrap drifts from the first and leaves two bugs to fix.
 
 ## Bodies, research and captures
