@@ -24,6 +24,6 @@ At a handover:
 
 ## Contact between performers
 
-Judge a contact against each performer's final displayed pose. A stop committed against a provisional pose lands at the wrong instant and lets one body pass into the other. When a stop changes what is displayed, resolve the contacts again against the new display, or resolve both performers together at each instant.
+Judge a contact against each performer's final displayed pose. A contact stop, the instant a moving limb is halted at contact, committed against a provisional pose lands at the wrong instant and lets one body pass into the other. When a contact stop changes what is displayed, resolve the contacts again against the new display, or resolve both performers together at each instant.
 
 Measure penetration against each part's own collider, not against one radius shared by a whole limb.
