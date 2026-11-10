@@ -48,8 +48,14 @@ namespace FamilyConicBody {
     /** Chart `u` seed. */
     up: R.V;
 
-    /** Fitted station interval, mm of course arclength. */
-    domain: [number, number];
+    /** Fitted station interval, mm of course arclength; `auto` takes the longest run of single loops round the course whose area stays near the part's own. */
+    domain: [number, number] | "auto";
+
+    /** Spacing of the fitting sections, mm; absent, `STEP_MM`. */
+    step?: number;
+
+    /** Least distance between two station knots, mm; absent, `GAP_MM`. */
+    gap?: number;
 
     /** Also emitted mirrored in the median plane `z = 0`. */
     mirrored: boolean;
@@ -71,8 +77,22 @@ namespace FamilyConicBody {
     const source: R.ISource = await R.load(root);
     const joint = (name: string): R.V => source.joints.get(name)!;
     const only: string[] = process.argv.slice(2).filter((argument: string): boolean => !argument.startsWith("--"));
+    // A digit's course runs through its joints and on past the last one by the length of its distal segment.
+    const beyond = (a: R.V, b: R.V, length: number): R.V => {
+      const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+      return [b[0] + ((b[0] - a[0]) * length) / d, b[1] + ((b[1] - a[1]) * length) / d, b[2] + ((b[2] - a[2]) * length) / d];
+    };
+    const digit = (name: string, joints: string[], tip: number, up: R.V): IPart => {
+      const centres: R.V[] = joints.map(joint);
+      centres.push(beyond(centres.at(-2)!, centres.at(-1)!, tip));
+      return { name, centres, halves: centres.slice(1, -1).map((): number => 5), up, domain: "auto", step: 2, gap: 6, mirrored: true, layouts: LIMB, reliefs: [] };
+    };
     const parts: IPart[] = (
       [
+        ...["index", "middle", "ring", "pinky"].map((finger: string): IPart => digit("finger." + finger, [finger + "_01_r", finger + "_02_r", finger + "_03_r"], finger === "pinky" ? 22 : 26, [1, 0, 0])),
+        digit("finger.thumb", ["thumb_01_r", "thumb_02_r", "thumb_03_r"], 30, [0, 1, 0]),
+        ...["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map((toe: string): IPart => digit("toe." + toe.replace("toe", ""), [toe + "_01_r", toe + "_02_r"], toe === "bigtoe" ? 28 : toe === "littletoe" ? 14 : 18, [0, 1, 0])),
+        { name: "foot", centres: [[1, 45, 134], [133, 20, 157]], halves: [], up: [0, 1, 0], domain: "auto", step: 2, gap: 8, mirrored: true, layouts: LIMB, reliefs: "auto" },
         { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r")], halves: [30], up: [1, 0, 0], domain: [76, 500], mirrored: true, layouts: LIMB, reliefs: "auto" },
         { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r")], halves: [40], up: [1, 0, 0], domain: [124, 800], mirrored: true, layouts: LIMB, reliefs: "auto" },
         { name: "trunk", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [150, 492], mirrored: false, layouts: LIMB, reliefs: [
@@ -92,7 +112,11 @@ namespace FamilyConicBody {
       const skipped: number[] = [];
       const hollows: string[] = [];
       const skins: C.P[][] = [];
-      for (let s: number = part.domain[0], i: number = 0; s <= part.domain[1] + 1e-9; s += STEP_MM / 2, ++i) {
+      const step: number = part.step ?? STEP_MM;
+      const gap: number = part.gap ?? GAP_MM;
+      const domain: [number, number] = part.domain === "auto" ? span(source.body, axis, part.centres) : part.domain;
+      log("family-body-domain", { part: part.name, domain });
+      for (let s: number = domain[0], i: number = 0; s <= domain[1] + 1e-9; s += step / 2, ++i) {
         const cut: R.ICut = R.cut(source.body, axis.at(s));
         if (cut.loop === null) skipped.push(s);
         else {
@@ -128,12 +152,12 @@ namespace FamilyConicBody {
       };
       for (const { layout, depth } of part.layouts) {
         // A deeper layout starts from the shallower one's final knots and values, cut exactly at every arc's median.
-        const knots0: number[] = best === null ? [part.domain[0], (part.domain[0] + part.domain[1]) / 2, part.domain[1]] : [...best.knots];
+        const knots0: number[] = best === null ? [domain[0], (domain[0] + domain[1]) / 2, domain[1]] : [...best.knots];
         let result: F.IResult = attempt(knots0, layout, best === null ? undefined : F.refine(best.values, depth - 1), "depth " + depth);
         while (result.fault === null && result.training.maximumMm > 0.9 * TARGET_MM) {
-          const open: F.IResult["rows"] = result.rows.filter((r: F.IResult["rows"][number]): boolean => !r.heldout && r.maximumMm > 0.9 * TARGET_MM && result.knots.every((k: number): boolean => Math.abs(k - r.s) >= GAP_MM)).sort((a, b) => b.maximumMm - a.maximumMm);
+          const open: F.IResult["rows"] = result.rows.filter((r: F.IResult["rows"][number]): boolean => !r.heldout && r.maximumMm > 0.9 * TARGET_MM && result.knots.every((k: number): boolean => Math.abs(k - r.s) >= gap)).sort((a, b) => b.maximumMm - a.maximumMm);
           const added: number[] = [];
-          for (const r of open) if (added.length < 4 && added.every((s: number): boolean => Math.abs(s - r.s) >= 2 * GAP_MM)) added.push(r.s);
+          for (const r of open) if (added.length < 4 && added.every((s: number): boolean => Math.abs(s - r.s) >= 2 * gap)) added.push(r.s);
           if (added.length === 0) break;
           const next: number[] = [...result.knots, ...added].sort((a: number, b: number): number => a - b);
           const trial: F.IResult = attempt(next, layout, F.resample(result.values, result.knots, next), "grow");
@@ -227,7 +251,7 @@ namespace FamilyConicBody {
       log("family-body-skin", { part: part.name, over: worstRows.join(" ") });
       const engine = { storedBytes: Buffer.byteLength(stored), fields: best.values.length, knots: best.knots.length, scalars: best.knots.length * (1 + best.values.length), fitTrainMaxMm: round(best.training.maximumMm), fitHeldMaxMm: round(best.heldout.maximumMm), engineMaxMm: round(maximum), engineMeanMm: round(sum / n), loftMs: Math.round(loftMs), diagnostics: loft.diagnostics };
       log("family-body-engine", { part: part.name, ...engine });
-      receipt.push({ part: part.name, domainMm: part.domain, sections: rows.length, skipped, trail, engine });
+      receipt.push({ part: part.name, domainMm: domain, sections: rows.length, skipped, trail, engine });
 
       // Display grid: every observed station by 128 phases, mirrored when the part has a twin.
       const rings: R.V[][] = stations.map((s: number): R.V[] => Array.from({ length: 128 }, (_: unknown, j: number): R.V => AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / 128) as R.V));
@@ -249,7 +273,7 @@ namespace FamilyConicBody {
       await fs.writeFile(path.join(out, "receipt.json"), JSON.stringify({ schema: "f1-family-conic-body-v1", targetMm: TARGET_MM, parts: receipt, milliseconds: performance.now() - started }, null, 2));
 
       // The authored module: the same definition as TypeScript, written beside the receipt and, with --emit, into the Human package.
-      const moduleText: string = emit(part, definition, C.units(definition.layout).length === C.units(C.limb(0)).length ? 0 : 1, engine, rows.length);
+      const moduleText: string = emit({ ...part, domain }, definition, C.units(definition.layout).length === C.units(C.limb(0)).length ? 0 : 1, engine, rows.length);
       await fs.writeFile(path.join(out, moduleName(part.name) + ".ts"), moduleText);
       if (process.argv.includes("--emit")) await fs.writeFile(path.join(root, "packages/human/src/generation/f1", moduleName(part.name) + ".ts"), moduleText);
     }
@@ -314,7 +338,37 @@ namespace FamilyConicBody {
 
   /** Module and constant name of a part's authored family. */
   function moduleName(part: string): string {
-    return "AutoMovieHumanF1" + part[0]!.toUpperCase() + part.slice(1);
+    return "AutoMovieHumanF1" + part.split(".").map((word: string): string => word[0]!.toUpperCase() + word.slice(1)).join("");
+  }
+
+  /**
+   * The station interval a part can be fitted on: the longest run of stations, 1 mm apart along the course, whose cut is one
+   * loop round the course with an area at most twice the median of the course's outer half. Where the part runs into its
+   * parent the loop takes the parent in and its area jumps, which ends the run.
+   */
+  function span(mesh: R.ISource["body"], axis: AutoMovieViewAxis.IAxis, centres: readonly R.V[]): [number, number] {
+    let length: number = 0;
+    for (let i: number = 1; i < centres.length; ++i) length += Math.hypot(centres[i]![0] - centres[i - 1]![0], centres[i]![1] - centres[i - 1]![1], centres[i]![2] - centres[i - 1]![2]);
+    const areas: (number | null)[] = [];
+    for (let s: number = 0; s <= length; ++s) {
+      const loop: C.P[] | null = R.cut(mesh, axis.at(s)).loop;
+      areas.push(loop === null ? null : R.area(loop));
+    }
+    const outer: number[] = areas.slice(Math.floor(areas.length / 2)).filter((a: number | null): a is number => a !== null).sort((a: number, b: number): number => a - b);
+    const limit: number = 2 * (outer[Math.floor(outer.length / 2)] ?? Infinity);
+    let best: [number, number] = [0, 0];
+    let from: number = -1;
+    for (let s: number = 0; s <= areas.length; ++s) {
+      const good: boolean = s < areas.length && areas[s] !== null && areas[s]! <= limit;
+      if (good && from < 0) from = s;
+      if (!good && from >= 0) {
+        if (s - 1 - from > best[1] - best[0]) best = [from, s - 1];
+        from = -1;
+      }
+    }
+
+    // Stand off both ends: the parent's blend at the root and the vanishing loop at the tip are not the tube's.
+    return [best[0] + 2, best[1] - 3];
   }
 
   /** What each field of a layout holds, in field order, for the authored table's row comments. */
@@ -337,7 +391,7 @@ namespace FamilyConicBody {
   }
 
   /** The authored TypeScript module of a fitted family, with its frame, units, source and measured receipt in its comment. */
-  function emit(part: IPart, family: K.IStored, depth: number, engine: { engineMaxMm: number; engineMeanMm: number; scalars: number }, sections: number): string {
+  function emit(part: IPart & { domain: [number, number] }, family: K.IStored, depth: number, engine: { engineMaxMm: number; engineMeanMm: number; scalars: number }, sections: number): string {
     const name: string = moduleName(part.name);
     const names: string[] = labels(family.layout);
     const lines: string[] = [
@@ -355,7 +409,7 @@ namespace FamilyConicBody {
       " * them: the section is a chain of conics through its four extremes" + (depth > 0 ? " and one median point per quarter" : "") + ", fitted to the convex hull of the reference skin",
       " * (the path of a taut tape).",
       " *",
-      " * Source: the f1 reference body cut by this course's own planes over stations " + part.domain[0] + " to " + part.domain[1] + " mm, " + sections + " sections 2 mm apart, every",
+      " * Source: the f1 reference body cut by this course's own planes over stations " + part.domain[0] + " to " + part.domain[1] + " mm, " + sections + " sections " + (part.step ?? STEP_MM) / 2 + " mm apart, every",
       " * second one withheld from the fit. Fitted offline by `test/src/reference-conics/FamilyConicBody.ts` (joint least squares over",
       " * all sections). Regenerated through the engine's view loft from these numbers alone, the reference skin's cut vertices lie",
       " * " + engine.engineMeanMm + " mm from it on average and at most " + engine.engineMaxMm + " mm. " + engine.scalars + " independent numbers.",

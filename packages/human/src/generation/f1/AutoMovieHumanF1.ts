@@ -2,7 +2,18 @@ import { AutoMovieLoftChain, type AutoMovieViewLoft } from "@automovie/engine";
 
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
+import { AutoMovieHumanF1FingerIndex } from "./AutoMovieHumanF1FingerIndex";
+import { AutoMovieHumanF1FingerMiddle } from "./AutoMovieHumanF1FingerMiddle";
+import { AutoMovieHumanF1FingerPinky } from "./AutoMovieHumanF1FingerPinky";
+import { AutoMovieHumanF1FingerRing } from "./AutoMovieHumanF1FingerRing";
+import { AutoMovieHumanF1FingerThumb } from "./AutoMovieHumanF1FingerThumb";
+import { AutoMovieHumanF1Foot } from "./AutoMovieHumanF1Foot";
 import { AutoMovieHumanF1Leg } from "./AutoMovieHumanF1Leg";
+import { AutoMovieHumanF1ToeBig } from "./AutoMovieHumanF1ToeBig";
+import { AutoMovieHumanF1ToeIndex } from "./AutoMovieHumanF1ToeIndex";
+import { AutoMovieHumanF1ToeLittle } from "./AutoMovieHumanF1ToeLittle";
+import { AutoMovieHumanF1ToeMiddle } from "./AutoMovieHumanF1ToeMiddle";
+import { AutoMovieHumanF1ToeRing } from "./AutoMovieHumanF1ToeRing";
 import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
 
 /**
@@ -15,10 +26,11 @@ import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
  * emitted a second time reflected in `z = 0`.
  *
  * The figure is under construction: it holds the arms from below the armpit
- * to the wrist, the legs from below the crotch to above the ankle and the
- * trunk from the hip to below the bust. The parts are separate open tubes;
- * the branches between them, the hands, the feet and the head are not built
- * yet.
+ * to the wrist, the legs from below the crotch to above the ankle, the trunk
+ * from the hip to below the bust, the shafts of the five digits of each hand
+ * and foot, and each midfoot. The parts are separate open tubes; the
+ * branches between them, the palms, heels, digit tips, pelvis, chest,
+ * shoulders, neck and head are not built yet.
  */
 export namespace AutoMovieHumanF1 {
   /** One generated surface piece. */
@@ -41,6 +53,17 @@ export namespace AutoMovieHumanF1 {
     { family: AutoMovieHumanF1Trunk, mirrored: false },
     { family: AutoMovieHumanF1Arm, mirrored: true },
     { family: AutoMovieHumanF1Leg, mirrored: true },
+    { family: AutoMovieHumanF1FingerIndex, mirrored: true },
+    { family: AutoMovieHumanF1FingerMiddle, mirrored: true },
+    { family: AutoMovieHumanF1FingerPinky, mirrored: true },
+    { family: AutoMovieHumanF1FingerRing, mirrored: true },
+    { family: AutoMovieHumanF1FingerThumb, mirrored: true },
+    { family: AutoMovieHumanF1Foot, mirrored: true },
+    { family: AutoMovieHumanF1ToeBig, mirrored: true },
+    { family: AutoMovieHumanF1ToeIndex, mirrored: true },
+    { family: AutoMovieHumanF1ToeLittle, mirrored: true },
+    { family: AutoMovieHumanF1ToeMiddle, mirrored: true },
+    { family: AutoMovieHumanF1ToeRing, mirrored: true },
   ];
 
   /**
