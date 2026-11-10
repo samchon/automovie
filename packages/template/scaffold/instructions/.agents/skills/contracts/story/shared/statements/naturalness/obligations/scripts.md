@@ -5,8 +5,13 @@ Contract: [naturalness/obligations/scripts.md](../../../naturalness/obligations/
 ## Execution distribution {#execution-distribution}
 
 1. Entry, action-response ordering, speaking turns, direction density, block duration, silence, view changes and exits are compared across the whole.
-2. The answer reports habitual beat sequences and mechanically equal blocks that flatten different situations, including a standard gesture before every line or an explanatory conclusion after every scene.
+2. The answer reports habitual beat sequences and mechanically equal blocks that flatten different situations, including:
+    - a standard gesture before every line;
+    - an explanatory conclusion after every scene.
 3. Units are compared for the same audible closing voiceover, question-and-answer mold or battle progression.
-4. Repeated scene headings for time, place and weather, adopted actor-specific performance parentheticals, and positional identifiers for unnamed participants are execution notation, because production sets up each scene independently.
+4. These are execution notation, because production sets up each scene independently:
+    - repeated scene headings for time, place and weather;
+    - adopted actor-specific performance parentheticals;
+    - positional identifiers for unnamed participants.
 5. Actual continuous action, a fixed formal view, ritual recurrence and sustained stillness may justify regularity. Their realized effect is preserved, not their label.
 6. The candidate record and comparison follow [common expression obligations](common.md#recurrent-frames), and all found occurrences are repaired together while script-owned partition and executable staging are preserved.

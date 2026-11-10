@@ -73,12 +73,29 @@ In the Viewer, URL parameters `rig=1` and `contacts=1` show the review skeleton 
 
 ## Make a motion hint
 
-1. Adopt the request, output boundary and operating choices, including the intended execution/capture path, in [PROJECT.md](PROJECT.md) through [project context]({{skills}}/production/project-context.md). Make routine choices within the user's delegation and keep creative requirements with their owners.
-2. Study every practice and style the film shows through [research]({{skills}}/story/planning/research.md), write the [settings]({{skills}}/story/layers/settings.md), or a short's [brief]({{skills}}/story/layers/brief.md), that draw on it, then write the complete [screenplay]({{skills}}/story/SKILL.md) along its [writing route]({{skills}}/story/workflow.md#route-and-parents), with evidence and independent review.
-3. Build the coarse entities under [entity work]({{skills}}/development/entities.md), compose people's actions from the installed motion vocabulary, write laws, interactions and consequences only for what it lacks, with their tests, and accept every module in its [catalog cases]({{skills}}/motion/catalog-cases.md).
-4. Compose every required main scene from the accepted modules under [motion]({{skills}}/motion/SKILL.md) and [staging for the camera]({{skills}}/motion/staging.md), in the folders [source layout]({{skills}}/development/source-layout.md) gives. [Audio]({{skills}}/audio/SKILL.md) describes each shot's sound for the video-diffusion prompt.
-5. Prepare the [motion hint and its control channels]({{skills}}/motion/control-channels.md) from the same actual performance, with aligned frame/camera mapping for time-matched channels. Use the supplied Viewer/export host or document the production's adopted replacement here.
-6. Assemble and encode the complete work through [assembly]({{skills}}/production/assembly.md), then inspect the actual output through [delivery review]({{skills}}/review/delivery-review.md). Hand off the fixed inputs, source, commands, observed result and remaining limits.
+1. Adopt the request, output boundary and operating choices in [PROJECT.md](PROJECT.md) through [project context]({{skills}}/production/project-context.md).
+
+   Include the intended execution/capture path. Make routine choices within the user's delegation and keep creative requirements with their owners.
+
+2. Study every practice and style the film shows through [research]({{skills}}/story/planning/research.md), then write the story with evidence and independent review.
+
+   Write the [settings]({{skills}}/story/layers/settings.md), or a short's [brief]({{skills}}/story/layers/brief.md), that draw on the study, then the complete [screenplay]({{skills}}/story/SKILL.md) along its [writing route]({{skills}}/story/workflow.md#route-and-parents).
+
+3. Build the coarse entities under [entity work]({{skills}}/development/entities.md) and accept every module in its [catalog cases]({{skills}}/motion/catalog-cases.md).
+
+   Compose people's actions from the installed motion vocabulary, and write laws, interactions and consequences, with their tests, only for what it lacks.
+
+4. Compose every required main scene from the accepted modules under [motion]({{skills}}/motion/SKILL.md) and [staging for the camera]({{skills}}/motion/staging.md).
+
+   Put the scenes in the folders [source layout]({{skills}}/development/source-layout.md) gives. [Audio]({{skills}}/audio/SKILL.md) describes each shot's sound for the video-diffusion prompt.
+
+5. Prepare the [motion hint and its control channels]({{skills}}/motion/control-channels.md) from the same actual performance.
+
+   Keep the frame/camera mapping aligned for time-matched channels. Use the supplied Viewer/export host or document the production's adopted replacement here.
+
+6. Assemble and encode the complete work through [assembly]({{skills}}/production/assembly.md), then inspect the actual output through [delivery review]({{skills}}/review/delivery-review.md).
+
+   Hand off the fixed inputs, source, commands, observed result and remaining limits.
 
 A separately commissioned screenplay ends with its text duties; a standalone asset needs no invented narrative. A whole motion hint needs no finished diffusion film. A requested direct 3D film finishes through its actual renderer, with sound only as [audio]({{skills}}/audio/SKILL.md) sets; [generated video]({{skills}}/video/generation.md) uses the model, requests and prompts [video]({{skills}}/video/SKILL.md) sets and accepted fixed takes before the final edit. Their delivery boundaries stay explicit in PROJECT.md.
 
@@ -103,12 +120,26 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 
 ## Project files
 
-- `.agents/skills`, at this project's root or at its workspace root, holds the task entry points `AGENTS.md` lists, their resources and the contracts. `AGENTS.md` groups creation, implementation/evidence, writing and assessment; `story` routes to its planning, layers, naturalness, correction and evidence parts.
-- `PROJECT.md` holds the project overview, commissioned scope, current choices, constraints and setup authority.
-- `docs/instructions` holds creative writing requirements; other `docs` locations hold research studies, bodies, working editions, evidence, reviews and acceptance records when needed, and `references/` the retained research originals. [Document layout]({{skills}}/story/document-layout.md), [source layout]({{skills}}/development/source-layout.md) and [media records]({{skills}}/production/media-records.md) explain their owners.
-- `src` holds entities, laws, interactions, consequences, scene and film composition, host entries and commands as [source layout]({{skills}}/development/source-layout.md) assigns, with optional provider or local-tool code in `src/integrations`; `test` holds tests and their runner; `public` holds small fixed browser inputs, while audio and video belong in `media/`.
-- Runtime README instructions and `.env.example` hold nonsecret setup and variable names. Keep actual secrets in ignored local `.env`.
-- `evidence.config.ts` selects duties through installed `@automovie/evidence`; `npm run evidence` evaluates the selected native graph.
-- `lint.config.ts` configures generic source lint; the dependency direction between source folders is the [source layout]({{skills}}/development/source-layout.md)'s rule; `tsconfig.json` owns compiler settings and `tsconfig.test.json` scopes pure TypeScript unit tests. `package.json` owns dependencies and commands.
+| Path | Holds |
+| --- | --- |
+| `.agents/skills`, at this project's root or its workspace root | The task entry points `AGENTS.md` lists, their resources and the contracts |
+| `PROJECT.md` | The project overview, commissioned scope, current choices, constraints and setup authority |
+| `docs/instructions` | Creative writing requirements |
+| Other `docs` locations | Research studies, bodies, working editions, evidence, reviews and acceptance records when needed |
+| `references/` | The retained research originals |
+| `src` | Entities, laws, interactions, consequences, scene and film composition, host entries and commands |
+| `src/integrations` | Optional provider or local-tool code |
+| `test` | Tests and their runner |
+| `public` | Small fixed browser inputs; audio and video belong in `media/` |
+| Runtime README instructions and `.env.example` | Nonsecret setup and variable names; actual secrets stay in ignored local `.env` |
+| `evidence.config.ts` | The duties selected through installed `@automovie/evidence`, which `npm run evidence` evaluates as the selected native graph |
+| `lint.config.ts` | Generic source lint |
+| `tsconfig.json` | Compiler settings |
+| `tsconfig.test.json` | The scope of pure TypeScript unit tests |
+| `package.json` | Dependencies and commands |
+
+`AGENTS.md` groups creation, implementation/evidence, writing and assessment; `story` routes to its planning, layers, naturalness, correction and evidence parts.
+
+[Document layout]({{skills}}/story/document-layout.md), [source layout]({{skills}}/development/source-layout.md) and [media records]({{skills}}/production/media-records.md) explain the owners of the `docs`, `src` and `media` locations. The dependency direction between source folders is the source layout's rule.
 
 Package upgrades leave this project unchanged. `automovie sync <directory> --check`, run on the directory holding `AGENTS.md` (this project or its workspace root), previews generated instruction updates, and omitting `--check` applies a conflict-free plan that preserves contracts, project decisions, README, configuration, authored content and proof. Keep `.automovie/scaffold-state.json` beside that `AGENTS.md`; [sync and reorganization]({{skills}}/production/sync-and-reorganization.md) covers baselines, retired paths and approvals. Installed package READMEs, public types and JSDoc own API behavior.

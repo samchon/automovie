@@ -4,7 +4,8 @@ Contract: [principles/realized.md](../../principles/realized.md).
 
 ## Speaker plausibility {#speaker-plausibility}
 
-1. Age, status, situation, knowledge, relationship, vocabulary, address, register, rhythm, dialect, avoidance and silence make each consequential line plausible and distinguish the speakers. Exception: ordinary replies can be shared.
+1. Age, status, situation, knowledge, relationship, vocabulary, address, register, rhythm, dialect, avoidance and silence make each consequential line plausible and distinguish the speakers.
+    - Exception: ordinary replies can be shared.
 2. The judgment rests on the exchange itself, not on an explanation about the speaker.
 3. Authoring jargon and procedural codes appear in speech only when they exist in the world and this speaker would use them.
 4. The inherited exchange's purpose and outcome are preserved across naturalistic, theatrical, ritual and other adopted forms.

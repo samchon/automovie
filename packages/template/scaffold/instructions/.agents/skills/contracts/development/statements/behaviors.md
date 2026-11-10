@@ -15,13 +15,21 @@ Contract: [behaviors.md](../behaviors.md).
 
 ## Goals and bounds {#relational-goals}
 
-1. Each goal names its end effector, target, approach, window and whether the target is frozen or tracked, under [end-effector goals](../../../motion/authoring.md#write-the-goal). No absolute coordinate, offset or tuned joint angle stands in for a goal.
-2. The behavior declares its [out-of-reach rule](../../../motion/authoring.md#decide-what-happens-out-of-reach) in its documentation, and the code follows that sentence. No target is clamped silently.
-3. Each contact has a declared window and [support frame](../../../motion/contacts.md#windows-and-support-frames).
-4. An interaction decides the outcome class from the composed intents by its research outcome table first. Geometry then realizes and audits it, so a geometric miss fails the audit instead of changing the outcome.
-5. A consequence such as sweat, a scuff, dust or a sound cue follows only from a computed outcome.
-6. The unit tests assert each bound of [motion verification](../../../motion/verification.md) that applies: end-effector-to-target distance, penetration, slip, range of motion, balance and continuity at cuts, each against a bound taken from the requirement or the study.
-7. Those tests run across bodies of several statures and proportions, and against the partners and props the scenes use.
+1. Each goal names its end effector, target, approach, window and whether the target is frozen or tracked, under [end-effector goals](../../../motion/authoring.md#write-the-goal).
+2. No absolute coordinate, offset or tuned joint angle stands in for a goal.
+3. The behavior declares its [out-of-reach rule](../../../motion/authoring.md#decide-what-happens-out-of-reach) in its documentation, and the code follows that sentence. No target is clamped silently.
+4. Each contact has a declared window and [support frame](../../../motion/contacts.md#windows-and-support-frames).
+5. An interaction decides the outcome class from the composed intents by its research outcome table first.
+6. Geometry then realizes and audits that outcome, so a geometric miss fails the audit instead of changing the outcome.
+7. A consequence such as sweat, a scuff, dust or a sound cue follows only from a computed outcome.
+8. The unit tests assert each bound of [motion verification](../../../motion/verification.md) that applies, each against a bound taken from the requirement or the study:
+    - end-effector-to-target distance;
+    - penetration;
+    - slip;
+    - range of motion;
+    - balance;
+    - continuity at cuts.
+9. Those tests run across bodies of several statures and proportions, and against the partners and props the scenes use.
 
 ## Deterministic evaluation {#deterministic-evaluation}
 

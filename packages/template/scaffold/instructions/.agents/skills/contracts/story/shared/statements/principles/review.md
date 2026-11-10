@@ -23,11 +23,15 @@ Contract: [principles/review.md](../../principles/review.md).
 1. Each finding class records its inspected scope, a reproducible search or comparison, every discovered member and affected relation, and the earliest owner.
 2. It references other review units where they inspected a member, and a genuinely isolated finding states its reason.
 3. Quotations and locators match the inspected revision.
-4. In the evidence audit after creative correction, each acknowledgment is compared with the full target requirement and complete host support: host kind, family, semantic role, lineage, predicate and actual realization.
+4. In the evidence audit after creative correction, each acknowledgment is compared with the full target requirement and complete host support:
+    - host kind, family and semantic role;
+    - lineage, predicate and actual realization.
 5. A claim about checking itself, repeated vocabulary, another event or partial support proves no relationship.
 6. An exclusion has its complete defined negative scope and inspection method.
 7. A creative reading records the literal audit as pending and does not claim to perform it.
-8. The [inspection record](../../../../../story/correction/inspection.md) covered every required sentence and parent comparison at the actual snapshot, before author evidence, and rechecked all changed dependencies without silently reversing unchanged tests.
-9. The body was compared with its parents and requirements independently of the relationship rows, following [independent reading](../../../../../review/independent-reading.md), every decision against its inherited parent.
-10. Nearby relationships were compared by exchanging their names, predicates and conditions, so support and refutation stay specific to the actual relation. Similar wording prompts inspection, not automatic failure.
-11. A false edge is repaired at its owner, and a pasted answer never requires changing the story. Structural validity belongs to the evidence checker and never substitutes for semantic truth.
+8. The [inspection record](../../../../../story/correction/inspection.md) covered every required sentence and parent comparison at the actual snapshot, before author evidence.
+9. The inspection record rechecked all changed dependencies without silently reversing unchanged tests.
+10. The body was compared with its parents and requirements independently of the relationship rows, following [independent reading](../../../../../review/independent-reading.md), every decision against its inherited parent.
+11. Nearby relationships were compared by exchanging their names, predicates and conditions, so support and refutation stay specific to the actual relation.
+12. Similar wording prompts inspection, not automatic failure.
+13. A false edge is repaired at its owner, and a pasted answer never requires changing the story. Structural validity belongs to the evidence checker and never substitutes for semantic truth.
