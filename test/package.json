@@ -12,7 +12,6 @@
   "author": "Samchon",
   "license": "MIT",
   "dependencies": {
-    "@automovie/archetypes": "workspace:^",
     "@automovie/engine": "workspace:^",
     "@automovie/evidence": "workspace:^",
     "@automovie/human": "workspace:^",

@@ -1,54 +1,55 @@
 # @automovie/viewer
 
-Displays AutoMovie output through Three.js: it turns `@automovie/interface` models, scenes, poses, expressions and motion into Three objects, plays them on one frame clock, and captures and inspects the result. The engine decides what a frame contains; the viewer only draws it, so the same compiled input always draws the same picture.
+Draws AutoMovie output with Three.js. It builds Three.js objects from `@automovie/interface` models and scenes, applies poses, expressions and motion on one frame clock, and captures or inspects the result. The engine decides what a frame contains and the viewer only draws it. This is the one AutoMovie package that imports `three`.
 
-Use it in a browser host, a headless capture host, or the playground. It owns no editor controls and no example content.
+It has no editor controls and no example content. A host, the program that mounts it, can be a browser page, a headless capture process or the playground.
 
 ## Use
 
 ```bash
-npm install @automovie/viewer three
+npm install @automovie/viewer @automovie/interface three
 ```
 
-Node hosts require Node 22.23.2 or later. The published JavaScript is ESM, with no separate CommonJS build. In an ESM project, the public entry and Three addons can load concurrently:
+```ts
+import { buildModel, mountViewer } from "@automovie/viewer";
+import type { IAutoMovieModel } from "@automovie/interface";
+import * as THREE from "three";
 
-```typescript
-const [viewer, three, lights] = await Promise.all([
-  import("@automovie/viewer"),
-  import("three"),
-  import("three/examples/jsm/lights/RectAreaLightUniformsLib.js"),
-]);
-console.log(
-  typeof viewer.buildLight,
-  three.REVISION,
-  typeof lights.RectAreaLightUniformsLib.init,
-);
+declare const model: IAutoMovieModel;
+declare const canvas: HTMLCanvasElement;
+
+const scene = new THREE.Scene();
+scene.add(buildModel(model).object);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x9aa3b2, 1.1));
+
+const camera = new THREE.PerspectiveCamera(40, 1, 0.05, 100);
+camera.position.set(0, 1, 3.8);
+
+const viewer = mountViewer(canvas, scene, camera, (elapsedSeconds) => {
+  // advance an AutoMoviePlayer or apply a pose here
+});
+// viewer.stop() ends the loop and releases the renderer.
 ```
 
-Keep the host, viewer and addons on one Three installation so their constructors and shared uniforms retain the same identity.
+`mountViewer` is the only entry point that needs a browser.
 
-A source-linked `ttsx -P tsconfig.json` consumer should use an ESM compiler configuration (`module: "ESNext"` or `"NodeNext"`). The repository's CommonJS test configuration was observed to convert the consumer's Three import into `require("three")`, emitting `THREE_CJS_DEPRECATED`; the packed native ESM and source-linked ESM configurations did not emit that warning.
+The published JavaScript is ESM only, and Node hosts need Node.js 22.23.2 or later. Keep the host, the viewer and any Three.js addons on one `three` installation, or constructors and shared uniforms stop matching. A host compiled to CommonJS turns its own `three` import into `require("three")` and gets the `THREE_CJS_DEPRECATED` warning, so compile as ESM.
 
-| Entry | Purpose |
-| --- | --- |
-| `@automovie/viewer` | Scene, model, material and light construction (`buildScene`, `buildModel`, `buildMaterial`), playback (`AutoMoviePlayer`, `applyPose`, `applyExpression`), render passes (`applyRenderMode`, `applyAutoMovieSemanticMask`), transitions (`renderAutoMovieFilmFrame`), instanced formations, effects and fluids, texture-budget facts for `@automovie/render`, subject framing and capture (`mountViewer`, `captureViewerSnapshot`), and the original rigid polygon mannequin and cartoon face over caller-supplied structural skeleton/exterior descriptors; the CPU scene rasterizer (`rasterizeAutoMovieScene`) is Node tooling that the scaffold ships under `src/executable/viewer/node/raster` |
+## Entry points
+
+Everything is exported from the package root.
+
+- Build: `buildScene`, `buildModel`, `buildMaterial`, `buildLight`.
+- Play: `AutoMoviePlayer`, `applyPose`, `applyExpression`, and `applyAutoMovieRigLocals` for complete rig-evaluator output.
+- Passes and transitions: `applyRenderMode`, `applyAutoMovieSemanticMask`, `renderAutoMovieFilmFrame`.
+- Mount and capture: `mountViewer`, `captureViewerSnapshot`.
+
+Formations, effects, fluids, soft bodies, section planes and the metric capture helpers are exported the same way. Units and the owner of each returned object are in the JSDoc. A CPU rasterizer for Node ships with a generated production, under `src/executable/viewer/node/raster`.
 
 ## Ownership
 
-The viewer releases what it creates and leaves what the caller passes in. `dispose` functions free viewer-owned geometry, materials, textures and compositor targets, never a caller's renderer, scene or numerical source. Render-budget hosts read texture and render-target facts from the actual objects (`AutoMovieTextureCache.describeSources`, `readAutoMovieRenderTextureTarget`) and pass them to `assessAutoMovieRenderBudget`, which refuses a frame whose memory it cannot bound.
+The viewer releases what it creates and leaves alone what you pass in. A `dispose` function frees viewer-owned geometry, materials, textures and render targets, never your renderer, scene or source data. Parts of one built model that use the same joints share a skeleton, so dispose of a model through `collectAutoMovieOwnedResources`, which lists each shared resource once.
 
-`buildModel` shares one skeleton and bone texture among parts with the same ordered joint slots inside one built model. Mesh bind matrices, skinning methods, geometry and culling remain independent; separate builds own separate skeletons. Retire an owned model with the identity-deduplicated `collectAutoMovieOwnedResources` population so shared skeletons are released once.
+## Polygon man
 
-`buildAutoMovieConstruction` displays supplied open or closed generating polylines in metres under an explicit point budget, with one owned disposer. `createAutoMovieMetricOrthographicCamera` maps a supplied horizontal metric pixel chart to a native camera. `captureAutoMovieMetricFrame` captures the current scene in physical pixels as a surface or structural silhouette pass, then restores borrowed renderer and scene state. The host owns subject visibility, admission budgets and redrawing its ordinary camera; these operations perform no reconstruction or camera estimation.
-
-`updateAutoMovieComparisonCamera` derives one centred orthographic projection and a screen-right separation vector from a standalone perspective camera. Hosts can display unchanged subjects at equal opposite offsets with the same magnification and view direction, including profile views. The caller owns the reusable output camera/vector and subject placement; parented/scaled cameras, manual matrices and off-axis source lenses refuse.
-
-Human-specific bindings and diagnostic controls live in the Human package's [debug viewer](../human/debug/README.md). The viewer consumes ordinary model and pose data and has no dependency on the Human generator.
-
-The optional `human-polygon` entry owns the original development mannequin's geometry formulas and face drawing. `buildHumanPolygon(output, { partColors })` accepts the public Human skeleton/exterior output structurally, including custom string bone ids. Its `setPose({ posed })` admits the complete fixed rig before updating the actual surface and diagnostic groups. `parts`, `bones` and `bindings` expose those displayed objects by bone id. A mesh vertex or contact probe's local point is its registered rest point minus that bone's rest joint; the flat group's bind-relative body-frame placement and the host's actor-parent transform apply once. Pose updates refresh world matrices for paused inspection too. Rigid modules can overlap or separate at joints and do not certify continuous skin or collision clearance.
-
-`buildHumanCartoonFace(drawing.head, expression, headPose)` retains the original selected action-unit drawing and explicit unsupported-action report. Add its object to `drawing.head.object` once and retire the face separately from the polygon drawing. The host owns colours, equipment, clinical evaluation, choreography and actor-root placement. This optional entry imports neither Human nor development content.
-
-Human's `AutoMovieHumanSkeleton.prepare(parameters, { neckSurface: true, footSurface: true })` supplies optional canonical foot courses to the same polygon builder. Subtalar and Midfoot keep separate bindings; existing toe modules remain articulated. `drawing.plantarLandmarks[side][name]` identifies an actual `parts.get(bone)` position-attribute `vertexIndex` and its Float32 `localPoint`. `plantarSupport` measures initial placed heights over the entire emitted foot, including toes; its named contact subset can be empty. These fixed references preserve intrinsic shape under later posing. The reported numerical coincidence bound grants no physical floor-clearance exemption, and rigid course joins do not certify continuous skin.
-
-`applyAutoMovieRigLocals(target, locals, root)` displays complete rig-evaluator output directly, including translated bone locals from folded intermediate joints. Each `IAutoMovieRigLocalTransform` carries parent-relative metre translation `[x, y, z]` and a unit quaternion `[x, y, z, w]`. The map must match the built model's mapped bones exactly; invalid values refuse before any write. The adapter applies unit scale, refreshes world matrices and invalidates skinned bounds. The host supplies morph weights and imported-runtime updates when needed.
+`buildHumanPolygon` draws the polygon man, the plain-primitive figure a production uses for people, over the joints that `@automovie/human` outputs, and `buildHumanCartoonFace` adds a drawn face to its head. The viewer accepts any object of that shape and does not depend on `@automovie/human`; the [Human README](../human/README.md#polygon-man) shows the two together. The primitives are rigid, so they can overlap or separate at joints and prove nothing about continuous skin or collision clearance.

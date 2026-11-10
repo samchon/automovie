@@ -10,7 +10,7 @@ Inspect the materializer's rendered file map when changing what production instr
 
 ## Compare decisions before claiming effects
 
-Use actual tasks and retained failures with their strongest legitimate counterexamples. Select cases affected by the change rather than requiring every project to run a universal suite. Useful route contrasts include a screenplay-only task, the settings → screenplay short route, a complete coarse motion hint, and a commissioned finished film.
+Use actual tasks and retained failures with their strongest legitimate counterexamples. Select cases affected by the change rather than requiring every project to run a universal suite. Useful route contrasts include a screenplay-only task, the brief → screenplay short route, a complete coarse motion hint, and a commissioned finished film.
 
 For a changed expression criterion, compare preserved meaning with the experience made by actual language, image, sound and timing. Check an informative but ineffective passage and a deliberate restrained form; a function list cannot acquit the first and a style label cannot condemn the second. Confirm that the existing overall question can judge what sentence classification alone misses.
 

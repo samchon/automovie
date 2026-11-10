@@ -37,7 +37,7 @@ export type AutoMovieCommand =
       /** Add one production to the workspace whose root is the working directory. */
       command: "add";
 
-      /** `shorts` for settings → screenplay, `series` for the whole long route. */
+      /** `shorts` for brief → screenplay, `series` for the whole long route. */
       family: "shorts" | "series";
 
       /** The production's directory under `movies/<family>`, one admitted path segment. */

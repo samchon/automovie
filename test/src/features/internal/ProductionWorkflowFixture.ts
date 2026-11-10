@@ -38,7 +38,7 @@ export class ProductionWorkflowFixture {
   /** Returns disabled narrative options; tests explicitly open their own stages. */
   public static props(
     root: string,
-    mode: "long" | "short" | "short-with-settings" | "asset" = "long",
+    mode: "long" | "short" | "asset" = "long",
   ): IProductionConfigProps {
     return {
       mode,
@@ -128,7 +128,7 @@ export class ProductionWorkflowFixture {
   /** Builds an explicit one-scene graph whose contracts make no literary claim. */
   public static complete(
     root: string,
-    mode: "long" | "short" | "short-with-settings",
+    mode: "long" | "short",
   ): IProductionConfigProps {
     ProductionWorkflowFixture.populate(root);
     const props: IProductionConfigProps = ProductionWorkflowFixture.props(
@@ -144,9 +144,7 @@ export class ProductionWorkflowFixture {
     )[] =
       mode === "long"
         ? ["settings", "treatments", "scripts", "screenplay"]
-        : mode === "short-with-settings"
-          ? ["settings", "screenplay"]
-          : ["brief", "screenplay"];
+        : ["brief", "screenplay"];
     const discovery: Set<string> = new Set<string>();
     for (const family of ["principles", "obligations"])
       ProductionWorkflowFixture.write(
@@ -226,10 +224,7 @@ export class ProductionWorkflowFixture {
         units.push(`shared/upstream/${layer}.md#repair`);
       if (mode === "short" && layer === "screenplay")
         units.push("brief/world/arrival.md#arrival");
-      if (
-        layer === "treatments" ||
-        (mode === "short-with-settings" && layer === "screenplay")
-      )
+      if (layer === "treatments")
         units.push("settings/001-event.md#arrival");
       if (mode === "long" && (layer === "scripts" || layer === "screenplay")) {
         units.push("treatments/001-event.md#arrival");
