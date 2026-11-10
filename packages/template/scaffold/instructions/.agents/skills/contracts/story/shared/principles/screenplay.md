@@ -1,6 +1,8 @@
 # Final screenplay principles
 
-Each final screenplay H2 answers for the finished audiovisual experience specified by that unit. In a long work it follows already executable scripts; a short realizes its brief and research, owning necessary events and executable scene decisions directly. Neither path replaces finished audiovisual realization with planning or polished wording. Check each item's [statements](../statements/principles/screenplay.md) before answering it.
+Each final screenplay H2 answers for the finished audiovisual experience specified by that unit. In a long work it follows already executable scripts; a short realizes its brief and research, owning necessary events and executable scene decisions directly. Neither path replaces finished audiovisual realization with planning or polished wording.
+
+Statements: [statements/principles/screenplay.md](../statements/principles/screenplay.md).
 
 ## Does it realize its material as a finished audiovisual experience? {#audiovisual-realization}
 

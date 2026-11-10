@@ -1,6 +1,8 @@
 # Settings principles
 
-Each settings H2 answers as one facet of its subject, owning the anchored H3 facts beneath it. It does not answer for every person or place in the work. Check each item's [statements](../statements/principles/settings.md) before answering it.
+Each settings H2 answers as one facet of its subject, owning the anchored H3 facts beneath it. It does not answer for every person or place in the work.
+
+Statements: [statements/principles/settings.md](../statements/principles/settings.md).
 
 ## Does the record settle a decision the planned scenes need? {#usable-facts}
 

@@ -1,6 +1,8 @@
 # Settings index section principles
 
-Each section of the settings index answers for its contained file group. A settings fact H2 is not this respondent. Check each item's [statements](../statements/principles/index.md) before answering it.
+Each section of the settings index answers for its contained file group. A settings fact H2 is not this respondent.
+
+Statements: [statements/principles/index.md](../statements/principles/index.md).
 
 ## Does this group help a reader find the right owner? {#group-purpose}
 

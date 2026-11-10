@@ -1,6 +1,8 @@
 # Upstream repair exposed by scripts
 
-Each script H2 answers about its actual treatment parents and, through them, settings causes. Repair follows the [closed-pass boundary](../../../../story/correction/repair.md#closed-passes). Check the item's [statements](../statements/upstream/scripts.md) before answering it.
+Each script H2 answers about its actual treatment parents and, through them, settings causes. Repair follows the [closed-pass boundary](../../../../story/correction/repair.md#closed-passes).
+
+Statements: [statements/upstream/scripts.md](../statements/upstream/scripts.md).
 
 ## What did scene execution prove missing or unusable upstream? {#script-upstream-repair}
 

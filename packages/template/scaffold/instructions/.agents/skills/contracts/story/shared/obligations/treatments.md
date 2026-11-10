@@ -1,6 +1,8 @@
 # Treatment population obligations
 
-The complete ordered population answers once per question about event design, not the later script partition. Check each item's [statements](../statements/obligations/treatments.md) before answering it.
+The complete ordered population answers once per question about event design, not the later script partition.
+
+Statements: [statements/obligations/treatments.md](../statements/obligations/treatments.md).
 
 ## Do information, entry, accumulation, and ending work across the whole? {#whole-event-design}
 

@@ -16,37 +16,39 @@ Padding and explanation:
 6. No appearance or rank introduction is repeated. Exception: first-entry appearance and costume instructions, and a role, relationship or single scene-used identifying trait conveyed through action, address or perception, because removing those cues can make the people impossible to identify.
 7. No habitual gesture, filler, empty link, arbitrary sentence mold or authoring jargon appears, and no misunderstanding is invented only to be negated. Exception: reusing an object's name, a word twice or a script's framing is not by itself habitual.
 8. No modifier, qualification, contrast or formatting carries no information, access or pressure. Padding that was removed and came back in different words counts.
-9. A character's thought does not merely add the conclusion or emotion already shown or about to be shown. Exception: a calculation, memory or expectation that reveals new present understanding, hope or burden. Recalling an earlier event or sharing a later action's goal is not repetition by itself, and the passage with its neighbors must show the difference.
+9. A character's thought does not merely add the conclusion or emotion already shown or about to be shown. Exception: a calculation, memory or expectation that reveals new present understanding, hope or burden.
+10. Recalling an earlier event or sharing a later action's goal is not repetition by itself; the passage with its neighbors shows the difference.
 
 Idiomatic language:
 
-10. The language reads and sounds idiomatic within its adopted variety, period, register and relationships. Word combinations, verbs, agreement, word order, subjects and references, pronouns, nominal chains and clauses give an immediate understanding of who does what to whom.
-11. No translated construction, imported syntax or expression nobody would use here remains, even where its abstract meaning is correct.
-12. Functional dialect, quotation, institutional terms, fragments, passive forms, inversion and deliberate repetition are preserved. No grammatical form is banned, and formal words are not replaced mechanically.
-13. A language repair adds no action, cause or opposition.
+11. The language reads and sounds idiomatic within its adopted variety, period, register and relationships. Word combinations, verbs, agreement, word order, subjects and references, pronouns, nominal chains and clauses give an immediate understanding of who does what to whom.
+12. No translated construction, imported syntax or expression nobody would use here remains, even where its abstract meaning is correct.
+13. Functional dialect, quotation, institutional terms, fragments, passive forms, inversion and deliberate repetition are preserved. No grammatical form is banned, and formal words are not replaced mechanically.
+14. A language repair adds no action, cause or opposition.
 
 Concrete realization:
 
-14. Viewpoint and movement, object use, and bodily conditions such as cold, hunger, weight or injury are concrete enough to understand and feel the current action. Scripts serve executable placement and conditions, and the final screenplay selects their audience experience and emphasis.
-15. No unlocated inventory, unmarked change of gaze, vague impression in place of a required color, material, scale or position, interchangeable metaphor that erases a distinction, or physical limit reduced to a name or a number remains.
-16. Inherited values and permitted access are used, and no canonical fact is invented.
-17. Detail does not displace the present danger, choice or relationship by making the audience decode its sequence. Exception: selective detail, and restrained or documentary form, may work without describing everything. Sufficient specificity and excessive emphasis are judged together here, never one maximized and undone elsewhere.
+15. Viewpoint and movement, object use, and bodily conditions such as cold, hunger, weight or injury are concrete enough to understand and feel the current action. Scripts serve executable placement and conditions, and the final screenplay selects their audience experience and emphasis.
+16. No unlocated inventory, unmarked change of gaze, vague impression in place of a required color, material, scale or position, interchangeable metaphor that erases a distinction, or physical limit reduced to a name or a number remains.
+17. Inherited values and permitted access are used, and no canonical fact is invented.
+18. Detail does not displace the present danger, choice or relationship by making the audience decode its sequence. Exception: selective detail, and restrained or documentary form.
+19. Sufficient specificity and excessive emphasis are judged together, never one maximized and undone elsewhere.
 
 What cutting must not lose:
 
-18. Successive paragraphs and exchanges keep an identifiable speaker or actor, the object of each reaction, and their causal and spatial connections.
-19. No performed exchange is reduced to a progress report, no emotion lacks its occasion, and the adopted voice and humor are not replaced by neutral statements. Exception: recoverable omitted subjects and deliberately chosen summary.
-20. Uniform short beats do not flatten changing pressure.
-21. A needed experience is restored through expression, never through added events or explanatory padding.
+20. Successive paragraphs and exchanges keep an identifiable speaker or actor, the object of each reaction, and their causal and spatial connections.
+21. No performed exchange is reduced to a progress report, no emotion lacks its occasion, and the adopted voice and humor are not replaced by neutral statements. Exception: recoverable omitted subjects and deliberately chosen summary.
+22. Uniform short beats do not flatten changing pressure.
+23. A needed experience is restored through expression, never through added events or explanatory padding.
 
 Deciding and retaining:
 
-22. Every sentence was tested against the applicable named failures by the [independent classification](../../../../../story/correction/inspection.md#independent-classification), and their connections were read for insufficiency.
-23. An ambiguous candidate was decided by the independent classifier, who read its context for whether the named failure causes the recipient's loss. The author chose the repair and could raise a factual objection under [review rounds](../../../../../review/rounds.md), and did not settle that literary judgment.
-24. A revised passage received another yes only for a clear applicable failure.
-25. A named failure is retained only under one of these exceptions, supported by the passage and by the adopted requirement where relevant: useful execution directions, meaningful silence, thought carrying new understanding, expectation or burden, adopted narration and form, functional lies, refrains, speech habits and formal regularity.
-26. Retained narration realizes its adopted contribution through wording, placement or image-sound relations.
-27. No author's intention, function label, nearby achievement, previous protection or weaker alternative stands as another exception.
+24. Every sentence was tested against the applicable named failures by the [independent classification](../../../../../story/correction/inspection.md#independent-classification), and their connections were read for insufficiency.
+25. An ambiguous candidate was decided by the independent classifier, who read its context for whether the named failure causes the recipient's loss. The author chose the repair and could raise a factual objection under [review rounds](../../../../../review/rounds.md), and did not settle that literary judgment.
+26. A revised passage received another yes only for a clear applicable failure.
+27. A named failure is retained only under one of these exceptions, supported by the passage: useful execution directions, meaningful silence, thought carrying new understanding, expectation or burden, adopted narration and form, functional lies, refrains, speech habits and formal regularity.
+28. Retained narration realizes its adopted contribution through wording, placement or image-sound relations.
+29. No author's intention, function label, nearby achievement, previous protection or weaker alternative stands as another exception.
 
 ## Expression fidelity {#expression-fidelity}
 

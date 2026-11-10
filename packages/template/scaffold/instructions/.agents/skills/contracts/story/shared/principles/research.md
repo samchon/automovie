@@ -1,6 +1,8 @@
 # Research principles
 
-Each study in `docs/research/`, apart from its index, answers these items in the research location of the [document layout](../../../../story/layout.md#documents), under an H1 naming the study's path. Its originals stay in `references/`, and the index names them. Settings or brief, screenplay, entities and behaviors cite the study they draw from. Check the first item's [statements](../statements/principles/research.md) before answering it.
+Each study in `docs/research/`, apart from its index, answers these items in the research location of the [document layout](../../../../story/layout.md#documents), under an H1 naming the study's path. Its originals stay in `references/`, and the index names them. Settings or brief, screenplay, entities and behaviors cite the study they draw from.
+
+Statements for the first item: [statements/principles/research.md](../statements/principles/research.md).
 
 ## Does the study capture the depicted practice? {#depicted-practice}
 

@@ -1,6 +1,8 @@
 # Common expression revision principles
 
-Each script construction H2 answers from its current body against its parent treatments; each revised final screenplay H2 answers against its frozen construction. Inspect the entire selected body, record every candidate found with its location, and explain its repair or its justified preservation. If none is found, identify the scope actually inspected. A few examples never prove a whole-scope negative. Check each item's [statements](../statements/naturalness/common.md) before answering it.
+Each script construction H2 answers from its current body against its parent treatments; each revised final screenplay H2 answers against its frozen construction. Inspect the entire selected body, record every candidate found with its location, and explain its repair or its justified preservation. If none is found, identify the scope actually inspected. A few examples never prove a whole-scope negative.
+
+Statements: [statements/naturalness/common.md](../statements/naturalness/common.md).
 
 ## Does it read as deliberate writing with a concrete world? {#reads-as-written}
 

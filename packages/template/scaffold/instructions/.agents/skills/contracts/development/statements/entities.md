@@ -5,12 +5,13 @@ The detailed statements of the [entities contract](../entities.md), one section 
 ## Settings realization {#settings-realization}
 
 1. Every fact the entity realizes is named by its record path and anchor, with how it is realized.
-2. Every cited fact is either shown by the entity's form, such as proportions, an identity colour, carried props, uses and habits, or handed on with the consumer that carries it, such as a canon image, the generation prompt or a shot's sound description. A fact the form cannot show, such as a face, a fabric, a makeup state or a voice, is handed on and not modeled. Exception: a commissioned detail option shows what it was commissioned to show.
-3. A person's body parameters derive from the cast record's body facts, and one prepared body serves both the polygon man and the motion planned for it.
-4. Each parameter of a research law or of an installed action, such as stature, proficiency or style, derives from a cited fact and stays within the range its law gives.
-5. Each measurement names its study and section.
-6. Placements, weights, texture coordinates and measurements derive from the subject's generating definition, so changing the detail option moves none of them.
-7. A decision the settings or brief do not establish is written there first, and a measurement no research supports is studied first.
+2. Every cited fact is either shown by the entity's form or handed on with the consumer that carries it, such as a canon image, the generation prompt or a shot's sound description.
+3. A fact the form cannot show, such as a face, a fabric, a makeup state or a voice, is handed on and not modeled. Exception: a commissioned detail option shows what it was commissioned to show.
+4. A person's body parameters derive from the cast record's body facts, and one prepared body serves both the polygon man and the motion planned for it.
+5. Each parameter of a research law or of an installed action, such as stature, proficiency or style, derives from a cited fact and stays within the range its law gives.
+6. Each measurement names its study and section.
+7. Placements, weights, texture coordinates and measurements derive from the subject's generating definition, so changing the detail option moves none of them.
+8. A decision the settings or brief do not establish is written there first, and a measurement no research supports is studied first.
 
 ## Object shape {#object-shape}
 

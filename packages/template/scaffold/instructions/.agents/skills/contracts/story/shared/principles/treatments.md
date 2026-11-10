@@ -1,6 +1,8 @@
 # Treatment principles
 
-Each treatment H2 answers for its event or inseparable progression. Treatments establish event order before scripts choose acts, sequences, or episode boundaries. Check each item's [statements](../statements/principles/treatments.md) before answering it.
+Each treatment H2 answers for its event or inseparable progression. Treatments establish event order before scripts choose acts, sequences, or episode boundaries.
+
+Statements: [statements/principles/treatments.md](../statements/principles/treatments.md).
 
 ## Is the event decided with its inherited meaning? {#decided-event}
 

@@ -1,6 +1,8 @@
 # Script principles
 
-Each script H2 answers for an executable scene or inseparable audiovisual progression within the script's chosen partition. Scripts already contain full action, actual dialogue, staging, and a viewing position. Check each item's [statements](../statements/principles/scripts.md) before answering it.
+Each script H2 answers for an executable scene or inseparable audiovisual progression within the script's chosen partition. Scripts already contain full action, actual dialogue, staging, and a viewing position.
+
+Statements: [statements/principles/scripts.md](../statements/principles/scripts.md).
 
 ## Can the scene be performed in its written order? {#executable-scene}
 

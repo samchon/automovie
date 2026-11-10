@@ -1,6 +1,8 @@
 # Brief principles
 
-Each brief H2 answers as one facet of its subject, owning the anchored H3 decisions beneath it. It does not answer for every film or scene. Check each item's [statements](../statements/principles/brief.md) before answering it.
+Each brief H2 answers as one facet of its subject, owning the anchored H3 decisions beneath it. It does not answer for every film or scene.
+
+Statements: [statements/principles/brief.md](../statements/principles/brief.md).
 
 ## Does the record settle a decision the films need? {#needed-decisions}
 

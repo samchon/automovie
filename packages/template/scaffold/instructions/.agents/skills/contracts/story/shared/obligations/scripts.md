@@ -1,6 +1,8 @@
 # Script population obligations
 
-The completed script population answers once per question for its partition, titles, material allocation and executable handoff. Check each item's [statements](../statements/obligations/scripts.md) before answering it.
+The completed script population answers once per question for its partition, titles, material allocation and executable handoff.
+
+Statements: [statements/obligations/scripts.md](../statements/obligations/scripts.md).
 
 ## Does the chosen partition give the audience meaningful units? {#partition-and-titles}
 

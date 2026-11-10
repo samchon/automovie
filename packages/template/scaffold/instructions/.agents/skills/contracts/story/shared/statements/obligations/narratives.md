@@ -9,7 +9,8 @@ The detailed statements of the [narrative population obligations](../../obligati
 3. Inherited time, place, knowledge, injury, appearance, clothing, possession, resources, status, relationships and promises are compared across units.
 4. Recurring agents' drives, beliefs, interpretations, experiences and actions are followed across units. Unsupported reversals and thresholds crossed without pressure or cost are reported with the earliest contradictory owner and any contradiction derived across facts.
 5. An unchanged or unreached threshold has its owned scope or purpose.
-6. Where a protagonist's pursuit holds the work together, the answer identifies that desire, its first audience recognition, the actions it drives and how major-unit goals continue or transform it. Exception: an ensemble may sustain competing pursuits and another form another center; local tasks alone do not establish the whole, and no shared goal is invented.
+6. Where a protagonist's pursuit holds the work together, the answer identifies that desire, its first audience recognition, the actions it drives and how major-unit goals continue or transform it. Exception: an ensemble may sustain competing pursuits, and another form another center.
+7. Local tasks alone do not establish the whole, and no shared goal is invented.
 
 ## Promises and distribution {#promises-and-distribution}
 

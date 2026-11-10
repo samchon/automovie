@@ -1,6 +1,8 @@
 # Final screenplay expression population obligation
 
-The complete revised final screenplay population answers once for its audiovisual voice and tempo across scenes and delivery units. Check the item's [statements](../../statements/naturalness/obligations/screenplay.md) before answering it.
+The complete revised final screenplay population answers once for its audiovisual voice and tempo across scenes and delivery units.
+
+Statements: [statements/naturalness/obligations/screenplay.md](../../statements/naturalness/obligations/screenplay.md).
 
 ## Does the whole vary its voice and tempo where the material requires it? {#voice-and-tempo-distribution}
 

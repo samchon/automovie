@@ -1,6 +1,8 @@
 # Settings population obligations
 
-Each question has exactly one answering settings file whose detached construction evidence compares the completed population. Inspect the domains the planned scenes need without requiring unused domains or empty files. Check each item's [statements](../statements/obligations/settings.md) before answering it.
+Each question has exactly one answering settings file whose detached construction evidence compares the completed population. Inspect the domains the planned scenes need without requiring unused domains or empty files.
+
+Statements: [statements/obligations/settings.md](../statements/obligations/settings.md).
 
 ## Is the work's promise and scope a usable basis? {#world-and-scope}
 

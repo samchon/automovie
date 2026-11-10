@@ -1,6 +1,8 @@
 # Brief requirement discovery
 
-The discovery result covers all instructions, adopted promises, references, assets and planned films under the [common discovery boundary](common.md#requirement-ownership). Check the item's [statements](../statements/discovery/brief.md) before answering it.
+The discovery result covers all instructions, adopted promises, references, assets and planned films under the [common discovery boundary](common.md#requirement-ownership).
+
+Statements: [statements/discovery/brief.md](../statements/discovery/brief.md).
 
 ## Were instructions and planned films translated into needed owners and a usable form? {#instructions-and-backcast}
 

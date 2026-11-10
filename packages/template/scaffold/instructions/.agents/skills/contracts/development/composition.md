@@ -4,7 +4,9 @@ Each exported function and method under `src/composition/` answers these items i
 
 A scene in `src/composition/scenes/<film>/<scene>/` cites each screenplay scene or beat it realizes as `@evidence docs/body/screenplay/<film>.md#<anchor> <what it realizes>`, and a film in `src/composition/films/` cites its screenplay file; every scene, beat and screenplay file is realized, and an `OMITTED` one is covered by an `@evidenceExclude` on the scene that would have realized it, or on a neighboring scene when the whole scene is omitted.
 
-A catalog case in `src/composition/scenes/catalog/<module>/` and the catalog film cite the research section or settings or brief fact each case exhibits in place of a screenplay, and answer the other items. Check each item's [statements](statements/composition.md) before answering it.
+A catalog case in `src/composition/scenes/catalog/<module>/` and the catalog film cite the research section or settings or brief fact each case exhibits in place of a screenplay, and answer the other items.
+
+Statements: [statements/composition.md](statements/composition.md).
 
 ## Does it realize every screenplay decision it cites? {#screenplay-realization}
 

@@ -1,6 +1,8 @@
 # Final screenplay expression revision principles
 
-Each revised final screenplay H2 answers for the finished image, sound, performance, attention, and temporal experience specified by that unit. Check each item's [statements](../statements/naturalness/screenplay.md) before answering it.
+Each revised final screenplay H2 answers for the finished image, sound, performance, attention, and temporal experience specified by that unit.
+
+Statements: [statements/naturalness/screenplay.md](../statements/naturalness/screenplay.md).
 
 ## Do audiovisual voice and rhythm belong to this moment? {#audiovisual-voice}
 

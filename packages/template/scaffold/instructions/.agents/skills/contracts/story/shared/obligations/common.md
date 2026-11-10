@@ -1,6 +1,8 @@
 # Common population obligations
 
-Each question compares the complete declared layer population and has exactly one answering body file through its detached construction evidence. Questions may have different respondents; individual H2 answers cannot replace these comparisons. Check each item's [statements](../statements/obligations/common.md) before answering it.
+Each question compares the complete declared layer population and has exactly one answering body file through its detached construction evidence. Questions may have different respondents; individual H2 answers cannot replace these comparisons.
+
+Statements: [statements/obligations/common.md](../statements/obligations/common.md).
 
 ## Is the complete scope assigned to useful, unique owners? {#scope-and-ownership}
 

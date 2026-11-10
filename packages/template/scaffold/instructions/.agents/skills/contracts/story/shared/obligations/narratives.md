@@ -1,6 +1,8 @@
 # Narrative population obligations
 
-Each completed treatment, script and final screenplay population answers once per question across all units and boundaries. Major treatment spans follow supplied closing turns; scripts and screenplay use their actual partition. Check each item's [statements](../statements/obligations/narratives.md) before answering it.
+Each completed treatment, script and final screenplay population answers once per question across all units and boundaries. Major treatment spans follow supplied closing turns; scripts and screenplay use their actual partition.
+
+Statements: [statements/obligations/narratives.md](../statements/obligations/narratives.md).
 
 ## Are progression, state, and long pursuits continuous? {#continuity-and-progression}
 

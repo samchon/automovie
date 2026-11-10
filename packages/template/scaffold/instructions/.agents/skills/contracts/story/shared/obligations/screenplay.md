@@ -1,6 +1,8 @@
 # Final screenplay population obligations
 
-The complete population answers once per question at its current stage: construction judges the plan and provisional material and timing; delivery also judges actual realization. A draft, partial animatic or local shot cannot establish completed delivery. Check each item's [statements](../statements/obligations/screenplay.md) before answering it.
+The complete population answers once per question at its current stage: construction judges the plan and provisional material and timing; delivery also judges actual realization. A draft, partial animatic or local shot cannot establish completed delivery.
+
+Statements: [statements/obligations/screenplay.md](../statements/obligations/screenplay.md).
 
 ## Does the complete audiovisual plan realize its parents and delivery promise? {#complete-realization}
 

@@ -1,6 +1,8 @@
 # Realized speech principles
 
-Each script and final screenplay H2 answers from its actual speech and neighboring action. Treatment plans and settings voice descriptions do not establish the quality of an executed exchange. Check each item's [statements](../statements/principles/realized.md) before answering it.
+Each script and final screenplay H2 answers from its actual speech and neighboring action. Treatment plans and settings voice descriptions do not establish the quality of an executed exchange.
+
+Statements: [statements/principles/realized.md](../statements/principles/realized.md).
 
 ## Do these words belong to these speakers? {#speaker-plausibility}
 

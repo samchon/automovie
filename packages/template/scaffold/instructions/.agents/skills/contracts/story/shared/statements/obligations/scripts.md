@@ -8,7 +8,7 @@ The detailed statements of the [script population obligations](../../obligations
 2. After a release interval, action, goals, address, objects or other retrieval cues restore needed state without a mandatory recap.
 3. Where purchase boundaries are declared, the prior material has delivered the promised experience and reward.
 4. Each audience-facing title is compared with its unit's content and prior viewing: the promised event, object, conflict, image or question gains meaning there. Absent promises and interchangeable titles are reported.
-5. Exception: no plot summary or spoiler is demanded, numbers, ambiguous or poetic titles, part-numbered repetition and refrains may work, and user-fixed wording is preserved.
+5. No plot summary or spoiler is demanded, numbers, ambiguous or poetic titles, part-numbered repetition and refrains may work, and user-fixed wording is preserved.
 6. Semantic mismatches are repaired at scripts, which own the titles and identities descendants inherit.
 
 ## Complete execution {#complete-execution}
