@@ -2,7 +2,6 @@ import { AutoMovieLoftChain, type AutoMovieViewLoft } from "@automovie/engine";
 
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
-import { AutoMovieHumanF1Chest } from "./AutoMovieHumanF1Chest";
 import { AutoMovieHumanF1FingerIndex } from "./AutoMovieHumanF1FingerIndex";
 import { AutoMovieHumanF1FingerMiddle } from "./AutoMovieHumanF1FingerMiddle";
 import { AutoMovieHumanF1FingerPinky } from "./AutoMovieHumanF1FingerPinky";
@@ -12,14 +11,13 @@ import { AutoMovieHumanF1Foot } from "./AutoMovieHumanF1Foot";
 import { AutoMovieHumanF1Head } from "./AutoMovieHumanF1Head";
 import { AutoMovieHumanF1Leg } from "./AutoMovieHumanF1Leg";
 import { AutoMovieHumanF1Palm } from "./AutoMovieHumanF1Palm";
-import { AutoMovieHumanF1Pelvis } from "./AutoMovieHumanF1Pelvis";
 import { AutoMovieHumanF1Shoulders } from "./AutoMovieHumanF1Shoulders";
 import { AutoMovieHumanF1ToeBig } from "./AutoMovieHumanF1ToeBig";
 import { AutoMovieHumanF1ToeIndex } from "./AutoMovieHumanF1ToeIndex";
 import { AutoMovieHumanF1ToeLittle } from "./AutoMovieHumanF1ToeLittle";
 import { AutoMovieHumanF1ToeMiddle } from "./AutoMovieHumanF1ToeMiddle";
 import { AutoMovieHumanF1ToeRing } from "./AutoMovieHumanF1ToeRing";
-import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
+import { AutoMovieHumanF1Torso } from "./AutoMovieHumanF1Torso";
 
 /**
  * The f1 figure in its reference pose, generated from its authored conic
@@ -32,7 +30,8 @@ import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
  *
  * The figure is under construction: it holds the arms from below the armpit
  * to the wrist, the legs from below the crotch to above the ankle, the trunk
- * in three stacked walls from the crotch to the armpit, a first coarse neck
+ * as one wall from the crotch to the armpit, the shoulders up through the
+ * neck base, the palms, a first coarse neck
  * and head, the shafts of the five digits of each hand and foot, and each
  * midfoot. The parts are separate open tubes; the branches between them, the
  * shoulders, palms, heels, digit tips and the crown are not built yet, and
@@ -56,9 +55,7 @@ export namespace AutoMovieHumanF1 {
 
   /** Every authored family with whether it has a mirrored twin. */
   export const FAMILIES: readonly { family: AutoMovieHumanConicLoft.IFamily; mirrored: boolean }[] = [
-    { family: AutoMovieHumanF1Pelvis, mirrored: false },
-    { family: AutoMovieHumanF1Trunk, mirrored: false },
-    { family: AutoMovieHumanF1Chest, mirrored: false },
+    { family: AutoMovieHumanF1Torso, mirrored: false },
     { family: AutoMovieHumanF1Shoulders, mirrored: false },
     { family: AutoMovieHumanF1Palm, mirrored: true },
     { family: AutoMovieHumanF1Head, mirrored: false },
