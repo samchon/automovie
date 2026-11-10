@@ -1,5 +1,6 @@
 import {
   type IAutoMovieResolvedBone,
+  Quaternion,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
@@ -245,8 +246,8 @@ export function locomotionCases(kind: "walk" | "run"): IMotionCaptureCase[] {
                   const parts = (
                     o: typeof q,
                   ): { h: number; p: number; r: number } => {
-                    const fw = rotate(o, { x: 0, y: 0, z: 1 });
-                    const up = rotate(o, { x: 0, y: 1, z: 0 });
+                    const fw = Quaternion.rotateVector(o, { x: 0, y: 0, z: 1 });
+                    const up = Quaternion.rotateVector(o, { x: 0, y: 1, z: 0 });
                     const h: number = Math.atan2(fw.x, fw.z);
                     return {
                       h: (h * 180) / Math.PI,
@@ -293,8 +294,16 @@ export function locomotionCases(kind: "walk" | "run"): IMotionCaptureCase[] {
                   if (angle > turn[phase].value) {
                     // Read both rotations as heading, pitch and roll, and the shank's lean.
                     const read = (o: typeof q) => {
-                      const fw = rotate(o, { x: 0, y: 0, z: 1 });
-                      const up = rotate(o, { x: 0, y: 1, z: 0 });
+                      const fw = Quaternion.rotateVector(o, {
+                        x: 0,
+                        y: 0,
+                        z: 1,
+                      });
+                      const up = Quaternion.rotateVector(o, {
+                        x: 0,
+                        y: 1,
+                        z: 0,
+                      });
                       return `h${((Math.atan2(fw.x, fw.z) * 180) / Math.PI).toFixed(1)} p${((Math.asin(fw.y) * 180) / Math.PI).toFixed(1)} r${((Math.atan2(up.x * Math.cos(Math.atan2(fw.x, fw.z)) - up.z * Math.sin(Math.atan2(fw.x, fw.z)), up.y) * 180) / Math.PI).toFixed(1)}`;
                     };
                     const knee: IAutoMovieVector3 = bones.get(
@@ -362,7 +371,7 @@ export function locomotionCases(kind: "walk" | "run"): IMotionCaptureCase[] {
             .bones(subject, segment.end)
             .get("hips")!.worldPosition;
           misses.push(Math.hypot(hips.x - goals[i]!.x, hips.z - goals[i]!.z));
-          const ahead: IAutoMovieVector3 = rotate(
+          const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
             performance.bones(subject, segment.end).get("hips")!.worldRotation,
             { x: 0, y: 0, z: 1 },
           );
@@ -537,20 +546,4 @@ function instants(
   return [...grid, ...events, { seconds: end, label: "end" }].sort(
     (a, b): number => a.seconds - b.seconds,
   );
-}
-
-/** A vector rotated by a unit quaternion. */
-function rotate(
-  q: { x: number; y: number; z: number; w: number },
-  v: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  const ix: number = q.w * v.x + q.y * v.z - q.z * v.y;
-  const iy: number = q.w * v.y + q.z * v.x - q.x * v.z;
-  const iz: number = q.w * v.z + q.x * v.y - q.y * v.x;
-  const iw: number = -q.x * v.x - q.y * v.y - q.z * v.z;
-  return {
-    x: ix * q.w + iw * -q.x + iy * -q.z - iz * -q.y,
-    y: iy * q.w + iw * -q.y + iz * -q.x - ix * -q.z,
-    z: iz * q.w + iw * -q.z + ix * -q.y - iy * -q.x,
-  };
 }

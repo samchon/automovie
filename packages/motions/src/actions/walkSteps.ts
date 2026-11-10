@@ -3,6 +3,7 @@ import {
   Quaternion,
   Vector3,
   minimumJerk,
+  wrapDegrees,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -188,12 +189,10 @@ export namespace walkSteps {
     const D: number = path.length;
     const n: number = Math.max(1, Math.ceil(D / input.longest - 1e-9));
     const delta: number = D / n;
-    const unwrap = (angle: number, near: number): number => {
-      let a: number = angle;
-      while (a - near > 180) a -= 360;
-      while (a - near < -180) a += 360;
-      return a;
-    };
+    // The equivalent of an angle nearest a reference heading, so the headings
+    // read along the path never jump by a full turn between footprints.
+    const unwrap = (angle: number, near: number): number =>
+      near + wrapDegrees(angle - near);
     const heading: number =
       D < 1e-6 ? yaw0 : unwrap(path.heading(0, delta / 2), yaw0);
     const along$ = (s: number): number =>
@@ -334,12 +333,11 @@ export namespace walkSteps {
     for (const side of ["left", "right"] as const) {
       let leaving: number = HumanFrame.heading(start[side].rotation);
       for (const step of steps.filter((x: IStep): boolean => x.side === side)) {
-        let turn: number =
+        const turn: number = wrapDegrees(
           leaving -
-          (yawAt(step.toeOff) +
-            (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT));
-        while (turn > 180) turn -= 360;
-        while (turn < -180) turn += 360;
+            (yawAt(step.toeOff) +
+              (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT)),
+        );
         step.push = -PUSH + (PUSH - 15) * Math.min(1, Math.abs(turn) / TWIST);
         leaving = step.heading;
       }
@@ -453,12 +451,7 @@ export namespace walkSteps {
     // proportion to how far its heel is up (none flat, all at HEEL_UP), and the
     // pelvis then turns no further than TWIST from that pivoted heading, so a
     // stepping turn unfolds continuously with the heel's rise.
-    const wrap = (a: number): number => {
-      let x: number = a;
-      while (x > 180) x -= 360;
-      while (x < -180) x += 360;
-      return x;
-    };
+    const wrap: (degrees: number) => number = wrapDegrees;
     const pivots: Record<"left" | "right", number> = { left: 0, right: 0 };
     let yaw: number = planned;
     for (const side of ["left", "right"] as const) {
@@ -708,9 +701,7 @@ export namespace walkSteps {
           );
       }
       const turned: number = HumanFrame.heading(rotation);
-      let off: number = turned - yaw;
-      while (off > 180) off -= 360;
-      while (off < -180) off += 360;
+      const off: number = wrapDegrees(turned - yaw);
       // A pitched foot leaves the hip less rotation to turn it with.
       const band: number =
         TWIST *

@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  wrapDegrees,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
@@ -368,10 +373,7 @@ export namespace walk {
             root,
             Vector3.scale(Vector3.subtract(stance.root, free.root), weight),
           );
-          let turn: number = stance.yaw - free.yaw;
-          while (turn > 180) turn -= 360;
-          while (turn < -180) turn += 360;
-          yaw += turn * weight;
+          yaw += wrapDegrees(stance.yaw - free.yaw) * weight;
         }
         const reached = { ...raw, ankles, rotations, toes };
         const upright: standUpright.IAlignment = standUpright.of(body);

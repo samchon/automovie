@@ -1,8 +1,10 @@
 import {
+  AutoMovieStationHermite,
   type IAutoMovieResolvedBone,
   Quaternion,
   minimumJerk,
   resolveAutoMovieCenterOfMass,
+  wrapDegrees,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -497,12 +499,9 @@ export namespace jump {
     };
   }
 
-  /** A heading within half a turn of another. */
+  /** The equivalent of a heading nearest another, so a turn takes the shorter way. */
   function unwrap(angle: number, near: number): number {
-    let a: number = angle;
-    while (a - near > 180) a -= 360;
-    while (a - near < -180) a += 360;
-    return a;
+    return near + wrapDegrees(angle - near);
   }
 
   /** A quintic Hermite path from a point and velocity to a point and velocity over a duration, at rest acceleration at both ends. */
@@ -514,17 +513,18 @@ export namespace jump {
     duration: number,
     t: number,
   ): IAutoMovieVector3 {
+    // The engine's quintic Hermite rule over seconds: values and velocities at
+    // both ends, zero acceleration at both (curvature [0, 0, 0]), so the root
+    // leaves the entry and reaches take-off at rest acceleration.
     const u: number = Math.min(1, Math.max(0, t / duration));
-    const h00: number = 1 - 10 * u ** 3 + 15 * u ** 4 - 6 * u ** 5;
-    const h10: number = u - 6 * u ** 3 + 8 * u ** 4 - 3 * u ** 5;
-    const h01: number = 10 * u ** 3 - 15 * u ** 4 + 6 * u ** 5;
-    const h11: number = -4 * u ** 3 + 7 * u ** 4 - 3 * u ** 5;
-    const axis = (k: "x" | "y" | "z"): number =>
-      h00 * p0[k] +
-      h10 * duration * v0[k] +
-      h01 * p1[k] +
-      h11 * duration * v1[k];
-    return { x: axis("x"), y: axis("y"), z: axis("z") };
+    const rest: readonly number[] = [0, 0, 0];
+    const [x, y, z] = AutoMovieStationHermite.combine(
+      { value: [p0.x, p0.y, p0.z], slope: [v0.x, v0.y, v0.z], curvature: rest },
+      { value: [p1.x, p1.y, p1.z], slope: [v1.x, v1.y, v1.z], curvature: rest },
+      AutoMovieStationHermite.weights(u, duration, 0, true),
+    );
+    // combine maps the three-entry value array entry by entry, so all three exist.
+    return { x: x!, y: y!, z: z! };
   }
 
   /** A straight interpolation. */
