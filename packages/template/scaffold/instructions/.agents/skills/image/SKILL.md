@@ -13,9 +13,11 @@ Most hosted image models expose no seed, so a prompt cannot reproduce an image: 
 
 These are representative examples, not a complete or required list; read the chosen model's current documentation for sizes, input-image count, licence and price.
 
-- In Codex, the built-in image generation (the `$imagegen` skill or a plain request) uses OpenAI GPT Image under the ChatGPT plan, without an API key. It saves into Codex's own home directory, so copy each accepted image into the production, and its edits work only on images visible in the conversation.
-- Other agents call an image API through a script with the user's key, such as [OpenAI GPT Image](https://developers.openai.com/api/docs/guides/image-generation) or [Google Gemini image generation](https://aistudio.google.com/docs/image-generation).
-- The Stable Diffusion family and its open successors, such as [SDXL](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0) with [ControlNet](https://huggingface.co/docs/diffusers/main/en/using-diffusers/controlnet) and [IP-Adapter](https://huggingface.co/docs/diffusers/main/en/using-diffusers/ip_adapter) in diffusers or ComfyUI, are the route that conditions on the hint's geometry exactly and repeats from a fixed seed.
+| Generator | Reached through | Note |
+| --- | --- | --- |
+| Codex built-in image generation | The `$imagegen` skill or a plain request, under the ChatGPT plan with no API key | It saves into Codex's own home directory, so copy each accepted image into the production; its edits work only on images visible in the conversation |
+| A hosted image API, such as [OpenAI GPT Image](https://developers.openai.com/api/docs/guides/image-generation) or [Google Gemini image generation](https://aistudio.google.com/docs/image-generation) | A script with the user's key | |
+| The Stable Diffusion family and its open successors, such as [SDXL](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0) with [ControlNet](https://huggingface.co/docs/diffusers/main/en/using-diffusers/controlnet) and [IP-Adapter](https://huggingface.co/docs/diffusers/main/en/using-diffusers/ip_adapter) | diffusers or ComfyUI | The route that conditions on the hint's geometry exactly and repeats from a fixed seed |
 
 ## Decide how much the hint controls
 

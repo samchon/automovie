@@ -17,7 +17,17 @@ The models below are representative examples, not a complete or required list; a
 
 ## Match how the model takes the hint
 
-- Only open-weight models follow the hint's own pose, depth or layout passes exactly; hosted models take the hint as RGB video at most, and derive any structure from it themselves. Choose an open model with control channels when exact positions, contacts and camera outweigh its setup cost.
-- A model that edits or restyles a video keeps the hint's motion and camera most directly among hosted models. A reference-video model reads motion and camera as guidance and may move figures, and a still-frame model sees the hint only through its first and last frames.
-- Render the hint at the model's frame rate, frame grid and size, because a model snaps other lengths to its grid and drops or shortens frames.
-- Read each model's terms before adopting it: territory limits, rejected reference content such as real faces, revenue thresholds and labelling duties for open weights, and price per second.
+How closely a model keeps the hint follows from how it takes it:
+
+| Model kind | What it keeps of the hint |
+| --- | --- |
+| Open weights with control channels | The hint's own pose, depth or layout passes, exactly |
+| Hosted, edits or restyles a video | Motion and camera, most directly among hosted models |
+| Hosted, reads a reference video | Motion and camera as guidance; it may move figures |
+| Hosted, takes still frames | Only the first and last frames |
+
+Hosted models take the hint as RGB video at most and derive any structure from it themselves. Choose an open model with control channels when exact positions, contacts and camera outweigh its setup cost.
+
+Render the hint at the model's frame rate, frame grid and size, because a model snaps other lengths to its grid and drops or shortens frames.
+
+Read each model's terms before adopting it: territory limits, rejected reference content such as real faces, revenue thresholds and labelling duties for open weights, and price per second.
