@@ -30,6 +30,9 @@ export interface IAutoMovieWorkspacePackageVersions {
   /** Range of `@automovie/interface`. */
   interface: string;
 
+  /** Range of `@automovie/motions`. */
+  motions: string;
+
   /** Range of `@automovie/recovery`. */
   recovery: string;
 

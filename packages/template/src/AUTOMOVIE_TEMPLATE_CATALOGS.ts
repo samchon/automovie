@@ -19,6 +19,7 @@ export const AUTOMOVIE_TEMPLATE_CATALOGS: Readonly<Record<string, string>> = {
   human: "automovie",
   ingest: "automovie",
   interface: "automovie",
+  motions: "automovie",
   recovery: "automovie",
   render: "automovie",
   template: "automovie",

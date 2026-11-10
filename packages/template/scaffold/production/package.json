@@ -27,6 +27,7 @@
     "@automovie/human": "{{version:human}}",
     "@automovie/ingest": "{{version:ingest}}",
     "@automovie/interface": "{{version:interface}}",
+    "@automovie/motions": "{{version:motions}}",
     "@automovie/recovery": "{{version:recovery}}",
     "@automovie/render": "{{version:render}}",
     "@automovie/viewer": "{{version:viewer}}",
