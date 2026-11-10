@@ -1,6 +1,6 @@
 # Stage the screenplay for the camera
 
-Use this when screenplay beats become scene compositions, or when blocking, cameras or continuity change. [Entity work](../development/entities.md) chooses representations, [frame evaluation](timeline.md) owns time sampling and production owns the final edit.
+Use this when screenplay beats become scene compositions, or when blocking, cameras or continuity change. [Entity work](../development/entities.md) chooses representations, [frame evaluation](timeline.md) owns time sampling and the screenplay owns every edit decision.
 
 ## Decide the observable performance
 
@@ -16,4 +16,4 @@ Cameras and lights are entities whose behavior follows the action: a camera fram
 
 ## Carry state through the edit
 
-Build and review [contiguous segments](segments.md), carrying each accepted ending into the next and checking both sides of the join, and hand accepted scenes to [finishing](../production/finishing.md).
+Build and review [contiguous segments](segments.md), carrying each accepted ending into the next and checking both sides of the join, and hand accepted scenes to [assembly](../production/finishing.md).

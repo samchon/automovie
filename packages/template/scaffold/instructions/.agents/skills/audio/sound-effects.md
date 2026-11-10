@@ -1,6 +1,6 @@
 # Sound effects
 
-Use this only when the user asks for effects with a requested voice preview under [audio](SKILL.md).
+Use this only when the user asks for effects with a requested voice preview, or when a [soundtrack is commissioned](SKILL.md#commissioned-soundtrack). A generated film's effects come from the video model's prompt.
 
 Define each cue by its event, source material, action, intensity, distance and acoustic space. Choose a recording, self-recorded Foley or purpose-built generator that can express those qualities. Keep close effects separate from ambience and speech so their timing and perspective remain editable.
 
@@ -12,8 +12,8 @@ Record Foley when the required material or movement is missing. Capture isolated
 
 ## Edit with picture
 
-Select dry takes that match the depicted event; layer, trim and shape them to distinguish contact types and intensities. Set each cue from its audible onset, end it with its event and decay, and place it through gain, pan and room sound consistent with the scene. Use movement sound for a pass-by and contact sound for an impact.
+Select dry takes that match the depicted event; layer, trim and shape them to distinguish contact types and intensities. Set each cue from its measured onset, end it with its event and decay, and place it through gain, pan and room sound consistent with the scene. Use movement sound for a pass-by and contact sound for an impact.
 
-Cap overlapping instances per sound and per source, as game engines bound [sound concurrency](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/FSoundConcurrencySettings?lang=en-US), and duck beds and effects under speech. Measure on the decoded mix that every spoken line rises clearly over the bed and that loudness, measured as [ITU-R BS.1770](https://www.itu.int/rec/R-REC-BS.1770) defines it, meets the [delivery profile](../production/finishing.md#render)'s target, which may be dialogue-gated.
+Cap overlapping instances per sound and per source, as game engines bound [sound concurrency](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/FSoundConcurrencySettings?lang=en-US), and duck beds and effects under speech. For a commissioned soundtrack, measure on the decoded mix that every spoken line rises over the bed and that loudness, measured as [ITU-R BS.1770](https://www.itu.int/rec/R-REC-BS.1770) defines it, meets the target the [delivery profile](../production/profile.md) records, which may be dialogue-gated.
 
-Ask the user to listen to the complete working passage with moving picture at normal speed, replaying uncertain contacts and transitions, and to report synchronization, repetition, perspective and balance with speech and ambience together. Hand accepted bytes and measured cues to [editing and finishing](../production/finishing.md), and ask for the affected listening again after either picture or sound changes.
+Ask the user to listen to the complete working passage with moving picture at normal speed, replaying uncertain contacts and transitions, and to report synchronization, repetition, perspective and balance with speech and ambience together. Hand accepted bytes and measured cues to [assembly](../production/finishing.md) for a commissioned soundtrack, and ask for the affected listening again after either picture or sound changes.

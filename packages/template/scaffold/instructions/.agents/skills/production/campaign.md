@@ -8,9 +8,9 @@ Read the current instructions, bodies, source, outputs and run record before ass
 
 ## Execute and support
 
-Dispatch each task through [story](../story/SKILL.md), [motion](../motion/SKILL.md), [audio](../audio/SKILL.md), [development](../development/SKILL.md) or [review](../review/SKILL.md). One writer owns a changing body, and one owner holds a film's screenplay, scene and film composition and camera together, because the camera realizes the screenplay's camera decisions through that composition; entity, motion and sound modules can have their own owners, who repair the module defects the film owner reports. Reviewers get the actual inputs in their reading order, and additional agents are used only when authorized, with disjoint write scopes; without independence, self-review is recorded as such.
+Dispatch each task through the skill that owns it in the production's [routing table](SKILL.md#route-the-work). One writer owns a changing body, and one owner holds a film's screenplay, scene and film composition and camera together, because the camera realizes the screenplay's camera decisions through that composition. Entity, motion and sound modules can have their own owners, who repair the module defects the film owner reports. Use additional agents only when authorized and give them disjoint write scopes. [Review](../review/SKILL.md) owns who may review and what counts as independent.
 
-Inspect the actual process, artifacts and errors before calling a quiet run stalled, and resume a stopped run from its last valid output and [saved stages](stages.md), keeping its failure. A changed input starts a new result; a restart inherits no verdict. A blocking capability is repaired at its package owner and reconnected to its consumer, or reported with the exact missing behavior while independent work continues.
+Inspect the actual process, artifacts and errors before calling a quiet run stalled, and resume a stopped run from its last valid output and [saved stages](stages.md), keeping its failure. A changed input starts a new result; a restart inherits no verdict. A capability an installed package lacks is handled under [installed packages](../development/SKILL.md#installed-packages) while independent work continues.
 
 ## Observe
 

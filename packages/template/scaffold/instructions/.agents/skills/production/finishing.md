@@ -1,21 +1,28 @@
-# Edit, render and hand off
+# Assemble, render and hand off
 
 Turn the composed scenes or accepted takes into the complete delivered video. Read [project context](profile.md), the actual source and media and the installed runtime documentation.
 
 ## Assemble
 
-Each screenplay file becomes one film in `src/composition/films/`, and every scene and beat reaches it through the scene composition that cites it under [source layout](../development/layout.md); resolve missing, duplicated or omitted material before rendering. Render one film at a time with `npm run render -- --film <name>`. A generated film consumes [accepted takes](generation.md), a hint or direct 3D film its programmed scene output, and control channels keep their meaning through [conditioning](conditioning.md).
+Each screenplay file becomes one film under [source layout](../development/layout.md#source), and every scene and beat reaches it through the scene composition that cites it; resolve missing, duplicated or omitted material before rendering. A motion hint or direct 3D film assembles its programmed scenes, a generated film its [accepted takes](../video/generation.md), and control channels keep their meaning through the [control channels](../motion/conditioning.md) rules.
 
-Give the edit one timeline owner. Choose shots, order, in/out points, transitions and pauses from the audience experience, keeping required performance and information. [Motion timing](../motion/timeline.md) owns frame schedules and replay; captions, and a voice preview the user requested under [audio](../audio/SKILL.md), are placed against those exact performances. A new take, trim, speed change or cut requires rechecking its timing and neighbors.
+Assembly decides nothing. The screenplay owns the order of scenes, the cuts, transitions, pauses and titles, and the [composition contract](../contracts/development/composition.md#screenplay-realization) holds the film to them. When the assembled film shows that a decision does not work, repair the screenplay under [upstream repair](../story/correction/repair.md) and realize the repair, because a trim or reorder made here leaves a film that no longer realizes the screenplay it cites. [Frame evaluation](../motion/timeline.md) owns frame schedules and the checks at both sides of every cut.
 
-## Render
+## Render {#render}
 
-Record the delivery profile (dimensions, frame rate, container and codec, color, audio and caption tracks, loudness target, and any dialogue, music and effects stems or music-and-effects mix it requires) in [project context](profile.md). Before scaling a new host, run one small path through capture or take ingestion, a join, sound and the encoded file, and play it in the intended consumer. Then make the single [delivery render](stages.md#iterate-on-the-affected-interval) of the complete scope and check its profile, extent, first and last material and both sides of every edit.
-
-For imported or generated media, map decoded timestamps and time bases into the edit; a nominal frame rate cannot place an action, especially at variable rates. Trimming, retiming and rebasing are different operations, and a shortest-stream option or silent padding must not hide lost material. [FFmpeg's filters](https://ffmpeg.org/ffmpeg-filters.html) document `trim`, `setpts`, `fps` and `atempo`.
+Before scaling a new host, run one small path through capture or take ingestion, a join and the encoded file, and inspect stills extracted from that file. Then make the single [delivery render](stages.md#render-the-whole-film-once) of the complete scope with the README's render command, at the [delivery profile](profile.md) project context records, and measure the file's actual profile and extent against it.
 
 ## Repair and deliver
 
-Route defects to their owners: geometry and rendering to [3D modeling](../3d-modeling/SKILL.md), performance and clocks to [motion](../motion/SKILL.md), sound to [audio](../audio/SKILL.md), takes to [generation](generation.md), host and source to [development](../development/SKILL.md) and narrative to [upstream repair](../story/correction/repair.md). Rebuild the affected outputs and inspect them again.
+Route defects to their owners: entity form to [entity work](../development/entities.md), performance and clocks to [motion](../motion/SKILL.md), sound to [audio](../audio/SKILL.md), takes to [video generation](../video/generation.md), host and source to [development](../development/SKILL.md) and narrative to [upstream repair](../story/correction/repair.md). Rebuild the affected outputs and inspect them again.
 
-Hand off the accepted output revision and media identities, fixed inputs, source entry, dependencies, reproducible commands, observed checks, rights and attribution, and remaining limits, keeping each generation request traceable to the derivatives the film uses, without credentials. A programmed hint and a generated film are separate artifacts. [Delivery review](../review/delivery.md) accepts the result.
+Hand off, without credentials:
+
+- the accepted output revision and its media identities;
+- the fixed inputs, source entry and dependencies;
+- the commands that reproduce it;
+- the checks observed, by whom, and what only the user watched or heard;
+- rights and attribution, with each generation request traceable to the derivatives the film uses;
+- the remaining limits.
+
+A programmed motion hint and a generated film are separate outputs. [Delivery review](../review/delivery.md) accepts the result.
