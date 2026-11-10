@@ -7,12 +7,14 @@ Author every body movement as effectors brought to targets, and let the installe
 A goal names five things:
 
 - the effector, as a measured point on the body: the palm centre, the ball of the foot, the knuckles, the seat bones, the heel;
-- the target: a declared region or socket of another entity, a prop's grip or surface, or a point in the set;
+- the target: a declared region or socket of another entity, a prop's grip or surface, a point in the set, or an imagined point the performer aims at;
 - the approach direction and the effector's orientation where the act needs one, such as a palm facing a partner or a sole flat on a step;
 - the window in which the goal holds;
 - whether the target is frozen at the window's start or tracked through it.
 
 A goal on a moving body, such as a palm on the chin or a hand on the other forearm, attaches to that bone, so a layered sway or breath carries the hand with the body instead of leaving it at a world point.
+
+A tracked target is followed as a person follows one: the goal reads the target where the performer perceived it a reaction time earlier, with the delay taken from the action's study. A limb that reads the target at the current instant cannot be dodged, feinted or made to miss.
 
 Take every distance, height and reach from the performer's own measured segments and the target's measured parts. A constant measured on one figure ties the action to that figure and fails on the next; when no measure can supply a value, name it as provisional with its source.
 
@@ -25,6 +27,8 @@ Compute the reach before posing: the root-to-target distance against the limb's 
 ## Order the fits
 
 Fit supports before reaching limbs: feet on the floor, seat bones on the seat, hands on a held bar. A later fit can pull an earlier contact away, so check every earlier contact after each later fit.
+
+When a planted leg or a holding arm cannot reach its contact from the planned root, move the root, by lowering, leaning or stepping. A contact dragged off its point to keep the root's path is the error a viewer sees first.
 
 A bend hint chooses which side the elbow or knee falls on. A solver may still prefer the side its range-of-motion cost favours, so check that the solved middle joint follows the hint. When no hint is given, keep the side the pose being fitted already bends toward at that instant.
 

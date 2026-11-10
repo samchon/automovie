@@ -8,7 +8,7 @@ Keep output frame, output time, shot-local time and simulation time distinct, an
 
 ## Separate sampling from retained state
 
-Prefer evaluation from fixed inputs and the requested time. Before allowing seeking, retries or split renders, identify state carried by springs, physics, callbacks, random draws or imported runtimes: seeded randomness needs seeds derived from stable identities rather than draw order, and retained state needs a repeatable update from a defined initial state or a supported cache, recovered before capturing a later frame. Choose simulation steps for solver stability, independent of display refresh, and sample results onto output times. Use supported lifecycle operations, never private-field resets.
+A law evaluates from its plan and the requested time, as [laws](laws.md#plan-once-evaluate-by-time) requires. Before allowing seeking, retries or split renders, identify state the host still carries in springs, physics, callbacks, random draws or imported runtimes: seeded randomness draws from [identity-keyed streams](variation.md#draws-that-do-not-disturb-each-other), and retained state needs a repeatable update from a defined initial state or a supported cache, recovered before capturing a later frame. Choose simulation steps for solver stability, independent of display refresh, and sample results onto output times. Use supported lifecycle operations, never private-field resets.
 
 ## Verify the actual evaluation path
 
