@@ -8,10 +8,9 @@ import { AutoMovieHumanF1FingerPinky } from "./AutoMovieHumanF1FingerPinky";
 import { AutoMovieHumanF1FingerRing } from "./AutoMovieHumanF1FingerRing";
 import { AutoMovieHumanF1FingerThumb } from "./AutoMovieHumanF1FingerThumb";
 import { AutoMovieHumanF1Foot } from "./AutoMovieHumanF1Foot";
-import { AutoMovieHumanF1Head } from "./AutoMovieHumanF1Head";
 import { AutoMovieHumanF1Leg } from "./AutoMovieHumanF1Leg";
 import { AutoMovieHumanF1Palm } from "./AutoMovieHumanF1Palm";
-import { AutoMovieHumanF1Shoulders } from "./AutoMovieHumanF1Shoulders";
+import { AutoMovieHumanF1Upper } from "./AutoMovieHumanF1Upper";
 import { AutoMovieHumanF1ToeBig } from "./AutoMovieHumanF1ToeBig";
 import { AutoMovieHumanF1ToeIndex } from "./AutoMovieHumanF1ToeIndex";
 import { AutoMovieHumanF1ToeLittle } from "./AutoMovieHumanF1ToeLittle";
@@ -30,8 +29,8 @@ import { AutoMovieHumanF1Torso } from "./AutoMovieHumanF1Torso";
  *
  * The figure is under construction: it holds the arms from below the armpit
  * to the wrist, the legs from below the crotch to above the ankle, the trunk
- * as one wall from the crotch to the armpit, the shoulders up through the
- * neck base, the palms, a first coarse neck
+ * as one wall from the crotch to the armpit, the shoulders, neck and head as
+ * one more, the palms, a first coarse neck
  * and head, the shafts of the five digits of each hand and foot, and each
  * midfoot. The parts are separate open tubes; the branches between them, the
  * shoulders, palms, heels, digit tips and the crown are not built yet, and
@@ -56,9 +55,8 @@ export namespace AutoMovieHumanF1 {
   /** Every authored family with whether it has a mirrored twin. */
   export const FAMILIES: readonly { family: AutoMovieHumanConicLoft.IFamily; mirrored: boolean }[] = [
     { family: AutoMovieHumanF1Torso, mirrored: false },
-    { family: AutoMovieHumanF1Shoulders, mirrored: false },
+    { family: AutoMovieHumanF1Upper, mirrored: false },
     { family: AutoMovieHumanF1Palm, mirrored: true },
-    { family: AutoMovieHumanF1Head, mirrored: false },
     { family: AutoMovieHumanF1Arm, mirrored: true },
     { family: AutoMovieHumanF1Leg, mirrored: true },
     { family: AutoMovieHumanF1FingerIndex, mirrored: true },

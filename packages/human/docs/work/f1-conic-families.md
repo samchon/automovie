@@ -36,8 +36,7 @@ Distance from the reference skin's cut vertices to the regenerated section, thro
 | Finger shafts | 65 to 117 | 0.05 to 0.11 | 0.37 to 0.83 |
 | Toe shafts | 39 to 65 | 0.03 to 0.13 | 0.15 to 0.64 |
 | Torso | 273 + 1,870 | 0.29 | 6.2 |
-| Shoulders and neck base | 147 + 850 | 0.73 | 11 |
-| Neck and head | 483 + 2,880 | 1.0 | 57 |
+| Shoulders, neck and head, one family | 567 + 5,040 | 0.97 | 60 |
 
 ## Open
 
