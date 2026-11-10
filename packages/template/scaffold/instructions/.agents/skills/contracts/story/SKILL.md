@@ -13,7 +13,7 @@ Each checklist H2 asks its named respondent a question. Principles apply to an a
 | --- | --- | --- |
 | Shared ownership | [Common principles](shared/principles/common.md) | [Common obligations](shared/obligations/common.md) |
 | Research | [Studied practice and sources](shared/principles/research.md), answered by each study | |
-| Settings | [Usable records and boundaries](shared/principles/settings.md) | [World, scope, people, and audiovisual consistency](shared/obligations/settings.md) |
+| Settings | [Needed decisions and boundaries](shared/principles/settings.md) | [Promise, scope, and a coherent world](shared/obligations/settings.md) |
 | Settings index | [Reference groups](shared/principles/index.md) | [Whole-index navigation](shared/obligations/index.md) |
 | Treatments | [Decided events and information](shared/principles/treatments.md) | [Whole event design and handoff](shared/obligations/treatments.md) |
 | Scripts | [Executable scenes and staging](shared/principles/scripts.md) | [Partition and complete execution](shared/obligations/scripts.md) |

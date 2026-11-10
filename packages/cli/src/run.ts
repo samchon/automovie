@@ -12,6 +12,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 import type { AutoMovieCommand } from "./AutoMovieCommand";
+import type { IAutoMoviePackageManager } from "./IAutoMoviePackageManager";
 import { deriveAutoMovieProjectName } from "./deriveAutoMovieProjectName";
 import { promptAutoMovieProjectName } from "./promptAutoMovieProjectName";
 import { readAutoMovieCommandArguments } from "./readAutoMovieCommandArguments";
@@ -172,7 +173,7 @@ function publish(
   files: Record<string, string>,
   force: boolean,
   kind: "production" | "workspace" | "workspace-production",
-  packageManager?: { manager: "npm" | "pnpm"; workspace?: string },
+  packageManager?: IAutoMoviePackageManager,
 ): void {
   const receipt: IScaffoldPublicationReceipt = publishFiles(targetDir, files, {
     force,

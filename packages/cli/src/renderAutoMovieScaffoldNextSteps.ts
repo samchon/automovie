@@ -1,3 +1,5 @@
+import type { IAutoMoviePackageManager } from "./IAutoMoviePackageManager";
+
 /**
  * Explain the work between a freshly written installation and a runnable production.
  *
@@ -8,7 +10,7 @@
  * @param packageManager The manager a `production` installs with, from `selectAutoMoviePackageManager`; workspace kinds always use pnpm.
  * @returns The closing text.
  *
- * @evidence contracts/development/implementation.md#principled-implementation The steps are fixed text derived from each layer's first-run contract: the production README's npm install and checks, and the workspace README's pnpm install and add.
+ * @evidence contracts/development/implementation.md#principled-implementation The steps are fixed text derived from each layer's first-run contract: the production README's install and checks with the selected manager (npm by default, pnpm with its workspace root inside a pnpm workspace), and the workspace README's pnpm install and add.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure function returns the text for every installation kind and leaves writing to `run`, so the message has a single owner and no terminal effect.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The text names no fixture or particular directory and is not altered by any caller; a closed union selects the variant.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states how `directory` is printed, why the text opens with a blank line, what each kind means and what must change with the scaffold.
@@ -19,9 +21,7 @@
 export function renderAutoMovieScaffoldNextSteps(
   directory: string,
   kind: "production" | "workspace" | "workspace-production",
-  packageManager: { manager: "npm" | "pnpm"; workspace?: string } = {
-    manager: "npm",
-  },
+  packageManager: IAutoMoviePackageManager = { manager: "npm" },
 ): string {
   if (kind === "workspace")
     return (

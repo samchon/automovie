@@ -1,6 +1,6 @@
 # Research principles
 
-Each study in `docs/research/`, apart from its index, answers these items in `docs/evidence/construction/files/research/`, under an H1 naming the study's path. Its originals stay in `references/`, and the index names them. Settings, screenplay and behaviors cite the study they draw from.
+Each study in `docs/research/`, apart from its index, answers these items in `docs/evidence/construction/files/research/`, under an H1 naming the study's path. Its originals stay in `references/`, and the index names them. Settings, screenplay, entities and behaviors cite the study they draw from.
 
 ## Does the study capture the depicted practice? {#depicted-practice}
 
