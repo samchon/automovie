@@ -1,6 +1,6 @@
 ---
 name: 3d-modeling
-description: Defines how 3D assets are crafted from formulas, recovered from fixed sources, or placed from generated meshes, how they are rigged, and how visual changes are verified. Use before changing geometry, rigs, assets, viewer behavior, materials, lighting, or motion, and before claiming a visual change works.
+description: Defines how 3D assets are crafted from formulas, recovered from fixed sources, or placed from generated meshes, how they are rigged, and how visual changes are verified. Use before changing geometry, rigs, assets, viewer behavior, materials, or lighting, and before claiming a visual change works; body motion belongs to the motion skill.
 ---
 
 # 3D Modeling
