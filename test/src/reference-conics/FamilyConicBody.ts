@@ -51,6 +51,9 @@ namespace FamilyConicBody {
     /** Fitted station interval, mm of course arclength; `auto` takes the longest run of single loops round the course whose area stays near the part's own. */
     domain: [number, number] | "auto";
 
+    /** Cut the body and head skins together instead of the body alone. */
+    whole?: boolean;
+
     /** Spacing of the fitting sections, mm; absent, `STEP_MM`. */
     step?: number;
 
@@ -95,6 +98,18 @@ namespace FamilyConicBody {
         { name: "foot", centres: [[1, 45, 134], [133, 20, 157]], halves: [], up: [0, 1, 0], domain: "auto", step: 2, gap: 8, mirrored: true, layouts: LIMB, reliefs: "auto" },
         { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r")], halves: [30], up: [1, 0, 0], domain: [76, 500], mirrored: true, layouts: LIMB, reliefs: "auto" },
         { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r")], halves: [40], up: [1, 0, 0], domain: [124, 800], mirrored: true, layouts: LIMB, reliefs: "auto" },
+        { name: "pelvis", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [40, 150], step: 2, mirrored: false, layouts: LIMB, reliefs: [
+          { name: "pelvis.back", stations: [-20, 210], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 26, columns: 39, mirror: true },
+          { name: "pelvis.front", stations: [-20, 210], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 26, columns: 39, mirror: true },
+        ] },
+        { name: "chest", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [440, 496], step: 2, mirrored: false, layouts: LIMB, reliefs: [
+          { name: "chest.back", stations: [380, 556], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 21, columns: 39, mirror: true },
+          { name: "chest.front", stations: [380, 556], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 21, columns: 39, mirror: true },
+        ] },
+        { name: "head", centres: [[0, 1340, 0], [0, 1705, 0]], halves: [], up: [1, 0, 0], domain: "auto", whole: true, step: 2, gap: 8, mirrored: false, layouts: LIMB, reliefs: [
+          { name: "head.back", stations: [20, 400], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 66, columns: 43, mirror: true },
+          { name: "head.front", stations: [20, 400], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 66, columns: 63, mirror: true },
+        ] },
         { name: "trunk", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [150, 440], mirrored: false, layouts: LIMB, reliefs: [
           { name: "trunk.back", stations: [60, 530], phases: [Math.PI / 2, (3 * Math.PI) / 2], axis: [1, 0, 0], rows: 21, columns: 23, mirror: true },
           { name: "trunk.front", stations: [60, 530], phases: [-Math.PI / 2, Math.PI / 2], axis: [-1, 0, 0], rows: 21, columns: 23, mirror: true },
@@ -114,10 +129,11 @@ namespace FamilyConicBody {
       const skins: C.P[][] = [];
       const step: number = part.step ?? STEP_MM;
       const gap: number = part.gap ?? GAP_MM;
-      const domain: [number, number] = part.domain === "auto" ? span(source.body, axis, part.centres) : part.domain;
+      const skin: R.ISource["body"] = part.whole === true ? source.all : source.body;
+      const domain: [number, number] = part.domain === "auto" ? span(skin, axis, part.centres) : part.domain;
       log("family-body-domain", { part: part.name, domain });
       for (let s: number = domain[0], i: number = 0; s <= domain[1] + 1e-9; s += step / 2, ++i) {
-        const cut: R.ICut = R.cut(source.body, axis.at(s));
+        const cut: R.ICut = R.cut(skin, axis.at(s));
         if (cut.loop === null) skipped.push(s);
         else {
           // The family is the tape wall: it reads the section's convex hull. How far the skin lies inside that hull is measured apart, as relief.

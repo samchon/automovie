@@ -23,6 +23,9 @@ export namespace FamilyConicSource {
     /** Native head skin, likewise. */
     head: M.IMesh;
 
+    /** Body and head skins as one mesh, positions shared where the two meet, so a cut through the neck seam still closes. */
+    all: M.IMesh;
+
     /** Native bind joint centres by name, mm. */
     joints: Map<string, V>;
   }
@@ -47,27 +50,31 @@ export namespace FamilyConicSource {
     // Native joints are centimetres in the native chart; the reference frame is (10 z, 10 y, -10 x) of it, as the earlier part study established against the saved limb planes.
     const joints: Map<string, V> = new Map(observations.skeleton.joints.map((joint): [string, V] => [joint.name, [10 * joint.bindNativeTranslation[2], 10 * joint.bindNativeTranslation[1], -10 * joint.bindNativeTranslation[0]]]));
     const model: { parts: { id: string; geometry: { mesh: { positions: number[]; indices: number[] } } }[] } = await read("test/.shots/f1/reference-model.json");
-    const mesh = (key: string): M.IMesh => {
-      const part = model.parts.find((p): boolean => p.id.includes(key));
-      if (part === undefined) throw new Error("The reference model has no " + key + " part.");
+    const mesh = (keys: string[]): M.IMesh => {
       const positions: number[] = [];
+      const indices: number[] = [];
       const alias: Map<string, number> = new Map();
-      const remap: number[] = [];
-      const source: number[] = part.geometry.mesh.positions;
-      for (let i: number = 0; i < source.length; i += 3) {
-        const p: V = [source[i]! * 1000, source[i + 1]! * 1000, source[i + 2]! * 1000];
-        const id: string = p.join(",");
-        let index: number | undefined = alias.get(id);
-        if (index === undefined) {
-          index = positions.length / 3;
-          alias.set(id, index);
-          positions.push(...p);
+      for (const key of keys) {
+        const part = model.parts.find((p): boolean => p.id.includes(key));
+        if (part === undefined) throw new Error("The reference model has no " + key + " part.");
+        const remap: number[] = [];
+        const source: number[] = part.geometry.mesh.positions;
+        for (let i: number = 0; i < source.length; i += 3) {
+          const p: V = [source[i]! * 1000, source[i + 1]! * 1000, source[i + 2]! * 1000];
+          const id: string = p.join(",");
+          let index: number | undefined = alias.get(id);
+          if (index === undefined) {
+            index = positions.length / 3;
+            alias.set(id, index);
+            positions.push(...p);
+          }
+          remap.push(index);
         }
-        remap.push(index);
+        for (const i of part.geometry.mesh.indices) indices.push(remap[i]!);
       }
-      return { positions, indices: part.geometry.mesh.indices.map((i: number): number => remap[i]!) };
+      return { positions, indices };
     };
-    return { body: mesh("body"), head: mesh("head"), joints };
+    return { body: mesh(["body"]), head: mesh(["head"]), all: mesh(["body", "head"]), joints };
   }
 
   /** Cut a mesh by a frame's plane and read the loop round its origin in the frame's chart. */
