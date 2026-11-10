@@ -36,8 +36,9 @@ export function createAutoMovieDriftMarkers(
     (s: { at: IAutoMovieVector3; drift: number }, i: number): void => {
       if (![s.at.x, s.at.y, s.at.z, s.drift].every(Number.isFinite))
         throw new Error(`Drift sample ${i} is not finite`);
-      const c: { r: number; g: number; b: number } =
-        autoMovieAnalysisRampColor(s.drift / limit);
+      const c: { r: number; g: number; b: number } = autoMovieAnalysisRampColor(
+        s.drift / limit,
+      );
       positions.set([s.at.x, s.at.y, s.at.z], i * 3);
       colors.set([c.r, c.g, c.b], i * 3);
     },

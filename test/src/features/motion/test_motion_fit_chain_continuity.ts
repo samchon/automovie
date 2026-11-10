@@ -8,7 +8,13 @@ import {
   indexSkeletonTopology,
   resolvePose,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -52,11 +58,19 @@ export function test_motion_fit_chain_continuity(): void {
   const skeleton: IAutoMovieSkeleton = arm();
   const topology = indexSkeletonTopology(skeleton);
   const shoulder: IAutoMovieVector3 = { x: 0.18, y: 1.5, z: 0 };
-  const fit = (target: IAutoMovieVector3, bend: IAutoMovieVector3, reference?: IAutoMoviePose): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+  const fit = (
+    target: IAutoMovieVector3,
+    bend: IAutoMovieVector3,
+    reference?: IAutoMoviePose,
+  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
     const pose: IAutoMoviePose = fitChainToTarget({
       skeleton,
       pose: { skeleton: skeleton.id, root: null, joints: [] },
-      chain: { upper: "leftUpperArm", lower: "leftLowerArm", effector: "leftHand" },
+      chain: {
+        upper: "leftUpperArm",
+        lower: "leftLowerArm",
+        effector: "leftHand",
+      },
       target,
       bend,
       topology,
@@ -64,7 +78,13 @@ export function test_motion_fit_chain_continuity(): void {
       restFrames: HUMANOID_REST_FRAME,
       ...(reference === undefined ? {} : { referencePose: reference }),
     });
-    return new Map(resolvePose(pose, skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map((r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r]));
+    return new Map(
+      resolvePose(pose, skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
+        (
+          r: IAutoMovieResolvedBone,
+        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+      ),
+    );
   };
 
   // 1. Continuity from the cost alone.
@@ -72,10 +92,18 @@ export function test_motion_fit_chain_continuity(): void {
     const elbows: IAutoMovieVector3[] = [];
     const misses: number[] = [];
     for (let k: number = 0; k <= 80; k++) {
-      const target: IAutoMovieVector3 = { x: shoulder.x - 0.2 + 0.005 * k, y: shoulder.y - 0.1, z: 0.42 };
+      const target: IAutoMovieVector3 = {
+        x: shoulder.x - 0.2 + 0.005 * k,
+        y: shoulder.y - 0.1,
+        z: 0.42,
+      };
       const bones = fit(target, { x: shoulder.x, y: shoulder.y - 0.02, z: 1 });
       elbows.push(bones.get("leftLowerArm")!.worldPosition);
-      misses.push(Vector3.length(Vector3.subtract(bones.get("leftHand")!.worldPosition, target)));
+      misses.push(
+        Vector3.length(
+          Vector3.subtract(bones.get("leftHand")!.worldPosition, target),
+        ),
+      );
     }
     return { elbows, misses };
   };
@@ -83,50 +111,105 @@ export function test_motion_fit_chain_continuity(): void {
   let jump: number = 0;
   let at: number = 0;
   for (let k: number = 1; k < first.elbows.length; k++) {
-    const step: number = Vector3.length(Vector3.subtract(first.elbows[k]!, first.elbows[k - 1]!));
+    const step: number = Vector3.length(
+      Vector3.subtract(first.elbows[k]!, first.elbows[k - 1]!),
+    );
     if (step > jump) {
       jump = step;
       at = k;
     }
   }
-  TestValidator.predicate(`the elbow moves continuously (largest step ${(jump * 1000).toFixed(2)} mm at frame ${at})`, jump <= 0.025);
-  TestValidator.predicate(`the wrist lands every frame (worst ${(Math.max(...first.misses) * 1000).toFixed(3)} mm)`, Math.max(...first.misses) <= 0.001);
-  TestValidator.predicate("bit-identical sweep", JSON.stringify(first) === JSON.stringify(sweep()));
+  TestValidator.predicate(
+    `the elbow moves continuously (largest step ${(jump * 1000).toFixed(2)} mm at frame ${at})`,
+    jump <= 0.025,
+  );
+  TestValidator.predicate(
+    `the wrist lands every frame (worst ${(Math.max(...first.misses) * 1000).toFixed(3)} mm)`,
+    Math.max(...first.misses) <= 0.001,
+  );
+  TestValidator.predicate(
+    "bit-identical sweep",
+    JSON.stringify(first) === JSON.stringify(sweep()),
+  );
 
   // 2. A reference breaks an exact tie.
-  const below: IAutoMovieVector3 = { x: shoulder.x, y: shoulder.y - 0.45, z: 0 };
+  const below: IAutoMovieVector3 = {
+    x: shoulder.x,
+    y: shoulder.y - 0.45,
+    z: 0,
+  };
   const down: IAutoMovieVector3 = { x: shoulder.x, y: shoulder.y - 1, z: 0 };
-  const reference = (side: number): { pose: IAutoMoviePose; elbow: IAutoMovieVector3 } => {
+  const reference = (
+    side: number,
+  ): { pose: IAutoMoviePose; elbow: IAutoMovieVector3 } => {
     const pose: IAutoMoviePose = fitChainToTarget({
       skeleton,
       pose: { skeleton: skeleton.id, root: null, joints: [] },
-      chain: { upper: "leftUpperArm", lower: "leftLowerArm", effector: "leftHand" },
+      chain: {
+        upper: "leftUpperArm",
+        lower: "leftLowerArm",
+        effector: "leftHand",
+      },
       target: below,
       bend: { x: shoulder.x + side, y: below.y, z: -1 },
       topology,
       jointAxes: HUMANOID_JOINT_AXES,
       restFrames: HUMANOID_REST_FRAME,
     });
-    const elbow: IAutoMovieVector3 = resolvePose(pose, skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).find((r: IAutoMovieResolvedBone): boolean => r.bone === "leftLowerArm")!.worldPosition;
+    const elbow: IAutoMovieVector3 = resolvePose(
+      pose,
+      skeleton,
+      HUMANOID_JOINT_AXES,
+      HUMANOID_REST_FRAME,
+    ).find(
+      (r: IAutoMovieResolvedBone): boolean => r.bone === "leftLowerArm",
+    )!.worldPosition;
     return { pose, elbow };
   };
   const outward = reference(1);
   const inward = reference(-1);
-  TestValidator.predicate("the references are distinct", Vector3.length(Vector3.subtract(outward.elbow, inward.elbow)) >= 0.05);
-  const toOut: IAutoMovieVector3 = fit(below, down, outward.pose).get("leftLowerArm")!.worldPosition;
-  const toIn: IAutoMovieVector3 = fit(below, down, inward.pose).get("leftLowerArm")!.worldPosition;
-  const near = (p: IAutoMovieVector3, mine: IAutoMovieVector3, other: IAutoMovieVector3): boolean =>
-    Vector3.length(Vector3.subtract(p, mine)) < Vector3.length(Vector3.subtract(p, other));
-  TestValidator.predicate("the outward reference pulls the elbow outward", near(toOut, outward.elbow, inward.elbow));
-  TestValidator.predicate("the inward reference pulls the elbow inward", near(toIn, inward.elbow, outward.elbow));
+  TestValidator.predicate(
+    "the references are distinct",
+    Vector3.length(Vector3.subtract(outward.elbow, inward.elbow)) >= 0.05,
+  );
+  const toOut: IAutoMovieVector3 = fit(below, down, outward.pose).get(
+    "leftLowerArm",
+  )!.worldPosition;
+  const toIn: IAutoMovieVector3 = fit(below, down, inward.pose).get(
+    "leftLowerArm",
+  )!.worldPosition;
+  const near = (
+    p: IAutoMovieVector3,
+    mine: IAutoMovieVector3,
+    other: IAutoMovieVector3,
+  ): boolean =>
+    Vector3.length(Vector3.subtract(p, mine)) <
+    Vector3.length(Vector3.subtract(p, other));
+  TestValidator.predicate(
+    "the outward reference pulls the elbow outward",
+    near(toOut, outward.elbow, inward.elbow),
+  );
+  TestValidator.predicate(
+    "the inward reference pulls the elbow inward",
+    near(toIn, inward.elbow, outward.elbow),
+  );
 }
 
 /** A trunk with a T-posed left arm. */
 function arm(): IAutoMovieSkeleton {
-  const bone = (name: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, x: number, y: number): IAutoMovieBone => ({
+  const bone = (
+    name: AutoMovieHumanoidBone,
+    parent: AutoMovieHumanoidBone | null,
+    x: number,
+    y: number,
+  ): IAutoMovieBone => ({
     bone: name,
     parent,
-    rest: { translation: { x, y, z: 0 }, rotation: Quaternion.identity(), scale: { x: 1, y: 1, z: 1 } },
+    rest: {
+      translation: { x, y, z: 0 },
+      rotation: Quaternion.identity(),
+      scale: { x: 1, y: 1, z: 1 },
+    },
     constraint: null,
   });
   return {

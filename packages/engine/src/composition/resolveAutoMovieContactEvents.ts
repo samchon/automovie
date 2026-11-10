@@ -45,8 +45,11 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input; callers memoise.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export function resolveAutoMovieContactEvents(input: resolveAutoMovieContactEvents.IInput): resolveAutoMovieContactEvents.IEvent[] {
-  if (!(input.to > input.from)) throw new Error("A contact span ends after it begins");
+export function resolveAutoMovieContactEvents(
+  input: resolveAutoMovieContactEvents.IInput,
+): resolveAutoMovieContactEvents.IEvent[] {
+  if (!(input.to > input.from))
+    throw new Error("A contact span ends after it begins");
   if (!(input.step > 0)) throw new Error("A contact scan step is positive");
   const ids: Set<string> = new Set();
   for (const w of input.weapons) {
@@ -55,14 +58,25 @@ export function resolveAutoMovieContactEvents(input: resolveAutoMovieContactEven
   }
   const stopped: Map<string, number> = new Map();
   const events: resolveAutoMovieContactEvents.IEvent[] = [];
-  const weapons = [...input.weapons].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  const weapons = [...input.weapons].sort((a, b) =>
+    a.id < b.id ? -1 : a.id > b.id ? 1 : 0,
+  );
   for (;;) {
     let best: resolveAutoMovieContactEvents.IEvent | undefined;
     const after: number = events.at(-1)?.seconds ?? input.from;
     for (const weapon of weapons) {
       if (stopped.has(weapon.id)) continue;
-      const hit = firstImpact(weapon, input, stopped, Math.max(input.from, after));
-      if (hit !== undefined && (best === undefined || hit.seconds < best.seconds)) best = { weapon: weapon.id, ...hit };
+      const hit = firstImpact(
+        weapon,
+        input,
+        stopped,
+        Math.max(input.from, after),
+      );
+      if (
+        hit !== undefined &&
+        (best === undefined || hit.seconds < best.seconds)
+      )
+        best = { weapon: weapon.id, ...hit };
     }
     if (best === undefined) return events;
     stopped.set(best.weapon, best.seconds);
@@ -141,7 +155,12 @@ export namespace resolveAutoMovieContactEvents {
      * @param stops The stops so far.
      * @returns Metres.
      */
-    axis?(a: IAutoMovieVector3, b: IAutoMovieVector3, seconds: number, stops: IStops): number;
+    axis?(
+      a: IAutoMovieVector3,
+      b: IAutoMovieVector3,
+      seconds: number,
+      stops: IStops,
+    ): number;
   }
 
   /** The input. */
@@ -185,15 +204,24 @@ function firstImpact(
   const gap = (t: number): { distance: number; against: string } => {
     const p: IAutoMovieVector3 = weapon.position(t, stops);
     const q: IAutoMovieVector3 | undefined = weapon.tail?.(t, stops);
-    let best: { distance: number; against: string } = { distance: Infinity, against: "" };
+    let best: { distance: number; against: string } = {
+      distance: Infinity,
+      against: "",
+    };
     for (const body of input.bodies) {
       if (body.id === weapon.owner) continue;
 
       // A capsule is measured along its whole axis; a body that cannot
       // measure a segment would see only its ends, the tunnelling this
       // representation exists to remove.
-      if (q !== undefined && body.axis === undefined) throw new Error(`Body ${body.id} measures no segment for capsule weapon ${weapon.id}`);
-      const d: number = (q === undefined ? body.distance(p, t, stops) : body.axis!(p, q, t, stops)) - weapon.radius;
+      if (q !== undefined && body.axis === undefined)
+        throw new Error(
+          `Body ${body.id} measures no segment for capsule weapon ${weapon.id}`,
+        );
+      const d: number =
+        (q === undefined
+          ? body.distance(p, t, stops)
+          : body.axis!(p, q, t, stops)) - weapon.radius;
       if (d < best.distance) best = { distance: d, against: body.id };
     }
     return best;

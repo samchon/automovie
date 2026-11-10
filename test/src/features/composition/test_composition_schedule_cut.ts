@@ -1,4 +1,9 @@
-import { AutoMovieComposition, type IAutoMovieIntent, type IAutoMovieSchedule, resolveAutoMovieSchedule } from "@automovie/engine";
+import {
+  AutoMovieComposition,
+  type IAutoMovieIntent,
+  type IAutoMovieSchedule,
+  resolveAutoMovieSchedule,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -32,29 +37,60 @@ export function test_composition_schedule_cut(): void {
   const laws: resolveAutoMovieSchedule.ILaws = {
     timing: (intent: IAutoMovieIntent): resolveAutoMovieSchedule.ITiming =>
       intent.capability === "kick"
-        ? { duration: 2, contact: 1, events: [{ name: "chamber", share: 0.3 }, { name: "impact", share: 0.5 }] }
+        ? {
+            duration: 2,
+            contact: 1,
+            events: [
+              { name: "chamber", share: 0.3 },
+              { name: "impact", share: 0.5 },
+            ],
+          }
         : intent.capability === "guard"
           ? { duration: 2 }
           : { duration: 1 },
   };
-  const kick = (until?: IAutoMovieIntent["until"]): IAutoMovieIntent => ({ subject: "a", capability: "kick", ...(until === undefined ? {} : { until }) });
+  const kick = (until?: IAutoMovieIntent["until"]): IAutoMovieIntent => ({
+    subject: "a",
+    capability: "kick",
+    ...(until === undefined ? {} : { until }),
+  });
   const step: IAutoMovieIntent = { subject: "a", capability: "step" };
-  const run = (...parts: IAutoMovieIntent[]): IAutoMovieSchedule => resolveAutoMovieSchedule(AutoMovieComposition.sequence(...parts), laws);
+  const run = (...parts: IAutoMovieIntent[]): IAutoMovieSchedule =>
+    resolveAutoMovieSchedule(AutoMovieComposition.sequence(...parts), laws);
   const close = (a: number, b: number): boolean => Math.abs(a - b) < 1e-12;
 
   const shared: IAutoMovieSchedule = run(kick({ share: 0.4 }), step);
   const [k, s] = shared.entries;
-  TestValidator.predicate("cut at share", close(k!.end, 0.8) && k!.cut?.share === 0.4 && close(s!.start, 0.8) && k!.interruptedBy === s!.index);
-  TestValidator.predicate("contact after the cut is dropped", k!.contact === undefined);
+  TestValidator.predicate(
+    "cut at share",
+    close(k!.end, 0.8) &&
+      k!.cut?.share === 0.4 &&
+      close(s!.start, 0.8) &&
+      k!.interruptedBy === s!.index,
+  );
+  TestValidator.predicate(
+    "contact after the cut is dropped",
+    k!.contact === undefined,
+  );
 
   const evented: IAutoMovieSchedule = run(kick({ event: "chamber" }), step);
-  TestValidator.predicate("cut at event", close(evented.entries[0]!.end, 0.6) && evented.entries[0]!.cut?.event === "chamber");
+  TestValidator.predicate(
+    "cut at event",
+    close(evented.entries[0]!.end, 0.6) &&
+      evented.entries[0]!.cut?.event === "chamber",
+  );
 
   let previous: number = -Infinity;
   for (const share of [0.1, 0.3, 0.5, 0.7, 0.9]) {
     const e: IAutoMovieSchedule = run(kick({ share }), step);
-    TestValidator.predicate(`next start moves with the cut (${share})`, close(e.entries[1]!.start, 2 * share) && e.entries[1]!.start > previous);
-    TestValidator.predicate(`contact survives only a later cut (${share})`, (e.entries[0]!.contact !== undefined) === 2 * share >= 1);
+    TestValidator.predicate(
+      `next start moves with the cut (${share})`,
+      close(e.entries[1]!.start, 2 * share) && e.entries[1]!.start > previous,
+    );
+    TestValidator.predicate(
+      `contact survives only a later cut (${share})`,
+      (e.entries[0]!.contact !== undefined) === 2 * share >= 1,
+    );
     previous = e.entries[1]!.start;
   }
 
@@ -65,27 +101,73 @@ export function test_composition_schedule_cut(): void {
         run(kick({ event: "recoil" }), step);
         return false;
       } catch (error) {
-        return String(error).includes("chamber") && String(error).includes("impact");
+        return (
+          String(error).includes("chamber") && String(error).includes("impact")
+        );
       }
     })(),
   );
-  TestValidator.error("share outside [0, 1]", (): unknown => run(kick({ share: 1.5 }), step));
+  TestValidator.error("share outside [0, 1]", (): unknown =>
+    run(kick({ share: 1.5 }), step),
+  );
   const plain: IAutoMovieSchedule = run(kick(), step);
   const last: IAutoMovieSchedule = run(step, kick({ share: 0.5 }));
-  TestValidator.predicate("no interrupter without a cut or a follower", plain.entries[0]!.interruptedBy === undefined && last.entries[1]!.interruptedBy === undefined && close(last.entries[1]!.end, 2));
+  TestValidator.predicate(
+    "no interrupter without a cut or a follower",
+    plain.entries[0]!.interruptedBy === undefined &&
+      last.entries[1]!.interruptedBy === undefined &&
+      close(last.entries[1]!.end, 2),
+  );
 
-  const guard = (until: IAutoMovieIntent["until"]): IAutoMovieIntent => ({ subject: "b", capability: "guard", until });
-  const both = (until: IAutoMovieIntent["until"], l: resolveAutoMovieSchedule.ILaws = laws): IAutoMovieSchedule =>
-    resolveAutoMovieSchedule(AutoMovieComposition.parallel({ ...kick(), anchor: "k" }, AutoMovieComposition.sequence(guard(until), step)), l);
+  const guard = (until: IAutoMovieIntent["until"]): IAutoMovieIntent => ({
+    subject: "b",
+    capability: "guard",
+    until,
+  });
+  const both = (
+    until: IAutoMovieIntent["until"],
+    l: resolveAutoMovieSchedule.ILaws = laws,
+  ): IAutoMovieSchedule =>
+    resolveAutoMovieSchedule(
+      AutoMovieComposition.parallel(
+        { ...kick(), anchor: "k" },
+        AutoMovieComposition.sequence(guard(until), step),
+      ),
+      l,
+    );
   const crossed: IAutoMovieSchedule = both({ of: "k", event: "impact" });
   const g = crossed.entries.find((e) => e.intent.capability === "guard")!;
-  TestValidator.predicate("cut at another subject's event", close(g.end, 1) && g.cut?.event === "k.impact");
-  TestValidator.error("unknown anchor", (): unknown => both({ of: "x", event: "impact" }));
-  TestValidator.error("unknown event of the anchor", (): unknown => both({ of: "k", event: "recoil" }));
+  TestValidator.predicate(
+    "cut at another subject's event",
+    close(g.end, 1) && g.cut?.event === "k.impact",
+  );
+  TestValidator.error("unknown anchor", (): unknown =>
+    both({ of: "x", event: "impact" }),
+  );
+  TestValidator.error("unknown event of the anchor", (): unknown =>
+    both({ of: "k", event: "recoil" }),
+  );
   const near = both(
-    { proximity: { effector: "palmLeft", target: { kind: "none" }, distance: 0.1 } },
+    {
+      proximity: {
+        effector: "palmLeft",
+        target: { kind: "none" },
+        distance: 0.1,
+      },
+    },
     { ...laws, until: (): number => 0.25 },
   );
-  TestValidator.predicate("proximity cut at the laws' share", close(near.entries.find((e) => e.intent.capability === "guard")!.end, 0.5));
-  TestValidator.error("proximity without an until law", (): unknown => both({ proximity: { effector: "palmLeft", target: { kind: "none" }, distance: 0 } }));
+  TestValidator.predicate(
+    "proximity cut at the laws' share",
+    close(near.entries.find((e) => e.intent.capability === "guard")!.end, 0.5),
+  );
+  TestValidator.error("proximity without an until law", (): unknown =>
+    both({
+      proximity: {
+        effector: "palmLeft",
+        target: { kind: "none" },
+        distance: 0,
+      },
+    }),
+  );
 }

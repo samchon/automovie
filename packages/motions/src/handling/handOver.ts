@@ -1,5 +1,8 @@
 import { minimumJerk } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -41,8 +44,12 @@ export namespace handOver {
 
   /** Cancel table: after the release the hand is free. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
-    stand: [{ window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    walk: [{ window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    stand: [
+      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
+    walk: [
+      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
   };
 
   /** Parameters. */
@@ -78,34 +85,72 @@ export namespace handOver {
    * @param context The action's context.
    * @returns The plan.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const side: HumanHand.Side = context.params.hand ?? "right";
     const body: IHumanBody = context.body;
     const held: IHumanPosture = context.entry.posture;
-    const receiver: IHumanActionContext.IPerformer = context.performer(context.params.to);
+    const receiver: IHumanActionContext.IPerformer = context.performer(
+      context.params.to,
+    );
     const shared: HumanHandover.IPlan = HumanHandover.plan({
-      giver: { body, side, bones: context.performer(context.subject).bones(context.start) },
-      receiver: { body: receiver.body, side: context.params.receiverHand ?? "right", bones: receiver.bones(context.start) },
+      giver: {
+        body,
+        side,
+        bones: context.performer(context.subject).bones(context.start),
+      },
+      receiver: {
+        body: receiver.body,
+        side: context.params.receiverHand ?? "right",
+        bones: receiver.bones(context.start),
+      },
       prop: context.prop(context.params.prop).prop,
       frame: context.prop(context.params.prop).frame(context.start),
       handle: context.params.handle,
-      ...(context.params.mass === undefined ? {} : { mass: context.params.mass }),
-      ...(context.params.outcome === undefined ? {} : { outcome: context.params.outcome }),
+      ...(context.params.mass === undefined
+        ? {}
+        : { mass: context.params.mass }),
+      ...(context.params.outcome === undefined
+        ? {}
+        : { outcome: context.params.outcome }),
     });
 
     // The giver's path: out to the offer, a hold, then home or back.
-    const out: HumanPrehension.ITransport = HumanPrehension.transport(shared.giverFrom.point, shared.giverAt.point, { x: 0, y: 0, z: 0 }, 0, { from: shared.giverFrom.rotation, to: shared.giverAt.rotation }, shared.offer);
+    const out: HumanPrehension.ITransport = HumanPrehension.transport(
+      shared.giverFrom.point,
+      shared.giverAt.point,
+      { x: 0, y: 0, z: 0 },
+      0,
+      { from: shared.giverFrom.rotation, to: shared.giverAt.rotation },
+      shared.offer,
+    );
     const pullback: number =
-      shared.outcome === "transfer" ? shared.release : shared.outcome === "withdraw" ? Math.max(shared.offer, shared.gripClosed - 0.5 * shared.reach) : shared.release;
+      shared.outcome === "transfer"
+        ? shared.release
+        : shared.outcome === "withdraw"
+          ? Math.max(shared.offer, shared.gripClosed - 0.5 * shared.reach)
+          : shared.release;
     const back: number = shared.offer;
-    const home: HumanPrehension.ITransport = HumanPrehension.transport(shared.giverAt.point, shared.giverFrom.point, { x: 0, y: 0, z: 0 }, 0, { from: shared.giverAt.rotation, to: shared.giverFrom.rotation }, back);
+    const home: HumanPrehension.ITransport = HumanPrehension.transport(
+      shared.giverAt.point,
+      shared.giverFrom.point,
+      { x: 0, y: 0, z: 0 },
+      0,
+      { from: shared.giverAt.rotation, to: shared.giverFrom.rotation },
+      back,
+    );
     const opens: boolean = shared.outcome === "transfer";
     const duration: number = pullback + (opens ? OPEN : 0) + back;
-    const closed: IHumanPosture["joints"] = HumanGrip.fingers(context.entry.pose, side);
+    const closed: IHumanPosture["joints"] = HumanGrip.fingers(
+      context.entry.pose,
+      side,
+    );
     const flat: IHumanPosture["joints"] = HumanHand.shape(side, "flat");
     const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
-    const part: IHumanContactWindow["part"] = side === "left" ? "leftHand" : "rightHand";
+    const part: IHumanContactWindow["part"] =
+      side === "left" ? "leftHand" : "rightHand";
     return {
       duration,
       events: [
@@ -113,9 +158,27 @@ export namespace handOver {
         { name: "release", share: pullback / duration },
       ],
       contacts: [
-        { part: "leftFoot", kind: "plant", from: 0, to: 1, support: { kind: "ground" } },
-        { part: "rightFoot", kind: "plant", from: 0, to: 1, support: { kind: "ground" } },
-        { part, kind: "grip", from: 0, to: opens ? pullback / duration : 1, support: { kind: "prop", subject: context.params.prop } },
+        {
+          part: "leftFoot",
+          kind: "plant",
+          from: 0,
+          to: 1,
+          support: { kind: "ground" },
+        },
+        {
+          part: "rightFoot",
+          kind: "plant",
+          from: 0,
+          to: 1,
+          support: { kind: "ground" },
+        },
+        {
+          part,
+          kind: "grip",
+          from: 0,
+          to: opens ? pullback / duration : 1,
+          support: { kind: "prop", subject: context.params.prop },
+        },
       ],
       contact: shared.offer,
       posture: (seconds: number): IHumanPosture => {
@@ -132,20 +195,36 @@ export namespace handOver {
         } else if (opens && t <= pullback + OPEN) {
           wrist = shared.giverAt.point;
           rotation = shared.giverAt.rotation;
-          digits = HumanPrehension.shape({ entry: closed, open: flat, closed: flat }, 1, minimumJerk((t - pullback) / OPEN).s);
+          digits = HumanPrehension.shape(
+            { entry: closed, open: flat, closed: flat },
+            1,
+            minimumJerk((t - pullback) / OPEN).s,
+          );
         } else {
           const r: number = t - pullback - (opens ? OPEN : 0);
           wrist = home.wrist(r);
           rotation = home.turn(r);
-          if (opens) digits = HumanPrehension.shape({ entry: flat, open: relaxed, closed: relaxed }, 1, r / back);
+          if (opens)
+            digits = HumanPrehension.shape(
+              { entry: flat, open: relaxed, closed: relaxed },
+              1,
+              r / back,
+            );
         }
         return {
           ...held,
           joints: { ...held.joints, ...digits },
-          limbs: { ...held.limbs, [limb]: { point: wrist, rotation, bend: HumanHand.elbow(body, held, side), ...(t >= shared.offer && t <= pullback ? { planted: true } : {}) } },
+          limbs: {
+            ...held.limbs,
+            [limb]: {
+              point: wrist,
+              rotation,
+              bend: HumanHand.elbow(body, held, side),
+              ...(t >= shared.offer && t <= pullback ? { planted: true } : {}),
+            },
+          },
         };
       },
     };
   }
-
 }

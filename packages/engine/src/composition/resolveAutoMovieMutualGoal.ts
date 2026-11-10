@@ -51,15 +51,27 @@ export function resolveAutoMovieMutualGoal(input: {
 }): resolveAutoMovieMutualGoal.IGoal {
   for (const side of [input.a, input.b])
     if (!(side.reach > 0 && side.limit >= side.reach))
-      throw new Error(`A mutual goal needs 0 < reach <= limit, but had reach ${side.reach} and limit ${side.limit}`);
-  const half: number = Math.hypot(input.b.shoulder.x - input.a.shoulder.x, input.b.shoulder.z - input.a.shoulder.z) / 2;
+      throw new Error(
+        `A mutual goal needs 0 < reach <= limit, but had reach ${side.reach} and limit ${side.limit}`,
+      );
+  const half: number =
+    Math.hypot(
+      input.b.shoulder.x - input.a.shoulder.x,
+      input.b.shoulder.z - input.a.shoulder.z,
+    ) / 2;
   const height = (side: resolveAutoMovieMutualGoal.ISide): number =>
-    side.shoulder.y - Math.sqrt(Math.max(0, side.reach * side.reach - half * half));
+    side.shoulder.y -
+    Math.sqrt(Math.max(0, side.reach * side.reach - half * half));
 
   // The heights each straight arm can reach at that horizontal distance; the
   // comfortable mean is moved into the band both share.
-  const band = (side: resolveAutoMovieMutualGoal.ISide, h: number): [number, number] => {
-    const drop: number = Math.sqrt(Math.max(0, side.limit * side.limit - h * h));
+  const band = (
+    side: resolveAutoMovieMutualGoal.ISide,
+    h: number,
+  ): [number, number] => {
+    const drop: number = Math.sqrt(
+      Math.max(0, side.limit * side.limit - h * h),
+    );
     return [side.shoulder.y - drop, side.shoulder.y + drop];
   };
   const shared = (h: number): [number, number] => {

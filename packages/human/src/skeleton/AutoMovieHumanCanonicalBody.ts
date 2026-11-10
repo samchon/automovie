@@ -120,33 +120,44 @@ export namespace AutoMovieHumanCanonicalBody {
    * @param options Body mass in kilograms and the skeleton id.
    * @returns The canonical body.
    */
-  export function prepare(params: IAutoMovieHumanParameters, options: { mass: number; id: string }): IBody {
-    const original: AutoMovieHumanBodyLaw.IOriginal = AutoMovieHumanBodyLaw.prepareSources(params);
-    const anatomy: AutoMovieHumanSkeletonLaw.IOutput = AutoMovieHumanSkeletonLaw.complete(
-      original.bodyAnatomy(),
-      original.headSource(),
-      original.stature,
-    );
-    const measures: IAutoMovieHumanBodyMeasures = AutoMovieHumanBodyAnatomy.resolve(params);
+  export function prepare(
+    params: IAutoMovieHumanParameters,
+    options: { mass: number; id: string },
+  ): IBody {
+    const original: AutoMovieHumanBodyLaw.IOriginal =
+      AutoMovieHumanBodyLaw.prepareSources(params);
+    const anatomy: AutoMovieHumanSkeletonLaw.IOutput =
+      AutoMovieHumanSkeletonLaw.complete(
+        original.bodyAnatomy(),
+        original.headSource(),
+        original.stature,
+      );
+    const measures: IAutoMovieHumanBodyMeasures =
+      AutoMovieHumanBodyAnatomy.resolve(params);
     const scale: number = measures.stature / original.stature / 1000;
-    const girth = (millimetres: number): number => (millimetres / 1000) / (2 * Math.PI);
+    const girth = (millimetres: number): number =>
+      millimetres / 1000 / (2 * Math.PI);
     const headRadius: number = girth(params.head.circumference);
     const radius = (bone: string): number => {
       const part: string = bone.replace(/^(left|right)/u, "");
       if (bone === "hips") return girth(measures.hipCircumference);
       if (bone === "spine") return girth(measures.waistCircumference);
       if (bone === "chest") return girth(measures.chestCircumference);
-      if (bone === "neck" || bone === "atlas") return girth(measures.neckCircumference);
+      if (bone === "neck" || bone === "atlas")
+        return girth(measures.neckCircumference);
       if (bone === "head") return headRadius;
       if (bone === "jaw") return 0.12 * headRadius;
       if (part === "Eye") return 0.012;
-      if (part === "Shoulder" || part === "Scapula" || part === "UpperArm") return girth(measures.axillaryArmCircumference);
+      if (part === "Shoulder" || part === "Scapula" || part === "UpperArm")
+        return girth(measures.axillaryArmCircumference);
       if (part === "LowerArm") return girth(measures.forearmCircumference);
       if (part === "Hand") return girth(measures.handCircumference);
       if (part === "UpperLeg") return girth(measures.thighCircumference);
       if (part === "LowerLeg") return girth(measures.calfCircumference);
-      if (part === "Foot" || part === "Subtalar") return girth(measures.ankleCircumference);
-      if (part === "Midfoot") return 0.8 * girth(measures.ballOfFootCircumference);
+      if (part === "Foot" || part === "Subtalar")
+        return girth(measures.ankleCircumference);
+      if (part === "Midfoot")
+        return 0.8 * girth(measures.ballOfFootCircumference);
       if (part.startsWith("Hallux")) return girth(0.04 * measures.stature);
       return girth(0.03 * measures.stature);
     };
@@ -172,19 +183,41 @@ export namespace AutoMovieHumanCanonicalBody {
    * @returns Placements in the order of `body.joints`.
    */
   export function place(body: IBody, pose: IAutoMoviePose): IPlacement[] {
-    const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      resolvePose(pose, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
-        (r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-      ),
-    );
+    const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      new Map(
+        resolvePose(
+          pose,
+          body.skeleton,
+          HUMANOID_JOINT_AXES,
+          HUMANOID_REST_FRAME,
+        ).map(
+          (
+            r: IAutoMovieResolvedBone,
+          ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+        ),
+      );
     const rest: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
     for (const bone of body.skeleton.bones)
-      rest.set(bone.bone, Vector3.add(bone.parent === null ? Vector3.create(0, 0, 0) : rest.get(bone.parent)!, bone.rest.translation));
+      rest.set(
+        bone.bone,
+        Vector3.add(
+          bone.parent === null
+            ? Vector3.create(0, 0, 0)
+            : rest.get(bone.parent)!,
+          bone.rest.translation,
+        ),
+      );
     return body.joints.map((joint: IJoint): IPlacement => {
       const r: IAutoMovieResolvedBone = resolved.get(joint.carrier)!;
       return {
         bone: joint.bone,
-        position: Vector3.add(r.worldPosition, Quaternion.rotateVector(r.worldRotation, Vector3.subtract(vector(joint.position), rest.get(joint.carrier)!))),
+        position: Vector3.add(
+          r.worldPosition,
+          Quaternion.rotateVector(
+            r.worldRotation,
+            Vector3.subtract(vector(joint.position), rest.get(joint.carrier)!),
+          ),
+        ),
         rotation: r.worldRotation,
       };
     });
@@ -202,8 +235,15 @@ export namespace AutoMovieHumanCanonicalBody {
    * @param pose A canonical pose; omitted, the T-pose rest.
    * @returns Rest bones and placements in Human's frame.
    */
-  export function display(body: IBody, pose?: IAutoMoviePose): Pick<AutoMovieHumanSkeleton.IOutput, "bones" | "posed"> {
-    const flip = (p: readonly number[]): [number, number, number] => [p[2]!, p[1]!, p[0]!];
+  export function display(
+    body: IBody,
+    pose?: IAutoMoviePose,
+  ): Pick<AutoMovieHumanSkeleton.IOutput, "bones" | "posed"> {
+    const flip = (p: readonly number[]): [number, number, number] => [
+      p[2]!,
+      p[1]!,
+      p[0]!,
+    ];
     const bones: AutoMovieHumanSkeleton.IBone[] = body.joints.map(
       (j: IJoint): AutoMovieHumanSkeleton.IBone => ({
         bone: j.bone,
@@ -215,16 +255,32 @@ export namespace AutoMovieHumanCanonicalBody {
     );
     const posed: AutoMovieHumanSkeleton.IPlacement[] =
       pose === undefined
-        ? bones.map((b: AutoMovieHumanSkeleton.IBone): AutoMovieHumanSkeleton.IPlacement => ({ bone: b.bone, position: [...b.position], rotation: [0, 0, 0, 1] }))
-        : place(body, pose).map((p: IPlacement): AutoMovieHumanSkeleton.IPlacement => {
-            const q: IAutoMovieQuaternion = reflectRotation(p.rotation);
-            return { bone: p.bone, position: flip([p.position.x, p.position.y, p.position.z]), rotation: [q.x, q.y, q.z, q.w] };
-          });
+        ? bones.map(
+            (
+              b: AutoMovieHumanSkeleton.IBone,
+            ): AutoMovieHumanSkeleton.IPlacement => ({
+              bone: b.bone,
+              position: [...b.position],
+              rotation: [0, 0, 0, 1],
+            }),
+          )
+        : place(body, pose).map(
+            (p: IPlacement): AutoMovieHumanSkeleton.IPlacement => {
+              const q: IAutoMovieQuaternion = reflectRotation(p.rotation);
+              return {
+                bone: p.bone,
+                position: flip([p.position.x, p.position.y, p.position.z]),
+                rotation: [q.x, q.y, q.z, q.w],
+              };
+            },
+          );
     return { bones, posed };
   }
 
   /** The reflection between Human's frame and the canonical one, column-major 4x4. */
-  export const REFLECTION: readonly number[] = [0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1];
+  export const REFLECTION: readonly number[] = [
+    0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,
+  ];
 }
 
 /** One bind joint in Human's frame, metres. */
@@ -237,9 +293,17 @@ interface IBind {
 }
 
 /** Reflect bind joints into the canonical frame, straighten them into the T-pose, floor them and build the rig and profile. */
-function canonical(bind: readonly IBind[], options: { mass: number; id: string }): AutoMovieHumanCanonicalBody.IBody {
+function canonical(
+  bind: readonly IBind[],
+  options: { mass: number; id: string },
+): AutoMovieHumanCanonicalBody.IBody {
   const children: Map<string, string[]> = new Map();
-  for (const bone of bind) if (bone.parent !== null) children.set(bone.parent, [...(children.get(bone.parent) ?? []), bone.bone]);
+  for (const bone of bind)
+    if (bone.parent !== null)
+      children.set(bone.parent, [
+        ...(children.get(bone.parent) ?? []),
+        bone.bone,
+      ]);
   const position: Map<string, IAutoMovieVector3> = new Map();
   const tip: Map<string, IAutoMovieVector3 | null> = new Map();
   const turnOf: Map<string, IAutoMovieQuaternion> = new Map();
@@ -248,9 +312,20 @@ function canonical(bind: readonly IBind[], options: { mass: number; id: string }
     tip.set(bone.bone, bone.tip === null ? null : reflect(bone.tip));
     turnOf.set(bone.bone, Quaternion.identity());
   }
-  const descendants = (root: string): string[] => [root, ...(children.get(root) ?? []).flatMap(descendants)];
-  const turn = (bones: readonly string[], rotation: IAutoMovieQuaternion, pivot: IAutoMovieVector3): void => {
-    const move = (p: IAutoMovieVector3): IAutoMovieVector3 => Vector3.add(pivot, Quaternion.rotateVector(rotation, Vector3.subtract(p, pivot)));
+  const descendants = (root: string): string[] => [
+    root,
+    ...(children.get(root) ?? []).flatMap(descendants),
+  ];
+  const turn = (
+    bones: readonly string[],
+    rotation: IAutoMovieQuaternion,
+    pivot: IAutoMovieVector3,
+  ): void => {
+    const move = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+      Vector3.add(
+        pivot,
+        Quaternion.rotateVector(rotation, Vector3.subtract(p, pivot)),
+      );
     for (const bone of bones) {
       position.set(bone, move(position.get(bone)!));
       const end: IAutoMovieVector3 | null = tip.get(bone)!;
@@ -258,12 +333,27 @@ function canonical(bind: readonly IBind[], options: { mass: number; id: string }
       turnOf.set(bone, Quaternion.multiply(rotation, turnOf.get(bone)!));
     }
   };
-  const align = (side: string, from: string, to: string, direction: IAutoMovieVector3): void => {
+  const align = (
+    side: string,
+    from: string,
+    to: string,
+    direction: IAutoMovieVector3,
+  ): void => {
     const pivot: IAutoMovieVector3 = position.get(`${side}${from}`)!;
-    turn(descendants(`${side}${from}`), rotationBetween(Vector3.subtract(position.get(`${side}${to}`)!, pivot), direction), pivot);
+    turn(
+      descendants(`${side}${from}`),
+      rotationBetween(
+        Vector3.subtract(position.get(`${side}${to}`)!, pivot),
+        direction,
+      ),
+      pivot,
+    );
   };
   const down: IAutoMovieVector3 = Vector3.create(0, -1, 0);
-  for (const [side, sign] of [["left", 1], ["right", -1]] as const) {
+  for (const [side, sign] of [
+    ["left", 1],
+    ["right", -1],
+  ] as const) {
     const lateral: IAutoMovieVector3 = Vector3.create(sign, 0, 0);
     align(side, "UpperArm", "LowerArm", lateral);
     align(side, "LowerArm", "Hand", lateral);
@@ -272,24 +362,50 @@ function canonical(bind: readonly IBind[], options: { mass: number; id: string }
     // Pronate about the now-lateral forearm until the volar normal,
     // sign * (along x (index - little)), faces -Y.
     const hand: IAutoMovieVector3 = position.get(`${side}Hand`)!;
-    const along: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(position.get(`${side}MiddleProximal`)!, hand));
-    const across: IAutoMovieVector3 = Vector3.subtract(position.get(`${side}IndexProximal`)!, position.get(`${side}LittleProximal`)!);
-    const volar: IAutoMovieVector3 = Vector3.normalize(Vector3.scale(Vector3.cross(along, across), sign));
-    const angle: number = (Math.atan2(Vector3.dot(Vector3.cross(volar, down), lateral), Vector3.dot(volar, down)) * 180) / Math.PI;
-    turn(descendants(`${side}LowerArm`), Quaternion.fromAxisAngle(lateral, angle), position.get(`${side}LowerArm`)!);
+    const along: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(position.get(`${side}MiddleProximal`)!, hand),
+    );
+    const across: IAutoMovieVector3 = Vector3.subtract(
+      position.get(`${side}IndexProximal`)!,
+      position.get(`${side}LittleProximal`)!,
+    );
+    const volar: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.scale(Vector3.cross(along, across), sign),
+    );
+    const angle: number =
+      (Math.atan2(
+        Vector3.dot(Vector3.cross(volar, down), lateral),
+        Vector3.dot(volar, down),
+      ) *
+        180) /
+      Math.PI;
+    turn(
+      descendants(`${side}LowerArm`),
+      Quaternion.fromAxisAngle(lateral, angle),
+      position.get(`${side}LowerArm`)!,
+    );
 
     // Straight legs; each foot turns back to its bind orientation.
     align(side, "UpperLeg", "LowerLeg", down);
     align(side, "LowerLeg", "Foot", down);
-    turn(descendants(`${side}Foot`), Quaternion.inverse(turnOf.get(`${side}Foot`)!), position.get(`${side}Foot`)!);
+    turn(
+      descendants(`${side}Foot`),
+      Quaternion.inverse(turnOf.get(`${side}Foot`)!),
+      position.get(`${side}Foot`)!,
+    );
   }
 
   // Floor: the lowest foot joint sphere touches Y = 0.
   let floor: number = Infinity;
   for (const bone of bind)
     if (/(Foot|Subtalar|Midfoot|Hallux|Toe\d)/.test(bone.bone))
-      for (const p of [position.get(bone.bone)!, tip.get(bone.bone)!]) if (p !== null) floor = Math.min(floor, p.y - bone.radius);
-  const lift = (p: IAutoMovieVector3): IAutoMovieVector3 => ({ x: p.x, y: p.y - floor, z: p.z });
+      for (const p of [position.get(bone.bone)!, tip.get(bone.bone)!])
+        if (p !== null) floor = Math.min(floor, p.y - bone.radius);
+  const lift = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+    x: p.x,
+    y: p.y - floor,
+    z: p.z,
+  });
   for (const bone of bind) {
     position.set(bone.bone, lift(position.get(bone.bone)!));
     const end: IAutoMovieVector3 | null = tip.get(bone.bone)!;
@@ -299,17 +415,31 @@ function canonical(bind: readonly IBind[], options: { mass: number; id: string }
   const carrier: Map<string, AutoMovieHumanoidBone> = new Map();
   for (const bone of bind) {
     const toe: string | null = toeSide(bone.bone);
-    carrier.set(bone.bone, toe !== null ? (`${toe}Toes` as AutoMovieHumanoidBone) : HUMANOID.has(bone.bone) ? (bone.bone as AutoMovieHumanoidBone) : carrier.get(bone.parent!)!);
+    carrier.set(
+      bone.bone,
+      toe !== null
+        ? (`${toe}Toes` as AutoMovieHumanoidBone)
+        : HUMANOID.has(bone.bone)
+          ? (bone.bone as AutoMovieHumanoidBone)
+          : carrier.get(bone.parent!)!,
+    );
   }
   const bones: IAutoMovieBone[] = [];
   const placed: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
-  const add = (bone: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, at: IAutoMovieVector3): void => {
+  const add = (
+    bone: AutoMovieHumanoidBone,
+    parent: AutoMovieHumanoidBone | null,
+    at: IAutoMovieVector3,
+  ): void => {
     placed.set(bone, at);
     bones.push({
       bone,
       parent,
       rest: {
-        translation: Vector3.subtract(at, parent === null ? Vector3.create(0, 0, 0) : placed.get(parent)!),
+        translation: Vector3.subtract(
+          at,
+          parent === null ? Vector3.create(0, 0, 0) : placed.get(parent)!,
+        ),
         rotation: Quaternion.identity(),
         scale: Vector3.create(1, 1, 1),
       },
@@ -318,13 +448,32 @@ function canonical(bind: readonly IBind[], options: { mass: number; id: string }
   };
   for (const bone of bind) {
     const toe: string | null = toeSide(bone.bone);
-    if (toe !== null && bone.bone === `${toe}HalluxProximal`) add(`${toe}Toes` as AutoMovieHumanoidBone, `${toe}Foot` as AutoMovieHumanoidBone, position.get(bone.bone)!);
-    if (HUMANOID.has(bone.bone)) add(bone.bone as AutoMovieHumanoidBone, bone.parent === null ? null : carrier.get(bone.parent)!, position.get(bone.bone)!);
+    if (toe !== null && bone.bone === `${toe}HalluxProximal`)
+      add(
+        `${toe}Toes` as AutoMovieHumanoidBone,
+        `${toe}Foot` as AutoMovieHumanoidBone,
+        position.get(bone.bone)!,
+      );
+    if (HUMANOID.has(bone.bone))
+      add(
+        bone.bone as AutoMovieHumanoidBone,
+        bone.parent === null ? null : carrier.get(bone.parent)!,
+        position.get(bone.bone)!,
+      );
   }
   return {
     skeleton: { id: options.id, bones },
     profile: Profile.build(
-      new Map(bind.map((bone: IBind): [string, Profile.IJoint] => [bone.bone, { position: position.get(bone.bone)!, tip: tip.get(bone.bone)!, radius: bone.radius }])),
+      new Map(
+        bind.map((bone: IBind): [string, Profile.IJoint] => [
+          bone.bone,
+          {
+            position: position.get(bone.bone)!,
+            tip: tip.get(bone.bone)!,
+            radius: bone.radius,
+          },
+        ]),
+      ),
       options.mass,
       options.id,
     ),
@@ -355,12 +504,33 @@ function reflectRotation(q: IAutoMovieQuaternion): IAutoMovieQuaternion {
 
 /** Every humanoid bone id, telling Human's own joints apart. */
 const HUMANOID: ReadonlySet<string> = new Set<string>([
-  "hips", "spine", "chest", "upperChest", "neck", "head", "leftEye", "rightEye", "jaw",
+  "hips",
+  "spine",
+  "chest",
+  "upperChest",
+  "neck",
+  "head",
+  "leftEye",
+  "rightEye",
+  "jaw",
   ...(["left", "right"] as const).flatMap((s: string): string[] =>
     [
-      "Shoulder", "UpperArm", "LowerArm", "Hand", "UpperLeg", "LowerLeg", "Foot", "Toes",
-      "ThumbMetacarpal", "ThumbProximal", "ThumbDistal",
-      ...["Index", "Middle", "Ring", "Little"].flatMap((d: string): string[] => ["Proximal", "Intermediate", "Distal"].map((k: string): string => `${d}${k}`)),
+      "Shoulder",
+      "UpperArm",
+      "LowerArm",
+      "Hand",
+      "UpperLeg",
+      "LowerLeg",
+      "Foot",
+      "Toes",
+      "ThumbMetacarpal",
+      "ThumbProximal",
+      "ThumbDistal",
+      ...["Index", "Middle", "Ring", "Little"].flatMap((d: string): string[] =>
+        ["Proximal", "Intermediate", "Distal"].map(
+          (k: string): string => `${d}${k}`,
+        ),
+      ),
     ].map((b: string): string => `${s}${b}`),
   ),
 ]);

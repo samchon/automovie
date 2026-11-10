@@ -1,5 +1,9 @@
 import type { samplePoseVelocity } from "@automovie/engine";
-import type { IAutoMoviePose, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanPosture } from "../posture/IHumanPosture";

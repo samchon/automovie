@@ -1,4 +1,7 @@
-import type { IAutoMovieSkeletonTopology, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import type {
+  IAutoMovieSkeletonTopology,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBodyMeasure,

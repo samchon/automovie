@@ -1,6 +1,20 @@
-import { measureAutoMovieHumanoidBody, resolveAutoMovieHumanoidSurfaces, validatePhysicalProfile, resolvePose, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, type IAutoMovieResolvedBone } from "@automovie/engine";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  type IAutoMovieResolvedBone,
+  measureAutoMovieHumanoidBody,
+  resolveAutoMovieHumanoidSurfaces,
+  resolvePose,
+  validatePhysicalProfile,
+} from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieBodyMeasure, IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieBodyMeasure,
+  IAutoMoviePose,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { MotionBodies } from "../../../../packages/motions/src/executable/MotionBodies";
@@ -46,72 +60,180 @@ export function test_human_motion_canonical_body(): void {
   const check = (label: string, ok: boolean): void => {
     if (!ok) failures.push(label);
   };
-  const dist = (a: IAutoMovieVector3, b: IAutoMovieVector3): number => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+  const dist = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+    Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   for (const man of men) {
     const body: AutoMovieHumanCanonicalBody.IBody = man.body;
     const id: string = man.id;
-    const rest = AutoMovieHumanCanonicalBody.place(body, { skeleton: body.skeleton.id, root: null, joints: [] });
-    const at = (bone: string): IAutoMovieVector3 => rest.find((p) => p.bone === bone)!.position;
-    check(`${id} left side on +X`, at("leftHand").x > 0.3 && at("leftEye").x > 0 && at("leftUpperLeg").x > 0 && at("rightHand").x < -0.3);
-    check(`${id} toes ahead`, at("leftHalluxProximal").z > at("leftFoot").z + 0.05);
-    const raised = AutoMovieHumanCanonicalBody.place(body, zero(body, { leftUpperArm: [90, 0, 0] }));
-    const hand: IAutoMovieVector3 = raised.find((p) => p.bone === "leftHand")!.position;
-    check(`${id} left raise lands on the left, forward`, hand.x > 0.05 && hand.z > 0.3);
+    const rest = AutoMovieHumanCanonicalBody.place(body, {
+      skeleton: body.skeleton.id,
+      root: null,
+      joints: [],
+    });
+    const at = (bone: string): IAutoMovieVector3 =>
+      rest.find((p) => p.bone === bone)!.position;
+    check(
+      `${id} left side on +X`,
+      at("leftHand").x > 0.3 &&
+        at("leftEye").x > 0 &&
+        at("leftUpperLeg").x > 0 &&
+        at("rightHand").x < -0.3,
+    );
+    check(
+      `${id} toes ahead`,
+      at("leftHalluxProximal").z > at("leftFoot").z + 0.05,
+    );
+    const raised = AutoMovieHumanCanonicalBody.place(
+      body,
+      zero(body, { leftUpperArm: [90, 0, 0] }),
+    );
+    const hand: IAutoMovieVector3 = raised.find(
+      (p) => p.bone === "leftHand",
+    )!.position;
+    check(
+      `${id} left raise lands on the left, forward`,
+      hand.x > 0.05 && hand.z > 0.3,
+    );
     for (const side of [1, -1]) {
       const s: string = side === 1 ? "left" : "right";
-      for (const [a, b] of [["UpperArm", "LowerArm"], ["LowerArm", "Hand"], ["Hand", "MiddleProximal"]]) {
+      for (const [a, b] of [
+        ["UpperArm", "LowerArm"],
+        ["LowerArm", "Hand"],
+        ["Hand", "MiddleProximal"],
+      ]) {
         const d: IAutoMovieVector3 = sub(at(`${s}${b}`), at(`${s}${a}`));
-        check(`${id} ${s}${a} along ±X`, Math.abs(d.x / Math.hypot(d.x, d.y, d.z) - side) < 1e-9);
+        check(
+          `${id} ${s}${a} along ±X`,
+          Math.abs(d.x / Math.hypot(d.x, d.y, d.z) - side) < 1e-9,
+        );
       }
     }
-    const surfaces = resolveAutoMovieHumanoidSurfaces(body.skeleton, body.profile);
-    check(`${id} palms face down`, Math.abs(surfaces.sockets.palmLeft.normal.y + 1) < 1e-9 && Math.abs(surfaces.sockets.palmRight.normal.y + 1) < 1e-9);
+    const surfaces = resolveAutoMovieHumanoidSurfaces(
+      body.skeleton,
+      body.profile,
+    );
+    check(
+      `${id} palms face down`,
+      Math.abs(surfaces.sockets.palmLeft.normal.y + 1) < 1e-9 &&
+        Math.abs(surfaces.sockets.palmRight.normal.y + 1) < 1e-9,
+    );
     const issues: string[] = validatePhysicalProfile(body.profile);
     check(`${id} profile valid: ${issues.join(", ")}`, issues.length === 0);
 
-    const restBones = fk(body, { skeleton: body.skeleton.id, root: null, joints: [] });
-    const world = (name: AutoMovieHumanoidRegion, bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): IAutoMovieVector3 =>
-      resolveAutoMovieHumanoidSurfaces.place(surfaces.regions[name], bones.get(surfaces.regions[name].bone)!).point;
-    for (const name of Object.keys(surfaces.regions) as AutoMovieHumanoidRegion[])
+    const restBones = fk(body, {
+      skeleton: body.skeleton.id,
+      root: null,
+      joints: [],
+    });
+    const world = (
+      name: AutoMovieHumanoidRegion,
+      bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    ): IAutoMovieVector3 =>
+      resolveAutoMovieHumanoidSurfaces.place(
+        surfaces.regions[name],
+        bones.get(surfaces.regions[name].bone)!,
+      ).point;
+    for (const name of Object.keys(
+      surfaces.regions,
+    ) as AutoMovieHumanoidRegion[])
       if (name.endsWith("Left")) {
         const l: IAutoMovieVector3 = world(name, restBones);
-        const r: IAutoMovieVector3 = world(name.replace(/Left$/, "Right") as AutoMovieHumanoidRegion, restBones);
-        check(`${id} ${name} mirrors (${dist({ ...l, x: -l.x }, r).toFixed(4)})`, dist({ ...l, x: -l.x }, r) < 0.005);
+        const r: IAutoMovieVector3 = world(
+          name.replace(/Left$/, "Right") as AutoMovieHumanoidRegion,
+          restBones,
+        );
+        check(
+          `${id} ${name} mirrors (${dist({ ...l, x: -l.x }, r).toFixed(4)})`,
+          dist({ ...l, x: -l.x }, r) < 0.005,
+        );
       }
     const pose: IAutoMoviePose = {
-      ...zero(body, { spine: [20, 5, 10], leftUpperArm: [60, 30, 20], leftLowerArm: [70, 0, 30], rightUpperLeg: [50, 10, 0], rightLowerLeg: [60, 0, 0], head: [10, 0, 20] }),
-      root: { translation: { x: 0.3, y: -0.1, z: 0.5 }, rotation: { x: 0, y: Math.sin(0.4), z: 0, w: Math.cos(0.4) }, scale: { x: 1, y: 1, z: 1 } },
+      ...zero(body, {
+        spine: [20, 5, 10],
+        leftUpperArm: [60, 30, 20],
+        leftLowerArm: [70, 0, 30],
+        rightUpperLeg: [50, 10, 0],
+        rightLowerLeg: [60, 0, 0],
+        head: [10, 0, 20],
+      }),
+      root: {
+        translation: { x: 0.3, y: -0.1, z: 0.5 },
+        rotation: { x: 0, y: Math.sin(0.4), z: 0, w: Math.cos(0.4) },
+        scale: { x: 1, y: 1, z: 1 },
+      },
     };
     const posedBones = fk(body, pose);
     const placed = AutoMovieHumanCanonicalBody.place(body, pose);
-    for (const name of Object.keys(surfaces.regions) as AutoMovieHumanoidRegion[]) {
+    for (const name of Object.keys(
+      surfaces.regions,
+    ) as AutoMovieHumanoidRegion[]) {
       const bone: AutoMovieHumanoidBone = surfaces.regions[name].bone;
       for (const joint of body.joints.filter((j) => j.carrier === bone)) {
-        const before: number = dist(world(name, restBones), rest.find((p) => p.bone === joint.bone)!.position);
-        const after: number = dist(world(name, posedBones), placed.find((p) => p.bone === joint.bone)!.position);
-        check(`${id} ${name} rides ${joint.bone}`, Math.abs(before - after) < 0.001);
+        const before: number = dist(
+          world(name, restBones),
+          rest.find((p) => p.bone === joint.bone)!.position,
+        );
+        const after: number = dist(
+          world(name, posedBones),
+          placed.find((p) => p.bone === joint.bone)!.position,
+        );
+        check(
+          `${id} ${name} rides ${joint.bone}`,
+          Math.abs(before - after) < 0.001,
+        );
       }
     }
     const shown = AutoMovieHumanCanonicalBody.display(body, pose).posed;
     check(
       `${id} display reflects place`,
-      shown.every((p, i) => dist({ x: p.position[2], y: p.position[1], z: p.position[0] }, placed[i]!.position) < 1e-12),
+      shown.every(
+        (p, i) =>
+          dist(
+            { x: p.position[2], y: p.position[1], z: p.position[0] },
+            placed[i]!.position,
+          ) < 1e-12,
+      ),
     );
-    const m: IAutoMovieBodyMeasure = measureAutoMovieHumanoidBody(body.skeleton, body.profile);
-    check(`${id} measure is the polygon man's own`, m.stature === man.measure.stature);
+    const m: IAutoMovieBodyMeasure = measureAutoMovieHumanoidBody(
+      body.skeleton,
+      body.profile,
+    );
+    check(
+      `${id} measure is the polygon man's own`,
+      m.stature === man.measure.stature,
+    );
   }
   const short: IAutoMovieBodyMeasure = men[0]!.measure;
   const tall: IAutoMovieBodyMeasure = men[1]!.measure;
   const stature = (name: string): number => MotionBodies.stature(name);
-  check(`stature within 3 % (${short.stature}, ${tall.stature})`, Math.abs(short.stature / stature("f-small") - 1) < 0.03 && Math.abs(tall.stature / stature("m-tall") - 1) < 0.03);
+  check(
+    `stature within 3 % (${short.stature}, ${tall.stature})`,
+    Math.abs(short.stature / stature("f-small") - 1) < 0.03 &&
+      Math.abs(tall.stature / stature("m-tall") - 1) < 0.03,
+  );
   const ratio: number = tall.stature / short.stature;
-  for (const key of ["thigh", "shank", "upperArm", "forearm", "footLength"] as const)
-    check(`${key} follows stature (${(tall[key] / short[key]).toFixed(3)} vs ${ratio.toFixed(3)})`, Math.abs(tall[key] / short[key] / ratio - 1) < 0.15);
-  TestValidator.predicate(failures.join("; ") || "all checks", failures.length === 0);
+  for (const key of [
+    "thigh",
+    "shank",
+    "upperArm",
+    "forearm",
+    "footLength",
+  ] as const)
+    check(
+      `${key} follows stature (${(tall[key] / short[key]).toFixed(3)} vs ${ratio.toFixed(3)})`,
+      Math.abs(tall[key] / short[key] / ratio - 1) < 0.15,
+    );
+  TestValidator.predicate(
+    failures.join("; ") || "all checks",
+    failures.length === 0,
+  );
 }
 
 /** A full clinical-zero pose with some bones set. */
-function zero(body: AutoMovieHumanCanonicalBody.IBody, set: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>>): IAutoMoviePose {
+function zero(
+  body: AutoMovieHumanCanonicalBody.IBody,
+  set: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>>,
+): IAutoMoviePose {
   return {
     skeleton: body.skeleton.id,
     root: null,
@@ -123,8 +245,18 @@ function zero(body: AutoMovieHumanCanonicalBody.IBody, set: Partial<Record<AutoM
 }
 
 /** Forward kinematics with the canonical reading. */
-function fk(body: AutoMovieHumanCanonicalBody.IBody, pose: IAutoMoviePose): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-  return new Map(resolvePose(pose, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map((r) => [r.bone, r]));
+function fk(
+  body: AutoMovieHumanCanonicalBody.IBody,
+  pose: IAutoMoviePose,
+): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+  return new Map(
+    resolvePose(
+      pose,
+      body.skeleton,
+      HUMANOID_JOINT_AXES,
+      HUMANOID_REST_FRAME,
+    ).map((r) => [r.bone, r]),
+  );
 }
 
 /** a - b. */

@@ -1,4 +1,8 @@
-import { createAutoMovieRandom, deriveAutoMovieSeed, type IAutoMovieRandom } from "@automovie/engine";
+import {
+  type IAutoMovieRandom,
+  createAutoMovieRandom,
+  deriveAutoMovieSeed,
+} from "@automovie/engine";
 import type { IAutoMovieProficiency } from "@automovie/interface";
 
 /**
@@ -44,7 +48,9 @@ export namespace HumanSkill {
   }
 
   /** The named levels' values. */
-  export const LEVELS: Readonly<Record<"novice" | "amateur" | "trained" | "elite", number>> = {
+  export const LEVELS: Readonly<
+    Record<"novice" | "amateur" | "trained" | "elite", number>
+  > = {
     novice: 0,
     amateur: 0.35,
     trained: 0.7,
@@ -72,13 +78,18 @@ export namespace HumanSkill {
    * @param seed The chain seed text.
    * @returns The skill.
    */
-  export function resolve(proficiency: IAutoMovieProficiency, seed: string): ISkill {
-    const p: number = "level" in proficiency ? LEVELS[proficiency.level] : proficiency.p;
+  export function resolve(
+    proficiency: IAutoMovieProficiency,
+    seed: string,
+  ): ISkill {
+    const p: number =
+      "level" in proficiency ? LEVELS[proficiency.level] : proficiency.p;
     if (!(p >= 0 && p <= 1)) throw new Error("A proficiency lies in [0, 1]");
     const axes = {} as Record<IAutoMovieProficiency.Axis, number>;
     for (const axis of AXES) {
       const value: number = proficiency.axes?.[axis] ?? p;
-      if (!(value >= 0 && value <= 1)) throw new Error(`Proficiency axis ${axis} lies in [0, 1]`);
+      if (!(value >= 0 && value <= 1))
+        throw new Error(`Proficiency axis ${axis} lies in [0, 1]`);
       axes[axis] = value;
     }
     return { p, axes, seed };
@@ -93,7 +104,12 @@ export namespace HumanSkill {
    * @param elite The value at 1.
    * @returns `lerp(novice, elite, smoothstep(axis))`.
    */
-  export function quantity(skill: ISkill, axis: IAutoMovieProficiency.Axis, novice: number, elite: number): number {
+  export function quantity(
+    skill: ISkill,
+    axis: IAutoMovieProficiency.Axis,
+    novice: number,
+    elite: number,
+  ): number {
     const x: number = skill.axes[axis];
     const s: number = x * x * (3 - 2 * x);
     return novice + (elite - novice) * s;
@@ -109,8 +125,22 @@ export namespace HumanSkill {
    * @param channel The quantity drawn.
    * @returns The stream.
    */
-  export function stream(skill: ISkill, subject: string, action: string, instance: number, channel: string): IAutoMovieRandom {
-    return createAutoMovieRandom(deriveAutoMovieSeed(skill.seed, subject, action, String(instance), channel));
+  export function stream(
+    skill: ISkill,
+    subject: string,
+    action: string,
+    instance: number,
+    channel: string,
+  ): IAutoMovieRandom {
+    return createAutoMovieRandom(
+      deriveAutoMovieSeed(
+        skill.seed,
+        subject,
+        action,
+        String(instance),
+        channel,
+      ),
+    );
   }
 
   /**
@@ -136,7 +166,11 @@ export namespace HumanSkill {
    * @param seconds Movement time, seconds; positive.
    * @returns The standard deviation of the endpoint, metres.
    */
-  export function scatter(skill: ISkill, distance: number, seconds: number): number {
+  export function scatter(
+    skill: ISkill,
+    distance: number,
+    seconds: number,
+  ): number {
     return (quantity(skill, "path", 0.012, 0.004) * distance) / seconds;
   }
 
@@ -161,7 +195,11 @@ export namespace HumanSkill {
    * @param seconds The planned duration.
    * @returns The realised duration.
    */
-  export function jitter(skill: ISkill, random: IAutoMovieRandom, seconds: number): number {
+  export function jitter(
+    skill: ISkill,
+    random: IAutoMovieRandom,
+    seconds: number,
+  ): number {
     const cv: number = quantity(skill, "timing", 0.07, 0.025);
     const motor: number = quantity(skill, "timing", 0.025, 0.01);
     const sigma: number = Math.sqrt(motor * motor + (cv * seconds) ** 2);

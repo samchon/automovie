@@ -23,7 +23,9 @@ export interface IHumanProp {
   frame: IHumanProp.IFrame;
 
   /** Named points in the prop's frame, metres, with outward unit normals. */
-  points: Readonly<Record<string, { point: IAutoMovieVector3; normal: IAutoMovieVector3 }>>;
+  points: Readonly<
+    Record<string, { point: IAutoMovieVector3; normal: IAutoMovieVector3 }>
+  >;
 
   /** Contact frames in the prop's frame (a handle's `+Y` approach and `+X` wrapped axis), which a grasp plans from by id. */
   affordances?: readonly IAutoMovieAffordance[];

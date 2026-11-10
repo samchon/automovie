@@ -106,10 +106,15 @@ export namespace StrikingReach {
     let along: number = input.along;
     const toward: IAutoMovieVector3 = Vector3.subtract(input.point, root);
     const distance: number = Vector3.length(toward);
-    if (!(distance > 1e-9)) throw new Error("A strike's target coincides with the limb's root");
+    if (!(distance > 1e-9))
+      throw new Error("A strike's target coincides with the limb's root");
     const e1: IAutoMovieVector3 = Vector3.scale(toward, 1 / distance);
-    const side: IAutoMovieVector3 = Vector3.subtract(input.bend, Vector3.scale(e1, Vector3.dot(input.bend, e1)));
-    if (!(Vector3.length(side) > 1e-9)) throw new Error("A limb's bend direction is parallel to its reach");
+    const side: IAutoMovieVector3 = Vector3.subtract(
+      input.bend,
+      Vector3.scale(e1, Vector3.dot(input.bend, e1)),
+    );
+    if (!(Vector3.length(side) > 1e-9))
+      throw new Error("A limb's bend direction is parallel to its reach");
     const e2: IAutoMovieVector3 = Vector3.normalize(side);
     const [least, most] = input.flexion;
     const longest: number = reach(upper, along, least);
@@ -129,7 +134,13 @@ export namespace StrikingReach {
         // Keep the band's most flexion and slide the contact toward the middle
         // joint: |root-point|^2 = u^2 + a^2 + 2 u a cos(phi), solved for a.
         const c: number = Math.cos((most * Math.PI) / 180);
-        along = Math.max(0, -upper * c + Math.sqrt(Math.max(0, distance * distance - upper * upper * (1 - c * c))));
+        along = Math.max(
+          0,
+          -upper * c +
+            Math.sqrt(
+              Math.max(0, distance * distance - upper * upper * (1 - c * c)),
+            ),
+        );
         span = Math.max(distance, Math.abs(upper - along));
       } else span = Math.max(distance, reach(upper, along, JAM_FLEXION));
 
@@ -140,14 +151,36 @@ export namespace StrikingReach {
 
     // The triangle root, middle, point: the angle at the root from the law
     // of cosines, opening toward the bend side.
-    const cosAlpha: number = Math.min(1, Math.max(-1, (upper * upper + span * span - along * along) / (2 * upper * span)));
+    const cosAlpha: number = Math.min(
+      1,
+      Math.max(
+        -1,
+        (upper * upper + span * span - along * along) / (2 * upper * span),
+      ),
+    );
     const sinAlpha: number = Math.sqrt(1 - cosAlpha * cosAlpha);
-    const middle: IAutoMovieVector3 = Vector3.add(root, Vector3.add(Vector3.scale(e1, upper * cosAlpha), Vector3.scale(e2, upper * sinAlpha)));
+    const middle: IAutoMovieVector3 = Vector3.add(
+      root,
+      Vector3.add(
+        Vector3.scale(e1, upper * cosAlpha),
+        Vector3.scale(e2, upper * sinAlpha),
+      ),
+    );
     const point: IAutoMovieVector3 = Vector3.add(root, Vector3.scale(e1, span));
-    const distal: IAutoMovieVector3 = along > 1e-9 ? Vector3.normalize(Vector3.subtract(point, middle)) : Vector3.normalize(Vector3.subtract(middle, root));
-    const end: IAutoMovieVector3 = Vector3.add(middle, Vector3.scale(distal, lower));
-    const thigh: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(middle, root));
-    const flexion: number = (Math.acos(Math.min(1, Math.max(-1, Vector3.dot(thigh, distal)))) * 180) / Math.PI;
+    const distal: IAutoMovieVector3 =
+      along > 1e-9
+        ? Vector3.normalize(Vector3.subtract(point, middle))
+        : Vector3.normalize(Vector3.subtract(middle, root));
+    const end: IAutoMovieVector3 = Vector3.add(
+      middle,
+      Vector3.scale(distal, lower),
+    );
+    const thigh: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(middle, root),
+    );
+    const flexion: number =
+      (Math.acos(Math.min(1, Math.max(-1, Vector3.dot(thigh, distal)))) * 180) /
+      Math.PI;
     return { middle, end, point, flexion, along, status, gap };
   }
 
@@ -162,9 +195,18 @@ export namespace StrikingReach {
    * @param distance How far beyond the middle joint, metres.
    * @returns The hint point, world metres.
    */
-  export function hint(root: IAutoMovieVector3, solution: ISolution, bend: IAutoMovieVector3, distance: number): IAutoMovieVector3 {
-    const e1: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(solution.end, root));
-    const side: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(bend, Vector3.scale(e1, Vector3.dot(bend, e1))));
+  export function hint(
+    root: IAutoMovieVector3,
+    solution: ISolution,
+    bend: IAutoMovieVector3,
+    distance: number,
+  ): IAutoMovieVector3 {
+    const e1: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(solution.end, root),
+    );
+    const side: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(bend, Vector3.scale(e1, Vector3.dot(bend, e1))),
+    );
     return Vector3.add(solution.middle, Vector3.scale(side, distance));
   }
 
@@ -179,7 +221,11 @@ export namespace StrikingReach {
    * @param limit The longest entry, metres.
    * @returns The advance along the line, metres in `[-limit, limit]`; negative backs away from a target too close.
    */
-  export function advance(distance: number, comfortable: number, limit: number): number {
+  export function advance(
+    distance: number,
+    comfortable: number,
+    limit: number,
+  ): number {
     return Math.min(limit, Math.max(-limit, distance - comfortable));
   }
 }

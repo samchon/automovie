@@ -1,5 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -98,16 +101,33 @@ export namespace StrikingStance {
    * @param centre The stance centre on the floor, world metres.
    * @returns Each foot's placement, flat on the floor.
    */
-  export function feet(body: IHumanBody, stance: IStance, centre: IAutoMovieVector3): Record<"left" | "right", HumanFoot.IPlacement> {
-    const frame: HumanFrame.IFrame = { origin: { x: centre.x, y: 0, z: centre.z }, yaw: stance.line };
+  export function feet(
+    body: IHumanBody,
+    stance: IStance,
+    centre: IAutoMovieVector3,
+  ): Record<"left" | "right", HumanFoot.IPlacement> {
+    const frame: HumanFrame.IFrame = {
+      origin: { x: centre.x, y: 0, z: centre.z },
+      yaw: stance.line,
+    };
     const half: number = length(body) / 2;
     const out = {} as Record<"left" | "right", HumanFoot.IPlacement>;
     for (const side of ["left", "right"] as const) {
       const lead: boolean = side === stance.lead;
       const x: number = (side === "left" ? 1 : -1) * body.measure.hipHalfWidth;
-      const ankle: IAutoMovieVector3 = HumanFrame.point(frame, { x, y: body.measure.ankleHeight, z: lead ? half : -half });
+      const ankle: IAutoMovieVector3 = HumanFrame.point(frame, {
+        x,
+        y: body.measure.ankleHeight,
+        z: lead ? half : -half,
+      });
       const outward: number = side === "left" ? 1 : -1;
-      const toe: number = stance.line + (lead ? (stance.lead === "left" ? -LEAD_TOE : LEAD_TOE) : outward * REAR_TOE);
+      const toe: number =
+        stance.line +
+        (lead
+          ? stance.lead === "left"
+            ? -LEAD_TOE
+            : LEAD_TOE
+          : outward * REAR_TOE);
       out[side] = { ankle, rotation: HumanFoot.rotation(toe, 0) };
     }
     return out;
@@ -133,13 +153,22 @@ export namespace StrikingStance {
     ankles: Record<"left" | "right", IAutoMovieVector3>,
     flexion: number = KNEE_FLEXION,
   ): number {
-    const span: number = StrikingReach.reach(body.measure.thigh, body.measure.shank, flexion);
+    const span: number = StrikingReach.reach(
+      body.measure.thigh,
+      body.measure.shank,
+      flexion,
+    );
     let lowest: number = 0;
     for (const side of ["left", "right"] as const) {
-      const hip: IAutoMovieVector3 = HumanFrame.point({ origin: { ...root, y: 0 }, yaw }, body.rest.get(`${side}UpperLeg`)!);
+      const hip: IAutoMovieVector3 = HumanFrame.point(
+        { origin: { ...root, y: 0 }, yaw },
+        body.rest.get(`${side}UpperLeg`)!,
+      );
       const dx: number = hip.x - ankles[side].x;
       const dz: number = hip.z - ankles[side].z;
-      const vertical: number = Math.sqrt(Math.max(0, span * span - dx * dx - dz * dz));
+      const vertical: number = Math.sqrt(
+        Math.max(0, span * span - dx * dx - dz * dz),
+      );
       lowest = Math.min(lowest, ankles[side].y + vertical - hip.y);
     }
     return lowest;
@@ -166,25 +195,60 @@ export namespace StrikingStance {
   ): Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> {
     const bones = StrikingBody.trunk(body, posture);
     const m = body.measure;
-    const chin: IAutoMovieVector3 = StrikingBody.region(body, bones, "chin").point;
-    const forward: IAutoMovieVector3 = horizontal(StrikingBody.region(body, bones, "face").normal);
+    const chin: IAutoMovieVector3 = StrikingBody.region(
+      body,
+      bones,
+      "chin",
+    ).point;
+    const forward: IAutoMovieVector3 = horizontal(
+      StrikingBody.region(body, bones, "face").normal,
+    );
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const out: Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> = {};
     for (const side of ["left", "right"] as const) {
       const lead: boolean = side === stance.lead;
-      const jaw = StrikingBody.region(body, bones, side === "left" ? "jawLeft" : "jawRight");
+      const jaw = StrikingBody.region(
+        body,
+        bones,
+        side === "left" ? "jawLeft" : "jawRight",
+      );
       const outward: IAutoMovieVector3 = horizontal(jaw.normal);
       // The rear fist a quarter forearm in front of the jaw and the lead fist
       // most of a forearm ahead of the cheek: closer, the elbow would have to
       // fold past its range to keep down by the ribs.
       const fistAt: IAutoMovieVector3 = lead
-        ? Vector3.add(Vector3.add({ ...jaw.point, y: chin.y }, Vector3.scale(forward, m.forearm)), Vector3.scale(outward, -0.5 * m.forearmRadius))
-        : Vector3.add(Vector3.add(jaw.point, Vector3.scale(outward, m.forearmRadius)), Vector3.scale(forward, 2 * m.forearmRadius + 0.25 * m.forearm));
-      const sag: IAutoMovieVector3 = { ...fistAt, y: fistAt.y - (drop[side] ?? 0) };
-      const shoulder: IAutoMovieVector3 = bones.get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
-      const bend: IAutoMovieVector3 = Vector3.add(shoulder, Vector3.add(Vector3.scale(up, -0.8 * m.upperArm), Vector3.scale(forward, 0.5 * m.upperArm)));
+        ? Vector3.add(
+            Vector3.add(
+              { ...jaw.point, y: chin.y },
+              Vector3.scale(forward, m.forearm),
+            ),
+            Vector3.scale(outward, -0.5 * m.forearmRadius),
+          )
+        : Vector3.add(
+            Vector3.add(jaw.point, Vector3.scale(outward, m.forearmRadius)),
+            Vector3.scale(forward, 2 * m.forearmRadius + 0.25 * m.forearm),
+          );
+      const sag: IAutoMovieVector3 = {
+        ...fistAt,
+        y: fistAt.y - (drop[side] ?? 0),
+      };
+      const shoulder: IAutoMovieVector3 = bones.get(
+        `${side}UpperArm` as AutoMovieHumanoidBone,
+      )!.worldPosition;
+      const bend: IAutoMovieVector3 = Vector3.add(
+        shoulder,
+        Vector3.add(
+          Vector3.scale(up, -0.8 * m.upperArm),
+          Vector3.scale(forward, 0.5 * m.upperArm),
+        ),
+      );
 
-      out[side === "left" ? "leftArm" : "rightArm"] = glove(body, side, sag, bend);
+      out[side === "left" ? "leftArm" : "rightArm"] = glove(
+        body,
+        side,
+        sag,
+        bend,
+      );
     }
     return out;
   }
@@ -202,10 +266,22 @@ export namespace StrikingStance {
    * @param elbow Where the elbow bends toward, world metres.
    * @returns The arm goal.
    */
-  export function glove(body: IHumanBody, side: "left" | "right", fist: IAutoMovieVector3, elbow: IAutoMovieVector3): IHumanPosture.IGoal {
-    const along: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(fist, elbow));
-    const reach: number = Vector3.length(body.surfaces.sockets[side === "left" ? "fistLeft" : "fistRight"].point);
-    return { point: Vector3.subtract(fist, Vector3.scale(along, reach)), bend: elbow };
+  export function glove(
+    body: IHumanBody,
+    side: "left" | "right",
+    fist: IAutoMovieVector3,
+    elbow: IAutoMovieVector3,
+  ): IHumanPosture.IGoal {
+    const along: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(fist, elbow),
+    );
+    const reach: number = Vector3.length(
+      body.surfaces.sockets[side === "left" ? "fistLeft" : "fistRight"].point,
+    );
+    return {
+      point: Vector3.subtract(fist, Vector3.scale(along, reach)),
+      bend: elbow,
+    };
   }
 
   /**
@@ -229,9 +305,25 @@ export namespace StrikingStance {
     const out: Pick<IHumanPosture["limbs"], "leftLeg" | "rightLeg"> = {};
     for (const side of ["left", "right"] as const) {
       const foot: HumanFoot.IPlacement = feet[side];
-      const toes: IAutoMovieVector3 = Quaternion.rotateVector(foot.rotation, { x: 0, y: 0, z: 1 });
-      const bend: IAutoMovieVector3 = Vector3.add(foot.ankle, Vector3.add(Vector3.scale(toes, 0.5 * body.measure.shank), { x: 0, y: body.measure.shank, z: 0 }));
-      out[side === "left" ? "leftLeg" : "rightLeg"] = { point: foot.ankle, bend, rotation: foot.rotation, ...(planted[side] ? { planted: true } : {}) };
+      const toes: IAutoMovieVector3 = Quaternion.rotateVector(foot.rotation, {
+        x: 0,
+        y: 0,
+        z: 1,
+      });
+      const bend: IAutoMovieVector3 = Vector3.add(
+        foot.ankle,
+        Vector3.add(Vector3.scale(toes, 0.5 * body.measure.shank), {
+          x: 0,
+          y: body.measure.shank,
+          z: 0,
+        }),
+      );
+      out[side === "left" ? "leftLeg" : "rightLeg"] = {
+        point: foot.ankle,
+        bend,
+        rotation: foot.rotation,
+        ...(planted[side] ? { planted: true } : {}),
+      };
     }
     return out;
   }
@@ -243,8 +335,14 @@ export namespace StrikingStance {
    *
    * @returns Clinical angles by bone.
    */
-  export function joints(): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    return { neck: [12, 0, 0], ...StrikingBody.curl("left"), ...StrikingBody.curl("right") };
+  export function joints(): Partial<
+    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+  > {
+    return {
+      neck: [12, 0, 0],
+      ...StrikingBody.curl("left"),
+      ...StrikingBody.curl("right"),
+    };
   }
 }
 

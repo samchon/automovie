@@ -104,7 +104,10 @@ export namespace DefenceOutcome {
    * @param movement `T_def`, seconds.
    * @returns `[low, high]`; open ends are infinite.
    */
-  export function band(outcome: Outcome, movement: number): readonly [number, number] {
+  export function band(
+    outcome: Outcome,
+    movement: number,
+  ): readonly [number, number] {
     if (outcome === "inTime") return [0, Infinity];
     if (outcome === "late") return [-0.5 * movement, 0];
     return [-Infinity, -0.5 * movement];
@@ -118,10 +121,17 @@ export namespace DefenceOutcome {
    * @param forced The outcome to force, when the author declares one.
    * @returns The decision.
    */
-  export function decide(input: IInput, random: IAutoMovieRandom, forced?: Outcome): IDecision {
-    if (!(input.hit > input.launch)) throw new Error("A strike's contact comes after its launch");
-    if (!(input.movement > 0)) throw new Error("A defence takes a positive time");
-    if (!(input.telegraph >= 0 && input.telegraph <= 1)) throw new Error("A telegraph lies in [0, 1]");
+  export function decide(
+    input: IInput,
+    random: IAutoMovieRandom,
+    forced?: Outcome,
+  ): IDecision {
+    if (!(input.hit > input.launch))
+      throw new Error("A strike's contact comes after its launch");
+    if (!(input.movement > 0))
+      throw new Error("A defence takes a positive time");
+    if (!(input.telegraph >= 0 && input.telegraph <= 1))
+      throw new Error("A telegraph lies in [0, 1]");
     const [rLow, rHigh] = StrikingSkill.reactionBand(input.skill);
     const [aLow, aHigh] = StrikingSkill.anticipation(input.skill);
 
@@ -132,7 +142,16 @@ export namespace DefenceOutcome {
       const lead: number = aLow + (aHigh - aLow) * random.float(3);
       const start: number = input.launch + reaction - lead * input.telegraph;
       const margin: number = input.hit - (start + input.movement);
-      return { outcome: classify(margin, input.movement), start, reaction, lead, margin, stretch: 1, hit: input.hit, warnings: [] };
+      return {
+        outcome: classify(margin, input.movement),
+        start,
+        reaction,
+        lead,
+        margin,
+        stretch: 1,
+        hit: input.hit,
+        warnings: [],
+      };
     }
 
     // The plausible margins: the earliest start reacts fastest with the most
@@ -142,7 +161,10 @@ export namespace DefenceOutcome {
     const wanted: readonly [number, number] = band(forced, input.movement);
     const plausible = (factor: number): readonly [number, number] => {
       const delivery: number = (input.hit - input.launch) * factor;
-      return [delivery - latest - input.movement, delivery - earliest - input.movement];
+      return [
+        delivery - latest - input.movement,
+        delivery - earliest - input.movement,
+      ];
     };
 
     // Find the stretch nearest 1 at which the forced band meets the plausible
@@ -150,13 +172,22 @@ export namespace DefenceOutcome {
     // factor is solved in closed form, reaching 2 % of the defence time
     // inside the forced band so its edge is not met only to rounding.
     const [sLow, sHigh] = input.stretch ?? [1, 1];
-    if (!(sLow <= 1 && sHigh >= 1)) throw new Error("An attack's stretch band contains 1");
+    if (!(sLow <= 1 && sHigh >= 1))
+      throw new Error("An attack's stretch band contains 1");
     const delivery: number = input.hit - input.launch;
     const inside: number = 0.02 * input.movement;
     let factor: number = 1;
     const [p0, p1] = plausible(1);
-    if (p1 < wanted[0]) factor = Math.min(sHigh, (wanted[0] + inside + earliest + input.movement) / delivery);
-    else if (p0 > wanted[1]) factor = Math.max(sLow, (wanted[1] - inside + latest + input.movement) / delivery);
+    if (p1 < wanted[0])
+      factor = Math.min(
+        sHigh,
+        (wanted[0] + inside + earliest + input.movement) / delivery,
+      );
+    else if (p0 > wanted[1])
+      factor = Math.max(
+        sLow,
+        (wanted[1] - inside + latest + input.movement) / delivery,
+      );
     const [q0, q1] = plausible(factor);
     const low: number = Math.max(q0, wanted[0]);
     const high: number = Math.min(q1, wanted[1]);
@@ -184,7 +215,13 @@ export namespace DefenceOutcome {
     let reaction: number = offset + lead * input.telegraph;
     if (reaction < rLow || reaction > rHigh) {
       reaction = Math.min(rHigh, Math.max(rLow, reaction));
-      lead = input.telegraph > 0 ? Math.min(aHigh, Math.max(aLow, (reaction - offset) / input.telegraph)) : aLow;
+      lead =
+        input.telegraph > 0
+          ? Math.min(
+              aHigh,
+              Math.max(aLow, (reaction - offset) / input.telegraph),
+            )
+          : aLow;
     }
     const realised: number = input.launch + reaction - lead * input.telegraph;
     const realisedMargin: number = hit - (realised + input.movement);

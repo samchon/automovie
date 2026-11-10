@@ -1,5 +1,8 @@
 import { Vector3 } from "@automovie/engine";
-import type { AutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -32,7 +35,10 @@ export namespace StrikingTarget {
   export function lead(entry: IHumanEntryState): "left" | "right" {
     const r: number = (entry.posture.yaw * Math.PI) / 180;
     const forward: IAutoMovieVector3 = { x: Math.sin(r), y: 0, z: Math.cos(r) };
-    const ahead: number = Vector3.dot(Vector3.subtract(entry.feet.right.ankle, entry.feet.left.ankle), forward);
+    const ahead: number = Vector3.dot(
+      Vector3.subtract(entry.feet.right.ankle, entry.feet.left.ankle),
+      forward,
+    );
     return ahead > 0.02 ? "right" : "left";
   }
 
@@ -45,8 +51,16 @@ export namespace StrikingTarget {
    * @param yaw The fallback heading, degrees.
    * @returns A horizontal unit vector.
    */
-  export function line(root: IAutoMovieVector3, target: IAutoMovieVector3, yaw: number): IAutoMovieVector3 {
-    const d: IAutoMovieVector3 = { x: target.x - root.x, y: 0, z: target.z - root.z };
+  export function line(
+    root: IAutoMovieVector3,
+    target: IAutoMovieVector3,
+    yaw: number,
+  ): IAutoMovieVector3 {
+    const d: IAutoMovieVector3 = {
+      x: target.x - root.x,
+      y: 0,
+      z: target.z - root.z,
+    };
     if (Vector3.length(d) > 1e-6) return Vector3.normalize(d);
     const r: number = (yaw * Math.PI) / 180;
     return { x: Math.sin(r), y: 0, z: Math.cos(r) };
@@ -68,10 +82,18 @@ export namespace StrikingTarget {
    * @param entry The entry state.
    * @returns Each foot's ankle and rotation.
    */
-  export function feet(entry: IHumanEntryState): Record<"left" | "right", HumanFoot.IPlacement> {
+  export function feet(
+    entry: IHumanEntryState,
+  ): Record<"left" | "right", HumanFoot.IPlacement> {
     return {
-      left: { ankle: entry.feet.left.ankle, rotation: entry.feet.left.rotation },
-      right: { ankle: entry.feet.right.ankle, rotation: entry.feet.right.rotation },
+      left: {
+        ankle: entry.feet.left.ankle,
+        rotation: entry.feet.left.rotation,
+      },
+      right: {
+        ankle: entry.feet.right.ankle,
+        rotation: entry.feet.right.rotation,
+      },
     };
   }
 
@@ -84,8 +106,20 @@ export namespace StrikingTarget {
    * @param lift How high above its place, metres.
    * @returns The moved foot.
    */
-  export function slide(foot: HumanFoot.IPlacement, line: IAutoMovieVector3, distance: number, lift: number): HumanFoot.IPlacement {
-    return { ankle: Vector3.add(foot.ankle, { x: line.x * distance, y: lift, z: line.z * distance }), rotation: foot.rotation };
+  export function slide(
+    foot: HumanFoot.IPlacement,
+    line: IAutoMovieVector3,
+    distance: number,
+    lift: number,
+  ): HumanFoot.IPlacement {
+    return {
+      ankle: Vector3.add(foot.ankle, {
+        x: line.x * distance,
+        y: lift,
+        z: line.z * distance,
+      }),
+      rotation: foot.rotation,
+    };
   }
 
   /**
@@ -100,9 +134,22 @@ export namespace StrikingTarget {
    * @param raise The heel raise, degrees (the foot's pitch, toes down).
    * @returns The pivoted foot.
    */
-  export function pivot(body: IHumanBody, side: "left" | "right", foot: HumanFoot.IPlacement, turn: number, raise: number): HumanFoot.IPlacement {
+  export function pivot(
+    body: IHumanBody,
+    side: "left" | "right",
+    foot: HumanFoot.IPlacement,
+    turn: number,
+    raise: number,
+  ): HumanFoot.IPlacement {
     const ball: IAutoMovieVector3 = HumanFoot.point(body, side, "ball", foot);
-    return HumanFoot.pivot(body, side, "ball", ball, HumanFrame.heading(foot.rotation) + turn, -raise);
+    return HumanFoot.pivot(
+      body,
+      side,
+      "ball",
+      ball,
+      HumanFrame.heading(foot.rotation) + turn,
+      -raise,
+    );
   }
 
   /**
@@ -130,12 +177,32 @@ export namespace StrikingTarget {
     const entry = context.entry;
     const lead: "left" | "right" = StrikingTarget.lead(entry);
     const r0: number = (entry.posture.yaw * Math.PI) / 180;
-    const staggered: boolean = Math.abs(Vector3.dot(Vector3.subtract(entry.feet.left.ankle, entry.feet.right.ankle), { x: Math.sin(r0), y: 0, z: Math.cos(r0) })) > 0.05;
-    const yaw: number = entry.posture.yaw + (staggered ? (lead === "left" ? 30 : -30) : 0);
+    const staggered: boolean =
+      Math.abs(
+        Vector3.dot(
+          Vector3.subtract(entry.feet.left.ankle, entry.feet.right.ankle),
+          { x: Math.sin(r0), y: 0, z: Math.cos(r0) },
+        ),
+      ) > 0.05;
+    const yaw: number =
+      entry.posture.yaw + (staggered ? (lead === "left" ? 30 : -30) : 0);
     const r: number = (yaw * Math.PI) / 180;
-    const height: number = target.line === "low" ? m.hipHeight - 0.3 * m.thigh : target.line === "high" ? m.headHeight - 0.5 * m.headRadius : m.chestHeight;
+    const height: number =
+      target.line === "low"
+        ? m.hipHeight - 0.3 * m.thigh
+        : target.line === "high"
+          ? m.headHeight - 0.5 * m.headRadius
+          : m.chestHeight;
     const distance: number = target.range ?? range(height);
-    const centre: IAutoMovieVector3 = { x: (entry.feet.left.ankle.x + entry.feet.right.ankle.x) / 2, y: 0, z: (entry.feet.left.ankle.z + entry.feet.right.ankle.z) / 2 };
-    return { x: centre.x + Math.sin(r) * distance, y: height, z: centre.z + Math.cos(r) * distance };
+    const centre: IAutoMovieVector3 = {
+      x: (entry.feet.left.ankle.x + entry.feet.right.ankle.x) / 2,
+      y: 0,
+      z: (entry.feet.left.ankle.z + entry.feet.right.ankle.z) / 2,
+    };
+    return {
+      x: centre.x + Math.sin(r) * distance,
+      y: height,
+      z: centre.z + Math.cos(r) * distance,
+    };
   }
 }

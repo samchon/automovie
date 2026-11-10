@@ -39,7 +39,8 @@ export namespace StrikingStroke {
    * @returns The unit share, in [0.5, 1).
    */
   export function impactShare(speed: number): number {
-    if (!(speed > 0 && speed <= 1)) throw new Error("An impact speed share lies in (0, 1]");
+    if (!(speed > 0 && speed <= 1))
+      throw new Error("An impact speed share lies in (0, 1]");
     const product: number = Math.sqrt((speed * 1.875) / 30);
     return (1 + Math.sqrt(Math.max(0, 1 - 4 * product))) / 2;
   }
@@ -50,7 +51,12 @@ export namespace StrikingStroke {
     origin: IAutoMovieVector3;
 
     /** An optional via point (a chamber) with the second it is reached and how early the delivery overlaps it. */
-    via?: { point: IAutoMovieVector3; begin: number; end: number; overlap: number };
+    via?: {
+      point: IAutoMovieVector3;
+      begin: number;
+      end: number;
+      overlap: number;
+    };
 
     /** Where the end joint is at the contact. */
     impact: IAutoMovieVector3;
@@ -81,20 +87,36 @@ export namespace StrikingStroke {
     let from: IAutoMovieVector3 = d.origin;
     let begin: number = d.launch;
     if (d.via !== undefined) {
-      units.push({ displacement: Vector3.subtract(d.via.point, d.origin), start: d.via.begin, duration: d.via.end - d.via.begin });
+      units.push({
+        displacement: Vector3.subtract(d.via.point, d.origin),
+        start: d.via.begin,
+        duration: d.via.end - d.via.begin,
+      });
       from = d.via.point;
       begin = d.via.end - d.via.overlap;
     }
     const u: number = impactShare(d.speed);
     const s: number = minimumJerk(u).s;
     const span: number = d.contact - begin;
-    if (!(span > 0)) throw new Error("A strike's delivery ends after it begins");
+    if (!(span > 0))
+      throw new Error("A strike's delivery ends after it begins");
     const length: number = Vector3.length(Vector3.subtract(d.impact, from));
-    const through: IAutoMovieVector3 = Vector3.add(d.impact, Vector3.scale(Vector3.normalize(d.direction), length * (1 / s - 1)));
-    units.push({ displacement: Vector3.subtract(through, from), start: begin, duration: span / u });
-    const reached: IAutoMovieVector3 = Vector3.add(from, Vector3.scale(Vector3.subtract(through, from), s));
+    const through: IAutoMovieVector3 = Vector3.add(
+      d.impact,
+      Vector3.scale(Vector3.normalize(d.direction), length * (1 / s - 1)),
+    );
+    units.push({
+      displacement: Vector3.subtract(through, from),
+      start: begin,
+      duration: span / u,
+    });
+    const reached: IAutoMovieVector3 = Vector3.add(
+      from,
+      Vector3.scale(Vector3.subtract(through, from), s),
+    );
     const fix: IAutoMovieVector3 = Vector3.subtract(d.impact, reached);
-    if (Vector3.length(fix) > 1e-12) units.push({ displacement: fix, start: begin, duration: span });
+    if (Vector3.length(fix) > 1e-12)
+      units.push({ displacement: fix, start: begin, duration: span });
     return units;
   }
 
@@ -179,23 +201,51 @@ export namespace StrikingStroke {
    * @returns The evaluator, memoising its scan.
    */
   export function create(input: IInput): IStroke {
-    const corrections = (seconds: number): superposeMinimumJerk.IUnit[] => [...(input.tracker?.units(seconds) ?? [])];
+    const corrections = (seconds: number): superposeMinimumJerk.IUnit[] => [
+      ...(input.tracker?.units(seconds) ?? []),
+    ];
 
     // The return from a point at a second: straight, or out through the
     // re-chamber point on two overlapping units (Flash and Hogan's via-point
     // movements are fitted by such overlapping units).
-    const recoil = (from: IAutoMovieVector3, at: number): superposeMinimumJerk.IUnit[] =>
+    const recoil = (
+      from: IAutoMovieVector3,
+      at: number,
+    ): superposeMinimumJerk.IUnit[] =>
       input.rechamber === undefined
-        ? [{ displacement: Vector3.subtract(input.back, from), start: at, duration: input.recoil }]
+        ? [
+            {
+              displacement: Vector3.subtract(input.back, from),
+              start: at,
+              duration: input.recoil,
+            },
+          ]
         : [
-            { displacement: Vector3.subtract(input.rechamber, from), start: at, duration: 0.45 * input.recoil },
-            { displacement: Vector3.subtract(input.back, input.rechamber), start: at + 0.35 * input.recoil, duration: 0.65 * input.recoil },
+            {
+              displacement: Vector3.subtract(input.rechamber, from),
+              start: at,
+              duration: 0.45 * input.recoil,
+            },
+            {
+              displacement: Vector3.subtract(input.back, input.rechamber),
+              start: at + 0.35 * input.recoil,
+              duration: 0.65 * input.recoil,
+            },
           ];
     const free = (seconds: number): IAutoMovieVector3 => {
-      const units: superposeMinimumJerk.IUnit[] = [...input.units, ...corrections(seconds)];
+      const units: superposeMinimumJerk.IUnit[] = [
+        ...input.units,
+        ...corrections(seconds),
+      ];
       if (seconds > input.contact) {
-        const settled: IAutoMovieVector3 = [...input.units, ...corrections(input.contact)].reduce(
-          (p: IAutoMovieVector3, u: superposeMinimumJerk.IUnit): IAutoMovieVector3 => Vector3.add(p, u.displacement),
+        const settled: IAutoMovieVector3 = [
+          ...input.units,
+          ...corrections(input.contact),
+        ].reduce(
+          (
+            p: IAutoMovieVector3,
+            u: superposeMinimumJerk.IUnit,
+          ): IAutoMovieVector3 => Vector3.add(p, u.displacement),
           input.origin,
         );
         units.push(...recoil(settled, input.contact));
@@ -218,7 +268,10 @@ export namespace StrikingStroke {
     let found: number | undefined;
     let scanning: boolean = false;
     const stop = (seconds: number): number | undefined => {
-      if (input.fixed !== undefined) return input.fixed !== null && input.fixed <= seconds ? input.fixed : undefined;
+      if (input.fixed !== undefined)
+        return input.fixed !== null && input.fixed <= seconds
+          ? input.fixed
+          : undefined;
       if (found !== undefined) return found <= seconds ? found : undefined;
       const gap = input.gap;
       if (gap === undefined || scanning) return undefined;
@@ -256,7 +309,12 @@ export namespace StrikingStroke {
           }
           const g: number = gap(free(next), next);
           if (g <= 0) {
-            found = StrikingContact.first((t: number): number => gap(free(t), t), clear, next, next - clear);
+            found = StrikingContact.first(
+              (t: number): number => gap(free(t), t),
+              clear,
+              next,
+              next - clear,
+            );
             return found !== undefined && found <= seconds ? found : undefined;
           }
           clear = next;
@@ -273,7 +331,8 @@ export namespace StrikingStroke {
         const at: number | undefined = stop(seconds);
         if (at === undefined) return free(seconds);
         const met: IAutoMovieVector3 = free(at);
-        return superposeMinimumJerk(met, recoil(met, at + DWELL), seconds).position;
+        return superposeMinimumJerk(met, recoil(met, at + DWELL), seconds)
+          .position;
       },
     };
   }

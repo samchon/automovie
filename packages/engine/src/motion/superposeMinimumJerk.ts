@@ -39,12 +39,16 @@ export function superposeMinimumJerk(
   const velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const acceleration: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const unit of units) {
-    if (!(unit.duration > 0)) throw new Error("A minimum-jerk unit's duration is positive");
-    const p: minimumJerk.IProfile = minimumJerk((seconds - unit.start) / unit.duration);
+    if (!(unit.duration > 0))
+      throw new Error("A minimum-jerk unit's duration is positive");
+    const p: minimumJerk.IProfile = minimumJerk(
+      (seconds - unit.start) / unit.duration,
+    );
     for (const k of ["x", "y", "z"] as const) {
       position[k] += unit.displacement[k] * p.s;
       velocity[k] += (unit.displacement[k] * p.ds) / unit.duration;
-      acceleration[k] += (unit.displacement[k] * p.dds) / (unit.duration * unit.duration);
+      acceleration[k] +=
+        (unit.displacement[k] * p.dds) / (unit.duration * unit.duration);
     }
   }
   return { position, velocity, acceleration };

@@ -64,24 +64,40 @@ export function resolveAutoMovieSchedule(
       let cut: { share: number; event?: string } | undefined;
       if (until !== undefined) {
         if ("proximity" in until) {
-          const share: number | undefined = laws.until?.(node.intent, { start, duration: timing.duration }, context);
+          const share: number | undefined = laws.until?.(
+            node.intent,
+            { start, duration: timing.duration },
+            context,
+          );
           if (share === undefined)
             throw new Error(
               `${node.intent.subject}.${node.intent.capability} cuts on proximity, which these laws cannot resolve`,
             );
           cut = { share };
         } else if ("of" in until) {
-          const other: IAutoMovieSchedule.IEntry | undefined = anchored.get(until.of);
-          if (other === undefined)
-            throw new Error(`Cut of ${node.intent.subject}.${node.intent.capability} waits for ${until.of}, which is not placed earlier`);
-          const event: { name: string; seconds: number } | undefined = other.events?.find(
-            (e: { name: string; seconds: number }): boolean => e.name === until.event,
+          const other: IAutoMovieSchedule.IEntry | undefined = anchored.get(
+            until.of,
           );
+          if (other === undefined)
+            throw new Error(
+              `Cut of ${node.intent.subject}.${node.intent.capability} waits for ${until.of}, which is not placed earlier`,
+            );
+          const event: { name: string; seconds: number } | undefined =
+            other.events?.find(
+              (e: { name: string; seconds: number }): boolean =>
+                e.name === until.event,
+            );
           if (event === undefined)
             throw new Error(
               `${until.of} has no event ${until.event}; its events are ${(other.events ?? []).map((e: { name: string }): string => e.name).join(", ") || "none"}`,
             );
-          cut = { share: timing.duration === 0 ? 0 : (event.seconds - start) / timing.duration, event: `${until.of}.${until.event}` };
+          cut = {
+            share:
+              timing.duration === 0
+                ? 0
+                : (event.seconds - start) / timing.duration,
+            event: `${until.of}.${until.event}`,
+          };
         } else if ("event" in until) {
           const event: IAutoMovieMotionEvent | undefined = timing.events?.find(
             (e: IAutoMovieMotionEvent): boolean => e.name === until.event,
@@ -112,10 +128,14 @@ export function resolveAutoMovieSchedule(
         ...(timing.events === undefined
           ? {}
           : {
-              events: timing.events.map((e: IAutoMovieMotionEvent): { name: string; seconds: number } => ({
-                name: e.name,
-                seconds: start + e.share * timing.duration,
-              })),
+              events: timing.events.map(
+                (
+                  e: IAutoMovieMotionEvent,
+                ): { name: string; seconds: number } => ({
+                  name: e.name,
+                  seconds: start + e.share * timing.duration,
+                }),
+              ),
             }),
       };
       const outcome: string | undefined = laws.outcome?.(draft, context);
@@ -136,19 +156,22 @@ export function resolveAutoMovieSchedule(
     if (node.kind === "sequence") {
       // The entry an intent's cut interrupts is the first one the next part places.
       let cutIndex: number | undefined;
-      return node.parts.reduce((at: number, part: AutoMovieComposition): number => {
-        const first: number = entries.length;
-        const end: number = place(part, at);
-        if (cutIndex !== undefined && entries.length > first)
-          interrupted.set(cutIndex, first);
-        cutIndex =
-          part.kind === "intent" &&
-          entries.length === first + 1 &&
-          entries[first]!.cut !== undefined
-            ? first
-            : undefined;
-        return end;
-      }, start);
+      return node.parts.reduce(
+        (at: number, part: AutoMovieComposition): number => {
+          const first: number = entries.length;
+          const end: number = place(part, at);
+          if (cutIndex !== undefined && entries.length > first)
+            interrupted.set(cutIndex, first);
+          cutIndex =
+            part.kind === "intent" &&
+            entries.length === first + 1 &&
+            entries[first]!.cut !== undefined
+              ? first
+              : undefined;
+          return end;
+        },
+        start,
+      );
     }
     if (node.kind === "parallel")
       return node.parts.reduce(

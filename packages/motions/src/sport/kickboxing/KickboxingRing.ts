@@ -34,9 +34,18 @@ export namespace KickboxingRing {
    * @param margin How far inside the ropes, metres.
    * @returns World metres.
    */
-  export function corner(ring: IRing, corner: Corner, margin: number = 0): IAutoMovieVector3 {
+  export function corner(
+    ring: IRing,
+    corner: Corner,
+    margin: number = 0,
+  ): IAutoMovieVector3 {
     const h: number = ring.size / 2 - margin;
-    const local: Record<Corner, [number, number]> = { red: [-h, -h], blue: [h, h], neutralA: [h, -h], neutralB: [-h, h] };
+    const local: Record<Corner, [number, number]> = {
+      red: [-h, -h],
+      blue: [h, h],
+      neutralA: [h, -h],
+      neutralB: [-h, h],
+    };
     const [x, z] = local[corner];
     return world(ring, x, z);
   }
@@ -49,7 +58,11 @@ export namespace KickboxingRing {
    * @param margin The margin, metres.
    * @returns True inside.
    */
-  export function inside(ring: IRing, point: IAutoMovieVector3, margin: number = 0): boolean {
+  export function inside(
+    ring: IRing,
+    point: IAutoMovieVector3,
+    margin: number = 0,
+  ): boolean {
     const [x, z] = local(ring, point);
     const h: number = ring.size / 2 - margin;
     return Math.abs(x) <= h + 1e-12 && Math.abs(z) <= h + 1e-12;
@@ -63,11 +76,19 @@ export namespace KickboxingRing {
    * @param margin The margin, metres; below half the size.
    * @returns World metres, at floor height.
    */
-  export function clamp(ring: IRing, point: IAutoMovieVector3, margin: number = 0): IAutoMovieVector3 {
+  export function clamp(
+    ring: IRing,
+    point: IAutoMovieVector3,
+    margin: number = 0,
+  ): IAutoMovieVector3 {
     const h: number = ring.size / 2 - margin;
     if (!(h >= 0)) throw new Error("A ring margin is less than half its size");
     const [x, z] = local(ring, point);
-    return world(ring, Math.max(-h, Math.min(h, x)), Math.max(-h, Math.min(h, z)));
+    return world(
+      ring,
+      Math.max(-h, Math.min(h, x)),
+      Math.max(-h, Math.min(h, z)),
+    );
   }
 
   /** A ring-local point in world metres. */
@@ -75,7 +96,11 @@ export namespace KickboxingRing {
     const r: number = (ring.yaw * Math.PI) / 180;
     const c: number = Math.cos(r);
     const s: number = Math.sin(r);
-    return { x: ring.centre.x + x * c + z * s, y: ring.centre.y, z: ring.centre.z - x * s + z * c };
+    return {
+      x: ring.centre.x + x * c + z * s,
+      y: ring.centre.y,
+      z: ring.centre.z - x * s + z * c,
+    };
   }
 
   /** A world point in ring-local coordinates. */

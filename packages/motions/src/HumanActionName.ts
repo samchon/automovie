@@ -34,4 +34,33 @@
  * - `knockdown`: the legs giving way and the body going down to lie supine.
  * - `knee`: a knee driven onto a target, in the clinch or free.
  */
-export type HumanActionName = "stand" | "walk" | "run" | "jump" | "approach" | "look" | "gesture" | "rest" | "punch" | "kick" | "guard" | "step" | "defend" | "flinch" | "stagger" | "knockdown" | "knee" | "sit" | "rise" | "shift" | "bend" | "handshake" | "pickUp" | "putDown" | "handOver" | "receive" | "stepOver" | "brace" | "typeText";
+export type HumanActionName =
+  | "stand"
+  | "walk"
+  | "run"
+  | "jump"
+  | "approach"
+  | "look"
+  | "gesture"
+  | "rest"
+  | "punch"
+  | "kick"
+  | "guard"
+  | "step"
+  | "defend"
+  | "flinch"
+  | "stagger"
+  | "knockdown"
+  | "knee"
+  | "sit"
+  | "rise"
+  | "shift"
+  | "bend"
+  | "handshake"
+  | "pickUp"
+  | "putDown"
+  | "handOver"
+  | "receive"
+  | "stepOver"
+  | "brace"
+  | "typeText";

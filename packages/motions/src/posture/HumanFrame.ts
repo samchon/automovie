@@ -1,5 +1,8 @@
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * A performer's own horizontal frame: an origin on the floor and a heading.
@@ -27,7 +30,10 @@ export namespace HumanFrame {
    * @param local `x` left, `y` up, `z` forward, metres.
    * @returns The world point.
    */
-  export function point(frame: IFrame, local: IAutoMovieVector3): IAutoMovieVector3 {
+  export function point(
+    frame: IFrame,
+    local: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
     const r: number = (frame.yaw * Math.PI) / 180;
     const c: number = Math.cos(r);
     const s: number = Math.sin(r);
@@ -45,13 +51,20 @@ export namespace HumanFrame {
    * @param world The world point.
    * @returns `x` left, `y` up, `z` forward, metres.
    */
-  export function local(frame: IFrame, world: IAutoMovieVector3): IAutoMovieVector3 {
+  export function local(
+    frame: IFrame,
+    world: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
     const r: number = (frame.yaw * Math.PI) / 180;
     const c: number = Math.cos(r);
     const s: number = Math.sin(r);
     const dx: number = world.x - frame.origin.x;
     const dz: number = world.z - frame.origin.z;
-    return { x: dx * c - dz * s, y: world.y - frame.origin.y, z: dx * s + dz * c };
+    return {
+      x: dx * c - dz * s,
+      y: world.y - frame.origin.y,
+      z: dx * s + dz * c,
+    };
   }
 
   /**
@@ -71,7 +84,11 @@ export namespace HumanFrame {
    * @returns Degrees about +Y.
    */
   export function heading(rotation: IAutoMovieQuaternion): number {
-    const f: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
+    const f: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
     return (Math.atan2(f.x, f.z) * 180) / Math.PI;
   }
 }

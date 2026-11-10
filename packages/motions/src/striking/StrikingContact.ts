@@ -1,5 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * When and where a moving weapon first touches a surface of another body.
@@ -53,11 +56,18 @@ export namespace StrikingContact {
    * @param b The segment's end.
    * @returns The closest point of the segment.
    */
-  export function closest(p: IAutoMovieVector3, a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 {
+  export function closest(
+    p: IAutoMovieVector3,
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
     const ab: IAutoMovieVector3 = Vector3.subtract(b, a);
     const len2: number = Vector3.dot(ab, ab);
     if (len2 < 1e-18) return a;
-    const t: number = Math.min(1, Math.max(0, Vector3.dot(Vector3.subtract(p, a), ab) / len2));
+    const t: number = Math.min(
+      1,
+      Math.max(0, Vector3.dot(Vector3.subtract(p, a), ab) / len2),
+    );
     return Vector3.add(a, Vector3.scale(ab, t));
   }
 
@@ -71,14 +81,25 @@ export namespace StrikingContact {
    * @returns Metres.
    */
   export function distance(p: IAutoMovieVector3, shape: ICollider): number {
-    if (shape.kind === "capsule") return Vector3.length(Vector3.subtract(p, closest(p, shape.a, shape.b))) - shape.radius;
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(Quaternion.inverse(shape.rotation), Vector3.subtract(p, shape.centre));
+    if (shape.kind === "capsule")
+      return (
+        Vector3.length(Vector3.subtract(p, closest(p, shape.a, shape.b))) -
+        shape.radius
+      );
+    const local: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.inverse(shape.rotation),
+      Vector3.subtract(p, shape.centre),
+    );
     const q: IAutoMovieVector3 = {
       x: Math.abs(local.x) - shape.halfExtents.x,
       y: Math.abs(local.y) - shape.halfExtents.y,
       z: Math.abs(local.z) - shape.halfExtents.z,
     };
-    const outside: number = Vector3.length({ x: Math.max(q.x, 0), y: Math.max(q.y, 0), z: Math.max(q.z, 0) });
+    const outside: number = Vector3.length({
+      x: Math.max(q.x, 0),
+      y: Math.max(q.y, 0),
+      z: Math.max(q.z, 0),
+    });
     return outside + Math.min(Math.max(q.x, q.y, q.z), 0);
   }
 
@@ -89,11 +110,15 @@ export namespace StrikingContact {
    * @param shapes The shapes.
    * @returns The nearest shape's name and distance, or undefined without shapes.
    */
-  export function nearest(p: IAutoMovieVector3, shapes: readonly ICollider[]): { name: string; distance: number } | undefined {
+  export function nearest(
+    p: IAutoMovieVector3,
+    shapes: readonly ICollider[],
+  ): { name: string; distance: number } | undefined {
     let best: { name: string; distance: number } | undefined;
     for (const s of shapes) {
       const d: number = distance(p, s);
-      if (best === undefined || d < best.distance) best = { name: s.name, distance: d };
+      if (best === undefined || d < best.distance)
+        best = { name: s.name, distance: d };
     }
     return best;
   }
@@ -108,7 +133,12 @@ export namespace StrikingContact {
    * @param step Scan step, seconds; positive.
    * @returns The first contact second, or undefined when the gap stays positive.
    */
-  export function first(gap: (seconds: number) => number, from: number, to: number, step: number): number | undefined {
+  export function first(
+    gap: (seconds: number) => number,
+    from: number,
+    to: number,
+    step: number,
+  ): number | undefined {
     if (!(step > 0)) throw new Error("A contact scan step is positive");
     if (gap(from) <= 0) return from;
     let previous: number = from;

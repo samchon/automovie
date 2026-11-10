@@ -1,5 +1,15 @@
-import { type IAutoMovieRandom, Quaternion, Vector3, minimumJerk, superposeMinimumJerk } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieRandom,
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  superposeMinimumJerk,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { HumanSkill } from "../skill/HumanSkill";
 
@@ -68,7 +78,10 @@ export namespace HumanPrehension {
   export const APERTURE_INTERCEPT: number = 0.025;
 
   /** Share of the transport at which the first unit ends and the approach unit starts, and the approach unit's start. */
-  export const APPROACH: Readonly<{ end: number; start: number }> = { end: 0.75, start: 0.45 };
+  export const APPROACH: Readonly<{ end: number; start: number }> = {
+    end: 0.75,
+    start: 0.45,
+  };
 
   /**
    * A reach-to-grasp transport time, seconds, with the performer's timing
@@ -80,7 +93,12 @@ export namespace HumanPrehension {
    * @param width Grasped width, metres; 0 for a touch.
    * @returns Seconds; positive.
    */
-  export function duration(skill: HumanSkill.ISkill, random: IAutoMovieRandom, distance: number, width: number): number {
+  export function duration(
+    skill: HumanSkill.ISkill,
+    random: IAutoMovieRandom,
+    distance: number,
+    width: number,
+  ): number {
     return HumanSkill.jitter(skill, random, nominal(distance, width));
   }
 
@@ -92,7 +110,11 @@ export namespace HumanPrehension {
    * @returns Seconds.
    */
   export function nominal(distance: number, width: number): number {
-    return INTERCEPT + AMPLITUDE * Math.log10(1000 * Math.max(SHORTEST, distance)) + WIDTH * Math.max(0, width);
+    return (
+      INTERCEPT +
+      AMPLITUDE * Math.log10(1000 * Math.max(SHORTEST, distance)) +
+      WIDTH * Math.max(0, width)
+    );
   }
 
   /**
@@ -148,15 +170,33 @@ export namespace HumanPrehension {
     seconds: number,
   ): ITransport {
     if (!(seconds > 0)) throw new Error("A transport lasts a positive time");
-    const via: IAutoMovieVector3 = Vector3.subtract(to, Vector3.scale(Vector3.normalize(approach), setback));
+    const via: IAutoMovieVector3 = Vector3.subtract(
+      to,
+      Vector3.scale(Vector3.normalize(approach), setback),
+    );
     const units: superposeMinimumJerk.IUnit[] = [
-      { displacement: Vector3.subtract(via, from), start: 0, duration: APPROACH.end * seconds },
-      { displacement: Vector3.subtract(to, via), start: APPROACH.start * seconds, duration: (1 - APPROACH.start) * seconds },
+      {
+        displacement: Vector3.subtract(via, from),
+        start: 0,
+        duration: APPROACH.end * seconds,
+      },
+      {
+        displacement: Vector3.subtract(to, via),
+        start: APPROACH.start * seconds,
+        duration: (1 - APPROACH.start) * seconds,
+      },
     ];
     return {
       duration: seconds,
-      wrist: (t: number): IAutoMovieVector3 => superposeMinimumJerk(from, units, Math.min(seconds, Math.max(0, t))).position,
-      turn: (t: number): IAutoMovieQuaternion => Quaternion.slerp(rotation.from, rotation.to, minimumJerk(t / (APPROACH.start * seconds)).s),
+      wrist: (t: number): IAutoMovieVector3 =>
+        superposeMinimumJerk(from, units, Math.min(seconds, Math.max(0, t)))
+          .position,
+      turn: (t: number): IAutoMovieQuaternion =>
+        Quaternion.slerp(
+          rotation.from,
+          rotation.to,
+          minimumJerk(t / (APPROACH.start * seconds)).s,
+        ),
     };
   }
 
@@ -172,17 +212,36 @@ export namespace HumanPrehension {
    * @returns The angles.
    */
   export function shape(
-    shapes: Readonly<Record<"entry" | "open" | "closed", Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>>>,
+    shapes: Readonly<
+      Record<
+        "entry" | "open" | "closed",
+        Partial<
+          Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+        >
+      >
+    >,
     peak: number,
     u: number,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     const s: number = Math.min(1, Math.max(0, u));
-    const [a, b, w] = s <= peak ? [shapes.entry, shapes.open, minimumJerk(s / peak).s] : [shapes.open, shapes.closed, minimumJerk((s - peak) / (1 - peak)).s];
-    const out: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = {};
-    for (const bone of new Set([...Object.keys(a), ...Object.keys(b)]) as Set<AutoMovieHumanoidBone>) {
+    const [a, b, w] =
+      s <= peak
+        ? [shapes.entry, shapes.open, minimumJerk(s / peak).s]
+        : [shapes.open, shapes.closed, minimumJerk((s - peak) / (1 - peak)).s];
+    const out: Partial<
+      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+    > = {};
+    for (const bone of new Set([
+      ...Object.keys(a),
+      ...Object.keys(b),
+    ]) as Set<AutoMovieHumanoidBone>) {
       const x: readonly [number, number, number] = a[bone] ?? [0, 0, 0];
       const y: readonly [number, number, number] = b[bone] ?? [0, 0, 0];
-      out[bone] = [x[0] + (y[0] - x[0]) * w, x[1] + (y[1] - x[1]) * w, x[2] + (y[2] - x[2]) * w];
+      out[bone] = [
+        x[0] + (y[0] - x[0]) * w,
+        x[1] + (y[1] - x[1]) * w,
+        x[2] + (y[2] - x[2]) * w,
+      ];
     }
     return out;
   }

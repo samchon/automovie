@@ -1,4 +1,7 @@
-import type { AutoMovieHumanoidRegion, AutoMovieMotionTarget } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidRegion,
+  AutoMovieMotionTarget,
+} from "@automovie/interface";
 
 import type { IAutoMovieRelationalGoal } from "./IAutoMovieRelationalGoal";
 

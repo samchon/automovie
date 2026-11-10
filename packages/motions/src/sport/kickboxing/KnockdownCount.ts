@@ -27,7 +27,8 @@ export namespace KnockdownCount {
    * @throws {Error} When the number is not one to ten.
    */
   export function number(start: number, number: number): number {
-    if (!Number.isInteger(number) || number < 1 || number > TEN) throw new Error(`A count number is one to ten: ${number}`);
+    if (!Number.isInteger(number) || number < 1 || number > TEN)
+      throw new Error(`A count number is one to ten: ${number}`);
     return start + number;
   }
 
@@ -39,10 +40,23 @@ export namespace KnockdownCount {
    * @param margin How far inside the ropes the standing fighter waits, metres.
    * @returns The corner's floor point, world metres.
    */
-  export function corner(ring: KickboxingRing.IRing, fallen: IAutoMovieVector3, margin: number = 0): IAutoMovieVector3 {
-    const a: IAutoMovieVector3 = KickboxingRing.corner(ring, "neutralA", margin);
-    const b: IAutoMovieVector3 = KickboxingRing.corner(ring, "neutralB", margin);
-    const d = (p: IAutoMovieVector3): number => Math.hypot(p.x - fallen.x, p.z - fallen.z);
+  export function corner(
+    ring: KickboxingRing.IRing,
+    fallen: IAutoMovieVector3,
+    margin: number = 0,
+  ): IAutoMovieVector3 {
+    const a: IAutoMovieVector3 = KickboxingRing.corner(
+      ring,
+      "neutralA",
+      margin,
+    );
+    const b: IAutoMovieVector3 = KickboxingRing.corner(
+      ring,
+      "neutralB",
+      margin,
+    );
+    const d = (p: IAutoMovieVector3): number =>
+      Math.hypot(p.x - fallen.x, p.z - fallen.z);
     return d(a) >= d(b) ? a : b;
   }
 }

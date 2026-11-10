@@ -17,11 +17,11 @@ import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
 import { fitHingedChainCandidate } from "./fitHingedChainCandidate";
+import { orientChainEffector } from "./orientChainEffector";
 import { prepareChainPlant } from "./prepareChainPlant";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
 import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
-import { orientChainEffector } from "./orientChainEffector";
 
 /**
  * Fit a reachable two-bone chain to a model-frame target under the rig's effective ROM, retaining authored non-chain joints. A deterministic finite bend-plane search scores clamped FK and keeps the original pose unless its 1e-7-metre residual bucket improves or equal-bucket continuity improves toward an explicit prior pose; it is a bounded search, not a global-optimum guarantee.
@@ -50,9 +50,9 @@ export const fitChainToTarget: (
  * @param input The fit request.
  * @returns The fitted pose.
  */
-const fitChainBend: (
+const fitChainBend: (input: IFitChainToTargetProps) => IAutoMoviePose = (
   input: IFitChainToTargetProps,
-) => IAutoMoviePose = (input: IFitChainToTargetProps): IAutoMoviePose => {
+): IAutoMoviePose => {
   // Declared bone axes take precedence over the host table, once, so the
   // preparation, the analytic solve and the candidate FK read one basis.
   const props: IFitChainToTargetProps = {
@@ -81,7 +81,9 @@ const fitChainBend: (
   // component across the root-to-target axis. Without a hint, the analytic
   // default bends toward world-down and the search below takes over.
   const pole: ReturnType<typeof solve> = solve(
-    props.bend === undefined ? undefined : hintNormal(prepared.upper.worldPosition, props.target, props.bend),
+    props.bend === undefined
+      ? undefined
+      : hintNormal(prepared.upper.worldPosition, props.target, props.bend),
   );
   if (pole === null) return props.pose;
   const authored: IAutoMovieVector3 = resolveBoneMap(
@@ -223,19 +225,53 @@ const fitChainBend: (
   // wrist turns only with the forearm's distal twist, an ankle only with the
   // whole leg's swivel, the hip's rotation): Tolani's analysis chooses the
   // swivel inside the end joint's limits too, so that candidate leads.
-  const hingeAxes: IAutoMovieJointAxes | undefined = props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES;
-  const hingedMid: boolean = prepared.lowerDomain.constraint !== null && prepared.lowerDomain.constraint.abduction === null && hingeAxes !== undefined;
+  const hingeAxes: IAutoMovieJointAxes | undefined =
+    props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES;
+  const hingedMid: boolean =
+    prepared.lowerDomain.constraint !== null &&
+    prepared.lowerDomain.constraint.abduction === null &&
+    hingeAxes !== undefined;
   // A hinged chain takes the swivel candidate whenever it reaches, so the
   // choice never alternates between two methods from frame to frame; the
   // hint plane and the sweep remain for a chain the swivel cannot solve.
   if (hingedMid) {
-    const hinged: NonNullable<ReturnType<typeof solve>> | null = fitHingedChainCandidate(props, prepared, hingeAxes!, props.effectorRotation);
+    const hinged: NonNullable<ReturnType<typeof solve>> | null =
+      fitHingedChainCandidate(
+        props,
+        prepared,
+        hingeAxes!,
+        props.effectorRotation,
+      );
     if (hinged !== null) {
-      const upper: IAutoMovieJointPose = clampJointToSkeleton(hinged.upper, props.skeleton);
-      const lower: IAutoMovieJointPose = clampJointToSkeleton(hinged.lower, props.skeleton);
-      const residual: number = distance(resolvePreparedChainEffector({ prepared, upper, lower, jointAxes: props.jointAxes, restFrames: props.restFrames }));
+      const upper: IAutoMovieJointPose = clampJointToSkeleton(
+        hinged.upper,
+        props.skeleton,
+      );
+      const lower: IAutoMovieJointPose = clampJointToSkeleton(
+        hinged.lower,
+        props.skeleton,
+      );
+      const residual: number = distance(
+        resolvePreparedChainEffector({
+          prepared,
+          upper,
+          lower,
+          jointAxes: props.jointAxes,
+          restFrames: props.restFrames,
+        }),
+      );
       if (plantResidualBucket(residual) === 0)
-        return { ...props.pose, joints: [...props.pose.joints.filter((j: IAutoMovieJointPose): boolean => j.bone !== props.chain.upper && j.bone !== props.chain.lower), upper, lower] };
+        return {
+          ...props.pose,
+          joints: [
+            ...props.pose.joints.filter(
+              (j: IAutoMovieJointPose): boolean =>
+                j.bone !== props.chain.upper && j.bone !== props.chain.lower,
+            ),
+            upper,
+            lower,
+          ],
+        };
       consider(hinged);
     }
   }

@@ -1,4 +1,7 @@
-import type { IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { minimumJerk } from "./minimumJerk";
@@ -35,8 +38,11 @@ export function warpRoot(
   warp: warpRoot.IWarp,
   seconds: number,
 ): IAutoMovieTransform {
-  if (!(warp.end > warp.start)) throw new Error("A root warp window moves forward");
-  const s: number = minimumJerk((seconds - warp.start) / (warp.end - warp.start)).s;
+  if (!(warp.end > warp.start))
+    throw new Error("A root warp window moves forward");
+  const s: number = minimumJerk(
+    (seconds - warp.start) / (warp.end - warp.start),
+  ).s;
   return {
     translation: {
       x: root.translation.x + warp.translation.x * s,
@@ -44,7 +50,10 @@ export function warpRoot(
       z: root.translation.z + warp.translation.z * s,
     },
     rotation: Quaternion.normalize(
-      Quaternion.multiply(Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, warp.yaw * s), root.rotation),
+      Quaternion.multiply(
+        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, warp.yaw * s),
+        root.rotation,
+      ),
     ),
     scale: root.scale,
   };

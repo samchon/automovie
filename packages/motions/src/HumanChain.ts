@@ -1,32 +1,36 @@
-import { AutoMovieChain, AutoMovieComposition, type IAutoMovieIntent } from "@automovie/engine";
+import {
+  AutoMovieChain,
+  AutoMovieComposition,
+  type IAutoMovieIntent,
+} from "@automovie/engine";
 
 import type { HumanActionName } from "./HumanActionName";
-import type { stand } from "./actions/stand";
 import type { jump } from "./actions/jump";
 import type { run } from "./actions/run";
+import type { stand } from "./actions/stand";
 import type { walk } from "./actions/walk";
 import type { approach } from "./everyday/approach";
 import type { bend } from "./everyday/bend";
 import type { brace } from "./everyday/brace";
-import type { typeText } from "./everyday/typeText";
 import type { gesture } from "./everyday/gesture";
 import type { look } from "./everyday/look";
 import type { rest } from "./everyday/rest";
 import type { shift } from "./everyday/shift";
 import type { sit } from "./everyday/sit";
 import type { stepOver } from "./everyday/stepOver";
+import type { typeText } from "./everyday/typeText";
+import type { handOver } from "./handling/handOver";
 import type { handshake } from "./handling/handshake";
 import type { pickUp } from "./handling/pickUp";
 import type { putDown } from "./handling/putDown";
-import type { handOver } from "./handling/handOver";
-import type { punch } from "./striking/punch";
-import type { kick } from "./striking/kick";
-import type { guard } from "./striking/guard";
-import type { step } from "./striking/step";
-import type { defend } from "./striking/defend";
 import type { flinch } from "./reaction/flinch";
-import type { stagger } from "./reaction/stagger";
 import type { knockdown } from "./reaction/knockdown";
+import type { stagger } from "./reaction/stagger";
+import type { defend } from "./striking/defend";
+import type { guard } from "./striking/guard";
+import type { kick } from "./striking/kick";
+import type { punch } from "./striking/punch";
+import type { step } from "./striking/step";
 
 /**
  * The fluent authoring surface of one person's actions: each vocabulary
@@ -85,24 +89,59 @@ export class HumanChain extends AutoMovieChain {
     handshake(params?: Omit<handshake.IParams, "partner">): AutoMovieChain;
     handOver(params: Omit<handOver.IParams, "to">): AutoMovieChain;
   } {
-    const together = (first: AutoMovieComposition, second: AutoMovieComposition): AutoMovieChain =>
-      new AutoMovieChain({ kind: "sequence", parts: [{ kind: "parallel", parts: [a.node, b.node] }, { kind: "parallel", parts: [first, second] }] });
+    const together = (
+      first: AutoMovieComposition,
+      second: AutoMovieComposition,
+    ): AutoMovieChain =>
+      new AutoMovieChain({
+        kind: "sequence",
+        parts: [
+          { kind: "parallel", parts: [a.node, b.node] },
+          { kind: "parallel", parts: [first, second] },
+        ],
+      });
     return {
       handOver: (params: Omit<handOver.IParams, "to">): AutoMovieChain => {
-        const shared = { prop: params.prop, handle: params.handle, ...(params.mass === undefined ? {} : { mass: params.mass }), ...(params.outcome === undefined ? {} : { outcome: params.outcome }) };
+        const shared = {
+          prop: params.prop,
+          handle: params.handle,
+          ...(params.mass === undefined ? {} : { mass: params.mass }),
+          ...(params.outcome === undefined ? {} : { outcome: params.outcome }),
+        };
         return together(
-          HumanChain.subject(a.subject).act("handOver", { ...params, to: b.subject }).node,
-          HumanChain.subject(b.subject).act("receive", { ...shared, from: a.subject, ...(params.receiverHand === undefined ? {} : { hand: params.receiverHand }), ...(params.hand === undefined ? {} : { giverHand: params.hand }) }).node,
+          HumanChain.subject(a.subject).act("handOver", {
+            ...params,
+            to: b.subject,
+          }).node,
+          HumanChain.subject(b.subject).act("receive", {
+            ...shared,
+            from: a.subject,
+            ...(params.receiverHand === undefined
+              ? {}
+              : { hand: params.receiverHand }),
+            ...(params.hand === undefined ? {} : { giverHand: params.hand }),
+          }).node,
         );
       },
-      handshake: (params: Omit<handshake.IParams, "partner"> = {}): AutoMovieChain =>
+      handshake: (
+        params: Omit<handshake.IParams, "partner"> = {},
+      ): AutoMovieChain =>
         new AutoMovieChain({
           kind: "sequence",
           parts: [
             { kind: "parallel", parts: [a.node, b.node] },
             {
               kind: "parallel",
-              parts: [HumanChain.subject(a.subject).handshake({ ...params, partner: b.subject }).node, HumanChain.subject(b.subject).handshake({ ...params, partner: a.subject }).node],
+              parts: [
+                HumanChain.subject(a.subject).handshake({
+                  ...params,
+                  partner: b.subject,
+                }).node,
+                HumanChain.subject(b.subject).handshake({
+                  ...params,
+                  partner: a.subject,
+                }).node,
+              ],
             },
           ],
         }),
@@ -117,7 +156,11 @@ export class HumanChain extends AutoMovieChain {
    * @param anchor A stable id another chain can align to or cut on.
    * @returns The chain.
    */
-  public act(name: HumanActionName, params: object = {}, anchor?: string): this {
+  public act(
+    name: HumanActionName,
+    params: object = {},
+    anchor?: string,
+  ): this {
     const intent: IAutoMovieIntent = {
       subject: this.subject,
       capability: name,
@@ -422,12 +465,17 @@ export class HumanChain extends AutoMovieChain {
    * @throws {Error} When the chain ends in no action.
    */
   public until(until: NonNullable<IAutoMovieIntent["until"]>): this {
-    const parts: readonly AutoMovieComposition[] = this.node.kind === "sequence" ? this.node.parts : [this.node];
+    const parts: readonly AutoMovieComposition[] =
+      this.node.kind === "sequence" ? this.node.parts : [this.node];
     const last: AutoMovieComposition | undefined = parts.at(-1);
-    if (last === undefined || last.kind !== "intent") throw new Error("until cuts an action; append one first");
+    if (last === undefined || last.kind !== "intent")
+      throw new Error("until cuts an action; append one first");
     return this.derive({
       kind: "sequence",
-      parts: [...parts.slice(0, -1), { kind: "intent", intent: { ...last.intent, until } }],
+      parts: [
+        ...parts.slice(0, -1),
+        { kind: "intent", intent: { ...last.intent, until } },
+      ],
     });
   }
 
@@ -441,4 +489,3 @@ export class HumanChain extends AutoMovieChain {
     return new HumanChain(this.subject, node) as this;
   }
 }
-

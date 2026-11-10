@@ -57,7 +57,8 @@ export namespace MotionBodies {
   export function population(name: string): humanPolygonMan.IPolygonMan {
     const end: HumanPopulation.IEnd = find(name);
     const params: IAutoMovieHumanParameters = HumanPopulation.params(end);
-    const measures: Record<HumanPopulation.Variable, number> = HumanPopulation.measures(end);
+    const measures: Record<HumanPopulation.Variable, number> =
+      HumanPopulation.measures(end);
     return humanPolygonMan(name, params, measures.mass);
   }
 
@@ -74,7 +75,9 @@ export namespace MotionBodies {
 
 /** The boundary person of a name, or an error naming the ends. */
 function find(name: string): HumanPopulation.IEnd {
-  const end: HumanPopulation.IEnd | undefined = HumanPopulation.ENDS.find((e: HumanPopulation.IEnd): boolean => e.name === name);
+  const end: HumanPopulation.IEnd | undefined = HumanPopulation.ENDS.find(
+    (e: HumanPopulation.IEnd): boolean => e.name === name,
+  );
   if (end === undefined) throw new Error(`No population body is named ${name}`);
   return end;
 }

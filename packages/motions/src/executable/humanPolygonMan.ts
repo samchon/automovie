@@ -1,8 +1,18 @@
 import { measureAutoMovieHumanoidBody } from "@automovie/engine";
-import { AutoMovieHumanCanonicalBody, type IAutoMovieHumanParameters } from "@automovie/human";
+import {
+  AutoMovieHumanCanonicalBody,
+  type IAutoMovieHumanParameters,
+} from "@automovie/human";
 import type { IAutoMovieBodyMeasure } from "@automovie/interface";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 
 /**
@@ -32,18 +42,39 @@ import path from "node:path";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Equal parameters, mass and Human source share one cached body across processes.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One file per distinct body accumulates under the ignored cache; nothing is held in memory between calls.
  */
-export function humanPolygonMan(id: string, params: IAutoMovieHumanParameters, mass: number): humanPolygonMan.IPolygonMan {
-  const key: string = createHash("sha256").update(JSON.stringify({ id, params, mass })).update(humanSourceDigest()).digest("hex").slice(0, 24);
-  const directory: string = path.join(__dirname, "..", "..", ".cache", "polygon");
+export function humanPolygonMan(
+  id: string,
+  params: IAutoMovieHumanParameters,
+  mass: number,
+): humanPolygonMan.IPolygonMan {
+  const key: string = createHash("sha256")
+    .update(JSON.stringify({ id, params, mass }))
+    .update(humanSourceDigest())
+    .digest("hex")
+    .slice(0, 24);
+  const directory: string = path.join(
+    __dirname,
+    "..",
+    "..",
+    ".cache",
+    "polygon",
+  );
   const file: string = path.join(directory, `${id}-${key}.json`);
   let body: AutoMovieHumanCanonicalBody.IBody;
-  if (existsSync(file)) body = JSON.parse(readFileSync(file, "utf8")) as AutoMovieHumanCanonicalBody.IBody;
+  if (existsSync(file))
+    body = JSON.parse(
+      readFileSync(file, "utf8"),
+    ) as AutoMovieHumanCanonicalBody.IBody;
   else {
     body = AutoMovieHumanCanonicalBody.prepare(params, { mass, id });
     mkdirSync(directory, { recursive: true });
     writeFileSync(file, JSON.stringify(body), "utf8");
   }
-  return { id, body, measure: measureAutoMovieHumanoidBody(body.skeleton, body.profile) };
+  return {
+    id,
+    body,
+    measure: measureAutoMovieHumanoidBody(body.skeleton, body.profile),
+  };
 }
 
 /**
@@ -73,10 +104,13 @@ function humanSourceDigest(): string {
   if (DIGEST !== undefined) return DIGEST;
   const hash = createHash("sha256");
   const walk = (dir: string): void => {
-    for (const name of readdirSync(dir).sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))) {
+    for (const name of readdirSync(dir).sort((a: string, b: string): number =>
+      a < b ? -1 : a > b ? 1 : 0,
+    )) {
       const full: string = path.join(dir, name);
       if (statSync(full).isDirectory()) walk(full);
-      else if (name.endsWith(".ts")) hash.update(name).update(readFileSync(full));
+      else if (name.endsWith(".ts"))
+        hash.update(name).update(readFileSync(full));
     }
   };
   walk(path.join(__dirname, "..", "..", "..", "human", "src"));

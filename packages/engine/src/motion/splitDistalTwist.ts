@@ -56,22 +56,74 @@ export function splitDistalTwist(
 ): IAutoMoviePose {
   const lowerAxes: IAutoMovieJointAxes | undefined = axes[props.chain.lower];
   if (lowerAxes?.twistPlacement !== "distal") return pose;
-  const world: IAutoMovieResolvedBone = resolveBoneMap(props.skeleton, pose, props.topology, axes, props.restFrames).get(props.chain.lower)!;
+  const world: IAutoMovieResolvedBone = resolveBoneMap(
+    props.skeleton,
+    pose,
+    props.topology,
+    axes,
+    props.restFrames,
+  ).get(props.chain.lower)!;
 
   // The effector's rotation in the mid bone's frame; its twist about the mid
   // bone's own axis is what the mid joint can take over.
-  const needed: IAutoMovieQuaternion = Quaternion.normalize(Quaternion.multiply(Quaternion.inverse(world.worldRotation), rotation));
+  const needed: IAutoMovieQuaternion = Quaternion.normalize(
+    Quaternion.multiply(Quaternion.inverse(world.worldRotation), rotation),
+  );
   const axis: IAutoMovieVector3 = Vector3.normalize(lowerAxes.twist);
-  const along: number = needed.x * axis.x + needed.y * axis.y + needed.z * axis.z;
+  const along: number =
+    needed.x * axis.x + needed.y * axis.y + needed.z * axis.z;
   const length: number = Math.hypot(along, needed.w);
   if (length < 1e-12) return pose;
-  const twist: IAutoMovieQuaternion = { x: (axis.x * along) / length, y: (axis.y * along) / length, z: (axis.z * along) / length, w: needed.w / length };
-  const current: IAutoMovieJointPose = pose.joints.find((j: IAutoMovieJointPose): boolean => j.bone === props.chain.lower) ?? { bone: props.chain.lower, flexion: null, abduction: null, twist: null };
-  const articulated: IAutoMovieQuaternion = Quaternion.normalize(Quaternion.multiply(jointToQuaternion(current, lowerAxes, props.restFrames?.[props.chain.lower]), twist));
-  const angles: ReturnType<typeof decomposeJointRotation> = decomposeJointRotation(articulated, lowerAxes, props.restFrames?.[props.chain.lower], {
-    bone: props.chain.lower,
-    constraint: getConstraint(props.chain.lower, props.skeleton.bones.find((b): boolean => b.bone === props.chain.lower)?.constraint ?? null),
-  });
-  const lower: IAutoMovieJointPose = clampJointToSkeleton({ bone: props.chain.lower, flexion: angles.flexion, abduction: angles.abduction, twist: angles.twist }, props.skeleton);
-  return { ...pose, joints: [...pose.joints.filter((j: IAutoMovieJointPose): boolean => j.bone !== props.chain.lower), lower] };
+  const twist: IAutoMovieQuaternion = {
+    x: (axis.x * along) / length,
+    y: (axis.y * along) / length,
+    z: (axis.z * along) / length,
+    w: needed.w / length,
+  };
+  const current: IAutoMovieJointPose = pose.joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === props.chain.lower,
+  ) ?? { bone: props.chain.lower, flexion: null, abduction: null, twist: null };
+  const articulated: IAutoMovieQuaternion = Quaternion.normalize(
+    Quaternion.multiply(
+      jointToQuaternion(
+        current,
+        lowerAxes,
+        props.restFrames?.[props.chain.lower],
+      ),
+      twist,
+    ),
+  );
+  const angles: ReturnType<typeof decomposeJointRotation> =
+    decomposeJointRotation(
+      articulated,
+      lowerAxes,
+      props.restFrames?.[props.chain.lower],
+      {
+        bone: props.chain.lower,
+        constraint: getConstraint(
+          props.chain.lower,
+          props.skeleton.bones.find(
+            (b): boolean => b.bone === props.chain.lower,
+          )?.constraint ?? null,
+        ),
+      },
+    );
+  const lower: IAutoMovieJointPose = clampJointToSkeleton(
+    {
+      bone: props.chain.lower,
+      flexion: angles.flexion,
+      abduction: angles.abduction,
+      twist: angles.twist,
+    },
+    props.skeleton,
+  );
+  return {
+    ...pose,
+    joints: [
+      ...pose.joints.filter(
+        (j: IAutoMovieJointPose): boolean => j.bone !== props.chain.lower,
+      ),
+      lower,
+    ],
+  };
 }

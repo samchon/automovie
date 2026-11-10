@@ -42,32 +42,60 @@ export function samplePoseVelocity(
   const before: IAutoMoviePose = sample(seconds - step);
   const pose: IAutoMoviePose = sample(seconds);
   const after: IAutoMoviePose = sample(seconds + step);
-  const angles = (p: IAutoMoviePose): Map<AutoMovieHumanoidBone, [number, number, number]> =>
+  const angles = (
+    p: IAutoMoviePose,
+  ): Map<AutoMovieHumanoidBone, [number, number, number]> =>
     new Map(
-      p.joints.map((j: IAutoMovieJointPose): [AutoMovieHumanoidBone, [number, number, number]] => [
-        j.bone,
-        [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0],
-      ]),
+      p.joints.map(
+        (
+          j: IAutoMovieJointPose,
+        ): [AutoMovieHumanoidBone, [number, number, number]] => [
+          j.bone,
+          [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0],
+        ],
+      ),
     );
-  const a: Map<AutoMovieHumanoidBone, [number, number, number]> = angles(before);
+  const a: Map<AutoMovieHumanoidBone, [number, number, number]> =
+    angles(before);
   const b: Map<AutoMovieHumanoidBone, [number, number, number]> = angles(after);
-  const joints: Map<AutoMovieHumanoidBone, [number, number, number]> = new Map();
+  const joints: Map<AutoMovieHumanoidBone, [number, number, number]> =
+    new Map();
   for (const bone of new Set([...a.keys(), ...b.keys()])) {
     const p: [number, number, number] = a.get(bone) ?? [0, 0, 0];
     const q: [number, number, number] = b.get(bone) ?? [0, 0, 0];
-    joints.set(bone, [(q[0] - p[0]) / (2 * step), (q[1] - p[1]) / (2 * step), (q[2] - p[2]) / (2 * step)]);
+    joints.set(bone, [
+      (q[0] - p[0]) / (2 * step),
+      (q[1] - p[1]) / (2 * step),
+      (q[2] - p[2]) / (2 * step),
+    ]);
   }
-  const t0: IAutoMovieVector3 = before.root?.translation ?? { x: 0, y: 0, z: 0 };
+  const t0: IAutoMovieVector3 = before.root?.translation ?? {
+    x: 0,
+    y: 0,
+    z: 0,
+  };
   const t1: IAutoMovieVector3 = after.root?.translation ?? { x: 0, y: 0, z: 0 };
-  const r0: IAutoMovieQuaternion = before.root?.rotation ?? Quaternion.identity();
-  const r1: IAutoMovieQuaternion = after.root?.rotation ?? Quaternion.identity();
-  const turn: IAutoMovieVector3 = samplePoseVelocity.rotationVector(Quaternion.multiply(r1, Quaternion.inverse(r0)));
+  const r0: IAutoMovieQuaternion =
+    before.root?.rotation ?? Quaternion.identity();
+  const r1: IAutoMovieQuaternion =
+    after.root?.rotation ?? Quaternion.identity();
+  const turn: IAutoMovieVector3 = samplePoseVelocity.rotationVector(
+    Quaternion.multiply(r1, Quaternion.inverse(r0)),
+  );
   return {
     pose,
     velocity: {
       joints,
-      linear: { x: (t1.x - t0.x) / (2 * step), y: (t1.y - t0.y) / (2 * step), z: (t1.z - t0.z) / (2 * step) },
-      angular: { x: turn.x / (2 * step), y: turn.y / (2 * step), z: turn.z / (2 * step) },
+      linear: {
+        x: (t1.x - t0.x) / (2 * step),
+        y: (t1.y - t0.y) / (2 * step),
+        z: (t1.z - t0.z) / (2 * step),
+      },
+      angular: {
+        x: turn.x / (2 * step),
+        y: turn.y / (2 * step),
+        z: turn.z / (2 * step),
+      },
     },
   };
 }
@@ -113,7 +141,8 @@ export namespace samplePoseVelocity {
     const sign: number = q.w < 0 ? -1 : 1;
     const w: number = Math.min(1, sign * q.w);
     const sine: number = Math.hypot(q.x, q.y, q.z);
-    if (sine < 1e-12) return { x: 2 * sign * q.x, y: 2 * sign * q.y, z: 2 * sign * q.z };
+    if (sine < 1e-12)
+      return { x: 2 * sign * q.x, y: 2 * sign * q.y, z: 2 * sign * q.z };
     const angle: number = 2 * Math.atan2(sine, w);
     const k: number = (sign * angle) / sine;
     return { x: q.x * k, y: q.y * k, z: q.z * k };

@@ -32,22 +32,36 @@ export function test_human_joint_girth(): void {
     position: [number, number, number],
     toward: [number, number, number],
     tip: [number, number, number] | null = null,
-  ): AutoMovieHumanSkeletonLaw.IBone => ({ bone: name, parent, position, toward, tip });
+  ): AutoMovieHumanSkeletonLaw.IBone => ({
+    bone: name,
+    parent,
+    position,
+    toward,
+    tip,
+  });
   const calibration: IAutoMovieHumanBodyCalibration = {
     stature: S,
     chains: [
-      tube("trunk", [0, 0], [
-        [800, 150],
-        [1100, 150],
-        [1300, 150],
-        [1400, 150],
-        [1500, 60],
-      ]),
-      tube("arm.left", [0, 250], [
-        [600, 2],
-        [700, 40],
-        [1400, 50],
-      ]),
+      tube(
+        "trunk",
+        [0, 0],
+        [
+          [800, 150],
+          [1100, 150],
+          [1300, 150],
+          [1400, 150],
+          [1500, 60],
+        ],
+      ),
+      tube(
+        "arm.left",
+        [0, 250],
+        [
+          [600, 2],
+          [700, 40],
+          [1400, 50],
+        ],
+      ),
     ],
     events: [],
     poles: [],
@@ -61,12 +75,21 @@ export function test_human_joint_girth(): void {
       bone("head", "neck", [0, 1600, 0], [0, 1750, 0], [0, 1750, 0]),
       bone("leftHand", "chest", [0, 720, 250], [0, 700, 250]),
       bone("leftIndexProximal", "leftHand", [0, 690, 250], [0, 660, 250]),
-      bone("leftIndexDistal", "leftIndexProximal", [0, 630, 250], [0, 600, 250], [0, 600, 250]),
+      bone(
+        "leftIndexDistal",
+        "leftIndexProximal",
+        [0, 630, 250],
+        [0, 600, 250],
+        [0, 600, 250],
+      ),
     ],
   } as unknown as IAutoMovieHumanBodyCalibration;
   const joints: Map<string, number> = new Map(
     AutoMovieHumanJointCentres.derive(calibration).map(
-      (j: AutoMovieHumanJointCentres.IJoint): [string, number] => [j.bone, j.radius],
+      (j: AutoMovieHumanJointCentres.IJoint): [string, number] => [
+        j.bone,
+        j.radius,
+      ],
     ),
   );
   const finger: number = (0.03 * S) / (2 * Math.PI);

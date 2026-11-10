@@ -40,10 +40,18 @@ export function inertializeOffset(
   duration: number,
   elapsed: number,
 ): inertializeOffset.IState {
-  if (![x0, v0, elapsed].every(Number.isFinite) || !(duration > 0) || !Number.isFinite(duration))
-    throw new Error("Inertialization needs finite offsets and a positive duration");
-  const t1: number = x0 * v0 < 0 ? Math.min(duration, (-5 * x0) / v0) : duration;
-  if (elapsed >= t1 || t1 <= 0) return { value: 0, velocity: 0, duration: Math.max(t1, 0) };
+  if (
+    ![x0, v0, elapsed].every(Number.isFinite) ||
+    !(duration > 0) ||
+    !Number.isFinite(duration)
+  )
+    throw new Error(
+      "Inertialization needs finite offsets and a positive duration",
+    );
+  const t1: number =
+    x0 * v0 < 0 ? Math.min(duration, (-5 * x0) / v0) : duration;
+  if (elapsed >= t1 || t1 <= 0)
+    return { value: 0, velocity: 0, duration: Math.max(t1, 0) };
   const t: number = Math.max(0, elapsed);
   const s: number = t1 - t;
   const t14: number = t1 * t1 * t1 * t1;

@@ -36,13 +36,29 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 scenarios and what each pins.
  */
 export function test_motion_striking_defence_outcome(): void {
-  TestValidator.equals("in time at zero", DefenceOutcome.classify(0, 0.2), "inTime");
-  TestValidator.equals("late inside half", DefenceOutcome.classify(-0.05, 0.2), "late");
-  TestValidator.equals("fail at half", DefenceOutcome.classify(-0.1, 0.2), "fail");
+  TestValidator.equals(
+    "in time at zero",
+    DefenceOutcome.classify(0, 0.2),
+    "inTime",
+  );
+  TestValidator.equals(
+    "late inside half",
+    DefenceOutcome.classify(-0.05, 0.2),
+    "late",
+  );
+  TestValidator.equals(
+    "fail at half",
+    DefenceOutcome.classify(-0.1, 0.2),
+    "fail",
+  );
 
   const elite: HumanSkill.ISkill = HumanSkill.resolve({ level: "elite" }, "e4");
-  const novice: HumanSkill.ISkill = HumanSkill.resolve({ level: "novice" }, "e4");
-  const random = (k: number) => createAutoMovieRandom(deriveAutoMovieSeed("e4", String(k)));
+  const novice: HumanSkill.ISkill = HumanSkill.resolve(
+    { level: "novice" },
+    "e4",
+  );
+  const random = (k: number) =>
+    createAutoMovieRandom(deriveAutoMovieSeed("e4", String(k)));
   const close = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-9;
 
   for (const hit of [0.33, 0.6])
@@ -50,7 +66,14 @@ export function test_motion_striking_defence_outcome(): void {
       for (let k: number = 0; k < 40; k++) {
         const movement: number = StrikingSkill.defence(elite);
         const d: DefenceOutcome.IDecision = DefenceOutcome.decide(
-          { launch: 1, hit: 1 + hit, telegraph: 0.5, movement, skill: elite, stretch: [0.5, 1.5] },
+          {
+            launch: 1,
+            hit: 1 + hit,
+            telegraph: 0.5,
+            movement,
+            skill: elite,
+            stretch: [0.5, 1.5],
+          },
           random(k),
           forced,
         );
@@ -60,29 +83,48 @@ export function test_motion_striking_defence_outcome(): void {
           `forced ${forced} against a ${hit} s kick, seed ${k}`,
           d.outcome === forced &&
             d.warnings.length === 0 &&
-            d.reaction >= r0 - 1e-12 && d.reaction <= r1 + 1e-12 &&
-            d.lead >= a0 - 1e-12 && d.lead <= a1 + 1e-12 &&
+            d.reaction >= r0 - 1e-12 &&
+            d.reaction <= r1 + 1e-12 &&
+            d.lead >= a0 - 1e-12 &&
+            d.lead <= a1 + 1e-12 &&
             close(d.start, 1 + d.reaction - 0.5 * d.lead) &&
             close(d.margin, d.hit - d.start - movement),
         );
       }
 
   const movement: number = StrikingSkill.defence(novice);
-  const fixed: DefenceOutcome.IDecision = DefenceOutcome.decide({ launch: 0, hit: 0.33, telegraph: 0, movement, skill: novice }, random(1), "inTime");
+  const fixed: DefenceOutcome.IDecision = DefenceOutcome.decide(
+    { launch: 0, hit: 0.33, telegraph: 0, movement, skill: novice },
+    random(1),
+    "inTime",
+  );
   const [n0, n1] = StrikingSkill.reactionBand(novice);
   TestValidator.predicate(
     "impossible forcing warns and keeps plausible timing",
-    fixed.warnings.length === 1 && fixed.outcome !== "inTime" && fixed.reaction >= n0 - 1e-12 && fixed.reaction <= n1 + 1e-12,
+    fixed.warnings.length === 1 &&
+      fixed.outcome !== "inTime" &&
+      fixed.reaction >= n0 - 1e-12 &&
+      fixed.reaction <= n1 + 1e-12,
   );
   const stretched: DefenceOutcome.IDecision = DefenceOutcome.decide(
-    { launch: 0, hit: 0.33, telegraph: 0, movement, skill: novice, stretch: [1, 1.6] },
+    {
+      launch: 0,
+      hit: 0.33,
+      telegraph: 0,
+      movement,
+      skill: novice,
+      stretch: [1, 1.6],
+    },
     random(1),
     "inTime",
   );
   const needed: number = (n0 + 1.02 * movement) / 0.33;
   TestValidator.predicate(
     "a stretch makes it possible",
-    stretched.warnings.length === 0 && stretched.outcome === "inTime" && Math.abs(stretched.stretch - needed) <= 1e-9 && needed <= 1.6,
+    stretched.warnings.length === 0 &&
+      stretched.outcome === "inTime" &&
+      Math.abs(stretched.stretch - needed) <= 1e-9 &&
+      needed <= 1.6,
   );
 
   let reactive: number = 0;
@@ -90,21 +132,66 @@ export function test_motion_striking_defence_outcome(): void {
   let sum: number = 0;
   for (let k: number = 0; k < 400; k++) {
     for (const skill of [novice, elite]) {
-      const d = DefenceOutcome.decide({ launch: 0, hit: 0.33, telegraph: 0, movement: StrikingSkill.defence(skill), skill }, random(1000 + k));
+      const d = DefenceOutcome.decide(
+        {
+          launch: 0,
+          hit: 0.33,
+          telegraph: 0,
+          movement: StrikingSkill.defence(skill),
+          skill,
+        },
+        random(1000 + k),
+      );
       if (d.outcome === "inTime") reactive++;
     }
-    const e = DefenceOutcome.decide({ launch: 0, hit: 0.33, telegraph: 1, movement: StrikingSkill.defence(elite), skill: elite }, random(2000 + k));
+    const e = DefenceOutcome.decide(
+      {
+        launch: 0,
+        hit: 0.33,
+        telegraph: 1,
+        movement: StrikingSkill.defence(elite),
+        skill: elite,
+      },
+      random(2000 + k),
+    );
     if (e.outcome === "inTime") anticipated++;
     sum += e.reaction;
   }
   const law = StrikingSkill.reactionLaw(elite);
-  TestValidator.predicate("a reactive defence never beats a fast kick", reactive === 0);
+  TestValidator.predicate(
+    "a reactive defence never beats a fast kick",
+    reactive === 0,
+  );
   TestValidator.predicate("anticipation sometimes does", anticipated > 0);
-  TestValidator.predicate("elite reaction mean", Math.abs(sum / 400 - (law.mu + law.tau)) <= 0.2 * (law.mu + law.tau));
+  TestValidator.predicate(
+    "elite reaction mean",
+    Math.abs(sum / 400 - (law.mu + law.tau)) <= 0.2 * (law.mu + law.tau),
+  );
 
-  const a = DefenceOutcome.decide({ launch: 0, hit: 0.5, telegraph: 0.5, movement: 0.2, skill: elite }, random(7), "late");
-  const b = DefenceOutcome.decide({ launch: 0, hit: 0.5, telegraph: 0.5, movement: 0.2, skill: elite }, random(7), "late");
-  TestValidator.predicate("deterministic", a.start === b.start && a.reaction === b.reaction && a.lead === b.lead);
-  TestValidator.error("contact before launch", (): unknown => DefenceOutcome.decide({ launch: 1, hit: 0.5, telegraph: 0, movement: 0.2, skill: elite }, random(0)));
-  TestValidator.error("telegraph out of range", (): unknown => DefenceOutcome.decide({ launch: 0, hit: 0.5, telegraph: 2, movement: 0.2, skill: elite }, random(0)));
+  const a = DefenceOutcome.decide(
+    { launch: 0, hit: 0.5, telegraph: 0.5, movement: 0.2, skill: elite },
+    random(7),
+    "late",
+  );
+  const b = DefenceOutcome.decide(
+    { launch: 0, hit: 0.5, telegraph: 0.5, movement: 0.2, skill: elite },
+    random(7),
+    "late",
+  );
+  TestValidator.predicate(
+    "deterministic",
+    a.start === b.start && a.reaction === b.reaction && a.lead === b.lead,
+  );
+  TestValidator.error("contact before launch", (): unknown =>
+    DefenceOutcome.decide(
+      { launch: 1, hit: 0.5, telegraph: 0, movement: 0.2, skill: elite },
+      random(0),
+    ),
+  );
+  TestValidator.error("telegraph out of range", (): unknown =>
+    DefenceOutcome.decide(
+      { launch: 0, hit: 0.5, telegraph: 2, movement: 0.2, skill: elite },
+      random(0),
+    ),
+  );
 }

@@ -1,5 +1,9 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
-import type { AutoMovieMotionTarget, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionTarget,
+  IAutoMovieMotionEvent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -61,28 +65,53 @@ export namespace flinch {
    * @param context The action's context.
    * @returns The plan.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const intensity: number = context.params.intensity ?? 1;
-    if (!(intensity > 0 && intensity <= 1)) throw new Error("A flinch's intensity lies in (0, 1]");
+    if (!(intensity > 0 && intensity <= 1))
+      throw new Error("A flinch's intensity lies in (0, 1]");
     const body = context.body;
     const m = body.measure;
     const entry: IHumanPosture = context.entry.posture;
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
-    const events: IAutoMovieMotionEvent[] = [{ name: "peak", share: PEAK / DURATION }];
-    const contacts: IHumanContactWindow[] = (["leftFoot", "rightFoot"] as const).map((part): IHumanContactWindow => ({
-      part,
-      kind: "plant",
-      from: 0,
-      to: 1,
-      support: { kind: "ground" },
-    }));
+    const events: IAutoMovieMotionEvent[] = [
+      { name: "peak", share: PEAK / DURATION },
+    ];
+    const contacts: IHumanContactWindow[] = (
+      ["leftFoot", "rightFoot"] as const
+    ).map(
+      (part): IHumanContactWindow => ({
+        part,
+        kind: "plant",
+        from: 0,
+        to: 1,
+        support: { kind: "ground" },
+      }),
+    );
     let away: IAutoMovieVector3 | undefined;
     const direction = (): IAutoMovieVector3 => {
       if (away !== undefined) return away;
-      const threat: IAutoMovieVector3 = context.aim(context.params.from, context.start - StrikingTarget.LOOK).point;
-      const head: IAutoMovieVector3 = StrikingBody.trunk(body, entry).get("head")!.worldPosition;
-      const d: IAutoMovieVector3 = { x: head.x - threat.x, y: 0, z: head.z - threat.z };
-      away = Vector3.length(d) > 1e-6 ? Vector3.normalize(d) : { x: -Math.sin((entry.yaw * Math.PI) / 180), y: 0, z: -Math.cos((entry.yaw * Math.PI) / 180) };
+      const threat: IAutoMovieVector3 = context.aim(
+        context.params.from,
+        context.start - StrikingTarget.LOOK,
+      ).point;
+      const head: IAutoMovieVector3 = StrikingBody.trunk(body, entry).get(
+        "head",
+      )!.worldPosition;
+      const d: IAutoMovieVector3 = {
+        x: head.x - threat.x,
+        y: 0,
+        z: head.z - threat.z,
+      };
+      away =
+        Vector3.length(d) > 1e-6
+          ? Vector3.normalize(d)
+          : {
+              x: -Math.sin((entry.yaw * Math.PI) / 180),
+              y: 0,
+              z: -Math.cos((entry.yaw * Math.PI) / 180),
+            };
       return away;
     };
     return {
@@ -94,11 +123,22 @@ export namespace flinch {
       },
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(DURATION, Math.max(0, seconds));
-        const k: number = intensity * (minimumJerk(t / PEAK).s - minimumJerk((t - PEAK) / (DURATION - PEAK)).s);
+        const k: number =
+          intensity *
+          (minimumJerk(t / PEAK).s -
+            minimumJerk((t - PEAK) / (DURATION - PEAK)).s);
         const d: IAutoMovieVector3 = direction();
         const r: number = (entry.yaw * Math.PI) / 180;
-        const forward: IAutoMovieVector3 = { x: Math.sin(r), y: 0, z: Math.cos(r) };
-        const left: IAutoMovieVector3 = { x: Math.cos(r), y: 0, z: -Math.sin(r) };
+        const forward: IAutoMovieVector3 = {
+          x: Math.sin(r),
+          y: 0,
+          z: Math.cos(r),
+        };
+        const left: IAutoMovieVector3 = {
+          x: Math.cos(r),
+          y: 0,
+          z: -Math.sin(r),
+        };
         const tilt: number = 12 * k;
         const posture: IHumanPosture = {
           root: Vector3.add(entry.root, Vector3.scale(d, 0.03 * k)),
@@ -107,7 +147,11 @@ export namespace flinch {
           // tip when it is ahead; a tip to the side away from it.
           pitch: entry.pitch + tilt * Vector3.dot(d, forward),
           roll: entry.roll - tilt * Vector3.dot(d, left),
-          joints: { ...entry.joints, ...StrikingStance.joints(), neck: [12 + 10 * k, 0, 0] },
+          joints: {
+            ...entry.joints,
+            ...StrikingStance.joints(),
+            neck: [12 + 10 * k, 0, 0],
+          },
           limbs: { ...entry.limbs },
         };
         const bones = StrikingBody.trunk(body, posture);
@@ -116,13 +160,39 @@ export namespace flinch {
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
         const guard = StrikingStance.guard(body, posture, { lead });
         for (const side of ["left", "right"] as const) {
-          const arm: "leftArm" | "rightArm" = side === "left" ? "leftArm" : "rightArm";
-          const out: IAutoMovieVector3 = Vector3.scale(left, side === "left" ? 1 : -1);
-          const at: IAutoMovieVector3 = Vector3.add(Vector3.add(face.point, Vector3.scale(face.normal, m.forearmRadius + fist)), Vector3.scale(out, fist));
-          const rotation = StrikingBody.fist(body, side, { x: 0, y: 1, z: 0 }, Vector3.scale(face.normal, -1));
+          const arm: "leftArm" | "rightArm" =
+            side === "left" ? "leftArm" : "rightArm";
+          const out: IAutoMovieVector3 = Vector3.scale(
+            left,
+            side === "left" ? 1 : -1,
+          );
+          const at: IAutoMovieVector3 = Vector3.add(
+            Vector3.add(
+              face.point,
+              Vector3.scale(face.normal, m.forearmRadius + fist),
+            ),
+            Vector3.scale(out, fist),
+          );
+          const rotation = StrikingBody.fist(
+            body,
+            side,
+            { x: 0, y: 1, z: 0 },
+            Vector3.scale(face.normal, -1),
+          );
           const goal: IHumanPosture.IGoal = {
-            point: Vector3.subtract(at, StrikingBody.socket(body, side === "left" ? "fistLeft" : "fistRight", rotation)),
-            bend: Vector3.add(bones.get(`${side}UpperArm`)!.worldPosition, { x: 0, y: -m.upperArm, z: 0 }),
+            point: Vector3.subtract(
+              at,
+              StrikingBody.socket(
+                body,
+                side === "left" ? "fistLeft" : "fistRight",
+                rotation,
+              ),
+            ),
+            bend: Vector3.add(bones.get(`${side}UpperArm`)!.worldPosition, {
+              x: 0,
+              y: -m.upperArm,
+              z: 0,
+            }),
             rotation,
           };
           const from: IHumanPosture.IGoal = limbs[arm] ?? guard[arm] ?? goal;

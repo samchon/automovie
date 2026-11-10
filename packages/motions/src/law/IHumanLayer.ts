@@ -1,5 +1,8 @@
 import type { IAutoMovieRandom } from "@automovie/engine";
-import type { AutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
@@ -31,7 +34,11 @@ export interface IHumanLayer {
    * @param context The person and the performance's queries.
    * @returns The layered posture.
    */
-  apply(posture: IHumanPosture, seconds: number, context: IHumanLayer.IContext): IHumanPosture;
+  apply(
+    posture: IHumanPosture,
+    seconds: number,
+    context: IHumanLayer.IContext,
+  ): IHumanPosture;
 }
 /**
  * Companion types of {@link IHumanLayer}.
@@ -60,7 +67,10 @@ export namespace IHumanLayer {
      * @param seconds Film seconds.
      * @returns The aim.
      */
-    aim(target: AutoMovieMotionTarget, seconds: number): { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+    aim(
+      target: AutoMovieMotionTarget,
+      seconds: number,
+    ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
     /**
      * The layer's draw stream for one channel.

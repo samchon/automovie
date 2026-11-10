@@ -36,8 +36,14 @@ export function seededSmoothNoise(
   maxFrequency: number,
   terms: number = 4,
 ): number {
-  if (!(duration > 0) || !(maxFrequency > 0) || !(Number.isSafeInteger(terms) && terms > 0))
-    throw new Error("Smooth noise needs a positive duration, frequency and term count");
+  if (
+    !(duration > 0) ||
+    !(maxFrequency > 0) ||
+    !(Number.isSafeInteger(terms) && terms > 0)
+  )
+    throw new Error(
+      "Smooth noise needs a positive duration, frequency and term count",
+    );
   if (!(u > 0 && u < 1)) return 0;
   let sum: number = 0;
   for (let k: number = 0; k < terms; k++) {

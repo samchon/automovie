@@ -1,5 +1,9 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
-import type { AutoMovieMotionTarget, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionTarget,
+  IAutoMovieMotionEvent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -67,18 +71,23 @@ export namespace guard {
    * @param context The action's context.
    * @returns The plan.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const duration: number = Math.max(SET, context.params.seconds ?? 1);
     let built: IGeometry | undefined;
     const geometry = (): IGeometry => (built ??= build(context, duration));
-    const events: IAutoMovieMotionEvent[] = [{ name: "set", share: SET / duration }];
+    const events: IAutoMovieMotionEvent[] = [
+      { name: "set", share: SET / duration },
+    ];
     return {
       duration,
       events,
       get contacts(): IHumanContactWindow[] {
         return geometry().contacts;
       },
-      posture: (seconds: number): IHumanPosture => geometry().posture(Math.min(duration, Math.max(0, seconds))),
+      posture: (seconds: number): IHumanPosture =>
+        geometry().posture(Math.min(duration, Math.max(0, seconds))),
       settle: (): void => {
         built = undefined;
       },
@@ -94,48 +103,116 @@ export namespace guard {
   }
 
   /** Build the stance from the entry and the line. */
-  function build(context: IHumanActionContext<IParams>, duration: number): IGeometry {
+  function build(
+    context: IHumanActionContext<IParams>,
+    duration: number,
+  ): IGeometry {
     const body = context.body;
     const entry: IHumanPosture = context.entry.posture;
     const lead: "left" | "right" =
-      context.params.stance === undefined ? StrikingTarget.lead(context.entry) : context.params.stance === "orthodox" ? "left" : "right";
-    const staggered: boolean = Math.abs(Vector3.dot(Vector3.subtract(context.entry.feet.left.ankle, context.entry.feet.right.ankle), forwardOf(entry.yaw))) > 0.05;
+      context.params.stance === undefined
+        ? StrikingTarget.lead(context.entry)
+        : context.params.stance === "orthodox"
+          ? "left"
+          : "right";
+    const staggered: boolean =
+      Math.abs(
+        Vector3.dot(
+          Vector3.subtract(
+            context.entry.feet.left.ankle,
+            context.entry.feet.right.ankle,
+          ),
+          forwardOf(entry.yaw),
+        ),
+      ) > 0.05;
     const line: number =
       context.params.facing !== undefined
-        ? StrikingTarget.heading(StrikingTarget.line(entry.root, context.aim(context.params.facing, context.start - StrikingTarget.LOOK).point, entry.yaw))
+        ? StrikingTarget.heading(
+            StrikingTarget.line(
+              entry.root,
+              context.aim(
+                context.params.facing,
+                context.start - StrikingTarget.LOOK,
+              ).point,
+              entry.yaw,
+            ),
+          )
         : staggered
-          ? entry.yaw + (lead === "left" ? StrikingStance.TURN : -StrikingStance.TURN)
+          ? entry.yaw +
+            (lead === "left" ? StrikingStance.TURN : -StrikingStance.TURN)
           : entry.yaw;
     const stance: StrikingStance.IStance = { lead, line };
-    const from: Record<"left" | "right", HumanFoot.IPlacement> = StrikingTarget.feet(context.entry);
-    const centre: IAutoMovieVector3 = { x: (from.left.ankle.x + from.right.ankle.x) / 2, y: 0, z: (from.left.ankle.z + from.right.ankle.z) / 2 };
-    const to: Record<"left" | "right", HumanFoot.IPlacement> = StrikingStance.feet(body, stance, centre);
+    const from: Record<"left" | "right", HumanFoot.IPlacement> =
+      StrikingTarget.feet(context.entry);
+    const centre: IAutoMovieVector3 = {
+      x: (from.left.ankle.x + from.right.ankle.x) / 2,
+      y: 0,
+      z: (from.left.ankle.z + from.right.ankle.z) / 2,
+    };
+    const to: Record<"left" | "right", HumanFoot.IPlacement> =
+      StrikingStance.feet(body, stance, centre);
     const heading: number = StrikingStance.heading(stance);
     // The pelvis over the stance centre, the feet being symmetric about it on
     // the line.
     const rootAt: IAutoMovieVector3 = { x: centre.x, y: 0, z: centre.z };
-    const sunk: number = StrikingStance.sink(body, rootAt, heading, { left: to.left.ankle, right: to.right.ankle });
+    const sunk: number = StrikingStance.sink(body, rootAt, heading, {
+      left: to.left.ankle,
+      right: to.right.ankle,
+    });
 
     // Each foot's swing window, the rear first; a foot already in place stays.
-    const moves = (side: "left" | "right"): boolean => Vector3.length(Vector3.subtract(from[side].ankle, to[side].ankle)) > 0.01;
+    const moves = (side: "left" | "right"): boolean =>
+      Vector3.length(Vector3.subtract(from[side].ankle, to[side].ankle)) > 0.01;
     const first: readonly [number, number] = [0, 0.3];
     const second: readonly [number, number] = [0.25, 0.55];
     const window: Record<"left" | "right", readonly [number, number]> =
-      lead === "left" ? { left: second, right: first } : { left: first, right: second };
+      lead === "left"
+        ? { left: second, right: first }
+        : { left: first, right: second };
     const lift: number = 0.02 * body.measure.stature;
     const foot = (side: "left" | "right", t: number): HumanFoot.IPlacement => {
       if (!moves(side)) return from[side];
       const [a, b] = window[side];
       const s: number = minimumJerk((t - a) / (b - a)).s;
-      const ankle: IAutoMovieVector3 = Vector3.lerp(from[side].ankle, to[side].ankle, s);
-      return { ankle: { ...ankle, y: ankle.y + lift * 4 * s * (1 - s) }, rotation: Quaternion.slerp(from[side].rotation, to[side].rotation, s) };
+      const ankle: IAutoMovieVector3 = Vector3.lerp(
+        from[side].ankle,
+        to[side].ankle,
+        s,
+      );
+      return {
+        ankle: { ...ankle, y: ankle.y + lift * 4 * s * (1 - s) },
+        rotation: Quaternion.slerp(from[side].rotation, to[side].rotation, s),
+      };
     };
-    const contacts: IHumanContactWindow[] = (["left", "right"] as const).flatMap((side): IHumanContactWindow[] => {
-      if (!moves(side)) return [{ part: `${side}Foot`, kind: "plant", from: 0, to: 1, support: { kind: "ground" } }];
+    const contacts: IHumanContactWindow[] = (
+      ["left", "right"] as const
+    ).flatMap((side): IHumanContactWindow[] => {
+      if (!moves(side))
+        return [
+          {
+            part: `${side}Foot`,
+            kind: "plant",
+            from: 0,
+            to: 1,
+            support: { kind: "ground" },
+          },
+        ];
       const [a, b] = window[side];
       return [
-        { part: `${side}Foot`, kind: "plant", from: 0, to: a / duration, support: { kind: "ground" } },
-        { part: `${side}Foot`, kind: "plant", from: b / duration, to: 1, support: { kind: "ground" } },
+        {
+          part: `${side}Foot`,
+          kind: "plant",
+          from: 0,
+          to: a / duration,
+          support: { kind: "ground" },
+        },
+        {
+          part: `${side}Foot`,
+          kind: "plant",
+          from: b / duration,
+          to: 1,
+          support: { kind: "ground" },
+        },
       ];
     });
     const bounce: number = Math.abs(sunk) / 3;
@@ -143,25 +220,48 @@ export namespace guard {
       contacts,
       posture: (t: number): IHumanPosture => {
         const s: number = minimumJerk(t / SET).s;
-        const fade: number = s * (1 - minimumJerk((t - (duration - 0.2)) / 0.2).s);
-        const hop: number = bounce * fade * 0.5 * (1 - Math.cos(2 * Math.PI * BOUNCE_RATE * Math.max(0, t - SET)));
+        const fade: number =
+          s * (1 - minimumJerk((t - (duration - 0.2)) / 0.2).s);
+        const hop: number =
+          bounce *
+          fade *
+          0.5 *
+          (1 - Math.cos(2 * Math.PI * BOUNCE_RATE * Math.max(0, t - SET)));
         const posture: IHumanPosture = {
-          root: { x: entry.root.x + (rootAt.x - entry.root.x) * s, y: entry.root.y + (sunk - entry.root.y) * s - hop, z: entry.root.z + (rootAt.z - entry.root.z) * s },
+          root: {
+            x: entry.root.x + (rootAt.x - entry.root.x) * s,
+            y: entry.root.y + (sunk - entry.root.y) * s - hop,
+            z: entry.root.z + (rootAt.z - entry.root.z) * s,
+          },
           yaw: entry.yaw + angle(heading - entry.yaw) * s,
           pitch: entry.pitch * (1 - s),
           roll: entry.roll * (1 - s),
           joints: { ...entry.joints, ...StrikingStance.joints() },
           limbs: {},
         };
-        const feet: Record<"left" | "right", HumanFoot.IPlacement> = { left: foot("left", t), right: foot("right", t) };
-        const down = (side: "left" | "right"): boolean => !moves(side) || t <= window[side][0] || t >= window[side][1];
-        const legs = StrikingStance.legs(body, feet, { left: down("left"), right: down("right") });
+        const feet: Record<"left" | "right", HumanFoot.IPlacement> = {
+          left: foot("left", t),
+          right: foot("right", t),
+        };
+        const down = (side: "left" | "right"): boolean =>
+          !moves(side) || t <= window[side][0] || t >= window[side][1];
+        const legs = StrikingStance.legs(body, feet, {
+          left: down("left"),
+          right: down("right"),
+        });
 
         // The root lowered until each planted leg reaches its foot, as the
         // stance turns and travels over feet that have not moved yet.
-        const lowered: IHumanPosture = resolveHumanPosture.lower(body, { ...posture, limbs: legs }, 5);
+        const lowered: IHumanPosture = resolveHumanPosture.lower(
+          body,
+          { ...posture, limbs: legs },
+          5,
+        );
         const hands = StrikingStance.guard(body, lowered, { lead });
-        return { ...lowered, limbs: { ...lowered.limbs, ...blendArms(context, hands, s) } };
+        return {
+          ...lowered,
+          limbs: { ...lowered.limbs, ...blendArms(context, hands, s) },
+        };
       },
     };
   }
@@ -175,14 +275,17 @@ export namespace guard {
     const out: Pick<IHumanPosture["limbs"], "leftArm" | "rightArm"> = {};
     for (const arm of ["leftArm", "rightArm"] as const) {
       const to: IHumanPosture.IGoal = hands[arm]!;
-      const from: IHumanPosture.IGoal | undefined = context.entry.posture.limbs[arm];
+      const from: IHumanPosture.IGoal | undefined =
+        context.entry.posture.limbs[arm];
       out[arm] =
         from === undefined
           ? to
           : {
               point: Vector3.lerp(from.point, to.point, s),
               bend: Vector3.lerp(from.bend, to.bend, s),
-              ...(from.rotation !== undefined && to.rotation !== undefined ? { rotation: Quaternion.slerp(from.rotation, to.rotation, s) } : {}),
+              ...(from.rotation !== undefined && to.rotation !== undefined
+                ? { rotation: Quaternion.slerp(from.rotation, to.rotation, s) }
+                : {}),
             };
     }
     return out;

@@ -1,5 +1,8 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type { IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieMotionEvent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -65,13 +68,19 @@ export namespace step {
    * @param context The action's context.
    * @returns The plan.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const p: IParams = context.params;
     const count: number = p.steps ?? 1;
-    if (!(Number.isInteger(count) && count >= 1)) throw new Error("Footwork takes a whole number of steps");
+    if (!(Number.isInteger(count) && count >= 1))
+      throw new Error("Footwork takes a whole number of steps");
     const body = context.body;
     const length: number = p.length ?? STEP_SHARE * StrikingStance.length(body);
-    if (!(length > 0 && length <= StrikingStance.length(body))) throw new Error(`A step's length lies in (0, ${StrikingStance.length(body).toFixed(3)}] m`);
+    if (!(length > 0 && length <= StrikingStance.length(body)))
+      throw new Error(
+        `A step's length lies in (0, ${StrikingStance.length(body).toFixed(3)}] m`,
+      );
     const duration: number = count * PERIOD;
     const entry: IHumanPosture = context.entry.posture;
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
@@ -79,39 +88,79 @@ export namespace step {
 
     // The line frame: the stance's line is the heading turned back by the
     // stance turn; the direction is read in it.
-    const line: number = entry.yaw + (lead === "left" ? StrikingStance.TURN : -StrikingStance.TURN);
+    const line: number =
+      entry.yaw +
+      (lead === "left" ? StrikingStance.TURN : -StrikingStance.TURN);
     const r: number = (line * Math.PI) / 180;
     const forward: IAutoMovieVector3 = { x: Math.sin(r), y: 0, z: Math.cos(r) };
     const left: IAutoMovieVector3 = { x: Math.cos(r), y: 0, z: -Math.sin(r) };
     const unit: IAutoMovieVector3 =
-      p.direction === "forward" ? forward : p.direction === "back" ? Vector3.scale(forward, -1) : p.direction === "left" ? left : Vector3.scale(left, -1);
+      p.direction === "forward"
+        ? forward
+        : p.direction === "back"
+          ? Vector3.scale(forward, -1)
+          : p.direction === "left"
+            ? left
+            : Vector3.scale(left, -1);
     const first: "left" | "right" =
-      p.direction === "forward" ? lead : p.direction === "back" ? rear : p.direction === "left" ? "left" : "right";
-    const feet: Record<"left" | "right", HumanFoot.IPlacement> = StrikingTarget.feet(context.entry);
+      p.direction === "forward"
+        ? lead
+        : p.direction === "back"
+          ? rear
+          : p.direction === "left"
+            ? "left"
+            : "right";
+    const feet: Record<"left" | "right", HumanFoot.IPlacement> =
+      StrikingTarget.feet(context.entry);
     const lift: number = 0.015 * body.measure.stature;
     const windows: Record<"left" | "right", readonly [number, number]> =
-      first === "left" ? { left: [0, 0.5], right: [0.45, 0.95] } : { left: [0.45, 0.95], right: [0, 0.5] };
+      first === "left"
+        ? { left: [0, 0.5], right: [0.45, 0.95] }
+        : { left: [0.45, 0.95], right: [0, 0.5] };
 
     // A foot's progress: whole steps done plus the current step's share.
-    const progress = (side: "left" | "right", t: number): { travelled: number; swinging: boolean; s: number } => {
+    const progress = (
+      side: "left" | "right",
+      t: number,
+    ): { travelled: number; swinging: boolean; s: number } => {
       const k: number = Math.min(count - 1, Math.floor(t / PERIOD));
       const local: number = (t - k * PERIOD) / PERIOD;
       const [a, b] = windows[side];
       const s: number = minimumJerk((local - a) / (b - a)).s;
-      return { travelled: (k + s) * length, swinging: local > a && local < b, s };
+      return {
+        travelled: (k + s) * length,
+        swinging: local > a && local < b,
+        s,
+      };
     };
     const contacts: IHumanContactWindow[] = [];
     for (let k: number = 0; k < count; k++)
       for (const side of ["left", "right"] as const) {
         const [a, b] = windows[side];
         const start: number = k === 0 ? 0 : (k - 1 + windows[side][1]) / count;
-        contacts.push({ part: `${side}Foot`, kind: "plant", from: start, to: (k + a) / count, support: { kind: "ground" } });
-        if (k === count - 1) contacts.push({ part: `${side}Foot`, kind: "plant", from: (k + b) / count, to: 1, support: { kind: "ground" } });
+        contacts.push({
+          part: `${side}Foot`,
+          kind: "plant",
+          from: start,
+          to: (k + a) / count,
+          support: { kind: "ground" },
+        });
+        if (k === count - 1)
+          contacts.push({
+            part: `${side}Foot`,
+            kind: "plant",
+            from: (k + b) / count,
+            to: 1,
+            support: { kind: "ground" },
+          });
       }
-    const events: IAutoMovieMotionEvent[] = Array.from({ length: count }, (_: unknown, k: number): IAutoMovieMotionEvent => ({
-      name: `step${k + 1}`,
-      share: (k + 1) / count,
-    }));
+    const events: IAutoMovieMotionEvent[] = Array.from(
+      { length: count },
+      (_: unknown, k: number): IAutoMovieMotionEvent => ({
+        name: `step${k + 1}`,
+        share: (k + 1) / count,
+      }),
+    );
     return {
       duration,
       events,
@@ -123,7 +172,11 @@ export namespace step {
         for (const side of ["left", "right"] as const) {
           const g = progress(side, t);
           placed[side] = {
-            ankle: Vector3.add(feet[side].ankle, { x: unit.x * g.travelled, y: g.swinging ? lift * 4 * g.s * (1 - g.s) : 0, z: unit.z * g.travelled }),
+            ankle: Vector3.add(feet[side].ankle, {
+              x: unit.x * g.travelled,
+              y: g.swinging ? lift * 4 * g.s * (1 - g.s) : 0,
+              z: unit.z * g.travelled,
+            }),
             rotation: feet[side].rotation,
           };
           down[side] = !g.swinging;
@@ -141,7 +194,13 @@ export namespace step {
           },
           5,
         );
-        return { ...posture, limbs: { ...posture.limbs, ...StrikingStance.guard(body, posture, { lead }) } };
+        return {
+          ...posture,
+          limbs: {
+            ...posture.limbs,
+            ...StrikingStance.guard(body, posture, { lead }),
+          },
+        };
       },
     };
   }

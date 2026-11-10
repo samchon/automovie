@@ -35,9 +35,15 @@ export function createHumanBody(
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
   for (const bone of skeleton.bones as IAutoMovieBone[])
     rest.set(bone.bone, {
-      x: (bone.parent === null ? 0 : rest.get(bone.parent)!.x) + bone.rest.translation.x,
-      y: (bone.parent === null ? 0 : rest.get(bone.parent)!.y) + bone.rest.translation.y,
-      z: (bone.parent === null ? 0 : rest.get(bone.parent)!.z) + bone.rest.translation.z,
+      x:
+        (bone.parent === null ? 0 : rest.get(bone.parent)!.x) +
+        bone.rest.translation.x,
+      y:
+        (bone.parent === null ? 0 : rest.get(bone.parent)!.y) +
+        bone.rest.translation.y,
+      z:
+        (bone.parent === null ? 0 : rest.get(bone.parent)!.z) +
+        bone.rest.translation.z,
     });
   return {
     skeleton,

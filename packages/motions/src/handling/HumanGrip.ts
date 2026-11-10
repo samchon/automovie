@@ -59,13 +59,14 @@ export namespace HumanGrip {
   export type Digit = "Index" | "Middle" | "Ring" | "Little" | "Thumb";
 
   /** The digits that close for each grip kind, in closing order. */
-  export const CLOSING: Readonly<Record<AutoMovieGripKind, readonly Digit[]>> = {
-    power: ["Index", "Middle", "Ring", "Little", "Thumb"],
-    lateral: ["Index", "Middle", "Ring", "Little", "Thumb"],
-    "two-hand": ["Index", "Middle", "Ring", "Little", "Thumb"],
-    hook: ["Index", "Middle", "Ring", "Little"],
-    precision: ["Thumb", "Index", "Middle"],
-  };
+  export const CLOSING: Readonly<Record<AutoMovieGripKind, readonly Digit[]>> =
+    {
+      power: ["Index", "Middle", "Ring", "Little", "Thumb"],
+      lateral: ["Index", "Middle", "Ring", "Little", "Thumb"],
+      "two-hand": ["Index", "Middle", "Ring", "Little", "Thumb"],
+      hook: ["Index", "Middle", "Ring", "Little"],
+      precision: ["Thumb", "Index", "Middle"],
+    };
 
   /**
    * A digit's bones, proximal to distal.
@@ -74,9 +75,18 @@ export namespace HumanGrip {
    * @param digit The digit.
    * @returns The three bones.
    */
-  export function bones(side: HumanHand.Side, digit: Digit): AutoMovieHumanoidBone[] {
-    const segments: string[] = digit === "Thumb" ? ["Metacarpal", "Proximal", "Distal"] : ["Proximal", "Intermediate", "Distal"];
-    return segments.map((s: string): AutoMovieHumanoidBone => `${side}${digit}${s}` as AutoMovieHumanoidBone);
+  export function bones(
+    side: HumanHand.Side,
+    digit: Digit,
+  ): AutoMovieHumanoidBone[] {
+    const segments: string[] =
+      digit === "Thumb"
+        ? ["Metacarpal", "Proximal", "Distal"]
+        : ["Proximal", "Intermediate", "Distal"];
+    return segments.map(
+      (s: string): AutoMovieHumanoidBone =>
+        `${side}${digit}${s}` as AutoMovieHumanoidBone,
+    );
   }
 
   /**
@@ -90,21 +100,44 @@ export namespace HumanGrip {
    * @returns The chain.
    * @throws {Error} When the profile declares no capsule on a phalanx of the digit.
    */
-  export function chain(body: IHumanBody, side: HumanHand.Side, digit: Digit): curlChainUntilContact.IChain {
+  export function chain(
+    body: IHumanBody,
+    side: HumanHand.Side,
+    digit: Digit,
+  ): curlChainUntilContact.IChain {
     const list: AutoMovieHumanoidBone[] = bones(side, digit);
-    const capsule = (bone: AutoMovieHumanoidBone): Extract<IAutoMoviePhysicalProfile.IShape, { kind: "capsule" }> => {
-      const shape: IAutoMoviePhysicalProfile.IShape | undefined = body.profile.segments
-        .find((s: IAutoMoviePhysicalProfile.ISegment): boolean => s.bone === bone)
-        ?.shapes.find((s: IAutoMoviePhysicalProfile.IShape): boolean => s.kind === "capsule");
+    const capsule = (
+      bone: AutoMovieHumanoidBone,
+    ): Extract<IAutoMoviePhysicalProfile.IShape, { kind: "capsule" }> => {
+      const shape: IAutoMoviePhysicalProfile.IShape | undefined =
+        body.profile.segments
+          .find(
+            (s: IAutoMoviePhysicalProfile.ISegment): boolean => s.bone === bone,
+          )
+          ?.shapes.find(
+            (s: IAutoMoviePhysicalProfile.IShape): boolean =>
+              s.kind === "capsule",
+          );
       if (shape === undefined || shape.kind !== "capsule")
-        throw new Error(`The body's profile declares no capsule on ${bone}; a grasp needs its digits' colliders`);
+        throw new Error(
+          `The body's profile declares no capsule on ${bone}; a grasp needs its digits' colliders`,
+        );
       return shape;
     };
     const distal = capsule(list[2]!);
     return {
       bones: list,
-      tip: Vector3.add(distal.transform.position, Quaternion.rotateVector(distal.transform.rotation, { x: 0, y: distal.halfLength, z: 0 })),
-      radius: Math.min(...list.map((b: AutoMovieHumanoidBone): number => capsule(b).radius)),
+      tip: Vector3.add(
+        distal.transform.position,
+        Quaternion.rotateVector(distal.transform.rotation, {
+          x: 0,
+          y: distal.halfLength,
+          z: 0,
+        }),
+      ),
+      radius: Math.min(
+        ...list.map((b: AutoMovieHumanoidBone): number => capsule(b).radius),
+      ),
     };
   }
 
@@ -126,31 +159,55 @@ export namespace HumanGrip {
     colliders: readonly curlChainUntilContact.ICollider[],
   ): { joints: IHumanPosture["joints"]; gaps: Partial<Record<Digit, number>> } {
     // Carry the object into the rest hand's frame: rest = R0 R^-1 (world - W) + P0.
-    const rest: IAutoMovieResolvedBone = resolve(body, { skeleton: body.skeleton.id, root: null, joints: [] }).get(`${side}Hand`)!;
-    const carry: IAutoMovieQuaternion = Quaternion.multiply(rest.worldRotation, Quaternion.inverse(hand.rotation));
-    const moved: curlChainUntilContact.ICollider[] = colliders.map((c: curlChainUntilContact.ICollider): curlChainUntilContact.ICollider => ({
-      shape: c.shape,
-      frame: {
-        position: Vector3.add(rest.worldPosition, Quaternion.rotateVector(carry, Vector3.subtract(c.frame.position, hand.point))),
-        rotation: Quaternion.normalize(Quaternion.multiply(carry, c.frame.rotation)),
-      },
-    }));
+    const rest: IAutoMovieResolvedBone = resolve(body, {
+      skeleton: body.skeleton.id,
+      root: null,
+      joints: [],
+    }).get(`${side}Hand`)!;
+    const carry: IAutoMovieQuaternion = Quaternion.multiply(
+      rest.worldRotation,
+      Quaternion.inverse(hand.rotation),
+    );
+    const moved: curlChainUntilContact.ICollider[] = colliders.map(
+      (
+        c: curlChainUntilContact.ICollider,
+      ): curlChainUntilContact.ICollider => ({
+        shape: c.shape,
+        frame: {
+          position: Vector3.add(
+            rest.worldPosition,
+            Quaternion.rotateVector(
+              carry,
+              Vector3.subtract(c.frame.position, hand.point),
+            ),
+          ),
+          rotation: Quaternion.normalize(
+            Quaternion.multiply(carry, c.frame.rotation),
+          ),
+        },
+      }),
+    );
     const digits: readonly Digit[] = CLOSING[kind];
     const result: curlChainUntilContact.IResult = curlChainUntilContact({
       skeleton: body.skeleton,
       pose: { skeleton: body.skeleton.id, root: null, joints: [] },
-      chains: digits.map((d: Digit): curlChainUntilContact.IChain => chain(body, side, d)),
+      chains: digits.map(
+        (d: Digit): curlChainUntilContact.IChain => chain(body, side, d),
+      ),
       colliders: moved,
       jointAxes: HUMANOID_JOINT_AXES,
       restFrames: HUMANOID_REST_FRAME,
       topology: body.topology,
     });
     const joints: IHumanPosture["joints"] = {};
-    for (const j of result.pose.joints) joints[j.bone] = [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0];
+    for (const j of result.pose.joints)
+      joints[j.bone] = [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0];
     const gaps: Partial<Record<Digit, number>> = {};
-    result.chains.forEach((c: curlChainUntilContact.IChainResult, i: number): void => {
-      gaps[digits[i]!] = c.gap;
-    });
+    result.chains.forEach(
+      (c: curlChainUntilContact.IChainResult, i: number): void => {
+        gaps[digits[i]!] = c.gap;
+      },
+    );
     return { joints, gaps };
   }
 
@@ -161,11 +218,19 @@ export namespace HumanGrip {
    * @param side The hand.
    * @returns Clinical degrees of every digit bone the pose sets.
    */
-  export function fingers(pose: IAutoMoviePose, side: HumanHand.Side): IHumanPosture["joints"] {
+  export function fingers(
+    pose: IAutoMoviePose,
+    side: HumanHand.Side,
+  ): IHumanPosture["joints"] {
     const out: IHumanPosture["joints"] = {};
-    const digits: Set<string> = new Set((["Index", "Middle", "Ring", "Little", "Thumb"] as const).flatMap((d: Digit): string[] => bones(side, d)));
+    const digits: Set<string> = new Set(
+      (["Index", "Middle", "Ring", "Little", "Thumb"] as const).flatMap(
+        (d: Digit): string[] => bones(side, d),
+      ),
+    );
     for (const j of pose.joints as IAutoMovieJointPose[])
-      if (digits.has(j.bone)) out[j.bone] = [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0];
+      if (digits.has(j.bone))
+        out[j.bone] = [j.flexion ?? 0, j.abduction ?? 0, j.twist ?? 0];
     return out;
   }
 
@@ -178,29 +243,58 @@ export namespace HumanGrip {
    * @param joints The digit angles.
    * @returns Metres.
    */
-  export function aperture(body: IHumanBody, side: HumanHand.Side, joints: IHumanPosture["joints"]): number {
+  export function aperture(
+    body: IHumanBody,
+    side: HumanHand.Side,
+    joints: IHumanPosture["joints"],
+  ): number {
     const pose: IAutoMoviePose = {
       skeleton: body.skeleton.id,
       root: null,
-      joints: (Object.entries(joints) as [AutoMovieHumanoidBone, readonly [number, number, number]][]).map(
-        ([bone, a]): IAutoMovieJointPose => ({ bone, flexion: a[0], abduction: a[1], twist: a[2] }),
+      joints: (
+        Object.entries(joints) as [
+          AutoMovieHumanoidBone,
+          readonly [number, number, number],
+        ][]
+      ).map(
+        ([bone, a]): IAutoMovieJointPose => ({
+          bone,
+          flexion: a[0],
+          abduction: a[1],
+          twist: a[2],
+        }),
       ),
     };
-    const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = resolve(body, pose);
+    const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      resolve(body, pose);
     const tip = (digit: Digit): IAutoMovieVector3 => {
       const c: curlChainUntilContact.IChain = chain(body, side, digit);
       const distal: IAutoMovieResolvedBone = resolved.get(c.bones[2]!)!;
-      return Vector3.add(distal.worldPosition, Quaternion.rotateVector(distal.worldRotation, c.tip));
+      return Vector3.add(
+        distal.worldPosition,
+        Quaternion.rotateVector(distal.worldRotation, c.tip),
+      );
     };
     return Vector3.length(Vector3.subtract(tip("Thumb"), tip("Index")));
   }
 }
 
 /** World bones of a pose. */
-function resolve(body: IHumanBody, pose: IAutoMoviePose): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+function resolve(
+  body: IHumanBody,
+  pose: IAutoMoviePose,
+): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   return new Map(
-    resolvePose(pose, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, body.topology).map(
-      (r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+    resolvePose(
+      pose,
+      body.skeleton,
+      HUMANOID_JOINT_AXES,
+      HUMANOID_REST_FRAME,
+      body.topology,
+    ).map(
+      (
+        r: IAutoMovieResolvedBone,
+      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
     ),
   );
 }

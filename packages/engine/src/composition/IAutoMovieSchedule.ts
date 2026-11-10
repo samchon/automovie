@@ -55,7 +55,10 @@ export namespace IAutoMovieSchedule {
     readonly cut?: { readonly share: number; readonly event?: string };
 
     /** The intent's named events in film seconds, as its timing declared them, before any cut. */
-    readonly events?: readonly { readonly name: string; readonly seconds: number }[];
+    readonly events?: readonly {
+      readonly name: string;
+      readonly seconds: number;
+    }[];
 
     /** The walk-order index of the entry that starts at this one's cut, when one does. */
     readonly interruptedBy?: number;

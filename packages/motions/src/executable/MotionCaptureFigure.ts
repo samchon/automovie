@@ -1,6 +1,9 @@
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type { IAutoMoviePose } from "@automovie/interface";
-import { type AutoMovieHumanPolygon, buildHumanPolygon } from "@automovie/viewer";
+import {
+  type AutoMovieHumanPolygon,
+  buildHumanPolygon,
+} from "@automovie/viewer";
 import * as THREE from "three";
 
 /**
@@ -38,12 +41,20 @@ export class MotionCaptureFigure {
    */
   public constructor(body: AutoMovieHumanCanonicalBody.IBody, color?: number) {
     this.body = body;
-    const rest: ReturnType<typeof AutoMovieHumanCanonicalBody.display> = AutoMovieHumanCanonicalBody.display(body);
+    const rest: ReturnType<typeof AutoMovieHumanCanonicalBody.display> =
+      AutoMovieHumanCanonicalBody.display(body);
     this.drawing = buildHumanPolygon(
       rest,
       color === undefined
         ? {}
-        : { partColors: Object.fromEntries(rest.bones.map((b: { bone: string }): [string, number] => [b.bone, color])) },
+        : {
+            partColors: Object.fromEntries(
+              rest.bones.map((b: { bone: string }): [string, number] => [
+                b.bone,
+                color,
+              ]),
+            ),
+          },
     );
     this.object = new THREE.Group();
     this.object.matrixAutoUpdate = false;
@@ -58,7 +69,9 @@ export class MotionCaptureFigure {
    * @returns Every Human joint's canonical placement.
    */
   public place(pose: IAutoMoviePose): AutoMovieHumanCanonicalBody.IPlacement[] {
-    this.drawing.setPose({ posed: AutoMovieHumanCanonicalBody.display(this.body, pose).posed });
+    this.drawing.setPose({
+      posed: AutoMovieHumanCanonicalBody.display(this.body, pose).posed,
+    });
     this.object.updateMatrixWorld(true);
     return AutoMovieHumanCanonicalBody.place(this.body, pose);
   }

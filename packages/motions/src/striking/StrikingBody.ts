@@ -44,11 +44,21 @@ export namespace StrikingBody {
    * @param posture The posture.
    * @returns Resolved bones by rig bone.
    */
-  export function trunk(body: IHumanBody, posture: IHumanPosture): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+  export function trunk(
+    body: IHumanBody,
+    posture: IHumanPosture,
+  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const pose = resolveHumanPosture(body, { ...posture, limbs: {} });
     return new Map(
-      resolvePose(pose, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
-        (r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+      resolvePose(
+        pose,
+        body.skeleton,
+        HUMANOID_JOINT_AXES,
+        HUMANOID_REST_FRAME,
+      ).map(
+        (
+          r: IAutoMovieResolvedBone,
+        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
       ),
     );
   }
@@ -66,8 +76,12 @@ export namespace StrikingBody {
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     region: AutoMovieHumanoidRegion,
   ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
-    const frame: resolveAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
-    return resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!);
+    const frame: resolveAutoMovieHumanoidSurfaces.IFrame =
+      body.surfaces.regions[region];
+    return resolveAutoMovieHumanoidSurfaces.place(
+      frame,
+      bones.get(frame.bone)!,
+    );
   }
 
   /**
@@ -79,8 +93,15 @@ export namespace StrikingBody {
    * @param rotation The hand's or foot's world rotation from its rest.
    * @returns The offset, world metres.
    */
-  export function socket(body: IHumanBody, socket: AutoMovieHumanoidSocket, rotation: IAutoMovieQuaternion): IAutoMovieVector3 {
-    return Quaternion.rotateVector(rotation, body.surfaces.sockets[socket].point);
+  export function socket(
+    body: IHumanBody,
+    socket: AutoMovieHumanoidSocket,
+    rotation: IAutoMovieQuaternion,
+  ): IAutoMovieVector3 {
+    return Quaternion.rotateVector(
+      rotation,
+      body.surfaces.sockets[socket].point,
+    );
   }
 
   /**
@@ -95,9 +116,20 @@ export namespace StrikingBody {
    * @param palm Where the palm faces, world direction (not parallel to `knuckles`).
    * @returns The rotation.
    */
-  export function fist(body: IHumanBody, side: "left" | "right", knuckles: IAutoMovieVector3, palm: IAutoMovieVector3): IAutoMovieQuaternion {
-    const fingers: IAutoMovieVector3 = Vector3.subtract(body.rest.get(`${side}MiddleProximal`)!, body.rest.get(`${side}Hand`)!);
-    return HumanHand.align({ normal: fingers, forward: { x: 0, y: -1, z: 0 } }, { normal: knuckles, forward: palm });
+  export function fist(
+    body: IHumanBody,
+    side: "left" | "right",
+    knuckles: IAutoMovieVector3,
+    palm: IAutoMovieVector3,
+  ): IAutoMovieQuaternion {
+    const fingers: IAutoMovieVector3 = Vector3.subtract(
+      body.rest.get(`${side}MiddleProximal`)!,
+      body.rest.get(`${side}Hand`)!,
+    );
+    return HumanHand.align(
+      { normal: fingers, forward: { x: 0, y: -1, z: 0 } },
+      { normal: knuckles, forward: palm },
+    );
   }
 
   /**
@@ -109,8 +141,14 @@ export namespace StrikingBody {
    * @param instep Where the instep faces, world direction (not parallel to `toes`).
    * @returns The rotation.
    */
-  export function foot(toes: IAutoMovieVector3, instep: IAutoMovieVector3): IAutoMovieQuaternion {
-    return HumanHand.align({ normal: { x: 0, y: 0, z: 1 }, forward: { x: 0, y: 1, z: 0 } }, { normal: toes, forward: instep });
+  export function foot(
+    toes: IAutoMovieVector3,
+    instep: IAutoMovieVector3,
+  ): IAutoMovieQuaternion {
+    return HumanHand.align(
+      { normal: { x: 0, y: 0, z: 1 }, forward: { x: 0, y: 1, z: 0 } },
+      { normal: toes, forward: instep },
+    );
   }
 
   /**
@@ -124,8 +162,12 @@ export namespace StrikingBody {
    * @param side The hand.
    * @returns Clinical angles by bone.
    */
-  export function curl(side: "left" | "right"): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    const out: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = {};
+  export function curl(
+    side: "left" | "right",
+  ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
+    const out: Partial<
+      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+    > = {};
     for (const digit of ["Index", "Middle", "Ring", "Little"]) {
       out[`${side}${digit}Proximal` as AutoMovieHumanoidBone] = [85, 0, 0];
       out[`${side}${digit}Intermediate` as AutoMovieHumanoidBone] = [100, 0, 0];
@@ -148,22 +190,56 @@ export namespace StrikingBody {
    * @param bones Its resolved bones.
    * @returns The colliders, named by bone.
    */
-  export function colliders(body: IHumanBody, bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): StrikingContact.ICollider[] {
+  export function colliders(
+    body: IHumanBody,
+    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  ): StrikingContact.ICollider[] {
     const out: StrikingContact.ICollider[] = [];
     for (const segment of body.profile.segments) {
-      const bone: IAutoMovieResolvedBone | undefined = bones.get(segment.bone as AutoMovieHumanoidBone);
+      const bone: IAutoMovieResolvedBone | undefined = bones.get(
+        segment.bone as AutoMovieHumanoidBone,
+      );
       if (bone === undefined) continue;
       for (const shape of segment.shapes) {
-        const rotation: IAutoMovieQuaternion = Quaternion.multiply(bone.worldRotation, Quaternion.multiply(segment.neutral.rotation, shape.transform.rotation));
+        const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+          bone.worldRotation,
+          Quaternion.multiply(
+            segment.neutral.rotation,
+            shape.transform.rotation,
+          ),
+        );
         const centre: IAutoMovieVector3 = Vector3.add(
           bone.worldPosition,
-          Quaternion.rotateVector(bone.worldRotation, Quaternion.rotateVector(segment.neutral.rotation, shape.transform.position)),
+          Quaternion.rotateVector(
+            bone.worldRotation,
+            Quaternion.rotateVector(
+              segment.neutral.rotation,
+              shape.transform.position,
+            ),
+          ),
         );
-        if (shape.kind === "box") out.push({ kind: "box", name: segment.bone, centre, rotation, halfExtents: shape.halfExtents });
+        if (shape.kind === "box")
+          out.push({
+            kind: "box",
+            name: segment.bone,
+            centre,
+            rotation,
+            halfExtents: shape.halfExtents,
+          });
         else {
           const half: number = shape.kind === "capsule" ? shape.halfLength : 0;
-          const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 0, y: half, z: 0 });
-          out.push({ kind: "capsule", name: segment.bone, a: Vector3.subtract(centre, axis), b: Vector3.add(centre, axis), radius: shape.radius });
+          const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+            x: 0,
+            y: half,
+            z: 0,
+          });
+          out.push({
+            kind: "capsule",
+            name: segment.bone,
+            a: Vector3.subtract(centre, axis),
+            b: Vector3.add(centre, axis),
+            radius: shape.radius,
+          });
         }
       }
     }

@@ -60,8 +60,12 @@ export function fitHingedChainCandidate(
   axes: IAutoMovieJointAxes,
   rotation?: IAutoMovieQuaternion,
 ): IAutoMovieSolvedChainPlant | null {
-  const turn: ((upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => number) | null =
-    rotation === undefined ? null : fitHingedChainCandidate.error(props, prepared, axes, rotation);
+  const turn:
+    | ((upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => number)
+    | null =
+    rotation === undefined
+      ? null
+      : fitHingedChainCandidate.error(props, prepared, axes, rotation);
   const root: IAutoMovieVector3 = prepared.upper.worldPosition;
   const reach: IAutoMovieVector3 = Vector3.subtract(props.target, root);
   if (Vector3.length(reach) < 1e-9) return null;
@@ -70,40 +74,119 @@ export function fitHingedChainCandidate(
     const v: IAutoMovieVector3 = Vector3.subtract(p, root);
     return Vector3.subtract(v, Vector3.scale(axis, Vector3.dot(v, axis)));
   };
-  const hint: IAutoMovieVector3 = across(props.bend ?? Vector3.add(root, { x: 0, y: -1, z: 0 }));
-  const side: IAutoMovieVector3 | null = Vector3.length(hint) < 1e-9 ? null : Vector3.normalize(hint);
-  const joints = (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion): [IAutoMovieJointPose, IAutoMovieJointPose] => [
-    { bone: props.chain.upper, ...decomposeJointRotation(upper, props.jointAxes?.[props.chain.upper], props.restFrames?.[props.chain.upper], prepared.upperDomain) },
-    { bone: props.chain.lower, ...decomposeJointRotation(lower, axes, props.restFrames?.[props.chain.lower], prepared.lowerDomain) },
+  const hint: IAutoMovieVector3 = across(
+    props.bend ?? Vector3.add(root, { x: 0, y: -1, z: 0 }),
+  );
+  const side: IAutoMovieVector3 | null =
+    Vector3.length(hint) < 1e-9 ? null : Vector3.normalize(hint);
+  const joints = (
+    upper: IAutoMovieQuaternion,
+    lower: IAutoMovieQuaternion,
+  ): [IAutoMovieJointPose, IAutoMovieJointPose] => [
+    {
+      bone: props.chain.upper,
+      ...decomposeJointRotation(
+        upper,
+        props.jointAxes?.[props.chain.upper],
+        props.restFrames?.[props.chain.upper],
+        prepared.upperDomain,
+      ),
+    },
+    {
+      bone: props.chain.lower,
+      ...decomposeJointRotation(
+        lower,
+        axes,
+        props.restFrames?.[props.chain.lower],
+        prepared.lowerDomain,
+      ),
+    },
   ];
   const previous = (bone: string): IAutoMovieQuaternion | null => {
-    const joint: IAutoMovieJointPose | undefined = props.referencePose?.joints.find((j: IAutoMovieJointPose): boolean => j.bone === bone);
-    return joint === undefined ? null : Quaternion.normalize(jointToQuaternion(joint, bone === props.chain.lower ? axes : props.jointAxes?.[props.chain.upper], props.restFrames?.[joint.bone]));
+    const joint: IAutoMovieJointPose | undefined =
+      props.referencePose?.joints.find(
+        (j: IAutoMovieJointPose): boolean => j.bone === bone,
+      );
+    return joint === undefined
+      ? null
+      : Quaternion.normalize(
+          jointToQuaternion(
+            joint,
+            bone === props.chain.lower
+              ? axes
+              : props.jointAxes?.[props.chain.upper],
+            props.restFrames?.[joint.bone],
+          ),
+        );
   };
-  const before: [IAutoMovieQuaternion | null, IAutoMovieQuaternion | null] = [previous(props.chain.upper), previous(props.chain.lower)];
-  const apart = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion | null): number =>
-    b === null ? 0 : (2 * Math.acos(Math.min(1, Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w))) * 180) / Math.PI;
-  const solved: ReturnType<typeof hingedArmArticulation> = hingedArmArticulation({
-    upper: prepared.upper,
-    midOffset: prepared.lowerOffset,
-    midRest: prepared.lowerRotation,
-    endOffset: prepared.effectorOffset,
-    hinge: axes.flexion,
-    target: props.target,
-    score: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion): { overshoot: number; deviation: number } => {
-      const [u, l] = joints(upper, lower);
-      const mid: IAutoMovieVector3 = Vector3.add(root, Quaternion.rotateVector(Quaternion.multiply(prepared.upper.worldRotation, upper), prepared.lowerOffset));
-      const offset: IAutoMovieVector3 = across(mid);
-      const away: number = side === null || Vector3.length(offset) < 1e-9 ? 0 : 1 - Vector3.dot(Vector3.normalize(offset), side);
-      const effort: number =
-        clinicalDeviation({ flexion: u.flexion ?? 0, abduction: u.abduction ?? 0, twist: u.twist ?? 0 }) +
-        clinicalDeviation({ flexion: l.flexion ?? 0, abduction: l.abduction ?? 0, twist: l.twist ?? 0 });
-      return {
-        overshoot: jointRomOvershoot(u, prepared.upperDomain.constraint) + jointRomOvershoot(l, prepared.lowerDomain.constraint),
-        deviation: (turn === null ? 0 : turn(upper, lower)) + 2 * away + apart(Quaternion.normalize(upper), before[0]) + apart(Quaternion.normalize(lower), before[1]) + 1e-9 * effort,
-      };
-    },
-  });
+  const before: [IAutoMovieQuaternion | null, IAutoMovieQuaternion | null] = [
+    previous(props.chain.upper),
+    previous(props.chain.lower),
+  ];
+  const apart = (
+    a: IAutoMovieQuaternion,
+    b: IAutoMovieQuaternion | null,
+  ): number =>
+    b === null
+      ? 0
+      : (2 *
+          Math.acos(
+            Math.min(
+              1,
+              Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w),
+            ),
+          ) *
+          180) /
+        Math.PI;
+  const solved: ReturnType<typeof hingedArmArticulation> =
+    hingedArmArticulation({
+      upper: prepared.upper,
+      midOffset: prepared.lowerOffset,
+      midRest: prepared.lowerRotation,
+      endOffset: prepared.effectorOffset,
+      hinge: axes.flexion,
+      target: props.target,
+      score: (
+        upper: IAutoMovieQuaternion,
+        lower: IAutoMovieQuaternion,
+      ): { overshoot: number; deviation: number } => {
+        const [u, l] = joints(upper, lower);
+        const mid: IAutoMovieVector3 = Vector3.add(
+          root,
+          Quaternion.rotateVector(
+            Quaternion.multiply(prepared.upper.worldRotation, upper),
+            prepared.lowerOffset,
+          ),
+        );
+        const offset: IAutoMovieVector3 = across(mid);
+        const away: number =
+          side === null || Vector3.length(offset) < 1e-9
+            ? 0
+            : 1 - Vector3.dot(Vector3.normalize(offset), side);
+        const effort: number =
+          clinicalDeviation({
+            flexion: u.flexion ?? 0,
+            abduction: u.abduction ?? 0,
+            twist: u.twist ?? 0,
+          }) +
+          clinicalDeviation({
+            flexion: l.flexion ?? 0,
+            abduction: l.abduction ?? 0,
+            twist: l.twist ?? 0,
+          });
+        return {
+          overshoot:
+            jointRomOvershoot(u, prepared.upperDomain.constraint) +
+            jointRomOvershoot(l, prepared.lowerDomain.constraint),
+          deviation:
+            (turn === null ? 0 : turn(upper, lower)) +
+            2 * away +
+            apart(Quaternion.normalize(upper), before[0]) +
+            apart(Quaternion.normalize(lower), before[1]) +
+            1e-9 * effort,
+        };
+      },
+    });
   if (solved === null) return null;
   const [upper, lower] = joints(solved.upper, solved.lower);
   return { hinge: prepared.hinge, upper, lower };
@@ -137,23 +220,85 @@ export namespace fitHingedChainCandidate {
     rotation: IAutoMovieQuaternion,
   ): (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => number {
     const effector: AutoMovieHumanoidBone = props.chain.effector;
-    const rest: IAutoMovieQuaternion = props.skeleton.bones.find((b): boolean => b.bone === effector)?.rest.rotation ?? Quaternion.identity();
-    const effectorAxes: IAutoMovieJointAxes | undefined = props.jointAxes?.[effector];
+    const rest: IAutoMovieQuaternion =
+      props.skeleton.bones.find((b): boolean => b.bone === effector)?.rest
+        .rotation ?? Quaternion.identity();
+    const effectorAxes: IAutoMovieJointAxes | undefined =
+      props.jointAxes?.[effector];
     const twistAxis: IAutoMovieVector3 = Vector3.normalize(axes.twist);
-    const clamped = (bone: AutoMovieHumanoidBone, q: IAutoMovieQuaternion, boneAxes: IAutoMovieJointAxes | undefined, domain?: Parameters<typeof decomposeJointRotation>[3]): IAutoMovieQuaternion => {
-      const a: ReturnType<typeof decomposeJointRotation> = decomposeJointRotation(q, boneAxes, props.restFrames?.[bone], domain);
-      return jointToQuaternion(clampJointToSkeleton({ bone, flexion: a.flexion, abduction: a.abduction, twist: a.twist }, props.skeleton), boneAxes, props.restFrames?.[bone]);
+    const clamped = (
+      bone: AutoMovieHumanoidBone,
+      q: IAutoMovieQuaternion,
+      boneAxes: IAutoMovieJointAxes | undefined,
+      domain?: Parameters<typeof decomposeJointRotation>[3],
+    ): IAutoMovieQuaternion => {
+      const a: ReturnType<typeof decomposeJointRotation> =
+        decomposeJointRotation(q, boneAxes, props.restFrames?.[bone], domain);
+      return jointToQuaternion(
+        clampJointToSkeleton(
+          { bone, flexion: a.flexion, abduction: a.abduction, twist: a.twist },
+          props.skeleton,
+        ),
+        boneAxes,
+        props.restFrames?.[bone],
+      );
     };
-    return (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion): number => {
-      const above: IAutoMovieQuaternion = Quaternion.multiply(Quaternion.multiply(prepared.upper.worldRotation, upper), prepared.lowerRotation);
-      const needed: IAutoMovieQuaternion = Quaternion.normalize(Quaternion.multiply(Quaternion.inverse(Quaternion.multiply(above, lower)), rotation));
-      const along: number = needed.x * twistAxis.x + needed.y * twistAxis.y + needed.z * twistAxis.z;
+    return (
+      upper: IAutoMovieQuaternion,
+      lower: IAutoMovieQuaternion,
+    ): number => {
+      const above: IAutoMovieQuaternion = Quaternion.multiply(
+        Quaternion.multiply(prepared.upper.worldRotation, upper),
+        prepared.lowerRotation,
+      );
+      const needed: IAutoMovieQuaternion = Quaternion.normalize(
+        Quaternion.multiply(
+          Quaternion.inverse(Quaternion.multiply(above, lower)),
+          rotation,
+        ),
+      );
+      const along: number =
+        needed.x * twistAxis.x +
+        needed.y * twistAxis.y +
+        needed.z * twistAxis.z;
       const length: number = Math.hypot(along, needed.w);
-      const twist: IAutoMovieQuaternion = length < 1e-12 ? Quaternion.identity() : { x: (twistAxis.x * along) / length, y: (twistAxis.y * along) / length, z: (twistAxis.z * along) / length, w: needed.w / length };
-      const mid: IAutoMovieQuaternion = Quaternion.multiply(above, clamped(props.chain.lower, Quaternion.multiply(lower, twist), axes, prepared.lowerDomain));
-      const local: IAutoMovieQuaternion = Quaternion.normalize(Quaternion.multiply(Quaternion.inverse(rest), Quaternion.multiply(Quaternion.inverse(mid), rotation)));
-      const shown: IAutoMovieQuaternion = Quaternion.multiply(Quaternion.multiply(mid, rest), clamped(effector, local, effectorAxes));
-      const dot: number = Math.min(1, Math.abs(shown.x * rotation.x + shown.y * rotation.y + shown.z * rotation.z + shown.w * rotation.w));
+      const twist: IAutoMovieQuaternion =
+        length < 1e-12
+          ? Quaternion.identity()
+          : {
+              x: (twistAxis.x * along) / length,
+              y: (twistAxis.y * along) / length,
+              z: (twistAxis.z * along) / length,
+              w: needed.w / length,
+            };
+      const mid: IAutoMovieQuaternion = Quaternion.multiply(
+        above,
+        clamped(
+          props.chain.lower,
+          Quaternion.multiply(lower, twist),
+          axes,
+          prepared.lowerDomain,
+        ),
+      );
+      const local: IAutoMovieQuaternion = Quaternion.normalize(
+        Quaternion.multiply(
+          Quaternion.inverse(rest),
+          Quaternion.multiply(Quaternion.inverse(mid), rotation),
+        ),
+      );
+      const shown: IAutoMovieQuaternion = Quaternion.multiply(
+        Quaternion.multiply(mid, rest),
+        clamped(effector, local, effectorAxes),
+      );
+      const dot: number = Math.min(
+        1,
+        Math.abs(
+          shown.x * rotation.x +
+            shown.y * rotation.y +
+            shown.z * rotation.z +
+            shown.w * rotation.w,
+        ),
+      );
       return (2 * Math.acos(dot) * 180) / Math.PI;
     };
   }

@@ -33,8 +33,13 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 scenarios and what each pins.
  */
 export function test_motion_striking_reach(): void {
-  const near = (a: IAutoMovieVector3, b: IAutoMovieVector3, e: number = 1e-9): boolean => Vector3.length(Vector3.subtract(a, b)) <= e;
-  const len = (a: IAutoMovieVector3, b: IAutoMovieVector3): number => Vector3.length(Vector3.subtract(a, b));
+  const near = (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+    e: number = 1e-9,
+  ): boolean => Vector3.length(Vector3.subtract(a, b)) <= e;
+  const len = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+    Vector3.length(Vector3.subtract(a, b));
   const root: IAutoMovieVector3 = { x: 0.1, y: 0.9, z: 0 };
   const base: Omit<StrikingReach.IChain, "point"> = {
     root,
@@ -46,35 +51,71 @@ export function test_motion_striking_reach(): void {
     slide: true,
   };
   const dir: IAutoMovieVector3 = Vector3.normalize({ x: 0.3, y: -0.1, z: 1 });
-  const across = (v: IAutoMovieVector3): IAutoMovieVector3 => Vector3.subtract(v, Vector3.scale(dir, Vector3.dot(v, dir)));
-  const bendSide = (middle: IAutoMovieVector3): number => Vector3.dot(across(Vector3.subtract(middle, root)), across(base.bend));
+  const across = (v: IAutoMovieVector3): IAutoMovieVector3 =>
+    Vector3.subtract(v, Vector3.scale(dir, Vector3.dot(v, dir)));
+  const bendSide = (middle: IAutoMovieVector3): number =>
+    Vector3.dot(across(Vector3.subtract(middle, root)), across(base.bend));
 
-  const at30: IAutoMovieVector3 = Vector3.add(root, Vector3.scale(dir, StrikingReach.reach(0.45, 0.3, 30)));
-  const r: StrikingReach.ISolution = StrikingReach.chain({ ...base, point: at30 });
+  const at30: IAutoMovieVector3 = Vector3.add(
+    root,
+    Vector3.scale(dir, StrikingReach.reach(0.45, 0.3, 30)),
+  );
+  const r: StrikingReach.ISolution = StrikingReach.chain({
+    ...base,
+    point: at30,
+  });
   TestValidator.predicate(
     "reached exactly",
-    r.status === "reached" && near(r.point, at30) && Math.abs(len(r.middle, root) - 0.45) < 1e-9 && Math.abs(len(r.point, r.middle) - 0.3) < 1e-9 &&
-      Math.abs(len(r.end, r.middle) - 0.42) < 1e-9 && Math.abs(r.flexion - 30) < 1e-6 && bendSide(r.middle) > 0,
+    r.status === "reached" &&
+      near(r.point, at30) &&
+      Math.abs(len(r.middle, root) - 0.45) < 1e-9 &&
+      Math.abs(len(r.point, r.middle) - 0.3) < 1e-9 &&
+      Math.abs(len(r.end, r.middle) - 0.42) < 1e-9 &&
+      Math.abs(r.flexion - 30) < 1e-6 &&
+      bendSide(r.middle) > 0,
   );
 
-  const far: IAutoMovieVector3 = Vector3.add(root, Vector3.scale(dir, 2 * StrikingReach.reach(0.45, 0.3, 5)));
-  const s: StrikingReach.ISolution = StrikingReach.chain({ ...base, point: far });
+  const far: IAutoMovieVector3 = Vector3.add(
+    root,
+    Vector3.scale(dir, 2 * StrikingReach.reach(0.45, 0.3, 5)),
+  );
+  const s: StrikingReach.ISolution = StrikingReach.chain({
+    ...base,
+    point: far,
+  });
   const longest: number = StrikingReach.reach(0.45, 0.3, 5);
   TestValidator.predicate(
     "short at maximum reach along the line",
-    s.status === "short" && Math.abs(s.gap - longest) < 1e-9 && near(s.point, Vector3.add(root, Vector3.scale(dir, longest))) && Math.abs(s.flexion - 5) < 1e-6,
+    s.status === "short" &&
+      Math.abs(s.gap - longest) < 1e-9 &&
+      near(s.point, Vector3.add(root, Vector3.scale(dir, longest))) &&
+      Math.abs(s.flexion - 5) < 1e-6,
   );
 
   const close: IAutoMovieVector3 = Vector3.add(root, Vector3.scale(dir, 0.55));
-  const j: StrikingReach.ISolution = StrikingReach.chain({ ...base, point: close });
+  const j: StrikingReach.ISolution = StrikingReach.chain({
+    ...base,
+    point: close,
+  });
   TestValidator.predicate(
     "jammed slides the contact",
-    j.status === "jammed" && near(j.point, close, 1e-9) && Math.abs(j.flexion - 40) < 1e-6 && j.along < 0.3 && Math.abs(len(j.point, j.middle) - j.along) < 1e-9,
+    j.status === "jammed" &&
+      near(j.point, close, 1e-9) &&
+      Math.abs(j.flexion - 40) < 1e-6 &&
+      j.along < 0.3 &&
+      Math.abs(len(j.point, j.middle) - j.along) < 1e-9,
   );
-  const rigid: StrikingReach.ISolution = StrikingReach.chain({ ...base, point: close, slide: false });
+  const rigid: StrikingReach.ISolution = StrikingReach.chain({
+    ...base,
+    point: close,
+    slide: false,
+  });
   TestValidator.predicate(
     "jammed rigid flexes past the band",
-    rigid.status === "jammed" && near(rigid.point, close, 1e-9) && rigid.flexion > 40 && rigid.flexion <= StrikingReach.JAM_FLEXION + 1e-6,
+    rigid.status === "jammed" &&
+      near(rigid.point, close, 1e-9) &&
+      rigid.flexion > 40 &&
+      rigid.flexion <= StrikingReach.JAM_FLEXION + 1e-6,
   );
 
   const k: number = 1.3;
@@ -86,11 +127,34 @@ export function test_motion_striking_reach(): void {
     along: 0.3 * k,
     lower: 0.42 * k,
   });
-  TestValidator.predicate("stature scaling", near(scaled.middle, Vector3.scale(r.middle, k), 1e-9) && Math.abs(scaled.flexion - r.flexion) < 1e-6);
-  const mirror = (v: IAutoMovieVector3): IAutoMovieVector3 => ({ x: -v.x, y: v.y, z: v.z });
-  const mirrored: StrikingReach.ISolution = StrikingReach.chain({ ...base, root: mirror(root), point: mirror(at30) });
-  TestValidator.predicate("mirror", near(mirrored.middle, mirror(r.middle), 1e-9) && near(mirrored.end, mirror(r.end), 1e-9));
+  TestValidator.predicate(
+    "stature scaling",
+    near(scaled.middle, Vector3.scale(r.middle, k), 1e-9) &&
+      Math.abs(scaled.flexion - r.flexion) < 1e-6,
+  );
+  const mirror = (v: IAutoMovieVector3): IAutoMovieVector3 => ({
+    x: -v.x,
+    y: v.y,
+    z: v.z,
+  });
+  const mirrored: StrikingReach.ISolution = StrikingReach.chain({
+    ...base,
+    root: mirror(root),
+    point: mirror(at30),
+  });
+  TestValidator.predicate(
+    "mirror",
+    near(mirrored.middle, mirror(r.middle), 1e-9) &&
+      near(mirrored.end, mirror(r.end), 1e-9),
+  );
 
-  TestValidator.predicate("advance clamps", StrikingReach.advance(2, 0.5, 0.4) === 0.4 && StrikingReach.advance(0, 0.5, 0.4) === -0.4 && Math.abs(StrikingReach.advance(0.7, 0.5, 0.4) - 0.2) < 1e-12);
-  TestValidator.error("target at the root", (): unknown => StrikingReach.chain({ ...base, point: root }));
+  TestValidator.predicate(
+    "advance clamps",
+    StrikingReach.advance(2, 0.5, 0.4) === 0.4 &&
+      StrikingReach.advance(0, 0.5, 0.4) === -0.4 &&
+      Math.abs(StrikingReach.advance(0.7, 0.5, 0.4) - 0.2) < 1e-12,
+  );
+  TestValidator.error("target at the root", (): unknown =>
+    StrikingReach.chain({ ...base, point: root }),
+  );
 }

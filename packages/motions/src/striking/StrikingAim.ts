@@ -77,7 +77,8 @@ export namespace StrikingAim {
    * @returns Film seconds, ascending, the launch first.
    */
   export function observations(timing: ITiming): number[] {
-    if (!(timing.impact > timing.launch)) throw new Error("A strike's contact comes after its launch");
+    if (!(timing.impact > timing.launch))
+      throw new Error("A strike's contact comes after its launch");
     const last: number = timing.impact - timing.latency - timing.shortest;
     const out: number[] = [timing.launch];
     for (let k: number = 1; ; k++) {
@@ -99,11 +100,22 @@ export namespace StrikingAim {
    * @param step The difference step, seconds.
    * @returns World metres.
    */
-  export function predict(aim: (seconds: number) => IAutoMovieVector3, seconds: number, impact: number, step: number): IAutoMovieVector3 {
+  export function predict(
+    aim: (seconds: number) => IAutoMovieVector3,
+    seconds: number,
+    impact: number,
+    step: number,
+  ): IAutoMovieVector3 {
     const now: IAutoMovieVector3 = aim(seconds);
     const before: IAutoMovieVector3 = aim(seconds - step);
-    const velocity: IAutoMovieVector3 = Vector3.scale(Vector3.subtract(now, before), 1 / step);
-    return Vector3.add(now, Vector3.scale(velocity, Math.max(0, impact - seconds)));
+    const velocity: IAutoMovieVector3 = Vector3.scale(
+      Vector3.subtract(now, before),
+      1 / step,
+    );
+    return Vector3.add(
+      now,
+      Vector3.scale(velocity, Math.max(0, impact - seconds)),
+    );
   }
 
   /**
@@ -114,13 +126,20 @@ export namespace StrikingAim {
    * @param offset A fixed offset added to every prediction (the declared accuracy and the seeded scatter), world metres.
    * @returns The tracker, memoising each observation.
    */
-  export function track(aim: (seconds: number) => IAutoMovieVector3, timing: ITiming, offset: IAutoMovieVector3): ITracker {
+  export function track(
+    aim: (seconds: number) => IAutoMovieVector3,
+    timing: ITiming,
+    offset: IAutoMovieVector3,
+  ): ITracker {
     const times: number[] = observations(timing);
     const predictions: Map<number, IAutoMovieVector3> = new Map();
     const prediction = (k: number): IAutoMovieVector3 => {
       let p: IAutoMovieVector3 | undefined = predictions.get(k);
       if (p === undefined) {
-        p = Vector3.add(predict(aim, times[k]!, timing.impact, timing.step), offset);
+        p = Vector3.add(
+          predict(aim, times[k]!, timing.impact, timing.step),
+          offset,
+        );
         predictions.set(k, p);
       }
       return p;
@@ -131,7 +150,11 @@ export namespace StrikingAim {
       for (let k: number = 1; k < times.length; k++) {
         const start: number = times[k]! + timing.latency;
         if (start > seconds) break;
-        out.push({ displacement: Vector3.subtract(prediction(k), prediction(k - 1)), start, duration: timing.impact - start });
+        out.push({
+          displacement: Vector3.subtract(prediction(k), prediction(k - 1)),
+          start,
+          duration: timing.impact - start,
+        });
       }
       return out;
     };
@@ -139,7 +162,13 @@ export namespace StrikingAim {
       planned,
       units,
       goal: (seconds: number): IAutoMovieVector3 =>
-        units(seconds).reduce((g: IAutoMovieVector3, u: superposeMinimumJerk.IUnit): IAutoMovieVector3 => Vector3.add(g, u.displacement), planned),
+        units(seconds).reduce(
+          (
+            g: IAutoMovieVector3,
+            u: superposeMinimumJerk.IUnit,
+          ): IAutoMovieVector3 => Vector3.add(g, u.displacement),
+          planned,
+        ),
     };
   }
 }

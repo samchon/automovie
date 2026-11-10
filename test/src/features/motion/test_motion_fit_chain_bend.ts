@@ -1,4 +1,9 @@
-import { type IAutoMovieResolvedBone, fitChainToTarget, indexSkeletonTopology, resolvePose } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  fitChainToTarget,
+  indexSkeletonTopology,
+  resolvePose,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -40,10 +45,18 @@ export function test_motion_fit_chain_bend(): void {
     abduction: { min: -180, max: 180 },
     twist: { min: -180, max: 180 },
   };
-  const bone = (b: AutoMovieHumanoidBone, parent: AutoMovieHumanoidBone | null, t: IAutoMovieVector3): IAutoMovieBone => ({
+  const bone = (
+    b: AutoMovieHumanoidBone,
+    parent: AutoMovieHumanoidBone | null,
+    t: IAutoMovieVector3,
+  ): IAutoMovieBone => ({
     bone: b,
     parent,
-    rest: { translation: t, rotation: { x: 0, y: 0, z: 0, w: 1 }, scale: { x: 1, y: 1, z: 1 } },
+    rest: {
+      translation: t,
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      scale: { x: 1, y: 1, z: 1 },
+    },
     constraint: free,
   });
   const skeleton: IAutoMovieSkeleton = {
@@ -57,14 +70,24 @@ export function test_motion_fit_chain_bend(): void {
   };
   const topology = indexSkeletonTopology(skeleton);
   const pose: IAutoMoviePose = { skeleton: "chain", root: null, joints: [] };
-  const fk = (p: IAutoMoviePose): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+  const fk = (
+    p: IAutoMoviePose,
+  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     new Map(resolvePose(p, skeleton, {}, {}).map((r) => [r.bone, r]));
-  const fit = (target: IAutoMovieVector3, bend?: IAutoMovieVector3, effectorRotation?: IAutoMovieQuaternion) =>
+  const fit = (
+    target: IAutoMovieVector3,
+    bend?: IAutoMovieVector3,
+    effectorRotation?: IAutoMovieQuaternion,
+  ) =>
     fk(
       fitChainToTarget({
         skeleton,
         pose,
-        chain: { upper: "leftUpperLeg", lower: "leftLowerLeg", effector: "leftFoot" },
+        chain: {
+          upper: "leftUpperLeg",
+          lower: "leftLowerLeg",
+          effector: "leftFoot",
+        },
         target,
         topology,
         jointAxes: {},
@@ -74,12 +97,24 @@ export function test_motion_fit_chain_bend(): void {
       }),
     );
   const root: IAutoMovieVector3 = { x: 0.1, y: 1, z: 0 };
-  const dist = (a: IAutoMovieVector3, b: IAutoMovieVector3): number => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
-  const side = (bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, target: IAutoMovieVector3): IAutoMovieVector3 => {
+  const dist = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+    Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+  const side = (
+    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    target: IAutoMovieVector3,
+  ): IAutoMovieVector3 => {
     const m: IAutoMovieVector3 = bones.get("leftLowerLeg")!.worldPosition;
-    const d: IAutoMovieVector3 = { x: target.x - root.x, y: target.y - root.y, z: target.z - root.z };
+    const d: IAutoMovieVector3 = {
+      x: target.x - root.x,
+      y: target.y - root.y,
+      z: target.z - root.z,
+    };
     const n: number = Math.hypot(d.x, d.y, d.z);
-    const r: IAutoMovieVector3 = { x: m.x - root.x, y: m.y - root.y, z: m.z - root.z };
+    const r: IAutoMovieVector3 = {
+      x: m.x - root.x,
+      y: m.y - root.y,
+      z: m.z - root.z,
+    };
     const k: number = (r.x * d.x + r.y * d.y + r.z * d.z) / (n * n);
     return { x: r.x - k * d.x, y: r.y - k * d.y, z: r.z - k * d.z };
   };
@@ -90,16 +125,47 @@ export function test_motion_fit_chain_bend(): void {
     ["ahead", { x: 0.1, y: 0.75, z: 1.2 }, "z", 1],
   ] as const) {
     const bones = fit(target, hint);
-    TestValidator.predicate(`${label} hint reaches`, dist(bones.get("leftFoot")!.worldPosition, target) < 1e-3);
-    TestValidator.predicate(`${label} hint decides the side`, sign * side(bones, target)[axis] > 0.05);
+    TestValidator.predicate(
+      `${label} hint reaches`,
+      dist(bones.get("leftFoot")!.worldPosition, target) < 1e-3,
+    );
+    TestValidator.predicate(
+      `${label} hint decides the side`,
+      sign * side(bones, target)[axis] > 0.05,
+    );
   }
-  const mirrored = fit({ x: 0.1, y: 0.5, z: 0.35 }, { x: 0.1 - 1, y: 0.75, z: 0.2 });
+  const mirrored = fit(
+    { x: 0.1, y: 0.5, z: 0.35 },
+    { x: 0.1 - 1, y: 0.75, z: 0.2 },
+  );
   const direct = fit(target, { x: 0.1 + 1, y: 0.75, z: 0.2 });
   const a: IAutoMovieVector3 = direct.get("leftLowerLeg")!.worldPosition;
   const b: IAutoMovieVector3 = mirrored.get("leftLowerLeg")!.worldPosition;
-  TestValidator.predicate("mirrored hint mirrors the middle joint", Math.abs(a.x - 0.1 + (b.x - 0.1)) < 1e-6 && Math.abs(a.y - b.y) < 1e-6 && Math.abs(a.z - b.z) < 1e-6);
-  const turn: IAutoMovieQuaternion = { x: 0, y: Math.sin(Math.PI / 12), z: 0, w: Math.cos(Math.PI / 12) };
-  const q: IAutoMovieQuaternion = fit(target, { x: 0.1, y: 0.75, z: 1.2 }, turn).get("leftFoot")!.worldRotation;
-  TestValidator.predicate(`effector rotation met (${JSON.stringify(q)})`, Math.abs(Math.abs(q.x * turn.x + q.y * turn.y + q.z * turn.z + q.w * turn.w) - 1) < 1e-6);
-  TestValidator.predicate("hint-free search reaches", dist(fit(target).get("leftFoot")!.worldPosition, target) < 1e-3);
+  TestValidator.predicate(
+    "mirrored hint mirrors the middle joint",
+    Math.abs(a.x - 0.1 + (b.x - 0.1)) < 1e-6 &&
+      Math.abs(a.y - b.y) < 1e-6 &&
+      Math.abs(a.z - b.z) < 1e-6,
+  );
+  const turn: IAutoMovieQuaternion = {
+    x: 0,
+    y: Math.sin(Math.PI / 12),
+    z: 0,
+    w: Math.cos(Math.PI / 12),
+  };
+  const q: IAutoMovieQuaternion = fit(
+    target,
+    { x: 0.1, y: 0.75, z: 1.2 },
+    turn,
+  ).get("leftFoot")!.worldRotation;
+  TestValidator.predicate(
+    `effector rotation met (${JSON.stringify(q)})`,
+    Math.abs(
+      Math.abs(q.x * turn.x + q.y * turn.y + q.z * turn.z + q.w * turn.w) - 1,
+    ) < 1e-6,
+  );
+  TestValidator.predicate(
+    "hint-free search reaches",
+    dist(fit(target).get("leftFoot")!.worldPosition, target) < 1e-3,
+  );
 }

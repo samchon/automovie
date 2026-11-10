@@ -1,6 +1,5 @@
-import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
-
 import type { AutoMovieHumanCanonicalBody } from "@automovie/human";
+import type { IAutoMoviePose, IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * One capture of the motion harness: who is drawn, at which instants, with
@@ -36,10 +35,17 @@ export interface IMotionCaptureCase {
   targets?: { at: IAutoMovieVector3; radius: number; color: number }[];
 
   /** Points coloured by drift, metres, against a limit, metres. */
-  drift?: { samples: { at: IAutoMovieVector3; drift: number }[]; limit: number }[];
+  drift?: {
+    samples: { at: IAutoMovieVector3; drift: number }[];
+    limit: number;
+  }[];
 
   /** Static boxes, such as a bag, a seat or a step: centre and half extents, metres. */
-  boxes?: { centre: IAutoMovieVector3; half: IAutoMovieVector3; color: number }[];
+  boxes?: {
+    centre: IAutoMovieVector3;
+    half: IAutoMovieVector3;
+    color: number;
+  }[];
 
   /** Numeric checks the run reports; a failed one fails the process. */
   verdicts?: IMotionCaptureCase.IVerdict[];

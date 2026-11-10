@@ -1,6 +1,15 @@
-import { type AutoMovieComposition, type IAutoMovieIntent, checkAutoMovieLegality, resolveAutoMovieSchedule } from "@automovie/engine";
+import {
+  type AutoMovieComposition,
+  type IAutoMovieIntent,
+  checkAutoMovieLegality,
+  resolveAutoMovieSchedule,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { KickboxingRing, KickboxingRules, KnockdownCount } from "@automovie/motions";
+import {
+  KickboxingRing,
+  KickboxingRules,
+  KnockdownCount,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -28,65 +37,166 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and what each pins.
  */
 export function test_motion_striking_kickboxing_rules(): void {
-  const at = (region: string) => ({ at: { kind: "person", subject: "b", region } });
+  const at = (region: string) => ({
+    at: { kind: "person", subject: "b", region },
+  });
   TestValidator.predicate(
     "legal targets",
-    ["face", "ribsLeft", "thighOuterLeft"].every((r: string): boolean => KickboxingRules.foul("punch", at(r)) === null && KickboxingRules.foul("kick", { ...at(r), technique: "round" }) === null),
+    ["face", "ribsLeft", "thighOuterLeft"].every(
+      (r: string): boolean =>
+        KickboxingRules.foul("punch", at(r)) === null &&
+        KickboxingRules.foul("kick", { ...at(r), technique: "round" }) === null,
+    ),
   );
   TestValidator.predicate(
     "foul targets",
-    ["headBack", "upperBack", "throat", "groin"].every((r: string): boolean => KickboxingRules.foul("punch", at(r)) !== null),
+    ["headBack", "upperBack", "throat", "groin"].every(
+      (r: string): boolean => KickboxingRules.foul("punch", at(r)) !== null,
+    ),
   );
   TestValidator.predicate(
     "linear kicks to the legs",
-    KickboxingRules.foul("kick", { ...at("thighFrontLeft"), technique: "push" }) !== null && KickboxingRules.foul("kick", { ...at("abdomen"), technique: "push" }) === null,
+    KickboxingRules.foul("kick", {
+      ...at("thighFrontLeft"),
+      technique: "push",
+    }) !== null &&
+      KickboxingRules.foul("kick", { ...at("abdomen"), technique: "push" }) ===
+        null,
   );
 
-  const intent = (subject: string, capability: string, params: object, anchor?: string): AutoMovieComposition => ({
+  const intent = (
+    subject: string,
+    capability: string,
+    params: object,
+    anchor?: string,
+  ): AutoMovieComposition => ({
     kind: "intent",
-    intent: { subject, capability, parameters: { params }, ...(anchor === undefined ? {} : { anchor }) } satisfies IAutoMovieIntent,
+    intent: {
+      subject,
+      capability,
+      parameters: { params },
+      ...(anchor === undefined ? {} : { anchor }),
+    } satisfies IAutoMovieIntent,
   });
-  const durations: Record<string, number> = { knockdown: 2, punch: 0.6, stand: 1, guard: 1 };
+  const durations: Record<string, number> = {
+    knockdown: 2,
+    punch: 0.6,
+    stand: 1,
+    guard: 1,
+  };
   const verdicts = (strikeAt: number): number => {
     const composition: AutoMovieComposition = {
       kind: "parallel",
       parts: [
-        { kind: "sequence", parts: [intent("b", "guard", {}), intent("b", "knockdown", {}), intent("b", "guard", {})] },
-        { kind: "sequence", parts: [intent("a", "stand", { seconds: strikeAt }), intent("a", "punch", at("face"))] },
+        {
+          kind: "sequence",
+          parts: [
+            intent("b", "guard", {}),
+            intent("b", "knockdown", {}),
+            intent("b", "guard", {}),
+          ],
+        },
+        {
+          kind: "sequence",
+          parts: [
+            intent("a", "stand", { seconds: strikeAt }),
+            intent("a", "punch", at("face")),
+          ],
+        },
       ],
     };
     const schedule = resolveAutoMovieSchedule(composition, {
-      timing: (i: IAutoMovieIntent) => ({ duration: i.capability === "stand" ? ((i.parameters?.params as { seconds: number }).seconds) : durations[i.capability]! }),
+      timing: (i: IAutoMovieIntent) => ({
+        duration:
+          i.capability === "stand"
+            ? (i.parameters?.params as { seconds: number }).seconds
+            : durations[i.capability]!,
+      }),
     });
     return checkAutoMovieLegality(schedule, KickboxingRules.rules).length;
   };
-  TestValidator.predicate("a strike at the downed opponent is flagged once", verdicts(1.5) === 1);
-  TestValidator.predicate("strikes before or after the knockdown are not", verdicts(0.5) === 0 && verdicts(3.5) === 0);
+  TestValidator.predicate(
+    "a strike at the downed opponent is flagged once",
+    verdicts(1.5) === 1,
+  );
+  TestValidator.predicate(
+    "strikes before or after the knockdown are not",
+    verdicts(0.5) === 0 && verdicts(3.5) === 0,
+  );
   const knees = (gap: boolean): number => {
-    const parts: AutoMovieComposition[] = [intent("a", "knee", at("abdomen")), ...(gap ? [intent("a", "stand", { seconds: 1 })] : []), intent("a", "punch", at("face"))];
-    const schedule = resolveAutoMovieSchedule({ kind: "sequence", parts }, {
-      timing: (i: IAutoMovieIntent) => ({ duration: i.capability === "stand" ? 1 : 0.8 }),
-    });
-    return checkAutoMovieLegality(schedule, KickboxingRules.rules).filter((v) => v.rule === "single-clinch-knee").length;
+    const parts: AutoMovieComposition[] = [
+      intent("a", "knee", at("abdomen")),
+      ...(gap ? [intent("a", "stand", { seconds: 1 })] : []),
+      intent("a", "punch", at("face")),
+    ];
+    const schedule = resolveAutoMovieSchedule(
+      { kind: "sequence", parts },
+      {
+        timing: (i: IAutoMovieIntent) => ({
+          duration: i.capability === "stand" ? 1 : 0.8,
+        }),
+      },
+    );
+    return checkAutoMovieLegality(schedule, KickboxingRules.rules).filter(
+      (v) => v.rule === "single-clinch-knee",
+    ).length;
   };
-  TestValidator.predicate("a knee chained to a punch keeps the clinch; a disengaged one does not", knees(false) === 1 && knees(true) === 0);
+  TestValidator.predicate(
+    "a knee chained to a punch keeps the clinch; a disengaged one does not",
+    knees(false) === 1 && knees(true) === 0,
+  );
 
-  const ring: KickboxingRing.IRing = { centre: { x: 1, y: 0, z: 2 }, size: 6, yaw: 30 };
-  const near = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z) < 1e-9;
+  const ring: KickboxingRing.IRing = {
+    centre: { x: 1, y: 0, z: 2 },
+    size: 6,
+    yaw: 30,
+  };
+  const near = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
+    Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z) < 1e-9;
   const blue: IAutoMovieVector3 = KickboxingRing.corner(ring, "blue", 0.5);
   const r: number = (30 * Math.PI) / 180;
   TestValidator.predicate(
     "corner a margin inside",
-    near(blue, { x: 1 + 2.5 * Math.cos(r) + 2.5 * Math.sin(r), y: 0, z: 2 - 2.5 * Math.sin(r) + 2.5 * Math.cos(r) }) && KickboxingRing.inside(ring, blue, 0.5) && !KickboxingRing.inside(ring, blue, 0.6),
+    near(blue, {
+      x: 1 + 2.5 * Math.cos(r) + 2.5 * Math.sin(r),
+      y: 0,
+      z: 2 - 2.5 * Math.sin(r) + 2.5 * Math.cos(r),
+    }) &&
+      KickboxingRing.inside(ring, blue, 0.5) &&
+      !KickboxingRing.inside(ring, blue, 0.6),
   );
   const outside: IAutoMovieVector3 = { x: 20, y: 0, z: 2 };
   const clamped: IAutoMovieVector3 = KickboxingRing.clamp(ring, outside, 0.4);
-  TestValidator.predicate("clamp onto the margin", !KickboxingRing.inside(ring, outside) && KickboxingRing.inside(ring, clamped, 0.4) && !KickboxingRing.inside(ring, clamped, 0.41));
-  TestValidator.predicate("inside points stay", near(KickboxingRing.clamp(ring, { x: 1.5, y: 0, z: 2.2 }, 0.4), { x: 1.5, y: 0, z: 2.2 }));
+  TestValidator.predicate(
+    "clamp onto the margin",
+    !KickboxingRing.inside(ring, outside) &&
+      KickboxingRing.inside(ring, clamped, 0.4) &&
+      !KickboxingRing.inside(ring, clamped, 0.41),
+  );
+  TestValidator.predicate(
+    "inside points stay",
+    near(KickboxingRing.clamp(ring, { x: 1.5, y: 0, z: 2.2 }, 0.4), {
+      x: 1.5,
+      y: 0,
+      z: 2.2,
+    }),
+  );
 
-  TestValidator.predicate("count numbers", KnockdownCount.number(157, 3) === 160 && KnockdownCount.number(157, KnockdownCount.TEN) === 167);
+  TestValidator.predicate(
+    "count numbers",
+    KnockdownCount.number(157, 3) === 160 &&
+      KnockdownCount.number(157, KnockdownCount.TEN) === 167,
+  );
   TestValidator.error("count zero", (): unknown => KnockdownCount.number(0, 0));
-  TestValidator.error("count eleven", (): unknown => KnockdownCount.number(0, 11));
+  TestValidator.error("count eleven", (): unknown =>
+    KnockdownCount.number(0, 11),
+  );
   const fallen: IAutoMovieVector3 = KickboxingRing.corner(ring, "neutralA", 1);
-  TestValidator.predicate("farther neutral corner", near(KnockdownCount.corner(ring, fallen, 0.5), KickboxingRing.corner(ring, "neutralB", 0.5)));
+  TestValidator.predicate(
+    "farther neutral corner",
+    near(
+      KnockdownCount.corner(ring, fallen, 0.5),
+      KickboxingRing.corner(ring, "neutralB", 0.5),
+    ),
+  );
 }

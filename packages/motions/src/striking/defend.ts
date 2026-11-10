@@ -1,5 +1,11 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieMotionEvent, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionEvent,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -65,14 +71,26 @@ export namespace defend {
 
   /** Cancel table: a defence flows into a counter punch or another defence once the strike has passed. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
-    punch: [{ window: ["contact", 1], kind: "inertialize", entry: 0, blend: 0.12 }],
-    defend: [{ window: ["contact", 1], kind: "inertialize", entry: 0, blend: 0.12 }],
+    punch: [
+      { window: ["contact", 1], kind: "inertialize", entry: 0, blend: 0.12 },
+    ],
+    defend: [
+      { window: ["contact", 1], kind: "inertialize", entry: 0, blend: 0.12 },
+    ],
   };
 
   /** Parameters. */
   export interface IParams {
     /** The defence. */
-    kind: "cover" | "parry" | "elbowBlock" | "highBlock" | "slip" | "roll" | "sway" | "check";
+    kind:
+      | "cover"
+      | "parry"
+      | "elbowBlock"
+      | "highBlock"
+      | "slip"
+      | "roll"
+      | "sway"
+      | "check";
 
     /** The anchor of the strike it answers. */
     against: string;
@@ -92,16 +110,20 @@ export namespace defend {
    * @returns The telegraph.
    */
   export function telegraph(attack: IHumanActionContext.IPlaced): number {
-    if (attack.name === "kick") return (attack.params as kick.IParams).technique === "round" ? 1 : 0.8;
+    if (attack.name === "kick")
+      return (attack.params as kick.IParams).technique === "round" ? 1 : 0.8;
     if (attack.name === "punch") {
       const p: punch.IParams = attack.params as punch.IParams;
-      return p.technique === "straight" && (p.hand ?? "lead") === "lead" ? 0.4 : 0.6;
+      return p.technique === "straight" && (p.hand ?? "lead") === "lead"
+        ? 0.4
+        : 0.6;
     }
     return 0.8;
   }
 
   /** Every planned defence's decision, for audits. */
-  const DECISIONS: WeakMap<IHumanActionPlan, DefenceOutcome.IDecision> = new WeakMap();
+  const DECISIONS: WeakMap<IHumanActionPlan, DefenceOutcome.IDecision> =
+    new WeakMap();
 
   /**
    * The outcome decision of a planned defence.
@@ -109,7 +131,9 @@ export namespace defend {
    * @param plan A defence's plan.
    * @returns Its decision, or undefined for another action's plan.
    */
-  export function decision(plan: IHumanActionPlan): DefenceOutcome.IDecision | undefined {
+  export function decision(
+    plan: IHumanActionPlan,
+  ): DefenceOutcome.IDecision | undefined {
     return DECISIONS.get(plan);
   }
 
@@ -119,31 +143,63 @@ export namespace defend {
    * @param context The action's context.
    * @returns The plan.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const p: IParams = context.params;
     const attack: IHumanActionContext.IPlaced = context.action(p.against);
 
     // A feint has no contact: the defender bites on its shown peak instead,
     // which is how a defence started too early leaves the real strike open.
-    const shown: number | undefined = attack.plan.events.find((e) => e.name === "shown" || e.name === "chamber")?.share;
-    const decisive: number | undefined = attack.plan.contact ?? (shown === undefined ? undefined : shown * attack.plan.duration);
-    if (decisive === undefined) throw new Error(`${p.against} has no contact or shown peak to defend against`);
-    const at = (attack.params as { at?: { kind: string; subject?: string; region?: AutoMovieHumanoidRegion } }).at;
-    if (at === undefined || at.kind !== "person" || at.subject !== context.subject || at.region === undefined)
+    const shown: number | undefined = attack.plan.events.find(
+      (e) => e.name === "shown" || e.name === "chamber",
+    )?.share;
+    const decisive: number | undefined =
+      attack.plan.contact ??
+      (shown === undefined ? undefined : shown * attack.plan.duration);
+    if (decisive === undefined)
+      throw new Error(
+        `${p.against} has no contact or shown peak to defend against`,
+      );
+    const at = (
+      attack.params as {
+        at?: {
+          kind: string;
+          subject?: string;
+          region?: AutoMovieHumanoidRegion;
+        };
+      }
+    ).at;
+    if (
+      at === undefined ||
+      at.kind !== "person" ||
+      at.subject !== context.subject ||
+      at.region === undefined
+    )
       throw new Error(`${p.against} does not strike ${context.subject}`);
     const region: AutoMovieHumanoidRegion = at.region;
-    const launch: number = attack.start + (attack.plan.events.find((e) => e.name === "launch")?.share ?? 0) * attack.plan.duration;
+    const launch: number =
+      attack.start +
+      (attack.plan.events.find((e) => e.name === "launch")?.share ?? 0) *
+        attack.plan.duration;
     const hit: number = attack.start + decisive;
     const movement: number = StrikingSkill.defence(context.skill);
     const decided: DefenceOutcome.IDecision = DefenceOutcome.decide(
-      { launch, hit, telegraph: telegraph(attack), movement, skill: context.skill },
+      {
+        launch,
+        hit,
+        telegraph: telegraph(attack),
+        movement,
+        skill: context.skill,
+      },
       context.random("defence"),
       p.outcome,
     );
     const begin: number = Math.max(0, decided.start - context.start);
     const contact: number = hit - context.start;
     const hold: number = Math.max(begin + movement, contact + 0.05);
-    const recovery: number = StrikingSkill.HAND_RECOVERY * StrikingSkill.recovery(context.skill);
+    const recovery: number =
+      StrikingSkill.HAND_RECOVERY * StrikingSkill.recovery(context.skill);
     const duration: number = hold + recovery;
     const events: IAutoMovieMotionEvent[] = [
       { name: "read", share: begin / duration },
@@ -151,7 +207,16 @@ export namespace defend {
       { name: "contact", share: Math.min(1, Math.max(0, contact / duration)) },
       { name: "recovered", share: 1 },
     ];
-    const timing: ITiming = { region, attack, begin, movement, hold, recovery, duration, read: Math.max(context.start, decided.start) };
+    const timing: ITiming = {
+      region,
+      attack,
+      begin,
+      movement,
+      hold,
+      recovery,
+      duration,
+      read: Math.max(context.start, decided.start),
+    };
     // Before the read the defender only holds the guard, and nothing reads
     // the attacker: every read of another performer then looks back in time,
     // so two performers reading each other never recurse at one instant.
@@ -159,7 +224,10 @@ export namespace defend {
     let building: boolean = false;
     const geometry = (): IGeometry => {
       if (built !== undefined) return built;
-      if (building) throw new Error(`${context.subject}: the defence against ${p.against} was read back while it was being planned`);
+      if (building)
+        throw new Error(
+          `${context.subject}: the defence against ${p.against} was read back while it was being planned`,
+        );
       building = true;
       try {
         built = build(context, timing);
@@ -169,7 +237,10 @@ export namespace defend {
       return built;
     };
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
-    const contacts: IHumanContactWindow[] = windows(p.kind === "check" ? attacked(region, lead) : undefined, timing);
+    const contacts: IHumanContactWindow[] = windows(
+      p.kind === "check" ? attacked(region, lead) : undefined,
+      timing,
+    );
     const out: IHumanActionPlan = {
       duration,
       events,
@@ -215,61 +286,100 @@ export namespace defend {
   }
 
   /** Build a defence's geometry from what the defender sees at its read second. */
-  function build(context: IHumanActionContext<IParams>, timing: ITiming): IGeometry {
+  function build(
+    context: IHumanActionContext<IParams>,
+    timing: ITiming,
+  ): IGeometry {
     const p: IParams = context.params;
     const body = context.body;
     const m = body.measure;
     const entry: IHumanPosture = context.entry.posture;
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const feet: Record<"left" | "right", HumanFoot.IPlacement> = StrikingTarget.feet(context.entry);
+    const feet: Record<"left" | "right", HumanFoot.IPlacement> =
+      StrikingTarget.feet(context.entry);
 
     // What the defender sees: the attacker's limb moving most toward the
     // struck region, and the line from it to the region.
     const own = StrikingBody.trunk(body, entry);
     const regionAt = StrikingBody.region(body, own, timing.region);
-    const attacker: IHumanActionContext.IPerformer = context.performer(timing.attack.subject);
+    const attacker: IHumanActionContext.IPerformer = context.performer(
+      timing.attack.subject,
+    );
     const now = attacker.bones(timing.read);
     const before = attacker.bones(timing.read - 1 / 24);
     const limbs: AutoMovieHumanoidBone[] =
-      timing.attack.name === "punch" ? ["leftHand", "rightHand"] : timing.attack.name === "kick" ? ["leftFoot", "rightFoot"] : ["leftLowerLeg", "rightLowerLeg"];
+      timing.attack.name === "punch"
+        ? ["leftHand", "rightHand"]
+        : timing.attack.name === "kick"
+          ? ["leftFoot", "rightFoot"]
+          : ["leftLowerLeg", "rightLowerLeg"];
     let weapon: IAutoMovieVector3 = now.get(limbs[0]!)!.worldPosition;
     let best: number = -Infinity;
     for (const bone of limbs) {
       const at: IAutoMovieVector3 = now.get(bone)!.worldPosition;
-      const velocity: IAutoMovieVector3 = Vector3.subtract(at, before.get(bone)!.worldPosition);
-      const toward: number = Vector3.dot(velocity, Vector3.normalize(Vector3.subtract(regionAt.point, at)));
+      const velocity: IAutoMovieVector3 = Vector3.subtract(
+        at,
+        before.get(bone)!.worldPosition,
+      );
+      const toward: number = Vector3.dot(
+        velocity,
+        Vector3.normalize(Vector3.subtract(regionAt.point, at)),
+      );
       if (toward > best) {
         best = toward;
         weapon = at;
       }
     }
-    const incoming: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(regionAt.point, weapon));
-    const across: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(up, incoming));
-    const outside: number = Vector3.dot(Vector3.subtract(weapon, regionAt.point), across) > 0 ? -1 : 1;
+    const incoming: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(regionAt.point, weapon),
+    );
+    const across: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.cross(up, incoming),
+    );
+    const outside: number =
+      Vector3.dot(Vector3.subtract(weapon, regionAt.point), across) > 0
+        ? -1
+        : 1;
     const attackedSide: "left" | "right" = attacked(timing.region, lead);
     const fist: number = StrikingQuality.fist(m.hand);
 
     // The movement's share in, and out again after the strike has passed.
-    const w = (t: number): number => minimumJerk((t - timing.begin) / timing.movement).s - minimumJerk((t - timing.hold) / timing.recovery).s;
+    const w = (t: number): number =>
+      minimumJerk((t - timing.begin) / timing.movement).s -
+      minimumJerk((t - timing.hold) / timing.recovery).s;
 
     // Whole-body evasions: the head's displacement in the trunk's lean and
     // the root's dip and shift.
     const trunkLength: number = m.eyeHeight - m.hipHeight;
     const clear: number = m.headRadius + fist + 0.04;
-    const tilt = (lateral: number): number => (Math.asin(Math.min(0.9, lateral / trunkLength)) * 180) / Math.PI;
+    const tilt = (lateral: number): number =>
+      (Math.asin(Math.min(0.9, lateral / trunkLength)) * 180) / Math.PI;
     let shift: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     let roll: number = 0;
     let pitch: number = 0;
     if (p.kind === "slip") {
-      shift = Vector3.add(Vector3.scale(across, outside * 0.3 * clear), { x: 0, y: -0.02 * m.stature, z: 0 });
-      roll = sideRoll(entry.yaw, Vector3.scale(across, outside)) * tilt(0.7 * clear);
+      shift = Vector3.add(Vector3.scale(across, outside * 0.3 * clear), {
+        x: 0,
+        y: -0.02 * m.stature,
+        z: 0,
+      });
+      roll =
+        sideRoll(entry.yaw, Vector3.scale(across, outside)) * tilt(0.7 * clear);
     } else if (p.kind === "roll") {
-      shift = Vector3.add(Vector3.scale(across, outside * 0.3 * clear), { x: 0, y: -2 * m.headRadius, z: 0 });
+      shift = Vector3.add(Vector3.scale(across, outside * 0.3 * clear), {
+        x: 0,
+        y: -2 * m.headRadius,
+        z: 0,
+      });
       pitch = 15;
-      roll = sideRoll(entry.yaw, Vector3.scale(across, outside)) * tilt(0.5 * clear);
+      roll =
+        sideRoll(entry.yaw, Vector3.scale(across, outside)) * tilt(0.5 * clear);
     } else if (p.kind === "sway") {
-      shift = Vector3.scale({ x: incoming.x, y: 0, z: incoming.z }, 0.3 * clear);
+      shift = Vector3.scale(
+        { x: incoming.x, y: 0, z: incoming.z },
+        0.3 * clear,
+      );
       pitch = -tilt(0.7 * clear * 1.5);
     }
 
@@ -277,17 +387,36 @@ export namespace defend {
     const goals = (posture: IHumanPosture): Partial<IHumanPosture["limbs"]> => {
       const bones = StrikingBody.trunk(body, posture);
       const region = StrikingBody.region(body, bones, timing.region);
-      const glove = (side: "left" | "right", at: IAutoMovieVector3, elbow: IAutoMovieVector3): IHumanPosture.IGoal => StrikingStance.glove(body, side, at, elbow);
-      const shoulder = (side: "left" | "right"): IAutoMovieVector3 => bones.get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
-      const toward: IAutoMovieVector3 = Vector3.normalize({ x: -incoming.x, y: 0, z: -incoming.z });
+      const glove = (
+        side: "left" | "right",
+        at: IAutoMovieVector3,
+        elbow: IAutoMovieVector3,
+      ): IHumanPosture.IGoal => StrikingStance.glove(body, side, at, elbow);
+      const shoulder = (side: "left" | "right"): IAutoMovieVector3 =>
+        bones.get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
+      const toward: IAutoMovieVector3 = Vector3.normalize({
+        x: -incoming.x,
+        y: 0,
+        z: -incoming.z,
+      });
       const low = (side: "left" | "right"): IAutoMovieVector3 =>
-        Vector3.add(shoulder(side), Vector3.add(Vector3.scale(up, -0.8 * m.upperArm), Vector3.scale(toward, 0.5 * m.upperArm)));
+        Vector3.add(
+          shoulder(side),
+          Vector3.add(
+            Vector3.scale(up, -0.8 * m.upperArm),
+            Vector3.scale(toward, 0.5 * m.upperArm),
+          ),
+        );
       const out: Partial<IHumanPosture["limbs"]> = {};
-      const arm = (side: "left" | "right"): "leftArm" | "rightArm" => (side === "left" ? "leftArm" : "rightArm");
+      const arm = (side: "left" | "right"): "leftArm" | "rightArm" =>
+        side === "left" ? "leftArm" : "rightArm";
       const cover = (side: "left" | "right"): void => {
         // The glove on the incoming line just in front of the region, where
         // the weapon will pass, not merely on the region's own normal.
-        const at: IAutoMovieVector3 = Vector3.subtract(region.point, Vector3.scale(incoming, m.forearmRadius + 2 * fist));
+        const at: IAutoMovieVector3 = Vector3.subtract(
+          region.point,
+          Vector3.scale(incoming, m.forearmRadius + 2 * fist),
+        );
         out[arm(side)] = glove(side, at, low(side));
       };
       switch (p.kind) {
@@ -300,31 +429,113 @@ export namespace defend {
           break;
         case "parry": {
           const side: "left" | "right" = outside > 0 ? "left" : "right";
-          const meet: IAutoMovieVector3 = Vector3.add(Vector3.subtract(region.point, Vector3.scale(incoming, 0.6 * m.forearm)), Vector3.scale(across, -outside * 0.5 * fist));
+          const meet: IAutoMovieVector3 = Vector3.add(
+            Vector3.subtract(
+              region.point,
+              Vector3.scale(incoming, 0.6 * m.forearm),
+            ),
+            Vector3.scale(across, -outside * 0.5 * fist),
+          );
           out[arm(side)] = glove(side, meet, low(side));
           break;
         }
         case "elbowBlock": {
-          const jaw = StrikingBody.region(body, bones, attackedSide === "left" ? "jawLeft" : "jawRight");
-          const at: IAutoMovieVector3 = Vector3.add(jaw.point, Vector3.scale(jaw.normal, 2 * m.forearmRadius));
-          out[arm(attackedSide)] = glove(attackedSide, at, Vector3.add(region.point, Vector3.scale(region.normal, 0.5 * m.upperArm)));
+          const jaw = StrikingBody.region(
+            body,
+            bones,
+            attackedSide === "left" ? "jawLeft" : "jawRight",
+          );
+          const at: IAutoMovieVector3 = Vector3.add(
+            jaw.point,
+            Vector3.scale(jaw.normal, 2 * m.forearmRadius),
+          );
+          out[arm(attackedSide)] = glove(
+            attackedSide,
+            at,
+            Vector3.add(
+              region.point,
+              Vector3.scale(region.normal, 0.5 * m.upperArm),
+            ),
+          );
           break;
         }
         case "highBlock": {
-          const temple = StrikingBody.region(body, bones, attackedSide === "left" ? "templeLeft" : "templeRight");
-          const at: IAutoMovieVector3 = Vector3.add(Vector3.add(temple.point, Vector3.scale(temple.normal, 2 * m.forearmRadius)), Vector3.scale(up, 0.3 * m.forearm));
-          const elbow: IAutoMovieVector3 = Vector3.add(shoulder(attackedSide), Vector3.add(Vector3.scale(temple.normal, m.upperArm), Vector3.scale(Vector3.scale(incoming, -1), 0.3 * m.upperArm)));
+          const temple = StrikingBody.region(
+            body,
+            bones,
+            attackedSide === "left" ? "templeLeft" : "templeRight",
+          );
+          const at: IAutoMovieVector3 = Vector3.add(
+            Vector3.add(
+              temple.point,
+              Vector3.scale(temple.normal, 2 * m.forearmRadius),
+            ),
+            Vector3.scale(up, 0.3 * m.forearm),
+          );
+          const elbow: IAutoMovieVector3 = Vector3.add(
+            shoulder(attackedSide),
+            Vector3.add(
+              Vector3.scale(temple.normal, m.upperArm),
+              Vector3.scale(Vector3.scale(incoming, -1), 0.3 * m.upperArm),
+            ),
+          );
           out[arm(attackedSide)] = glove(attackedSide, at, elbow);
           break;
         }
         case "check": {
-          const hip: IAutoMovieVector3 = bones.get(`${attackedSide}UpperLeg` as AutoMovieHumanoidBone)!.worldPosition;
-          const forward: IAutoMovieVector3 = { x: -incoming.x, y: 0, z: -incoming.z };
+          const hip: IAutoMovieVector3 = bones.get(
+            `${attackedSide}UpperLeg` as AutoMovieHumanoidBone,
+          )!.worldPosition;
+          const forward: IAutoMovieVector3 = {
+            x: -incoming.x,
+            y: 0,
+            z: -incoming.z,
+          };
           const sideways: IAutoMovieVector3 = Vector3.scale(across, outside);
-          const knee: IAutoMovieVector3 = Vector3.add(hip, Vector3.scale(Vector3.normalize(Vector3.add(Vector3.add(Vector3.scale(Vector3.normalize(forward), -0.55), Vector3.scale(up, 0.7)), Vector3.scale(sideways, -0.35))), m.thigh));
-          const ankle: IAutoMovieVector3 = Vector3.add(knee, Vector3.scale(Vector3.normalize(Vector3.add(Vector3.scale(up, -0.9), Vector3.scale(Vector3.normalize(forward), -0.2))), m.shank));
-          const rotation: IAutoMovieQuaternion = StrikingBody.foot(Vector3.normalize(Vector3.add(Vector3.scale(Vector3.normalize(forward), -0.6), Vector3.scale(up, 0.8))), Vector3.normalize(forward));
-          out[attackedSide === "left" ? "leftLeg" : "rightLeg"] = { point: ankle, bend: Vector3.add(knee, Vector3.scale(Vector3.normalize(forward), -0.2)), rotation };
+          const knee: IAutoMovieVector3 = Vector3.add(
+            hip,
+            Vector3.scale(
+              Vector3.normalize(
+                Vector3.add(
+                  Vector3.add(
+                    Vector3.scale(Vector3.normalize(forward), -0.55),
+                    Vector3.scale(up, 0.7),
+                  ),
+                  Vector3.scale(sideways, -0.35),
+                ),
+              ),
+              m.thigh,
+            ),
+          );
+          const ankle: IAutoMovieVector3 = Vector3.add(
+            knee,
+            Vector3.scale(
+              Vector3.normalize(
+                Vector3.add(
+                  Vector3.scale(up, -0.9),
+                  Vector3.scale(Vector3.normalize(forward), -0.2),
+                ),
+              ),
+              m.shank,
+            ),
+          );
+          const rotation: IAutoMovieQuaternion = StrikingBody.foot(
+            Vector3.normalize(
+              Vector3.add(
+                Vector3.scale(Vector3.normalize(forward), -0.6),
+                Vector3.scale(up, 0.8),
+              ),
+            ),
+            Vector3.normalize(forward),
+          );
+          out[attackedSide === "left" ? "leftLeg" : "rightLeg"] = {
+            point: ankle,
+            bend: Vector3.add(
+              knee,
+              Vector3.scale(Vector3.normalize(forward), -0.2),
+            ),
+            rotation,
+          };
           break;
         }
         case "slip":
@@ -337,18 +548,38 @@ export namespace defend {
     };
 
     // The stance legs, with the checking leg's foot leaving the floor.
-    const checking: "left" | "right" | undefined = p.kind === "check" ? attackedSide : undefined;
+    const checking: "left" | "right" | undefined =
+      p.kind === "check" ? attackedSide : undefined;
     const base = (t: number): IHumanPosture => {
       const k: number = w(t);
-      const support: IAutoMovieVector3 | undefined = checking === undefined ? undefined : feet[checking === "left" ? "right" : "left"].ankle;
-      const over: IAutoMovieVector3 = support === undefined ? { x: 0, y: 0, z: 0 } : Vector3.scale({ x: support.x - entry.root.x, y: 0, z: support.z - entry.root.z }, 0.6);
+      const support: IAutoMovieVector3 | undefined =
+        checking === undefined
+          ? undefined
+          : feet[checking === "left" ? "right" : "left"].ankle;
+      const over: IAutoMovieVector3 =
+        support === undefined
+          ? { x: 0, y: 0, z: 0 }
+          : Vector3.scale(
+              {
+                x: support.x - entry.root.x,
+                y: 0,
+                z: support.z - entry.root.z,
+              },
+              0.6,
+            );
       return {
-        root: Vector3.add(entry.root, Vector3.scale(Vector3.add(shift, over), k)),
+        root: Vector3.add(
+          entry.root,
+          Vector3.scale(Vector3.add(shift, over), k),
+        ),
         yaw: entry.yaw,
         pitch: entry.pitch + pitch * k,
         roll: entry.roll + roll * k,
         joints: { ...entry.joints, ...StrikingStance.joints() },
-        limbs: StrikingStance.legs(body, feet, { left: checking !== "left", right: checking !== "right" }),
+        limbs: StrikingStance.legs(body, feet, {
+          left: checking !== "left",
+          right: checking !== "right",
+        }),
       };
     };
     return {
@@ -359,14 +590,21 @@ export namespace defend {
         const guard = StrikingStance.guard(body, posture, { lead });
         const target = goals(posture);
         const limbs: IHumanPosture["limbs"] = { ...posture.limbs, ...guard };
-        for (const limb of ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
+        for (const limb of [
+          "leftArm",
+          "rightArm",
+          "leftLeg",
+          "rightLeg",
+        ] as const) {
           const goal: IHumanPosture.IGoal | undefined = target[limb];
           const from: IHumanPosture.IGoal | undefined = limbs[limb];
           if (goal === undefined || from === undefined) continue;
           limbs[limb] = {
             point: Vector3.lerp(from.point, goal.point, k),
             bend: Vector3.lerp(from.bend, goal.bend, k),
-            ...(from.rotation !== undefined && goal.rotation !== undefined ? { rotation: Quaternion.slerp(from.rotation, goal.rotation, k) } : {}),
+            ...(from.rotation !== undefined && goal.rotation !== undefined
+              ? { rotation: Quaternion.slerp(from.rotation, goal.rotation, k) }
+              : {}),
             ...(k <= 1e-9 && from.planted === true ? { planted: true } : {}),
           };
         }
@@ -376,31 +614,74 @@ export namespace defend {
   }
 
   /** The defender's side a region lies on: its own side, or the lead side for a central region. */
-  function attacked(region: AutoMovieHumanoidRegion, lead: "left" | "right"): "left" | "right" {
-    return /Left$/.test(region) ? "left" : /Right$/.test(region) ? "right" : lead;
+  function attacked(
+    region: AutoMovieHumanoidRegion,
+    lead: "left" | "right",
+  ): "left" | "right" {
+    return /Left$/.test(region)
+      ? "left"
+      : /Right$/.test(region)
+        ? "right"
+        : lead;
   }
 
   /** The feet's windows: both planted, except a checking leg off the floor from its read to its end. */
-  function windows(checking: "left" | "right" | undefined, timing: Pick<ITiming, "begin" | "duration">): IHumanContactWindow[] {
-    return (["left", "right"] as const).flatMap((side): IHumanContactWindow[] =>
-      side === checking
-        ? [
-            { part: `${side}Foot`, kind: "plant", from: 0, to: timing.begin / timing.duration, support: { kind: "ground" } },
-            { part: `${side}Foot`, kind: "plant", from: 1, to: 1, support: { kind: "ground" } },
-          ]
-        : [{ part: `${side}Foot`, kind: "plant", from: 0, to: 1, support: { kind: "ground" } }],
+  function windows(
+    checking: "left" | "right" | undefined,
+    timing: Pick<ITiming, "begin" | "duration">,
+  ): IHumanContactWindow[] {
+    return (["left", "right"] as const).flatMap(
+      (side): IHumanContactWindow[] =>
+        side === checking
+          ? [
+              {
+                part: `${side}Foot`,
+                kind: "plant",
+                from: 0,
+                to: timing.begin / timing.duration,
+                support: { kind: "ground" },
+              },
+              {
+                part: `${side}Foot`,
+                kind: "plant",
+                from: 1,
+                to: 1,
+                support: { kind: "ground" },
+              },
+            ]
+          : [
+              {
+                part: `${side}Foot`,
+                kind: "plant",
+                from: 0,
+                to: 1,
+                support: { kind: "ground" },
+              },
+            ],
     );
   }
 
   /** The guard held while waiting for the read: the entry's feet planted and the gloves up. */
-  function idle(context: IHumanActionContext<IParams>, lead: "left" | "right"): IHumanPosture {
+  function idle(
+    context: IHumanActionContext<IParams>,
+    lead: "left" | "right",
+  ): IHumanPosture {
     const entry: IHumanPosture = context.entry.posture;
     const posture: IHumanPosture = {
       ...entry,
       joints: { ...entry.joints, ...StrikingStance.joints() },
-      limbs: StrikingStance.legs(context.body, StrikingTarget.feet(context.entry)),
+      limbs: StrikingStance.legs(
+        context.body,
+        StrikingTarget.feet(context.entry),
+      ),
     };
-    return { ...posture, limbs: { ...posture.limbs, ...StrikingStance.guard(context.body, posture, { lead }) } };
+    return {
+      ...posture,
+      limbs: {
+        ...posture.limbs,
+        ...StrikingStance.guard(context.body, posture, { lead }),
+      },
+    };
   }
 
   /** The roll sign that tips the body toward a horizontal direction: +1 when it lies on the body's right. */

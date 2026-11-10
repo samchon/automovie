@@ -32,11 +32,35 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_motion_striking_contact_events(): void {
   type Path = (t: number) => IAutoMovieVector3;
-  const held = (id: string, path: Path) => (t: number, stops: resolveAutoMovieContactEvents.IStops): IAutoMovieVector3 => path(Math.min(t, stops.get(id) ?? Infinity));
-  const weapon = (id: string, owner: string, path: Path): resolveAutoMovieContactEvents.IWeapon => ({ id, owner, radius: 0.1, position: held(id, path) });
-  const carrier = (id: string, weaponId: string, path: Path): resolveAutoMovieContactEvents.IBody => ({
+  const held =
+    (id: string, path: Path) =>
+    (
+      t: number,
+      stops: resolveAutoMovieContactEvents.IStops,
+    ): IAutoMovieVector3 =>
+      path(Math.min(t, stops.get(id) ?? Infinity));
+  const weapon = (
+    id: string,
+    owner: string,
+    path: Path,
+  ): resolveAutoMovieContactEvents.IWeapon => ({
     id,
-    distance: (p: IAutoMovieVector3, t: number, stops: resolveAutoMovieContactEvents.IStops): number => Vector3.length(Vector3.subtract(p, held(weaponId, path)(t, stops))) - 0.1,
+    owner,
+    radius: 0.1,
+    position: held(id, path),
+  });
+  const carrier = (
+    id: string,
+    weaponId: string,
+    path: Path,
+  ): resolveAutoMovieContactEvents.IBody => ({
+    id,
+    distance: (
+      p: IAutoMovieVector3,
+      t: number,
+      stops: resolveAutoMovieContactEvents.IStops,
+    ): number =>
+      Vector3.length(Vector3.subtract(p, held(weaponId, path)(t, stops))) - 0.1,
   });
   const close = (a: number, b: number): boolean => Math.abs(a - b) < 1e-6;
 
@@ -53,7 +77,11 @@ export function test_motion_striking_contact_events(): void {
     });
     TestValidator.predicate(
       `head-on, order ${order}`,
-      events.length === 2 && events.every((e) => close(e.seconds, 0.45)) && events[0]!.weapon === "a" && events[0]!.against === "B" && events[1]!.against === "A",
+      events.length === 2 &&
+        events.every((e) => close(e.seconds, 0.45)) &&
+        events[0]!.weapon === "a" &&
+        events[0]!.against === "B" &&
+        events[1]!.against === "A",
     );
   }
 
@@ -65,7 +93,15 @@ export function test_motion_striking_contact_events(): void {
   const solve = () =>
     resolveAutoMovieContactEvents({
       weapons: [weapon("c", "C", c), weapon("a", "A", a2)],
-      bodies: [{ id: "W", distance: (p: IAutoMovieVector3): number => Vector3.length(Vector3.subtract(p, { x: -0.4, y: 0, z: 0 })) - 0.1 }, carrier("A", "a", a2), carrier("C", "c", c)],
+      bodies: [
+        {
+          id: "W",
+          distance: (p: IAutoMovieVector3): number =>
+            Vector3.length(Vector3.subtract(p, { x: -0.4, y: 0, z: 0 })) - 0.1,
+        },
+        carrier("A", "a", a2),
+        carrier("C", "c", c),
+      ],
       from: 0,
       to: 1,
       step: 1 / 96,
@@ -74,8 +110,15 @@ export function test_motion_striking_contact_events(): void {
   const second = solve();
   TestValidator.predicate(
     "a stopped weapon is passed by the later one, bit-identically",
-    first.length === 1 && first[0]!.weapon === "a" && first[0]!.against === "W" && close(first[0]!.seconds, 0.2) &&
-      second.length === first.length && second.every((e, i) => e.seconds === first[i]!.seconds && e.weapon === first[i]!.weapon),
+    first.length === 1 &&
+      first[0]!.weapon === "a" &&
+      first[0]!.against === "W" &&
+      close(first[0]!.seconds, 0.2) &&
+      second.length === first.length &&
+      second.every(
+        (e, i) =>
+          e.seconds === first[i]!.seconds && e.weapon === first[i]!.weapon,
+      ),
   );
 
   const across: Path = (t) => ({ x: -1 + 2 * t, y: 0, z: 0 });
@@ -93,22 +136,75 @@ export function test_motion_striking_contact_events(): void {
 
   const strike: Path = (t) => ({ x: -1 + 2 * t, y: 0, z: 0 });
   const head: IAutoMovieVector3 = { x: 0.5, y: 0, z: 0 };
-  const guardPath: Path = (t) => ({ x: 0.2, y: Math.max(0, 0.5 - 2 * t), z: 0 });
-  const headBody: resolveAutoMovieContactEvents.IBody = { id: "H", distance: (p: IAutoMovieVector3): number => Vector3.length(Vector3.subtract(p, head)) - 0.1 };
+  const guardPath: Path = (t) => ({
+    x: 0.2,
+    y: Math.max(0, 0.5 - 2 * t),
+    z: 0,
+  });
+  const headBody: resolveAutoMovieContactEvents.IBody = {
+    id: "H",
+    distance: (p: IAutoMovieVector3): number =>
+      Vector3.length(Vector3.subtract(p, head)) - 0.1,
+  };
   const blocked = resolveAutoMovieContactEvents({
     weapons: [weapon("s", "S", strike)],
-    bodies: [{ id: "G", distance: (p: IAutoMovieVector3, t: number): number => Vector3.length(Vector3.subtract(p, guardPath(t))) - 0.1 }, headBody],
+    bodies: [
+      {
+        id: "G",
+        distance: (p: IAutoMovieVector3, t: number): number =>
+          Vector3.length(Vector3.subtract(p, guardPath(t))) - 0.1,
+      },
+      headBody,
+    ],
     from: 0,
     to: 1,
     step: 1 / 96,
   });
-  TestValidator.predicate("the guard on the line stops the strike", blocked.length === 1 && blocked[0]!.against === "G" && close(blocked[0]!.seconds, 0.5));
-  const open = resolveAutoMovieContactEvents({ weapons: [weapon("s", "S", strike)], bodies: [headBody], from: 0, to: 1, step: 1 / 96 });
-  TestValidator.predicate("without the guard it meets the head", open.length === 1 && open[0]!.against === "H" && close(open[0]!.seconds, 0.65));
+  TestValidator.predicate(
+    "the guard on the line stops the strike",
+    blocked.length === 1 &&
+      blocked[0]!.against === "G" &&
+      close(blocked[0]!.seconds, 0.5),
+  );
+  const open = resolveAutoMovieContactEvents({
+    weapons: [weapon("s", "S", strike)],
+    bodies: [headBody],
+    from: 0,
+    to: 1,
+    step: 1 / 96,
+  });
+  TestValidator.predicate(
+    "without the guard it meets the head",
+    open.length === 1 &&
+      open[0]!.against === "H" &&
+      close(open[0]!.seconds, 0.65),
+  );
 
-  TestValidator.error("empty span", (): unknown => resolveAutoMovieContactEvents({ weapons: [], bodies: [], from: 1, to: 1, step: 0.1 }));
-  TestValidator.error("zero step", (): unknown => resolveAutoMovieContactEvents({ weapons: [], bodies: [], from: 0, to: 1, step: 0 }));
+  TestValidator.error("empty span", (): unknown =>
+    resolveAutoMovieContactEvents({
+      weapons: [],
+      bodies: [],
+      from: 1,
+      to: 1,
+      step: 0.1,
+    }),
+  );
+  TestValidator.error("zero step", (): unknown =>
+    resolveAutoMovieContactEvents({
+      weapons: [],
+      bodies: [],
+      from: 0,
+      to: 1,
+      step: 0,
+    }),
+  );
   TestValidator.error("repeated id", (): unknown =>
-    resolveAutoMovieContactEvents({ weapons: [weapon("a", "A", a), weapon("a", "B", b)], bodies: [], from: 0, to: 1, step: 0.1 }),
+    resolveAutoMovieContactEvents({
+      weapons: [weapon("a", "A", a), weapon("a", "B", b)],
+      bodies: [],
+      from: 0,
+      to: 1,
+      step: 0.1,
+    }),
   );
 }

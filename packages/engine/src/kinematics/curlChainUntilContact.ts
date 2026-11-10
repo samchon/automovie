@@ -2,11 +2,11 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
-  IAutoMoviePhysicalProfile as P,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
@@ -80,13 +80,21 @@ export function curlChainUntilContact(
   if (!(step > 0)) throw new Error("A curl step must be positive");
   for (const collider of input.colliders) validate(collider.shape);
   const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
-    input.pose.joints.map((j: IAutoMovieJointPose): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j]),
+    input.pose.joints.map(
+      (
+        j: IAutoMovieJointPose,
+      ): [AutoMovieHumanoidBone, IAutoMovieJointPose] => [j.bone, j],
+    ),
   );
-  const pose = (): IAutoMoviePose => ({ ...input.pose, joints: [...joints.values()] });
+  const pose = (): IAutoMoviePose => ({
+    ...input.pose,
+    joints: [...joints.values()],
+  });
   const reports: curlChainUntilContact.IChainResult[] = [];
 
   for (const chain of input.chains) {
-    if (!(chain.radius > 0)) throw new Error("A curled chain's radius must be positive");
+    if (!(chain.radius > 0))
+      throw new Error("A curled chain's radius must be positive");
     const flexion: number[] = [];
 
     // The gap of the phalanges from the k-th onward under the current angles
@@ -94,41 +102,82 @@ export function curlChainUntilContact(
     const gap = (k: number, angle: number): number => {
       const bone: AutoMovieHumanoidBone = chain.bones[k]!;
       const previous: IAutoMovieJointPose | undefined = joints.get(bone);
-      joints.set(bone, { bone, flexion: angle, abduction: previous?.abduction ?? 0, twist: previous?.twist ?? 0 });
-      const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-        resolvePose(pose(), input.skeleton, input.jointAxes, input.restFrames, input.topology).map(
-          (r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-        ),
-      );
+      joints.set(bone, {
+        bone,
+        flexion: angle,
+        abduction: previous?.abduction ?? 0,
+        twist: previous?.twist ?? 0,
+      });
+      const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        new Map(
+          resolvePose(
+            pose(),
+            input.skeleton,
+            input.jointAxes,
+            input.restFrames,
+            input.topology,
+          ).map(
+            (
+              r: IAutoMovieResolvedBone,
+            ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+          ),
+        );
       if (previous === undefined) joints.delete(bone);
       else joints.set(bone, previous);
       let least: number = Infinity;
       for (let i: number = k; i < chain.bones.length; i++) {
-        const from: IAutoMovieResolvedBone | undefined = resolved.get(chain.bones[i]!);
-        if (from === undefined) throw new Error(`A curled chain needs the resolvable bone ${chain.bones[i]}`);
+        const from: IAutoMovieResolvedBone | undefined = resolved.get(
+          chain.bones[i]!,
+        );
+        if (from === undefined)
+          throw new Error(
+            `A curled chain needs the resolvable bone ${chain.bones[i]}`,
+          );
         const next: AutoMovieHumanoidBone | undefined = chain.bones[i + 1];
         const to: IAutoMovieVector3 =
           next === undefined
-            ? Vector3.add(from.worldPosition, Quaternion.rotateVector(from.worldRotation, chain.tip))
-            : resolved.get(next)?.worldPosition ?? from.worldPosition;
+            ? Vector3.add(
+                from.worldPosition,
+                Quaternion.rotateVector(from.worldRotation, chain.tip),
+              )
+            : (resolved.get(next)?.worldPosition ?? from.worldPosition);
         for (const collider of input.colliders)
-          least = Math.min(least, segmentShapeDistance(from.worldPosition, to, collider) - chain.radius);
+          least = Math.min(
+            least,
+            segmentShapeDistance(from.worldPosition, to, collider) -
+              chain.radius,
+          );
       }
       return least;
     };
 
     for (let k: number = 0; k < chain.bones.length; k++) {
       const bone: AutoMovieHumanoidBone = chain.bones[k]!;
-      const current: IAutoMovieJointPose = joints.get(bone) ?? { bone, flexion: 0, abduction: 0, twist: 0 };
+      const current: IAutoMovieJointPose = joints.get(bone) ?? {
+        bone,
+        flexion: 0,
+        abduction: 0,
+        twist: 0,
+      };
       const start: number = current.flexion ?? 0;
       // A bone without a declared range turns at most half a revolution, past
       // which a phalanx would fold back through its own parent.
-      const limit: number = Math.min(start + 180, clampJointToSkeleton({ ...current, flexion: start + 180 }, input.skeleton).flexion ?? start);
+      const limit: number = Math.min(
+        start + 180,
+        clampJointToSkeleton(
+          { ...current, flexion: start + 180 },
+          input.skeleton,
+        ).flexion ?? start,
+      );
       let angle: number = start;
       if (gap(k, start) > 0) {
         let lo: number = start;
         let hi: number | undefined;
-        for (let a: number = Math.min(limit, start + step); ; a = Math.min(limit, a + step)) {
+        for (
+          let a: number = Math.min(limit, start + step);
+          ;
+          a = Math.min(limit, a + step)
+        ) {
           if (gap(k, a) <= 0) {
             hi = a;
             break;
@@ -239,29 +288,57 @@ function validate(shape: P.IShape): void {
       ? shape.radius > 0
       : shape.kind === "capsule"
         ? shape.radius > 0 && shape.halfLength >= 0
-        : shape.halfExtents.x > 0 && shape.halfExtents.y > 0 && shape.halfExtents.z > 0;
-  if (!ok) throw new Error(`A collider ${shape.id} has non-positive dimensions`);
+        : shape.halfExtents.x > 0 &&
+          shape.halfExtents.y > 0 &&
+          shape.halfExtents.z > 0;
+  if (!ok)
+    throw new Error(`A collider ${shape.id} has non-positive dimensions`);
 }
 
 /** The signed distance from a segment to a placed shape, metres; negative inside. */
-function segmentShapeDistance(a: IAutoMovieVector3, b: IAutoMovieVector3, collider: curlChainUntilContact.ICollider): number {
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(collider.frame.rotation, collider.shape.transform.rotation);
+function segmentShapeDistance(
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  collider: curlChainUntilContact.ICollider,
+): number {
+  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    collider.frame.rotation,
+    collider.shape.transform.rotation,
+  );
   const centre: IAutoMovieVector3 = Vector3.add(
     collider.frame.position,
-    Quaternion.rotateVector(collider.frame.rotation, collider.shape.transform.position),
+    Quaternion.rotateVector(
+      collider.frame.rotation,
+      collider.shape.transform.position,
+    ),
   );
   const shape: P.IShape = collider.shape;
-  if (shape.kind === "sphere") return closestPointsBetweenSegments(a, b, centre, centre).distance - shape.radius;
+  if (shape.kind === "sphere")
+    return (
+      closestPointsBetweenSegments(a, b, centre, centre).distance - shape.radius
+    );
   if (shape.kind === "capsule") {
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 0, y: shape.halfLength, z: 0 });
-    return closestPointsBetweenSegments(a, b, Vector3.subtract(centre, axis), Vector3.add(centre, axis)).distance - shape.radius;
+    const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 0,
+      y: shape.halfLength,
+      z: 0,
+    });
+    return (
+      closestPointsBetweenSegments(
+        a,
+        b,
+        Vector3.subtract(centre, axis),
+        Vector3.add(centre, axis),
+      ).distance - shape.radius
+    );
   }
 
   // A box's signed distance is convex in space, so along a segment it is a
   // convex function of the parameter: golden-section search finds its least
   // value without missing a penetration.
   const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
-  const local = (p: IAutoMovieVector3): IAutoMovieVector3 => Quaternion.rotateVector(inverse, Vector3.subtract(p, centre));
+  const local = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+    Quaternion.rotateVector(inverse, Vector3.subtract(p, centre));
   const la: IAutoMovieVector3 = local(a);
   const lb: IAutoMovieVector3 = local(b);
   const h: IAutoMovieVector3 = shape.halfExtents;
@@ -271,7 +348,11 @@ function segmentShapeDistance(a: IAutoMovieVector3, b: IAutoMovieVector3, collid
       y: Math.abs(la.y + (lb.y - la.y) * t) - h.y,
       z: Math.abs(la.z + (lb.z - la.z) * t) - h.z,
     };
-    const outside: number = Math.hypot(Math.max(q.x, 0), Math.max(q.y, 0), Math.max(q.z, 0));
+    const outside: number = Math.hypot(
+      Math.max(q.x, 0),
+      Math.max(q.y, 0),
+      Math.max(q.z, 0),
+    );
     return outside + Math.min(Math.max(q.x, q.y, q.z), 0);
   };
   const ratio: number = (Math.sqrt(5) - 1) / 2;

@@ -1,5 +1,10 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, AutoMovieMotionTarget, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionTarget,
+  IAutoMovieMotionEvent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
@@ -84,7 +89,10 @@ export namespace knee {
    * the lead (support) foot, half a stance; a lead knee drives the lead hip a
    * quarter. Provisional readings of the clinch knee's hip drive.
    */
-  export const TRAVEL: Readonly<Record<"lead" | "rear", number>> = { lead: 0.25, rear: 0.5 };
+  export const TRAVEL: Readonly<Record<"lead" | "rear", number>> = {
+    lead: 0.25,
+    rear: 0.5,
+  };
 
   /** A solved knee: where its joint, ankle and pelvis go at the contact. */
   export interface ISolution {
@@ -132,27 +140,58 @@ export namespace knee {
     // hip's flexion (the thigh at the horizontal is 90 degrees of flexion,
     // and the back lean tips the pelvis by its own angle).
     const highest: number = HIP_FLEXION - 90 + LEAN;
-    const wanted: number = (Math.asin(Math.max(-1, Math.min(1, (target.y - hip.y) / radius))) * 180) / Math.PI;
-    const elevation: number = (Math.max(-LOWEST, Math.min(highest, wanted)) * Math.PI) / 180;
+    const wanted: number =
+      (Math.asin(Math.max(-1, Math.min(1, (target.y - hip.y) / radius))) *
+        180) /
+      Math.PI;
+    const elevation: number =
+      (Math.max(-LOWEST, Math.min(highest, wanted)) * Math.PI) / 180;
 
     // The horizontal travel that puts the knee's front on the target.
-    const flat: IAutoMovieVector3 = { x: target.x - hip.x, y: 0, z: target.z - hip.z };
+    const flat: IAutoMovieVector3 = {
+      x: target.x - hip.x,
+      y: 0,
+      z: target.z - hip.z,
+    };
     const distance: number = Vector3.length(flat);
-    const heading: IAutoMovieVector3 = distance > 1e-6 ? Vector3.scale(flat, 1 / distance) : fallback;
+    const heading: IAutoMovieVector3 =
+      distance > 1e-6 ? Vector3.scale(flat, 1 / distance) : fallback;
     const want: number = distance - radius * Math.cos(elevation);
     const moved: number = Math.max(-travel, Math.min(travel, want));
     const status: StrikingReach.ISolution["status"] =
-      wanted > highest + 1e-9 || wanted < -LOWEST - 1e-9 || want > travel + 1e-9 ? "short" : want < -travel - 1e-9 ? "jammed" : "reached";
+      wanted > highest + 1e-9 || wanted < -LOWEST - 1e-9 || want > travel + 1e-9
+        ? "short"
+        : want < -travel - 1e-9
+          ? "jammed"
+          : "reached";
     const thrust: IAutoMovieVector3 = Vector3.scale(heading, moved);
 
     // The thigh along its elevation, the shank folded back and down in the
     // same vertical plane by the knee's flexion.
-    const along: IAutoMovieVector3 = Vector3.add(Vector3.scale(heading, Math.cos(elevation)), Vector3.scale(up, Math.sin(elevation)));
-    const below: IAutoMovieVector3 = Vector3.subtract(Vector3.scale(heading, Math.sin(elevation)), Vector3.scale(up, Math.cos(elevation)));
+    const along: IAutoMovieVector3 = Vector3.add(
+      Vector3.scale(heading, Math.cos(elevation)),
+      Vector3.scale(up, Math.sin(elevation)),
+    );
+    const below: IAutoMovieVector3 = Vector3.subtract(
+      Vector3.scale(heading, Math.sin(elevation)),
+      Vector3.scale(up, Math.cos(elevation)),
+    );
     const flexion: number = (FLEXION * Math.PI) / 180;
-    const knee: IAutoMovieVector3 = Vector3.add(Vector3.add(hip, thrust), Vector3.scale(along, thigh));
-    const fold: IAutoMovieVector3 = Vector3.add(Vector3.scale(along, Math.cos(flexion)), Vector3.scale(below, Math.sin(flexion)));
-    return { knee, ankle: Vector3.add(knee, Vector3.scale(fold, shank)), thrust, heading, status };
+    const knee: IAutoMovieVector3 = Vector3.add(
+      Vector3.add(hip, thrust),
+      Vector3.scale(along, thigh),
+    );
+    const fold: IAutoMovieVector3 = Vector3.add(
+      Vector3.scale(along, Math.cos(flexion)),
+      Vector3.scale(below, Math.sin(flexion)),
+    );
+    return {
+      knee,
+      ankle: Vector3.add(knee, Vector3.scale(fold, shank)),
+      thrust,
+      heading,
+      status,
+    };
   }
 
   /**
@@ -161,43 +200,87 @@ export namespace knee {
    * @param context The action's context.
    * @returns The plan.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const p: IParams = context.params;
     const body = context.body;
     const m = body.measure;
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
-    const side: "left" | "right" = (p.leg ?? "rear") === "lead" ? lead : StrikingStance.rear({ lead });
+    const side: "left" | "right" =
+      (p.leg ?? "rear") === "lead" ? lead : StrikingStance.rear({ lead });
     const support: "left" | "right" = side === "left" ? "right" : "left";
     const slow: number = StrikingSkill.recovery(context.skill);
     const prep: number = StrikingSkill.KICK_PREPARATION;
     const impact: number = prep + StrikingSkill.KICK_CHAMBER * slow;
     const duration: number = impact + StrikingSkill.KICK_RECOIL * slow;
     const entry: IHumanPosture = context.entry.posture;
-    const feet: Record<"left" | "right", HumanFoot.IPlacement> = StrikingTarget.feet(context.entry);
+    const feet: Record<"left" | "right", HumanFoot.IPlacement> =
+      StrikingTarget.feet(context.entry);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const t0: number = context.start;
-    const leg: "leftLeg" | "rightLeg" = side === "left" ? "leftLeg" : "rightLeg";
+    const leg: "leftLeg" | "rightLeg" =
+      side === "left" ? "leftLeg" : "rightLeg";
 
     // The solve from the hip as the squared pelvis carries it: the hips turn
     // to the thigh's heading about the root's vertical axis (a bladed stance
     // turns them away from the target, and the thigh cannot point across the
     // pelvis within the hip's range), so the heading is found from the entry
     // hip and the knee solved again from the turned one.
-    let built: (ISolution & { target: IAutoMovieVector3; turn: number }) | undefined;
-    const geometry = (): ISolution & { target: IAutoMovieVector3; turn: number } => {
+    let built:
+      | (ISolution & { target: IAutoMovieVector3; turn: number })
+      | undefined;
+    const geometry = (): ISolution & {
+      target: IAutoMovieVector3;
+      turn: number;
+    } => {
       if (built !== undefined) return built;
-      const target: IAutoMovieVector3 = StrikingTarget.aim(context, p.at, t0 - StrikingTarget.LOOK, (): number => 0.8 * m.thigh);
-      const line: IAutoMovieVector3 = StrikingTarget.line(entry.root, target, entry.yaw);
-      const patella: number = Vector3.length(body.surfaces.regions[side === "left" ? "kneeLeft" : "kneeRight"].point);
-      const travel: number = TRAVEL[p.leg ?? "rear"] * StrikingStance.length(body);
-      const hip0: IAutoMovieVector3 = StrikingBody.trunk(body, entry).get(`${side}UpperLeg` as AutoMovieHumanoidBone)!.worldPosition;
-      const first: ISolution = solve(hip0, target, m.thigh, patella, m.shank, travel, line);
-      const turn: number = ((((StrikingTarget.heading(first.heading) - entry.yaw + 180) % 360) + 360) % 360) - 180;
+      const target: IAutoMovieVector3 = StrikingTarget.aim(
+        context,
+        p.at,
+        t0 - StrikingTarget.LOOK,
+        (): number => 0.8 * m.thigh,
+      );
+      const line: IAutoMovieVector3 = StrikingTarget.line(
+        entry.root,
+        target,
+        entry.yaw,
+      );
+      const patella: number = Vector3.length(
+        body.surfaces.regions[side === "left" ? "kneeLeft" : "kneeRight"].point,
+      );
+      const travel: number =
+        TRAVEL[p.leg ?? "rear"] * StrikingStance.length(body);
+      const hip0: IAutoMovieVector3 = StrikingBody.trunk(body, entry).get(
+        `${side}UpperLeg` as AutoMovieHumanoidBone,
+      )!.worldPosition;
+      const first: ISolution = solve(
+        hip0,
+        target,
+        m.thigh,
+        patella,
+        m.shank,
+        travel,
+        line,
+      );
+      const turn: number =
+        ((((StrikingTarget.heading(first.heading) - entry.yaw + 180) % 360) +
+          360) %
+          360) -
+        180;
       const r: number = (turn * Math.PI) / 180;
       const dx: number = hip0.x - entry.root.x;
       const dz: number = hip0.z - entry.root.z;
-      const hip: IAutoMovieVector3 = { x: entry.root.x + dx * Math.cos(r) + dz * Math.sin(r), y: hip0.y, z: entry.root.z - dx * Math.sin(r) + dz * Math.cos(r) };
-      built = { ...solve(hip, target, m.thigh, patella, m.shank, travel, line), target, turn };
+      const hip: IAutoMovieVector3 = {
+        x: entry.root.x + dx * Math.cos(r) + dz * Math.sin(r),
+        y: hip0.y,
+        z: entry.root.z - dx * Math.sin(r) + dz * Math.cos(r),
+      };
+      built = {
+        ...solve(hip, target, m.thigh, patella, m.shank, travel, line),
+        target,
+        turn,
+      };
       return built;
     };
     const events: IAutoMovieMotionEvent[] = [
@@ -206,9 +289,27 @@ export namespace knee {
       { name: "replant", share: 1 },
     ];
     const contacts: IHumanContactWindow[] = [
-      { part: `${side}Foot`, kind: "plant", from: 0, to: prep / duration, support: { kind: "ground" } },
-      { part: `${side}Foot`, kind: "plant", from: 1, to: 1, support: { kind: "ground" } },
-      { part: `${support}Foot`, kind: "pivot", from: 0, to: 1, support: { kind: "ground" } },
+      {
+        part: `${side}Foot`,
+        kind: "plant",
+        from: 0,
+        to: prep / duration,
+        support: { kind: "ground" },
+      },
+      {
+        part: `${side}Foot`,
+        kind: "plant",
+        from: 1,
+        to: 1,
+        support: { kind: "ground" },
+      },
+      {
+        part: `${support}Foot`,
+        kind: "pivot",
+        from: 0,
+        to: 1,
+        support: { kind: "ground" },
+      },
     ];
 
     // The knee on its free course at a clock second (as if it met nothing),
@@ -223,27 +324,55 @@ export namespace knee {
       // The hips square on the knee's profile, and the support foot turns
       // with them on its ball so the support hip keeps its twist.
       const turn: number = g.turn;
-      const supportFoot: HumanFoot.IPlacement = StrikingTarget.pivot(body, support, feet[support], turn * w, 15 * w);
-      const placed: Record<"left" | "right", HumanFoot.IPlacement> = side === "left" ? { left: feet.left, right: supportFoot } : { left: supportFoot, right: feet.right };
+      const supportFoot: HumanFoot.IPlacement = StrikingTarget.pivot(
+        body,
+        support,
+        feet[support],
+        turn * w,
+        15 * w,
+      );
+      const placed: Record<"left" | "right", HumanFoot.IPlacement> =
+        side === "left"
+          ? { left: feet.left, right: supportFoot }
+          : { left: supportFoot, right: feet.right };
       const posture: IHumanPosture = {
         root: Vector3.add(entry.root, Vector3.scale(g.thrust, w)),
         yaw: entry.yaw + turn * w,
         pitch: entry.pitch - LEAN * w,
         roll: entry.roll,
         joints: { ...entry.joints, ...StrikingStance.joints() },
-        limbs: StrikingStance.legs(body, placed, { left: side !== "left", right: side !== "right" }),
+        limbs: StrikingStance.legs(body, placed, {
+          left: side !== "left",
+          right: side !== "right",
+        }),
       };
       const rest: IAutoMovieVector3 = feet[side].ankle;
-      const ankle: IAutoMovieVector3 = Vector3.lerp(Vector3.lerp(rest, g.ankle, out), rest, back);
-      const kneeHint: IAutoMovieVector3 = Vector3.add(Vector3.lerp(Vector3.add(rest, Vector3.scale(up, m.shank)), g.knee, w), Vector3.scale(g.heading, 0.1));
+      const ankle: IAutoMovieVector3 = Vector3.lerp(
+        Vector3.lerp(rest, g.ankle, out),
+        rest,
+        back,
+      );
+      const kneeHint: IAutoMovieVector3 = Vector3.add(
+        Vector3.lerp(Vector3.add(rest, Vector3.scale(up, m.shank)), g.knee, w),
+        Vector3.scale(g.heading, 0.1),
+      );
       const hands = StrikingStance.guard(body, posture, { lead });
       if (p.at.kind === "person") {
-        const nape: IAutoMovieVector3 = context.performer(p.at.subject).bones(seconds - StrikingTarget.LOOK).get("neck")!.worldPosition;
+        const nape: IAutoMovieVector3 = context
+          .performer(p.at.subject)
+          .bones(seconds - StrikingTarget.LOOK)
+          .get("neck")!.worldPosition;
         for (const arm of ["leftArm", "rightArm"] as const) {
           const g0: IHumanPosture.IGoal | undefined = hands[arm];
           if (g0 === undefined) continue;
-          const hold: IAutoMovieVector3 = Vector3.add(nape, Vector3.scale(g.heading, 0.03));
-          hands[arm] = { ...g0, point: Vector3.lerp(g0.point, hold, Math.min(1, 2 * w)) };
+          const hold: IAutoMovieVector3 = Vector3.add(
+            nape,
+            Vector3.scale(g.heading, 0.03),
+          );
+          hands[arm] = {
+            ...g0,
+            point: Vector3.lerp(g0.point, hold, Math.min(1, 2 * w)),
+          };
         }
       }
       return {
@@ -251,7 +380,12 @@ export namespace knee {
         limbs: {
           ...posture.limbs,
           ...hands,
-          [leg]: { point: ankle, bend: kneeHint, rotation: feet[side].rotation, ...(t <= prep || t >= duration - 1e-9 ? { planted: true } : {}) },
+          [leg]: {
+            point: ankle,
+            bend: kneeHint,
+            rotation: feet[side].rotation,
+            ...(t <= prep || t >= duration - 1e-9 ? { planted: true } : {}),
+          },
         },
       };
     };
@@ -260,13 +394,17 @@ export namespace knee {
     // capsules (null: it met nothing); until it is committed the knee is shown
     // on its free course, as the resolution assumes.
     let fixed: number | null = null;
-    const stop = (seconds: number): number | undefined => (fixed !== null && fixed <= seconds ? fixed : undefined);
+    const stop = (seconds: number): number | undefined =>
+      fixed !== null && fixed <= seconds ? fixed : undefined;
 
     // The leg as the performer shows it at a film second: the hip, the knee
     // and the ankle, the ends of the thigh's and the shank's capsules.
     const shown = (seconds: number): IAutoMovieVector3[] => {
       const bones = context.performer(context.subject).bones(seconds);
-      return [`${side}UpperLeg`, `${side}LowerLeg`, `${side}Foot`].map((b: string): IAutoMovieVector3 => bones.get(b as AutoMovieHumanoidBone)!.worldPosition);
+      return [`${side}UpperLeg`, `${side}LowerLeg`, `${side}Foot`].map(
+        (b: string): IAutoMovieVector3 =>
+          bones.get(b as AutoMovieHumanoidBone)!.worldPosition,
+      );
     };
     const out: IHumanActionPlan = {
       duration,
@@ -278,17 +416,24 @@ export namespace knee {
       },
       ...(p.at.kind === "person"
         ? {
-            weapons: (["thigh", "shin"] as const).map((id, i: number): IHumanActionPlan.IWeapon => ({
-              id,
-              limb: leg,
-              radius: i === 0 ? m.thighRadius : m.shankRadius,
-              from: t0 + prep,
-              to: t0 + impact + 0.1,
-              path: (seconds: number): IAutoMovieVector3 => shown(seconds)[i]!,
-              tail: (seconds: number): IAutoMovieVector3 => shown(seconds)[i + 1]!,
-            })),
+            weapons: (["thigh", "shin"] as const).map(
+              (id, i: number): IHumanActionPlan.IWeapon => ({
+                id,
+                limb: leg,
+                radius: i === 0 ? m.thighRadius : m.shankRadius,
+                from: t0 + prep,
+                to: t0 + impact + 0.1,
+                path: (seconds: number): IAutoMovieVector3 =>
+                  shown(seconds)[i]!,
+                tail: (seconds: number): IAutoMovieVector3 =>
+                  shown(seconds)[i + 1]!,
+              }),
+            ),
             stop: (found: readonly IHumanActionPlan.IContactEvent[]): void => {
-              fixed = found.length === 0 ? null : Math.min(...found.map((e) => e.seconds));
+              fixed =
+                found.length === 0
+                  ? null
+                  : Math.min(...found.map((e) => e.seconds));
             },
           }
         : {}),
@@ -301,7 +446,10 @@ export namespace knee {
         // to the start on a minimum-jerk clock: the way in was clear of the
         // body up to its first contact, so the way out is too.
         const s: number = at - t0;
-        const w: number = minimumJerk((t - s - StrikingStroke.DWELL) / Math.max(1e-3, duration - s - StrikingStroke.DWELL)).s;
+        const w: number = minimumJerk(
+          (t - s - StrikingStroke.DWELL) /
+            Math.max(1e-3, duration - s - StrikingStroke.DWELL),
+        ).s;
         return free(s * (1 - w), t0 + t);
       },
     };
@@ -310,8 +458,18 @@ export namespace knee {
       // with the solve's own status.
       const g = geometry();
       const bones = context.performer(context.subject).bones(t0 + impact);
-      const reached: IAutoMovieVector3 = StrikingBody.region(body, bones, side === "left" ? "kneeLeft" : "kneeRight").point;
-      return { offset: { x: 0, y: 0, z: 0 }, planned: g.target, reached, status: g.status, stop };
+      const reached: IAutoMovieVector3 = StrikingBody.region(
+        body,
+        bones,
+        side === "left" ? "kneeLeft" : "kneeRight",
+      ).point;
+      return {
+        offset: { x: 0, y: 0, z: 0 },
+        planned: g.target,
+        reached,
+        status: g.status,
+        stop,
+      };
     });
     return out;
   }

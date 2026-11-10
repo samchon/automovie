@@ -2,9 +2,9 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieBodyMeasure,
   IAutoMovieBone,
-  IAutoMoviePhysicalProfile as P,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
@@ -64,21 +64,28 @@ export function measureAutoMovieHumanoidBody(
     (read("left") + read("right")) / 2;
   const bone = (side: string, name: string): AutoMovieHumanoidBone =>
     `${side}${name}` as AutoMovieHumanoidBone;
-  const distance = (a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): number =>
-    Vector3.length(Vector3.subtract(at(a), at(b)));
+  const distance = (
+    a: AutoMovieHumanoidBone,
+    b: AutoMovieHumanoidBone,
+  ): number => Vector3.length(Vector3.subtract(at(a), at(b)));
   const segment = (name: AutoMovieHumanoidBone): P.ISegment => {
-    const s: P.ISegment | undefined = profile.segments.find((x: P.ISegment): boolean => x.bone === name);
+    const s: P.ISegment | undefined = profile.segments.find(
+      (x: P.ISegment): boolean => x.bone === name,
+    );
     if (s === undefined) throw new Error(`The humanoid profile lacks ${name}`);
     return s;
   };
-  const bounds = (name: AutoMovieHumanoidBone): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
+  const bounds = (
+    name: AutoMovieHumanoidBone,
+  ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
     const s: P.ISegment = segment(name);
     const out: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = {
       min: { x: Infinity, y: Infinity, z: Infinity },
       max: { x: -Infinity, y: -Infinity, z: -Infinity },
     };
     for (const shape of s.shapes) {
-      const b: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = physicalShapeBounds(s.neutral, shape);
+      const b: { min: IAutoMovieVector3; max: IAutoMovieVector3 } =
+        physicalShapeBounds(s.neutral, shape);
       for (const k of ["x", "y", "z"] as const) {
         out.min[k] = Math.min(out.min[k], b.min[k]);
         out.max[k] = Math.max(out.max[k], b.max[k]);
@@ -90,75 +97,146 @@ export function measureAutoMovieHumanoidBody(
     Math.max(
       ...segment(name).shapes.map((shape: P.IShape): number =>
         shape.kind === "box"
-          ? Math.min(...[shape.halfExtents.x, shape.halfExtents.y, shape.halfExtents.z].sort((a: number, b: number): number => b - a).slice(1))
+          ? Math.min(
+              ...[shape.halfExtents.x, shape.halfExtents.y, shape.halfExtents.z]
+                .sort((a: number, b: number): number => b - a)
+                .slice(1),
+            )
           : shape.radius,
       ),
     );
   const top: number = Math.max(
     ...profile.segments.flatMap((s: P.ISegment): number[] =>
-      s.shapes.map((shape: P.IShape): number => physicalShapeBounds(s.neutral, shape).max.y),
+      s.shapes.map(
+        (shape: P.IShape): number =>
+          physicalShapeBounds(s.neutral, shape).max.y,
+      ),
     ),
   );
-  const head: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds("head");
-  const chest: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds("chest");
+  const head: { min: IAutoMovieVector3; max: IAutoMovieVector3 } =
+    bounds("head");
+  const chest: { min: IAutoMovieVector3; max: IAutoMovieVector3 } =
+    bounds("chest");
   const hand = (side: "left" | "right"): number => {
     const wrist: IAutoMovieVector3 = at(bone(side, "Hand"));
-    const axis: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(wrist, at(bone(side, "LowerArm"))));
+    const axis: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(wrist, at(bone(side, "LowerArm"))),
+    );
     // The hand's colliders and, when the profile has them, its fingers'.
     const parts: AutoMovieHumanoidBone[] = [
       bone(side, "Hand"),
       ...profile.segments
-        .map((x: P.ISegment): AutoMovieHumanoidBone => x.bone as AutoMovieHumanoidBone)
-        .filter((x: AutoMovieHumanoidBone): boolean => x.startsWith(side) && /(Thumb|Index|Middle|Ring|Little)/.test(x)),
+        .map(
+          (x: P.ISegment): AutoMovieHumanoidBone =>
+            x.bone as AutoMovieHumanoidBone,
+        )
+        .filter(
+          (x: AutoMovieHumanoidBone): boolean =>
+            x.startsWith(side) && /(Thumb|Index|Middle|Ring|Little)/.test(x),
+        ),
     ];
     let far: number = 0;
     for (const part of parts) {
-      const b: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(part);
+      const b: { min: IAutoMovieVector3; max: IAutoMovieVector3 } =
+        bounds(part);
       for (const x of [b.min.x, b.max.x])
         for (const y of [b.min.y, b.max.y])
           for (const z of [b.min.z, b.max.z])
-            far = Math.max(far, Vector3.dot(Vector3.subtract({ x, y, z }, wrist), axis));
+            far = Math.max(
+              far,
+              Vector3.dot(Vector3.subtract({ x, y, z }, wrist), axis),
+            );
     }
     return far;
   };
   // The foot's extents span the toes too when the profile gives them their own segment.
-  const foot = (side: "left" | "right"): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
-    const rear: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(bone(side, "Foot"));
-    if (!profile.segments.some((x: P.ISegment): boolean => x.bone === bone(side, "Toes"))) return rear;
-    const toes: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(bone(side, "Toes"));
+  const foot = (
+    side: "left" | "right",
+  ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
+    const rear: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(
+      bone(side, "Foot"),
+    );
+    if (
+      !profile.segments.some(
+        (x: P.ISegment): boolean => x.bone === bone(side, "Toes"),
+      )
+    )
+      return rear;
+    const toes: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(
+      bone(side, "Toes"),
+    );
     return {
-      min: { x: Math.min(rear.min.x, toes.min.x), y: Math.min(rear.min.y, toes.min.y), z: Math.min(rear.min.z, toes.min.z) },
-      max: { x: Math.max(rear.max.x, toes.max.x), y: Math.max(rear.max.y, toes.max.y), z: Math.max(rear.max.z, toes.max.z) },
+      min: {
+        x: Math.min(rear.min.x, toes.min.x),
+        y: Math.min(rear.min.y, toes.min.y),
+        z: Math.min(rear.min.z, toes.min.z),
+      },
+      max: {
+        x: Math.max(rear.max.x, toes.max.x),
+        y: Math.max(rear.max.y, toes.max.y),
+        z: Math.max(rear.max.z, toes.max.z),
+      },
     };
   };
   const eyes: boolean = rest.has("leftEye") && rest.has("rightEye");
   return {
     stature: top,
     mass: profile.mass,
-    hipHeight: sides((s: "left" | "right"): number => at(bone(s, "UpperLeg")).y),
+    hipHeight: sides(
+      (s: "left" | "right"): number => at(bone(s, "UpperLeg")).y,
+    ),
     hipHalfWidth: distance("leftUpperLeg", "rightUpperLeg") / 2,
     waistHeight: at("spine").y,
     chestHeight: at("chest").y,
     neckHeight: at("neck").y,
     headHeight: at("head").y,
     eyeHeight: eyes ? (at("leftEye").y + at("rightEye").y) / 2 : at("head").y,
-    headRadius: Math.min(head.max.x - head.min.x, head.max.y - head.min.y, head.max.z - head.min.z) / 2,
-    shoulderHeight: sides((s: "left" | "right"): number => at(bone(s, "UpperArm")).y),
+    headRadius:
+      Math.min(
+        head.max.x - head.min.x,
+        head.max.y - head.min.y,
+        head.max.z - head.min.z,
+      ) / 2,
+    shoulderHeight: sides(
+      (s: "left" | "right"): number => at(bone(s, "UpperArm")).y,
+    ),
     shoulderHalfWidth: distance("leftUpperArm", "rightUpperArm") / 2,
-    upperArm: sides((s: "left" | "right"): number => distance(bone(s, "UpperArm"), bone(s, "LowerArm"))),
-    forearm: sides((s: "left" | "right"): number => distance(bone(s, "LowerArm"), bone(s, "Hand"))),
+    upperArm: sides((s: "left" | "right"): number =>
+      distance(bone(s, "UpperArm"), bone(s, "LowerArm")),
+    ),
+    forearm: sides((s: "left" | "right"): number =>
+      distance(bone(s, "LowerArm"), bone(s, "Hand")),
+    ),
     hand: sides(hand),
-    thigh: sides((s: "left" | "right"): number => distance(bone(s, "UpperLeg"), bone(s, "LowerLeg"))),
-    shank: sides((s: "left" | "right"): number => distance(bone(s, "LowerLeg"), bone(s, "Foot"))),
+    thigh: sides((s: "left" | "right"): number =>
+      distance(bone(s, "UpperLeg"), bone(s, "LowerLeg")),
+    ),
+    shank: sides((s: "left" | "right"): number =>
+      distance(bone(s, "LowerLeg"), bone(s, "Foot")),
+    ),
     ankleHeight: sides((s: "left" | "right"): number => at(bone(s, "Foot")).y),
-    footLength: sides((s: "left" | "right"): number => foot(s).max.z - foot(s).min.z),
-    heel: sides((s: "left" | "right"): number => at(bone(s, "Foot")).z - foot(s).min.z),
-    footBreadth: sides((s: "left" | "right"): number => foot(s).max.x - foot(s).min.x),
+    footLength: sides(
+      (s: "left" | "right"): number => foot(s).max.z - foot(s).min.z,
+    ),
+    heel: sides(
+      (s: "left" | "right"): number => at(bone(s, "Foot")).z - foot(s).min.z,
+    ),
+    footBreadth: sides(
+      (s: "left" | "right"): number => foot(s).max.x - foot(s).min.x,
+    ),
     chestDepth: chest.max.z - chest.min.z,
     chestBreadth: chest.max.x - chest.min.x,
-    upperArmRadius: sides((s: "left" | "right"): number => radius(bone(s, "UpperArm"))),
-    forearmRadius: sides((s: "left" | "right"): number => radius(bone(s, "LowerArm"))),
-    thighRadius: sides((s: "left" | "right"): number => radius(bone(s, "UpperLeg"))),
-    shankRadius: sides((s: "left" | "right"): number => radius(bone(s, "LowerLeg"))),
+    upperArmRadius: sides((s: "left" | "right"): number =>
+      radius(bone(s, "UpperArm")),
+    ),
+    forearmRadius: sides((s: "left" | "right"): number =>
+      radius(bone(s, "LowerArm")),
+    ),
+    thighRadius: sides((s: "left" | "right"): number =>
+      radius(bone(s, "UpperLeg")),
+    ),
+    shankRadius: sides((s: "left" | "right"): number =>
+      radius(bone(s, "LowerLeg")),
+    ),
   };
 }

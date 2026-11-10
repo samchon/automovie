@@ -1,5 +1,11 @@
-import type { IAutoMovieSchedule, checkAutoMovieLegality } from "@automovie/engine";
-import type { AutoMovieHumanoidRegion, AutoMovieMotionTarget } from "@automovie/interface";
+import type {
+  IAutoMovieSchedule,
+  checkAutoMovieLegality,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidRegion,
+  AutoMovieMotionTarget,
+} from "@automovie/interface";
 
 /**
  * The kickboxing ruleset a performance's schedule must keep, in the engine's
@@ -22,32 +28,34 @@ import type { AutoMovieHumanoidRegion, AutoMovieMotionTarget } from "@automovie/
  */
 export namespace KickboxingRules {
   /** Regions a strike may not target (GLORY fouls: back of the head, spine, throat, groin). */
-  export const FOUL_REGIONS: ReadonlySet<AutoMovieHumanoidRegion> = new Set<AutoMovieHumanoidRegion>([
-    "headBack",
-    "nape",
-    "upperBack",
-    "lowerBack",
-    "kidneyLeft",
-    "kidneyRight",
-    "throat",
-    "groin",
-  ]);
+  export const FOUL_REGIONS: ReadonlySet<AutoMovieHumanoidRegion> =
+    new Set<AutoMovieHumanoidRegion>([
+      "headBack",
+      "nape",
+      "upperBack",
+      "lowerBack",
+      "kidneyLeft",
+      "kidneyRight",
+      "throat",
+      "groin",
+    ]);
 
   /** Leg regions a linear kick may not target. */
-  export const LEG_REGIONS: ReadonlySet<AutoMovieHumanoidRegion> = new Set<AutoMovieHumanoidRegion>([
-    "thighFrontLeft",
-    "thighFrontRight",
-    "thighOuterLeft",
-    "thighOuterRight",
-    "thighInnerLeft",
-    "thighInnerRight",
-    "kneeLeft",
-    "kneeRight",
-    "shinLeft",
-    "shinRight",
-    "calfLeft",
-    "calfRight",
-  ]);
+  export const LEG_REGIONS: ReadonlySet<AutoMovieHumanoidRegion> =
+    new Set<AutoMovieHumanoidRegion>([
+      "thighFrontLeft",
+      "thighFrontRight",
+      "thighOuterLeft",
+      "thighOuterRight",
+      "thighInnerLeft",
+      "thighInnerRight",
+      "kneeLeft",
+      "kneeRight",
+      "shinLeft",
+      "shinRight",
+      "calfLeft",
+      "calfRight",
+    ]);
 
   /**
    * Why a strike's parameters are a foul, or null when they are legal.
@@ -57,11 +65,22 @@ export namespace KickboxingRules {
    * @returns The reason, or null.
    */
   export function foul(capability: string, params: object): string | null {
-    if (capability !== "punch" && capability !== "kick" && capability !== "knee") return null;
+    if (
+      capability !== "punch" &&
+      capability !== "kick" &&
+      capability !== "knee"
+    )
+      return null;
     const p = params as { at?: AutoMovieMotionTarget; technique?: string };
     if (p.at?.kind !== "person") return null;
-    if (FOUL_REGIONS.has(p.at.region)) return `a strike at the ${p.at.region} is a foul`;
-    if (capability === "kick" && p.technique === "push" && LEG_REGIONS.has(p.at.region)) return `a linear kick at the ${p.at.region} is a foul`;
+    if (FOUL_REGIONS.has(p.at.region))
+      return `a strike at the ${p.at.region} is a foul`;
+    if (
+      capability === "kick" &&
+      p.technique === "push" &&
+      LEG_REGIONS.has(p.at.region)
+    )
+      return `a linear kick at the ${p.at.region} is a foul`;
     return null;
   }
 
@@ -69,7 +88,10 @@ export namespace KickboxingRules {
   export const rules: readonly checkAutoMovieLegality.IRule[] = Object.freeze([
     {
       id: "single-clinch-knee",
-      check: (entry: IAutoMovieSchedule.IEntry, schedule: IAutoMovieSchedule): string | null => {
+      check: (
+        entry: IAutoMovieSchedule.IEntry,
+        schedule: IAutoMovieSchedule,
+      ): string | null => {
         if (entry.intent.capability !== "knee") return null;
 
         // GLORY A.11: the clinch allows one immediate knee, then the athlete
@@ -78,33 +100,61 @@ export namespace KickboxingRules {
           (other: IAutoMovieSchedule.IEntry): boolean =>
             other !== entry &&
             other.subject === entry.subject &&
-            (other.intent.capability === "knee" || other.intent.capability === "punch" || other.intent.capability === "kick") &&
-            (Math.abs(other.end - entry.start) < 1e-6 || Math.abs(entry.end - other.start) < 1e-6),
+            (other.intent.capability === "knee" ||
+              other.intent.capability === "punch" ||
+              other.intent.capability === "kick") &&
+            (Math.abs(other.end - entry.start) < 1e-6 ||
+              Math.abs(entry.end - other.start) < 1e-6),
         );
-        return touching ? `knee ${entry.index} is not a single clinch knee` : null;
+        return touching
+          ? `knee ${entry.index} is not a single clinch knee`
+          : null;
       },
     },
     {
       id: "legal-target",
       check: (entry: IAutoMovieSchedule.IEntry): string | null => {
-        const reason: string | null = foul(entry.intent.capability, params(entry));
+        const reason: string | null = foul(
+          entry.intent.capability,
+          params(entry),
+        );
         return reason === null ? null : `entry ${entry.index}: ${reason}`;
       },
     },
     {
       id: "no-attack-on-a-downed-opponent",
-      check: (entry: IAutoMovieSchedule.IEntry, schedule: IAutoMovieSchedule): string | null => {
-        if (entry.intent.capability !== "punch" && entry.intent.capability !== "kick" && entry.intent.capability !== "knee") return null;
+      check: (
+        entry: IAutoMovieSchedule.IEntry,
+        schedule: IAutoMovieSchedule,
+      ): string | null => {
+        if (
+          entry.intent.capability !== "punch" &&
+          entry.intent.capability !== "kick" &&
+          entry.intent.capability !== "knee"
+        )
+          return null;
         const at = (params(entry) as { at?: AutoMovieMotionTarget }).at;
         if (at?.kind !== "person") return null;
-        const down: IAutoMovieSchedule.IEntry | undefined = schedule.entries.find((other: IAutoMovieSchedule.IEntry): boolean => {
-          if (other.subject !== at.subject || other.intent.capability !== "knockdown" || other.start > entry.start) return false;
-          const next: IAutoMovieSchedule.IEntry | undefined = schedule.entries.find(
-            (later: IAutoMovieSchedule.IEntry): boolean => later.subject === at.subject && later.start > other.start && later.index !== other.index,
-          );
-          return next === undefined || entry.start < next.start;
-        });
-        return down === undefined ? null : `entry ${entry.index} strikes ${at.subject}, who is down since ${down.start.toFixed(2)} s`;
+        const down: IAutoMovieSchedule.IEntry | undefined =
+          schedule.entries.find((other: IAutoMovieSchedule.IEntry): boolean => {
+            if (
+              other.subject !== at.subject ||
+              other.intent.capability !== "knockdown" ||
+              other.start > entry.start
+            )
+              return false;
+            const next: IAutoMovieSchedule.IEntry | undefined =
+              schedule.entries.find(
+                (later: IAutoMovieSchedule.IEntry): boolean =>
+                  later.subject === at.subject &&
+                  later.start > other.start &&
+                  later.index !== other.index,
+              );
+            return next === undefined || entry.start < next.start;
+          });
+        return down === undefined
+          ? null
+          : `entry ${entry.index} strikes ${at.subject}, who is down since ${down.start.toFixed(2)} s`;
       },
     },
   ]);

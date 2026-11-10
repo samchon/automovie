@@ -1,4 +1,7 @@
-import type { IAutoMovieProficiency, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieProficiency,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 

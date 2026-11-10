@@ -1,5 +1,10 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, AutoMovieMotionTarget, IAutoMovieMotionEvent, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionTarget,
+  IAutoMovieMotionEvent,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -63,9 +68,13 @@ export namespace knockdown {
    * @returns The root height, metres.
    */
   export function rest(body: IHumanBody, posture: IHumanPosture): number {
-    const bones = StrikingBody.trunk(body, { ...posture, root: { ...posture.root, y: 0 } });
+    const bones = StrikingBody.trunk(body, {
+      ...posture,
+      root: { ...posture.root, y: 0 },
+    });
     let lowest: number = Infinity;
-    for (const c of StrikingBody.colliders(body, bones)) lowest = Math.min(lowest, bottom(c));
+    for (const c of StrikingBody.colliders(body, bones))
+      lowest = Math.min(lowest, bottom(c));
     return -lowest;
   }
 
@@ -75,7 +84,9 @@ export namespace knockdown {
    * @param context The action's context.
    * @returns The plan.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const body = context.body;
     const m = body.measure;
     const lie: number = context.params.seconds ?? 1;
@@ -85,11 +96,21 @@ export namespace knockdown {
     let away: number | undefined;
     const heading = (): number => {
       if (away !== undefined) return away;
-      const threat: IAutoMovieVector3 = context.aim(context.params.from, context.start - StrikingTarget.LOOK).point;
-      const d: IAutoMovieVector3 = { x: entry.root.x - threat.x, y: 0, z: entry.root.z - threat.z };
+      const threat: IAutoMovieVector3 = context.aim(
+        context.params.from,
+        context.start - StrikingTarget.LOOK,
+      ).point;
+      const d: IAutoMovieVector3 = {
+        x: entry.root.x - threat.x,
+        y: 0,
+        z: entry.root.z - threat.z,
+      };
 
       // Facing the blow, the back falls away from it.
-      away = Vector3.length(d) > 1e-6 ? (Math.atan2(-d.x, -d.z) * 180) / Math.PI : entry.yaw;
+      away =
+        Vector3.length(d) > 1e-6
+          ? (Math.atan2(-d.x, -d.z) * 180) / Math.PI
+          : entry.yaw;
       return away;
     };
     const events: IAutoMovieMotionEvent[] = [
@@ -97,10 +118,24 @@ export namespace knockdown {
       { name: "down", share: DOWN / duration },
     ];
     const contacts: IHumanContactWindow[] = [
-      { part: "seat", kind: "seat", from: SEATED / duration, to: DOWN / duration, support: { kind: "ground" } },
-      { part: "back", kind: "lie", from: DOWN / duration, to: 1, support: { kind: "ground" } },
+      {
+        part: "seat",
+        kind: "seat",
+        from: SEATED / duration,
+        to: DOWN / duration,
+        support: { kind: "ground" },
+      },
+      {
+        part: "back",
+        kind: "lie",
+        from: DOWN / duration,
+        to: 1,
+        support: { kind: "ground" },
+      },
     ];
-    const limp: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = {
+    const limp: Partial<
+      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+    > = {
       leftUpperArm: [10, 20, 0],
       rightUpperArm: [10, 20, 0],
       leftLowerArm: [30, 0, 0],
@@ -117,12 +152,21 @@ export namespace knockdown {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const yaw: number = heading();
         const sit: number = minimumJerk(t / SEATED).s;
-        const back: number = minimumJerk((t - 0.6 * SEATED) / (DOWN - 0.6 * SEATED)).s;
-        const frame: HumanFrame.IFrame = { origin: { ...entry.root, y: 0 }, yaw };
+        const back: number = minimumJerk(
+          (t - 0.6 * SEATED) / (DOWN - 0.6 * SEATED),
+        ).s;
+        const frame: HumanFrame.IFrame = {
+          origin: { ...entry.root, y: 0 },
+          yaw,
+        };
 
         // The pelvis moves back by a thigh as it sits, the feet slide forward
         // to lie a leg's length ahead, and the trunk rolls back to the floor.
-        const root: IAutoMovieVector3 = HumanFrame.point(frame, { x: 0, y: 0, z: -0.5 * m.thigh * sit - 0.3 * m.thigh * back });
+        const root: IAutoMovieVector3 = HumanFrame.point(frame, {
+          x: 0,
+          y: 0,
+          z: -0.5 * m.thigh * sit - 0.3 * m.thigh * back,
+        });
         const knee: number = 100 * sit * (1 - back) + 15 * back;
         const posture: IHumanPosture = {
           root,
@@ -161,7 +205,11 @@ export namespace knockdown {
         for (const sz of [-1, 1]) {
           const corner: IAutoMovieVector3 = Vector3.add(
             c.centre,
-            Quaternion.rotateVector(c.rotation, { x: sx * c.halfExtents.x, y: sy * c.halfExtents.y, z: sz * c.halfExtents.z }),
+            Quaternion.rotateVector(c.rotation, {
+              x: sx * c.halfExtents.x,
+              y: sy * c.halfExtents.y,
+              z: sz * c.halfExtents.z,
+            }),
           );
           low = Math.min(low, corner.y);
         }

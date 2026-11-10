@@ -65,7 +65,10 @@ export namespace StrikingSkill {
    * novice end, 0.45 of elite as for the kick, is provisional until an
    * untrained group's straight-punch speed is located. An audit reference.
    */
-  export const PUNCH_PEAK_SPEED: readonly [number, number] = [0.45 * 7.16, 7.16];
+  export const PUNCH_PEAK_SPEED: readonly [number, number] = [
+    0.45 * 7.16,
+    7.16,
+  ];
 
   /**
    * Share of peak speed left at impact: 0.55 for the roundhouse (Gavagan and
@@ -74,7 +77,8 @@ export namespace StrikingSkill {
    * target: its minimum-jerk unit would end beyond the contact point, at the
    * share of the unit where its speed has fallen to this share of the peak.
    */
-  export const IMPACT_SPEED_SHARE: Readonly<Record<"punch" | "kick", number>> = { punch: 0.78, kick: 0.55 };
+  export const IMPACT_SPEED_SHARE: Readonly<Record<"punch" | "kick", number>> =
+    { punch: 0.78, kick: 0.55 };
 
   /**
    * Latency of an online correction of a moving hand toward a displaced
@@ -144,10 +148,16 @@ export namespace StrikingSkill {
    * @param index The first of the three indices it reads.
    * @returns Seconds.
    */
-  export function reaction(skill: HumanSkill.ISkill, random: IAutoMovieRandom, index: number): number {
+  export function reaction(
+    skill: HumanSkill.ISkill,
+    random: IAutoMovieRandom,
+    index: number,
+  ): number {
     const r: IReaction = reactionLaw(skill);
-    const exponential: number = -r.tau * Math.log(Math.max(1e-12, 1 - random.float(index + 2)));
-    const draw: number = r.mu + r.sigma * HumanSkill.normal(random, index) + exponential;
+    const exponential: number =
+      -r.tau * Math.log(Math.max(1e-12, 1 - random.float(index + 2)));
+    const draw: number =
+      r.mu + r.sigma * HumanSkill.normal(random, index) + exponential;
     const [low, high] = reactionBand(skill);
     return Math.min(high, Math.max(low, draw));
   }
@@ -187,9 +197,14 @@ export namespace StrikingSkill {
    * @param skill The skill.
    * @returns The plausible band.
    */
-  export function reactionBand(skill: HumanSkill.ISkill): readonly [number, number] {
+  export function reactionBand(
+    skill: HumanSkill.ISkill,
+  ): readonly [number, number] {
     const r: IReaction = reactionLaw(skill);
-    return [r.mu - 2.326 * r.sigma, r.mu + 2.326 * r.sigma + r.tau * Math.log(100)];
+    return [
+      r.mu - 2.326 * r.sigma,
+      r.mu + 2.326 * r.sigma + r.tau * Math.log(100),
+    ];
   }
 
   /**
@@ -203,8 +218,13 @@ export namespace StrikingSkill {
    * @param skill The skill.
    * @returns Lower and upper lead, seconds.
    */
-  export function anticipation(skill: HumanSkill.ISkill): readonly [number, number] {
-    return [HumanSkill.quantity(skill, "anticipation", 0, 0.08), HumanSkill.quantity(skill, "anticipation", 0.03, 0.15)];
+  export function anticipation(
+    skill: HumanSkill.ISkill,
+  ): readonly [number, number] {
+    return [
+      HumanSkill.quantity(skill, "anticipation", 0, 0.08),
+      HumanSkill.quantity(skill, "anticipation", 0.03, 0.15),
+    ];
   }
 
   /**
@@ -242,7 +262,11 @@ export namespace StrikingSkill {
    * @param index The first of the three indices it reads.
    * @returns The drop.
    */
-  export function guardDrop(skill: HumanSkill.ISkill, random: IAutoMovieRandom, index: number): IGuardDrop {
+  export function guardDrop(
+    skill: HumanSkill.ISkill,
+    random: IAutoMovieRandom,
+    index: number,
+  ): IGuardDrop {
     const probability: number = HumanSkill.quantity(skill, "guard", 0.6, 0.1);
     if (random.float(index) >= probability) return { depth: 0, seconds: 0 };
     const low: number = HumanSkill.quantity(skill, "guard", 0.08, 0.01);

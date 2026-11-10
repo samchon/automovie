@@ -38,16 +38,22 @@ export function test_motion_contact_events_capsule(): void {
   // forearm is the origin, so a segment's distance to it is the planar
   // distance from the origin to the segment, less the forearm's radius.
   const height = (t: number): number => 1 - 2 * t;
-  const end = (x: number) => (t: number): IAutoMovieVector3 => ({ x, y: height(t), z: 0 });
+  const end =
+    (x: number) =>
+    (t: number): IAutoMovieVector3 => ({ x, y: height(t), z: 0 });
   const toOrigin = (a: IAutoMovieVector3, b: IAutoMovieVector3): number => {
     const ab: IAutoMovieVector3 = Vector3.subtract(b, a);
-    const k: number = Math.min(1, Math.max(0, -Vector3.dot(a, ab) / Math.max(1e-18, Vector3.dot(ab, ab))));
+    const k: number = Math.min(
+      1,
+      Math.max(0, -Vector3.dot(a, ab) / Math.max(1e-18, Vector3.dot(ab, ab))),
+    );
     return Vector3.length(Vector3.add(a, Vector3.scale(ab, k)));
   };
   const forearm: resolveAutoMovieContactEvents.IBody = {
     id: "F",
     distance: (p: IAutoMovieVector3): number => Math.hypot(p.x, p.y) - 0.02,
-    axis: (a: IAutoMovieVector3, b: IAutoMovieVector3): number => toOrigin({ ...a, z: 0 }, { ...b, z: 0 }) - 0.02,
+    axis: (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+      toOrigin({ ...a, z: 0 }, { ...b, z: 0 }) - 0.02,
   };
   const spheres = resolveAutoMovieContactEvents({
     weapons: [
@@ -59,9 +65,20 @@ export function test_motion_contact_events_capsule(): void {
     to: 1,
     step: 1 / 120,
   });
-  TestValidator.predicate("spheres at the ends pass the forearm", spheres.length === 0);
+  TestValidator.predicate(
+    "spheres at the ends pass the forearm",
+    spheres.length === 0,
+  );
   const capsule = resolveAutoMovieContactEvents({
-    weapons: [{ id: "shin", owner: "S", radius: 0.05, position: end(-0.2), tail: end(0.2) }],
+    weapons: [
+      {
+        id: "shin",
+        owner: "S",
+        radius: 0.05,
+        position: end(-0.2),
+        tail: end(0.2),
+      },
+    ],
     bodies: [forearm],
     from: 0,
     to: 1,
@@ -69,24 +86,47 @@ export function test_motion_contact_events_capsule(): void {
   });
   TestValidator.predicate(
     `the capsule meets the forearm at 0.465 s (${capsule[0]?.seconds})`,
-    capsule.length === 1 && capsule[0]!.against === "F" && close(capsule[0]!.seconds, 0.465),
+    capsule.length === 1 &&
+      capsule[0]!.against === "F" &&
+      close(capsule[0]!.seconds, 0.465),
   );
 
   // Head-on shins, each the other's body and held once stopped. Parallel
   // vertical segments with overlapping heights are their x gap apart.
   type Path = (t: number) => number;
-  const held = (id: string, x: Path) => (t: number, stops: resolveAutoMovieContactEvents.IStops): number => x(Math.min(t, stops.get(id) ?? Infinity));
-  const shin = (id: string, owner: string, x: Path, low: number): resolveAutoMovieContactEvents.IWeapon => ({
+  const held =
+    (id: string, x: Path) =>
+    (t: number, stops: resolveAutoMovieContactEvents.IStops): number =>
+      x(Math.min(t, stops.get(id) ?? Infinity));
+  const shin = (
+    id: string,
+    owner: string,
+    x: Path,
+    low: number,
+  ): resolveAutoMovieContactEvents.IWeapon => ({
     id,
     owner,
     radius: 0.1,
     position: (t, stops) => ({ x: held(id, x)(t, stops), y: low, z: 0 }),
     tail: (t, stops) => ({ x: held(id, x)(t, stops), y: low + 0.4, z: 0 }),
   });
-  const leg = (id: string, weapon: string, x: Path): resolveAutoMovieContactEvents.IBody => ({
+  const leg = (
+    id: string,
+    weapon: string,
+    x: Path,
+  ): resolveAutoMovieContactEvents.IBody => ({
     id,
-    distance: (p: IAutoMovieVector3, t: number, stops: resolveAutoMovieContactEvents.IStops): number => Math.abs(p.x - held(weapon, x)(t, stops)) - 0.1,
-    axis: (a: IAutoMovieVector3, _b: IAutoMovieVector3, t: number, stops: resolveAutoMovieContactEvents.IStops): number => Math.abs(a.x - held(weapon, x)(t, stops)) - 0.1,
+    distance: (
+      p: IAutoMovieVector3,
+      t: number,
+      stops: resolveAutoMovieContactEvents.IStops,
+    ): number => Math.abs(p.x - held(weapon, x)(t, stops)) - 0.1,
+    axis: (
+      a: IAutoMovieVector3,
+      _b: IAutoMovieVector3,
+      t: number,
+      stops: resolveAutoMovieContactEvents.IStops,
+    ): number => Math.abs(a.x - held(weapon, x)(t, stops)) - 0.1,
   });
   const left: Path = (t) => -1 + 2 * t;
   const right: Path = (t) => 1 - 2 * t;
@@ -108,16 +148,38 @@ export function test_motion_contact_events_capsule(): void {
         events.every((e) => close(e.seconds, 0.45)) &&
         events.some((e) => e.weapon === "a" && e.against === "B") &&
         events.some((e) => e.weapon === "b" && e.against === "A"),
-    ) && runs[0]!.every((e, i) => e.seconds === runs[1]![i]!.seconds && e.weapon === runs[1]![i]!.weapon && e.against === runs[1]![i]!.against),
+    ) &&
+      runs[0]!.every(
+        (e, i) =>
+          e.seconds === runs[1]![i]!.seconds &&
+          e.weapon === runs[1]![i]!.weapon &&
+          e.against === runs[1]![i]!.against,
+      ),
   );
 
-  TestValidator.error("a capsule against a body without segment distance", (): unknown =>
-    resolveAutoMovieContactEvents({
-      weapons: [{ id: "shin", owner: "S", radius: 0.05, position: end(-0.2), tail: end(0.2) }],
-      bodies: [{ id: "P", distance: (p: IAutoMovieVector3): number => Math.hypot(p.x, p.y) - 0.02 }],
-      from: 0,
-      to: 1,
-      step: 1 / 120,
-    }),
+  TestValidator.error(
+    "a capsule against a body without segment distance",
+    (): unknown =>
+      resolveAutoMovieContactEvents({
+        weapons: [
+          {
+            id: "shin",
+            owner: "S",
+            radius: 0.05,
+            position: end(-0.2),
+            tail: end(0.2),
+          },
+        ],
+        bodies: [
+          {
+            id: "P",
+            distance: (p: IAutoMovieVector3): number =>
+              Math.hypot(p.x, p.y) - 0.02,
+          },
+        ],
+        from: 0,
+        to: 1,
+        step: 1 / 120,
+      }),
   );
 }

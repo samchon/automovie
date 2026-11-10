@@ -1,11 +1,18 @@
-import type { IAutoMovieRandom, IAutoMovieResolvedBone } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, AutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieRandom,
+  IAutoMovieResolvedBone,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanProp } from "../perform/IHumanProp";
-import type { IHumanActionPlan } from "./IHumanActionPlan";
 import type { HumanSkill } from "../skill/HumanSkill";
+import type { IHumanActionPlan } from "./IHumanActionPlan";
 import type { IHumanEntryState } from "./IHumanEntryState";
 
 /**
@@ -47,7 +54,10 @@ export interface IHumanActionContext<P = object> {
    * @param seconds Film seconds.
    * @returns The aim.
    */
-  aim(target: AutoMovieMotionTarget, seconds: number): { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+  aim(
+    target: AutoMovieMotionTarget,
+    seconds: number,
+  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
   /**
    * Another action already placed in the performance, by its anchor: a

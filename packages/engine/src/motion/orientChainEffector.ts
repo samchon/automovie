@@ -47,35 +47,80 @@ import { splitDistalTwist } from "./splitDistalTwist";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export function orientChainEffector(props: IFitChainToTargetProps, fitted: IAutoMoviePose): IAutoMoviePose {
+export function orientChainEffector(
+  props: IFitChainToTargetProps,
+  fitted: IAutoMoviePose,
+): IAutoMoviePose {
   if (props.effectorRotation === undefined) return fitted;
-  const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = skeletonJointAxes(props.skeleton, props.jointAxes);
-  const pose: IAutoMoviePose = splitDistalTwist(props, axes, fitted, props.effectorRotation);
-  const lower: IAutoMovieResolvedBone = resolveBoneMap(props.skeleton, pose, props.topology, axes, props.restFrames).get(props.chain.lower)!;
-  const rest: IAutoMovieQuaternion =
-    props.skeleton.bones.find((b: (typeof props.skeleton.bones)[number]): boolean => b.bone === props.chain.effector)?.rest.rotation ?? Quaternion.identity();
-  const local: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(Quaternion.inverse(rest), Quaternion.multiply(Quaternion.inverse(lower.worldRotation), props.effectorRotation)),
+  const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
+    skeletonJointAxes(props.skeleton, props.jointAxes);
+  const pose: IAutoMoviePose = splitDistalTwist(
+    props,
+    axes,
+    fitted,
+    props.effectorRotation,
   );
-  const effectorAxes: IAutoMovieJointAxes | undefined = axes[props.chain.effector];
+  const lower: IAutoMovieResolvedBone = resolveBoneMap(
+    props.skeleton,
+    pose,
+    props.topology,
+    axes,
+    props.restFrames,
+  ).get(props.chain.lower)!;
+  const rest: IAutoMovieQuaternion =
+    props.skeleton.bones.find(
+      (b: (typeof props.skeleton.bones)[number]): boolean =>
+        b.bone === props.chain.effector,
+    )?.rest.rotation ?? Quaternion.identity();
+  const local: IAutoMovieQuaternion = Quaternion.normalize(
+    Quaternion.multiply(
+      Quaternion.inverse(rest),
+      Quaternion.multiply(
+        Quaternion.inverse(lower.worldRotation),
+        props.effectorRotation,
+      ),
+    ),
+  );
+  const effectorAxes: IAutoMovieJointAxes | undefined =
+    axes[props.chain.effector];
   const frame = props.restFrames?.[props.chain.effector];
-  const angles: ReturnType<typeof decomposeJointRotation> = decomposeJointRotation(local, effectorAxes, frame);
-  const raw: IAutoMovieJointPose = { bone: props.chain.effector, flexion: angles.flexion, abduction: angles.abduction, twist: angles.twist };
+  const angles: ReturnType<typeof decomposeJointRotation> =
+    decomposeJointRotation(local, effectorAxes, frame);
+  const raw: IAutoMovieJointPose = {
+    bone: props.chain.effector,
+    flexion: angles.flexion,
+    abduction: angles.abduction,
+    twist: angles.twist,
+  };
   let effector: IAutoMovieJointPose = clampJointToSkeleton(raw, props.skeleton);
 
   // The clamp moved the joint: refine its mobile axes to the nearest
   // reachable rotation.
   const moved: boolean = (["flexion", "abduction", "twist"] as const).some(
-    (k: "flexion" | "abduction" | "twist"): boolean => Math.abs((effector[k] ?? 0) - (raw[k] ?? 0)) > 1e-9,
+    (k: "flexion" | "abduction" | "twist"): boolean =>
+      Math.abs((effector[k] ?? 0) - (raw[k] ?? 0)) > 1e-9,
   );
   if (moved) {
     const error = (joint: IAutoMovieJointPose): number => {
-      const q: IAutoMovieQuaternion = Quaternion.normalize(jointToQuaternion(joint, effectorAxes, frame));
-      return 1 - Math.abs(q.x * local.x + q.y * local.y + q.z * local.z + q.w * local.w);
+      const q: IAutoMovieQuaternion = Quaternion.normalize(
+        jointToQuaternion(joint, effectorAxes, frame),
+      );
+      return (
+        1 -
+        Math.abs(q.x * local.x + q.y * local.y + q.z * local.z + q.w * local.w)
+      );
     };
-    const span = (k: "flexion" | "abduction" | "twist"): [number, number] | null => {
-      const low: number | null = clampJointToSkeleton({ ...effector, [k]: -1e6 }, props.skeleton)[k];
-      const high: number | null = clampJointToSkeleton({ ...effector, [k]: 1e6 }, props.skeleton)[k];
+    const span = (
+      k: "flexion" | "abduction" | "twist",
+    ): [number, number] | null => {
+      const low: number | null = clampJointToSkeleton(
+        { ...effector, [k]: -1e6 },
+        props.skeleton,
+      )[k];
+      const high: number | null = clampJointToSkeleton(
+        { ...effector, [k]: 1e6 },
+        props.skeleton,
+      )[k];
       if (low === null || high === null || !(high - low > 1e-9)) return null;
       return [Math.max(low, -180), Math.min(high, 180)];
     };
@@ -84,7 +129,8 @@ export function orientChainEffector(props: IFitChainToTargetProps, fitted: IAuto
       for (const k of ["flexion", "abduction", "twist"] as const) {
         const range: [number, number] | null = span(k);
         if (range === null) continue;
-        const at = (v: number): IAutoMovieJointPose => clampJointToSkeleton({ ...effector, [k]: v }, props.skeleton);
+        const at = (v: number): IAutoMovieJointPose =>
+          clampJointToSkeleton({ ...effector, [k]: v }, props.skeleton);
         let [lo, hi] = range;
         let c: number = hi - ratio * (hi - lo);
         let d: number = lo + ratio * (hi - lo);
@@ -111,6 +157,12 @@ export function orientChainEffector(props: IFitChainToTargetProps, fitted: IAuto
   }
   return {
     ...pose,
-    joints: [...pose.joints.filter((joint: IAutoMovieJointPose): boolean => joint.bone !== props.chain.effector), effector],
+    joints: [
+      ...pose.joints.filter(
+        (joint: IAutoMovieJointPose): boolean =>
+          joint.bone !== props.chain.effector,
+      ),
+      effector,
+    ],
   };
 }

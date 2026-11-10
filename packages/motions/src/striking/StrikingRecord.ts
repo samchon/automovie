@@ -45,7 +45,10 @@ export namespace StrikingRecord {
    * @param plan The strike's plan.
    * @param record Its record, built on demand.
    */
-  export function register(plan: IHumanActionPlan, record: () => IRecord): void {
+  export function register(
+    plan: IHumanActionPlan,
+    record: () => IRecord,
+  ): void {
     RECORDS.set(plan, record);
   }
 
