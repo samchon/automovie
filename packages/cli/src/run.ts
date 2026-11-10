@@ -39,7 +39,8 @@ Options:
                   current directory, and add defaults to the directory name.
   --force         Install into a non-empty directory, replacing same-path files.
   --check         Report a sync plan; exit 1 when updates or conflicts remain.
-  --baseline      Previous adopted instructions for a legacy sync.
+  --baseline      Previous adopted instructions the files came from; they
+                  override the stored sync state for the files they hold.
   -h, --help      Show this help as a standalone request.
   -v, --version   Print the version as a standalone request.
 `;

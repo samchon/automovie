@@ -9,7 +9,7 @@
 export interface IScaffoldSyncProps {
   /** Directory holding the generated `AGENTS.md`: a single production or a workspace root, resolved against the caller's working directory. */
   location: string;
-  /** Previous adopted instruction root for files lacking a stored baseline; never overwritten. */
+  /** Previous adopted instruction root the caller asserts the files came from; a file it supplies is compared with it instead of the stored digest, a file it lacks falls back to stored state. Never overwritten. */
   baseline?: string;
   /** Inspect the complete plan without changing files or sync state. */
   check?: boolean;

@@ -59,6 +59,6 @@ export type AutoMovieCommand =
       /** Inspect pending changes and conflicts without writing. */
       check: boolean;
 
-      /** Explicit prior adopted instruction root for an unbased legacy installation. */
+      /** Explicit prior adopted instruction root; the files it supplies govern over stored sync state. */
       baseline?: string;
     };
