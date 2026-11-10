@@ -25,8 +25,9 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * first by the rig's ROM overshoot and then by one continuous cost: the
  * requested effector rotation's error in degrees (when one is requested),
  * plus two degrees per unit of the mid joint's swing away from the bend
- * hint's side of the root-to-target axis (`1 - cos`, world-down when no hint
- * is given, the analytic default), plus, when the request carries a
+ * hint's side of the root-to-target axis (`1 - cos`; without a hint, the side
+ * the posed hinge already bends toward, see `posedSwing`), plus, when the
+ * request carries a
  * `referencePose` (a grid-free reference such as the solution at a contact
  * event, never the previous frame, so a pose stays a pure function of time),
  * the degrees the root and mid joints turn away from it, with the clinical
@@ -76,7 +77,7 @@ export function fitHingedChainCandidate(
     return Vector3.subtract(v, Vector3.scale(axis, Vector3.dot(v, axis)));
   };
   const hint: IAutoMovieVector3 = across(
-    props.bend ?? Vector3.add(root, { x: 0, y: -1, z: 0 }),
+    props.bend ?? Vector3.subtract(root, posedSwing(props, prepared, axes)),
   );
   const side: IAutoMovieVector3 | null =
     Vector3.length(hint) < 1e-9 ? null : Vector3.normalize(hint);
@@ -286,4 +287,77 @@ function rotationError(
     );
     return (2 * Math.acos(dot) * 180) / Math.PI;
   };
+}
+
+/**
+ * Which way the end of the chain swings when its posed hinge flexes one more
+ * degree, as a world vector: the side a hinged chain keeps when the request
+ * names no bend hint. The mid joint lies opposite the swing across the
+ * root-to-end line, so `root - swing` is the hint point.
+ *
+ * Without a pole, analytic two-bone IK keeps the chain's current bend plane
+ * (Unity's TwoBoneIKConstraint without a hint, Maya's ikRPsolver with a zero
+ * pole vector), because the pose being fitted already says how the limb is
+ * turned. World-down, the textbook arm default, fails for a standing leg: it
+ * lies almost along the hip-to-ankle axis, so its component across that axis
+ * is tiny, turns with every millimetre the foot moves and flips the knee
+ * between frames, which a planted walk on a slope showed as a 1066 degree per
+ * second thigh twist. The posed hinge instead gives a definite side even for
+ * a straight limb, since flexion always swings the end about the hinge's own
+ * axis, and it moves only as continuously as the authored pose does.
+ *
+ * Reading the swing numerically (forward kinematics at the posed flexion and
+ * one degree more) needs no sign convention for the hinge axis, which differs
+ * between an elbow and a knee and between rigs.
+ *
+ * @param props The fit request; its pose supplies the posed root and mid joints, rest when absent.
+ * @param prepared The chain's preparation.
+ * @param axes The mid bone's axes; its flexion is the hinge.
+ * @returns The end's displacement, model metres.
+ */
+function posedSwing(
+  props: IFitChainToTargetProps,
+  prepared: NonNullable<ReturnType<typeof prepareChainPlant>>,
+  axes: IAutoMovieJointAxes,
+): IAutoMovieVector3 {
+  const posed = (bone: IAutoMovieJointPose["bone"]): IAutoMovieJointPose =>
+    props.pose.joints.find(
+      (j: IAutoMovieJointPose): boolean => j.bone === bone,
+    ) ?? {
+      bone,
+      flexion: 0,
+      abduction: 0,
+      twist: 0,
+    };
+  const upperJoint: IAutoMovieJointPose = posed(props.chain.upper);
+  const lowerJoint: IAutoMovieJointPose = posed(props.chain.lower);
+  const above: IAutoMovieQuaternion = Quaternion.multiply(
+    prepared.upper.worldRotation,
+    jointToQuaternion(
+      upperJoint,
+      props.jointAxes?.[props.chain.upper],
+      props.restFrames?.[props.chain.upper],
+    ),
+  );
+  const mid: IAutoMovieVector3 = Vector3.add(
+    prepared.upper.worldPosition,
+    Quaternion.rotateVector(above, prepared.lowerOffset),
+  );
+  const end = (flexion: number): IAutoMovieVector3 =>
+    Vector3.add(
+      mid,
+      Quaternion.rotateVector(
+        Quaternion.multiply(
+          Quaternion.multiply(above, prepared.lowerRotation),
+          jointToQuaternion(
+            { ...lowerJoint, flexion },
+            axes,
+            props.restFrames?.[props.chain.lower],
+          ),
+        ),
+        prepared.effectorOffset,
+      ),
+    );
+  const flexion: number = lowerJoint.flexion ?? 0;
+  return Vector3.subtract(end(flexion + 1), end(flexion));
 }

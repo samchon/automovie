@@ -58,8 +58,12 @@ export interface IFitChainToTargetProps {
 
   /**
    * A model-frame point the mid joint (a knee or an elbow) bends toward, the
-   * pole vector of game-engine two-bone IK; omitted, the solve bends toward
-   * world-down and searches bend planes by residual and continuity.
+   * pole vector of game-engine two-bone IK. Omitted, a hinged chain (elbow,
+   * knee) keeps the side its posed hinge already bends toward, the
+   * plane-preserving default of analytic two-bone IK, since world-down lies
+   * almost along a standing leg and flips its knee between frames; another
+   * chain bends toward world-down and searches bend planes by residual and
+   * continuity.
    */
   bend?: IAutoMovieVector3;
 
