@@ -33,7 +33,7 @@ Default lint and evidence configurations serve ordinary TypeScript development; 
 
 ## Shared items
 
-An empty `$<name>` file under the scaffold's `.agents/skills` ships the repository item `<name>` at the same place under `.agents/skills`: `$3d-modeling` the whole folder, `development/$repair.md` the single file. The [instruction synchronizer](../../../packages/template/build/syncScaffoldInstructions.ts) copies those items into `lib/skills` on `prepare` and `build`, and the scaffold reader ships them in the placeholders' place.
+An empty `$<name>` file under the scaffold's `.agents/skills` ships the repository item `<name>` at the same place under `.agents/skills`: `$documentation` the whole folder, `development/$repair.md` the single file. A skill whose production stance differs keeps its own `SKILL.md` beside file placeholders, as `3d-modeling` and `motion` do. The [instruction synchronizer](../../../packages/template/build/syncScaffoldInstructions.ts) copies those items into `lib/skills` on `prepare` and `build`, and the scaffold reader ships them in the placeholders' place.
 
 Share a repository skill this way instead of keeping a second copy, and edit it at its repository source under the [shared skill](../prompting/SKILL.md#shared-skills) rule. [Root and scaffold](../scaffold-prompting/SKILL.md#root-and-scaffold) says which rules belong on which side.
 
