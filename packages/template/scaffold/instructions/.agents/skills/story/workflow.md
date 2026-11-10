@@ -17,7 +17,7 @@ Commissioned video follows one traceable chain: settings or a short's brief, res
 
 Long work runs settings → treatments → scripts → screenplay construction, then screenplay naturalness; only the final screenplay has a separate expression pass, which only an explicit user waiver omits. Its settings exist because every later layer realizes and cites their decisions and cannot cite what was never written.
 
-A short runs brief → screenplay (`short`): its [brief](planning/requirements.md#brief) holds the fixed conditions and the decisions several scenes or films share, the screenplay decides everything else, and research, evidence and review stay; there are no settings, treatment, script or outline files. Wherever a skill or contract cites settings facts, a short cites its brief. A short delivered as a motion hint has no separate naturalness pass, because its screenplay is a working document that motion, not an audience, reads; a short whose commissioned output is the screenplay keeps it.
+A short runs brief → screenplay (`short`): its [brief](planning/requirements.md#brief) holds the fixed conditions and the decisions several scenes or films share, the screenplay decides everything else, and research, evidence and review stay; there are no settings, treatment, script or outline files. Wherever a skill or contract cites settings facts, a short cites its brief. Its screenplay keeps the naturalness pass as long work does.
 
 Asset-only work has no narrative passes. Choose form and scale through [direction](planning/direction.md); complete work is the default. In an AutoMovie workspace the production's folder fixes the route: `movies/shorts/<name>` runs brief → screenplay, and `movies/series/<name>` runs the whole long route.
 
