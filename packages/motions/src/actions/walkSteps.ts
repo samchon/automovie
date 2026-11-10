@@ -109,6 +109,9 @@ export namespace walkSteps {
 
     /** The toes' flexion from the foot, degrees, positive lifting them. */
     toes: number;
+
+    /** A swinging foot's share of its swing, the heading and the pitch it left the floor with. */
+    swing?: { u: number; from: number; push: number };
   }
 
   /** The plan. */
@@ -659,8 +662,26 @@ export namespace walkSteps {
         };
       }
       ankles[side] = { x: h.x + v.x, y: h.y + v.y, z: h.z + v.z };
-      // The swinging foot's heading within the hip's rotation of the pelvis.
+      // The swinging foot leaves with the toe-pad pivot it ended its stance
+      // with, decaying over the first half of the swing, so toe-off does not
+      // turn the foot back; then its heading stays within the hip's rotation
+      // of the pelvis.
       let rotation: IAutoMovieQuaternion = feet[side].placement.rotation;
+      const swing = feet[side].swing;
+      if (swing !== undefined) {
+        const away: number = wrap(planned - swing.from);
+        const excess: number =
+          Math.abs(away) > TWIST ? away - Math.sign(away) * TWIST : 0;
+        const carried: number =
+          excess *
+          Math.min(1, Math.max(0, -swing.push / HEEL_UP)) *
+          (1 - minimumJerk(Math.min(1, 2 * swing.u)).s);
+        if (Math.abs(carried) > 1e-9)
+          rotation = HumanFoot.rotation(
+            HumanFrame.heading(rotation) + carried,
+            pitchOf(rotation),
+          );
+      }
       const turned: number = HumanFrame.heading(rotation);
       let off: number = turned - yaw;
       while (off > 180) off -= 360;
@@ -849,6 +870,7 @@ function footAt(
         ),
         planted: false,
         toes,
+        swing: { u, from: headingOf(flat, heading), push: step.push },
       };
     }
     flat = step.flat;
