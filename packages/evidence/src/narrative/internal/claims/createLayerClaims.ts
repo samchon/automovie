@@ -80,7 +80,7 @@ export function createLayerClaims(
 
   const naturalness: IEvidenceReference[] = [
     ...createPrincipleReferences({
-      location: props.location,
+      contracts: props,
       layer,
       gate: "naturalness",
     }),
@@ -106,7 +106,7 @@ export function createLayerClaims(
     disabled,
     reference: [
       ...createPrincipleReferences({
-        location: props.location,
+        contracts: props,
         layer,
         gate: "layer",
       }),
@@ -115,9 +115,7 @@ export function createLayerClaims(
         layer,
         gate: "layer",
       }),
-      ...(layer === "settings"
-        ? []
-        : [createUpstreamReference(props.location, layer)]),
+      ...(layer === "settings" ? [] : [createUpstreamReference(props, layer)]),
       ...expression,
       ...parents("h2"),
     ],

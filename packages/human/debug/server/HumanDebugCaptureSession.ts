@@ -9,7 +9,7 @@ import {
   chromium,
 } from "playwright-core";
 
-import { DEFAULT_CHROME_EXECUTABLE } from "../../../template/scaffold/src/integrations/render/node/capture/DEFAULT_CHROME_EXECUTABLE";
+import { DEFAULT_CHROME_EXECUTABLE } from "../../../template/scaffold/production/src/executable/render/node/capture/DEFAULT_CHROME_EXECUTABLE";
 import { HUMAN_DEBUG_ROUTES } from "../contracts/HUMAN_DEBUG_ROUTES";
 import { HumanDebugOptions } from "../contracts/HumanDebugOptions";
 import type { IHumanDebugOptions } from "../contracts/IHumanDebugOptions";

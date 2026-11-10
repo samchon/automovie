@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
-import { reconstructAutoMovieRecoveryLocal } from "../../../../packages/template/scaffold/src/integrations/recovery/node/reconstruction/reconstructAutoMovieRecoveryLocal";
+import { reconstructAutoMovieRecoveryLocal } from "../../../../packages/template/scaffold/production/src/executable/recovery/node/reconstruction/reconstructAutoMovieRecoveryLocal";
 import { nclose } from "../internal/nclose";
 
 /**

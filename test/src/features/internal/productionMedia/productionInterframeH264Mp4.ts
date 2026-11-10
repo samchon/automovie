@@ -1,4 +1,4 @@
-import { normalizeProductionH264Mp4 } from "../../../../../packages/template/scaffold/src/integrations/render/node/normalizeProductionH264Mp4";
+import { normalizeProductionH264Mp4 } from "../../../../../packages/template/scaffold/production/src/executable/render/node/normalizeProductionH264Mp4";
 
 /** An independently encoded two-frame AVC input whose second sample depends on its opening sync frame. Its payload is input data, never the expected output of current logic. */
 export const productionInterframeH264Mp4 = (): Uint8Array =>

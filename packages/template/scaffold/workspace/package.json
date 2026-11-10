@@ -1,0 +1,19 @@
+{
+  "name": "{{name}}",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "An AutoMovie workspace of productions and their shared packages.",
+  "engines": {
+    "node": ">=22.23.2"
+  },
+  "scripts": {
+    "lint": "pnpm --recursive --if-present run lint",
+    "evidence": "pnpm --recursive --if-present run evidence",
+    "test": "pnpm --recursive --if-present run test"
+  },
+  "devDependencies": {
+    "automovie": "catalog:automovie"
+  }
+}

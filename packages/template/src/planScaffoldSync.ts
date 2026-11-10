@@ -6,7 +6,7 @@ import type { IScaffoldSyncProps } from "./IScaffoldSyncProps";
 import { SCAFFOLD_SYNC_STATE_FILE } from "./SCAFFOLD_SYNC_STATE_FILE";
 import { isScaffoldInstruction } from "./isScaffoldInstruction";
 import { readScaffoldSyncFile } from "./readScaffoldSyncFile";
-import { renderScaffold } from "./renderScaffold";
+import { renderScaffoldInstructions } from "./renderScaffoldInstructions";
 
 /**
  * Plans a complete instruction sync without changing the production.
@@ -21,7 +21,7 @@ import { renderScaffold } from "./renderScaffold";
  */
 export function planScaffoldSync(props: IScaffoldSyncProps): IScaffoldSyncPlan {
   const location: string = path.resolve(props.location);
-  const bundle: Record<string, string> = renderScaffold({ name: props.name });
+  const bundle: Record<string, string> = renderScaffoldInstructions();
   const state: ReturnType<typeof readScaffoldSyncFile> = readScaffoldSyncFile(
     location,
     SCAFFOLD_SYNC_STATE_FILE,

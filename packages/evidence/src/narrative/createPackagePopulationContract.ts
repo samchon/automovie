@@ -3,6 +3,7 @@ import type {
   IEvidenceMarkdownReference,
 } from "@wrtnlabs/evidence";
 
+import { PRODUCTION_CONTRACTS } from "../internal/PRODUCTION_CONTRACTS";
 import type { AuthoredLayer } from "./AuthoredLayer";
 import type { IPackagePopulationContractProps } from "./IPackagePopulationContractProps";
 import type { ProductionStage } from "./ProductionStage";
@@ -19,7 +20,7 @@ import { passRoot } from "./internal/utilities/passRoot";
  * has exactly one answering document. A duty is never repeated per H2, because a
  * population question restated on every unit is no longer one comparison.
  *
- * @evidence contracts/development/implementation.md#principled-implementation An exact work/obligations path yields one unique-evidence file-level duty reference per owning layer; naturalness eligibility and pilot-only inapplicability are checked before constructing claims.
+ * @evidence contracts/development/implementation.md#principled-implementation An exact work/obligations path yields one unique-evidence file-level duty reference per owning layer; naturalness eligibility and pilot-only inapplicability are checked before constructing claims. The reference roots at the production's own `docs/contracts`, because the work obligation is production-owned even when a workspace keeps the shared contracts elsewhere.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The factory keeps once-per-population ownership separate from per-H2 checklist expansion and delegates manuscript selectors to createUnitFiles.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pilot-only deferral follows the explicit scope contract; complete-work obligations cannot be suppressed through the inapplicable flag.
  * @evidence contracts/development/common.md#meaningful-documentation The comment identifies detached versus inline evidence, file-level answering and exactly one answering document per duty; props state ownership and deferral.
@@ -82,7 +83,7 @@ export function createPackagePopulationContract(
     } => {
       const obligation: IEvidenceMarkdownReference = {
         type: "markdown",
-        root: ".agents/skills/contracts/story",
+        root: PRODUCTION_CONTRACTS,
         files: [normalizedDocument],
         symbol: "h2",
         noEvidenceExclude: true,

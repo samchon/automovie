@@ -21,7 +21,7 @@ Explore the architectural examples at [samchon.github.io/AutoMovie](https://samc
 Use Node.js 22.23.2 or later.
 
 ```bash
-npx automovie start <directory>
+npx automovie create <directory>
 cd <directory>
 npm install --package-lock=false
 npm run lint
@@ -29,9 +29,11 @@ npm run evidence
 npm test
 ```
 
-Open the generated directory in your coding agent and give it the intended production request. `AGENTS.md` routes eight skills; `PROJECT.md` records the adopted scope and choices. Follow the [production workflow](./packages/template/scaffold/README.md#make-a-motion-hint) from screenplay through programmed staging, any required companion controls, the actual host and whole edit, and delivery review. The blank scaffold supplies instructions, configuration and package dependencies; it contains no film, viewer host or media provider. Its initial checks validate that empty harness and produce no movie. As the production is authored, its README records the actual execution and delivery commands.
+`npx automovie create <directory> --workspace` creates a pnpm workspace instead: one shared `AGENTS.md` and `.agents/skills`, productions under `movies/shorts/<name>` (settings → screenplay) and `movies/series/<name>` (the whole long route), and the workspace's own libraries under `packages/<name>`. From that root, `pnpm install` then `pnpm automovie add shorts/<name>` adds a production. For the current directory, `create .` asks for a name and offers `automovie-examples`; `--name <name>` supplies it.
 
-Film productions live under `movies/`; the architectural demonstrations under `experimental/` retain their existing roles. Explicit `automovie sync <directory> --check` inspects instruction updates for a production; inside this repository, run it from source as `pnpm automovie sync <directory> --check`. Sync preserves project content, configuration and contracts and reports local instruction conflicts; package upgrades alone change no project files.
+Open the generated directory in your coding agent and give it the intended production request. `AGENTS.md` routes eight skills; `PROJECT.md` records the adopted scope and choices. Follow the [production workflow](./packages/template/scaffold/production/README.md#make-a-motion-hint) from screenplay through programmed staging, any required companion controls, the actual host and whole edit, and delivery review. The blank scaffold supplies instructions, configuration and package dependencies; it contains no film, viewer host or media provider. Its initial checks validate that empty harness and produce no movie. As the production is authored, its README records the actual execution and delivery commands.
+
+Film productions live under `movies/`; the architectural demonstrations under `experimental/` retain their existing roles. Explicit `automovie sync <directory> --check` inspects instruction updates for a production or workspace root; inside this repository, run it from source as `pnpm automovie sync <directory> --check`. Sync preserves project content, configuration and contracts and reports local instruction conflicts; package upgrades alone change no project files.
 
 ## Packages
 

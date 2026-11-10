@@ -20,7 +20,7 @@ const {
   convertAutoMovieRecoveryCurves,
   reconstructAutoMovieRecoveryModel,
 } = require("@automovie/recovery");
-const { publishAutoMovieRecoveryArtifact } = require("./src/integrations/recovery");
+const { publishAutoMovieRecoveryArtifact } = require("./src/executable/recovery");
 
 const curves = JSON.parse(fs.readFileSync("curves.json", "utf8"));
 const hermite = convertAutoMovieRecoveryCurves(curves, "hermite");
@@ -62,7 +62,7 @@ The result keeps original publication addresses in `sections`, untargeted artifa
 
 ## Node tooling
 
-File publication and the `automovie-recovery` command dispatcher are Node tooling that the generated scaffold ships under `src/integrations/recovery`; this package stays free of file and process access.
+File publication and the `automovie-recovery` command dispatcher are Node tooling that the generated scaffold ships under `src/executable/recovery`; this package stays free of file and process access.
 
 ## Public API
 

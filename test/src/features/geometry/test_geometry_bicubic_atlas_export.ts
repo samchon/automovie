@@ -2,7 +2,7 @@ import type { IAutoMovieModel } from "@automovie/interface";
 import { Document, NodeIO, Primitive } from "@gltf-transform/core";
 import { TestValidator } from "@nestia/e2e";
 
-import { exportModelToGLB } from "../../../../packages/template/scaffold/src/integrations/render/node/exportModelToGLB";
+import { exportModelToGLB } from "../../../../packages/template/scaffold/production/src/executable/render/node/exportModelToGLB";
 import { createBicubicPlaneRecipe } from "../internal/createBicubicPlaneRecipe";
 import { nclose } from "../internal/nclose";
 

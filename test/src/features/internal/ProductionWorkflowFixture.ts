@@ -95,7 +95,7 @@ export class ProductionWorkflowFixture {
         );
     ProductionWorkflowFixture.write(
       root,
-      ".agents/skills/contracts/story/work/discovery/results.md",
+      "docs/contracts/work/discovery/results.md",
       "# Discovery\n\nNo extra requirement was adopted.\n",
     );
   }
@@ -262,7 +262,7 @@ export class ProductionWorkflowFixture {
     }
     ProductionWorkflowFixture.write(
       root,
-      ".agents/skills/contracts/story/work/discovery/results.md",
+      "docs/contracts/work/discovery/results.md",
       `<!--\n${[...discovery].map((target: string): string => `@evidenceExclude ${target} The fixture needs no additional rule.`).join("\n")}\n-->\n# Discovery\n\nThe fixed scene introduces no work-specific rule.\n`,
     );
     return props;

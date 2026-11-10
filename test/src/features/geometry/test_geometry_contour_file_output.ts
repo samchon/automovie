@@ -9,8 +9,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { writeAutoMovieRecoveryArtifact } from "../../../../packages/template/scaffold/src/integrations/recovery/node/artifact/writeAutoMovieRecoveryArtifact";
-import { createAutoMovieRecoveryContourFileMesh } from "../../../../packages/template/scaffold/src/integrations/recovery/node/mesh/createAutoMovieRecoveryContourFileMesh";
+import { writeAutoMovieRecoveryArtifact } from "../../../../packages/template/scaffold/production/src/executable/recovery/node/artifact/writeAutoMovieRecoveryArtifact";
+import { createAutoMovieRecoveryContourFileMesh } from "../../../../packages/template/scaffold/production/src/executable/recovery/node/mesh/createAutoMovieRecoveryContourFileMesh";
 import { nclose } from "../internal/nclose";
 
 /**

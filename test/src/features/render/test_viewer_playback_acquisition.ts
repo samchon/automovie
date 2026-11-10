@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-import { acquireViewerBrowser } from "../../../../packages/template/scaffold/src/integrations/render/node/acquireViewerBrowser";
+import { acquireViewerBrowser } from "../../../../packages/template/scaffold/production/src/executable/render/node/acquireViewerBrowser";
 
 /** Pending acquisition observes cancellation without replacing browser methods.
  *

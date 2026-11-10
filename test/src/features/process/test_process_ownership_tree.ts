@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { ProcessOwnership } from "../../../../packages/template/scaffold/src/integrations/viewer/process/ProcessOwnership";
+import { ProcessOwnership } from "../../../../packages/template/scaffold/production/src/executable/viewer/process/ProcessOwnership";
 import { throwsError } from "../internal/predicates";
 
 /**

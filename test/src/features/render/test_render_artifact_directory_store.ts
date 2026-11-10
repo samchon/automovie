@@ -6,8 +6,8 @@ import path from "node:path";
 import type { IAutoMovieArtifactResolution } from "../../../../packages/engine/src/cache/IAutoMovieArtifactResolution";
 import { composeAutoMovieArtifactKey } from "../../../../packages/engine/src/cache/composeAutoMovieArtifactKey";
 import { resolveAutoMovieArtifact } from "../../../../packages/engine/src/cache/resolveAutoMovieArtifact";
-import type { IAutoMovieDirectoryArtifactStore } from "../../../../packages/template/scaffold/src/integrations/render/node/cache/IAutoMovieDirectoryArtifactStore";
-import { createAutoMovieDirectoryArtifactStore } from "../../../../packages/template/scaffold/src/integrations/render/node/cache/createAutoMovieDirectoryArtifactStore";
+import type { IAutoMovieDirectoryArtifactStore } from "../../../../packages/template/scaffold/production/src/executable/render/node/cache/IAutoMovieDirectoryArtifactStore";
+import { createAutoMovieDirectoryArtifactStore } from "../../../../packages/template/scaffold/production/src/executable/render/node/cache/createAutoMovieDirectoryArtifactStore";
 
 /**
  * The directory store persists verified entries across opens and collects garbage.

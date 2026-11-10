@@ -1,12 +1,12 @@
 import { TestValidator } from "@nestia/e2e";
 import { type Context, createContext } from "node:vm";
 
-import { AutoMovieHeadlessCaptureError } from "../../../../packages/template/scaffold/src/integrations/render/headlessCapture/AutoMovieHeadlessCaptureError";
-import { IAutoMovieHeadlessCaptureOptions } from "../../../../packages/template/scaffold/src/integrations/render/headlessCapture/IAutoMovieHeadlessCaptureOptions";
-import { IAutoMovieHeadlessCaptureSession } from "../../../../packages/template/scaffold/src/integrations/render/headlessCapture/IAutoMovieHeadlessCaptureSession";
-import { IAutoMovieHeadlessLocator } from "../../../../packages/template/scaffold/src/integrations/render/headlessCapture/IAutoMovieHeadlessLocator";
-import { IAutoMovieHeadlessPage } from "../../../../packages/template/scaffold/src/integrations/render/headlessCapture/IAutoMovieHeadlessPage";
-import { createHeadlessCaptureAdapter } from "../../../../packages/template/scaffold/src/integrations/render/headlessCapture/createHeadlessCaptureAdapter";
+import { AutoMovieHeadlessCaptureError } from "../../../../packages/template/scaffold/production/src/executable/render/headlessCapture/AutoMovieHeadlessCaptureError";
+import { IAutoMovieHeadlessCaptureOptions } from "../../../../packages/template/scaffold/production/src/executable/render/headlessCapture/IAutoMovieHeadlessCaptureOptions";
+import { IAutoMovieHeadlessCaptureSession } from "../../../../packages/template/scaffold/production/src/executable/render/headlessCapture/IAutoMovieHeadlessCaptureSession";
+import { IAutoMovieHeadlessLocator } from "../../../../packages/template/scaffold/production/src/executable/render/headlessCapture/IAutoMovieHeadlessLocator";
+import { IAutoMovieHeadlessPage } from "../../../../packages/template/scaffold/production/src/executable/render/headlessCapture/IAutoMovieHeadlessPage";
+import { createHeadlessCaptureAdapter } from "../../../../packages/template/scaffold/production/src/executable/render/headlessCapture/createHeadlessCaptureAdapter";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import { runHeadlessPageCallback } from "../internal/runHeadlessPageCallback";
 

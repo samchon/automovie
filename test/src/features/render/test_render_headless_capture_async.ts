@@ -2,11 +2,11 @@ import assert from "node:assert/strict";
 import { setImmediate } from "node:timers/promises";
 import { type Context, createContext } from "node:vm";
 
-import { AutoMovieHeadlessCaptureError } from "../../../../packages/template/scaffold/src/integrations/viewer/node/capture/AutoMovieHeadlessCaptureError";
-import { type IAutoMovieHeadlessLocator } from "../../../../packages/template/scaffold/src/integrations/viewer/node/capture/IAutoMovieHeadlessLocator";
-import { type IAutoMovieHeadlessPage } from "../../../../packages/template/scaffold/src/integrations/viewer/node/capture/IAutoMovieHeadlessPage";
-import { type IViewerCaptureSession } from "../../../../packages/template/scaffold/src/integrations/viewer/node/capture/IViewerCaptureSession";
-import { createViewerCaptureSession } from "../../../../packages/template/scaffold/src/integrations/viewer/node/capture/createViewerCaptureSession";
+import { AutoMovieHeadlessCaptureError } from "../../../../packages/template/scaffold/production/src/executable/viewer/node/capture/AutoMovieHeadlessCaptureError";
+import { type IAutoMovieHeadlessLocator } from "../../../../packages/template/scaffold/production/src/executable/viewer/node/capture/IAutoMovieHeadlessLocator";
+import { type IAutoMovieHeadlessPage } from "../../../../packages/template/scaffold/production/src/executable/viewer/node/capture/IAutoMovieHeadlessPage";
+import { type IViewerCaptureSession } from "../../../../packages/template/scaffold/production/src/executable/viewer/node/capture/IViewerCaptureSession";
+import { createViewerCaptureSession } from "../../../../packages/template/scaffold/production/src/executable/viewer/node/capture/createViewerCaptureSession";
 import { runHeadlessPageCallback } from "../internal/runHeadlessPageCallback";
 
 /** A controllable hook settlement, without timers or a browser process. */

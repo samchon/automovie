@@ -1,6 +1,6 @@
 import { BoxParser, createFile } from "mp4box";
 
-import { trimProductionAudioPresentation } from "../../../../../packages/template/scaffold/src/integrations/render/node/trimProductionAudioPresentation";
+import { trimProductionAudioPresentation } from "../../../../../packages/template/scaffold/production/src/executable/render/node/trimProductionAudioPresentation";
 
 /** Write small supported Opus silence packets with authored sample clocks and priming. Presentation sample counts are inputs, so expected durations are calculated independently. */
 export const productionOpusMp4 = (

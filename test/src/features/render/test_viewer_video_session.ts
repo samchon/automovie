@@ -1,7 +1,7 @@
 import type { IAutoMovieRenderSpec } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { renderViewerVideoSession } from "../../../../packages/template/scaffold/src/integrations/render/node/renderViewerVideoSession";
+import { renderViewerVideoSession } from "../../../../packages/template/scaffold/production/src/executable/render/node/renderViewerVideoSession";
 
 /**
  * A transferred capture session closes once across success and every effect failure.

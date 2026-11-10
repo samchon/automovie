@@ -54,11 +54,15 @@ export function test_template_dependency_versions(): void {
     playwright: ~11.0.0
     pngjs: ^12.0.0
     "@types/pngjs": ~13.0.0
+    ffmpeg-static: ^17.0.0
+    playwright-core: ~18.0.0
   three:
     three: &three ^14.0.0
     "@types/three": *three
   vite:
     vite: ^15.0.0
+  gltf:
+    "@gltf-transform/core": ^19.0.0
 `;
   TestValidator.equals(
     "complete scaffold dependency inputs",
@@ -67,14 +71,17 @@ export function test_template_dependency_versions(): void {
       ...packages,
       huggingFaceTransformers: "5.0.0",
       h264Mp4Encoder: "^6.0.0",
+      ffmpegStatic: "^17.0.0",
       kokoroJs: "7.0.0",
       libopusWasm: "~8.0.0",
       mp4box: "^9.0.0",
       onnxruntimeNode: "10.0.0",
       playwright: "~11.0.0",
+      playwrightCore: "~18.0.0",
       pngjs: "^12.0.0",
       pngjsTypes: "~13.0.0",
       three: "^14.0.0",
+      gltfTransformCore: "^19.0.0",
       threeTypes: "^14.0.0",
       vite: "^15.0.0",
       nodeTypes: "^4.0.0",

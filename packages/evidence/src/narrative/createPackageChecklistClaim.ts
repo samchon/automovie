@@ -3,6 +3,7 @@ import type {
   IEvidenceClaim,
 } from "@wrtnlabs/evidence";
 
+import { PRODUCTION_CONTRACTS } from "../internal/PRODUCTION_CONTRACTS";
 import type { IPackageChecklistClaimProps } from "./IPackageChecklistClaimProps";
 import { createEvidenceFiles } from "./internal/utilities/createEvidenceFiles";
 import { passRoot } from "./internal/utilities/passRoot";
@@ -18,7 +19,7 @@ import { passRoot } from "./internal/utilities/passRoot";
  * `symbol` is required rather than defaulted, because it is the same choice:
  * `"h2"` binds the condition to every unit, `"file"` binds it once per file.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Exact work-subtree paths and explicit file/H2 granularity are validated before building native Markdown references; principles remain per-H2 checklists, while population obligations are delegated to their dedicated factory.
+ * @evidence contracts/development/implementation.md#principled-implementation Exact work-subtree paths and explicit file/H2 granularity are validated before building native Markdown references; principles remain per-H2 checklists, while population obligations are delegated to their dedicated factory. Every reference roots at the production's own `docs/contracts`, because only work documents are admitted and a production owns its work contracts even when a workspace keeps the shared ones elsewhere.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One factory owns local contract validation and detached construction evidence mapping; independent review remains a separate claim family.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reserved discovery carrier and obligation subtree are excluded because built-in discovery and once-per-population factories own those duties; these checks apply to every work document.
  * @evidence contracts/development/common.md#meaningful-documentation The comment explains per-host versus distributed duties, required symbol choice and independent review separation; errors identify unsupported document or host forms.
@@ -101,7 +102,7 @@ export function createPackageChecklistClaim(
         symbol: "h2";
       } => ({
         type: "markdown" as const,
-        root: ".agents/skills/contracts/story",
+        root: PRODUCTION_CONTRACTS,
         files: [document],
         symbol: "h2" as const,
         ...(props.checklist === false ? {} : { checklist: true as const }),

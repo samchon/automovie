@@ -11,7 +11,7 @@ import type { ProductionStage } from "./ProductionStage";
  * its selected hosts answer item by item, and the wiring is the same every
  * time — only the document, the hosts, and when the claim is off differ.
  *
- * @evidence contracts/development/design.md#principled-representation The object groups work-contract paths, host selectors, explicit symbol granularity and activation flags for createPackageChecklistClaim; default pass and checklist meanings are documented on their members.
+ * @evidence contracts/development/design.md#principled-representation The object groups work-contract paths, addressed inside the production's `docs/contracts`, host selectors, explicit symbol granularity and activation flags for createPackageChecklistClaim; default pass and checklist meanings are documented on their members.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One object owns document selection, host granularity and activation so createPackageChecklistClaim validates the relationship together.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Exact work paths and symbol validity are enforced by createPackageChecklistClaim rather than hidden type-level assumptions.
  * @evidence contracts/development/common.md#meaningful-documentation Members explain document-relative addressing, required host granularity, pass/checklist defaults and optional deferral.
@@ -21,7 +21,7 @@ export interface IPackageChecklistClaimProps {
   name: string;
 
   /**
-   * Locates the contract inside the effective local contract tree.
+   * Locates the contract inside the production's `docs/contracts`.
    *
    * Give the path as hosts cite it, such as
    * `work/principles/historical-record.md`. Several paths become several
