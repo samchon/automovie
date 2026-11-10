@@ -21,6 +21,11 @@ import { StrikingContact } from "./StrikingContact";
  * velocity and acceleration everywhere except at a contact, where the weapon
  * stops on the surface it met (an impact) and recoils from there on a
  * minimum-jerk unit to its return point.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the path model, the aim through the target, the continuity it keeps and where it breaks.
+ * @evidence contracts/development/design.md#principled-representation A delivery and a stroke in world metres and film seconds as superposed minimum-jerk units, with the stop as a film second.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The dwell, the impact share, the delivery and stroke types and the two builders the punch and kick laws use.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's minimum-jerk units and the tracker type.
  */
 export namespace StrikingStroke {
   /**
@@ -37,6 +42,15 @@ export namespace StrikingStroke {
    *
    * @param speed The share of the peak speed, in (0, 1].
    * @returns The unit share, in [0.5, 1).
+   * @throws {Error} When the speed share lies outside (0, 1].
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the derivation, the domain, the range and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The minimum-jerk speed profile solved in closed form for the later root of `u(1-u)` at the given share of the peak.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One validation and one closed form.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A share outside its domain throws; the discriminant is floored at zero only against rounding at a share of 1.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function impactShare(speed: number): number {
     if (!(speed > 0 && speed <= 1))
@@ -45,7 +59,14 @@ export namespace StrikingStroke {
     return (1 + Math.sqrt(Math.max(0, 1 - 4 * product))) / 2;
   }
 
-  /** A planned delivery, film seconds and world metres. */
+  /**
+   * A planned delivery, film seconds and world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
+   * @evidence contracts/development/design.md#principled-representation World points and a direction, film-second instants, an optional via point with its timing, and a speed share; the delivery's span is checked when building.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What a punch and a kick (with its chamber) pass to the builder.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector.
+   */
   export interface IDelivery {
     /** The end joint at the launch. */
     origin: IAutoMovieVector3;
@@ -81,6 +102,15 @@ export namespace StrikingStroke {
    *
    * @param d The delivery.
    * @returns Units with film-second starts.
+   * @throws {Error} When the delivery would end before it begins.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the units produced and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A via unit to the chamber, a delivery unit aimed through the contact so the measured share of peak speed remains at it, and a correcting unit over the same span that lands the joint exactly on the contact point.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Via, delivery and correction in order.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive span throws; a correction under 1e-12 m is omitted as rounding.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function delivery(d: IDelivery): superposeMinimumJerk.IUnit[] {
     const units: superposeMinimumJerk.IUnit[] = [];
@@ -120,7 +150,14 @@ export namespace StrikingStroke {
     return units;
   }
 
-  /** What a stroke evaluates. */
+  /**
+   * What a stroke evaluates.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and the meaning of an absent value.
+   * @evidence contracts/development/design.md#principled-representation The delivery's units, optional tracking, the return in world metres and seconds, an optional own-scan gap and the jointly resolved stop, where null means resolved to meet nothing.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What the punch and kick laws pass; the gap and scan serve a stroke not resolved jointly, which the strike laws no longer use, and remain for that capability and its CI test.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's units and the tracker type.
+   */
   export interface IInput {
     /** The end joint at the launch, world metres. */
     origin: IAutoMovieVector3;
@@ -151,6 +188,14 @@ export namespace StrikingStroke {
      * The weapon's signed gap to the struck body at a second, given the end
      * joint's position then; positive while apart. Absent when nothing can be
      * met (a strike at the air).
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the sign and the meaning of absence.
+     * @evidence contracts/development/implementation.md#principled-implementation Supplied by the caller as a signed distance from the weapon to the struck body's colliders at that second.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure A single callback the scan reads.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+     * @evidence contracts/development/implementation.md#efficient-algorithms The caller's distance query, once per scan sample.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The stroke memoises the scan, not each gap.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callback retains what its caller gives it.
      */
     gap?: (end: IAutoMovieVector3, seconds: number) => number;
 
@@ -165,13 +210,28 @@ export namespace StrikingStroke {
     fixed?: number | null;
   }
 
-  /** An evaluated stroke. */
+  /**
+   * An evaluated stroke.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its timebase and frame.
+   * @evidence contracts/development/design.md#principled-representation The shown path, the free path and the stop as functions of the film second.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The three readings the strike laws compose and record.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector.
+   */
   export interface IStroke {
     /**
      * The end joint at a second.
      *
      * @param seconds Film seconds.
      * @returns World metres.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the timebase and the frame.
+     * @evidence contracts/development/implementation.md#principled-implementation The free path before the stop; after it the met point, held for the dwell and recoiling on minimum-jerk units.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One stop read and one branch.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the units.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the memoised stop.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the stroke.
      */
     end(seconds: number): IAutoMovieVector3;
 
@@ -180,6 +240,14 @@ export namespace StrikingStroke {
      *
      * @param seconds Film seconds.
      * @returns The contact second, or undefined.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the timebase and the meaning of undefined.
+     * @evidence contracts/development/implementation.md#principled-implementation The jointly resolved second when given; otherwise the stroke's own fixed-step scan of the gap, bisected at the first crossing and never reading past the asked second.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The resolved second, the memo, then the scan.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+     * @evidence contracts/development/implementation.md#efficient-algorithms The scan advances once over its span across all calls.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The scan's progress and its found second are memoised for the stroke's life.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one scan position and one found second, released with the stroke.
      */
     stop(seconds: number): number | undefined;
 
@@ -189,6 +257,14 @@ export namespace StrikingStroke {
      *
      * @param seconds Film seconds.
      * @returns World metres.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what the free path is and who reads it.
+     * @evidence contracts/development/implementation.md#principled-implementation The delivery's units with the corrections started by the second, and after the planned contact the free recoil from where the units settle.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One superposition.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the units and corrections.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the second and the stroke's input.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     free(seconds: number): IAutoMovieVector3;
   }
@@ -199,6 +275,14 @@ export namespace StrikingStroke {
    *
    * @param input The stroke.
    * @returns The evaluator, memoising its scan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the causality kept and the memo.
+   * @evidence contracts/development/implementation.md#principled-implementation Superposed minimum-jerk units for the paths, a recoil through the optional re-chamber on two overlapping units (Flash and Hogan's via-point fit), and a causal scan for the stop when none is resolved.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The recoil, the free path and the stop as closures, composed into the shown path.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; a nested read during a scan sees the free path, as documented in its comment.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the units per evaluation; the scan's samples are spent once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The scan's progress and found second are memoised so every evaluation order gives the same stop.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closures hold the input and the scan state, released with the stroke.
    */
   export function create(input: IInput): IStroke {
     const corrections = (seconds: number): superposeMinimumJerk.IUnit[] => [

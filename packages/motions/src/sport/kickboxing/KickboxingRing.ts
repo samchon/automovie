@@ -9,9 +9,21 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * 6.1 to 7.3 m inside the ropes; the size is the production's). Corners are
  * named in the ring's own frame: the red and blue corners on one diagonal,
  * the two neutral corners on the other.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the ring's shape, frame, the source of its size range and the corner naming.
+ * @evidence contracts/development/design.md#principled-representation A square on the floor as a centre, a side in metres and a heading in degrees, with corners as a closed union.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The ring, its corners and the three queries footwork, staging and the knockdown count read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector; the size is the production's, not fixed here.
  */
 export namespace KickboxingRing {
-  /** A ring. */
+  /**
+   * A ring.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
+   * @evidence contracts/development/design.md#principled-representation A centre in world metres, a side in metres (positive) and a heading in degrees about +Y; positivity is left to the queries.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values every query reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector.
+   */
   export interface IRing {
     /** The centre on the floor, world metres. */
     centre: IAutoMovieVector3;
@@ -23,7 +35,14 @@ export namespace KickboxingRing {
     yaw: number;
   }
 
-  /** A corner's name. */
+  /**
+   * A corner's name.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the four corners; the namespace places them on the diagonals.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the four corners a ring has.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The corners the corner query and the knockdown count name.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
   export type Corner = "red" | "blue" | "neutralA" | "neutralB";
 
   /**
@@ -33,6 +52,14 @@ export namespace KickboxingRing {
    * @param corner Which corner.
    * @param margin How far inside the ropes, metres.
    * @returns World metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the margin's meaning and the units.
+   * @evidence contracts/development/implementation.md#principled-implementation The corner's ring-local coordinates rotated by the ring's heading and translated to its centre.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A table of local corners and one frame change.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function corner(
     ring: IRing,
@@ -57,6 +84,14 @@ export namespace KickboxingRing {
    * @param point The point, world metres.
    * @param margin The margin, metres.
    * @returns True inside.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the test, the margin and the units.
+   * @evidence contracts/development/implementation.md#principled-implementation The point in ring-local coordinates against the half side less the margin on both axes, with a 1e-12 m tolerance for rounding on the boundary.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame change and two comparisons.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function inside(
     ring: IRing,
@@ -75,6 +110,15 @@ export namespace KickboxingRing {
    * @param point The point, world metres.
    * @param margin The margin, metres; below half the size.
    * @returns World metres, at floor height.
+   * @throws {Error} When the margin is half the size or more.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result, the margin's bound and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The nearest point of a square is the per-axis clamp of the point's ring-local coordinates.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two frame changes around one clamp.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A margin leaving no area throws.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function clamp(
     ring: IRing,

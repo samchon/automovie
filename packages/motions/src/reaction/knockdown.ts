@@ -36,6 +36,11 @@ import { StrikingTarget } from "../striking/StrikingTarget";
  * Proportions of the fall (the seat point, the lean) are provisional
  * readings; detailed falls derived from the Euphoria behaviours belong to
  * tier 2 of #3201.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the buckle, its timing, the floor rule and which proportions are provisional.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, an empty cancel table, parameters and a pure plan of postures in world metres and seconds with seat and lie contacts.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing constants, the plan and the floor rest the knockdown count's tests read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, contact-window, target and collider types; the floor height comes from each body's own shapes.
  */
 export namespace knockdown {
   /** The action's name. */
@@ -44,7 +49,14 @@ export namespace knockdown {
   /** Cancel table: none; a knocked-down performer stays down for the count. */
   export const interrupts: IHumanActionLaw["interrupts"] = {};
 
-  /** Parameters. */
+  /**
+   * Parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the blow's target and the lying time's unit and default.
+   * @evidence contracts/development/design.md#principled-representation The blow is the interface's motion-target union and the lying time seconds, checked non-negative when planning.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the plan reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
+   */
   export interface IParams {
     /** Where the blow came from. */
     from: AutoMovieMotionTarget;
@@ -66,6 +78,14 @@ export namespace knockdown {
    * @param body The body.
    * @param posture The posture, its root height ignored.
    * @returns The root height, metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rule, the ignored input and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics of the posture with its root at zero height, then the lowest support point of every collision shape (a capsule's lower end less its radius, a box's lowest corner), negated.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk resolution and one pass over the shapes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; the height follows from the body's own shapes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones and shapes.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rest(body: IHumanBody, posture: IHumanPosture): number {
     const bones = StrikingBody.trunk(body, {
@@ -83,6 +103,15 @@ export namespace knockdown {
    *
    * @param context The action's context.
    * @returns The plan.
+   * @throws {Error} When the lying time is negative.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Overlapping minimum-jerk sit and roll-back profiles over clinical angles, the root height solved each posture by the floor rest so any body lies on the floor.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the blow's heading once, then evaluates each posture in closed form.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative lying time throws; the fall's proportions are named provisional values.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution and one pass over the shapes per posture.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The heading away from the blow is computed once per plan and dropped on settle.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one cached heading, cleared by settle and released with the plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

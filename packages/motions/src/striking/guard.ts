@@ -33,6 +33,11 @@ import { StrikingTarget } from "./StrikingTarget";
  * height is a third of the stance's sink and its rate two bounces a second,
  * provisional readings of coaching footage (the kickboxing research's
  * rhythm share) with no located measurement.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States how the stance is taken, the line's source, the stay-planted tolerance and the provisional bounce.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters and a pure plan of postures in world metres and seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing constants and the plan the law table and the performance dispatch through.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the stance, posture, plan and target types; the stance is measured on each body.
  */
 export namespace guard {
   /** The action's name. */
@@ -47,7 +52,14 @@ export namespace guard {
     step: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
   };
 
-  /** Parameters. */
+  /**
+   * Parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit, minimum or default.
+   * @evidence contracts/development/design.md#principled-representation A duration in seconds (raised to the setting time when planning), a closed union of stances, and the interface's motion target to face.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values the plan reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
+   */
   export interface IParams {
     /** How long, seconds; 1 when absent and at least the 0.6 s the stance takes to set. */
     seconds?: number;
@@ -70,6 +82,14 @@ export namespace guard {
    *
    * @param context The action's context.
    * @returns The plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States its input and its plan; the namespace states the behaviour.
+   * @evidence contracts/development/implementation.md#principled-implementation Each foot steps on a minimum-jerk unit to its measured stance place in turn, the root sinks and turns, the gloves rise to the guard, then a bounce through the knees; the limbs are solved by the shared fit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the geometry on first use and evaluates each posture from it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A too-short duration is raised to the setting time, as documented; the bounce is a named provisional value.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the leg and arm fits.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once per plan and every posture reads it; settle drops it when the faced target may have moved.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry, cleared by settle and released with the plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

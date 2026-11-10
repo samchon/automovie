@@ -64,6 +64,11 @@ import type { punch } from "./punch";
  *
  * The defence holds until just after the strike's contact and returns to the
  * guard over one hand recovery.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States when the defence starts, where it goes, each kind with its coaching source, and that contact is left to the strike.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters with a closed union of kinds, and a pure plan of postures in world metres and seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the plan, and the telegraph and decision queries the outcome law's audits and tests read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, placed-action and outcome types; the strike is named by its anchor, not by a production's scene.
  */
 export namespace defend {
   /** The action's name. */
@@ -79,7 +84,14 @@ export namespace defend {
     ],
   };
 
-  /** Parameters. */
+  /**
+   * Parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the kind, the answered strike's anchor and the outcome's default.
+   * @evidence contracts/development/design.md#principled-representation A closed union of defence kinds, the strike as its anchor (checked when planning to strike this performer) and an optional forced outcome.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values the plan reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the outcome union.
+   */
   export interface IParams {
     /** The defence. */
     kind:
@@ -108,6 +120,14 @@ export namespace defend {
    *
    * @param attack The placed strike.
    * @returns The telegraph.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the range, each technique's value and that the values are provisional for want of a study.
+   * @evidence contracts/development/implementation.md#principled-implementation A lookup of the provisional visibility by technique and hand.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per strike family.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The placed strike's parameters are read through the strike laws' own parameter types, by its action name; values are named provisional readings.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function telegraph(attack: IHumanActionContext.IPlaced): number {
     if (attack.name === "kick")
@@ -130,6 +150,14 @@ export namespace defend {
    *
    * @param plan A defence's plan.
    * @returns Its decision, or undefined for another action's plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result and the meaning of undefined.
+   * @evidence contracts/development/implementation.md#principled-implementation A lookup in the weak map the plan registered its decision in.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads a stored decision.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Decisions are keyed weakly by their plans, so each is released with its plan.
    */
   export function decision(
     plan: IHumanActionPlan,
@@ -142,6 +170,15 @@ export namespace defend {
    *
    * @param context The action's context.
    * @returns The plan.
+   * @throws {Error} When the answered strike has no contact or shown peak, or does not strike this performer at a region.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation The outcome law times the start from the strike's launch and contact; the goal is built from what the defender sees at that read second, the guard held before it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Decides the timing once, builds the geometry on first use after the read, and evaluates each posture from it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A strike that cannot be defended throws; nothing about contact is decided here, so no outcome is faked geometrically.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the limb fits.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The decision is made once per plan and the geometry built once, dropped on settle when the strike may have changed.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry, cleared by settle, and one decision keyed weakly by the plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

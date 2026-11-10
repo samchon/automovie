@@ -25,6 +25,11 @@ import type {
  *
  * Fighting style choices such as "kicks finish combinations" are not rules
  * and are not checked here.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States each rule with its GLORY article and what is deliberately not a rule.
+ * @evidence contracts/development/design.md#principled-representation The rules as the engine's legality rules over a schedule, the fouled regions as sets of the interface's closed region union.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The two region sets, the foul test and the rule list the legality check and the tests read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's rule and schedule types and the interface's regions and targets.
  */
 export namespace KickboxingRules {
   /** Regions a strike may not target (GLORY fouls: back of the head, spine, throat, groin). */
@@ -63,6 +68,14 @@ export namespace KickboxingRules {
    * @param capability The action's name.
    * @param params Its parameters.
    * @returns The reason, or null.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result and the meaning of null.
+   * @evidence contracts/development/implementation.md#principled-implementation Set membership of the struck region against the GLORY foul regions, and against the leg regions for a push kick.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Early returns for non-strikes and non-person targets, then two membership tests.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The parameters arrive untyped from the schedule, so they are read through a narrowed view of the two fields the strikes declare; a strike without a person target is legal by construction.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function foul(capability: string, params: object): string | null {
     if (

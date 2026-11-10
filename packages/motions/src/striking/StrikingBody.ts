@@ -33,6 +33,11 @@ import type { StrikingContact } from "./StrikingContact";
  * normalized T-pose), so a hand or foot posed by a world rotation `G` from its
  * rest carries a socket point `p` to `wrist + G p` (the convention
  * `HumanFoot` uses for the sole).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States what each fact is for and the identity-rest premise the socket convention rests on.
+ * @evidence contracts/development/design.md#principled-representation A namespace of pure functions over the body, its resolved bones and world rotations, in world metres and clinical degrees.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The trunk, region, socket, fist, foot, curl and collider readings the striking laws, the reactions and the captures use.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's surface resolver and the interface's region and socket unions; the collider list overlaps the posture package's HumanColliders, which owns the signed distances, and is kept only as the shape list the floor rest reads.
  */
 export namespace StrikingBody {
   /**
@@ -43,6 +48,14 @@ export namespace StrikingBody {
    * @param body The body.
    * @param posture The posture.
    * @returns Resolved bones by rig bone.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is dropped and why the result is the limb solves' start.
+   * @evidence contracts/development/implementation.md#principled-implementation The posture resolved with no limb goals, then forward kinematics with the canonical axes and rest frames.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolution and one map.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function trunk(
     body: IHumanBody,
@@ -70,6 +83,14 @@ export namespace StrikingBody {
    * @param bones Its resolved bones.
    * @param region The region.
    * @returns World point and outward normal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result's frame.
+   * @evidence contracts/development/implementation.md#principled-implementation The engine's bone-local region frame placed by its bone's world transform.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one placement.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function region(
     body: IHumanBody,
@@ -92,6 +113,14 @@ export namespace StrikingBody {
    * @param socket The socket.
    * @param rotation The hand's or foot's world rotation from its rest.
    * @returns The offset, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rotation's meaning and the result's frame.
+   * @evidence contracts/development/implementation.md#principled-implementation The bone-local socket point rotated by the world rotation, valid because the canonical rig rests unrotated.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function socket(
     body: IHumanBody,
@@ -115,6 +144,14 @@ export namespace StrikingBody {
    * @param knuckles Where the fist's front faces, world direction.
    * @param palm Where the palm faces, world direction (not parallel to `knuckles`).
    * @returns The rotation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rest axes mapped and the non-parallel premise.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand's two-axis frame alignment from the rest finger axis and palm normal onto the requested ones.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rest-axis read and one alignment.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function fist(
     body: IHumanBody,
@@ -140,6 +177,14 @@ export namespace StrikingBody {
    * @param toes Where the toes point, world direction.
    * @param instep Where the instep faces, world direction (not parallel to `toes`).
    * @returns The rotation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rest axes mapped and the non-parallel premise.
+   * @evidence contracts/development/implementation.md#principled-implementation The same two-axis frame alignment from the rest toe axis and instep normal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One alignment.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function foot(
     toes: IAutoMovieVector3,
@@ -161,6 +206,14 @@ export namespace StrikingBody {
    *
    * @param side The hand.
    * @returns Clinical angles by bone.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each joint's angle, its source range and why angles are used.
+   * @evidence contracts/development/implementation.md#principled-implementation Fixed clinical flexions inside the AAOS normal ranges.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the four fingers and the thumb's two joints.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function curl(
     side: "left" | "right",
@@ -189,6 +242,14 @@ export namespace StrikingBody {
    * @param body The other body.
    * @param bones Its resolved bones.
    * @returns The colliders, named by bone.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which shapes, how they are placed and the identity-rest premise.
+   * @evidence contracts/development/implementation.md#principled-implementation Each profile shape's bone-local offset rotated by its bone's world rotation; this reads the segment's neutral frame at its bone's rest joint, true of the canonical profiles, where HumanColliders also subtracts the neutral position's offset.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over segments and shapes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in shapes.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function colliders(
     body: IHumanBody,

@@ -34,6 +34,11 @@ import { StrikingTarget } from "../striking/StrikingTarget";
  *
  * A push whose capture step would exceed one leg length cannot be caught in
  * one step; the law rejects it, naming the knockdown instead.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the capture rule with its sources, the stepping foot, the timing and the refusal.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters and a pure plan of postures in world metres and seconds with plant windows.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing constants, the plan and the capture distance the tests check against.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, contact-window, foot and target types; the step scales with each body's hip height and foot.
  */
 export namespace stagger {
   /** The action's name. */
@@ -47,7 +52,14 @@ export namespace stagger {
     knockdown: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
   };
 
-  /** Parameters. */
+  /**
+   * Parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the blow's target, the push's direction and the speed's unit.
+   * @evidence contracts/development/design.md#principled-representation The blow is the interface's motion-target union and the speed metres per second, checked positive and capturable when planning.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the plan reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
+   */
   export interface IParams {
     /** Where the blow comes from: the body is pushed away from it. */
     from: AutoMovieMotionTarget;
@@ -70,6 +82,14 @@ export namespace stagger {
    * @param height The pendulum length, metres.
    * @param margin The margin beyond the extrapolated centre, metres.
    * @returns Metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the formula and every unit.
+   * @evidence contracts/development/implementation.md#principled-implementation Hof's extrapolated centre of mass for an inverted pendulum, g = 9.81 m/s².
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function capture(
     speed: number,
@@ -84,6 +104,15 @@ export namespace stagger {
    *
    * @param context The action's context.
    * @returns The plan.
+   * @throws {Error} When the speed is not positive, or the capture step exceeds one leg.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation The capture step lands at the extrapolated centre of mass plus half a foot along the push, on a minimum-jerk step, with the root following and the trunk tipping and righting on overlapping profiles.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the push once, then evaluates each posture in closed form.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An uncapturable push throws and names the knockdown instead of shortening the step; the tip angle is a named provisional value.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the guard's trunk resolution.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The push, the stepping foot and the landing are computed once per plan and dropped on settle.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one cached geometry, cleared by settle and released with the plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

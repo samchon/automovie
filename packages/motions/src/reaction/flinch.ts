@@ -31,6 +31,11 @@ import { StrikingTarget } from "../striking/StrikingTarget";
  * (provisional sizes, no located kinematic amplitude). The feet stay planted.
  * The threat is a target (the incoming weapon's region, a prop, a point), read
  * at the start.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the startle pattern, its timing with sources, the provisional sizes and that the feet stay planted.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters and a pure plan of postures in world metres and seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing constants and the plan the law table and the performance dispatch through.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, contact-window and target types; no body is special-cased.
  */
 export namespace flinch {
   /** The action's name. */
@@ -44,7 +49,14 @@ export namespace flinch {
     knockdown: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.08 }],
   };
 
-  /** Parameters. */
+  /**
+   * Parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the threat's target and the intensity's range and default.
+   * @evidence contracts/development/design.md#principled-representation The threat is the interface's motion-target union and the intensity a share in (0, 1], checked when planning.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the plan reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
+   */
   export interface IParams {
     /** Where the threat comes from. */
     from: AutoMovieMotionTarget;
@@ -64,6 +76,15 @@ export namespace flinch {
    *
    * @param context The action's context.
    * @returns The plan.
+   * @throws {Error} When the intensity lies outside (0, 1].
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation An out-and-back minimum-jerk profile peaking at the measured startle peak; the gloves' goals come from the face region and the fist sockets and are solved by the shared limb fit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the threat once, then evaluates each posture in closed form.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An intensity outside its range throws; the sizes are named provisional constants.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond one trunk resolution.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The threat's direction is computed once per plan and dropped on settle, when the threat may have moved.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one cached direction, cleared by settle and released with the plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

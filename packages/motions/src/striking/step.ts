@@ -30,6 +30,11 @@ import { StrikingTarget } from "./StrikingTarget";
  * stance length (the kickboxing research's step share) and the step period to
  * 0.35 s, about three steps a second, inside the 2 to 3.5 steps a second of
  * the ring-movement reading (provisional).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the foot order with its coaching source, the paths, the defaults and which are provisional.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters with a closed direction union, and a pure plan of postures in world metres and seconds with plant windows.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing constants and the plan the law table dispatches through.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the stance, posture and plan types; the step scales with each body's stance.
  */
 export namespace step {
   /** The action's name. */
@@ -44,7 +49,14 @@ export namespace step {
     defend: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
   };
 
-  /** Parameters. */
+  /**
+   * Parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame, unit and default.
+   * @evidence contracts/development/design.md#principled-representation A closed union of directions in the stance's frame, a whole step count and a length in metres, both checked when planning.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values the plan reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
   export interface IParams {
     /** The direction in the stance's own frame. */
     direction: "forward" | "back" | "left" | "right";
@@ -67,6 +79,15 @@ export namespace step {
    *
    * @param context The action's context.
    * @returns The plan.
+   * @throws {Error} When the step count is not a whole number of at least one, or the length leaves (0, one stance length].
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals; the namespace states the method.
+   * @evidence contracts/development/implementation.md#principled-implementation The coached foot order in the stance's line frame, each foot on a lifted minimum-jerk path in its half step, the root on its own minimum-jerk profile, the legs and guard solved by the shared fit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validation, the line frame and the feet's schedule once, then each posture in closed form.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid counts and lengths throw; the period is a named provisional value.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the limb fits.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The plan reads nothing that can change; each posture is computed from its inputs.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Its closures hold only the instance's own inputs and are released with the plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

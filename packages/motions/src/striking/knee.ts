@@ -54,6 +54,11 @@ import { StrikingTarget } from "./StrikingTarget";
  * skill scales them like the kick's. With a person target, both hands reach
  * the other's nape for the clinch; GLORY allows one knee per clinch, which
  * the kickboxing rules check.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the thigh's circle, the hip's range, the travel and its statuses, the contact and withdrawal, and the timing, with provisional values marked.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, an empty cancel table, parameters, a solved knee in world metres and a pure plan of postures in seconds with capsule weapons.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the named constants, the solve and the plan the law table dispatches through and the tests read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target, posture, plan, weapon and reach-status types; every length comes from the striking body's measure.
  */
 export namespace knee {
   /** The action's name. */
@@ -62,7 +67,14 @@ export namespace knee {
   /** Cancel table: none; a knee runs to its replant. */
   export const interrupts: IHumanActionLaw["interrupts"] = {};
 
-  /** Parameters. */
+  /**
+   * Parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
+   * @evidence contracts/development/design.md#principled-representation The interface's motion target and a closed union of legs.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the plan and the kickboxing rules read.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's target union.
+   */
   export interface IParams {
     /** What it strikes. */
     at: AutoMovieMotionTarget;
@@ -94,7 +106,14 @@ export namespace knee {
     rear: 0.5,
   };
 
-  /** A solved knee: where its joint, ankle and pelvis go at the contact. */
+  /**
+   * A solved knee: where its joint, ankle and pelvis go at the contact.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
+   * @evidence contracts/development/design.md#principled-representation World points for the knee and the ankle, a world displacement for the pelvis, a horizontal unit heading and the shared reach status.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What the plan poses and records.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the reach status union.
+   */
   export interface ISolution {
     /** The knee joint, world metres. */
     knee: IAutoMovieVector3;
@@ -123,6 +142,14 @@ export namespace knee {
    * @param travel The pelvis's longest travel, metres.
    * @param fallback A horizontal unit direction for a target straight above or below the hip.
    * @returns The solution.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States every input's frame and unit and the fallback's use; the comments derive the elevation and the travel.
+   * @evidence contracts/development/implementation.md#principled-implementation The thigh's elevation from the arcsine of the target's height over the thigh-plus-patella radius, bounded by the hip's flexion range less the lean; then the horizontal travel that closes the remaining distance, bounded by the travel limit; the shank folded by the knee's flexion in the thigh's vertical plane.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Elevation, travel and status, then the joints, in one closed form.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target outside the thigh's range or travel is reported short or jammed rather than reached by a stretched leg; 1e-9 tolerances only absorb rounding at the bounds.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function solve(
     hip: IAutoMovieVector3,
@@ -199,6 +226,14 @@ export namespace knee {
    *
    * @param context The action's context.
    * @returns The plan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States its input and its plan; the namespace states the method.
+   * @evidence contracts/development/implementation.md#principled-implementation The knee solved from the squared hip, a minimum-jerk out-and-back course to it, the performance's joint contact resolution of the thigh and shank capsules for the stop, and a withdrawal retracing the course.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The geometry solved once on first use; each posture is the free course, or its reversal after a stop.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The record reports the solve's own status and the shown knee, so a miss is never reported as a hit; provisional constants are named.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two closed-form solves once; per posture, constant work beyond the limb fits.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The solve is built once per plan and dropped on settle; the committed stop is kept until the resolution commits another.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one solve and one stop second, released with the plan.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

@@ -31,12 +31,31 @@ import { StrikingSkill } from "./StrikingSkill";
  * stretched or shortened within its own allowed factor first; if no factor
  * suffices, the nearest plausible margin is used and a warning names the
  * shortfall. An implausible reaction time is never used.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the start law, the margin bands, the evidence behind anticipation and how a forced outcome is realised or reported.
+ * @evidence contracts/development/design.md#principled-representation The outcome as a closed union of the three margin bands, the timing in film seconds, and a decision that carries the realised reaction, lead, stretch and warnings.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The types and the classify, band and decide functions the defence law and its tests read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's random stream and the skill types.
  */
 export namespace DefenceOutcome {
-  /** The outcome classes. */
+  /**
+   * The outcome classes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The namespace defines each class's margin band.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the three outcomes the margin bands partition.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The outcomes the defence law forces and reports.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
   export type Outcome = "inTime" | "late" | "fail";
 
-  /** The timing a decision reads, all in film seconds. */
+  /**
+   * The timing a decision reads, all in film seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit, range and default.
+   * @evidence contracts/development/design.md#principled-representation Film-second instants, a seconds duration, a share in [0, 1] and a factor band; the orderings and ranges are checked when deciding.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the decision reads; the stretch band lets a forced outcome scale the attack.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the skill type.
+   */
   export interface IInput {
     /** The strike's launch, film seconds. */
     launch: number;
@@ -57,7 +76,14 @@ export namespace DefenceOutcome {
     stretch?: readonly [number, number];
   }
 
-  /** A decided defence. */
+  /**
+   * A decided defence.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and band.
+   * @evidence contracts/development/design.md#principled-representation The outcome with the realised start, reaction, lead and margin in seconds, the attack's stretch and contact, and the warnings of an unmet forced outcome.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What the defence law schedules and what audits and tests read.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the outcome union.
+   */
   export interface IDecision {
     /** The outcome. */
     outcome: Outcome;
@@ -90,6 +116,14 @@ export namespace DefenceOutcome {
    * @param margin `t_hit - (t_start + T_def)`, seconds.
    * @param movement `T_def`, seconds.
    * @returns The outcome.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and units.
+   * @evidence contracts/development/implementation.md#principled-implementation The campaign's margin bands: non-negative in time, above minus half the movement time late, otherwise fail.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two comparisons.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function classify(margin: number, movement: number): Outcome {
     if (margin >= 0) return "inTime";
@@ -103,6 +137,14 @@ export namespace DefenceOutcome {
    * @param outcome The outcome.
    * @param movement `T_def`, seconds.
    * @returns `[low, high]`; open ends are infinite.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result's form and its open ends.
+   * @evidence contracts/development/implementation.md#principled-implementation The same bands as the classification, as intervals.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per outcome.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function band(
     outcome: Outcome,
@@ -120,6 +162,15 @@ export namespace DefenceOutcome {
    * @param random The defender's stream for this defence.
    * @param forced The outcome to force, when the author declares one.
    * @returns The decision.
+   * @throws {Error} When the contact is not after the launch, the movement time is not positive, the telegraph leaves [0, 1] or the stretch band excludes 1.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two modes, the refusals and that warnings report an unmet forced outcome.
+   * @evidence contracts/development/implementation.md#principled-implementation Unforced: the skill's ex-Gaussian reaction and a uniform lead give the margin. Forced: the plausible margin band, linear in the attack's stretch, is met in closed form, a margin drawn strictly inside the intersection and split into an in-band reaction and lead.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validation, the unforced draw, then the stretch, the margin and the split for a forced outcome.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid timing throws; an unmeetable forced outcome uses the nearest plausible margin and says so in a warning rather than an implausible reaction time; the 2 % inset keeps a draw off a band's exclusive edge.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs and the given stream.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function decide(
     input: IInput,

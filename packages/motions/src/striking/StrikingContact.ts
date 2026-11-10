@@ -19,9 +19,26 @@ import type {
  * Collision Detection, 2005, ch. 5); it is found by scanning a fixed time
  * step and bisecting the first crossing a fixed number of times, so the result
  * is deterministic and resolved to the step over 2^24.
+ *
+ * The striking laws' own weapons are now limb capsules resolved jointly by
+ * the performance against `HumanColliders`; these point queries and the
+ * scan serve a stroke that scans for itself, the floor rest's shape list and
+ * the capture verdicts.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the point-against-shape model, its source, the scan's determinism and who still uses it.
+ * @evidence contracts/development/design.md#principled-representation Colliders as a discriminated union of capsules and oriented boxes in world metres, so a shape cannot mix both forms.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The collider type and the closest, distance, nearest and first queries its current users call.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector and quaternion; the signed distances overlap HumanColliders, which owns the segment distances the joint resolution uses.
  */
 export namespace StrikingContact {
-  /** One convex collision shape of the other body, in world metres. */
+  /**
+   * One convex collision shape of the other body, in world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each variant and member states its meaning and unit.
+   * @evidence contracts/development/design.md#principled-representation A discriminated union: a capsule as an axis and a radius (a sphere when the ends meet), a box as a centre, a rotation and half extents.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two shape kinds the physical profile's spheres, capsules and boxes map onto, with the bone name a verdict reports.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
   export type ICollider =
     | {
         /** A capsule (a sphere when `a` equals `b`). */
@@ -55,6 +72,14 @@ export namespace StrikingContact {
    * @param a The segment's start.
    * @param b The segment's end.
    * @returns The closest point of the segment.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result; a degenerate segment returns its start.
+   * @evidence contracts/development/implementation.md#principled-implementation The projection parameter clamped to [0, 1] (Ericson 2005, §5.1.2); a segment shorter than 1e-9 m is its start.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One projection and one clamp.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function closest(
     p: IAutoMovieVector3,
@@ -79,6 +104,14 @@ export namespace StrikingContact {
    * @param p The point, world metres.
    * @param shape The shape.
    * @returns Metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the sign convention and how exact each shape's distance is.
+   * @evidence contracts/development/implementation.md#principled-implementation The capsule's distance to its axis less the radius; the box's exact signed distance in its local frame (Quilez's box distance).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per shape kind.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function distance(p: IAutoMovieVector3, shape: ICollider): number {
     if (shape.kind === "capsule")
@@ -109,6 +142,14 @@ export namespace StrikingContact {
    * @param p The point.
    * @param shapes The shapes.
    * @returns The nearest shape's name and distance, or undefined without shapes.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result and the meaning of undefined.
+   * @evidence contracts/development/implementation.md#principled-implementation The minimum signed distance over the shapes, the distance to their union; ties keep the first.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in shapes, each in constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function nearest(
     p: IAutoMovieVector3,
@@ -132,6 +173,15 @@ export namespace StrikingContact {
    * @param to Span end, seconds.
    * @param step Scan step, seconds; positive.
    * @returns The first contact second, or undefined when the gap stays positive.
+   * @throws {Error} When the step is not positive.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the scan, the bisection count, the result and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A fixed-step scan for the first non-positive gap and 24 bisections of the bracketing step; a crossing shorter than one step is the scan's stated blind spot.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan loop and one bisection loop.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive step throws.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The span over the step plus 24 gap evaluations.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; callers memoise.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function first(
     gap: (seconds: number) => number,

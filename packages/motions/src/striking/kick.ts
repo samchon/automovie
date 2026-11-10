@@ -73,6 +73,11 @@ import { StrikingTarget } from "./StrikingTarget";
  * contact goal to the new one (Flash and Henis 1991), while the body's lean
  * and turn move to the new level's on the same profile, so position,
  * velocity and acceleration stay continuous through the switch.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the effector-goal method, the contact solve, the body's carriage, the timing with sources, the redirect, and which values are provisional.
+ * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table admitting only the redirect, parameters with closed technique and leg unions, and a pure plan of postures in world metres and seconds with capsule weapons.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the named constants, the leg resolution and the plan the law table, the knee and the defence read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target, accuracy, posture, plan and weapon types; every length comes from the kicking body's measure.
  */
 export namespace kick {
   /** The action's name. */
@@ -83,7 +88,14 @@ export namespace kick {
     kick: [{ window: [0, "chamber"], kind: "redirect", entry: 0 }],
   };
 
-  /** Parameters. */
+  /**
+   * Parameters.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
+   * @evidence contracts/development/design.md#principled-representation Closed unions for the technique and the leg, the interface's motion target, the accuracy union and a feint flag.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan, the defence's telegraph and the kickboxing rules read.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target and accuracy types.
+   */
   export interface IParams {
     /** The technique: the round kick with the shin, or the push kick (teep) with the ball of the foot. */
     technique: "round" | "push";
@@ -152,6 +164,14 @@ export namespace kick {
    *
    * @param params The parameters.
    * @returns Lead or rear.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The parameter's own documentation states the defaults this resolves.
+   * @evidence contracts/development/implementation.md#principled-implementation The declared leg, else the rear for a round kick and the lead for a push kick.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function leg(params: IParams): "lead" | "rear" {
     return params.leg ?? (params.technique === "round" ? "rear" : "lead");
@@ -162,6 +182,15 @@ export namespace kick {
    *
    * @param context The action's context.
    * @returns The plan.
+   * @throws {Error} When a redirect's source is not a planned kick, when either kick of a redirect is not a round kick, or when the plan is read back while it is being built.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals; the namespace states the method.
+   * @evidence contracts/development/implementation.md#principled-implementation Superposed minimum-jerk units carry the ankle through the chamber to the contact goal solved by the two-segment reach and the engine's limb fit; the performance's joint contact resolution stops the leg's capsules, after which the chain retraces its approach.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Timing first, the geometry built on first use (or continued from the source for a redirect), and every posture, contact window, weapon and record read from it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target beyond the leg's reach is the declared miss with the fit's own residual, not a stretched leg; provisional constants are named.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One limb fit for the contact solve; per posture, closed-form units plus the display's own fit.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once per committed stop and dropped on settle, when the stop or the target may have changed.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry and the source registry entry, keyed weakly by the plan and released with it.
    */
   export function plan(
     context: IHumanActionContext<IParams>,

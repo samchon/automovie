@@ -36,6 +36,11 @@ import { StrikingReach } from "./StrikingReach";
  *
  * Orthodox leads with the left side; southpaw with the right. Every distance
  * reads the body's measure, so the stance fits any stature and proportion.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States each stance relation with its coaching source and which numbers are readings or provisional.
+ * @evidence contracts/development/design.md#principled-representation The stance as a lead side and a line heading in degrees; feet, root sink and limb goals in world metres measured on the body.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The named constants, the stance type and the queries the guard, footwork, strikes and reactions read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the foot placement, frame and posture-goal types; no stature is special-cased.
  */
 export namespace StrikingStance {
   /** Stance length along the line in shoulder widths (coaching 1.0 to 1.3). */
@@ -53,7 +58,14 @@ export namespace StrikingStance {
   /** Rear foot heading off the line, degrees (provisional reading of IBA p.34). */
   export const REAR_TOE: number = 45;
 
-  /** A stance: which side leads and the heading of the line to the opponent. */
+  /**
+   * A stance: which side leads and the heading of the line to the opponent.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and the heading's convention.
+   * @evidence contracts/development/design.md#principled-representation A closed lead union and a heading in degrees about +Y.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values every stance query reads; queries needing only the lead take that part.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
   export interface IStance {
     /** The leading side: `left` is orthodox, `right` southpaw. */
     lead: "left" | "right";
@@ -67,6 +79,14 @@ export namespace StrikingStance {
    *
    * @param stance The stance.
    * @returns The rear side.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The side opposite the lead.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rear(stance: Pick<IStance, "lead">): "left" | "right" {
     return stance.lead === "left" ? "right" : "left";
@@ -78,6 +98,14 @@ export namespace StrikingStance {
    *
    * @param stance The stance.
    * @returns Degrees about +Y.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the turn's direction for each lead and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The line turned by the stance turn toward the rear side.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function heading(stance: IStance): number {
     return stance.line + (stance.lead === "left" ? -TURN : TURN);
@@ -88,6 +116,14 @@ export namespace StrikingStance {
    *
    * @param body The body.
    * @returns Metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit; the constant states the share and its range.
+   * @evidence contracts/development/implementation.md#principled-implementation The coached share of the body's shoulder width.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One product.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function length(body: IHumanBody): number {
     return LENGTH_SHARE * 2 * body.measure.shoulderHalfWidth;
@@ -100,6 +136,14 @@ export namespace StrikingStance {
    * @param stance The stance.
    * @param centre The stance centre on the floor, world metres.
    * @returns Each foot's placement, flat on the floor.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame and that the feet are flat.
+   * @evidence contracts/development/implementation.md#principled-implementation Each ankle on its hip's track, half a stance length ahead or behind along the line, at ankle height, the toes turned by the coached lead and rear angles.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One stance frame and one placement per foot.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; the toe angles are named provisional readings.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function feet(
     body: IHumanBody,
@@ -145,6 +189,14 @@ export namespace StrikingStance {
    * @param ankles The ankle points, world metres.
    * @param flexion The knee flexion, degrees.
    * @returns The root's height offset, metres (negative: sunk).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the derivation, the ignored root height and the sign.
+   * @evidence contracts/development/implementation.md#principled-implementation Each leg's hip-to-ankle span at the flexion by the law of cosines, its vertical part over the horizontal offset from the rest hip, and the lower of the two legs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One span and one pass over the legs.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foot farther than the span gives a zero vertical part rather than a complex root; the offset never raises the root above zero.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function sink(
     body: IHumanBody,
@@ -186,6 +238,14 @@ export namespace StrikingStance {
    * @param stance The stance.
    * @param drop How far each glove sags below its guard, metres.
    * @returns The two arm goals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each glove's place, the fists' orientation, the elbows and that the guard follows the posture's head.
+   * @evidence contracts/development/implementation.md#principled-implementation The gloves placed from the posture's own chin, jaw and face regions in forearm lengths and radii, the elbows bent toward a point below and ahead of each shoulder, each turned into a knuckle goal.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk resolution, then one goal per side.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The offsets are measured on the body; the comment states why the gloves sit where the elbow stays in range.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function guard(
     body: IHumanBody,
@@ -265,6 +325,14 @@ export namespace StrikingStance {
    * @param fist Where the knuckles go, world metres.
    * @param elbow Where the elbow bends toward, world metres.
    * @returns The arm goal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States why no wrist rotation is set and where the wrist lies.
+   * @evidence contracts/development/implementation.md#principled-implementation The wrist one fist-socket distance back from the knuckles along the hint-to-fist line, the hint passed through as the bend.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One direction and one offset.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function glove(
     body: IHumanBody,
@@ -296,6 +364,14 @@ export namespace StrikingStance {
    * @param feet The feet.
    * @param planted Which feet bear on the floor.
    * @returns The leg goals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the hint's construction and why, and that the foot's rotation passes through.
+   * @evidence contracts/development/implementation.md#principled-implementation The ankle goal at each foot with a knee hint one shank up and half a shank along the foot's forward, which picks the hinged knee's side in the engine's fit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal per side.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function legs(
     body: IHumanBody,
@@ -334,6 +410,14 @@ export namespace StrikingStance {
    * and both fists closed.
    *
    * @returns Clinical angles by bone.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the chin tuck, its range basis and the closed fists.
+   * @evidence contracts/development/implementation.md#principled-implementation Fixed clinical angles inside their ranges, with the fist curl of both hands.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One object.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A constant table built per call.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function joints(): Partial<
     Record<AutoMovieHumanoidBone, readonly [number, number, number]>

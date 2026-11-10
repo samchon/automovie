@@ -14,6 +14,11 @@ import { HumanFrame } from "../posture/HumanFrame";
  * The relations every striking law reads from its entry state and its
  * target: which side leads, the line to the target, the feet as placed, and
  * how a foot steps along the line or pivots on its ball.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the relations the namespace provides and the perception rule behind its look-back.
+ * @evidence contracts/development/design.md#principled-representation Pure functions of the entry state and the target in world metres, degrees and film seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The look-back and the queries the striking laws and reactions share.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the entry state, foot placement, frame and target types.
  */
 export namespace StrikingTarget {
   /**
@@ -31,6 +36,14 @@ export namespace StrikingTarget {
    *
    * @param entry The entry state.
    * @returns The leading side.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the rule and its default.
+   * @evidence contracts/development/implementation.md#principled-implementation The right ankle's lead over the left along the heading's forward; more than 2 cm makes the right side lead.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One projection and one comparison.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 2 cm threshold keeps level feet orthodox against rounding.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lead(entry: IHumanEntryState): "left" | "right" {
     const r: number = (entry.posture.yaw * Math.PI) / 180;
@@ -50,6 +63,14 @@ export namespace StrikingTarget {
    * @param target The target point, world metres.
    * @param yaw The fallback heading, degrees.
    * @returns A horizontal unit vector.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result and the fallback.
+   * @evidence contracts/development/implementation.md#principled-implementation The normalised horizontal difference, or the heading's forward when shorter than 1 µm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function line(
     root: IAutoMovieVector3,
@@ -71,6 +92,14 @@ export namespace StrikingTarget {
    *
    * @param line A horizontal unit vector.
    * @returns Degrees about +Y.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the convention.
+   * @evidence contracts/development/implementation.md#principled-implementation The two-argument arctangent of the x and z components, 0 facing +Z.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function heading(line: IAutoMovieVector3): number {
     return (Math.atan2(line.x, line.z) * 180) / Math.PI;
@@ -81,6 +110,14 @@ export namespace StrikingTarget {
    *
    * @param entry The entry state.
    * @returns Each foot's ankle and rotation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result.
+   * @evidence contracts/development/implementation.md#principled-implementation Copies each entry foot's ankle and rotation into a placement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One object.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function feet(
     entry: IHumanEntryState,
@@ -105,6 +142,14 @@ export namespace StrikingTarget {
    * @param distance How far along it, metres.
    * @param lift How high above its place, metres.
    * @returns The moved foot.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States every unit and that the rotation is kept.
+   * @evidence contracts/development/implementation.md#principled-implementation The ankle translated along the line and raised, the rotation unchanged.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One translation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function slide(
     foot: HumanFoot.IPlacement,
@@ -133,6 +178,14 @@ export namespace StrikingTarget {
    * @param turn The turn about the ball, degrees about +Y.
    * @param raise The heel raise, degrees (the foot's pitch, toes down).
    * @returns The pivoted foot.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what stays fixed and every angle's sense.
+   * @evidence contracts/development/implementation.md#principled-implementation The foot's rocker pivot about its ball point: the heading turned and the pitch raised with the ball held.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ball read and one pivot.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pivot(
     body: IHumanBody,
@@ -165,6 +218,14 @@ export namespace StrikingTarget {
    * @param seconds Film seconds.
    * @param range The technique's range from the stance centre, metres, given the line height.
    * @returns World point.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both cases, each line's height and the range's source.
+   * @evidence contracts/development/implementation.md#principled-implementation The context's aim for a real target; for none, a point on the stance's line at the line's height measured on the performer and at the technique's range or the named one.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch for a real target, then the virtual point.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The virtual opponent is built from the performer's own measure, not a fixed scene; a 5 cm stagger decides whether to turn back by the stance turn.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time beyond the context's aim.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; callers memoise.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function aim(
     context: IHumanActionContext,

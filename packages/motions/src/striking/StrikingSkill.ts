@@ -22,6 +22,11 @@ import { HumanSkill } from "../skill/HumanSkill";
  *
  * Constants with no located study are marked provisional, with the
  * measurement that would settle them.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the family's ownership, the elite and novice scaling with its source, and how provisional constants are marked.
+ * @evidence contracts/development/design.md#principled-representation Measured constants in seconds and metres per second, and functions of the skill on its named axes.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The striking family's numbers and the two record types the strike, defence and outcome laws read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the skill's quantity reading and the engine's random stream; no other family's numbers live here.
  */
 export namespace StrikingSkill {
   /** Single maximal jab, movement onset to contact, seconds (Stanley, Thomson, Smith and Lamb 2018, Int J Perf Anal Sport 18:835, abstract; fifteen amateur boxers). */
@@ -94,6 +99,14 @@ export namespace StrikingSkill {
    *
    * @param skill The skill.
    * @returns x1.06 (novice) to x1.0 (elite) on the `speed` axis (Vagner et al. 2023).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the factor's range, axis and source.
+   * @evidence contracts/development/implementation.md#principled-implementation The skill's reading between the measured novice and elite ratios.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One quantity read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function strike(skill: HumanSkill.ISkill): number {
     return HumanSkill.quantity(skill, "speed", 1.06, 1);
@@ -104,6 +117,14 @@ export namespace StrikingSkill {
    *
    * @param skill The skill.
    * @returns x1.4 (novice) to x1.0 (elite) on the `recovery` axis (Vagner et al. 2023: 1.06 s against 0.84 s per kick).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the factor's range, axis and source.
+   * @evidence contracts/development/implementation.md#principled-implementation The skill's reading between the measured novice and elite ratios.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One quantity read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function recovery(skill: HumanSkill.ISkill): number {
     return HumanSkill.quantity(skill, "recovery", 1.4, 1);
@@ -118,6 +139,14 @@ export namespace StrikingSkill {
    *
    * @param skill The skill.
    * @returns The share in (0, 1].
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the share's range, axis, the inference behind it and that it is provisional.
+   * @evidence contracts/development/implementation.md#principled-implementation The skill's reading between the provisional novice and elite shares.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One quantity read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The novice share is a named provisional value with the missing measurement stated.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function amplitude(skill: HumanSkill.ISkill): number {
     return HumanSkill.quantity(skill, "power", 0.6, 1);
@@ -131,6 +160,14 @@ export namespace StrikingSkill {
    *
    * @param skill The skill.
    * @returns The lag share.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the share's endpoints and their sources.
+   * @evidence contracts/development/implementation.md#principled-implementation The skill's reading on the sequencing axis between the cited novice and elite lags.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One quantity read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lag(skill: HumanSkill.ISkill): number {
     return HumanSkill.quantity(skill, "sequencing", 0.03, 0.12);
@@ -147,6 +184,14 @@ export namespace StrikingSkill {
    * @param random The stream.
    * @param index The first of the three indices it reads.
    * @returns Seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the distribution, its parameters with their source, the clamp and the indices read.
+   * @evidence contracts/development/implementation.md#principled-implementation An ex-Gaussian draw: a normal plus an inverse-transform exponential, clamped to the 1 to 99 % band.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The law's parameters, one draw, one clamp.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The clamp is the stated plausibility band, not a tuning; 1e-12 keeps the logarithm finite.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs and the given stream.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reaction(
     skill: HumanSkill.ISkill,
@@ -162,7 +207,14 @@ export namespace StrikingSkill {
     return Math.min(high, Math.max(low, draw));
   }
 
-  /** The ex-Gaussian parameters of a reaction time, seconds. */
+  /**
+   * The ex-Gaussian parameters of a reaction time, seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member names its part of the distribution; all are seconds.
+   * @evidence contracts/development/design.md#principled-representation The three ex-Gaussian parameters in seconds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What the draw and the band read.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
   export interface IReaction {
     /** Mean of the normal part. */
     mu: number;
@@ -179,6 +231,14 @@ export namespace StrikingSkill {
    *
    * @param skill The skill.
    * @returns Its parameters, seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the source and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation Each parameter read on the reaction axis between the cited novice and elite values.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three quantity reads.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reactionLaw(skill: HumanSkill.ISkill): IReaction {
     return {
@@ -196,6 +256,14 @@ export namespace StrikingSkill {
    *
    * @param skill The skill.
    * @returns The plausible band.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both bounds and that the upper one is conservative.
+   * @evidence contracts/development/implementation.md#principled-implementation The normal's 1 % quantile below, and the normal's 99 % quantile plus the exponential's 99 % point above, which bounds the sum's 99 % point from above.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One law read and two bounds.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function reactionBand(
     skill: HumanSkill.ISkill,
@@ -217,6 +285,14 @@ export namespace StrikingSkill {
    *
    * @param skill The skill.
    * @returns Lower and upper lead, seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the band's meaning, its endpoints, their basis and that they are provisional.
+   * @evidence contracts/development/implementation.md#principled-implementation Each end read on the anticipation axis between the provisional novice and elite values.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two quantity reads.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The values are named provisional, with the missing live-striking measurement stated.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function anticipation(
     skill: HumanSkill.ISkill,
@@ -236,12 +312,27 @@ export namespace StrikingSkill {
    *
    * @param skill The skill.
    * @returns Seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the endpoints, the axis, their derivation and that they are provisional.
+   * @evidence contracts/development/implementation.md#principled-implementation The skill's reading on the speed axis between the provisional novice and elite times.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One quantity read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The times are named provisional, with the missing onset-to-completion study stated.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function defence(skill: HumanSkill.ISkill): number {
     return HumanSkill.quantity(skill, "speed", 0.3, 0.2);
   }
 
-  /** A guard drop after a strike. */
+  /**
+   * A guard drop after a strike.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and the meaning of zero.
+   * @evidence contracts/development/design.md#principled-representation A depth in metres and a duration in seconds, zero for no drop.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the punch's return reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
   export interface IGuardDrop {
     /** How far the non-striking or returning glove sags below its guard, metres; 0 when it does not drop. */
     depth: number;
@@ -261,6 +352,14 @@ export namespace StrikingSkill {
    * @param random The stream.
    * @param index The first of the three indices it reads.
    * @returns The drop.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the probability, depth and duration ranges by skill, that they are provisional, and the indices read.
+   * @evidence contracts/development/implementation.md#principled-implementation A Bernoulli draw for whether it drops, then uniform draws in the skill's depth and duration ranges.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One draw for the occurrence and two for its size.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ranges are named provisional values with the missing measurement stated.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs and the given stream.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function guardDrop(
     skill: HumanSkill.ISkill,
