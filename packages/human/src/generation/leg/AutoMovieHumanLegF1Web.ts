@@ -80,8 +80,9 @@ export namespace AutoMovieHumanLegF1Web {
       return { ring: matches[0]!.ring, port };
     });
     const observations: Transition[] = native.patches.find((piece: Patch): boolean => piece.name === `leg.${side}.toe-web seed.terminal`)?.info.rootTransitions ?? [];
-    const trims: { before: number[]; port: Port; transition: Transition | undefined }[] = rims.map(({ ring, port }: typeof rims[number], i: number): { before: number[]; port: Port; transition: Transition | undefined } =>
-      ({ before: withdrawBand(skin, ring), port, transition: observations.find((item: Transition): boolean => item.digit === i + 1) }));
+    const trims: (ReturnType<typeof AutoMovieHumanFootWebTrim.withdrawBand> & { port: Port; transition: Transition | undefined })[] = rims.map(
+      ({ ring, port }: typeof rims[number], i: number): typeof trims[number] =>
+        ({ ...AutoMovieHumanFootWebTrim.withdrawBand(skin, ring), port, transition: observations.find((item: Transition): boolean => item.digit === i + 1) }));
     const seedIds: number[] = existing(seed.points, mesh.positions);
     const seedSign: 1 | -1 = direction(mesh.indices, seedIds);
     const generated: number[] = existing(seed.points, skin.points.flat());
@@ -91,7 +92,7 @@ export namespace AutoMovieHumanLegF1Web {
     const used: Set<number> = new Set(flat);
     for (const id of used) if (!shared.has(id)) shared.set(id, AutoMovieHumanLoftMesh.vertices(mesh, [skin.points[id]!])[0]!);
     for (const [a, b, c] of skin.faces) mesh.indices.push(shared.get(a)!, shared.get(same ? c : b)!, shared.get(same ? b : c)!);
-    return trims.map(({ before, port, transition }: typeof trims[number], i: number): string => {
+    return trims.map(({ before, guide, port, transition }: typeof trims[number], i: number): string => {
       const toe: Context = AutoMovieHumanFootToes.f1(side, i + 1, port.points);
       const root: number[] = existing(port.points, toe.positions);
       const off: number = mesh.positions.length / 3;
@@ -116,7 +117,7 @@ export namespace AutoMovieHumanLegF1Web {
             const distance: number = signed(AutoMovieCurveMath64.clone(p));
             return distance > from && distance < to;
           })).map((row: Transition["rows"][number]): V3[] => row.points.map(AutoMovieCurveMath64.clone));
-        const tiles: number[] = AutoMovieHumanFootWebTrim.f1RootLoft(mesh.positions, a, b, port.frame, sections);
+        const tiles: number[] = AutoMovieHumanFootWebTrim.f1RootLoft(mesh.positions, a, b, port.frame, sections, guide);
         const flip: boolean = direction(tiles, a) === direction(mesh.indices, a);
         if ((direction(tiles, b) === direction(mesh.indices, b)) !== flip)
           throw new Error("The finite F1 root loft disagrees with an exact shared boundary direction");
@@ -418,41 +419,6 @@ export namespace AutoMovieHumanLegF1Web {
       if (found === undefined) throw new Error("A measured F1 web or toe port point was not emitted");
       return found;
     });
-  }
-
-  /** Preserve the unchanged legacy finite band at roots without an observed replacement. */
-  function withdrawBand(skin: Skin, trim: readonly number[]): number[] {
-    const rim: Set<number> = new Set(trim);
-    const removed: Face[] = skin.faces.filter((face: Face): boolean => face.some((id: number): boolean => rim.has(id)));
-    skin.faces = skin.faces.filter((face: Face): boolean => face.every((id: number): boolean => !rim.has(id)));
-    const wanted: Map<string, [number, number]> = new Map();
-
-    /** Only shared indexed edges establish the retained legacy band boundary. */
-    const edge: (a: number, b: number) => string = (a: number, b: number): string => a < b ? `${a},${b}` : `${b},${a}`;
-    for (const face of removed)
-      for (let i: number = 0; i < 3; ++i) {
-        const a: number = face[i]!;
-        const b: number = face[(i + 1) % 3]!;
-        if (!rim.has(a) && !rim.has(b)) wanted.set(edge(a, b), [a, b]);
-      }
-    const next: Map<number, number> = new Map();
-    for (const face of skin.faces)
-      for (let i: number = 0; i < 3; ++i) {
-        const a: number = face[i]!;
-        const b: number = face[(i + 1) % 3]!;
-        if (!wanted.has(edge(a, b))) continue;
-        if (next.has(a)) throw new Error("The generated toe band has a branching inner rail");
-        next.set(a, b);
-      }
-    const start: number | undefined = next.keys().next().value;
-    if (start === undefined) throw new Error("The generated toe band has no remaining inner rail");
-    const ordered: number[] = [start];
-    for (let nextId: number | undefined = next.get(start); nextId !== start; nextId = next.get(nextId)) {
-      if (nextId === undefined || ordered.length >= next.size) throw new Error("The generated toe band has an open inner rail");
-      ordered.push(nextId);
-    }
-    if (ordered.length !== next.size) throw new Error("The generated toe band has separate inner rails");
-    return ordered;
   }
 
   /** Read signed rim-edge uses; the assembled-mesh gate separately checks full topology. */

@@ -13,6 +13,8 @@ type Frame = ReturnType<AutoMovieViewAxis.IAxis["at"]>;
 type Face = [number, number, number];
 /** Independent indexed sheet, regardless of whether its source was observed or generated. */
 type INativeSkin = { points: V3[]; faces: Face[] };
+/** Cut-rim knots and their exact removed-band incidence at each retained knot. */
+type RootGuide = { rim: V3[]; neighbors: number[][] };
 const Geometry: typeof AutoMovieHumanArmCurveSpec = AutoMovieHumanArmCurveSpec;
 const { sub, mix }: typeof AutoMovieCurveMath64 = AutoMovieCurveMath64;
 
@@ -182,35 +184,117 @@ export namespace AutoMovieHumanFootWebTrim {
   }
 
   /**
+   * Remove the original single indexed toe band and retain its source incidence.
+   * The removal and remaining inner cycle are the same as the original F1
+   * operation. Each retained knot records the cut-rim vertices joined to it
+   * by those generated faces; a stepped inner rim needs no polar chart.
+   */
+  export function withdrawBand(skin: INativeSkin, trim: readonly number[]): { before: number[]; guide: RootGuide } {
+    const rim: Set<number> = new Set(trim);
+    const removed: Face[] = skin.faces.filter((face: Face): boolean => face.some((id: number): boolean => rim.has(id)));
+    skin.faces = skin.faces.filter((face: Face): boolean => face.every((id: number): boolean => !rim.has(id)));
+    const wanted: Set<string> = new Set();
+    for (const face of removed)
+      for (let i: number = 0; i < 3; ++i) {
+        const a: number = face[i]!, b: number = face[(i + 1) % 3]!;
+        if (!rim.has(a) && !rim.has(b)) wanted.add(edgeKey(a, b));
+      }
+    const next: Map<number, number> = new Map();
+    for (const face of skin.faces)
+      for (let i: number = 0; i < 3; ++i) {
+        const a: number = face[i]!, b: number = face[(i + 1) % 3]!;
+        if (!wanted.has(edgeKey(a, b))) continue;
+        if (next.has(a)) throw new Error("The generated toe band has a branching inner rail");
+        next.set(a, b);
+      }
+    const start: number | undefined = next.keys().next().value;
+    if (start === undefined) throw new Error("The generated toe band has no remaining inner rail");
+    const before: number[] = [start];
+    for (let id: number | undefined = next.get(start); id !== start; id = next.get(id)) {
+      if (id === undefined || before.length >= next.size) throw new Error("The generated toe band has an open inner rail");
+      before.push(id);
+    }
+    if (before.length !== next.size) throw new Error("The generated toe band has separate inner rails");
+    const neighbors: number[][] = before.map((id: number): number[] => {
+      const touching: Set<number> = new Set();
+      for (const face of removed)
+        if (face.includes(id)) for (const other of face) if (rim.has(other)) touching.add(other);
+      return trim.flatMap((other: number, i: number): number[] => touching.has(other) ? [i] : []);
+    });
+    return { before, guide: { rim: trim.map((id: number): V3 => skin.points[id]!), neighbors } };
+  }
+
+  /**
    * Ordinary loft inside the existing F1 root band, in absolute world mm.
    * The caller supplies its retained indexed rail, original exact toe root
    * and only observed polylines wholly between those rails along the root
    * normal. No healthy plane cuts or new authored positions are introduced.
    *
-   * The existing closed-curve operator orders each ring at its measured
-   * root-frame +u extent and uses geometric perimeter length. That clock is
-   * not a material correspondence or a G1 guarantee. In particular the first
-   * retained rail may be stepped and need not be a star-shaped plane cut.
-   * Both indexed rims and every stored knot remain; the whole-body crossing,
-   * normal and same-camera gates decide the resulting finite surface.
+   * The exact toe polygon supplies the common curve parameter. The selected
+   * cut rim is projected to that same known root curve, not to a new domain.
+   * Its removed-face incidence carries this parameter to the stepped inner
+   * rail, including local radial reversals; that rail is never required to
+   * be star-shaped. Each neighbor interval follows the original cut cycle.
+   * Projection is geometric correspondence, not measured material identity
+   * or a G1 claim. Every indexed rim and every observed support knot stays.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Reuses the existing F1 closed-curve ordering and ordinary adjacent-ring loft on the unchanged physical root frame.
+   * @evidence contracts/development/implementation.md#principled-implementation Carries the original generated cut-to-inner incidence onto the exact root polygon parameter and supplies complete adjacent curves to the existing ordinary strip; no polar condition is imposed on the stepped inner boundary.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source faces, outside source row, minimum-area fan, tolerance widening or coordinate weld supplies this band.
    */
   export function f1RootLoft(
-    positions: number[], lower: number[], upper: number[], frame: Frame, sections: readonly (readonly V3[])[],
+    positions: number[], lower: number[], upper: number[], frame: Frame, sections: readonly (readonly V3[])[], guide: RootGuide,
   ): number[] {
     /** Read an existing indexed point without moving either shared boundary. */
     const point: (id: number) => V3 = (id: number): V3 => [positions[3 * id]!, positions[3 * id + 1]!, positions[3 * id + 2]!];
 
-    /** Preserve the complete ring under the existing actual-frame ordering. */
-    const order: (row: number[]) => number[] = (row: number[]): number[] => {
-      const points: V3[] = row.map(point);
-      const ids: Map<V3, number> = new Map(points.map((p: V3, i: number): [V3, number] => [p, row[i]!]));
-      const ordered: V3[] = AutoMovieHumanLegF1World.forkClock(points, frame);
-      if (ordered.length !== row.length)
-        throw new Error("The finite F1 root loft cannot discard a retained boundary knot");
-      return ordered.map((p: V3): number => ids.get(p)!);
+    const root: V3[] = upper.map(point);
+    const distances: number[] = [0];
+    for (let i: number = 0; i < root.length; ++i)
+      distances.push(distances[i]! + Math.hypot(...sub(root[(i + 1) % root.length]!, root[i]!)));
+    const perimeter: number = distances.at(-1)!;
+
+    /** Locate a geometric point on this already selected exact root polygon. */
+    const phase: (p: V3) => number = (p: V3): number => {
+      const q: V3 = sub(p, frame.origin as V3);
+      const xy: V2 = [Geometry.dot(q, frame.u as V3), Geometry.dot(q, frame.v as V3)];
+      let nearest: number = Infinity, parameter: number = 0;
+      for (let i: number = 0; i < root.length; ++i) {
+        const a: V3 = sub(root[i]!, frame.origin as V3), b: V3 = sub(root[(i + 1) % root.length]!, frame.origin as V3);
+        const x: number = Geometry.dot(a, frame.u as V3), y: number = Geometry.dot(a, frame.v as V3);
+        const dx: number = Geometry.dot(sub(b, a), frame.u as V3), dy: number = Geometry.dot(sub(b, a), frame.v as V3);
+        const l2: number = dx * dx + dy * dy;
+        const t: number = l2 === 0 ? 0 : Math.max(0, Math.min(1, ((xy[0] - x) * dx + (xy[1] - y) * dy) / l2));
+        const distance: number = (xy[0] - x - t * dx) ** 2 + (xy[1] - y - t * dy) ** 2;
+        const at: number = (distances[i]! + t * (distances[i + 1]! - distances[i]!)) % perimeter;
+        if (distance < nearest) { nearest = distance; parameter = at; }
+        else if (distance === nearest && parameter !== at)
+          throw new Error("An observed F1 root support has ambiguous exact-polygon correspondence");
+      }
+      return parameter;
+    };
+    const cut: number[] = guide.rim.map(phase);
+    const lowerPhases: number[] = guide.neighbors.map((neighbors: number[]): number => {
+      const owners: Set<number> = new Set(neighbors);
+      const starts: number[] = neighbors.filter((id: number): boolean => !owners.has((id + cut.length - 1) % cut.length));
+      if (starts.length !== 1) throw new Error("The removed F1 root band has no single contiguous cut-curve owner");
+      const start: number = starts[0]!;
+      let end: number = start;
+      while (owners.has((end + 1) % cut.length)) end = (end + 1) % cut.length;
+      const first: number = cut[start]!, last: number = cut[end]!;
+      const delta: number = last - first;
+      return (first + (delta < -perimeter / 2 ? delta + perimeter : delta > perimeter / 2 ? delta - perimeter : delta) / 2 + perimeter) % perimeter;
+    });
+
+    /** Rotate or reverse only the declared cyclic walk; never sort unrelated knots. */
+    const order: (row: number[], values: number[]) => { row: number[]; clock: number[] } = (row: number[], values: number[]): { row: number[]; clock: number[] } => {
+      const start: number = values.reduce((best: number, value: number, i: number): number => value < values[best]! ? i : best, 0);
+      const forward: number[] = row.map((_: number, i: number): number => (start + i) % row.length);
+      const direction: 1 | -1 = forward.every((id: number, i: number): boolean => i === 0 || values[id]! >= values[forward[i - 1]!]!) ? 1 : -1;
+      const cycle: number[] = row.map((_: number, i: number): number => (start + direction * i + row.length) % row.length);
+      if (cycle.some((id: number, i: number): boolean => i > 0 && values[id]! < values[cycle[i - 1]!]!))
+        throw new Error("The adjacent F1 root curves disagree with their indexed cut-curve correspondence");
+      const phases: number[] = cycle.map((id: number): number => values[id]!);
+      return { row: cycle.map((id: number): number => row[id]!), clock: [...phases.slice(1), phases[0]! + perimeter] };
     };
     const rows: number[][] = [lower];
     for (const section of sections) rows.push(section.map((p: V3): number => {
@@ -219,10 +303,13 @@ export namespace AutoMovieHumanFootWebTrim {
       return id;
     }));
     rows.push(upper);
-    const ordered: number[][] = rows.map(order);
+    const ordered: { row: number[]; clock: number[] }[] = rows.map((row: number[], i: number): { row: number[]; clock: number[] } =>
+      order(row, i === 0 ? lowerPhases : i === rows.length - 1 ? distances.slice(0, -1) : row.map((id: number): number => phase(point(id)))));
     const indices: number[] = [];
-    for (let i: number = 1; i < ordered.length; ++i)
-      AutoMovieHumanLegF1World.stitchRows(ordered[i - 1]!, ordered[i]!, positions, indices, "length");
+    for (let i: number = 1; i < ordered.length; ++i) {
+      const before: typeof ordered[number] = ordered[i - 1]!, after: typeof ordered[number] = ordered[i]!;
+      AutoMovieHumanLegF1World.stitchRows(before.row, after.row, positions, indices, [before.clock, after.clock]);
+    }
 
     // Bind both complete directed rims and reject exactly zero-area tiles.
     // Near-collinearity remains a separate same-body normal/crossing gate.
