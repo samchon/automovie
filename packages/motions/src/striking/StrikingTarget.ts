@@ -6,14 +6,11 @@ import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { StrikingBody } from "./StrikingBody";
-import { StrikingContact } from "./StrikingContact";
 
 /**
  * The relations every striking law reads from its entry state and its
- * target: which side leads, the line to the target, the feet as placed, how a
- * foot steps along the line or pivots on its ball, and the weapon's gap to
- * the struck body.
+ * target: which side leads, the line to the target, the feet as placed, and
+ * how a foot steps along the line or pivots on its ball.
  */
 export namespace StrikingTarget {
   /**
@@ -140,23 +137,5 @@ export namespace StrikingTarget {
     const distance: number = target.range ?? range(height);
     const centre: IAutoMovieVector3 = { x: (entry.feet.left.ankle.x + entry.feet.right.ankle.x) / 2, y: 0, z: (entry.feet.left.ankle.z + entry.feet.right.ankle.z) / 2 };
     return { x: centre.x + Math.sin(r) * distance, y: height, z: centre.z + Math.cos(r) * distance };
-  }
-
-  /**
-   * The signed gap between a weapon point and a struck body at a second: the
-   * nearest distance to that body's posed collision shapes.
-   *
-   * @param struck The struck performer.
-   * @param weapon The weapon point from the end joint and the second.
-   * @returns The gap function, metres; non-positive in contact.
-   */
-  export function gap(
-    struck: IHumanActionContext.IPerformer,
-    weapon: (end: IAutoMovieVector3, seconds: number) => IAutoMovieVector3,
-  ): (end: IAutoMovieVector3, seconds: number) => number {
-    return (end: IAutoMovieVector3, seconds: number): number => {
-      const shapes: StrikingContact.ICollider[] = StrikingBody.colliders(struck.body, struck.bones(seconds));
-      return StrikingContact.nearest(weapon(end, seconds), shapes)?.distance ?? Infinity;
-    };
   }
 }

@@ -70,7 +70,6 @@ export * from "./striking/StrikingSkill";
 export * from "./striking/StrikingStance";
 export * from "./striking/StrikingStroke";
 export * from "./striking/StrikingTarget";
-export * from "./striking/StrikingLeg";
 export * from "./striking/StrikingRecord";
 export * from "./striking/defend";
 export * from "./striking/guard";

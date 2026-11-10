@@ -48,6 +48,7 @@ export const MOTION_CAPTURE_CASES: Readonly<Record<string, () => Iterable<IMotio
   "striking-crosses": (): IMotionCaptureCase[] => strikingCases("striking-crosses"),
   "striking-kicks": (): IMotionCaptureCase[] => strikingCases("striking-kicks"),
   "striking-redirect": (): IMotionCaptureCase[] => strikingCases("striking-redirect"),
+  "striking-redirect-tall": (): IMotionCaptureCase[] => strikingCases("striking-redirect-tall"),
   "striking-fooled": (): IMotionCaptureCase[] => strikingCases("striking-fooled"),
   "striking-knee": (): IMotionCaptureCase[] => strikingCases("striking-knee"),
   "striking-air": (): IMotionCaptureCase[] => strikingCases("striking-air"),
