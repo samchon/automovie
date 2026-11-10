@@ -23,10 +23,12 @@ Each checklist H2 is a question that every selected declaration answers in its d
 
 ## Selection
 
-- From a package, `pnpm exec evidence list` and `pnpm exec evidence inspect '<target>'` show what a selector reaches.
-- `Claims: 3/4 active` means a selector matched nothing, without a diagnostic, and `Coverage` counts checklist sections, not declarations.
-- Exclude only generated, copied, or dependency material with verified provenance, and files the adapter cannot address, such as a default-export configuration or a global augmentation, which [review](../review/SKILL.md) covers.
-- Never narrow a selector or lower a severity to pass the check.
+From a package, `pnpm exec evidence list` and `pnpm exec evidence inspect '<target>'` show what a selector reaches. `Claims: 3/4 active` means a selector matched nothing, without a diagnostic, and `Coverage` counts checklist sections, not declarations.
+
+Exclude only two kinds of file, and never narrow a selector or lower a severity to pass the check:
+
+- generated, copied, or dependency material with verified provenance;
+- files the adapter cannot address, such as a default-export configuration or a global augmentation, which [review](../review/SKILL.md) covers.
 
 ## Editing The Checklists
 
