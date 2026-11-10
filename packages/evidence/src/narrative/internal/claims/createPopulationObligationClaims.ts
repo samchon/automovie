@@ -10,6 +10,7 @@ import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import type { NarrativeScope } from "../../NarrativeScope";
 import type { ProductionStage } from "../../ProductionStage";
+import { constructionStage } from "../constructionStage";
 import { createLocalContractReference } from "../references/createLocalContractReference";
 import { createSharedReference } from "../references/createSharedReference";
 import { layerFiles } from "../references/layerFiles";
@@ -42,7 +43,7 @@ export function createPopulationObligationClaims(
   props: IProductionConfigProps,
   layer: AuthoredLayer,
 ): IEvidenceClaim[] {
-  return family(props, layer, props.construction[layer]);
+  return family(props, layer, constructionStage(props, layer));
 }
 
 /** Creates the obligation claims for one layer's shared and language duties. */
@@ -53,7 +54,7 @@ function family(
 ): IEvidenceClaim[] {
   const directory: string = "obligations";
   const disabled: boolean = stage === "disabled";
-  // The shared tree ships `common.md`, and every non-settings layer its
+  // The shared tree ships `common.md`, and every non-canon layer its
   // `narratives.md`, so a missing one is a broken tree that must still be
   // selected for the compiler to say so. Only the optional documents are
   // filtered: `realized.md`, which older trees predate, and the layer file,

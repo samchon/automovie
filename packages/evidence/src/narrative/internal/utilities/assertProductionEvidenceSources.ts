@@ -3,6 +3,7 @@ import { resolveSkillsDirectory } from "../../../internal/resolveSkillsDirectory
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import { AUTHORED_LAYERS } from "../AUTHORED_LAYERS";
+import { constructionStage } from "../constructionStage";
 import { hasNaturalness } from "../hasNaturalness";
 import { productionLayers } from "../productionLayers";
 
@@ -13,7 +14,7 @@ import { productionLayers } from "../productionLayers";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure A single shape check precedes graph expansion; native Evidence owns claim and reference evaluation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same route and stage vocabulary applies to every production; it does not inspect graph results or confer approval.
  * @evidence contracts/development/common.md#meaningful-documentation Errors identify unsupported routes, layers, outline choices, stage values, a relative skills tree and each legacy contract directory with its new home.
- * @evidence contracts/development/implementation.md#efficient-algorithms The closed four-layer vocabulary bounds validation to constant time and storage, plus two directory existence probes.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The closed five-layer vocabulary bounds validation to constant time and storage, plus two directory existence probes.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed vocabularies are reused within one call; there is no expensive computation or cross-call cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only local scalar values and the route array are allocated; the synchronous probes acquire no retained file handle or task.
  */
@@ -32,7 +33,7 @@ export function assertProductionEvidenceSources(
   for (const layer of AUTHORED_LAYERS) {
     if (routed.includes(layer)) continue;
     if (
-      props.construction[layer] !== "disabled" ||
+      constructionStage(props, layer) !== "disabled" ||
       (hasNaturalness(layer) && props.naturalness.screenplay !== "disabled")
     )
       throw new Error(
@@ -56,7 +57,7 @@ export function assertProductionEvidenceSources(
       if (pass === "naturalness" && !hasNaturalness(layer)) continue;
       const stage: unknown =
         pass === "construction"
-          ? props.construction[layer]
+          ? constructionStage(props, layer)
           : props.naturalness.screenplay;
       if (stage !== "disabled" && stage !== "evidence")
         throw new Error("Unknown stage: a layer is disabled or evidence.");
@@ -65,6 +66,10 @@ export function assertProductionEvidenceSources(
     throw new Error(
       "Scripts finish in construction; remove naturalness.scripts.",
     );
-  if ("settings" in props.naturalness || "treatments" in props.naturalness)
-    throw new Error("Settings and treatments finish in construction.");
+  if (
+    "settings" in props.naturalness ||
+    "brief" in props.naturalness ||
+    "treatments" in props.naturalness
+  )
+    throw new Error("Settings, brief and treatments finish in construction.");
 }

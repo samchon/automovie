@@ -8,10 +8,10 @@ import { PACKAGE_DOCS_ROOT } from "../utilities/PACKAGE_DOCS_ROOT";
 import { referenceLocation } from "../utilities/referenceLocation";
 
 /**
- * Creates one H2 reference per canon file in either supported settings layout.
+ * Creates one H2 reference per canon file of settings, in any supported layout, or of a short's brief.
  * The outline is not canon and is never an inherited settings dependency.
  *
- * @evidence contracts/development/implementation.md#principled-implementation The promoted body settings directory is enumerated under readSettingsFiles layout validation, yielding one H2 reference per actual canon file; outline navigation is excluded from canon inheritance.
+ * @evidence contracts/development/implementation.md#principled-implementation The promoted body settings or brief directory, chosen by `canon`, is enumerated under readSettingsFiles layout validation, yielding one H2 reference per actual canon file; outline navigation is excluded from canon inheritance.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Filesystem layout discovery stays in readSettingsFiles while this helper adds layer-qualified native-reference addresses.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both flat legacy canon and numbered subject folders are real supported layouts; symbolic or invalid classified entries fail in the shared enumerator rather than being silently substituted.
  * @evidence contracts/development/common.md#meaningful-documentation The prose states per-file settings targets, two layouts and the outline exclusion; the default pass uses promoted draft addressing.
@@ -22,17 +22,18 @@ import { referenceLocation } from "../utilities/referenceLocation";
 export function createSettingReferences(
   location: string,
   pass: AuthoredPass = "draft",
+  canon: "settings" | "brief" = "settings",
 ): IEvidenceReference[] {
   const settingsRoot: string = path.join(
     location,
     PACKAGE_DOCS_ROOT,
     "body",
-    "settings",
+    canon,
   );
   if (!fs.existsSync(settingsRoot)) return [];
 
   return readSettingsFiles(settingsRoot)
-    .map((file: string): string => `settings/${file}`)
+    .map((file: string): string => `${canon}/${file}`)
     .map(
       (
         file: string,

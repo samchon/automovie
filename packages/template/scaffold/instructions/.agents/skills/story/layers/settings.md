@@ -1,6 +1,6 @@
 # Settings
 
-Write down the decisions about the world, its people, places and objects that later authors, artists and performers must keep true, specific enough to hold the work to and findable without reconstructing the world, under the settings questions in the [story contracts](../../contracts/story/SKILL.md). Settings are prose for readers; they never describe code. Read the [instructions](../planning/requirements.md#requirements) and finish [discovery](../planning/discovery.md) first, and work backward from the anticipated scenes to the facts they need. Settings belong to the long route, where a short's [brief](../planning/requirements.md#brief) stands in for them. Baseline states belong here; the events that change or reveal them belong to [treatments](treatments.md).
+Write down the decisions about the world, its people, places and objects that later authors, artists and performers must keep true, specific enough to hold the work to and findable without reconstructing the world, under the settings questions in the [story contracts](../../contracts/story/SKILL.md). Settings are prose for readers; they never describe code. Read the [instructions](../planning/requirements.md#requirements) and finish [discovery](../planning/discovery.md) first, and work backward from the anticipated scenes to the facts they need. Settings belong to the long route; a short writes its [brief](brief.md) instead. Baseline states belong here; the events that change or reveal them belong to [treatments](treatments.md).
 
 ## Records
 

@@ -7,6 +7,7 @@ Choose the commissioned route from the request, project context, adopted instruc
 | Layer | Owns | Hands onward |
 | --- | --- | --- |
 | [Settings](layers/settings.md) | Facts about the world, cast, crowds, props, sets, cinematography and sound, with baseline states, relationships and knowledge boundaries | Specific decisions with stable addresses and one owner |
+| [Brief](layers/brief.md), short route | A short's fixed conditions and the world, people, places, objects, tone and look its films share | Decisions with stable addresses the screenplays cite |
 | [Treatments](layers/treatments.md) | Events, causes, choices, consequences, setup and payoff, and information release | A progression that needs no invented decisive event |
 | [Scripts](layers/scripts.md) | Partition and fully executed scenes: speech, action, reactions, performance, stage, light, sound and view | Playable scenes for the final screenplay |
 | [Final screenplay](layers/screenplay.md) | The audience's image, sound, attention, duration, juxtaposition and transitions | Complete production text the scenes realize |
@@ -17,7 +18,7 @@ Commissioned video follows one traceable chain: settings or a short's brief, res
 
 Long work runs settings → treatments → scripts → screenplay construction, then screenplay naturalness; only the final screenplay has a separate expression pass, which only an explicit user waiver omits. Its settings exist because every later layer realizes and cites their decisions and cannot cite what was never written.
 
-A short runs brief → screenplay (`short`): its [brief](planning/requirements.md#brief) holds the fixed conditions and the decisions several scenes or films share, the screenplay decides everything else, and research, evidence and review stay; there are no settings, treatment, script or outline files. Wherever a skill or contract cites settings facts, a short cites its brief. Its screenplay keeps the naturalness pass as long work does.
+A short runs brief → screenplay construction, then screenplay naturalness (`short`). Its [brief](layers/brief.md) is canon like settings, with its own folders, contracts, evidence and review, and holds the fixed conditions and the decisions the films share; the screenplay decides everything else and repairs the brief upstream when writing exposes a gap. There are no settings, treatment, script or outline files. Wherever a skill or contract cites settings facts, a short cites its brief.
 
 Asset-only work has no narrative passes. Choose form and scale through [direction](planning/direction.md); complete work is the default. In an AutoMovie workspace the production's folder fixes the route: `movies/shorts/<name>` runs brief → screenplay, and `movies/series/<name>` runs the whole long route.
 
@@ -26,12 +27,13 @@ Asset-only work has no narrative passes. Choose form and scale through [directio
 | Submitted layer | Required parent |
 | --- | --- |
 | Settings | Adopted instructions, discovered requirements and the [research](planning/research.md) the facts draw on |
+| Brief | Adopted instructions, discovered requirements and the research its decisions draw on |
 | Treatments | Completed settings |
 | Scripts | Completed treatments |
 | Screenplay, long work | Completed treatments and scripts, including scripts expression |
-| Screenplay, short | The brief and the research its practices need |
+| Screenplay, short | Completed brief and the research it cites |
 
-Inherit through actual parents, repairing a missing handoff rather than bypassing it, and run [discovery](planning/discovery.md) before bulk settings or a short's screenplay.
+Inherit through actual parents, repairing a missing handoff rather than bypassing it, and run [discovery](planning/discovery.md) before bulk settings or brief.
 
 1. Finish the whole body while its pass is disabled.
 2. Complete [inspection and cause repair](correction/repair.md#cause-rounds), enable the stage through [evidence configuration](../evidence/configuration.md), and write [answers](evidence/writing.md).

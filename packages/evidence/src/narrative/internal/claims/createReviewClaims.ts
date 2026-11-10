@@ -11,6 +11,7 @@ import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { AuthoredPass } from "../../AuthoredPass";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import type { ProductionStage } from "../../ProductionStage";
+import { constructionStage } from "../constructionStage";
 import { hasNaturalness } from "../hasNaturalness";
 import { createLineageReference } from "../references/createLineageReference";
 import { createSharedReference } from "../references/createSharedReference";
@@ -54,7 +55,7 @@ export function createReviewClaims(
   layer: AuthoredLayer,
 ): IEvidenceClaim[] {
   const passes: [AuthoredPass, ProductionStage][] = [
-    ["draft", props.construction[layer]],
+    ["draft", constructionStage(props, layer)],
     ...(hasNaturalness(layer)
       ? [
           ["final", props.naturalness.screenplay] as [

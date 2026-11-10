@@ -10,6 +10,7 @@ import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import type { ProductionStage } from "../../ProductionStage";
 import { REALIZED_LAYERS } from "../REALIZED_LAYERS";
+import { constructionStage } from "../constructionStage";
 import { hasNaturalness } from "../hasNaturalness";
 import { createLocalContractReference } from "../references/createLocalContractReference";
 import { createSharedReference } from "../references/createSharedReference";
@@ -47,7 +48,7 @@ export function createExpressionObligationClaims(
   const revised: boolean = hasNaturalness(layer);
   const stage: ProductionStage = revised
     ? props.naturalness.screenplay
-    : props.construction[layer];
+    : constructionStage(props, layer);
   const disabled: boolean = stage === "disabled";
   const directory: string = "naturalness/obligations";
 

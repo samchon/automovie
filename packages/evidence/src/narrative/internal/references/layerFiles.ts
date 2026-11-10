@@ -1,5 +1,6 @@
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import { REALIZED_LAYERS } from "../REALIZED_LAYERS";
+import { isCanonLayer } from "../isCanonLayer";
 
 /**
  * Names the layer-scoped documents one layer answers, narrowest last.
@@ -12,7 +13,7 @@ import { REALIZED_LAYERS } from "../REALIZED_LAYERS";
  *
  * @evidence contracts/development/implementation.md#principled-implementation The fixed candidate order is common, optional inherited-narrative, optional literal-text and exact layer, matching the respondent populations declared by the four-layer pipeline.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared axis serves discovery/principle/obligation selection without duplicating layer eligibility decisions across gates or language scopes.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Settings omits inherited narrative duties and only REALIZED_LAYERS receives literal-text duties, both explicit semantic differences of the supported pipeline.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Canon layers omit inherited narrative duties and only REALIZED_LAYERS receives literal-text duties, both explicit semantic differences of the supported pipeline.
  * @evidence contracts/development/common.md#meaningful-documentation The prose explains narrowest-last order and why eligibility depends on the respondent rather than gate timing.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most four filenames and one constant-time Set membership check are produced, giving constant work and space independent of manuscript length.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work REALIZED_LAYERS is the shared eligibility set, while the returned array is fresh so filtering or mutation by one family cannot alter another family selection.
@@ -21,7 +22,7 @@ import { REALIZED_LAYERS } from "../REALIZED_LAYERS";
 export function layerFiles(layer: AuthoredLayer): string[] {
   return [
     "common.md",
-    ...(layer === "settings" ? [] : ["narratives.md"]),
+    ...(isCanonLayer(layer) ? [] : ["narratives.md"]),
     ...(REALIZED_LAYERS.has(layer) ? ["realized.md"] : []),
     `${layer}.md`,
   ];

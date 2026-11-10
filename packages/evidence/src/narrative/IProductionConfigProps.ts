@@ -13,7 +13,7 @@ import type { NarrativeScope } from "./NarrativeScope";
  * @evidence contracts/development/common.md#meaningful-documentation Members explain route, location, the shared skills tree and its default, scope, stages and additive claims; the production owns independent creative review.
  */
 export interface IProductionConfigProps {
-  /** Chooses four-layer long work, direct short screenplay, compact settings plus screenplay, or standalone assets. */
+  /** Chooses four-layer long work, short brief plus screenplay, compact settings plus screenplay, or standalone assets. */
   mode: "long" | "short" | "short-with-settings" | "asset";
 
   /** Engineering duties participate globally without a narrative parent. */
