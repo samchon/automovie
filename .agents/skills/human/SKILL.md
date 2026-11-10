@@ -11,6 +11,10 @@ The tasks and their order live in the issue tracker. An explicit stop overrides 
 
 Human browser debugging UI and HTTP capture clients belong in `packages/human/debug`. Direct Node image and measurement entries belong in `packages/human/src/executable`, use the Human package's `tsconfig.json` and run through its `node:*` scripts with `ttsx --no-plugins --noCheck`. Shared pure source and display adapters belong in `src/inspection`; keep Node file access and native Canvas imports in executable modules so browser and ordinary Human consumers need neither. Playground owns the ordinary parameter editor, and the generic viewer supplies rendering without Human-specific features.
 
+## Polygon Man
+
+The polygon man in `packages/viewer/src/human-polygon` is a deliberately simple stand-in of a few rigid primitives on Human's skeleton, for motion verification and diffusion hints. Keep its primitives, segment count and style: a fix corrects a wrong value, such as a radius, a length or a frame, and a change that would need more geometry, segments, smoothing, anatomy, a face or realism goes to the user as a report instead. Its value is a cheap, readable and deterministic silhouette; realism costs render time and pulls the hint toward surface detail the diffusion model supplies.
+
 ## Workers And Supervision
 
 Worker subagents do the Human work: extraction, authoring, captures, probes, fixes and documents. The main agent writes each worker a complete brief (reading list, rules, steps, the verification of each step and the report format) and supervises it through the [Supervisor Audit](verification.md#supervisor-audit). The main agent neither models nor adds steps to the owner's plan, because a supervisor busy with the work stops auditing, and an unaudited worker drifts for hours. A worker blocked by a refusal researches the standard method and reports the block together with that method and its sources.

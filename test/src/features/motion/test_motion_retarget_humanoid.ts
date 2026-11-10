@@ -1,4 +1,3 @@
-import { HUMANOID_PROFILE } from "@automovie/archetypes";
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
@@ -19,6 +18,7 @@ import {
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { HUMANOID_PROFILE } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRetargetHumanoidBinding as bindingFor } from "../internal/createRetargetHumanoidBinding";

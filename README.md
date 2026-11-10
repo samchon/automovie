@@ -41,8 +41,9 @@ Film productions live under `movies/`; the architectural demonstrations under `e
 | --- | --- |
 | [`@automovie/interface`](./packages/interface) | The pure-type authoring AST an LLM emits |
 | [`@automovie/engine`](./packages/engine) | Deterministic validation and computation of everything a frame needs |
-| [`@automovie/archetypes`](./packages/archetypes) | Typed producers of shipped model groups and the humanoid gait tables |
+| [`@automovie/archetypes`](./packages/archetypes) | Typed producers of shipped model groups |
 | [`@automovie/human`](./packages/human) | A human figure generated from typed parameters by code (being rebuilt) |
+| [`@automovie/motions`](./packages/motions) | Human action laws that author deterministic motion, and the humanoid gait tables |
 | [`@automovie/ingest`](./packages/ingest) | Deterministic import of glTF, GLB, VRM, and WAVE inputs |
 | [`@automovie/recovery`](./packages/recovery) | Registered-mesh observation, saved-curve reconstruction, and immutable artifact hosts |
 | [`@automovie/viewer`](./packages/viewer) | Three.js display, capture, and inspection |

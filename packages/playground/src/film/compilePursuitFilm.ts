@@ -1,4 +1,3 @@
-import { HUMANOID_GAITS } from "@automovie/archetypes";
 import {
   type IAutoMovieActorContext,
   blockBeat,
@@ -18,6 +17,7 @@ import type {
   IAutoMovieShot,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { HUMANOID_GAITS } from "@automovie/motions";
 
 import { DEFAULT_STICKMAN } from "../DEFAULT_STICKMAN";
 import { buildStickman } from "../buildStickman";

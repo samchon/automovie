@@ -1,4 +1,3 @@
-import { HUMANOID_GAITS } from "@automovie/archetypes";
 import {
   type IAutoMovieActorContext,
   type IAutoMoviePerformedShot,
@@ -19,6 +18,7 @@ import {
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { HUMANOID_GAITS } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import {

@@ -1,4 +1,3 @@
-import { HUMANOID_GAITS } from "@automovie/archetypes";
 import {
   HUMANOID_JOINT_AXES,
   IAutoMovieActorContext,
@@ -23,6 +22,7 @@ import {
   IAutoMovieStage,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { HUMANOID_GAITS } from "@automovie/motions";
 import {
   AutoMoviePlayer,
   applyObjectMotion,

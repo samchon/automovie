@@ -105,8 +105,8 @@ export namespace AutoMovieHumanJointCentres {
     const headRadius: number =
       head !== undefined ? around(head, "head") : segment("head");
 
-    // A limb the realization has not lofted yet (no chain of its own or its
-    // host's) takes its girth from stature: typical adult circumference over
+    // A limb the realization has not lofted yet takes its girth from stature:
+    // typical adult circumference over
     // stature (thigh 0.30, calf 0.21, foot 0.14, hallux 0.04, lesser toe 0.03,
     // finger 0.03; ANSUR II order of magnitude) as a radius, so the rig and its
     // blockout keep body proportions until the part is lofted.
@@ -121,11 +121,12 @@ export namespace AutoMovieHumanJointCentres {
       Finger: 0.03,
     };
     const limb = (name: string, bone: string): number => {
-      const [kind, side] = name.split(".");
+      // Only the part's own chain measures it: a digit's host (the arm's
+      // mitten or the foot) is the whole hand or forefoot there, so its
+      // nearest ring gave a palm-wide proximal phalanx and a needle-thin
+      // distal one instead of a digit's girth.
       const lofted: boolean = calibration.chains.some(
-        (c: IAutoMovieLoftChain): boolean =>
-          c.name === name ||
-          (HOSTS[kind!] !== undefined && c.name === `${HOSTS[kind!]}.${side}`),
+        (c: IAutoMovieLoftChain): boolean => c.name === name,
       );
       if (lofted) return around(chain(name), bone);
       const part: string = bone.replace(/^(left|right)/u, "");
@@ -140,7 +141,9 @@ export namespace AutoMovieHumanJointCentres {
       if (bone === "hips") return girth(trunk, 0.518 * S);
       if (bone === "spine")
         return girth(trunk, byBone.get("spine")!.position[1]);
-      if (bone === "chest") return girth(trunk, stop(trunk));
+      // The chest segment's girth at its middle, as every segment's: the
+      // trunk's top ring is the neck seat, a neck girth, not the thorax.
+      if (bone === "chest") return girth(trunk, middleOf("chest")[1]);
       if (bone === "neck" || bone === "atlas")
         return head !== undefined
           ? around(head, bone)

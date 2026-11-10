@@ -18,6 +18,7 @@
     "@automovie/human": "workspace:^",
     "@automovie/ingest": "workspace:^",
     "@automovie/interface": "workspace:^",
+    "@automovie/motions": "workspace:^",
     "@automovie/playground": "workspace:^",
     "@automovie/recovery": "workspace:^",
     "@automovie/render": "workspace:^",

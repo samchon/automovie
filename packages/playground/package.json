@@ -24,6 +24,7 @@
     "@automovie/engine": "workspace:^",
     "@automovie/human": "workspace:^",
     "@automovie/interface": "workspace:^",
+    "@automovie/motions": "workspace:^",
     "@automovie/recovery": "workspace:^",
     "@automovie/render": "workspace:^",
     "@automovie/viewer": "workspace:^",
