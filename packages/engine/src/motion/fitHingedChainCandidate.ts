@@ -6,11 +6,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { IAutoMovieJointRotationDomain } from "../kinematics/IAutoMovieJointRotationDomain";
+import type { IAutoMovieResolvedJointAngles } from "../kinematics/IAutoMovieResolvedJointAngles";
 import { clinicalDeviation } from "../kinematics/clinicalDeviation";
-import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
+import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
+import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { hingedArmArticulation } from "../kinematics/hingedArmArticulation";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
+import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { swingTwist } from "../math/swingTwist";
@@ -81,24 +85,30 @@ export function fitHingedChainCandidate(
   );
   const side: IAutoMovieVector3 | null =
     Vector3.length(hint) < 1e-9 ? null : Vector3.normalize(hint);
+  // Each basis is admitted and normalized once for the whole sweep; the
+  // candidates differ only in their rotation.
+  const upperBasis: IAutoMovieJointAxes = basisOf(
+    props.jointAxes?.[props.chain.upper],
+  );
+  const lowerBasis: IAutoMovieJointAxes = basisOf(axes);
   const joints = (
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
   ): [IAutoMovieJointPose, IAutoMovieJointPose] => [
     {
       bone: props.chain.upper,
-      ...decomposeJointRotation(
+      ...decomposeJointRotationOnBasis(
         upper,
-        props.jointAxes?.[props.chain.upper],
+        upperBasis,
         props.restFrames?.[props.chain.upper],
         prepared.upperDomain,
       ),
     },
     {
       bone: props.chain.lower,
-      ...decomposeJointRotation(
+      ...decomposeJointRotationOnBasis(
         lower,
-        axes,
+        lowerBasis,
         props.restFrames?.[props.chain.lower],
         prepared.lowerDomain,
       ),
@@ -195,6 +205,21 @@ export function fitHingedChainCandidate(
 }
 
 /**
+ * A joint's clinical basis as `decomposeJointRotationOnBasis` reads it: the
+ * given axes, or the default ones, admitted and normalized exactly as
+ * `decomposeJointRotation` would for each call, done here once per fit.
+ *
+ * @param axes The bone's clinical axes; omitted, the default basis.
+ * @returns The orthonormal basis.
+ */
+function basisOf(axes: IAutoMovieJointAxes | undefined): IAutoMovieJointAxes {
+  return normalizeJointAxes(
+    axes ?? DEFAULT_JOINT_AXES,
+    "decomposeJointRotation axes",
+  );
+}
+
+/**
  * How far, in degrees, the effector misses a requested rotation once a
  * hinged candidate's mid bone has taken its distal twist share and the
  * effector its swing, each clamped to the rig's range: the split that
@@ -223,15 +248,18 @@ function rotationError(
       .rotation ?? Quaternion.identity();
   const effectorAxes: IAutoMovieJointAxes | undefined =
     props.jointAxes?.[effector];
+  const lowerBasis: IAutoMovieJointAxes = basisOf(axes);
+  const effectorBasis: IAutoMovieJointAxes = basisOf(effectorAxes);
   const clamped = (
     bone: AutoMovieHumanoidBone,
     q: IAutoMovieQuaternion,
     boneAxes: IAutoMovieJointAxes | undefined,
-    domain?: Parameters<typeof decomposeJointRotation>[3],
+    basis: IAutoMovieJointAxes,
+    domain?: IAutoMovieJointRotationDomain,
   ): IAutoMovieQuaternion => {
-    const a: ReturnType<typeof decomposeJointRotation> = decomposeJointRotation(
+    const a: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
       q,
-      boneAxes,
+      basis,
       props.restFrames?.[bone],
       domain,
     );
@@ -263,6 +291,7 @@ function rotationError(
         props.chain.lower,
         Quaternion.multiply(lower, twist),
         axes,
+        lowerBasis,
         prepared.lowerDomain,
       ),
     );
@@ -274,7 +303,7 @@ function rotationError(
     );
     const shown: IAutoMovieQuaternion = Quaternion.multiply(
       Quaternion.multiply(mid, rest),
-      clamped(effector, local, effectorAxes),
+      clamped(effector, local, effectorAxes, effectorBasis),
     );
     const dot: number = Math.min(
       1,

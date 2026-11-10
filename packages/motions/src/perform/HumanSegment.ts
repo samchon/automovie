@@ -532,9 +532,11 @@ export namespace HumanSegment {
 
   /**
    * Forget every evaluated pose and transition offset, once every person's
-   * actions are placed and every contact is committed, so nothing evaluated
-   * against a half-placed performance survives, and let displayed poses be
-   * kept from here on.
+   * actions are placed, so nothing evaluated against a half-placed
+   * performance survives, and let displayed poses be kept from here on.
+   * Whatever later changes what a person shows (a contact stop committed or
+   * withdrawn) must {@link forget} everyone again; the poses kept in between
+   * are then exactly those of the state they were read in.
    *
    * @param person The person.
    */
