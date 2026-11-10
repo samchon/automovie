@@ -12,7 +12,7 @@ export const AUTOMOVIE_TEMPLATE_VERSIONS: Record<string, string> = {
   motions: "^0.1.0",
   recovery: "^0.1.0",
   render: "^0.1.0",
-  template: "^0.1.5",
+  template: "^0.1.0",
   viewer: "^0.1.0",
   huggingFaceTransformers: "3.8.1",
   h264Mp4Encoder: "^1.0.12",
