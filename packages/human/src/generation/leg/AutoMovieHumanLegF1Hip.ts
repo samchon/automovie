@@ -38,11 +38,9 @@ export namespace AutoMovieHumanLegF1Hip {
    * Join the actual shared fork to the existing first regular thigh ring.
    *
    * Common transverse rows evaluate the saved piecewise cubic columns. Their
-   * offline 0.05 mm control-hull chord bound and two-degree derivative cone
-   * apply to every final common longitudinal interval. The saved source
-   * coefficients and both ports are unchanged. These are display bounds,
-   * not a global source-error or smooth-junction certificate; the assembled
-   * surface still needs crossing and visual inspection.
+   * offline 0.5 mm control-hull chord bound applies longitudinally, not as a
+   * global source-error or smooth-junction certificate. The final assembled
+   * surface still needs the whole-body crossing and visual inspection.
    */
   export function attach(mesh: Context, side: "left" | "right", fork: AutoMovieHumanF1Fork.IResult): void {
     const recipe: (typeof inputs.records)[number] | undefined = inputs.records.find(
