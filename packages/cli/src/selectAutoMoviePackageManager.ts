@@ -1,6 +1,8 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+import type { IAutoMoviePackageManager } from "./IAutoMoviePackageManager";
+
 /**
  * Choose the package manager a freshly created single production is installed with, for its next-step text.
  *
@@ -23,7 +25,7 @@ export function selectAutoMoviePackageManager(props: {
 
   /** The invoking `npm_config_user_agent`, if any. */
   userAgent?: string;
-}): { manager: "npm" | "pnpm"; workspace?: string } {
+}): IAutoMoviePackageManager {
   for (
     let current: string = path.resolve(props.directory);
     ;
