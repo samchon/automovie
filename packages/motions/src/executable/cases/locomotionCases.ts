@@ -1,8 +1,4 @@
-import {
-  type IAutoMovieResolvedBone,
-  Quaternion,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { type IAutoMovieResolvedBone, Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMoviePose,
@@ -18,6 +14,7 @@ import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
+import { FootSlip } from "./FootSlip";
 
 /**
  * Capture cases of the walk law on the polygon man (E0): every body of
@@ -35,8 +32,9 @@ import type { humanPolygonMan } from "../humanPolygonMan";
  * limit; each walker's destination is marked. The verdicts are the ones a
  * walk must keep: the planted point, the lowest of heel, ball and toe pad
  * (the heel in the heel rocker, the toe pad in the forefoot rocker), while it
- * touches the floor (within 1 cm) in stance, slides under 5 mm across it for
- * as long as it stays the planted point, the foot-skate measure of Kovar, Schreiner
+ * touches the floor (within 1 cm) in stance, slides under 5 mm across it
+ * from where it first was the planted point of that stance ({@link FootSlip}),
+ * the foot-skate measure of Kovar, Schreiner
  * and Gleicher (2002), since the ankle itself moves as the foot rolls over
  * its rockers; no heel, ball or toe sinks more than 5 mm under the floor;
  * every displayed ankle meets its IK goal within 2 mm and every swinging foot
@@ -340,47 +338,31 @@ export function* locomotionCases(
                   }
                 }
               }
-              const points = (["heel", "ball", "toe"] as const).map(
-                (socket) => {
-                  const frame =
-                    body.surfaces.sockets[
-                      `${socket}${side === "left" ? "Left" : "Right"}`
-                    ];
-                  return {
-                    socket,
-                    p: resolveAutoMovieHumanoidSurfaces.place(
-                      frame,
-                      bones.get(frame.bone)!,
-                    ).point,
-                  };
-                },
+              const sole: FootSlip.IPoint[] = FootSlip.points(
+                body,
+                bones,
+                side,
               );
-              // The planted point is the lowest of heel, ball and toe pad: the heel in
-              // the heel rocker, the sole flat, the toe pad in the forefoot rocker.
-              const planted: string = points.reduce((a, b) =>
-                b.p.y < a.p.y ? b : a,
-              ).socket;
-              for (const { socket, p } of points) {
-                if (-p.y > sink.value)
+              for (const { socket, point } of sole)
+                if (-point.y > sink.value)
                   sink = {
-                    value: -p.y,
+                    value: -point.y,
                     where: `${names[i]} ${side} ${socket} ${phase} t=${t.toFixed(2)}`,
                   };
-                // The planted point on the floor during a stance must not move across it.
-                const key: string = `${side}${n}${socket}`;
-                if (n < 0 || p.y > 0.01 || socket !== planted) {
-                  touched.delete(key);
-                  continue;
-                }
-                const first: IAutoMovieVector3 = touched.get(key) ?? p;
-                touched.set(key, first);
-                const d: number = Math.hypot(p.x - first.x, p.z - first.z);
+              // The planted point on the floor during a stance must not move across it.
+              const planted: FootSlip.IPoint = FootSlip.contact(sole);
+              if (n >= 0 && planted.point.y <= 0.01) {
+                const d: number = FootSlip.drift(
+                  touched,
+                  `${side}${n}`,
+                  planted,
+                );
                 if (d > slip.value)
                   slip = {
                     value: d,
-                    where: `${names[i]} ${side} ${socket} t=${t.toFixed(2)}${within}, foot rotation off ${error.toFixed(1)} deg`,
+                    where: `${names[i]} ${side} ${planted.socket} t=${t.toFixed(2)}${within}, foot rotation off ${error.toFixed(1)} deg`,
                   };
-                drift.push({ at: p, drift: d });
+                drift.push({ at: planted.point, drift: d });
               }
             }
           }

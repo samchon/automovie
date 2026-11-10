@@ -2,6 +2,7 @@ import {
   AutoMovieStationHermite,
   type IAutoMovieResolvedBone,
   Quaternion,
+  inertializeOffset,
   minimumJerk,
   resolveAutoMovieCenterOfMass,
   wrapDegrees,
@@ -9,6 +10,7 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionEvent,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -38,14 +40,24 @@ import { standUpright } from "./standUpright";
  * held on the floor while it comes down about its heel if it was still in its
  * heel rocker and then rises about the toes' joint from its entry pitch to
  * 40°, its toes extending, the stance rockers in order and the forefoot rocker of a
- * push-off; the other leg, the reaching leg, leaves the floor at the cut and
- * withdraws under the body, its
+ * push-off, the floor contact it declares being the heel while it pivots
+ * there and the toes' joint after; the other leg, the reaching leg, leaves
+ * the floor at the cut and withdraws under the body, its
  * ankle drawn under the hip and raised to 0.3 hip heights, the free-leg tuck
  * of a one-foot take-off, its foot turning from its entry rotation. The arms
  * swing forward and up from their entry angles with the push (shoulder
  * flexion to 60°), the arm action that adds to take-off velocity
  * (Ashby and Heegaard 2002, "Role of arm motion in the standing long jump",
  * J. Biomech. 35).
+ *
+ * Whatever the push-off moves on a path of its own (the reaching foot, the
+ * turn to the jump's heading, the shoulders) also continues the rate it was
+ * entered with: the path starts at rest, and the entry rate times the
+ * engine's zero-offset inertialization lobe ({@link inertializeOffset}, which
+ * leaves with unit slope and returns to zero value, velocity and acceleration
+ * at the end of the push) is added to it. A reaching foot that was coming
+ * down keeps only the descent its clearance above the floor affords, the
+ * lobe peaking at 0.08192 of the push's duration times the rate.
  *
  * Flight is ballistic in the centre of mass, the one point gravity alone
  * moves while airborne: from the apex height `apex` above take-off (0.06 hip
@@ -338,6 +350,34 @@ export namespace jump {
       },
     ];
 
+    // What an entry rate adds to a push-off path that starts at rest: the
+    // rate times this lobe, whose slope is one at the cut.
+    const lobe = (t: number): number => inertializeOffset(0, 1, P, t).value;
+    const stride: IAutoMovieVector3 = entry.feet[reaching].velocity;
+    const spin: IAutoMovieVector3 = entry.feet[reaching].spin;
+    const spinRate: number = Math.hypot(spin.x, spin.y, spin.z);
+    // The lobe peaks at 0.2 * 0.8^4 of the push times the rate, so a descent
+    // is kept only as far as the lowest sole point stands above the floor.
+    const left: HumanFoot.IPlacement = {
+      ankle: entry.feet[reaching].ankle,
+      rotation: entry.feet[reaching].rotation,
+    };
+    const clearance: number = Math.max(
+      0,
+      Math.min(
+        HumanFoot.point(body, reaching, "heel", left).y,
+        HumanFoot.point(body, reaching, "toe", left).y,
+      ),
+    );
+    const carried: IAutoMovieVector3 = {
+      x: stride.x,
+      y: Math.max(stride.y, -clearance / (0.08192 * P)),
+      z: stride.z,
+    };
+    const turning: number = (entry.velocity.angular.y * 180) / Math.PI;
+    const swinging = (side: "left" | "right"): number =>
+      entry.velocity.joints.get(`${side}UpperArm`)?.[0] ?? 0;
+
     const rootAt = (t: number): IAutoMovieVector3 => {
       if (t <= P) return hermite(root0, v0, rootT, launch, P, t);
       if (t <= touchdown) {
@@ -413,11 +453,14 @@ export namespace jump {
         const root: IAutoMovieVector3 = rootAt(t);
         const yaw: number =
           entry.posture.yaw +
-          (heading - entry.posture.yaw) * minimumJerk(t / P).s;
+          (heading - entry.posture.yaw) * minimumJerk(t / P).s +
+          turning * lobe(t);
         // Arms: forward and up with the push, held through flight, lowered as the landing absorbs.
         const raise = (side: "left" | "right"): number =>
           t <= P
-            ? arm(side) + (60 - arm(side)) * minimumJerk(t / P).s
+            ? arm(side) +
+              (60 - arm(side)) * minimumJerk(t / P).s +
+              swinging(side) * lobe(t)
             : t <= touchdown
               ? 60 - 30 * minimumJerk((t - P) / T).s
               : 30 * (1 - minimumJerk((t - touchdown) / (ABSORB + RISE)).s);
@@ -452,23 +495,51 @@ export namespace jump {
             rotation: foot.rotation,
             bend: knee(root, takeoff, supportHeading),
             planted: true,
-            contact: HumanFoot.offset(body, takeoff, "mtp"),
+            // The point the foot turns about is the one that stays on the floor.
+            contact: HumanFoot.offset(
+              body,
+              takeoff,
+              pitch > 0 ? "heel" : "mtp",
+            ),
           };
           joints[`${takeoff}Toes`] = [-pitch, 0, 0];
-          // The reaching foot leaves at once, from rest on a minimum-jerk path.
+          // The reaching foot leaves at once on a minimum-jerk path, carrying
+          // the velocity and the spin it was entered with.
           const s: number = minimumJerk(t / P).s;
+          const k: number = lobe(t);
           const from: IAutoMovieVector3 = entry.feet[reaching].ankle;
           const into: IAutoMovieVector3 = HumanFrame.point(
             { origin: root, yaw: heading },
             tuck,
           );
+          const path: IAutoMovieVector3 = lerp(from, into, s);
+          const turned: IAutoMovieQuaternion = Quaternion.slerp(
+            entry.feet[reaching].rotation,
+            HumanFoot.rotation(heading, 0),
+            s,
+          );
           limbs[`${reaching}Leg`] = {
-            point: lerp(from, into, s),
-            rotation: Quaternion.slerp(
-              entry.feet[reaching].rotation,
-              HumanFoot.rotation(heading, 0),
-              s,
-            ),
+            point: {
+              x: path.x + carried.x * k,
+              y: path.y + carried.y * k,
+              z: path.z + carried.z * k,
+            },
+            rotation:
+              spinRate < 1e-9
+                ? turned
+                : Quaternion.normalize(
+                    Quaternion.multiply(
+                      Quaternion.fromAxisAngle(
+                        {
+                          x: spin.x / spinRate,
+                          y: spin.y / spinRate,
+                          z: spin.z / spinRate,
+                        },
+                        (spinRate * k * 180) / Math.PI,
+                      ),
+                      turned,
+                    ),
+                  ),
             bend: knee(root, reaching, heading),
           };
         } else if (t <= touchdown) {

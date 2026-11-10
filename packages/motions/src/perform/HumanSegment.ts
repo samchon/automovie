@@ -290,13 +290,23 @@ export namespace HumanSegment {
     seconds: number,
   ): IHumanEntryState {
     const body = person.performer.body;
-    const shown = (t: number): IAutoMoviePose =>
-      previous === undefined ? initial(person) : of(person, previous, t);
+    // The difference interval of every rate read here, seconds.
+    const step: number = 1e-3;
+    const poses: Map<number, IAutoMoviePose> = new Map();
+    const shown = (t: number): IAutoMoviePose => {
+      let pose: IAutoMoviePose | undefined = poses.get(t);
+      if (pose === undefined) {
+        pose =
+          previous === undefined ? initial(person) : of(person, previous, t);
+        poses.set(t, pose);
+      }
+      return pose;
+    };
     // What was displayed up to the entry: the motion it leaves ends here.
     const state: samplePoseVelocity.IState = samplePoseVelocity(
       shown,
       seconds,
-      1e-3,
+      step,
       "before",
     );
     const posture: IHumanPosture =
@@ -330,11 +340,47 @@ export namespace HumanSegment {
           u <= c.to + 1e-9,
       );
     };
-    const foot = (side: "left" | "right"): IHumanEntryState.IFoot => ({
-      ankle: bones.get(`${side}Foot`)!.worldPosition,
-      rotation: bones.get(`${side}Foot`)!.worldRotation,
-      planted: planted(`${side}Foot`),
-    });
+    // The same two earlier samples the pose velocity was read from, so a
+    // foot's rate is the one-sided difference of the motion that ends here.
+    const near: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      shown(seconds - step),
+    );
+    const far: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      shown(seconds - 2 * step),
+    );
+    const foot = (side: "left" | "right"): IHumanEntryState.IFoot => {
+      const here: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
+      const a: IAutoMovieResolvedBone = near.get(`${side}Foot`)!;
+      const b: IAutoMovieResolvedBone = far.get(`${side}Foot`)!;
+      const rate = (x: number, y: number, z: number): number =>
+        (3 * x - 4 * y + z) / (2 * step);
+      const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+        here.worldRotation,
+      );
+      const turn = (bone: IAutoMovieResolvedBone): IAutoMovieVector3 =>
+        samplePoseVelocity.rotationVector(
+          Quaternion.multiply(bone.worldRotation, inverse),
+        );
+      const ar: IAutoMovieVector3 = turn(a);
+      const br: IAutoMovieVector3 = turn(b);
+      return {
+        ankle: here.worldPosition,
+        rotation: here.worldRotation,
+        planted: planted(`${side}Foot`),
+        velocity: {
+          x: rate(here.worldPosition.x, a.worldPosition.x, b.worldPosition.x),
+          y: rate(here.worldPosition.y, a.worldPosition.y, b.worldPosition.y),
+          z: rate(here.worldPosition.z, a.worldPosition.z, b.worldPosition.z),
+        },
+        spin: {
+          x: rate(0, ar.x, br.x),
+          y: rate(0, ar.y, br.y),
+          z: rate(0, ar.z, br.z),
+        },
+      };
+    };
     return {
       seconds,
       pose: state.pose,
