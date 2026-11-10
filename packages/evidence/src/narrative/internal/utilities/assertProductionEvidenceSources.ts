@@ -21,7 +21,7 @@ import { productionLayers } from "../productionLayers";
 export function assertProductionEvidenceSources(
   props: IProductionConfigProps,
 ): void {
-  if (!["long", "short", "short-with-settings", "asset"].includes(props.mode))
+  if (!["long", "short", "asset"].includes(props.mode))
     throw new Error("Unknown production route.");
 
   // A relative shared tree or a production still keeping its own contracts

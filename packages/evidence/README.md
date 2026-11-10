@@ -41,7 +41,7 @@ export default createEvidenceConfig({
 });
 ```
 
-`short` is a brief under `docs/body/brief` followed by the screenplay, `short-with-settings` establishes compact settings first, and `long` keeps all four layers: settings, treatments, scripts and screenplay. A stage you leave out stays a disabled draft. The scope is the complete work unless `scope` names a pilot's exact first part.
+`short` is a brief under `docs/body/brief` followed by the screenplay, and `long` keeps all four layers: settings, treatments, scripts and screenplay. A stage you leave out stays a disabled draft. The scope is the complete work unless `scope` names a pilot's exact first part.
 
 ### Research and development contracts
 

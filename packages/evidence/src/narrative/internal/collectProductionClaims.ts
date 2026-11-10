@@ -33,9 +33,7 @@ export function collectProductionClaims(
       ? (["settings", "treatments"] as const)
       : props.mode === "short"
         ? (["brief", "screenplay"] as const)
-        : props.mode === "short-with-settings"
-          ? (["settings", "screenplay"] as const)
-          : []
+        : []
   ).flatMap(
     (
       layer: "settings" | "brief" | "treatments" | "screenplay",

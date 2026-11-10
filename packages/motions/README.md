@@ -43,7 +43,7 @@ Positions are world metres on the floor, `yaw` is degrees about +Y with 0 facing
 | --- | --- |
 | `HumanChain` | One method per action. `HumanChain.subject(id)` starts a chain, `until` cuts an action short, and `with` runs another person's chain at the same time. |
 | `HumanPerformance` | Places a composition and samples it: `pose`, `posture`, `bones`, `prop`, `segments` and `aim`. It refuses a composition that breaks a law or a supplied rule. |
-| `createHumanBody` | Derives a performer's body from a canonical skeleton and physical profile. |
+| `createHumanBody` | Derives a performer's body from a canonical skeleton and contact profile. |
 | `HUMAN_ACTIONS` | The closed table of action laws by name. |
 | `HUMANOID_GAITS`, `HUMANOID_PROFILE` | The humanoid gait tables for the engine's gait motion. |
 

@@ -156,8 +156,7 @@ export function createLayerClaims(
   if (isCanonLayer(layer)) return [unit, ...surface];
 
   const coverage: IEvidenceClaim | undefined =
-    layer === "treatments" ||
-    (layer === "screenplay" && props.mode === "short-with-settings")
+    layer === "treatments"
       ? createSettingCoverageClaim(props, layer)
       : layer === "screenplay" && props.mode === "short"
         ? createSettingCoverageClaim(props, layer, "brief")

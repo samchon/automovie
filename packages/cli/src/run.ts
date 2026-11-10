@@ -31,7 +31,7 @@ Commands:
   create          A single production, or with --workspace a pnpm workspace
                   root for movies/shorts, movies/series and packages.
   add             From a workspace root, a production at movies/<family>/<name>:
-                  shorts run settings -> screenplay, series the long route.
+                  shorts run brief -> screenplay, series the long route.
   sync            Update the generated instructions of a single production
                   or a workspace root.
 

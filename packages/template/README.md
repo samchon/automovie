@@ -29,7 +29,7 @@ A renderer returns a `{ path: content }` map and writes nothing. The map is the 
 
 ## Updating an installed project
 
-Upgrading the package never touches an installed project. `planScaffoldSync({ location, baseline? })` compares a project's instruction files with the current bundle, and `syncScaffold` applies that plan when it has no conflict; with `check: true` it only reports. Sync rewrites the routers and bundled skill files, never contracts, configuration, source or written content. A file edited locally is a conflict, and a conflict stops every write. The CLI exposes this as `automovie sync`.
+Upgrading the package never touches an installed project. `planScaffoldSync({ location, baseline? })` compares a project's instruction files with the current bundle, and `syncScaffold` applies that plan when it has no conflict; with `check: true` it only reports. Sync rewrites `AGENTS.md`, `CLAUDE.md` and the bundled skill files, never contracts, configuration, source or written content. A file edited locally is a conflict, and a conflict stops every write. The CLI exposes this as `automovie sync`.
 
 ## What the scaffold contains
 
