@@ -11,7 +11,7 @@ An action is written as a law: a function that, given a body and its inputs, pro
 
 | Rule | Covers |
 | --- | --- |
-| [Effector goals](authoring.md) | Bringing effectors to targets, reach, and the order of the fits. Every other rule depends on it |
+| [Effector goals](authoring.md) | Bringing effectors to targets: reach, balance, the path in time and the order of the fits. Every other rule depends on it |
 | [Laws](laws.md) | What every action declares: its plan, entry state, events, outcome and time scale |
 | [Variation](variation.md) | Parameters, skill and seed, and draws that replay |
 | [Transitions](transitions.md) | Pose as a function of time, declared cuts, inertialization and redirection |
@@ -46,7 +46,11 @@ Work in this order, because each step fixes what the next one builds on.
    The cases run across bodies, against partners and props, cut at each listed window and redirected mid-motion.
 
 6. Capture the cases, review their frames, and repair every finding of the round together by cause.
-7. Cite each source in the law's documentation and add it to the family's sub-issue.
+
+   Keep a round only under the [round rule](verification.md#judge-rounds-honestly).
+
+7. Record every remaining failure with its numbers in the family's sub-issue.
+8. Cite each source in the law's documentation and add it to the sub-issue.
 
 ## In this repository
 

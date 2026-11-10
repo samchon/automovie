@@ -6,6 +6,10 @@ Read this when an action plants a foot, sits, grips, carries an object or touche
 
 Each contact holds through a declared window: a plant, a seat, a grip, a rest or a hang. Each window names its support frame: the ground, a prop or another performer. Slip and penetration are measured in that frame, so a hand on a moving rail or a rider on a moving mount is not reported as sliding.
 
+Release a support only after the next one bears the weight: the heel lands before the other toe leaves, the seat takes the weight before the trunk settles, and the feet bear the weight before the seat is left. Releasing first makes the body float or drop.
+
+A brief contact is [checked at a rate](verification.md#checks-that-can-fail) that cannot step over it.
+
 ## Feet
 
 Plant a foot at the point that actually touches: the ball, the heel, or both. Holding the ankle while the check reads the ball lets the ball drift as the foot pivots.
@@ -27,6 +31,8 @@ At a handover:
 - every outcome that keeps the object, such as a withdrawn offer, keeps a hand on it until the object is set down.
 
 ## Contact between performers
+
+Solve a target that depends on two performers once, from both. The meeting point of a handshake, a handover or a clinch is computed from both bodies' reach and given to each as its target, and each side's timing waits on the other's named event. Two performers each aiming at where the other is chase each other.
 
 Judge a contact against each performer's final displayed pose. A contact stop, the instant a moving limb is halted at contact, committed against a provisional pose lands at the wrong instant and lets one body pass into the other. When a contact stop changes what is displayed, resolve the contacts again against the new display, or resolve both performers together at each instant.
 

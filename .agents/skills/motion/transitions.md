@@ -8,7 +8,7 @@ An action evaluates each pose from its plan and a time alone, which has two cons
 
 ## Declared cuts
 
-Each action declares its interrupt table: the actions it may be cut into, the window of each cut (a share of the action, or one of its events), and the transition kind. Refuse a cut its interrupt table does not list at the moment the plan is built, so an impossible change of plan surfaces before the film renders.
+Each action declares its interrupt table: the actions it may be cut into, the window of each cut (a share of the action, or one of its events), where the target action is entered (a share or one of its events), and the transition kind. A cut without an entry point restarts the target from its beginning. Refuse a cut its interrupt table does not list at the moment the plan is built, so an impossible change of plan surfaces before the film renders.
 
 The kind follows what changes. A change to a different action [inertializes](#changing-action). A change of target within one family of movement [redirects](#changing-target-within-an-action). A cyclic movement that continues into another, such as a walk into a run, joins on the matching foot event, so the gait keeps its phase.
 
