@@ -56,29 +56,19 @@ interface Rim {
 export namespace AutoMovieHumanHeadF1Skin {
   /** Generate the complete exterior, retained original oral lofts and eyes. */
   export function f1(neck: readonly V3[]): { mesh: Context; diagnostics: string[] } {
+    const local: ReturnType<typeof mouth> = mouth();
     const charts: Map<string, Chart> = new Map();
     const sections: Section[] = [{
       coordinateMm: 1458, loops: [line("head.fixed.neck", neck, 1, charts)],
-    }, ...observed.sections.map(({ coordinateMm, loops }: (typeof observed.sections)[number], i: number): Section => ({
+    }, ...local.sections.map(({ coordinateMm, loops }: (typeof observed.sections)[number], i: number): Section => ({
       coordinateMm, loops: loops.map(({ points, winding }: (typeof loops)[number], j: number): Section["loops"][number] =>
         line(`head.fixed.source.${i}.${j}`, points, winding === -1 ? -1 : 1, charts)),
     }))];
     // The 192-point caller rail is the exact shared trunk boundary. Only this
     // already-established short boundary strip precedes the recorded source.
-    const intervals: Interval[] = [{
-      beforeMm: 1458, afterMm: sections[1]!.coordinateMm,
-      groups: [{ before: [0], after: [0], supported: true, reason: null }],
-    }, ...observed.intervals.map((interval: (typeof observed.intervals)[number]): Interval => {
-      const groups: readonly Group[] = interval.groups;
-      return { beforeMm: interval.beforeMm, afterMm: interval.afterMm,
-        groups: groups.map(({ before, after, supported, reason }: Group): Interval["groups"][number] => ({ before, after, supported, reason })) };
-    })];
-    const events: Event[] = observed.events.map((event: (typeof observed.events)[number]): Event => {
-      const kind: string = event.kind;
-      if (kind !== "minimum" && kind !== "maximum" && kind !== "saddle")
-        throw new Error(`Unrecognized measured F1 critical: ${event.name}`);
-      return { ...event, kind, terminal: event.terminal === null ? null : AutoMovieCurveMath64.clone(event.terminal) };
-    });
+    const intervals: Interval[] = [{ beforeMm: 1458, afterMm: sections[1]!.coordinateMm,
+      groups: [{ before: [0], after: [0], supported: true, reason: null }] }, ...local.intervals];
+    const events: Event[] = local.events;
     const mesh: Context = AutoMovieHumanLoftMesh.create();
     const eyeReceipts: string[] = [];
     const vertex: Map<IAutoMovieCurve64.Vector, number> = new Map();
@@ -112,6 +102,15 @@ export namespace AutoMovieHumanHeadF1Skin {
         },
       },
     );
+    // These two known defect neighborhoods retain their real intermediate
+    // source sections. Their original ordinary kernel replaces inferred-clock
+    // overrides; critical transitions are reconstructed separately in this batch.
+    const localBounds: readonly (readonly [number, number])[] = [
+      [1517.8813934326172, 1526.0076904296875],
+      [1598.398551940918, 1599.391746520996],
+    ];
+    const inLocal: (clock: Clock) => boolean = (clock: Clock): boolean => localBounds.some(
+      ([a, b]: readonly [number, number]): boolean => clock.afterMm > a && clock.beforeMm < b);
     const ranges: NonNullable<typeof result.primitiveRanges> = [];
     // These are existing healthy source curves outside the under-chin birth/
     // merge. Only their intervening surface is replaced by the turned guide.
@@ -121,6 +120,7 @@ export namespace AutoMovieHumanHeadF1Skin {
       before >= floorLow && after <= floorHigh;
     const sides: Map<Clock, { lower: 1 | -1; upper: 1 | -1 }> = new Map();
     for (const clock of observed.clocks) {
+      if (inLocal(clock)) continue;
       const range: NonNullable<typeof result.primitiveRanges>[number] | undefined = result.primitiveRanges?.find((item: NonNullable<typeof result.primitiveRanges>[number]): boolean => item.kind === "strip"
         && item.beforeMm === clock.beforeMm && item.afterMm === clock.afterMm && item.group === clock.group);
       if (range === undefined || range.triangleCount === 0)
@@ -130,6 +130,13 @@ export namespace AutoMovieHumanHeadF1Skin {
         lower: direction(faces, required(rims, clock.beforeMm, clock.before).indices, "original ordinary lower"),
         upper: direction(faces, required(rims, clock.afterMm, clock.after).indices, "original ordinary upper"),
       });
+      ranges.push(range);
+    }
+    for (const eye of floorInputs.eyes) for (const strip of eye.strips) {
+      const range: NonNullable<typeof result.primitiveRanges>[number] | undefined = result.primitiveRanges?.find(
+        (item: NonNullable<typeof result.primitiveRanges>[number]): boolean => item.beforeMm === strip.beforeMm
+          && item.afterMm === strip.afterMm && item.group === strip.group);
+      if (range === undefined) throw new Error("The local eye's actual neighboring primitive is absent");
       ranges.push(range);
     }
     ranges.push(...(result.primitiveRanges ?? []).filter((range: NonNullable<typeof result.primitiveRanges>[number]): boolean =>
@@ -144,49 +151,22 @@ export namespace AutoMovieHumanHeadF1Skin {
     // critical event receives this clock. All persistent edge anchors were
     // retained offline. Between anchors this is inferred PL parameter
     // transport, not a material correspondence or a longitudinal guide.
-    // Replace the broken local ordinary runs between their existing healthy
-    // end curves. Real source events interrupt a run and are never flattened.
-    // Mouth wall ports and the two eye annuli remain separate owners.
-    const local: readonly (readonly [number, number])[] = [
-      [1517.8813934326172, 1526.0076904296875],
-      [1598.3992385864258, 1599.0956115722656],
+    const localReceipts: string[] = [
+      "Mouth normal between-event curves retained; original event coordinates/terminals preserved with finite normal-profile brackets; eye annuli include both healthy neighboring strips",
     ];
-    const selected: Clock[] = observed.clocks.filter((clock: Clock): boolean => !inFloor(clock.beforeMm, clock.afterMm)
-      && local.some(([a, b]: readonly [number, number]): boolean => clock.afterMm >= a && clock.beforeMm <= b));
-    const consumed: Set<Clock> = new Set();
-    const localReceipts: string[] = [];
     for (const clock of observed.clocks)
-      if (!inFloor(clock.beforeMm, clock.afterMm) && !selected.includes(clock)) ordinary(mesh, rims, clock, sides.get(clock)!);
-    for (const first of selected) {
-      if (consumed.has(first)) continue;
-      let last: Clock = first;
-      consumed.add(first);
-      for (;;) {
-        const next: Clock | undefined = selected.find((candidate: Clock): boolean => !consumed.has(candidate)
-          && candidate.beforeMm === last.afterMm && candidate.before === last.after);
-        if (next === undefined) break;
-        consumed.add(next); last = next;
-      }
-      const a: number[] = required(rims, first.beforeMm, first.before).indices;
-      const b: number[] = required(rims, last.afterMm, last.after).indices;
-      const start: number = mesh.indices.length;
-      strip(mesh, a, b);
-      orient(mesh, start, a, b, { lower: sides.get(first)!.lower, upper: sides.get(last)!.upper });
-      localReceipts.push(`Local ordinary loft ${first.beforeMm}:${first.before}–${last.afterMm}:${last.after}; exact outer indices retained; internal clocks not consumed`);
-    }
+      if (!inFloor(clock.beforeMm, clock.afterMm) && !inLocal(clock)) ordinary(mesh, rims, clock, sides.get(clock)!);
     const floorA: number[] = required(rims, floorLow, 0).indices;
     const floorB: number[] = required(rims, floorHigh, 0).indices;
     const floorSense: { lower: 1 | -1; upper: 1 | -1 } = {
       lower: direction(mesh.indices, floorA, "floor lower") === 1 ? -1 : 1,
       upper: direction(mesh.indices, floorB, "floor upper") === 1 ? -1 : 1,
     };
-    const floorBack: V3[] = observed.sections.filter((section: (typeof observed.sections)[number]): boolean =>
-      section.coordinateMm > floorLow && section.coordinateMm < floorHigh)
-      .map((section: (typeof observed.sections)[number]): V3 => AutoMovieCurveMath64.clone(
-        section.loops.flatMap((loop: (typeof section.loops)[number]): number[][] => loop.points)
-          .reduce((best: number[], p: number[]): number[] => p[0]! < best[0]! ? p : best)));
     const floorStart: number = mesh.indices.length;
-    localReceipts.push(AutoMovieHumanHeadF1Junctions.floor(mesh, floorA, floorB, floorBack));
+    try { localReceipts.push(AutoMovieHumanHeadF1Junctions.floor(mesh, floorA, floorB)); }
+    catch (error: unknown) { throw new Error("The local turned floor could not expose its actual shared ports", {
+      cause: { kind: "incomplete-local-head-loft", mesh, result, error },
+    }); }
     orient(mesh, floorStart, floorA, floorB, floorSense);
     for (const interval of observed.intervals)
       for (const group of interval.groups)
@@ -204,11 +184,12 @@ export namespace AutoMovieHumanHeadF1Skin {
     const top: boolean = direction(mesh.indices, crown, "crown") > 0;
     const apex: number = AutoMovieHumanLoftMesh.vertices(mesh, [AutoMovieCurveMath64.clone(observed.crown)])[0]!;
     AutoMovieHumanLoftMesh.cap(mesh, crown, apex, top);
-    for (const join of observed.eyeJoins) {
+    for (const [i, join] of observed.eyeJoins.entries()) {
       if (join.before.length !== 1 || join.after.length !== 1 || !join.proof.sourceSubsetVerified)
         throw new Error("A known eye join lacks its exact source annulus subset");
-      eyeReceipts.push(eye(mesh, required(rims, join.beforeMm, join.before[0]!).indices,
-        required(rims, join.afterMm, join.after[0]!).indices, `${join.beforeMm}–${join.afterMm}`));
+      const ends: typeof floorInputs.eyes[number] = floorInputs.eyes[i]!;
+      eyeReceipts.push(eye(mesh, required(rims, ends.beforeMm, ends.before).indices,
+        required(rims, ends.afterMm, ends.after).indices, `${ends.beforeMm}–${ends.afterMm}`));
     }
     // Only the previously measured flat ear critical is an authorized
     // unresolved kernel group. Its exact source pole/rail remain explicit;
@@ -231,12 +212,69 @@ export namespace AutoMovieHumanHeadF1Skin {
     for (const value of eyes.positions) mesh.positions.push(value);
     for (const index of eyes.indices) mesh.indices.push(offset + index);
     return { mesh, diagnostics: [
-      `Fixed head: ${sections.length} world-mm sections, ${events.length} source events; ${observed.clocks.length} ordinary source-component clocks`,
+      `Fixed head: ${sections.length} world-mm sections, ${events.length} source events; ${observed.clocks.length} recorded ordinary source-component clocks; local repairs use their explicit source graph`,
       "Original oral-wall403 section inputs retained; exact source-terminal/port ownership separates those sheets from the exterior",
       ...eyeReceipts,
       ...localReceipts,
       `Offline source ${observed.sourceIdentity}; selection ${observed.sourceSelectionIdentity}; clock interiors remain inferred PL`,
     ] };
+  }
+
+
+  /**
+   * Re-address only the known mouth micro-brackets to their saved normal
+   * neighboring profiles. The original source component graph is composed
+   * through omitted diagnostic rows; event coordinates, terminal points and
+   * distinct sheets remain unchanged. No nearest-loop or phase match is made.
+   */
+  function mouth(): { sections: typeof observed.sections; intervals: Interval[]; events: Event[] } {
+    // This existing 6ed world-Y profile carries the lip's actual middle depth.
+    // It precedes source-critical.43791 and stays a generating boundary, so a
+    // widened critical strip cannot flatten it into its two distant endpoints.
+    const middleMm: number = 1520.5332565307617;
+    const omitted: Set<number> = new Set(floorInputs.mouth.removedCoordinates.filter((y: number): boolean => y !== middleMm));
+    const sections: typeof observed.sections = observed.sections.filter((row: typeof observed.sections[number]): boolean => !omitted.has(row.coordinateMm));
+    const intervals: Interval[] = [];
+    const events: Event[] = observed.events.map((event: typeof observed.events[number]): Event => {
+      if (event.kind !== "minimum" && event.kind !== "maximum" && event.kind !== "saddle") throw new Error("Invalid recorded mouth event kind");
+      return { ...event, kind: event.kind, terminal: event.terminal === null ? null : AutoMovieCurveMath64.clone(event.terminal) };
+    });
+    for (let i: number = 1; i < sections.length; i++) {
+      const beforeMm: number = sections[i - 1]!.coordinateMm, afterMm: number = sections[i]!.coordinateMm;
+      const original: typeof observed.intervals = observed.intervals.filter((row: typeof observed.intervals[number]): boolean =>
+        row.beforeMm >= beforeMm && row.afterMm <= afterMm);
+      if (original.length === 1) { intervals.push(original[0]!); continue; }
+      const parents: Map<string, string> = new Map();
+      /** Source section/loop incidence is the only connection authority. */
+      const root: (key: string) => string = (key: string): string => {
+        if (!parents.has(key)) parents.set(key, key);
+        let at: string = key; while (parents.get(at) !== at) at = parents.get(at)!;
+        return at;
+      };
+      for (const row of original) for (const group of row.groups) {
+        if (!group.supported) throw new Error("A local mouth source component remains unsupported: " + group.reason);
+        const nodes: string[] = group.before.map((loop: number): string => key(row.beforeMm, loop))
+          .concat(group.after.map((loop: number): string => key(row.afterMm, loop)));
+        for (const node of nodes) parents.set(root(node), root(nodes[0]!));
+      }
+      const groups: Map<string, { before: number[]; after: number[]; supported: boolean; reason: string | null }> = new Map();
+      for (const [side, row] of [["before", sections[i - 1]!], ["after", sections[i]!]] as const)
+        for (let loop: number = 0; loop < row.loops.length; loop++) {
+          const id: string = root(key(row.coordinateMm, loop));
+          const group: { before: number[]; after: number[]; supported: boolean; reason: string | null } =
+            groups.get(id) ?? { before: [], after: [], supported: true, reason: null };
+          group[side].push(loop); groups.set(id, group);
+        }
+      for (const event of events) if (event.coordinateMm > beforeMm && event.coordinateMm < afterMm) {
+        const originalBefore: number = event.beforeMm, originalAfter: number = event.afterMm;
+        const node: string = event.before.length !== 0 ? key(originalBefore, event.before[0]!) : key(originalAfter, event.after[0]!);
+        const group: { before: number[]; after: number[]; supported: boolean; reason: string | null } | undefined = groups.get(root(node));
+        if (group === undefined) throw new Error("A local mouth event lost its original component");
+        event.beforeMm = beforeMm; event.afterMm = afterMm; event.before = group.before; event.after = group.after;
+      }
+      intervals.push({ beforeMm, afterMm, groups: Array.from(groups.values()) });
+    }
+    return { sections, intervals, events };
   }
 
   /** Record a positive PL cubic chart while preserving the actual sheet sense. */

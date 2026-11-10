@@ -1,4 +1,4 @@
-import { AutoMovieCurveMath64, generateAutoMovieContourLoft64, sampleAutoMovieSurfaceNetwork, type IAutoMovieContourLoft64, type IAutoMovieCurve64, type IAutoMovieSurfaceNetwork } from "@automovie/engine";
+import { AutoMovieCurveMath64, generateAutoMovieContourLoft64, tessellateAutoMovieContourStrip64, type IAutoMovieContourLoft64, type IAutoMovieCurve64 } from "@automovie/engine";
 
 import { AutoMovieHumanLoftMesh } from "../../lofting/AutoMovieHumanLoftMesh";
 import floorInputs from "./AutoMovieHumanHeadF1Floor.json";
@@ -21,155 +21,147 @@ export namespace AutoMovieHumanHeadF1Junctions {
     rails: Map<string, number[]>;
   }
 
+
   /**
-   * Replace only the under-chin band between two existing healthy indexed rims.
-   * The front guide is the lower midline outline in already-recorded turned
-   * world-mm sections; oral/globe heights are outside this band. A local plane
-   * through the two actual anterior rim points and the measured forward axis
-   * selects that outline. No original mesh, cap or global chart is consumed.
-   * The public Coons owner interpolates four boundary curves. Its Catmull-Rom
-   * boundary interpolation is a local construction, not exact PL replay or a
-   * surface-error/normal-continuity certificate. Original outer rim indices stay.
+   * Loft the actual recorded turned open arcs across all their lateral width.
+   * Only the stated inner world-Y domain is retained. The two extra triangles
+   * that a periodic zipper would use to close each open arc are discarded by
+   * their indexed end-edge identity, never published as skin. Finite ordinary
+   * bands meet the unchanged outer Y rims. Source-edge clocks are explicit
+   * numeric inputs; their between-anchor interpolation is not a G1 claim.
    */
-  export function floor(
-    mesh: AutoMovieHumanLoftMesh.IContext,
-    lower: readonly number[],
-    upper: readonly number[],
-    backGuide: readonly AutoMovieCurveMath64.V[],
-  ): string {
-    /** Actual constructor coordinates, millimetres. */
+  export function floor(mesh: AutoMovieHumanLoftMesh.IContext, lower: readonly number[], upper: readonly number[]): string {
+    /** World-mm vector and local generated buffers. */
     type V = AutoMovieCurveMath64.V;
-    /** Existing public network declaration; its point fields use metres. */
-    type Network = IAutoMovieSurfaceNetwork;
-    /** Read one existing index without changing its identity. */
-    const point: (id: number) => V = (id: number): V => AutoMovieHumanLoftMesh.position(mesh, id);
-    /** Convex-neck anterior/posterior rim features, never used for lips or eyes. */
-    const extreme: (ring: readonly number[], sign: 1 | -1) => number =
-      (ring: readonly number[], sign: 1 | -1): number => ring.reduce((best: number, id: number): number =>
-        sign * point(id)[0] > sign * point(best)[0] ? id : best);
-    const lf: number = extreme(lower, 1), lb: number = extreme(lower, -1);
-    const uf: number = extreme(upper, 1), ub: number = extreme(upper, -1);
-    const start: V = point(lf), end: V = point(uf);
-    const axis: V = AutoMovieCurveMath64.clone(floorInputs.frame.n);
-    const along: V = AutoMovieCurveMath64.sub(end, start);
-    const normal: V = [
-      axis[1] * along[2] - axis[2] * along[1],
-      axis[2] * along[0] - axis[0] * along[2],
-      axis[0] * along[1] - axis[1] * along[0],
-    ];
-    /** Signed scalar projection in the recorded plane, not an angular clock. */
-    const dot: (a: readonly number[], b: readonly number[]) => number =
-      (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
-    const low: number = dot(start, axis), high: number = dot(end, axis);
-    if (!(high > low) || !(dot(normal, normal) > 0))
-      throw new Error("The local floor's measured axis does not advance between its actual rims");
-    const front: V[] = [start];
-    for (const section of floorInputs.sections) {
-      if (section.coordinateMm <= low || section.coordinateMm >= high) continue;
-      const crossings: V[] = [];
-      for (const curve of section.curves) {
-        const values: V[] = curve.pointsMm.map(AutoMovieCurveMath64.clone);
-        const count: number = curve.closed ? values.length : values.length - 1;
-        for (let i: number = 0; i < count; i++) {
-          const a: V = values[i]!, b: V = values[(i + 1) % values.length]!;
-          const da: number = dot(AutoMovieCurveMath64.sub(a, start), normal);
-          const db: number = dot(AutoMovieCurveMath64.sub(b, start), normal);
-          if (da === 0) crossings.push(a);
-          if ((da < 0 && db > 0) || (da > 0 && db < 0))
-            crossings.push(AutoMovieCurveMath64.mix(a, b, da / (da - db)));
+    const source: AutoMovieHumanLoftMesh.IContext = AutoMovieHumanLoftMesh.create();
+    const rows: number[][][] = floorInputs.sections.map((row: typeof floorInputs.sections[number]): number[][] =>
+      row.curves.map((curve: typeof row.curves[number]): number[] =>
+        AutoMovieHumanLoftMesh.vertices(source, curve.pointsMm.map(AutoMovieCurveMath64.clone))));
+    for (const link of floorInputs.links) {
+      const a: number[] = rows[link.before]![link.a]!.slice(link.loStart, link.loEnd + 1);
+      const raw: number[] = rows[link.after]![link.b]!;
+      const b: number[] = (link.reverse ? raw.slice().reverse() : raw).slice(link.hiStart, link.hiEnd + 1);
+      const first: number = source.indices.length;
+      AutoMovieHumanLoftMesh.zipper(source, a, link.lower.map((p: number): number => Math.PI * p),
+        b, link.upper.map((p: number): number => Math.PI * p));
+      const emitted: number[] = source.indices.splice(first);
+      for (let i: number = 0; i < emitted.length; i += 3) {
+        const face: number[] = emitted.slice(i, i + 3);
+        const closes: boolean = (face.includes(a[0]!) && face.includes(a.at(-1)!))
+          || (face.includes(b[0]!) && face.includes(b.at(-1)!));
+        if (!closes) source.indices.push(...face);
+      }
+    }
+    const low: number = floorInputs.innerBoundsMm[0]!, high: number = floorInputs.innerBoundsMm[1]!;
+    const intersections: Map<string, number> = new Map();
+    /** One generated edge owns each exact clipping-plane intersection. */
+    const split: (a: number, b: number, y: number) => number = (a: number, b: number, y: number): number => {
+      const p: V = AutoMovieHumanLoftMesh.position(source, a), q: V = AutoMovieHumanLoftMesh.position(source, b);
+      if (p[1] === y) return a; if (q[1] === y) return b;
+      const key: string = Math.min(a, b) + ":" + Math.max(a, b) + ":" + y;
+      const found: number | undefined = intersections.get(key); if (found !== undefined) return found;
+      const t: number = (y - p[1]) / (q[1] - p[1]);
+      const point: V = AutoMovieCurveMath64.mix(p, q, t); point[1] = y;
+      const id: number = AutoMovieHumanLoftMesh.vertices(source, [point])[0]!;
+      intersections.set(key, id); return id;
+    };
+    /** Restrict a newly lofted triangle to the local physical domain, with no cap. */
+    const clip: (polygon: number[], y: number, sense: 1 | -1) => number[] =
+      (polygon: number[], y: number, sense: 1 | -1): number[] => {
+        const output: number[] = [];
+        for (let i: number = 0; i < polygon.length; i++) {
+          const a: number = polygon[i]!, b: number = polygon[(i + 1) % polygon.length]!;
+          const ina: boolean = sense * (source.positions[3 * a + 1]! - y) >= 0;
+          const inb: boolean = sense * (source.positions[3 * b + 1]! - y) >= 0;
+          if (ina) output.push(a);
+          if (ina !== inb) output.push(split(a, b, y));
         }
-      }
-      // The anatomical floor is the lower envelope of this turned slice.
-      // This is below all recorded oral walls; no child or opening is capped.
-      const floor: V | undefined = crossings.filter((p: V): boolean =>
-        p[1] >= floorInputs.boundsMm[0]! && p[1] <= floorInputs.boundsMm[1]!)
-        .reduce<V | undefined>((best: V | undefined, p: V): V => best === undefined || p[1] < best[1] ? p : best, undefined);
-      if (floor !== undefined) front.push(floor);
-    }
-    front.push(end);
-    if (front.length < 3) throw new Error("Recorded turned floor curves do not span the local boundary pair");
-    /** Original whole-cycle order restricted to one side of the neck. */
-    const arc: (ring: readonly number[], from: number, to: number, step: 1 | -1) => V[] =
-      (ring: readonly number[], from: number, to: number, step: 1 | -1): V[] => {
-        const values: V[] = [];
-        let at: number = ring.indexOf(from);
-        do { values.push(point(ring[at]!)); if (ring[at] === to) break; at = (at + step + ring.length) % ring.length; }
-        while (values.length <= ring.length);
-        if (values.length > ring.length) throw new Error("A local floor rim lost its ordered side");
-        return values;
+        return output.filter((id: number, i: number): boolean => id !== output[(i + output.length - 1) % output.length]);
       };
-    const ll: V[] = arc(lower, lf, lb, 1), lr: V[] = arc(lower, lf, lb, -1);
-    const ul: V[] = arc(upper, uf, ub, 1), ur: V[] = arc(upper, uf, ub, -1);
-    const rows: number = front.length - 1;
-    const leftColumns: number = Math.max(ll.length, ul.length) - 1;
-    const rightColumns: number = Math.max(lr.length, ur.length) - 1;
-    /** Physical unit conversion at the public network boundary, exactly once. */
-    const metres: (p: V) => import("@automovie/interface").IAutoMovieVector3 =
-      (p: V): import("@automovie/interface").IAutoMovieVector3 => ({ x: p[0] / 1000, y: p[1] / 1000, z: p[2] / 1000 });
-    /** Counts follow the saved curves, not a new mesh-density target. */
-    const counts: (value: number) => IAutoMovieSurfaceNetwork.ICounts = (value: number): IAutoMovieSurfaceNetwork.ICounts =>
-      ({ lowest: value, low: value, medium: value, high: value });
-    /** Actual source points define the existing public boundary interpolant. */
-    const curve: (from: string, to: string, values: readonly V[], count: number) => IAutoMovieSurfaceNetwork.ICurve =
-      (from: string, to: string, values: readonly V[], count: number): IAutoMovieSurfaceNetwork.ICurve =>
-        ({ from, to, through: values.slice(1, -1).map(metres), segments: counts(count) });
-    const network: Network = {
-      sweeps: {},
-      nodes: { lf: { type: "point", position: metres(start) }, lb: { type: "point", position: metres(point(lb)) },
-        uf: { type: "point", position: metres(end) }, ub: { type: "point", position: metres(point(ub)) } },
-      curves: {
-        ll: curve("lf", "lb", ll, leftColumns), ul: curve("uf", "ub", ul, leftColumns),
-        lr: curve("lf", "lb", lr, rightColumns), ur: curve("uf", "ub", ur, rightColumns),
-        front: curve("lf", "uf", front, rows),
-        back: curve("lb", "ub", [point(lb), ...backGuide, point(ub)], rows),
-      },
-      patches: [
-        { type: "coons", name: "floor.left", sides: [{ type: "curve", curve: "ll" }, { type: "curve", curve: "back" },
-          { type: "curve", curve: "ul", reverse: true }, { type: "curve", curve: "front", reverse: true }] },
-        { type: "coons", name: "floor.right", sides: [{ type: "curve", curve: "lr", reverse: true }, { type: "curve", curve: "front" },
-          { type: "curve", curve: "ur" }, { type: "curve", curve: "back", reverse: true }] },
-      ],
-    };
-    const sampled: ReturnType<typeof sampleAutoMovieSurfaceNetwork> = sampleAutoMovieSurfaceNetwork({ network, tier: "high", fit: false });
-    const mapped: Map<number, number> = new Map();
-    /** Reuse named network edge identities; never merge by distance. */
+    const clipped: number[] = [];
+    for (let i: number = 0; i < source.indices.length; i += 3) {
+      const polygon: number[] = clip(clip(source.indices.slice(i, i + 3), low, 1), high, -1);
+      for (let j: number = 1; j + 1 < polygon.length; j++)
+        if (new Set([polygon[0]!, polygon[j]!, polygon[j + 1]!]).size === 3)
+          clipped.push(polygon[0]!, polygon[j]!, polygon[j + 1]!);
+    }
+    source.indices = clipped;
+    const edges: Map<string, { face: number; a: number; b: number }[]> = new Map();
+    for (let i: number = 0; i < clipped.length; i += 3) for (let j: number = 0; j < 3; j++) {
+      const a: number = clipped[i + j]!, b: number = clipped[i + (j + 1) % 3]!;
+      const key: string = Math.min(a, b) + ":" + Math.max(a, b);
+      const list: { face: number; a: number; b: number }[] = edges.get(key) ?? [];
+      list.push({ face: i / 3, a, b }); edges.set(key, list);
+    }
+    const adjacency: { face: number; opposite: boolean }[][] = Array.from({ length: clipped.length / 3 }, (): { face: number; opposite: boolean }[] => []);
+    for (const list of edges.values()) {
+      if (list.length > 2) throw new Error("The local turned-arc loft has multiple indexed edge incidence", { cause: source });
+      if (list.length === 2) {
+        const a: typeof list[number] = list[0]!, b: typeof list[number] = list[1]!;
+        adjacency[a.face]!.push({ face: b.face, opposite: a.a === b.a });
+        adjacency[b.face]!.push({ face: a.face, opposite: a.a === b.a });
+      }
+    }
+    const flips: Map<number, boolean> = new Map();
+    let components: number = 0;
+    for (let seed: number = 0; seed < adjacency.length; seed++) {
+      if (flips.has(seed)) continue;
+      components++; flips.set(seed, false); const queue: number[] = [seed];
+      for (let i: number = 0; i < queue.length; i++) for (const neighbor of adjacency[queue[i]!]!) {
+        const expected: boolean = flips.get(queue[i]!) !== neighbor.opposite;
+        if (flips.has(neighbor.face)) {
+          if (flips.get(neighbor.face) !== expected) throw new Error("The local turned-arc loft is not orientable", { cause: source });
+        } else { flips.set(neighbor.face, expected); queue.push(neighbor.face); }
+      }
+    }
+    if (components !== 1) throw new Error("The local turned-arc floor is not one connected surface", { cause: source });
+    for (const [face, flip] of flips) if (flip)
+      [source.indices[3 * face + 1], source.indices[3 * face + 2]] = [source.indices[3 * face + 2]!, source.indices[3 * face + 1]!];
+    const next: Map<number, number> = new Map();
+    for (const list of edges.values()) if (list.length === 1) {
+      const edge: typeof list[number] = list[0]!;
+      const a: number = flips.get(edge.face) ? edge.b : edge.a, b: number = flips.get(edge.face) ? edge.a : edge.b;
+      if (next.has(a)) throw new Error("The local turned-arc boundary has more than one outgoing edge", { cause: source });
+      next.set(a, b);
+    }
+    const cycles: number[][] = [];
+    while (next.size !== 0) {
+      const first: number = next.keys().next().value!;
+      const cycle: number[] = []; let at: number = first;
+      do {
+        cycle.push(at); const to: number | undefined = next.get(at);
+        if (to === undefined) throw new Error("The local turned-arc boundary is open", { cause: source });
+        next.delete(at); at = to;
+      } while (at !== first);
+      cycles.push(cycle);
+    }
+    const lowerCycle: number[] | undefined = cycles.find((ring: number[]): boolean => ring.every((id: number): boolean => source.positions[3 * id + 1] === low));
+    const upperCycle: number[] | undefined = cycles.find((ring: number[]): boolean => ring.every((id: number): boolean => source.positions[3 * id + 1] === high));
+    if (cycles.length !== 2 || lowerCycle === undefined || upperCycle === undefined)
+      throw new Error("The local turned-arc loft does not expose exactly its two physical Y ports", { cause: { source, cycles } });
+    const ids: Map<number, number> = new Map();
+    /** Transfer each generated identity once; there is no coordinate weld. */
     const index: (id: number) => number = (id: number): number => {
-      if (!Number.isSafeInteger(id)) throw new Error("A local Coons row lost its named network vertex");
-      const found: number | undefined = mapped.get(id);
-      if (found !== undefined) return found;
-      const value: number = mesh.positions.length / 3;
-      mesh.positions.push(sampled.cage.positions[3 * id]! * 1000, sampled.cage.positions[3 * id + 1]! * 1000, sampled.cage.positions[3 * id + 2]! * 1000);
-      mapped.set(id, value); return value;
+      const found: number | undefined = ids.get(id); if (found !== undefined) return found;
+      const value: number = AutoMovieHumanLoftMesh.vertices(mesh, [AutoMovieHumanLoftMesh.position(source, id)])[0]!;
+      ids.set(id, value); return value;
     };
-    const grids: Map<string, number>[] = sampled.patches.map((patch: typeof sampled.patches[number]): Map<string, number> => {
-      const grid: Map<string, number> = new Map();
-      for (const face of patch.faces) for (let k: number = 0; k < 4; k++) {
-        const coordinate: typeof sampled.corners[number][number] = sampled.corners[face]![k]!;
-        grid.set(coordinate.s + ":" + coordinate.t, sampled.cage.faces[face]![k]!);
-      }
-      return grid;
-    });
-    /** Split a retained rim at its actual anterior/posterior features. */
-    const endpoint: (ring: readonly number[], f: number, b: number) => { ids: number[]; phases: number[] } =
-      (ring: readonly number[], f: number, b: number): { ids: number[]; phases: number[] } => {
-        const first: number = ring.indexOf(f), split: number = (ring.indexOf(b) - first + ring.length) % ring.length;
-        const ids: number[] = ring.slice(first).concat(ring.slice(0, first));
-        return { ids, phases: ids.map((_: number, i: number): number =>
-          i <= split ? Math.PI * i / split : Math.PI + Math.PI * (i - split) / (ids.length - split)) };
-      };
-    let previous: { ids: number[]; phases: number[] } = endpoint(lower, lf, lb);
-    for (let j: number = 1; j < rows; j++) {
-      const left: number[] = Array.from({ length: leftColumns + 1 }, (_: unknown, i: number): number => index(grids[0]!.get(i / leftColumns + ":" + j / rows)!));
-      const right: number[] = Array.from({ length: rightColumns - 1 }, (_: unknown, i: number): number => index(grids[1]!.get((i + 1) / rightColumns + ":" + j / rows)!));
-      const ids: number[] = left.concat(right);
-      const phases: number[] = ids.map((_: number, i: number): number =>
-        i <= leftColumns ? Math.PI * i / leftColumns : Math.PI + Math.PI * (i - leftColumns) / rightColumns);
-      AutoMovieHumanLoftMesh.zipper(mesh, previous.ids, previous.phases, ids, phases);
-      previous = { ids, phases };
-    }
-    const final: { ids: number[]; phases: number[] } = endpoint(upper, uf, ub);
-    AutoMovieHumanLoftMesh.zipper(mesh, previous.ids, previous.phases, final.ids, final.phases);
-    return "Local turned floor: " + front.length + " recorded midline guide stations; actual two outer rims retained; Coons boundary interpolation, no source triangles/caps";
+    for (const id of source.indices) mesh.indices.push(index(id));
+    /** Match whole-cycle order, retaining every original caller index. */
+    const area: (ring: readonly number[]) => number = (ring: readonly number[]): number => ring.reduce((sum: number, id: number, i: number): number => {
+      const a: V = AutoMovieHumanLoftMesh.position(mesh, id), b: V = AutoMovieHumanLoftMesh.position(mesh, ring[(i + 1) % ring.length]!);
+      return sum + a[2] * b[0] - a[0] * b[2];
+    }, 0);
+    /** Existing ordinary tiler consumes actual complete curves and their shared indices. */
+    const band: (a: number[], b: number[]) => void = (a: number[], b: number[]): void => {
+      const points: Map<V, number> = new Map();
+      const point: (id: number) => V = (id: number): V => { const p: V = AutoMovieHumanLoftMesh.position(mesh, id); points.set(p, id); return p; };
+      tessellateAutoMovieContourStrip64(a.map(point), b.map(point), (a: V, b: V, c: V): void => { mesh.indices.push(points.get(a)!, points.get(b)!, points.get(c)!); }, (p: V): string => String(points.get(p)!));
+    };
+    const lo: number[] = lowerCycle.map(index), hi: number[] = upperCycle.map(index).reverse();
+    band(area(lower) * area(lo) > 0 ? Array.from(lower) : Array.from(lower).reverse(), lo);
+    band(hi, area(upper) * area(hi) > 0 ? Array.from(upper) : Array.from(upper).reverse());
+    return "Local turned floor: complete recorded open arcs with persistent source-edge clocks; physical Y domain only; no auxiliary closing faces";
   }
 
   /** Replay an accepted F1 contour branch using its exact knots and signed incidence. */
