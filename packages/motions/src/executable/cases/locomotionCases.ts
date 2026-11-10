@@ -17,10 +17,11 @@ import { createHumanBody } from "../../body/createHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
+import type { humanPolygonMan } from "../humanPolygonMan";
 
 /**
- * Capture cases of the walk law on the polygon man (E0): the smallest, the
- * average and the tallest sweep bodies each walk 4 m ahead alone, one case
+ * Capture cases of the walk law on the polygon man (E0): every body of
+ * `MotionBodies.SWEEP` walks 4 m ahead alone, one case
  * per body and pace (`walk-<pace>-<body>`), the same bodies running 10 m at
  * a jog, a run and a sprint (`run-<pace>-<body>`, judged by the same verdicts
  * against the gait's Froude speed), and the average body walking
@@ -52,7 +53,8 @@ import { MotionBodies } from "../MotionBodies";
  * walker, foot, point and second of its worst sample.
  *
  * @param kind Walking or running cases.
- * @returns The cases.
+ * @param only Keeps the cases whose name it accepts, the others not being built; every case when absent.
+ * @returns The cases, each built as it is read.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the cases, instants, overlays and every verdict with its bound.
  * @evidence contracts/development/implementation.md#principled-implementation Runs the real performance and measures stance slip and floor penetration on the displayed bones and the body's own sockets.
@@ -62,13 +64,30 @@ import { MotionBodies } from "../MotionBodies";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per run.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
-export function locomotionCases(kind: "walk" | "run"): IMotionCaptureCase[] {
-  return (["f-small", "m-average", "m-tall"] as const).flatMap((who) => {
+export function* locomotionCases(
+  kind: "walk" | "run",
+  only?: (name: string) => boolean,
+): Iterable<IMotionCaptureCase> {
+  for (const who of MotionBodies.SWEEP) {
     const names = [who] as const;
-    const men = names.map((name) => MotionBodies.population(name));
-    const bodies: IHumanBody[] = men.map((man) =>
-      createHumanBody(man.body.skeleton, man.body.profile),
-    );
+    // The bodies are prepared on the first case the filter keeps.
+    let prepared:
+      | { men: humanPolygonMan.IPolygonMan[]; bodies: IHumanBody[] }
+      | undefined;
+    const prepare = (): NonNullable<typeof prepared> => {
+      if (prepared === undefined) {
+        const men: humanPolygonMan.IPolygonMan[] = names.map((name) =>
+          MotionBodies.population(name),
+        );
+        prepared = {
+          men,
+          bodies: men.map((man) =>
+            createHumanBody(man.body.skeleton, man.body.profile),
+          ),
+        };
+      }
+      return prepared;
+    };
     const all: {
       law: "walk" | "run";
       pace: string;
@@ -112,9 +131,11 @@ export function locomotionCases(kind: "walk" | "run"): IMotionCaptureCase[] {
           ]
         : []),
     ];
-    const configs = all.filter((c) => c.law === kind);
-    return configs.map(
-      ({ law, pace, froude: fr, label, to, extra }): IMotionCaptureCase => {
+    for (const { law, pace, froude: fr, label, to, extra } of all) {
+      if (law !== kind) continue;
+      if (only !== undefined && !only(`${law}-${label}-${who}`)) continue;
+      const { men, bodies } = prepare();
+      yield ((): IMotionCaptureCase => {
         const lanes: number[] = names.map((): number => 0);
         const goals: IAutoMovieVector3[] = names.map(
           (): IAutoMovieVector3 => to,
@@ -517,9 +538,9 @@ export function locomotionCases(kind: "walk" | "run"): IMotionCaptureCase[] {
               : []),
           ],
         };
-      },
-    );
-  });
+      })();
+    }
+  }
 }
 
 /** Every 0.2 s, and every heel strike and toe-off, labelled. */

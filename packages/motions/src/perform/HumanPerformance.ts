@@ -45,7 +45,8 @@ import type { IHumanProp } from "./IHumanProp";
  * interrupt table for the next action; otherwise construction throws with
  * the legal windows. A `proximity` cut is found by scanning the 24 Hz grid for
  * the first frame within the distance and bisecting 20 times, about 1e-7 s,
- * deterministic on a fixed grid. Given rules, the placed schedule is checked
+ * deterministic on a fixed grid whose last sample is the action's end; a
+ * distance never met leaves the action uncut. Given rules, the placed schedule is checked
  * with the engine's legality check and a violation refuses the performance.
  *
  * Sampling a person at a second takes the active action's posture, resolves
@@ -173,6 +174,10 @@ export class HumanPerformance {
           )
           .join("; ")}`,
       );
+    // Placement evaluated plans while later actions and people were not yet
+    // placed; the contact resolution reads every plan as the whole placed
+    // performance shows it.
+    for (const person of this.people.values()) HumanSegment.forget(person);
     this.contacts();
     for (const person of this.people.values()) HumanSegment.settle(person);
     this.resolving = false;
@@ -589,13 +594,13 @@ export class HumanPerformance {
       );
     };
     const step: number = 1 / 24;
+    const end: number = placed.start + placed.duration;
     let previous: number = placed.start;
     if (gap(previous) <= 0) return 0;
-    for (
-      let t: number = placed.start + step;
-      t <= placed.start + placed.duration + 1e-9;
-      t += step
-    ) {
+    // The grid's last sample is the span's own end, so a gap that closes
+    // inside the final partial step is still found.
+    for (let k: number = 1; previous < end; k++) {
+      const t: number = Math.min(end, placed.start + k * step);
       if (gap(t) <= 0) {
         let lo: number = previous;
         let hi: number = t;
@@ -713,8 +718,12 @@ export class HumanPerformance {
               seconds,
             })),
         );
-        segment.plan.settle?.();
       }
+
+      // A stop changes what its owner shows, and whoever reads the owner (a
+      // strike aimed at it, a guard watching it) planned against the earlier
+      // showing, so everyone's memos go, not the owner's alone.
+      for (const person of this.people.values()) HumanSegment.forget(person);
     };
     const nearest = (
       owner: HumanSegment.IPerson,

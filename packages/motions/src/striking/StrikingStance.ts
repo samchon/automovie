@@ -358,7 +358,9 @@ export namespace StrikingStance {
    * (its heading and its pitch, so a heel raised on a ball pivot tips the
    * hint with it), which under the engine's hinged knee fit decides the knee's
    * side; the foot's rotation itself goes through as the effector rotation,
-   * which the fit carries with the hip's swivel.
+   * which the fit carries with the hip's swivel. A planted foot's contact is
+   * the ball of the foot, the sole point the stance's pivots turn about and
+   * the support audits read.
    *
    * @param body The body.
    * @param feet The feet.
@@ -398,7 +400,12 @@ export namespace StrikingStance {
         point: foot.ankle,
         bend,
         rotation: foot.rotation,
-        ...(planted[side] ? { planted: true } : {}),
+        // A planted foot stands on the ball of its foot: when the ankle's
+        // range cannot give the asked rotation, the foot turns about the
+        // ball, which stays on the floor, instead of about the ankle.
+        ...(planted[side]
+          ? { planted: true, contact: HumanFoot.offset(body, side, "ball") }
+          : {}),
       };
     }
     return out;

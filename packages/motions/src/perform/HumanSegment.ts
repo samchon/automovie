@@ -272,7 +272,13 @@ export namespace HumanSegment {
     const body = person.performer.body;
     const shown = (t: number): IAutoMoviePose =>
       previous === undefined ? initial(person) : of(person, previous, t);
-    const state: samplePoseVelocity.IState = samplePoseVelocity(shown, seconds);
+    // What was displayed up to the entry: the motion it leaves ends here.
+    const state: samplePoseVelocity.IState = samplePoseVelocity(
+      shown,
+      seconds,
+      1e-3,
+      "before",
+    );
     const posture: IHumanPosture =
       previous === undefined
         ? person.initial
@@ -459,10 +465,14 @@ export namespace HumanSegment {
       transition.kind !== "redirect" &&
       seconds - transition.cut < transition.blend
     ) {
+      // The source is read up to the cut and the target from it on: the
+      // target's law has no motion before its start to difference across.
       transition.offset ??= inertializePose(
         samplePoseVelocity(
           (t: number): IAutoMoviePose => of(person, transition.source, t),
           transition.cut,
+          1e-3,
+          "before",
         ),
         samplePoseVelocity(
           (t: number): IAutoMoviePose =>
@@ -480,6 +490,8 @@ export namespace HumanSegment {
               ),
             ),
           transition.cut,
+          1e-3,
+          "after",
         ),
         transition.blend,
       );
@@ -501,19 +513,33 @@ export namespace HumanSegment {
   }
 
   /**
-   * Forget every evaluated pose and transition offset, once every person's
-   * actions are placed, so nothing evaluated against a half-placed
-   * performance survives.
+   * Forget everything a person's plans and transitions evaluated: each
+   * plan's own memo, every transition offset, every held hand's carry and
+   * every displayed pose. What they read may have changed since (another
+   * person was placed, a contact was committed), and each is rebuilt on its
+   * next read.
    *
    * @param person The person.
    */
-  export function settle(person: IPerson): void {
+  export function forget(person: IPerson): void {
     for (const segment of person.segments) {
       segment.plan.settle?.();
       if (segment.transition !== undefined) delete segment.transition.offset;
     }
     for (const held of person.holds) delete held.carry;
     person.cache.clear();
+  }
+
+  /**
+   * Forget every evaluated pose and transition offset, once every person's
+   * actions are placed and every contact is committed, so nothing evaluated
+   * against a half-placed performance survives, and let displayed poses be
+   * kept from here on.
+   *
+   * @param person The person.
+   */
+  export function settle(person: IPerson): void {
+    forget(person);
     person.resolving = false;
   }
 

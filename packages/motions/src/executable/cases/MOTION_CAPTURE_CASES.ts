@@ -10,7 +10,9 @@ import { strikingCases } from "./strikingCases";
 
 /**
  * Every capture case by name: each factory builds one or more cases, so a
- * sweep or a proficiency fan expands into several outputs from one name.
+ * sweep or a proficiency fan expands into several outputs from one name. A
+ * factory may read the harness's name filter and skip building the cases it
+ * rejects; the harness filters again, so ignoring it is correct too.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a factory returns.
  * @evidence contracts/development/design.md#principled-representation A closed table of named pure factories.
@@ -18,7 +20,10 @@ import { strikingCases } from "./strikingCases";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No case data lives here, only the registry.
  */
 export const MOTION_CAPTURE_CASES: Readonly<
-  Record<string, () => Iterable<IMotionCaptureCase>>
+  Record<
+    string,
+    (only?: (name: string) => boolean) => Iterable<IMotionCaptureCase>
+  >
 > = {
   gallery: (): IMotionCaptureCase[] =>
     galleryCases().filter(
@@ -28,8 +33,10 @@ export const MOTION_CAPTURE_CASES: Readonly<
     galleryCases().filter(
       (c: IMotionCaptureCase): boolean => c.name === "bodies",
     ),
-  walk: (): IMotionCaptureCase[] => locomotionCases("walk"),
-  run: (): IMotionCaptureCase[] => locomotionCases("run"),
+  walk: (only?: (name: string) => boolean): Iterable<IMotionCaptureCase> =>
+    locomotionCases("walk", only),
+  run: (only?: (name: string) => boolean): Iterable<IMotionCaptureCase> =>
+    locomotionCases("run", only),
   "jump-e1": function* (): Iterable<IMotionCaptureCase> {
     // One body at a time, so each body's sheets and verdicts are written as it finishes.
     for (const who of ["f-small", "m-average", "m-tall"] as const)

@@ -129,6 +129,46 @@ export namespace resolveHumanPosture {
   }
 
   /**
+   * The heading angles of a root rotation, the inverse of {@link heading}:
+   * with `R = Ry(yaw) Rx(pitch) Rz(roll)`, the turned forward axis is
+   * `(sin yaw cos pitch, -sin pitch, cos yaw cos pitch)` and the vertical
+   * components of the turned left and up axes are `sin roll cos pitch` and
+   * `cos roll cos pitch`. A rotation composed in the world (a pelvis tilted
+   * about a floor axis after its turn) becomes a posture's heading through
+   * it. At a pitch of 90 degrees yaw and roll turn about the same axis and
+   * only their sum is defined; the yaw is then returned as 0 with the whole
+   * turn in the roll's reading, which no upright posture reaches.
+   *
+   * @param rotation The root's world rotation, unit.
+   * @returns Yaw, pitch and roll, degrees.
+   */
+  export function angles(
+    rotation: IAutoMovieQuaternion,
+  ): Pick<IHumanPosture, "yaw" | "pitch" | "roll"> {
+    const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
+    const left: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 1,
+      y: 0,
+      z: 0,
+    });
+    const up: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
+    const degrees: number = 180 / Math.PI;
+    return {
+      yaw: Math.atan2(forward.x, forward.z) * degrees,
+      pitch: -Math.asin(Math.max(-1, Math.min(1, forward.y))) * degrees,
+      roll: Math.atan2(left.y, up.y) * degrees,
+    };
+  }
+
+  /**
    * A posture with its root lowered along gravity to the highest height at
    * which every planted leg reaches its goal with at least `knee` degrees of
    * knee flexion: a standing body bends its knees rather than letting a foot
