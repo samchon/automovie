@@ -4,14 +4,13 @@ import {
   AutoMovieLoftJet,
   AutoMovieLoftSectionConnect,
   AutoMovieLoftSectionSource,
+  type AutoMovieLoftViewRead,
   AutoMovieSeamStation,
   AutoMovieSolidChain,
   AutoMovieViewLoft,
   type IAutoMovieLoftChain,
   type IAutoMovieViewPart,
 } from "@automovie/engine";
-
-import type { AutoMovieLoftViewRead } from "../../../../../packages/engine/src/geometry/construction/AutoMovieLoftViewRead";
 
 /** Source-aware coordinator questions, kept inside the existing final phase unit. */
 export namespace ConstructionLoftSectionAdapters {

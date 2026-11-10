@@ -1,9 +1,10 @@
-import type { IAutoMovieViewPart } from "@automovie/engine";
-
-import { AutoMovieLoftSectionBoundary } from "../../../../../packages/engine/src/geometry/construction/AutoMovieLoftSectionBoundary";
-import { AutoMovieLoftSectionLegacy } from "../../../../../packages/engine/src/geometry/construction/AutoMovieLoftSectionLegacy";
-import { AutoMovieLoftViewRead } from "../../../../../packages/engine/src/geometry/construction/AutoMovieLoftViewRead";
-import { AutoMovieLoftViewSource } from "../../../../../packages/engine/src/geometry/construction/AutoMovieLoftViewSource";
+import {
+  AutoMovieLoftSectionBoundary,
+  AutoMovieLoftSectionLegacy,
+  AutoMovieLoftViewRead,
+  AutoMovieLoftViewSource,
+  type IAutoMovieViewPart,
+} from "@automovie/engine";
 
 /** Physical station value/first/second, supplied independently of the implementation algebra. */
 type Scalar = readonly [number, number, number];

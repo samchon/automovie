@@ -1,9 +1,11 @@
+import {
+  preparePhysicalGeometry as Geometry,
+  auditAutoMovieOutcome,
+  measureAutoMovieContact,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { auditAutoMovieOutcome } from "../../../../packages/engine/src/composition/auditAutoMovieOutcome";
-import { measureAutoMovieContact } from "../../../../packages/engine/src/composition/measureAutoMovieContact";
-import { preparePhysicalGeometry as Geometry } from "../../../../packages/engine/src/physics/preparePhysicalGeometry";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Contact is measured between displayed colliders and feeds the outcome audit unchanged.

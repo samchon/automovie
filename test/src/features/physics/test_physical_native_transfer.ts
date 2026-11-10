@@ -1,12 +1,14 @@
+import {
+  AutoMoviePhysicalSimulation as Simulation,
+  physicalNativeVector,
+  samplePhysicalContactEvents,
+  samplePhysicalTarget,
+  trackPhysicalSupports,
+} from "@automovie/engine";
 import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { physicalNativeVector } from "../../../../packages/engine/src/physics/physicalNativeVector";
-import { samplePhysicalContactEvents } from "../../../../packages/engine/src/physics/samplePhysicalContactEvents";
-import { samplePhysicalTarget } from "../../../../packages/engine/src/physics/samplePhysicalTarget";
-import { trackPhysicalSupports } from "../../../../packages/engine/src/physics/trackPhysicalSupports";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Final composed native values are checked at transfer, while finite Float64 factors remain legal.

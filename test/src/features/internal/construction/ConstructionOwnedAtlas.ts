@@ -112,11 +112,15 @@ export function ConstructionOwnedAtlas(failures: string[]): void {
       );
     for (const p of result.curve.points)
       if (
-        !nclose(Math.hypot(
-          p.point[0] - 1 - 0.3 * Math.cos(p.phi),
-          p.point[1],
-          p.point[2] - 0.3 * Math.sin(p.phi),
-        ), 0, 1e-9)
+        !nclose(
+          Math.hypot(
+            p.point[0] - 1 - 0.3 * Math.cos(p.phi),
+            p.point[1],
+            p.point[2] - 0.3 * Math.sin(p.phi),
+          ),
+          0,
+          1e-9,
+        )
       )
         failures.push(
           "An atlas boundary initialization was published as an unsolved meeting.",
@@ -172,11 +176,15 @@ export function ConstructionOwnedAtlas(failures: string[]): void {
         0.55 * Math.sin(phi),
       ];
       if (
-        !nclose(Math.hypot(
-          ...rail.hostPoint.map(
-            (v: number, i: number): number => v - expected[i]!,
+        !nclose(
+          Math.hypot(
+            ...rail.hostPoint.map(
+              (v: number, i: number): number => v - expected[i]!,
+            ),
           ),
-        ), 0, 1e-9)
+          0,
+          1e-9,
+        )
       )
         failures.push(
           "An owned rail published its initializer instead of its section solution.",
@@ -211,11 +219,15 @@ export function ConstructionOwnedAtlas(failures: string[]): void {
       failures.push("Later producer queries overwrote a retained arc point.");
     for (const point of arc.curve.points)
       if (
-        !nclose(Math.hypot(
-          point.point[0] - 1 - 0.3 * Math.cos(point.phi),
-          point.point[1],
-          point.point[2] - 0.3 * Math.sin(point.phi),
-        ), 0, 1e-9)
+        !nclose(
+          Math.hypot(
+            point.point[0] - 1 - 0.3 * Math.cos(point.phi),
+            point.point[1],
+            point.point[2] - 0.3 * Math.sin(point.phi),
+          ),
+          0,
+          1e-9,
+        )
       )
         failures.push(
           "A borrowed-buffer arc point lost its original preimage.",

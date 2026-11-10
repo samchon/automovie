@@ -1,9 +1,8 @@
+export * from "./generation";
+export * from "./lofting";
+export * from "./skeleton";
 export * from "./structures";
 export * from "./typings";
-export { AutoMovieHumanSkeleton } from "./skeleton/AutoMovieHumanSkeleton";
-export { AutoMovieHumanCanonicalBody } from "./skeleton/AutoMovieHumanCanonicalBody";
-export { AutoMovieHumanFootSurface } from "./generation/AutoMovieHumanFootSurface";
-export { AutoMovieHumanRigControls } from "./skeleton/AutoMovieHumanRigControls";
-export { AutoMovieHumanF1 } from "./generation/f1/AutoMovieHumanF1";
-export { AutoMovieHumanConicLoft } from "./generation/conic/AutoMovieHumanConicLoft";
-export { AutoMovieHumanConicSection } from "./generation/conic/AutoMovieHumanConicSection";
+export * from "./generation/conic/AutoMovieHumanConicLoft";
+export * from "./generation/conic/AutoMovieHumanConicSection";
+export * from "./generation/f1/AutoMovieHumanF1";

@@ -1,11 +1,13 @@
+import {
+  type advancePhysicalBalance as Balance,
+  type AutoMoviePhysicalSimulation as Simulation,
+  physicalContactSupportGoals,
+  physicalSupportPoint,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
-import type { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import type { advancePhysicalBalance as Balance } from "../../../../packages/engine/src/physics/advancePhysicalBalance";
-import { physicalContactSupportGoals } from "../../../../packages/engine/src/physics/physicalContactSupportGoals";
-import { physicalSupportPoint } from "../../../../packages/engine/src/physics/physicalSupportPoint";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
 import { vclose } from "../internal/vclose";

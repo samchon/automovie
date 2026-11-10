@@ -1,4 +1,11 @@
 import { planViewerFrameTimes } from "@automovie/render";
+import {
+  AutoMovieRasterSheet,
+  type IAutoMovieSceneRaster,
+  encodeAutoMovieRasterPng,
+  rasterizeAutoMovieScene,
+  stampAutoMovieRasterLabel,
+} from "@automovie/viewer";
 import ffmpeg from "ffmpeg-static";
 import { spawnSync } from "node:child_process";
 import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
@@ -11,11 +18,6 @@ import type { IFilmProduction } from "../IFilmProduction";
 import { films } from "../composition/films";
 import { selectFilm } from "../selectFilm";
 import { planCaptureStills } from "./planCaptureStills";
-import { AutoMovieRasterSheet } from "./viewer/node/raster/AutoMovieRasterSheet";
-import { type IAutoMovieSceneRaster } from "./viewer/node/raster/IAutoMovieSceneRaster";
-import { encodeAutoMovieRasterPng } from "./viewer/node/raster/encodeAutoMovieRasterPng";
-import { rasterizeAutoMovieScene } from "./viewer/node/raster/rasterizeAutoMovieScene";
-import { stampAutoMovieRasterLabel } from "./viewer/node/raster/stampAutoMovieRasterLabel";
 
 /**
  * Draw film frames straight from Node, with no Viewer server, browser or

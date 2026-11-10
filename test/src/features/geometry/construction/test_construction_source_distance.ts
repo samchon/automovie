@@ -1,8 +1,10 @@
-import { AutoMovieViewOutline } from "@automovie/engine";
+import {
+  AutoMovieViewOutline,
+  rootsAutoMovieViewPolynomial,
+} from "@automovie/engine";
 import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { rootsAutoMovieViewPolynomial } from "../../../../../packages/engine/src/geometry/construction/rootsAutoMovieViewPolynomial";
 import { nclose } from "../../internal/nclose";
 
 /**

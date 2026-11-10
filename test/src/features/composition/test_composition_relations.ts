@@ -1,14 +1,16 @@
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieFraming,
+  resolveAutoMovieRelationalGoal,
+  resolveAutoMovieZone,
+} from "@automovie/engine";
 import type {
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { resolveAutoMovieFraming } from "../../../../packages/engine/src/composition/resolveAutoMovieFraming";
-import { resolveAutoMovieRelationalGoal } from "../../../../packages/engine/src/composition/resolveAutoMovieRelationalGoal";
-import { resolveAutoMovieZone } from "../../../../packages/engine/src/composition/resolveAutoMovieZone";
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 
 /** Relational goals, framing and zones resolve from named subjects, never from coordinates in the scene.

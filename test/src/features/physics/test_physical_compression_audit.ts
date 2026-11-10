@@ -1,8 +1,10 @@
+import {
+  AutoMovieMotionAudit as Audit,
+  type AutoMoviePhysicsCache as Cache,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieMotionAudit as Audit } from "../../../../packages/engine/src/physics/AutoMovieMotionAudit";
-import type { AutoMoviePhysicsCache as Cache } from "../../../../packages/engine/src/physics/AutoMoviePhysicsCache";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Floor audit distinguishes a compressed outer surface from its rigid core.

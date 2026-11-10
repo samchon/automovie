@@ -1,9 +1,11 @@
+import {
+  type IAutoMovieRecoveryFeasibleModel,
+  type IAutoMovieRecoveryFeasibleProblem,
+  type IAutoMovieRecoveryUntiltedEstimate,
+  refineRecoveryFeasibleState,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { refineRecoveryFeasibleState } from "../../../../packages/recovery/src/internal/refineRecoveryFeasibleState";
-import type { IAutoMovieRecoveryFeasibleModel } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleModel";
-import type { IAutoMovieRecoveryFeasibleProblem } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleProblem";
-import type { IAutoMovieRecoveryUntiltedEstimate } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryUntiltedEstimate";
 import { nclose } from "../internal/nclose";
 
 /**

@@ -1,3 +1,10 @@
+import {
+  type AutoMoviePhysicalSimulation as Simulation,
+  Vector3,
+  bindPhysicalWorld,
+  collectPhysicalSupports,
+  trackPhysicalSupports,
+} from "@automovie/engine";
 import type {
   IAutoMoviePhysicalProfile as P,
   IAutoMovieFootfallPattern as Pattern,
@@ -6,11 +13,6 @@ import type {
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import type { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { bindPhysicalWorld } from "../../../../packages/engine/src/physics/bindPhysicalWorld";
-import { collectPhysicalSupports } from "../../../../packages/engine/src/physics/collectPhysicalSupports";
-import { trackPhysicalSupports } from "../../../../packages/engine/src/physics/trackPhysicalSupports";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Actual stance ownership suppresses only compatible stationary tasks, preserving authored support departure.

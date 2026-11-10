@@ -5,7 +5,7 @@ import { isGuidePass } from "./isGuidePass";
 /**
  * Validate a requested pass list and fold repeats, keeping each pass at its first position.
  *
- * Throws `unknown guide pass "<name>"` for a name outside `AUTOMOVIE_GUIDE_PASSES`. `planGuidePassOutputs`, the chunked sequence planner and the playground's render script all normalize through it, so a request means the same pass order everywhere. The production planner's `assertSingleGuidePass` is a narrower rule and does not use it.
+ * Throws `unknown guide pass "<name>"` for a name outside `AUTOMOVIE_GUIDE_PASSES`. `planGuidePassOutputs` and the chunked sequence planner both normalize through it, so a request means the same pass order everywhere. The production planner's `assertSingleGuidePass` is a narrower rule and does not use it.
  *
  * @evidence contracts/development/implementation.md#principled-implementation A seen-set with first-occurrence wins is order-preserving deduplication, and membership is `isGuidePass`, so the result is the request's distinct valid passes in request order.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop does validation and folding together, and the function is the single normalization the sequence planners share so their pass orders cannot drift.

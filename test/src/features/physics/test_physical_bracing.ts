@@ -1,8 +1,9 @@
+import {
+  AutoMoviePhysicalBalance as Balance,
+  physicalBalanceBracing,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { AutoMoviePhysicalBalance as Balance } from "../../../../packages/engine/src/physics/AutoMoviePhysicalBalance";
-import { physicalBalanceBracing } from "../../../../packages/engine/src/physics/physicalBalanceBracing";
 
 /** Bounded effort survives prediction/step failure while the body can still stand.
  *

@@ -1,9 +1,11 @@
+import {
+  type IAutoMovieRecoveryMapPose,
+  createRecoveryCameraChart,
+  fitRecoveryResectionDesign,
+  projectRecoveryMapPoint,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { createRecoveryCameraChart } from "../../../../packages/recovery/src/internal/createRecoveryCameraChart";
-import { fitRecoveryResectionDesign } from "../../../../packages/recovery/src/internal/fitRecoveryResectionDesign";
-import { projectRecoveryMapPoint } from "../../../../packages/recovery/src/internal/projectRecoveryMapPoint";
-import type { IAutoMovieRecoveryMapPose } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapPose";
 import { createRecoveryMapNumericalFixture } from "../internal/createRecoveryMapNumericalFixture";
 import { nclose } from "../internal/nclose";
 

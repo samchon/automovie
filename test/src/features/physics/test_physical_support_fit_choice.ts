@@ -1,9 +1,11 @@
+import {
+  Quaternion,
+  choosePhysicalSupportFit,
+  setPhysicalTargetJointRotation,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { choosePhysicalSupportFit } from "../../../../packages/engine/src/physics/choosePhysicalSupportFit";
-import { setPhysicalTargetJointRotation } from "../../../../packages/engine/src/physics/setPhysicalTargetJointRotation";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 
 /** One candidate fit: placements and per-endpoint metre residuals. */

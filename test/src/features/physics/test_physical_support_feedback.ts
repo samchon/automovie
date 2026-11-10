@@ -1,12 +1,14 @@
+import {
+  Quaternion,
+  Vector3,
+  planPhysicalSupportTargets,
+} from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { planPhysicalSupportTargets } from "../../../../packages/engine/src/physics/planPhysicalSupportTargets";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 
 /**

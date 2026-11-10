@@ -224,8 +224,7 @@ export class ProductionWorkflowFixture {
         units.push(`shared/upstream/${layer}.md#repair`);
       if (mode === "short" && layer === "screenplay")
         units.push("brief/world/arrival.md#arrival");
-      if (layer === "treatments")
-        units.push("settings/001-event.md#arrival");
+      if (layer === "treatments") units.push("settings/001-event.md#arrival");
       if (mode === "long" && (layer === "scripts" || layer === "screenplay")) {
         units.push("treatments/001-event.md#arrival");
         files.push("docs/body/treatments/001-event.md");

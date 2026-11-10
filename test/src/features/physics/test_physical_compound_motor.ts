@@ -1,10 +1,12 @@
+import {
+  Quaternion,
+  AutoMoviePhysicalSimulation as Simulation,
+  measurePhysicalJointLimits,
+  projectPhysicalTargets,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { measurePhysicalJointLimits } from "../../../../packages/engine/src/physics/measurePhysicalJointLimits";
-import { projectPhysicalTargets } from "../../../../packages/engine/src/physics/projectPhysicalTargets";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Twelve native steps: a sweep and a short hold at the transverse limit. */

@@ -1,11 +1,13 @@
+import {
+  type IAutoMovieRecoveryResectionDesignTrace,
+  type IAutoMovieRecoveryResectionTrace,
+  createRecoveryCameraChart,
+  fitRecoveryResectionConsensus,
+  fitRecoveryResectionDesign,
+  sampleRecoveryCameraIndices,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { createRecoveryCameraChart } from "../../../../packages/recovery/src/internal/createRecoveryCameraChart";
-import { fitRecoveryResectionConsensus } from "../../../../packages/recovery/src/internal/fitRecoveryResectionConsensus";
-import { fitRecoveryResectionDesign } from "../../../../packages/recovery/src/internal/fitRecoveryResectionDesign";
-import { sampleRecoveryCameraIndices } from "../../../../packages/recovery/src/internal/sampleRecoveryCameraIndices";
-import type { IAutoMovieRecoveryResectionDesignTrace } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryResectionDesignTrace";
-import type { IAutoMovieRecoveryResectionTrace } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryResectionTrace";
 import { createRecoveryMapNumericalFixture } from "../internal/createRecoveryMapNumericalFixture";
 import { nclose } from "../internal/nclose";
 

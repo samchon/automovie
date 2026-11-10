@@ -1,8 +1,10 @@
+import {
+  AutoMoviePhysicalPlayback as Playback,
+  AutoMoviePhysicalSimulation as Simulation,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMoviePhysicalPlayback as Playback } from "../../../../packages/engine/src/physics/AutoMoviePhysicalPlayback";
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Native authority boundaries retain rational event time and admitted constraint residuals.

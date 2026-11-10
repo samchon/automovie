@@ -1,11 +1,13 @@
+import {
+  AutoMovieConicFieldJet,
+  AutoMovieConicHermite,
+  AutoMovieViewConic,
+  AutoMovieViewSectionField,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 import type { Profiler } from "node:inspector";
 import { Session } from "node:inspector/promises";
 
-import { AutoMovieConicFieldJet } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicFieldJet";
-import { AutoMovieConicHermite } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicHermite";
-import { AutoMovieViewConic } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewConic";
-import { AutoMovieViewSectionField } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewSectionField";
 import { ConstructionConicFieldOracle } from "../../internal/construction/ConstructionConicFieldOracle";
 import { nclose } from "../../internal/nclose";
 

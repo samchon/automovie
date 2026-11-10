@@ -1,6 +1,5 @@
+import { physicalReleasedQuality } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-
-import { physicalReleasedQuality } from "../../../../packages/engine/src/physics/physicalReleasedQuality";
 
 /** A released body adds exactly its declared solver budget above the world's, and nothing otherwise.
  *

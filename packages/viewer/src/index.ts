@@ -137,3 +137,4 @@ export * from "./IViewerCameraStateSnapshot.js";
 export * from "./constructAutoMovieOwnedResources.js";
 export * from "./createViewerDisplayClock.js";
 export * from "./createViewerDisplayPublication.js";
+export * from "./raster/index.js";

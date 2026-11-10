@@ -8,6 +8,7 @@
 
 node_modules/
 packages/cli/.cache/
+packages/cli/README.md
 packages/template/.cache/
 packages/motions/.cache/
 packages/motions/media/
@@ -18,9 +19,6 @@ dist/
 *.tsbuildinfo
 .env
 .env.*
-# fetched or generated model assets
-packages/playground/public/models/*
-
 # local screenshot scratch (not committed)
 .shots/
 

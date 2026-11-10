@@ -1,3 +1,9 @@
+import {
+  AutoMoviePhysicalSimulation as Simulation,
+  bindPhysicalWorld,
+  collectPhysicalSupports as collect,
+  trackPhysicalWorld,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -6,10 +12,6 @@ import type {
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { bindPhysicalWorld } from "../../../../packages/engine/src/physics/bindPhysicalWorld";
-import { collectPhysicalSupports as collect } from "../../../../packages/engine/src/physics/collectPhysicalSupports";
-import { trackPhysicalWorld } from "../../../../packages/engine/src/physics/trackPhysicalWorld";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";

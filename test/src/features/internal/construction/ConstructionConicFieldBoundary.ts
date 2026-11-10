@@ -1,10 +1,12 @@
-import type { AutoMovieConicArc } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicArc";
-import { AutoMovieConicArcField } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicArcField";
-import { AutoMovieConicFieldJet } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicFieldJet";
-import { AutoMovieConicHermite } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicHermite";
-import { AutoMovieConicHermiteField } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicHermiteField";
-import type { AutoMovieViewConic } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewConic";
-import { AutoMovieViewSectionField } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewSectionField";
+import {
+  type AutoMovieConicArc,
+  AutoMovieConicArcField,
+  AutoMovieConicFieldJet,
+  AutoMovieConicHermite,
+  AutoMovieConicHermiteField,
+  type AutoMovieViewConic,
+  AutoMovieViewSectionField,
+} from "@automovie/engine";
 
 /** Actual regular-station scalar tuple. */
 type Scalar = AutoMovieViewSectionField.IStationJet;

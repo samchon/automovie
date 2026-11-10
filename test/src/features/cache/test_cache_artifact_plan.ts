@@ -1,7 +1,8 @@
+import {
+  type IAutoMovieArtifactPlan,
+  planAutoMovieArtifacts,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-
-import type { IAutoMovieArtifactPlan } from "../../../../packages/engine/src/cache/IAutoMovieArtifactPlan";
-import { planAutoMovieArtifacts } from "../../../../packages/engine/src/cache/planAutoMovieArtifacts";
 
 /**
  * The run plan computes exactly the keys nothing stored or earlier provides.
@@ -55,7 +56,9 @@ export function test_cache_artifact_plan(): void {
     verify: 0,
   });
   for (const period of [0, 1.5, -1])
-    TestValidator.error(`period ${period}`, (): IAutoMovieArtifactPlan =>
-      planAutoMovieArtifacts(keys, new Set(), period),
+    TestValidator.error(
+      `period ${period}`,
+      (): IAutoMovieArtifactPlan =>
+        planAutoMovieArtifacts(keys, new Set(), period),
     );
 }

@@ -1,11 +1,11 @@
 import {
-  IAutoMovieJointAxes,
   type IAutoMovieResolvedJointAngles,
   Quaternion,
   decomposeJointRotation,
   jointToQuaternion,
 } from "@automovie/engine";
 import {
+  type IAutoMovieJointAxes,
   type IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";

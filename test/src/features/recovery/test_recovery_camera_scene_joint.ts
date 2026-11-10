@@ -1,7 +1,7 @@
 import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
+import { solveRecoveryMapJointStep } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { solveRecoveryMapJointStep } from "../../../../packages/recovery/src/internal/solveRecoveryMapJointStep";
 import { createRecoverySceneNumericalFixture } from "../internal/createRecoverySceneNumericalFixture";
 import { nclose } from "../internal/nclose";
 

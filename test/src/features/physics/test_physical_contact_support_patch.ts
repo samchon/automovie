@@ -1,10 +1,12 @@
+import {
+  preparePhysicalGeometry as Geometry,
+  type linearizePhysicalTargetRows,
+  physicalContactSupportRows,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
-import type { linearizePhysicalTargetRows } from "../../../../packages/engine/src/physics/linearizePhysicalTargetRows";
-import { physicalContactSupportRows } from "../../../../packages/engine/src/physics/physicalContactSupportRows";
-import { preparePhysicalGeometry as Geometry } from "../../../../packages/engine/src/physics/preparePhysicalGeometry";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { nclose } from "../internal/predicates";
 

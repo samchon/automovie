@@ -1,4 +1,9 @@
 import {
+  AutoMovieBernstein64 as B,
+  type IAutoMovieCurve64 as C,
+  realizeAutoMovieBicubicAtlas64,
+} from "@automovie/engine";
+import {
   AutoMovieRecoveryEventCurve as E,
   type IAutoMovieRecoveryEventChartInput,
   type IAutoMovieRecoveryEventCurveArc,
@@ -7,10 +12,6 @@ import {
   prepareAutoMovieRecoveryAnnularChart,
 } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
-
-import { AutoMovieBernstein64 as B } from "../../../../packages/engine/src/geometry/curve/AutoMovieBernstein64";
-import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
-import { realizeAutoMovieBicubicAtlas64 } from "../../../../packages/engine/src/geometry/realizeAutoMovieBicubicAtlas64";
 
 /**
  * Native interval recipes survive actual canonical boundary admission and realization.

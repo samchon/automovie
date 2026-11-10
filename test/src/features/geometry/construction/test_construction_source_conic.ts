@@ -1,11 +1,11 @@
 import {
+  AutoMovieConicArc,
+  AutoMovieConicHermite,
   type AutoMoviePolarSector,
+  AutoMovieViewConic,
   AutoMovieViewSection,
 } from "@automovie/engine";
 
-import { AutoMovieConicArc } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicArc";
-import { AutoMovieConicHermite } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicHermite";
-import { AutoMovieViewConic } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewConic";
 import { ConstructionConicOracle } from "../../internal/construction/ConstructionConicOracle";
 import { ConstructionViewOracle } from "../../internal/construction/ConstructionViewOracle";
 

@@ -1,6 +1,6 @@
+import { AutoMovieStepPlanner as Planner } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieStepPlanner as Planner } from "../../../../packages/engine/src/physics/AutoMovieStepPlanner";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
 

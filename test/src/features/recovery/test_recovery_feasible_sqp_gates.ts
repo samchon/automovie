@@ -1,8 +1,9 @@
+import {
+  type IAutoMovieRecoveryFeasibleFit,
+  type IAutoMovieRecoveryFeasibleProblem,
+  refineRecoveryFeasibleState,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
-
-import { refineRecoveryFeasibleState } from "../../../../packages/recovery/src/internal/refineRecoveryFeasibleState";
-import type { IAutoMovieRecoveryFeasibleFit } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleFit";
-import type { IAutoMovieRecoveryFeasibleProblem } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleProblem";
 
 /**
  * Curvature support cannot bypass another row, actual cost or callback failure.

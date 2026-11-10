@@ -1,7 +1,7 @@
+import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
 import type { IAutoMovieFootfallPattern as Pattern } from "@automovie/interface";
 import assert from "node:assert/strict";
 
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";

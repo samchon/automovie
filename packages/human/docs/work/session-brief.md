@@ -22,7 +22,7 @@ Find every phenomenon and every cause, hidden ones included, before changing any
 
 ## Order
 
-1. Clear the structural debt in `packages/human/src` and `test/src` until a complete survey finds none: a file that only forwards to another function or holds one constant joins its owner's table; one person's data leaves the library for `packages/playground/src/human-parameters/` or `packages/human/debug/people/`, and every missing input comes from `AutoMovieHumanBodyAnatomy.resolve`; no test cache outlives its test; one person's generation returns to about 85 s. Open now: `AutoMovieHumanLegBones.KNEE_AHEAD` and the finger shares taken from f1, the trunk, leg and neck priors still regressing on the old shape sliders, and the final survey.
+1. Clear the structural debt in `packages/human/src` and `test/src` until a complete survey finds none: a file that only forwards to another function or holds one constant joins its owner's table; one person's data leaves the library for `packages/human/debug/people/`, and every missing input comes from `AutoMovieHumanBodyAnatomy.resolve`; no test cache outlives its test; one person's generation returns to about 85 s. Open now: `AutoMovieHumanLegBones.KNEE_AHEAD` and the finger shares taken from f1, the trunk, leg and neck priors still regressing on the old shape sliders, and the final survey.
 2. Wire the anatomy fields no piece reads yet (`parameter-anatomy-survey.md`, State at hand-off), and run the Human tests.
 3. Work the `human` skill's cycle on F1 until it is finished, running the tests of every touched region after each batch.
 4. Widen to F2, M1 and M2, then to every supported person.

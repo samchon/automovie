@@ -1,14 +1,16 @@
+import {
+  type IAutoMovieRecoveryFeasibleJointOptions,
+  type IAutoMovieRecoveryMapLandmark,
+  type IAutoMovieRecoveryMapPose,
+  type IAutoMovieRecoverySceneCheckpointTrace,
+  type IAutoMovieRecoverySceneWork,
+  admitRecoveryCameraScene,
+  completeRecoverySceneCheckpoint,
+  linkRecoveryCameraTracks,
+  refineRecoveryCameraMap,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { admitRecoveryCameraScene } from "../../../../packages/recovery/src/internal/admitRecoveryCameraScene";
-import { completeRecoverySceneCheckpoint } from "../../../../packages/recovery/src/internal/completeRecoverySceneCheckpoint";
-import { linkRecoveryCameraTracks } from "../../../../packages/recovery/src/internal/linkRecoveryCameraTracks";
-import { refineRecoveryCameraMap } from "../../../../packages/recovery/src/internal/refineRecoveryCameraMap";
-import type { IAutoMovieRecoveryMapLandmark } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapLandmark";
-import type { IAutoMovieRecoveryMapPose } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapPose";
-import type { IAutoMovieRecoverySceneWork } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoverySceneWork";
-import type { IAutoMovieRecoveryFeasibleJointOptions } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
-import type { IAutoMovieRecoverySceneCheckpointTrace } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoverySceneCheckpointTrace";
 import { createRecoverySceneNumericalFixture } from "../internal/createRecoverySceneNumericalFixture";
 import { nclose } from "../internal/nclose";
 

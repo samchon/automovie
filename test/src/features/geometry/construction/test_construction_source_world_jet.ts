@@ -1,4 +1,5 @@
 import {
+  AutoMovieLoftAdmissionError,
   AutoMovieLoftViewSource,
   AutoMovieLoftViewWorldJet,
   AutoMovieSolidChain,
@@ -10,7 +11,6 @@ import {
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieLoftAdmissionError } from "../../../../../packages/engine/src/geometry/construction/AutoMovieLoftAdmissionError";
 import { nclose } from "../../internal/nclose";
 
 /** All six world vectors in physical station mm and polar phase radians. */

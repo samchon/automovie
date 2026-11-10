@@ -1,10 +1,12 @@
+import {
+  type IAutoMovieRecoveryFeasibleProblem,
+  type IAutoMovieRecoveryFeasibleTrialSelection,
+  type IAutoMovieRecoveryFeasibleTrials,
+  type IAutoMovieRecoverySqpArc,
+  selectRecoveryFeasibleTrial,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { selectRecoveryFeasibleTrial } from "../../../../packages/recovery/src/internal/selectRecoveryFeasibleTrial";
-import type { IAutoMovieRecoveryFeasibleProblem } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleProblem";
-import type { IAutoMovieRecoveryFeasibleTrialSelection } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleTrialSelection";
-import type { IAutoMovieRecoveryFeasibleTrials } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleTrials";
-import type { IAutoMovieRecoverySqpArc } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoverySqpArc";
 import type { IRecoveryFeasibleTrialObservation } from "../internal/IRecoveryFeasibleTrialObservation";
 import { nclose } from "../internal/nclose";
 

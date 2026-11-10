@@ -14,7 +14,7 @@ export interface IAutoMoviePageSequenceRenderOptions {
   /** Page-specific query parameters added before capture controls. */
   query: string;
 
-  /** Base URL of the running playground server. */
+  /** Base URL of the running page server. */
   base: string;
 
   /** Chrome or Chromium executable used for the headless session. */

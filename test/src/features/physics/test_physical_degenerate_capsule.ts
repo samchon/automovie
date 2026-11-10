@@ -1,8 +1,10 @@
+import {
+  AutoMoviePhysicalSimulation as Simulation,
+  preparePhysicalGeometry,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { preparePhysicalGeometry } from "../../../../packages/engine/src/physics/preparePhysicalGeometry";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /**

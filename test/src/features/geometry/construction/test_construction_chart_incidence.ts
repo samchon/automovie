@@ -1,7 +1,9 @@
+import {
+  type AutoMovieSolidMeshConstraints,
+  AutoMovieSolidMeshIncidence,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import type { AutoMovieSolidMeshConstraints } from "../../../../../packages/engine/src/geometry/construction/AutoMovieSolidMeshConstraints";
-import { AutoMovieSolidMeshIncidence } from "../../../../../packages/engine/src/geometry/construction/AutoMovieSolidMeshIncidence";
 import { nclose } from "../../internal/nclose";
 
 /** Original vertex identities with represented chart coordinates. */

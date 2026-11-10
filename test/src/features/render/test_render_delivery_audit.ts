@@ -1,9 +1,10 @@
+import {
+  assertAutoMovieCaptureClock,
+  auditAutoMovieDecodedFrames,
+  auditAutoMovieEncodedPresentation,
+  planAutoMovieCaptureUrl,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-
-import { assertAutoMovieCaptureClock } from "../../../../packages/render/src/delivery/assertAutoMovieCaptureClock";
-import { auditAutoMovieDecodedFrames } from "../../../../packages/render/src/delivery/auditAutoMovieDecodedFrames";
-import { auditAutoMovieEncodedPresentation } from "../../../../packages/render/src/delivery/auditAutoMovieEncodedPresentation";
-import { planAutoMovieCaptureUrl } from "../../../../packages/render/src/delivery/planAutoMovieCaptureUrl";
 
 /** Delivery audits admit exactly the commissioned clock and profile, and capture plans keep to local pages.
  *

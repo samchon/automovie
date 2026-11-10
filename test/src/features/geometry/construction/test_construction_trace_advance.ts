@@ -1,12 +1,12 @@
-import type {
-  AutoMovieSolidIntersection,
-  IAutoMovieSolidAtlas,
-  IAutoMovieSolidSurface,
+import {
+  type AutoMovieSolidIntersection,
+  AutoMovieSolidTraceLaw,
+  AutoMovieSolidTraceSolve,
+  type IAutoMovieSolidAtlas,
+  type IAutoMovieSolidSurface,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieSolidTraceLaw } from "../../../../../packages/engine/src/geometry/construction/AutoMovieSolidTraceLaw";
-import { AutoMovieSolidTraceSolve } from "../../../../../packages/engine/src/geometry/construction/AutoMovieSolidTraceSolve";
 import { nclose } from "../../internal/nclose";
 
 /** World position or derivative of one analytic chart. */
