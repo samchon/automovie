@@ -1,7 +1,7 @@
 # Final screenplay expression population obligation
 
-The complete revised final screenplay population answers once for its audiovisual voice and tempo across scenes and delivery units.
+The complete revised final screenplay population answers once for its audiovisual voice and tempo across scenes and delivery units. Check the item's [statements](../../statements/naturalness/obligations/screenplay.md) before answering it.
 
 ## Does the whole vary its voice and tempo where the material requires it? {#voice-and-tempo-distribution}
 
-Compare distance, audience access, image-sound relations, recurring motifs, entrances and exits, acceleration, sustained duration, silence, and transitions in order. Different events must not default to the same introduction, commentary, closing image, musical cue, single speed, or mechanical alternation without an owned and realized purpose. A fixed perspective, deliberate recurrence, or sustained voice may function; counts and formal uniformity alone cannot condemn it. Follow [common expression obligations](common.md#recurrent-frames) for candidates and preservation comparisons. Revise expression without changing inherited events, reveals, or the adopted audience position; if that position causes the failure, report its earliest owner for upstream repair.
+Read in order, do different events receive the distance, access, duration and transitions their material requires? Without an owned and realized purpose, the same treatment of different events makes the audience watch one scene many times.

@@ -1,0 +1,29 @@
+# Common discovery statements
+
+The detailed statements of the [common requirement discovery](../../discovery/common.md), one section per item. Check the work against each before answering, as [items and statements](../../../../../contracts/SKILL.md#items-and-statements) describes. This document is not an evidence target.
+
+## Requirement ownership {#requirement-ownership}
+
+Requirements:
+
+1. Instructions, promises, subjects, sources, assets, genre, form and the current body were inspected for conditions no active shared, language, work or settings requirement owns.
+2. Each finding changes what may honestly be created or omitted, has an observable application and failure, and names the smallest respondent population that can establish it. Exception: aspirations, genre labels and already owned conditions need no duplicate authority.
+3. An adopted form states its observable choices, scope, audience effect, representative failure, semantic owner and repair boundary.
+4. Language baselines belong to their language owner, creative form to the work and world facts to settings. A possibly universal candidate stays research until adopted into shared contracts.
+5. A requirement found only in guide prose, selectors, status notes or repeated explanations moved to its owner with its consumers updated, under the [closed-pass boundary](../../../../../story/correction/repair.md#closed-passes).
+
+Language:
+
+6. Language was inspected separately: regional, period, social, medium, translation, register, address and honorific boundaries; names and titles; and number, date, age, color, material, dimension and unit wording.
+7. Affected speakers and passages, audience cues and canonical owners are identified, and the concrete language risks existing owners cover are recorded.
+8. Under a declared [factual basis](../../../../../story/planning/requirements.md#factual-basis), period usage is checked against the cited record or the adopted departure identified. Notation serves the actual audience and medium, not artificial period weight.
+
+Production coverage:
+
+9. The settings, research, screenplay, source and, after delivery review, the acceptance record were inspected for an element kind no source folder owns, a behavior, camera or staging choice no research supports, a failure no contract asks about, and a skill, folder or instruction the work needed but lacked.
+10. Each was answered by adopting a work-specific contract or folder, by recording a scaffold candidate with its motivating evidence, which stays local until other productions show the same need, or by recording its absence with the inspected scope.
+11. The inspection was repeated at each [discovery checkpoint](../../../../../story/planning/discovery.md#checkpoints) reached so far. An unchecked checkpoint stays open.
+
+Accounting:
+
+12. Findings, already covered choices and the remaining inspected scope are accounted together. A negative names the concrete risks inspected and their adequate existing owners, one finding establishes no absence elsewhere, and unread or unresolved scope stays open.

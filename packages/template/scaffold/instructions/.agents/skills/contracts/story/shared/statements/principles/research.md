@@ -1,8 +1,10 @@
 # Research statements
 
-The detailed statements of the [research principles](../principles/research.md). Check the study against each before answering, as [items and statements](../../../SKILL.md#items-and-statements) describes, and name each one the studied subject does not have, such as an outcome table for a camera style. This document is not an evidence target.
+The detailed statements of the [research principles](../../principles/research.md), one section per item. Check the work against each before answering, as [items and statements](../../../../../contracts/SKILL.md#items-and-statements) describes. This document is not an evidence target.
 
 ## Depicted practice {#depicted-practice}
+
+Name each statement the studied subject does not have, such as an outcome table for a camera style.
 
 1. Each technique has its law: its shape prior in the performer's own body frame, its phases and timing windows, reach, contact surfaces, support and weight transfer, and how the body travels to deliver it from the distance where it starts.
 2. Legal and illegal actions are recorded.

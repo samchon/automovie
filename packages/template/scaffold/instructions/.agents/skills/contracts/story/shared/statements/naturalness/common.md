@@ -1,8 +1,10 @@
-# Expression statements
+# Common expression statements
 
-The detailed statements of the [common expression principles](../naturalness/common.md), one section per item. Check the body against each before answering, as [items and statements](../../../SKILL.md#items-and-statements) describes. The statements of an item are its named failures and their exceptions; a finding needs one of them. This document is not an evidence target.
+The detailed statements of the [common expression principles](../../naturalness/common.md), one section per item. Check the work against each before answering, as [items and statements](../../../../../contracts/SKILL.md#items-and-statements) describes. This document is not an evidence target.
 
 ## Reads as written {#reads-as-written}
+
+The statements of this item are its named failures and their exceptions; a finding needs one of them.
 
 Padding and explanation:
 
@@ -10,7 +12,7 @@ Padding and explanation:
 2. No passage ends on a closing aphorism or a balanced summary.
 3. No background postpones entry into the scene, and no research or later commentary stops it.
 4. No list of absent acts or sounds manufactures stillness.
-5. No delivery label repeats its line. Exception: speaker identifiers and useful performance parentheticals are execution instructions, and parenthetical excess is judged under [script execution](../principles/scripts.md#executable-scene).
+5. No delivery label repeats its line. Exception: speaker identifiers and useful performance parentheticals are execution instructions, and parenthetical excess is judged under [script execution](../../principles/scripts.md#executable-scene).
 6. No appearance or rank introduction is repeated. Exception: first-entry appearance and costume instructions, and a role, relationship or single scene-used identifying trait conveyed through action, address or perception, because removing those cues can make the people impossible to identify.
 7. No habitual gesture, filler, empty link, arbitrary sentence mold or authoring jargon appears, and no misunderstanding is invented only to be negated. Exception: reusing an object's name, a word twice or a script's framing is not by itself habitual.
 8. No modifier, qualification, contrast or formatting carries no information, access or pressure. Padding that was removed and came back in different words counts.
@@ -39,8 +41,8 @@ What cutting must not lose:
 
 Deciding and retaining:
 
-22. Every sentence was tested against the applicable named failures by the [independent classification](../../../../story/correction/inspection.md#independent-classification), and their connections were read for insufficiency.
-23. An ambiguous candidate was decided by the independent classifier, who read its context for whether the named failure causes the recipient's loss. The author chose the repair and could raise a factual objection under [review rounds](../../../../review/rounds.md), and did not settle that literary judgment.
+22. Every sentence was tested against the applicable named failures by the [independent classification](../../../../../story/correction/inspection.md#independent-classification), and their connections were read for insufficiency.
+23. An ambiguous candidate was decided by the independent classifier, who read its context for whether the named failure causes the recipient's loss. The author chose the repair and could raise a factual objection under [review rounds](../../../../../review/rounds.md), and did not settle that literary judgment.
 24. A revised passage received another yes only for a clear applicable failure.
 25. A named failure is retained only under one of these exceptions, supported by the passage and by the adopted requirement where relevant: useful execution directions, meaningful silence, thought carrying new understanding, expectation or burden, adopted narration and form, functional lies, refrains, speech habits and formal regularity.
 26. Retained narration realizes its adopted contribution through wording, placement or image-sound relations.
@@ -56,5 +58,5 @@ Deciding and retaining:
 6. A claimed loss is shown in the passage, and no upstream parameter inventory is restored to answer it.
 7. The rewrite stays inside the established storyline and adopted form. It may clarify an implied existing actor and develop bodily performance, image, sound and subtext. It adds no dependency, changes no result, resolves no open relationship and replaces no concrete value with an impression.
 8. It preserves meaning, not the draft's artificial register, negation patterns, source disclaimers or annotation vocabulary.
-9. A needed semantic change was reported and not made, and a construction repair returned to its earliest owner under [upstream repair](../../../../story/correction/repair.md#upstream-defects).
+9. A needed semantic change was reported and not made, and a construction repair returned to its earliest owner under [upstream repair](../../../../../story/correction/repair.md#upstream-defects).
 10. Surplus removed below a duration target was not refilled with new facts, events or replacement padding.
