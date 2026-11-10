@@ -7,13 +7,21 @@ description: Runs automovie's Overall Self-Review of a complete change, which an
 
 ## Review Law
 
-- Read the whole declared surface in the current checkout, without splitting it by file, package, or concern, and follow it into consumers, tests, generated output, CI, and platforms.
-- Collect a round's findings, fix them together, then run a fresh complete round. Stop only after a complete round finds nothing.
-- For maintained code, check that each acknowledgment is true and complete for its declaration under [contracts](../contracts/SKILL.md). A passing test or renamed wrapper does not prove a cause was fixed.
+Read the whole declared surface in the current checkout, without splitting it by file, package, or concern, and follow it into consumers, tests, generated output, CI, and platforms.
+
+Collect a round's findings, fix them together, then run a fresh complete round. Stop only after a complete round finds nothing.
+
+For maintained code, check that each acknowledgment is true and complete for its declaration under [contracts](../contracts/SKILL.md). A passing test or renamed wrapper does not prove a cause was fixed.
 
 ## Overall Self-Review
 
-The review law over the whole change: the base-to-head diff and any uncommitted work. Report the clean round, every check that could not run, and every claim fixed in code but not yet proven on a real host. It grants no authority to push or merge.
+The review law over the whole change: the base-to-head diff and any uncommitted work. It grants no authority to push or merge.
+
+Report:
+
+- the clean round;
+- every check that could not run;
+- every claim fixed in code but not yet proven on a real host.
 
 ## Individual Self-Review
 
