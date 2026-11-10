@@ -54,7 +54,7 @@ export default createEvidenceConfig({
 
 `construction` checks how each layer is built from the one before it, and `naturalness` is the separate check of the screenplay's expression. Setting a layer to `"evidence"` turns its check on.
 
-`short` is a brief under `docs/body/brief` followed by the screenplay, and `long` has four layers: settings, treatments, scripts and screenplay. A layer you leave out stays a disabled draft. The checks cover the complete work unless `scope` names the first part that a pilot covers.
+`short` is a brief under `docs/body/brief` followed by the screenplay, and `long`, the mode of a series, has four layers: settings, treatments, scripts and screenplay. A layer you leave out stays a disabled draft. The checks cover the complete work unless `scope` names the first part that a pilot covers.
 
 ### Research and development contracts
 

@@ -21,7 +21,7 @@ npm run evidence
 npm test
 ```
 
-Open the directory in your coding agent and tell it what you want made. The generated `AGENTS.md` routes the agent to the bundled skills, the task instructions under `.agents/skills`, `PROJECT.md` records the scope and choices it adopts, and the generated [README](./packages/template/scaffold/production/README.md#make-a-motion-hint) describes the workflow from screenplay to delivered video. A new production holds instructions, configuration and dependencies but no film, so the three checks above (lint, the evidence check of code against the bundled checklists, and the tests) only confirm that the empty production is sound.
+Open the directory in your coding agent and tell it what you want made. The generated `AGENTS.md` routes the agent to the bundled skills (the task instructions under `.agents/skills`), `PROJECT.md` records the scope and choices it adopts, and the generated [README](./packages/template/scaffold/production/README.md#make-a-motion-hint) describes the workflow from screenplay to delivered video. A new production holds instructions, configuration and dependencies but no film, so the three checks above (lint, the evidence check of code against the bundled checklists, and the tests) only confirm that the empty production is sound.
 
 To keep several productions in one repository, `npx automovie create <directory> --workspace` makes a pnpm workspace, and `pnpm automovie add shorts/<name>` or `pnpm automovie add series/<name>` adds a short or a series to it. After upgrading `automovie`, `npx automovie sync <directory>` updates the generated instructions of an existing production or workspace. The [CLI README](./packages/cli) covers each command.
 

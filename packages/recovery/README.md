@@ -30,7 +30,7 @@ if (!("value" in result)) throw new Error(result.diagnostics.join("; "));
 console.log(result.status, result.diagnostics);
 ```
 
-`curves.json` is a curve artifact saved by `observeAutoMovieRecovery`. Reconstruction accepts an artifact in either basis, Bezier or Hermite, so the conversion here only shows the call. A `partial` result still carries usable geometry together with the domains, the pieces of the surface the artifact declares, that it could not resolve, so read its diagnostics before using it.
+`curves.json` holds a curve artifact that `observeAutoMovieRecovery` returned. Reconstruction accepts an artifact in either basis, Bezier or Hermite, so the conversion here only shows the call. A `partial` result still carries usable geometry together with the domains, the pieces of the surface the artifact declares, that it could not resolve, so read its diagnostics before using it.
 
 ## Workflow
 

@@ -35,4 +35,4 @@ You write the two adapters, or take them from a generated production (see [Node 
 
 A ready-made host, a program that supplies both adapters, is in every generated production under `src/executable/render`: browser capture, FFmpeg export and MP4 handling. It belongs to the production, so read its source for those APIs. `npm run render` in a production runs it.
 
-A finished render says only that capture and encoding ran. Whether the video is right is still decided by watching and listening to it.
+A finished render says only that capture and encoding ran, so watch and listen to the video before accepting it.

@@ -35,4 +35,4 @@ An installed project changes only through sync, never through a package upgrade.
 
 ## What the scaffold contains
 
-The scaffold contains instructions for the coding agent (`AGENTS.md`, `CLAUDE.md` and the skills), an `evidence.config.ts` and `lint.config.ts`, a `PROJECT.md` for the choices a production adopts, a test runner that passes while there are no tests, and Node tooling under `src/executable`. It ships no film content. The generated [README](./scaffold/production/README.md#make-a-motion-hint) is the user's guide to the workflow and commands.
+The scaffold contains instructions for the coding agent (`AGENTS.md`, `CLAUDE.md` and the skills), an `evidence.config.ts` and `lint.config.ts`, a `PROJECT.md` for the choices a production adopts, a test runner with the tests of the bundled tooling, and Node tooling under `src/executable`. It ships no film content. The generated [README](./scaffold/production/README.md#make-a-motion-hint) is the user's guide to the workflow and commands.

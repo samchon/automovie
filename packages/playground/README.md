@@ -23,4 +23,4 @@ pnpm --filter @automovie/playground preview   # dist/ at http://127.0.0.1:4173
 
 On `human.html`, choose an example, edit the body controls in the parameters' units and select Apply; the figure is generated only then. Download saves the edited parameters as JSON.
 
-Construction views, curve selection and PNG frames served over HTTP are in the [debug viewer](../human/debug/README.md) of `@automovie/human`, which `pnpm debug` in `packages/human` serves on port 5197.
+Construction views, curve selection and PNG frames served over HTTP are in the [debug viewer](../human/debug/README.md) of `@automovie/human`.
