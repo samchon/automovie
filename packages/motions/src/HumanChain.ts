@@ -8,6 +8,7 @@ import type { walk } from "./actions/walk";
 import type { approach } from "./everyday/approach";
 import type { bend } from "./everyday/bend";
 import type { brace } from "./everyday/brace";
+import type { typeText } from "./everyday/typeText";
 import type { gesture } from "./everyday/gesture";
 import type { look } from "./everyday/look";
 import type { rest } from "./everyday/rest";
@@ -323,6 +324,17 @@ export class HumanChain extends AutoMovieChain {
    */
   public brace(params: brace.IParams = {}, anchor?: string): this {
     return this.act("brace", params, anchor);
+  }
+
+  /**
+   * Type a text on a keyboard with the index fingertips, holding the current posture.
+   *
+   * @param params The keyboard and the text.
+   * @param anchor An optional anchor id.
+   * @returns The chain.
+   */
+  public typeText(params: typeText.IParams, anchor?: string): this {
+    return this.act("typeText", params, anchor);
   }
 
   /**

@@ -10,6 +10,7 @@ import { shift } from "../everyday/shift";
 import { sit } from "../everyday/sit";
 import { stepOver } from "../everyday/stepOver";
 import { brace } from "../everyday/brace";
+import { typeText } from "../everyday/typeText";
 import { kick } from "../striking/kick";
 import { handshake } from "../handling/handshake";
 import { pickUp } from "../handling/pickUp";
@@ -66,4 +67,5 @@ export const HUMAN_ACTIONS: Readonly<Record<HumanActionName, IHumanActionLaw<nev
   bend,
   stepOver,
   brace,
+  typeText,
 };

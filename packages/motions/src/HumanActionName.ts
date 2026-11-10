@@ -18,6 +18,7 @@
  * - `bend`: bending down to bring a hand to a low point, feet planted.
  * - `stepOver`: stepping over a low obstacle, lead foot then trail foot.
  * - `brace`: bracing for an expected impact, push or falling body.
+ * - `typeText`: typing a text on a keyboard with the index fingertips.
  * - `punch`: a straight, hook or uppercut brought onto a target, or a feint of one.
  * - `handshake`: shaking hands with a partner at a shared meeting point.
  * - `pickUp`: reaching for a prop's grip, grasping it and lifting it.
@@ -34,4 +35,4 @@
  * - `knockdown`: the legs giving way and the body going down to lie supine.
  * - `knee`: a knee driven onto a target, in the clinch or free.
  */
-export type HumanActionName = "stand" | "walk" | "run" | "jump" | "approach" | "look" | "gesture" | "rest" | "punch" | "kick" | "guard" | "step" | "defend" | "flinch" | "stagger" | "knockdown" | "knee" | "sit" | "rise" | "shift" | "bend" | "handshake" | "pickUp" | "putDown" | "handOver" | "receive" | "present" | "stepOver" | "brace";
+export type HumanActionName = "stand" | "walk" | "run" | "jump" | "approach" | "look" | "gesture" | "rest" | "punch" | "kick" | "guard" | "step" | "defend" | "flinch" | "stagger" | "knockdown" | "knee" | "sit" | "rise" | "shift" | "bend" | "handshake" | "pickUp" | "putDown" | "handOver" | "receive" | "present" | "stepOver" | "brace" | "typeText";

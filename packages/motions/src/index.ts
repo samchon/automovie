@@ -43,6 +43,7 @@ export * from "./everyday/seated";
 export * from "./everyday/shift";
 export * from "./everyday/sit";
 export * from "./everyday/stepOver";
+export * from "./everyday/typeText";
 export * from "./law/IHumanActionContext";
 export * from "./law/IHumanActionLaw";
 export * from "./law/IHumanActionPlan";
