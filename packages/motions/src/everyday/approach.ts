@@ -1,4 +1,8 @@
-import type { AutoMovieMotionTarget, IAutoMovieBodyMeasure, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionTarget,
+  IAutoMovieBodyMeasure,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -105,18 +109,31 @@ export namespace approach {
    * @returns The walk's plan to the stop point.
    * @throws {Error} When the target is already nearer than the gap, or a side is asked of a target that is not a person.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const body: IHumanBody = context.body;
     const p: IParams = context.params;
     const target: AutoMovieMotionTarget = p.target;
     const aimed = context.aim(target, context.start);
     const point: IAutoMovieVector3 = aimed.point;
-    const other: IAutoMovieBodyMeasure = target.kind === "person" ? context.performer(target.subject).body.measure : body.measure;
-    const gap: number = HumanProxemics.gap(p.at ?? "personal", body.measure, other);
+    const other: IAutoMovieBodyMeasure =
+      target.kind === "person"
+        ? context.performer(target.subject).body.measure
+        : body.measure;
+    const gap: number = HumanProxemics.gap(
+      p.at ?? "personal",
+      body.measure,
+      other,
+    );
     const feet: IAutoMovieVector3 = {
-      x: (context.entry.feet.left.ankle.x + context.entry.feet.right.ankle.x) / 2,
+      x:
+        (context.entry.feet.left.ankle.x + context.entry.feet.right.ankle.x) /
+        2,
       y: 0,
-      z: (context.entry.feet.left.ankle.z + context.entry.feet.right.ankle.z) / 2,
+      z:
+        (context.entry.feet.left.ankle.z + context.entry.feet.right.ankle.z) /
+        2,
     };
     const lead: number = approach.chest(body);
 
@@ -124,15 +141,34 @@ export namespace approach {
     let stop: { at: IAutoMovieVector3; yaw: number };
     if (p.side === undefined) {
       const now: number = Math.hypot(point.x - feet.x, point.z - feet.z) - lead;
-      if (now < gap - 1e-9) throw new Error(`${context.subject}: the target is ${now.toFixed(3)} m from the chest, nearer than the requested gap ${gap.toFixed(3)} m`);
+      if (now < gap - 1e-9)
+        throw new Error(
+          `${context.subject}: the target is ${now.toFixed(3)} m from the chest, nearer than the requested gap ${gap.toFixed(3)} m`,
+        );
       stop = HumanProxemics.stop(feet, point, gap, lead);
     } else {
-      if (target.kind !== "person") throw new Error(`${context.subject}: a side is a person's side; this target is a ${target.kind}`);
-      const facing: number = (Math.atan2(aimed.normal.x, aimed.normal.z) * 180) / Math.PI;
-      const turn: number = { front: 0, left: 90, right: -90, behind: 180 }[p.side];
-      const out: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: facing + turn }, { x: 0, y: 0, z: 1 });
-      const at: IAutoMovieVector3 = { x: point.x + out.x * (gap + lead), y: 0, z: point.z + out.z * (gap + lead) };
-      stop = { at, yaw: (Math.atan2(point.x - at.x, point.z - at.z) * 180) / Math.PI };
+      if (target.kind !== "person")
+        throw new Error(
+          `${context.subject}: a side is a person's side; this target is a ${target.kind}`,
+        );
+      const facing: number =
+        (Math.atan2(aimed.normal.x, aimed.normal.z) * 180) / Math.PI;
+      const turn: number = { front: 0, left: 90, right: -90, behind: 180 }[
+        p.side
+      ];
+      const out: IAutoMovieVector3 = HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: facing + turn },
+        { x: 0, y: 0, z: 1 },
+      );
+      const at: IAutoMovieVector3 = {
+        x: point.x + out.x * (gap + lead),
+        y: 0,
+        z: point.z + out.z * (gap + lead),
+      };
+      stop = {
+        at,
+        yaw: (Math.atan2(point.x - at.x, point.z - at.z) * 180) / Math.PI,
+      };
     }
 
     // Walk round people in the way: a waypoint abeam each one the straight
@@ -140,10 +176,18 @@ export namespace approach {
     // the side that deviates least.
     const via: IAutoMovieVector3[] = [];
     for (const subject of p.avoid ?? []) {
-      const at: IAutoMovieVector3 = context.aim({ kind: "person", subject, region: "sternum" }, context.start).point;
+      const at: IAutoMovieVector3 = context.aim(
+        { kind: "person", subject, region: "sternum" },
+        context.start,
+      ).point;
       const from: IAutoMovieVector3 = via.at(-1) ?? feet;
       const pass: number = CLEARANCE + body.measure.chestBreadth / 2;
-      const waypoint: IAutoMovieVector3 | undefined = approach.abeam(from, stop.at, at, pass);
+      const waypoint: IAutoMovieVector3 | undefined = approach.abeam(
+        from,
+        stop.at,
+        at,
+        pass,
+      );
       if (waypoint !== undefined) via.push(waypoint);
     }
 
@@ -156,7 +200,13 @@ export namespace approach {
           face: (Math.atan2(point.x - at.x, point.z - at.z) * 180) / Math.PI,
           ...(via.length === 0 ? {} : { via }),
           ...(p.pace === undefined ? {} : { pace: p.pace }),
-          ...(p.effort === undefined ? {} : { stride: Math.min(1.3, Math.max(0.6, mods.step)), armSwing: Math.min(2, Math.max(0, mods.swing)), elbows: Math.min(30, Math.max(0, 100 * mods.elbow)) }),
+          ...(p.effort === undefined
+            ? {}
+            : {
+                stride: Math.min(1.3, Math.max(0.6, mods.step)),
+                armSwing: Math.min(2, Math.max(0, mods.swing)),
+                elbows: Math.min(30, Math.max(0, 100 * mods.elbow)),
+              }),
         },
       });
 
@@ -166,11 +216,20 @@ export namespace approach {
     // closing step, places the chest a few centimetres off the standing
     // estimate).
     const first: IHumanActionPlan = walkTo(stop.at);
-    const arrived: IAutoMovieVector3 = HumanTrunk.region(body, first.posture(first.duration), "sternum").point;
-    const error: number = Math.hypot(point.x - arrived.x, point.z - arrived.z) - gap;
+    const arrived: IAutoMovieVector3 = HumanTrunk.region(
+      body,
+      first.posture(first.duration),
+      "sternum",
+    ).point;
+    const error: number =
+      Math.hypot(point.x - arrived.x, point.z - arrived.z) - gap;
     if (Math.abs(error) <= 0.002) return first;
     const length: number = Math.hypot(point.x - stop.at.x, point.z - stop.at.z);
-    return walkTo({ x: stop.at.x + ((point.x - stop.at.x) / length) * error, y: 0, z: stop.at.z + ((point.z - stop.at.z) / length) * error });
+    return walkTo({
+      x: stop.at.x + ((point.x - stop.at.x) / length) * error,
+      y: 0,
+      z: stop.at.z + ((point.z - stop.at.z) / length) * error,
+    });
   }
 
   /**
@@ -185,7 +244,12 @@ export namespace approach {
    * @param pass The least passing distance, metres.
    * @returns The waypoint on the floor, or undefined.
    */
-  export function abeam(from: IAutoMovieVector3, to: IAutoMovieVector3, point: IAutoMovieVector3, pass: number): IAutoMovieVector3 | undefined {
+  export function abeam(
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    point: IAutoMovieVector3,
+    pass: number,
+  ): IAutoMovieVector3 | undefined {
     const dx: number = to.x - from.x;
     const dz: number = to.z - from.z;
     const length: number = Math.hypot(dx, dz);
@@ -197,7 +261,11 @@ export namespace approach {
     const across: number = (point.x - from.x) * -uz + (point.z - from.z) * ux;
     if (Math.abs(across) >= pass) return undefined;
     const side: number = across >= 0 ? -1 : 1;
-    return { x: point.x + side * pass * -uz, y: 0, z: point.z + side * pass * ux };
+    return {
+      x: point.x + side * pass * -uz,
+      y: 0,
+      z: point.z + side * pass * ux,
+    };
   }
 
   /**
@@ -210,8 +278,13 @@ export namespace approach {
    */
   export function chest(body: IHumanBody): number {
     const posture: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
-    const sternum: IAutoMovieVector3 = HumanTrunk.region(body, posture, "sternum").point;
-    const ankles: number = (posture.limbs.leftLeg!.point.z + posture.limbs.rightLeg!.point.z) / 2;
+    const sternum: IAutoMovieVector3 = HumanTrunk.region(
+      body,
+      posture,
+      "sternum",
+    ).point;
+    const ankles: number =
+      (posture.limbs.leftLeg!.point.z + posture.limbs.rightLeg!.point.z) / 2;
     return sternum.z - ankles;
   }
 }

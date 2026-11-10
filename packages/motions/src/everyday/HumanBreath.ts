@@ -98,7 +98,9 @@ export namespace HumanBreath {
   export const EXERTION_AMPLITUDE: number = 3;
 
   /** Clinical degrees at one tidal breath (provisional). */
-  export const TIDAL: Readonly<Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>> = {
+  export const TIDAL: Readonly<
+    Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
+  > = {
     chest: [-1.5, 0, 0],
     upperChest: [-1, 0, 0],
     spine: [-0.5, 0, 0],
@@ -117,7 +119,8 @@ export namespace HumanBreath {
     for (let k: number = 0; k < 16; k++) {
       const u: number = Math.max(1e-12, random.float(2 * k));
       const v: number = random.float(2 * k + 1);
-      const rate: number = 15 + 2 * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+      const rate: number =
+        15 + 2 * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
       if (rate >= BAND[0] && rate <= BAND[1]) return rate;
     }
     return 16;
@@ -145,7 +148,8 @@ export namespace HumanBreath {
     let cycles: number = phase0 + (rate * seconds) / 60;
     let amplitude: number = 1;
     for (const bout of exertion) {
-      if (!(bout.level >= 0 && bout.level <= 1)) throw new Error("An exertion level lies in [0, 1]");
+      if (!(bout.level >= 0 && bout.level <= 1))
+        throw new Error("An exertion level lies in [0, 1]");
       const recovery: number = bout.recovery ?? 60;
       if (!(recovery > 0)) throw new Error("A recovery time is positive");
       const extra: number = bout.level * (EXERTION_RATE - rate);
@@ -161,15 +165,25 @@ export namespace HumanBreath {
       const u: number = Math.min(1, (seconds - bout.at) / recovery);
       const left: number = (1 - u) ** 3;
       perMinute += extra * left;
-      cycles += (extra * (Math.max(0, bout.at) + (recovery * (1 - (1 - u) ** 4)) / 4)) / 60;
+      cycles +=
+        (extra * (Math.max(0, bout.at) + (recovery * (1 - (1 - u) ** 4)) / 4)) /
+        60;
       amplitude += bout.level * (EXERTION_AMPLITUDE - 1) * left;
     }
     const cycle: number = Math.floor(cycles);
     const f: number = cycles - cycle;
-    const shape: number = f < INSPIRATION ? minimumJerk(f / INSPIRATION).s : 1 - minimumJerk((f - INSPIRATION) / (1 - INSPIRATION)).s;
+    const shape: number =
+      f < INSPIRATION
+        ? minimumJerk(f / INSPIRATION).s
+        : 1 - minimumJerk((f - INSPIRATION) / (1 - INSPIRATION)).s;
     const period: number = 60 / perMinute;
-    const sighs: boolean = sigh.float(Math.max(0, cycle)) < period / SIGH_INTERVAL;
-    return { rate: perMinute, phase: cycles, volume: shape * amplitude * (sighs ? SIGH : 1) };
+    const sighs: boolean =
+      sigh.float(Math.max(0, cycle)) < period / SIGH_INTERVAL;
+    return {
+      rate: perMinute,
+      phase: cycles,
+      volume: shape * amplitude * (sighs ? SIGH : 1),
+    };
   }
 
   /**
@@ -181,10 +195,21 @@ export namespace HumanBreath {
   export function layer(options: IOptions = {}): IHumanLayer {
     return {
       name: "breath",
-      apply: (posture: IHumanPosture, seconds: number, context: IHumanLayer.IContext): IHumanPosture => {
-        const rate: number = options.rate ?? restingRate(context.random("breath.rate"));
+      apply: (
+        posture: IHumanPosture,
+        seconds: number,
+        context: IHumanLayer.IContext,
+      ): IHumanPosture => {
+        const rate: number =
+          options.rate ?? restingRate(context.random("breath.rate"));
         const phase0: number = context.random("breath.phase").float(0);
-        const volume: number = state(seconds, rate, options.exertion ?? [], phase0, context.random("breath.sigh")).volume;
+        const volume: number = state(
+          seconds,
+          rate,
+          options.exertion ?? [],
+          phase0,
+          context.random("breath.sigh"),
+        ).volume;
         return add(posture, volume);
       },
     };
@@ -199,9 +224,16 @@ export namespace HumanBreath {
    */
   export function add(posture: IHumanPosture, volume: number): IHumanPosture {
     const joints: IHumanPosture["joints"] = { ...posture.joints };
-    for (const [bone, angles] of Object.entries(TIDAL) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
+    for (const [bone, angles] of Object.entries(TIDAL) as [
+      AutoMovieHumanoidBone,
+      readonly [number, number, number],
+    ][]) {
       const base: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
-      joints[bone] = [base[0] + volume * angles[0], base[1] + volume * angles[1], base[2] + volume * angles[2]];
+      joints[bone] = [
+        base[0] + volume * angles[0],
+        base[1] + volume * angles[1],
+        base[2] + volume * angles[2],
+      ];
     }
     return { ...posture, joints };
   }

@@ -1,5 +1,10 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -97,7 +102,16 @@ export namespace gestureStroke {
     | "slump";
 
   /** A face region a self-touch reaches. */
-  export type FaceRegion = "forehead" | "noseBridge" | "mouth" | "chin" | "templeLeft" | "templeRight" | "earLeft" | "earRight" | "nape";
+  export type FaceRegion =
+    | "forehead"
+    | "noseBridge"
+    | "mouth"
+    | "chin"
+    | "templeLeft"
+    | "templeRight"
+    | "earLeft"
+    | "earRight"
+    | "nape";
 
   /** What a stroke is computed from at one instant. */
   export interface IInput {
@@ -142,7 +156,9 @@ export namespace gestureStroke {
   }
 
   /** A gesture's timing: cycles in the stroke and seconds per cycle. */
-  export const RHYTHM: Readonly<Record<Kind, { cycles: number; period: number }>> = {
+  export const RHYTHM: Readonly<
+    Record<Kind, { cycles: number; period: number }>
+  > = {
     wave: { cycles: 3, period: 0.4 },
     raiseHand: { cycles: 1, period: 0.5 },
     cheer: { cycles: 2, period: 0.5 },
@@ -197,15 +213,32 @@ export namespace gestureStroke {
    * @param input The instant's inputs.
    * @returns The goal.
    */
-  export function hand(kind: Kind, side: HumanHand.Side, u: number, cycles: number, input: IInput): IHand {
+  export function hand(
+    kind: Kind,
+    side: HumanHand.Side,
+    u: number,
+    cycles: number,
+    input: IInput,
+  ): IHand {
     const { body } = input;
     const m = body.measure;
     const sign: number = side === "left" ? 1 : -1;
     const L: number = m.upperArm + m.forearm;
-    const frame: HumanFrame.IFrame = { origin: input.base.root, yaw: input.base.yaw };
-    const at = (x: number, y: number, z: number): IAutoMovieVector3 => HumanFrame.point(frame, { x, y, z });
-    const dir = (x: number, y: number, z: number): IAutoMovieVector3 => HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw }, { x, y, z });
-    const turn = (fingers: IAutoMovieVector3, palm: IAutoMovieVector3): IAutoMovieQuaternion => HumanHand.rotation(side, { fingers, palm });
+    const frame: HumanFrame.IFrame = {
+      origin: input.base.root,
+      yaw: input.base.yaw,
+    };
+    const at = (x: number, y: number, z: number): IAutoMovieVector3 =>
+      HumanFrame.point(frame, { x, y, z });
+    const dir = (x: number, y: number, z: number): IAutoMovieVector3 =>
+      HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
+        { x, y, z },
+      );
+    const turn = (
+      fingers: IAutoMovieVector3,
+      palm: IAutoMovieVector3,
+    ): IAutoMovieQuaternion => HumanHand.rotation(side, { fingers, palm });
     const wave: number = oscillation(u, cycles);
     const e: number = input.extent;
     switch (kind) {
@@ -215,18 +248,27 @@ export namespace gestureStroke {
         return {
           surface: "palm",
           shape: "flat",
-          point: at(sign * (m.shoulderHalfWidth + 0.45 * m.upperArm) + dx, m.shoulderHeight + 0.55 * m.upperArm, 0.25 * L),
+          point: at(
+            sign * (m.shoulderHalfWidth + 0.45 * m.upperArm) + dx,
+            m.shoulderHeight + 0.55 * m.upperArm,
+            0.25 * L,
+          ),
           rotation: turn(dir(Math.sin(tilt), Math.cos(tilt), 0), dir(0, 0, 1)),
           out: 0.3,
         };
       }
       case "raiseHand":
       case "cheer": {
-        const pump: number = kind === "cheer" ? 0.08 * L * e * Math.max(0, wave) : 0;
+        const pump: number =
+          kind === "cheer" ? 0.08 * L * e * Math.max(0, wave) : 0;
         return {
           surface: kind === "cheer" ? "fist" : "palm",
           shape: kind === "cheer" ? "fist" : "flat",
-          point: at(sign * m.shoulderHalfWidth, m.shoulderHeight + 0.92 * L * Math.min(1, e) + pump, 0.1 * L),
+          point: at(
+            sign * m.shoulderHalfWidth,
+            m.shoulderHeight + 0.92 * L * Math.min(1, e) + pump,
+            0.1 * L,
+          ),
           rotation: turn(dir(0, 1, 0), dir(0, 0, 1)),
           out: 0.2,
         };
@@ -235,7 +277,11 @@ export namespace gestureStroke {
         return {
           surface: "palm",
           shape: "flat",
-          point: at(sign * 0.6 * m.shoulderHalfWidth, m.shoulderHeight, (0.8 + 0.05 * bump(u)) * L * Math.min(1, e)),
+          point: at(
+            sign * 0.6 * m.shoulderHalfWidth,
+            m.shoulderHeight,
+            (0.8 + 0.05 * bump(u)) * L * Math.min(1, e),
+          ),
           rotation: turn(dir(0, 1, 0), dir(0, 0, 1)),
           out: 0,
         };
@@ -246,7 +292,11 @@ export namespace gestureStroke {
         return {
           surface: "palm",
           shape: "flat",
-          point: at(sign * (m.shoulderHalfWidth + 0.15 * L * e), m.waistHeight + 0.03 * L * e * bump(u), 0.4 * L),
+          point: at(
+            sign * (m.shoulderHalfWidth + 0.15 * L * e),
+            m.waistHeight + 0.03 * L * e * bump(u),
+            0.4 * L,
+          ),
           rotation: turn(dir(sign * 0.35, 0, 1), dir(0, 1, 0)),
           out: 0.2,
         };
@@ -254,22 +304,41 @@ export namespace gestureStroke {
         return {
           surface: "palm",
           shape: "flat",
-          point: at(sign * 0.5 * m.shoulderHalfWidth, m.chestHeight - 0.05 * L, 0.55 * L),
+          point: at(
+            sign * 0.5 * m.shoulderHalfWidth,
+            m.chestHeight - 0.05 * L,
+            0.55 * L,
+          ),
           rotation: turn(dir(0, 0, 1), dir(0, 1, 0)),
           out: 0,
           curl: 70 * e * (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)),
         };
       case "clap":
       case "rubHands": {
-        const centre: IAutoMovieVector3 = { x: 0, y: m.chestHeight - 0.1 * L, z: 0.42 * L };
-        const apart: number = kind === "clap" ? 0.18 * L * e * (0.5 + 0.5 * Math.cos(2 * Math.PI * cycles * u)) : 0;
-        const slide: number = kind === "rubHands" ? sign * 0.03 * L * e * wave : 0;
+        const centre: IAutoMovieVector3 = {
+          x: 0,
+          y: m.chestHeight - 0.1 * L,
+          z: 0.42 * L,
+        };
+        const apart: number =
+          kind === "clap"
+            ? 0.18 * L * e * (0.5 + 0.5 * Math.cos(2 * Math.PI * cycles * u))
+            : 0;
+        const slide: number =
+          kind === "rubHands" ? sign * 0.03 * L * e * wave : 0;
         const fingers: IAutoMovieVector3 = { x: 0, y: 0.5, z: 0.866 };
         return {
           surface: "palm",
           shape: "flat",
-          point: at(centre.x + sign * apart / 2, centre.y + fingers.y * slide, centre.z + fingers.z * slide),
-          rotation: turn(dir(fingers.x, fingers.y, fingers.z), dir(-sign, 0, 0)),
+          point: at(
+            centre.x + (sign * apart) / 2,
+            centre.y + fingers.y * slide,
+            centre.z + fingers.z * slide,
+          ),
+          rotation: turn(
+            dir(fingers.x, fingers.y, fingers.z),
+            dir(-sign, 0, 0),
+          ),
           out: 0.1,
         };
       }
@@ -298,21 +367,47 @@ export namespace gestureStroke {
    * @param extent Effort extent multiplier.
    * @returns Clinical degrees to add.
    */
-  export function joints(kind: Kind, u: number, cycles: number, envelope: number, extent: number): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
+  export function joints(
+    kind: Kind,
+    u: number,
+    cycles: number,
+    envelope: number,
+    extent: number,
+  ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     const a: number = envelope * extent;
     switch (kind) {
       case "nod":
-        return { head: [12 * a * (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)), 0, 0] };
+        return {
+          head: [
+            12 * a * (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)),
+            0,
+            0,
+          ],
+        };
       case "shakeHead":
         return { head: [0, 0, 20 * a * oscillation(u, cycles)] };
       case "shrug":
-        return { leftShoulder: [0, 18 * a, 0], rightShoulder: [0, 18 * a, 0], head: [0, 4 * a, 0] };
+        return {
+          leftShoulder: [0, 18 * a, 0],
+          rightShoulder: [0, 18 * a, 0],
+          head: [0, 4 * a, 0],
+        };
       case "chinLift":
         return { head: [-15 * a, 0, 0] };
       case "squareShoulders":
-        return { leftShoulder: [-10 * a, 0, 0], rightShoulder: [-10 * a, 0, 0], chest: [-4 * a, 0, 0] };
+        return {
+          leftShoulder: [-10 * a, 0, 0],
+          rightShoulder: [-10 * a, 0, 0],
+          chest: [-4 * a, 0, 0],
+        };
       case "slump":
-        return { chest: [12 * a, 0, 0], spine: [6 * a, 0, 0], head: [10 * a, 0, 0], leftShoulder: [10 * a, 0, 0], rightShoulder: [10 * a, 0, 0] };
+        return {
+          chest: [12 * a, 0, 0],
+          spine: [6 * a, 0, 0],
+          head: [10 * a, 0, 0],
+          leftShoulder: [10 * a, 0, 0],
+          rightShoulder: [10 * a, 0, 0],
+        };
       case "wave":
       case "raiseHand":
       case "cheer":
@@ -341,7 +436,10 @@ export namespace gestureStroke {
    */
   export function oscillation(u: number, cycles: number): number {
     if (!(u > 0 && u < 1)) return 0;
-    return Math.sin(2 * Math.PI * cycles * u) * Math.min(minimumJerk(u / 0.15).s, minimumJerk((1 - u) / 0.15).s);
+    return (
+      Math.sin(2 * Math.PI * cycles * u) *
+      Math.min(minimumJerk(u / 0.15).s, minimumJerk((1 - u) / 0.15).s)
+    );
   }
 
   /** A single rise and fall over the stroke, `sin^2(pi u)`. */
@@ -355,18 +453,34 @@ export namespace gestureStroke {
     if (input.target === undefined) throw new Error("Pointing needs a target");
     const bones = HumanTrunk.resolve(body, input.base);
     const eye: IAutoMovieVector3 = bones.get(`${side}Eye`)!.worldPosition;
-    const shoulder: IAutoMovieVector3 = bones.get(`${side}UpperArm`)!.worldPosition;
-    const line: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(input.target, eye));
-    const tip: number = Vector3.length(HumanHand.offset(body, side, "indexTip", "point").point);
-    const reach: number = 0.95 * (body.measure.upperArm + body.measure.forearm) + tip;
+    const shoulder: IAutoMovieVector3 = bones.get(
+      `${side}UpperArm`,
+    )!.worldPosition;
+    const line: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(input.target, eye),
+    );
+    const tip: number = Vector3.length(
+      HumanHand.offset(body, side, "indexTip", "point").point,
+    );
+    const reach: number =
+      0.95 * (body.measure.upperArm + body.measure.forearm) + tip;
 
     // The point on the line at the reach from the shoulder: |eye + s d - shoulder| = reach.
     const w: IAutoMovieVector3 = Vector3.subtract(eye, shoulder);
     const b: number = Vector3.dot(w, line);
     const c: number = Vector3.dot(w, w) - reach * reach;
     const s: number = -b + Math.sqrt(Math.max(0, b * b - c));
-    const distance: number = Math.min(s, Vector3.length(Vector3.subtract(input.target, eye)));
-    const palm: IAutoMovieVector3 = Math.abs(line.y) > 0.9 ? HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: input.base.yaw }, { x: 0, y: 0, z: -Math.sign(line.y) }) : { x: 0, y: -1, z: 0 };
+    const distance: number = Math.min(
+      s,
+      Vector3.length(Vector3.subtract(input.target, eye)),
+    );
+    const palm: IAutoMovieVector3 =
+      Math.abs(line.y) > 0.9
+        ? HumanFrame.point(
+            { origin: { x: 0, y: 0, z: 0 }, yaw: input.base.yaw },
+            { x: 0, y: 0, z: -Math.sign(line.y) },
+          )
+        : { x: 0, y: -1, z: 0 };
     return {
       surface: "indexTip",
       shape: "point",
@@ -377,18 +491,47 @@ export namespace gestureStroke {
   }
 
   /** A self-touch goal: the fingertip on a face region, palm toward the face, fingers up. */
-  function touch(kind: "touchFace" | "pushGlasses" | "scratchHead", input: IInput, side: HumanHand.Side, u: number, cycles: number): IHand {
+  function touch(
+    kind: "touchFace" | "pushGlasses" | "scratchHead",
+    input: IInput,
+    side: HumanHand.Side,
+    u: number,
+    cycles: number,
+  ): IHand {
     const { body } = input;
-    const region: AutoMovieHumanoidRegion = kind === "pushGlasses" ? "noseBridge" : kind === "scratchHead" ? (side === "left" ? "templeLeft" : "templeRight") : input.region;
+    const region: AutoMovieHumanoidRegion =
+      kind === "pushGlasses"
+        ? "noseBridge"
+        : kind === "scratchHead"
+          ? side === "left"
+            ? "templeLeft"
+            : "templeRight"
+          : input.region;
     const surface = HumanTrunk.region(body, input.base, region);
-    const up: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract({ x: 0, y: 1, z: 0 }, Vector3.scale(surface.normal, surface.normal.y)));
-    const slide: number = kind === "pushGlasses" ? 0.012 * bumpUp(u) : kind === "scratchHead" ? 0.015 * oscillation(u, cycles) : 0;
+    const up: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(
+        { x: 0, y: 1, z: 0 },
+        Vector3.scale(surface.normal, surface.normal.y),
+      ),
+    );
+    const slide: number =
+      kind === "pushGlasses"
+        ? 0.012 * bumpUp(u)
+        : kind === "scratchHead"
+          ? 0.015 * oscillation(u, cycles)
+          : 0;
     const pad: number = padding(body, side);
     return {
       surface: "indexTip",
       shape: "flat",
-      point: Vector3.add(Vector3.add(surface.point, Vector3.scale(surface.normal, pad)), Vector3.scale(up, slide)),
-      rotation: HumanHand.rotation(side, { fingers: up, palm: Vector3.scale(surface.normal, -1) }),
+      point: Vector3.add(
+        Vector3.add(surface.point, Vector3.scale(surface.normal, pad)),
+        Vector3.scale(up, slide),
+      ),
+      rotation: HumanHand.rotation(side, {
+        fingers: up,
+        palm: Vector3.scale(surface.normal, -1),
+      }),
       out: 0.15,
     };
   }
@@ -405,11 +548,21 @@ export namespace gestureStroke {
    * touches it rather than sinking its axis into it.
    */
   function padding(body: IHumanBody, side: HumanHand.Side): number {
-    const segment = body.profile.segments.find((s) => s.bone === `${side}IndexDistal`) ?? body.profile.segments.find((s) => s.bone === `${side}Hand`);
+    const segment =
+      body.profile.segments.find((s) => s.bone === `${side}IndexDistal`) ??
+      body.profile.segments.find((s) => s.bone === `${side}Hand`);
     let thin: number = 0;
     for (const shape of segment?.shapes ?? []) {
       const half: number =
-        shape.kind === "box" ? Math.min(shape.halfExtents.x, shape.halfExtents.y, shape.halfExtents.z) : shape.kind === "sphere" || shape.kind === "capsule" ? shape.radius : 0;
+        shape.kind === "box"
+          ? Math.min(
+              shape.halfExtents.x,
+              shape.halfExtents.y,
+              shape.halfExtents.z,
+            )
+          : shape.kind === "sphere" || shape.kind === "capsule"
+            ? shape.radius
+            : 0;
       thin = thin === 0 ? half : Math.min(thin, half);
     }
     return thin;

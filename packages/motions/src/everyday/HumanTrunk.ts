@@ -42,21 +42,43 @@ export namespace HumanTrunk {
    * @param joints Joints to use instead of the posture's; the posture's when absent.
    * @returns Resolved bones; the trunk, head, eyes and shoulder girdles are valid.
    */
-  export function resolve(body: IHumanBody, posture: IHumanPosture, joints: IHumanPosture["joints"] = posture.joints): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    const list: IAutoMovieJointPose[] = (Object.entries(joints) as [AutoMovieHumanoidBone, readonly [number, number, number]][]).map(
-      ([bone, a]): IAutoMovieJointPose => ({ bone, flexion: a[0], abduction: a[1], twist: a[2] }),
+  export function resolve(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    joints: IHumanPosture["joints"] = posture.joints,
+  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+    const list: IAutoMovieJointPose[] = (
+      Object.entries(joints) as [
+        AutoMovieHumanoidBone,
+        readonly [number, number, number],
+      ][]
+    ).map(
+      ([bone, a]): IAutoMovieJointPose => ({
+        bone,
+        flexion: a[0],
+        abduction: a[1],
+        twist: a[2],
+      }),
     );
     return new Map(
       resolvePose(
         {
           skeleton: body.skeleton.id,
-          root: { translation: posture.root, rotation: resolveHumanPosture.heading(posture), scale: { x: 1, y: 1, z: 1 } },
+          root: {
+            translation: posture.root,
+            rotation: resolveHumanPosture.heading(posture),
+            scale: { x: 1, y: 1, z: 1 },
+          },
           joints: list,
         },
         body.skeleton,
         HUMANOID_JOINT_AXES,
         HUMANOID_REST_FRAME,
-      ).map((r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r]),
+      ).map(
+        (
+          r: IAutoMovieResolvedBone,
+        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+      ),
     );
   }
 
@@ -67,7 +89,11 @@ export namespace HumanTrunk {
    * the pelvis takes 0.64 and the spine 0.36, split 0.28 lumbar and 0.08
    * thoracic.
    */
-  export const RHYTHM: Readonly<{ pelvis: number; lumbar: number; thorax: number }> = { pelvis: 0.64, lumbar: 0.28, thorax: 0.08 };
+  export const RHYTHM: Readonly<{
+    pelvis: number;
+    lumbar: number;
+    thorax: number;
+  }> = { pelvis: 0.64, lumbar: 0.28, thorax: 0.08 };
 
   /**
    * A trunk inclined forward by an angle shared by the lumbopelvic rhythm:
@@ -80,13 +106,23 @@ export namespace HumanTrunk {
    * @param pelvisLimit The most the pelvis may take, degrees (`pelvisLimit`); the spine takes the rest.
    * @returns The pelvis pitch, degrees, and the joints with the flexion added.
    */
-  export function incline(joints: IHumanPosture["joints"], inclination: number, pelvisLimit: number = Infinity): { pitch: number; joints: IHumanPosture["joints"] } {
+  export function incline(
+    joints: IHumanPosture["joints"],
+    inclination: number,
+    pelvisLimit: number = Infinity,
+  ): { pitch: number; joints: IHumanPosture["joints"] } {
     if (inclination <= 0) return { pitch: inclination, joints };
-    const pelvis: number = Math.max(0, Math.min(RHYTHM.pelvis * inclination, pelvisLimit));
+    const pelvis: number = Math.max(
+      0,
+      Math.min(RHYTHM.pelvis * inclination, pelvisLimit),
+    );
     const spine: number = inclination - pelvis;
     const out: IHumanPosture["joints"] = { ...joints };
     const share: number = RHYTHM.lumbar / (RHYTHM.lumbar + RHYTHM.thorax);
-    for (const [bone, part] of [["spine", share], ["chest", 1 - share]] as const) {
+    for (const [bone, part] of [
+      ["spine", share],
+      ["chest", 1 - share],
+    ] as const) {
       const was: readonly [number, number, number] = out[bone] ?? [0, 0, 0];
       out[bone] = [was[0] + part * spine, was[1], was[2]];
     }
@@ -110,18 +146,43 @@ export namespace HumanTrunk {
    * @param ankles The planted ankles, world metres.
    * @returns Degrees, at least 0.
    */
-  export function pelvisLimit(body: IHumanBody, root: IAutoMovieVector3, yaw: number, ankles: Record<"left" | "right", IAutoMovieVector3>): number {
+  export function pelvisLimit(
+    body: IHumanBody,
+    root: IAutoMovieVector3,
+    yaw: number,
+    ankles: Record<"left" | "right", IAutoMovieVector3>,
+  ): number {
     const m = body.measure;
     const turn: number = (yaw * Math.PI) / 180;
-    const forward: IAutoMovieVector3 = { x: Math.sin(turn), y: 0, z: Math.cos(turn) };
+    const forward: IAutoMovieVector3 = {
+      x: Math.sin(turn),
+      y: 0,
+      z: Math.cos(turn),
+    };
     let thighs: number = 0;
     for (const side of ["left", "right"] as const) {
       const rest: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
-      const hip: IAutoMovieVector3 = { x: root.x + rest.x * Math.cos(turn) + rest.z * Math.sin(turn), y: root.y + rest.y, z: root.z - rest.x * Math.sin(turn) + rest.z * Math.cos(turn) };
+      const hip: IAutoMovieVector3 = {
+        x: root.x + rest.x * Math.cos(turn) + rest.z * Math.sin(turn),
+        y: root.y + rest.y,
+        z: root.z - rest.x * Math.sin(turn) + rest.z * Math.cos(turn),
+      };
       const ankle: IAutoMovieVector3 = ankles[side];
-      const d: number = Math.min(m.thigh + m.shank, Math.hypot(ankle.x - hip.x, ankle.y - hip.y, ankle.z - hip.z));
-      const opening: number = Math.acos(Math.max(-1, Math.min(1, (m.thigh * m.thigh + d * d - m.shank * m.shank) / (2 * m.thigh * d))));
-      const along: number = (ankle.x - hip.x) * forward.x + (ankle.z - hip.z) * forward.z;
+      const d: number = Math.min(
+        m.thigh + m.shank,
+        Math.hypot(ankle.x - hip.x, ankle.y - hip.y, ankle.z - hip.z),
+      );
+      const opening: number = Math.acos(
+        Math.max(
+          -1,
+          Math.min(
+            1,
+            (m.thigh * m.thigh + d * d - m.shank * m.shank) / (2 * m.thigh * d),
+          ),
+        ),
+      );
+      const along: number =
+        (ankle.x - hip.x) * forward.x + (ankle.z - hip.z) * forward.z;
       const toward: number = Math.atan2(along, hip.y - ankle.y);
       thighs = Math.max(thighs, ((toward + opening) * 180) / Math.PI);
     }
@@ -136,9 +197,16 @@ export namespace HumanTrunk {
    * @param region A region riding the trunk, the head or the hips (not a limb below the hip or shoulder).
    * @returns The point (metres) and the unit normal.
    */
-  export function region(body: IHumanBody, posture: IHumanPosture, region: AutoMovieHumanoidRegion): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
+  export function region(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    region: AutoMovieHumanoidRegion,
+  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
     const frame = body.surfaces.regions[region];
-    const placed = resolveAutoMovieHumanoidSurfaces.place(frame, resolve(body, posture).get(frame.bone)!);
+    const placed = resolveAutoMovieHumanoidSurfaces.place(
+      frame,
+      resolve(body, posture).get(frame.bone)!,
+    );
     return { point: placed.point, normal: placed.normal };
   }
 }

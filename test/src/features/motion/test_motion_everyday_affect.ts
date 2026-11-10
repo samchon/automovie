@@ -22,24 +22,51 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and what each pins.
  */
 export function test_motion_everyday_affect(): void {
-  const kinds: HumanAffect.Kind[] = ["laugh", "sigh", "yawn", "cough", "sneeze", "shiver"];
-  const total = (a: Partial<Record<string, readonly [number, number, number]>>): number =>
-    Object.values(a).reduce((s: number, v) => s + Math.abs(v![0]) + Math.abs(v![1]) + Math.abs(v![2]), 0);
+  const kinds: HumanAffect.Kind[] = [
+    "laugh",
+    "sigh",
+    "yawn",
+    "cough",
+    "sneeze",
+    "shiver",
+  ];
+  const total = (
+    a: Partial<Record<string, readonly [number, number, number]>>,
+  ): number =>
+    Object.values(a).reduce(
+      (s: number, v) => s + Math.abs(v![0]) + Math.abs(v![1]) + Math.abs(v![2]),
+      0,
+    );
   for (const kind of kinds) {
     const length: number = HumanAffect.LENGTH[kind];
-    TestValidator.predicate(`${kind} rests at its ends`, [-1, 0, length, length + 1].every((t: number): boolean => total(HumanAffect.angles(kind, t, length)) === 0));
+    TestValidator.predicate(
+      `${kind} rests at its ends`,
+      [-1, 0, length, length + 1].every(
+        (t: number): boolean =>
+          total(HumanAffect.angles(kind, t, length)) === 0,
+      ),
+    );
     let jump: number = 0;
     let previous = HumanAffect.angles(kind, 0, length);
     for (let t: number = 0.001; t <= length; t += 0.001) {
       const now = HumanAffect.angles(kind, t, length);
-      for (const bone of new Set([...Object.keys(now), ...Object.keys(previous)])) {
+      for (const bone of new Set([
+        ...Object.keys(now),
+        ...Object.keys(previous),
+      ])) {
         const a = (now as Record<string, readonly number[]>)[bone] ?? [0, 0, 0];
-        const b = (previous as Record<string, readonly number[]>)[bone] ?? [0, 0, 0];
-        for (let i: number = 0; i < 3; i++) jump = Math.max(jump, Math.abs(a[i]! - b[i]!));
+        const b = (previous as Record<string, readonly number[]>)[bone] ?? [
+          0, 0, 0,
+        ];
+        for (let i: number = 0; i < 3; i++)
+          jump = Math.max(jump, Math.abs(a[i]! - b[i]!));
       }
       previous = now;
     }
-    TestValidator.predicate(`${kind} moves smoothly (${jump.toFixed(3)})`, jump < 1.5);
+    TestValidator.predicate(
+      `${kind} moves smoothly (${jump.toFixed(3)})`,
+      jump < 1.5,
+    );
   }
 
   const peaks: number[] = [];
@@ -54,8 +81,16 @@ export function test_motion_everyday_affect(): void {
 
   // The scan starts inside a note, so its first local maximum may be the window's edge; gaps are read from the second peak on.
   const full: number[] = peaks.slice(1);
-  const gaps: number[] = full.slice(1).map((p: number, i: number): number => p - full[i]!);
-  TestValidator.predicate(`laugh notes every 210 ms (${gaps.map((g) => g.toFixed(3)).join(", ")})`, gaps.length >= 2 && gaps.every((g: number): boolean => Math.abs(g - HumanAffect.NOTE) < 0.002));
+  const gaps: number[] = full
+    .slice(1)
+    .map((p: number, i: number): number => p - full[i]!);
+  TestValidator.predicate(
+    `laugh notes every 210 ms (${gaps.map((g) => g.toFixed(3)).join(", ")})`,
+    gaps.length >= 2 &&
+      gaps.every(
+        (g: number): boolean => Math.abs(g - HumanAffect.NOTE) < 0.002,
+      ),
+  );
 
   const posture: IHumanPosture = {
     root: { x: 1, y: 0, z: 2 },
@@ -63,15 +98,49 @@ export function test_motion_everyday_affect(): void {
     pitch: 0,
     roll: 0,
     joints: { chest: [5, 0, 0] },
-    limbs: { leftArm: { point: { x: 1, y: 1, z: 1 }, bend: { x: 0, y: 0, z: 0 }, planted: true } },
+    limbs: {
+      leftArm: {
+        point: { x: 1, y: 1, z: 1 },
+        bend: { x: 0, y: 0, z: 0 },
+        planted: true,
+      },
+    },
   };
-  const layered: IHumanPosture = HumanAffect.layer([{ kind: "cough", at: 0 }]).apply(posture, 0.22, undefined as never);
-  const cough: number = HumanAffect.angles("cough", 0.22, HumanAffect.LENGTH.cough).chest![0];
-  TestValidator.predicate("adds onto the base angle", Math.abs(layered.joints.chest![0] - (5 + cough)) < 1e-12);
-  TestValidator.predicate("limb goals and root unchanged", layered.limbs === posture.limbs || JSON.stringify(layered.limbs) === JSON.stringify(posture.limbs));
-  TestValidator.predicate("root unchanged", layered.root === posture.root && layered.yaw === 30);
-  const both: IHumanPosture = HumanAffect.layer([{ kind: "cough", at: 0 }, { kind: "laugh", at: 0 }]).apply(posture, 0.22, undefined as never);
-  const laugh: number = HumanAffect.angles("laugh", 0.22, HumanAffect.LENGTH.laugh).chest![0];
-  TestValidator.predicate("overlapping displays add", Math.abs(both.joints.chest![0] - (5 + cough + laugh)) < 1e-12);
-  TestValidator.error("non-positive length refused", (): unknown => HumanAffect.angles("sigh", 0.1, 0));
+  const layered: IHumanPosture = HumanAffect.layer([
+    { kind: "cough", at: 0 },
+  ]).apply(posture, 0.22, undefined as never);
+  const cough: number = HumanAffect.angles(
+    "cough",
+    0.22,
+    HumanAffect.LENGTH.cough,
+  ).chest![0];
+  TestValidator.predicate(
+    "adds onto the base angle",
+    Math.abs(layered.joints.chest![0] - (5 + cough)) < 1e-12,
+  );
+  TestValidator.predicate(
+    "limb goals and root unchanged",
+    layered.limbs === posture.limbs ||
+      JSON.stringify(layered.limbs) === JSON.stringify(posture.limbs),
+  );
+  TestValidator.predicate(
+    "root unchanged",
+    layered.root === posture.root && layered.yaw === 30,
+  );
+  const both: IHumanPosture = HumanAffect.layer([
+    { kind: "cough", at: 0 },
+    { kind: "laugh", at: 0 },
+  ]).apply(posture, 0.22, undefined as never);
+  const laugh: number = HumanAffect.angles(
+    "laugh",
+    0.22,
+    HumanAffect.LENGTH.laugh,
+  ).chest![0];
+  TestValidator.predicate(
+    "overlapping displays add",
+    Math.abs(both.joints.chest![0] - (5 + cough + laugh)) < 1e-12,
+  );
+  TestValidator.error("non-positive length refused", (): unknown =>
+    HumanAffect.angles("sigh", 0.1, 0),
+  );
 }

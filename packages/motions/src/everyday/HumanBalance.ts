@@ -1,4 +1,11 @@
-import { Quaternion, Vector3, convexHull2D, pointInHull, resolveAutoMovieCenterOfMass, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  convexHull2D,
+  pointInHull,
+  resolveAutoMovieCenterOfMass,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
@@ -53,7 +60,10 @@ export namespace HumanBalance {
    * @param build The posture for a backward shift of the hips, metres.
    * @returns The shift, metres.
    */
-  export function shift(body: IHumanBody, build: (back: number) => IHumanPosture): number {
+  export function shift(
+    body: IHumanBody,
+    build: (back: number) => IHumanPosture,
+  ): number {
     const error = (back: number): number => offset(body, build(back));
     const top: number = 0.4 * body.measure.hipHeight;
     let previous: number = 0;
@@ -95,9 +105,15 @@ export namespace HumanBalance {
     for (const side of ["Left", "Right"] as const)
       for (const point of ["heel", "ball", "toe"] as const) {
         const frame = body.surfaces.sockets[`${point}${side}`];
-        support.push(resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!).point);
+        support.push(
+          resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
+            .point,
+        );
       }
-    return resolveAutoMovieCenterOfMass.margin(resolveAutoMovieCenterOfMass.place(model(body), bones), support);
+    return resolveAutoMovieCenterOfMass.margin(
+      resolveAutoMovieCenterOfMass.place(model(body), bones),
+      support,
+    );
   }
 
   /**
@@ -112,19 +128,37 @@ export namespace HumanBalance {
    * @param seconds The instant.
    * @returns Metres.
    */
-  export function extrapolated(body: IHumanBody, at: (seconds: number) => IHumanPosture, seconds: number): number {
+  export function extrapolated(
+    body: IHumanBody,
+    at: (seconds: number) => IHumanPosture,
+    seconds: number,
+  ): number {
     const h: number = 1 / 240;
-    const com = (t: number): IAutoMovieVector3 => resolveAutoMovieCenterOfMass.place(model(body), poseBones(body, resolveHumanPosture(body, at(t))));
+    const com = (t: number): IAutoMovieVector3 =>
+      resolveAutoMovieCenterOfMass.place(
+        model(body),
+        poseBones(body, resolveHumanPosture(body, at(t))),
+      );
     const a: IAutoMovieVector3 = com(seconds - h);
     const b: IAutoMovieVector3 = com(seconds + h);
-    const velocity: IAutoMovieVector3 = Vector3.scale(Vector3.subtract(b, a), 1 / (2 * h));
+    const velocity: IAutoMovieVector3 = Vector3.scale(
+      Vector3.subtract(b, a),
+      1 / (2 * h),
+    );
     const bones = poseBones(body, resolveHumanPosture(body, at(seconds)));
-    const xcom: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.extrapolate(resolveAutoMovieCenterOfMass.place(model(body), bones), velocity, 1.34 * body.measure.hipHeight);
+    const xcom: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.extrapolate(
+      resolveAutoMovieCenterOfMass.place(model(body), bones),
+      velocity,
+      1.34 * body.measure.hipHeight,
+    );
     const support: IAutoMovieVector3[] = [];
     for (const side of ["Left", "Right"] as const)
       for (const point of ["heel", "ball", "toe"] as const) {
         const frame = body.surfaces.sockets[`${point}${side}`];
-        support.push(resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!).point);
+        support.push(
+          resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
+            .point,
+        );
       }
     return resolveAutoMovieCenterOfMass.margin(xcom, support);
   }
@@ -137,15 +171,24 @@ export namespace HumanBalance {
    * @param posture The posture.
    * @returns The centre and the support points.
    */
-  export function support(body: IHumanBody, posture: IHumanPosture): { centre: IAutoMovieVector3; points: IAutoMovieVector3[] } {
+  export function support(
+    body: IHumanBody,
+    posture: IHumanPosture,
+  ): { centre: IAutoMovieVector3; points: IAutoMovieVector3[] } {
     const bones = poseBones(body, resolveHumanPosture(body, posture));
     const points: IAutoMovieVector3[] = [];
     for (const side of ["Left", "Right"] as const)
       for (const point of ["heel", "ball", "toe"] as const) {
         const frame = body.surfaces.sockets[`${point}${side}`];
-        points.push(resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!).point);
+        points.push(
+          resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
+            .point,
+        );
       }
-    return { centre: resolveAutoMovieCenterOfMass.place(model(body), bones), points };
+    return {
+      centre: resolveAutoMovieCenterOfMass.place(model(body), bones),
+      points,
+    };
   }
 
   /**
@@ -159,7 +202,11 @@ export namespace HumanBalance {
    * @param direction The direction, horizontal; normalized here.
    * @returns Metres to the hull's edge along the direction; negative when the point is outside the hull.
    */
-  export function along(point: IAutoMovieVector3, points: readonly IAutoMovieVector3[], direction: IAutoMovieVector3): number {
+  export function along(
+    point: IAutoMovieVector3,
+    points: readonly IAutoMovieVector3[],
+    direction: IAutoMovieVector3,
+  ): number {
     const hull: IAutoMovieVector3[] = convexHull2D(points);
     const d: number = Math.hypot(direction.x, direction.z);
     const dx: number = direction.x / d;
@@ -172,12 +219,16 @@ export namespace HumanBalance {
       const ez: number = b.z - a.z;
       const denominator: number = dx * ez - dz * ex;
       if (Math.abs(denominator) < 1e-12) continue;
-      const t: number = ((a.x - point.x) * ez - (a.z - point.z) * ex) / denominator;
-      const u: number = ((a.x - point.x) * dz - (a.z - point.z) * dx) / denominator;
+      const t: number =
+        ((a.x - point.x) * ez - (a.z - point.z) * ex) / denominator;
+      const u: number =
+        ((a.x - point.x) * dz - (a.z - point.z) * dx) / denominator;
       if (u >= -1e-12 && u <= 1 + 1e-12) exit = Math.max(exit, t);
     }
     if (exit === -Infinity) return -Infinity;
-    return hull.length >= 3 && pointInHull(point, hull) ? exit : -Math.abs(exit);
+    return hull.length >= 3 && pointInHull(point, hull)
+      ? exit
+      : -Math.abs(exit);
   }
 
   /**
@@ -190,16 +241,32 @@ export namespace HumanBalance {
    */
   export function offset(body: IHumanBody, posture: IHumanPosture): number {
     const bones = poseBones(body, resolveHumanPosture(body, posture));
-    const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(model(body), bones);
-    const soles: IAutoMovieVector3[] = (["soleLeft", "soleRight"] as const).map((name) => resolveAutoMovieHumanoidSurfaces.place(body.surfaces.sockets[name], bones.get(body.surfaces.sockets[name].bone)!).point);
-    const middle: IAutoMovieVector3 = Vector3.scale(Vector3.add(soles[0]!, soles[1]!), 0.5);
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, posture.yaw), { x: 0, y: 0, z: 1 });
+    const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+      model(body),
+      bones,
+    );
+    const soles: IAutoMovieVector3[] = (["soleLeft", "soleRight"] as const).map(
+      (name) =>
+        resolveAutoMovieHumanoidSurfaces.place(
+          body.surfaces.sockets[name],
+          bones.get(body.surfaces.sockets[name].bone)!,
+        ).point,
+    );
+    const middle: IAutoMovieVector3 = Vector3.scale(
+      Vector3.add(soles[0]!, soles[1]!),
+      0.5,
+    );
+    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, posture.yaw),
+      { x: 0, y: 0, z: 1 },
+    );
     return Vector3.dot(Vector3.subtract(com, middle), forward);
   }
 }
 
 /** Mass models by body. */
-const MODELS: WeakMap<IHumanBody, resolveAutoMovieCenterOfMass.IModel> = new WeakMap();
+const MODELS: WeakMap<IHumanBody, resolveAutoMovieCenterOfMass.IModel> =
+  new WeakMap();
 
 /** The engine's mass model of a body, made once. */
 function model(body: IHumanBody): resolveAutoMovieCenterOfMass.IModel {

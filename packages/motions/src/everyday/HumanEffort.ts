@@ -80,7 +80,19 @@ export namespace HumanEffort {
   }
 
   /** Named moods as Effort settings: Laban's eight basic Effort actions use Weight, Time and Space; a mood adds Flow. */
-  export const ACTIONS: Readonly<Record<"punch" | "dab" | "press" | "glide" | "slash" | "flick" | "wring" | "float", IEffort>> = {
+  export const ACTIONS: Readonly<
+    Record<
+      | "punch"
+      | "dab"
+      | "press"
+      | "glide"
+      | "slash"
+      | "flick"
+      | "wring"
+      | "float",
+      IEffort
+    >
+  > = {
     punch: { weight: 1, time: 1, space: 1 },
     dab: { weight: -1, time: 1, space: 1 },
     press: { weight: 1, time: -1, space: 1 },
@@ -101,7 +113,8 @@ export namespace HumanEffort {
   export function modifiers(effort: IEffort = {}): IModifiers {
     const f = (value: number | undefined, name: string): number => {
       const v: number = value ?? 0;
-      if (!(v >= -1 && v <= 1)) throw new Error(`Effort ${name} lies in [-1, 1]`);
+      if (!(v >= -1 && v <= 1))
+        throw new Error(`Effort ${name} lies in [-1, 1]`);
       return v;
     };
     const weight: number = f(effort.weight, "weight");

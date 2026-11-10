@@ -1,5 +1,10 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, AutoMovieMotionTarget, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieMotionTarget,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -112,26 +117,41 @@ export namespace gesture {
    * @returns The plan.
    * @throws {Error} On a missing pointing target, a non-positive count or hold, or a bow outside (0, 60] degrees.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const p: IParams = context.params;
     const body: IHumanBody = context.body;
     const mods: HumanEffort.IModifiers = HumanEffort.modifiers(p.effort);
     const rhythm = gestureStroke.RHYTHM[p.kind];
     const cycles: number = p.count ?? rhythm.cycles;
-    if (!(Number.isInteger(cycles) && cycles > 0)) throw new Error("A gesture's count is a positive whole number");
+    if (!(Number.isInteger(cycles) && cycles > 0))
+      throw new Error("A gesture's count is a positive whole number");
     const hold: number = p.hold ?? 0;
     if (!(hold >= 0)) throw new Error("A gesture's hold is not negative");
     const depth: number = p.depth ?? 30;
-    if (p.kind === "bow" && !(depth > 0 && depth <= 60)) throw new Error("A bow's depth lies in (0, 60] degrees");
-    if (p.kind === "point" && p.target === undefined) throw new Error("Pointing needs a target");
+    if (p.kind === "bow" && !(depth > 0 && depth <= 60))
+      throw new Error("A bow's depth lies in (0, 60] degrees");
+    if (p.kind === "point" && p.target === undefined)
+      throw new Error("Pointing needs a target");
 
     const sides: HumanHand.Side[] = ((): HumanHand.Side[] => {
       const which = gestureStroke.HANDS[p.kind];
-      return which === "both" ? ["left", "right"] : which === "one" ? [p.side ?? "right"] : [];
+      return which === "both"
+        ? ["left", "right"]
+        : which === "one"
+          ? [p.side ?? "right"]
+          : [];
     })();
     const target = (seconds: number): IAutoMovieVector3 | undefined =>
-      p.target === undefined ? undefined : context.aim(p.target, context.start + seconds).point;
-    const input = (base: IHumanPosture, seconds: number, side: HumanHand.Side): gestureStroke.IInput => ({
+      p.target === undefined
+        ? undefined
+        : context.aim(p.target, context.start + seconds).point;
+    const input = (
+      base: IHumanPosture,
+      seconds: number,
+      side: HumanHand.Side,
+    ): gestureStroke.IInput => ({
       body,
       base,
       side,
@@ -141,7 +161,10 @@ export namespace gesture {
     });
 
     // Where each hand starts (the entry) and rests (the relaxed hanging arm), in the performer's frame.
-    const probe: IHumanActionPlan = stand.plan({ ...context, params: { seconds: 1 } });
+    const probe: IHumanActionPlan = stand.plan({
+      ...context,
+      params: { seconds: 1 },
+    });
     const at0: IHumanPosture = probe.posture(0);
     const frame0: HumanFrame.IFrame = { origin: at0.root, yaw: at0.yaw };
     const entryBones = poseBones(body, context.entry.pose);
@@ -150,24 +173,61 @@ export namespace gesture {
     const rest: Partial<Record<HumanHand.Side, ILocal>> = {};
     let transport: number = 0;
     for (const side of sides) {
-      const goal: gestureStroke.IHand = gestureStroke.hand(p.kind, side, 0, cycles, input(at0, 0, side));
-      begin[side] = local(frame0, HumanHand.frame(body, entryBones, side, goal.surface, "relaxed").point, entryBones.get(`${side}Hand`)!.worldRotation);
-      rest[side] = local(frame0, HumanHand.frame(body, restBones, side, goal.surface, "relaxed").point, restBones.get(`${side}Hand`)!.worldRotation);
-      transport = Math.max(transport, Vector3.length(Vector3.subtract(goal.point, HumanFrame.point(frame0, begin[side]!.point))));
+      const goal: gestureStroke.IHand = gestureStroke.hand(
+        p.kind,
+        side,
+        0,
+        cycles,
+        input(at0, 0, side),
+      );
+      begin[side] = local(
+        frame0,
+        HumanHand.frame(body, entryBones, side, goal.surface, "relaxed").point,
+        entryBones.get(`${side}Hand`)!.worldRotation,
+      );
+      rest[side] = local(
+        frame0,
+        HumanHand.frame(body, restBones, side, goal.surface, "relaxed").point,
+        restBones.get(`${side}Hand`)!.worldRotation,
+      );
+      transport = Math.max(
+        transport,
+        Vector3.length(
+          Vector3.subtract(
+            goal.point,
+            HumanFrame.point(frame0, begin[side]!.point),
+          ),
+        ),
+      );
     }
 
     const T: number = mods.tempo;
-    const prepare: number = T * (p.kind === "bow" ? depth / 30 : sides.length === 0 ? 0.3 : 0.25 + 0.5 * transport);
+    const prepare: number =
+      T *
+      (p.kind === "bow"
+        ? depth / 30
+        : sides.length === 0
+          ? 0.3
+          : 0.25 + 0.5 * transport);
     const retract: number = prepare;
     const stroke: number = T * cycles * rhythm.period;
     const strokeEnd: number = prepare + stroke;
     const retractAt: number = strokeEnd + hold;
     const duration: number = retractAt + retract;
-    const base: IHumanActionPlan = stand.plan({ ...context, params: { seconds: duration } });
+    const base: IHumanActionPlan = stand.plan({
+      ...context,
+      params: { seconds: duration },
+    });
 
     // A bow's balance: the hips' shift at the deepest pitch, scaled by the pitch's sine in between.
     const peak: number = depth * mods.extent;
-    const lean: number = p.kind === "bow" ? HumanBalance.shift(body, (back: number): IHumanPosture => bow(body, at0, peak, back)) / Math.sin((peak * Math.PI) / 180) : 0;
+    const lean: number =
+      p.kind === "bow"
+        ? HumanBalance.shift(
+            body,
+            (back: number): IHumanPosture => bow(body, at0, peak, back),
+          ) / Math.sin((peak * Math.PI) / 180)
+        : 0;
 
     return {
       duration,
@@ -180,32 +240,75 @@ export namespace gesture {
       contacts: base.contacts,
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const envelope: number = t < prepare ? minimumJerk(t / prepare).s : t <= retractAt ? 1 : 1 - minimumJerk((t - retractAt) / retract).s;
+        const envelope: number =
+          t < prepare
+            ? minimumJerk(t / prepare).s
+            : t <= retractAt
+              ? 1
+              : 1 - minimumJerk((t - retractAt) / retract).s;
         const u: number = Math.min(1, Math.max(0, (t - prepare) / stroke));
         let posture: IHumanPosture = base.posture(t);
-        if (p.kind === "bow") posture = bow(body, posture, peak * envelope, lean * Math.sin(((peak * envelope) * Math.PI) / 180));
+        if (p.kind === "bow")
+          posture = bow(
+            body,
+            posture,
+            peak * envelope,
+            lean * Math.sin((peak * envelope * Math.PI) / 180),
+          );
 
         // Head, shoulder and trunk angles, added to what the stand holds.
         const joints: IHumanPosture["joints"] = { ...posture.joints };
-        for (const [bone, add] of Object.entries(gestureStroke.joints(p.kind, u, cycles, envelope, mods.extent)) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
-          const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
+        for (const [bone, add] of Object.entries(
+          gestureStroke.joints(p.kind, u, cycles, envelope, mods.extent),
+        ) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
+          const was: readonly [number, number, number] = joints[bone] ?? [
+            0, 0, 0,
+          ];
           joints[bone] = [was[0] + add[0], was[1] + add[1], was[2] + add[2]];
         }
 
         // Hands: transported to the stroke, through it, and back to rest.
         const requests: handGoals.IRequest[] = [];
-        const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
+        const frame: HumanFrame.IFrame = {
+          origin: posture.root,
+          yaw: posture.yaw,
+        };
         for (const side of sides) {
-          const goal: gestureStroke.IHand = gestureStroke.hand(p.kind, side, u, cycles, input(posture, t, side));
+          const goal: gestureStroke.IHand = gestureStroke.hand(
+            p.kind,
+            side,
+            u,
+            cycles,
+            input(posture, t, side),
+          );
           let point: IAutoMovieVector3 = goal.point;
           let rotation: IAutoMovieQuaternion = goal.rotation;
-          const from: ILocal | undefined = t < prepare ? begin[side] : t > retractAt ? rest[side] : undefined;
+          const from: ILocal | undefined =
+            t < prepare ? begin[side] : t > retractAt ? rest[side] : undefined;
           if (from !== undefined) {
-            const s: number = t < prepare ? minimumJerk(t / prepare).s : 1 - minimumJerk((t - retractAt) / retract).s;
-            point = Vector3.lerp(HumanFrame.point(frame, from.point), goal.point, s);
-            rotation = Quaternion.slerp(Quaternion.multiply(HumanFrame.turn(frame.yaw), from.rotation), goal.rotation, s);
+            const s: number =
+              t < prepare
+                ? minimumJerk(t / prepare).s
+                : 1 - minimumJerk((t - retractAt) / retract).s;
+            point = Vector3.lerp(
+              HumanFrame.point(frame, from.point),
+              goal.point,
+              s,
+            );
+            rotation = Quaternion.slerp(
+              Quaternion.multiply(HumanFrame.turn(frame.yaw), from.rotation),
+              goal.rotation,
+              s,
+            );
           }
-          requests.push({ side, surface: goal.surface, shape: goal.shape, point, rotation, bend: HumanHand.elbow(body, posture, side, goal.out + mods.elbow) });
+          requests.push({
+            side,
+            surface: goal.surface,
+            shape: goal.shape,
+            point,
+            rotation,
+            bend: HumanHand.elbow(body, posture, side, goal.out + mods.elbow),
+          });
           const shape = HumanHand.shape(side, goal.shape);
           const relaxed = HumanHand.shape(side, "relaxed");
           for (const bone of Object.keys(shape) as AutoMovieHumanoidBone[]) {
@@ -231,12 +334,24 @@ export namespace gesture {
    * @param back How far the hips move back, metres.
    * @returns The bowed posture.
    */
-  export function bow(body: IHumanBody, posture: IHumanPosture, pitch: number, back: number): IHumanPosture {
+  export function bow(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    pitch: number,
+    back: number,
+  ): IHumanPosture {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
     const frame: HumanFrame.IFrame = { origin: posture.root, yaw: posture.yaw };
-    const target: IAutoMovieVector3 = HumanFrame.point(frame, { x: hips.x, y: hips.y, z: hips.z - back });
+    const target: IAutoMovieVector3 = HumanFrame.point(frame, {
+      x: hips.x,
+      y: hips.y,
+      z: hips.z - back,
+    });
     const tipped: IHumanPosture = { ...posture, pitch: posture.pitch + pitch };
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(resolveHumanPosture.heading(tipped), hips);
+    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+      resolveHumanPosture.heading(tipped),
+      hips,
+    );
     return { ...tipped, root: Vector3.subtract(target, offset) };
   }
 }
@@ -251,6 +366,13 @@ interface ILocal {
 }
 
 /** A world surface point and hand rotation in a performer frame. */
-function local(frame: HumanFrame.IFrame, point: IAutoMovieVector3, rotation: IAutoMovieQuaternion): ILocal {
-  return { point: HumanFrame.local(frame, point), rotation: Quaternion.multiply(HumanFrame.turn(-frame.yaw), rotation) };
+function local(
+  frame: HumanFrame.IFrame,
+  point: IAutoMovieVector3,
+  rotation: IAutoMovieQuaternion,
+): ILocal {
+  return {
+    point: HumanFrame.local(frame, point),
+    rotation: Quaternion.multiply(HumanFrame.turn(-frame.yaw), rotation),
+  };
 }

@@ -1,4 +1,11 @@
-import { HumanBalance, type IHumanBody, type IHumanPosture, createHumanBody, gesture, stand } from "@automovie/motions";
+import {
+  HumanBalance,
+  type IHumanBody,
+  type IHumanPosture,
+  createHumanBody,
+  gesture,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { MotionBodies } from "../../../../packages/motions/src/executable/MotionBodies";
@@ -29,18 +36,47 @@ export function test_human_motion_everyday_balance(): void {
   };
   for (const name of ["f-small", "m-tall", "m-short-legged"]) {
     const man = MotionBodies.population(name);
-    const body: IHumanBody = createHumanBody(man.body.skeleton, man.body.profile);
-    const upright: IHumanPosture = stand.posture(body, { x: 0.2, y: 0, z: -0.4 }, 30);
-    check(`${name} standing margin ${HumanBalance.margin(body, upright).toFixed(3)}`, HumanBalance.margin(body, upright) > 0);
+    const body: IHumanBody = createHumanBody(
+      man.body.skeleton,
+      man.body.profile,
+    );
+    const upright: IHumanPosture = stand.posture(
+      body,
+      { x: 0.2, y: 0, z: -0.4 },
+      30,
+    );
+    check(
+      `${name} standing margin ${HumanBalance.margin(body, upright).toFixed(3)}`,
+      HumanBalance.margin(body, upright) > 0,
+    );
     let previous: number = 0;
     for (const depth of [15, 30, 45]) {
-      const back: number = HumanBalance.shift(body, (x: number): IHumanPosture => gesture.bow(body, upright, depth, x));
-      const offset: number = HumanBalance.offset(body, gesture.bow(body, upright, depth, back));
-      check(`${name} bow ${depth} offset ${(offset * 1000).toFixed(2)} mm`, Math.abs(offset) <= 0.001);
-      check(`${name} bow ${depth} shift ${back.toFixed(3)} grows`, back > previous);
+      const back: number = HumanBalance.shift(
+        body,
+        (x: number): IHumanPosture => gesture.bow(body, upright, depth, x),
+      );
+      const offset: number = HumanBalance.offset(
+        body,
+        gesture.bow(body, upright, depth, back),
+      );
+      check(
+        `${name} bow ${depth} offset ${(offset * 1000).toFixed(2)} mm`,
+        Math.abs(offset) <= 0.001,
+      );
+      check(
+        `${name} bow ${depth} shift ${back.toFixed(3)} grows`,
+        back > previous,
+      );
       previous = back;
     }
-    check(`${name} unshifted bow falls forward`, HumanBalance.offset(body, gesture.bow(body, upright, 45, 0)) > HumanBalance.offset(body, upright) + 0.02);
+    check(
+      `${name} unshifted bow falls forward`,
+      HumanBalance.offset(body, gesture.bow(body, upright, 45, 0)) >
+        HumanBalance.offset(body, upright) + 0.02,
+    );
   }
-  TestValidator.predicate(failures.join("; ") || "all checks", failures.length === 0);
+  TestValidator.predicate(
+    failures.join("; ") || "all checks",
+    failures.length === 0,
+  );
 }

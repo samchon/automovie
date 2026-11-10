@@ -49,7 +49,9 @@ export namespace HumanConversation {
   }
 
   /** Mean glance and away durations, seconds, by role. */
-  export const GLANCES: Readonly<Record<"speaking" | "listening", { on: number; away: number }>> = {
+  export const GLANCES: Readonly<
+    Record<"speaking" | "listening", { on: number; away: number }>
+  > = {
     speaking: { on: 2, away: 3 },
     listening: { on: 3, away: 1 },
   };
@@ -64,19 +66,40 @@ export namespace HumanConversation {
    * @param eyes The participant's eye height, metres, so a look away drops below it.
    * @returns Gaze layer requests in time order.
    */
-  export function gaze(subject: string, partner: string, turns: readonly ITurn[], random: IAutoMovieRandom, eyes: number): HumanGaze.ILayer[] {
-    const face: AutoMovieMotionTarget = { kind: "person", subject: partner, region: "face" };
+  export function gaze(
+    subject: string,
+    partner: string,
+    turns: readonly ITurn[],
+    random: IAutoMovieRandom,
+    eyes: number,
+  ): HumanGaze.ILayer[] {
+    const face: AutoMovieMotionTarget = {
+      kind: "person",
+      subject: partner,
+      region: "face",
+    };
     const out: HumanGaze.ILayer[] = [];
     let draw: number = 0;
-    const exponential = (mean: number): number => -mean * Math.log(Math.max(1e-12, 1 - random.float(draw++)));
+    const exponential = (mean: number): number =>
+      -mean * Math.log(Math.max(1e-12, 1 - random.float(draw++)));
     for (const turn of turns) {
-      if (!(turn.to > turn.from)) throw new Error("A turn ends after it starts");
-      const role: "speaking" | "listening" = turn.speaker === subject ? "speaking" : "listening";
+      if (!(turn.to > turn.from))
+        throw new Error("A turn ends after it starts");
+      const role: "speaking" | "listening" =
+        turn.speaker === subject ? "speaking" : "listening";
       const mean = GLANCES[role];
       let t: number = turn.from;
       let on: boolean = true;
       while (t < turn.to) {
-        out.push(on ? { target: face, from: t, with: "head" } : { target: away(eyes, random.float(draw++) < 0.5 ? 1 : -1), from: t, with: "head" });
+        out.push(
+          on
+            ? { target: face, from: t, with: "head" }
+            : {
+                target: away(eyes, random.float(draw++) < 0.5 ? 1 : -1),
+                from: t,
+                with: "head",
+              },
+        );
         t += exponential(on ? mean.on : mean.away);
         on = !on;
       }
@@ -92,7 +115,11 @@ export namespace HumanConversation {
    * @param to Span end.
    * @returns The share in [0, 1].
    */
-  export function share(requests: readonly HumanGaze.ILayer[], from: number, to: number): number {
+  export function share(
+    requests: readonly HumanGaze.ILayer[],
+    from: number,
+    to: number,
+  ): number {
     let on: number = 0;
     requests.forEach((r: HumanGaze.ILayer, i: number): void => {
       const a: number = Math.max(from, r.from);
@@ -107,5 +134,13 @@ export namespace HumanConversation {
 function away(eyes: number, side: number): AutoMovieMotionTarget {
   const yaw: number = (25 * Math.PI) / 180;
   const pitch: number = (10 * Math.PI) / 180;
-  return { kind: "point", at: { x: side * 2 * Math.sin(yaw), y: eyes - 2 * Math.tan(pitch), z: 2 * Math.cos(yaw) }, frame: "performer" };
+  return {
+    kind: "point",
+    at: {
+      x: side * 2 * Math.sin(yaw),
+      y: eyes - 2 * Math.tan(pitch),
+      z: 2 * Math.cos(yaw),
+    },
+    frame: "performer",
+  };
 }

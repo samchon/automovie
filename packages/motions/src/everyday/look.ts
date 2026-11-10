@@ -1,5 +1,8 @@
 import { type IAutoMovieRandom, minimumJerk } from "@automovie/engine";
-import type { AutoMovieMotionTarget, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -85,22 +88,50 @@ export namespace look {
    * @returns The plan.
    * @throws {Error} When an uncued target lies outside the attended field.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const recruit: HumanGaze.Recruit = context.params.with ?? "auto";
-    const at = (seconds: number): IAutoMovieVector3 => context.aim(context.params.target, context.start + seconds).point;
-    const first: { yaw: number; pitch: number } = HumanGaze.direction(context.body, context.entry.posture, at(0));
+    const at = (seconds: number): IAutoMovieVector3 =>
+      context.aim(context.params.target, context.start + seconds).point;
+    const first: { yaw: number; pitch: number } = HumanGaze.direction(
+      context.body,
+      context.entry.posture,
+      at(0),
+    );
     if (context.params.cue === undefined && Math.abs(first.yaw) > FIELD)
-      throw new Error(`${context.subject}: the target lies ${first.yaw.toFixed(1)} degrees off the heading, outside the attended ${FIELD} degrees; declare the cue that draws the look`);
-    const delay: number = context.params.cue === undefined ? 0 : reaction(context.skill, context.random("reaction"), context.params.cue);
-    const parts: HumanGaze.ISplit = HumanGaze.split(first.yaw, first.pitch, recruit);
-    const eyes: number = HumanGaze.saccade(Math.min(Math.hypot(first.yaw, first.pitch), 2 * HumanGaze.EYES));
-    const head: number = HumanGaze.turn(Math.hypot(parts.head.yaw, parts.head.pitch));
+      throw new Error(
+        `${context.subject}: the target lies ${first.yaw.toFixed(1)} degrees off the heading, outside the attended ${FIELD} degrees; declare the cue that draws the look`,
+      );
+    const delay: number =
+      context.params.cue === undefined
+        ? 0
+        : reaction(
+            context.skill,
+            context.random("reaction"),
+            context.params.cue,
+          );
+    const parts: HumanGaze.ISplit = HumanGaze.split(
+      first.yaw,
+      first.pitch,
+      recruit,
+    );
+    const eyes: number = HumanGaze.saccade(
+      Math.min(Math.hypot(first.yaw, first.pitch), 2 * HumanGaze.EYES),
+    );
+    const head: number = HumanGaze.turn(
+      Math.hypot(parts.head.yaw, parts.head.pitch),
+    );
     const trunk: number = HumanGaze.turn(parts.trunk);
     const settled: number = delay + Math.max(eyes, head, trunk);
     const duration: number = context.params.seconds ?? settled + 0.6;
     if (!(duration > 0)) throw new Error("A look lasts a positive time");
-    const base: IHumanActionPlan = stand.plan({ ...context, params: { seconds: duration } });
-    const weight = (seconds: number, span: number): number => minimumJerk((seconds - delay) / span).s;
+    const base: IHumanActionPlan = stand.plan({
+      ...context,
+      params: { seconds: duration },
+    });
+    const weight = (seconds: number, span: number): number =>
+      minimumJerk((seconds - delay) / span).s;
     return {
       duration,
       events: [
@@ -109,11 +140,17 @@ export namespace look {
       ],
       contacts: base.contacts,
       posture: (seconds: number): IHumanPosture =>
-        HumanGaze.aim(context.body, base.posture(seconds), at(seconds), recruit, {
-          eyes: weight(seconds, eyes),
-          head: weight(seconds, head),
-          trunk: weight(seconds, trunk),
-        }),
+        HumanGaze.aim(
+          context.body,
+          base.posture(seconds),
+          at(seconds),
+          recruit,
+          {
+            eyes: weight(seconds, eyes),
+            head: weight(seconds, head),
+            trunk: weight(seconds, trunk),
+          },
+        ),
     };
   }
 
@@ -126,11 +163,21 @@ export namespace look {
    * @param cue Visual or acoustic.
    * @returns Seconds; at least 0.1.
    */
-  export function reaction(skill: HumanSkill.ISkill, random: IAutoMovieRandom, cue: "seen" | "signal"): number {
-    const mu: number = HumanSkill.quantity(skill, "reaction", 0.26, 0.22) - (cue === "signal" ? 0.04 : 0);
+  export function reaction(
+    skill: HumanSkill.ISkill,
+    random: IAutoMovieRandom,
+    cue: "seen" | "signal",
+  ): number {
+    const mu: number =
+      HumanSkill.quantity(skill, "reaction", 0.26, 0.22) -
+      (cue === "signal" ? 0.04 : 0);
     const sigma: number = HumanSkill.quantity(skill, "reaction", 0.035, 0.025);
     const tau: number = HumanSkill.quantity(skill, "reaction", 0.07, 0.04);
-    const exponential: number = -tau * Math.log(Math.max(1e-12, 1 - random.float(2)));
-    return Math.max(0.1, mu + sigma * HumanSkill.normal(random, 0) + exponential);
+    const exponential: number =
+      -tau * Math.log(Math.max(1e-12, 1 - random.float(2)));
+    return Math.max(
+      0.1,
+      mu + sigma * HumanSkill.normal(random, 0) + exponential,
+    );
   }
 }

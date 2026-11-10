@@ -72,7 +72,14 @@ export namespace HumanAffect {
   }
 
   /** Each display's own length, seconds. */
-  export const LENGTH: Readonly<Record<Kind, number>> = { laugh: 1.5, sigh: 3.5, yawn: 6, cough: 1.7, sneeze: 2, shiver: 2 };
+  export const LENGTH: Readonly<Record<Kind, number>> = {
+    laugh: 1.5,
+    sigh: 3.5,
+    yawn: 6,
+    cough: 1.7,
+    sneeze: 2,
+    shiver: 2,
+  };
 
   /** Interval between laugh notes, seconds (Provine 1996). */
   export const NOTE: number = 0.21;
@@ -86,46 +93,89 @@ export namespace HumanAffect {
    * @param intensity Amplitude scale.
    * @returns Clinical degrees to add; empty outside the display.
    */
-  export function angles(kind: Kind, t: number, seconds: number, intensity: number = 1): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
+  export function angles(
+    kind: Kind,
+    t: number,
+    seconds: number,
+    intensity: number = 1,
+  ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     if (!(seconds > 0)) throw new Error("A display lasts a positive time");
     if (!(t > 0 && t < seconds)) return {};
     const u: number = t / seconds;
     const k: number = intensity;
-    const ramp = (rise: number, fall: number): number => Math.min(minimumJerk(u / rise).s, minimumJerk((1 - u) / fall).s);
-    const pulse = (x: number, up: number, down: number): number => (x <= 0 ? 0 : x < up ? minimumJerk(x / up).s : 1 - minimumJerk((x - up) / down).s);
+    const ramp = (rise: number, fall: number): number =>
+      Math.min(minimumJerk(u / rise).s, minimumJerk((1 - u) / fall).s);
+    const pulse = (x: number, up: number, down: number): number =>
+      x <= 0
+        ? 0
+        : x < up
+          ? minimumJerk(x / up).s
+          : 1 - minimumJerk((x - up) / down).s;
     switch (kind) {
       case "laugh": {
         const e: number = k * ramp(0.1, 0.33);
         const note: number = pulse(t % NOTE, 0.35 * NOTE, 0.65 * NOTE);
-        return { chest: [3 * e * note, 0, 0], spine: [1.5 * e * note, 0, 0], leftShoulder: [0, 3 * e * note, 0], rightShoulder: [0, 3 * e * note, 0], head: [-5 * e, 0, 0] };
+        return {
+          chest: [3 * e * note, 0, 0],
+          spine: [1.5 * e * note, 0, 0],
+          leftShoulder: [0, 3 * e * note, 0],
+          rightShoulder: [0, 3 * e * note, 0],
+          head: [-5 * e, 0, 0],
+        };
       }
       case "sigh": {
         const inhale: number = minimumJerk(u / 0.4).s;
         const exhale: number = minimumJerk((u - 0.4) / 0.6).s;
         const close: number = 1 - minimumJerk((u - 0.85) / 0.15).s;
         const shoulders: number = k * (6 * inhale - 8 * exhale) * close;
-        return { leftShoulder: [0, shoulders, 0], rightShoulder: [0, shoulders, 0], chest: [-4 * k * inhale * (1 - exhale), 0, 0], head: [4 * k * exhale * close, 0, 0] };
+        return {
+          leftShoulder: [0, shoulders, 0],
+          rightShoulder: [0, shoulders, 0],
+          chest: [-4 * k * inhale * (1 - exhale), 0, 0],
+          head: [4 * k * exhale * close, 0, 0],
+        };
       }
       case "yawn": {
-        const e: number = u < 0.4 ? minimumJerk(u / 0.4).s : 1 - minimumJerk((u - 0.4) / 0.6).s;
-        return { jaw: [25 * k * e, 0, 0], head: [-15 * k * e, 0, 0], chest: [-5 * k * e, 0, 0] };
+        const e: number =
+          u < 0.4 ? minimumJerk(u / 0.4).s : 1 - minimumJerk((u - 0.4) / 0.6).s;
+        return {
+          jaw: [25 * k * e, 0, 0],
+          head: [-15 * k * e, 0, 0],
+          chest: [-5 * k * e, 0, 0],
+        };
       }
       case "cough": {
         let p: number = 0;
-        for (let i: number = 0; i < 3; i++) p = Math.max(p, pulse(t - 0.1 - 0.5 * i, 0.12, 0.38));
+        for (let i: number = 0; i < 3; i++)
+          p = Math.max(p, pulse(t - 0.1 - 0.5 * i, 0.12, 0.38));
         const e: number = k * p * ramp(0.02, 0.05);
-        return { chest: [10 * e, 0, 0], spine: [4 * e, 0, 0], head: [8 * e, 0, 0] };
+        return {
+          chest: [10 * e, 0, 0],
+          spine: [4 * e, 0, 0],
+          head: [8 * e, 0, 0],
+        };
       }
       case "sneeze": {
         const build: number = minimumJerk(u / 0.7).s;
-        const burst: number = pulse(t - 0.7 * seconds, 0.1, 0.3 * seconds - 0.1);
+        const burst: number = pulse(
+          t - 0.7 * seconds,
+          0.1,
+          0.3 * seconds - 0.1,
+        );
         const end: number = 1 - minimumJerk((u - 0.7) / 0.05).s;
-        return { head: [-10 * k * build * end + 25 * k * burst, 0, 0], chest: [-3 * k * build * end + 10 * k * burst, 0, 0] };
+        return {
+          head: [-10 * k * build * end + 25 * k * burst, 0, 0],
+          chest: [-3 * k * build * end + 10 * k * burst, 0, 0],
+        };
       }
       case "shiver": {
         const e: number = k * ramp(0.15, 0.15);
         const tremor: number = 1.5 * Math.sin(2 * Math.PI * 4 * t);
-        return { leftShoulder: [4 * e, (8 + tremor) * e, 0], rightShoulder: [4 * e, (8 - tremor) * e, 0], chest: [3 * e, 0, 0] };
+        return {
+          leftShoulder: [4 * e, (8 + tremor) * e, 0],
+          rightShoulder: [4 * e, (8 - tremor) * e, 0],
+          chest: [3 * e, 0, 0],
+        };
       }
     }
   }
@@ -143,8 +193,12 @@ export namespace HumanAffect {
         const joints: IHumanPosture["joints"] = { ...posture.joints };
         for (const d of displays) {
           const length: number = d.seconds ?? LENGTH[d.kind];
-          for (const [bone, a] of Object.entries(angles(d.kind, seconds - d.at, length, d.intensity ?? 1)) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
-            const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
+          for (const [bone, a] of Object.entries(
+            angles(d.kind, seconds - d.at, length, d.intensity ?? 1),
+          ) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
+            const was: readonly [number, number, number] = joints[bone] ?? [
+              0, 0, 0,
+            ];
             joints[bone] = [was[0] + a[0], was[1] + a[1], was[2] + a[2]];
           }
         }

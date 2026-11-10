@@ -93,16 +93,25 @@ export namespace typeText {
    * @returns The centre and the hand that presses it.
    * @throws {Error} When the layout has no such key.
    */
-  export function key(key: string): { at: IAutoMovieVector3; side: HumanHand.Side } {
+  export function key(key: string): {
+    at: IAutoMovieVector3;
+    side: HumanHand.Side;
+  } {
     const k: string = key.toLowerCase();
-    if (k === " ") return { at: { x: -1.5 * PITCH, y: 0, z: -2 * PITCH }, side: "right" };
+    if (k === " ")
+      return { at: { x: -1.5 * PITCH, y: 0, z: -2 * PITCH }, side: "right" };
     for (let row: number = 0; row < ROWS.length; row++) {
       const col: number = ROWS[row]!.keys.indexOf(k);
       if (col < 0) continue;
       const x: number = -((col + ROWS[row]!.stagger - 4.5) * PITCH);
-      return { at: { x, y: 0, z: (1 - row) * PITCH }, side: x > 0 ? "left" : "right" };
+      return {
+        at: { x, y: 0, z: (1 - row) * PITCH },
+        side: x > 0 ? "left" : "right",
+      };
     }
-    throw new Error(`The keyboard has no key "${key}"; it types letters and spaces`);
+    throw new Error(
+      `The keyboard has no key "${key}"; it types letters and spaces`,
+    );
   }
 
   /**
@@ -112,7 +121,9 @@ export namespace typeText {
    * @returns The plan.
    * @throws {Error} On an unknown key, an empty text, or a keyboard too high, low or far for the body.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const body: IHumanBody = context.body;
     const m = body.measure;
     const { keyboard, text } = context.params;
@@ -120,26 +131,53 @@ export namespace typeText {
     const keys = [...text].map(typeText.key);
     const hold: IHumanPosture = context.entry.posture;
     const frame: HumanFrame.IFrame = { origin: keyboard.at, yaw: keyboard.yaw };
-    const world = (local: IAutoMovieVector3, lift: number): IAutoMovieVector3 => HumanFrame.point(frame, { ...local, y: lift });
+    const world = (local: IAutoMovieVector3, lift: number): IAutoMovieVector3 =>
+      HumanFrame.point(frame, { ...local, y: lift });
 
     // Fit: the home row near elbow height and within the forearm's reach of the shoulders.
     const elbow: number = hold.root.y + m.shoulderHeight - m.upperArm;
     if (Math.abs(keyboard.at.y - elbow) > 0.15)
-      throw new Error(`${context.subject}: the keyboard stands ${(keyboard.at.y - elbow).toFixed(3)} m from the elbows' height; place it within 0.15 m of ${elbow.toFixed(3)} m`);
-    const shoulder: IAutoMovieVector3 = HumanFrame.point({ origin: hold.root, yaw: hold.yaw }, { x: 0, y: m.shoulderHeight, z: 0 });
-    if (Math.hypot(keyboard.at.x - shoulder.x, keyboard.at.y - shoulder.y, keyboard.at.z - shoulder.z) > 0.95 * (m.upperArm + m.forearm + m.hand))
-      throw new Error(`${context.subject}: the keyboard is beyond the arms' reach`);
+      throw new Error(
+        `${context.subject}: the keyboard stands ${(keyboard.at.y - elbow).toFixed(3)} m from the elbows' height; place it within 0.15 m of ${elbow.toFixed(3)} m`,
+      );
+    const shoulder: IAutoMovieVector3 = HumanFrame.point(
+      { origin: hold.root, yaw: hold.yaw },
+      { x: 0, y: m.shoulderHeight, z: 0 },
+    );
+    if (
+      Math.hypot(
+        keyboard.at.x - shoulder.x,
+        keyboard.at.y - shoulder.y,
+        keyboard.at.z - shoulder.z,
+      ) >
+      0.95 * (m.upperArm + m.forearm + m.hand)
+    )
+      throw new Error(
+        `${context.subject}: the keyboard is beyond the arms' reach`,
+      );
 
     // Presses on the skill's interval with timing variability.
-    const interval: number = HumanSkill.quantity(context.skill, "speed", 0.5, 0.15);
+    const interval: number = HumanSkill.quantity(
+      context.skill,
+      "speed",
+      0.5,
+      0.15,
+    );
     const times: number[] = [];
     let clock: number = 0.3;
     for (let i: number = 0; i < keys.length; i++) {
       times.push(clock);
-      clock += HumanSkill.jitter(context.skill, context.random(`key${i}`), interval);
+      clock += HumanSkill.jitter(
+        context.skill,
+        context.random(`key${i}`),
+        interval,
+      );
     }
     const duration: number = clock;
-    const home: Record<HumanHand.Side, IAutoMovieVector3> = { left: typeText.key("f").at, right: typeText.key("j").at };
+    const home: Record<HumanHand.Side, IAutoMovieVector3> = {
+      left: typeText.key("f").at,
+      right: typeText.key("j").at,
+    };
 
     // Where each fingertip is at a second: on its current key, travelling
     // between keys in the hover plane, or pressing.
@@ -152,8 +190,15 @@ export namespace typeText {
         const reach: number = 0.4 * interval;
         if (t < press - reach) break;
         if (t < press) {
-          const u: number = minimumJerk((t - Math.max(fromTime, press - reach)) / Math.max(1e-3, press - Math.max(fromTime, press - reach))).s;
-          const at: IAutoMovieVector3 = { x: from.x + (keys[i]!.at.x - from.x) * u, y: 0, z: from.z + (keys[i]!.at.z - from.z) * u };
+          const u: number = minimumJerk(
+            (t - Math.max(fromTime, press - reach)) /
+              Math.max(1e-3, press - Math.max(fromTime, press - reach)),
+          ).s;
+          const at: IAutoMovieVector3 = {
+            x: from.x + (keys[i]!.at.x - from.x) * u,
+            y: 0,
+            z: from.z + (keys[i]!.at.z - from.z) * u,
+          };
           return world(at, HOVER - (HOVER + TRAVEL) * u * u);
         }
         const lift: number = minimumJerk((t - press) / (0.6 * interval)).s;
@@ -165,17 +210,39 @@ export namespace typeText {
     };
 
     const contacts: IHumanContactWindow[] = [
-      { part: "leftFoot", kind: "plant", from: 0, to: 1, support: { kind: "ground" } },
-      { part: "rightFoot", kind: "plant", from: 0, to: 1, support: { kind: "ground" } },
+      {
+        part: "leftFoot",
+        kind: "plant",
+        from: 0,
+        to: 1,
+        support: { kind: "ground" },
+      },
+      {
+        part: "rightFoot",
+        kind: "plant",
+        from: 0,
+        to: 1,
+        support: { kind: "ground" },
+      },
     ];
     return {
       duration,
-      events: times.map((t: number, i: number) => ({ name: `press${i + 1}`, share: t / duration })),
+      events: times.map((t: number, i: number) => ({
+        name: `press${i + 1}`,
+        share: t / duration,
+      })),
       contacts,
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const fingers: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: keyboard.yaw }, { x: 0, y: -0.5, z: 1 });
-        const joints: IHumanPosture["joints"] = { ...hold.joints, ...HumanHand.shape("left", "point"), ...HumanHand.shape("right", "point") };
+        const fingers: IAutoMovieVector3 = HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw: keyboard.yaw },
+          { x: 0, y: -0.5, z: 1 },
+        );
+        const joints: IHumanPosture["joints"] = {
+          ...hold.joints,
+          ...HumanHand.shape("left", "point"),
+          ...HumanHand.shape("right", "point"),
+        };
         return handGoals(
           body,
           { ...hold, joints },
@@ -184,7 +251,10 @@ export namespace typeText {
             surface: "indexTip" as const,
             shape: "point" as const,
             point: tipAt(side, t),
-            rotation: HumanHand.rotation(side, { fingers, palm: { x: 0, y: -1, z: 0 } }),
+            rotation: HumanHand.rotation(side, {
+              fingers,
+              palm: { x: 0, y: -1, z: 0 },
+            }),
             bend: HumanHand.elbow(body, hold, side, 0.1),
           })),
         );

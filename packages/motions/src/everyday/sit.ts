@@ -1,5 +1,8 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
@@ -62,8 +65,12 @@ export namespace sit {
 
   /** Cancel table. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
-    stand: [{ window: [0, "seatContact"], kind: "inertialize", entry: 0, blend: 0.3 }],
-    rise: [{ window: ["seatContact", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    stand: [
+      { window: [0, "seatContact"], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
+    rise: [
+      { window: ["seatContact", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
     shift: [{ window: ["seated", 1], kind: "inertialize", entry: 0 }],
   };
 
@@ -80,7 +87,17 @@ export namespace sit {
   }
 
   /** Seated pitch and trunk angles of each back, degrees. */
-  export const BACKS: Readonly<Record<NonNullable<IParams["back"]>, { pitch: number; joints: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> }>> = {
+  export const BACKS: Readonly<
+    Record<
+      NonNullable<IParams["back"]>,
+      {
+        pitch: number;
+        joints: Partial<
+          Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+        >;
+      }
+    >
+  > = {
     upright: { pitch: 0, joints: {} },
     lean: { pitch: -12, joints: {} },
     slump: { pitch: -10, joints: { chest: [12, 0, 0], spine: [8, 0, 0] } },
@@ -93,16 +110,27 @@ export namespace sit {
    * @returns The plan.
    * @throws {Error} When the seat does not suit the body, the performer does not face away from it, the feet are out of reach, or `lean` has no backrest.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const body: IHumanBody = context.body;
     const seat: seated.ISeat = context.params.seat;
     seated.check(body, seat);
     const back = context.params.back ?? "upright";
-    if (back === "lean" && seat.back === undefined) throw new Error(`${context.subject}: leaning back needs a seat with a backrest`);
+    if (back === "lean" && seat.back === undefined)
+      throw new Error(
+        `${context.subject}: leaning back needs a seat with a backrest`,
+      );
     const turn: number = angle(seat.yaw - context.entry.posture.yaw);
     if (Math.abs(turn) > 20)
-      throw new Error(`${context.subject}: stands ${turn.toFixed(1)} degrees off the seat's heading; turn to within 20 degrees of facing away from the seat first`);
-    const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(body, context.entry, context.entry.posture.yaw);
+      throw new Error(
+        `${context.subject}: stands ${turn.toFixed(1)} degrees off the seat's heading; turn to within 20 degrees of facing away from the seat first`,
+      );
+    const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
+      body,
+      context.entry,
+      context.entry.posture.yaw,
+    );
     const goal: IAutoMovieVector3 = seated.point(body, seat);
     reach(body, seat, goal, feet, BACKS[back].pitch);
 
@@ -119,9 +147,27 @@ export namespace sit {
     const upright = standUpright.of(body).joints;
 
     const contacts: IHumanContactWindow[] = [
-      { part: "leftFoot", kind: "plant", from: 0, to: 1, support: { kind: "ground" } },
-      { part: "rightFoot", kind: "plant", from: 0, to: 1, support: { kind: "ground" } },
-      { part: "seat", kind: "seat", from: contact / duration, to: 1, support: { kind: "ground" } },
+      {
+        part: "leftFoot",
+        kind: "plant",
+        from: 0,
+        to: 1,
+        support: { kind: "ground" },
+      },
+      {
+        part: "rightFoot",
+        kind: "plant",
+        from: 0,
+        to: 1,
+        support: { kind: "ground" },
+      },
+      {
+        part: "seat",
+        kind: "seat",
+        from: contact / duration,
+        to: 1,
+        support: { kind: "ground" },
+      },
     ];
     return {
       duration,
@@ -134,24 +180,67 @@ export namespace sit {
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const across: number = minimumJerk(t / (0.7 * descent)).s;
-        const down: number = minimumJerk((t - 0.1 * descent) / (contact - 0.1 * descent)).s;
+        const down: number = minimumJerk(
+          (t - 0.1 * descent) / (contact - 0.1 * descent),
+        ).s;
         const socket: IAutoMovieVector3 = {
           x: start.x + (goal.x - start.x) * across,
           y: start.y + (goal.y - start.y) * down,
           z: start.z + (goal.z - start.z) * across,
         };
-        const settle: number = minimumJerk((t - 0.6 * descent) / (0.4 * descent)).s;
-        const pitch: number = t < 0.6 * descent ? peak * minimumJerk(t / (0.45 * descent)).s : peak + (final.pitch - peak) * settle;
+        const settle: number = minimumJerk(
+          (t - 0.6 * descent) / (0.4 * descent),
+        ).s;
+        const pitch: number =
+          t < 0.6 * descent
+            ? peak * minimumJerk(t / (0.45 * descent)).s
+            : peak + (final.pitch - peak) * settle;
         const yaw: number = yaw0 + turn * across;
-        const joints: IHumanPosture["joints"] = { ...stand.RELAXED, ...upright };
-        for (const [bone, a] of Object.entries(final.joints) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
-          const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
-          joints[bone] = [was[0] + a[0] * settle, was[1] + a[1] * settle, was[2] + a[2] * settle];
+        const joints: IHumanPosture["joints"] = {
+          ...stand.RELAXED,
+          ...upright,
+        };
+        for (const [bone, a] of Object.entries(final.joints) as [
+          AutoMovieHumanoidBone,
+          readonly [number, number, number],
+        ][]) {
+          const was: readonly [number, number, number] = joints[bone] ?? [
+            0, 0, 0,
+          ];
+          joints[bone] = [
+            was[0] + a[0] * settle,
+            was[1] + a[1] * settle,
+            was[2] + a[2] * settle,
+          ];
         }
-        const tilt = HumanTrunk.incline(joints, pitch, HumanTrunk.pelvisLimit(body, seated.root(body, socket, { yaw, pitch: 0, roll: 0 }), yaw, feet));
-        const root: IAutoMovieVector3 = seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 });
-        const posture: IHumanPosture = resolveHumanPosture.lower(body, { root, yaw, pitch: tilt.pitch, roll: 0, joints: tilt.joints, limbs: stand.legs(body, root, yaw, feet) });
-        return seated.arms(body, posture, minimumJerk((t - 0.5 * descent) / (0.5 * descent)).s);
+        const tilt = HumanTrunk.incline(
+          joints,
+          pitch,
+          HumanTrunk.pelvisLimit(
+            body,
+            seated.root(body, socket, { yaw, pitch: 0, roll: 0 }),
+            yaw,
+            feet,
+          ),
+        );
+        const root: IAutoMovieVector3 = seated.root(body, socket, {
+          yaw,
+          pitch: tilt.pitch,
+          roll: 0,
+        });
+        const posture: IHumanPosture = resolveHumanPosture.lower(body, {
+          root,
+          yaw,
+          pitch: tilt.pitch,
+          roll: 0,
+          joints: tilt.joints,
+          limbs: stand.legs(body, root, yaw, feet),
+        });
+        return seated.arms(
+          body,
+          posture,
+          minimumJerk((t - 0.5 * descent) / (0.5 * descent)).s,
+        );
       },
     };
   }
@@ -168,18 +257,40 @@ export namespace sit {
    * @param pitch The seated pitch, degrees.
    * @throws {Error} When a foot is out of reach, with the reachable distances ahead of the front edge.
    */
-  export function reach(body: IHumanBody, seat: seated.ISeat, goal: IAutoMovieVector3, feet: Record<"left" | "right", IAutoMovieVector3>, pitch: number): void {
+  export function reach(
+    body: IHumanBody,
+    seat: seated.ISeat,
+    goal: IAutoMovieVector3,
+    feet: Record<"left" | "right", IAutoMovieVector3>,
+    pitch: number,
+  ): void {
     const m = body.measure;
-    const root: IAutoMovieVector3 = seated.root(body, goal, { yaw: seat.yaw, pitch, roll: 0 });
+    const root: IAutoMovieVector3 = seated.root(body, goal, {
+      yaw: seat.yaw,
+      pitch,
+      roll: 0,
+    });
     const longest: number = 0.995 * (m.thigh + m.shank);
-    const shortest: number = Math.sqrt(m.thigh * m.thigh + m.shank * m.shank - 2 * m.thigh * m.shank * Math.cos((30 * Math.PI) / 180));
+    const shortest: number = Math.sqrt(
+      m.thigh * m.thigh +
+        m.shank * m.shank -
+        2 * m.thigh * m.shank * Math.cos((30 * Math.PI) / 180),
+    );
     for (const side of ["left", "right"] as const) {
       const hipRest: IAutoMovieVector3 = body.rest.get(`${side}UpperLeg`)!;
-      const hip: IAutoMovieVector3 = Vector3.add(root, Quaternion.rotateVector(resolveHumanPosture.heading({ yaw: seat.yaw, pitch, roll: 0 }), hipRest));
+      const hip: IAutoMovieVector3 = Vector3.add(
+        root,
+        Quaternion.rotateVector(
+          resolveHumanPosture.heading({ yaw: seat.yaw, pitch, roll: 0 }),
+          hipRest,
+        ),
+      );
       const d: number = Vector3.length(Vector3.subtract(feet[side], hip));
       if (d > longest || d < shortest) {
         const dy: number = hip.y - m.ankleHeight;
-        const near: number = Math.sqrt(Math.max(0, shortest * shortest - dy * dy));
+        const near: number = Math.sqrt(
+          Math.max(0, shortest * shortest - dy * dy),
+        );
         const far: number = Math.sqrt(Math.max(0, longest * longest - dy * dy));
         const edge: number = Math.hypot(hip.x - seat.at.x, hip.z - seat.at.z);
         throw new Error(

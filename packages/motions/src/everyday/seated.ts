@@ -1,5 +1,13 @@
-import { type IAutoMovieResolvedBone, Quaternion, Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -99,8 +107,14 @@ export namespace seated {
     const hipJoint: IAutoMovieVector3 = body.rest.get("leftUpperLeg")!;
     let back: number = body.measure.thigh - 0.05 + hipJoint.z - socket.z;
     if (seat.depth !== undefined) back = Math.min(back, seat.depth - 0.02);
-    const lift: number = Math.max(0, socket.y - (hipJoint.y - body.measure.thighRadius));
-    return HumanFrame.point({ origin: seat.at, yaw: seat.yaw }, { x: 0, y: lift, z: -back });
+    const lift: number = Math.max(
+      0,
+      socket.y - (hipJoint.y - body.measure.thighRadius),
+    );
+    return HumanFrame.point(
+      { origin: seat.at, yaw: seat.yaw },
+      { x: 0, y: lift, z: -back },
+    );
   }
 
   /**
@@ -110,7 +124,10 @@ export namespace seated {
    * @returns The offset.
    */
   export function offset(body: IHumanBody): IAutoMovieVector3 {
-    return Vector3.add(body.rest.get("hips")!, body.surfaces.sockets.seat.point);
+    return Vector3.add(
+      body.rest.get("hips")!,
+      body.surfaces.sockets.seat.point,
+    );
   }
 
   /**
@@ -121,8 +138,18 @@ export namespace seated {
    * @param heading Yaw, pitch and roll, degrees.
    * @returns The root.
    */
-  export function root(body: IHumanBody, at: IAutoMovieVector3, heading: Pick<IHumanPosture, "yaw" | "pitch" | "roll">): IAutoMovieVector3 {
-    return Vector3.subtract(at, Quaternion.rotateVector(resolveHumanPosture.heading(heading), offset(body)));
+  export function root(
+    body: IHumanBody,
+    at: IAutoMovieVector3,
+    heading: Pick<IHumanPosture, "yaw" | "pitch" | "roll">,
+  ): IAutoMovieVector3 {
+    return Vector3.subtract(
+      at,
+      Quaternion.rotateVector(
+        resolveHumanPosture.heading(heading),
+        offset(body),
+      ),
+    );
   }
 
   /**
@@ -132,8 +159,17 @@ export namespace seated {
    * @param posture The posture.
    * @returns World metres.
    */
-  export function socket(body: IHumanBody, posture: IHumanPosture): IAutoMovieVector3 {
-    return Vector3.add(posture.root, Quaternion.rotateVector(resolveHumanPosture.heading(posture), offset(body)));
+  export function socket(
+    body: IHumanBody,
+    posture: IHumanPosture,
+  ): IAutoMovieVector3 {
+    return Vector3.add(
+      posture.root,
+      Quaternion.rotateVector(
+        resolveHumanPosture.heading(posture),
+        offset(body),
+      ),
+    );
   }
 
   /**
@@ -144,16 +180,44 @@ export namespace seated {
    * @param posture The posture with its leg goals.
    * @returns Arm goals.
    */
-  export function hands(body: IHumanBody, posture: IHumanPosture): IHumanPosture["limbs"] {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, resolveHumanPosture(body, posture));
+  export function hands(
+    body: IHumanBody,
+    posture: IHumanPosture,
+  ): IHumanPosture["limbs"] {
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      resolveHumanPosture(body, posture),
+    );
     const requests: handGoals.IRequest[] = [];
     for (const side of ["left", "right"] as const) {
-      const frame = body.surfaces.regions[`thighFront${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion];
+      const frame =
+        body.surfaces.regions[
+          `thighFront${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
+        ];
       const thigh: IAutoMovieResolvedBone = bones.get(frame.bone)!;
-      const point: IAutoMovieVector3 = Vector3.add(thigh.worldPosition, Quaternion.rotateVector(thigh.worldRotation, frame.point));
-      const normal: IAutoMovieVector3 = Quaternion.rotateVector(thigh.worldRotation, frame.normal);
-      const along: IAutoMovieVector3 = Vector3.subtract(bones.get(`${side}LowerLeg`)!.worldPosition, thigh.worldPosition);
-      requests.push({ side, surface: "palm", shape: "relaxed", point, rotation: HumanHand.rotation(side, { fingers: along, palm: Vector3.scale(normal, -1) }), bend: HumanHand.elbow(body, posture, side, 0.2) });
+      const point: IAutoMovieVector3 = Vector3.add(
+        thigh.worldPosition,
+        Quaternion.rotateVector(thigh.worldRotation, frame.point),
+      );
+      const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+        thigh.worldRotation,
+        frame.normal,
+      );
+      const along: IAutoMovieVector3 = Vector3.subtract(
+        bones.get(`${side}LowerLeg`)!.worldPosition,
+        thigh.worldPosition,
+      );
+      requests.push({
+        side,
+        surface: "palm",
+        shape: "relaxed",
+        point,
+        rotation: HumanHand.rotation(side, {
+          fingers: along,
+          palm: Vector3.scale(normal, -1),
+        }),
+        bend: HumanHand.elbow(body, posture, side, 0.2),
+      });
     }
     const placed: IHumanPosture = handGoals(body, posture, requests);
     return { leftArm: placed.limbs.leftArm!, rightArm: placed.limbs.rightArm! };
@@ -171,14 +235,23 @@ export namespace seated {
    * @param share 0 hanging to 1 on the thighs.
    * @returns The posture with arm goals, or unchanged at 0.
    */
-  export function arms(body: IHumanBody, posture: IHumanPosture, share: number): IHumanPosture {
+  export function arms(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    share: number,
+  ): IHumanPosture {
     if (share <= 0) return posture;
     const onThighs: IHumanPosture["limbs"] = hands(body, posture);
-    if (share >= 1) return { ...posture, limbs: { ...posture.limbs, ...onThighs } };
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, resolveHumanPosture(body, posture));
+    if (share >= 1)
+      return { ...posture, limbs: { ...posture.limbs, ...onThighs } };
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      resolveHumanPosture(body, posture),
+    );
     const limbs: IHumanPosture["limbs"] = { ...posture.limbs };
     for (const side of ["left", "right"] as const) {
-      const limb: "leftArm" | "rightArm" = side === "left" ? "leftArm" : "rightArm";
+      const limb: "leftArm" | "rightArm" =
+        side === "left" ? "leftArm" : "rightArm";
       const goal: IHumanPosture.IGoal = onThighs[limb]!;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
       limbs[limb] = {
@@ -200,6 +273,8 @@ export namespace seated {
    * @returns Metres.
    */
   export function popliteal(body: IHumanBody): number {
-    return body.measure.ankleHeight + body.measure.shank - body.measure.thighRadius;
+    return (
+      body.measure.ankleHeight + body.measure.shank - body.measure.thighRadius
+    );
   }
 }

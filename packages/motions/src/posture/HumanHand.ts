@@ -93,7 +93,13 @@ export namespace HumanHand {
   export type Side = "left" | "right";
 
   /** A surface of the hand brought to a target. */
-  export type Surface = "palm" | "grip" | "fist" | "handBack" | "indexTip" | "wrist";
+  export type Surface =
+    | "palm"
+    | "grip"
+    | "fist"
+    | "handBack"
+    | "indexTip"
+    | "wrist";
 
   /** A hand shape. */
   export type Shape = "relaxed" | "flat" | "point" | "fist";
@@ -135,13 +141,19 @@ export namespace HumanHand {
    * @param form The shape.
    * @returns Angles for every finger and thumb segment of that hand.
    */
-  export function shape(side: Side, form: Shape): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    const out: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = {};
+  export function shape(
+    side: Side,
+    form: Shape,
+  ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
+    const out: Partial<
+      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+    > = {};
     const set = (bone: string, flexion: number): void => {
       out[`${side}${bone}` as AutoMovieHumanoidBone] = [flexion, 0, 0];
     };
     for (const digit of ["Index", "Middle", "Ring", "Little"]) {
-      const curled: boolean = form === "fist" || (form === "point" && digit !== "Index");
+      const curled: boolean =
+        form === "fist" || (form === "point" && digit !== "Index");
       for (const segment of ["Proximal", "Intermediate", "Distal"]) {
         if (curled) set(`${digit}${segment}`, segment === "Proximal" ? 85 : 95);
         else set(`${digit}${segment}`, form === "relaxed" ? 15 : 0);
@@ -164,21 +176,41 @@ export namespace HumanHand {
    * @param form The hand shape; it matters only for the index fingertip.
    * @returns The frame, its point measured from the wrist joint.
    */
-  export function offset(body: IHumanBody, side: Side, surface: Surface, form: Shape = "relaxed"): IFrame {
+  export function offset(
+    body: IHumanBody,
+    side: Side,
+    surface: Surface,
+    form: Shape = "relaxed",
+  ): IFrame {
     const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
-    const palm = body.surfaces.sockets[`palm${Side}` as AutoMovieHumanoidSocket];
+    const palm =
+      body.surfaces.sockets[`palm${Side}` as AutoMovieHumanoidSocket];
     switch (surface) {
       case "wrist":
-        return { point: { x: 0, y: 0, z: 0 }, normal: palm.normal, forward: palm.forward! };
+        return {
+          point: { x: 0, y: 0, z: 0 },
+          normal: palm.normal,
+          forward: palm.forward!,
+        };
       case "palm":
       case "grip":
       case "fist": {
-        const frame = body.surfaces.sockets[`${surface}${Side}` as AutoMovieHumanoidSocket];
-        return { point: frame.point, normal: frame.normal, forward: frame.forward! };
+        const frame =
+          body.surfaces.sockets[`${surface}${Side}` as AutoMovieHumanoidSocket];
+        return {
+          point: frame.point,
+          normal: frame.normal,
+          forward: frame.forward!,
+        };
       }
       case "handBack": {
-        const frame = body.surfaces.regions[`handBack${Side}` as AutoMovieHumanoidRegion];
-        return { point: frame.point, normal: frame.normal, forward: palm.forward! };
+        const frame =
+          body.surfaces.regions[`handBack${Side}` as AutoMovieHumanoidRegion];
+        return {
+          point: frame.point,
+          normal: frame.normal,
+          forward: palm.forward!,
+        };
       }
       case "indexTip":
         return fingertip(body, side, form);
@@ -198,15 +230,28 @@ export namespace HumanHand {
    * @returns The rotation.
    * @throws {Error} When a forward is parallel to its normal.
    */
-  export function align(rest: Pick<IFrame, "normal" | "forward">, world: Pick<IFrame, "normal" | "forward">): IAutoMovieQuaternion {
-    const basis = (frame: Pick<IFrame, "normal" | "forward">): IAutoMovieQuaternion => {
+  export function align(
+    rest: Pick<IFrame, "normal" | "forward">,
+    world: Pick<IFrame, "normal" | "forward">,
+  ): IAutoMovieQuaternion {
+    const basis = (
+      frame: Pick<IFrame, "normal" | "forward">,
+    ): IAutoMovieQuaternion => {
       const n: IAutoMovieVector3 = Vector3.normalize(frame.normal);
-      const across: IAutoMovieVector3 = Vector3.subtract(frame.forward, Vector3.scale(n, Vector3.dot(frame.forward, n)));
-      if (Vector3.length(across) < 1e-9) throw new Error("A forward direction must not be parallel to its normal");
+      const across: IAutoMovieVector3 = Vector3.subtract(
+        frame.forward,
+        Vector3.scale(n, Vector3.dot(frame.forward, n)),
+      );
+      if (Vector3.length(across) < 1e-9)
+        throw new Error(
+          "A forward direction must not be parallel to its normal",
+        );
       const f: IAutoMovieVector3 = Vector3.normalize(across);
       return quaternionFromAutoMovieBasis(n, f, Vector3.cross(n, f));
     };
-    return Quaternion.normalize(Quaternion.multiply(basis(world), Quaternion.inverse(basis(rest))));
+    return Quaternion.normalize(
+      Quaternion.multiply(basis(world), Quaternion.inverse(basis(rest))),
+    );
   }
 
   /**
@@ -218,9 +263,15 @@ export namespace HumanHand {
    * @param orientation Where the fingers point and the palm faces.
    * @returns The rotation.
    */
-  export function rotation(side: Side, orientation: IOrientation): IAutoMovieQuaternion {
+  export function rotation(
+    side: Side,
+    orientation: IOrientation,
+  ): IAutoMovieQuaternion {
     return align(
-      { normal: { x: side === "left" ? 1 : -1, y: 0, z: 0 }, forward: { x: 0, y: -1, z: 0 } },
+      {
+        normal: { x: side === "left" ? 1 : -1, y: 0, z: 0 },
+        forward: { x: 0, y: -1, z: 0 },
+      },
       { normal: orientation.fingers, forward: orientation.palm },
     );
   }
@@ -237,9 +288,19 @@ export namespace HumanHand {
    * @param form The hand shape.
    * @returns The wrist point and the rotation.
    */
-  export function place(body: IHumanBody, side: Side, surface: Surface, at: IAutoMovieVector3, turn: IAutoMovieQuaternion, form: Shape = "relaxed"): IWrist {
+  export function place(
+    body: IHumanBody,
+    side: Side,
+    surface: Surface,
+    at: IAutoMovieVector3,
+    turn: IAutoMovieQuaternion,
+    form: Shape = "relaxed",
+  ): IWrist {
     const local: IFrame = offset(body, side, surface, form);
-    return { point: Vector3.subtract(at, Quaternion.rotateVector(turn, local.point)), rotation: turn };
+    return {
+      point: Vector3.subtract(at, Quaternion.rotateVector(turn, local.point)),
+      rotation: turn,
+    };
   }
 
   /**
@@ -256,7 +317,13 @@ export namespace HumanHand {
    * @param form The hand shape.
    * @returns The wrist point and the rotation.
    */
-  export function reach(body: IHumanBody, side: Side, surface: Surface, target: IFrame, form: Shape = "relaxed"): IWrist {
+  export function reach(
+    body: IHumanBody,
+    side: Side,
+    surface: Surface,
+    target: IFrame,
+    form: Shape = "relaxed",
+  ): IWrist {
     const local: IFrame = offset(body, side, surface, form);
     return place(body, side, surface, target.point, align(local, target), form);
   }
@@ -275,20 +342,39 @@ export namespace HumanHand {
    */
   export function frame(
     body: IHumanBody,
-    bones: ReadonlyMap<AutoMovieHumanoidBone, Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">>,
+    bones: ReadonlyMap<
+      AutoMovieHumanoidBone,
+      Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
+    >,
     side: Side,
     surface: Surface,
     form: Shape = "relaxed",
   ): IFrame {
     const hand = bones.get(`${side}Hand`)!;
     const local: IFrame = offset(body, side, surface, form);
-    const turn = (v: IAutoMovieVector3): IAutoMovieVector3 => Quaternion.rotateVector(hand.worldRotation, v);
-    if (surface !== "indexTip") return { point: Vector3.add(hand.worldPosition, turn(local.point)), normal: turn(local.normal), forward: turn(local.forward) };
+    const turn = (v: IAutoMovieVector3): IAutoMovieVector3 =>
+      Quaternion.rotateVector(hand.worldRotation, v);
+    if (surface !== "indexTip")
+      return {
+        point: Vector3.add(hand.worldPosition, turn(local.point)),
+        normal: turn(local.normal),
+        forward: turn(local.forward),
+      };
 
     // The fingertip rides the distal phalanx, so read it from that bone.
-    const region = body.surfaces.regions[`indexTip${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion];
-    const placed = resolveAutoMovieHumanoidSurfaces.place(region, bones.get(region.bone)!);
-    return { point: placed.point, normal: placed.normal, forward: turn(local.forward) };
+    const region =
+      body.surfaces.regions[
+        `indexTip${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
+      ];
+    const placed = resolveAutoMovieHumanoidSurfaces.place(
+      region,
+      bones.get(region.bone)!,
+    );
+    return {
+      point: placed.point,
+      normal: placed.normal,
+      forward: turn(local.forward),
+    };
   }
 
   /**
@@ -303,7 +389,12 @@ export namespace HumanHand {
    * @param out Extra outward share of the upper arm, for akimbo and wide gestures; 0 by default.
    * @returns The world point.
    */
-  export function elbow(body: IHumanBody, posture: Pick<IHumanPosture, "root" | "yaw" | "pitch" | "roll">, side: Side, out: number = 0): IAutoMovieVector3 {
+  export function elbow(
+    body: IHumanBody,
+    posture: Pick<IHumanPosture, "root" | "yaw" | "pitch" | "roll">,
+    side: Side,
+    out: number = 0,
+  ): IAutoMovieVector3 {
     const shoulder: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
     const sign: number = side === "left" ? 1 : -1;
     const m = body.measure;
@@ -312,7 +403,10 @@ export namespace HumanHand {
       y: shoulder.y - m.upperArm,
       z: shoulder.z - 0.5 * m.upperArm,
     };
-    return Vector3.add(posture.root, Quaternion.rotateVector(resolveHumanPosture.heading(posture), local));
+    return Vector3.add(
+      posture.root,
+      Quaternion.rotateVector(resolveHumanPosture.heading(posture), local),
+    );
   }
 }
 
@@ -320,7 +414,11 @@ export namespace HumanHand {
 const TIPS: WeakMap<IHumanBody, Map<string, HumanHand.IFrame>> = new WeakMap();
 
 /** The index fingertip's frame from the wrist under a hand shape, by forward kinematics of that hand alone. */
-function fingertip(body: IHumanBody, side: HumanHand.Side, form: HumanHand.Shape): HumanHand.IFrame {
+function fingertip(
+  body: IHumanBody,
+  side: HumanHand.Side,
+  form: HumanHand.Shape,
+): HumanHand.IFrame {
   const key: string = `${side}:${form}`;
   let memo: Map<string, HumanHand.IFrame> | undefined = TIPS.get(body);
   if (memo === undefined) {
@@ -329,26 +427,43 @@ function fingertip(body: IHumanBody, side: HumanHand.Side, form: HumanHand.Shape
   }
   const known: HumanHand.IFrame | undefined = memo.get(key);
   if (known !== undefined) return known;
-  const joints = Object.entries(HumanHand.shape(side, form)).map(([bone, a]) => ({
-    bone: bone as AutoMovieHumanoidBone,
-    flexion: a![0],
-    abduction: a![1],
-    twist: a![2],
-  }));
+  const joints = Object.entries(HumanHand.shape(side, form)).map(
+    ([bone, a]) => ({
+      bone: bone as AutoMovieHumanoidBone,
+      flexion: a![0],
+      abduction: a![1],
+      twist: a![2],
+    }),
+  );
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-    resolvePose({ skeleton: body.skeleton.id, root: null, joints }, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
-      (r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+    resolvePose(
+      { skeleton: body.skeleton.id, root: null, joints },
+      body.skeleton,
+      HUMANOID_JOINT_AXES,
+      HUMANOID_REST_FRAME,
+    ).map(
+      (
+        r: IAutoMovieResolvedBone,
+      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
     ),
   );
   const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
-  const region = body.surfaces.regions[`indexTip${Side}` as AutoMovieHumanoidRegion];
-  const tip = resolveAutoMovieHumanoidSurfaces.place(region, bones.get(region.bone)!);
+  const region =
+    body.surfaces.regions[`indexTip${Side}` as AutoMovieHumanoidRegion];
+  const tip = resolveAutoMovieHumanoidSurfaces.place(
+    region,
+    bones.get(region.bone)!,
+  );
   const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
   const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.worldRotation);
   const out: HumanHand.IFrame = {
-    point: Quaternion.rotateVector(inverse, Vector3.subtract(tip.point, hand.worldPosition)),
+    point: Quaternion.rotateVector(
+      inverse,
+      Vector3.subtract(tip.point, hand.worldPosition),
+    ),
     normal: Quaternion.rotateVector(inverse, tip.normal),
-    forward: body.surfaces.sockets[`palm${Side}` as AutoMovieHumanoidSocket].normal,
+    forward:
+      body.surfaces.sockets[`palm${Side}` as AutoMovieHumanoidSocket].normal,
   };
   memo.set(key, out);
   return out;

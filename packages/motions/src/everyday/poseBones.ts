@@ -1,5 +1,13 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, type IAutoMovieResolvedBone, resolvePose } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMoviePose } from "@automovie/interface";
+import {
+  HUMANOID_JOINT_AXES,
+  HUMANOID_REST_FRAME,
+  type IAutoMovieResolvedBone,
+  resolvePose,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMoviePose,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 
@@ -21,8 +29,20 @@ import type { IHumanBody } from "../body/IHumanBody";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export function poseBones(body: IHumanBody, pose: IAutoMoviePose): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+export function poseBones(
+  body: IHumanBody,
+  pose: IAutoMoviePose,
+): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   return new Map(
-    resolvePose(pose, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map((r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r]),
+    resolvePose(
+      pose,
+      body.skeleton,
+      HUMANOID_JOINT_AXES,
+      HUMANOID_REST_FRAME,
+    ).map(
+      (
+        r: IAutoMovieResolvedBone,
+      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+    ),
   );
 }

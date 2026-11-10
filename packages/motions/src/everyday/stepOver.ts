@@ -1,4 +1,7 @@
-import { minimumJerk, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  minimumJerk,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
@@ -72,7 +75,14 @@ export namespace stepOver {
   /** Cancel table: a crossing completes before anything else. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
     stand: [{ window: ["trailContact", 1], kind: "inertialize", entry: 0 }],
-    walk: [{ window: ["trailContact", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    walk: [
+      {
+        window: ["trailContact", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.3,
+      },
+    ],
   };
 
   /** Parameters. */
@@ -97,47 +107,106 @@ export namespace stepOver {
    * @returns The plan.
    * @throws {Error} When the obstacle is too far, behind, too high or too deep to cross in one step.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const body: IHumanBody = context.body;
     const m = body.measure;
     const { obstacle } = context.params;
     const lead: "left" | "right" = context.params.lead ?? "right";
     const trail: "left" | "right" = lead === "left" ? "right" : "left";
     const yaw: number = context.entry.posture.yaw;
-    const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(body, context.entry, yaw);
-    const origin: IAutoMovieVector3 = { x: (feet.left.x + feet.right.x) / 2, y: 0, z: (feet.left.z + feet.right.z) / 2 };
+    const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
+      body,
+      context.entry,
+      yaw,
+    );
+    const origin: IAutoMovieVector3 = {
+      x: (feet.left.x + feet.right.x) / 2,
+      y: 0,
+      z: (feet.left.z + feet.right.z) / 2,
+    };
     const frame: HumanFrame.IFrame = { origin, yaw };
     const near: number = HumanFrame.local(frame, obstacle.at).z;
     const leg: number = m.thigh + m.shank;
-    if (!(obstacle.height > 0 && obstacle.depth > 0)) throw new Error("An obstacle has a positive height and depth");
+    if (!(obstacle.height > 0 && obstacle.depth > 0))
+      throw new Error("An obstacle has a positive height and depth");
     if (near < 0.5 * m.footLength || near > leg)
-      throw new Error(`${context.subject}: the obstacle's near side is ${near.toFixed(3)} m ahead; stand ${(0.5 * m.footLength).toFixed(3)} to ${leg.toFixed(3)} m before it`);
+      throw new Error(
+        `${context.subject}: the obstacle's near side is ${near.toFixed(3)} m ahead; stand ${(0.5 * m.footLength).toFixed(3)} to ${leg.toFixed(3)} m before it`,
+      );
     if (obstacle.height > 0.55 * m.hipHeight)
-      throw new Error(`${context.subject}: an obstacle ${obstacle.height.toFixed(3)} m high is above the ${(0.55 * m.hipHeight).toFixed(3)} m this body steps over`);
+      throw new Error(
+        `${context.subject}: an obstacle ${obstacle.height.toFixed(3)} m high is above the ${(0.55 * m.hipHeight).toFixed(3)} m this body steps over`,
+      );
     const far: number = near + obstacle.depth;
     const heelBack: number = -HumanFoot.offset(body, lead, "heel").z;
     const nearest: number = far + 0.1 * m.footLength + heelBack;
-    const farthest: number = HumanFrame.local(frame, feet[trail]).z + 0.95 * 2 * Math.sqrt(Math.max(0, leg * leg - (0.9 * m.hipHeight - m.ankleHeight) ** 2));
-    if (nearest > farthest) throw new Error(`${context.subject}: an obstacle ${obstacle.depth.toFixed(3)} m deep is too deep to cross in one step`);
-    const landing: number = Math.min(farthest, Math.max(nearest, near + far - HumanFrame.local(frame, feet[lead]).z));
+    const farthest: number =
+      HumanFrame.local(frame, feet[trail]).z +
+      0.95 *
+        2 *
+        Math.sqrt(
+          Math.max(0, leg * leg - (0.9 * m.hipHeight - m.ankleHeight) ** 2),
+        );
+    if (nearest > farthest)
+      throw new Error(
+        `${context.subject}: an obstacle ${obstacle.depth.toFixed(3)} m deep is too deep to cross in one step`,
+      );
+    const landing: number = Math.min(
+      farthest,
+      Math.max(nearest, near + far - HumanFrame.local(frame, feet[lead]).z),
+    );
 
     // Footprints: each foot from its start to beside the other beyond the obstacle.
-    const restX = (side: "left" | "right"): number => body.rest.get(`${side}Foot`)!.x;
+    const restX = (side: "left" | "right"): number =>
+      body.rest.get(`${side}Foot`)!.x;
     const end: Record<"left" | "right", IAutoMovieVector3> = {
-      left: HumanFrame.point(frame, { x: restX("left"), y: m.ankleHeight, z: landing }),
-      right: HumanFrame.point(frame, { x: restX("right"), y: m.ankleHeight, z: landing }),
+      left: HumanFrame.point(frame, {
+        x: restX("left"),
+        y: m.ankleHeight,
+        z: landing,
+      }),
+      right: HumanFrame.point(frame, {
+        x: restX("right"),
+        y: m.ankleHeight,
+        z: landing,
+      }),
     };
-    const heading = (side: "left" | "right"): number => yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT);
-    const flat = (side: "left" | "right", ankle: IAutoMovieVector3): HumanFoot.IPlacement => ({ ankle, rotation: HumanFoot.rotation(heading(side), 0) });
+    const heading = (side: "left" | "right"): number =>
+      yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT);
+    const flat = (
+      side: "left" | "right",
+      ankle: IAutoMovieVector3,
+    ): HumanFoot.IPlacement => ({
+      ankle,
+      rotation: HumanFoot.rotation(heading(side), 0),
+    });
     const duration: number = 2.4 * Math.sqrt(m.hipHeight / 0.93);
-    const windows: Record<"left" | "right", [number, number]> = { [lead]: [0.08 * duration, 0.42 * duration], [trail]: [0.5 * duration, 0.82 * duration] } as Record<"left" | "right", [number, number]>;
+    const windows: Record<"left" | "right", [number, number]> = {
+      [lead]: [0.08 * duration, 0.42 * duration],
+      [trail]: [0.5 * duration, 0.82 * duration],
+    } as Record<"left" | "right", [number, number]>;
 
     // Lift each swing so the foot's sole clears the top by the margin over the
     // whole span in which any part of the foot is above the obstacle, easing
     // in before it and out after it on minimum-jerk ramps.
     const top: number = obstacle.height + MARGIN;
-    const reachAt = (side: "left" | "right", point: "heel" | "toe", z: number): number => {
-      const at = (s: number): number => HumanFrame.local(frame, HumanFoot.point(body, side, point, flat(side, lerp(feet[side], end[side], minimumJerk(s).s)))).z;
+    const reachAt = (
+      side: "left" | "right",
+      point: "heel" | "toe",
+      z: number,
+    ): number => {
+      const at = (s: number): number =>
+        HumanFrame.local(
+          frame,
+          HumanFoot.point(
+            body,
+            side,
+            point,
+            flat(side, lerp(feet[side], end[side], minimumJerk(s).s)),
+          ),
+        ).z;
       let lo: number = 0;
       let hi: number = 1;
       for (let i: number = 0; i < 40; i++) {
@@ -148,29 +217,72 @@ export namespace stepOver {
       return hi;
     };
     const spans: Record<"left" | "right", [number, number]> = {
-      left: [reachAt("left", "toe", near - SPAN), reachAt("left", "heel", far + SPAN)],
-      right: [reachAt("right", "toe", near - SPAN), reachAt("right", "heel", far + SPAN)],
+      left: [
+        reachAt("left", "toe", near - SPAN),
+        reachAt("left", "heel", far + SPAN),
+      ],
+      right: [
+        reachAt("right", "toe", near - SPAN),
+        reachAt("right", "heel", far + SPAN),
+      ],
     };
-    const swing = (side: "left" | "right", s: number): { placement: HumanFoot.IPlacement; lift: number } => {
+    const swing = (
+      side: "left" | "right",
+      s: number,
+    ): { placement: HumanFoot.IPlacement; lift: number } => {
       const [s0, s1] = spans[side];
-      const w: number = s < s0 ? minimumJerk(s / s0).s : s > s1 ? 1 - minimumJerk((s - s1) / (1 - s1)).s : 1;
-      const ankle: IAutoMovieVector3 = lerp(feet[side], end[side], minimumJerk(s).s);
-      return { placement: flat(side, { ...ankle, y: m.ankleHeight + top * w }), lift: top * w };
+      const w: number =
+        s < s0
+          ? minimumJerk(s / s0).s
+          : s > s1
+            ? 1 - minimumJerk((s - s1) / (1 - s1)).s
+            : 1;
+      const ankle: IAutoMovieVector3 = lerp(
+        feet[side],
+        end[side],
+        minimumJerk(s).s,
+      );
+      return {
+        placement: flat(side, { ...ankle, y: m.ankleHeight + top * w }),
+        lift: top * w,
+      };
     };
-    const footAt = (side: "left" | "right", t: number): { placement: HumanFoot.IPlacement; planted: boolean; lift: number } => {
+    const footAt = (
+      side: "left" | "right",
+      t: number,
+    ): { placement: HumanFoot.IPlacement; planted: boolean; lift: number } => {
       const [a, b] = windows[side];
-      if (t <= a) return { placement: flat(side, feet[side]), planted: true, lift: 0 };
-      if (t >= b) return { placement: flat(side, end[side]), planted: true, lift: 0 };
+      if (t <= a)
+        return { placement: flat(side, feet[side]), planted: true, lift: 0 };
+      if (t >= b)
+        return { placement: flat(side, end[side]), planted: true, lift: 0 };
       return { ...swing(side, (t - a) / (b - a)), planted: false };
     };
 
     // The pelvis: from over the start to over the end, lowered where a planted leg needs it.
-    const centre: IAutoMovieVector3 = HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, { x: (restX("left") + restX("right")) / 2, y: 0, z: (body.rest.get("leftFoot")!.z + body.rest.get("rightFoot")!.z) / 2 });
+    const centre: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw },
+      {
+        x: (restX("left") + restX("right")) / 2,
+        y: 0,
+        z: (body.rest.get("leftFoot")!.z + body.rest.get("rightFoot")!.z) / 2,
+      },
+    );
     const startRoot: IAutoMovieVector3 = context.entry.posture.root;
-    const endMid: IAutoMovieVector3 = { x: (end.left.x + end.right.x) / 2 - centre.x, y: -0.005, z: (end.left.z + end.right.z) / 2 - centre.z };
+    const endMid: IAutoMovieVector3 = {
+      x: (end.left.x + end.right.x) / 2 - centre.x,
+      y: -0.005,
+      z: (end.left.z + end.right.z) / 2 - centre.z,
+    };
     const rootAt = (t: number): IAutoMovieVector3 => {
-      const s: number = 0.5 * minimumJerk((t - 0.04 * duration) / (0.42 * duration)).s + 0.5 * minimumJerk((t - 0.7 * duration) / (0.28 * duration)).s;
-      return { x: startRoot.x + (endMid.x - startRoot.x) * s, y: startRoot.y + (endMid.y - startRoot.y) * s, z: startRoot.z + (endMid.z - startRoot.z) * s };
+      const s: number =
+        0.5 * minimumJerk((t - 0.04 * duration) / (0.42 * duration)).s +
+        0.5 * minimumJerk((t - 0.7 * duration) / (0.28 * duration)).s;
+      return {
+        x: startRoot.x + (endMid.x - startRoot.x) * s,
+        y: startRoot.y + (endMid.y - startRoot.y) * s,
+        z: startRoot.z + (endMid.z - startRoot.z) * s,
+      };
     };
 
     const share = (t: number): number => t / duration;
@@ -183,10 +295,34 @@ export namespace stepOver {
         { name: "trailContact", share: share(windows[trail][1]) },
       ],
       contacts: [
-        { part: lead === "left" ? "leftFoot" : "rightFoot", kind: "plant", from: 0, to: 0.08, support: { kind: "ground" } },
-        { part: lead === "left" ? "leftFoot" : "rightFoot", kind: "plant", from: 0.42, to: 1, support: { kind: "ground" } },
-        { part: trail === "left" ? "leftFoot" : "rightFoot", kind: "plant", from: 0, to: 0.5, support: { kind: "ground" } },
-        { part: trail === "left" ? "leftFoot" : "rightFoot", kind: "plant", from: 0.82, to: 1, support: { kind: "ground" } },
+        {
+          part: lead === "left" ? "leftFoot" : "rightFoot",
+          kind: "plant",
+          from: 0,
+          to: 0.08,
+          support: { kind: "ground" },
+        },
+        {
+          part: lead === "left" ? "leftFoot" : "rightFoot",
+          kind: "plant",
+          from: 0.42,
+          to: 1,
+          support: { kind: "ground" },
+        },
+        {
+          part: trail === "left" ? "leftFoot" : "rightFoot",
+          kind: "plant",
+          from: 0,
+          to: 0.5,
+          support: { kind: "ground" },
+        },
+        {
+          part: trail === "left" ? "leftFoot" : "rightFoot",
+          kind: "plant",
+          from: 0.82,
+          to: 1,
+          support: { kind: "ground" },
+        },
       ],
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
@@ -194,15 +330,30 @@ export namespace stepOver {
         const limbs: IHumanPosture["limbs"] = {};
         for (const side of ["left", "right"] as const) {
           const f = footAt(side, t);
-          const knee: IAutoMovieVector3 = HumanFrame.point({ origin: root, yaw }, { ...body.rest.get(`${side}LowerLeg`)!, z: body.rest.get(`${side}LowerLeg`)!.z + 1 });
+          const knee: IAutoMovieVector3 = HumanFrame.point(
+            { origin: root, yaw },
+            {
+              ...body.rest.get(`${side}LowerLeg`)!,
+              z: body.rest.get(`${side}LowerLeg`)!.z + 1,
+            },
+          );
           limbs[side === "left" ? "leftLeg" : "rightLeg"] = {
             point: f.placement.ankle,
             bend: knee,
             rotation: f.placement.rotation,
-            ...(f.planted ? { planted: true, contact: HumanFoot.offset(body, side, "ball") } : {}),
+            ...(f.planted
+              ? { planted: true, contact: HumanFoot.offset(body, side, "ball") }
+              : {}),
           };
         }
-        let posture: IHumanPosture = resolveHumanPosture.lower(body, { root, yaw, pitch: 0, roll: 0, joints: { ...stand.RELAXED, ...standUpright.of(body).joints }, limbs });
+        let posture: IHumanPosture = resolveHumanPosture.lower(body, {
+          root,
+          yaw,
+          pitch: 0,
+          roll: 0,
+          joints: { ...stand.RELAXED, ...standUpright.of(body).joints },
+          limbs,
+        });
 
         // A swinging foot whose ankle cannot dorsiflex enough to stay level
         // droops its toes, and raising its ankle folds the knee and droops them
@@ -210,23 +361,49 @@ export namespace stepOver {
         // point's height (the step scaled by the last round's ankle-to-sole
         // ratio, 1 to 4) until that point is within 2 mm of the planned lift,
         // in at most six rounds, so the clearance holds on the sole itself.
-        const lifted = (["left", "right"] as const).filter((side) => footAt(side, t).lift > 0);
-        const last: Partial<Record<"left" | "right", { ankle: number; lowest: number }>> = {};
+        const lifted = (["left", "right"] as const).filter(
+          (side) => footAt(side, t).lift > 0,
+        );
+        const last: Partial<
+          Record<"left" | "right", { ankle: number; lowest: number }>
+        > = {};
         for (let round: number = 0; round < 6 && lifted.length > 0; round++) {
           const bones = poseBones(body, resolveHumanPosture(body, posture));
           const next: IHumanPosture["limbs"] = { ...posture.limbs };
           let moved: boolean = false;
           for (const side of lifted) {
             const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
-            const lowest: number = Math.min(...(["heel", "ball", "toe"] as const).map((name) => resolveAutoMovieHumanoidSurfaces.place(body.surfaces.sockets[`${name}${Side}`], bones.get(`${side}Foot`)!).point.y));
+            const lowest: number = Math.min(
+              ...(["heel", "ball", "toe"] as const).map(
+                (name) =>
+                  resolveAutoMovieHumanoidSurfaces.place(
+                    body.surfaces.sockets[`${name}${Side}`],
+                    bones.get(`${side}Foot`)!,
+                  ).point.y,
+              ),
+            );
             const short: number = footAt(side, t).lift - lowest;
             if (short <= 0.002) continue;
-            const limb: "leftLeg" | "rightLeg" = side === "left" ? "leftLeg" : "rightLeg";
+            const limb: "leftLeg" | "rightLeg" =
+              side === "left" ? "leftLeg" : "rightLeg";
             const goal = next[limb]!;
             const previous = last[side];
-            const ratio: number = previous === undefined ? 1 : Math.min(4, Math.max(1, (goal.point.y - previous.ankle) / Math.max(1e-4, lowest - previous.lowest)));
+            const ratio: number =
+              previous === undefined
+                ? 1
+                : Math.min(
+                    4,
+                    Math.max(
+                      1,
+                      (goal.point.y - previous.ankle) /
+                        Math.max(1e-4, lowest - previous.lowest),
+                    ),
+                  );
             last[side] = { ankle: goal.point.y, lowest };
-            next[limb] = { ...goal, point: { ...goal.point, y: goal.point.y + short * ratio } };
+            next[limb] = {
+              ...goal,
+              point: { ...goal.point, y: goal.point.y + short * ratio },
+            };
             moved = true;
           }
           if (!moved) break;
@@ -239,6 +416,14 @@ export namespace stepOver {
 }
 
 /** A point a share of the way from one point to another. */
-function lerp(a: IAutoMovieVector3, b: IAutoMovieVector3, s: number): IAutoMovieVector3 {
-  return { x: a.x + (b.x - a.x) * s, y: a.y + (b.y - a.y) * s, z: a.z + (b.z - a.z) * s };
+function lerp(
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  s: number,
+): IAutoMovieVector3 {
+  return {
+    x: a.x + (b.x - a.x) * s,
+    y: a.y + (b.y - a.y) * s,
+    z: a.z + (b.z - a.z) * s,
+  };
 }

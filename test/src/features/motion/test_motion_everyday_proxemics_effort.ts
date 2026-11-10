@@ -30,45 +30,130 @@ import { TestValidator } from "@nestia/e2e";
 export function test_motion_everyday_proxemics_effort(): void {
   const G = HumanProxemics.GAPS;
   const Z = HumanProxemics.ZONES;
-  TestValidator.predicate("intimate gap in the intimate zone", G.intimate > Z.intimate[0] && G.intimate < Z.intimate[1]);
-  TestValidator.predicate("face-to-face in the personal zone", G.faceToFace > Z.personal[0] && G.faceToFace < Z.personal[1]);
+  TestValidator.predicate(
+    "intimate gap in the intimate zone",
+    G.intimate > Z.intimate[0] && G.intimate < Z.intimate[1],
+  );
+  TestValidator.predicate(
+    "face-to-face in the personal zone",
+    G.faceToFace > Z.personal[0] && G.faceToFace < Z.personal[1],
+  );
   TestValidator.predicate("personal gap is 1.0 m", G.personal === 1.0);
-  TestValidator.predicate("social gap in the social zone", G.social > Z.social[0] && G.social < Z.social[1]);
-  TestValidator.error("non-positive metres refused", (): unknown => HumanProxemics.gap(0, undefined as never));
+  TestValidator.predicate(
+    "social gap in the social zone",
+    G.social > Z.social[0] && G.social < Z.social[1],
+  );
+  TestValidator.error("non-positive metres refused", (): unknown =>
+    HumanProxemics.gap(0, undefined as never),
+  );
 
   const from = { x: 0.3, y: 0, z: -1 };
   const target = { x: 1.5, y: 1.3, z: 2 };
   const stop = HumanProxemics.stop(from, target, 1, 0.12);
   const d0: number = Math.hypot(target.x - from.x, target.z - from.z);
   const back: number = Math.hypot(target.x - stop.at.x, target.z - stop.at.z);
-  const cross: number = (target.x - from.x) * (stop.at.z - from.z) - (target.z - from.z) * (stop.at.x - from.x);
-  TestValidator.predicate("stop is gap plus chest back from the target", Math.abs(back - 1.12) < 1e-12 && stop.at.y === 0);
-  TestValidator.predicate("stop lies on the line from the start", Math.abs(cross) < 1e-12 && Math.hypot(stop.at.x - from.x, stop.at.z - from.z) < d0);
-  TestValidator.predicate("heading at the target", Math.abs(stop.yaw - (Math.atan2(target.x - from.x, target.z - from.z) * 180) / Math.PI) < 1e-12);
-  const mirrored = HumanProxemics.stop({ ...from, x: -from.x }, { ...target, x: -target.x }, 1, 0.12);
-  TestValidator.predicate("mirror", Math.abs(mirrored.at.x + stop.at.x) < 1e-12 && Math.abs(mirrored.at.z - stop.at.z) < 1e-12 && Math.abs(mirrored.yaw + stop.yaw) < 1e-12);
-  TestValidator.error("target at the start refused", (): unknown => HumanProxemics.stop(from, { ...from, y: 1 }, 1, 0.1));
+  const cross: number =
+    (target.x - from.x) * (stop.at.z - from.z) -
+    (target.z - from.z) * (stop.at.x - from.x);
+  TestValidator.predicate(
+    "stop is gap plus chest back from the target",
+    Math.abs(back - 1.12) < 1e-12 && stop.at.y === 0,
+  );
+  TestValidator.predicate(
+    "stop lies on the line from the start",
+    Math.abs(cross) < 1e-12 &&
+      Math.hypot(stop.at.x - from.x, stop.at.z - from.z) < d0,
+  );
+  TestValidator.predicate(
+    "heading at the target",
+    Math.abs(
+      stop.yaw -
+        (Math.atan2(target.x - from.x, target.z - from.z) * 180) / Math.PI,
+    ) < 1e-12,
+  );
+  const mirrored = HumanProxemics.stop(
+    { ...from, x: -from.x },
+    { ...target, x: -target.x },
+    1,
+    0.12,
+  );
+  TestValidator.predicate(
+    "mirror",
+    Math.abs(mirrored.at.x + stop.at.x) < 1e-12 &&
+      Math.abs(mirrored.at.z - stop.at.z) < 1e-12 &&
+      Math.abs(mirrored.yaw + stop.yaw) < 1e-12,
+  );
+  TestValidator.error("target at the start refused", (): unknown =>
+    HumanProxemics.stop(from, { ...from, y: 1 }, 1, 0.1),
+  );
 
   const neutral = HumanEffort.modifiers();
   TestValidator.predicate(
     "neutral is identity",
-    neutral.tempo === 1 && neutral.extent === 1 && neutral.step === 1 && neutral.swing === 1 && neutral.elbow === 0 && neutral.curvature === 0,
+    neutral.tempo === 1 &&
+      neutral.extent === 1 &&
+      neutral.step === 1 &&
+      neutral.swing === 1 &&
+      neutral.elbow === 0 &&
+      neutral.curvature === 0,
   );
   const levels: number[] = [-1, -0.5, 0, 0.5, 1];
-  const series = (factor: keyof HumanEffort.IEffort, read: (m: HumanEffort.IModifiers) => number): number[] =>
-    levels.map((v: number): number => read(HumanEffort.modifiers({ [factor]: v })));
-  const falling = (xs: number[]): boolean => xs.every((x: number, i: number): boolean => i === 0 || x < xs[i - 1]!);
-  const rising = (xs: number[]): boolean => xs.every((x: number, i: number): boolean => i === 0 || x > xs[i - 1]!);
-  TestValidator.predicate("sudden shortens", falling(series("time", (m) => m.tempo)));
-  TestValidator.predicate("bound shrinks extent", falling(series("flow", (m) => m.extent)));
-  TestValidator.predicate("bound shortens steps", falling(series("flow", (m) => m.step)));
-  TestValidator.predicate("bound reduces swing", falling(series("flow", (m) => m.swing)));
-  TestValidator.predicate("bound draws the elbows in", falling(series("flow", (m) => m.elbow)));
-  TestValidator.predicate("strong grows extent", rising(series("weight", (m) => m.extent)));
-  TestValidator.predicate("strong grows swing", rising(series("weight", (m) => m.swing)));
+  const series = (
+    factor: keyof HumanEffort.IEffort,
+    read: (m: HumanEffort.IModifiers) => number,
+  ): number[] =>
+    levels.map((v: number): number =>
+      read(HumanEffort.modifiers({ [factor]: v })),
+    );
+  const falling = (xs: number[]): boolean =>
+    xs.every((x: number, i: number): boolean => i === 0 || x < xs[i - 1]!);
+  const rising = (xs: number[]): boolean =>
+    xs.every((x: number, i: number): boolean => i === 0 || x > xs[i - 1]!);
+  TestValidator.predicate(
+    "sudden shortens",
+    falling(series("time", (m) => m.tempo)),
+  );
+  TestValidator.predicate(
+    "bound shrinks extent",
+    falling(series("flow", (m) => m.extent)),
+  );
+  TestValidator.predicate(
+    "bound shortens steps",
+    falling(series("flow", (m) => m.step)),
+  );
+  TestValidator.predicate(
+    "bound reduces swing",
+    falling(series("flow", (m) => m.swing)),
+  );
+  TestValidator.predicate(
+    "bound draws the elbows in",
+    falling(series("flow", (m) => m.elbow)),
+  );
+  TestValidator.predicate(
+    "strong grows extent",
+    rising(series("weight", (m) => m.extent)),
+  );
+  TestValidator.predicate(
+    "strong grows swing",
+    rising(series("weight", (m) => m.swing)),
+  );
   const space: number[] = series("space", (m) => m.curvature);
-  TestValidator.predicate("direct removes curvature", space[0]! > space[1]! && space[1]! > space[2]! && space[2] === 0 && space[4] === 0);
+  TestValidator.predicate(
+    "direct removes curvature",
+    space[0]! > space[1]! &&
+      space[1]! > space[2]! &&
+      space[2] === 0 &&
+      space[4] === 0,
+  );
   for (const effort of Object.values(HumanEffort.ACTIONS))
-    TestValidator.predicate("basic action in range", Object.values(effort).every((v: number | undefined): boolean => v !== undefined && v >= -1 && v <= 1));
-  TestValidator.error("factor out of range refused", (): unknown => HumanEffort.modifiers({ flow: 1.5 }));
+    TestValidator.predicate(
+      "basic action in range",
+      Object.values(effort).every(
+        (v: number | undefined): boolean =>
+          v !== undefined && v >= -1 && v <= 1,
+      ),
+    );
+  TestValidator.error("factor out of range refused", (): unknown =>
+    HumanEffort.modifiers({ flow: 1.5 }),
+  );
 }

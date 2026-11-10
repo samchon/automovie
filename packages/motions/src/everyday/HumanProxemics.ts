@@ -1,4 +1,7 @@
-import type { IAutoMovieBodyMeasure, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieBodyMeasure,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Interpersonal distance: the gaps people keep, by relationship and purpose,
@@ -41,10 +44,17 @@ import type { IAutoMovieBodyMeasure, IAutoMovieVector3 } from "@automovie/interf
  */
 export namespace HumanProxemics {
   /** A named gap. */
-  export type Band = "intimate" | "faceToFace" | "personal" | "social" | "handing";
+  export type Band =
+    | "intimate"
+    | "faceToFace"
+    | "personal"
+    | "social"
+    | "handing";
 
   /** Hall's zones, metres. */
-  export const ZONES: Readonly<Record<"intimate" | "personal" | "social", readonly [number, number]>> = {
+  export const ZONES: Readonly<
+    Record<"intimate" | "personal" | "social", readonly [number, number]>
+  > = {
     intimate: [0, 0.45],
     personal: [0.45, 1.2],
     social: [1.2, 3.6],
@@ -75,7 +85,10 @@ export namespace HumanProxemics {
    * @param height The palm's height, metres.
    * @returns Metres, possibly negative when the palm cannot reach that height ahead.
    */
-  export function reach(measure: IAutoMovieBodyMeasure, height: number): number {
+  export function reach(
+    measure: IAutoMovieBodyMeasure,
+    height: number,
+  ): number {
     const a: number = measure.upperArm;
     const b: number = measure.forearm + 0.4 * measure.hand;
     const flexion: number = (HANDING_ELBOW * Math.PI) / 180;
@@ -93,13 +106,22 @@ export namespace HumanProxemics {
    * @returns Metres; positive.
    * @throws {Error} When a metre request is not positive.
    */
-  export function gap(request: Band | number, self: IAutoMovieBodyMeasure, other: IAutoMovieBodyMeasure = self): number {
+  export function gap(
+    request: Band | number,
+    self: IAutoMovieBodyMeasure,
+    other: IAutoMovieBodyMeasure = self,
+  ): number {
     if (typeof request === "number") {
       if (!(request > 0)) throw new Error("An approach gap is positive");
       return request;
     }
     if (request !== "handing") return GAPS[request];
-    const height: number = (self.waistHeight + self.chestHeight + other.waistHeight + other.chestHeight) / 4;
+    const height: number =
+      (self.waistHeight +
+        self.chestHeight +
+        other.waistHeight +
+        other.chestHeight) /
+      4;
     return Math.max(0.05, reach(self, height) + reach(other, height));
   }
 
@@ -113,14 +135,26 @@ export namespace HumanProxemics {
    * @param chest How far the front of the chest stands ahead of the feet's midpoint, metres.
    * @returns The stop point on the floor and the heading to face, degrees.
    */
-  export function stop(from: IAutoMovieVector3, target: IAutoMovieVector3, gap: number, chest: number): { at: IAutoMovieVector3; yaw: number } {
+  export function stop(
+    from: IAutoMovieVector3,
+    target: IAutoMovieVector3,
+    gap: number,
+    chest: number,
+  ): { at: IAutoMovieVector3; yaw: number } {
     const dx: number = target.x - from.x;
     const dz: number = target.z - from.z;
     const d: number = Math.hypot(dx, dz);
-    if (d < 1e-9) throw new Error("An approach needs a target away from where the performer stands");
+    if (d < 1e-9)
+      throw new Error(
+        "An approach needs a target away from where the performer stands",
+      );
     const back: number = gap + chest;
     return {
-      at: { x: target.x - (dx / d) * back, y: 0, z: target.z - (dz / d) * back },
+      at: {
+        x: target.x - (dx / d) * back,
+        y: 0,
+        z: target.z - (dz / d) * back,
+      },
       yaw: (Math.atan2(dx, dz) * 180) / Math.PI,
     };
   }
@@ -135,9 +169,14 @@ export namespace HumanProxemics {
    * @param ratio The stature ratio.
    * @returns The scaled measure; mass scales with the cube.
    */
-  export function scaled(measure: IAutoMovieBodyMeasure, ratio: number): IAutoMovieBodyMeasure {
+  export function scaled(
+    measure: IAutoMovieBodyMeasure,
+    ratio: number,
+  ): IAutoMovieBodyMeasure {
     const out: IAutoMovieBodyMeasure = { ...measure };
-    for (const key of Object.keys(measure) as (keyof IAutoMovieBodyMeasure)[]) out[key] = key === "mass" ? measure[key] * ratio ** 3 : measure[key] * ratio;
+    for (const key of Object.keys(measure) as (keyof IAutoMovieBodyMeasure)[])
+      out[key] =
+        key === "mass" ? measure[key] * ratio ** 3 : measure[key] * ratio;
     return out;
   }
 }

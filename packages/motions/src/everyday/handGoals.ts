@@ -1,5 +1,8 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanHand } from "../posture/HumanHand";
@@ -37,29 +40,69 @@ import { poseBones } from "./poseBones";
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export function handGoals(body: IHumanBody, posture: IHumanPosture, requests: readonly handGoals.IRequest[]): IHumanPosture {
+export function handGoals(
+  body: IHumanBody,
+  posture: IHumanPosture,
+  requests: readonly handGoals.IRequest[],
+): IHumanPosture {
   if (requests.length === 0) return posture;
-  const limb = (side: HumanHand.Side): "leftArm" | "rightArm" => (side === "left" ? "leftArm" : "rightArm");
+  const limb = (side: HumanHand.Side): "leftArm" | "rightArm" =>
+    side === "left" ? "leftArm" : "rightArm";
   const first: IHumanPosture["limbs"] = { ...posture.limbs };
   for (const r of requests) {
-    const wrist: HumanHand.IWrist = HumanHand.place(body, r.side, r.surface, r.point, r.rotation, r.shape);
-    first[limb(r.side)] = { point: wrist.point, rotation: wrist.rotation, bend: r.bend };
+    const wrist: HumanHand.IWrist = HumanHand.place(
+      body,
+      r.side,
+      r.surface,
+      r.point,
+      r.rotation,
+      r.shape,
+    );
+    first[limb(r.side)] = {
+      point: wrist.point,
+      rotation: wrist.rotation,
+      bend: r.bend,
+    };
   }
   // Each candidate is solved and each hand keeps the candidate whose surface
   // lands nearest its point: a re-placement that tips the forearm across its
   // twist limit onto another solution is never kept over a better one.
-  const best: Map<HumanHand.Side, { miss: number; goal: IHumanPosture.IGoal }> = new Map();
+  const best: Map<HumanHand.Side, { miss: number; goal: IHumanPosture.IGoal }> =
+    new Map();
   let limbs: IHumanPosture["limbs"] = first;
   for (let pass: number = 0; pass <= PASSES; pass++) {
-    const bones = poseBones(body, resolveHumanPosture(body, { ...posture, limbs }));
+    const bones = poseBones(
+      body,
+      resolveHumanPosture(body, { ...posture, limbs }),
+    );
     const next: IHumanPosture["limbs"] = { ...posture.limbs };
     for (const r of requests) {
-      const miss: number = Vector3.length(Vector3.subtract(HumanHand.frame(body, bones, r.side, r.surface, r.shape).point, r.point));
+      const miss: number = Vector3.length(
+        Vector3.subtract(
+          HumanHand.frame(body, bones, r.side, r.surface, r.shape).point,
+          r.point,
+        ),
+      );
       const known = best.get(r.side);
-      if (known === undefined || miss < known.miss) best.set(r.side, { miss, goal: limbs[limb(r.side)]! });
-      const reached: IAutoMovieQuaternion = bones.get(`${r.side}Hand`)!.worldRotation;
-      const offset: IAutoMovieVector3 = HumanHand.offset(body, r.side, r.surface, r.shape).point;
-      next[limb(r.side)] = { point: Vector3.subtract(r.point, Quaternion.rotateVector(reached, offset)), rotation: r.rotation, bend: r.bend };
+      if (known === undefined || miss < known.miss)
+        best.set(r.side, { miss, goal: limbs[limb(r.side)]! });
+      const reached: IAutoMovieQuaternion = bones.get(
+        `${r.side}Hand`,
+      )!.worldRotation;
+      const offset: IAutoMovieVector3 = HumanHand.offset(
+        body,
+        r.side,
+        r.surface,
+        r.shape,
+      ).point;
+      next[limb(r.side)] = {
+        point: Vector3.subtract(
+          r.point,
+          Quaternion.rotateVector(reached, offset),
+        ),
+        rotation: r.rotation,
+        bend: r.bend,
+      };
     }
     limbs = next;
   }

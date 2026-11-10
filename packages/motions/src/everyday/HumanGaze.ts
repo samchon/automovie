@@ -1,4 +1,10 @@
-import { type IAutoMovieResolvedBone, Quaternion, Vector3, gazeChainJoints, minimumJerk } from "@automovie/engine";
+import {
+  type IAutoMovieResolvedBone,
+  Quaternion,
+  Vector3,
+  gazeChainJoints,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
@@ -69,7 +75,11 @@ export namespace HumanGaze {
   export const EYES: number = 15;
 
   /** The head and neck's comfortable share, degrees (provisional). */
-  export const HEAD: Readonly<{ yaw: number; down: number; up: number }> = { yaw: 60, down: 40, up: 30 };
+  export const HEAD: Readonly<{ yaw: number; down: number; up: number }> = {
+    yaw: 60,
+    down: 40,
+    up: 30,
+  };
 
   /** The trunk's share of yaw, degrees (provisional). */
   export const TRUNK: number = 40;
@@ -94,18 +104,34 @@ export namespace HumanGaze {
    * @param recruit Which segments may join; `auto` is `trunk`.
    * @returns The split.
    */
-  export function split(yaw: number, pitch: number, recruit: Recruit = "auto"): ISplit {
-    const share = (total: number, first: number, limitPositive: number, limitNegative: number): [number, number] => {
+  export function split(
+    yaw: number,
+    pitch: number,
+    recruit: Recruit = "auto",
+  ): ISplit {
+    const share = (
+      total: number,
+      first: number,
+      limitPositive: number,
+      limitNegative: number,
+    ): [number, number] => {
       const lead: number = Math.sign(total) * Math.min(Math.abs(total), first);
       const rest: number = total - lead;
-      const next: number = rest >= 0 ? Math.min(rest, limitPositive) : Math.max(rest, -limitNegative);
+      const next: number =
+        rest >= 0
+          ? Math.min(rest, limitPositive)
+          : Math.max(rest, -limitNegative);
       return [lead, next];
     };
-    if (recruit === "eyes") return { eyes: { yaw, pitch }, head: { yaw: 0, pitch: 0 }, trunk: 0 };
+    if (recruit === "eyes")
+      return { eyes: { yaw, pitch }, head: { yaw: 0, pitch: 0 }, trunk: 0 };
     const [eyeYaw, headYaw] = share(yaw, EYES, HEAD.yaw, HEAD.yaw);
     const headPitch: number = share(pitch, EYES, HEAD.down, HEAD.up)[1];
     const beyond: number = yaw - eyeYaw - headYaw;
-    const trunk: number = recruit === "head" ? 0 : Math.sign(beyond) * Math.min(Math.abs(beyond), TRUNK);
+    const trunk: number =
+      recruit === "head"
+        ? 0
+        : Math.sign(beyond) * Math.min(Math.abs(beyond), TRUNK);
     return {
       eyes: { yaw: yaw - headYaw - trunk, pitch: pitch - headPitch },
       head: { yaw: headYaw, pitch: headPitch },
@@ -142,14 +168,29 @@ export namespace HumanGaze {
    * @param point The world point.
    * @returns Yaw (positive left) and pitch (positive down), degrees.
    */
-  export function direction(body: IHumanBody, posture: IHumanPosture, point: IAutoMovieVector3): { yaw: number; pitch: number } {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = HumanTrunk.resolve(body, posture);
-    const eyes: IAutoMovieVector3 = Vector3.scale(Vector3.add(bones.get("leftEye")!.worldPosition, bones.get("rightEye")!.worldPosition), 0.5);
+  export function direction(
+    body: IHumanBody,
+    posture: IHumanPosture,
+    point: IAutoMovieVector3,
+  ): { yaw: number; pitch: number } {
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      HumanTrunk.resolve(body, posture);
+    const eyes: IAutoMovieVector3 = Vector3.scale(
+      Vector3.add(
+        bones.get("leftEye")!.worldPosition,
+        bones.get("rightEye")!.worldPosition,
+      ),
+      0.5,
+    );
     const hips: IAutoMovieQuaternion = bones.get("hips")!.worldRotation;
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(Quaternion.inverse(hips), Vector3.subtract(point, eyes));
+    const local: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.inverse(hips),
+      Vector3.subtract(point, eyes),
+    );
     return {
       yaw: (Math.atan2(local.x, local.z) * 180) / Math.PI,
-      pitch: (Math.atan2(-local.y, Math.hypot(local.x, local.z)) * 180) / Math.PI,
+      pitch:
+        (Math.atan2(-local.y, Math.hypot(local.x, local.z)) * 180) / Math.PI,
     };
   }
 
@@ -172,12 +213,24 @@ export namespace HumanGaze {
     recruit: Recruit,
     weights: { eyes: number; head: number; trunk: number },
   ): IHumanPosture {
-    const towards: { yaw: number; pitch: number } = direction(body, posture, point);
+    const towards: { yaw: number; pitch: number } = direction(
+      body,
+      posture,
+      point,
+    );
     const parts: ISplit = split(towards.yaw, towards.pitch, recruit);
     const joints: IHumanPosture["joints"] = { ...posture.joints };
-    const blend = (bone: AutoMovieHumanoidBone, target: readonly [number, number, number], w: number): void => {
+    const blend = (
+      bone: AutoMovieHumanoidBone,
+      target: readonly [number, number, number],
+      w: number,
+    ): void => {
       const base: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
-      joints[bone] = [base[0] + (target[0] - base[0]) * w, base[1] + (target[1] - base[1]) * w, base[2] + (target[2] - base[2]) * w];
+      joints[bone] = [
+        base[0] + (target[0] - base[0]) * w,
+        base[1] + (target[1] - base[1]) * w,
+        base[2] + (target[2] - base[2]) * w,
+      ];
     };
     const add = (bone: AutoMovieHumanoidBone, twist: number): void => {
       const base: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
@@ -189,19 +242,44 @@ export namespace HumanGaze {
     add("spine", 0.4 * parts.trunk * weights.trunk);
 
     // Head and neck: the engine's range-aware split of one aim.
-    const chain: IAutoMovieJointPose[] = gazeChainJoints({ rig: body.skeleton, flexionDeg: parts.head.pitch, twistDeg: parts.head.yaw });
-    const neck: IAutoMovieJointPose | undefined = chain.find((j: IAutoMovieJointPose): boolean => j.bone === "neck");
-    const head: IAutoMovieJointPose = chain.find((j: IAutoMovieJointPose): boolean => j.bone === "head")!;
+    const chain: IAutoMovieJointPose[] = gazeChainJoints({
+      rig: body.skeleton,
+      flexionDeg: parts.head.pitch,
+      twistDeg: parts.head.yaw,
+    });
+    const neck: IAutoMovieJointPose | undefined = chain.find(
+      (j: IAutoMovieJointPose): boolean => j.bone === "neck",
+    );
+    const head: IAutoMovieJointPose = chain.find(
+      (j: IAutoMovieJointPose): boolean => j.bone === "head",
+    )!;
     blend("neck", [neck?.flexion ?? 0, 0, neck?.twist ?? 0], weights.head);
     blend("head", [head.flexion ?? 0, 0, head.twist ?? 0], weights.head);
 
     // Eyes: each solved exactly in its head's frame, clamped to its range.
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = HumanTrunk.resolve(body, posture, joints);
-    const headRotation: IAutoMovieQuaternion = Quaternion.inverse(bones.get("head")!.worldRotation);
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      HumanTrunk.resolve(body, posture, joints);
+    const headRotation: IAutoMovieQuaternion = Quaternion.inverse(
+      bones.get("head")!.worldRotation,
+    );
     for (const eye of ["leftEye", "rightEye"] as const) {
-      const d: IAutoMovieVector3 = Vector3.normalize(Quaternion.rotateVector(headRotation, Vector3.subtract(point, bones.get(eye)!.worldPosition)));
-      const yaw: number = Math.max(-45, Math.min(45, (Math.atan2(d.x, d.z) * 180) / Math.PI));
-      const pitch: number = Math.max(-30, Math.min(30, (Math.asin(Math.max(-1, Math.min(1, -d.y))) * 180) / Math.PI));
+      const d: IAutoMovieVector3 = Vector3.normalize(
+        Quaternion.rotateVector(
+          headRotation,
+          Vector3.subtract(point, bones.get(eye)!.worldPosition),
+        ),
+      );
+      const yaw: number = Math.max(
+        -45,
+        Math.min(45, (Math.atan2(d.x, d.z) * 180) / Math.PI),
+      );
+      const pitch: number = Math.max(
+        -30,
+        Math.min(
+          30,
+          (Math.asin(Math.max(-1, Math.min(1, -d.y))) * 180) / Math.PI,
+        ),
+      );
       blend(eye, [pitch, 0, yaw], weights.eyes);
     }
     return { ...posture, joints };
@@ -230,20 +308,41 @@ export namespace HumanGaze {
    * @param name The layer's name; `gaze` when absent.
    * @returns The layer.
    */
-  export function layer(requests: readonly ILayer[], name: string = "gaze"): IHumanLayer {
+  export function layer(
+    requests: readonly ILayer[],
+    name: string = "gaze",
+  ): IHumanLayer {
     return {
       name,
-      apply: (posture: IHumanPosture, seconds: number, context: IHumanLayer.IContext): IHumanPosture => {
+      apply: (
+        posture: IHumanPosture,
+        seconds: number,
+        context: IHumanLayer.IContext,
+      ): IHumanPosture => {
         let active: ILayer | undefined;
         for (const r of requests) if (r.from <= seconds) active = r;
         if (active === undefined) return posture;
-        const point: IAutoMovieVector3 = context.aim(active.target, seconds).point;
-        const towards: { yaw: number; pitch: number } = direction(context.body, posture, point);
+        const point: IAutoMovieVector3 = context.aim(
+          active.target,
+          seconds,
+        ).point;
+        const towards: { yaw: number; pitch: number } = direction(
+          context.body,
+          posture,
+          point,
+        );
         const amplitude: number = Math.hypot(towards.yaw, towards.pitch);
-        const parts: ISplit = split(towards.yaw, towards.pitch, active.with ?? "auto");
+        const parts: ISplit = split(
+          towards.yaw,
+          towards.pitch,
+          active.with ?? "auto",
+        );
         const going = (duration: number): number => {
           const on: number = minimumJerk((seconds - active!.from) / duration).s;
-          const off: number = active!.to === undefined ? 0 : minimumJerk((seconds - active!.to) / duration).s;
+          const off: number =
+            active!.to === undefined
+              ? 0
+              : minimumJerk((seconds - active!.to) / duration).s;
           return on * (1 - off);
         };
         return aim(context.body, posture, point, active.with ?? "auto", {
