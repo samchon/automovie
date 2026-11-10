@@ -1,6 +1,6 @@
 # Research
 
-Study everything the film must show truthfully before the screenplay decides it or code programs it: each practice, the conduct of officials and crowds, and how the genre is actually shot and heard. Settings, screenplay beats and every [behavior](../../motion/SKILL.md) cite the study.
+Study everything the film must show truthfully before the screenplay decides it or code programs it: each practice, the conduct of officials and crowds, and how the genre is actually shot and heard. Settings, screenplay beats, entity measurements and every [behavior](../../motion/SKILL.md) cite the study.
 
 ## Performance study {#performance-study}
 

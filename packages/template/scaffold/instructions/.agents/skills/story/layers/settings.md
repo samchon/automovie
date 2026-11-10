@@ -1,6 +1,6 @@
 # Settings
 
-Write down everything about the world, its people, places and objects that later authors, artists and performers must keep true, specific enough to check and findable without reconstructing the world, under the settings questions in the [story contracts](../../contracts/story/SKILL.md). Settings are prose for readers; they never describe code. Read the [instructions](../planning/requirements.md#requirements) and finish [discovery](../planning/discovery.md) first, and work backward from the anticipated scenes to the facts they need. Baseline states belong here; the events that change or reveal them belong to [treatments](treatments.md) on the long route and to the screenplay on the short route.
+Write down the decisions about the world, its people, places and objects that later authors, artists and performers must keep true, specific enough to hold the work to and findable without reconstructing the world, under the settings questions in the [story contracts](../../contracts/story/SKILL.md). Settings are prose for readers; they never describe code. Read the [instructions](../planning/requirements.md#requirements) and finish [discovery](../planning/discovery.md) first, and work backward from the anticipated scenes to the facts they need. Baseline states belong here; the events that change or reveal them belong to [treatments](treatments.md) on the long route and to the screenplay on the short route.
 
 ## Records
 
