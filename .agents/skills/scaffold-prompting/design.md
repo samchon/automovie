@@ -1,5 +1,7 @@
 # Design the task strategy
 
+Read this when changing a shipped strategy, responsibility or route.
+
 Identify the task's recipient, needed achievement and usable handoff from the actual request and current work. Give the author choices that lead toward that result rather than a list of symptoms to avoid. An executable scene, final audiovisual plan and rendered performance serve different recipients even when they realize the same event.
 
 Keep the entry point short enough to reveal its task, goal, authority and next resource. Put a branch behind its actual trigger; always-needed decisions stay together. Move callers and references with a renamed resource so installed agents can still reach it. Production entry points must not depend on repository skills that will not ship.

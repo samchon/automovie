@@ -1,6 +1,10 @@
 # Design the quality questions
 
-Ask what the respondent can establish with its actual work. Use the scaffold's [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) for production requirements and [graph configuration](../../../packages/template/scaffold/instructions/.agents/skills/evidence/configuration.md) for selection and ownership. A scene can establish its experience; cross-scene continuity needs the relevant population, and a rendered-output promise needs the actual output observations.
+Read this when changing a contract question, its statements or its judgment boundary.
+
+Ask what the respondent can establish with its actual work. A scene can establish its experience; cross-scene continuity needs the relevant population, and a rendered-output promise needs the actual output observations.
+
+The scaffold's [adoption guide](../../../packages/template/scaffold/instructions/.agents/skills/evidence/adoption.md) owns production requirements, and its [graph configuration](../../../packages/template/scaffold/instructions/.agents/skills/evidence/configuration.md) owns selection and ownership.
 
 ## Scope and failure
 

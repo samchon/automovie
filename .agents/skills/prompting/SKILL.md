@@ -1,6 +1,6 @@
 ---
 name: prompting
-description: Owns what makes an instruction for an agent work, namely what to state, reasons, the layout of skills, what a shared skill may hold and how a prompt is verified. Use before changing AGENTS.md, CLAUDE.md or a skill.
+description: Owns what makes an instruction for an agent work, namely what to state, reasons, one owner per rule, routing to packages, the layout and splitting of skills, what a shared skill may hold and how a prompt is verified. Use before changing AGENTS.md, CLAUDE.md or a skill.
 ---
 
 # Prompting
@@ -13,7 +13,7 @@ Before editing a prompt, fetch and read in full the current prompting guide for 
 
 ## What to state
 
-State the essentials concisely and clearly: facts the code does not show, rules the user set, and mistakes an agent made. Leave dates and history to git.
+State the essentials: facts the code does not show, rules the user set, and mistakes an agent made. Leave dates and history to git.
 
 Give a consequential instruction a short reason that says who loses what when it is missed, and put the reason in the instruction the recipient reads. A source comment or an unexplained prohibition cannot guide a case the instruction did not list.
 
@@ -21,19 +21,17 @@ Keep method choices open unless the failure requires a particular order or bound
 
 ## One owner {#one-owner}
 
-Give each rule one owner, and let every other place link to it. Sections and files neither repeat nor contradict one another, so a task receives one consistent requirement. Update a rule's callers when moving it.
+Give each rule one owner, and let every other place link to it. Sections, files and skills neither repeat nor contradict one another, so a task receives one consistent requirement. Update a rule's callers when moving it.
 
 ## Packages {#packages}
 
-A skill routes to a package and stops there. It carries no function name, command line or file path that a package owns, and it lists no package's features, because a list in a skill cannot be kept in step with the package. The package's README and types own them.
-
-Naming the package itself is routing, not listing.
+A skill routes to a package and stops there; naming the package is the routing. It carries no function name, command line or file path that a package owns, and it lists no package's features, because a copy in a skill cannot be kept in step with the package. The package's README and types own them.
 
 ## Skills and contracts
 
 A skill gives a job's goal, order and boundaries, and points to the checklists it relies on without restating their items.
 
-An agent does not reliably follow long, detailed or conditional prose. A rule that every declaration must meet therefore belongs in a [contracts](../contracts/) checklist as one question under its own H2. Evidence makes each selected declaration answer it, and [review](../review/SKILL.md) checks that the answer is true and complete.
+An agent does not reliably follow long, detailed or conditional prose. A rule that every declaration must meet therefore belongs in a [contracts](../contracts/SKILL.md) checklist as one question under its own H2. Evidence makes each selected declaration answer it, and [review](../review/SKILL.md) checks that the answer is true and complete.
 
 Group judgments the agent can make together, and split them when their task, respondent or repair owner differs. Keep overall achievement distinct from passing its detailed tests.
 
@@ -41,13 +39,11 @@ Group judgments the agent can make together, and split them when their task, res
 
 ### Entry files
 
-[`AGENTS.md`](../../../AGENTS.md) holds what every session needs, in under 200 lines, and lists every skill, because Claude Code finds skills only there. [`CLAUDE.md`](../../../CLAUDE.md) is `@AGENTS.md`.
+[`AGENTS.md`](../../../AGENTS.md) holds what every session needs, in under 200 lines, and lists every top-level skill with its trigger, because Claude Code finds skills only there. [`CLAUDE.md`](../../../CLAUDE.md) is `@AGENTS.md`.
 
 ### Skill files
 
-A skill is `.agents/skills/<name>/SKILL.md`, with `name` equal to the directory and a third-person `description` that says what it does and when to use it.
-
-A job with its own trigger gets its own skill.
+A skill is `.agents/skills/<name>/SKILL.md`, with `name` equal to the directory and a third-person `description` that says what it does and when to use it. A job with its own trigger gets its own skill.
 
 ### Splitting a skill {#splitting-a-skill}
 

@@ -1,11 +1,13 @@
 # Writing
 
+The rules every document follows, from a skill to a README to a doc comment.
+
 ## Sentences
 
 - Write only what the reader needs and would not otherwise know.
-- Say simply what can be said simply: where one short sentence carries the rule, the long version goes.
-- Cut padding, repetition, preamble, filler and closing summaries.
-- Cut a qualification that changes nothing, an example that restates the rule, and a second sentence that repeats the first.
+- Say simply what can be said simply.
+- Cut padding, preamble, filler and closing summaries.
+- Cut a qualification that changes nothing, an example that restates the rule, and a sentence that repeats another.
 - Make one point in one sentence in one place.
 - Give the reason when it is not obvious.
 - Say what to do rather than what to avoid, and name the concrete pattern when a prohibition is needed.
@@ -24,8 +26,7 @@ Text reads as written by a person for this reader. These habits mark text as pro
 - stock AI phrasing;
 - a sentence frame or opener repeated across sibling documents;
 - one template stamped on every document, whatever it holds;
-- three parallel items where the content has two or four;
-- a closing summary of what was just said.
+- three parallel items where the content has two or four.
 
 ## Paragraphs {#paragraphs}
 
