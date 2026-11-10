@@ -16,6 +16,7 @@ import { deriveAutoMovieProjectName } from "./deriveAutoMovieProjectName";
 import { promptAutoMovieProjectName } from "./promptAutoMovieProjectName";
 import { readAutoMovieCommandArguments } from "./readAutoMovieCommandArguments";
 import { renderAutoMovieScaffoldNextSteps } from "./renderAutoMovieScaffoldNextSteps";
+import { selectAutoMoviePackageManager } from "./selectAutoMoviePackageManager";
 import { selectAutoMovieProjectName } from "./selectAutoMovieProjectName";
 
 const USAGE: string = `automovie: scaffold an automovie project
@@ -61,7 +62,7 @@ Options:
  *
  * @evidence contracts/development/implementation.md#principled-implementation Parsing finishes before rendering or publication, and path.resolve binds every target to the current working directory. A non-completed receipt becomes ScaffoldPublicationError, preserving the completed prefix and stopping outcome; describeError follows distinct cause values with a set to terminate cycles, but assumes their message access and string conversion do not throw.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This dispatcher delegates admission, name choice, the prompt and closing text to CLI owners and rendering and publication to the template package. Only bin.ts invokes it at module load, so importing run does not execute a request.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `add` checks only the working directory for `pnpm-workspace.yaml` and never searches ancestors or detects a package manager. The catch reports failures without stacks and never retries publication or rolls back files.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `add` checks only the working directory for `pnpm-workspace.yaml` and never searches ancestors; only `create`'s next steps detect a package manager. The catch reports failures without stacks and never retries publication or rolls back files.
  * @evidence contracts/development/common.md#meaningful-documentation The comment gives argv ownership, every command's effect, name and target choice, retained file and directory effects, and the returned status.
  * @evidence contracts/development/implementation.md#efficient-algorithms For n files, rendering reads total bytes and sorts directory entries and the n rendered paths for deterministic order and collision reporting. Publication encodes those bytes and checks each path's ancestors before writing; listing scans completed paths once. Sync adds linear instruction reads and digests and the existing conditional publication path. Failure formatting additionally walks the distinct cause chain.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Every command takes fresh filesystem observations and cannot reuse an earlier receipt. Check observes without publishing. Rendering reads the installed scaffold anew; only the template's per-call directory captures are reused and revalidated during that publication.
@@ -148,6 +149,12 @@ export async function run(argv: readonly string[]): Promise<number> {
         : renderScaffold({ name }),
       command.force,
       command.workspace ? "workspace" : "production",
+      selectAutoMoviePackageManager({
+        directory: targetDir,
+        ...(process.env.npm_config_user_agent === undefined
+          ? {}
+          : { userAgent: process.env.npm_config_user_agent }),
+      }),
     );
     return 0;
   } catch (error) {
@@ -164,6 +171,7 @@ function publish(
   files: Record<string, string>,
   force: boolean,
   kind: "production" | "workspace" | "workspace-production",
+  packageManager?: { manager: "npm" | "pnpm"; workspace?: string },
 ): void {
   const receipt: IScaffoldPublicationReceipt = publishFiles(targetDir, files, {
     force,
@@ -178,7 +186,7 @@ function publish(
             `  ${entry.relative}`,
         )
         .join("\n") +
-      renderAutoMovieScaffoldNextSteps(targetDir, kind),
+      renderAutoMovieScaffoldNextSteps(targetDir, kind, packageManager),
   );
 }
 

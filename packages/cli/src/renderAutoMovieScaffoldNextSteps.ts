@@ -1,10 +1,11 @@
 /**
  * Explain the work between a freshly written installation and a runnable production.
  *
- * `directory` is printed as given (`run` passes the absolute target). The text starts with a blank line because `run` appends it to the written-file list. A `production` is a single production installed with npm; a `workspace` is a pnpm workspace root that still needs its first production; a `workspace-production` is a production added to such a root. The steps name the generated `README.md`, `AGENTS.md`, the `lint` and `evidence` scripts and the workspace's `add` command, so they must change with the scaffold's first-run README sections.
+ * `directory` is printed as given (`run` passes the absolute target). The text starts with a blank line because `run` appends it to the written-file list. A `production` is a single production installed with `packageManager`'s manager: npm by default, pnpm at an enclosing workspace root when one is named; a `workspace` is a pnpm workspace root that still needs its first production; a `workspace-production` is a production added to such a root. The steps name the generated `README.md`, `AGENTS.md`, the `lint` and `evidence` scripts and the workspace's `add` command, so they must change with the scaffold's first-run README sections.
  *
  * @param directory The installed directory.
  * @param kind Which installation was written.
+ * @param packageManager The manager a `production` installs with, from `selectAutoMoviePackageManager`; workspace kinds always use pnpm.
  * @returns The closing text.
  *
  * @evidence contracts/development/implementation.md#principled-implementation The steps are fixed text derived from each layer's first-run contract: the production README's npm install and checks, and the workspace README's pnpm install and add.
@@ -18,6 +19,9 @@
 export function renderAutoMovieScaffoldNextSteps(
   directory: string,
   kind: "production" | "workspace" | "workspace-production",
+  packageManager: { manager: "npm" | "pnpm"; workspace?: string } = {
+    manager: "npm",
+  },
 ): string {
   if (kind === "workspace")
     return (
@@ -32,7 +36,17 @@ export function renderAutoMovieScaffoldNextSteps(
       `  1. Run pnpm install at the workspace root to link the production.\n` +
       `  2. Read README.md in ${directory} and the workspace AGENTS.md. This is an empty harness.\n` +
       `  3. Author the production in TypeScript under src with the public AutoMovie package APIs.\n` +
-      `  4. Run npm run lint and npm run evidence there.\n`
+      `  4. Run pnpm run lint and pnpm run evidence there.\n`
+    );
+  if (packageManager.manager === "pnpm")
+    return (
+      `\n\nNext (from ${directory}):\n` +
+      `  1. Read README.md and AGENTS.md. This is an empty harness.\n` +
+      (packageManager.workspace === undefined
+        ? `  2. Run pnpm install.\n`
+        : `  2. Run pnpm install at the workspace root ${packageManager.workspace}; its pnpm-workspace.yaml must list this directory.\n`) +
+      `  3. Author the production in TypeScript under src with the public AutoMovie package APIs.\n` +
+      `  4. Run pnpm run lint for source and pnpm run evidence for checklist answers.\n`
     );
   return (
     `\n\nNext (from ${directory}):\n` +
