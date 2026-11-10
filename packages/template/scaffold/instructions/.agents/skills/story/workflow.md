@@ -32,10 +32,10 @@ Inherit through actual parents, repairing a missing handoff rather than bypassin
 1. Finish the whole body while its pass is disabled.
 2. Complete [inspection and cause repair](correction/repair.md#cause-rounds), enable the stage through [evidence configuration](../evidence/configuration.md), and write [answers](evidence/writing.md).
 3. Submit the body, boundaries and population to independent [review](../review/SKILL.md) through creative closure and evidence audit under [review rounds](../review/rounds.md).
-4. Repair findings at their owners and complete the closing review.
+4. Repair findings at their owners until the pass closes under [review rounds](../review/rounds.md).
 
 ## Completion
 
-Run `npm run evidence` and read its whole report; a passing graph shows the recorded relationships, and review judges the creative result. Whole-work completion needs the selected passes, a current closing review, passing unfiltered validation, the compiler and source checks and required tests, and [delivery review](../review/delivery.md) of any commissioned media.
+Run `npm run evidence` and read its whole report; a passing graph shows the recorded relationships, and review judges the creative result. Whole-work completion needs the selected passes, current closed review, passing unfiltered validation, the compiler and source checks and required tests, and [delivery review](../review/delivery.md) of any commissioned media.
 
-A manuscript with its closing review may be delivered with its revision and named remaining diagnostics, but that is not fully validated completion. A creative defect, missing parent, pending transfer, unfinished review or unverified media blocks its completion, and until review finishes the result is a draft. Changes to completed layers follow [closed passes](correction/repair.md#closed-passes).
+A manuscript with its closed review may be delivered with its revision and named remaining diagnostics, but that is not fully validated completion. A creative defect, missing parent, pending transfer, unfinished review or unverified media blocks its completion, and until review finishes the result is a draft. Changes to completed layers follow [closed passes](correction/repair.md#closed-passes).

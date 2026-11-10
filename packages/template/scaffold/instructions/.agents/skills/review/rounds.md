@@ -2,7 +2,7 @@
 
 Keep current reviews in `docs/review/<draft|final>/<layer>/`, mirroring every authored file and H2, with `verdict/index.md` for whole-pass duties. Construction reviews target construction and naturalness reviews the working text. Each body-clean unit carries its native current fingerprint review, which covers the body, not the truth of its answers; after [expression transfer](../story/naturalness/procedure.md#transfer), construction judgments stay with their frozen edition.
 
-Use one independent reviewer per pass and one closing review, adding another reader only for a question the first cannot judge. Follow [independent reading](reading.md) before opening author records, and record the revision, inputs, scope, findings with literal support, causes, protected achievements, author responses, limits and outcome. Send a recurring uncovered loss to [discovery](../story/planning/discovery.md).
+Use one independent reviewer per pass, and a fresh closing reviewer only as the grading below requires, adding another reader only for a question the first cannot judge. Follow [independent reading](reading.md) before opening author records, and record the revision, inputs, scope, findings with literal support, causes, protected achievements, author responses, limits and outcome. Send a recurring uncovered loss to [discovery](../story/planning/discovery.md).
 
 The author repairs each finding under [cause rounds](../story/correction/repair.md#cause-rounds) or raises a factual objection: the quotation is absent, the passage does not meet the definition, a permitted exception applies, or the parent contradicts the finding. The reviewer resolves it from the actual inputs in the same record; intent, repair cost or earlier approval cannot dismiss an established loss.
 
