@@ -24,6 +24,7 @@
  * - `putDown`: setting a held prop down at a place and letting go.
  * - `handOver`: handing a held prop to a receiver, letting go only after the receiver's grip closes.
  * - `receive`: taking a prop a giver holds out.
+ * - `present`: a pad holder presenting a held pad to a striker by the striker's event.
  * - `kick`: a round kick's shin or a push kick's foot brought onto a target, or a feint of one.
  * - `guard`: taking and holding the fighting stance with the gloves up.
  * - `step`: fighting-stance footwork that keeps the stance.
@@ -33,4 +34,4 @@
  * - `knockdown`: the legs giving way and the body going down to lie supine.
  * - `knee`: a knee driven onto a target, in the clinch or free.
  */
-export type HumanActionName = "stand" | "walk" | "run" | "jump" | "approach" | "look" | "gesture" | "rest" | "punch" | "kick" | "guard" | "step" | "defend" | "flinch" | "stagger" | "knockdown" | "knee" | "sit" | "rise" | "shift" | "bend" | "handshake" | "pickUp" | "putDown" | "handOver" | "receive" | "stepOver" | "brace";
+export type HumanActionName = "stand" | "walk" | "run" | "jump" | "approach" | "look" | "gesture" | "rest" | "punch" | "kick" | "guard" | "step" | "defend" | "flinch" | "stagger" | "knockdown" | "knee" | "sit" | "rise" | "shift" | "bend" | "handshake" | "pickUp" | "putDown" | "handOver" | "receive" | "present" | "stepOver" | "brace";

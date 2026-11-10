@@ -1,9 +1,17 @@
-import { type IAutoMovieResolvedBone, Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieResolvedBone,
+  Vector3,
+  resolveAutoMovieMutualGoal,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanProp } from "../perform/IHumanProp";
-import type { HumanHand } from "../posture/HumanHand";
+import { HumanHand } from "../posture/HumanHand";
+import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanPrehension } from "./HumanPrehension";
 import { handshake } from "./handshake";
@@ -66,7 +74,10 @@ export namespace HumanHandover {
     side: HumanHand.Side;
 
     /** The person's displayed world bones at the start. */
-    bones: ReadonlyMap<AutoMovieHumanoidBone, Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">>;
+    bones: ReadonlyMap<
+      AutoMovieHumanoidBone,
+      Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
+    >;
   }
 
   /** The planner's input. */
@@ -116,6 +127,9 @@ export namespace HumanHandover {
     /** The receiver's wrist at the grasp. */
     receiverAt: HumanHand.IWrist;
 
+    /** The receiver's hand as its arm achieves the grasp, where the digits close. */
+    receiverShown: HumanHand.IWrist;
+
     /** The giver's transport time. */
     offer: number;
 
@@ -146,7 +160,10 @@ export namespace HumanHandover {
     const outcome: Outcome = input.outcome ?? "transfer";
     const giver = input.giver.bones;
     const receiver = input.receiver.bones;
-    const hand = (bones: IPerson["bones"], side: HumanHand.Side): HumanHand.IWrist => {
+    const hand = (
+      bones: IPerson["bones"],
+      side: HumanHand.Side,
+    ): HumanHand.IWrist => {
       const b = bones.get(`${side}Hand`)!;
       return { point: b.worldPosition, rotation: b.worldRotation };
     };
@@ -155,27 +172,88 @@ export namespace HumanHandover {
 
     // Where: the receiving grip on the mutual goal, the prop turned as held.
     const meet: IAutoMovieVector3 = resolveAutoMovieMutualGoal({
-      a: handshake.arm(input.giver.body, input.giver.side, giver.get(`${input.giver.side}UpperArm`)!.worldPosition),
-      b: handshake.arm(input.receiver.body, input.receiver.side, receiver.get(`${input.receiver.side}UpperArm`)!.worldPosition),
+      a: handshake.arm(
+        input.giver.body,
+        input.giver.side,
+        giver.get(`${input.giver.side}UpperArm`)!.worldPosition,
+      ),
+      b: handshake.arm(
+        input.receiver.body,
+        input.receiver.side,
+        receiver.get(`${input.receiver.side}UpperArm`)!.worldPosition,
+      ),
     }).point;
-    const atStart: HumanGrasp.ITarget = HumanGrasp.at(input.prop, input.handle, input.frame);
+    const atStart: HumanGrasp.ITarget = HumanGrasp.at(
+      input.prop,
+      input.handle,
+      input.frame,
+    );
     const shift: IAutoMovieVector3 = Vector3.subtract(meet, atStart.point);
-    const offered: IHumanProp.IFrame = { position: Vector3.add(input.frame.position, shift), rotation: input.frame.rotation };
-    const giverAt: HumanHand.IWrist = { point: Vector3.add(giverFrom.point, shift), rotation: giverFrom.rotation };
-    const target: HumanGrasp.ITarget = HumanGrasp.at(input.prop, input.handle, offered);
-    const receiverAt: HumanHand.IWrist = HumanGrasp.hand(input.receiver.body, input.receiver.side, target);
+    const offered: IHumanProp.IFrame = {
+      position: Vector3.add(input.frame.position, shift),
+      rotation: input.frame.rotation,
+    };
+    const giverAt: HumanHand.IWrist = {
+      point: Vector3.add(giverFrom.point, shift),
+      rotation: giverFrom.rotation,
+    };
+    // The receiver takes the grip from the azimuth about its axis its arm can
+    // reach from standing, as a pick up does.
+    const authored: HumanGrasp.ITarget = HumanGrasp.at(
+      input.prop,
+      input.handle,
+      offered,
+    );
+    const standing: IHumanPosture = HumanGrasp.standing(
+      input.receiver.body,
+      receiver,
+    );
+    const chosen = HumanGrasp.reachable(
+      input.receiver.body,
+      standing,
+      input.receiver.side,
+      HumanHand.elbow(input.receiver.body, standing, input.receiver.side),
+      (turn: number): HumanHand.IWrist =>
+        HumanGrasp.hand(
+          input.receiver.body,
+          input.receiver.side,
+          HumanGrasp.around(authored, turn),
+        ),
+    );
+    const target: HumanGrasp.ITarget = HumanGrasp.around(authored, chosen.turn);
+    const receiverAt: HumanHand.IWrist = chosen.wrist;
+    const receiverShown: HumanHand.IWrist = chosen.shown;
 
     // When: the giver's offer, the receiver's reach ending no earlier, the
     // shared hold by mass, then the release.
     const offer: number = HumanPrehension.nominal(Vector3.length(shift), 0);
-    const reach: number = HumanPrehension.nominal(Vector3.length(Vector3.subtract(receiverAt.point, receiverFrom.point)), target.width);
+    const reach: number = HumanPrehension.nominal(
+      Vector3.length(Vector3.subtract(receiverAt.point, receiverFrom.point)),
+      target.width,
+    );
     const reachStart: number = Math.max(0, offer - reach);
     const gripClosed: number = reachStart + reach;
     const mass: number = input.mass ?? 0.09;
-    const share: number = Math.min(1, Math.max(0, (mass - 0.09) / (1.8 - 0.09)));
+    const share: number = Math.min(
+      1,
+      Math.max(0, (mass - 0.09) / (1.8 - 0.09)),
+    );
     const transfer: number = 0.5 + share * (0.64 - 0.5);
-    return { outcome, giverFrom, giverAt, offered, receiverFrom, target, receiverAt, offer, reachStart, reach, gripClosed, transfer, release: gripClosed + transfer };
+    return {
+      outcome,
+      giverFrom,
+      giverAt,
+      offered,
+      receiverFrom,
+      target,
+      receiverAt,
+      receiverShown,
+      offer,
+      reachStart,
+      reach,
+      gripClosed,
+      transfer,
+      release: gripClosed + transfer,
+    };
   }
-
 }
-

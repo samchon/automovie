@@ -18,6 +18,7 @@ export * from "./handling/putDown";
 export * from "./handling/HumanHandover";
 export * from "./handling/handOver";
 export * from "./handling/receive";
+export * from "./handling/present";
 export * from "./body/IHumanBody";
 export * from "./body/createHumanBody";
 export * from "./everyday/HumanAffect";

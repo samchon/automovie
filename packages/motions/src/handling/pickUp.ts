@@ -6,7 +6,10 @@ import {
   minimumJerk,
   resolvePose,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -25,7 +28,10 @@ import { HumanPrehension } from "./HumanPrehension";
  * Reaching for a prop's grip, grasping it and lifting it clear.
  *
  * The goal is the grip, not the arm: the hand's grip socket is brought onto
- * the prop's grip affordance along its approach axis (`HumanGrasp`), the
+ * the prop's grip affordance along its approach axis (`HumanGrasp`), taken
+ * from the azimuth about the grip's axis (within 90 degrees of the authored
+ * approach), tilted up to 45 degrees into an oblique grip, that the arm can
+ * reach with the least wrist error, the
  * fingers open to the peak aperture on the way and close on the prop's
  * colliders until contact (`HumanGrip`), and inverse kinematics solves the
  * arm. The rest of the body holds the posture it was entered in, so a pick
@@ -68,9 +74,23 @@ export namespace pickUp {
   export const interrupts: IHumanActionLaw["interrupts"] = {
     stand: [
       { window: [0, "gripClosed"], kind: "inertialize", entry: 0, blend: 0.3 },
-      { window: ["lifted", 1], kind: "inertialize", entry: 0, blend: 0.3, keep: ["grip"] },
+      {
+        window: ["lifted", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.3,
+        keep: ["grip"],
+      },
     ],
-    walk: [{ window: ["lifted", 1], kind: "inertialize", entry: 0, blend: 0.3, keep: ["grip"] }],
+    walk: [
+      {
+        window: ["lifted", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.3,
+        keep: ["grip"],
+      },
+    ],
   };
 
   /** Parameters. */
@@ -98,7 +118,9 @@ export namespace pickUp {
    * @returns The plan.
    * @throws {Error} When the grip lies beyond the arm's reach, or the prop has no such affordance or no colliders.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const side: HumanHand.Side = context.params.hand ?? "right";
     const lift: number = context.params.lift ?? 0.1;
     if (!(lift >= 0)) throw new Error("A pick up lifts a non-negative height");
@@ -106,15 +128,52 @@ export namespace pickUp {
     const held: IHumanPosture = context.entry.posture;
 
     // The grasp: where the hand goes, how it opens and how it closes.
-    const target: HumanGrasp.ITarget = HumanGrasp.target(context, context.params.prop, context.params.handle, context.start);
-    const grasp: HumanHand.IWrist = HumanGrasp.hand(body, side, target);
+    // The grip is taken from the side of its axis the arm can reach with the
+    // hand turned as asked (a cylinder grips alike from any azimuth).
+    const authored: HumanGrasp.ITarget = HumanGrasp.target(
+      context,
+      context.params.prop,
+      context.params.handle,
+      context.start,
+    );
+    const chosen = HumanGrasp.reachable(
+      body,
+      held,
+      side,
+      HumanHand.elbow(body, held, side),
+      (turn: number, tilt: number): HumanHand.IWrist =>
+        HumanGrasp.hand(body, side, HumanGrasp.around(authored, turn), tilt),
+      [-45, -30, -15, 0, 15, 30, 45],
+    );
+    const target: HumanGrasp.ITarget = HumanGrasp.around(authored, chosen.turn);
+    const grasp: HumanHand.IWrist = chosen.wrist;
     pickUp.reachable(context, side, grasp.point);
-    const closed: IHumanPosture["joints"] = HumanGrip.close(body, side, target.grip, grasp, target.colliders).joints;
-    const open: IHumanPosture["joints"] = HumanGrasp.open(body, side, closed, target.width).joints;
-    const entry: IAutoMovieResolvedBone = fk(body, context.entry.pose).get(`${side}Hand`)!;
+
+    // The digits close on the prop where the arm actually puts the hand.
+    const closed: IHumanPosture["joints"] = HumanGrip.close(
+      body,
+      side,
+      target.grip,
+      chosen.shown,
+      target.colliders,
+    ).joints;
+    const open: IHumanPosture["joints"] = HumanGrasp.open(
+      body,
+      side,
+      closed,
+      target.width,
+    ).joints;
+    const entry: IAutoMovieResolvedBone = fk(body, context.entry.pose).get(
+      `${side}Hand`,
+    )!;
 
     // Timing: reach, load, lift.
-    const reach: number = HumanPrehension.duration(context.skill, context.random("reach"), Vector3.length(Vector3.subtract(grasp.point, entry.worldPosition)), target.width);
+    const reach: number = HumanPrehension.duration(
+      context.skill,
+      context.random("reach"),
+      Vector3.length(Vector3.subtract(grasp.point, entry.worldPosition)),
+      target.width,
+    );
     const rise: number = lift > 0 ? HumanPrehension.nominal(lift, 0) : 0;
     const duration: number = reach + LOAD + rise;
     const transport: HumanPrehension.ITransport = HumanPrehension.transport(
@@ -126,9 +185,14 @@ export namespace pickUp {
       reach,
     );
     const peak: number = HumanPrehension.peak(context.random("peak"));
-    const shapes = { entry: HumanGrip.fingers(context.entry.pose, side), open, closed };
+    const shapes = {
+      entry: HumanGrip.fingers(context.entry.pose, side),
+      open,
+      closed,
+    };
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
-    const hand: IHumanContactWindow["part"] = side === "left" ? "leftHand" : "rightHand";
+    const hand: IHumanContactWindow["part"] =
+      side === "left" ? "leftHand" : "rightHand";
     return {
       duration,
       events: [
@@ -137,22 +201,59 @@ export namespace pickUp {
         { name: "lifted", share: 1 },
       ],
       contacts: [
-        { part: "leftFoot", kind: "plant", from: 0, to: 1, support: { kind: "ground" } },
-        { part: "rightFoot", kind: "plant", from: 0, to: 1, support: { kind: "ground" } },
-        { part: hand, kind: "grip", from: reach / duration, to: 1, support: { kind: "prop", subject: context.params.prop } },
+        {
+          part: "leftFoot",
+          kind: "plant",
+          from: 0,
+          to: 1,
+          support: { kind: "ground" },
+        },
+        {
+          part: "rightFoot",
+          kind: "plant",
+          from: 0,
+          to: 1,
+          support: { kind: "ground" },
+        },
+        {
+          part: hand,
+          kind: "grip",
+          from: reach / duration,
+          to: 1,
+          support: { kind: "prop", subject: context.params.prop },
+        },
       ],
-      holds: [{ side, prop: context.params.prop, from: reach / duration, fingers: closed }],
+      holds: [
+        {
+          side,
+          prop: context.params.prop,
+          from: reach / duration,
+          fingers: closed,
+        },
+      ],
       contact: reach,
       posture: (seconds: number): IHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const up: number = rise > 0 ? lift * minimumJerk((t - reach - LOAD) / rise).s : 0;
-        const wrist: IAutoMovieVector3 = t < reach ? transport.wrist(t) : { ...grasp.point, y: grasp.point.y + up };
+        const up: number =
+          rise > 0 ? lift * minimumJerk((t - reach - LOAD) / rise).s : 0;
+        const wrist: IAutoMovieVector3 =
+          t < reach
+            ? transport.wrist(t)
+            : { ...grasp.point, y: grasp.point.y + up };
         return {
           ...held,
-          joints: { ...held.joints, ...HumanPrehension.shape(shapes, peak, t / reach) },
+          joints: {
+            ...held.joints,
+            ...HumanPrehension.shape(shapes, peak, t / reach),
+          },
           limbs: {
             ...held.limbs,
-            [limb]: { point: wrist, rotation: t < reach ? transport.turn(t) : grasp.rotation, bend: HumanHand.elbow(body, held, side), ...(t >= reach ? { planted: true } : {}) },
+            [limb]: {
+              point: wrist,
+              rotation: t < reach ? transport.turn(t) : grasp.rotation,
+              bend: HumanHand.elbow(body, held, side),
+              ...(t >= reach ? { planted: true } : {}),
+            },
           },
         };
       },
@@ -168,20 +269,41 @@ export namespace pickUp {
    * @param wrist The wrist goal, world metres.
    * @throws {Error} When the goal is farther than the upper arm and forearm together.
    */
-  export function reachable(context: IHumanActionContext<object>, side: HumanHand.Side, wrist: IAutoMovieVector3): void {
-    const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(context.body, context.entry.posture).get(`${side}UpperArm`)!.worldPosition;
+  export function reachable(
+    context: IHumanActionContext<object>,
+    side: HumanHand.Side,
+    wrist: IAutoMovieVector3,
+  ): void {
+    const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(
+      context.body,
+      context.entry.posture,
+    ).get(`${side}UpperArm`)!.worldPosition;
     const distance: number = Vector3.length(Vector3.subtract(wrist, shoulder));
-    const limit: number = context.body.measure.upperArm + context.body.measure.forearm;
+    const limit: number =
+      context.body.measure.upperArm + context.body.measure.forearm;
     if (distance > limit + 1e-6)
-      throw new Error(`${context.subject}: the grip lies ${distance.toFixed(3)} m from the ${side} shoulder, beyond the arm's ${limit.toFixed(3)} m; bend or step closer first`);
+      throw new Error(
+        `${context.subject}: the grip lies ${distance.toFixed(3)} m from the ${side} shoulder, beyond the arm's ${limit.toFixed(3)} m; bend or step closer first`,
+      );
   }
 }
 
 /** World bones of a pose. */
-function fk(body: IHumanBody, pose: Parameters<typeof resolvePose>[0]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+function fk(
+  body: IHumanBody,
+  pose: Parameters<typeof resolvePose>[0],
+): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   return new Map(
-    resolvePose(pose, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, body.topology).map(
-      (r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+    resolvePose(
+      pose,
+      body.skeleton,
+      HUMANOID_JOINT_AXES,
+      HUMANOID_REST_FRAME,
+      body.topology,
+    ).map(
+      (
+        r: IAutoMovieResolvedBone,
+      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
     ),
   );
 }

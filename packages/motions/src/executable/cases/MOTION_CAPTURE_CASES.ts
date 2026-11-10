@@ -43,6 +43,7 @@ export const MOTION_CAPTURE_CASES: Readonly<Record<string, () => Iterable<IMotio
   "everyday-seat-sweep": (): IMotionCaptureCase[] => everydayCases("seat", MotionBodies.SWEEP.filter((b: string): boolean => b !== "f-short")),
   "handling-handshake": (): IMotionCaptureCase[] => handlingCases("handshake"),
   "handling-grasp": (): IMotionCaptureCase[] => handlingCases("grasp"),
+  "handling-handover": (): IMotionCaptureCase[] => handlingCases("handover"),
   striking: (): IMotionCaptureCase[] => strikingCases(),
   "striking-jab-cover": (): IMotionCaptureCase[] => strikingCases("striking-jab-cover"),
   "striking-crosses": (): IMotionCaptureCase[] => strikingCases("striking-crosses"),

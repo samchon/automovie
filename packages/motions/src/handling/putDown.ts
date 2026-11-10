@@ -6,7 +6,11 @@ import {
   Vector3,
   resolvePose,
 } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { HumanActionName } from "../HumanActionName";
 import type { IHumanBody } from "../body/IHumanBody";
@@ -18,6 +22,7 @@ import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { pickUp } from "./pickUp";
@@ -51,8 +56,12 @@ export namespace putDown {
 
   /** Cancel table. */
   export const interrupts: IHumanActionLaw["interrupts"] = {
-    stand: [{ window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
-    walk: [{ window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    stand: [
+      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
+    walk: [
+      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
   };
 
   /** Parameters. */
@@ -83,48 +92,121 @@ export namespace putDown {
    * @returns The plan.
    * @throws {Error} When the placing frame lies beyond the arm's reach.
    */
-  export function plan(context: IHumanActionContext<IParams>): IHumanActionPlan {
+  export function plan(
+    context: IHumanActionContext<IParams>,
+  ): IHumanActionPlan {
     const side: HumanHand.Side = context.params.hand ?? "right";
     const body: IHumanBody = context.body;
     const held: IHumanPosture = context.entry.posture;
 
     // The hand-to-prop offset the grip keeps, from the displayed frames now.
-    const hand: IAutoMovieResolvedBone = fk(body, context.entry.pose).get(`${side}Hand`)!;
-    const prop: IHumanProp.IFrame = context.prop(context.params.prop).frame(context.start);
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.worldRotation);
+    const hand: IAutoMovieResolvedBone = fk(body, context.entry.pose).get(
+      `${side}Hand`,
+    )!;
+    const prop: IHumanProp.IFrame = context
+      .prop(context.params.prop)
+      .frame(context.start);
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      hand.worldRotation,
+    );
     const offset: IHumanProp.IFrame = {
-      position: Quaternion.rotateVector(inverse, Vector3.subtract(prop.position, hand.worldPosition)),
+      position: Quaternion.rotateVector(
+        inverse,
+        Vector3.subtract(prop.position, hand.worldPosition),
+      ),
       rotation: Quaternion.multiply(inverse, prop.rotation),
     };
 
     // The prop's resting frame, then the hand that holds it there.
     const heading = (q: IAutoMovieQuaternion): number => {
-      const f: IAutoMovieVector3 = Quaternion.rotateVector(q, { x: 0, y: 0, z: 1 });
+      const f: IAutoMovieVector3 = Quaternion.rotateVector(q, {
+        x: 0,
+        y: 0,
+        z: 1,
+      });
       return (Math.atan2(f.x, f.z) * 180) / Math.PI;
     };
-    const turn: number = context.params.yaw === undefined ? 0 : context.params.yaw - heading(prop.rotation);
-    const rest: IAutoMovieQuaternion = Quaternion.normalize(Quaternion.multiply(Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, turn), prop.rotation));
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(Quaternion.multiply(rest, Quaternion.inverse(offset.rotation)));
-    const place: IAutoMovieVector3 = Vector3.subtract(context.params.at, Quaternion.rotateVector(rotation, offset.position));
+    const holding = (turn: number): HumanHand.IWrist => {
+      const rest: IAutoMovieQuaternion = Quaternion.normalize(
+        Quaternion.multiply(
+          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, turn),
+          prop.rotation,
+        ),
+      );
+      const r: IAutoMovieQuaternion = Quaternion.normalize(
+        Quaternion.multiply(rest, Quaternion.inverse(offset.rotation)),
+      );
+      return {
+        point: Vector3.subtract(
+          context.params.at,
+          Quaternion.rotateVector(r, offset.position),
+        ),
+        rotation: r,
+      };
+    };
+
+    // An authored heading is kept; otherwise the prop may rest at whichever
+    // heading the arm can lay it down at exactly.
+    const chosen: HumanHand.IWrist =
+      context.params.yaw === undefined
+        ? HumanGrasp.reachable(
+            body,
+            held,
+            side,
+            HumanHand.elbow(body, held, side),
+            (turn: number): HumanHand.IWrist => holding(turn),
+          ).wrist
+        : holding(context.params.yaw - heading(prop.rotation));
+    const rotation: IAutoMovieQuaternion = chosen.rotation;
+    const place: IAutoMovieVector3 = chosen.point;
     pickUp.reachable(context, side, place);
 
     // Timing: carry down, open, return.
     const hanging: IHumanPosture["limbs"] = { ...held.limbs };
     delete hanging[side === "left" ? "leftArm" : "rightArm"];
-    const home: IAutoMovieResolvedBone = fk(body, resolveHumanPosture(body, { ...held, limbs: hanging })).get(`${side}Hand`)!;
-    const down: number = HumanPrehension.duration(context.skill, context.random("place"), Vector3.length(Vector3.subtract(place, hand.worldPosition)), 0);
-    const back: number = HumanPrehension.nominal(Vector3.length(Vector3.subtract(home.worldPosition, place)), 0);
+    const home: IAutoMovieResolvedBone = fk(
+      body,
+      resolveHumanPosture(body, { ...held, limbs: hanging }),
+    ).get(`${side}Hand`)!;
+    const down: number = HumanPrehension.duration(
+      context.skill,
+      context.random("place"),
+      Vector3.length(Vector3.subtract(place, hand.worldPosition)),
+      0,
+    );
+    const back: number = HumanPrehension.nominal(
+      Vector3.length(Vector3.subtract(home.worldPosition, place)),
+      0,
+    );
     const duration: number = down + OPEN + back;
-    const carry: HumanPrehension.ITransport = HumanPrehension.transport(hand.worldPosition, place, { x: 0, y: -1, z: 0 }, SETBACK, { from: hand.worldRotation, to: rotation }, down);
+    const carry: HumanPrehension.ITransport = HumanPrehension.transport(
+      hand.worldPosition,
+      place,
+      { x: 0, y: -1, z: 0 },
+      SETBACK,
+      { from: hand.worldRotation, to: rotation },
+      down,
+    );
 
     // The return is a placing transport played backwards: it leaves straight
     // up for the setback and ends at rest where the arm hangs.
-    const retreat: HumanPrehension.ITransport = HumanPrehension.transport(home.worldPosition, place, { x: 0, y: -1, z: 0 }, SETBACK, { from: home.worldRotation, to: rotation }, back);
-    const closed: IHumanPosture["joints"] = HumanGrip.fingers(context.entry.pose, side);
+    const retreat: HumanPrehension.ITransport = HumanPrehension.transport(
+      home.worldPosition,
+      place,
+      { x: 0, y: -1, z: 0 },
+      SETBACK,
+      { from: home.worldRotation, to: rotation },
+      back,
+    );
+    const closed: IHumanPosture["joints"] = HumanGrip.fingers(
+      context.entry.pose,
+      side,
+    );
     const flat: IHumanPosture["joints"] = HumanHand.shape(side, "flat");
     const relaxed: IHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
-    const part: IHumanContactWindow["part"] = side === "left" ? "leftHand" : "rightHand";
+    const part: IHumanContactWindow["part"] =
+      side === "left" ? "leftHand" : "rightHand";
     return {
       duration,
       events: [
@@ -132,9 +214,27 @@ export namespace putDown {
         { name: "release", share: (down + OPEN) / duration },
       ],
       contacts: [
-        { part: "leftFoot", kind: "plant", from: 0, to: 1, support: { kind: "ground" } },
-        { part: "rightFoot", kind: "plant", from: 0, to: 1, support: { kind: "ground" } },
-        { part, kind: "grip", from: 0, to: down / duration, support: { kind: "prop", subject: context.params.prop } },
+        {
+          part: "leftFoot",
+          kind: "plant",
+          from: 0,
+          to: 1,
+          support: { kind: "ground" },
+        },
+        {
+          part: "rightFoot",
+          kind: "plant",
+          from: 0,
+          to: 1,
+          support: { kind: "ground" },
+        },
+        {
+          part,
+          kind: "grip",
+          from: 0,
+          to: down / duration,
+          support: { kind: "prop", subject: context.params.prop },
+        },
       ],
       contact: down,
       posture: (seconds: number): IHumanPosture => {
@@ -149,17 +249,33 @@ export namespace putDown {
         } else if (t <= down + OPEN) {
           wrist = place;
           turned = rotation;
-          digits = HumanPrehension.shape({ entry: closed, open: flat, closed: flat }, 1, (t - down) / OPEN);
+          digits = HumanPrehension.shape(
+            { entry: closed, open: flat, closed: flat },
+            1,
+            (t - down) / OPEN,
+          );
         } else {
           const r: number = t - down - OPEN;
           wrist = retreat.wrist(back - r);
           turned = retreat.turn(back - r);
-          digits = HumanPrehension.shape({ entry: flat, open: relaxed, closed: relaxed }, 1, r / back);
+          digits = HumanPrehension.shape(
+            { entry: flat, open: relaxed, closed: relaxed },
+            1,
+            r / back,
+          );
         }
         return {
           ...held,
           joints: { ...held.joints, ...digits },
-          limbs: { ...held.limbs, [limb]: { point: wrist, rotation: turned, bend: HumanHand.elbow(body, held, side), ...(t <= down ? { planted: true } : {}) } },
+          limbs: {
+            ...held.limbs,
+            [limb]: {
+              point: wrist,
+              rotation: turned,
+              bend: HumanHand.elbow(body, held, side),
+              ...(t <= down ? { planted: true } : {}),
+            },
+          },
         };
       },
     };
@@ -167,10 +283,21 @@ export namespace putDown {
 }
 
 /** World bones of a pose. */
-function fk(body: IHumanBody, pose: Parameters<typeof resolvePose>[0]): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+function fk(
+  body: IHumanBody,
+  pose: Parameters<typeof resolvePose>[0],
+): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
   return new Map(
-    resolvePose(pose, body.skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, body.topology).map(
-      (r: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
+    resolvePose(
+      pose,
+      body.skeleton,
+      HUMANOID_JOINT_AXES,
+      HUMANOID_REST_FRAME,
+      body.topology,
+    ).map(
+      (
+        r: IAutoMovieResolvedBone,
+      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
     ),
   );
 }

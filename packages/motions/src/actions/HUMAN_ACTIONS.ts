@@ -16,6 +16,7 @@ import { pickUp } from "../handling/pickUp";
 import { putDown } from "../handling/putDown";
 import { handOver } from "../handling/handOver";
 import { receive } from "../handling/receive";
+import { present } from "../handling/present";
 import { flinch } from "../reaction/flinch";
 import { knockdown } from "../reaction/knockdown";
 import { knee } from "../striking/knee";
@@ -61,6 +62,7 @@ export const HUMAN_ACTIONS: Readonly<Record<HumanActionName, IHumanActionLaw<nev
   putDown,
   handOver,
   receive,
+  present,
   bend,
   stepOver,
   brace,
