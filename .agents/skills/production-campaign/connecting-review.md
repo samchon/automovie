@@ -10,7 +10,7 @@ Check that the tree the reviewer reads matches the submitted bytes. Other change
 
 ## Launch the reviewer
 
-Start the review as a new CLI process with a new session, launched as [run](run.md#launch-workers-as-processes) describes, on the model the production's independent reading sets unless the user names another. Have it read the whole submission, and for motion and film work watch the actual frames and film, receiving parents, contracts, author records and earlier verdicts only in the order that reading sets, so they cannot steer its own judgment.
+Start the review as a new CLI process with a new session, launched as [run](launching-workers.md#launch-workers-as-processes) describes, on the model the production's independent reading sets unless the user names another. Have it read the whole submission, and for motion and film work watch the actual frames and film, receiving parents, contracts, author records and earlier verdicts only in the order that reading sets, so they cannot steer its own judgment.
 
 ## Relay and re-review
 
@@ -20,4 +20,4 @@ For a finding the writer objects to, resume the reviewer's actual session to res
 
 Check the submission, scope, frames read and required records. A partial review or another edition's verdict is not current acceptance, and a repeated handled finding or a missing reply is not a new verdict.
 
-Resumption and liveness follow [observe](observe.md). Record the submissions, verdicts and author decisions, and confirm completion by the review and repair the production requires.
+Resumption and liveness follow [observe](observing-runs.md). Record the submissions, verdicts and author decisions, and confirm completion by the review and repair the production requires.

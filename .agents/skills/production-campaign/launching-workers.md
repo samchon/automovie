@@ -1,4 +1,4 @@
-# Run
+# Launching workers
 
 How the coordinator prepares a campaign, launches its workers and keeps their records.
 
@@ -8,7 +8,7 @@ Establish each production's actual state as its campaign guide requires, reading
 
 ## Launch workers as processes
 
-Start each writer and each reviewer as a new CLI process with a new session in the production's directory, never as a subagent of the coordinator. Only the [observer](observe.md) is a subagent, because it authors nothing in a production.
+Start each writer and each reviewer as a new CLI process with a new session in the production's directory, never as a subagent of the coordinator. Only the [observer](observing-runs.md) is a subagent, because it authors nothing in a production.
 
 A subagent runs inside the coordinator's session, directory, runtime and permissions. It cannot take the production as its own project or run on another runtime, and once stopped it leaves no session of its own to resume. Malfoy's film owners, run as subagents, stopped mid-film with their evidence and review steps undone.
 
@@ -23,7 +23,7 @@ The brief names:
 - the current edition and its unresolved conditions;
 - the run record path, where the worker confirms its own role, session and model.
 
-Earlier verdicts reach a worker only in the order [review](review.md) allows.
+Earlier verdicts reach a worker only in the order [review](connecting-review.md) allows.
 
 ### The command
 

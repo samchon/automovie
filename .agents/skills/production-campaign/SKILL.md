@@ -9,9 +9,9 @@ Carry the commissioned work through its actual authoring and delivery owners. Th
 
 | Task | Read |
 | --- | --- |
-| Preparing, launching workers, recording runs, write scope, missing capabilities, comparison, Git ownership | [Run](run.md) |
-| The observer subagent's ticks and the revival of a stopped run; give it to the observer as its brief | [Observe](observe.md) |
-| Fixing a submission, launching an independent reviewer, relaying verdicts and rebuttals | [Review](review.md) |
+| Preparing, launching workers, recording runs, write scope, missing capabilities, comparison, Git ownership | [Launching workers](launching-workers.md) |
+| The observer subagent's ticks and the revival of a stopped run; give it to the observer as its brief | [Observing runs](observing-runs.md) |
+| Fixing a submission, launching an independent reviewer, relaying verdicts and rebuttals | [Connecting review](connecting-review.md) |
 
 ## Owners
 
