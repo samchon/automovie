@@ -16,7 +16,7 @@ Contract: [obligations/narratives.md](../../obligations/narratives.md).
     - that desire and its first audience recognition;
     - the actions it drives;
     - how major-unit goals continue or transform it.
-10. An ensemble may sustain competing pursuits, and another form another center, as exceptions to a single protagonist's pursuit.
+10. Where an ensemble sustains competing pursuits, or another form has another center, the answer identifies those in the same way and invents no single protagonist.
 11. Local tasks alone do not establish the whole, and no shared goal is invented.
 
 ## Promises and distribution {#promises-and-distribution}

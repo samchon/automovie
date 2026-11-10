@@ -6,7 +6,7 @@ Contract: [obligations/settings.md](../../obligations/settings.md).
 
 1. The answering file declares the audience, the central experience, the questions or formal effects it develops, its recurring rewards and the title's promise.
 2. User-fixed title wording is not a taste question.
-3. It establishes where delivery begins and ends, its inclusions and exclusions, its relation to a larger work, and its release units with their number and duration ranges.
+3. The answering file establishes where delivery begins and ends, its inclusions and exclusions, its relation to a larger work, and its release units with their number and duration ranges.
 4. Where these are not supplied, a provisional plan is derived from the promise, material and production limits, names its grounds and uncertainty, and is revised when those grounds change.
 5. A series establishes what recurs, what closes per release and what develops across releases. Scripts choose the release boundaries.
 6. Scale serves the audience and available material, not copied size rules or padding.

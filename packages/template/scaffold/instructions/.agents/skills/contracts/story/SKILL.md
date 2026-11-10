@@ -13,7 +13,7 @@ Do not make every scene testify for an entire film or attach a conditional requi
 
 | Family | Unit or record questions | Complete-population questions |
 | --- | --- | --- |
-| Shared ownership | [Common authoring principles](shared/principles/common.md): common principles | [Common population obligations](shared/obligations/common.md): common obligations |
+| Shared ownership | [Common authoring principles](shared/principles/common.md): scope and specificity | [Common population obligations](shared/obligations/common.md): ownership and layer boundaries |
 | Research | [Research principles](shared/principles/research.md): studied practice and sources, answered by each study | |
 | Settings | [Settings principles](shared/principles/settings.md): needed decisions and boundaries | [Settings population obligations](shared/obligations/settings.md): promise, scope, and a coherent world |
 | Brief, short route | [Brief principles](shared/principles/brief.md): needed decisions and currency | [Brief population obligations](shared/obligations/brief.md): a coherent brief |

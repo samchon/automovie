@@ -120,7 +120,7 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 
 ## Project files
 
-| Path | Holds |
+| Path, when used | Holds |
 | --- | --- |
 | `.agents/skills`, at this project's root or its workspace root | The task entry points `AGENTS.md` lists, their resources and the contracts |
 | `PROJECT.md` | The project overview, commissioned scope, current choices, constraints and setup authority |
@@ -130,6 +130,7 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 | `src` | Entities, laws, interactions, consequences, scene and film composition, host entries and commands |
 | `src/integrations` | Optional provider or local-tool code |
 | `test` | Tests and their runner |
+| `index.html`, `vite.config.ts` | The Viewer host page and its Vite configuration |
 | `public` | Small fixed browser inputs; audio and video belong in `media/` |
 | Runtime README instructions and `.env.example` | Nonsecret setup and variable names; actual secrets stay in ignored local `.env` |
 | `evidence.config.ts` | The duties selected through installed `@automovie/evidence`, which `npm run evidence` evaluates as the selected native graph |

@@ -5,7 +5,7 @@ Contract: [naturalness/scripts.md](../../naturalness/scripts.md).
 ## Execution rhythm {#execution-rhythm}
 
 1. The scene holds none of these:
-    - a uniform beat mold;
+    - a uniform beat pattern;
     - a gesture on every line;
     - decisive dialogue buried in exposition;
     - summary substituted for exchange;

@@ -5,7 +5,7 @@ Contract: [naturalness/realized.md](../../naturalness/realized.md).
 ## Speech yield {#speech-yield}
 
 1. The exchange holds no explanation of facts already shared, argument recited as a list, generic declaration of the unit's theme, or neighboring action repeated in another register.
-2. It holds none of these:
+2. The exchange holds none of these:
     - matching metaphors traded between speakers;
     - inappropriate status or relationship language;
     - uniform neutral exposition;

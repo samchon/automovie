@@ -4,6 +4,6 @@ The scripts construction population and the revised screenplay population each a
 
 Statements: [statements/naturalness/obligations/common.md](../../statements/naturalness/obligations/common.md).
 
-## Does recurrent expression follow material rather than a default mold? {#recurrent-frames}
+## Does recurrent expression follow material rather than a default pattern? {#recurrent-frames}
 
 Across every scene and delivery unit, does each recurring form serve the circumstances it appears in? A functionless convergence may fail even when each occurrence reads naturally alone.

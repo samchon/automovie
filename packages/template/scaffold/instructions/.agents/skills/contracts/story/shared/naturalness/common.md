@@ -6,7 +6,7 @@ Statements: [statements/naturalness/common.md](../statements/naturalness/common.
 
 ## Does it read as deliberate writing with a concrete world? {#reads-as-written}
 
-Does each instruction, utterance, image and detail belong to this moment, in language its adopted variety and register would produce on purpose, carrying meaning through an intelligible body, space, object, sound or adopted narrator? Padding, repeated explanation and default molds make the audience decode the author instead of living the scene, and cutting too hard loses the people, causes and voice the scene needs.
+Does each instruction, utterance, image and detail belong to this moment, in language its adopted variety and register would produce on purpose, carrying meaning through an intelligible body, space, object, sound or adopted narrator? Padding, repeated explanation and default patterns make the audience decode the author instead of living the scene, and cutting too hard loses the people, causes and voice the scene needs.
 
 Judge only the named failures of this item's statements, because preference outside them is not a defect, and retain one only under an exception they permit. Simple or flat writing is not inherently a defect.
 

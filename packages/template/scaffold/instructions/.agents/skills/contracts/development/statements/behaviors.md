@@ -29,7 +29,7 @@ Contract: [behaviors.md](../behaviors.md).
     - range of motion;
     - balance;
     - continuity at cuts.
-9. Those tests run across bodies of several statures and proportions, and against the partners and props the scenes use.
+9. The unit tests run across bodies of several statures and proportions, and against the partners and props the scenes use.
 
 ## Deterministic evaluation {#deterministic-evaluation}
 

@@ -10,7 +10,7 @@ Information:
 2. Consequential reveals, reversals and decisive uses of powers or objects have earlier establishment.
 3. Every setup or promise has a payoff, a transformation or an owned unresolved ending.
 4. Unsupported payoffs and abandoned setups are reported in both directions.
-5. It locates the questions that open and resolve, how long they stay open, the oldest outstanding ones and any deferral of all satisfaction. Counts locate the burden; reading judges it.
+5. The answer locates the questions that open and resolve, how long they stay open, the oldest outstanding ones and any deferral of all satisfaction. Counts locate the burden; reading judges it.
 
 Entry, middle and ending:
 

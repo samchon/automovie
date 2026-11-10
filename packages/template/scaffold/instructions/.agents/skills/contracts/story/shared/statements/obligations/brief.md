@@ -13,5 +13,5 @@ Contract: [obligations/brief.md](../../obligations/brief.md).
     - what each person knows with how they came to know it;
     - each relationship from both sides;
     - each baseline state with what changes it.
-6. Where two of the brief's decisions disagree, the record that made the decision first is corrected.
+6. Where two of the brief's decisions disagree, the disagreement is repaired in the earliest record that owns the decision, and no later record works around it.
 7. Where a [factual basis](../../../../../story/planning/requirements.md#factual-basis) is declared, the chronology, ages, distances, travel, money and capacities derived from the records agree, and quantities the fiction invents are left to research and code.

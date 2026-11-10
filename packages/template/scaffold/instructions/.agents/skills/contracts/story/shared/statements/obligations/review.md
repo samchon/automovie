@@ -31,7 +31,7 @@ Audit and classes:
     - preserved achievements and supported choices left intact;
     - all findings grouped by root cause and contributing factors;
     - the author's actual repairs or factual objections with their resolution, with responses not yet received marked.
-2. It preserves the function of achievements actually read and judged.
+2. The verdict preserves the function of achievements actually read and judged.
 3. It distinguishes expressive surplus removed below a duration target from insufficient event material.
 4. All findings were repaired by cause with their affected descendants, and the round closed as [narrative rounds](../../../../../review/narrative-rounds.md) requires.
-5. It states the actual open or clean result and any unverified host or output claim.
+5. The verdict states the actual open or clean result and any unverified host or output claim.

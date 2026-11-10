@@ -26,4 +26,4 @@ Classify each changed sentence, its neighbors and every statement whose meaning 
 
 The cycle is complete when coverage is complete and no unprotected yes remains after the affected rows are rechecked.
 
-Read the changed passages together for a new common mold or fidelity loss under [cause rounds](repair.md#cause-rounds). A clean table is neither independent approval nor whole-work completion; independent review closes the pass under [narrative rounds](../../review/narrative-rounds.md).
+Read the changed passages together for a new common pattern or fidelity loss under [cause rounds](repair.md#cause-rounds). A clean table is neither independent approval nor whole-work completion; independent review closes the pass under [narrative rounds](../../review/narrative-rounds.md).

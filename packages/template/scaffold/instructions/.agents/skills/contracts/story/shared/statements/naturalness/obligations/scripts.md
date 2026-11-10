@@ -8,7 +8,7 @@ Contract: [naturalness/obligations/scripts.md](../../../naturalness/obligations/
 2. The answer reports habitual beat sequences and mechanically equal blocks that flatten different situations, including:
     - a standard gesture before every line;
     - an explanatory conclusion after every scene.
-3. Units are compared for the same audible closing voiceover, question-and-answer mold or battle progression.
+3. Units are compared for the same audible closing voiceover, question-and-answer pattern or battle progression.
 4. These are execution notation, because production sets up each scene independently:
     - repeated scene headings for time, place and weather;
     - adopted actor-specific performance parentheticals;

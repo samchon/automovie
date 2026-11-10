@@ -6,4 +6,4 @@ Statements: [statements/naturalness/scripts.md](../statements/naturalness/script
 
 ## Do execution blocks carry the scene's pressure naturally? {#execution-rhythm}
 
-Do block length, speaker changes, directions, interruptions, silence, and simultaneous action make the actual action and reaction easy to perform at the required pressure and pace? A uniform mold flattens the scene, and stripping executable vocabulary because it sounds technical destroys this layer's work.
+Do block length, speaker changes, directions, interruptions, silence, and simultaneous action make the actual action and reaction easy to perform at the required pressure and pace? A uniform pattern flattens the scene, and stripping executable vocabulary because it sounds technical destroys this layer's work.

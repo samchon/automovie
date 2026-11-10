@@ -35,13 +35,18 @@ Orientation and access:
 2. Duration estimates are marked provisional until the performed action and the measured file establish them.
 3. Concrete details come from the inherited scene and change action, relationship, atmosphere, understanding or thematic force.
 4. Emotion is realized through the context of those details before its effect is demanded.
-5. No static appearance inventory, sensory checklist, generic mood label, unnecessary factual explanation or after-the-fact interpretation replaces the audience's experience.
-    - Exception: restrained detail, nonemotional atmosphere and deliberate gaps work when their cues let the audience experience their function.
-6. Inward meaning reaches the audience through performance, image, sound, or an adopted narration or caption form.
-7. Performance and sensory emphasis, images, motifs and image-sound relations are created as the scene needs them: choices, not categories to fill.
-8. Each action is written as its preparation, execution and result in the observable progression, not as an inventory of procedures.
-9. Places, objects, appearance, capacities and other world values arrive through actual parents. Realization changes no fact, closes no open relationship and alters no cause or outcome.
-10. Where a parent leaves no room for this layer, its owner is repaired and no length is manufactured.
+5. None of these replaces the audience's experience:
+    - a static appearance inventory;
+    - a sensory checklist;
+    - a generic mood label;
+    - an unnecessary factual explanation;
+    - an after-the-fact interpretation.
+6. Restrained detail, nonemotional atmosphere and deliberate gaps work when their cues let the audience experience their function.
+7. Inward meaning reaches the audience through performance, image, sound, or an adopted narration or caption form.
+8. Performance and sensory emphasis, images, motifs and image-sound relations are created as the scene needs them: choices, not categories to fill.
+9. Each action is written as its preparation, execution and result in the observable progression, not as an inventory of procedures.
+10. Places, objects, appearance, capacities and other world values arrive through actual parents. Realization changes no fact, closes no open relationship and alters no cause or outcome.
+11. Where a parent leaves no room for this layer, its owner is repaired and no length is manufactured.
 
 ## Beat decisions {#beat-decisions}
 
@@ -65,10 +70,13 @@ What the modules can perform:
 Measurements:
 
 12. Every measurement is left to the research laws that determine it and the code that derives it: no coordinate, offset or time between exchanges is written.
-    - Exception: a true anchor, namely a line, lyric or music event the picture syncs to, a count the audience perceives, or a key event the edit lands on.
-13. No decision is expressed only as a number, because the number leaves its meaning undecided.
+13. The only measurement written is a true anchor:
+    - a line, lyric or music event the picture syncs to;
+    - a count the audience perceives;
+    - a key event the edit lands on.
+14. No decision is expressed only as a number, because the number leaves its meaning undecided.
 
 Breakdown and addresses:
 
-14. The scene's breakdown names by settings or brief link every cast member, crowd, prop, set, wardrobe and makeup state, effect, sound, camera and lighting element its beats use, and nothing they do not.
-15. A scene or beat removed after others cite it keeps its address as `OMITTED`, and no address is reused or renumbered.
+15. The scene's breakdown names by settings or brief link every cast member, crowd, prop, set, wardrobe and makeup state, effect, sound, camera and lighting element its beats use, and nothing they do not.
+16. A scene or beat removed after others cite it keeps its address as `OMITTED`, and no address is reused or renumbered.

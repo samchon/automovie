@@ -12,7 +12,7 @@ Contract: [discovery/brief.md](../../discovery/brief.md).
     - asset constraints;
     - source boundaries;
     - sensitive subjects.
-2. Each element has an existing owner or a needed decision. Where two instructions conflict, the conflict is reported and both stand until the user decides.
+2. Each element has an existing owner or a needed decision. Where two instructions conflict, the conflict is reported, and neither instruction silently overrides the other.
 3. A premise is checked against a source only where a [factual basis](../../../../../story/planning/requirements.md#factual-basis) is declared or the films claim an external fact.
 4. The planned films were read as a consumer, and what they would otherwise invent was traced back to the decision that must supply it:
     - a rule, relationship or knowledge;

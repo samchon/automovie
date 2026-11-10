@@ -9,7 +9,7 @@ Contract: [principles/scripts.md](../../principles/scripts.md).
 3. It performs action, process, exchange and reaction, and ends in an observable exit state that follows from the final operation without restating its meaning.
 4. Blocks follow meaningful changes of action, response, process, time, space, form or view.
 5. Speakers are separated, and interruption, silence and simultaneous action sit beside the operation they change.
-6. Block length and division carry urgency, duration, humor or stillness; [execution rhythm](../../naturalness/scripts.md#execution-rhythm) judges their molds.
+6. Block length and division carry urgency, duration, humor or stillness; [execution rhythm](../../naturalness/scripts.md#execution-rhythm) judges their repeated patterns.
 7. Consequential questions, lies, bargains, refusals, interruptions and silences have the actual words, tactics, actions and reactions that change choice, knowledge, power or relationship.
 8. Delivery is specified where tone, volume, pace or interruption changes meaning.
 9. Movement, objects, environment, physical limits and time that affect the exchange are included.
@@ -39,7 +39,7 @@ Contract: [principles/scripts.md](../../principles/scripts.md).
     - a habitual composition that conceals the scene's changing force.
 7. A change of mood is expressed through its conditions, never by an interpretive label alone.
 8. Inner meaning has visible action, sound, or an explicitly adopted voiceover, caption or inserted form.
-9. Exception to the two statements above: declared theatrical, experimental and fixed-view forms express these decisions through their own notation.
+9. Where a declared theatrical, experimental or fixed-view form applies, changes of mood and inner meaning are expressed in that form's declared notation.
 10. Each participant's knowledge, belief, doubt and error has an actual path such as speech, observation, document, silence or absence. A camera view grants a participant no knowledge.
 11. Lens numbers, music composition and inconsequential acting detail are left to production unless the work requires them.
 12. The final screenplay still owns finished realization, transitions, attention and duration.

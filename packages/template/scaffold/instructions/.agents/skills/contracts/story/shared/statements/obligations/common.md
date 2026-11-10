@@ -12,9 +12,9 @@ Contract: [obligations/common.md](../../obligations/common.md).
     - files whose removal changes no fact, progression, relationship, experience or formal effect.
 3. Independently changeable or refutable facts and progressions are split, dependent attributes and inseparable continuous operations stay together, and purposeless material is removed or reconnected.
 4. An omission rests on an authorized scope decision.
-5. Central and peripheral development are compared, and core omissions and disproportionate expansion are identified:
-    - settings or brief and treatments hold sufficient decisions;
-    - scripts and screenplay hold sufficient execution and experience.
+5. Central and peripheral development are compared against what each layer must hold, and core omissions and disproportionate expansion are identified:
+    - settings or brief and treatments: sufficient decisions;
+    - scripts and screenplay: sufficient execution and experience.
 6. Counts, lengths, parent-child ratios and diffs locate passages to read; they are not verdicts.
 
 ## Layer boundaries {#layer-boundaries}
@@ -28,4 +28,4 @@ Contract: [obligations/common.md](../../obligations/common.md).
 7. Layout and adapter mechanics do not decide these boundaries.
 8. Color, material, dimension and unit expressions across the population agree with established values.
 9. Where wording would make artists invent incompatible values, the needed reference or conversion is defined at that value's owner.
-10. Those values are preserved downstream. Exception: no appearance inventory is required everywhere, and idiomatic perception that changes no fact stays.
+10. Established values are preserved downstream. Exception: no appearance inventory is required everywhere, and idiomatic perception that changes no fact stays.
