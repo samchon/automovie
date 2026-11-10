@@ -1,6 +1,6 @@
 {
   "name": "@automovie/human",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Human figure generated from typed parameters by code",
   "engines": {
     "node": ">=22.23.2"

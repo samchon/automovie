@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@automovie/station",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Coding-agent-native deterministic filmmaking: tracked authoring, compilation, rendering, review, and delivery.",
   "packageManager": "pnpm@10.6.4",
   "scripts": {

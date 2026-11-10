@@ -1,6 +1,6 @@
 {
   "name": "@automovie/motions",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "automovie human motion vocabulary: body-scaled, seeded and interruptible action laws an LLM author drives through a fluent chain",
   "main": "src/index.ts",
   "exports": {
