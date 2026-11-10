@@ -1,14 +1,14 @@
 # Segment review
 
-Review each finished short segment before extending it, with its adopted scene, view and clock, so defects do not spread through unreviewed motion. [Visual debugging](../3d-modeling/visual-debugging.md) owns repeatable observation conditions and cost.
+Review each finished short segment before extending it, with its adopted scene, view and clock, so defects do not spread through unreviewed motion. [Visual debugging](../visual-debugging/SKILL.md) owns repeatable observation conditions and cost.
 
 ## What to look at
 
-Read the whole segment on the contact sheets of its [review segments](../review/delivery-review.md#measure-and-compare). Then capture its exchanges, contacts, cuts and joins on the film's own consecutive frames, as [verification](verification.md#look-at-the-frames) requires, using the README's capture options for an exact frame grid or exact seconds.
+Read the whole segment on the contact sheets of its [review segments](../review/delivery-review.md#measure-and-compare). Then capture its exchanges, contacts, cuts and joins on the film's own consecutive frames, as [capture](../visual-debugging/capture.md#times) requires, using the README's capture options for an exact frame grid or exact seconds.
 
-A contact sheet shrinks every still, so open the full-size still wherever a contact, a joint or a small prop decides the judgment. To tell a wrong bend from a foreshortened one, capture the same frames from a second named view, and use a joint overlay where the capture offers one.
+Open the full-size stills as [stills and sheets](../visual-debugging/capture.md#stills-and-sheets) sets, add a second named view as [views](../visual-debugging/capture.md#views) sets, and use a joint overlay where the capture offers one.
 
-Judge the segment's staging, camera and timing and how its accepted cases join; a case that no longer convinces as the depicted practice returns to its [catalog case](catalog-cases.md). Numbers, hashes and receipts support that judgment but cannot close it, and a few sparse stills cannot replace the consecutive frames.
+Judge the segment's staging, camera and timing and how its accepted cases join; a case that no longer convinces as the depicted practice returns to its [catalog case](catalog-cases.md). Numbers, hashes and receipts support that judgment but cannot close it.
 
 ## Iterate on the affected interval
 

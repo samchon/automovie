@@ -4,9 +4,11 @@ This repository holds AutoMovie productions. A production primarily turns an LLM
 
 The [production skill](.agents/skills/production/SKILL.md) routes the commissioned output and its working files.
 
+A production is built with the installed AutoMovie packages. [Installed packages](.agents/skills/development/reuse.md#installed-packages) says what each one is for and where its API is written.
+
 ## Layout
 
-A production is the directory holding its `PROJECT.md`: this repository root for a single production, or each `movies/shorts/<name>` and `movies/series/<name>` of an AutoMovie workspace. Every project path a skill names, such as `PROJECT.md`, `README.md`, `src`, `test`, `docs`, `references`, `media`, `package.json` and its configurations, is that production's, and its commands run in its directory.
+A production is the directory holding its `PROJECT.md`: this repository root for a single production, or each `movies/shorts/<name>` and `movies/series/<name>` of an AutoMovie workspace. Every project path a skill names, such as `PROJECT.md`, `README.md`, `src`, `test`, `docs`, `references`, `media`, `package.json` and its configurations, is that production's. Its `README.md` lists its commands, which run in its directory.
 
 The skills and bundled contracts under `.agents/skills` serve every production; a production's own work and language contracts live in its `docs/contracts`.
 
@@ -35,7 +37,7 @@ In a workspace the production's folder fixes its [story route](.agents/skills/st
 
 ### What you can observe
 
-You see pictures only as still images and cannot hear. Judge motion from stills dense enough to show it, on consecutive frames at every contact and cut, as [delivery review](.agents/skills/review/delivery-review.md#measure-and-compare) samples them. Ask the user to watch playback where continuous motion is the claim, and to listen to any sound.
+You see pictures only as still images and cannot hear. Judge motion from stills dense enough to show it, on consecutive frames at every contact and cut, as [visual debugging](.agents/skills/visual-debugging/capture.md#times) samples them. Ask the user to watch playback where continuous motion is the claim, and to listen to any sound.
 
 Keep the Viewer and the frame capture working, and restore a broken one before other work, because every judgment of the film passes through them.
 
@@ -65,7 +67,7 @@ Read the production's `PROJECT.md` for the adopted scope, then enter the request
 | --- | --- |
 | [production](.agents/skills/production/SKILL.md) | Starting, resuming, restructuring or handing off a production: project context, sustained runs, stage caches, media records, instruction sync and final assembly |
 | [story](.agents/skills/story/SKILL.md) | Research, and planning, writing, continuing or revising a brief, settings, treatments, scripts, final screenplay, expression pass, narrative evidence or cause-based repair |
-| [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | A detailed asset representation, geometry, rig or authored control, when [entity work](.agents/skills/development/entities.md) says a commission needs one |
+| [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | A subject's form: the coarse form of a few primitives by default, and a detailed representation, geometry, rig or authored control when [entity work](.agents/skills/development/entities.md#detail) says a commission needs one |
 | [motion](.agents/skills/motion/SKILL.md) | Programmed performance by end-effector goals, catalog cases, staging, camera, physical responses, frame evaluation, the motion hint's control channels and motion verification |
 | [image](.agents/skills/image/SKILL.md) | Canon reference images, shot frames, style frames or turnaround views |
 | [video](.agents/skills/video/SKILL.md) | Choosing the video model, planning requests, writing video prompts, and generating and adopting takes |
@@ -90,4 +92,5 @@ Read the production's `PROJECT.md` for the adopted scope, then enter the request
 
 | Skill | Use for |
 | --- | --- |
+| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Judging any picture on stills: planning a capture, choosing passes, comparing captures, running correction rounds, and restoring the Viewer or frame capture |
 | [review](.agents/skills/review/SKILL.md) | Source and narrative review, delivery acceptance, or a requested read-only experience estimation |

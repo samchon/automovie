@@ -2,12 +2,10 @@ import type { IAutoMovieContourLoft64, IAutoMovieLoftChain } from "@automovie/en
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanHandDigitChain } from "./AutoMovieHumanHandDigitChain";
-import { AutoMovieHumanHandDigits } from "./AutoMovieHumanHandDigits";
 import { AutoMovieHumanHandFingers } from "./AutoMovieHumanHandFingers";
 import { AutoMovieHumanHandForm } from "./AutoMovieHumanHandForm";
 import { AutoMovieHumanHandMap } from "./AutoMovieHumanHandMap";
 import { AutoMovieHumanHandPalm } from "./AutoMovieHumanHandPalm";
-import type { AutoMovieHumanHandPorts } from "./AutoMovieHumanHandPorts";
 import { AutoMovieHumanHandSide } from "./AutoMovieHumanHandSide";
 import { AutoMovieHumanHandSkinTargets } from "./AutoMovieHumanHandSkinTargets";
 import { AutoMovieHumanHandSolve } from "./AutoMovieHumanHandSolve";
@@ -65,37 +63,6 @@ export namespace AutoMovieHumanHandConstruction {
           throw new Error("A fixed F1 contour event has an unknown incidence");
         return { ...event, kind: event.kind, terminal: event.terminal === null ? null : point(event.terminal) };
       }),
-    };
-  }
-
-  /** Restore both hands' typed inputs while the original numbers and ordering stay authoritative. */
-  export function fixedInput(
-    value: typeof import("./AutoMovieHumanHandF1LeftInputs.json") | typeof import("./AutoMovieHumanHandF1RightInputs.json"),
-    branch: IAutoMovieContourLoft64,
-  ): AutoMovieHumanHandPorts.IFixed {
-    const point: typeof AutoMovieHumanHandPalm.fixedPoint = AutoMovieHumanHandPalm.fixedPoint;
-
-    /** Restore tuple widths while preserving source order and every coefficient. */
-    const rings: (rows: { points: number[][]; normal: number[] }[]) => { points: Vec3[]; normal: Vec3 }[] = (rows: { points: number[][]; normal: number[] }[]): { points: Vec3[]; normal: Vec3 }[] =>
-      rows.map((row: typeof rows[number]): { points: Vec3[]; normal: Vec3 } =>
-        ({ ...row, points: row.points.map(point), normal: point(row.normal) }));
-    const joins: AutoMovieHumanHandPorts.IFixed["joins"] = {
-      thumb: { ...value.joins.thumb, normal: point(value.joins.thumb.normal), between: rings(value.joins.thumb.between) },
-      index: { ...value.joins.index, normal: point(value.joins.index.normal), between: rings(value.joins.index.between) },
-      ring: { ...value.joins.ring, normal: point(value.joins.ring.normal), between: rings(value.joins.ring.between) },
-      pinky: { ...value.joins.pinky, normal: point(value.joins.pinky.normal), between: rings(value.joins.pinky.between) },
-    };
-    return {
-      ...value,
-      branch: { model: branch, thumb: value.branch.thumb, origin: point(value.branch.origin), axis: point(value.branch.axis) },
-      fan: { ...value.fan, model: fixedContour(value.fan.model),
-        normalFirst: point(value.fan.normalFirst), normalLast: point(value.fan.normalLast), normalMiddle: point(value.fan.normalMiddle) },
-      hostRims: rings(value.hostRims), joins,
-      digits: {
-        thumb: AutoMovieHumanHandDigits.fixedInput(value.digits.thumb), index: AutoMovieHumanHandDigits.fixedInput(value.digits.index),
-        middle: AutoMovieHumanHandDigits.fixedInput(value.digits.middle), ring: AutoMovieHumanHandDigits.fixedInput(value.digits.ring),
-        pinky: AutoMovieHumanHandDigits.fixedInput(value.digits.pinky),
-      },
     };
   }
 

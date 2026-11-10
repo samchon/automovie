@@ -10,7 +10,7 @@ Read [project context](../production/project-context.md) first. Before building 
 
 A motion hint guides video-to-video diffusion, which supplies the look. So models stay coarse, and the accuracy goes to motion, staging, timing, range and camera readability.
 
-### People
+### People {#people}
 
 A person is the polygon man. The installed viewer draws it from the canonical body that the installed human package prepares from parameters, and those parameters come from the cast record's body facts.
 
@@ -18,9 +18,9 @@ The same prepared body is the one the installed motion vocabulary plans for, so 
 
 ### Everything else
 
-Every other subject is the simplest form that identifies it: primitives sized by its record's dimensions, carrying the pivots, grips, attachments and contact regions its scenes use. A chair is a seat, a back and four legs. This needs no modeling skill.
+Every other subject is the simplest form that identifies it: a few primitives chosen, sized and checked under 3D modeling's [coarse forms](../3d-modeling/coarse-forms.md). A chair is a seat, a back and four legs.
 
-### What stays out of the model
+### What stays out of the model {#what-stays-out}
 
 Identity, dimensions, pivots, attachments and controls stay independent of surface detail, so nothing a scene relies on moves when the surface changes.
 
@@ -34,7 +34,7 @@ Author motion, accept catalog cases and review segments at the default. The coar
 
 Select the detailed form only for the delivery that commissions it, record that choice in [project context](../production/project-context.md), and compare the same segments for changed proportions, pivots, contact, deformation, visibility, timing and silhouette.
 
-[3D modeling](../3d-modeling/SKILL.md) owns how a detailed form is made, rigged and verified. Enter it only for a commissioned detail or for a form that primitives cannot make identifiable, and build only what the subject's visible role needs.
+[3D modeling](../3d-modeling/SKILL.md#requested-detail) owns when a form goes beyond the coarse one and how it is made, rigged and verified.
 
 ## Inspect and hand off {#inspect-and-hand-off}
 

@@ -33,7 +33,7 @@ Take runtime from performed and measured timing, never page or word count. What 
 
 Review the picture densely before any delivery claim, so a flaw anywhere in the film reaches you before its audience. Cut the film into review segments, each one default window of the README's frame capture, and inspect every segment on its contact sheet at the capture's default spacing. With motion already accepted in its [catalog cases](../motion/catalog-cases.md), this pass judges staging, camera and timing.
 
-The default spacing skips frames, so a contact shorter than the gap can fall between two stills. Around every contact, cut and join, add the film's own consecutive frames, as [motion verification](../motion/verification.md#look-at-the-frames) requires. The README owns the window, the spacing and the options that select exact frames; no skill repeats their numbers.
+The default spacing skips frames, so around every contact, cut and join add the film's own consecutive frames, as [capture](../visual-debugging/capture.md#times) requires. The README owns the window, the default spacing and the options that select exact frames.
 
 Repeat the pass on every segment a fix touches.
 
@@ -41,7 +41,7 @@ Measure the research's targets for what a viewer sees where the viewer sees them
 
 Capture overwrites its output on every run, so keep an accepted delivery's contact sheets and measures under the film's [media records](../production/media-records.md) folder by its delivered revision.
 
-Every delivery claim after the first sets each segment's sheets and measures beside the previous delivery's at matched times, as review tools compare versions ([Flow Production Tracking](https://help.autodesk.com/cloudhelp/ENU/SG-Tutorials/files/SG_Tutorials_tu_collaborative_review_html.html)). A regression holds delivery until it is repaired or the owner accepts it.
+Every delivery claim after the first sets each segment's sheets and measures beside the previous delivery's at matched times under [comparison](../visual-debugging/comparison.md), as review tools compare versions ([Flow Production Tracking](https://help.autodesk.com/cloudhelp/ENU/SG-Tutorials/files/SG_Tutorials_tu_collaborative_review_html.html)). A regression holds delivery until it is repaired or the owner accepts it.
 
 ## Acceptance record {#acceptance-record}
 
@@ -58,7 +58,7 @@ The record holds review's observations. It answers no contract item, because [th
 
 ## Assets
 
-Inspect a model or visual export through its intended consumer, required views and promised controls, and its shape, contact, deformation and motion by [visual debugging](../3d-modeling/visual-debugging.md) at the uses [entity work](../development/entities.md#inspect-and-hand-off) sets. Have the user listen to standalone audio as delivered.
+Inspect a model or visual export through its intended consumer, required views and promised controls, and its shape, contact, deformation and motion by [form inspection](../3d-modeling/inspection.md) at the uses [entity work](../development/entities.md#inspect-and-hand-off) sets. Have the user listen to standalone audio as delivered.
 
 ## Record and repair
 

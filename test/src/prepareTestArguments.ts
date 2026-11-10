@@ -13,10 +13,9 @@ export async function prepareTestArguments(
   argv: readonly string[],
 ): Promise<IScenarioSelection> {
   const request: ReturnType<typeof readTestArguments> = readTestArguments(argv);
-  if (request.humanPeople !== undefined) {
-    const module: typeof import("./features/internal/HumanPeople") =
-      await import("./features/internal/HumanPeople");
-    module.HumanPeople.select(request.humanPeople);
-  }
+  if (request.humanPeople !== undefined)
+    throw new Error(
+      "Human population selection was removed with the realistic Human body.",
+    );
   return request.selection;
 }

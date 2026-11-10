@@ -1,6 +1,6 @@
 ---
 name: human
-description: Builds the Human person by tracing the reference, re-basing each part and deriving parameter rules. Use with 3d-modeling for Human geometry, the Human viewer or its renders.
+description: Builds the Human person by tracing the reference, re-basing each part and deriving parameter rules. Use with 3d-modeling for Human geometry and with visual-debugging for the Human viewer or its renders.
 ---
 
 # Human
@@ -33,7 +33,7 @@ Know the construction method's classical limits before a step begins, and plan t
 
 ## Order
 
-Within each step, work in [correction rounds](../3d-modeling/visual-debugging.md#correction-rounds) over the whole figure, using the [part-by-part transition](verification.md#curves-against-the-reference) from accepted 2D definitions to 3D inspection while gathering the round:
+Within each step, work in [correction rounds](../visual-debugging/correction-rounds.md) over the whole figure, using the [part-by-part transition](verification.md#curves-against-the-reference) from accepted 2D definitions to 3D inspection while gathering the round:
 
 1. Build: keep changed code compiling in its [watch](../development/validation.md#type-checking), produce the step's originals, and execute the [selected producer](verification.md#curves-against-the-reference).
 2. Curves: inspect every part's [view curves over the reference](verification.md#curves-against-the-reference) and its [shared connections](verification.md#shared-connections), under [review](verification.md#review).

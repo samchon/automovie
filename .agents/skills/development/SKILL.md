@@ -1,6 +1,6 @@
 ---
 name: development
-description: Repairs, implements, tests, and validates automovie source, tests, workflows, and package wiring. Use before editing any of them; checklist answers belong to contracts and visual verification to 3d-modeling.
+description: Repairs, implements, tests, and validates automovie source, tests, workflows, and package wiring. Use before editing any of them; checklist answers belong to contracts and visual verification to visual-debugging.
 ---
 
 # Development
