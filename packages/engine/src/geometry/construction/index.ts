@@ -1,3 +1,4 @@
+export { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
 export * from "./AutoMovieConstructionAdmission";
 export * from "./AutoMovieConstructionContinuation";
 export * from "./AutoMovieConstructionRealization";
