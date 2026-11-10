@@ -1,12 +1,14 @@
+import {
+  deriveCenterOfMass,
+  derivePhysicalProfile,
+  validatePhysicalProfile,
+} from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { deriveCenterOfMass } from "../../../../packages/engine/src/physics/deriveCenterOfMass";
-import { derivePhysicalProfile } from "../../../../packages/engine/src/physics/derivePhysicalProfile";
-import { validatePhysicalProfile } from "../../../../packages/engine/src/physics/validatePhysicalProfile";
 import { PhysicalModelFixtures as Fixtures } from "../internal/PhysicalModelFixtures";
 import { makeProp } from "../internal/makeProp";
 import { vclose } from "../internal/predicates";

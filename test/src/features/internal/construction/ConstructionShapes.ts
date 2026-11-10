@@ -36,7 +36,11 @@ export namespace ConstructionShapes {
   }
 
   /** The frame of a part along `+z`: `u = +x`, `v = +y`, so `v x u = -z`; stations advance along `-z`. */
-  export const DOWN: IFrame = { origin: { x: 0, y: 0, z: 0 }, u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 1, z: 0 } };
+  export const DOWN: IFrame = {
+    origin: { x: 0, y: 0, z: 0 },
+    u: { x: 1, y: 0, z: 0 },
+    v: { x: 0, y: 1, z: 0 },
+  };
 
   /**
    * A view part whose four outlines are given functions of the station,
@@ -55,8 +59,20 @@ export namespace ConstructionShapes {
     half: (s: number) => [number, number, number, number],
     pole: IAutoMovieConstructionView["pole"],
   ): IAutoMovieConstructionView {
-    const outline: (g: number, sign: 1 | -1) => IAutoMovieConstructionOutline = (g: number, sign: 1 | -1): IAutoMovieConstructionOutline => ({
-      knots: stations.map((s: number, i: number): IAutoMovieConstructionKnot => ({ site: `${name} ${i}`, station: s, value: sign * half(s)[g]! })),
+    const outline: (
+      g: number,
+      sign: 1 | -1,
+    ) => IAutoMovieConstructionOutline = (
+      g: number,
+      sign: 1 | -1,
+    ): IAutoMovieConstructionOutline => ({
+      knots: stations.map(
+        (s: number, i: number): IAutoMovieConstructionKnot => ({
+          site: `${name} ${i}`,
+          station: s,
+          value: sign * half(s)[g]!,
+        }),
+      ),
     });
     return {
       type: "view",
@@ -67,7 +83,15 @@ export namespace ConstructionShapes {
       side: { positive: outline(1, 1), negative: outline(3, -1) },
       fullness: {
         type: "shoulder",
-        shoulder: { knots: [stations[0]!, stations[stations.length - 1]!].map((s: number, i: number): IAutoMovieConstructionKnot => ({ site: `${name} shoulder ${i}`, station: s, value: ELLIPSE })) },
+        shoulder: {
+          knots: [stations[0]!, stations[stations.length - 1]!].map(
+            (s: number, i: number): IAutoMovieConstructionKnot => ({
+              site: `${name} shoulder ${i}`,
+              station: s,
+              value: ELLIPSE,
+            }),
+          ),
+        },
         departures: null,
       },
       pole,
@@ -77,8 +101,20 @@ export namespace ConstructionShapes {
   }
 
   /** A circular cylinder of radius `r` from station 0 to `length`, open at both ends. */
-  export function cylinder(name: string, frame: IFrame, r: number, length: number, count: number = 9): IAutoMovieConstructionView {
-    return part(name, frame, uniform(0, length, count), (): [number, number, number, number] => [r, r, r, r], "open");
+  export function cylinder(
+    name: string,
+    frame: IFrame,
+    r: number,
+    length: number,
+    count: number = 9,
+  ): IAutoMovieConstructionView {
+    return part(
+      name,
+      frame,
+      uniform(0, length, count),
+      (): [number, number, number, number] => [r, r, r, r],
+      "open",
+    );
   }
 
   /**
@@ -86,11 +122,24 @@ export namespace ConstructionShapes {
    * stations, centred at station 0, closed at both ends: its section at
    * station `s` the ellipse of half axes `a q` and `b q`, `q = sqrt(1 - s^2 / c^2)`.
    */
-  export function ellipsoid(name: string, frame: IFrame, a: number, b: number, c: number, count: number = 17): IAutoMovieConstructionView {
-    return part(name, frame, uniform(-c, c, count), (s: number): [number, number, number, number] => {
-      const q: number = Math.sqrt(Math.max(0, 1 - (s * s) / (c * c)));
-      return [a * q, b * q, a * q, b * q];
-    }, "both");
+  export function ellipsoid(
+    name: string,
+    frame: IFrame,
+    a: number,
+    b: number,
+    c: number,
+    count: number = 17,
+  ): IAutoMovieConstructionView {
+    return part(
+      name,
+      frame,
+      uniform(-c, c, count),
+      (s: number): [number, number, number, number] => {
+        const q: number = Math.sqrt(Math.max(0, 1 - (s * s) / (c * c)));
+        return [a * q, b * q, a * q, b * q];
+      },
+      "both",
+    );
   }
 
   /** A join node. */
@@ -99,11 +148,34 @@ export namespace ConstructionShapes {
     name: string,
     host: AutoMovieConstructionNode,
     part: AutoMovieConstructionNode,
-    seed: { partFace: string; hostFace: string; part: [number, number]; host: [number, number] },
-    widths: { part: AutoMovieConstructionWidth; host: AutoMovieConstructionWidth },
+    seed: {
+      partFace: string;
+      hostFace: string;
+      part: [number, number];
+      host: [number, number];
+    },
+    widths: {
+      part: AutoMovieConstructionWidth;
+      host: AutoMovieConstructionWidth;
+    },
     parameter: AutoMovieConstructionParameter = { type: "phase" },
   ): AutoMovieConstructionNode {
-    return { type: "join", kind, name, host, part, seed: { type: "point", ...seed }, parameter, partWidth: widths.part, hostWidth: widths.host, continuity: "G2", count: 48, rows: 4, tolerance: 1e-12, grazing: 0.05 };
+    return {
+      type: "join",
+      kind,
+      name,
+      host,
+      part,
+      seed: { type: "point", ...seed },
+      parameter,
+      partWidth: widths.part,
+      hostWidth: widths.host,
+      continuity: "G2",
+      count: 48,
+      rows: 4,
+      tolerance: 1e-12,
+      grazing: 0.05,
+    };
   }
 
   /**
@@ -118,38 +190,143 @@ export namespace ConstructionShapes {
    * @param k Scale of every length.
    * @param nested `left` builds `merge(merge(merge(beam, post), finger), nail)`; `right` builds `merge(beam, merge(post, merge(finger, nail)))`, the same solid grouped from the tip.
    */
-  export function assembly(k: number, nested: "left" | "right"): AutoMovieConstructionNode {
-    const beam: IAutoMovieConstructionView = cylinder("beam", { origin: { x: -0.1 * k, y: 0, z: 0 }, u: { x: 0, y: 0, z: 1 }, v: { x: 0, y: 1, z: 0 } }, 0.03 * k, 0.2 * k);
-    const post: IAutoMovieConstructionView = cylinder("post", { origin: { x: 0, y: 0, z: 0 }, u: { x: 0, y: 1, z: 0 }, v: { x: 1, y: 0, z: 0 } }, 0.015 * k, 0.08 * k);
-    const finger: IAutoMovieConstructionView = cylinder("finger", { origin: { x: 0, y: 0, z: 0.06 * k }, u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 } }, 0.005 * k, 0.04 * k);
-    const nail: IAutoMovieConstructionView = cylinder("nail", { origin: { x: 0, y: 0.03 * k, z: 0.06 * k }, u: { x: 0, y: 1, z: 0 }, v: { x: 1, y: 0, z: 0 } }, 0.002 * k, 0.02 * k);
-    const chord: (r: number) => { part: AutoMovieConstructionWidth; host: AutoMovieConstructionWidth } = (r: number): { part: AutoMovieConstructionWidth; host: AutoMovieConstructionWidth } => ({
+  export function assembly(
+    k: number,
+    nested: "left" | "right",
+  ): AutoMovieConstructionNode {
+    const beam: IAutoMovieConstructionView = cylinder(
+      "beam",
+      {
+        origin: { x: -0.1 * k, y: 0, z: 0 },
+        u: { x: 0, y: 0, z: 1 },
+        v: { x: 0, y: 1, z: 0 },
+      },
+      0.03 * k,
+      0.2 * k,
+    );
+    const post: IAutoMovieConstructionView = cylinder(
+      "post",
+      {
+        origin: { x: 0, y: 0, z: 0 },
+        u: { x: 0, y: 1, z: 0 },
+        v: { x: 1, y: 0, z: 0 },
+      },
+      0.015 * k,
+      0.08 * k,
+    );
+    const finger: IAutoMovieConstructionView = cylinder(
+      "finger",
+      {
+        origin: { x: 0, y: 0, z: 0.06 * k },
+        u: { x: 1, y: 0, z: 0 },
+        v: { x: 0, y: 0, z: 1 },
+      },
+      0.005 * k,
+      0.04 * k,
+    );
+    const nail: IAutoMovieConstructionView = cylinder(
+      "nail",
+      {
+        origin: { x: 0, y: 0.03 * k, z: 0.06 * k },
+        u: { x: 0, y: 1, z: 0 },
+        v: { x: 1, y: 0, z: 0 },
+      },
+      0.002 * k,
+      0.02 * k,
+    );
+    const chord: (r: number) => {
+      part: AutoMovieConstructionWidth;
+      host: AutoMovieConstructionWidth;
+    } = (
+      r: number,
+    ): {
+      part: AutoMovieConstructionWidth;
+      host: AutoMovieConstructionWidth;
+    } => ({
       part: { type: "chord", value: (r / 3) * k },
       host: { type: "chord", value: (r / 3) * k },
     });
 
     // Seeds: the post's phase pi / 2 point (r, 0, R) on the beam; the finger's phase 0 point (0.005, sqrt(0.015^2 - 0.005^2), 0.06) on the post; the nail's phase 0 point (0, 0.032, 0.065) on the finger.
     const lean: number = Math.sqrt(0.015 ** 2 - 0.005 ** 2);
-    const seeds: { post: [string, [number, number], [number, number]]; finger: [string, [number, number], [number, number]]; nail: [string, [number, number], [number, number]] } = {
-      post: ["beam", [(0.03 + 0.001) * k, Math.PI / 2], [(0.1 + 0.015) * k, 0.01]],
-      finger: ["post", [(lean + 0.001) * k, 0], [0.06 * k, Math.atan2(0.005, lean) + 0.01]],
+    const seeds: {
+      post: [string, [number, number], [number, number]];
+      finger: [string, [number, number], [number, number]];
+      nail: [string, [number, number], [number, number]];
+    } = {
+      post: [
+        "beam",
+        [(0.03 + 0.001) * k, Math.PI / 2],
+        [(0.1 + 0.015) * k, 0.01],
+      ],
+      finger: [
+        "post",
+        [(lean + 0.001) * k, 0],
+        [0.06 * k, Math.atan2(0.005, lean) + 0.01],
+      ],
       nail: ["finger", [0.006 * k, 0], [0.032 * k, Math.PI / 2 + 0.01]],
     };
-    const merge: (name: string, host: AutoMovieConstructionNode, part: AutoMovieConstructionNode, face: "post" | "finger" | "nail", r: number) => AutoMovieConstructionNode = (
+    const merge: (
       name: string,
       host: AutoMovieConstructionNode,
       part: AutoMovieConstructionNode,
       face: "post" | "finger" | "nail",
       r: number,
-    ): AutoMovieConstructionNode => join("merge", name, host, part, { partFace: face, hostFace: seeds[face][0], part: seeds[face][1], host: seeds[face][2] }, chord(r));
+    ) => AutoMovieConstructionNode = (
+      name: string,
+      host: AutoMovieConstructionNode,
+      part: AutoMovieConstructionNode,
+      face: "post" | "finger" | "nail",
+      r: number,
+    ): AutoMovieConstructionNode =>
+      join(
+        "merge",
+        name,
+        host,
+        part,
+        {
+          partFace: face,
+          hostFace: seeds[face][0],
+          part: seeds[face][1],
+          host: seeds[face][2],
+        },
+        chord(r),
+      );
     return nested === "left"
-      ? merge("blend.nail", merge("blend.finger", merge("blend.post", beam, post, "post", 0.015), finger, "finger", 0.005), nail, "nail", 0.002)
-      : merge("blend.post", beam, merge("blend.finger", post, merge("blend.nail", finger, nail, "nail", 0.002), "finger", 0.005), "post", 0.015);
+      ? merge(
+          "blend.nail",
+          merge(
+            "blend.finger",
+            merge("blend.post", beam, post, "post", 0.015),
+            finger,
+            "finger",
+            0.005,
+          ),
+          nail,
+          "nail",
+          0.002,
+        )
+      : merge(
+          "blend.post",
+          beam,
+          merge(
+            "blend.finger",
+            post,
+            merge("blend.nail", finger, nail, "nail", 0.002),
+            "finger",
+            0.005,
+          ),
+          "post",
+          0.015,
+        );
   }
 
   /** `count` uniform values from `a` to `b`. */
   export function uniform(a: number, b: number, count: number): number[] {
-    return Array.from({ length: count }, (_: unknown, i: number): number => a + ((b - a) * i) / (count - 1));
+    return Array.from(
+      { length: count },
+      (_: unknown, i: number): number => a + ((b - a) * i) / (count - 1),
+    );
   }
 
   /** Closed forms the spec tests compare with. */
@@ -180,12 +357,24 @@ export namespace ConstructionShapes {
      * cylinder of radius `R >= r` along `x`, both through the origin, on the
      * side `z > 0`: `(r cos t, r sin t, sqrt(R^2 - r^2 sin^2 t))`.
      */
-    export function steinmetz(r: number, R: number, t: number): IAutoMovieVector3 {
-      return { x: r * Math.cos(t), y: r * Math.sin(t), z: Math.sqrt(R * R - r * r * Math.sin(t) ** 2) };
+    export function steinmetz(
+      r: number,
+      R: number,
+      t: number,
+    ): IAutoMovieVector3 {
+      return {
+        x: r * Math.cos(t),
+        y: r * Math.sin(t),
+        z: Math.sqrt(R * R - r * r * Math.sin(t) ** 2),
+      };
     }
 
     /** Signed distance of a point from a sphere's surface, metres: positive outside. */
-    export function sphere(p: IAutoMovieVector3, centre: IAutoMovieVector3, R: number): number {
+    export function sphere(
+      p: IAutoMovieVector3,
+      centre: IAutoMovieVector3,
+      R: number,
+    ): number {
       return Math.hypot(p.x - centre.x, p.y - centre.y, p.z - centre.z) - R;
     }
   }

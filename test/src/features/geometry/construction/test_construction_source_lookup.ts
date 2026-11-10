@@ -1,10 +1,10 @@
 import {
+  AutoMovieNaturalSpline,
   AutoMovieViewOutline,
   type IAutoMovieViewPart,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieNaturalSpline } from "../../../../../packages/engine/src/geometry/construction/AutoMovieNaturalSpline";
 import { ConstructionHermiteReading } from "../../internal/construction/ConstructionHermiteReading";
 import { nclose } from "../../internal/nclose";
 

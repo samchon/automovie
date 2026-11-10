@@ -1,9 +1,11 @@
+import {
+  AutoMovieMotionAudit as Audit,
+  type AutoMoviePhysicsCache as Cache,
+  auditPhysicalOutcomes as outcomes,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
-import { AutoMovieMotionAudit as Audit } from "../../../../packages/engine/src/physics/AutoMovieMotionAudit";
-import type { AutoMoviePhysicsCache as Cache } from "../../../../packages/engine/src/physics/AutoMoviePhysicsCache";
-import { auditPhysicalOutcomes as outcomes } from "../../../../packages/engine/src/physics/auditPhysicalOutcomes";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Invalid numeric promises and observations never become a successful audit.

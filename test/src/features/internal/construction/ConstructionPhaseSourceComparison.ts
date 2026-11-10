@@ -2,8 +2,10 @@ import {
   AutoMovieLoftChain,
   AutoMovieLoftFrame,
   AutoMovieLoftJet,
+  AutoMovieLoftPhaseSource,
   AutoMovieSplineCurve,
   AutoMovieViewAxis,
+  type AutoMovieViewConic,
   AutoMovieViewCurves,
   AutoMovieViewLoft,
   AutoMovieViewSection,
@@ -11,9 +13,6 @@ import {
   type IAutoMovieViewPart,
 } from "@automovie/engine";
 import { performance } from "node:perf_hooks";
-
-import { AutoMovieLoftPhaseSource } from "../../../../../packages/engine/src/geometry/construction/AutoMovieLoftPhaseSource";
-import type { AutoMovieViewConic } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewConic";
 
 /** Independent original-source and actual-consumer observations for the phase question. */
 export namespace ConstructionPhaseSourceComparison {

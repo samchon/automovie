@@ -1,9 +1,11 @@
+import {
+  AutoMoviePhysicalSimulation as Simulation,
+  assertPhysicalReturnPath,
+  bindPhysicalWorld,
+} from "@automovie/engine";
 import RAPIER, { type World } from "@dimforge/rapier3d-compat";
 import assert from "node:assert/strict";
 
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { assertPhysicalReturnPath } from "../../../../packages/engine/src/physics/assertPhysicalReturnPath";
-import { bindPhysicalWorld } from "../../../../packages/engine/src/physics/bindPhysicalWorld";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalPointFixtures } from "../internal/PhysicalPointFixtures";
 

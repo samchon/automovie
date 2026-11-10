@@ -1,3 +1,13 @@
+import {
+  Quaternion,
+  Vector3,
+  measurePhysicalJointLimits,
+  physicalShapeBounds,
+  planPhysicalFloorSupportTargets,
+  projectPhysicalTargets,
+  solvePhysicalChainTarget,
+  solvePhysicalFloorChainTarget,
+} from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMovieVector3,
@@ -5,14 +15,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { measurePhysicalJointLimits } from "../../../../packages/engine/src/physics/measurePhysicalJointLimits";
-import { physicalShapeBounds } from "../../../../packages/engine/src/physics/physicalShapeBounds";
-import { planPhysicalFloorSupportTargets } from "../../../../packages/engine/src/physics/planPhysicalFloorSupportTargets";
-import { projectPhysicalTargets } from "../../../../packages/engine/src/physics/projectPhysicalTargets";
-import { solvePhysicalChainTarget } from "../../../../packages/engine/src/physics/solvePhysicalChainTarget";
-import { solvePhysicalFloorChainTarget } from "../../../../packages/engine/src/physics/solvePhysicalFloorChainTarget";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 
 /** Native-coordinate target admission and geometry-derived support height.

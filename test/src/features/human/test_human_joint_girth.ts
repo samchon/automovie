@@ -1,9 +1,10 @@
 import type { IAutoMovieLoftChain } from "@automovie/engine";
+import {
+  AutoMovieHumanJointCentres,
+  type AutoMovieHumanSkeletonLaw,
+  type IAutoMovieHumanBodyCalibration,
+} from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
-
-import type { AutoMovieHumanSkeletonLaw } from "../../../../packages/human/src/generation/AutoMovieHumanSkeletonLaw";
-import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanJointCentres } from "../../../../packages/human/src/skeleton/AutoMovieHumanJointCentres";
 
 /**
  * The chest and the digits take their own segment's girth.

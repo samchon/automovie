@@ -53,7 +53,10 @@ export function test_cli_package_manager(): void {
       "pnpm install at the root",
       text.includes(`pnpm install at the workspace root ${workspace}`),
     );
-    TestValidator.predicate("no npm command", !/\bnpm (install|run)/u.test(text));
+    TestValidator.predicate(
+      "no npm command",
+      !/\bnpm (install|run)/u.test(text),
+    );
 
     const loose: string = path.join(root, "loose");
     fs.mkdirSync(loose);
@@ -97,10 +100,9 @@ export function test_cli_package_manager(): void {
     );
     TestValidator.predicate(
       "workspace production scripts",
-      renderAutoMovieScaffoldNextSteps(
-        target,
-        "workspace-production",
-      ).includes("pnpm run lint and pnpm run evidence"),
+      renderAutoMovieScaffoldNextSteps(target, "workspace-production").includes(
+        "pnpm run lint and pnpm run evidence",
+      ),
     );
   } finally {
     fs.rmSync(root, { recursive: true });

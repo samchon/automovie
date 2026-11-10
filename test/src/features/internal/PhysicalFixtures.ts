@@ -1,6 +1,5 @@
+import type { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
-
-import type { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
 
 /** Explicit SI fixtures shared by independent physical behavior cases. */
 export namespace PhysicalFixtures {

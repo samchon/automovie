@@ -1,13 +1,11 @@
-import { AutoMovieHumanBodyAnatomy } from "../../../../human/src/generation/AutoMovieHumanBodyAnatomy";
-import type { IAutoMovieHumanBodyMeasures } from "../../../../human/src/generation/IAutoMovieHumanBodyMeasures";
-import type { IAutoMovieHumanParameters } from "../../../../human/src/structures/IAutoMovieHumanParameters";
 import {
-  f1,
-  f2,
-  m1,
-  m2,
-} from "./human-parameters/index";
+  AutoMovieHumanBodyAnatomy,
+  type IAutoMovieHumanBodyMeasures,
+  type IAutoMovieHumanParameters,
+} from "@automovie/human";
+
 import type { HumanPopulationSurvey } from "./HumanPopulationSurvey";
+import { f1, f2, m1, m2 } from "./human-parameters/index";
 
 /**
  * Reads of a person's public inputs, shared by the people's construction and
@@ -46,7 +44,10 @@ export namespace HumanPopulationAccess {
    * The reference people of each sex, whose inputs calibrate the courses the
    * survey does not measure.
    */
-  export const REFERENCES: Record<HumanPopulationSurvey.Sex, IAutoMovieHumanParameters[]> = {
+  export const REFERENCES: Record<
+    HumanPopulationSurvey.Sex,
+    IAutoMovieHumanParameters[]
+  > = {
     female: [f1, f2],
     male: [m1, m2],
   };
@@ -57,7 +58,9 @@ export namespace HumanPopulationAccess {
    * @param p The person's inputs.
    * @returns The resolved measures.
    */
-  export function measures(p: IAutoMovieHumanParameters): IAutoMovieHumanBodyMeasures {
+  export function measures(
+    p: IAutoMovieHumanParameters,
+  ): IAutoMovieHumanBodyMeasures {
     return AutoMovieHumanBodyAnatomy.resolve(p);
   }
 
@@ -69,7 +72,11 @@ export namespace HumanPopulationAccess {
    */
   export function hands(p: IAutoMovieHumanParameters): IHand[] {
     const pair: IAutoMovieHumanParameters["extremities"] = p.extremities;
-    const both: NonNullable<NonNullable<IAutoMovieHumanParameters["extremities"]>["hands"]> | undefined = pair?.hands;
+    const both:
+      | NonNullable<
+          NonNullable<IAutoMovieHumanParameters["extremities"]>["hands"]
+        >
+      | undefined = pair?.hands;
 
     return both === undefined ? [] : [both.left, both.right];
   }
@@ -82,7 +89,11 @@ export namespace HumanPopulationAccess {
    */
   export function feet(p: IAutoMovieHumanParameters): IFoot[] {
     const pair: IAutoMovieHumanParameters["extremities"] = p.extremities;
-    const both: NonNullable<NonNullable<IAutoMovieHumanParameters["extremities"]>["feet"]> | undefined = pair?.feet;
+    const both:
+      | NonNullable<
+          NonNullable<IAutoMovieHumanParameters["extremities"]>["feet"]
+        >
+      | undefined = pair?.feet;
 
     return both === undefined ? [] : [both.left, both.right];
   }
@@ -96,6 +107,9 @@ export namespace HumanPopulationAccess {
    * @returns The perimeter, mm.
    */
   export function ellipse(a: number, b: number): number {
-    return Math.PI * ((3 * (a + b)) / 2 - Math.sqrt(((3 * a + b) / 2) * ((a + 3 * b) / 2)));
+    return (
+      Math.PI *
+      ((3 * (a + b)) / 2 - Math.sqrt(((3 * a + b) / 2) * ((a + 3 * b) / 2)))
+    );
   }
 }

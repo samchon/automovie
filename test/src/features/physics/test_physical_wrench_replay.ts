@@ -1,8 +1,9 @@
+import {
+  type AutoMoviePhysicsCache as Cache,
+  type AutoMoviePhysicalPlayback as Playback,
+  admitPhysicalPlaybackMetadata,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-
-import type { AutoMoviePhysicalPlayback as Playback } from "../../../../packages/engine/src/physics/AutoMoviePhysicalPlayback";
-import type { AutoMoviePhysicsCache as Cache } from "../../../../packages/engine/src/physics/AutoMoviePhysicsCache";
-import { admitPhysicalPlaybackMetadata } from "../../../../packages/engine/src/physics/admitPhysicalPlaybackMetadata";
 
 /** Replayed virtual support predictions keep requested minus allocated equal to their residual, independent of an archive's integrity trailer.
  *

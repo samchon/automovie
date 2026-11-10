@@ -22,7 +22,6 @@
     "@automovie/render": "workspace:^",
     "@automovie/template": "workspace:^",
     "@automovie/viewer": "workspace:^",
-    "@automovie/website": "workspace:*",
     "@gltf-transform/core": "catalog:gltf",
     "@gltf-transform/extensions": "catalog:gltf",
     "@huggingface/transformers": "catalog:media",

@@ -1,9 +1,11 @@
+import {
+  admitRecoveryCameraMap,
+  createRecoveryCameraMap,
+  linkRecoveryCameraTracks,
+  matchRecoveryImageFeatures,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { admitRecoveryCameraMap } from "../../../../packages/recovery/src/internal/admitRecoveryCameraMap";
-import { createRecoveryCameraMap } from "../../../../packages/recovery/src/internal/createRecoveryCameraMap";
-import { linkRecoveryCameraTracks } from "../../../../packages/recovery/src/internal/linkRecoveryCameraTracks";
-import { matchRecoveryImageFeatures } from "../../../../packages/recovery/src/internal/matchRecoveryImageFeatures";
 import { createRecoveryMapNumericalFixture } from "../internal/createRecoveryMapNumericalFixture";
 import { nclose } from "../internal/nclose";
 

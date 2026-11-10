@@ -1,5 +1,7 @@
 import {
   AutoMovieConstructionProfile,
+  AutoMovieConstructionProfileBody,
+  AutoMovieConstructionProfileSkin,
   AutoMovieSolidBody,
   AutoMovieSolidMesh,
   AutoMovieViewAxis,
@@ -11,9 +13,6 @@ import type {
   IAutoMovieConstructionJoin,
   IAutoMovieConstructionProfile,
 } from "@automovie/interface";
-
-import { AutoMovieConstructionProfileBody } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConstructionProfileBody";
-import { AutoMovieConstructionProfileSkin } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConstructionProfileSkin";
 
 /**
  * Exact original L-prism and cone function owners for actual profile realization.

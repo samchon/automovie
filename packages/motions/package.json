@@ -27,7 +27,7 @@
     }
   },
   "scripts": {
-    "build": "rimraf lib && ttsc",
+    "build": "ttsc --noEmit -P tsconfig.executable.json && rimraf lib && ttsc",
     "node:capture": "ttsx --no-plugins --noCheck -P tsconfig.executable.json src/executable/motionCapture.ts"
   },
   "keywords": [],

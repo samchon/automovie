@@ -1,11 +1,9 @@
-import { createEvidenceConfig } from "@automovie/evidence";
+import { createBriefFiles, createEvidenceConfig } from "@automovie/evidence";
 import { TestValidator } from "@nestia/e2e";
 import type { IEvidenceClaim, IEvidenceConfig } from "@wrtnlabs/evidence";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-
-import { createBriefFiles } from "../../../../packages/evidence/src/narrative/createBriefFiles";
 
 /**
  * The short route's brief is canon like settings: its own unit, population and discovery claims, cited by the short screenplay.

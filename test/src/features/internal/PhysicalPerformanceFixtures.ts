@@ -1,15 +1,17 @@
+import {
+  AutoMovieStepPlanner as Planner,
+  Quaternion,
+  type AutoMoviePhysicalSimulation as Simulation,
+  Vector3,
+  physicalSupportPoint,
+  planPhysicalSupportTargets,
+} from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import type { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { AutoMovieStepPlanner as Planner } from "../../../../packages/engine/src/physics/AutoMovieStepPlanner";
-import { physicalSupportPoint } from "../../../../packages/engine/src/physics/physicalSupportPoint";
-import { planPhysicalSupportTargets } from "../../../../packages/engine/src/physics/planPhysicalSupportTargets";
 import { PhysicalFixtures } from "./PhysicalFixtures";
 
 /** Literal slow-walk acceptance inputs, shared across actual providers without a new archetype or gait preset. */

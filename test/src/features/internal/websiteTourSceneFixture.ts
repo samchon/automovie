@@ -1,1 +1,0 @@
-export { tourSceneFixture } from "./tourSceneFixture";

@@ -1,8 +1,9 @@
+import {
+  type IAutoMovieArtifactKey,
+  composeAutoMovieArtifactKey,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
-
-import type { IAutoMovieArtifactKey } from "../../../../packages/engine/src/cache/IAutoMovieArtifactKey";
-import { composeAutoMovieArtifactKey } from "../../../../packages/engine/src/cache/composeAutoMovieArtifactKey";
 
 /**
  * A stage artifact key covers every declared member and nothing else.

@@ -1,3 +1,10 @@
+import {
+  preparePhysicalGeometry as Geometry,
+  Quaternion,
+  Vector3,
+  physicalPointProjection,
+  planPhysicalContactTargets as plan,
+} from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPointBound as Bound,
   IAutoMoviePhysicalProfile as P,
@@ -5,11 +12,6 @@ import type {
 } from "@automovie/interface";
 import assert from "node:assert/strict";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { physicalPointProjection } from "../../../../packages/engine/src/physics/physicalPointProjection";
-import { planPhysicalContactTargets as plan } from "../../../../packages/engine/src/physics/planPhysicalContactTargets";
-import { preparePhysicalGeometry as Geometry } from "../../../../packages/engine/src/physics/preparePhysicalGeometry";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalPointFixtures } from "../internal/PhysicalPointFixtures";
 

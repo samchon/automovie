@@ -1,12 +1,12 @@
 import {
   AutoMovieSolidCycle,
   AutoMovieSolidMesh,
+  AutoMovieSolidMeshConstraints,
+  type AutoMovieSolidMeshPlan,
   type IAutoMovieSolidSurface,
+  openAutoMovieSolidMesh,
 } from "@automovie/engine";
 
-import { AutoMovieSolidMeshConstraints } from "../../../../../packages/engine/src/geometry/construction/AutoMovieSolidMeshConstraints";
-import type { AutoMovieSolidMeshPlan } from "../../../../../packages/engine/src/geometry/construction/AutoMovieSolidMeshPlan";
-import { openAutoMovieSolidMesh } from "../../../../../packages/engine/src/geometry/construction/openAutoMovieSolidMesh";
 import { nclose } from "../../internal/nclose";
 
 /**

@@ -1,7 +1,8 @@
-import { AutoMovieViewOutline } from "@automovie/engine";
+import {
+  AutoMovieViewOutline,
+  rootsAutoMovieViewSinPolynomial,
+} from "@automovie/engine";
 import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
-
-import { rootsAutoMovieViewSinPolynomial } from "../../../../../packages/engine/src/geometry/construction/rootsAutoMovieViewSinPolynomial";
 
 /**
  * Fixed-chart affine-origin support candidates preserve the original scalar and its pole parameter.

@@ -1,14 +1,16 @@
 import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
+import {
+  type IAutoMovieRecoveryMapLandmark,
+  type IAutoMovieRecoveryMapPose,
+  createRecoveryCameraChart,
+  createRecoveryMapTangent,
+  refineRecoveryCameraMap,
+  solveRecoveryMapJointStep,
+  stepRecoveryMapPose,
+  stepRecoveryRelativePose,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { createRecoveryCameraChart } from "../../../../packages/recovery/src/internal/createRecoveryCameraChart";
-import { createRecoveryMapTangent } from "../../../../packages/recovery/src/internal/createRecoveryMapTangent";
-import { refineRecoveryCameraMap } from "../../../../packages/recovery/src/internal/refineRecoveryCameraMap";
-import { solveRecoveryMapJointStep } from "../../../../packages/recovery/src/internal/solveRecoveryMapJointStep";
-import { stepRecoveryMapPose } from "../../../../packages/recovery/src/internal/stepRecoveryMapPose";
-import { stepRecoveryRelativePose } from "../../../../packages/recovery/src/internal/stepRecoveryRelativePose";
-import type { IAutoMovieRecoveryMapLandmark } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapLandmark";
-import type { IAutoMovieRecoveryMapPose } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapPose";
 import { createRecoveryMapNumericalFixture } from "../internal/createRecoveryMapNumericalFixture";
 import { nclose } from "../internal/nclose";
 

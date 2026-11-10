@@ -113,7 +113,12 @@ function humanSourceDigest(): string {
         hash.update(name).update(readFileSync(full));
     }
   };
-  walk(path.join(__dirname, "..", "..", "..", "human", "src"));
+  walk(
+    path.join(
+      path.dirname(require.resolve("@automovie/human/package.json")),
+      "src",
+    ),
+  );
   DIGEST = hash.digest("hex");
   return DIGEST;
 }

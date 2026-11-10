@@ -1,11 +1,10 @@
+import { Quaternion, physicalJointMotorCommand } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { physicalJointMotorCommand } from "../../../../packages/engine/src/physics/physicalJointMotorCommand";
 import { nclose } from "../internal/nclose";
 
 /** Native substep of a 120 Hz world with eight substeps, seconds. */

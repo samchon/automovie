@@ -1,8 +1,7 @@
+import { bufferAutoMovieBones, rigAutoMovieSweep } from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { bufferAutoMovieBones } from "../../../../packages/engine/src/geometry/sweep/bufferAutoMovieBones";
-import { rigAutoMovieSweep } from "../../../../packages/engine/src/geometry/sweep/rigAutoMovieSweep";
 import { nclose } from "../internal/nclose";
 import { sweepBranchedBody } from "../internal/sweepBranchedBody";
 import { sweepBranchedSkeleton } from "../internal/sweepBranchedSkeleton";

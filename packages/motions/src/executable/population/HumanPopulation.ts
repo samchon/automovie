@@ -1,4 +1,5 @@
-import type { IAutoMovieHumanParameters } from "../../../../human/src/structures/IAutoMovieHumanParameters";
+import type { IAutoMovieHumanParameters } from "@automovie/human";
+
 import { HumanPopulationAudit } from "./HumanPopulationAudit";
 import { HumanPopulationBuild } from "./HumanPopulationBuild";
 import { HumanPopulationConditional } from "./HumanPopulationConditional";
@@ -48,7 +49,8 @@ export namespace HumanPopulation {
   export type IRelation = HumanPopulationAudit.IRelation;
 
   /** The surveyed measures, in the order of the survey's vectors. */
-  export const VARIABLES: typeof HumanPopulationSurvey.VARIABLES = HumanPopulationSurvey.VARIABLES;
+  export const VARIABLES: typeof HumanPopulationSurvey.VARIABLES =
+    HumanPopulationSurvey.VARIABLES;
 
   /** Normal deviate of the 1st and 99th percentiles. */
   export const Z: number = HumanPopulationSurvey.Z;
@@ -57,19 +59,24 @@ export namespace HumanPopulation {
   export const BAND: number = HumanPopulationSurvey.BAND;
 
   /** ANSUR 1988 summary statistics per sex. */
-  export const SURVEY: typeof HumanPopulationSurvey.SURVEY = HumanPopulationSurvey.SURVEY;
+  export const SURVEY: typeof HumanPopulationSurvey.SURVEY =
+    HumanPopulationSurvey.SURVEY;
 
   /** ANSUR 1988 body-mass index, kg/m2, mean and SD per sex. */
-  export const BMI: typeof HumanPopulationSurvey.BMI = HumanPopulationSurvey.BMI;
+  export const BMI: typeof HumanPopulationSurvey.BMI =
+    HumanPopulationSurvey.BMI;
 
   /** Adult facial means of the 3D Facial Norms database per sex. */
-  export const FACE: typeof HumanPopulationSurvey.FACE = HumanPopulationSurvey.FACE;
+  export const FACE: typeof HumanPopulationSurvey.FACE =
+    HumanPopulationSurvey.FACE;
 
   /** ANSUR II palm length over hand length per sex. */
-  export const PALM: typeof HumanPopulationSurvey.PALM = HumanPopulationSurvey.PALM;
+  export const PALM: typeof HumanPopulationSurvey.PALM =
+    HumanPopulationSurvey.PALM;
 
   /** The declared body domain. */
-  export const DOMAIN: typeof HumanPopulationSurvey.DOMAIN = HumanPopulationSurvey.DOMAIN;
+  export const DOMAIN: typeof HumanPopulationSurvey.DOMAIN =
+    HumanPopulationSurvey.DOMAIN;
 
   /** Every population end. */
   export const ENDS: readonly IEnd[] = HumanPopulationEnds.ENDS;
@@ -78,7 +85,8 @@ export namespace HumanPopulation {
   export const RELATIONS: readonly IRelation[] = HumanPopulationAudit.RELATIONS;
 
   /** Survey-defined inputs and the surveyed range each must lie in. */
-  export const RANGES: typeof HumanPopulationAudit.RANGES = HumanPopulationAudit.RANGES;
+  export const RANGES: typeof HumanPopulationAudit.RANGES =
+    HumanPopulationAudit.RANGES;
 
   /**
    * Index of a measure in the survey vectors.
@@ -98,7 +106,11 @@ export namespace HumanPopulation {
    * @param target Index of the measure sought.
    * @returns Its moments given the known values.
    */
-  export function conditional(sex: Sex, known: ReadonlyMap<number, number>, target: number): HumanPopulationConditional.IMoments {
+  export function conditional(
+    sex: Sex,
+    known: ReadonlyMap<number, number>,
+    target: number,
+  ): HumanPopulationConditional.IMoments {
     return HumanPopulationConditional.moments(sex, known, target);
   }
 
@@ -140,7 +152,11 @@ export namespace HumanPopulation {
    * @param p The person's inputs.
    * @returns Every row, passing or not.
    */
-  export function audit(person: string, sex: Sex, p: IAutoMovieHumanParameters): IRow[] {
+  export function audit(
+    person: string,
+    sex: Sex,
+    p: IAutoMovieHumanParameters,
+  ): IRow[] {
     return HumanPopulationAudit.audit(person, sex, p);
   }
 

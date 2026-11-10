@@ -2,17 +2,14 @@ import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieCapsuleProxy,
+  type IAutoMovieJointAxes,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
   IAutoMovieValidation,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import {
-  IAutoMovieJointAxes,
-  indexSkeletonTopology,
-  resolvePose,
-} from "../kinematics";
+import { indexSkeletonTopology, resolvePose } from "../kinematics";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/sampleTimes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";

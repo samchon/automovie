@@ -1,8 +1,10 @@
-import { IAutoMovieSweep } from "@automovie/engine";
+import {
+  IAutoMovieSweep,
+  IAutoMovieSweepRig,
+  rigAutoMovieSweep,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { IAutoMovieSweepRig } from "../../../../packages/engine/src/geometry/sweep/IAutoMovieSweepRig";
-import { rigAutoMovieSweep } from "../../../../packages/engine/src/geometry/sweep/rigAutoMovieSweep";
 import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 

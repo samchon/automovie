@@ -16,7 +16,9 @@ export namespace ConstructionViewOracle {
    * centre, `a b / sqrt(b^2 cos^2 phi + a^2 sin^2 phi)`, mm.
    */
   export function radius(a: number, b: number, phi: number): number {
-    return (a * b) / Math.sqrt((b * Math.cos(phi)) ** 2 + (a * Math.sin(phi)) ** 2);
+    return (
+      (a * b) / Math.sqrt((b * Math.cos(phi)) ** 2 + (a * Math.sin(phi)) ** 2)
+    );
   }
 
   /**
@@ -32,16 +34,27 @@ export namespace ConstructionViewOracle {
     const n: number = ORDER + 1;
     const fact: number[] = [1];
     for (let k: number = 1; k < n; k++) fact.push(fact[k - 1]! * k);
-    const cos: number[] = Array.from({ length: n }, (_: unknown, k: number): number => Math.cos(phi + (k * Math.PI) / 2) / fact[k]!);
-    const sin: number[] = Array.from({ length: n }, (_: unknown, k: number): number => Math.sin(phi + (k * Math.PI) / 2) / fact[k]!);
+    const cos: number[] = Array.from(
+      { length: n },
+      (_: unknown, k: number): number =>
+        Math.cos(phi + (k * Math.PI) / 2) / fact[k]!,
+    );
+    const sin: number[] = Array.from(
+      { length: n },
+      (_: unknown, k: number): number =>
+        Math.sin(phi + (k * Math.PI) / 2) / fact[k]!,
+    );
     const cc: number[] = product(cos, cos);
     const ss: number[] = product(sin, sin);
-    const u: number[] = cc.map((c: number, k: number): number => b * b * c + a * a * ss[k]!);
+    const u: number[] = cc.map(
+      (c: number, k: number): number => b * b * c + a * a * ss[k]!,
+    );
     const alpha: number = -0.5;
     const f: number[] = [u[0]! ** alpha];
     for (let k: number = 1; k < n; k++) {
       let sum: number = 0;
-      for (let j: number = 1; j <= k; j++) sum += (alpha * j - (k - j)) * u[j]! * f[k - j]!;
+      for (let j: number = 1; j <= k; j++)
+        sum += (alpha * j - (k - j)) * u[j]! * f[k - j]!;
       f.push(sum / (k * u[0]!));
     }
     return f.map((c: number, k: number): number => a * b * c * fact[k]!);
@@ -56,13 +69,16 @@ export namespace ConstructionViewOracle {
    */
   export function knots(a: number, b: number, spans: number): number[] {
     const w: number = Math.SQRT1_2;
-    return Array.from({ length: spans + 1 }, (_: unknown, k: number): number => {
-      const t: number = k / spans;
-      const d: number = (1 - t) ** 2 + 2 * t * (1 - t) * w + t * t;
-      const x: number = ((1 - t) ** 2 * a + 2 * t * (1 - t) * w * a) / d;
-      const z: number = (2 * t * (1 - t) * w * b + t * t * b) / d;
-      return Math.atan2(z, x);
-    });
+    return Array.from(
+      { length: spans + 1 },
+      (_: unknown, k: number): number => {
+        const t: number = k / spans;
+        const d: number = (1 - t) ** 2 + 2 * t * (1 - t) * w + t * t;
+        const x: number = ((1 - t) ** 2 * a + 2 * t * (1 - t) * w * a) / d;
+        const z: number = (2 * t * (1 - t) * w * b + t * t * b) / d;
+        return Math.atan2(z, x);
+      },
+    );
   }
 
   /**
@@ -86,7 +102,11 @@ export namespace ConstructionViewOracle {
     for (let i: number = 0; i < spans; i++) {
       const h: number = at[i + 1]! - at[i]!;
       let sixth: number = 0;
-      for (let k: number = 0; k <= 256; k++) sixth = Math.max(sixth, Math.abs(derivatives(a, b, at[i]! + (h * k) / 256)[6]!));
+      for (let k: number = 0; k <= 256; k++)
+        sixth = Math.max(
+          sixth,
+          Math.abs(derivatives(a, b, at[i]! + (h * k) / 256)[6]!),
+        );
       worst = Math.max(worst, (sixth * h ** 6) / (720 * 64));
     }
     return 1.1 * worst + 1e-12 * Math.max(a, b);
@@ -124,11 +144,16 @@ export namespace ConstructionViewOracle {
   export function weight(a: number, b: number, samples: number): number {
     let worst: number = 0;
     for (let i: number = 0; i <= samples; i++) {
-      const [r, r1, r2]: number[] = derivatives(a, b, (i * Math.PI) / 2 / samples);
+      const [r, r1, r2]: number[] = derivatives(
+        a,
+        b,
+        (i * Math.PI) / 2 / samples,
+      );
       const s: number = Math.hypot(r!, r1!);
 
       // (r1 / s)' = r2 / s - r1 (r r1 + r1 r2) / s^3.
-      const w: number = r! / s - (r2! / s - (r1! * (r! * r1! + r1! * r2!)) / s ** 3);
+      const w: number =
+        r! / s - (r2! / s - (r1! * (r! * r1! + r1! * r2!)) / s ** 3);
       worst = Math.max(worst, Math.abs(w));
     }
     return worst;

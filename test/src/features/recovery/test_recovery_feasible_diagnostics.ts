@@ -1,9 +1,10 @@
+import {
+  type IAutoMovieRecoveryFeasibleDiagnostics,
+  type IAutoMovieRecoveryFeasibleFit,
+  createRecoveryFeasibleDiagnostics,
+  encodeRecoveryDiagnosticNumber,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
-
-import { createRecoveryFeasibleDiagnostics } from "../../../../packages/recovery/src/internal/createRecoveryFeasibleDiagnostics";
-import { encodeRecoveryDiagnosticNumber } from "../../../../packages/recovery/src/internal/encodeRecoveryDiagnosticNumber";
-import type { IAutoMovieRecoveryFeasibleDiagnostics } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryFeasibleDiagnostics";
-import type { IAutoMovieRecoveryFeasibleFit } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleFit";
 
 /**
  * Fixed feasible diagnostics preserve every scalar's resident and JSON meaning.

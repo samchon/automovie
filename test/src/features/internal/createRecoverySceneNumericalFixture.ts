@@ -1,9 +1,11 @@
 import type { IAutoMovieRecoveryCameraSceneInput } from "@automovie/interface";
+import {
+  type IAutoMovieRecoveryMapPose,
+  type extractRecoveryImageFeatures,
+  type linkRecoveryCameraTracks,
+  matchRecoveryImageFeatures,
+} from "@automovie/recovery";
 
-import type { extractRecoveryImageFeatures } from "../../../../packages/recovery/src/internal/extractRecoveryImageFeatures";
-import type { linkRecoveryCameraTracks } from "../../../../packages/recovery/src/internal/linkRecoveryCameraTracks";
-import { matchRecoveryImageFeatures } from "../../../../packages/recovery/src/internal/matchRecoveryImageFeatures";
-import type { IAutoMovieRecoveryMapPose } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapPose";
 import { createRecoveryMapNumericalFixture } from "./createRecoveryMapNumericalFixture";
 
 interface IRecoverySceneFixture {

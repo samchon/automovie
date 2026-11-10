@@ -1,9 +1,9 @@
 import {
+  AutoMovieViewHermite,
   AutoMovieViewOutline,
   type IAutoMovieViewPart,
 } from "@automovie/engine";
 
-import { AutoMovieViewHermite } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewHermite";
 import { nclose } from "../nclose";
 
 /** Independent quintic and strict separate/combined source reading checks, owned by the existing source-lookup question. */

@@ -1,9 +1,10 @@
+import {
+  Quaternion,
+  combinePhysicalMassProperties as combine,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
-
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { combinePhysicalMassProperties as combine } from "../../../../packages/engine/src/physics/combinePhysicalMassProperties";
 
 /** Analytic tensor expectations independent of the diagonalizer.
  *

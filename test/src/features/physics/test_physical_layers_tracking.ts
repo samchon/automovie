@@ -1,7 +1,6 @@
+import { AutoMoviePhysicalTracking as Tracking } from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { AutoMoviePhysicalTracking as Tracking } from "../../../../packages/engine/src/physics/AutoMoviePhysicalTracking";
 
 /** Physical tracking behavior.
  *

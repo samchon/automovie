@@ -9,7 +9,10 @@ export class HumanSkinIntegrityUnion {
 
   /** Sets of `size` singleton members. */
   public constructor(size: number) {
-    this.parent = Int32Array.from({ length: size }, (_: unknown, k: number): number => k);
+    this.parent = Int32Array.from(
+      { length: size },
+      (_: unknown, k: number): number => k,
+    );
   }
 
   /** The root of a member's set, halving the path on the way. */

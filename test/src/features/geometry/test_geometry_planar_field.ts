@@ -1,11 +1,11 @@
 import {
+  type IAutoMoviePatternPoint,
+  clipAutoMoviePatternPolygon,
   integrateAutoMovieRadialField,
   intersectAutoMovieConvexPolygons,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMoviePatternPoint } from "../../../../packages/engine/src/architecture/IAutoMoviePatternPoint";
-import { clipAutoMoviePatternPolygon } from "../../../../packages/engine/src/architecture/clipAutoMoviePatternPolygon";
 import { nclose } from "../internal/nclose";
 
 /**

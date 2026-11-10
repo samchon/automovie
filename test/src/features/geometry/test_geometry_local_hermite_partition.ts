@@ -1,9 +1,11 @@
+import {
+  AutoMovieLocalHermiteField64,
+  type IAutoMovieCurve64 as C,
+  tessellateAutoMovieLocalHermite64 as Stream,
+  tessellateAutoMovieCurveGrid64,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieLocalHermiteField64 } from "../../../../packages/engine/src/geometry/curve/AutoMovieLocalHermiteField64";
-import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
-import { tessellateAutoMovieCurveGrid64 } from "../../../../packages/engine/src/geometry/curve/tessellateAutoMovieCurveGrid64";
-import { tessellateAutoMovieLocalHermite64 as Stream } from "../../../../packages/engine/src/geometry/curve/tessellateAutoMovieLocalHermite64";
 import { nclose } from "../internal/nclose";
 
 /** Exact real-arithmetic half restrictions, formed independently of the field and tessellator. */

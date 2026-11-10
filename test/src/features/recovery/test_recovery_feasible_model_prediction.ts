@@ -1,11 +1,13 @@
+import {
+  type IAutoMovieRecoveryMapJointBlock,
+  type IAutoMovieRecoveryMapLandmark,
+  RecoveryFeasibleCapacityError,
+  createRecoveryCameraChart,
+  predictRecoveryMapDecrease,
+  refineRecoveryCameraMap,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { RecoveryFeasibleCapacityError } from "../../../../packages/recovery/src/internal/RecoveryFeasibleCapacityError";
-import { createRecoveryCameraChart } from "../../../../packages/recovery/src/internal/createRecoveryCameraChart";
-import { predictRecoveryMapDecrease } from "../../../../packages/recovery/src/internal/predictRecoveryMapDecrease";
-import { refineRecoveryCameraMap } from "../../../../packages/recovery/src/internal/refineRecoveryCameraMap";
-import type { IAutoMovieRecoveryMapLandmark } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapLandmark";
-import type { IAutoMovieRecoveryMapJointBlock } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryMapJointBlock";
 import { createRecoveryMapNumericalFixture } from "../internal/createRecoveryMapNumericalFixture";
 import { nclose } from "../internal/nclose";
 

@@ -1,6 +1,9 @@
-import type { IAutoMovieHumanBodyMeasures } from "../../../../human/src/generation/IAutoMovieHumanBodyMeasures";
-import type { IAutoMovieHumanBodyAnatomy } from "../../../../human/src/structures/body/IAutoMovieHumanBodyAnatomy";
-import type { IAutoMovieHumanParameters } from "../../../../human/src/structures/IAutoMovieHumanParameters";
+import type {
+  IAutoMovieHumanBodyAnatomy,
+  IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanParameters,
+} from "@automovie/human";
+
 import { HumanPopulationAccess } from "./HumanPopulationAccess";
 import { HumanPopulationConditional } from "./HumanPopulationConditional";
 import type { HumanPopulationSurvey } from "./HumanPopulationSurvey";
@@ -15,10 +18,19 @@ type Variable = HumanPopulationSurvey.Variable;
  */
 export namespace HumanPopulationAnchors {
   /** A body measure the survey measures by its definition. */
-  export type Direct = readonly [Exclude<keyof IAutoMovieHumanBodyAnatomy, "sex">, Variable];
+  export type Direct = readonly [
+    Exclude<keyof IAutoMovieHumanBodyAnatomy, "sex">,
+    Variable,
+  ];
 
   /** A body measure the survey does not measure by its definition. */
-  export type Anchored = "backNeckToWaist" | "acrossBackShoulderWidth" | "highHipCircumference" | "upperArmCircumference" | "forearmCircumference" | "inseam";
+  export type Anchored =
+    | "backNeckToWaist"
+    | "acrossBackShoulderWidth"
+    | "highHipCircumference"
+    | "upperArmCircumference"
+    | "forearmCircumference"
+    | "inseam";
 
   /** An anchored head, ear or hand input. */
   export type Part = "earBreadth" | "thumbLength" | "vertexToNasion";
@@ -74,31 +86,72 @@ export namespace HumanPopulationAnchors {
   /** Each anchored course and its carrier. */
   export const ANCHORS: Record<Anchored | Part, IAnchor> = {
     // Neck to waist over the natural waist back length (cervicale to waist).
-    backNeckToWaist: { proxy: "waistBackLength", given: ["stature"], read: (p: P): number => HumanPopulationAccess.measures(p).backNeckToWaist },
+    backNeckToWaist: {
+      proxy: "waistBackLength",
+      given: ["stature"],
+      read: (p: P): number => HumanPopulationAccess.measures(p).backNeckToWaist,
+    },
 
     // Across shoulder over the biacromial breadth.
-    acrossBackShoulderWidth: { proxy: "biacromial", given: ["stature", "chest"], read: (p: P): number => HumanPopulationAccess.measures(p).acrossBackShoulderWidth },
+    acrossBackShoulderWidth: {
+      proxy: "biacromial",
+      given: ["stature", "chest"],
+      read: (p: P): number =>
+        HumanPopulationAccess.measures(p).acrossBackShoulderWidth,
+    },
 
     // High hip over the omphalion girth, the survey's girth between waist and hip.
-    highHipCircumference: { proxy: "omphalionWaist", given: ["waist", "buttock"], read: (p: P): number => HumanPopulationAccess.measures(p).highHipCircumference },
+    highHipCircumference: {
+      proxy: "omphalionWaist",
+      given: ["waist", "buttock"],
+      read: (p: P): number =>
+        HumanPopulationAccess.measures(p).highHipCircumference,
+    },
 
     // Relaxed upper-arm girth over the flexed biceps girth.
-    upperArmCircumference: { proxy: "bicepsFlexed", given: ["elbow", "wrist", "chest"], read: (p: P): number => HumanPopulationAccess.measures(p).upperArmCircumference },
+    upperArmCircumference: {
+      proxy: "bicepsFlexed",
+      given: ["elbow", "wrist", "chest"],
+      read: (p: P): number =>
+        HumanPopulationAccess.measures(p).upperArmCircumference,
+    },
 
     // Relaxed forearm girth over the flexed forearm girth.
-    forearmCircumference: { proxy: "forearmFlexed", given: ["elbow", "wrist"], read: (p: P): number => HumanPopulationAccess.measures(p).forearmCircumference },
+    forearmCircumference: {
+      proxy: "forearmFlexed",
+      given: ["elbow", "wrist"],
+      read: (p: P): number =>
+        HumanPopulationAccess.measures(p).forearmCircumference,
+    },
 
     // Inseam course over crotch height.
-    inseam: { proxy: "crotchHeight", given: ["stature"], read: (p: P): number => HumanPopulationAccess.measures(p).inseam },
+    inseam: {
+      proxy: "crotchHeight",
+      given: ["stature"],
+      read: (p: P): number => HumanPopulationAccess.measures(p).inseam,
+    },
 
     // The ear's breadth from otobasion superius over the survey's ear breadth.
-    earBreadth: { proxy: "earBreadth", given: ["earLength"], read: (p: P): number => (p.head.earPair.left.breadth + p.head.earPair.right.breadth) / 2 },
+    earBreadth: {
+      proxy: "earBreadth",
+      given: ["earLength"],
+      read: (p: P): number =>
+        (p.head.earPair.left.breadth + p.head.earPair.right.breadth) / 2,
+    },
 
     // Thumb length over hand length.
-    thumbLength: { proxy: "handLength", given: ["handLength"], read: (p: P): number => HumanPopulationAccess.hands(p)[0]!.thumbLength },
+    thumbLength: {
+      proxy: "handLength",
+      given: ["handLength"],
+      read: (p: P): number => HumanPopulationAccess.hands(p)[0]!.thumbLength,
+    },
 
     // The head's height above nasion over head length.
-    vertexToNasion: { proxy: "headLength", given: ["headLength"], read: (p: P): number => p.head.height - p.head.faceHeight },
+    vertexToNasion: {
+      proxy: "headLength",
+      given: ["headLength"],
+      read: (p: P): number => p.head.height - p.head.faceHeight,
+    },
   };
 
   /**
@@ -115,10 +168,15 @@ export namespace HumanPopulationAnchors {
     return (
       refs.reduce((s: number, p: P): number => {
         const known: Map<number, number> = new Map(
-          a.given.map((v: Variable): [number, number] => [HumanPopulationConditional.index(v), surveyed(p, v)]),
+          a.given.map((v: Variable): [number, number] => [
+            HumanPopulationConditional.index(v),
+            surveyed(p, v),
+          ]),
         );
         const target: number = HumanPopulationConditional.index(a.proxy);
-        const expected: number = known.get(target) ?? HumanPopulationConditional.moments(sex, known, target).mean;
+        const expected: number =
+          known.get(target) ??
+          HumanPopulationConditional.moments(sex, known, target).mean;
 
         return s + a.read(p) / expected;
       }, 0) / refs.length
@@ -141,7 +199,8 @@ export namespace HumanPopulationAnchors {
       buttock: (): number => k.hipCircumference,
       elbow: (): number => k.elbowCircumference,
       wrist: (): number => k.wristCircumference,
-      earLength: (): number => (p.head.earPair.left.length + p.head.earPair.right.length) / 2,
+      earLength: (): number =>
+        (p.head.earPair.left.length + p.head.earPair.right.length) / 2,
       handLength: (): number => HumanPopulationAccess.hands(p)[0]!.handLength,
       headLength: (): number => p.head.length,
     };

@@ -1,6 +1,8 @@
-import { AutoMovieHumanBodyAnatomy } from "../../../../packages/human/src/generation/AutoMovieHumanBodyAnatomy";
-import type { IAutoMovieHumanBodyMeasures } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyMeasures";
-import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
+import {
+  AutoMovieHumanBodyAnatomy,
+  type IAutoMovieHumanBodyMeasures,
+  type IAutoMovieHumanParameters,
+} from "@automovie/human";
 
 /**
  * A person's public body measures as the construction reads them: every
@@ -14,7 +16,9 @@ export namespace HumanInputs {
    *
    * @param params The person's public inputs.
    */
-  export function of(params: IAutoMovieHumanParameters): IAutoMovieHumanBodyMeasures {
+  export function of(
+    params: IAutoMovieHumanParameters,
+  ): IAutoMovieHumanBodyMeasures {
     return AutoMovieHumanBodyAnatomy.resolve(params);
   }
 

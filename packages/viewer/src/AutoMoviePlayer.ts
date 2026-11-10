@@ -1,5 +1,4 @@
 import {
-  IAutoMovieJointAxes,
   IAutoMovieMotionSample,
   IAutoMovieRestFrame,
   ISpringStep,
@@ -11,6 +10,7 @@ import {
 import {
   AutoMovieHumanoidBone,
   IAutoMovieExpression,
+  type IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieMotion,
   IAutoMoviePose,
