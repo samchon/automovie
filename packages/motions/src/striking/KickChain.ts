@@ -155,8 +155,10 @@ export namespace KickChain {
    * bend hint. Each later fit moves the ankle's goal by how far the fitted
    * leg's weapon is from the planned point, hints the knee where the last
    * fit put it, and (for the round kick) points the foot along the last
-   * fitted shank, so the asked leg is one the hip already held. The fit
-   * whose weapon comes nearest is the answer.
+   * fitted shank, so the asked leg is one the hip already held. A moved goal
+   * never leaves the leg's length at the technique's least flexion, so the
+   * knee stays inside its band. The fit whose weapon comes nearest is the
+   * answer.
    *
    * @param props The kick's body, side, technique, line, travel and planned point.
    * @param base The body's posture at contact, its support leg planted.
@@ -193,8 +195,28 @@ export namespace KickChain {
     let asked: IAutoMovieQuaternion = pointed(solved.middle, solved.end);
     let best: IFit = read(props, base, solved, { goal, hint, asked });
     let last: IFit = best;
+
+    // A moved goal stays inside the hip's sphere of the leg's length at the
+    // technique's least flexion, so no refit opens the knee past the band:
+    // what the weapon then still lacks is the kick's honest shortfall, which
+    // the carriage answers with a step, not the knee with a lock.
+    const hip: IAutoMovieVector3 = KickCarriage.hip(body, base, side);
+    const longest: number = StrikingReach.reach(
+      body.measure.thigh,
+      body.measure.shank,
+      KickForm.FLEXION[props.technique][0],
+    );
+    const within = (point: IAutoMovieVector3): IAutoMovieVector3 => {
+      const from: IAutoMovieVector3 = Vector3.subtract(point, hip);
+      const distance: number = Vector3.length(from);
+      return distance <= longest
+        ? point
+        : Vector3.add(hip, Vector3.scale(from, longest / distance));
+    };
     for (let i: number = 1; i < REFITS && last.residual > 1e-6; i++) {
-      goal = Vector3.add(goal, Vector3.subtract(props.planned, last.reached));
+      goal = within(
+        Vector3.add(goal, Vector3.subtract(props.planned, last.reached)),
+      );
       hint = last.knee;
       asked = pointed(last.knee, last.ankle);
       last = read(props, base, solved, { goal, hint, asked });

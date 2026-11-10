@@ -71,15 +71,6 @@ export namespace KickSwing {
 
     /** The replant's displacement from the launch plant, world metres. */
     step: IAutoMovieVector3;
-
-    /**
-     * The aim's corrections summed at a second of the leg's clock, world
-     * metres: zero for a target that does not move.
-     *
-     * @param clock Seconds since the kick's start.
-     * @returns The displacement added to the airborne ankle.
-     */
-    correction(clock: number): IAutoMovieVector3;
   }
 
   /**
@@ -162,18 +153,11 @@ export namespace KickSwing {
       );
       const up: number = rising(clock);
       const down: number = lowering(clock);
-      const held: number =
-        1 - minimumJerk((clock - impact) / Math.max(1e-3, folding)).s;
       return {
         ankle: Vector3.lerp(
           Vector3.lerp(
             Vector3.add(plant.ankle, shift),
-            Vector3.add(
-              carried(
-                Vector3.add(knee, Quaternion.rotateVector(opened, shank)),
-              ),
-              Vector3.scale(props.correction(clock), held),
-            ),
+            carried(Vector3.add(knee, Quaternion.rotateVector(opened, shank))),
             up,
           ),
           Vector3.add(plant.ankle, props.step),

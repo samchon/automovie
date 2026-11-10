@@ -23,7 +23,7 @@ const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
 
 /**
  * Golden-section passes refining the swivel inside the two-step bracket
- * around the sweep's best candidate: 40 passes shrink the 2 degree bracket by
+ * around each local minimum of the sweep: 40 passes shrink the 2 degree bracket by
  * `GOLDEN ** 40`, to under 1e-8 degree.
  */
 const REFINEMENTS: number = 40;
@@ -50,12 +50,16 @@ const SPAN_EPSILON: number = 1e-9;
  *
  * The root joint first aims `m(θ)` at the target, then any extra rotation
  * about `m(θ)` leaves the effector where it is. The function sweeps that swivel
- * in `SWIVEL_STEP` increments on each branch and keeps the candidate with the
- * least `overshoot`, compared exactly, then the least `deviation`, both from
- * `score`, and then refines the swivel between that candidate's neighbouring
- * steps by golden-section search under the same ordering, so the chosen pose
- * follows a moving target continuously rather than in swivel steps. The caller owns the decomposition and the rig's ROM, so the
- * geometry here holds no rig policy.
+ * in `SWIVEL_STEP` increments on each branch, ordering candidates by the least
+ * `overshoot`, compared exactly, then the least `deviation`, both from
+ * `score`. Every local minimum of a sweep is then refined between its
+ * neighbouring steps by golden-section search under the same ordering, and
+ * the best of the sweeps and the refinements is returned. So the chosen pose
+ * follows a moving target continuously rather than in swivel steps, a legal
+ * interval narrower than one step is still found from the dip it leaves in
+ * the sweep, and between two basins the truly better one wins rather than the
+ * one a sample happened to fall nearer the bottom of. The caller owns the
+ * decomposition and the rig's ROM, so the geometry here holds no rig policy.
  *
  * Returns `null` for a degenerate chain: a mid or end offset shorter than
  * `1e-6`, a target within `1e-6` of the chain root, a hinge shorter than
@@ -66,9 +70,9 @@ const SPAN_EPSILON: number = 1e-9;
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pure chain geometry with the ROM policy injected through `score`, so `reachPose` owns the clinical decomposition and constraints while this function owns the branches and the sweep; the shared `aimRotation` aims the root.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rig, side or target is special-cased; the degeneracy thresholds are the engine's shared length scale, and a chain that cannot reach legally returns its least overshoot instead of being clamped into range.
  * @evidence contracts/development/common.md#meaningful-documentation States the hinge-only elbow, the span formula and its branches, the out-of-span behavior, the swivel sweep and its ordering, who owns scoring, every `null` case with its threshold, and each input's frame.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most two branches times 360 swivel steps plus 42 refinement probes, each one quaternion product plus one `score` call, so cost is constant per solve and dominated by `score`; the step is a resolution choice among equally exact poses, and the solve runs once per authored arm action.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most two branches times 360 swivel steps plus 42 refinement probes per local minimum of a sweep, each one quaternion product plus one `score` call, so cost is bounded per solve and dominated by `score`; a level sweep refines nothing, and the step is a resolution choice among equally exact poses.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each hinge branch computes its mid direction and aim once for the whole swivel sweep; scores cannot be shared because the caller evaluates distinct shoulder rotations under its own constraints.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps only the current best candidate during the sweep and retains nothing after it; the caller owns the returned rotations.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps one branch's 360 scored candidates during its sweep and retains nothing after the solve; the caller owns the returned rotations.
  */
 export const hingedArmArticulation: (props: {
   upper: IAutoMovieChainBone;
@@ -167,16 +171,18 @@ export const hingedArmArticulation: (props: {
     reach,
   );
 
-  let best: (IAutoMovieHingedArticulation & { deviation: number }) | null =
-    null;
-  // The branch frame and swivel angle the best candidate was built from, which
-  // the refinement below continues from.
-  let seed: {
-    aim: IAutoMovieQuaternion;
-    axis: IAutoMovieVector3;
-    lower: IAutoMovieQuaternion;
-    angle: number;
-  } | null = null;
+  // Legality is compared EXACTLY, with no tolerance band. A band let a
+  // candidate sitting one part in 1e12 outside a limit count as tied with a
+  // strictly legal one and then win on deviation, so the solve returned a
+  // pose the gate refuses by 1.5e-12 of a degree. The deviation prior pulls
+  // toward the ROM box's edges, which is precisely where that happens, so
+  // the ordering has to put "inside the box" ahead of "closer to neutral"
+  // without qualification.
+  const better = (a: IScored, b: IScored): boolean =>
+    a.overshoot < b.overshoot ||
+    (a.overshoot === b.overshoot && a.deviation < b.deviation);
+
+  let chosen: IScored | null = null;
   for (const theta of branches) {
     const lower: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
       hinge,
@@ -188,62 +194,70 @@ export const hingedArmArticulation: (props: {
     );
     const aim: IAutoMovieQuaternion = aimRotation(mid, goal);
     const swivelAxis: IAutoMovieVector3 = Vector3.normalize(mid);
-    for (let step: number = 0; step * SWIVEL_STEP < 360; ++step) {
+    const probe = (angle: number): IScored => {
       const upper: IAutoMovieQuaternion = Quaternion.multiply(
         aim,
-        Quaternion.fromAxisAngle(swivelAxis, step * SWIVEL_STEP),
+        Quaternion.fromAxisAngle(swivelAxis, angle),
       );
-      const { overshoot, deviation }: { overshoot: number; deviation: number } =
-        props.score(upper, lower);
-      // Legality is compared EXACTLY, with no tolerance band. A band let a
-      // candidate sitting one part in 1e12 outside a limit count as tied with a
-      // strictly legal one and then win on deviation, so the solve returned a
-      // pose the gate refuses by 1.5e-12 of a degree. The deviation prior pulls
-      // toward the ROM box's edges, which is precisely where that happens, so
-      // the ordering has to put "inside the box" ahead of "closer to neutral"
-      // without qualification.
-      if (
-        best === null ||
-        overshoot < best.overshoot ||
-        (overshoot === best.overshoot && deviation < best.deviation)
-      ) {
-        best = { upper, lower, overshoot, deviation };
-        seed = { aim, axis: swivelAxis, lower, angle: step * SWIVEL_STEP };
-      }
+      return { upper, lower, ...props.score(upper, lower) };
+    };
+    const swept: IScored[] = [];
+    for (let step: number = 0; step * SWIVEL_STEP < 360; ++step)
+      swept.push(probe(step * SWIVEL_STEP));
+    for (let step: number = 0; step < swept.length; ++step) {
+      const at: IScored = swept[step]!;
+      const before: IScored =
+        swept[(step + swept.length - 1) % swept.length]!;
+      const after: IScored = swept[(step + 1) % swept.length]!;
+      if (chosen === null || better(at, chosen)) chosen = at;
+
+      // Every local minimum of the sweep is refined, not only the sweep's
+      // best step: a legal sliver narrower than one step shows in the sweep
+      // only as a dip of the overshoot, and of two basins the one that is
+      // truly better must win, not the one whose sample fell nearer its
+      // bottom. A step level with both neighbours has nothing to refine.
+      if (better(before, at) || better(after, at)) continue;
+      if (!better(at, before) && !better(at, after)) continue;
+      const refined: IScored = refine(probe, better, step * SWIVEL_STEP);
+      if (better(refined, chosen)) chosen = refined;
     }
   }
-  // `branches` is never empty and the sweep always scores at least one
-  // candidate, so `best` and `seed` are assigned by here.
-  let chosen: IAutoMovieHingedArticulation & { deviation: number } = best!;
-  // Refine the swivel between the best step's neighbours by golden-section
-  // search (Kiefer 1953) under the same ordering, so the chosen swivel varies
-  // continuously with the target instead of in `SWIVEL_STEP` jumps. A probe
-  // replaces the candidate only when strictly better, so the result is never
-  // worse than the sweep's.
-  const origin: NonNullable<typeof seed> = seed!;
-  const probe = (
-    angle: number,
-  ): IAutoMovieHingedArticulation & { deviation: number } => {
-    const upper: IAutoMovieQuaternion = Quaternion.multiply(
-      origin.aim,
-      Quaternion.fromAxisAngle(origin.axis, angle),
-    );
-    return { upper, lower: origin.lower, ...props.score(upper, origin.lower) };
+  // `branches` is never empty and each sweep scores 360 candidates, so
+  // `chosen` is assigned by here.
+  return {
+    upper: chosen!.upper,
+    lower: chosen!.lower,
+    overshoot: chosen!.overshoot,
   };
-  const better = (
-    a: { overshoot: number; deviation: number },
-    b: { overshoot: number; deviation: number },
-  ): boolean =>
-    a.overshoot < b.overshoot ||
-    (a.overshoot === b.overshoot && a.deviation < b.deviation);
-  let low: number = origin.angle - SWIVEL_STEP;
-  let high: number = origin.angle + SWIVEL_STEP;
+};
+
+/** One scored candidate: its rotations, its ROM overshoot and its effort tie-break. */
+interface IScored extends IAutoMovieHingedArticulation {
+  /** The effort tie-break, compared after the overshoot. */
+  deviation: number;
+}
+
+/**
+ * Refine the swivel between a sweep step's neighbours by golden-section
+ * search (Kiefer 1953) under the sweep's own ordering, so the swivel varies
+ * continuously with the target instead of in `SWIVEL_STEP` jumps.
+ *
+ * @param probe Scores the candidate at a swivel angle, degrees.
+ * @param better Whether the first candidate is strictly ahead of the second.
+ * @param angle The sweep step's swivel angle, degrees.
+ * @returns The better of the search's last two probes.
+ */
+const refine = (
+  probe: (angle: number) => IScored,
+  better: (a: IScored, b: IScored) => boolean,
+  angle: number,
+): IScored => {
+  let low: number = angle - SWIVEL_STEP;
+  let high: number = angle + SWIVEL_STEP;
   let inner: number = high - GOLDEN * (high - low);
   let outer: number = low + GOLDEN * (high - low);
-  let atInner: IAutoMovieHingedArticulation & { deviation: number } =
-    probe(inner);
-  let atOuter: IAutoMovieHingedArticulation & { deviation: number } =
-    probe(outer);
+  let atInner: IScored = probe(inner);
+  let atOuter: IScored = probe(outer);
   for (let pass: number = 0; pass < REFINEMENTS; ++pass) {
     if (better(atInner, atOuter)) {
       high = outer;
@@ -259,11 +273,5 @@ export const hingedArmArticulation: (props: {
       atOuter = probe(outer);
     }
   }
-  for (const candidate of [atInner, atOuter])
-    if (better(candidate, chosen)) chosen = candidate;
-  return {
-    upper: chosen.upper,
-    lower: chosen.lower,
-    overshoot: chosen.overshoot,
-  };
+  return better(atOuter, atInner) ? atOuter : atInner;
 };

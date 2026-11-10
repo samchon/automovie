@@ -56,6 +56,9 @@ export namespace KickForm {
   /** The most the support foot steps up toward a target beyond reach, as a share of the stance length (provisional). */
   export const STEP_SHARE: number = 0.5;
 
+  /** How many times a contact raises the support foot's step-up by what the fitted leg still lacks (provisional: each round removes the lack the last fit measured, so a second round only absorbs what the hip's range of motion changed). */
+  export const STEP_ROUNDS: number = 4;
+
   /** Share of the chamber phase by which the extension's unit overlaps the chamber's, so the ankle rounds the chamber point instead of resting on it (Flash and Hogan 1985 fit via-point movements by such overlapping units; the share is provisional). */
   export const VIA_OVERLAP: number = 0.4;
 

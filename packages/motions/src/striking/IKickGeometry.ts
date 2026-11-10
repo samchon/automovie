@@ -27,7 +27,7 @@ export interface IKickGeometry {
   /** The horizontal unit line from the kicker toward the target the body's carriage was committed on. */
   line: IAutoMovieVector3;
 
-  /** The carriage the kick's contact solve settled on. */
+  /** The carriage the kick's contact solve settled on at the launch. */
   carriage: IKickGeometry.ICarriage;
 
   /**
@@ -46,13 +46,13 @@ export interface IKickGeometry {
   ): IHumanPosture;
 
   /**
-   * The body's posture without the kicking leg's goal, as this kick shows it.
+   * The carriage this kick shows in full at a second: the launch plan's,
+   * moved by every correction of the aim that has started by then.
    *
-   * @param seconds Seconds since the start.
-   * @param turning The second the turn is read at; `seconds` when absent.
-   * @returns The posture.
+   * @param turning Seconds since the start at which the turn is read.
+   * @returns The carriage.
    */
-  body(seconds: number, turning?: number): IHumanPosture;
+  shown(turning: number): IKickGeometry.ICarriage;
 
   /**
    * The kicking leg's goal on its free path, as if the leg met nothing,

@@ -1,7 +1,7 @@
 import {
   Vector3,
   minimumJerk,
-  superposeMinimumJerk,
+  type superposeMinimumJerk,
   wrapDegrees,
 } from "@automovie/engine";
 import type {
@@ -17,13 +17,14 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import type { IKickGeometry } from "./IKickGeometry";
 import { KickCarriage } from "./KickCarriage";
-import { KickChain } from "./KickChain";
+import type { KickChain } from "./KickChain";
 import { KickChamber } from "./KickChamber";
+import { KickContact } from "./KickContact";
 import { KickForm } from "./KickForm";
+import { KickPlans } from "./KickPlans";
 import { KickSwing } from "./KickSwing";
 import { StrikingAim } from "./StrikingAim";
 import { StrikingQuality } from "./StrikingQuality";
-import type { StrikingReach } from "./StrikingReach";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingStroke } from "./StrikingStroke";
@@ -33,18 +34,17 @@ import type { kick } from "./kick";
 /**
  * Builds a kick's geometry.
  *
- * The contact is decided first, on the figure itself: the carriage
- * ({@link KickCarriage}) is tried from the least lean upward, the leg solved
- * from the hip each leaves it and fitted by the engine's limb fit
- * ({@link KickChain}), and the first carriage whose fitted leg lands its
- * weapon on the planned point with the support foot on its plant is the
- * kick's. The displayed contact goal is then that fitted leg (its ankle, its
- * knee and its foot rotation), so the figure shows exactly what was judged,
- * and the chamber is the same leg with the knee folded ({@link KickChamber}).
+ * The contact is decided first, on the figure itself ({@link KickContact}):
+ * the carriage under which the fitted leg lands its weapon on the planned
+ * point with the support foot on its plant. The displayed contact goal is
+ * then that fitted leg (its ankle, its knee and its foot rotation), so the
+ * figure shows exactly what was judged, and the chamber is the same leg with
+ * the knee folded ({@link KickChamber}).
  *
  * Between its plant, the chamber and the contact the leg travels on the path
- * {@link KickSwing} carries with the pelvis, and the target's online
- * corrections ({@link StrikingAim}) displace the airborne ankle.
+ * {@link KickSwing} carries with the pelvis. Each online correction of the
+ * target's point ({@link StrikingAim}) is a whole plan of its own, and the
+ * figure moves from plan to plan ({@link KickPlans}).
  */
 export namespace KickGeometry {
   /**
@@ -157,71 +157,82 @@ export namespace KickGeometry {
       timing,
       amplitude,
     };
-    const found: IContact = contact(
-      props,
-      {
+    const origin: IAutoMovieVector3 = feet[side].ankle;
+    const knee: IAutoMovieVector3 = poseBones(body, context.entry.pose).get(
+      `${side}LowerLeg` as AutoMovieHumanoidBone,
+    )!.worldPosition;
+
+    // One goal's plan: its contact, the chamber folded from it, and the leg's
+    // path. A feint ends on the chamber, and a kick that lands opens the knee
+    // from it onto the fitted contact leg, arriving with its share of the
+    // opening's peak speed.
+    const plan = (
+      goal: IAutoMovieVector3,
+      decided: number | undefined,
+      prefer?: number,
+    ): IPlanned => {
+      const found: KickContact.IContact = KickContact.choose(
+        props,
+        { body, side, technique: p.technique, line, direction, planned: goal },
+        { turn, pitch },
+        decided,
+        prefer,
+      );
+      const fit: KickChain.IFit = found.fit;
+      const folded: number =
+        fit.flexion + (KickForm.CHAMBER_FLEXION - fit.flexion) * amplitude;
+      const key: KickChamber.IKey = KickChamber.fold(
         body,
         side,
-        technique: p.technique,
-        line,
-        direction,
-        planned: tracker.planned,
-      },
-      { turn, pitch },
+        fit.pose,
+        folded,
+      );
+      return {
+        goal,
+        carriage: found.carriage,
+        fit,
+        leg: KickSwing.create({
+          body,
+          side,
+          timing,
+          base: found.base,
+          key,
+          contact: feint
+            ? key
+            : { knee: fit.knee, ankle: fit.ankle, rotation: fit.rotation },
+          flexion: {
+            chamber: folded,
+            contact: feint ? folded : fit.flexion,
+            least: KickForm.FLEXION[p.technique][0],
+          },
+          speed: feint
+            ? 1
+            : round
+              ? StrikingSkill.IMPACT_SPEED_SHARE.kick
+              : KickForm.PUSH_SPEED_SHARE,
+          plant: { knee, ankle: origin, rotation: feet[side].rotation },
+          step: Vector3.scale(line, found.carriage.step),
+        }),
+      };
+    };
+
+    // The launch's plan decides the step; every correction of the aim is a
+    // plan of its own on that step, trying the lean it corrects first. A
+    // feint throws at nothing, so it follows nothing.
+    const launched: IPlanned = plan(
+      tracker.planned,
       kept?.step ?? (feint ? 0 : undefined),
     );
-    const carriage: IKickGeometry.ICarriage = found.carriage;
-    const fit: KickChain.IFit = found.fit;
-    const folded: number =
-      fit.flexion + (KickForm.CHAMBER_FLEXION - fit.flexion) * amplitude;
-    const key: KickChamber.IKey = KickChamber.fold(
-      body,
-      side,
-      fit.pose,
-      folded,
-    );
-    const origin: IAutoMovieVector3 = feet[side].ankle;
-    const step: IAutoMovieVector3 = Vector3.scale(line, carriage.step);
-    const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-
-    // The leg's path: a feint ends on the chamber, and a kick that lands
-    // opens the knee from it onto the fitted contact leg, arriving with its
-    // share of the opening's peak speed.
-    const leg: IKickGeometry["leg"] = KickSwing.create({
-      body,
-      side,
-      timing,
-      base: found.base,
-      key,
-      contact: feint
-        ? key
-        : { knee: fit.knee, ankle: fit.ankle, rotation: fit.rotation },
-      flexion: {
-        chamber: folded,
-        contact: feint ? folded : fit.flexion,
-        least: KickForm.FLEXION[p.technique][0],
-      },
-      speed: feint
-        ? 1
-        : round
-          ? StrikingSkill.IMPACT_SPEED_SHARE.kick
-          : KickForm.PUSH_SPEED_SHARE,
-      plant: {
-        knee: poseBones(body, context.entry.pose).get(
-          `${side}LowerLeg` as AutoMovieHumanoidBone,
-        )!.worldPosition,
-        ankle: origin,
-        rotation: feet[side].rotation,
-      },
-      step,
-      correction: (clock: number): IAutoMovieVector3 =>
-        feint
-          ? zero
-          : superposeMinimumJerk(zero, tracker.units(t0 + clock), t0 + clock)
-              .position,
+    const carriage: IKickGeometry.ICarriage = launched.carriage;
+    const fit: KickChain.IFit = launched.fit;
+    const plans: KickPlans.IPlans = KickPlans.create({
+      first: launched,
+      next: (previous: KickPlans.IPlan, goal: IAutoMovieVector3): IPlanned =>
+        plan(goal, carriage.step, previous.carriage.lean),
+      units: (seconds: number): readonly superposeMinimumJerk.IUnit[] =>
+        feint ? [] : tracker.units(seconds),
+      t0,
     });
-    const carried = (seconds: number, turning?: number): IHumanPosture =>
-      KickCarriage.posture(props, carriage, seconds, turning);
     return compose(body, timing, t0, {
       line,
       carriage,
@@ -230,10 +241,10 @@ export namespace KickGeometry {
         shown: IKickGeometry.ICarriage,
         turning?: number,
       ): IHumanPosture => KickCarriage.posture(props, shown, seconds, turning),
-      body: carried,
-      leg,
+      shown: plans.shown,
+      leg: plans.leg,
       origin,
-      back: Vector3.add(origin, step),
+      back: Vector3.add(origin, Vector3.scale(line, carriage.step)),
       contacts: windows(timing, side, support, carriage.step > 0),
       record: {
         offset,
@@ -283,7 +294,7 @@ export namespace KickGeometry {
       const at: number | undefined = parts.record.stop(t0 + t);
       const s: number | undefined = at === undefined ? undefined : at - t0;
       if (s === undefined || t <= s) {
-        const base: IHumanPosture = parts.body(t);
+        const base: IHumanPosture = parts.base(t, parts.shown(t));
         return { body: base, leg: parts.leg(t, base, { x: 0, y: 0, z: 0 }) };
       }
 
@@ -299,7 +310,7 @@ export namespace KickGeometry {
       const stepped: number = minimumJerk(
         (s - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
       ).s;
-      const base: IHumanPosture = parts.body(s, back);
+      const base: IHumanPosture = parts.base(s, parts.shown(back), back);
       return {
         body: base,
         leg: parts.leg(
@@ -340,80 +351,10 @@ export namespace KickGeometry {
     leg: IKickGeometry.ILeg;
   }
 
-  /** A carriage with the leg fitted under it. */
-  interface IContact {
-    /** The carriage. */
-    carriage: IKickGeometry.ICarriage;
-
-    /** The body's posture at the contact under the carriage. */
-    base: IHumanPosture;
-
-    /** The fitted leg. */
+  /** One goal's plan with the leg its contact fitted. */
+  interface IPlanned extends KickPlans.IPlan {
+    /** The fitted contact leg. */
     fit: KickChain.IFit;
-  }
-
-  /**
-   * Choose the carriage: the least lean under which the fitted leg lands its
-   * weapon on the planned point with the support foot on its plant, or, when
-   * no lean does, the one whose fitted leg comes nearest, which is the
-   * declared miss. Under each lean a solve that falls short steps the support
-   * foot up, unless the step is given.
-   */
-  function contact(
-    props: KickCarriage.IProps,
-    chain: KickChain.IProps,
-    set: Pick<IKickGeometry.ICarriage, "turn" | "pitch">,
-    step: number | undefined,
-  ): IContact {
-    const leans: number[] = [];
-    if (chain.technique === "round")
-      for (
-        let lean: number = KickForm.LEAN_LEAST;
-        lean <= KickForm.LEAN_MOST;
-        lean += KickForm.LEAN_STEP
-      )
-        leans.push(lean);
-    else leans.push(0);
-    const under = (
-      carriage: IKickGeometry.ICarriage,
-    ): [IHumanPosture, StrikingReach.ISolution] => {
-      const base: IHumanPosture = KickCarriage.posture(
-        props,
-        carriage,
-        props.timing.impact,
-      );
-      return [base, KickChain.solve(chain, base)];
-    };
-    let best: IContact | undefined;
-    let least: number = Number.POSITIVE_INFINITY;
-    for (const lean of leans) {
-      let carriage: IKickGeometry.ICarriage = { ...set, lean, step: step ?? 0 };
-      let [base, solved] = under(carriage);
-      if (step === undefined && solved.status === "short") {
-        carriage = {
-          ...carriage,
-          step: Math.min(
-            KickForm.STEP_SHARE * StrikingStance.length(props.body),
-            solved.gap,
-          ),
-        };
-        [base, solved] = under(carriage);
-      }
-      const fit: KickChain.IFit = KickChain.fit(chain, base, solved);
-      const candidate: IContact = { carriage, base, fit };
-      if (
-        fit.status !== "short" &&
-        fit.slip <= KickForm.TOLERANCE &&
-        fit.residual <= KickForm.TOLERANCE
-      )
-        return candidate;
-      const cost: number = fit.slip + fit.residual;
-      if (cost < least) {
-        least = cost;
-        best = candidate;
-      }
-    }
-    return best!;
   }
 
   /** The height band of a target point against a body's own heights, the floor at zero. */
