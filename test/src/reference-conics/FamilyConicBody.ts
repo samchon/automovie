@@ -31,11 +31,8 @@ namespace FamilyConicBody {
   /** Spacing of the fitting sections, mm; the withheld sections stand midway. */
   const STEP_MM: number = 4;
 
-  /** The plain limb layout, then the same with a median anchor in every quarter. */
-  const LIMB: { layout: C.ILayout; refines: boolean }[] = [
-    { layout: C.limb(false), refines: false },
-    { layout: C.limb(true), refines: true },
-  ];
+  /** The limb layouts of 4 and 8 conics; the 16 conic layout fitted worse from the same start on the arm and is left out until that is understood. */
+  const LIMB: { layout: C.ILayout; depth: number }[] = [0, 1].map((depth: number): { layout: C.ILayout; depth: number } => ({ layout: C.limb(depth), depth }));
 
   /** One part to fit. */
   interface IPart {
@@ -57,11 +54,11 @@ namespace FamilyConicBody {
     /** Also emitted mirrored in the median plane `z = 0`. */
     mirrored: boolean;
 
-    /** Section layouts to try in order, each starting from the previous one's result when `refines` says it is that layout split once. */
-    layouts: { layout: C.ILayout; refines: boolean }[];
+    /** Limb layouts to try in order of median depth, each starting from the previous one's result. */
+    layouts: { layout: C.ILayout; depth: number }[];
 
-    /** Relief windows for what lies inside the tape wall. */
-    reliefs: H.IWindow[];
+    /** Relief windows for what lies inside the tape wall, or `auto` to place one over every hollow deeper than the target. */
+    reliefs: H.IWindow[] | "auto";
   }
 
   /** Run every part and write the receipt and the renders. */
@@ -73,11 +70,11 @@ namespace FamilyConicBody {
     const log = (event: string, detail: object): void => void process.stdout.write(JSON.stringify({ event, ...detail, elapsedMs: Math.round(performance.now() - started) }) + "\n");
     const source: R.ISource = await R.load(root);
     const joint = (name: string): R.V => source.joints.get(name)!;
-    const only: string[] = process.argv.slice(2);
+    const only: string[] = process.argv.slice(2).filter((argument: string): boolean => !argument.startsWith("--"));
     const parts: IPart[] = (
       [
-        { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r")], halves: [30], up: [1, 0, 0], domain: [76, 500], mirrored: true, layouts: LIMB, reliefs: [] },
-        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r")], halves: [40], up: [1, 0, 0], domain: [124, 800], mirrored: true, layouts: LIMB, reliefs: [] },
+        { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r")], halves: [30], up: [1, 0, 0], domain: [76, 500], mirrored: true, layouts: LIMB, reliefs: "auto" },
+        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r")], halves: [40], up: [1, 0, 0], domain: [124, 800], mirrored: true, layouts: LIMB, reliefs: "auto" },
         { name: "trunk", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [150, 492], mirrored: false, layouts: LIMB, reliefs: [
           { name: "trunk.back", stations: [60, 582], phases: [Math.PI - 1, Math.PI + 1], axis: [1, 0, 0], rows: 21, columns: 19, mirror: true },
           { name: "trunk.front", stations: [60, 582], phases: [-1, 1], axis: [-1, 0, 0], rows: 21, columns: 19, mirror: true },
@@ -122,28 +119,45 @@ namespace FamilyConicBody {
       // Fit: grow the shared knot vector at the worst open fitting sections until the target holds or no section is open.
       let best: F.IResult | null = null;
       const trail: unknown[] = [];
-      for (const { layout, refines } of part.layouts) {
-        // A split layout starts from the plain one's final knots and values, cut exactly at each quarter's median.
-        let knots: number[] = best === null || !refines ? [part.domain[0], (part.domain[0] + part.domain[1]) / 2, part.domain[1]] : [...best.knots];
-        let initial: number[][] | undefined = best === null || !refines ? undefined : F.refine(best.values);
-        const fields: number = C.units(layout).length;
-        let result: F.IResult;
-        for (;;) {
-          result = F.fit(rows, knots, layout, 4, initial);
-          const row = { fields, knots: knots.length, scalars: knots.length * (1 + fields), trainMaxMm: round(result.training.maximumMm), trainMeanMm: round(result.training.meanMm), heldMaxMm: round(result.heldout.maximumMm), heldMeanMm: round(result.heldout.meanMm), fault: result.fault, ms: Math.round(result.milliseconds) };
-          trail.push(row);
-          log("family-body-candidate", { part: part.name, ...row });
-          if (result.fault !== null || result.training.maximumMm <= 0.9 * TARGET_MM) break;
-          const open: F.IResult["rows"] = result.rows.filter((r: F.IResult["rows"][number]): boolean => !r.heldout && r.maximumMm > 0.9 * TARGET_MM && knots.every((k: number): boolean => Math.abs(k - r.s) >= GAP_MM)).sort((a, b) => b.maximumMm - a.maximumMm);
+      const attempt = (knots: number[], layout: C.ILayout, initial: number[][] | undefined, note: string, power: number = 4): F.IResult => {
+        const result: F.IResult = F.fit(rows, knots, layout, power, initial);
+        const row = { note, fields: result.layout.anchors.length === 0 ? 0 : C.units(layout).length, knots: knots.length, scalars: knots.length * (1 + C.units(layout).length), trainMaxMm: round(result.training.maximumMm), trainMeanMm: round(result.training.meanMm), heldMaxMm: round(result.heldout.maximumMm), heldMeanMm: round(result.heldout.meanMm), fault: result.fault, ms: Math.round(result.milliseconds) };
+        trail.push(row);
+        log("family-body-candidate", { part: part.name, ...row });
+        return result;
+      };
+      for (const { layout, depth } of part.layouts) {
+        // A deeper layout starts from the shallower one's final knots and values, cut exactly at every arc's median.
+        const knots0: number[] = best === null ? [part.domain[0], (part.domain[0] + part.domain[1]) / 2, part.domain[1]] : [...best.knots];
+        let result: F.IResult = attempt(knots0, layout, best === null ? undefined : F.refine(best.values, depth - 1), "depth " + depth);
+        while (result.fault === null && result.training.maximumMm > 0.9 * TARGET_MM) {
+          const open: F.IResult["rows"] = result.rows.filter((r: F.IResult["rows"][number]): boolean => !r.heldout && r.maximumMm > 0.9 * TARGET_MM && result.knots.every((k: number): boolean => Math.abs(k - r.s) >= GAP_MM)).sort((a, b) => b.maximumMm - a.maximumMm);
           const added: number[] = [];
           for (const r of open) if (added.length < 4 && added.every((s: number): boolean => Math.abs(s - r.s) >= 2 * GAP_MM)) added.push(r.s);
           if (added.length === 0) break;
-          const next: number[] = [...knots, ...added].sort((a: number, b: number): number => a - b);
-          initial = F.resample(result.values, knots, next);
-          knots = next;
+          const next: number[] = [...result.knots, ...added].sort((a: number, b: number): number => a - b);
+          const trial: F.IResult = attempt(next, layout, F.resample(result.values, result.knots, next), "grow");
+
+          // More knots that move neither the mean nor the maximum by 3 % are not kept: what remains is not the station splines' to follow.
+          if (trial.fault !== null || (trial.training.meanMm > 0.97 * result.training.meanMm && trial.training.maximumMm > 0.97 * result.training.maximumMm)) break;
+          result = trial;
         }
-        if (result.fault === null && (best === null || result.training.maximumMm < best.training.maximumMm - 0.05)) best = result;
-        if (best !== null && Math.max(best.training.maximumMm, best.heldout.maximumMm) <= TARGET_MM) break;
+        if (result.fault === null && (best === null || result.training.maximumMm < 0.97 * best.training.maximumMm || result.training.meanMm < 0.9 * best.training.meanMm)) best = result;
+        if (best !== null && best.training.maximumMm <= 0.9 * TARGET_MM) break;
+      }
+
+      // Prune: drop every knot whose removal keeps the maximum and the mean within 3 % and 5 % of the grown family.
+      if (best !== null) {
+        const limitMax: number = Math.max(0.9 * TARGET_MM, 1.03 * best.training.maximumMm);
+        const limitMean: number = 1.05 * best.training.meanMm;
+        for (let k: number = best.knots.length - 2; k >= 1; --k) {
+          const next: number[] = best.knots.filter((_: number, i: number): boolean => i !== k);
+          // Trials run one plain least-squares pass; the kept family is refitted with the reweighted passes afterwards.
+          const trial: F.IResult = attempt(next, best.layout, F.resample(best.values, best.knots, next), "prune", 2);
+          if (trial.fault === null && trial.training.maximumMm <= limitMax && trial.training.meanMm <= limitMean) best = trial;
+        }
+        const polished: F.IResult = attempt(best.knots, best.layout, best.values, "polish");
+        if (polished.fault === null && polished.training.maximumMm <= best.training.maximumMm) best = polished;
       }
       if (best === null) {
         receipt.push({ part: part.name, trail, fault: "no admissible family" });
@@ -157,11 +171,12 @@ namespace FamilyConicBody {
       const definition: K.IStored = JSON.parse(stored) as K.IStored;
 
       // Reliefs: fitted on the stored wall, so they also absorb what the wall leaves inside their windows.
-      if (part.reliefs.length > 0) {
+      {
         const read: (s: number) => number[] = K.reader(definition);
         const course: AutoMovieViewAxis.IAxis = K.axis(definition);
+        const windows: H.IWindow[] = part.reliefs === "auto" ? hollowWindows(part.name, rows, skins, course) : part.reliefs;
         definition.reliefs = [];
-        for (const window of part.reliefs) {
+        for (const window of windows) {
           const fitted: H.IResult = H.fit(window, rows.map((row: F.IRow, i: number): H.IRow => {
             const section: Q.ISection = C.chain(read(row.s), definition.layout);
             const frame: AutoMovieLoftFrame.IFrame = course.at(row.s);
@@ -232,6 +247,11 @@ namespace FamilyConicBody {
           curves.push({ id: part.name + ".knot." + m + "." + sign, points: rings[stations.indexOf(m)]!.map((p: R.V): N.Point => [p[0] / 1000, p[1] / 1000, (sign * p[2]) / 1000]), closed: true, colour: "b84b29" });
       }
       await fs.writeFile(path.join(out, "receipt.json"), JSON.stringify({ schema: "f1-family-conic-body-v1", targetMm: TARGET_MM, parts: receipt, milliseconds: performance.now() - started }, null, 2));
+
+      // The authored module: the same definition as TypeScript, written beside the receipt and, with --emit, into the Human package.
+      const moduleText: string = emit(part, definition, C.units(definition.layout).length === C.units(C.limb(0)).length ? 0 : 1, engine, rows.length);
+      await fs.writeFile(path.join(out, moduleName(part.name) + ".ts"), moduleText);
+      if (process.argv.includes("--emit")) await fs.writeFile(path.join(root, "packages/human/src/generation/f1", moduleName(part.name) + ".ts"), moduleText);
     }
 
     // Same cameras for the reference and the regenerated parts, framed on the reference.
@@ -251,6 +271,115 @@ namespace FamilyConicBody {
     }
     await fs.writeFile(path.join(out, "receipt.json"), JSON.stringify({ schema: "f1-family-conic-body-v1", targetMm: TARGET_MM, parts: receipt, frames, milliseconds: performance.now() - started }, null, 2));
     log("family-body-complete", { out });
+  }
+
+  /**
+   * Relief windows over every run of sections where the skin lies deeper
+   * inside the stored wall than the target: the run's stations and the
+   * phases of its deep vertices, each widened so the net's three zero rings
+   * stand on skin that needs no height, with the axis the inward radial
+   * direction at the run's middle.
+   */
+  function hollowWindows(name: string, rows: readonly F.IRow[], skins: readonly C.P[][], course: AutoMovieViewAxis.IAxis): H.IWindow[] {
+    const deep: { s: number; phases: number[] }[] = rows.map((row: F.IRow, i: number): { s: number; phases: number[] } => {
+      // Depth below the tape hull, not below the fitted wall: the wall's own misfit is not a hollow.
+      return { s: row.s, phases: skins[i]!.map((p: C.P): number => Math.atan2(p[1], p[0])).filter((phi: number, k: number): boolean => C.radius(row.points, phi) - Math.hypot(skins[i]![k]![0], skins[i]![k]![1]) > 0.6 * TARGET_MM) };
+    });
+    const windows: H.IWindow[] = [];
+    let run: { s: number; phases: number[] }[] = [];
+    const close = (): void => {
+      if (run.length >= 2) {
+        const all: number[] = run.flatMap((r: { s: number; phases: number[] }): number[] => r.phases);
+        const centre: number = Math.atan2(all.reduce((sum: number, phi: number): number => sum + Math.sin(phi), 0), all.reduce((sum: number, phi: number): number => sum + Math.cos(phi), 0));
+        const offsets: number[] = all.map((phi: number): number => Math.atan2(Math.sin(phi - centre), Math.cos(phi - centre)));
+        const from: number = centre + Math.min(...offsets) - 0.45;
+        const to: number = centre + Math.max(...offsets) + 0.45;
+        const stations: [number, number] = [run[0]!.s - 30, run.at(-1)!.s + 30];
+        const frame: AutoMovieLoftFrame.IFrame = course.at((stations[0] + stations[1]) / 2);
+        const axis: [number, number, number] = [0, 1, 2].map((c: number): number => -(Math.cos(centre) * frame.u[c]! + Math.sin(centre) * frame.v[c]!)) as [number, number, number];
+        windows.push({ name: name + ".hollow." + windows.length, stations, phases: [from, to], axis, rows: Math.max(7, Math.ceil((stations[1] - stations[0]) / 10) + 3), columns: Math.max(7, Math.ceil((to - from) / 0.15) + 3), mirror: false });
+      }
+      run = [];
+    };
+    for (const row of deep) {
+      if (row.phases.length === 0) {
+        if (run.length > 0 && row.s - run.at(-1)!.s > 16) close();
+        continue;
+      }
+      run.push(row);
+    }
+    close();
+    return windows;
+  }
+
+  /** Module and constant name of a part's authored family. */
+  function moduleName(part: string): string {
+    return "AutoMovieHumanF1" + part[0]!.toUpperCase() + part.slice(1);
+  }
+
+  /** What each field of a layout holds, in field order, for the authored table's row comments. */
+  function labels(layout: C.ILayout): string[] {
+    const out: string[] = [];
+    const guides: string[] = ["front (+u)", "side (+v)", "back (-u)", "side (-v)"];
+    let guide: number = 0;
+    layout.anchors.forEach((anchor: C.IAnchor, k: number): void => {
+      if (anchor.kind === "m") out.push("median fullness f of the arc pair around anchor " + k + ", share");
+      else if (anchor.kind === "i") out.push("inflection place t on its chord, share", "inflection tangent turn from the chord, rad");
+      else {
+        const name: string = anchor.guide === true ? guides[guide++ % 4]! + " extreme" : "anchor " + k;
+        out.push(name + ": u, mm");
+        if (anchor.mid !== true) out.push(name + ": v, mm");
+      }
+    });
+    const arcs: number = layout.mirror ? layout.anchors.length - 1 : layout.anchors.length;
+    for (let k: number = 0; k < arcs; ++k) out.push("shoulder rho of the arc after anchor " + k + ", share");
+    return out;
+  }
+
+  /** The authored TypeScript module of a fitted family, with its frame, units, source and measured receipt in its comment. */
+  function emit(part: IPart, family: K.IStored, depth: number, engine: { engineMaxMm: number; engineMeanMm: number; scalars: number }, sections: number): string {
+    const name: string = moduleName(part.name);
+    const names: string[] = labels(family.layout);
+    const lines: string[] = [
+      "import type { AutoMovieHumanConicLoft } from \"../conic/AutoMovieHumanConicLoft\";",
+      "import { AutoMovieHumanConicSection } from \"../conic/AutoMovieHumanConicSection\";",
+      "",
+      "/**",
+      " * f1's " + part.name + " tape wall" + (part.mirrored ? " on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly" : "") + ".",
+      " *",
+      " * Frame: the figure's absolute reference pose, millimetres, forward +X, up +Y, +Z the reference's left. The course runs",
+      " * through `centres` with a turn of half length `halves` at each joint; stations are arclength from the first centre and each",
+      " * section lies in the plane normal to the course, charted by `u` (carried from `up` by the course's rotations) and `v`.",
+      " *",
+      " * Every row of `values` is one section field of `AutoMovieHumanConicSection` at the shared `knots`, a natural cubic between",
+      " * them: the section is a chain of conics through its four extremes" + (depth > 0 ? " and one median point per quarter" : "") + ", fitted to the convex hull of the reference skin",
+      " * (the path of a taut tape).",
+      " *",
+      " * Source: the f1 reference body cut by this course's own planes over stations " + part.domain[0] + " to " + part.domain[1] + " mm, " + sections + " sections 2 mm apart, every",
+      " * second one withheld from the fit. Fitted offline by `test/src/reference-conics/FamilyConicBody.ts` (joint least squares over",
+      " * all sections). Regenerated through the engine's view loft from these numbers alone, the reference skin's cut vertices lie",
+      " * " + engine.engineMeanMm + " mm from it on average and at most " + engine.engineMaxMm + " mm. " + engine.scalars + " independent numbers.",
+      " */",
+      "export const " + name + ": AutoMovieHumanConicLoft.IFamily = {",
+      "  name: " + JSON.stringify(family.name) + ",",
+      "  centres: " + JSON.stringify(family.centres).replaceAll(",", ", ") + ",",
+      "  halves: " + JSON.stringify(family.halves) + ",",
+      "  up: " + JSON.stringify(family.up).replaceAll(",", ", ") + ",",
+      "  layout: AutoMovieHumanConicSection.limb(" + depth + "),",
+      "  knots: " + JSON.stringify(family.knots).replaceAll(",", ", ") + ",",
+      "  values: [",
+    ];
+    family.values.forEach((field: number[], f: number): void => {
+      lines.push("    // " + names[f], "    " + JSON.stringify(field).replaceAll(",", ", ") + ",");
+    });
+    lines.push("  ],");
+    if (family.reliefs !== undefined && family.reliefs.length > 0) {
+      lines.push("", "  // Reliefs: heights in mm of a uniform cubic B-spline net over a window of the wall's chart, moved along `axis`; they carry the skin that lies inside the tape wall.", "  reliefs: [");
+      for (const relief of family.reliefs) lines.push("    " + JSON.stringify({ ...relief, phases: relief.phases.map(round4), axis: relief.axis.map((x: number): number => Math.round(x * 1e5) / 1e5) }).replaceAll(",", ", ") + ",");
+      lines.push("  ],");
+    }
+    lines.push("};", "");
+    return lines.join("\n");
   }
 
   /** Distance from a chart point to a closed polyline, mm. */

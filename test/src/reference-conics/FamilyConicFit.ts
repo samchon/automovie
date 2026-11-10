@@ -310,10 +310,10 @@ export namespace FamilyConicFit {
     });
   }
 
-  /** Carry a plain limb family to the split limb layout, knot by knot, through `FamilyConicSection.refine`. */
-  export function refine(values: readonly (readonly number[])[]): number[][] {
+  /** Carry a limb family of the given depth one median level deeper, knot by knot, through `FamilyConicSection.refine`. */
+  export function refine(values: readonly (readonly number[])[], depth: number): number[][] {
     const M: number = values[0]!.length;
-    const columns: number[][] = Array.from({ length: M }, (_: unknown, m: number): number[] => C.refine(values.map((field: readonly number[]): number => field[m]!)));
+    const columns: number[][] = Array.from({ length: M }, (_: unknown, m: number): number[] => C.refine(values.map((field: readonly number[]): number => field[m]!), depth));
     return columns[0]!.map((_: number, f: number): number[] => columns.map((column: number[]): number => column[f]!));
   }
 

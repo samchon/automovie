@@ -51,7 +51,7 @@ export namespace FamilyConicRelief {
     /** The wall's chart point at a phase. */
     wall: (phi: number) => C.P;
 
-    /** The relief axis in the section chart. */
+    /** The relief axis projected into the section chart; its length is the share of a height that stays in the section plane. */
     axis: C.P;
 
     /** Withheld from the fit. */
@@ -106,8 +106,10 @@ export namespace FamilyConicRelief {
       const [iu, wu] = basis(((row.s - window.stations[0]) / (window.stations[1] - window.stations[0])) * (R - 3), R);
       for (let k: number = 1; k < phases; ++k) {
         const offset: number = (span * k) / phases;
-        const target: number | null = cast(row.skin, row.wall(window.phases[0] + offset), row.axis);
-        if (target === null) continue;
+        const inPlane: number = Math.hypot(row.axis[0], row.axis[1]);
+        const along: number | null = cast(row.skin, row.wall(window.phases[0] + offset), [row.axis[0] / inPlane, row.axis[1] / inPlane]);
+        if (along === null) continue;
+        const target: number = along / inPlane;
         const [iv, wv] = basis((offset / span) * (Cn - 3), Cn);
         const weights: [number, number][] = [];
         for (let a: number = 0; a < 4; ++a)
