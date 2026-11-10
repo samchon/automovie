@@ -1,11 +1,13 @@
-import type { IAutoMovieHumanParameters } from "../../../../../human/src/structures/IAutoMovieHumanParameters";
-import { AutoMovieHumanHairColor } from "../../../../../human/src/typings/AutoMovieHumanHairColor";
-import { AutoMovieHumanHairCurl } from "../../../../../human/src/typings/AutoMovieHumanHairCurl";
-import { AutoMovieHumanHairStyle } from "../../../../../human/src/typings/AutoMovieHumanHairStyle";
-import { AutoMovieHumanHairline } from "../../../../../human/src/typings/AutoMovieHumanHairline";
-import { AutoMovieHumanLowerUnderwear } from "../../../../../human/src/typings/AutoMovieHumanLowerUnderwear";
-import { AutoMovieHumanSex } from "../../../../../human/src/typings/AutoMovieHumanSex";
-import { AutoMovieHumanUpperUnderwear } from "../../../../../human/src/typings/AutoMovieHumanUpperUnderwear";
+import {
+  AutoMovieHumanHairColor,
+  AutoMovieHumanHairCurl,
+  AutoMovieHumanHairStyle,
+  AutoMovieHumanHairline,
+  AutoMovieHumanLowerUnderwear,
+  AutoMovieHumanSex,
+  AutoMovieHumanUpperUnderwear,
+  type IAutoMovieHumanParameters,
+} from "@automovie/human";
 
 /** Authored f1 example in the Human parameter units; an omitted measure takes its survey default.
  *
@@ -126,7 +128,7 @@ export const f1: IAutoMovieHumanParameters = {
     upperLipHeight: 17.15872676086289,
     bitragionCoronalArc: 358.7181942079085,
     // Stagnara's cervical arrow apex, the deepest point of the cervical lordosis on the back's midline skin, read standing against a plumb line on the whole-body reference about her tragia (receipt .shots/f1_head/measure-2026-11-08T03-49-29-355Z/head.json, readings.cervicalArrowApex.upright: -60.60, -61.19).
-    cervicalArrowApexBehindTragion: 60.60,
+    cervicalArrowApexBehindTragion: 60.6,
     cervicalArrowApexBelowTragion: 61.19,
     face: {
       eyePair: {

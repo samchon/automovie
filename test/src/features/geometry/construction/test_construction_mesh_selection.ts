@@ -1,8 +1,10 @@
+import {
+  type AutoMovieSolidMeshConstraints,
+  AutoMovieSolidMeshPlan,
+  triangulateAutoMovieSolidBoundary,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import type { AutoMovieSolidMeshConstraints } from "../../../../../packages/engine/src/geometry/construction/AutoMovieSolidMeshConstraints";
-import { AutoMovieSolidMeshPlan } from "../../../../../packages/engine/src/geometry/construction/AutoMovieSolidMeshPlan";
-import { triangulateAutoMovieSolidBoundary } from "../../../../../packages/engine/src/geometry/construction/triangulateAutoMovieSolidBoundary";
 import { ConstructionGridAuthorities } from "../../internal/construction/ConstructionGridAuthorities";
 import { ConstructionMeshSelectionGeometry } from "../../internal/construction/ConstructionMeshSelectionGeometry";
 import { nclose } from "../../internal/nclose";

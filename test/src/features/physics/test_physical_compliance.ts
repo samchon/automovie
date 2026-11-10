@@ -1,10 +1,10 @@
+import { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
 import { PhysicalFixtures as Fixtures } from "../internal/PhysicalFixtures";
 
 /** Real two-body contact sweep.

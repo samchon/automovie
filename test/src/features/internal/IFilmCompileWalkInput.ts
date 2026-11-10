@@ -1,14 +1,5 @@
-import type {
-  IAutoMovieJointAxes,
-  IAutoMovieRestFrame,
-} from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieBeatEndState,
-  IAutoMovieGait,
-  IAutoMovieSkeleton,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieRestFrame } from "@automovie/engine";
+import type { AutoMovieHumanoidBone, IAutoMovieBeatEndState, IAutoMovieGait, IAutoMovieSkeleton, IAutoMovieVector3, IAutoMovieJointAxes } from "@automovie/interface";
 
 import type { makeStagingWrite } from "./filmFixtures";
 

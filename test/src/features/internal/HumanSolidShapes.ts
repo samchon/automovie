@@ -1,4 +1,7 @@
-import type { AutoMovieSolidVector, IAutoMovieSolidSurface } from "@automovie/engine";
+import type {
+  AutoMovieSolidVector,
+  IAutoMovieSolidSurface,
+} from "@automovie/engine";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 
@@ -24,7 +27,14 @@ export namespace HumanSolidShapes {
    * @param r Radius, mm.
    * @returns The surface.
    */
-  export function cylinder(name: string, o: Vec3, d: Vec3, e1: Vec3, e2: Vec3, r: number): IAutoMovieSolidSurface {
+  export function cylinder(
+    name: string,
+    o: Vec3,
+    d: Vec3,
+    e1: Vec3,
+    e2: Vec3,
+    r: number,
+  ): IAutoMovieSolidSurface {
     // `S_u x S_v = r (d x (-sin e1 + cos e2))`, which for a right-handed
     // (d, e1, e2) is `-r (cos e1 + sin e2)`, into the axis.
     const handed: number = dot(cross(d, e1), e2);
@@ -57,7 +67,13 @@ export namespace HumanSolidShapes {
    * @param out The outward side, any vector off the plane.
    * @returns The surface.
    */
-  export function plane(name: string, o: Vec3, a: Vec3, b: Vec3, out: Vec3): IAutoMovieSolidSurface {
+  export function plane(
+    name: string,
+    o: Vec3,
+    a: Vec3,
+    b: Vec3,
+    out: Vec3,
+  ): IAutoMovieSolidSurface {
     return {
       name,
       orientation: dot(cross(a, b), out) > 0 ? 1 : -1,
@@ -85,7 +101,14 @@ export namespace HumanSolidShapes {
    * @param R Radius, mm.
    * @returns The surface.
    */
-  export function sphere(name: string, c: Vec3, e1: Vec3, e2: Vec3, e3: Vec3, R: number): IAutoMovieSolidSurface {
+  export function sphere(
+    name: string,
+    c: Vec3,
+    e1: Vec3,
+    e2: Vec3,
+    e3: Vec3,
+    R: number,
+  ): IAutoMovieSolidSurface {
     // At s = pi / 2, phi = 0: `S_u x S_v = R^2 (-e3) x e2`, which is `R^2 e1`,
     // outward, for a right-handed (e1, e2, e3).
     const handed: number = dot(cross(e1, e2), e3);
@@ -118,7 +141,8 @@ export namespace HumanSolidShapes {
    */
   export function sum(...terms: [number, Readonly<Vec3>][]): Vec3 {
     const out: Vec3 = [0, 0, 0];
-    for (const [k, a] of terms) for (let i: number = 0; i < 3; i++) out[i] += k * a[i]!;
+    for (const [k, a] of terms)
+      for (let i: number = 0; i < 3; i++) out[i] += k * a[i]!;
     return out;
   }
 
@@ -141,7 +165,11 @@ export namespace HumanSolidShapes {
    * @returns `a x b`.
    */
   export function cross(a: Readonly<Vec3>, b: Readonly<Vec3>): Vec3 {
-    return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+    return [
+      a[1] * b[2] - a[2] * b[1],
+      a[2] * b[0] - a[0] * b[2],
+      a[0] * b[1] - a[1] * b[0],
+    ];
   }
 
   /**

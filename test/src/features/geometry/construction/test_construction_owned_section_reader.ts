@@ -1,11 +1,13 @@
+import {
+  AutoMovieLoftSectionNative,
+  type AutoMovieLoftViewRead,
+  AutoMovieViewConic,
+  AutoMovieViewSectionField,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 import type { Profiler } from "node:inspector";
 import { Session } from "node:inspector/promises";
 
-import { AutoMovieLoftSectionNative } from "../../../../../packages/engine/src/geometry/construction/AutoMovieLoftSectionNative";
-import type { AutoMovieLoftViewRead } from "../../../../../packages/engine/src/geometry/construction/AutoMovieLoftViewRead";
-import { AutoMovieViewConic } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewConic";
-import { AutoMovieViewSectionField } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewSectionField";
 import { nclose } from "../../internal/nclose";
 
 /** Actual local Cartesian total2 returned by the native station reader. */

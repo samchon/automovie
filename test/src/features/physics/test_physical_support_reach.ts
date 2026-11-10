@@ -1,6 +1,5 @@
+import { projectPhysicalSupportReach } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-
-import { projectPhysicalSupportReach } from "../../../../packages/engine/src/physics/projectPhysicalSupportReach";
 
 /**
  * Two/four independent reach balls share a bounded root seed, while incompatible goals remain explicit failures.

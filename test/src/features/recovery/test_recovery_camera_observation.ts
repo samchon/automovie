@@ -1,10 +1,12 @@
 import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
+import {
+  admitRecoveryCameraPair,
+  extractRecoveryImageFeatures,
+  filterRecoveryImageGaussian,
+  matchRecoveryImageFeatures,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { admitRecoveryCameraPair } from "../../../../packages/recovery/src/internal/admitRecoveryCameraPair";
-import { extractRecoveryImageFeatures } from "../../../../packages/recovery/src/internal/extractRecoveryImageFeatures";
-import { filterRecoveryImageGaussian } from "../../../../packages/recovery/src/internal/filterRecoveryImageGaussian";
-import { matchRecoveryImageFeatures } from "../../../../packages/recovery/src/internal/matchRecoveryImageFeatures";
 import { nclose } from "../internal/nclose";
 
 /**

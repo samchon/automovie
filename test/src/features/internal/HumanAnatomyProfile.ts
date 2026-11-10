@@ -71,18 +71,27 @@ export namespace HumanAnatomyProfile {
       }
     }
 
-    return found.map((t: { index: number; kind: "max" | "min" }, k: number): ITurn => {
-      const before: number = k === 0 ? values[0]! : values[found[k - 1]!.index]!;
-      const after: number = k === found.length - 1 ? values[values.length - 1]! : values[found[k + 1]!.index]!;
-      const value: number = values[t.index]!;
+    return found.map(
+      (t: { index: number; kind: "max" | "min" }, k: number): ITurn => {
+        const before: number =
+          k === 0 ? values[0]! : values[found[k - 1]!.index]!;
+        const after: number =
+          k === found.length - 1
+            ? values[values.length - 1]!
+            : values[found[k + 1]!.index]!;
+        const value: number = values[t.index]!;
 
-      return {
-        index: t.index,
-        kind: t.kind,
-        value,
-        prominence: t.kind === "max" ? Math.min(value - before, value - after) : Math.min(before - value, after - value),
-      };
-    });
+        return {
+          index: t.index,
+          kind: t.kind,
+          value,
+          prominence:
+            t.kind === "max"
+              ? Math.min(value - before, value - after)
+              : Math.min(before - value, after - value),
+        };
+      },
+    );
   }
 
   /** The turn kinds of a profile in order, such as `max,min,max`. */

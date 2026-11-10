@@ -1,9 +1,11 @@
+import {
+  admitAutoMovieBicubicAtlas,
+  realizeAutoMovieBicubicAtlas64,
+  tessellateAutoMovieBicubicAtlas64,
+} from "@automovie/engine";
+import type { IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { admitAutoMovieBicubicAtlas } from "../../../../packages/engine/src/geometry/admitAutoMovieBicubicAtlas";
-import { tessellateAutoMovieBicubicAtlas64 } from "../../../../packages/engine/src/geometry/curve/tessellateAutoMovieBicubicAtlas64";
-import { realizeAutoMovieBicubicAtlas64 } from "../../../../packages/engine/src/geometry/realizeAutoMovieBicubicAtlas64";
-import type { IAutoMovieBicubicAtlasGeometry } from "../../../../packages/interface/src/model/IAutoMovieBicubicAtlasGeometry";
 import { createBicubicPlaneRecipe } from "../internal/createBicubicPlaneRecipe";
 import { nclose } from "../internal/nclose";
 

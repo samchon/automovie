@@ -1,3 +1,4 @@
+import type { IAutoMovieCurve64 as C } from "@automovie/engine";
 import {
   AutoMovieRecoveryEventCurve as E,
   type IAutoMovieRecoveryEventCurveArc,
@@ -5,8 +6,6 @@ import {
   prepareAutoMovieRecoveryAnnularChart,
 } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
-
-import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
 
 /**
  * Native occurrence direction determines endpoint names and the annular seam.

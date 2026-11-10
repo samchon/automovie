@@ -1,7 +1,7 @@
 import { AutoMovieConstructionViews, type AutoMovieSolidVector, AutoMovieViewAxis } from "@automovie/engine";
 import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView";
 import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
-import { AutoMovieHumanJointTurn } from "./AutoMovieHumanJointTurn";
+import { AutoMovieHumanBendArc } from "./AutoMovieHumanBendArc";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 
@@ -129,7 +129,7 @@ export namespace AutoMovieHumanWalkPart {
     // reconstructed axis. A second mm-to-m conversion need not be bit-identical.
     const positions: ReturnType<typeof AutoMovieHumanConstructionView.point>[] = raw.map(AutoMovieHumanConstructionView.point);
     const centres: Vec3[] = positions.map(AutoMovieConstructionViews.point);
-    const metreHalves: number[] = [...input.joints.map((j: { half: number }): number => j.half), ...(tip > 0 ? [AutoMovieHumanJointTurn.half(before, last, raw.at(-1)!, Math.min(tip, length))] : [])].map((half: number): number => half * AutoMovieHumanConstructionView.METRES);
+    const metreHalves: number[] = [...input.joints.map((j: { half: number }): number => j.half), ...(tip > 0 ? [AutoMovieHumanBendArc.half(before, last, raw.at(-1)!, Math.min(tip, length))] : [])].map((half: number): number => half * AutoMovieHumanConstructionView.METRES);
     const halves: number[] = metreHalves.map((half: number): number => half * 1000);
     const runs: AutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(centres, halves);
     if (typeof runs === "string") return fail(runs);

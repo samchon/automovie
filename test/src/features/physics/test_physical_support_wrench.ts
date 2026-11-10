@@ -1,8 +1,9 @@
+import {
+  Vector3,
+  distributePhysicalSupportWrench as distribute,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 as V } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { distributePhysicalSupportWrench as distribute } from "../../../../packages/engine/src/physics/distributePhysicalSupportWrench";
 
 /** Actual-point support allocation retains force/moment feasibility and reports impossible demand.
  *

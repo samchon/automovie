@@ -1,10 +1,10 @@
 import {
   AutoMovieViewSection,
+  AutoMovieViewSectionConic,
   measureAutoMovieCurveLength64,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieViewSectionConic } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewSectionConic";
 import { nclose } from "../../internal/nclose";
 
 /** Actual original-source measurement and its observed numerical comparison. */

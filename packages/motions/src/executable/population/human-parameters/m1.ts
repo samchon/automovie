@@ -1,11 +1,13 @@
-import type { IAutoMovieHumanParameters } from "../../../../../human/src/structures/IAutoMovieHumanParameters";
-import { AutoMovieHumanHairColor } from "../../../../../human/src/typings/AutoMovieHumanHairColor";
-import { AutoMovieHumanHairCurl } from "../../../../../human/src/typings/AutoMovieHumanHairCurl";
-import { AutoMovieHumanHairStyle } from "../../../../../human/src/typings/AutoMovieHumanHairStyle";
-import { AutoMovieHumanHairline } from "../../../../../human/src/typings/AutoMovieHumanHairline";
-import { AutoMovieHumanLowerUnderwear } from "../../../../../human/src/typings/AutoMovieHumanLowerUnderwear";
-import { AutoMovieHumanSex } from "../../../../../human/src/typings/AutoMovieHumanSex";
-import { AutoMovieHumanUpperUnderwear } from "../../../../../human/src/typings/AutoMovieHumanUpperUnderwear";
+import {
+  AutoMovieHumanHairColor,
+  AutoMovieHumanHairCurl,
+  AutoMovieHumanHairStyle,
+  AutoMovieHumanHairline,
+  AutoMovieHumanLowerUnderwear,
+  AutoMovieHumanSex,
+  AutoMovieHumanUpperUnderwear,
+  type IAutoMovieHumanParameters,
+} from "@automovie/human";
 
 /** Authored m1 example in the Human parameter units; an omitted measure takes its survey default.
  *

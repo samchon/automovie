@@ -1,12 +1,14 @@
+import {
+  Quaternion,
+  Vector3,
+  linearizePhysicalTargetRows,
+  memoizePhysicalTransformValue,
+  solvePhysicalArticulationTargets,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { linearizePhysicalTargetRows } from "../../../../packages/engine/src/physics/linearizePhysicalTargetRows";
-import { memoizePhysicalTransformValue } from "../../../../packages/engine/src/physics/memoizePhysicalTransformValue";
-import { solvePhysicalArticulationTargets } from "../../../../packages/engine/src/physics/solvePhysicalArticulationTargets";
 import { PhysicalPointFixtures } from "../internal/PhysicalPointFixtures";
 import { nclose } from "../internal/predicates";
 

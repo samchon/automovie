@@ -1,6 +1,6 @@
+import type { AutoMoviePhysicalSimulation as Simulation } from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 
-import type { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
 import { PhysicalFixtures } from "./PhysicalFixtures";
 import { PhysicalSupportFixtures } from "./PhysicalSupportFixtures";
 

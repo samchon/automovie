@@ -1,13 +1,12 @@
-import { TestValidator } from "@nestia/e2e";
-import { PNG } from "pngjs";
-import * as THREE from "three";
-
 import {
   type IAutoMovieSceneRaster,
   encodeAutoMovieRasterPng,
   rasterizeAutoMovieScene,
   stampAutoMovieRasterLabel,
-} from "../../../../packages/template/scaffold/production/src/executable/viewer/node/raster";
+} from "@automovie/viewer";
+import { TestValidator } from "@nestia/e2e";
+import { PNG } from "pngjs";
+import * as THREE from "three";
 
 /**
  * The Node rasterizer draws a three.js scene through its camera without a

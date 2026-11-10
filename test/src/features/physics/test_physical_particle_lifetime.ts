@@ -1,11 +1,12 @@
+import {
+  materializeCompiledEffects,
+  sampleCompiledEffect,
+} from "@automovie/engine";
 import type {
   IAutoMovieCompiledEffect,
   IAutoMovieEffectRecipe,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { materializeCompiledEffects } from "../../../../packages/engine/src/effectRuntime/materializeCompiledEffects";
-import { sampleCompiledEffect } from "../../../../packages/engine/src/sampleCompiledEffect";
 
 /** Retention cannot resurrect a particle after its declared lifetime.
  *

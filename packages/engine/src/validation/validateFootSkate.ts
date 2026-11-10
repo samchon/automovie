@@ -1,18 +1,6 @@
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieBone,
-  IAutoMovieMotion,
-  IAutoMovieSkeleton,
-  IAutoMovieValidation,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieValidation, IAutoMovieVector3, type IAutoMovieJointAxes } from "@automovie/interface";
 
-import {
-  IAutoMovieJointAxes,
-  IAutoMovieSkeletonTopology,
-  indexSkeletonTopology,
-  resolvePose,
-} from "../kinematics";
+import { IAutoMovieSkeletonTopology, indexSkeletonTopology, resolvePose } from "../kinematics";
 import { sampleMotion } from "../motion/sampleMotion";
 import { windowSampleTimes } from "../motion/windowSampleTimes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";

@@ -1,11 +1,12 @@
+import {
+  createSettingsFiles,
+  readSettingsFiles,
+  validateSettingsOutline,
+} from "@automovie/evidence";
 import { TestValidator } from "@nestia/e2e";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-
-import { createSettingsFiles } from "../../../../packages/evidence/src/narrative/createSettingsFiles";
-import { readSettingsFiles } from "../../../../packages/evidence/src/narrative/internal/readSettingsFiles";
-import { validateSettingsOutline } from "../../../../packages/evidence/src/narrative/internal/validateSettingsOutline";
 
 /**
  * Narrative evidence reads the scaffold's settings layout,

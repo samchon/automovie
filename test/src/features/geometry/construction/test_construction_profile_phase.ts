@@ -1,10 +1,10 @@
 import {
   AutoMovieConstructionProfile,
+  AutoMovieLoftAdmissionError,
   type IAutoMovieConstructionProfileSource,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieLoftAdmissionError } from "../../../../../packages/engine/src/geometry/construction/AutoMovieLoftAdmissionError";
 import { nclose } from "../../internal/nclose";
 
 /**

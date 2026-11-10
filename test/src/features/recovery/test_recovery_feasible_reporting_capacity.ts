@@ -1,15 +1,17 @@
+import {
+  type IAutoMovieRecoveryFeasibleJointOptions,
+  type IAutoMovieRecoveryMapLandmark,
+  type IAutoMovieRecoverySceneWork,
+  RecoveryFeasibleCapacityError,
+  admitRecoveryCameraScene,
+  prepareRecoveryCheckpointReportCapacity,
+  prepareRecoveryFeasibleMapReporting,
+  prepareRecoveryFeasibleReportCapacity,
+  prepareRecoverySceneFeasibleRouting,
+  prepareRecoverySceneReportCapacity,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { RecoveryFeasibleCapacityError } from "../../../../packages/recovery/src/internal/RecoveryFeasibleCapacityError";
-import { admitRecoveryCameraScene } from "../../../../packages/recovery/src/internal/admitRecoveryCameraScene";
-import { prepareRecoveryCheckpointReportCapacity } from "../../../../packages/recovery/src/internal/prepareRecoveryCheckpointReportCapacity";
-import { prepareRecoveryFeasibleMapReporting } from "../../../../packages/recovery/src/internal/prepareRecoveryFeasibleMapReporting";
-import { prepareRecoveryFeasibleReportCapacity } from "../../../../packages/recovery/src/internal/prepareRecoveryFeasibleReportCapacity";
-import { prepareRecoverySceneFeasibleRouting } from "../../../../packages/recovery/src/internal/prepareRecoverySceneFeasibleRouting";
-import { prepareRecoverySceneReportCapacity } from "../../../../packages/recovery/src/internal/prepareRecoverySceneReportCapacity";
-import type { IAutoMovieRecoveryMapLandmark } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapLandmark";
-import type { IAutoMovieRecoverySceneWork } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoverySceneWork";
-import type { IAutoMovieRecoveryFeasibleJointOptions } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
 import { createRecoverySceneNumericalFixture } from "../internal/createRecoverySceneNumericalFixture";
 
 /**

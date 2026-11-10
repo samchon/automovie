@@ -1,5 +1,6 @@
 import {
   AutoMovieLoftChain,
+  AutoMovieLoftCoefficientSource,
   AutoMovieLoftJet,
   AutoMovieStationHermite,
   AutoMovieViewAxis,
@@ -11,7 +12,6 @@ import {
 import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieLoftCoefficientSource } from "../../../../../../packages/engine/src/geometry/construction/AutoMovieLoftCoefficientSource";
 import { nclose } from "../../../internal/nclose";
 
 /** A layer whose explicit interpolation data is visible to the test's copy/invalid-input scenarios. */

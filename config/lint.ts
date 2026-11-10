@@ -1,5 +1,36 @@
 import { evidence } from "@ttsc/evidence";
-import type { ITtscLintConfig } from "@ttsc/lint";
+import type { ITtscLintBoundariesElement, ITtscLintConfig } from "@ttsc/lint";
+
+/** The published workspaces, each imported only by name through its `src/index.ts`. */
+const PACKAGES: readonly string[] = [
+  "cli",
+  "engine",
+  "evidence",
+  "human",
+  "ingest",
+  "interface",
+  "motions",
+  "recovery",
+  "render",
+  "template",
+  "viewer",
+];
+
+/**
+ * Source-path elements of the `boundaries/*` rules: one per package, with its
+ * index as the only entry, plus the test program and the website.
+ */
+const elements: readonly ITtscLintBoundariesElement[] = [
+  ...PACKAGES.map(
+    (name: string): ITtscLintBoundariesElement => ({
+      type: name,
+      pattern: `packages/${name}/**`,
+      entry: "src/index.ts",
+    }),
+  ),
+  { type: "test", pattern: "test/**" },
+  { type: "website", pattern: "website/**" },
+];
 
 /**
  * Shared correctness and evidence declaration guards, inherited by each package's lint configuration and checked during its normal type-aware build.
@@ -26,6 +57,35 @@ const lint: ITtscLintConfig = {
     jsDoc: true,
   },
   rules: {
+    // Package boundaries: a package is reached only by name through its
+    // `src/index.ts`; no package, the test program or the website reaches
+    // another workspace by a relative path, and no package imports `test`
+    // or `website`.
+    "boundaries/entry-point": ["error", { elements }],
+    "boundaries/element-types": [
+      "error",
+      {
+        elements,
+        default: "allow",
+        rules: [{ from: PACKAGES, disallow: ["test", "website"] }],
+      },
+    ],
+    "no-restricted-imports": [
+      "error",
+      {
+        patterns: [
+          {
+            regex: "^(\\.\\./)+(packages|test|website)/",
+            message: "Import the workspace by its package name instead.",
+          },
+          {
+            regex: "^(\\.\\./)+[a-z-]+/src/",
+            message: "Import the package by its name instead.",
+          },
+        ],
+      },
+    ],
+
     "evidence/documented": [
       "error",
       { symbol: ["type", "function", "property"] },

@@ -1,10 +1,12 @@
 import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
+import {
+  createRecoveryCameraChart,
+  fitRecoveryEpipolarConsensus,
+  fitRecoveryHomographyConsensus,
+  selectRecoveryCameraPose,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { createRecoveryCameraChart } from "../../../../packages/recovery/src/internal/createRecoveryCameraChart";
-import { fitRecoveryEpipolarConsensus } from "../../../../packages/recovery/src/internal/fitRecoveryEpipolarConsensus";
-import { fitRecoveryHomographyConsensus } from "../../../../packages/recovery/src/internal/fitRecoveryHomographyConsensus";
-import { selectRecoveryCameraPose } from "../../../../packages/recovery/src/internal/selectRecoveryCameraPose";
 import { nclose } from "../internal/nclose";
 
 /**

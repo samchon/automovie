@@ -1,3 +1,7 @@
+import {
+  advancePhysicalBalance as Balance,
+  collectPhysicalSupports,
+} from "@automovie/engine";
 import type {
   IAutoMoviePhysicalProfile as P,
   IAutoMovieFootfallPattern as Pattern,
@@ -10,8 +14,6 @@ import RAPIER, {
 } from "@dimforge/rapier3d-compat";
 import assert from "node:assert/strict";
 
-import { advancePhysicalBalance as Balance } from "../../../../packages/engine/src/physics/advancePhysicalBalance";
-import { collectPhysicalSupports } from "../../../../packages/engine/src/physics/collectPhysicalSupports";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Touching constraints remain available for allocation; only actual positive load confirms a landing.

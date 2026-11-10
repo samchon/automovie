@@ -1,4 +1,4 @@
-import { orientAutoMovieSolidChart } from "../../../../../packages/engine/src/geometry/construction/orientAutoMovieSolidChart";
+import { orientAutoMovieSolidChart } from "@automovie/engine";
 
 /** An independent finite chart point, without a surface/mesher dependency. */
 type Point = [number, number];

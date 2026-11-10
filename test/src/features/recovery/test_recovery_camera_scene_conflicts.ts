@@ -1,8 +1,10 @@
+import {
+  admitRecoveryCameraScene,
+  createRecoveryCameraScene,
+  linkRecoveryCameraTracks,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { admitRecoveryCameraScene } from "../../../../packages/recovery/src/internal/admitRecoveryCameraScene";
-import { createRecoveryCameraScene } from "../../../../packages/recovery/src/internal/createRecoveryCameraScene";
-import { linkRecoveryCameraTracks } from "../../../../packages/recovery/src/internal/linkRecoveryCameraTracks";
 import { createRecoverySceneNumericalFixture } from "../internal/createRecoverySceneNumericalFixture";
 
 /**

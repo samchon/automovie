@@ -1,17 +1,19 @@
+import {
+  type IAutoMovieRecoveryMapCurvatureBlocks,
+  type IAutoMovieRecoveryMapLandmark,
+  type IAutoMovieRecoveryMapMetricScales,
+  type IAutoMovieRecoveryMapPose,
+  type IAutoMovieRecoveryMapState,
+  type IAutoMovieRecoveryUntiltedEstimate,
+  admitRecoveryMapCurvature,
+  assembleRecoveryMapCurvature,
+  copyRecoveryUntiltedEstimate,
+  createRecoveryCameraChart,
+  differentiateRecoveryMapProjection,
+  refineRecoveryCameraMap,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { admitRecoveryMapCurvature } from "../../../../packages/recovery/src/internal/admitRecoveryMapCurvature";
-import { assembleRecoveryMapCurvature } from "../../../../packages/recovery/src/internal/assembleRecoveryMapCurvature";
-import { copyRecoveryUntiltedEstimate } from "../../../../packages/recovery/src/internal/copyRecoveryUntiltedEstimate";
-import { createRecoveryCameraChart } from "../../../../packages/recovery/src/internal/createRecoveryCameraChart";
-import { differentiateRecoveryMapProjection } from "../../../../packages/recovery/src/internal/differentiateRecoveryMapProjection";
-import { refineRecoveryCameraMap } from "../../../../packages/recovery/src/internal/refineRecoveryCameraMap";
-import type { IAutoMovieRecoveryMapLandmark } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapLandmark";
-import type { IAutoMovieRecoveryMapPose } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapPose";
-import type { IAutoMovieRecoveryMapCurvatureBlocks } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryMapCurvatureBlocks";
-import type { IAutoMovieRecoveryMapMetricScales } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryMapMetricScales";
-import type { IAutoMovieRecoveryMapState } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryMapState";
-import type { IAutoMovieRecoveryUntiltedEstimate } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryUntiltedEstimate";
 import { assertRecoveryMapCurvatureFactor } from "../internal/assertRecoveryMapCurvatureFactor";
 import { createRecoveryMapNumericalFixture } from "../internal/createRecoveryMapNumericalFixture";
 import { nclose } from "../internal/nclose";

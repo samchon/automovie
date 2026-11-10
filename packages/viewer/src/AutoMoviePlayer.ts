@@ -1,21 +1,5 @@
-import {
-  IAutoMovieJointAxes,
-  IAutoMovieMotionSample,
-  IAutoMovieRestFrame,
-  ISpringStep,
-  clampPose,
-  dampedSpring,
-  resolveLookAt,
-  sampleMotion,
-} from "@automovie/engine";
-import {
-  AutoMovieHumanoidBone,
-  IAutoMovieExpression,
-  IAutoMovieJointPose,
-  IAutoMovieMotion,
-  IAutoMoviePose,
-  IAutoMovieSkeleton,
-} from "@automovie/interface";
+import { IAutoMovieMotionSample, IAutoMovieRestFrame, ISpringStep, clampPose, dampedSpring, resolveLookAt, sampleMotion } from "@automovie/engine";
+import { AutoMovieHumanoidBone, IAutoMovieExpression, IAutoMovieJointPose, IAutoMovieMotion, IAutoMoviePose, IAutoMovieSkeleton, type IAutoMovieJointAxes } from "@automovie/interface";
 
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IAutoMovieSpringAxisSettlement } from "./IAutoMovieSpringAxisSettlement.js";

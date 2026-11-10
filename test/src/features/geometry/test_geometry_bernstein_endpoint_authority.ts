@@ -1,8 +1,10 @@
+import {
+  AutoMovieBernsteinAlgebra64 as B,
+  AutoMovieBernsteinSubdivision64 as S,
+  prepareAutoMovieBicubicAtlasBoundary64,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieBernsteinAlgebra64 as B } from "../../../../packages/engine/src/geometry/curve/AutoMovieBernsteinAlgebra64";
-import { AutoMovieBernsteinSubdivision64 as S } from "../../../../packages/engine/src/geometry/curve/AutoMovieBernsteinSubdivision64";
-import { prepareAutoMovieBicubicAtlasBoundary64 } from "../../../../packages/engine/src/geometry/curve/prepareAutoMovieBicubicAtlasBoundary64";
 import { nclose } from "../internal/nclose";
 
 /**

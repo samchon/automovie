@@ -1,14 +1,16 @@
+import {
+  Quaternion,
+  Vector3,
+  fitPhysicalWholeBodyTarget,
+  measurePhysicalJointLimits,
+  rerootPhysicalProfile,
+} from "@automovie/engine";
 import type {
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { fitPhysicalWholeBodyTarget } from "../../../../packages/engine/src/physics/fitPhysicalWholeBodyTarget";
-import { measurePhysicalJointLimits } from "../../../../packages/engine/src/physics/measurePhysicalJointLimits";
-import { rerootPhysicalProfile } from "../../../../packages/engine/src/physics/rerootPhysicalProfile";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 
 /** A whole body held on one support reaches a goal its free limb alone cannot, inside every ROM and without moving the contact.

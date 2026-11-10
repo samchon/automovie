@@ -1,7 +1,9 @@
+import {
+  type IAutoMovieContourLoft64 as L,
+  tessellateAutoMovieContourStrip64,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import type { IAutoMovieContourLoft64 as L } from "../../../../packages/engine/src/geometry/curve/IAutoMovieContourLoft64.ts";
-import { tessellateAutoMovieContourStrip64 } from "../../../../packages/engine/src/geometry/curve/tessellateAutoMovieContourStrip64.ts";
 import { contourStripOracle as O } from "../internal/contourStripOracle.ts";
 import { nclose } from "../internal/nclose.ts";
 import { throwsError } from "../internal/throwsError.ts";

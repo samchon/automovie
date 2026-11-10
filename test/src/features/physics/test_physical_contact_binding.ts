@@ -1,13 +1,15 @@
+import {
+  preparePhysicalGeometry as Geometry,
+  AutoMoviePhysicalSimulation as Simulation,
+  Vector3,
+  planPhysicalContactTargets,
+} from "@automovie/engine";
 import type {
   IAutoMoviePhysicalContactBinding as Binding,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { planPhysicalContactTargets } from "../../../../packages/engine/src/physics/planPhysicalContactTargets";
-import { preparePhysicalGeometry as Geometry } from "../../../../packages/engine/src/physics/preparePhysicalGeometry";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 

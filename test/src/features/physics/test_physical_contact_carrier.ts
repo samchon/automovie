@@ -1,3 +1,8 @@
+import {
+  Quaternion,
+  Vector3,
+  accumulatePhysicalMotorTorques,
+} from "@automovie/engine";
 import type {
   IAutoMoviePhysicalProfile as P,
   IAutoMovieVector3 as V,
@@ -6,9 +11,6 @@ import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { accumulatePhysicalMotorTorques } from "../../../../packages/engine/src/physics/accumulatePhysicalMotorTorques";
 import { PhysicalPointFixtures } from "../internal/PhysicalPointFixtures";
 import { vclose } from "../internal/vclose";
 

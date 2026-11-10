@@ -1,5 +1,6 @@
 import {
   AutoMovieConstructionProfile,
+  AutoMovieConstructionProfileBody,
   type AutoMovieConstructionRealization,
   AutoMovieSolidBody,
   AutoMovieSolidMesh,
@@ -13,7 +14,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieConstructionProfileBody } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConstructionProfileBody";
 import { ConstructionNativeContinuation as Native } from "../../internal/construction/ConstructionNativeContinuation";
 import { ConstructionProfileRealization as Made } from "../../internal/construction/ConstructionProfileRealization";
 import { nclose } from "../../internal/nclose";

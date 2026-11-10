@@ -1,10 +1,11 @@
 import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
+import {
+  type IAutoMovieRecoveryCameraSceneEstimate,
+  type IAutoMovieRecoveryMapJointFit,
+  type IAutoMovieRecoverySceneWork,
+  createRecoverySceneSeedReportObserver,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
-
-import { createRecoverySceneSeedReportObserver } from "../../../../packages/recovery/src/internal/createRecoverySceneSeedReportObserver";
-import type { IAutoMovieRecoveryCameraSceneEstimate } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryCameraSceneEstimate";
-import type { IAutoMovieRecoveryMapJointFit } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapJointFit";
-import type { IAutoMovieRecoverySceneWork } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoverySceneWork";
 
 /**
  * A completed seed report survives later reporting-budget refusal.

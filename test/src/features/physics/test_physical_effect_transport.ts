@@ -1,11 +1,9 @@
+import { compileImpactEffects, sampleCompiledEffect } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieEffectRecipe,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { compileImpactEffects } from "../../../../packages/engine/src/physics/compileImpactEffects";
-import { sampleCompiledEffect } from "../../../../packages/engine/src/sampleCompiledEffect";
 
 /**
  * A three-dimensional spray keeps its declared visible opacity, lands as enlarged persistent stains and rejects malformed transport.

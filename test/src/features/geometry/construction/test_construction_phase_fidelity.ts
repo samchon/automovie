@@ -1,15 +1,15 @@
 import {
   AutoMovieLoftChain,
   AutoMovieLoftJet,
+  AutoMovieLoftPhaseSource,
   AutoMovieSplineCurve,
   AutoMovieViewAxis,
+  type AutoMovieViewConic,
   AutoMovieViewLoft,
   AutoMovieViewSection,
   type IAutoMovieViewPart,
 } from "@automovie/engine";
 
-import { AutoMovieLoftPhaseSource } from "../../../../../packages/engine/src/geometry/construction/AutoMovieLoftPhaseSource";
-import type { AutoMovieViewConic } from "../../../../../packages/engine/src/geometry/construction/AutoMovieViewConic";
 import { ConstructionLoftSectionAdapters } from "../../internal/construction/ConstructionLoftSectionAdapters";
 import { ConstructionLoftSectionBoundary } from "../../internal/construction/ConstructionLoftSectionBoundary";
 import { ConstructionLoftSectionConsumers } from "../../internal/construction/ConstructionLoftSectionConsumers";

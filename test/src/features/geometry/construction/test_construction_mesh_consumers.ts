@@ -10,11 +10,13 @@ import {
   type IAutoMovieSolidSurface,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
+import {
+  AutoMovieHumanBodySurfaceSolids,
+  AutoMovieHumanLoftMesh,
+  type IAutoMovieHumanBodyCalibration,
+  type IAutoMovieHumanSurfaceContext,
+} from "@automovie/human";
 
-import { AutoMovieHumanBodySurfaceSolids } from "../../../../../packages/human/src/generation/AutoMovieHumanBodySurfaceSolids";
-import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanSurfaceContext } from "../../../../../packages/human/src/generation/IAutoMovieHumanSurfaceContext";
-import { AutoMovieHumanLoftMesh } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftMesh";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
 import { nclose } from "../../internal/nclose";
 

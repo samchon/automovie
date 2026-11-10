@@ -1,9 +1,11 @@
+import {
+  type AutoMovieSolidMeshConstraints,
+  AutoMovieSolidMeshPlan,
+  insertAutoMovieSolidMeshPoints,
+  triangulateAutoMovieSolidBoundary,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import type { AutoMovieSolidMeshConstraints } from "../../../../../packages/engine/src/geometry/construction/AutoMovieSolidMeshConstraints";
-import { AutoMovieSolidMeshPlan } from "../../../../../packages/engine/src/geometry/construction/AutoMovieSolidMeshPlan";
-import { insertAutoMovieSolidMeshPoints } from "../../../../../packages/engine/src/geometry/construction/insertAutoMovieSolidMeshPoints";
-import { triangulateAutoMovieSolidBoundary } from "../../../../../packages/engine/src/geometry/construction/triangulateAutoMovieSolidBoundary";
 import { nclose } from "../../internal/nclose";
 
 /** One rectangle in the independently prescribed chart. */

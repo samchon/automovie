@@ -1,3 +1,8 @@
+import {
+  Quaternion,
+  collectPhysicalSupports as collect,
+  physicalNativeShape,
+} from "@automovie/engine";
 import type {
   IAutoMoviePhysicalProfile as P,
   IAutoMovieFootfallPattern as Pattern,
@@ -12,9 +17,6 @@ import RAPIER, {
 } from "@dimforge/rapier3d-compat";
 import { TestValidator } from "@nestia/e2e";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { collectPhysicalSupports as collect } from "../../../../packages/engine/src/physics/collectPhysicalSupports";
-import { physicalNativeShape } from "../../../../packages/engine/src/physics/physicalNativeShape";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /** Support witnesses must be touching upward native constraints, with the actual solver friction.

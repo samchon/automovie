@@ -1,13 +1,16 @@
-import { AutoMovieHumanBodyAnatomy } from "../../../../human/src/generation/AutoMovieHumanBodyAnatomy";
-import type { IAutoMovieHumanBodyAnatomy } from "../../../../human/src/structures/body/IAutoMovieHumanBodyAnatomy";
-import { AutoMovieHumanSex } from "../../../../human/src/typings/AutoMovieHumanSex";
-import type { IAutoMovieHumanParameters } from "../../../../human/src/structures/IAutoMovieHumanParameters";
-import { f1, m1 } from "./human-parameters/index";
+import {
+  AutoMovieHumanBodyAnatomy,
+  AutoMovieHumanSex,
+  type IAutoMovieHumanBodyAnatomy,
+  type IAutoMovieHumanParameters,
+} from "@automovie/human";
+
 import { HumanPopulationAccess } from "./HumanPopulationAccess";
 import { HumanPopulationAnchors } from "./HumanPopulationAnchors";
 import { HumanPopulationConditional } from "./HumanPopulationConditional";
 import { HumanPopulationEnds } from "./HumanPopulationEnds";
 import { HumanPopulationSurvey } from "./HumanPopulationSurvey";
+import { f1, m1 } from "./human-parameters/index";
 
 type P = IAutoMovieHumanParameters;
 type Sex = HumanPopulationSurvey.Sex;
@@ -30,7 +33,9 @@ export namespace HumanPopulationBuild {
     const sex: Sex = end.sex;
     const x: Record<Variable, number> = HumanPopulationEnds.measures(end);
     const base: P = structuredClone(sex === "female" ? f1 : m1);
-    const anchor: (a: HumanPopulationAnchors.IAnchor) => number = (a: HumanPopulationAnchors.IAnchor): number => HumanPopulationAnchors.ratio(sex, a) * x[a.proxy];
+    const anchor: (a: HumanPopulationAnchors.IAnchor) => number = (
+      a: HumanPopulationAnchors.IAnchor,
+    ): number => HumanPopulationAnchors.ratio(sex, a) * x[a.proxy];
 
     base.body.anatomy = {};
     body(base.body.anatomy, sex, x, anchor);
@@ -60,10 +65,13 @@ export namespace HumanPopulationBuild {
     const k: 0 | 1 = sex === "female" ? 0 : 1;
     const bmi: number = x.mass / (x.stature / 1000) ** 2;
 
-    anatomy.sex = sex === "female" ? AutoMovieHumanSex.Female : AutoMovieHumanSex.Male;
-    anatomy.bodyFatPercentage = 1.2 * bmi + 0.23 * AutoMovieHumanBodyAnatomy.MEAN_AGE[k] - 10.8 * k - 5.4;
+    anatomy.sex =
+      sex === "female" ? AutoMovieHumanSex.Female : AutoMovieHumanSex.Male;
+    anatomy.bodyFatPercentage =
+      1.2 * bmi + 0.23 * AutoMovieHumanBodyAnatomy.MEAN_AGE[k] - 10.8 * k - 5.4;
     for (const [key, v] of HumanPopulationAnchors.DIRECT) anatomy[key] = x[v];
-    for (const key of HumanPopulationAnchors.ANCHORED) anatomy[key] = anchor(HumanPopulationAnchors.ANCHORS[key]);
+    for (const key of HumanPopulationAnchors.ANCHORED)
+      anatomy[key] = anchor(HumanPopulationAnchors.ANCHORS[key]);
   }
 
   /**
@@ -82,26 +90,42 @@ export namespace HumanPopulationBuild {
     x: Record<Variable, number>,
     anchor: (a: HumanPopulationAnchors.IAnchor) => number,
   ): void {
-    const F: (typeof HumanPopulationSurvey.FACE)[Sex] = HumanPopulationSurvey.FACE[sex];
-    const survey: HumanPopulationSurvey.ISurvey = HumanPopulationSurvey.SURVEY[sex];
-    const widths: number = x.bizygomatic / survey.mean[HumanPopulationConditional.index("bizygomatic")]!;
-    const heights: number = x.mentonSellion / survey.mean[HumanPopulationConditional.index("mentonSellion")]!;
+    const F: (typeof HumanPopulationSurvey.FACE)[Sex] =
+      HumanPopulationSurvey.FACE[sex];
+    const survey: HumanPopulationSurvey.ISurvey =
+      HumanPopulationSurvey.SURVEY[sex];
+    const widths: number =
+      x.bizygomatic /
+      survey.mean[HumanPopulationConditional.index("bizygomatic")]!;
+    const heights: number =
+      x.mentonSellion /
+      survey.mean[HumanPopulationConditional.index("mentonSellion")]!;
     const h: P["head"] = base.head;
     const refs: P[] = HumanPopulationAccess.REFERENCES[sex];
-    const mean: (f: (p: P) => number) => number = (f: (p: P) => number): number => refs.reduce((s: number, p: P): number => s + f(p), 0) / refs.length;
+    const mean: (f: (p: P) => number) => number = (
+      f: (p: P) => number,
+    ): number =>
+      refs.reduce((s: number, p: P): number => s + f(p), 0) / refs.length;
     const fissure: number = F.fissureLength * widths;
-    const opening: number = mean((p: P): number => p.head.face.eyePair.left.palpebralFissureHeight / p.head.face.eyePair.left.palpebralFissureLength);
+    const opening: number = mean(
+      (p: P): number =>
+        p.head.face.eyePair.left.palpebralFissureHeight /
+        p.head.face.eyePair.left.palpebralFissureLength,
+    );
 
     h.length = x.headLength;
     h.cephalicIndex = (100 * x.headBreadth) / x.headLength;
     h.circumference = x.headCircumference;
     h.faceHeight = F.faceHeight * heights;
-    h.height = h.faceHeight + anchor(HumanPopulationAnchors.ANCHORS.vertexToNasion);
+    h.height =
+      h.faceHeight + anchor(HumanPopulationAnchors.ANCHORS.vertexToNasion);
     h.faceWidth = x.bizygomatic;
     h.mandibularWidth = F.mandibularWidth * widths;
     h.minimumFrontalWidth = F.minimumFrontalWidth * widths;
     h.mouthOpening = mean((p: P): number => p.head.mouthOpening);
-    h.mandibularLaterotrusion = mean((p: P): number => p.head.mandibularLaterotrusion);
+    h.mandibularLaterotrusion = mean(
+      (p: P): number => p.head.mandibularLaterotrusion,
+    );
     for (const eye of [h.face.eyePair.left, h.face.eyePair.right]) {
       eye.palpebralFissureLength = fissure;
       eye.palpebralFissureHeight = fissure * opening;
@@ -140,8 +164,15 @@ export namespace HumanPopulationBuild {
       handBreadth: x.handBreadth,
       thumbLength: anchor(HumanPopulationAnchors.ANCHORS.thumbLength),
     };
-    const foot: HumanPopulationAccess.IFoot = { footLength: x.footLength, footBreadth: x.footBreadth, ankleHeight: x.malleolusHeight };
+    const foot: HumanPopulationAccess.IFoot = {
+      footLength: x.footLength,
+      footBreadth: x.footBreadth,
+      ankleHeight: x.malleolusHeight,
+    };
 
-    base.extremities = { hands: { left: { ...hand }, right: { ...hand } }, feet: { left: { ...foot }, right: { ...foot } } };
+    base.extremities = {
+      hands: { left: { ...hand }, right: { ...hand } },
+      feet: { left: { ...foot }, right: { ...foot } },
+    };
   }
 }

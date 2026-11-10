@@ -1,8 +1,10 @@
+import {
+  linearizePhysicalInterval,
+  solvePhysicalFloorChainTarget,
+} from "@automovie/engine";
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { linearizePhysicalInterval } from "../../../../packages/engine/src/physics/linearizePhysicalInterval";
-import { solvePhysicalFloorChainTarget } from "../../../../packages/engine/src/physics/solvePhysicalFloorChainTarget";
 import { PhysicalPointFixtures } from "../internal/PhysicalPointFixtures";
 
 /** Independent active-set probes preserve inequality and equality semantics.

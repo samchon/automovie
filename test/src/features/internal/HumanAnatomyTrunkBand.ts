@@ -13,7 +13,9 @@ export namespace HumanAnatomyTrunkBand {
   export const BUTTOCK_HEIGHT: readonly [number, number] = [0.4672, 0.5482];
 
   /** Suprasternale height over stature; it bounds the notch's search and is not a row. */
-  export const SUPRASTERNALE_HEIGHT: readonly [number, number] = [0.7999, 0.8355];
+  export const SUPRASTERNALE_HEIGHT: readonly [number, number] = [
+    0.7999, 0.8355,
+  ];
 
   /** Cervicale height over stature. */
   export const CERVICALE_HEIGHT: readonly [number, number] = [0.8411, 0.8793];

@@ -1,3 +1,10 @@
+import {
+  AutoMoviePhysicalSimulation as Simulation,
+  Vector3,
+  physicalShapeBounds,
+  physicalSupportPoint,
+  planPhysicalBalanceTargets,
+} from "@automovie/engine";
 import type {
   IAutoMoviePhysicalProfile as P,
   IAutoMovieVector3 as V,
@@ -5,11 +12,6 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 
-import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { physicalShapeBounds } from "../../../../packages/engine/src/physics/physicalShapeBounds";
-import { physicalSupportPoint } from "../../../../packages/engine/src/physics/physicalSupportPoint";
-import { planPhysicalBalanceTargets } from "../../../../packages/engine/src/physics/planPhysicalBalanceTargets";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
 import { createPhysicalBalanceInput } from "../internal/createPhysicalBalanceInput";

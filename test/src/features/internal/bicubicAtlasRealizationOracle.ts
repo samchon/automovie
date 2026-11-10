@@ -1,4 +1,5 @@
-import { realizeAutoMovieBicubicAtlas64 } from "../../../../packages/engine/src/geometry/realizeAutoMovieBicubicAtlas64";
+import { realizeAutoMovieBicubicAtlas64 } from "@automovie/engine";
+
 import { nclose } from "../internal/nclose";
 
 /** Independent indexed-face and signed-area measurements for the public atlas realization scenarios. */

@@ -1,5 +1,5 @@
 import { AutoMovieHumanSex } from "../../typings/AutoMovieHumanSex";
-import { AutoMovieHumanLegSection } from "../AutoMovieHumanLegSection";
+import { AutoMovieHumanLegSectionProportion } from "../AutoMovieHumanLegSectionProportion";
 import { AutoMovieHumanLegSites } from "../AutoMovieHumanLegSites";
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import { AutoMovieNaturalSpline } from "@automovie/engine";
@@ -26,7 +26,7 @@ import type { AutoMovieHumanLegWalk } from "./AutoMovieHumanLegWalk";
  *   depth, `AutoMovieHumanLegSites.thighDepth`, is taken seated and
  *   compressed, short of the standing thigh's), so every box is
  *   the estimated breadth over depth at the site's share of the
- *   ankle-to-crotch span (`AutoMovieHumanLegSection`, estimated from the
+ *   ankle-to-crotch span (`AutoMovieHumanLegSectionProportion`, estimated from the
  *   private reference set). Each box splits its whole skin depth by the
  *   retained skin-support front share (`AutoMovieHumanLegMassPrior`), not
  *   a one-site muscle-thickness ratio. Those old level, sampled body-X
@@ -91,11 +91,11 @@ export namespace AutoMovieHumanLegLaws {
       height >= knee ? T.at(T.THIGH_SPLIT, "lateral", (height - knee) / (crotch - knee)) : T.at(T.SHANK_SPLIT, "lateral", (height - ankle) / (knee - ankle));
 
     // A site's box from its girth: the estimated breadth over depth at the
-    // site's share of the ankle-to-crotch span (`AutoMovieHumanLegSection`,
+    // site's share of the ankle-to-crotch span (`AutoMovieHumanLegSectionProportion`,
     // estimated from the private reference set: no published source found).
     const law = (height: number, girth: number): AutoMovieHumanLegWalk.ISiteLaw => {
       const span: number = (height - malleolus) / (crotch - malleolus);
-      const box: { breadth: number; depth: number } = AutoMovieHumanLegSection.box(girth, span);
+      const box: { breadth: number; depth: number } = AutoMovieHumanLegSectionProportion.box(girth, span);
       const front: number = frontShare(height);
       const out: number = lateral(height) * box.breadth;
       const inward: number = box.breadth - out;

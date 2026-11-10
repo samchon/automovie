@@ -1,10 +1,12 @@
-import type { AutoMoviePolarSector } from "@automovie/engine";
+import {
+  AutoMovieConicArc,
+  AutoMovieConicArcField,
+  AutoMovieConicFieldJet,
+  AutoMovieConicHermite,
+  AutoMovieConicHermiteField,
+  type AutoMoviePolarSector,
+} from "@automovie/engine";
 
-import { AutoMovieConicArc } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicArc";
-import { AutoMovieConicArcField } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicArcField";
-import { AutoMovieConicFieldJet } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicFieldJet";
-import { AutoMovieConicHermite } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicHermite";
-import { AutoMovieConicHermiteField } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicHermiteField";
 import { ConstructionConicOracle } from "../../internal/construction/ConstructionConicOracle";
 
 /**
