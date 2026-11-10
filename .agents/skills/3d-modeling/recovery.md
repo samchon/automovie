@@ -24,6 +24,6 @@ Recovered coefficients reproduce one shape. When the asset must vary, derive its
 
 Load the newly reconstructed model and its generating construction in the actual viewer. Show the fixed source and result side by side under matching view and render conditions, deriving each mesh's normals from its own geometry. Lines drawn over the source do not show an independently reconstructed surface.
 
-Follow [Visual Debugging](visual-debugging.md) for inspection and correction rounds. Trace deviations through preparation, observation, fitting, correspondence, generation and display, then correct their causes. Judge the actual reconstructed result, including missing and uncovered regions and visible defects, alongside package diagnostics; a completed command or numerical fit alone does not establish fidelity. Limited observations justify only the shape and views they support.
+Follow [form inspection](inspection.md) and its [correction rounds](../visual-debugging/correction-rounds.md). Trace deviations through preparation, observation, fitting, correspondence, generation and display, then correct their causes. Judge the actual reconstructed result, including missing and uncovered regions and visible defects, alongside package diagnostics; a completed command or numerical fit alone does not establish fidelity. Limited observations justify only the shape and views they support.
 
 A source's own errors, such as a generated mesh's invented hidden sides or melted thin parts, are not targets to fit.

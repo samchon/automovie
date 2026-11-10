@@ -27,12 +27,10 @@ Run the cases across bodies of different statures and proportions, and against d
 
 Review stills of every case, in order, from several named views, with a joint overlay where the project's capture offers one and with every held prop drawn at every frame. Numbers alone miss what a still shows at once: a carry crossed in one split lunge, or a bottle that is not where the hand is.
 
-Space the stills more densely where more happens. Around every contact, cut and decisive instant, review the output's own consecutive frames, because a contact shorter than the gap between two stills leaves an arm out and an arm back with nothing wrong between them. A sparser, even spacing serves what changes slowly: staging, travel and camera.
-
-A reviewer who sees motion only as stills says so, and claims nothing about how it plays that the stills do not show.
+Sample the stills in time as [capture](../visual-debugging/capture.md#times) sets, with the output's own consecutive frames around every contact, cut and decisive instant, and claim nothing about how the motion plays that the stills do not show.
 
 ## Judge rounds honestly
 
-Judge a rerun by the time of the files it wrote, because a rerun overwrites its stills and records in place. When a fix is tried in rounds, keep a round only if no case got worse than the best earlier round, and record every remaining failure with its numbers.
+Keep each round's capture as [capture](../visual-debugging/capture.md#rounds) sets, and keep a round only as [correction rounds](../visual-debugging/correction-rounds.md#compare-again) allow.
 
 Unit tests of the laws answer the [testing contract](../contracts/development/testing.md).

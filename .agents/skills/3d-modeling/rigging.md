@@ -64,7 +64,7 @@ Check the rest result first, then each required control alone, then combined pos
 
 Look also for penetrating clothing or accessories, and changing normals or materials.
 
-[Visual Debugging](visual-debugging.md) owns the observation round and matching comparisons.
+[Visual debugging](../visual-debugging/SKILL.md) owns the observation round and matching comparisons.
 
 ### Skinning method and variants
 

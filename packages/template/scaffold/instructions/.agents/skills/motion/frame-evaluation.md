@@ -20,6 +20,6 @@ Choose simulation steps for solver stability, independent of display refresh, an
 
 ## Verify the actual evaluation path
 
-Compare poses, transforms, contacts and pictures at matching times across sequential capture, a fresh restart, and seeking or split capture where promised, including settling and cut boundaries, through [testing](../development/testing.md) and [visual debugging](../3d-modeling/visual-debugging.md). Record unsupported paths instead of claiming them.
+Compare poses, transforms, contacts and pictures at matching times across sequential capture, a fresh restart, and seeking or split capture where promised, including settling and cut boundaries, through [testing](../development/testing.md) and a [comparison](../visual-debugging/comparison.md) of their stills. Record unsupported paths instead of claiming them.
 
 [Fix Your Timestep](https://gafferongames.com/post/fix_your_timestep/) explains separating simulation from display time.

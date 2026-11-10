@@ -27,7 +27,7 @@ Put every test one run needs into one `pnpm test --include <names...>`, because 
 
 ## Visual changes
 
-Verify a render or viewer change under the 3D modeling skill's [Visual Debugging](../3d-modeling/visual-debugging.md).
+Verify a render, viewer or capture change under [visual debugging](../visual-debugging/SKILL.md).
 
 ## Formatting
 

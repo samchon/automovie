@@ -40,4 +40,4 @@ When a field is sampled into a spline net, place each control at its Greville ab
 
 An edge with a roll is resolved only when every sampling across it, whether net, layers or rings, is at most a quarter of the roll. A coarser sampling renders the edge jagged.
 
-Trace the same observations through sampling, fitting and refinement to the displayed surface. Isolate downstream loss instead of compensating with shape coefficients, and accept through [Visual Debugging](visual-debugging.md).
+Trace the same observations through sampling, fitting and refinement to the displayed surface. Isolate downstream loss instead of compensating with shape coefficients, and accept through [form inspection](inspection.md).

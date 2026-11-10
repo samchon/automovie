@@ -24,7 +24,7 @@ Each test exercises the behavior with independent expectations and distinguishin
 
 ## The consumer works
 
-Run the checks that reach the actual consumer, including behavior that must stay unchanged. Visual and performance results come from stills under [visual debugging](../3d-modeling/visual-debugging.md) and [motion](../motion/SKILL.md), and listening results from the user under [audio](../audio/SKILL.md).
+Run the checks that reach the actual consumer, including behavior that must stay unchanged. Visual and performance results come from stills under [visual debugging](../visual-debugging/SKILL.md) and [motion](../motion/SKILL.md), and listening results from the user under [audio](../audio/SKILL.md).
 
 ## Report
 
