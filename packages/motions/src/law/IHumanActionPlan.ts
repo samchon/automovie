@@ -117,6 +117,16 @@ export namespace IHumanActionPlan {
      * @returns World metres.
      */
     path(seconds: number): IAutoMovieVector3;
+
+    /**
+     * The other end of a capsule weapon's axis on its free path, when the
+     * weapon is a capsule (a forearm, a shin) rather than a sphere: the weapon
+     * is every point of the segment from `path` to `tail` within `radius`.
+     *
+     * @param seconds Film seconds.
+     * @returns World metres.
+     */
+    tail?(seconds: number): IAutoMovieVector3;
   }
 
   /** A resolved first contact. */

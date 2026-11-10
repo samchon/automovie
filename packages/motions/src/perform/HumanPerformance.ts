@@ -638,18 +638,31 @@ export class HumanPerformance {
           if (!(b > a)) continue;
           const key: string = `${person.performer.subject}|${HumanSegment.weapon(segment, w.id)}`;
           owners.set(key, { person, segment, id: w.id });
+          const tail = w.tail;
           weapons.push({
             id: key,
             owner: person.performer.subject,
             radius: w.radius,
             position: (t: number) => (t < a || t > b ? far : w.path(t)),
+            ...(tail === undefined
+              ? {}
+              : { tail: (t: number) => (t < a || t > b ? far : tail(t)) }),
           });
           from = Math.min(from, a);
           to = Math.max(to, b);
         }
     if (weapons.length === 0) return;
-    const paths: Map<string, (t: number) => IAutoMovieVector3> = new Map(
-      weapons.map((w) => [w.id, (t: number) => w.position(t, new Map())]),
+    const paths: Map<
+      string,
+      (t: number) => [IAutoMovieVector3, IAutoMovieVector3]
+    > = new Map(
+      weapons.map((w) => [
+        w.id,
+        (t: number): [IAutoMovieVector3, IAutoMovieVector3] => {
+          const p: IAutoMovieVector3 = w.position(t, new Map());
+          return [p, w.tail?.(t, new Map()) ?? p];
+        },
+      ]),
     );
     const met: Map<string, IHumanActionPlan.IContactEvent & { key: string }> =
       new Map();
@@ -700,7 +713,7 @@ export class HumanPerformance {
     };
     const nearest = (
       owner: HumanSegment.IPerson,
-      point: IAutoMovieVector3,
+      [point, end]: [IAutoMovieVector3, IAutoMovieVector3],
       seconds: number,
     ): string => {
       let best: { subject: string; distance: number } = {
@@ -709,10 +722,11 @@ export class HumanPerformance {
       };
       for (const person of this.people.values()) {
         if (person === owner) continue;
-        const d: number = HumanColliders.distance(
+        const d: number = HumanColliders.distanceToSegment(
           person.performer.body,
           this.bones(person.performer.subject, seconds),
           point,
+          end,
         ).distance;
         if (d < best.distance)
           best = { subject: person.performer.subject, distance: d };
@@ -737,6 +751,20 @@ export class HumanPerformance {
                 point,
               ).distance;
             },
+            axis: (
+              a: IAutoMovieVector3,
+              b: IAutoMovieVector3,
+              seconds: number,
+              stops: resolveAutoMovieContactEvents.IStops,
+            ): number => {
+              apply(stops);
+              return HumanColliders.distanceToSegment(
+                person.performer.body,
+                this.bones(person.performer.subject, seconds),
+                a,
+                b,
+              ).distance;
+            },
           }),
         ),
         from,
@@ -757,9 +785,7 @@ export class HumanPerformance {
   }
 
   /** Every grip window on a prop across every person, in film order, computed once after construction. */
-  private grips(
-    subject: string,
-  ): {
+  private grips(subject: string): {
     subject: string;
     side: "left" | "right";
     from: number;
