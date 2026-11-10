@@ -12,7 +12,7 @@ Bind each request to its exact input bytes and source revision and record it und
 
 ## Inspect and choose
 
-Extract stills from the take's file at the spacing [delivery review](../review/delivery-review.md#measure-and-compare) gives and check identity, positions, contacts, camera and motion against the hint's stills at matched times under [comparison](../visual-debugging/comparison.md). The user judges its sound and its continuous motion.
+Extract stills from the take's file at the spacing [capture](../visual-debugging/capture.md#times) sets and check identity, positions, contacts, camera and motion against the hint's stills at matched times under [comparison](../visual-debugging/comparison.md). The user judges its sound and its continuous motion.
 
 Choose among takes for fidelity to the screenplay beat and the hint, never for an effect the screenplay did not decide. A take that loses action, identity or causality is repaired at the source, the request or the selection, never hidden by a cut.
 

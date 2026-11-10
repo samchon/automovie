@@ -13,9 +13,7 @@ Settle these by measurement before looking:
 
 ## Coverage
 
-Inspect each defining curve and part in isolation against the reference. Then choose groups that share boundaries or affect one another and inspect them together against that reference, before judging the assembly. Repeat the individual and grouped selections from front, side and top, around the back and from high and low obliques as the form requires, because front and side alone hide oblique sections and junctions.
-
-A hidden reference or separate passing close-ups establish no relationship between neighbors.
+Apply the [selections](../visual-debugging/capture.md#subject) to a form's defining curves and parts: each alone against the reference, then the groups that share boundaries or affect one another together against that reference, before judging the assembly. Repeat them from every [view](../visual-debugging/capture.md#views) the form requires.
 
 Inspect the assembled form in its final appearance at the distance it is used, and at its motion states: rest, intermediate, supported extremes, return, and shape-motion combinations.
 

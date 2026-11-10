@@ -7,7 +7,7 @@ description: Owns how a picture is judged and corrected, whatever made it, namel
 
 Readiness or numerical success proves no appearance; only an observed picture does. This skill owns how a picture is captured, compared and corrected, whatever made it: a form, a motion, a guide pass, a generated image or an encoded film. The skill of each subject owns what to look for in it.
 
-An agent reads a picture only as stills, so each judgment starts from a planned capture.
+An agent reads a picture only as stills, so each judgment starts from a planned capture. The viewer and the capture that draw those stills are the instrument.
 
 | Task | Read |
 | --- | --- |

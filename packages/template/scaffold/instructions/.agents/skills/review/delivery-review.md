@@ -33,7 +33,7 @@ Take runtime from performed and measured timing, never page or word count. What 
 
 Review the picture densely before any delivery claim, so a flaw anywhere in the film reaches you before its audience. Cut the film into review segments, each one default window of the README's frame capture, and inspect every segment on its contact sheet at the capture's default spacing. With motion already accepted in its [catalog cases](../motion/catalog-cases.md), this pass judges staging, camera and timing.
 
-The default spacing skips frames, so a contact shorter than the gap can fall between two stills. Around every contact, cut and join, add the film's own consecutive frames, as [capture](../visual-debugging/capture.md#times) requires. The README owns the window, the default spacing and the options that select exact frames.
+The default spacing skips frames, so around every contact, cut and join add the film's own consecutive frames, as [capture](../visual-debugging/capture.md#times) requires. The README owns the window, the default spacing and the options that select exact frames.
 
 Repeat the pass on every segment a fix touches.
 

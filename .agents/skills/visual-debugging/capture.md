@@ -4,7 +4,7 @@ A capture is the stills, contact sheets and manifest that one plan produces. Thi
 
 ## The instrument
 
-Restore a broken viewer or capture before other work, because every judgment of a picture passes through it. Confirm the adopted scene, its required subjects, the current displayed artifact and relevant controls, seeking, playback and capture through the actual consumer, and protect other owners' processes meanwhile.
+The viewer and its capture are the instrument. Restore a broken one before other work, because every judgment of a picture passes through it. Confirm the adopted scene, its required subjects, the current displayed artifact and relevant controls, seeking, playback and capture through the actual consumer, and protect other owners' processes meanwhile.
 
 Repair a missing capability at the owner of that capability, then reconnect and verify the actual consumer; a build, a server response or an unrelated demonstration alone does not prove recovery. A view, pass or selection that the judgment needs and the instrument lacks is a missing capability too.
 
@@ -16,7 +16,7 @@ The questions fix the capture's cells. A cell is one still, fixed by its subject
 
 ## Conditions
 
-Capture the actual consumer with current source, and record what repeats the observation: the source revision, asset identities, input, time or pose, resolved camera, pass, raster size, renderer and detail settings.
+Capture the actual consumer with current source, and record what repeats the observation: the source revision, asset identities, input, time or pose, resolved camera, light, pass, raster size, renderer and detail settings.
 
 The renderer is one of the conditions. A simplified renderer establishes pose, contact, staging and silhouette; material, lighting, shadow and texture are judged on the renderer that draws the delivered picture.
 
@@ -31,13 +31,13 @@ A unit that passes alone can fail against its neighbor, and close-ups that each 
 - each unit with the neighbors it touches or shares a boundary with;
 - each defect's region.
 
-Select by the groups and parts the subject's own definition names. Confirm from the capture's record that each selection matched what was meant, because an empty selection draws a still that looks like a pass. Keep enough of the reference or the neighbors visible to read placement and depth.
+Select by the groups and parts the subject's own definition names. Confirm from the capture's record that each selection matched what was meant, because an empty selection draws a still with no defect in it. Keep enough of the reference or the neighbors visible to read placement and depth.
 
 ## Views
 
 Name each view so that it repeats: a direction, a distance or scale and a target, or the delivery's own camera. Front and side alone hide what faces neither, so add the back, the top, the quarters and the high and low obliques the subject needs. To tell a wrong bend from a foreshortened one, capture the same cells from a second view.
 
-Frame a close-up on the affected region from outside the subject. A view that fits itself to its subject resolves to another camera when the subject changes, so the record keeps the resolved camera and a [comparison](comparison.md#match-the-cells) reuses it.
+Frame a close-up on the affected region from outside the subject. A view that fits itself to its subject resolves to another camera when the subject changes, so the record keeps the resolved camera for a later [comparison](comparison.md#match-the-cells).
 
 ## Times
 
@@ -53,7 +53,7 @@ A reviewer who sees a moving picture only as stills says so, and claims nothing 
 
 Read a contact sheet first for the whole capture, with each cell captioned by what fixes it. A sheet shrinks every still, so open the full-size still wherever a contact, a joint, a seam or a small part decides the judgment.
 
-A cell that could not be drawn stays on the sheet with its cause and stays unverified; an uncomputed subject is unavailable evidence, never a blank pass.
+A cell that could not be drawn stays on the sheet with its cause and stays unverified; an uncomputed subject is unavailable evidence.
 
 ## Rounds
 

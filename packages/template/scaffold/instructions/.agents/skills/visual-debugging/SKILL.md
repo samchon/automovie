@@ -7,7 +7,7 @@ description: Owns how a production's pictures are judged and corrected, whatever
 
 Readiness or numerical success proves no appearance; only an observed picture does. You read every picture as stills, as [what you can observe](../../../AGENTS.md#what-you-can-observe) states, so each judgment starts from a planned capture.
 
-This skill owns how a picture is captured, compared and corrected, whatever made it. The skill of each subject owns what to look for in it, and the README owns the Viewer and frame capture commands with their options.
+This skill owns how a picture is captured, compared and corrected, whatever made it. The skill of each subject owns what to look for in it, and the README owns the instrument, the Viewer and the frame capture, with their commands and options.
 
 | Task | Read |
 | --- | --- |

@@ -27,7 +27,7 @@ Run the cases across bodies of different statures and proportions, and against d
 
 Review stills of every case, in order, from several named views, with a joint overlay where the project's capture offers one and with every held prop drawn at every frame. Numbers alone miss what a still shows at once: a carry crossed in one split lunge, or a bottle that is not where the hand is.
 
-Sample the stills in time as [capture](../visual-debugging/capture.md#times) sets, with the output's own consecutive frames around every contact, cut and decisive instant, and claim nothing about how the motion plays that the stills do not show.
+Sample the stills in time as [capture](../visual-debugging/capture.md#times) sets.
 
 ## Judge rounds honestly
 

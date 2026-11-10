@@ -17,7 +17,7 @@ A comparison joins two captures cell by cell, so that only the compared thing di
 
 ## Match the cells
 
-Pair two cells only when subject, time or pose, resolved camera, pass, raster size, renderer and light agree. A view's name does not establish the same framing when the view fits itself to its subject, so the later capture reuses the earlier one's resolved camera.
+Pair two cells only when everything but the compared thing agrees: subject, time or pose, resolved camera, light, pass, raster size and renderer. A view's name does not establish the same framing when the view fits itself to its subject, so the later capture reuses the earlier one's resolved camera.
 
 Report a cell that one capture holds and the other lacks as unmatched, with its cause. A comparison over the cells that happened to match says nothing about the ones that did not.
 

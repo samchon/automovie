@@ -1,6 +1,6 @@
 ---
 name: human
-description: Builds the Human person by tracing the reference, re-basing each part and deriving parameter rules. Use with 3d-modeling for Human geometry, the Human viewer or its renders.
+description: Builds the Human person by tracing the reference, re-basing each part and deriving parameter rules. Use with 3d-modeling for Human geometry and with visual-debugging for the Human viewer or its renders.
 ---
 
 # Human
