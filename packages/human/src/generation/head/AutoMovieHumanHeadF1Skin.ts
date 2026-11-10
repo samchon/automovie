@@ -102,9 +102,8 @@ export namespace AutoMovieHumanHeadF1Skin {
         },
       },
     );
-    // Local artifacts use the normal neighboring curves and retained lip graph.
+    // Only the separately owned eye annuli replace their neighboring strips.
     const localBounds: readonly (readonly [number, number])[] = [
-      [1517.8813934326172, 1526.0076904296875],
       [1598.398551940918, 1599.391746520996],
     ];
     const inLocal: (clock: Clock) => boolean = (clock: Clock): boolean => localBounds.some(
@@ -150,7 +149,7 @@ export namespace AutoMovieHumanHeadF1Skin {
     // retained offline. Between anchors this is inferred PL parameter
     // transport, not a material correspondence or a longitudinal guide.
     const localReceipts: string[] = [
-      "Mouth middle depth and anatomical lip transitions retained; transient oral artifact components omitted between normal profiles; eye annuli span both healthy neighboring curves",
+      "Original mouth sections, source events and their tight physical brackets restored; ordinary mouth strips consume their recorded source-component clocks",
     ];
     for (const clock of observed.clocks)
       if (!inFloor(clock.beforeMm, clock.afterMm) && !inLocal(clock)) ordinary(mesh, rims, clock, sides.get(clock)!);
@@ -218,65 +217,21 @@ export namespace AutoMovieHumanHeadF1Skin {
 
 
   /**
-   * Simplify the observed loose oral fragments between sound lip profiles.
-   * Keep the middle depth, lower merge, upper split and two oral-wall ports;
-   * remove the intervening artifact branches from the generating graph.
+   * Restore the original mouth sections and tightly bracketed source events.
+   *
+   * The former contraction removed eighteen observed sections and six events.
+   * It expanded real sub-micron event brackets into broad strips, whose
+   * generated faces account for the two large intersecting oral fragments.
+   * Keep the complete original source graph before assessing or fairing it;
+   * preserving transitive incidence alone does not preserve branch geometry.
    */
   function mouth(): { sections: typeof observed.sections; intervals: Interval[]; events: Event[] } {
-    // This sound profile prevents flattening the lip's middle depth.
-    const middleMm: number = 1520.5332565307617;
-    // The front/low-oblique ab98127fa5 frames show loose oral triangles in
-    // this tiny transient split/minimum/split run. Keep the actual lower lip
-    // merge, upper lip split and sound profiles on both sides; the intervening
-    // artifact components are not another pair of anatomical mouth sheets.
-    const omitted: Set<number> = new Set([...floorInputs.mouth.removedCoordinates,
-      ...observed.sections.filter((row: typeof observed.sections[number]): boolean =>
-        row.coordinateMm > 1520.988998413086 && row.coordinateMm < 1522.8853607177734).map((row: typeof observed.sections[number]): number => row.coordinateMm),
-    ].filter((y: number): boolean => y !== middleMm));
-    const sections: typeof observed.sections = observed.sections.filter((row: typeof observed.sections[number]): boolean => !omitted.has(row.coordinateMm));
-    const intervals: Interval[] = [];
-    const events: Event[] = observed.events.filter((event: typeof observed.events[number]): boolean =>
-      event.coordinateMm <= 1520.988998413086 || event.coordinateMm >= 1522.8853607177734
-      || event.coordinateMm === 1522.0014953613281).map((event: typeof observed.events[number]): Event => {
-      if (event.kind !== "minimum" && event.kind !== "maximum" && event.kind !== "saddle") throw new Error("Invalid recorded mouth event kind");
+    const events: Event[] = observed.events.map((event: typeof observed.events[number]): Event => {
+      if (event.kind !== "minimum" && event.kind !== "maximum" && event.kind !== "saddle")
+        throw new Error("Invalid recorded mouth event kind");
       return { ...event, kind: event.kind, terminal: event.terminal === null ? null : AutoMovieCurveMath64.clone(event.terminal) };
     });
-    for (let i: number = 1; i < sections.length; i++) {
-      const beforeMm: number = sections[i - 1]!.coordinateMm, afterMm: number = sections[i]!.coordinateMm;
-      const original: typeof observed.intervals = observed.intervals.filter((row: typeof observed.intervals[number]): boolean =>
-        row.beforeMm >= beforeMm && row.afterMm <= afterMm);
-      if (original.length === 1) { intervals.push(original[0]!); continue; }
-      const parents: Map<string, string> = new Map();
-      /** Source section/loop incidence is the only connection authority. */
-      const root: (key: string) => string = (key: string): string => {
-        if (!parents.has(key)) parents.set(key, key);
-        let at: string = key; while (parents.get(at) !== at) at = parents.get(at)!;
-        return at;
-      };
-      for (const row of original) for (const group of row.groups) {
-        if (!group.supported) throw new Error("A local mouth source component remains unsupported: " + group.reason);
-        const nodes: string[] = group.before.map((loop: number): string => key(row.beforeMm, loop))
-          .concat(group.after.map((loop: number): string => key(row.afterMm, loop)));
-        for (const node of nodes) parents.set(root(node), root(nodes[0]!));
-      }
-      const groups: Map<string, { before: number[]; after: number[]; supported: boolean; reason: string | null }> = new Map();
-      for (const [side, row] of [["before", sections[i - 1]!], ["after", sections[i]!]] as const)
-        for (let loop: number = 0; loop < row.loops.length; loop++) {
-          const id: string = root(key(row.coordinateMm, loop));
-          const group: { before: number[]; after: number[]; supported: boolean; reason: string | null } =
-            groups.get(id) ?? { before: [], after: [], supported: true, reason: null };
-          group[side].push(loop); groups.set(id, group);
-        }
-      for (const event of events) if (event.coordinateMm > beforeMm && event.coordinateMm < afterMm) {
-        const originalBefore: number = event.beforeMm, originalAfter: number = event.afterMm;
-        const node: string = event.before.length !== 0 ? key(originalBefore, event.before[0]!) : key(originalAfter, event.after[0]!);
-        const group: { before: number[]; after: number[]; supported: boolean; reason: string | null } | undefined = groups.get(root(node));
-        if (group === undefined) throw new Error("A local mouth event lost its original component");
-        event.beforeMm = beforeMm; event.afterMm = afterMm; event.before = group.before; event.after = group.after;
-      }
-      intervals.push({ beforeMm, afterMm, groups: Array.from(groups.values()) });
-    }
-    return { sections, intervals, events };
+    return { sections: observed.sections, intervals: observed.intervals, events };
   }
 
   /** Record a positive PL cubic chart while preserving the actual sheet sense. */
@@ -400,7 +355,7 @@ export namespace AutoMovieHumanHeadF1Skin {
       for (let i: number = first; i < mesh.indices.length; i += 3)
         [mesh.indices[i + 1], mesh.indices[i + 2]] = [mesh.indices[i + 2]!, mesh.indices[i + 1]!];
     else if (low !== expected.lower || high !== expected.upper)
-      throw new Error("The actual source clock reverses only one original kernel boundary");
+      throw new Error("The actual source clock reverses only one original kernel boundary: " + JSON.stringify({ beforeMm: clock.beforeMm, afterMm: clock.afterMm, group: clock.group, low, high, expected }));
     const oriented: number[] = mesh.indices.slice(first);
     if (direction(oriented, a.indices, "oriented lower") !== expected.lower
       || direction(oriented, b.indices, "oriented upper") !== expected.upper)
