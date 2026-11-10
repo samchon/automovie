@@ -7,13 +7,21 @@ import { AutoMovieHumanLoftMesh } from "../../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanHeadEyeParts } from "./AutoMovieHumanHeadEyeParts";
 import { AutoMovieHumanHeadF1Junctions } from "./AutoMovieHumanHeadF1Junctions";
 import observed from "./AutoMovieHumanHeadF1Observed.json";
+import floorInputs from "./AutoMovieHumanHeadF1Floor.json";
 
+/** Absolute world-mm vector. */
 type V3 = AutoMovieCurveMath64.V;
+/** One fixed generating section. */
 type Section = IAutoMovieContourLoft64.ISection;
+/** Existing source-owned interval partition. */
 type Interval = IAutoMovieContourLoft64.IInterval;
+/** Physical branch or terminal declaration. */
 type Event = IAutoMovieContourLoft64.IEvent;
+/** Actual indexed construction buffers, world mm. */
 type Context = AutoMovieHumanLoftMesh.IContext;
+/** Previously observed one-to-one PL transport. */
 type Clock = (typeof observed.clocks)[number];
+/** Saved source component ownership. */
 type Group = (typeof observed.intervals)[number]["groups"][number];
 
 /** One original PL curve's positive chart, independently of its signed sheet. */
@@ -51,8 +59,8 @@ export namespace AutoMovieHumanHeadF1Skin {
     const charts: Map<string, Chart> = new Map();
     const sections: Section[] = [{
       coordinateMm: 1458, loops: [line("head.fixed.neck", neck, 1, charts)],
-    }, ...observed.sections.map(({ coordinateMm, loops }, i: number): Section => ({
-      coordinateMm, loops: loops.map(({ points, winding }, j: number): Section["loops"][number] =>
+    }, ...observed.sections.map(({ coordinateMm, loops }: (typeof observed.sections)[number], i: number): Section => ({
+      coordinateMm, loops: loops.map(({ points, winding }: (typeof loops)[number], j: number): Section["loops"][number] =>
         line(`head.fixed.source.${i}.${j}`, points, winding === -1 ? -1 : 1, charts)),
     }))];
     // The 192-point caller rail is the exact shared trunk boundary. Only this
@@ -60,12 +68,12 @@ export namespace AutoMovieHumanHeadF1Skin {
     const intervals: Interval[] = [{
       beforeMm: 1458, afterMm: sections[1]!.coordinateMm,
       groups: [{ before: [0], after: [0], supported: true, reason: null }],
-    }, ...observed.intervals.map((interval): Interval => {
+    }, ...observed.intervals.map((interval: (typeof observed.intervals)[number]): Interval => {
       const groups: readonly Group[] = interval.groups;
       return { beforeMm: interval.beforeMm, afterMm: interval.afterMm,
-        groups: groups.map(({ before, after, supported, reason }) => ({ before, after, supported, reason })) };
+        groups: groups.map(({ before, after, supported, reason }: Group): Interval["groups"][number] => ({ before, after, supported, reason })) };
     })];
-    const events: Event[] = observed.events.map((event): Event => {
+    const events: Event[] = observed.events.map((event: (typeof observed.events)[number]): Event => {
       const kind: string = event.kind;
       if (kind !== "minimum" && kind !== "maximum" && kind !== "saddle")
         throw new Error(`Unrecognized measured F1 critical: ${event.name}`);
@@ -83,7 +91,7 @@ export namespace AutoMovieHumanHeadF1Skin {
           mesh.positions.push(...point);
         },
         triangle: (a: number, b: number, c: number): void => { mesh.indices.push(a, b, c); },
-        construction: (id: string, points: readonly IAutoMovieCurve64.Vector[], phase): void => {
+        construction: (id: string, points: readonly IAutoMovieCurve64.Vector[], phase: (point: IAutoMovieCurve64.Vector) => number): void => {
           const address: RegExpExecArray | null = /\.section\.(\d+)\.loop\.(\d+)$/.exec(id);
           if (address === null) throw new Error(`Missing generated F1 ring address: ${id}`);
           const section: Section = sections[Number(address[1])]!;
@@ -105,9 +113,15 @@ export namespace AutoMovieHumanHeadF1Skin {
       },
     );
     const ranges: NonNullable<typeof result.primitiveRanges> = [];
+    // These are existing healthy source curves outside the under-chin birth/
+    // merge. Only their intervening surface is replaced by the turned guide.
+    const floorLow: number = floorInputs.boundsMm[0]!;
+    const floorHigh: number = floorInputs.boundsMm[1]!;
+    const inFloor: (before: number, after: number) => boolean = (before: number, after: number): boolean =>
+      before >= floorLow && after <= floorHigh;
     const sides: Map<Clock, { lower: 1 | -1; upper: 1 | -1 }> = new Map();
     for (const clock of observed.clocks) {
-      const range = result.primitiveRanges?.find((item): boolean => item.kind === "strip"
+      const range: NonNullable<typeof result.primitiveRanges>[number] | undefined = result.primitiveRanges?.find((item: NonNullable<typeof result.primitiveRanges>[number]): boolean => item.kind === "strip"
         && item.beforeMm === clock.beforeMm && item.afterMm === clock.afterMm && item.group === clock.group);
       if (range === undefined || range.triangleCount === 0)
         throw new Error(`The observed ordinary F1 strip was not emitted: ${clock.beforeMm}–${clock.afterMm}`);
@@ -118,7 +132,9 @@ export namespace AutoMovieHumanHeadF1Skin {
       });
       ranges.push(range);
     }
-    const removed: Set<number> = new Set(ranges.flatMap(({ firstTriangle, triangleCount }): number[] =>
+    ranges.push(...(result.primitiveRanges ?? []).filter((range: NonNullable<typeof result.primitiveRanges>[number]): boolean =>
+      inFloor(range.beforeMm, range.afterMm)));
+    const removed: Set<number> = new Set(ranges.flatMap(({ firstTriangle, triangleCount }: NonNullable<typeof result.primitiveRanges>[number]): number[] =>
       Array.from({ length: triangleCount }, (_: unknown, i: number): number => firstTriangle + i)));
     const retained: number[] = [];
     for (let i: number = 0; i < mesh.indices.length; i += 3)
@@ -128,14 +144,57 @@ export namespace AutoMovieHumanHeadF1Skin {
     // critical event receives this clock. All persistent edge anchors were
     // retained offline. Between anchors this is inferred PL parameter
     // transport, not a material correspondence or a longitudinal guide.
-    for (const clock of observed.clocks) ordinary(mesh, rims, clock, sides.get(clock)!);
+    // Replace the broken local ordinary runs between their existing healthy
+    // end curves. Real source events interrupt a run and are never flattened.
+    // Mouth wall ports and the two eye annuli remain separate owners.
+    const local: readonly (readonly [number, number])[] = [
+      [1517.8813934326172, 1526.0076904296875],
+      [1598.3992385864258, 1599.0956115722656],
+    ];
+    const selected: Clock[] = observed.clocks.filter((clock: Clock): boolean => !inFloor(clock.beforeMm, clock.afterMm)
+      && local.some(([a, b]: readonly [number, number]): boolean => clock.afterMm >= a && clock.beforeMm <= b));
+    const consumed: Set<Clock> = new Set();
+    const localReceipts: string[] = [];
+    for (const clock of observed.clocks)
+      if (!inFloor(clock.beforeMm, clock.afterMm) && !selected.includes(clock)) ordinary(mesh, rims, clock, sides.get(clock)!);
+    for (const first of selected) {
+      if (consumed.has(first)) continue;
+      let last: Clock = first;
+      consumed.add(first);
+      for (;;) {
+        const next: Clock | undefined = selected.find((candidate: Clock): boolean => !consumed.has(candidate)
+          && candidate.beforeMm === last.afterMm && candidate.before === last.after);
+        if (next === undefined) break;
+        consumed.add(next); last = next;
+      }
+      const a: number[] = required(rims, first.beforeMm, first.before).indices;
+      const b: number[] = required(rims, last.afterMm, last.after).indices;
+      const start: number = mesh.indices.length;
+      strip(mesh, a, b);
+      orient(mesh, start, a, b, { lower: sides.get(first)!.lower, upper: sides.get(last)!.upper });
+      localReceipts.push(`Local ordinary loft ${first.beforeMm}:${first.before}–${last.afterMm}:${last.after}; exact outer indices retained; internal clocks not consumed`);
+    }
+    const floorA: number[] = required(rims, floorLow, 0).indices;
+    const floorB: number[] = required(rims, floorHigh, 0).indices;
+    const floorSense: { lower: 1 | -1; upper: 1 | -1 } = {
+      lower: direction(mesh.indices, floorA, "floor lower") === 1 ? -1 : 1,
+      upper: direction(mesh.indices, floorB, "floor upper") === 1 ? -1 : 1,
+    };
+    const floorBack: V3[] = observed.sections.filter((section: (typeof observed.sections)[number]): boolean =>
+      section.coordinateMm > floorLow && section.coordinateMm < floorHigh)
+      .map((section: (typeof observed.sections)[number]): V3 => AutoMovieCurveMath64.clone(
+        section.loops.flatMap((loop: (typeof section.loops)[number]): number[][] => loop.points)
+          .reduce((best: number[], p: number[]): number[] => p[0]! < best[0]! ? p : best)));
+    const floorStart: number = mesh.indices.length;
+    localReceipts.push(AutoMovieHumanHeadF1Junctions.floor(mesh, floorA, floorB, floorBack));
+    orient(mesh, floorStart, floorA, floorB, floorSense);
     for (const interval of observed.intervals)
       for (const group of interval.groups)
         if (group.ear !== null) ear(mesh, rims, interval.afterMm, group);
     for (const wall of observed.walls) {
       const [y, raw]: number[] = wall.rim.split(":").map(Number);
-      const row = observed.sections.find((section): boolean => section.coordinateMm === y);
-      const loop: number | undefined = row?.loops.findIndex(({ rawOrdinal }): boolean => rawOrdinal === raw);
+      const row: (typeof observed.sections)[number] | undefined = observed.sections.find((section: (typeof observed.sections)[number]): boolean => section.coordinateMm === y);
+      const loop: number | undefined = row?.loops.findIndex(({ rawOrdinal }: NonNullable<typeof row>["loops"][number]): boolean => rawOrdinal === raw);
       if (loop === undefined || loop < 0) throw new Error(`The exact original oral port is absent: ${wall.name}`);
       oral(mesh, required(rims, y!, loop).indices, wall.name,
         wall.name === "lower original oral wall" ? "85:0" : "0:0");
@@ -158,11 +217,11 @@ export namespace AutoMovieHumanHeadF1Skin {
     for (const interval of observed.intervals)
       for (const group of interval.groups)
         if (group.ear !== null) earBounds.add(`${interval.beforeMm}:${interval.afterMm}`);
-    const unresolved = result.unresolved.filter(({ beforeMm, afterMm, incoming, outgoing }): boolean =>
+    const unresolved: typeof result.unresolved = result.unresolved.filter(({ beforeMm, afterMm, incoming, outgoing }: (typeof result.unresolved)[number]): boolean =>
       !(earBounds.has(`${beforeMm}:${afterMm}`) && incoming === 0 && outgoing === 1)
-      && !observed.externalPorts.some((port): boolean => port.beforeMm === beforeMm && port.afterMm === afterMm
+      && !observed.externalPorts.some((port: (typeof observed.externalPorts)[number]): boolean => port.beforeMm === beforeMm && port.afterMm === afterMm
         && port.before.length === incoming && port.after.length === outgoing)
-      && !observed.eyeJoins.some((join): boolean => join.beforeMm === beforeMm && join.afterMm === afterMm
+      && !observed.eyeJoins.some((join: (typeof observed.eyeJoins)[number]): boolean => join.beforeMm === beforeMm && join.afterMm === afterMm
         && join.before.length === incoming && join.after.length === outgoing));
     if (unresolved.length !== 0)
       throw new Error(`Fixed F1 source ownership remains unresolved: ${JSON.stringify(unresolved)}`);
@@ -175,6 +234,7 @@ export namespace AutoMovieHumanHeadF1Skin {
       `Fixed head: ${sections.length} world-mm sections, ${events.length} source events; ${observed.clocks.length} ordinary source-component clocks`,
       "Original oral-wall403 section inputs retained; exact source-terminal/port ownership separates those sheets from the exterior",
       ...eyeReceipts,
+      ...localReceipts,
       `Offline source ${observed.sourceIdentity}; selection ${observed.sourceSelectionIdentity}; clock interiors remain inferred PL`,
     ] };
   }
@@ -191,13 +251,13 @@ export namespace AutoMovieHumanHeadF1Skin {
     const ordered: V3[] = order.map((i: number): V3 => points[i]!);
     const spans: IAutoMovieCurve64.Span[] = ordered.map((a: V3, i: number): IAutoMovieCurve64.Span => {
       const b: V3 = ordered[(i + 1) % ordered.length]!;
-      const mix = (t: number): V3 => [
+      const mix: (t: number) => V3 = (t: number): V3 => [
         a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t,
       ];
       return [a, mix(1 / 3), mix(2 / 3), b];
     });
     const prefix: number[] = [0];
-    const phaseIntervals: number[] = spans.map(([a, , , b]): number => {
+    const phaseIntervals: number[] = spans.map(([a, , , b]: IAutoMovieCurve64.Span): number => {
       const length: number = Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
       if (!(length > 0)) throw new Error(`The original F1 outline has a collapsed edge: ${name}`);
       prefix.push(prefix.at(-1)! + length);
@@ -257,8 +317,8 @@ export namespace AutoMovieHumanHeadF1Skin {
     // Three independent authorities: material winding sets generated rim
     // order, rawSense relates that order to the recorded observations, and
     // transport direction relates the two raw clocks. No coordinate moves.
-    const lo = ordered(a, lower, a.chart.rawSense * a.chart.sheetWinding);
-    const hi = ordered(b, upper, b.chart.rawSense * b.chart.sheetWinding * clock.direction);
+    const lo: ReturnType<typeof ordered> = ordered(a, lower, a.chart.rawSense * a.chart.sheetWinding);
+    const hi: ReturnType<typeof ordered> = ordered(b, upper, b.chart.rawSense * b.chart.sheetWinding * clock.direction);
     const first: number = mesh.indices.length;
     AutoMovieHumanLoftMesh.zipper(mesh, lo.indices, lo.phases, hi.indices, hi.phases);
     const faces: number[] = mesh.indices.slice(first);
@@ -274,6 +334,19 @@ export namespace AutoMovieHumanHeadF1Skin {
       || direction(oriented, b.indices, "oriented upper") !== expected.upper)
       throw new Error("The ordinary F1 replacement did not preserve both original indexed rim directions");
   }
+
+  /** Preserve both unchanged boundary directions after one local replacement. */
+  function orient(mesh: Context, start: number, a: number[], b: number[], expected: { lower: 1 | -1; upper: 1 | -1 }): void {
+    const faces: number[] = mesh.indices.slice(start);
+    const lower: 1 | -1 = direction(faces, a, "local lower");
+    const upper: 1 | -1 = direction(faces, b, "local upper");
+    if (lower === -expected.lower && upper === -expected.upper)
+      for (let i: number = start; i < mesh.indices.length; i += 3)
+        [mesh.indices[i + 1], mesh.indices[i + 2]] = [mesh.indices[i + 2]!, mesh.indices[i + 1]!];
+    else if (lower !== expected.lower || upper !== expected.upper)
+      throw new Error("A local head loft reverses only one fixed outer boundary");
+  }
+
 
   /** Preserve the exact known flat source ear pole and its original short rail. */
   function ear(mesh: Context, rims: ReadonlyMap<string, Rim>, y: number, group: Group): void {
@@ -308,7 +381,7 @@ export namespace AutoMovieHumanHeadF1Skin {
   /** Reverse a whole independent generated sheet, never a source curve or point. */
   function reverseSeparateSheet(mesh: Context, lower: number, upper: number): number {
     const parents: Int32Array = Int32Array.from({ length: mesh.positions.length / 3 }, (_: unknown, i: number): number => i);
-    const root = (id: number): number => {
+    const root: (id: number) => number = (id: number): number => {
       while (parents[id] !== id) { parents[id] = parents[parents[id]!]!; id = parents[id]!; }
       return id;
     };
@@ -344,7 +417,7 @@ export namespace AutoMovieHumanHeadF1Skin {
   /** Ordinary contour loft on actual independent indexed boundaries. */
   function strip(mesh: Context, a: number[], b: number[]): void {
     const ids: Map<V3, number> = new Map();
-    const point = (id: number): V3 => {
+    const point: (id: number) => V3 = (id: number): V3 => {
       const p: V3 = AutoMovieHumanLoftMesh.position(mesh, id);
       ids.set(p, id);
       return p;
@@ -352,7 +425,7 @@ export namespace AutoMovieHumanHeadF1Skin {
     tessellateAutoMovieContourStrip64(a.map(point), b.map(point),
       (x: V3, y: V3, z: V3): void => { mesh.indices.push(ids.get(x)!, ids.get(y)!, ids.get(z)!); },
       (p: V3): string => String(ids.get(p)!),
-      (observation): void => { if (!observation.qualified) throw new Error(observation.diagnostics.join(" | ")); });
+      (observation: Parameters<NonNullable<Parameters<typeof tessellateAutoMovieContourStrip64>[4]>>[0]): void => { if (!observation.qualified) throw new Error(observation.diagnostics.join(" | ")); });
   }
 
   /** Physical signed area in the source (+Z,+X) horizontal chart. */
@@ -366,8 +439,8 @@ export namespace AutoMovieHumanHeadF1Skin {
 
   /** Require one coherent free boundary before an existing indexed join. */
   function direction(indices: readonly number[], ring: readonly number[], name: string): 1 | -1 {
-    const next: Map<number, number> = new Map(ring.map((id: number, i: number) => [id, ring[(i + 1) % ring.length]!]));
-    const counts: Map<number, { forward: number; backward: number }> = new Map(ring.map((id: number) =>
+    const next: Map<number, number> = new Map(ring.map((id: number, i: number): [number, number] => [id, ring[(i + 1) % ring.length]!]));
+    const counts: Map<number, { forward: number; backward: number }> = new Map(ring.map((id: number): [number, { forward: number; backward: number }] =>
       [id, { forward: 0, backward: 0 }]));
     for (let i: number = 0; i < indices.length; i += 3)
       for (let j: number = 0; j < 3; j++) {
@@ -375,8 +448,8 @@ export namespace AutoMovieHumanHeadF1Skin {
         if (next.get(a) === b) counts.get(a)!.forward++;
         if (next.get(b) === a) counts.get(b)!.backward++;
       }
-    if ([...counts.values()].every(({ forward, backward }): boolean => forward === 1 && backward === 0)) return 1;
-    if ([...counts.values()].every(({ forward, backward }): boolean => forward === 0 && backward === 1)) return -1;
+    if ([...counts.values()].every(({ forward, backward }: { forward: number; backward: number }): boolean => forward === 1 && backward === 0)) return 1;
+    if ([...counts.values()].every(({ forward, backward }: { forward: number; backward: number }): boolean => forward === 0 && backward === 1)) return -1;
     throw new Error(`The actual F1 port is not one reciprocal free ring: ${name}`);
   }
 }

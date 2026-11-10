@@ -15,15 +15,33 @@ import left from "./AutoMovieHumanLegF1Left.json";
 import native from "./AutoMovieHumanLegF1Native.json";
 import right from "./AutoMovieHumanLegF1Right.json";
 
+/** Absolute ISB world-mm observation or same-chart vector. */
 type V3 = AutoMovieCurveMath64.V;
+/** Existing indexed output context used by the independent F1 builder. */
 type Context = AutoMovieHumanLoftMesh.IContext;
+/** Existing ordinary-contour section contract; coordinates are millimetres. */
 type Section = IAutoMovieContourLoft64.ISection;
+/** One declared closed source component and its orientation. */
 type Loop = Section["loops"][number];
+/** Recorded original branch event, not an invented station. */
 type Event = IAutoMovieContourLoft64.IEvent;
+/** Source component correspondence between adjacent measured sections. */
 type Interval = IAutoMovieContourLoft64.IInterval;
+/** Indexed generated triangle; source triangles are never authored here. */
 type Face = [number, number, number];
+/** Independently lofted sheet before its actual turned root cuts. */
 type Skin = { points: V3[]; faces: Face[] };
+/** Immutable original physical root plane and world-mm boundary controls. */
 type Port = { frame: ReturnType<AutoMovieViewAxis.IAxis["at"]>; points: V3[] };
+
+/** Authoring packet types preserve original numerical values and declared provenance. */
+type Patch = (typeof native.patches)[number];
+
+/** Recorded F1 branch curves, events and declared component incidence. */
+type Branch = NonNullable<(typeof branches.records)[number]["branches"]>;
+
+/** Observed fixed-root transverse curves; the original port domains remain authoritative. */
+type Transition = NonNullable<Patch["info"]["rootTransitions"]>[number];
 
 /** Generate the observed forefoot web in its original seed-normal chart. */
 export namespace AutoMovieHumanLegF1Web {
@@ -33,7 +51,7 @@ export namespace AutoMovieHumanLegF1Web {
    */
   export function f1(mesh: Context, side: "left" | "right", points: readonly V3[][]): string[] {
     const original: typeof left | typeof right = side === "left" ? left : right;
-    const ports: Port[] = original.ports.map(({ frame }, i: number): Port => ({
+    const ports: Port[] = original.ports.map(({ frame }: typeof original.ports[number], i: number): Port => ({
       frame: { origin: AutoMovieCurveMath64.clone(frame.origin), u: AutoMovieCurveMath64.clone(frame.u), v: AutoMovieCurveMath64.clone(frame.v) },
       points: points[i]!,
     }));
@@ -41,39 +59,39 @@ export namespace AutoMovieHumanLegF1Web {
     const seed: Port = ports[0]!;
     const skin: Skin = sectionSkin(side, seed.points);
     const receipts: number[] = [];
-    // The native owner cuts in digit order. In particular the fifth oblique
-    // plane crosses already removed distal sheets of the other four toes.
-    // A cut of the untrimmed whole foot cannot identify that fifth rim.
+
+    // Retain the five original port domains and their removal order. The
+    // separately observed transverse curves never replace these cut planes.
     for (const [i, port] of ports.slice(1).entries()) {
-      const { positive, negative } = AutoMovieHumanFootWebTrim.splitSkin(skin, port.frame);
+      const { positive, negative }: ReturnType<typeof AutoMovieHumanFootWebTrim.splitSkin> = AutoMovieHumanFootWebTrim.splitSkin(skin, port.frame);
       const components: Face[][] = AutoMovieHumanFootWebTrim.skinComponents(positive);
-      const observed = components.flatMap((faces: Face[]) =>
+      const observed: ReturnType<typeof AutoMovieHumanFootWebTrim.matchingRims> = components.flatMap((faces: Face[]): ReturnType<typeof AutoMovieHumanFootWebTrim.matchingRims> =>
         AutoMovieHumanFootWebTrim.matchingRims(skin.points, faces, port, Infinity));
-      const candidates = observed.filter(({ deviation }): boolean => deviation <= 0.5);
+      const candidates: typeof observed = observed.filter(({ deviation }: typeof observed[number]): boolean => deviation <= 0.5);
       if (candidates.length !== 1)
-        throw new Error(`The fixed ${side} toe ${i + 1} has ${candidates.length} cuts within 0.5 mm, prior ${JSON.stringify(receipts)}, current ${JSON.stringify(observed.map(({ deviation }) => deviation))}`);
-      const [cut] = candidates;
-      receipts.push(cut!.deviation);
-      skin.faces = negative.concat(...components.filter((faces: Face[]): boolean => faces !== cut!.faces));
+        throw new Error(`The fixed ${side} toe ${i + 1} has ${candidates.length} cuts within 0.5 mm, prior ${JSON.stringify(receipts)}, current ${JSON.stringify(observed.map(({ deviation }: typeof observed[number]): number => deviation))}`);
+      const cut: typeof candidates[number] = candidates[0]!;
+      receipts.push(cut.deviation);
+      skin.faces = negative.concat(...components.filter((faces: Face[]): boolean => faces !== cut.faces));
     }
-    const rims = ports.slice(1).map((port: Port) => {
-      const [rim] = AutoMovieHumanFootWebTrim.matchingRims(skin.points, skin.faces, port, 0.5);
-      if (rim === undefined) throw new Error(`The fixed ${side} web lost a retained toe cut`);
-      return { ring: rim.ring, port };
+    const rims: { ring: number[]; port: Port }[] = ports.slice(1).map((port: Port): { ring: number[]; port: Port } => {
+      const matches: ReturnType<typeof AutoMovieHumanFootWebTrim.matchingRims> = AutoMovieHumanFootWebTrim.matchingRims(skin.points, skin.faces, port, .5);
+      if (matches.length !== 1) throw new Error(`The fixed ${side} web lost its unique retained toe cut`);
+      return { ring: matches[0]!.ring, port };
     });
-    // Replace only the final generated tile band at each turned cut. The
-    // exact root and the remaining inner rail span a finite physical strip.
-    const trims = rims.map(({ ring, port }) => ({ before: withdrawBand(skin, ring), port }));
+    const observations: Transition[] = native.patches.find((piece: Patch): boolean => piece.name === `leg.${side}.toe-web seed.terminal`)?.info.rootTransitions ?? [];
+    const trims: { before: number[]; port: Port; transition: Transition | undefined }[] = rims.map(({ ring, port }: typeof rims[number], i: number): { before: number[]; port: Port; transition: Transition | undefined } =>
+      ({ before: withdrawBand(skin, ring), port, transition: observations.find((item: Transition): boolean => item.digit === i + 1) }));
     const seedIds: number[] = existing(seed.points, mesh.positions);
     const seedSign: 1 | -1 = direction(mesh.indices, seedIds);
     const generated: number[] = existing(seed.points, skin.points.flat());
     const flat: number[] = skin.faces.flat();
     const same: boolean = direction(flat, generated) === seedSign;
-    const shared: Map<number, number> = new Map(generated.map((id: number, i: number) => [id, seedIds[i]!]));
+    const shared: Map<number, number> = new Map(generated.map((id: number, i: number): [number, number] => [id, seedIds[i]!]));
     const used: Set<number> = new Set(flat);
     for (const id of used) if (!shared.has(id)) shared.set(id, AutoMovieHumanLoftMesh.vertices(mesh, [skin.points[id]!])[0]!);
     for (const [a, b, c] of skin.faces) mesh.indices.push(shared.get(a)!, shared.get(same ? c : b)!, shared.get(same ? b : c)!);
-    return trims.map(({ before, port }, i: number): string => {
+    return trims.map(({ before, port, transition }: typeof trims[number], i: number): string => {
       const toe: Context = AutoMovieHumanFootToes.f1(side, i + 1, port.points);
       const root: number[] = existing(port.points, toe.positions);
       const off: number = mesh.positions.length / 3;
@@ -81,7 +99,30 @@ export namespace AutoMovieHumanLegF1Web {
       for (const index of toe.indices) mesh.indices.push(index + off);
       const a: number[] = before.map((id: number): number => shared.get(id)!);
       const b: number[] = root.map((id: number): number => id + off);
-      bridge(mesh, a, b);
+      if (transition === undefined) bridge(mesh, a, b);
+      else {
+        const normal: V3 = AutoMovieCurveMath64.clone(AutoMovieViewAxis.normal(port.frame));
+
+        /** Signed world-mm position in the original root's unchanged physical plane. */
+        const signed: (p: V3) => number = (p: V3): number => dot(AutoMovieCurveMath64.sub(p, port.frame.origin as V3), normal);
+        const from: number = a.reduce((limit: number, id: number): number => Math.max(limit, signed(AutoMovieHumanLoftMesh.position(mesh, id))), -Infinity);
+        const to: number = b.reduce((limit: number, id: number): number => Math.min(limit, signed(AutoMovieHumanLoftMesh.position(mesh, id))), Infinity);
+
+        // These are fixed observed polylines. Requiring every knot between
+        // both complete rails also bounds every linear span at every phase.
+        // No outside row or new coordinate expands this existing finite band.
+        const sections: V3[][] = transition.rows.filter((row: Transition["rows"][number]): boolean =>
+          row.station < 0 && row.points.every((p: number[]): boolean => {
+            const distance: number = signed(AutoMovieCurveMath64.clone(p));
+            return distance > from && distance < to;
+          })).map((row: Transition["rows"][number]): V3[] => row.points.map(AutoMovieCurveMath64.clone));
+        const tiles: number[] = AutoMovieHumanFootWebTrim.f1RootLoft(mesh.positions, a, b, port.frame, sections);
+        const flip: boolean = direction(tiles, a) === direction(mesh.indices, a);
+        if ((direction(tiles, b) === direction(mesh.indices, b)) !== flip)
+          throw new Error("The finite F1 root loft disagrees with an exact shared boundary direction");
+        for (let k: number = 0; k < tiles.length; k += 3)
+          mesh.indices.push(tiles[k]!, tiles[k + (flip ? 2 : 1)]!, tiles[k + (flip ? 1 : 2)]!);
+      }
       return `toe.${side}.${i + 1}`;
     });
   }
@@ -93,34 +134,36 @@ export namespace AutoMovieHumanLegF1Web {
    */
   export function sectionSkin(side: "left" | "right", seed: V3[]): Skin {
     const key: string = `leg.${side}.toe-web seed.terminal`;
-    const source = native.patches.find((piece): boolean => piece.name === key);
-    const observed = branches.records.find((piece): boolean => piece.name === key)?.branches ?? undefined;
+    const source: Patch | undefined = native.patches.find((piece: Patch): boolean => piece.name === key);
+    const observed: Branch | undefined = branches.records.find((piece: (typeof branches.records)[number]): boolean => piece.name === key)?.branches ?? undefined;
     if (source === undefined || observed === undefined) throw new Error(`Missing original ${side} forefoot observations`);
     const axes: V3[] = source.frame.axes.map(AutoMovieCurveMath64.clone);
     const n: V3 = axes[0]!;
-    const [u, v] = [axes[1]!, axes[2]!];
-    const place = (s: number, [a, b]: readonly number[]): V3 => [
+    const [u, v]: [V3, V3] = [axes[1]!, axes[2]!];
+
+    /** Evaluate the original absolute source frame without re-basing or refitting. */
+    const place: (s: number, point: readonly number[]) => V3 = (s: number, [a, b]: readonly number[]): V3 => [
       n[0] * s + u[0] * a! + v[0] * b!, n[1] * s + u[1] * a! + v[1] * b!, n[2] * s + u[2] * a! + v[2] * b!,
     ];
     const seedStation: number = dot(seed[0]!, n);
     const sections: Section[] = [{ coordinateMm: seedStation, loops: [line(key + ".seed", seed, n)] }];
     for (const { station, loops } of source.rows) {
-      if (observed.groups.some(({ beforeMm, afterMm }): boolean => station >= beforeMm && station <= afterMm)) continue;
-      const closed = loops.filter(({ closed }): boolean => closed);
+      if (observed.groups.some(({ beforeMm, afterMm }: Branch["groups"][number]): boolean => station >= beforeMm && station <= afterMm)) continue;
+      const closed: typeof loops = loops.filter(({ closed }: typeof loops[number]): boolean => closed);
       if (closed.length !== 0) sections.push({
         coordinateMm: station,
-        loops: closed.map(({ points }, i: number): Loop => line(`${key}.${station}.${i}`, points.map((p): V3 => place(station, p)), n)),
+        loops: closed.map(({ points }: typeof closed[number], i: number): Loop => line(`${key}.${station}.${i}`, points.map((p: number[]): V3 => place(station, p)), n)),
       });
     }
     for (const { coordinateMm, loops } of observed.sections)
-      sections.push({ coordinateMm, loops: loops.map(({ curve, winding }): Loop => ({
+      sections.push({ coordinateMm, loops: loops.map(({ curve, winding }: Branch["sections"][number]["loops"][number]): Loop => ({
         // All observed branches are exterior. Recovery normalizes point
         // order but retains the reflected source's negative orientation tag.
         winding: exterior(winding),
         curve: {
           type: "cubicBezier", name: curve.name, closed: true, unit: "mm", phaseUnit: "mm",
           phaseIntervals: curve.phaseIntervals,
-          spans: curve.spans.map((span): IAutoMovieCurve64.Span => [
+          spans: curve.spans.map((span: typeof curve.spans[number]): IAutoMovieCurve64.Span => [
             AutoMovieCurveMath64.clone(span[0]!), AutoMovieCurveMath64.clone(span[1]!),
             AutoMovieCurveMath64.clone(span[2]!), AutoMovieCurveMath64.clone(span[3]!),
           ]),
@@ -137,13 +180,13 @@ export namespace AutoMovieHumanLegF1Web {
         }
     const intervals: Interval[] = sections.slice(1).map((after: Section, i: number): Interval => {
       const before: Section = sections[i]!;
-      const original = observed.groups.find((row): boolean => row.beforeMm === before.coordinateMm && row.afterMm === after.coordinateMm);
+      const original: Branch["groups"][number] | undefined = observed.groups.find((row: Branch["groups"][number]): boolean => row.beforeMm === before.coordinateMm && row.afterMm === after.coordinateMm);
       if (original !== undefined)
         return { beforeMm: before.coordinateMm, afterMm: after.coordinateMm,
-          groups: original.groups.map((group): Interval["groups"][number] => ({
+          groups: original.groups.map((group: typeof original.groups[number]): Interval["groups"][number] => ({
             before: group.before, after: group.after, supported: group.qualified, reason: group.qualified ? null : "unsupported observed forefoot source group",
           })) };
-      const current: Set<number> = new Set(after.loops.map((_, j: number): number => j));
+      const current: Set<number> = new Set(after.loops.map((_: Loop, j: number): number => j));
       const adjacent: Interval["groups"][number][] = [];
       const unpaired: number[] = [];
       for (const [j, a] of before.loops.entries()) {
@@ -157,33 +200,34 @@ export namespace AutoMovieHumanLegF1Web {
       return { beforeMm: before.coordinateMm, afterMm: after.coordinateMm, groups: adjacent };
     });
     const skin: Skin = { points: [], faces: [] };
-    const output = generateAutoMovieContourLoft64({ sections, intervals, events, chordToleranceMm: 0.1 }, {
+    const output: ReturnType<typeof generateAutoMovieContourLoft64> = generateAutoMovieContourLoft64({ sections, intervals, events, chordToleranceMm: 0.1 }, {
       vertex: (i: number, p: IAutoMovieCurve64.Vector): void => { skin.points[i] = AutoMovieCurveMath64.clone(p); },
       triangle: (a: number, b: number, c: number): void => { skin.faces.push([a, b, c]); },
       construction: (): void => {},
     });
     if (output.unresolved.length !== 0)
       throw new Error(`The fixed ${side} measured web has unresolved source groups: ${JSON.stringify(output.unresolved)}`);
+
     // The complete transition includes the last ordinary raw row, the saved
     // parent cubic and the original declared 1-to-2 event. Both parent curves
     // retain four exact root-plane crossings; the error was correspondence,
     // not loss of the negative notch. Keep the original event surface.
-    const split = observed.groups.find(({ groups }) => groups.some(group => group.before.length === 1 && group.after.length === 2));
-    const correspondence = source.info.firstBranchCorrespondence;
-    const parentIndex: number = sections.findIndex(section => section.coordinateMm === split?.beforeMm);
-    const beforeSection = sections[parentIndex - 1];
-    const rawRow = source.rows.find(row => row.station === beforeSection?.coordinateMm);
-    const rawLoops = rawRow?.loops.filter(loop => loop.closed);
-    const parentSection = observed.sections.find(section => section.coordinateMm === split?.beforeMm);
-    const from = rawLoops?.[0]?.points[correspondence?.beforeHostVertex ?? -1];
-    const to = parentSection?.loops[0]?.curve.spans[correspondence?.afterToeSpan ?? -1]?.[0];
+    const split: Branch["groups"][number] | undefined = observed.groups.find(({ groups }: Branch["groups"][number]): boolean => groups.some((group: Branch["groups"][number]["groups"][number]): boolean => group.before.length === 1 && group.after.length === 2));
+    const correspondence: typeof source.info.firstBranchCorrespondence = source.info.firstBranchCorrespondence;
+    const parentIndex: number = sections.findIndex((section: Section): boolean => section.coordinateMm === split?.beforeMm);
+    const beforeSection: Section | undefined = sections[parentIndex - 1];
+    const rawRow: typeof source.rows[number] | undefined = source.rows.find((row: typeof source.rows[number]): boolean => row.station === beforeSection?.coordinateMm);
+    const rawLoops: NonNullable<typeof rawRow>["loops"] | undefined = rawRow?.loops.filter((loop: NonNullable<typeof rawRow>["loops"][number]): boolean => loop.closed);
+    const parentSection: Branch["sections"][number] | undefined = observed.sections.find((section: Branch["sections"][number]): boolean => section.coordinateMm === split?.beforeMm);
+    const from: number[] | undefined = rawLoops?.[0]?.points[correspondence?.beforeHostVertex ?? -1];
+    const to: number[] | undefined = parentSection?.loops[0]?.curve.spans[correspondence?.afterToeSpan ?? -1]?.[0];
     if (split === undefined || correspondence === undefined || beforeSection === undefined ||
       rawLoops?.length !== 1 || parentSection?.loops.length !== 1 || from === undefined || to === undefined)
       throw new Error("The original F1 source passage lacks its authored physical curve correspondence");
-    const ranges = output.primitiveRanges?.filter(item => item.beforeMm === beforeSection.coordinateMm &&
+    const ranges: typeof output.primitiveRanges = output.primitiveRanges?.filter((item: NonNullable<typeof output.primitiveRanges>[number]): boolean => item.beforeMm === beforeSection.coordinateMm &&
       item.afterMm === split.beforeMm);
     if (ranges?.length !== 1) throw new Error("The original F1 passage is not a single ordinary source interval");
-    const port = (side === "left" ? left : right).ports[5]!.frame;
+    const port: typeof left.ports[number]["frame"] = (side === "left" ? left : right).ports[5]!.frame;
     sourcePassage(skin, ranges[0]!.firstTriangle, ranges[0]!.triangleCount, n, beforeSection.coordinateMm,
       { origin: AutoMovieCurveMath64.clone(port.origin), u: AutoMovieCurveMath64.clone(port.u), v: AutoMovieCurveMath64.clone(port.v) },
       place(beforeSection.coordinateMm, from), AutoMovieCurveMath64.clone(to));
@@ -202,12 +246,14 @@ export namespace AutoMovieHumanLegF1Web {
    */
   function sourcePassage(skin: Skin, first: number, count: number, n: V3, before: number, frame: Port["frame"], host: V3, toe: V3): void {
     const original: Face[] = skin.faces.slice(first, first + count);
-    const key = (a: number, b: number): string => a < b ? `${a},${b}` : `${b},${a}`;
+
+    /** Source-boundary ownership is indexed, not nearest-point proximity. */
+    const key: (a: number, b: number) => string = (a: number, b: number): string => a < b ? `${a},${b}` : `${b},${a}`;
     const edges: Map<string, { a: number; b: number; uses: number }> = new Map();
     for (const face of original)
       for (let i: number = 0; i < 3; ++i) {
         const a: number = face[i]!, b: number = face[(i + 1) % 3]!, k: string = key(a, b);
-        const item = edges.get(k) ?? { a, b, uses: 0 };
+        const item: { a: number; b: number; uses: number } = edges.get(k) ?? { a, b, uses: 0 };
         ++item.uses;
         edges.set(k, item);
       }
@@ -226,14 +272,18 @@ export namespace AutoMovieHumanLegF1Web {
       if (id !== start) throw new Error("The measured F1 source passage has an open generating curve");
       cycles.push(cycle);
     }
-    const parents = cycles.filter(row => row.every(id => Math.abs(dot(skin.points[id]!, n) - before) < 1e-6));
+    const parents: number[][] = cycles.filter((row: number[]): boolean => row.every((id: number): boolean => Math.abs(dot(skin.points[id]!, n) - before) < 1e-6));
     if (cycles.length !== 2 || parents.length !== 1) throw new Error("The source passage is not one ordinary pair of closed curves");
     const parent: number[] = parents[0]!;
-    const after: number[] = cycles.find(row => row !== parent)!.slice().reverse();
+    const after: number[] = cycles.find((row: number[]): boolean => row !== parent)!.slice().reverse();
     const normal: V3 = AutoMovieCurveMath64.clone(AutoMovieViewAxis.normal(frame));
-    const signed = (id: number): number => dot(AutoMovieCurveMath64.sub(skin.points[id]!, frame.origin as V3), normal);
-    const partition = (row: number[]): number[][] => {
-      const start: number = row.findIndex(id => signed(id) > 0);
+
+    /** Read the unchanged exact original root plane sign in world millimetres. */
+    const signed: (id: number) => number = (id: number): number => dot(AutoMovieCurveMath64.sub(skin.points[id]!, frame.origin as V3), normal);
+
+    /** Both complete negative source arcs separate the two recorded positive sheets. */
+    const partition: (row: number[]) => number[][] = (row: number[]): number[][] => {
+      const start: number = row.findIndex((id: number): boolean => signed(id) > 0);
       if (start < 0) throw new Error("A source passage has no observed positive arc");
       const negative: number[][] = [];
       let run: number[] = [];
@@ -243,34 +293,40 @@ export namespace AutoMovieHumanLegF1Web {
         else if (run.length !== 0) { negative.push(run); run = []; }
       }
       if (negative.length !== 2) throw new Error("The actual F1 source curve does not retain its two separated positive arcs");
-      const guides: number[] = negative.map(items => items.reduce((best, i): number =>
+      const guides: number[] = negative.map((items: number[]): number => items.reduce((best: number, i: number): number =>
         signed(row[i]!) < signed(row[best]!) ? i : best));
-      if (guides.some(i => signed(row[i]!) >= 0)) throw new Error("A source passage guide is not strictly inside the measured negative arc");
-      const [a, b]: number[] = guides.sort((x, y): number => x - y);
+      if (guides.some((i: number): boolean => signed(row[i]!) >= 0)) throw new Error("A source passage guide is not strictly inside the measured negative arc");
+      const [a, b]: number[] = guides.sort((x: number, y: number): number => x - y);
       return [row.slice(a!, b! + 1), [...row.slice(b!), ...row.slice(0, a! + 1)]];
     };
     const from: number[][] = partition(parent), to: number[][] = partition(after);
-    const physical = (parts: number[][], anchor: V3): number => {
+
+    /** The authored original edge/span point selects its exact physical positive arc. */
+    const physical: (parts: number[][], anchor: V3) => number = (parts: number[][], anchor: V3): number => {
       if (dot(AutoMovieCurveMath64.sub(anchor, frame.origin as V3), normal) <= 0)
         throw new Error("An authored source-edge anchor is outside its actual positive arc");
-      const matches: number[] = parts.flatMap((row, i): number[] =>
-        row.some(id => skin.points[id]!.every((x, j): boolean => x === anchor[j])) ? [i] : []);
+      const matches: number[] = parts.flatMap((row: number[], i: number): number[] =>
+        row.some((id: number): boolean => skin.points[id]!.every((x: number, j: number): boolean => x === anchor[j])) ? [i] : []);
       if (matches.length !== 1) throw new Error("An actual source-edge anchor has no unique measured positive arc");
       return matches[0]!;
     };
     const hostFrom: number = physical(from, host), toeTo: number = physical(to, toe);
     const arcs: number[][] = [from[hostFrom]!, from[1 - hostFrom]!];
     const opened: number[][] = [to[1 - toeTo]!, to[toeTo]!];
-    const distance = (a: V3, b: V3): number => Math.hypot(...AutoMovieCurveMath64.sub(a, b));
+
+    /** Geometric arclength parameter within the already source-owned open arc. */
+    const distance: (a: V3, b: V3) => number = (a: V3, b: V3): number => Math.hypot(...AutoMovieCurveMath64.sub(a, b));
     const pending: Face[] = [];
-    const clock = (row: number[]): number[] => {
+
+    /** Parameterize one complete retained arc without crossing its negative source guide. */
+    const clock: (row: number[]) => number[] = (row: number[]): number[] => {
       let length: number = 0;
       const result: number[] = [0];
       for (let i: number = 1; i < row.length; ++i) {
         length += distance(skin.points[row[i]!]!, skin.points[row[i - 1]!]!);
         result.push(length);
       }
-      return result.map(value => value / length);
+      return result.map((value: number): number => value / length);
     };
     for (let k: number = 0; k < 2; ++k) {
       const from: number[] = arcs[k]!, to: number[] = opened[k]!;
@@ -284,30 +340,31 @@ export namespace AutoMovieHumanLegF1Web {
     }
     const admitted: Map<string, { a: number; b: number; uses: number; direction: number }> = new Map();
     for (const face of pending) {
-      const [p, q, r] = face.map(id => skin.points[id]!) as [V3, V3, V3];
+      const [p, q, r]: [V3, V3, V3] = face.map((id: number): V3 => skin.points[id]!) as [V3, V3, V3];
       const u: V3 = AutoMovieCurveMath64.sub(q, p), v: V3 = AutoMovieCurveMath64.sub(r, p);
       const area: number = Math.hypot(u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]);
       if (!(area > 0)) throw new Error("An observed source passage collapses its ordinary strip");
       for (let i: number = 0; i < 3; ++i) {
         const a: number = face[i]!, b: number = face[(i + 1) % 3]!, k: string = key(a, b);
-        const item = admitted.get(k) ?? { a, b, uses: 0, direction: 0 };
+        const item: { a: number; b: number; uses: number; direction: number } = admitted.get(k) ?? { a, b, uses: 0, direction: 0 };
         ++item.uses;
         item.direction += a < b ? 1 : -1;
         admitted.set(k, item);
       }
     }
     for (const [k, item] of admitted) {
-      const old = edges.get(k);
+      const old: { a: number; b: number; uses: number } | undefined = edges.get(k);
       if (item.uses === 1) {
         if (old?.uses !== 1 || old.a !== item.a || old.b !== item.b)
           throw new Error("The source passage changed an exact generating boundary direction");
       } else if (item.uses !== 2 || item.direction !== 0) throw new Error("The source passage has a nonreciprocal internal edge");
     }
-    if ([...edges].some(([k, item]) => item.uses === 1 && admitted.get(k)?.uses !== 1))
+    if ([...edges].some(([k, item]: [string, { a: number; b: number; uses: number }]): boolean => item.uses === 1 && admitted.get(k)?.uses !== 1))
       throw new Error("The source passage lost a measured generating curve edge");
     skin.faces.splice(first, count, ...pending);
   }
 
+  /** Original polygon knots become exact straight cubic spans; no authored point is fitted. */
   function line(name: string, raw: V3[], n: V3): Loop {
     const points: V3[] = raw.filter((p: V3, i: number): boolean => p.join(",") !== raw[(i + raw.length - 1) % raw.length]!.join(","));
     const area: number = points.reduce((sum: number, p: V3, i: number): number => {
@@ -322,17 +379,20 @@ export namespace AutoMovieHumanLegF1Web {
     });
     return { winding, curve: {
       type: "cubicBezier", name, closed: true, unit: "mm", phaseUnit: "mm", spans,
-      phaseIntervals: spans.map(([a, , , b]): number => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])),
+      phaseIntervals: spans.map(([a, , , b]: IAutoMovieCurve64.Span): number => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])),
     } };
   }
 
+  /** Normalize only the original reflected exterior orientation tag. */
   function exterior(sign: number): 1 {
     if (sign !== -1) throw new Error("A recorded F1 forefoot section is not an exterior in the reflected seed chart");
     return 1;
   }
 
+  /** Geometric centroid proximity proposes ordinary component correspondence, not material identity. */
   function separation(a: Loop, b: Loop): number {
-    const centre = ({ curve }: Loop): V3 => {
+    /** Mean of original span starts, used solely for existing candidate ordering. */
+    const centre: (loop: Loop) => V3 = ({ curve }: Loop): V3 => {
       const sum: V3 = [0, 0, 0];
       for (const [p] of curve.spans) for (const c of [0, 1, 2] as const) sum[c] += p[c];
       return AutoMovieCurveMath64.scale(sum, 1 / curve.spans.length);
@@ -342,8 +402,10 @@ export namespace AutoMovieHumanLegF1Web {
     return Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
   }
 
+  /** Scalar product in the declared unchanged world chart. */
   function dot(a: V3, b: V3): number { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
 
+  /** Locate exact declared port controls only; this is not a coordinate weld. */
   function existing(rail: readonly V3[], positions: readonly number[]): number[] {
     const expected: Set<string> = new Set(rail.map((p: V3): string => p.join(",")));
     const byPoint: Map<string, number> = new Map();
@@ -358,12 +420,15 @@ export namespace AutoMovieHumanLegF1Web {
     });
   }
 
+  /** Preserve the unchanged legacy finite band at roots without an observed replacement. */
   function withdrawBand(skin: Skin, trim: readonly number[]): number[] {
     const rim: Set<number> = new Set(trim);
     const removed: Face[] = skin.faces.filter((face: Face): boolean => face.some((id: number): boolean => rim.has(id)));
     skin.faces = skin.faces.filter((face: Face): boolean => face.every((id: number): boolean => !rim.has(id)));
     const wanted: Map<string, [number, number]> = new Map();
-    const edge = (a: number, b: number): string => a < b ? `${a},${b}` : `${b},${a}`;
+
+    /** Only shared indexed edges establish the retained legacy band boundary. */
+    const edge: (a: number, b: number) => string = (a: number, b: number): string => a < b ? `${a},${b}` : `${b},${a}`;
     for (const face of removed)
       for (let i: number = 0; i < 3; ++i) {
         const a: number = face[i]!;
@@ -390,8 +455,9 @@ export namespace AutoMovieHumanLegF1Web {
     return ordered;
   }
 
+  /** Read signed rim-edge uses; the assembled-mesh gate separately checks full topology. */
   function direction(indices: readonly number[], rail: readonly number[]): 1 | -1 {
-    const edges: Map<number, number> = new Map(rail.map((id: number, i: number) => [id, rail[(i + 1) % rail.length]!]));
+    const edges: Map<number, number> = new Map(rail.map((id: number, i: number): [number, number] => [id, rail[(i + 1) % rail.length]!]));
     let signed: number = 0;
     for (let i: number = 0; i < indices.length; i += 3)
       for (let j: number = 0; j < 3; ++j) {
@@ -404,11 +470,15 @@ export namespace AutoMovieHumanLegF1Web {
     return signed > 0 ? 1 : -1;
   }
 
+
+  /** Existing ordinary seam retained only where no failing transition was replaced. */
   function bridge(mesh: Context, lower: number[], upper: number[]): void {
     const before: number[] = direction(mesh.indices, lower) < 0 ? lower : lower.slice().reverse();
     const after: number[] = direction(mesh.indices, upper) > 0 ? upper : upper.slice().reverse();
     const ids: Map<V3, number> = new Map();
-    const world = (rail: number[]): V3[] => rail.map((id: number): V3 => {
+
+    /** Keep each original vertex object associated with its exact output index. */
+    const world: (rail: number[]) => V3[] = (rail: number[]): V3[] => rail.map((id: number): V3 => {
       const point: V3 = AutoMovieHumanLoftMesh.position(mesh, id);
       ids.set(point, id);
       return point;
@@ -416,7 +486,7 @@ export namespace AutoMovieHumanLegF1Web {
     tessellateAutoMovieContourStrip64(world(before), world(after),
       (a: V3, b: V3, c: V3): void => { mesh.indices.push(ids.get(a)!, ids.get(b)!, ids.get(c)!); },
       (point: V3): string => String(ids.get(point)!),
-      (observation): void => {
+      (observation: Parameters<NonNullable<Parameters<typeof tessellateAutoMovieContourStrip64>[4]>>[0]): void => {
         if (!observation.qualified) throw new Error(observation.diagnostics.join(" | "));
       },
     );
