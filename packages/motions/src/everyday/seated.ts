@@ -15,7 +15,7 @@ import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handGoals } from "./handGoals";
-import { poseBones } from "./poseBones";
+import { poseBones } from "../posture/poseBones";
 
 /**
  * The geometry every seat law shares: where on a seat the body's seat

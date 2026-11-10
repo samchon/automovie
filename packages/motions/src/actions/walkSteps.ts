@@ -1,11 +1,8 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   minimumJerk,
-  resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -17,6 +14,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanEntryState } from "../law/IHumanEntryState";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
 
@@ -476,32 +474,24 @@ export namespace walkSteps {
       const turned: number = wrap(yaw - (heading + pivots[side]));
       if (Math.abs(turned) > TWIST) yaw -= turned - Math.sign(turned) * TWIST;
     }
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      resolvePose(
-        {
-          skeleton: body.skeleton.id,
-          root: {
-            translation: root,
-            rotation: resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }),
-            scale: { x: 1, y: 1, z: 1 },
-          },
-          joints: [
-            {
-              bone: "hips",
-              flexion: hips[0],
-              abduction: hips[1],
-              twist: hips[2],
-            },
-          ],
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      {
+        skeleton: body.skeleton.id,
+        root: {
+          translation: root,
+          rotation: resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }),
+          scale: { x: 1, y: 1, z: 1 },
         },
-        body.skeleton,
-        HUMANOID_JOINT_AXES,
-        HUMANOID_REST_FRAME,
-      ).map(
-        (
-          r: IAutoMovieResolvedBone,
-        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-      ),
+        joints: [
+          {
+            bone: "hips",
+            flexion: hips[0],
+            abduction: hips[1],
+            twist: hips[2],
+          },
+        ],
+      },
     );
     const hip = (side: "left" | "right"): IAutoMovieVector3 =>
       bones.get(`${side}UpperLeg`)!.worldPosition;

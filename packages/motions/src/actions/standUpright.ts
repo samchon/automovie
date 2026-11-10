@@ -1,10 +1,7 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
   Quaternion,
   resolveAutoMovieCenterOfMass,
-  resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -13,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IHumanBody } from "../body/IHumanBody";
+import { poseBones } from "../posture/poseBones";
 
 /**
  * The upright alignment of a body's quiet stance, solved from the body's own
@@ -77,17 +75,7 @@ export namespace standUpright {
           twist: 0,
         })),
       };
-      return new Map(
-        resolvePose(
-          pose,
-          body.skeleton,
-          HUMANOID_JOINT_AXES,
-          HUMANOID_REST_FRAME,
-        ).map((r): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
-          r.bone,
-          r,
-        ]),
-      );
+      return poseBones(body, pose);
     };
     const mid = (
       map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,

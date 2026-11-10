@@ -31,7 +31,7 @@ export * from "./everyday/HumanTrunk";
 export * from "./everyday/approach";
 export * from "./everyday/bend";
 export * from "./everyday/brace";
-export * from "./everyday/poseBones";
+export * from "./posture/poseBones";
 export * from "./everyday/gesture";
 export * from "./everyday/gestureStroke";
 export * from "./everyday/handGoals";

@@ -1,13 +1,10 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
   type IAutoMovieSchedule,
   Quaternion,
   Vector3,
   clampPose,
   inertializePose,
-  resolvePose,
   samplePoseVelocity,
 } from "@automovie/engine";
 import type {
@@ -26,6 +23,7 @@ import type { IHumanEntryState } from "../law/IHumanEntryState";
 import type { IHumanInterruptRow } from "../law/IHumanInterruptRow";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { HumanSkill } from "../skill/HumanSkill";
 import type { IHumanPerformer } from "./IHumanPerformer";
@@ -287,16 +285,9 @@ export namespace HumanSegment {
             ),
             seconds,
           );
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      resolvePose(
-        state.pose,
-        body.skeleton,
-        HUMANOID_JOINT_AXES,
-        HUMANOID_REST_FRAME,
-      ).map((r): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
-        r.bone,
-        r,
-      ]),
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      state.pose,
     );
     const planted = (part: "leftFoot" | "rightFoot"): boolean => {
       if (previous === undefined) return true;
@@ -534,17 +525,7 @@ export namespace HumanSegment {
     person: IPerson,
     pose: IAutoMoviePose,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    return new Map(
-      resolvePose(
-        pose,
-        person.performer.body.skeleton,
-        HUMANOID_JOINT_AXES,
-        HUMANOID_REST_FRAME,
-      ).map((r): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
-        r.bone,
-        r,
-      ]),
-    );
+    return poseBones(person.performer.body, pose);
   }
 
   /** A held hand's frame in the chest's frame at the end of the action that took hold. */

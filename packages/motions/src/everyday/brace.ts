@@ -19,7 +19,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
 import { handGoals } from "./handGoals";
-import { poseBones } from "./poseBones";
+import { poseBones } from "../posture/poseBones";
 
 /**
  * Bracing for an expected impact, push or a falling body: the stance

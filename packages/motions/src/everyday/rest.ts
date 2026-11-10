@@ -24,7 +24,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 import { handGoals } from "./handGoals";
-import { poseBones } from "./poseBones";
+import { poseBones } from "../posture/poseBones";
 
 /**
  * Standing with the hands at rest places: in the front pockets, on the hips,

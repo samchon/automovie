@@ -11,7 +11,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { poseBones } from "./poseBones";
+import { poseBones } from "../posture/poseBones";
 
 /**
  * How far the hips move back so the whole-body centre of mass stands over

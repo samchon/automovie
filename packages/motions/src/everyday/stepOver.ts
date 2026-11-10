@@ -15,7 +15,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { poseBones } from "./poseBones";
+import { poseBones } from "../posture/poseBones";
 
 /**
  * Stepping over a low obstacle from standing in front of it: the lead foot

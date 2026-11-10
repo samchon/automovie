@@ -20,7 +20,7 @@ import { HumanBalance } from "./HumanBalance";
 import { HumanGaze } from "./HumanGaze";
 import { HumanTrunk } from "./HumanTrunk";
 import { handGoals } from "./handGoals";
-import { poseBones } from "./poseBones";
+import { poseBones } from "../posture/poseBones";
 
 /**
  * Bending down to bring a hand to a low point (the floor, a low shelf, a

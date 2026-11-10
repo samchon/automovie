@@ -8,7 +8,7 @@ import type { IHumanBody } from "../body/IHumanBody";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { poseBones } from "./poseBones";
+import { poseBones } from "../posture/poseBones";
 
 /**
  * Arm goals that put hand surfaces on their points, the contact first and

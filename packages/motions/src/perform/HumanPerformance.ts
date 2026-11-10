@@ -1,7 +1,5 @@
 import {
   type AutoMovieComposition,
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
   type IAutoMovieIntent,
   type IAutoMovieResolvedBone,
   type IAutoMovieSchedule,
@@ -10,7 +8,6 @@ import {
   resolveAutoMovieContactEvents,
   resolveAutoMovieHumanoidSurfaces,
   resolveAutoMovieSchedule,
-  resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -28,6 +25,7 @@ import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import type { IHumanLayer } from "../law/IHumanLayer";
 import { HumanColliders } from "../posture/HumanColliders";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanSegment } from "./HumanSegment";
 import type { IHumanPerformer } from "./IHumanPerformer";
@@ -213,18 +211,7 @@ export class HumanPerformance {
     seconds: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const person: HumanSegment.IPerson = this.person(subject);
-    return new Map(
-      resolvePose(
-        this.pose(subject, seconds),
-        person.performer.body.skeleton,
-        HUMANOID_JOINT_AXES,
-        HUMANOID_REST_FRAME,
-      ).map(
-        (
-          r: IAutoMovieResolvedBone,
-        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-      ),
-    );
+    return poseBones(person.performer.body, this.pose(subject, seconds));
   }
 
   /**

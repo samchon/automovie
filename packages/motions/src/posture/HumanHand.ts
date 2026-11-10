@@ -1,12 +1,9 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   quaternionFromAutoMovieBasis,
   resolveAutoMovieHumanoidSurfaces,
-  resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -18,6 +15,7 @@ import type {
 
 import type { IHumanBody } from "../body/IHumanBody";
 import type { IHumanPosture } from "./IHumanPosture";
+import { poseBones } from "./poseBones";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
@@ -435,17 +433,9 @@ function fingertip(
       twist: a![2],
     }),
   );
-  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-    resolvePose(
-      { skeleton: body.skeleton.id, root: null, joints },
-      body.skeleton,
-      HUMANOID_JOINT_AXES,
-      HUMANOID_REST_FRAME,
-    ).map(
-      (
-        r: IAutoMovieResolvedBone,
-      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-    ),
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+    body,
+    { skeleton: body.skeleton.id, root: null, joints },
   );
   const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
   const region =

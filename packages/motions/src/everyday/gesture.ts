@@ -20,7 +20,7 @@ import { HumanBalance } from "./HumanBalance";
 import { HumanEffort } from "./HumanEffort";
 import { gestureStroke } from "./gestureStroke";
 import { handGoals } from "./handGoals";
-import { poseBones } from "./poseBones";
+import { poseBones } from "../posture/poseBones";
 
 /**
  * A communicative gesture while standing: the hand, head or trunk moves

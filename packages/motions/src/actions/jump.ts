@@ -1,11 +1,8 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
   Quaternion,
   minimumJerk,
   resolveAutoMovieCenterOfMass,
-  resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -22,6 +19,7 @@ import type { IHumanContactWindow } from "../law/IHumanContactWindow";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
@@ -181,18 +179,8 @@ export namespace jump {
     const upright: standUpright.IAlignment = standUpright.of(body);
     const model = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const offset = (posture: IHumanPosture): IAutoMovieVector3 => {
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-        resolvePose(
-          resolveHumanPosture(body, posture),
-          body.skeleton,
-          HUMANOID_JOINT_AXES,
-          HUMANOID_REST_FRAME,
-        ).map(
-          (
-            r: IAutoMovieResolvedBone,
-          ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-        ),
-      );
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(body, resolveHumanPosture(body, posture));
       const c: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
         model,
         bones,

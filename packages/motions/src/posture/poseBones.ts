@@ -23,9 +23,9 @@ import type { IHumanBody } from "../body/IHumanBody";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the reading used and why it matches the display.
  * @evidence contracts/development/implementation.md#principled-implementation The engine's forward kinematics with the canonical humanoid axes and rest frames.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One call and one map, shared by the everyday laws.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in bones.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The single owner of pose-to-bone forward kinematics in motions: one engine call keyed into a map, used by the performance, the posture code and every law instead of a local copy.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No cast, assertion or tolerance; the axes and rest frames are the engine's canonical tables.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the rig's bone count, once per call.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */

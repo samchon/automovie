@@ -64,21 +64,7 @@ export namespace stand {
       yaw,
     );
     const upright: standUpright.IAlignment = standUpright.of(context.body);
-    const lean: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      { x: 0, y: 0, z: upright.lean },
-    );
-    const middle: IAutoMovieVector3 = {
-      x:
-        (footing.left.x + footing.right.x) / 2 -
-        centre(context.body, yaw).x +
-        lean.x,
-      y: -0.005,
-      z:
-        (footing.left.z + footing.right.z) / 2 -
-        centre(context.body, yaw).z +
-        lean.z,
-    };
+    const middle: IAutoMovieVector3 = root(context.body, footing, yaw);
     const joints = { ...RELAXED, ...upright.joints };
     const settle: number = Math.min(0.5, duration);
     const from: IAutoMovieVector3 = context.entry.posture.root;
@@ -182,6 +168,39 @@ export namespace stand {
   }
 
   /**
+   * The root of a quiet stance over two ankle points: the pelvis over the
+   * feet's midpoint as it stands over its rest feet, shifted forward by the
+   * upright alignment's lean (`standUpright`), and `DROP` below its rest
+   * height so the planted legs are not at full extension. The single owner of
+   * standing root placement: any law that ends or rests standing on its feet
+   * places its root here.
+   *
+   * @param body The body.
+   * @param feet Ankle points, world metres.
+   * @param yaw The heading, degrees.
+   * @returns The root, world metres.
+   */
+  export function root(
+    body: IHumanBody,
+    feet: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
+    yaw: number,
+  ): IAutoMovieVector3 {
+    const mid: IAutoMovieVector3 = centre(body, yaw);
+    const lean: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { x: 0, y: 0, z: 0 }, yaw },
+      { x: 0, y: 0, z: standUpright.of(body).lean },
+    );
+    return {
+      x: (feet.left.x + feet.right.x) / 2 - mid.x + lean.x,
+      y: -DROP,
+      z: (feet.left.z + feet.right.z) / 2 - mid.z + lean.z,
+    };
+  }
+
+  /** How far a quiet stance's root sits below its rest height, metres, keeping the planted knees off full extension. */
+  export const DROP: number = 0.005;
+
+  /**
    * Planted leg goals on given ankle points, knees bending forward.
    *
    * @param body The body.
@@ -250,19 +269,14 @@ export namespace stand {
         z: rest.z,
       });
     }
-    const upright: standUpright.IAlignment = standUpright.of(body);
-    const root: IAutoMovieVector3 = HumanFrame.point(frame, {
-      x: 0,
-      y: -0.005,
-      z: upright.lean,
-    });
+    const placed: IAutoMovieVector3 = root(body, feet, yaw);
     return {
-      root,
+      root: placed,
       yaw,
       pitch: 0,
       roll: 0,
-      joints: { ...RELAXED, ...upright.joints },
-      limbs: legs(body, root, yaw, feet),
+      joints: { ...RELAXED, ...standUpright.of(body).joints },
+      limbs: legs(body, placed, yaw, feet),
     };
   }
 }
