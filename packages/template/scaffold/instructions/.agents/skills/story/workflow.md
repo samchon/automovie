@@ -13,9 +13,13 @@ Choose the commissioned route from the request, project context, adopted instruc
 
 ## Route and parents
 
-Commissioned video follows one traceable chain: settings and research, screenplay, laws and entities with their tests and accepted [catalog cases](../motion/SKILL.md), scene composition, then the film. Each link cites the addresses it realizes from the links above it, so no code exists without a cited basis and no requirement stays unrealized; a later link can only realize what an earlier one decided, and motion written before the screenplay settles its action is fitted to guesses.
+Commissioned video follows one traceable chain: settings or a short's brief, research, screenplay, laws and entities with their tests and accepted [catalog cases](../motion/SKILL.md), scene composition, then the film. Each link cites the addresses it realizes from the links above it, so no code exists without a cited basis and no requirement stays unrealized; a later link can only realize what an earlier one decided, and motion written before the screenplay settles its action is fitted to guesses.
 
-Every film has settings, because every later layer realizes and cites their facts and cannot cite what was never written. Long work runs settings → treatments → scripts → screenplay construction, then screenplay naturalness; only the final screenplay has a separate expression pass. A short runs settings → screenplay (`short-with-settings`), keeping expression, evidence and review without empty treatment, script or outline files. Asset-only work has no narrative passes, and only an explicit user waiver omits screenplay naturalness. Choose form and scale through [direction](planning/direction.md); complete work is the default. In an AutoMovie workspace the production's folder fixes the route: `movies/shorts/<name>` runs settings → screenplay, and `movies/series/<name>` runs the whole long route.
+Long work runs settings → treatments → scripts → screenplay construction, then screenplay naturalness; only the final screenplay has a separate expression pass, which only an explicit user waiver omits. Its settings exist because every later layer realizes and cites their decisions and cannot cite what was never written.
+
+A short runs brief → screenplay (`short`): its [brief](planning/requirements.md#brief) holds the fixed conditions and the decisions several scenes or films share, the screenplay decides everything else, and research, evidence and review stay; there are no settings, treatment, script or outline files. Wherever a skill or contract cites settings facts, a short cites its brief. A short delivered as a motion hint has no separate naturalness pass, because its screenplay is a working document that motion, not an audience, reads; a short whose commissioned output is the screenplay keeps it.
+
+Asset-only work has no narrative passes. Choose form and scale through [direction](planning/direction.md); complete work is the default. In an AutoMovie workspace the production's folder fixes the route: `movies/shorts/<name>` runs brief → screenplay, and `movies/series/<name>` runs the whole long route.
 
 ## Construction
 
@@ -25,9 +29,9 @@ Every film has settings, because every later layer realizes and cites their fact
 | Treatments | Completed settings |
 | Scripts | Completed treatments |
 | Screenplay, long work | Completed treatments and scripts, including scripts expression |
-| Screenplay, short | Completed settings, the brief and the research the settings cite |
+| Screenplay, short | The brief and the research its practices need |
 
-Inherit through actual parents, repairing a missing handoff rather than bypassing it, and run [discovery](planning/discovery.md) before bulk settings.
+Inherit through actual parents, repairing a missing handoff rather than bypassing it, and run [discovery](planning/discovery.md) before bulk settings or a short's screenplay.
 
 1. Finish the whole body while its pass is disabled.
 2. Complete [inspection and cause repair](correction/repair.md#cause-rounds), enable the stage through [evidence configuration](../evidence/configuration.md), and write [answers](evidence/writing.md).

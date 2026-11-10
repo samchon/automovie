@@ -1,6 +1,6 @@
 # Settings
 
-Write down the decisions about the world, its people, places and objects that later authors, artists and performers must keep true, specific enough to hold the work to and findable without reconstructing the world, under the settings questions in the [story contracts](../../contracts/story/SKILL.md). Settings are prose for readers; they never describe code. Read the [instructions](../planning/requirements.md#requirements) and finish [discovery](../planning/discovery.md) first, and work backward from the anticipated scenes to the facts they need. Baseline states belong here; the events that change or reveal them belong to [treatments](treatments.md) on the long route and to the screenplay on the short route.
+Write down the decisions about the world, its people, places and objects that later authors, artists and performers must keep true, specific enough to hold the work to and findable without reconstructing the world, under the settings questions in the [story contracts](../../contracts/story/SKILL.md). Settings are prose for readers; they never describe code. Read the [instructions](../planning/requirements.md#requirements) and finish [discovery](../planning/discovery.md) first, and work backward from the anticipated scenes to the facts they need. Settings belong to the long route, where a short's [brief](../planning/requirements.md#brief) stands in for them. Baseline states belong here; the events that change or reveal them belong to [treatments](treatments.md).
 
 ## Records
 
@@ -20,7 +20,7 @@ User-fixed interpretations are canon. Research open facts through [research](../
 
 ## Outline and changes
 
-On the long route, keep `outline/index.md` as a finding guide: domain H2s and file H3s in reading order, each file entry anchored by its settings-relative path without `.md` and with `/` replaced by `--`, and each record citing its entry. Before splitting or moving records, map old addresses to their new owners and update links and consumers together under [customization](../../production/customization.md), keeping address migration separate from content changes; moved records keep the [closed-pass boundary](../correction/repair.md#closed-passes).
+Keep `outline/index.md` as a finding guide: domain H2s and file H3s in reading order, each file entry anchored by its settings-relative path without `.md` and with `/` replaced by `--`, and each record citing its entry. Before splitting or moving records, map old addresses to their new owners and update links and consumers together under [customization](../../production/customization.md), keeping address migration separate from content changes; moved records keep the [closed-pass boundary](../correction/repair.md#closed-passes).
 
 Keep settings current as a continuity record: when a treatment, script or screenplay establishes a lasting state that later units or code must keep, such as a wound, a learned habit or a revealed relationship, add it as a new anchored fact in its subject's state facet, citing the establishing unit, in the same repair. A new fact receives its own answers and review under [closed passes](../correction/repair.md#closed-passes) and leaves existing judgments in place.
 

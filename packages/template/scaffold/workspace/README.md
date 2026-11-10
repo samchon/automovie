@@ -7,7 +7,7 @@ An AutoMovie workspace: several productions share one set of skills and contract
 | Path | Owner |
 | --- | --- |
 | `AGENTS.md`, `CLAUDE.md`, `.agents/skills` | Skills and bundled contracts every production follows |
-| `movies/shorts/<name>` | A short production, written settings → screenplay |
+| `movies/shorts/<name>` | A short production, written brief → screenplay |
 | `movies/series/<name>` | A long production, written settings → treatments → scripts → screenplay |
 | `packages/<name>` | The workspace's own libraries that several productions import |
 | `pnpm-workspace.yaml` | Workspace members and the named `catalogs` of versions every production uses through `catalog:<name>` |
