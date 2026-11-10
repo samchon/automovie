@@ -78,6 +78,26 @@ export namespace FamilyConicSource {
     return { loop: round.length === 1 ? round[0]! : null, around: round.length, pieces: section.loops.length };
   }
 
+  /**
+   * Convex hull of a chart polygon, counter-clockwise (Andrew's monotone
+   * chain). It is the path a taut tape takes round the section, so a family
+   * fitted to it is the part's tape wall, and what lies inside it is relief.
+   */
+  export function hull(points: readonly C.P[]): C.P[] {
+    const sorted: C.P[] = [...points].sort((a: C.P, b: C.P): number => a[0] - b[0] || a[1] - b[1]);
+    const turn = (o: C.P, a: C.P, b: C.P): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const half = (source: C.P[]): C.P[] => {
+      const out: C.P[] = [];
+      for (const p of source) {
+        while (out.length >= 2 && turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0) out.pop();
+        out.push(p);
+      }
+      out.pop();
+      return out;
+    };
+    return [...half(sorted), ...half([...sorted].reverse())];
+  }
+
   /** Signed area of a chart polygon, mm^2, positive counter-clockwise. */
   export function area(points: readonly C.P[]): number {
     let sum: number = 0;

@@ -1,6 +1,5 @@
 import { AutoMovieNaturalSpline as S } from "../../../packages/engine/src/geometry/construction/AutoMovieNaturalSpline";
 import { AutoMovieViewAxis } from "../../../packages/engine/src/geometry/construction/AutoMovieViewAxis";
-import type { AutoMovieViewChain as Q } from "../../../packages/engine/src/geometry/construction/AutoMovieViewChain";
 import { AutoMovieViewLoft as L } from "../../../packages/engine/src/geometry/construction/AutoMovieViewLoft";
 import type { IAutoMovieViewPart as V } from "../../../packages/engine/src/geometry/construction/IAutoMovieViewPart";
 import { FamilyConicSection as C } from "./FamilyConicSection";
@@ -28,8 +27,8 @@ export namespace FamilyConicLoft {
     /** The chart's `u` direction at the first segment before it is squared to the course. */
     up: V3;
 
-    /** Split depth of every quarter. */
-    depth: number;
+    /** The anchors every section is read through. */
+    layout: C.ILayout;
 
     /** Shared station knots, arclength from the first centre, mm. */
     knots: number[];
@@ -54,40 +53,51 @@ export namespace FamilyConicLoft {
   /**
    * Build the engine's view part and loft it.
    *
-   * The supports and touch offsets go to the engine as the stored sparse
-   * knots. The engine's split points, tangent angles and shoulders are not
-   * stored: they are evaluated from the stored shares at every requested
-   * station through `FamilyConicSection.input`, the same function the fit
-   * used, and handed over as derived dense outlines.
+   * The engine reads a section as four guides on its box with conic pieces
+   * between them. Those guide coordinates, touch offsets, piece points,
+   * tangent angles and shoulders are not stored: at every requested station
+   * they are resolved from the stored fields through
+   * `FamilyConicSection.resolve`, the same function the fit used, and handed
+   * over as derived outlines with one knot per station.
    *
    * @param stored The authored definition.
    * @param stations Stations of the emitted layers and of the derived outlines, mm, increasing.
    */
   export function create(stored: IStored, stations: number[]): L.IResult {
-    const sparse = (f: number): V.IOutline => ({ knots: stored.knots.map((station: number, m: number): V.IKnot => ({ site: "k" + m, station, value: stored.values[f]![m]! })) });
     const read: (s: number) => number[] = reader(stored);
-    const sections: Q.IInput[] = stations.map((s: number): Q.IInput => C.input(read(s), stored.depth));
-    const dense = (pick: (input: Q.IInput) => number): V.IOutline => ({ knots: stations.map((station: number, i: number): V.IKnot => ({ site: "d" + i, station, value: pick(sections[i]!) })) });
-    const arcs: number = 2 ** stored.depth;
+    const chains: C.IChain[] = stations.map((s: number): C.IChain => C.resolve(read(s), stored.layout));
+    const count: number = chains[0]!.input.points.length;
+    const guides: number[] = chains[0]!.guides;
+    if (guides.length !== 4) throw new Error("the layout names " + guides.length + " engine guides instead of four");
+    const outline = (pick: (chain: C.IChain) => number): V.IOutline => ({ knots: stations.map((station: number, i: number): V.IKnot => ({ site: "s" + i, station, value: pick(chains[i]!) })) });
     const quarters = <X>(make: (q: number) => X): V.IQuarters<X> => [make(0), make(1), make(2), make(3)];
-    const split = (q: number, j: number): V.ISplit => {
-      const at: number = q * arcs + j;
 
-      // Quarter q's tangents turn from its first guide's direction, (q + 1) pi / 2, by less than a quarter turn; one branch keeps the angle continuous along the station.
-      const angle = (input: Q.IInput): number => {
-        let value: number = Math.atan2(input.tangents[at]![1], input.tangents[at]![0]);
-        while (value < ((q + 1) * Math.PI) / 2 - 1e-9) value += 2 * Math.PI;
+    // A tangent angle is kept on one branch along the station so its outline never jumps by a turn.
+    const angle = (at: number): V.IOutline => {
+      let previous: number = NaN;
+      return outline((chain: C.IChain): number => {
+        let value: number = Math.atan2(chain.input.tangents[at]![1], chain.input.tangents[at]![0]);
+        if (Number.isFinite(previous)) value += 2 * Math.PI * Math.round((previous - value) / (2 * Math.PI));
+        previous = value;
         return value;
-      };
-      return { u: dense((input: Q.IInput): number => input.points[at]![0]), v: dense((input: Q.IInput): number => input.points[at]![1]), angle: dense(angle), shoulder: dense((input: Q.IInput): number => input.shoulders[at]!) };
+      });
     };
+    const pieces = (q: number): V.ISplit[] => {
+      const out: V.ISplit[] = [];
+      for (let at: number = (guides[q]! + 1) % count; at !== guides[(q + 1) % 4]!; at = (at + 1) % count) {
+        const index: number = at;
+        out.push({ u: outline((chain: C.IChain): number => chain.input.points[index]![0]), v: outline((chain: C.IChain): number => chain.input.points[index]![1]), angle: angle(index), shoulder: outline((chain: C.IChain): number => chain.input.shoulders[index]!) });
+      }
+      return out;
+    };
+    const coordinate = (q: number, axisIndex: 0 | 1): V.IOutline => outline((chain: C.IChain): number => chain.input.points[guides[q]!]![axisIndex]);
     const part: V = {
       name: stored.name,
       axis: axis(stored),
       stations,
-      front: { positive: sparse(0), negative: sparse(1) },
-      side: { positive: sparse(2), negative: sparse(3) },
-      fullness: { kind: "top", shoulders: quarters((q: number): V.IOutline => (arcs > 1 ? dense((input: Q.IInput): number => input.shoulders[q * arcs]!) : sparse(8 + q))), touch: quarters((q: number): V.IOutline => sparse(4 + q)), ...(arcs > 1 ? { pieces: quarters((q: number): V.ISplit[] => Array.from({ length: arcs - 1 }, (_: unknown, j: number): V.ISplit => split(q, j + 1))) } : {}) },
+      front: { positive: coordinate(0, 0), negative: coordinate(2, 0) },
+      side: { positive: coordinate(1, 1), negative: coordinate(3, 1) },
+      fullness: { kind: "top", shoulders: quarters((q: number): V.IOutline => outline((chain: C.IChain): number => chain.input.shoulders[guides[q]!]!)), touch: quarters((q: number): V.IOutline => coordinate(q, q % 2 === 0 ? 1 : 0)), pieces: quarters(pieces) },
       order: 32,
       samples: 128,
     };

@@ -29,6 +29,12 @@ namespace FamilyConicBody {
   /** Spacing of the fitting sections, mm; the withheld sections stand midway. */
   const STEP_MM: number = 4;
 
+  /** The plain limb layout, then the same with a median anchor in every quarter. */
+  const LIMB: { layout: C.ILayout; refines: boolean }[] = [
+    { layout: C.limb(false), refines: false },
+    { layout: C.limb(true), refines: true },
+  ];
+
   /** One part to fit. */
   interface IPart {
     /** Chain name. */
@@ -48,6 +54,9 @@ namespace FamilyConicBody {
 
     /** Also emitted mirrored in the median plane `z = 0`. */
     mirrored: boolean;
+
+    /** Section layouts to try in order, each starting from the previous one's result when `refines` says it is that layout split once. */
+    layouts: { layout: C.ILayout; refines: boolean }[];
   }
 
   /** Run every part and write the receipt and the renders. */
@@ -62,9 +71,9 @@ namespace FamilyConicBody {
     const only: string[] = process.argv.slice(2);
     const parts: IPart[] = (
       [
-        { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r")], halves: [30], up: [1, 0, 0], domain: [76, 500], mirrored: true },
-        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r")], halves: [40], up: [1, 0, 0], domain: [100, 820], mirrored: true },
-        { name: "trunk", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [40, 492], mirrored: false },
+        { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r")], halves: [30], up: [1, 0, 0], domain: [76, 500], mirrored: true, layouts: LIMB },
+        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r")], halves: [40], up: [1, 0, 0], domain: [124, 820], mirrored: true, layouts: LIMB },
+        { name: "trunk", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [150, 492], mirrored: false, layouts: LIMB },
       ] satisfies IPart[]
     ).filter((part: IPart): boolean => only.length === 0 || only.includes(part.name));
     const meshes: N.Mesh[] = [];
@@ -76,23 +85,42 @@ namespace FamilyConicBody {
       // Observe: exact native cuts on the course's own planes, fitting sections every STEP_MM and withheld sections midway.
       const rows: F.IRow[] = [];
       const skipped: number[] = [];
+      const hollows: string[] = [];
       for (let s: number = part.domain[0], i: number = 0; s <= part.domain[1] + 1e-9; s += STEP_MM / 2, ++i) {
         const cut: R.ICut = R.cut(source.body, axis.at(s));
         if (cut.loop === null) skipped.push(s);
-        else rows.push({ s, points: cut.loop, heldout: i % 2 === 1 });
+        else {
+          // The family is the tape wall: it reads the section's convex hull. How far the skin lies inside that hull is measured apart, as relief.
+          const wall: C.P[] = R.hull(cut.loop);
+          rows.push({ s, points: wall, heldout: i % 2 === 1 });
+          let deepest: number = 0;
+          let where: number = 0;
+          for (const p of cut.loop) {
+            const phi: number = Math.atan2(p[1], p[0]);
+            const depth: number = C.radius(wall, phi) - Math.hypot(p[0], p[1]);
+            if (depth > deepest) {
+              deepest = depth;
+              where = phi;
+            }
+          }
+          hollows.push(s.toFixed(0) + ":" + deepest.toFixed(1) + "@" + ((where * 180) / Math.PI).toFixed(0));
+        }
       }
+      log("family-body-hollows", { part: part.name, deepestMmAtDegrees: hollows.filter((_: string, i: number): boolean => i % 6 === 0).join(" ") });
       log("family-body-observed", { part: part.name, sections: rows.length, skipped });
 
       // Fit: grow the shared knot vector at the worst open fitting sections until the target holds or no section is open.
       let best: F.IResult | null = null;
       const trail: unknown[] = [];
-      for (const depth of [0, 1]) {
-        let knots: number[] = [part.domain[0], (part.domain[0] + part.domain[1]) / 2, part.domain[1]];
-        let initial: number[][] | undefined = undefined;
+      for (const { layout, refines } of part.layouts) {
+        // A split layout starts from the plain one's final knots and values, cut exactly at each quarter's median.
+        let knots: number[] = best === null || !refines ? [part.domain[0], (part.domain[0] + part.domain[1]) / 2, part.domain[1]] : [...best.knots];
+        let initial: number[][] | undefined = best === null || !refines ? undefined : F.refine(best.values);
+        const fields: number = C.units(layout).length;
         let result: F.IResult;
         for (;;) {
-          result = F.fit(rows, knots, depth, 4, initial);
-          const row = { depth, knots: knots.length, scalars: knots.length * (1 + C.count(depth)), trainMaxMm: round(result.training.maximumMm), trainMeanMm: round(result.training.meanMm), heldMaxMm: round(result.heldout.maximumMm), heldMeanMm: round(result.heldout.meanMm), fault: result.fault, ms: Math.round(result.milliseconds) };
+          result = F.fit(rows, knots, layout, 4, initial);
+          const row = { fields, knots: knots.length, scalars: knots.length * (1 + fields), trainMaxMm: round(result.training.maximumMm), trainMeanMm: round(result.training.meanMm), heldMaxMm: round(result.heldout.maximumMm), heldMeanMm: round(result.heldout.meanMm), fault: result.fault, ms: Math.round(result.milliseconds) };
           trail.push(row);
           log("family-body-candidate", { part: part.name, ...row });
           if (result.fault !== null || result.training.maximumMm <= 0.9 * TARGET_MM) break;
@@ -104,7 +132,7 @@ namespace FamilyConicBody {
           initial = F.resample(result.values, knots, next);
           knots = next;
         }
-        if (result.fault === null && (best === null || Math.max(result.training.maximumMm, result.heldout.maximumMm) < Math.max(best.training.maximumMm, best.heldout.maximumMm) - 0.05)) best = result;
+        if (result.fault === null && (best === null || result.training.maximumMm < best.training.maximumMm - 0.05)) best = result;
         if (best !== null && Math.max(best.training.maximumMm, best.heldout.maximumMm) <= TARGET_MM) break;
       }
       if (best === null) {
@@ -114,7 +142,7 @@ namespace FamilyConicBody {
       log("family-body-rows", { part: part.name, worst: best.rows.filter((r) => r.maximumMm > TARGET_MM).map((r) => r.s.toFixed(0) + (r.heldout ? "h" : "t") + ":" + r.maximumMm.toFixed(2) + "@" + ((r.phase * 180) / Math.PI).toFixed(0)).join(" ") });
 
       // Store as rounded text, then regenerate from that text alone through the engine.
-      const stored: string = JSON.stringify({ name: part.name, centres: part.centres.map((c: R.V): number[] => c.map(round)), halves: part.halves, up: part.up, depth: best.depth, knots: best.knots.map(round), values: best.values.map((field: number[], f: number): number[] => field.map(f >= 8 ? round4 : round)) });
+      const stored: string = JSON.stringify({ name: part.name, centres: part.centres.map((c: R.V): number[] => c.map(round)), halves: part.halves, up: part.up, layout: best.layout, knots: best.knots.map(round), values: best.values.map((field: number[], f: number): number[] => field.map(C.units(best!.layout)[f] === "mm" ? round : round4)) });
       await fs.writeFile(path.join(out, part.name + ".family.json"), stored);
       const definition: K.IStored = JSON.parse(stored) as K.IStored;
       const stations: number[] = rows.map((row: F.IRow): number => row.s);
@@ -142,7 +170,7 @@ namespace FamilyConicBody {
           ++n;
         }
       }
-      const engine = { storedBytes: Buffer.byteLength(stored), depth: best.depth, knots: best.knots.length, scalars: best.knots.length * (1 + C.count(best.depth)), fitTrainMaxMm: round(best.training.maximumMm), fitHeldMaxMm: round(best.heldout.maximumMm), engineMaxMm: round(maximum), engineMeanMm: round(sum / n), loftMs: Math.round(loftMs), diagnostics: loft.diagnostics };
+      const engine = { storedBytes: Buffer.byteLength(stored), fields: best.values.length, knots: best.knots.length, scalars: best.knots.length * (1 + best.values.length), fitTrainMaxMm: round(best.training.maximumMm), fitHeldMaxMm: round(best.heldout.maximumMm), engineMaxMm: round(maximum), engineMeanMm: round(sum / n), loftMs: Math.round(loftMs), diagnostics: loft.diagnostics };
       log("family-body-engine", { part: part.name, ...engine });
       receipt.push({ part: part.name, domainMm: part.domain, sections: rows.length, skipped, trail, engine });
 

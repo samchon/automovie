@@ -30,8 +30,8 @@ export namespace FamilyConicFit {
 
   /** The fitted family and its sampled errors. */
   export interface IResult {
-    /** Split depth of every quarter: `2^depth` conics per quarter. */
-    depth: number;
+    /** The anchors every section of the family is read through. */
+    layout: C.ILayout;
 
     /** Shared station knots, mm. */
     knots: number[];
@@ -76,11 +76,11 @@ export namespace FamilyConicFit {
     rmsMm: number;
   }
 
-  /** Ridge weight of a share's departure from one half, in squared millimetres per squared share and per observation: it only decides directions the observations leave open. */
+  /** Ridge weight of a share's departure from one half and of an inflection turn's departure from zero, in squared millimetres per squared share and per observation: it only decides directions the observations leave open. */
   const RIDGE: number = 1e-4;
 
   /** A share is kept inside `[EDGE, 1 - EDGE]` by a barrier residual of `BARRIER_MM` per unit of excess. */
-  const EDGE: number = 0.05;
+  const EDGE: number = 0.06;
 
   /** Barrier residual per unit of excess share, mm. */
   const BARRIER_MM: number = 50;
@@ -130,13 +130,15 @@ export namespace FamilyConicFit {
    *
    * @param rows Observed sections by increasing station.
    * @param knots Shared station knots, increasing, covering the rows.
-   * @param depth Split depth of every quarter.
+   * @param layout The anchors of every section.
    * @param power Residual power of the final reweighted passes; 2 is plain least squares, larger values pull the maximum down.
    * @param initial Knot values to start from, by field then knot, for these knots and this depth; absent starts from each section's own reading.
    */
-  export function fit(rows: readonly IRow[], knots: readonly number[], depth: number, power: number = 2, initial?: readonly (readonly number[])[]): IResult {
+  export function fit(rows: readonly IRow[], knots: readonly number[], layout: C.ILayout, power: number = 2, initial?: readonly (readonly number[])[]): IResult {
     const started: number = performance.now();
-    const F: number = C.count(depth);
+    const units: C.Unit[] = C.units(layout);
+    const F: number = units.length;
+    const free: number[] = units.map((_: C.Unit, f: number): number => f).filter((f: number): boolean => units[f] !== "mm");
     const M: number = knots.length;
     const folds: { count: number } = { count: 0 };
     const train: IRow[] = rows.filter((row: IRow): boolean => !row.heldout);
@@ -144,10 +146,10 @@ export namespace FamilyConicFit {
     const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
     const basis = (s: number): number[] => cardinals.map((spline: S.ISpline): number => S.evaluate(spline, s));
     const B: number[][] = train.map((row: IRow): number[] => basis(row.s));
-    const failed = (fault: string): IResult => ({ depth, knots: [...knots], values: [], training: NONE, heldout: NONE, rows: [], chordMaximumMm: Infinity, iterations: 0, folds: folds.count, fault, milliseconds: performance.now() - started });
+    const failed = (fault: string): IResult => ({ layout, knots: [...knots], values: [], training: NONE, heldout: NONE, rows: [], chordMaximumMm: Infinity, iterations: 0, folds: folds.count, fault, milliseconds: performance.now() - started });
 
     // Start from each section's own geometric reading, projected onto the shared knots by linear least squares.
-    const seeds: number[][] = train.map((row: IRow): number[] => C.seed(row.points, depth));
+    const seeds: number[][] = train.map((row: IRow): number[] => C.seed(row.points, layout));
     const gram: number[][] = zeros(M, M);
     for (const b of B) for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) gram[m]![n]! += b[m]! * b[n]!;
     let Y: number[][] = [];
@@ -163,7 +165,7 @@ export namespace FamilyConicFit {
     // Residuals of one section: radial misses at its vertices, then one barrier entry per share; null when its chain is inadmissible.
     const theta = (values: number[][], b: number[]): number[] => values.map((field: number[]): number => field.reduce((sum: number, y: number, m: number): number => sum + y * b[m]!, 0));
     const residual = (t: number[], i: number): number[] | null => {
-      const section: Q.ISection = C.chain(t, depth);
+      const section: Q.ISection = C.chain(t, layout);
       if (section.fault !== null) return null;
       const sample: ISample = samples[i]!;
       const r: number[] = new Array<number>(sample.phases.length);
@@ -172,11 +174,12 @@ export namespace FamilyConicFit {
         if (!Number.isFinite(value)) return null;
         r[k] = value;
       }
-      for (let f: number = 8; f < F; ++f) r.push(BARRIER_MM * (Math.max(0, EDGE - t[f]!) + Math.max(0, t[f]! - (1 - EDGE))));
+      for (const f of free) r.push(units[f] === "share" ? BARRIER_MM * (Math.max(0, EDGE - t[f]!) + Math.max(0, t[f]! - (1 - EDGE))) : 0);
       return r;
     };
-    for (const sample of samples) for (let f: number = 8; f < F; ++f) sample.weights.push(1);
+    for (const sample of samples) for (let k: number = 0; k < free.length; ++k) sample.weights.push(1);
     const weights: number[][] = samples.map((sample: ISample): number[] => [...sample.weights]);
+    const rest = (f: number): number => (units[f] === "share" ? 0.5 : 0);
     const cost = (values: number[][]): { total: number; residuals: number[][] } | null => {
       let total: number = 0;
       const residuals: number[][] = [];
@@ -185,7 +188,7 @@ export namespace FamilyConicFit {
         const r: number[] | null = residual(t, i);
         if (r === null) return null;
         for (let k: number = 0; k < r.length; ++k) total += weights[i]![k]! * r[k]! * r[k]!;
-        for (let f: number = 8; f < F; ++f) total += RIDGE * r.length * (t[f]! - 0.5) ** 2;
+        for (const f of free) total += RIDGE * r.length * (t[f]! - rest(f)) ** 2;
         residuals.push(r);
       }
       return { total, residuals };
@@ -194,7 +197,7 @@ export namespace FamilyConicFit {
     if (current === null) return failed("the projected seed is not an admissible conic chain on every fitting section");
 
     // Levenberg-Marquardt with a finite-difference section Jacobian chained through the linear station basis.
-    const steps: number[] = Array.from({ length: F }, (_: unknown, f: number): number => (f < 8 ? 1e-4 : 1e-6));
+    const steps: number[] = Array.from({ length: F }, (_: unknown, f: number): number => (units[f] === "mm" ? 1e-4 : 1e-6));
     let lambda: number = 1e-3;
     let iterations: number = 0;
     const passes: number = power > 2 ? 3 : 1;
@@ -225,8 +228,8 @@ export namespace FamilyConicFit {
           const w: number[] = weights[i]!;
           const b: number[] = B[i]!;
           for (let f: number = 0; f < F; ++f) {
-            const ridge: number = f >= 8 ? RIDGE * P : 0;
-            let gr: number = ridge * (t[f]! - 0.5);
+            const ridge: number = units[f] === "mm" ? 0 : RIDGE * P;
+            let gr: number = ridge * (t[f]! - rest(f));
             for (let k: number = 0; k < P; ++k) gr += w[k]! * D[f]![k]! * r[k]!;
             for (let m: number = 0; m < M; ++m) JTr[f * M + m]! += gr * b[m]!;
             for (let g: number = f; g < F; ++g) {
@@ -276,7 +279,7 @@ export namespace FamilyConicFit {
     let chord: number = 0;
     const sums: Record<"train" | "held", { max: number; sum: number; square: number; n: number }> = { train: { max: 0, sum: 0, square: 0, n: 0 }, held: { max: 0, sum: 0, square: 0, n: 0 } };
     for (const row of rows) {
-      const section: Q.ISection = C.chain(theta(Y, basis(row.s)), depth);
+      const section: Q.ISection = C.chain(theta(Y, basis(row.s)), layout);
       let maximum: number = section.fault === null ? 0 : Infinity;
       let worst: number = NaN;
       const into = sums[row.heldout ? "held" : "train"];
@@ -296,7 +299,7 @@ export namespace FamilyConicFit {
       evidence.push({ s: row.s, heldout: row.heldout, maximumMm: maximum, phase: worst, fault: section.fault });
     }
     const summary = (v: { max: number; sum: number; square: number; n: number }): IError => ({ maximumMm: v.max, meanMm: v.sum / Math.max(1, v.n), rmsMm: Math.sqrt(v.square / Math.max(1, v.n)) });
-    return { depth, knots: [...knots], values: Y, training: summary(sums.train), heldout: summary(sums.held), rows: evidence, chordMaximumMm: chord, iterations, folds: folds.count, fault: null, milliseconds: performance.now() - started };
+    return { layout, knots: [...knots], values: Y, training: summary(sums.train), heldout: summary(sums.held), rows: evidence, chordMaximumMm: chord, iterations, folds: folds.count, fault: null, milliseconds: performance.now() - started };
   }
 
   /** Carry a family to another knot vector by reading every field at the new knots. */
@@ -307,10 +310,10 @@ export namespace FamilyConicFit {
     });
   }
 
-  /** Carry a family one split deeper, knot by knot, through `FamilyConicSection.deepen`. */
-  export function deepen(values: readonly (readonly number[])[], depth: number): number[][] {
+  /** Carry a plain limb family to the split limb layout, knot by knot, through `FamilyConicSection.refine`. */
+  export function refine(values: readonly (readonly number[])[]): number[][] {
     const M: number = values[0]!.length;
-    const columns: number[][] = Array.from({ length: M }, (_: unknown, m: number): number[] => C.deepen(values.map((field: readonly number[]): number => field[m]!), depth));
+    const columns: number[][] = Array.from({ length: M }, (_: unknown, m: number): number[] => C.refine(values.map((field: readonly number[]): number => field[m]!)));
     return columns[0]!.map((_: number, f: number): number[] => columns.map((column: number[]): number => column[f]!));
   }
 
