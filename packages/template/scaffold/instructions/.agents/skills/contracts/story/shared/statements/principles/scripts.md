@@ -1,6 +1,6 @@
 # Script statements
 
-The detailed statements of the [script principles](../../principles/scripts.md), one section per item. Check the work against each before answering, as [items and statements](../../../../../contracts/SKILL.md#items-and-statements) describes. This document is not an evidence target.
+Contract: [principles/scripts.md](../../principles/scripts.md).
 
 ## Executable scene {#executable-scene}
 

@@ -1,4 +1,4 @@
-# Adopted creative requirements
+# Creative requirements
 
 ## Requirements
 

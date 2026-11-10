@@ -1,10 +1,10 @@
-# Media and generation records
+# Media records
 
-Use this resource when saving a generated or acquired file, a pipeline output, or the request that produced a generated file. Research originals stay under [research](../story/planning/research.md).
+Every generated or acquired file, every pipeline output and every generation request has a place and a record. Research originals stay under [research](../story/planning/research.md).
 
 ## Files
 
-Commit images and generation requests. Never commit audio or video; they are too large for Git, so they gather in the ignored `media/` folders below. A file whose licence forbids redistribution is never committed either: add a `private/` folder beside its kind to `.gitignore` before saving it there, and let its record restore it.
+Commit images and generation requests. Never commit audio or video; they are too large for Git, so they gather in the ignored `media/` folders below. A file whose license forbids redistribution is never committed either: add a `private/` folder beside its kind to `.gitignore` before saving it there, and let its record restore it.
 
 | Location, when used | Owns |
 | --- | --- |
@@ -22,7 +22,7 @@ Commit images and generation requests. Never commit audio or video; they are too
 A record lets the next person identify a file and restore it. Every record, in `media/manifest.json` or in the request that made the file, holds:
 
 - where the file came from: the source URL and creator, or the generation request;
-- its licence, attribution and usage terms;
+- its license, attribution and usage terms;
 - its content digest;
 - for a generated file, the provider, model and version, settings, prompt, input files by digest and job identifier, and a seed where the model exposes one.
 

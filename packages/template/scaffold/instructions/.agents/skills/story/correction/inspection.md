@@ -1,6 +1,6 @@
-# Inspect before repairing
+# Inspection
 
-Use this for author inspection, evidence correction and independent review. The selected contracts own the failure conditions and exceptions; the table only records their application.
+Author inspection, evidence correction and independent review share this method. The selected contracts own the failure conditions and exceptions; the table only records their application.
 
 ## Isolated context
 
@@ -12,7 +12,7 @@ Give the classifier the current body and needed neighbors, the selected contract
 
 For scripts and screenplay, classify every sentence against every applicable named failure. For narrative construction, also pair each paragraph with its parent passages, or the brief for a short, to test [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation), and compare inherited names, address, quantities, dates, places, states and certainty with the parents.
 
-Record the revision and covered ranges, list the tested failures once, and give one row per sentence with its locator and yes-pattern names, or `-`.
+Record the revision and covered ranges, list the tested failures once, and give one row per sentence with its locator and the names of the failures found, or `-`.
 
 An ambiguous candidate is decided in context by the recipient loss; ambiguity alone is not yes. Keep the raw table in ignored `.cache/` and its supported findings in the accountable record.
 
@@ -24,6 +24,6 @@ Keep the same author through the correction cycle.
 
 Classify each changed sentence, its neighbors and every statement whose meaning depends on it; changed parents or requirements reopen their comparisons. Do not reverse an unchanged classification for a preferred reading, only for new body, parent, source or contract evidence. A repaired passage receives another yes only for a clear applicable failure.
 
-The cycle is dry when coverage is complete and no unprotected yes remains after the affected rows are rechecked.
+The cycle is complete when coverage is complete and no unprotected yes remains after the affected rows are rechecked.
 
-Read the changed passages together for a new common mold or fidelity loss under [cause rounds](repair.md#cause-rounds). A dry table is neither independent approval nor whole-work completion; independent review closes the pass under [review rounds](../../review/rounds.md).
+Read the changed passages together for a new common mold or fidelity loss under [cause rounds](repair.md#cause-rounds). A clean table is neither independent approval nor whole-work completion; independent review closes the pass under [review rounds](../../review/rounds.md).

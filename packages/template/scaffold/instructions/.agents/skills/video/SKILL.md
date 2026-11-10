@@ -5,7 +5,7 @@ description: Chooses the video generation model for a production, plans each sho
 
 # Video
 
-Use this only when the commission calls for generated video; a motion hint or a direct 3D film never silently requires a generator.
+Video is generated only when the commission calls for it; a motion hint or a direct 3D film never silently requires a generator.
 
 A video model turns the motion hint into finished picture and, when it can, sound. What it accepts decides how the hint is prepared: some models edit or restyle the hint video, some read it only as a reference for motion and camera, open models can follow pose or depth passes exactly, and others accept only still frames.
 
@@ -26,4 +26,4 @@ Read the chosen model's current documentation for its input and output lengths, 
 
 Render each request's hint and control channels at the model's frame rate, frame grid and size under [control channels](../motion/control-channels.md).
 
-When a model works in segments, give each segment the previous segment's accepted last frames as its reference input, so motion continues across the seam. Give it the canon references with them, because identity and colour drift with every segment chained from generated frames.
+When a model works in segments, give each segment the previous segment's accepted last frames as its reference input, so motion continues across the seam. Give it the canon references with them, because identity and color drift with every segment chained from generated frames.

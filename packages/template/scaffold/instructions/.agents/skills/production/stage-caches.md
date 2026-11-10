@@ -1,6 +1,6 @@
-# Save and resume expensive stages
+# Stage caches
 
-Use this when implementing, running or iterating on an expensive stage: figure or scene preparation, schedule resolution, physics bakes, frame capture, encoding, decoding or audits. Saving each stage's result and resuming from it is mandatory, because a rerun that repeats unchanged work spends the time that inspection and repair need.
+An expensive stage saves its result and resumes from it: figure or scene preparation, schedule resolution, physics bakes, frame capture, encoding, decoding and audits. This is mandatory, because a rerun that repeats unchanged work spends the time that inspection and repair need.
 
 ## Key each stage by its inputs
 

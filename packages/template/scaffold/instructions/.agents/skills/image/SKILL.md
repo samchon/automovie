@@ -1,17 +1,17 @@
 ---
 name: image
-description: Generates still images for a production, such as canon reference images of cast, sets and props, a shot's first or last frame, style frames and turnaround views for modelling. Use when a settings or brief record, a video request or a 3D form needs a generated image.
+description: Generates still images for a production, such as canon reference images of cast, sets and props, a shot's first or last frame, style frames and turnaround views for modeling. Use when a settings or brief record, a video request or a 3D form needs a generated image.
 ---
 
 # Image
 
 A generated image fixes what words cannot, how a figure, place or object looks, and one accepted image then travels through settings or brief records, video references and shot frames.
 
-Most hosted image models expose no seed, so a prompt cannot reproduce an image: keep each accepted file and its record under [media](../production/media-records.md#records), and reuse the file rather than regenerate it.
+Most hosted image models expose no seed, so a prompt cannot reproduce an image: keep each accepted file and its record under [media records](../production/media-records.md#records), and reuse the file rather than regenerate it.
 
 ## Choose a generator
 
-These are representative examples, not a complete or required list; read the chosen model's current documentation for sizes, input-image count, licence and price.
+These are representative examples, not a complete or required list; read the chosen model's current documentation for sizes, input-image count, license and price.
 
 | Generator | Reached through | Note |
 | --- | --- | --- |
@@ -26,10 +26,10 @@ Prompting alone suffices when no camera or pose has to match: canon sheets, set 
 Use the hint when the image must agree with it, as for a shot's first or last frame, figures whose eyelines, contact or depth order matter, a specific pose, a held prop or a screen direction that must survive a cut, or when a control-conditioned video model will follow the hint. In rising cost and precision:
 
 1. A prompt with canon references.
-2. The hint render as an extra input labelled "pose and camera reference only", which hosted models follow loosely.
+2. The hint render as an extra input labeled "pose and camera reference only", which hosted models follow loosely.
 3. Control channels rendered from the hint, such as depth, normal, pose skeleton and outline, through ControlNet with identity from IP-Adapter or a LoRA.
 
-Render control channels from the hint scene itself, under [control channels](../motion/control-channels.md), because pose and depth estimators fail on featureless stand-ins. When the cast's build differs from the stand-in, weight pose above depth, since depth imprints the stand-in's silhouette.
+Render control channels from the hint scene itself, under [control channels](../motion/control-channels.md), because pose and depth estimators fail on featureless coarse figures. When the cast's build differs from the coarse figure, weight pose above depth, since depth imprints the coarse figure's silhouette.
 
 ## Canon references
 
@@ -43,9 +43,9 @@ A first frame gives an image-to-video model the look while the hint gives the mo
 
 Render the hint's first frame at the video model's exact output size and aspect, generate the frame from that structure and the canon identity, then overlay it on the hint render and regenerate when silhouettes, horizon or eyelines move. Make a last frame the same way only when the shot's end pose matters, such as a matched cut.
 
-## Turnaround views for modelling
+## Turnaround views for modeling
 
-Generated views carry no camera calibration or scale and disagree with each other at pixel level, so they serve as modelling references or image-to-3D input, never as measurements; real dimensions come from the research and the entity's code.
+Generated views carry no camera calibration or scale and disagree with each other at pixel level, so they serve as modeling references or image-to-3D input, never as measurements; real dimensions come from the research and the entity's code.
 
 When the hint already has the form, render its own turnaround from fixed cameras and restyle each view with depth or normal control and the identity references, so the views agree by construction. They serve a commissioned [detail option](../development/entities.md#detail) as a form source under [3D modeling](../3d-modeling/SKILL.md); a coarse entity needs none.
 

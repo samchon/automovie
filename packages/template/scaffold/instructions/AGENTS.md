@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This repository holds AutoMovie productions. A production primarily turns an LLM-authored screenplay into a deterministic whole motion hint, and can also deliver a separately commissioned screenplay, standalone asset, or requested direct 3D or generated film.
+This repository holds AutoMovie productions. A production primarily turns an LLM-authored screenplay into a deterministic whole motion hint, the coarse film whose staging and motion guide video diffusion, and can also deliver a separately commissioned screenplay, standalone asset, or requested direct 3D or generated film.
 
 The [production skill](.agents/skills/production/SKILL.md) routes the commissioned output and its working files.
 
@@ -10,7 +10,7 @@ A production is the directory holding its `PROJECT.md`: this repository root for
 
 The skills and bundled contracts under `.agents/skills` serve every production; a production's own work and language contracts live in its `docs/contracts`.
 
-In a workspace, `shorts` productions run brief → screenplay and `series` productions run the whole long route of the [story workflow](.agents/skills/story/workflow.md#route-and-parents). `packages/<name>` holds the workspace's own libraries, where a module a second production needs [moves](.agents/skills/development/layout.md#shared-modules); code serving one production stays in that production. The workspace README lists its commands, including the one that adds a production.
+In a workspace the production's folder fixes its [story route](.agents/skills/story/workflow.md#route-and-parents). `packages/<name>` holds the workspace's own libraries, where a module a second production needs [moves](.agents/skills/development/layout.md#shared-modules); code serving one production stays in that production. The workspace README lists its commands, including the one that adds a production.
 
 ## Attitude
 
@@ -23,21 +23,13 @@ In a workspace, `shorts` productions run brief → screenplay and `series` produ
 - Keep external generation outside deterministic playback, and retain the actual media used.
 - Save each expensive stage's result and resume from it under [stage caches](.agents/skills/production/stage-caches.md).
 
-### Coarse models, detailed motion
+### Principles
 
-A motion hint guides video-to-video diffusion, which supplies the look. So every person is the polygon man, every other model is the simplest form that identifies it, and accuracy goes to performance and camera, as [entity work](.agents/skills/development/entities.md#coarse-first) sets.
-
-### The screenplay decides
-
-The screenplay decides every exchange, outcome and reaction. Code realizes them and never chooses one, as the [screenplay layer](.agents/skills/story/layers/screenplay.md) holds.
-
-A film [only composes](.agents/skills/contracts/development/composition.md#composition-only) accepted modules along the screenplay. Perfect each entity and motion module in its isolated [catalog cases](.agents/skills/motion/catalog-cases.md) first, and repair a film defect in its module.
-
-### Reuse before writing
-
-Search the installed packages first, compose every person's motion from the installed human motion vocabulary, and vary a module by its parameters and seed instead of copying it, under [development](.agents/skills/development/reuse.md#installed-packages).
-
-Divide programming by responsibility, give each module meaningful unit tests, and assemble verified parts through their actual consumers.
+- Models stay coarse and motion is authored in detail, as [entity work](.agents/skills/development/entities.md#coarse-first) sets.
+- The screenplay decides every exchange, outcome and reaction, and code never chooses one, as the [screenplay layer](.agents/skills/story/layers/screenplay.md) holds.
+- A film [only composes](.agents/skills/contracts/development/composition.md#composition-only) modules accepted in their [catalog cases](.agents/skills/motion/catalog-cases.md), so a film defect is repaired in its module.
+- Search the installed packages before writing, and vary a module instead of copying it, under [reuse](.agents/skills/development/reuse.md).
+- Divide programming by responsibility and test each module, under [development](.agents/skills/development/SKILL.md).
 
 ### What you can observe
 
@@ -49,7 +41,7 @@ Keep the Viewer and the frame capture working, and restore a broken one before o
 
 Review your own screenplay, code, modules and film unprompted, as a demanding viewer of the depicted practice. Fix what falls short at its cause, then report what you verified, not what you built.
 
-## Finishing Work
+## Finishing work
 
 A message without a tool call ends the turn. While work remains, do not end it with:
 
@@ -72,7 +64,7 @@ Read the production's `PROJECT.md` for the adopted scope, then enter the request
 | [production](.agents/skills/production/SKILL.md) | Starting, resuming, restructuring or handing off a production: project context, sustained runs, stage caches, media records, instruction sync and final assembly |
 | [story](.agents/skills/story/SKILL.md) | Research, and planning, writing, continuing or revising a brief, settings, treatments, scripts, final screenplay, expression pass, narrative evidence or cause-based repair |
 | [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | A detailed asset representation, geometry, rig or authored control, when [entity work](.agents/skills/development/entities.md) says a commission needs one |
-| [motion](.agents/skills/motion/SKILL.md) | Programmed performance by effector goals, catalog cases, staging, camera, physical responses, frame-time evaluation, the motion hint's control channels and motion verification |
+| [motion](.agents/skills/motion/SKILL.md) | Programmed performance by end-effector goals, catalog cases, staging, camera, physical responses, frame-time evaluation, the motion hint's control channels and motion verification |
 | [image](.agents/skills/image/SKILL.md) | Canon reference images, shot frames, style frames or turnaround views |
 | [video](.agents/skills/video/SKILL.md) | Choosing the video model, planning requests, writing video prompts, and generating and adopting takes |
 | [audio](.agents/skills/audio/SKILL.md) | A shot's sound for the video model's prompt, a voice preview, or a commissioned soundtrack the user accepts by ear |

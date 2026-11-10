@@ -1,4 +1,4 @@
-# Developing direction
+# Direction
 
 Identify the fixed conditions, the delegated choices and what supplied material must keep, and research the audience and nearby works only where they inform those choices. When the premise is open, compare materially different directions, distinguished by situation, pursuit, forces, progression or ending, and choose the one that best serves the commission, settling as far as delegation allows:
 

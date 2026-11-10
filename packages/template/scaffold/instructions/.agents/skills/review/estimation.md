@@ -1,6 +1,6 @@
-# Experience estimation
+# Estimation
 
-Use this only for a requested read-only quality assessment. Do not edit files, research external facts, prescribe repairs or change stages, evidence or reviews, and never feed the scores to an approval reviewer or present them as human judgment or approval.
+Estimation is a read-only quality assessment, made only on request. Do not edit files, research external facts, prescribe repairs or change stages, evidence or reviews, and never feed the scores to an approval reviewer or present them as human judgment or approval.
 
 ## Scope
 

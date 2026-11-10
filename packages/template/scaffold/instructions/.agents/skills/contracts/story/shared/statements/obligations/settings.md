@@ -1,6 +1,6 @@
 # Settings population statements
 
-The detailed statements of the [settings population obligations](../../obligations/settings.md), one section per item. Check the work against each before answering, as [items and statements](../../../../../contracts/SKILL.md#items-and-statements) describes. This document is not an evidence target.
+Contract: [obligations/settings.md](../../obligations/settings.md).
 
 ## World and scope {#world-and-scope}
 

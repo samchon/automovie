@@ -1,6 +1,6 @@
 # Composition statements
 
-The detailed statements of the [composition contract](../composition.md), one section per item. Check the declaration against each before answering, as [items and statements](../../SKILL.md#items-and-statements) describes. This document is not an evidence target.
+Contract: [composition.md](../composition.md).
 
 ## Screenplay realization {#screenplay-realization}
 

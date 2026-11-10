@@ -1,4 +1,4 @@
-# Answer source and tests
+# Answering
 
 Source declarations and tests answer their [development contracts](../contracts/development/SKILL.md) in their own doc comments. Read the question and the complete declaration with its callers, inputs and consumers before answering.
 

@@ -2,7 +2,7 @@
 
 Give each module millisecond-scale pure logic unit tests for its behavioral contract, with explicit in-memory inputs and expectations taken from the settings or brief facts, the research laws, or another independent reference. Installed packages own their validation APIs.
 
-Test what the chain promises: that each research outcome table is consistent and every screenplay outcome is one it permits, that a composition is legal, that each scene's resolved schedule yields its screenplay outcome classes, that relational goals reach the counterpart's actual region, that every seed keeps the outcome classes, and that a resolved state hashes the same on every run.
+Test what the chain promises: that each research outcome table is consistent and every screenplay outcome is one it permits, that a composition is legal, that each scene's resolved schedule yields its screenplay outcome classes, that goals reach the counterpart's actual region, that every seed keeps the outcome classes, and that a resolved state hashes the same on every run.
 
 ## Motion checks
 

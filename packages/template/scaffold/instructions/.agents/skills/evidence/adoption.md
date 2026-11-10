@@ -1,4 +1,4 @@
-# Adopt a requirement
+# Adoption
 
 Before adding a question, compare the request and adopted instructions with the existing contracts; most needs already have an owner. Creative user choices stay with [instructions](../story/planning/requirements.md#requirements), operating choices with [project context](../production/project-context.md), and an uncovered work requirement goes through [discovery](../story/planning/discovery.md).
 

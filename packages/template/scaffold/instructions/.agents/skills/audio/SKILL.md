@@ -5,7 +5,7 @@ description: Decides what each shot sounds like for the video model to generate,
 
 # Audio
 
-You cannot hear, so you cannot judge or tune audio you produce: you measure what decoded bytes show, and the user accepts every sound by listening. That splits audio work into three cases.
+Because [you cannot hear](../../../AGENTS.md#what-you-can-observe), you measure what decoded bytes show and the user accepts every sound by listening. That splits audio work into three cases.
 
 ## Generated sound
 

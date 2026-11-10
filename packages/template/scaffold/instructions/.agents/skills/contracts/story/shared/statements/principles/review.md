@@ -1,12 +1,12 @@
 # Review unit statements
 
-The detailed statements of the [review unit principles](../../principles/review.md), one section per item. Check the work against each before answering, as [items and statements](../../../../../contracts/SKILL.md#items-and-statements) describes. This document is not an evidence target.
+Contract: [principles/review.md](../../principles/review.md).
 
 ## Independent reading {#independent-reading}
 
-1. The locked observation has at least one exact body quotation and locator, and it is kept for body-clean units too.
+1. The locked observation has at least one exact body quotation and locator, and it is kept for units with no finding too.
 2. Headings, annotations, another unit, remembered wording and quotations selected after a verdict do not establish the reading.
-3. An evidence audit identifies the completed creative reading instead of claiming another blind read.
+3. An evidence audit identifies the completed creative reading instead of claiming another independent read.
 4. Every finding identifies its passage, violated obligation and failure condition, recipient loss, and earliest repair owner.
 5. A factual objection is resolved with the actual quotation, definition, permitted exception and parent or cited record.
 6. Upstream knowledge fills no gap the recipient experienced, and author confidence, repair cost, previous verdicts and taste dismiss no loss.

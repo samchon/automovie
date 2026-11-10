@@ -1,6 +1,6 @@
 # Sync and reorganization
 
-Use this when syncing instructions or reorganizing the production.
+How instructions are synced, and what a production may reorganize.
 
 ## Sync and ownership
 

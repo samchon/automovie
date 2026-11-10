@@ -1,6 +1,6 @@
 # Audio acquisition
 
-Use this for a requested voice preview or a [commissioned soundtrack](SKILL.md#commissioned-soundtrack); a generated film's sound needs none of it.
+Audio is acquired only for a requested voice preview or a [commissioned soundtrack](SKILL.md#commissioned-soundtrack); a generated film's sound needs none of it.
 
 Audio generation and recording happen outside deterministic replay. Read the installed packages' contracts for admitted formats and mixing, and this production's host, before wiring audio into a render; a decoder's presence does not mean the delivery entry uses it. Setup and secrets follow [source layout](../development/layout.md).
 
@@ -12,7 +12,7 @@ Check each asset's license for commercial use, adaptation, attribution and deliv
 
 ## Adopt a take
 
-Keep accepted bytes and their record under [media](../production/media-records.md#records); a regeneration is a new take until the user has heard it. Convert to the installed decoder's admitted format while keeping the original.
+Keep accepted bytes and their record under [media records](../production/media-records.md#records); a regeneration is a new take until the user has heard it. Convert to the installed decoder's admitted format while keeping the original.
 
 For a commissioned soundtrack, keep an accepted music take's tempo map and cue sheet beside it: they are the anchors the screenplay's music events and the scenes' timing cite.
 

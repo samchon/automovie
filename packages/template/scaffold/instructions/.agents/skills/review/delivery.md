@@ -23,7 +23,7 @@ Review as an audience that has not read the plans, and lock that response before
 
 Inspect contacts, support, facing, reactions, occlusion and continuity through the motion. Every screenplay beat reaches the picture through the scene that cites it; a function name or citation proves neither invocation nor visibility.
 
-Check control channels against their [rendering rules](../motion/control-channels.md) at matched frames, and a selected generator's actual accepted inputs and takes under [generation](../video/generation.md). A finished direct 3D or generated film is judged by its own picture for preserved action, identity, continuity and audience effect, not by its conditioning.
+Check control channels against their [control channels](../motion/control-channels.md) at matched frames, and a selected generator's actual accepted inputs and takes under [generation](../video/generation.md). A finished direct 3D or generated film is judged by its own picture for preserved action, identity, continuity and audience effect, not by its conditioning.
 
 Measure the delivered file against the [delivery profile](../production/project-context.md) by reading the file: container, codec, dimensions, frame rate, frame count and duration. An encoder exit or a matching nominal duration is not a measurement.
 
@@ -39,7 +39,7 @@ Repeat the pass on every segment a fix touches.
 
 Measure the research's targets for what a viewer sees where the viewer meets them, on the displayed bodies and camera in those stills; the resolved schedule only plans them. Targets for what a viewer hears are measured on the decoded audio and confirmed by the user's listening.
 
-Capture overwrites its output on every run, so keep an accepted delivery's contact sheets and measures under the film's [media](../production/media-records.md) folder by its delivered revision.
+Capture overwrites its output on every run, so keep an accepted delivery's contact sheets and measures under the film's [media records](../production/media-records.md) folder by its delivered revision.
 
 Every delivery claim after the first sets each segment's sheets and measures beside the previous delivery's at matched times, as review tools compare versions ([Flow Production Tracking](https://help.autodesk.com/cloudhelp/ENU/SG-Tutorials/files/SG_Tutorials_tu_collaborative_review_html.html)). A regression holds delivery until it is repaired or the owner accepts it.
 

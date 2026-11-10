@@ -1,6 +1,6 @@
 # Final screenplay upstream statements
 
-The detailed statements of the [upstream repair exposed by final screenplay](../../upstream/screenplay.md), one section per item. Check the work against each before answering, as [items and statements](../../../../../contracts/SKILL.md#items-and-statements) describes. This document is not an evidence target.
+Contract: [upstream/screenplay.md](../../upstream/screenplay.md).
 
 ## Screenplay upstream repair {#screenplay-upstream-repair}
 

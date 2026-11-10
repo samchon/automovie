@@ -1,6 +1,6 @@
 # Settings index population statements
 
-The detailed statements of the [settings index population obligations](../../obligations/index.md), one section per item. Check the work against each before answering, as [items and statements](../../../../../contracts/SKILL.md#items-and-statements) describes. This document is not an evidence target.
+Contract: [obligations/index.md](../../obligations/index.md).
 
 ## Canonical navigation {#canonical-navigation}
 

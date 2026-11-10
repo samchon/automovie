@@ -1,6 +1,6 @@
 # Sound effects
 
-Use this only when the user asks for effects with a requested voice preview, or when a [soundtrack is commissioned](SKILL.md#commissioned-soundtrack). A generated film's effects come from the video model's prompt.
+Effects are built in two cases only: the user asks for them with a requested voice preview, or a [soundtrack is commissioned](SKILL.md#commissioned-soundtrack). A generated film's effects come from the video model's prompt.
 
 Define each cue by its event, source material, action, intensity, distance and acoustic space. Choose a recording, self-recorded Foley or purpose-built generator that can express those qualities. Keep close effects separate from ambience and speech so their timing and perspective remain editable.
 

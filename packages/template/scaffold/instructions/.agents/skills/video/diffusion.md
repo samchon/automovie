@@ -30,4 +30,4 @@ Hosted models take the hint as RGB video at most and derive any structure from i
 
 Render the hint at the model's frame rate, frame grid and size, because a model snaps other lengths to its grid and drops or shortens frames.
 
-Read each model's terms before adopting it: territory limits, rejected reference content such as real faces, revenue thresholds and labelling duties for open weights, and price per second.
+Read each model's terms before adopting it: territory limits, rejected reference content such as real faces, revenue thresholds and labeling duties for open weights, and price per second.

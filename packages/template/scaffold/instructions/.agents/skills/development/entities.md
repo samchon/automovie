@@ -2,7 +2,7 @@
 
 Build the subjects the commission's scenes need, each in the entity folder [source layout](layout.md) gives, under the [entities contract](../contracts/development/entities.md).
 
-## Scope {#scope}
+## Scope
 
 Read [project context](../production/project-context.md) first. Before building a subject, search the installed packages' READMEs for one that already provides it, under [installed packages](reuse.md#installed-packages). A standalone asset defines its views and controls without a screenplay.
 

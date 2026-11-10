@@ -1,6 +1,6 @@
 # Treatment upstream statements
 
-The detailed statements of the [settings repair exposed by treatments](../../upstream/treatments.md), one section per item. Check the work against each before answering, as [items and statements](../../../../../contracts/SKILL.md#items-and-statements) describes. This document is not an evidence target.
+Contract: [upstream/treatments.md](../../upstream/treatments.md).
 
 ## Settings repair {#settings-repair}
 

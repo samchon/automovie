@@ -32,7 +32,7 @@ Embed a subject's canon images, generated under [image](../../image/SKILL.md), f
 
 Keep `outline/index.md` as a finding guide: domain H2s and file H3s in reading order, each file entry anchored by its settings-relative path without `.md` and with `/` replaced by `--`, and each record citing its entry.
 
-Before splitting or moving records, map old addresses to their new owners and update links and consumers together under [customization](../../production/sync-and-reorganization.md), keeping address migration separate from content changes; moved records keep the [closed-pass boundary](../correction/repair.md#closed-passes).
+Before splitting or moving records, map old addresses to their new owners and update links and consumers together under [sync and reorganization](../../production/sync-and-reorganization.md), keeping address migration separate from content changes; moved records keep the [closed-pass boundary](../correction/repair.md#closed-passes).
 
 Keep settings current as a continuity record: when a treatment, script or screenplay establishes a lasting state that later units or code must keep, such as a wound, a learned habit or a revealed relationship, add it as a new anchored fact in its subject's state facet, citing the establishing unit, in the same repair. A new fact receives its own answers and review under [closed passes](../correction/repair.md#closed-passes) and leaves existing judgments in place.
 

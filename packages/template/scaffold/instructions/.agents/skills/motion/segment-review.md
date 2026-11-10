@@ -1,4 +1,4 @@
-# Review contiguous segments
+# Segment review
 
 Review each finished short segment before extending it, with its adopted scene, view and clock, so defects do not spread through unreviewed motion. [Visual debugging](../3d-modeling/visual-debugging.md) owns repeatable observation conditions and cost.
 
@@ -10,7 +10,7 @@ A contact sheet shrinks every still, so open the full-size still wherever a cont
 
 Judge the segment's staging, camera and timing and how its accepted cases join; a case that no longer convinces as the depicted practice returns to its [catalog case](catalog-cases.md). Numbers, hashes and receipts support that judgment but cannot close it, and a few sparse stills cannot replace the consecutive frames.
 
-## Iterate on the affected interval {#iterate-on-the-affected-interval}
+## Iterate on the affected interval
 
 Each review segment, taken in film order, is one round: capture its stills, review them all, repair every finding by cause at its owning module, then recapture only the interval the repair touches and the seam to the next segment. Move on only when that interval is clean. Rechecking an interval costs a capture, not a render, so no fix waits for the whole film.
 

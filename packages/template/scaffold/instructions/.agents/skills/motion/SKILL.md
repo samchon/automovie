@@ -1,6 +1,6 @@
 ---
 name: motion
-description: Programs deterministic scene performance, staging, camera, timing and physical responses by effector goals, composing the installed human motion vocabulary and writing a law only for what it lacks. Use when composing or authoring actions, interactions, consequences or scene composition, accepting catalog cases, reviewing segments, or rendering a motion hint and its control channels.
+description: Programs deterministic scene performance, staging, camera, timing and physical responses by end-effector goals, composing the installed human motion vocabulary and writing a law only for what it lacks. Use when composing or authoring actions, interactions, consequences or scene composition, accepting catalog cases, reviewing segments, or rendering a motion hint and its control channels.
 ---
 
 # Programmed motion
@@ -38,7 +38,7 @@ A defect the film shows in a body, contact or behavior is repaired in its owning
 
 ## Shared motion rules {#shared-motion-rules}
 
-Author every body movement, composed or written, as effectors brought to targets rather than as coordinates or tuned joint angles, under [effector goals](authoring.md): a fist to the opponent's struck region, each foot to the floor at its step, both hands to a prop's grip, the hips to a seat or mount. The other rules build on that one:
+Author every body movement, composed or written, as end effectors brought to targets rather than as coordinates or tuned joint angles, under [end-effector goals](authoring.md): a fist to the opponent's struck region, each foot to the floor at its step, both hands to a prop's grip, the hips to a seat or mount. The other rules build on that one:
 
 | Rule | Read when |
 | --- | --- |
@@ -51,4 +51,4 @@ Author every body movement, composed or written, as effectors brought to targets
 
 ## Other resources
 
-Use [retargeting](retargeting.md) for external clips or changed rigs and [method research](method-references.md) when choosing an algorithm for a production law. Render the motion hint and its [control channels](control-channels.md) from the accepted performance, and hand scene output and its timing to [assembly](../production/assembly.md).
+Use [retargeting](retargeting.md) for external clips or changed rigs and [method references](method-references.md) when choosing an algorithm for a production law. Render the motion hint and its [control channels](control-channels.md) from the accepted performance, and hand scene output and its timing to [assembly](../production/assembly.md).

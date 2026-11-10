@@ -1,4 +1,4 @@
-# Assemble, render and hand off
+# Assembly and handoff
 
 Turn the composed scenes or accepted takes into the complete delivered video. Read [project context](project-context.md), the actual source and media and the installed runtime documentation.
 
@@ -10,7 +10,7 @@ Assembly decides nothing. The screenplay owns the order of scenes, the cuts, tra
 
 [Frame evaluation](../motion/frame-evaluation.md) owns frame schedules and the checks at both sides of every cut.
 
-## Render {#render}
+## Render
 
 Before scaling a new host, run one small path through capture or take ingestion, a join and the encoded file, and inspect stills extracted from that file. Then make the single [delivery render](stage-caches.md#render-the-whole-film-once) of the complete scope with the README's render command, at the [delivery profile](project-context.md) project context records, and measure the file's actual profile and extent against it.
 

@@ -1,4 +1,4 @@
-# Final video screenplay
+# Screenplay
 
 Compose the audience's complete viewing and listening experience, understandable without its parents, under the screenplay questions in the [story contracts](../../contracts/story/SKILL.md). Choose what is seen and heard, how attention moves, and when the audience recognizes, waits and connects, through speech, action, reactions, sound, detail, duration and transitions in [readable notation](notation.md). A fixed view, silence, caption or narration serves the form when its contribution earns the attention.
 

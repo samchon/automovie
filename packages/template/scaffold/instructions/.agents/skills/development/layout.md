@@ -1,6 +1,6 @@
-# Source layout and runtime setup
+# Source layout
 
-Use this resource when placing source or tests, adding a subject, practice or scene, or adopting a host or integration.
+Where source, tests and runtime setup belong, and where a new subject, practice, scene, host or integration goes.
 
 ## Source {#source}
 
@@ -9,24 +9,24 @@ One folder owns each responsibility, and the folders follow the chain from setti
 | Location | Owns | Realizes, under |
 | --- | --- | --- |
 | `src/entities/<kind>/<subject>/`, with `<kind>` one of `cast`, `crowds`, `props`, `sets`, `cameras`, `lights` | One subject: its public entry class `<Subject>.ts` and the fragments it composes, such as body, look, rig, wardrobe, habits or affordances | Its settings or brief record's facts and the research its measurements follow, [entities](../contracts/development/entities.md) |
-| `src/laws/<discipline>/` | Pure laws of a practice the installed motion vocabulary does not carry: shape priors, timing windows, reach, legality, outcome tables and variation ranges | `docs/research/<discipline>/`, [behaviors](../contracts/development/behaviors.md) |
+| `src/laws/<discipline>/` | Pure laws of a practice the installed motion vocabulary does not carry: key poses and timing, reach, legality, outcome tables and variation ranges | `docs/research/<discipline>/`, [behaviors](../contracts/development/behaviors.md) |
 | `src/interactions/<discipline>/` | Relations between entities by role: alignment, timing and rule-first outcomes, including how cameras and lights follow the action | Research and world rules, behaviors |
 | `src/consequences/effects/`, `src/consequences/sound/` | What computed outcomes leave: sweat, scuffs, dust and other marks, and the effect cues a preview or commissioned soundtrack uses | Research, behaviors |
 | `src/composition/scenes/<film>/<scene>/` | One screenplay scene's composition | That scene and its beats, [composition](../contracts/development/composition.md) |
 | `src/composition/scenes/catalog/<module>/` | One module's [catalog case](../motion/catalog-cases.md) composition, which takes the case parameters: the action with its target, partner response and outcome, the movement, the behavior, the fall or the entity state | The research section or settings or brief fact it exhibits, composition |
-| `src/composition/films/catalog.ts`, registered in `src/composition/films/index.ts` | The review catalog: every case row the screenplay uses, in its own labelled interval with named review views; never delivered | Its cases' research and settings or brief, composition |
+| `src/composition/films/catalog.ts`, registered in `src/composition/films/index.ts` | The review catalog: every case row the screenplay uses, in its own labeled interval with named review views; never delivered | Its cases' research and settings or brief, composition |
 | `src/composition/films/<film>.ts`, registered in `src/composition/films/index.ts` | One delivered video: scene order, transitions, titles and subtitles, grade, the [delivery profile](../production/project-context.md) and control channels | The screenplay file, composition |
 | `src/*.ts` | The Viewer host entry, the film interfaces and the film selector | Nothing |
 | `src/executable/` | The Node commands the README documents and the Node tooling they run, shipped with the scaffold | Nothing |
 | `src/integrations/<provider>/` | Code for a provider or local tool the production adopts, such as a video-generation service | The generation requests in `docs/prompts/` for providers |
 | `test/features/<source path>/` | Logic unit tests of the source at the same path | Nothing |
-| `public/` | Small fixed browser inputs; audio and video belong in [media](../production/media-records.md) | Nothing |
+| `public/` | Small fixed browser inputs; audio and video belong in [media records](../production/media-records.md) | Nothing |
 | Runtime `README.md` and `.env.example` | Nonsecret setup, commands, environment-variable names and example configuration | Nothing |
 | Ignored local `.env` | Secret values required by adopted integrations | Nothing |
 
 Settings or brief domains map onto code: cast, crowds, props and sets become entities of the same kind, cinematography becomes camera and light entities, world rules become laws and interactions, and sound palettes become each shot's sound description in the video-diffusion prompt under [audio](../audio/SKILL.md). Weather and atmosphere are a set's state by story day, and ambience reads the same state.
 
-`<film>` is the screenplay file's path under `docs/body/screenplay/` without `.md`, with `/` replaced by `--`, such as `duet` or `001-part--001-episode`. The same name reaches `media/automovie/<film>/`, so screenplay, scene, film and video pair by path and two parts' episodes cannot collide. Rendered frames, videos and control channels go to [media](../production/media-records.md), never into `src`.
+`<film>` is the screenplay file's path under `docs/body/screenplay/` without `.md`, with `/` replaced by `--`, such as `duet` or `001-part--001-episode`. The same name reaches `media/automovie/<film>/`, so screenplay, scene, film and video pair by path and two parts' episodes cannot collide. Rendered frames, videos and control channels go to [media records](../production/media-records.md), never into `src`.
 
 ## How the parts work together {#how-the-parts-work-together}
 

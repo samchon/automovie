@@ -1,6 +1,6 @@
-# Voice preview with VoxCPM
+# Local speech
 
-Use this only for a voice preview the user requested under [audio](SKILL.md). [VoxCPM](https://github.com/OpenBMB/VoxCPM) is one local speech option; its README, [installation guide](https://voxcpm.readthedocs.io/en/latest/installation.html) and [quick start](https://voxcpm.readthedocs.io/en/latest/quickstart.html) own model versions, platform requirements and interfaces.
+A voice preview the user requested under [audio](SKILL.md) can be made on the local machine. [VoxCPM](https://github.com/OpenBMB/VoxCPM) is one local speech option; its README, [installation guide](https://voxcpm.readthedocs.io/en/latest/installation.html) and [quick start](https://voxcpm.readthedocs.io/en/latest/quickstart.html) own model versions, platform requirements and interfaces.
 
 Choose against the requested language, performance and the actual machine. Foley and designed sounds follow [sound effects](sound-effects.md).
 

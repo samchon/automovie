@@ -17,8 +17,8 @@ A self-review is labeled as one and never stands for independent acceptance, and
 | Accept the complete commissioned output: text, video or asset | [Delivery review](delivery.md) |
 | Estimate quality or compare editions without approving anything | [Estimation](estimation.md) |
 
-Reviewing segments while implementing motion belongs to the author, under [motion segments](../motion/segment-review.md).
+Reviewing segments while implementing motion belongs to the author, under [segment review](../motion/segment-review.md).
 
 ## What a reviewer observes
 
-A reviewer sees pictures only as stills and cannot hear. Judge motion and picture on stills at the spacing [delivery review](delivery.md#measure-and-compare) gives, and report playback and sound only as what the user watched or heard. A review that claims an observation it could not make is worse than one that names the gap.
+Judge motion and picture on stills at the spacing [delivery review](delivery.md#measure-and-compare) gives, and report playback and sound only as what the user watched or heard, because of [what an agent can observe](../../../AGENTS.md#what-you-can-observe). A review that claims an observation it could not make is worse than one that names the gap.

@@ -1,6 +1,6 @@
-# Stage the screenplay for the camera
+# Staging
 
-Use this when screenplay beats become scene compositions, or when blocking, cameras or continuity change. [Entity work](../development/entities.md) chooses representations, [frame evaluation](frame-evaluation.md) owns time sampling and the screenplay owns every edit decision.
+Staging turns screenplay beats into scene compositions, and returns whenever blocking, cameras or continuity change. [Entity work](../development/entities.md) chooses representations, [frame evaluation](frame-evaluation.md) owns time sampling and the screenplay owns every edit decision.
 
 ## Decide the observable performance
 
@@ -26,4 +26,4 @@ Inspect subjects, contact and reaction at the delivered aspect and scale through
 
 ## Carry state through the edit
 
-Build and review [contiguous segments](segment-review.md), carrying each accepted ending into the next and checking both sides of the join, and hand accepted scenes to [assembly](../production/assembly.md).
+Build contiguous segments and pass [segment review](segment-review.md), carrying each accepted ending into the next and checking both sides of the join, and hand accepted scenes to [assembly](../production/assembly.md).

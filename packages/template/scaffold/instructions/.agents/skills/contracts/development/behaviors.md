@@ -14,7 +14,7 @@ State the study sections and laws it uses, each constant's source, and any styli
 
 ## Is it authored by goals and held to bounds? {#relational-goals}
 
-Does the behavior bring effectors to targets on the counterpart's actual body, prop or set, under declared rules for reach, contact and outcome, and do bounded checks hold it to those rules on every body? A position, an offset or a tuned joint angle fits one body and one distance, a silent clamp hides a miss, and an outcome left to geometry changes when a performer does.
+Does the behavior bring end effectors to targets on the counterpart's actual body, prop or set, under declared rules for reach, contact and outcome, and do bounded checks hold it to those rules on every body? A position, an offset or a tuned joint angle fits one body and one distance, a silent clamp hides a miss, and an outcome left to geometry changes when a performer does.
 
 State its goals and targets, its out-of-reach rule, its contact windows, how its outcome is decided, and the bounds its tests assert.
 

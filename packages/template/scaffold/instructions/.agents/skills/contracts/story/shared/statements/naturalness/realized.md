@@ -1,6 +1,6 @@
 # Realized exchange statements
 
-The detailed statements of the [realized exchange revision principles](../../naturalness/realized.md), one section per item. Check the work against each before answering, as [items and statements](../../../../../contracts/SKILL.md#items-and-statements) describes. This document is not an evidence target.
+Contract: [naturalness/realized.md](../../naturalness/realized.md).
 
 ## Speech yield {#speech-yield}
 

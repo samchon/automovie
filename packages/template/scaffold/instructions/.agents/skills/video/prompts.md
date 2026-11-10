@@ -1,4 +1,4 @@
-# Write video prompts
+# Video prompts
 
 A video prompt tells a model what the hint cannot show: who each figure is, what the place and light look like, and what the shot sounds like. The hint, its control channels and the references already fix positions, timing and camera, so prose that restates or contradicts them competes with the stronger input.
 
@@ -26,9 +26,9 @@ Describe what to show, not what to avoid, because a negated word still primes it
 
 Keep duration, size, frame rate and seed in the request's settings. Prose such as "make it longer" changes nothing.
 
-## Stand-ins and controls
+## Coarse figures and controls
 
-The hint's figures are grey stand-ins. At low strength a model keeps their look and returns mannequins, robots or clay; at high strength it frees the look but loses the motion. Choose the input so motion and appearance arrive through different channels.
+The hint's figures are gray coarse figures. At low strength a model keeps their look and returns mannequins, robots or clay; at high strength it frees the look but loses the motion. Choose the input so motion and appearance arrive through different channels.
 
 ### Structural control
 
@@ -36,7 +36,7 @@ With a pose, depth, edge or layout control, describe appearance, material, light
 
 ### Raw hint video
 
-State the video's role in one sentence ("the input video supplies only camera, positions, timing and occlusion") and map each stand-in to its reference. Never describe the grey look positively: words such as "3D", "render", "clay", "grey" or "model" in the positive prompt pull the result toward the stand-in.
+State the video's role in one sentence ("the input video supplies only camera, positions, timing and occlusion") and map each coarse figure to its reference. Never describe the gray look positively: words such as "3D", "render", "clay", "gray" or "model" in the positive prompt pull the result toward the coarse figure.
 
 ### First frame or keyframe
 

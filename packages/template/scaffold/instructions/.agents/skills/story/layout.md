@@ -1,6 +1,6 @@
-# Document layout and supplied material
+# Document layout
 
-Use this resource when choosing where a creative document, its evidence or its review goes, or when taking over existing work. These are default locations, not a request to create empty trees.
+Where each creative document, its evidence and its review go, and how existing work is taken over. These are default locations, not a request to create empty trees.
 
 The evidence and review locations below are the installed evidence package's defaults, and its documentation owns supported layouts and selectors. This table is the one place the skills show them; [evidence configuration](../evidence/configuration.md) owns their use.
 
@@ -28,7 +28,7 @@ Keep one current record per purpose, identified by its actual inputs; Git preser
 | Ignored `docs/review/{draft,final}/<layer>/verdict/index.md` | Current complete-population verdict, findings and author decisions |
 | Ignored `docs/naturalness/`, `docs/revision/` | Frozen and working screenplay editions retained while their cycle needs them |
 
-Project context lives in [PROJECT.md](../production/project-context.md) and generation requests under [media](../production/media-records.md).
+`PROJECT.md` is kept under [project context](../production/project-context.md) and generation requests under [media records](../production/media-records.md).
 
 A part can be an act, release block, or another division suited to the format. An episode file can hold a suitable sequence in a continuous film; its filename does not force an episodic release. Narrative partition and [source organization](../development/layout.md) are separate choices.
 

@@ -1,6 +1,6 @@
-# Generate and adopt takes
+# Generation
 
-Use this once the [video skill](SKILL.md) has chosen the model, planned the requests and written the prompts. Read the provider and setup authority in [project context](../production/project-context.md) and use the selected service's existing connector, CLI or API.
+Takes are generated after the [video skill](SKILL.md) has chosen the model, planned the requests and written the prompts. Read the provider and setup authority in [project context](../production/project-context.md) and use the selected service's existing connector, CLI or API.
 
 ## Prove one path first
 
@@ -8,17 +8,19 @@ Before a batch, prove one representative request end to end on a case with the i
 
 ## Submit
 
-Bind each request to its exact input bytes and source revision and record it under [media](../production/media-records.md#records). Check the existing job state before retrying, since a retry can bill another job, and keep to the adopted cost and quality limits. A transient URL, seed or finished job is not a take: keep the downloaded original apart from its derivatives.
+Bind each request to its exact input bytes and source revision and record it under [media records](../production/media-records.md#records). Check the existing job state before retrying, since a retry can bill another job, and keep to the adopted cost and quality limits. A transient URL, seed or finished job is not a take: keep the downloaded original apart from its derivatives.
 
 ## Inspect and choose
 
-You see a take only as stills extracted from its file, so extract them at the spacing [delivery review](../review/delivery.md#measure-and-compare) gives and check identity, positions, contacts, camera and motion against the hint's stills at matched times. The user judges its sound and its continuous motion.
+Extract stills from the take's file at the spacing [delivery review](../review/delivery.md#measure-and-compare) gives and check identity, positions, contacts, camera and motion against the hint's stills at matched times. The user judges its sound and its continuous motion.
 
 Choose among takes for fidelity to the screenplay beat and the hint, never for an effect the screenplay did not decide. A take that loses action, identity or causality is repaired at the source, the request or the selection, never hidden by a cut.
 
 ## Place takes in time
 
 Map a take's decoded timestamps and time base into the film; a nominal frame rate cannot place an action, especially at variable rates. Trimming, retiming and rebasing are different operations, and a shortest-stream option or silent padding must not hide lost material. [FFmpeg's filters](https://ffmpeg.org/ffmpeg-filters.html) document them.
+
+A new take, trim or speed change requires rechecking its timing against its neighbors.
 
 ## Hand off
 

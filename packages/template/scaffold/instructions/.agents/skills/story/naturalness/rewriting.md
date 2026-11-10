@@ -1,4 +1,4 @@
-# Expressive rewriting
+# Rewriting
 
 Recompose the final screenplay's audiovisual expression while keeping its completed construction, under the naturalness questions in the [story contracts](../../contracts/story/SKILL.md).
 
@@ -12,6 +12,6 @@ Reread the whole progression against the first experience and the [audiovisual v
 
 ## Revision cycles
 
-One construction cycle receives one comprehensive rewrite, completed under [procedure](transfer.md). Changed-sentence counts and distance from the original do not measure improvement.
+One construction cycle receives one comprehensive rewrite, completed under [transfer](transfer.md). Changed-sentence counts and distance from the original do not measure improvement.
 
 A further requested revision starts from the previous working edition and its reviews, compares meaning with the initial frozen construction and expression with the previous edition, and keeps that frozen baseline throughout; a unit replaced from scratch starts new construction.

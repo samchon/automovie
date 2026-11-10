@@ -1,6 +1,6 @@
 # Final screenplay expression population statements
 
-The detailed statements of the [final screenplay expression population obligation](../../../naturalness/obligations/screenplay.md), one section per item. Check the work against each before answering, as [items and statements](../../../../../../contracts/SKILL.md#items-and-statements) describes. This document is not an evidence target.
+Contract: [naturalness/obligations/screenplay.md](../../../naturalness/obligations/screenplay.md).
 
 ## Voice and tempo distribution {#voice-and-tempo-distribution}
 

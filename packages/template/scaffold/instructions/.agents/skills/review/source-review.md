@@ -1,4 +1,4 @@
-# Source and evidence review
+# Source review
 
 Read the whole requested change with its callers, inputs, consumers, error paths and tests, then check it against the [development contracts](../contracts/development/SKILL.md) its declarations answer.
 

@@ -1,4 +1,4 @@
-# Maintain project context
+# Project context
 
 The production's `PROJECT.md` holds the current overview, commissioned scope, adopted choices and constraints. Read it when starting or resuming work, and update it whenever a consequential choice is adopted or changed, before later work relies on it. Keep one concise current account for the user and the next agent; Git keeps superseded choices.
 
@@ -13,7 +13,7 @@ Record only what this project needs; an instance-only request needs no story, an
 | Representation | That people are polygon men and other subjects coarse forms, and which delivery, if any, selects which [detail option](../development/entities.md#detail) |
 | Delivery profile | For each delivered video: dimensions, frame rate, running time, container and codec, color and caption tracks, and audio tracks only for a [commissioned soundtrack](../audio/SKILL.md#commissioned-soundtrack) |
 | Adopted approach | The story route, required control channels, engine feedback and sound, with the reasons and limits that affect later choices |
-| Tools and operating constraints | Chosen providers or local tools, the video model, hardware, time, cost and rights limits, and approved setup |
+| Tools and operating constraints | Chosen providers or local tools, the video model, runtime, hardware, time, cost and rights limits, and approved setup |
 | Authority and unresolved choices | What the user fixed, what the agent decided within delegation and why, and what remains open |
 
 ## How it controls the work

@@ -1,6 +1,6 @@
-# Render the motion hint's control channels
+# Control channels
 
-Use this when delivering a motion hint or rendering the control channels a video model takes. A complete hint can be delivered without a generator; report its compatibility as unverified rather than run an uncommissioned job. [Video](../video/SKILL.md) decides which channels the chosen model takes; this document owns rendering them from the performance.
+A motion hint reaches its receiver through control channels rendered from the performance. A complete hint can be delivered without a generator; report its compatibility as unverified rather than run an uncommissioned job. [Video](../video/SKILL.md) decides which channels the chosen model takes; this document owns rendering them from the performance.
 
 ## Render what the receiver takes
 
@@ -14,6 +14,6 @@ Read each pass's limits: depth range and clipping, normal convention, and whethe
 
 ## Hand off
 
-Keep accepted control files, mappings, palettes and sidecars with their content digests under the film's [media](../production/media-records.md) folder, apart from any viewing encode, because lossy encoding, color conversion and transitions change depth values and invent mask colors.
+Keep accepted control files, mappings, palettes and sidecars with their content digests under the film's [media records](../production/media-records.md) folder, apart from any viewing encode, because lossy encoding, color conversion and transitions change depth values and invent mask colors.
 
 Inspect stills of the complete sequence at matched frames, including contacts, cuts and the ending, then the files through the receiver's input path when one is selected. Hand them with their observed limits to [assembly](../production/assembly.md) or [video generation](../video/generation.md).

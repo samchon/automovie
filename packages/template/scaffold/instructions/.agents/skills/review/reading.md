@@ -1,4 +1,4 @@
-# Read before auditing
+# Independent reading
 
 Use a fresh context of the author's model, without the author's working memory. If none is available, report the review as unperformed.
 

@@ -1,6 +1,6 @@
 # Realized speech statements
 
-The detailed statements of the [realized speech principles](../../principles/realized.md), one section per item. Check the work against each before answering, as [items and statements](../../../../../contracts/SKILL.md#items-and-statements) describes. This document is not an evidence target.
+Contract: [principles/realized.md](../../principles/realized.md).
 
 ## Speaker plausibility {#speaker-plausibility}
 

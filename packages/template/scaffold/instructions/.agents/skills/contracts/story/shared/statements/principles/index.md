@@ -1,6 +1,6 @@
 # Settings index section statements
 
-The detailed statements of the [settings index section principles](../../principles/index.md), one section per item. Check the work against each before answering, as [items and statements](../../../../../contracts/SKILL.md#items-and-statements) describes. This document is not an evidence target.
+Contract: [principles/index.md](../../principles/index.md).
 
 ## Group purpose {#group-purpose}
 

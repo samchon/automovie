@@ -1,6 +1,6 @@
 # Script expression statements
 
-The detailed statements of the [script expression principles](../../naturalness/scripts.md), one section per item. Check the work against each before answering, as [items and statements](../../../../../contracts/SKILL.md#items-and-statements) describes. This document is not an evidence target.
+Contract: [naturalness/scripts.md](../../naturalness/scripts.md).
 
 ## Execution rhythm {#execution-rhythm}
 

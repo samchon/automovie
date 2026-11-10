@@ -1,4 +1,4 @@
-# Writing workflow
+# Workflow
 
 Choose the commissioned route from the request, project context, adopted instructions and current bodies.
 

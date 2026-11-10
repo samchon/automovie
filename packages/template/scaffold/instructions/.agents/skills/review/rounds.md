@@ -1,12 +1,12 @@
-# Narrative rounds and verdict
+# Narrative rounds
 
 ## Records
 
 Keep current reviews in the review locations of the [document layout](../story/layout.md#documents), mirroring every authored file and H2, with one verdict document for whole-pass duties. Construction reviews target construction and naturalness reviews the working text.
 
-Each body-clean unit carries its native current fingerprint review, which covers the body, not the truth of its answers. After [expression transfer](../story/naturalness/transfer.md#transfer), construction judgments stay with their frozen edition.
+Each unit with no body finding carries its native current fingerprint review, which covers the body, not the truth of its answers. After [expression transfer](../story/naturalness/transfer.md#transfer), construction judgments stay with their frozen edition.
 
-Raw blind reads and sentence tables stay in ignored `.cache/`.
+Raw independent reads and sentence tables stay in ignored `.cache/`.
 
 ## Reviewers
 
@@ -44,6 +44,6 @@ Grade each body finding by what its repair changes:
 
 A complete round with no body finding closes creative review directly.
 
-Once creative review closes, audit the evidence once under [evidence writing](../story/evidence/answer-writing.md). A round whose only findings are evidence statements closes when the author corrects those statements and the reviewer confirms them in the same record, provided the body, inputs and requirements are unchanged. A body defect found there returns to creative review.
+Once creative review closes, audit the evidence once under [answer writing](../story/evidence/answer-writing.md). A round whose only findings are evidence statements closes when the author corrects those statements and the reviewer confirms them in the same record, provided the body, inputs and requirements are unchanged. A body defect found there returns to creative review.
 
 Close with the actual result, not a stage flag.
