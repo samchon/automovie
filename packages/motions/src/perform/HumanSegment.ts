@@ -1,4 +1,5 @@
 import {
+  type IAutoMovieRandom,
   type IAutoMovieResolvedBone,
   type IAutoMovieSchedule,
   Quaternion,
@@ -25,7 +26,7 @@ import type { IHumanLayer } from "../law/IHumanLayer";
 import type { IHumanPosture } from "../posture/IHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { HumanSkill } from "../skill/HumanSkill";
+import { HumanSkill } from "../skill/HumanSkill";
 import type { IHumanPerformer } from "./IHumanPerformer";
 
 /**
@@ -555,9 +556,21 @@ export namespace HumanSegment {
     posture: IHumanPosture,
     seconds: number,
   ): IHumanPosture {
+    // Each layer draws from streams keyed by its own name, as IHumanLayer
+    // documents, so two layers that name a channel alike stay independent.
     return person.layers.reduce(
       (p: IHumanPosture, layer: IHumanLayer): IHumanPosture =>
-        layer.apply(p, seconds, person.layer),
+        layer.apply(p, seconds, {
+          ...person.layer,
+          random: (channel: string): IAutoMovieRandom =>
+            HumanSkill.stream(
+              person.skill,
+              person.performer.subject,
+              `layer:${layer.name}`,
+              0,
+              channel,
+            ),
+        }),
       posture,
     );
   }

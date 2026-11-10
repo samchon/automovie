@@ -5,6 +5,7 @@ import {
   type IAutoMovieSchedule,
   Quaternion,
   Vector3,
+  checkAutoMovieLegality,
   resolveAutoMovieContactEvents,
   resolveAutoMovieHumanoidSurfaces,
   resolveAutoMovieSchedule,
@@ -44,7 +45,8 @@ import type { IHumanProp } from "./IHumanProp";
  * interrupt table for the next action; otherwise construction throws with
  * the legal windows. A `proximity` cut is found by scanning the 24 Hz grid for
  * the first frame within the distance and bisecting 20 times, about 1e-7 s,
- * deterministic on a fixed grid.
+ * deterministic on a fixed grid. Given rules, the placed schedule is checked
+ * with the engine's legality check and a violation refuses the performance.
  *
  * Sampling a person at a second takes the active action's posture, resolves
  * it to a pose, adds the decaying inertialization offset of the transition
@@ -155,6 +157,22 @@ export class HumanPerformance {
         placed: { start: number; duration: number },
       ): number | undefined => this.proximity(intent, placed),
     });
+    // A production's rules (a sport's fouls, a scene's constraints) judge the
+    // placed schedule before any contact is resolved: an illegal performance is
+    // refused outright, the way an undeclared cut is, instead of being shown.
+    const violations: checkAutoMovieLegality.IViolation[] =
+      input.rules === undefined
+        ? []
+        : checkAutoMovieLegality(this.schedule, input.rules);
+    if (violations.length !== 0)
+      throw new Error(
+        `The performance breaks its rules: ${violations
+          .map(
+            (v: checkAutoMovieLegality.IViolation): string =>
+              `${v.rule} at entry ${v.entry}: ${v.detail}`,
+          )
+          .join("; ")}`,
+      );
     this.contacts();
     for (const person of this.people.values()) HumanSegment.settle(person);
     this.resolving = false;
@@ -880,6 +898,14 @@ export namespace HumanPerformance {
 
     /** What everyone does. */
     composition: AutoMovieComposition;
+
+    /**
+     * The production's legality rules, such as `KickboxingRules.rules`,
+     * checked against the placed schedule with the engine's
+     * `checkAutoMovieLegality`; any violation refuses the performance with
+     * every broken rule in the message. None when absent.
+     */
+    rules?: readonly checkAutoMovieLegality.IRule[];
 
     /** Additive layers per subject, applied in order over every action. */
     layers?: Readonly<Record<string, readonly IHumanLayer[]>>;
