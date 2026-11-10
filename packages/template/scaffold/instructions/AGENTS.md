@@ -65,7 +65,7 @@ Read the production's `PROJECT.md` for the adopted scope, then enter the request
 | --- | --- |
 | [production](.agents/skills/production/SKILL.md) | Starting, resuming, restructuring or handing off a production: project context, sustained runs, stage caches, media records, instruction sync and final assembly |
 | [story](.agents/skills/story/SKILL.md) | Research, and planning, writing, continuing or revising a brief, settings, treatments, scripts, final screenplay, expression pass, narrative evidence or cause-based repair |
-| [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | A detailed asset representation, geometry, rig or authored control, when [entity work](.agents/skills/development/entities.md) says a commission needs one |
+| [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | A subject's form: the coarse form of a few primitives by default, and a detailed representation, geometry, rig or authored control when [entity work](.agents/skills/development/entities.md#detail) says a commission needs one |
 | [motion](.agents/skills/motion/SKILL.md) | Programmed performance by end-effector goals, catalog cases, staging, camera, physical responses, frame evaluation, the motion hint's control channels and motion verification |
 | [image](.agents/skills/image/SKILL.md) | Canon reference images, shot frames, style frames or turnaround views |
 | [video](.agents/skills/video/SKILL.md) | Choosing the video model, planning requests, writing video prompts, and generating and adopting takes |
