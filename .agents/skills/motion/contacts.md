@@ -16,6 +16,8 @@ Plan travel as whole steps. A normal step is about 0.41 of stature (Murray, Drou
 
 At grip closure, store the object's pose in the hand's frame (inverse(hand) · object) and keep it fixed until release, as a parent constraint keeps its offset at activation. Re-deriving the offset during the hold lets the object drift in the hand and tilt when it is set down. Set an object down by giving the hand the goal that puts the object at its target pose through that stored offset.
 
+A held object stays held across actions until an action takes that hand over to put it down, hand it on or use it. Until then the hand travels with the body and keeps its grip. Refuse an action that would use a holding hand for something else, because the object would be left in the air or dragged through a gesture.
+
 At a handover:
 
 - both hands hold through a shared window while the object's world pose blends from the giver to the receiver;
@@ -25,5 +27,7 @@ At a handover:
 ## Contact between performers
 
 Judge a contact against each performer's final displayed pose. A contact stop, the instant a moving limb is halted at contact, committed against a provisional pose lands at the wrong instant and lets one body pass into the other. When a contact stop changes what is displayed, resolve the contacts again against the new display, or resolve both performers together at each instant.
+
+A contact stop changes the pose only. The action keeps its duration, its events and its [decisive instant](laws.md#declare-events-and-the-decisive-instant), so a partner and the sound still meet it at the planned time. Resolve contacts that fall in the same span in time order, each later one seeing the earlier stops.
 
 Measure penetration against each part's own collider, not against one radius shared by a whole limb.

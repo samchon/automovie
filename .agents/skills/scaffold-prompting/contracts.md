@@ -10,12 +10,20 @@ Judge sufficient and excessive detail in the same achievement. More explanation,
 
 Keep an overall achievement independently answerable when detailed negatives cannot establish it. Reuse a question that already covers the loss before adding another. Split only when the evidence, scope or repair responsibility differs; a new sentence mold is not a new family.
 
+## Items and statements
+
+Shipped contracts take two levels. An item is one broad question with its reason and the loss it prevents, and it stays short enough to hold in mind while answering. Its statements are single checkable assertions with their exceptions, in a `statements` document at the same path beside the contract, one section per item anchor.
+
+Put a new concern into the statements of the item that already covers its theme before writing a new item, because an item costs every respondent an answer and a statement costs a check. Write a statement so one reading of the work can find it met or failed, and attach each protection to the statement it limits as its exception.
+
+Statement documents are not evidence targets: place them where no selector of `@automovie/evidence` reaches, and confirm that against its reference constructors when adding a family. An item that is already one short question needs no statements.
+
 ## Coherent repair and adoption
 
 Compare proposed questions with existing ones for overlap, contradiction and feasible joint satisfaction. Trace a failing case and a similar legitimate case through judgment and repair. Check that preserving meaning does not freeze defective wording, that removing a failure does not delete setup or promised tone, and that correcting expression does not invent new facts or events.
 
 Keep stable family paths and explicit H2 identities where Evidence addresses them. Change callers, selected respondents and actual dependencies with a moved question; its existing answers and approvals do not certify a changed obligation. Follow the production's [closed-pass boundary](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/repair.md#closed-passes), preserving historical proof and unresolved diagnostics.
 
-Keep the reason for a failure or protection in the text the recipient reads. Retain verified source support and limits in the appropriate source record or comment, without assuming the materializer strips comments or provides a novel-style migration tool. Shared criteria must work across subjects; local observations remain local until their proposed generalization is supported.
+Keep the reason for a failure in its item and each protection with its statement, both of which the recipient reads. Retain verified source support and limits in the appropriate source record or comment, without assuming the materializer strips comments or provides a novel-style migration tool. Shared criteria must work across subjects; local observations remain local until their proposed generalization is supported.
 
 Distinguish clarified ownership, a corrected contradiction or a direct user requirement from a new claim that a writing or production prescription improves quality. Record an unverified prescription as a candidate rather than silently make it mandatory. Authoring and actual recipient observations establish any claimed effect under [verification](verification.md).
