@@ -8,7 +8,9 @@ A construction author who finds a missing, conflicting or unrealizable parent de
 
 ## Cause rounds
 
-Finish the whole inspection round before editing, under [inspection](inspection.md). Group the findings by cause, including every member of a recurring class, and repair each cause where its action or explanation belongs, recomposing a passage when cutting would lose its meaning. Reconcile dependent statements, quotations, values and [answers](../evidence/writing.md) in the same repair, then read the changed passages and the whole progression for new uniformity, fidelity losses and broken seams before the next round.
+Finish the whole inspection round before editing, under [inspection](inspection.md). Group the findings by cause, including every member of a recurring class, and repair each cause where its action or explanation belongs, recomposing a passage when cutting would lose its meaning.
+
+Reconcile dependent statements, quotations, values and [answers](../evidence/writing.md) in the same repair, then read the changed passages and the whole progression for new uniformity, fidelity losses and broken seams before the next round.
 
 ## Closed passes
 

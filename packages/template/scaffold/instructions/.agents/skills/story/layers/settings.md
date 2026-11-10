@@ -1,8 +1,6 @@
 # Settings
 
-Write down the decisions about the world, its people, places and objects that later authors, artists and performers must keep true, specific enough to hold the work to and findable without reconstructing the world, under the settings questions in the [story contracts](../../contracts/story/SKILL.md).
-
-Settings are prose for readers; they never describe code.
+Write down the decisions about the world, its people, places and objects that later authors, artists and performers must keep true, specific enough to hold the work to and findable without reconstructing the world, under the settings questions in the [story contracts](../../contracts/story/SKILL.md). Settings are prose for readers; they never describe code.
 
 Read the [instructions](../planning/requirements.md#requirements) and finish [discovery](../planning/discovery.md) first, and work backward from the anticipated scenes to the facts they need.
 
@@ -10,7 +8,9 @@ Settings belong to the long route; a short writes its [brief](brief.md) instead.
 
 ## Records
 
-Give each subject one file in its domain under the [document layout](../layout.md): one H1 naming the subject, an H2 per facet and an H3 per fact with an explicit anchor such as `{#hesitates-before-jumps}`. Later layers cite a fact by its file path and anchor, so never reuse or renumber one. Write only the facets the planned scenes and arcs use; an unused facet is left out rather than marked `N/A`, and a dimension the commission excludes is excluded once in the work's scope record, which also states the adopted representation and what it cannot show.
+Give each subject one file in its domain under the [document layout](../layout.md): one H1 naming the subject, an H2 per facet and an H3 per fact with an explicit anchor such as `{#hesitates-before-jumps}`. Later layers cite a fact by its file path and anchor, so never reuse or renumber one.
+
+Write only the facets the planned scenes and arcs use; an unused facet is left out rather than marked `N/A`, and a dimension the commission excludes is excluded once in the work's scope record, which also states the adopted representation and what it cannot show.
 
 Measurements such as dimensions, light positions and timings go to [research](../planning/research.md) for their sources and to code for their values, unless the value is itself a story decision.
 

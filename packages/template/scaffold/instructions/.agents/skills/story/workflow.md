@@ -20,9 +20,11 @@ Each link cites the addresses it realizes from the links above it, so no code ex
 
 Long work runs settings → treatments → scripts → screenplay construction, then screenplay naturalness; only the final screenplay has a separate expression pass, which only an explicit user waiver omits. Its settings exist because every later layer realizes and cites their decisions and cannot cite what was never written.
 
-A short runs brief → screenplay construction, then screenplay naturalness. Its [brief](layers/brief.md) is canon like settings, with its own folders, contracts, evidence and review, and holds the fixed conditions and the decisions the films share; the screenplay decides everything else and repairs the brief upstream when writing exposes a gap. There are no settings, treatment, script or outline files. Wherever a skill or contract cites settings facts, a short cites its brief.
+A short runs brief → screenplay construction, then screenplay naturalness. Its [brief](layers/brief.md) is canon like settings, with its own folders, contracts, evidence and review, and holds the fixed conditions and the decisions the films share; the screenplay decides everything else and repairs the brief upstream when writing exposes a gap.
 
-Choose the long route when the work's causes, setups and payoffs span many scenes or releases, such as a feature, an episode or a series, because they need treatments to design events and scripts to partition them before the screenplay; choose the short route when each film is a few minutes at most and its events fit one screenplay, alone or as several shorts sharing a world.
+There are no settings, treatment, script or outline files. Wherever a skill or contract cites settings facts, a short cites its brief.
+
+Choose the long route when the work's causes, setups and payoffs span many scenes or releases, such as a feature, an episode or a series, because they need treatments to design events and scripts to partition them before the screenplay. Choose the short route when each film is a few minutes at most and its events fit one screenplay, alone or as several shorts sharing a world.
 
 Record the choice in [project context](../production/project-context.md); in an AutoMovie workspace the production's folder fixes it: `movies/shorts/<name>` runs the short route and `movies/series/<name>` the long route.
 
@@ -52,4 +54,6 @@ Run the README's evidence command and read its whole report; a passing graph sho
 
 Whole-work completion needs the selected passes, current closed review, passing unfiltered validation, the compiler and source checks and required tests, and [delivery review](../review/delivery.md) of any commissioned media.
 
-A manuscript with its closed review may be delivered with its revision and named remaining diagnostics, but that is not fully validated completion. A creative defect, missing parent, pending transfer, unfinished review or unverified media blocks its completion, and until review finishes the result is a draft. Changes to completed layers follow [closed passes](correction/repair.md#closed-passes).
+A manuscript with its closed review may be delivered with its revision and named remaining diagnostics, but that is not fully validated completion. A creative defect, missing parent, pending transfer, unfinished review or unverified media blocks its completion, and until review finishes the result is a draft.
+
+Changes to completed layers follow [closed passes](correction/repair.md#closed-passes).
