@@ -6,7 +6,7 @@ This repository holds AutoMovie productions. A production primarily turns an LLM
 
 A production is the directory holding its `PROJECT.md`: this repository root for a single production, or each `movies/shorts/<name>` and `movies/series/<name>` of an AutoMovie workspace. Every project path a skill names, such as `PROJECT.md`, `README.md`, `src`, `test`, `docs`, `references`, `media`, `package.json` and its configurations, is that production's, and its commands run in its directory. The skills and bundled contracts under `.agents/skills` serve every production; a production's own work and language contracts live in its `docs/contracts`.
 
-In a workspace, `shorts` productions run settings → screenplay and `series` productions run the whole long route of the [story workflow](.agents/skills/story/workflow.md#route-and-parents). `packages/<name>` holds the workspace's own libraries that several productions import; code serving one production stays in that production. The workspace README lists its commands, and `pnpm automovie add shorts/<name>` or `series/<name>` adds a production.
+In a workspace, `shorts` productions run brief → screenplay and `series` productions run the whole long route of the [story workflow](.agents/skills/story/workflow.md#route-and-parents). `packages/<name>` holds the workspace's own libraries that several productions import; code serving one production stays in that production. The workspace README lists its commands, and `pnpm automovie add shorts/<name>` or `series/<name>` adds a production.
 
 ## Attitude
 

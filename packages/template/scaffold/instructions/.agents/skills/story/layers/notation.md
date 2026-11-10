@@ -8,7 +8,7 @@ The H1 names the film, each H2 is a scene and each H3 a beat, every heading with
 
 ## Records {#records}
 
-Directly under the scene heading, a breakdown list names by settings link everything the scene's beats use, in these categories: cast, crowds, props, sets, wardrobe and makeup state, effects, sound, camera and lighting. Each beat's action and dialogue blocks end with its beat record:
+Directly under the scene heading, a breakdown list names by settings or brief link everything the scene's beats use, in these categories: cast, crowds, props, sets, wardrobe and makeup state, effects, sound, camera and lighting. Each beat's action and dialogue blocks end with its beat record:
 
 ```markdown
 ### Mara cues the lift {#s03-b04}
