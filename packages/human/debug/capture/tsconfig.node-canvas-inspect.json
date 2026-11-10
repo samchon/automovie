@@ -1,4 +1,0 @@
-{
-  "extends": "./tsconfig.node-canvas.json",
-  "files": ["./NodeCanvasInspect.ts"]
-}
