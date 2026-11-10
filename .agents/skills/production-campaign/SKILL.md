@@ -5,7 +5,7 @@ description: Coordinates writing, review and media execution across commissioned
 
 # Production campaign
 
-Carry the commissioned work through its actual authoring and delivery owners. This skill owns how the coordinator of a campaign run from this repository launches, watches and connects the workers, and how it compares productions.
+A campaign carries commissioned work through its actual authoring and delivery owners. Its coordinator, working from this repository, launches, watches and connects the workers and compares productions.
 
 | Task | Read |
 | --- | --- |
