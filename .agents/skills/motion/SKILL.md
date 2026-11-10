@@ -18,6 +18,6 @@ Those four files ship unchanged to productions, so they name roles rather than t
 ## Here
 
 - The [package boundaries](../project/SKILL.md#packages) say which package owns action content and which owns universal motion primitives, retargeting included. Each algorithm has one owner, so read the owning package before writing a helper; a second copy drifts from the first and leaves two bugs to fix.
-- Verify human motion only on the polygon man at Human parameters, under [human](../human/SKILL.md).
+- Verify human motion only on polygon men generated at Human parameters, across the bodies [verification](verification.md) requires, under [human](../human/SKILL.md).
 - An action's study is the primary sources its law cites in its documentation, and each action family's sub-issue of the motions campaign, #3201, collects them with the family's scope and current state. Read the sub-issue before authoring and add the sources you use there, so the next author starts from them.
 - The motions package's capture script runs the cases. A capture reports a failed verdict through its exit status, not a crash, and CI skips the tests that prepare polygon men, so run those locally.

@@ -16,7 +16,7 @@ A goal on a moving body, such as a palm on the chin or a hand on the other forea
 
 Take every distance, height and reach from the performer's own measured segments and the target's measured parts. A constant measured on one figure ties the action to that figure and fails on the next; when no measure can supply a value, name it as provisional with its source.
 
-The technique's study supplies the shape prior and the windows. Take joint values straight from that prior only where no goal determines the pose, such as a guard's carriage or a follow-through.
+The action's study supplies the shape prior and the windows. Take joint values straight from that prior only where no goal determines the pose, such as a guard's carriage or a follow-through.
 
 ## Decide what happens out of reach
 
