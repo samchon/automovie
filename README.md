@@ -6,7 +6,7 @@ You direct the agent in natural language. AutoMovie's engine computes the same f
 
 A hint needs the performance, contacts and timing to be right, not surface detail. People are drawn as a polygon man, plain primitives over a body's joints, and everything else as coarse meshes, with detail added only where a shot needs it. A production, the project of one film, can stop at the screenplay, at the motion-hint video, or at a finished film rendered directly in 3D or through a diffusion workflow you choose. An accurate hint does not guarantee what the diffusion model makes of it.
 
-The scenes at [samchon.github.io/AutoMovie](https://samchon.github.io/AutoMovie/) are rendered from the sources under [`experimental`](./experimental). They show assets and their inspection, not an end-to-end film.
+The scenes at [samchon.github.io/automovie](https://samchon.github.io/automovie/) show assets and their inspection, not an end-to-end film.
 
 ## Start a production
 
@@ -41,7 +41,7 @@ To keep several productions in one repository, `npx automovie create <directory>
 | [`@automovie/template`](./packages/template) | The scaffold every production starts from |
 | [`automovie`](./packages/cli) | The CLI that installs the scaffold |
 | [`@automovie/playground`](./packages/playground) | Browser pages for developing this repository |
-| [`@automovie/website`](./website) | The site published at samchon.github.io/AutoMovie |
+| [`@automovie/website`](./website) | The site published at samchon.github.io/automovie |
 
 ## Repository development
 
