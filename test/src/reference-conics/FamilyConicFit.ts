@@ -1,0 +1,355 @@
+import { AutoMovieNaturalSpline as S } from "../../../packages/engine/src/geometry/construction/AutoMovieNaturalSpline";
+import { AutoMovieViewChain as Q } from "../../../packages/engine/src/geometry/construction/AutoMovieViewChain";
+import { FamilyConicSection as C } from "./FamilyConicSection";
+
+/**
+ * Joint least-squares fit of a whole conic section family on one shared,
+ * sparse station knot vector.
+ *
+ * Every scalar field of `FamilyConicSection` is a natural cubic through its
+ * values at the shared knots. A natural cubic is linear in its knot values,
+ * so the field vector at station `s` is `C(s) Y` with `C` the cardinal basis.
+ * The unknowns are the knot values `Y`, and the residuals are the radial
+ * differences between the conic chain and the cut vertices of every observed
+ * section. Levenberg-Marquardt (Marquardt 1963, diagonal scaling) minimises
+ * them for all sections at once, so no observed section is interpolated and
+ * neighbouring sections cannot disagree in correspondence.
+ */
+export namespace FamilyConicFit {
+  /** One observed section in its chart about the family axis. */
+  export interface IRow {
+    /** Station along the family axis, mm. */
+    s: number;
+
+    /** Observed polygon in the section chart, mm. */
+    points: C.P[];
+
+    /** Withheld from the fit and read only as validation. */
+    heldout: boolean;
+  }
+
+  /** The fitted family and its sampled errors. */
+  export interface IResult {
+    /** Split depth of every quarter: `2^depth` conics per quarter. */
+    depth: number;
+
+    /** Shared station knots, mm. */
+    knots: number[];
+
+    /** Knot values by field then knot: the complete independent definition. */
+    values: number[][];
+
+    /** Sampled radial error at cut vertices of fitting sections, mm. */
+    training: IError;
+
+    /** Sampled radial error at cut vertices of withheld sections, mm. */
+    heldout: IError;
+
+    /** Maximum sampled radial error per observed section, mm, with the phase where it stands. */
+    rows: { s: number; heldout: boolean; maximumMm: number; phase: number; fault: string | null }[];
+
+    /** Maximum sampled radial distance to the faceted polygon's chords over every section, mm: it includes the facets' own sagitta, which the vertex errors do not. */
+    chordMaximumMm: number;
+
+    /** Accepted Levenberg-Marquardt steps. */
+    iterations: number;
+
+    /** Observed rays that met their polygon more than once (non-star-shaped evidence). */
+    folds: number;
+
+    /** Why no family could be fitted, or null. */
+    fault: string | null;
+
+    /** Fitting time, ms. */
+    milliseconds: number;
+  }
+
+  /** Maximum, mean and root-mean-square of sampled absolute radial errors, mm. */
+  export interface IError {
+    /** Largest sampled absolute radial error, mm. */
+    maximumMm: number;
+
+    /** Mean sampled absolute radial error, mm. */
+    meanMm: number;
+
+    /** Root mean square of the sampled radial errors, mm. */
+    rmsMm: number;
+  }
+
+  /** Ridge weight of a share's departure from one half, in squared millimetres per squared share and per observation: it only decides directions the observations leave open. */
+  const RIDGE: number = 1e-4;
+
+  /** A share is kept inside `[EDGE, 1 - EDGE]` by a barrier residual of `BARRIER_MM` per unit of excess. */
+  const EDGE: number = 0.05;
+
+  /** Barrier residual per unit of excess share, mm. */
+  const BARRIER_MM: number = 50;
+
+  /** Phases per section used by the chord report. */
+  const REPORT: number = 180;
+
+  /** One section's observations: its polygon vertices in polar form with arc-length weights of mean one. */
+  interface ISample {
+    phases: number[];
+    radii: number[];
+    weights: number[];
+  }
+
+  /**
+   * Read a section's polygon vertices as observations.
+   *
+   * The source is a faceted mesh: a cut vertex lies on a mesh edge, close to
+   * the intended surface, while the chord between two cut vertices lies
+   * inside it by the facet's sagitta (`L^2 / 8R`, 0.6 mm for a 20 mm facet on
+   * an 85 mm radius). The fit therefore reads the vertices and never the
+   * chords. Each vertex weighs half its two edges, so a cluster of short
+   * edges cannot outweigh a long smooth stretch.
+   */
+  function vertices(row: IRow): ISample {
+    const n: number = row.points.length;
+    const sample: ISample = { phases: [], radii: [], weights: [] };
+    let total: number = 0;
+    for (let k: number = 0; k < n; ++k) {
+      const p: C.P = row.points[k]!;
+      const a: C.P = row.points[(k + n - 1) % n]!;
+      const b: C.P = row.points[(k + 1) % n]!;
+      const weight: number = (Math.hypot(p[0] - a[0], p[1] - a[1]) + Math.hypot(b[0] - p[0], b[1] - p[1])) / 2;
+      if (!(weight > 0)) continue;
+      sample.phases.push(Math.atan2(p[1], p[0]));
+      sample.radii.push(Math.hypot(p[0], p[1]));
+      sample.weights.push(weight);
+      total += weight;
+    }
+    const mean: number = total / sample.weights.length;
+    sample.weights = sample.weights.map((w: number): number => w / mean);
+    return sample;
+  }
+
+  /**
+   * Fit a family.
+   *
+   * @param rows Observed sections by increasing station.
+   * @param knots Shared station knots, increasing, covering the rows.
+   * @param depth Split depth of every quarter.
+   * @param power Residual power of the final reweighted passes; 2 is plain least squares, larger values pull the maximum down.
+   * @param initial Knot values to start from, by field then knot, for these knots and this depth; absent starts from each section's own reading.
+   */
+  export function fit(rows: readonly IRow[], knots: readonly number[], depth: number, power: number = 2, initial?: readonly (readonly number[])[]): IResult {
+    const started: number = performance.now();
+    const F: number = C.count(depth);
+    const M: number = knots.length;
+    const folds: { count: number } = { count: 0 };
+    const train: IRow[] = rows.filter((row: IRow): boolean => !row.heldout);
+    const samples: ISample[] = train.map(vertices);
+    const cardinals: S.ISpline[] = knots.map((_: number, m: number): S.ISpline => S.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
+    const basis = (s: number): number[] => cardinals.map((spline: S.ISpline): number => S.evaluate(spline, s));
+    const B: number[][] = train.map((row: IRow): number[] => basis(row.s));
+    const failed = (fault: string): IResult => ({ depth, knots: [...knots], values: [], training: NONE, heldout: NONE, rows: [], chordMaximumMm: Infinity, iterations: 0, folds: folds.count, fault, milliseconds: performance.now() - started });
+
+    // Start from each section's own geometric reading, projected onto the shared knots by linear least squares.
+    const seeds: number[][] = train.map((row: IRow): number[] => C.seed(row.points, depth));
+    const gram: number[][] = zeros(M, M);
+    for (const b of B) for (let m: number = 0; m < M; ++m) for (let n: number = 0; n < M; ++n) gram[m]![n]! += b[m]! * b[n]!;
+    let Y: number[][] = [];
+    for (let f: number = 0; f < F; ++f) {
+      const right: number[] = new Array<number>(M).fill(0);
+      for (let i: number = 0; i < train.length; ++i) for (let m: number = 0; m < M; ++m) right[m]! += B[i]![m]! * seeds[i]![f]!;
+      const solved: number[] | null = solve(gram.map((r: number[]): number[] => [...r]), right);
+      if (solved === null) return failed("the knot vector is not supported by the observed stations");
+      Y.push(solved);
+    }
+    if (initial !== undefined) Y = initial.map((field: readonly number[]): number[] => [...field]);
+
+    // Residuals of one section: radial misses at its vertices, then one barrier entry per share; null when its chain is inadmissible.
+    const theta = (values: number[][], b: number[]): number[] => values.map((field: number[]): number => field.reduce((sum: number, y: number, m: number): number => sum + y * b[m]!, 0));
+    const residual = (t: number[], i: number): number[] | null => {
+      const section: Q.ISection = C.chain(t, depth);
+      if (section.fault !== null) return null;
+      const sample: ISample = samples[i]!;
+      const r: number[] = new Array<number>(sample.phases.length);
+      for (let k: number = 0; k < sample.phases.length; ++k) {
+        const value: number = Q.radius(section, sample.phases[k]!) - sample.radii[k]!;
+        if (!Number.isFinite(value)) return null;
+        r[k] = value;
+      }
+      for (let f: number = 8; f < F; ++f) r.push(BARRIER_MM * (Math.max(0, EDGE - t[f]!) + Math.max(0, t[f]! - (1 - EDGE))));
+      return r;
+    };
+    for (const sample of samples) for (let f: number = 8; f < F; ++f) sample.weights.push(1);
+    const weights: number[][] = samples.map((sample: ISample): number[] => [...sample.weights]);
+    const cost = (values: number[][]): { total: number; residuals: number[][] } | null => {
+      let total: number = 0;
+      const residuals: number[][] = [];
+      for (let i: number = 0; i < train.length; ++i) {
+        const t: number[] = theta(values, B[i]!);
+        const r: number[] | null = residual(t, i);
+        if (r === null) return null;
+        for (let k: number = 0; k < r.length; ++k) total += weights[i]![k]! * r[k]! * r[k]!;
+        for (let f: number = 8; f < F; ++f) total += RIDGE * r.length * (t[f]! - 0.5) ** 2;
+        residuals.push(r);
+      }
+      return { total, residuals };
+    };
+    let current: { total: number; residuals: number[][] } | null = cost(Y);
+    if (current === null) return failed("the projected seed is not an admissible conic chain on every fitting section");
+
+    // Levenberg-Marquardt with a finite-difference section Jacobian chained through the linear station basis.
+    const steps: number[] = Array.from({ length: F }, (_: unknown, f: number): number => (f < 8 ? 1e-4 : 1e-6));
+    let lambda: number = 1e-3;
+    let iterations: number = 0;
+    const passes: number = power > 2 ? 3 : 1;
+    for (let pass: number = 0; pass < passes; ++pass) {
+      if (pass > 0) {
+        // Reweight toward the p-norm (Lawson-style): larger residuals gain weight, pulling the maximum down.
+        let peak: number = 0;
+        for (const r of current.residuals) for (const v of r) peak = Math.max(peak, Math.abs(v));
+        for (let i: number = 0; i < train.length; ++i) for (let k: number = 0; k < weights[i]!.length; ++k) weights[i]![k] = samples[i]!.weights[k]! * Math.max(1e-3, Math.abs(current.residuals[i]![k]!) / peak) ** (power - 2);
+        current = cost(Y)!;
+        lambda = 1e-3;
+      }
+      for (let round: number = 0; round < 60; ++round) {
+        const N: number = F * M;
+        const JTJ: number[][] = zeros(N, N);
+        const JTr: number[] = new Array<number>(N).fill(0);
+        for (let i: number = 0; i < train.length; ++i) {
+          const t: number[] = theta(Y, B[i]!);
+          const r: number[] = current.residuals[i]!;
+          const P: number = r.length;
+          const D: number[][] = [];
+          for (let f: number = 0; f < F; ++f) {
+            const moved: number[] = [...t];
+            moved[f]! += steps[f]!;
+            const shifted: number[] | null = residual(moved, i);
+            D.push(shifted === null ? new Array<number>(P).fill(0) : shifted.map((v: number, k: number): number => (v - r[k]!) / steps[f]!));
+          }
+          const w: number[] = weights[i]!;
+          const b: number[] = B[i]!;
+          for (let f: number = 0; f < F; ++f) {
+            const ridge: number = f >= 8 ? RIDGE * P : 0;
+            let gr: number = ridge * (t[f]! - 0.5);
+            for (let k: number = 0; k < P; ++k) gr += w[k]! * D[f]![k]! * r[k]!;
+            for (let m: number = 0; m < M; ++m) JTr[f * M + m]! += gr * b[m]!;
+            for (let g: number = f; g < F; ++g) {
+              let dd: number = g === f ? ridge : 0;
+              for (let k: number = 0; k < P; ++k) dd += w[k]! * D[f]![k]! * D[g]![k]!;
+              if (dd === 0) continue;
+              for (let m: number = 0; m < M; ++m) {
+                if (b[m] === 0) continue;
+                const row: number[] = JTJ[f * M + m]!;
+                for (let n: number = 0; n < M; ++n) row[g * M + n]! += dd * b[m]! * b[n]!;
+              }
+            }
+          }
+        }
+        for (let a: number = 0; a < N; ++a) for (let c: number = 0; c < a; ++c) JTJ[a]![c] = JTJ[c]![a]!;
+        let accepted: boolean = false;
+        let converged: boolean = false;
+        for (let attempt: number = 0; attempt < 12 && !accepted; ++attempt) {
+          const A: number[][] = JTJ.map((row: number[], a: number): number[] => {
+            const copy: number[] = [...row];
+            copy[a] = row[a]! * (1 + lambda) + 1e-12;
+            return copy;
+          });
+          const delta: number[] | null = solve(A, JTr.map((v: number): number => -v));
+          if (delta !== null) {
+            const next: number[][] = Y.map((field: number[], f: number): number[] => field.map((y: number, m: number): number => y + delta[f * M + m]!));
+            const trial: { total: number; residuals: number[][] } | null = cost(next);
+            if (trial !== null && trial.total < current.total) {
+              converged = (current.total - trial.total) / current.total < 1e-6;
+              Y = next;
+              current = trial;
+              lambda = Math.max(lambda / 3, 1e-9);
+              accepted = true;
+              ++iterations;
+              break;
+            }
+          }
+          lambda *= 4;
+        }
+        if (!accepted || converged) break;
+      }
+    }
+
+    // Report at the cut vertices of fitting and withheld sections, and against the chords on an independent phase grid.
+    const report: number[] = Array.from({ length: REPORT }, (_: unknown, k: number): number => (2 * Math.PI * (k + 0.5)) / REPORT);
+    const evidence: IResult["rows"] = [];
+    let chord: number = 0;
+    const sums: Record<"train" | "held", { max: number; sum: number; square: number; n: number }> = { train: { max: 0, sum: 0, square: 0, n: 0 }, held: { max: 0, sum: 0, square: 0, n: 0 } };
+    for (const row of rows) {
+      const section: Q.ISection = C.chain(theta(Y, basis(row.s)), depth);
+      let maximum: number = section.fault === null ? 0 : Infinity;
+      let worst: number = NaN;
+      const into = sums[row.heldout ? "held" : "train"];
+      if (section.fault === null) {
+        const sample: ISample = vertices(row);
+        for (let k: number = 0; k < sample.phases.length; ++k) {
+          const e: number = Math.abs(Q.radius(section, sample.phases[k]!) - sample.radii[k]!);
+          if (e > maximum) worst = sample.phases[k]!;
+          maximum = Math.max(maximum, e);
+          into.sum += e;
+          into.square += e * e;
+          ++into.n;
+        }
+        for (const phi of report) chord = Math.max(chord, Math.abs(Q.radius(section, phi) - C.radius(row.points, phi, folds)));
+      }
+      into.max = Math.max(into.max, maximum);
+      evidence.push({ s: row.s, heldout: row.heldout, maximumMm: maximum, phase: worst, fault: section.fault });
+    }
+    const summary = (v: { max: number; sum: number; square: number; n: number }): IError => ({ maximumMm: v.max, meanMm: v.sum / Math.max(1, v.n), rmsMm: Math.sqrt(v.square / Math.max(1, v.n)) });
+    return { depth, knots: [...knots], values: Y, training: summary(sums.train), heldout: summary(sums.held), rows: evidence, chordMaximumMm: chord, iterations, folds: folds.count, fault: null, milliseconds: performance.now() - started };
+  }
+
+  /** Carry a family to another knot vector by reading every field at the new knots. */
+  export function resample(values: readonly (readonly number[])[], from: readonly number[], to: readonly number[]): number[][] {
+    return values.map((field: readonly number[]): number[] => {
+      const spline: S.ISpline = S.create(from, field);
+      return to.map((s: number): number => S.evaluate(spline, s));
+    });
+  }
+
+  /** Carry a family one split deeper, knot by knot, through `FamilyConicSection.deepen`. */
+  export function deepen(values: readonly (readonly number[])[], depth: number): number[][] {
+    const M: number = values[0]!.length;
+    const columns: number[][] = Array.from({ length: M }, (_: unknown, m: number): number[] => C.deepen(values.map((field: readonly number[]): number => field[m]!), depth));
+    return columns[0]!.map((_: number, f: number): number[] => columns.map((column: number[]): number => column[f]!));
+  }
+
+  /** An error record for a result that holds no family. */
+  const NONE: IError = { maximumMm: Infinity, meanMm: Infinity, rmsMm: Infinity };
+
+  /** A rows-by-columns zero matrix. */
+  function zeros(rows: number, columns: number): number[][] {
+    return Array.from({ length: rows }, (): number[] => new Array<number>(columns).fill(0));
+  }
+
+  /** Solve a symmetric positive-definite system by Cholesky factorisation in place; null when it is not positive definite. */
+  function solve(A: number[][], b: number[]): number[] | null {
+    const n: number = b.length;
+    for (let j: number = 0; j < n; ++j) {
+      const row: number[] = A[j]!;
+      let d: number = row[j]!;
+      for (let k: number = 0; k < j; ++k) d -= row[k]! * row[k]!;
+      if (!(d > 0)) return null;
+      const root: number = Math.sqrt(d);
+      row[j] = root;
+      for (let i: number = j + 1; i < n; ++i) {
+        const other: number[] = A[i]!;
+        let v: number = other[j]!;
+        for (let k: number = 0; k < j; ++k) v -= other[k]! * row[k]!;
+        other[j] = v / root;
+      }
+    }
+    const x: number[] = [...b];
+    for (let i: number = 0; i < n; ++i) {
+      let v: number = x[i]!;
+      for (let k: number = 0; k < i; ++k) v -= A[i]![k]! * x[k]!;
+      x[i] = v / A[i]![i]!;
+    }
+    for (let i: number = n - 1; i >= 0; --i) {
+      let v: number = x[i]!;
+      for (let k: number = i + 1; k < n; ++k) v -= A[k]![i]! * x[k]!;
+      x[i] = v / A[i]![i]!;
+    }
+    return x;
+  }
+}
