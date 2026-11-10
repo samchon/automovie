@@ -1,6 +1,6 @@
 # Script requirement discovery
 
-The discovery result covers the complete executable scene and partition population under the [common discovery boundary](common.md#shared-work-boundary).
+The discovery result covers the complete executable scene and partition population under the [common discovery boundary](common.md#requirement-ownership).
 
 ## Are the work's execution and presentation rules discovered? {#script-requirements}
 

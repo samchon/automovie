@@ -6,7 +6,7 @@ Choose the commissioned route from the request, project context, adopted instruc
 
 | Layer | Owns | Hands onward |
 | --- | --- | --- |
-| [Settings](layers/settings.md) | Facts about the world, cast, crowds, props, sets, cinematography and sound, with baseline states, relationships and knowledge boundaries | Specific, checkable facts with stable addresses, sources and one owner |
+| [Settings](layers/settings.md) | Facts about the world, cast, crowds, props, sets, cinematography and sound, with baseline states, relationships and knowledge boundaries | Specific decisions with stable addresses and one owner |
 | [Treatments](layers/treatments.md) | Events, causes, choices, consequences, setup and payoff, and information release | A progression that needs no invented decisive event |
 | [Scripts](layers/scripts.md) | Partition and fully executed scenes: speech, action, reactions, performance, stage, light, sound and view | Playable scenes for the final screenplay |
 | [Final screenplay](layers/screenplay.md) | The audience's image, sound, attention, duration, juxtaposition and transitions | Complete production text the scenes realize |
@@ -15,7 +15,7 @@ Choose the commissioned route from the request, project context, adopted instruc
 
 Commissioned video follows one traceable chain: settings and research, screenplay, laws and entities with their tests and accepted [catalog cases](../motion/SKILL.md), scene composition, then the film. Each link cites the addresses it realizes from the links above it, so no code exists without a cited basis and no requirement stays unrealized; a later link can only realize what an earlier one decided, and motion written before the screenplay settles its action is fitted to guesses.
 
-Every film has settings, because every later layer realizes and cites their facts and cannot cite what was never written; a facet that does not apply says so with its reason. Long work runs settings → treatments → scripts → screenplay construction, then screenplay naturalness; only the final screenplay has a separate expression pass. A short runs settings → screenplay (`short-with-settings`), keeping expression, evidence and review without empty treatment, script or outline files. Asset-only work has no narrative passes, and only an explicit user waiver omits screenplay naturalness. Choose form and scale through [direction](planning/direction.md); complete work is the default. In an AutoMovie workspace the production's folder fixes the route: `movies/shorts/<name>` runs settings → screenplay, and `movies/series/<name>` runs the whole long route.
+Every film has settings, because every later layer realizes and cites their facts and cannot cite what was never written. Long work runs settings → treatments → scripts → screenplay construction, then screenplay naturalness; only the final screenplay has a separate expression pass. A short runs settings → screenplay (`short-with-settings`), keeping expression, evidence and review without empty treatment, script or outline files. Asset-only work has no narrative passes, and only an explicit user waiver omits screenplay naturalness. Choose form and scale through [direction](planning/direction.md); complete work is the default. In an AutoMovie workspace the production's folder fixes the route: `movies/shorts/<name>` runs settings → screenplay, and `movies/series/<name>` runs the whole long route.
 
 ## Construction
 
