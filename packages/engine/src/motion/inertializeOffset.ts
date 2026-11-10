@@ -20,11 +20,24 @@
  * is closed-form in the elapsed time, so any frame can be evaluated alone, and
  * it is the method of Unreal's Inertialization node.
  *
+ * The clamp buys its guarantee with acceleration: the quintic starts at
+ * `-(8 v0 t1 + 20 x0) / t1^2`, which at the clamped time is
+ * `4 v0^2 / (5 x0)`, without bound as a channel is cut nearer the instant it
+ * passes its target. A channel cut there stops within milliseconds, a step
+ * in velocity in all but name. With `through` the clamp is not taken: the
+ * same quintic runs the whole `duration`, so its starting acceleration stays
+ * within `(8 |v0| duration + 20 |x0|) / duration^2`, and the offset passes
+ * through zero and returns, by no more than the velocity in excess of
+ * `5 |x0| / duration` times `256 duration / 3125`, the peak of the signed
+ * lobe. That is the follow-through of a body that reaches a pose at speed.
+ *
  * @param x0 Offset at the cut, any unit.
  * @param v0 Offset velocity at the cut, that unit per second.
  * @param duration Requested decay time `t1`, seconds; positive.
  * @param elapsed Seconds since the cut.
- * @returns The offset, its velocity and the clamped decay time.
+ * @param through Whether an offset heading to zero faster than the decay
+ *   absorbs passes through it, bounded as above, instead of stopping short.
+ * @returns The offset, its velocity and the decay time used.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Cites the method, derives the factored quintic and the clamp, states the continuity and overshoot guarantees and why a finite quintic is used.
  * @evidence contracts/development/implementation.md#principled-implementation Bollo's quintic inertialization with its overshoot clamp, written in the factored form whose sign condition is the clamp.
@@ -39,6 +52,7 @@ export function inertializeOffset(
   v0: number,
   duration: number,
   elapsed: number,
+  through: boolean = false,
 ): inertializeOffset.IState {
   if (
     ![x0, v0, elapsed].every(Number.isFinite) ||
@@ -49,7 +63,7 @@ export function inertializeOffset(
       "Inertialization needs finite offsets and a positive duration",
     );
   const t1: number =
-    x0 * v0 < 0 ? Math.min(duration, (-5 * x0) / v0) : duration;
+    !through && x0 * v0 < 0 ? Math.min(duration, (-5 * x0) / v0) : duration;
   if (elapsed >= t1 || t1 <= 0)
     return { value: 0, velocity: 0, duration: Math.max(t1, 0) };
   const t: number = Math.max(0, elapsed);

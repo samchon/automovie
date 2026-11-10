@@ -1,4 +1,9 @@
-import { Quaternion, minimumJerk, wrapDegrees } from "@automovie/engine";
+import {
+  Quaternion,
+  carriedRate,
+  minimumJerk,
+  wrapDegrees,
+} from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -19,7 +24,11 @@ import { HumanFrame } from "../posture/HumanFrame";
  * In swing the ankle leaves the placement and the velocity its stance ended
  * with and arrives at rest on the placement its next stance begins with, on a
  * quintic Hermite curve (the minimum-jerk profile of Flash and Hogan 1985 plus
- * the term carrying the initial velocity), lifted at mid-swing and raised
+ * the engine's `carriedRate` term for the initial velocity), lifted at
+ * mid-swing on a raised-cosine bump, `sin²(π u)`, whose slope is zero at both
+ * ends, so the lift adds no velocity at toe-off and the foot meets the floor
+ * at rest (the heel's vertical velocity at contact is near zero, Winter
+ * 1992), and raised
  * further wherever the toe or heel would come within 12 mm of the floor; its
  * heading and pitch turn between the two placements' on the minimum-jerk
  * profile, and the toes relax over the first half and take the landing's
@@ -189,8 +198,10 @@ export namespace walkFoot {
    * @param body The body.
    * @param side The foot.
    * @param props The two ends, the ankle's velocity at the first (m/s), the
-   *   share of the swing, its duration in seconds and the mid-swing lift in
-   *   hip heights.
+   *   rates its pitch and its toes leave the first with (degrees per second,
+   *   carried over the first half of the swing by the engine's `carriedRate`;
+   *   none when absent), the share of the swing, its duration in seconds and
+   *   the mid-swing lift in hip heights.
    * @returns The swinging foot.
    */
   export function swing(
@@ -199,6 +210,7 @@ export namespace walkFoot {
     props: {
       from: IEnd;
       velocity: IAutoMovieVector3;
+      rates?: { pitch: number; toes: number };
       to: IEnd;
       u: number;
       seconds: number;
@@ -207,11 +219,8 @@ export namespace walkFoot {
   ): IFoot {
     const u: number = Math.min(1, Math.max(0, props.u));
     const s: number = minimumJerk(u).s;
-    // The quintic Hermite basis of a unit initial velocity: zero value,
-    // velocity and acceleration at the end, zero acceleration at the start.
-    const carried: number =
-      (u - 6 * u ** 3 + 8 * u ** 4 - 3 * u ** 5) * props.seconds;
-    const bump: number = Math.sin(Math.PI * u);
+    const carried: number = carriedRate(props.seconds, u * props.seconds);
+    const bump: number = Math.sin(Math.PI * u) ** 2;
     const a: IAutoMovieVector3 = props.from.ankle;
     const b: IAutoMovieVector3 = props.to.ankle;
     const ankle: IAutoMovieVector3 = {
@@ -228,14 +237,18 @@ export namespace walkFoot {
       leaving +
       wrapDegrees(HumanFrame.heading(props.to.rotation) - leaving) * s;
     const left: number = pitch(props.from.rotation);
+    const turning: number = carriedRate(props.seconds / 2, u * props.seconds);
     const toes: number =
       props.from.toes * (1 - minimumJerk(Math.min(1, 2 * u)).s) +
-      props.to.toes * minimumJerk(Math.max(0, 2 * u - 1)).s;
+      props.to.toes * minimumJerk(Math.max(0, 2 * u - 1)).s +
+      (props.rates?.toes ?? 0) * turning;
     const placement: HumanFoot.IPlacement = {
       ankle,
       rotation: HumanFoot.rotation(
         heading,
-        left + (pitch(props.to.rotation) - left) * s,
+        left +
+          (pitch(props.to.rotation) - left) * s +
+          (props.rates?.pitch ?? 0) * turning,
       ),
     };
     const low: number = Math.min(

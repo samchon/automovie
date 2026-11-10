@@ -16,6 +16,7 @@ import type { IHumanPosture } from "../posture/IHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { stand } from "./stand";
 import { standUpright } from "./standUpright";
+import { walkDescent } from "./walkDescent";
 import { walkFoot } from "./walkFoot";
 import { walkReach } from "./walkReach";
 import { walkSteps } from "./walkSteps";
@@ -266,11 +267,95 @@ export namespace walk {
         4 * Math.sin(2 * Math.PI * phase) * amount,
       ];
     };
+    // A foot as its schedule alone has it, before any pelvis is settled.
+    const scheduled = (side: "left" | "right", t: number): walkFoot.IEnd => {
+      const foot: walkFoot.IScheduled = steps.foot(side, t);
+      return {
+        ankle: foot.placement.ankle,
+        rotation: foot.placement.rotation,
+        toes: foot.toes,
+      };
+    };
+    // A swinging foot between two stances as `at` has them, leaving the first
+    // with the rates that stance ends with.
+    const swung = (
+      side: "left" | "right",
+      swing: { off: number; on: number },
+      u: number,
+      at: (side: "left" | "right", t: number) => walkFoot.IEnd,
+    ): walkFoot.IFoot => {
+      const from: walkFoot.IEnd = at(side, swing.off);
+      const before: walkFoot.IEnd = at(side, swing.off - TICK);
+      return walkFoot.swing(body, side, {
+        from,
+        velocity: Vector3.scale(
+          Vector3.subtract(from.ankle, before.ankle),
+          1 / TICK,
+        ),
+        rates: {
+          pitch:
+            (walkFoot.pitch(from.rotation) - walkFoot.pitch(before.rotation)) /
+            TICK,
+          toes: (from.toes - before.toes) / TICK,
+        },
+        to: at(side, swing.on),
+        u,
+        seconds: swing.on - swing.off,
+        lift: gait.lift,
+      });
+    };
+    // The lowering a swinging leg asks of the pelvis at a share of its swing
+    // for the ankle the schedule swings there, read from the schedule alone
+    // so that it needs no settled pelvis and every instant settles the same.
+    const reaching = (
+      side: "left" | "right",
+      swing: { off: number; on: number },
+      u: number,
+    ): number => {
+      const t: number = swing.off + u * (swing.on - swing.off);
+      return walkReach.short(
+        body,
+        walkReach.pelvis(body, steps.root(t), steps.yaw(t), pelvis(t), {
+          left: steps.foot("left", t),
+          right: steps.foot("right", t),
+        }).hips[side],
+        swung(side, swing, u, scheduled).placement.ankle,
+      );
+    };
+    // A swing's scheduled descent, memoised by its toe-off.
+    const descents: Map<string, walkDescent.IPlan> = new Map();
     const settle = (
       t: number,
       feet: Record<"left" | "right", walkFoot.IScheduled>,
-    ): walkReach.IGround =>
-      walkReach.ground(body, steps.root(t), steps.yaw(t), pelvis(t), feet);
+    ): walkReach.IGround => {
+      const claims: Partial<Record<"left" | "right", number>> = {};
+      for (const side of ["left", "right"] as const) {
+        const swing = feet[side].swing;
+        if (swing === undefined || swing.u < walkDescent.START) continue;
+        const key: string = `${side}:${swing.off}`;
+        let descent: walkDescent.IPlan | undefined = descents.get(key);
+        if (descent === undefined) {
+          descent = walkDescent.plan((u: number): number =>
+            reaching(side, swing, u),
+          );
+          descents.set(key, descent);
+        }
+        claims[side] = walkDescent.claim(
+          descent,
+          swing.u,
+          reaching(side, swing, swing.u),
+          -walkReach.CLAIM,
+        );
+      }
+      return walkReach.ground(
+        body,
+        steps.root(t),
+        steps.yaw(t),
+        pelvis(t),
+        feet,
+        claims,
+      );
+    };
     // A foot's stance as reached at a swing's end, memoised by its second:
     // every sample of that swing reads the same three.
     const ends: Map<string, walkFoot.IEnd> = new Map();
@@ -305,22 +390,11 @@ export namespace walk {
       for (const side of ["left", "right"] as const) {
         const swing = feet[side].swing;
         if (swing === undefined) continue;
-        const from: walkFoot.IEnd = end(side, swing.off);
         reached[side] = walkReach.swing(
           body,
           side,
           settled,
-          walkFoot.swing(body, side, {
-            from,
-            velocity: Vector3.scale(
-              Vector3.subtract(from.ankle, end(side, swing.off - TICK).ankle),
-              1 / TICK,
-            ),
-            to: end(side, swing.on),
-            u: swing.u,
-            seconds: swing.on - swing.off,
-            lift: gait.lift,
-          }),
+          swung(side, swing, swing.u, end),
         );
       }
       return { feet, hips: pelvis(t), settled, reached };

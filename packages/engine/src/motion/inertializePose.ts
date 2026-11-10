@@ -31,6 +31,10 @@ import { samplePoseVelocity } from "./samplePoseVelocity";
  * @param source The displayed pose and its velocity at the cut.
  * @param target The target's pose and velocity at the cut.
  * @param duration Requested decay time, seconds; positive.
+ * @param through Whether a channel heading to its target faster than the
+ *   decay absorbs passes through it and returns, as `inertializeOffset`
+ *   bounds, instead of stopping short of it within milliseconds: the "never
+ *   overshoots" above is then given up for a bounded acceleration at the cut.
  * @returns The displayed pose for an elapsed time and the target pose at it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the per-channel method, its continuity and no-overshoot guarantees, the root rotation's treatment and where contact correction goes.
@@ -45,6 +49,7 @@ export function inertializePose(
   source: samplePoseVelocity.IState,
   target: samplePoseVelocity.IState,
   duration: number,
+  through: boolean = false,
 ): (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose {
   const angles = (
     p: IAutoMoviePose,
@@ -103,7 +108,8 @@ export function inertializePose(
         base[k]! +
         (o === undefined
           ? 0
-          : inertializeOffset(o.x[k]!, o.v[k]!, duration, elapsed).value);
+          : inertializeOffset(o.x[k]!, o.v[k]!, duration, elapsed, through)
+              .value);
       joints.push({ bone, flexion: at(0), abduction: at(1), twist: at(2) });
     }
     const t: IAutoMovieVector3 = pose.root?.translation ?? zero;
@@ -117,12 +123,14 @@ export function inertializePose(
         source.velocity.linear[k] - target.velocity.linear[k],
         duration,
         elapsed,
+        through,
       ).value;
       turn[k] = inertializeOffset(
         rotation0[k],
         source.velocity.angular[k] - target.velocity.angular[k],
         duration,
         elapsed,
+        through,
       ).value;
     }
     const angle: number = Math.hypot(turn.x, turn.y, turn.z);

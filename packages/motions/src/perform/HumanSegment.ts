@@ -557,6 +557,9 @@ export namespace HumanSegment {
           "after",
         ),
         transition.blend,
+        // A joint cut as it passes the next action's pose keeps its rate and
+        // follows through; stopped short it would lose that rate at once.
+        true,
       );
       // The offset pose is clamped first and the planted limbs re-solved last,
       // so no later step moves a plant (the limb fit keeps its own angles in range).

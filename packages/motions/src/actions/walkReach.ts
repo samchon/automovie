@@ -1,12 +1,11 @@
 import {
-  type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   minimumJerk,
+  smoothMinimum,
   wrapDegrees,
 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -14,7 +13,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { poseBones } from "../posture/poseBones";
+import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
@@ -26,18 +25,24 @@ import { walkLeg } from "./walkLeg";
  *
  * `ground` settles the pelvis against the stances. It lowers the root until
  * each stance's ankle is reached with the knee at least `KNEE` degrees bent
- * (`resolveHumanPosture.lower`) and turns the pelvis no further than `TWIST`
- * from each stance's foot. A swinging foot claims through the stance it left
- * or the stance it lands in, its claim fading out over the first `FADE` of
- * its swing and in over the last on a minimum-jerk weight (Flash and Hogan
- * 1985), so the pelvis is continuous with its rate through every contact
- * event and never depends on where the swinging foot is. A stance whose shank
- * leans past the ankle's dorsal limit raises its heel about its ball, or
+ * and turns the pelvis no further than `TWIST` from each stance's foot
+ * (`pelvis`). Each foot claims a lowering (`short`), signed, so a leg with
+ * slack claims less than none. A swinging foot claims through the stance it
+ * left or the stance it lands in, its claim fading out over the first `FADE`
+ * of its swing and in over the last on a minimum-jerk weight (Flash and Hogan
+ * 1985), unless the caller names its claim, as a walk does over the second
+ * half of a swing (`walkDescent`). The two feet's claims and none at all join
+ * in a smooth maximum `CLAIM` wide (the engine's `smoothMinimum`, negated),
+ * which never lowers less than either asks, so the pelvis is continuous with
+ * its rate through every contact event and where a leg runs out of slack. A
+ * stance whose shank leans toward the ankle's dorsal limit raises its heel
+ * about its ball (`walkLeg.heelRise`, from `walkLeg.ROCKER` of room on), or
  * lowers its toes about its heel in the heel rocker; one whose thigh would
- * trail more than `TRAIL` raises its heel further; and a foot pivots on its
- * toe pad by the pelvis's turn beyond `TWIST`, in proportion to its heel's
- * rise up to `HEEL_UP`, the pivot of a stepping turn. The hip joints are read
- * from the pelvis posed by the root, the heading and the pelvis joint, so its
+ * trail more than `TRAIL` raises its heel further, by the same rounded rule
+ * from `EASE` short of it on; and a foot pivots on its toe pad by the
+ * pelvis's turn beyond `TWIST`, in proportion to its heel's rise up to
+ * `HEEL_UP`, the pivot of a stepping turn. The hip joints are read from the
+ * pelvis posed by the root, the heading and the pelvis joint, so its
  * rotation and list count.
  *
  * `swing` then holds a swinging foot inside the leg's reach, the hip's
@@ -48,6 +53,21 @@ import { walkLeg } from "./walkLeg";
 export namespace walkReach {
   /** The share of a swing over which its foot's claim on the pelvis fades out after toe-off and in before heel strike (provisional). */
   export const FADE: number = 0.25;
+
+  /** The difference, metres, under which the claims on the root's height blend (provisional); a foot that asks nothing claims this much less than none, so it leaves the blend alone. */
+  export const CLAIM: number = 0.01;
+
+  /** A pelvis turned toward its stances, before it is lowered. */
+  export interface IPelvis {
+    /** The heading, degrees. */
+    yaw: number;
+
+    /** Each foot's pivot turn on its toe pad, degrees. */
+    pivots: Record<"left" | "right", number>;
+
+    /** The hip joints, world metres. */
+    hips: Record<"left" | "right", IAutoMovieVector3>;
+  }
 
   /** The pelvis settled against the stances. */
   export interface IGround {
@@ -82,30 +102,45 @@ export namespace walkReach {
   }
 
   /**
-   * Settle the pelvis against the stances.
+   * The lowering a leg asks of the root to reach an ankle with the knee
+   * `KNEE` bent (`resolveHumanPosture.short`).
+   *
+   * @param body The body.
+   * @param hip The hip joint, world metres.
+   * @param ankle The ankle, world metres.
+   * @returns Metres, negative by the leg's slack and no less than a metre
+   *   under none, which claims as little as any slack does.
+   */
+  export function short(
+    body: IHumanBody,
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+  ): number {
+    return Math.max(-1, resolveHumanPosture.short(body, hip, ankle, KNEE));
+  }
+
+  /**
+   * Turn the pelvis toward its stances: no further than `TWIST` from each
+   * claiming foot, a foot with its heel up taking the rest as a pivot turn.
    *
    * @param body The body.
    * @param root The unconstrained root, world metres.
    * @param planned The unconstrained heading, degrees.
    * @param hips The pelvis joint's clinical angles, degrees.
    * @param feet Each foot as scheduled.
-   * @returns The pelvis and each stance as reached.
+   * @returns The heading, the pivots and the hip joints under that root.
    */
-  export function ground(
+  export function pelvis(
     body: IHumanBody,
     root: IAutoMovieVector3,
     planned: number,
     hips: readonly [number, number, number],
     feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
-  ): IGround {
-    const weights: Record<"left" | "right", number> = {
-      left: weight(feet.left),
-      right: weight(feet.right),
-    };
+  ): IPelvis {
     const pivots: Record<"left" | "right", number> = { left: 0, right: 0 };
     let yaw: number = planned;
     for (const side of SIDES) {
-      const w: number = weights[side];
+      const w: number = weight(feet[side]);
       if (w <= 0) continue;
       const rotation: IAutoMovieQuaternion = feet[side].placement.rotation;
       const heading: number = HumanFrame.heading(rotation);
@@ -118,22 +153,47 @@ export namespace walkReach {
       if (Math.abs(turned) > TWIST / w)
         yaw -= turned - (Math.sign(turned) * TWIST) / w;
     }
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+    return {
+      yaw,
+      pivots,
+      hips: hipJoints(
+        body,
+        root,
+        resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }),
+        hips,
+      ),
+    };
+  }
+
+  /**
+   * Settle the pelvis against the stances.
+   *
+   * @param body The body.
+   * @param root The unconstrained root, world metres.
+   * @param planned The unconstrained heading, degrees.
+   * @param hips The pelvis joint's clinical angles, degrees.
+   * @param feet Each foot as scheduled.
+   * @param claims The lowering a foot claims in place of its faded stance's,
+   *   metres.
+   * @returns The pelvis and each stance as reached.
+   */
+  export function ground(
+    body: IHumanBody,
+    root: IAutoMovieVector3,
+    planned: number,
+    hips: readonly [number, number, number],
+    feet: Readonly<Record<"left" | "right", walkFoot.IScheduled>>,
+    claims: Readonly<Partial<Record<"left" | "right", number>>> = {},
+  ): IGround {
+    const { yaw, pivots, hips: joints }: IPelvis = pelvis(
       body,
-      {
-        skeleton: body.skeleton.id,
-        root: {
-          translation: root,
-          rotation: resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }),
-          scale: { x: 1, y: 1, z: 1 },
-        },
-        joints: [
-          { bone: "hips", flexion: hips[0], abduction: hips[1], twist: hips[2] },
-        ],
-      },
+      root,
+      planned,
+      hips,
+      feet,
     );
     const hip = (side: "left" | "right", drop: number): IAutoMovieVector3 => {
-      const p: IAutoMovieVector3 = bones.get(`${side}UpperLeg`)!.worldPosition;
+      const p: IAutoMovieVector3 = joints[side];
       return { x: p.x, y: p.y - drop, z: p.z };
     };
     const placed = {} as Record<"left" | "right", walkFoot.IEnd>;
@@ -152,33 +212,20 @@ export namespace walkReach {
         contacts[side] = out.contact;
       }
     };
+    // A fading foot's claim runs from its stance's to `CLAIM` under none.
+    const claim = (side: "left" | "right"): number => {
+      const named: number | undefined = claims[side];
+      if (named !== undefined) return named;
+      const w: number = weight(feet[side]);
+      return w <= 0
+        ? -CLAIM
+        : w * short(body, joints[side], placed[side].ankle) + (w - 1) * CLAIM;
+    };
     const lowering = (): number =>
-      Math.max(
+      -smoothMinimum(
+        smoothMinimum(-claim("left"), -claim("right"), CLAIM),
         0,
-        ...SIDES.map((side): number =>
-          weights[side] <= 0
-            ? 0
-            : weights[side] *
-              (root.y -
-                resolveHumanPosture.lower(
-                  body,
-                  {
-                    root,
-                    yaw,
-                    pitch: 0,
-                    roll: 0,
-                    joints: { hips },
-                    limbs: {
-                      [`${side}Leg`]: {
-                        point: placed[side].ankle,
-                        bend: feet[side].placement.ankle,
-                        planted: true,
-                      },
-                    },
-                  },
-                  KNEE,
-                ).root.y),
-        ),
+        CLAIM,
       );
     // The stances are placed first and the root lowered for the ankles they
     // end at, then placed again against the lowered hips, so the root is
@@ -323,39 +370,53 @@ export namespace walkReach {
         foot.toes,
       ).y < 0.01
     )
-      for (let k: number = 0; k < 4; k++) {
-        const top: number =
-          -walkLeg.lean(body, h, placement.ankle, heading) +
-          20 -
-          walkLeg.ANKLE;
-        if (pitch <= top + 1e-6) break;
-        pitch = about === "heel" ? Math.max(0, top) : top;
-        placement = at(pitch);
+      if (about === "heel")
+        for (let k: number = 0; k < 4; k++) {
+          const top: number =
+            -walkLeg.lean(body, h, placement.ankle, heading) +
+            20 -
+            walkLeg.ANKLE;
+          if (pitch <= top + 1e-6) break;
+          pitch = Math.max(0, top);
+          placement = at(pitch);
+        }
+      else {
+        const risen: number = walkLeg.heelRise(
+          body,
+          side,
+          h,
+          pivot,
+          heading,
+          pitch,
+          walkLeg.ROCKER,
+        );
+        if (risen !== pitch) {
+          pitch = risen;
+          placement = at(pitch);
+        }
       }
     // The heel rises further about the ball while the thigh would trail more
     // than TRAIL behind vertical and the ankle can still plantarflex: the
     // knee then bends and the thigh comes forward, the trailing-limb posture
-    // of terminal stance and pre-swing (Perry and Burnfield). The rise is the
-    // least one that holds the bound, found by bisection, so it varies
-    // continuously.
+    // of terminal stance and pre-swing (Perry and Burnfield). The room is the
+    // thigh's distance from the bound, and none is asked of a pitch at the
+    // ankle's plantar limit. Raising the heel only brings the thigh forward,
+    // so this room has no fold.
     if (about === "mtp") {
-      const refused = (degrees: number): boolean => {
-        const ankle: IAutoMovieVector3 = at(degrees).ankle;
-        return (
-          walkLeg.trailing(body, h, ankle, yaw) > TRAIL &&
-          degrees + walkLeg.lean(body, h, ankle, heading) + 50 > walkLeg.ANKLE
-        );
-      };
-      if (refused(pitch)) {
-        let low: number = -STEEPEST;
-        let high: number = pitch;
-        if (!refused(low))
-          for (let k: number = 0; k < 30; k++) {
-            const middle: number = (low + high) / 2;
-            if (refused(middle)) high = middle;
-            else low = middle;
-          }
-        pitch = Math.min(pitch, low);
+      const risen: number = walkLeg.rise(
+        (degrees: number): number => {
+          const ankle: IAutoMovieVector3 = at(degrees).ankle;
+          return degrees + walkLeg.lean(body, h, ankle, heading) + 50 >
+            walkLeg.ANKLE
+            ? TRAIL - walkLeg.trailing(body, h, ankle, yaw)
+            : Infinity;
+        },
+        pitch,
+        EASE,
+        false,
+      );
+      if (risen !== pitch) {
+        pitch = risen;
         placement = at(pitch);
       }
     }
@@ -402,8 +463,8 @@ export namespace walkReach {
   /** The furthest a planted leg's thigh trails behind vertical, degrees: the 20° of terminal stance (Perry and Burnfield), inside the hip's 30° extension. */
   const TRAIL: number = 20;
 
-  /** The steepest heel rise of a planted foot, degrees toes-down (provisional): past it the foot would stand on its toe tips. */
-  const STEEPEST: number = 75;
+  /** The trail short of `TRAIL`, degrees, from which a planted foot's heel begins to rise for it (provisional): a thigh extending at a walk's few hundred degrees per second is brought to rest over the rounding, twice this wide, with an acceleration of the square of that rate over four times the width. */
+  const EASE: number = 8;
 
   /** The least knee flexion of a planted or reaching leg, degrees (provisional): a walking knee never locks straight. */
   const KNEE: number = 10;
