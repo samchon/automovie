@@ -1,6 +1,6 @@
 ---
 name: development
-description: Repairs, implements, tests, and validates automovie source, tests, workflows, and package wiring. Use before editing any of them; acknowledgments belong to contracts and visual verification to 3d-modeling.
+description: Repairs, implements, tests, and validates automovie source, tests, workflows, and package wiring. Use before editing any of them; checklist answers belong to contracts and visual verification to 3d-modeling.
 ---
 
 # Development
@@ -15,23 +15,17 @@ The rules on this page hold for every change to source, tests, workflows and pac
 
 ## Contracts
 
-Every maintained declaration answers, in its doc comment, the [contracts](../contracts/SKILL.md) checklists its package selects:
-
-| Declaration | Checklists |
-| --- | --- |
-| Production type or class | [`common.md`](../contracts/development/common.md), [`design.md`](../contracts/development/design.md) |
-| Function or method | [`common.md`](../contracts/development/common.md), [`implementation.md`](../contracts/development/implementation.md) |
-| Test | [`common.md`](../contracts/development/common.md), [`testing.md`](../contracts/development/testing.md) |
+Every maintained declaration answers, in its doc comment, the checklists its package selects, always including `common.md`; the [contracts](../contracts/SKILL.md) table says which declaration answers which.
 
 `human` selects none until its rebuild declares completion, then its production checklists at once.
 
-## Types And Files
+## Types and files
 
 Annotate the type of every variable and parameter and the return type of every function. Leave a type to inference only where TypeScript takes no annotation, such as a `for...of` or `catch` binding.
 
 A source file has fewer than 500 lines and exports one symbol named after it, barrels excepted.
 
-## Comments And Layout
+## Comments and layout
 
 Write code for the agent who changes it next. Give every declaration a JSDoc comment written to the contracts [Meaningful documentation](../contracts/development/common.md#meaningful-documentation) chapter, including in a package that selects no checklist.
 
@@ -49,7 +43,7 @@ Respect the [package boundaries](../project/SKILL.md#packages); review reads eve
 
 Tests, CI, wiring, dependencies, `interface` core types, and the range-of-motion and constraint tables are specification. Change them only on request or for a product reason, and say so.
 
-## Scripts And Shared Checkouts
+## Scripts and shared checkouts
 
 ### Tracked code
 

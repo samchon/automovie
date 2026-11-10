@@ -1,5 +1,7 @@
 # Testing
 
+Where a unit test lives, how its cases are laid out and how it asserts.
+
 ## Location
 
 A unit test is a `test_<name>.ts` under `test/src/features/<domain>/` that imports the source it calls and declares `export function test_<name>(): void` or `export async function test_<name>(): Promise<void>`, never an arrow function. Reuse the helpers in `test/src/features/internal/`.

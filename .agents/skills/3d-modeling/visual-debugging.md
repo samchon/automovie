@@ -1,4 +1,4 @@
-# Visual Debugging
+# Visual debugging
 
 Readiness or numerical success proves no appearance; only an observed render does.
 
@@ -10,9 +10,7 @@ Repair a missing capability at the owner of that capability, then reconnect and 
 
 Inspect the actual consumer with current source on a hardware renderer, recording the source revision, asset identities, input, time or pose, camera, renderer and detail settings needed to repeat the observation.
 
-## Correction Rounds
-
-A round inspects everything, traces every cause, fixes them all in one change and then compares again.
+## Correction rounds
 
 ### Inspect before editing
 
@@ -20,13 +18,13 @@ Inspect the whole affected asset at every scale, moving the camera freely throug
 
 Inspect each defining curve and part in isolation against the reference. Then choose groups that share boundaries or affect one another and inspect them together against that reference, before judging the assembly. Repeat the individual and grouped selections from front, side and top, around the back and from high and low obliques as the form requires.
 
-Keep enough reference visible to read placement and depth; a hidden reference, an empty selection or separate passing close-ups establishes no relationship between neighbours.
+Keep enough reference visible to read placement and depth; a hidden reference, an empty selection or separate passing close-ups establishes no relationship between neighbors.
 
 ### Forms defined by 2D views
 
 For a form defined by original 2D views, establish the placement and form of each part's original curves before accepting the algorithm's lofting curves and realized surface. A completed observation round is not a passed construction: correct the affected defining-curve causes together and repeat their comparison, because a smooth downstream surface can still express the wrong input.
 
-Take a part with accepted 2D definitions straight to the [3D passes](#construction) with its neighbours; unrelated parts need not be complete.
+Take a part with accepted 2D definitions straight to the [3D passes](#construction) with its neighbors; unrelated parts need not be complete.
 
 ### Trace the causes
 
@@ -69,13 +67,13 @@ Judge a surface only with the construction that generated it, because the surfac
 - an implicit surface's primitives;
 - a field's defining curves.
 
-Every set of views shows the same cameras three times: the 3D construction alone (the actual lofting curves for a lofted form), that construction over the ordinary shaded surface, then the surface alone. This holds for whole sweeps, selected parts, neighbour groups and each defect's close-up alike.
+Every set of views shows the same cameras three times: the 3D construction alone (the actual lofting curves for a lofted form), that construction over the ordinary shaded surface, then the surface alone. This holds for whole sweeps, selected parts, neighbor groups and each defect's close-up alike.
 
 Keep the reference in the comparison passes and distinguish original 2D definitions, the algorithm's 3D curves, unconnected studies, raw operands and realized joins. Verify the selected ids and observation stage through the actual viewer controls.
 
 An uncomputed surface is unavailable evidence, and hiding a joining surface can create a false defect.
 
-## Light And Material
+## Light and material
 
 Judge form under raking light with fine material detail such as normal maps turned off, and judge materials and lighting in beauty. Use structural passes only for the quantities they document.
 

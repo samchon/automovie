@@ -1,6 +1,6 @@
 # Research
 
-Use primary sources to choose a method and understand its limits, then read the contracts of the packages in use and inspect the actual result. These references supply options, not supported features, mandatory dependencies or reproduced benchmark results. Model, code and data licences and hardware support are separate checks at adoption; a research preview is not an accepted asset.
+Use primary sources to choose a method and understand its limits, then read the contracts of the packages in use and inspect the actual result. These references supply options, not supported features, mandatory dependencies or reproduced benchmark results. Model, code and data licenses and hardware support are separate checks at adoption; a research preview is not an accepted asset.
 
 | Primary source | Decision informed here |
 | --- | --- |

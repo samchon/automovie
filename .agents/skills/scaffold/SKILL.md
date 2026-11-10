@@ -27,7 +27,7 @@ The [product contract](../project/SKILL.md#commissions) defines the commissions 
 
 Keep the separately commissioned outputs distinct: a screenplay, a whole motion hint, a finished direct 3D film and a finished post-diffusion film. Direct 3D needs no diffusion, and a motion hint needs no finished diffusion film.
 
-Long-form work keeps its four layers, with construction, expression revision, evidence, current independent review and whole-work completion, and asset-only work has no narrative. Compact questions within those responsibilities rather than removing the architecture.
+Long-form work keeps its four story layers, settings → treatments → scripts → screenplay, with construction, expression revision, evidence, current independent review and whole-work completion, and asset-only work has no narrative. Compact questions within those responsibilities rather than removing the architecture.
 
 Default lint and evidence configurations serve ordinary TypeScript development; narrative work opts into its additional workflow while retaining engineering checks.
 
@@ -44,7 +44,7 @@ The scaffold has three layers:
 | Layer | Ships at |
 | --- | --- |
 | `instructions` | A single production's root, and a workspace root |
-| `production` | A single production's root, and each workspace `movies/<shorts|series>/<name>` |
+| `production` | A single production's root, and each workspace `movies/shorts/<name>` or `movies/series/<name>` |
 | `workspace` | A workspace root only |
 
 Instruction files take no token and stay layout-neutral: a project path they name is the production's, never a link out of `.agents`, and the production layer reaches the shared skills through `{{skills}}`.
@@ -59,7 +59,7 @@ Runtime README and `.env.example` own nonsecret operational setup and variable n
 
 ## Updating productions
 
-Package upgrades do not rewrite productions. Explicit instruction updates use the CLI sync documented in the [CLI README](../../../packages/cli/README.md), which updates routers and bundled task resources while preserving contracts, project decisions, configuration and authored content. A scaffold edit alone reaches only future installations until sync is run.
+Package upgrades do not rewrite productions. Explicit instruction updates use the CLI sync documented in the [CLI README](../../../packages/cli/README.md), which updates routers and bundled task resources while preserving contracts, project decisions, configuration and authored content. Reusable package implementation stays with its package. A scaffold edit alone reaches only future installations until sync is run.
 
 For an authorized update to an existing production:
 

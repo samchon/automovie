@@ -4,13 +4,9 @@ Choose the [representation](crafting.md#representation) by the form and organize
 
 For a fixed mesh or ordered line source, follow [Recovery](recovery.md) before fitting the section family.
 
-## One Section Family
+## One section family
 
-Define one section family from independent [dimensions](crafting.md#dimensions), its chosen physical course, section planes, relative frames and stations.
-
-A bone-relative family can take sections normal to its course with minimal-rotation transport. A composed family declares its common physical plane and each contributing curve's actual plane/frame map; that plane need not be normal to every contributor's separate axis. Verify those maps and the measurement plane required by each published dimension, because a world-plane cut can be oblique to a member.
-
-Derive supported spans from corresponding feature parameters, constrain their joins and derive guides from that family.
+Define one section family from independent [dimensions](crafting.md#dimensions), its chosen physical course, section planes, relative frames and stations. A bone-relative family can take sections normal to its course, carried along it with the least twist. A composed family declares its common physical plane and each contributing curve's actual plane/frame map; that plane need not be normal to every contributor's separate axis. Verify those maps and the measurement plane required by each published dimension, because a world-plane cut can be oblique to a member. Derive supported spans from corresponding feature parameters, constrain their joins and derive guides from that family.
 
 A family can be defined by a few view curves: front and side outline pairs, an axis and a fullness control. Each section is the conic or rational curve through the outline points at its station, shaped by that fullness, as in conic lofting. Measured section dimensions then check the loft instead of being authored loop by loop.
 
@@ -18,7 +14,7 @@ Choose each curve's representation by its span's continuity and fullness contrac
 
 Reconcile measured guide intersections before interpolation, using sections and obliques alongside front and side envelopes. Distinguish the generating operator's interpolation waypoints, control points and evaluated points.
 
-## Composition Before Lofting
+## Composition before lofting
 
 When several authored regions share a physical section, compose their defining 2D pieces in that declared plane and frame before generating the surface. Keep the source controls and coordinate maps, reconcile guide/profile correspondence and preserve actual components, concavities, holes and topology changes. A projected silhouette Boolean loses depth, and a tape hull that bridges concavities is a different boundary.
 
@@ -36,7 +32,7 @@ A port band needs its own topology, regularity and continuity admission; it is n
 
 Where a connection is traced as an intersection, seed it from shared landmarks. Near a closed end, carry the trace in the root parameter, because the station chart is polar there and a linear or quadratic predictor fails in it.
 
-## Fitting And Verification
+## Fitting and verification
 
 Fix registration and fit supported named coefficients under matching measurement conditions. Preserve independent dimensions, reserve validation shapes, sections or views, and reject local regressions hidden by aggregate improvement.
 

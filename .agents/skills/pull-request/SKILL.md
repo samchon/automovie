@@ -3,11 +3,11 @@ name: pull-request
 description: Branches, commits, pushes, opens, updates, and merges automovie pull requests. Use only when the user asks for one of those actions or a mandate names delivery.
 ---
 
-# Pull Request
+# Pull request
 
 Pushing, opening, and merging each need the user's request or a mandate that names them. Never bump versions, tag, or publish; releases belong to the maintainer.
 
-## Branch And Commit
+## Branch and commit
 
 - Branch `<type>/<scope>` from `master` in the current checkout.
 - Never commit to `master` or use another clone or worktree.
@@ -22,7 +22,7 @@ Record later fixes and [Self-Review](../review/SKILL.md) rounds as `COMMENT` rev
 
 Write an issue, pull request or comment body to a UTF-8 file and pass it with `--body-file` from a shell that keeps its bytes, then read the published body back. Windows PowerShell 5.1 reads UTF-8 without a BOM as ANSI and turns every non-ASCII character into `?`.
 
-## Push And Merge
+## Push and merge
 
 Push a correction only after every check of the current head has settled, because a push cancels the running checks.
 

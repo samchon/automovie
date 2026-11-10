@@ -5,7 +5,7 @@ description: Defines the automovie product contract, its decided exclusions, pac
 
 # Project
 
-## Product Contract
+## Product contract
 
 AutoMovie produces film-generation diffusion hints from an LLM-authored screenplay: readable geometry, staging, motion and timing, reproducible frame to frame. A change that buys visual richness at the cost of determinism, authorability or review cost delivers the wrong thing.
 
@@ -25,13 +25,13 @@ Installed package contracts define which paths are actually supported. Generated
 
 ### Commissions
 
-The scaffold owns direct LLM authoring of the screenplay. A short runs brief → screenplay, and a series runs the long route of settings → treatments → scripts → screenplay.
+The scaffold owns direct LLM authoring of the screenplay. A short runs brief → screenplay, and long work, for a series or a very long film, runs settings → treatments → scripts → screenplay.
 
 | Commission | Ends at |
 | --- | --- |
 | Screenplay only | The text |
 | Film-generation hint | The main scenes' staging and motion programmed and the whole video assembled; supporting stills or isolated clips are insufficient |
-| Finished video | Direct 3D rendering or a chosen diffusion workflow |
+| Finished video | The finished video, by direct 3D rendering or a chosen diffusion workflow |
 
 Use the engine's supported physical computations and constraints to drive and verify the performance. Inspect the requested artifact and disclose unverified stages, because accurate conditioning does not guarantee an external generator's result.
 
@@ -41,9 +41,9 @@ A production records its adopted decisions in its generated project-root `PROJEC
 
 A capability the authoring agent cannot drive is not a capability. Hence rough types in `interface`, closed unions instead of construction kits, and a formation as a count and a layout. `interface` and `engine` grow toward representing every object and motion, so each new axis is additive, never a rewrite.
 
-Product packages and the shipped scaffold hold general capability, never finished content such as catalogue entries, furniture, or profile libraries. Extend the engine when authoring is blocked, not to hand someone a finished chair; pre-built content also voids the subject-independence benchmark.
+Product packages and the shipped scaffold hold general capability, never finished content such as catalog entries, furniture, or profile libraries. Extend the engine when authoring is blocked, not to hand someone a finished chair; pre-built content also voids the subject-independence benchmark.
 
-## Out of Scope
+## Out of scope
 
 Each decided exclusion is recorded in the JSDoc of the closest type with its reopening condition.
 
@@ -66,14 +66,16 @@ The [root README](../../../README.md#packages) and package READMEs own inventori
 | `motions` | Human action content |
 | `human` | The human figure generated from typed parameters by code |
 | `recovery` | Reference-mesh reconstruction |
-| `viewer` | GPU display, capture and inspection transport; the only library importing `three.js`, with no entry point for the parameter-only Human surface |
+| `viewer` | GPU display, capture and inspection transport; the only library importing `three.js` |
 | `playground` | Mounting `viewer`, and the example parameter sets |
 | `evidence` | Reusable engineering defaults and optional narrative evidence composition, for native checking |
 | `template/scaffold` | The generated production instructions, editable contracts and thin configuration, which `cli` installs |
 
+The parameter-only Human surface has no viewer or capture entry point.
+
 ### Motion
 
-`motions` owns the action laws with their interrupt tables, the chain an author drives, the performance that resolves several performers, and the capture with its verdicts. `engine` keeps only universal motion primitives with cited practice and no action vocabulary, such as chain fitting, minimum jerk, inertialization, contact events and retargeting.
+`motions` owns every action law and what runs it; `engine` keeps only universal motion primitives with cited practice and no action vocabulary.
 
 ### Recovery
 

@@ -2,7 +2,7 @@
 
 The checks to run on a change, and how to run them beside other agents.
 
-## Type Checking
+## Type checking
 
 Read type errors from the running watch of the program that compiles the code, and start one only where none runs. `pnpm ttsc --noEmit --watch` in `test/` checks every package the tests import. Code outside that program, such as a package's debug viewer, has its own watch under its own tsconfig, documented beside that code.
 
@@ -25,7 +25,7 @@ Follow any task-specific test-code prohibition and use its required verification
 
 Put every test one run needs into one `pnpm test --include <names...>`, because each run compiles the whole project before its first test.
 
-## Visual Changes
+## Visual changes
 
 Verify a render or viewer change under the 3D modeling skill's [Visual Debugging](../3d-modeling/visual-debugging.md).
 

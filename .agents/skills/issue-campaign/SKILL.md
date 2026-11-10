@@ -3,7 +3,7 @@ name: issue-campaign
 description: Runs automovie's issue campaign, repeating full discovery rounds until one finds nothing new, publishing the issues, and landing them in one pull request per cycle. Use for a broad audit or repeated issue-to-pull-request work, not for one defined issue.
 ---
 
-# Issue Campaign
+# Issue campaign
 
 A cycle audits the target branch until a discovery round finds nothing new, then lands every accepted issue in one pull request whose merge starts the next cycle.
 
@@ -32,7 +32,7 @@ With publication authority, write each accepted issue so a fresh agent can start
 
 Publish bodies as the [pull-request](../pull-request/SKILL.md#body) skill says.
 
-## Pull Request
+## Pull request
 
 1. Branch from the baseline, push an empty commit (`git commit --allow-empty`), and open one draft pull request listing every cycle issue, with no closing keywords.
 2. Implement every issue in dependency order with its tests.
@@ -68,6 +68,6 @@ The handoff issue holds:
 - the user's standing rules;
 - where the code, tools and tests are;
 - the baseline results;
-- each open item in order, with its verified cause, the hypotheses ruled out with the measurement behind each, the files and functions involved, and the next step.
+- each open item, in order.
 
-Copy every finding the next session needs into the issue, because local scratch files do not travel.
+Give each open item its verified cause, the hypotheses ruled out with the measurement behind each, the files and functions involved, and the next step. Copy every finding the next session needs into the issue, because local scratch files do not travel.
