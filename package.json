@@ -6,7 +6,7 @@
   "packageManager": "pnpm@10.6.4",
   "scripts": {
     "automovie": "ttsx --no-plugins -P packages/cli/tsconfig.json packages/cli/src/bin.ts",
-    "build": "pnpm --filter=./packages/** -r build",
+    "build": "pnpm --filter=./packages/* --filter=!@automovie/playground -r build",
     "test": "pnpm --filter @automovie/test start",
     "format": "prettier --write \"**/*.{ts,cts,mts}\"",
     "format:check": "prettier --check \"**/*.{ts,cts,mts}\"",
