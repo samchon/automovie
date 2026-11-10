@@ -25,8 +25,9 @@ import { handGoals } from "./handGoals";
  * touch typing with every finger waits on fingertip surfaces for the other
  * fingers. The keys lie on the standard 19.05 mm pitch with the usual row
  * stagger (ISO/IEC 9995; rows offset by a quarter and three quarters of a
- * key), a QWERTY layout, the space bar under the middle of the bottom row
- * pressed by the right hand; a key the layout lacks is refused.
+ * key), a QWERTY layout, the space bar two rows below the home row pressed
+ * by the right hand where it lies under that hand's home key, the bar being
+ * wide enough to strike anywhere; a key the layout lacks is refused.
  *
  * Time between presses comes from typing skill: skilled typists strike
  * about every 0.15 to 0.2 s and novices far slower (Salthouse 1986, Psychol
@@ -94,7 +95,7 @@ export namespace typeText {
    */
   export function key(key: string): { at: IAutoMovieVector3; side: HumanHand.Side } {
     const k: string = key.toLowerCase();
-    if (k === " ") return { at: { x: 0, y: 0, z: -2 * PITCH }, side: "right" };
+    if (k === " ") return { at: { x: -1.5 * PITCH, y: 0, z: -2 * PITCH }, side: "right" };
     for (let row: number = 0; row < ROWS.length; row++) {
       const col: number = ROWS[row]!.keys.indexOf(k);
       if (col < 0) continue;

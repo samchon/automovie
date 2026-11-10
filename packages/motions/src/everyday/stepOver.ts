@@ -201,8 +201,9 @@ export namespace stepOver {
 
         // A swinging foot whose ankle cannot dorsiflex enough to stay level
         // droops its toes; raise its ankle until its lowest sole point is at
-        // the planned lift, twice, so the clearance holds on the sole itself.
-        for (let round: number = 0; round < 2; round++) {
+        // the planned lift, up to four times (each raise tips the foot a little
+        // further), so the clearance holds on the sole itself.
+        for (let round: number = 0; round < 4; round++) {
           const lifted = (["left", "right"] as const).filter((side) => footAt(side, t).lift > 0);
           if (lifted.length === 0) break;
           const bones = poseBones(body, resolveHumanPosture(body, posture));
@@ -211,7 +212,7 @@ export namespace stepOver {
             const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
             const lowest: number = Math.min(...(["heel", "ball", "toe"] as const).map((name) => resolveAutoMovieHumanoidSurfaces.place(body.surfaces.sockets[`${name}${Side}`], bones.get(`${side}Foot`)!).point.y));
             const raise: number = footAt(side, t).lift - lowest;
-            if (raise <= 0) continue;
+            if (raise <= 0.002) continue;
             const limb: "leftLeg" | "rightLeg" = side === "left" ? "leftLeg" : "rightLeg";
             const goal = next[limb]!;
             next[limb] = { ...goal, point: { ...goal.point, y: goal.point.y + raise } };
