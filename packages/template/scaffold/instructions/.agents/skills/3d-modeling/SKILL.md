@@ -23,10 +23,10 @@ Build only what the request names and the subject's visible role needs. Finer ge
 | Shape it in code from dimensions and formulas | [Crafting](crafting.md) |
 | Build or fit it from sections and guides | [Lofting](lofting.md) |
 | Find an existing mesh, material, environment map or motion clip | [Sources](sources.md) |
-| Recover curves or surfaces from a fixed mesh | [Recovery](recovery.md) |
+| Take a found or generated mesh into the production, or vary it by a parameter | [Conditioning](conditioning.md) |
+| Rebuild a fixed mesh as curves or surfaces | [Recovery](recovery.md) |
 | Define parts, groups, placements or shared boundaries | [Modularization](modularization.md) |
 | Add or change a skeleton, skin, attachment or deformation control | [Rigging](rigging.md) |
-| Choose an external geometry or rig method | [Research](research.md) |
 | Plan a correction or judge a visual result | [Visual debugging](visual-debugging.md) |
 
 Whatever its source, a form is reproducible, rigged when it moves and judged on screen: a completed generation, fit, compilation or test establishes no visual result. The installed packages' documentation owns data formats and callable behavior.

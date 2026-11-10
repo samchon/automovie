@@ -6,15 +6,19 @@ Organize its parts and groups by [Modularization](modularization.md), and test i
 
 ## Representation
 
-Pick the representation that fits the form best, then optimize the form within it.
+Pick the representation by the form, then optimize the form within it:
 
-Prefer one where a few named values control the whole surface, the form splits into parts, and an edit stays local:
+| The form | Representation |
+| --- | --- |
+| Made of dimensions, such as furniture, a machine, a building or a tool | Code CAD: dimensioned primitives with extrusion, revolution, sweep and boolean operations |
+| One section changing along an axis, such as a limb, a torso, a hull or a bottle | Sections lofted along that axis, under [Lofting](lofting.md) |
+| Repeated structure, such as a fence, a facade or foliage | Procedural rules, such as grammars or scattering |
+| Blended masses that never deform | Implicit surfaces |
+| Fine detail over any of these | Formula fields, such as displacement |
 
-- Curve networks, sections lofted along an axis or a chain over a subdivision cage, are the default for forms that can be cut into sections, deforming and branching ones included. Read [Lofting](lofting.md) for section families and fitting.
-- Code CAD, dimensioned primitives with extrusion, revolution, and boolean operations, suits rigid forms with holes and chamfers.
-- Procedural rules, such as grammars or scattering, suit repeated structure.
-- Implicit surfaces suit blended masses that never deform.
-- Formula fields, such as displacement, add fine detail over any of these.
+Take boolean and offset operations from the installed packages or an established solid-modeling kernel, because a hand-written boolean leaves open and self-intersecting surfaces.
+
+Crafting pays where dimensions define the form or a parameter must control it. For an organic form no parameter controls, such as an animal, a face or draped cloth, propose [Diffusion](diffusion.md) or [Sources](sources.md) to the user first, because authoring that surface costs far more than [Conditioning](conditioning.md) a mesh.
 
 Never shape a form by placing vertices, triangles, or polygons by hand; vertices are only what the formulas emit.
 
@@ -47,7 +51,7 @@ Size a feature on a surface in physical units through the surface's metric. A fe
 
 ## Resolution
 
-Let the number of emitted primitives follow the resolution setting, not the number of crafted features. Keep defining dimensions and feature locations independent of tessellation. Use a parametric surface, subdivision, cards, instances, or levels of detail where the form allows.
+Let the number of emitted primitives follow the resolution setting, not the number of crafted features, and spend them where the surface curves or forms the silhouette rather than evenly. Keep defining dimensions and feature locations independent of tessellation. Use a parametric surface, subdivision, cards, instances, or levels of detail where the form allows.
 
 On a subdivision surface, place extraordinary vertices where curvature is low and keep them at valence 3 or 5 where the layout allows, because higher valences and clustered poles leave visible pinches on the limit surface.
 

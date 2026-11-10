@@ -12,6 +12,17 @@ Inspect the actual consumer with current source on a hardware renderer, recordin
 
 ## Correction rounds
 
+### Measure, then ask
+
+Settle by measurement what a number decides, because an eye on a render misjudges position and depth:
+
+- overall dimensions against the real ones;
+- clearances and contacts between parts;
+- part and triangle counts;
+- open edges, edges that more than two triangles share, reversed faces, triangles without area and a surface passing through itself.
+
+Before rendering, write what the render must show as questions with a yes or no answer, such as whether every leg reaches the floor, and answer each from the render. An overall impression of the form passes over what a definite question finds.
+
 ### Inspect before editing
 
 Inspect the whole affected asset at every scale, moving the camera freely through whole views, regions, neighbors and close-ups from every needed direction. Write down every observed defect with its construction and comparison conditions.
@@ -66,6 +77,16 @@ Judge a surface only with the construction that generated it, because the surfac
 - a procedural rule's skeleton;
 - an implicit surface's primitives;
 - a field's defining curves.
+
+A mesh without a generating definition has no construction, so these passes take its place:
+
+| Judging | Pass |
+| --- | --- |
+| Density, seams and how the triangles follow the form | Wireframe over the shaded surface |
+| Which way each face points | Front and back faces in different colors |
+| Shading breaks | Normals shown as color |
+| Skin weights | One joint's weights as a heat map, joint after joint |
+| Texture coordinates | A checker texture |
 
 Every set of views shows the same cameras three times: the 3D construction alone (the actual lofting curves for a lofted form), that construction over the ordinary shaded surface, then the surface alone. This holds for whole sweeps, selected parts, neighbor groups and each defect's close-up alike.
 
