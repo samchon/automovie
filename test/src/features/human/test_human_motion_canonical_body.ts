@@ -77,7 +77,7 @@ export function test_human_motion_canonical_body(): void {
       at("leftHand").x > 0.3 &&
         at("leftEye").x > 0 &&
         at("leftUpperLeg").x > 0 &&
-        at("rightHand").x < -0.3,
+        -at("rightHand").x > 0.3,
     );
     check(
       `${id} toes ahead`,

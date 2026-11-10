@@ -14,7 +14,7 @@ import {
   type IAutoMovieSceneRaster,
   encodeAutoMovieRasterPng,
   rasterizeAutoMovieScene,
-} from "../../../template/scaffold/src/integrations/viewer/node/raster/index.js";
+} from "../../../template/scaffold/production/src/executable/viewer/node/raster/index.js";
 import type { IMotionCaptureCase } from "./IMotionCaptureCase";
 import { MotionCaptureFigure } from "./MotionCaptureFigure";
 import { MOTION_CAPTURE_CASES } from "./cases/MOTION_CAPTURE_CASES";
@@ -23,7 +23,7 @@ import { MOTION_CAPTURE_CASES } from "./cases/MOTION_CAPTURE_CASES";
  * Draw motion cases on the polygon man straight from Node, with no browser,
  * GPU or viewer server, and report their numeric verdicts.
  *
- * `pnpm --dir packages/motions node:capture -- --case <name>[,<name>…]`
+ * `pnpm --dir packages/motions node:capture -- --case <name>[,<name>??`
  * builds each named case from `MOTION_CAPTURE_CASES` (`--list` prints them),
  * poses every performer and ghost at each of the case's instants and draws
  * them with the CPU rasterizer through four orthographic views fitted to the
@@ -37,7 +37,7 @@ import { MOTION_CAPTURE_CASES } from "./cases/MOTION_CAPTURE_CASES";
  * exits non-zero when any verdict fails.
  *
  * The rasterizer is the scaffold's Node integration
- * (`packages/template/scaffold/src/integrations/viewer/node/raster`), imported
+ * (`packages/template/scaffold/production/src/executable/viewer/node/raster`), imported
  * by relative path as the test program imports the scaffold's other
  * integrations; this executable is not compiled into the package and is
  * unreachable from its entry, and a move of that integration must update
