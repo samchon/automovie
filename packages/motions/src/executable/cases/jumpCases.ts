@@ -29,7 +29,11 @@ import { MotionBodies } from "../MotionBodies";
  * - every cut is legal, a stance foot being planted;
  * - a heel or ball on the floor slides under 5 mm (both actions' plant windows);
  * - the velocity jump at the cut, the largest change of any bone's velocity
- *   across the cut, is at most 5 % of the largest bone speed within 0.5 s of it;
+ *   across the cut, is at most 5 % of the largest bone speed within 0.5 s of it,
+ *   each velocity the symmetric difference at the cut -/+ 1/240 s, naming the
+ *   displayed channel (root translation or clinical angle) that changes most;
+ * - every displayed channel is continuous at the cut: within 0.5 degree, the
+ *   root within 0.5 mm, from 1 microsecond before it to 1 after;
  * - the centre of mass in flight lies within 10 mm of the least-squares
  *   ballistic parabola with gravity fixed;
  * - after touchdown no heel, ball or toe sinks more than 10 mm under the floor;
@@ -79,6 +83,21 @@ export function jumpCases(
   let illegal: string[] = [];
   let slip: { value: number; where: string } = { value: 0, where: "none" };
   let jumpRatio: { value: number; where: string } = { value: 0, where: "none" };
+  let pop: { value: number; where: string } = { value: 0, where: "none" };
+  // A displayed pose's channels: the root translation and every clinical angle.
+  const channels = (pose: IAutoMoviePose): Map<string, number> => {
+    const out: Map<string, number> = new Map();
+    const r: IAutoMovieVector3 = pose.root?.translation ?? { x: 0, y: 0, z: 0 };
+    out.set("root.tx", r.x);
+    out.set("root.ty", r.y);
+    out.set("root.tz", r.z);
+    for (const j of pose.joints) {
+      out.set(`${j.bone}.flexion`, j.flexion ?? 0);
+      out.set(`${j.bone}.abduction`, j.abduction ?? 0);
+      out.set(`${j.bone}.twist`, j.twist ?? 0);
+    }
+    return out;
+  };
   let flight: { value: number; where: string } = { value: 0, where: "none" };
   let sink: { value: number; where: string } = { value: 0, where: "none" };
   const tuck: string[] = [];
@@ -204,6 +223,33 @@ export function jumpCases(
         jumped = `${bone} ${Math.hypot(v.x, v.y, v.z).toFixed(2)}->${Math.hypot(w.x, w.y, w.z).toFixed(2)} m/s`;
       }
     }
+    // The displayed channel whose velocity changes most across the cut: the
+    // root translation (m/s) and every clinical angle (deg/s), by symmetric
+    // difference at the cut -/+ 1/240 s.
+    const channel = (cut: number): string => {
+      const rate = (t: number): Map<string, number> => {
+        const a = channels(performance.pose("a", t - h));
+        const b = channels(performance.pose("a", t + h));
+        return new Map(
+          [...a].map(([key, x]): [string, number] => [
+            key,
+            ((b.get(key) ?? 0) - x) / (2 * h),
+          ]),
+        );
+      };
+      const v0 = rate(cut - 2 * h);
+      const v1 = rate(cut + 2 * h);
+      let best: { key: string; score: number } = { key: "", score: -1 };
+      for (const [key, x] of v0) {
+        // Metres against degrees: 1 m/s weighs as 100 deg/s, a 1 m segment's turn.
+        const d: number =
+          Math.abs((v1.get(key) ?? 0) - x) *
+          (key.startsWith("root.t") ? 100 : 1);
+        if (d > best.score) best = { key, score: d };
+      }
+      const unit: string = best.key.startsWith("root.t") ? "m/s" : "deg/s";
+      return `channel ${best.key} ${v0.get(best.key)!.toFixed(2)}->${(v1.get(best.key) ?? 0).toFixed(2)} ${unit}`;
+    };
     let peak: number = 0;
     for (
       let t: number = Math.max(h, at - 0.5);
@@ -215,8 +261,21 @@ export function jumpCases(
     if (change / peak > jumpRatio.value)
       jumpRatio = {
         value: change / peak,
-        where: `k=${k} ${jumped}, peak ${peak.toFixed(2)} m/s`,
+        where: `k=${k} ${jumped}, peak ${peak.toFixed(2)} m/s; ${channel(at)}`,
       };
+
+    // Continuity of every displayed channel at the cut itself.
+    const before0 = channels(performance.pose("a", at - 1e-6));
+    const after0 = channels(performance.pose("a", at + 1e-6));
+    for (const [key, x] of before0) {
+      const d: number = Math.abs((after0.get(key) ?? 0) - x);
+      const scaled: number = key.startsWith("root.t") ? d * 1000 : d;
+      if (scaled > pop.value)
+        pop = {
+          value: scaled,
+          where: `k=${k} ${key} ${x.toFixed(key.startsWith("root.t") ? 4 : 2)}->${(after0.get(key) ?? 0).toFixed(key.startsWith("root.t") ? 4 : 2)}`,
+        };
+    }
 
     // Flight: least-squares parabola with gravity fixed.
     const samples: { t: number; p: IAutoMovieVector3 }[] = [];
@@ -325,6 +384,11 @@ export function jumpCases(
           name: "velocity jump at the cut within 5 % of the window peak",
           passed: jumpRatio.value <= 0.05,
           detail: `max ${(jumpRatio.value * 100).toFixed(2)} % at ${jumpRatio.where}`,
+        },
+        {
+          name: "every displayed channel is continuous at the cut, under 0.5 degree or 0.5 mm",
+          passed: pop.value <= 0.5,
+          detail: `max ${pop.value.toFixed(2)} (degrees, root millimetres) at ${pop.where}`,
         },
         {
           name: "flight within 10 mm of a ballistic parabola",
