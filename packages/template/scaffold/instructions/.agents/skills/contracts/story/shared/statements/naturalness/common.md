@@ -58,9 +58,10 @@ Deciding and retaining:
 2. For scripts construction, the original compared is the parent treatments.
 3. Realized setup and payoff, motivation-setting speech, the promised narrator voice and humor survive as functions the audience experiences. Where their current expression is a named failure, the function is recomposed without the failure and not deleted.
 4. Every value the revision states is accurate.
-5. Nothing omitted changes inherited meaning, required execution, knowledge or reveal order, or removes information needed to understand a choice and its result. Exception: an upstream measurement or condition the audience does not need is not displayed; execution constraints go to their actual consumer, and information the adopted work requires the audience to receive stays.
-6. A claimed loss is shown in the passage, and no upstream parameter inventory is restored to answer it.
-7. The rewrite stays inside the established storyline and adopted form. It may clarify an implied existing actor and develop bodily performance, image, sound and subtext. It adds no dependency, changes no result, resolves no open relationship and replaces no concrete value with an impression.
-8. It preserves meaning, not the draft's artificial register, negation patterns, source disclaimers or annotation vocabulary.
-9. A needed semantic change was reported and not made, and a construction repair returned to its earliest owner under [upstream repair](../../../../../story/correction/repair.md#upstream-defects).
-10. Surplus removed below a duration target was not refilled with new facts, events or replacement padding.
+5. Nothing omitted changes inherited meaning, required execution, knowledge or reveal order, or removes information needed to understand a choice and its result.
+6. An upstream measurement or condition the audience does not need is not displayed: execution constraints go to their actual consumer, and information the adopted work requires the audience to receive stays.
+7. A claimed loss is shown in the passage, and no upstream parameter inventory is restored to answer it.
+8. The rewrite stays inside the established storyline and adopted form. It may clarify an implied existing actor and develop bodily performance, image, sound and subtext. It adds no dependency, changes no result, resolves no open relationship and replaces no concrete value with an impression.
+9. It preserves meaning, not the draft's artificial register, negation patterns, source disclaimers or annotation vocabulary.
+10. A needed semantic change was reported and not made, and a construction repair returned to its earliest owner under [upstream repair](../../../../../story/correction/repair.md#upstream-defects).
+11. Surplus removed below a duration target was not refilled with new facts, events or replacement padding.
