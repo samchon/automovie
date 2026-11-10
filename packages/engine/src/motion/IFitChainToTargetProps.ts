@@ -48,7 +48,11 @@ export interface IFitChainToTargetProps {
 
   /**
    * Prior corrected pose used only to stabilize equal-residual bend branches;
-   * its root and non-chain joints do not replace the current pose.
+   * its root and non-chain joints do not replace the current pose. A hinged
+   * chain's swivel prefers the candidate nearest it (degrees of joint turn
+   * counted like degrees of effector error). It must be a grid-free reference,
+   * such as the solution at a contact event, never the previous frame, so a
+   * displayed pose stays a pure function of time.
    */
   referencePose?: IAutoMoviePose;
 

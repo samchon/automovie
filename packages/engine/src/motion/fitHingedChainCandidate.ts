@@ -21,10 +21,24 @@ import type { prepareChainPlant } from "./prepareChainPlant";
 /**
  * The hinged chain's candidate: `hingedArmArticulation`'s swivel sweep with
  * each candidate decomposed through the prepared clinical domains, scored
- * first by the rig's ROM overshoot and then by how far the mid joint swings
- * from the bend hint's side of the root-to-target axis (world-down when no
- * hint is given, the analytic default), with the clinical effort as a
- * vanishing tie-break.
+ * first by the rig's ROM overshoot and then by one continuous cost: the
+ * requested effector rotation's error in degrees (when one is requested),
+ * plus two degrees per unit of the mid joint's swing away from the bend
+ * hint's side of the root-to-target axis (`1 - cos`, world-down when no hint
+ * is given, the analytic default), plus, when the request carries a
+ * `referencePose` (a grid-free reference such as the solution at a contact
+ * event, never the previous frame, so a pose stays a pure function of time),
+ * the degrees the root and mid joints turn away from it, with the clinical
+ * effort as a vanishing tie-break. The cost is continuous in the target, so
+ * the chosen swivel moves continuously as a target moves and jumps only where
+ * two separate minima tie exactly; the reference term then decides the tie
+ * toward the reference's side. The weights are provisional, as no source
+ * fixes them: one degree of joint turn from the reference counts as much as
+ * one degree of effector error, so the reference's side is kept unless a
+ * turn buys at least as much accuracy; and the
+ * hint's side is worth 2 degrees per unit of `1 - cos` (4 degrees for the
+ * opposite side), enough to decide between otherwise equal swivels while
+ * never outweighing a visible effector error.
  *
  * @param props The fit request, with merged axes.
  * @param prepared The chain's preparation.
@@ -32,7 +46,7 @@ import type { prepareChainPlant } from "./prepareChainPlant";
  * @param rotation A requested effector rotation, ranked before the hint's side when given.
  * @returns The candidate, or null for a degenerate chain.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the sweep, the three-level ranking and the frames of every input.
+ * @evidence contracts/development/common.md#meaningful-documentation States the sweep, the overshoot-then-continuous-cost ranking with its terms and weights, the continuity premise and the frames of every input.
  * @evidence contracts/development/implementation.md#principled-implementation The swivel parameterisation of Tolani, Goswami and Badler 2000 through the engine's hingedArmArticulation, scored through the same clinical decomposition and ROM overshoot the fit reports.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoring closure over hingedArmArticulation's sweep; the effector error is a separate member.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Overshoot ranks first, so no illegal candidate wins on the hint or the hand; a degenerate chain returns null for the caller's fallback.
@@ -62,6 +76,13 @@ export function fitHingedChainCandidate(
     { bone: props.chain.upper, ...decomposeJointRotation(upper, props.jointAxes?.[props.chain.upper], props.restFrames?.[props.chain.upper], prepared.upperDomain) },
     { bone: props.chain.lower, ...decomposeJointRotation(lower, axes, props.restFrames?.[props.chain.lower], prepared.lowerDomain) },
   ];
+  const previous = (bone: string): IAutoMovieQuaternion | null => {
+    const joint: IAutoMovieJointPose | undefined = props.referencePose?.joints.find((j: IAutoMovieJointPose): boolean => j.bone === bone);
+    return joint === undefined ? null : Quaternion.normalize(jointToQuaternion(joint, bone === props.chain.lower ? axes : props.jointAxes?.[props.chain.upper], props.restFrames?.[joint.bone]));
+  };
+  const before: [IAutoMovieQuaternion | null, IAutoMovieQuaternion | null] = [previous(props.chain.upper), previous(props.chain.lower)];
+  const apart = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion | null): number =>
+    b === null ? 0 : (2 * Math.acos(Math.min(1, Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w))) * 180) / Math.PI;
   const solved: ReturnType<typeof hingedArmArticulation> = hingedArmArticulation({
     upper: prepared.upper,
     midOffset: prepared.lowerOffset,
@@ -79,9 +100,7 @@ export function fitHingedChainCandidate(
         clinicalDeviation({ flexion: l.flexion ?? 0, abduction: l.abduction ?? 0, twist: l.twist ?? 0 });
       return {
         overshoot: jointRomOvershoot(u, prepared.upperDomain.constraint) + jointRomOvershoot(l, prepared.lowerDomain.constraint),
-        // The hand's reachable rotation ranks before the hint's side, in
-        // tenths of a degree, so a swivel the wrist cannot follow loses.
-        deviation: (turn === null ? 0 : 10 * Math.round(turn(upper, lower) / 0.1)) + away + 1e-9 * effort,
+        deviation: (turn === null ? 0 : turn(upper, lower)) + 2 * away + apart(Quaternion.normalize(upper), before[0]) + apart(Quaternion.normalize(lower), before[1]) + 1e-9 * effort,
       };
     },
   });

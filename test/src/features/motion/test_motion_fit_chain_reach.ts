@@ -47,6 +47,9 @@ import { TestValidator } from "@nestia/e2e";
  *    needs that much radial deviation; the hand misses by the excess over
  *    the wrist's 20 degree limit within 1 degree, and every arm angle stays
  *    in range.
+ *    Palm up and palm down on both arms: each hand within 2 degrees of its
+ *    request, and the right arm's solve of the mirrored request equal to the
+ *    left's in clinical angles within 1e-6 degrees.
  * 4. A target 2 m away leaves the wrist on the line toward it at the arm's
  *    full length, within 1 mm: the residual is honest, not a pretended reach.
  *
@@ -113,6 +116,29 @@ export function test_motion_fit_chain_reach(): void {
     check(`${turn.name}: hand turned within 2 degrees (${error.toFixed(2)}; upper ${show(joint(pose, "leftUpperArm"))}, forearm ${show(joint(pose, "leftLowerArm"))}, wrist ${show(joint(pose, "leftHand"))})`, error <= 2);
     check(`${turn.name}: wrist stays`, Vector3.length(Vector3.subtract(bones.get("leftHand")!.worldPosition, turn.target)) <= 0.001);
     check(`${turn.name}: forearm in range`, inRange(joint(pose, "leftLowerArm")));
+  }
+
+  // 3c. Palm up and palm down on both arms, mirrored: the right arm's solve
+  // of the mirrored request equals the left's in clinical angles and turns
+  // the right hand as close to its request.
+  for (const [name, palm] of [["palm up", { x: 0, y: 1, z: 0 }], ["palm down", { x: 0, y: -1, z: 0 }]] as const) {
+    const target: IAutoMovieVector3 = { x: 0.2, y: 1.15, z: 0.4 };
+    const bend: IAutoMovieVector3 = { x: 0.4, y: 1.2, z: 0.1 };
+    const mirror = (p: IAutoMovieVector3): IAutoMovieVector3 => ({ x: -p.x, y: p.y, z: p.z });
+    const leftTurn: IAutoMovieQuaternion = hand({ x: 0, y: 0, z: 1 }, palm);
+    const rightTurn: IAutoMovieQuaternion = hand({ x: 0, y: 0, z: 1 }, palm, "right");
+    const left: IAutoMoviePose = fit(skeleton, "left", target, bend, leftTurn);
+    const right: IAutoMoviePose = fit(skeleton, "right", mirror(target), mirror(bend), rightTurn);
+    const error = (pose: IAutoMoviePose, side: "left" | "right", want: IAutoMovieQuaternion): number => {
+      const q: IAutoMovieQuaternion = fk(skeleton, pose).get(`${side}Hand`)!.worldRotation;
+      return (2 * Math.acos(Math.min(1, Math.abs(q.x * want.x + q.y * want.y + q.z * want.z + q.w * want.w))) * 180) / Math.PI;
+    };
+    check(`${name}: both hands within 2 degrees (${error(left, "left", leftTurn).toFixed(2)}, ${error(right, "right", rightTurn).toFixed(2)})`, error(left, "left", leftTurn) <= 2 && error(right, "right", rightTurn) <= 2);
+    for (const [l, r] of [["leftUpperArm", "rightUpperArm"], ["leftLowerArm", "rightLowerArm"], ["leftHand", "rightHand"]] as const) {
+      const a: IAutoMovieJointPose = joint(left, l);
+      const b: IAutoMovieJointPose = joint(right, r);
+      check(`${name}: ${l} mirrors`, [(a.flexion ?? 0) - (b.flexion ?? 0), (a.abduction ?? 0) - (b.abduction ?? 0), (a.twist ?? 0) - (b.twist ?? 0)].every((d: number): boolean => Math.abs(d) < 1e-6));
+    }
   }
 
   // 3b. Honesty: a vertical palm on a straight arm pointing 39.5 degrees down
@@ -192,9 +218,9 @@ function inRange(j: IAutoMovieJointPose): boolean {
   return within(j.flexion, c.flexion) && within(j.abduction, c.abduction) && within(j.twist, c.twist);
 }
 
-/** The left hand's world rotation from rest for where its fingers point and its palm faces (rest: fingers +X, palm -Y). */
-function hand(fingers: IAutoMovieVector3, palm: IAutoMovieVector3): IAutoMovieQuaternion {
-  const swing: IAutoMovieQuaternion = rotationBetween({ x: 1, y: 0, z: 0 }, fingers);
+/** A hand's world rotation from rest for where its fingers point and its palm faces (rest: left fingers +X, right fingers -X, palms -Y). */
+function hand(fingers: IAutoMovieVector3, palm: IAutoMovieVector3, side: "left" | "right" = "left"): IAutoMovieQuaternion {
+  const swing: IAutoMovieQuaternion = rotationBetween({ x: side === "left" ? 1 : -1, y: 0, z: 0 }, fingers);
   const turned: IAutoMovieVector3 = Quaternion.rotateVector(swing, { x: 0, y: -1, z: 0 });
   const axis: IAutoMovieVector3 = Vector3.normalize(fingers);
   const angle: number = (Math.atan2(Vector3.dot(axis, Vector3.cross(turned, palm)), Vector3.dot(turned, palm)) * 180) / Math.PI;

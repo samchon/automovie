@@ -26,7 +26,7 @@ import { orientChainEffector } from "./orientChainEffector";
 /**
  * Fit a reachable two-bone chain to a model-frame target under the rig's effective ROM, retaining authored non-chain joints. A deterministic finite bend-plane search scores clamped FK and keeps the original pose unless its 1e-7-metre residual bucket improves or equal-bucket continuity improves toward an explicit prior pose; it is a bounded search, not a global-optimum guarantee.
  *
- * Candidates come in this order, the first exact one winning: the bend hint's plane; for a hinged mid joint (an elbow or a knee, whose abduction is immobile), the swivel parameterisation of Tolani, Goswami and Badler (2000), where the hinge angle follows from the span and the swivel about the root-to-target axis is swept for the least range-of-motion overshoot and then the side nearest the hint (`hingedArmArticulation`), because a free-swing candidate turns the hinge about the plane normal and the clamp of its abduction moves the effector; then the 32-plane sweep. When nothing reaches, the least clamped residual is returned, so an unreachable target leaves the effector on the reachable shell, not a pretended reach.
+ * For a hinged mid joint (an elbow or a knee, whose abduction is immobile) the swivel parameterisation of Tolani, Goswami and Badler (2000) comes first and wins whenever it reaches: the hinge angle follows from the span and the swivel about the root-to-target axis is swept for the least range-of-motion overshoot and then the least continuous cost of effector-rotation error, swing from the hint's side and turn from the `referencePose` (`fitHingedChainCandidate`), because a free-swing candidate turns the hinge about the plane normal and the clamp of its abduction moves the effector. Otherwise, and for other chains, the bend hint's plane and then the 32-plane sweep follow, the first exact one winning. When nothing reaches, the least clamped residual is returned, so an unreachable target leaves the effector on the reachable shell, not a pretended reach.
  *
  * With `effectorRotation`, a mid bone that declares a distal twist (a forearm) first takes the twist share of the requested rotation about its own length (swing-twist decomposition), clamped to its range, and the effector the remaining swing, so pronation and supination are the forearm's and the wrist keeps its place.
  *
@@ -225,35 +225,23 @@ const fitChainBend: (
   // swivel inside the end joint's limits too, so that candidate leads.
   const hingeAxes: IAutoMovieJointAxes | undefined = props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES;
   const hingedMid: boolean = prepared.lowerDomain.constraint !== null && prepared.lowerDomain.constraint.abduction === null && hingeAxes !== undefined;
-  if (hingedMid && props.effectorRotation !== undefined) {
-    // The hint's plane stands when it already reaches and turns the effector
-    // within a tenth of a degree; otherwise the oriented swivel replaces it.
-    const error: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => number = fitHingedChainCandidate.error(props, prepared, hingeAxes!, props.effectorRotation);
-    const articulated = (j: IAutoMovieJointPose): IAutoMovieQuaternion =>
-      jointToQuaternion(clampJointToSkeleton(j, props.skeleton), props.jointAxes?.[j.bone], props.restFrames?.[j.bone]);
-    const reached: IPlantCandidateScore = consider(pole);
-    if (plantResidualBucket(reached.residual) === 0 && error(articulated(pole.upper), articulated(pole.lower)) <= 0.1 && canFinish()) return best.pose;
-    const oriented: NonNullable<ReturnType<typeof solve>> | null = fitHingedChainCandidate(props, prepared, hingeAxes!, props.effectorRotation);
-    if (oriented !== null) {
-      const upper: IAutoMovieJointPose = clampJointToSkeleton(oriented.upper, props.skeleton);
-      const lower: IAutoMovieJointPose = clampJointToSkeleton(oriented.lower, props.skeleton);
+  // A hinged chain takes the swivel candidate whenever it reaches, so the
+  // choice never alternates between two methods from frame to frame; the
+  // hint plane and the sweep remain for a chain the swivel cannot solve.
+  if (hingedMid) {
+    const hinged: NonNullable<ReturnType<typeof solve>> | null = fitHingedChainCandidate(props, prepared, hingeAxes!, props.effectorRotation);
+    if (hinged !== null) {
+      const upper: IAutoMovieJointPose = clampJointToSkeleton(hinged.upper, props.skeleton);
+      const lower: IAutoMovieJointPose = clampJointToSkeleton(hinged.lower, props.skeleton);
       const residual: number = distance(resolvePreparedChainEffector({ prepared, upper, lower, jointAxes: props.jointAxes, restFrames: props.restFrames }));
       if (plantResidualBucket(residual) === 0)
         return { ...props.pose, joints: [...props.pose.joints.filter((j: IAutoMovieJointPose): boolean => j.bone !== props.chain.upper && j.bone !== props.chain.lower), upper, lower] };
-      consider(oriented);
+      consider(hinged);
     }
   }
 
   consider(pole);
   if (canFinish()) return best.pose;
-
-  if (hingedMid) {
-    const hinged: NonNullable<ReturnType<typeof solve>> | null = fitHingedChainCandidate(props, prepared, hingeAxes!);
-    if (hinged !== null) {
-      consider(hinged);
-      if (canFinish()) return best.pose;
-    }
-  }
 
   const upper: IAutoMovieResolvedBone = prepared.upper;
   const reachAxis: IAutoMovieVector3 = Vector3.normalize(
