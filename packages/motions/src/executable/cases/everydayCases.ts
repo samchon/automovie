@@ -52,8 +52,11 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * - `everyday-brace`: bracing for a push from ahead; the centre of mass's
  *   margin to the base's edge along the push higher at `set` than at the
  *   start, and laterally not lower (Massion 1992; Hof et al. 2005).
- * - `everyday-type`: typing "hello world" at a counter at elbow height;
- *   the index fingertip on each key's pressed centre within 10 mm.
+ * - `everyday-type-seated` and `everyday-type-standing`: typing "hello
+ *   world" seated at a desk and standing at a standing desk, each keyboard
+ *   at the elbows' height a forearm ahead of the shoulders; the index
+ *   fingertip on each key's pressed centre within 10 mm and the key dip 2
+ *   to 4 mm.
  * - `everyday-step`: stepping over a 0.3 m box, at tenths of the crossing;
  *   every sole point at least 5 cm above the box while over it.
  *
@@ -319,26 +322,51 @@ export function everydayCases(family?: "approach" | "look" | "gesture" | "rest" 
     }
 
     if (wants("type")) {
-      const keyboard = { at: { x: 0, y: body.measure.shoulderHeight - body.measure.upperArm - 0.005, z: 0.35 }, yaw: 0 };
-      const text: string = "hello world";
-      const performance: HumanPerformance = one(HumanChain.subject("a").typeText({ keyboard, text }));
-      const segment = performance.segments("a")[0]!;
-      const verdicts: IMotionCaptureCase.IVerdict[] = everydayVerdicts.standard(performance, "a", body);
-      let worst: number = 0;
-      [...text].forEach((letter: string, i: number): void => {
-        const t: number = segment.start + segment.plan.events[i]!.share * segment.plan.duration;
-        const k = typeText.key(letter);
-        const target: IAutoMovieVector3 = { x: keyboard.at.x + k.at.x, y: keyboard.at.y - typeText.TRAVEL, z: keyboard.at.z + k.at.z };
-        worst = Math.max(worst, Vector3.length(Vector3.subtract(HumanHand.frame(body, performance.bones("a", t), k.side, "indexTip", "point").point, target)));
-      });
-      verdicts.push(within("fingertip on each key at its press", worst, 0.01, "mm"));
-      out.push({
-        name: `everyday-type${suffix}`,
-        times: [0, 2, 4, 6, 8].map((i: number) => ({ seconds: segment.start + segment.plan.events[i]!.share * segment.plan.duration, label: `press ${text[i]}` })),
-        performers: [figure(performance, "a", man)],
-        boxes: [{ centre: { x: 0, y: keyboard.at.y - 0.015, z: 0.35 }, half: { x: 0.2, y: 0.01, z: 0.07 }, color: 0x555555 }],
-        verdicts,
-      });
+      // Seated at a desk: the keyboard at seated elbow height ahead of the
+      // shoulders by the forearm (ANSI/HFES 100-2007 posture), the desk top
+      // under it; and standing at a standing desk at standing elbow height.
+      const seat: seated.ISeat = { at: { x: 0, y: seated.popliteal(body), z: body.rest.get("leftFoot")!.z - 0.1 }, yaw: 0, depth: 0.45 };
+      const sitting: HumanPerformance = one(HumanChain.subject("a").sit({ seat, seconds: 0.2 }));
+      const held = sitting.posture("a", sitting.duration);
+      const reach: number = body.measure.forearm + 0.5 * body.measure.hand;
+      const setups: [string, HumanChain, IAutoMovieVector3][] = [
+        ["seated", HumanChain.subject("a").sit({ seat, seconds: 0.2 }), { x: 0, y: held.root.y + body.measure.shoulderHeight - body.measure.upperArm, z: held.root.z + body.rest.get("rightUpperArm")!.z + reach }],
+        ["standing", HumanChain.subject("a"), { x: 0, y: body.measure.shoulderHeight - body.measure.upperArm - 0.005, z: body.rest.get("rightUpperArm")!.z + reach }],
+      ];
+      for (const [label, start, at] of setups) {
+        const keyboard = { at, yaw: 0 };
+        const text: string = "hello world";
+        const performance: HumanPerformance = one(start.typeText({ keyboard, text }));
+        const segment = performance.segments("a").at(-1)!;
+        const verdicts: IMotionCaptureCase.IVerdict[] = everydayVerdicts.standard(performance, "a", body);
+        let worst: { miss: number; letter: string } = { miss: 0, letter: "" };
+        let dips: number[] = [];
+        [...text].forEach((letter: string, i: number): void => {
+          const t: number = segment.start + segment.plan.events[i]!.share * segment.plan.duration;
+          const k = typeText.key(letter);
+          const tip: IAutoMovieVector3 = HumanHand.frame(body, performance.bones("a", t), k.side, "indexTip", "point").point;
+          const target: IAutoMovieVector3 = { x: keyboard.at.x + k.at.x, y: keyboard.at.y - typeText.TRAVEL, z: keyboard.at.z + k.at.z };
+          const miss: number = Vector3.length(Vector3.subtract(tip, target));
+          if (miss > worst.miss) worst = { miss, letter };
+          dips.push(keyboard.at.y - tip.y);
+        });
+        dips = dips.sort((x: number, y: number): number => x - y);
+        verdicts.push({ ...within("fingertip on each key at its press", worst.miss, 0.01, "mm"), detail: `${(worst.miss * 1000).toFixed(1)} mm worst, on "${worst.letter}" (limit 10.0 mm)` });
+        verdicts.push({ name: "key dip 2 to 4 mm", passed: dips[0]! >= 0.002 - 0.001 && dips.at(-1)! <= 0.004 + 0.001, detail: `${(dips[0]! * 1000).toFixed(1)} to ${(dips.at(-1)! * 1000).toFixed(1)} mm below the key tops` });
+        verdicts.push({ name: "desk height reported", passed: true, detail: `${(keyboard.at.y - 0.03).toFixed(3)} m work surface under a keyboard at ${keyboard.at.y.toFixed(3)} m` });
+        const boxes: { centre: IAutoMovieVector3; half: IAutoMovieVector3; color: number }[] = [
+          { centre: { x: 0, y: keyboard.at.y - 0.045, z: keyboard.at.z + 0.2 }, half: { x: 0.6, y: 0.015, z: 0.3 }, color: 0x8a6d4b },
+          { centre: { x: 0, y: keyboard.at.y - 0.015, z: keyboard.at.z }, half: { x: 0.22, y: 0.015, z: 0.08 }, color: 0x444444 },
+        ];
+        if (label === "seated") boxes.push({ centre: { x: seat.at.x, y: seat.at.y / 2, z: seat.at.z - 0.225 }, half: { x: 0.25, y: seat.at.y / 2, z: 0.225 }, color: 0x9a7b55 });
+        out.push({
+          name: `everyday-type-${label}${suffix}`,
+          times: [0, 2, 4, 6, 8].map((i: number) => ({ seconds: segment.start + segment.plan.events[i]!.share * segment.plan.duration, label: `press ${text[i]}` })),
+          performers: [figure(performance, "a", man)],
+          boxes,
+          verdicts,
+        });
+      }
     }
   }
   return out;
