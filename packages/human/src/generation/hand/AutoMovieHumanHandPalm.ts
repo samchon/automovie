@@ -66,9 +66,13 @@ export namespace AutoMovieHumanHandPalm {
 
   /** One physical reference plane in capture-world millimetres. */
   interface IPhysicalPlane {
+    /** Absolute capture-world millimetre origin. */
     origin: V3;
+    /** Unit first tangent in capture-world axes. */
     u: V3;
+    /** Unit second tangent after the native chart reflection. */
     v: V3;
+    /** Distal normal derived from the retained chart handedness. */
     normal: V3;
   }
 
@@ -104,9 +108,13 @@ export namespace AutoMovieHumanHandPalm {
 
   /** Numerical chart of the ordinary strip. Its rows are still the original world planes. */
   interface IContourCoordinates {
+    /** Accumulated distances between the actual plane origins, millimetres. */
     stations: number[];
+    /** Whether the measured turning collar is retiled in its world chart. */
     worldCollar: boolean;
+    /** Project one world point into its own recorded section chart. */
     into(row: number, point: V3): V3;
+    /** Return an evaluated section point to its exact recorded world plane. */
     out(point: V3): V3;
   }
 
@@ -148,7 +156,7 @@ export namespace AutoMovieHumanHandPalm {
     terminal?: IFixedTerminal,
     coordinates?: IContourCoordinates,
   ): string {
-    const { base, boundary } = openTerminal(clay, frame);
+    const { base, boundary }: ReturnType<typeof openTerminal> = openTerminal(clay, frame);
     const count: number = boundary.length;
     const S: typeof AutoMovieHumanArmCurveSpec = AutoMovieHumanArmCurveSpec;
     const chart: IPhysicalPlane = { origin: frame.origin as V3, u: frame.u as V3, v: frame.v as V3, normal: S.cross(frame.v as V3, frame.u as V3) };
@@ -157,7 +165,9 @@ export namespace AutoMovieHumanHandPalm {
     const edge: IAutoMovieCurve64.Cubic = linearRing("shared conic edge", ordered.map((p: V3): V3 => coordinates === undefined ? world(p) : coordinates.into(0, p)));
     const rows: IAutoMovieContourLoft64.ISection[] = sections.map((row: IFixedSection, i: number): IAutoMovieContourLoft64.ISection => {
       const curve: IAutoMovieCurve64.Cubic = row.loops[0]!.curve;
-      const read = (p: IAutoMovieCurve64.Vector): V3 => coordinates!.into(i, world(p));
+
+      /** Express this source cubic in the numerical chart of its own plane. */
+      const read: (p: IAutoMovieCurve64.Vector) => V3 = (p: IAutoMovieCurve64.Vector): V3 => coordinates!.into(i, world(p));
       const observed: IAutoMovieCurve64.Cubic = coordinates === undefined ? curve : {
         ...curve,
         spans: curve.spans.map(([a, b, c, d]: IAutoMovieCurve64.Span): IAutoMovieCurve64.Span => [read(a), read(b), read(c), read(d)]),
@@ -184,7 +194,7 @@ export namespace AutoMovieHumanHandPalm {
         terminal: terminal.maximum.pointsMm[0]!,
       });
     }
-    const ordinary = tessellateAutoMovieContourLoft64({ sections: rows, events, chordToleranceMm: 0.1 });
+    const ordinary: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64({ sections: rows, events, chordToleranceMm: 0.1 });
     if (ordinary.unresolved.length !== 0 || ordinary.mesh.indices === null)
       throw new Error(`ordinary contour loft left unresolved strips: ${JSON.stringify(ordinary.unresolved)}`);
 
@@ -343,7 +353,7 @@ export namespace AutoMovieHumanHandPalm {
     const available: Map<string, number> = new Map([...new Set(old)].map((i: number): [string, number] => [positions.slice(i * 3, i * 3 + 3).join(","), i]));
     const identity: Map<V3, number> = new Map();
     const rings: V3[][] = [last - 1, last].map((row: number): V3[] => {
-      const rim: IAutoMovieContourLoft64.IResult["construction"][number] | undefined = loft.construction.find(({ id }): boolean => id.endsWith(`.section.${row}.loop.0`));
+      const rim: IAutoMovieContourLoft64.IResult["construction"][number] | undefined = loft.construction.find(({ id }: IAutoMovieContourLoft64.IResult["construction"][number]): boolean => id.endsWith(`.section.${row}.loop.0`));
       if (!rim) throw new Error("The physical palm collar lost an observed boundary");
       return rim.points.map((p: V3): V3 => {
         const index: number | undefined = available.get(p.join(","));
@@ -356,11 +366,12 @@ export namespace AutoMovieHumanHandPalm {
     const tiles: number[] = [];
     tessellateAutoMovieContourStrip64(rings[0]!, rings[1]!, (a: V3, b: V3, c: V3): void => {
       tiles.push(identity.get(a)!, identity.get(b)!, identity.get(c)!);
-    }, (point: V3): string | undefined => identity.get(point)?.toString(), ({ qualified }): void => {
+    }, (point: V3): string | undefined => identity.get(point)?.toString(), ({ qualified }: Parameters<NonNullable<Parameters<typeof tessellateAutoMovieContourStrip64>[4]>>[0]): void => {
       if (!qualified) throw new Error("The world-space palm collar did not retain a qualified strip");
     });
 
-    const boundary = (faces: readonly number[]): Map<string, number> => {
+    /** Compare indexed rim winding independently from the physical curve order. */
+    const boundary: (faces: readonly number[]) => Map<string, number> = (faces: readonly number[]): Map<string, number> => {
       const uses: Map<string, number> = new Map();
       for (let i: number = 0; i < faces.length; i += 3)
         for (let j: number = 0; j < 3; j++) {
@@ -368,10 +379,10 @@ export namespace AutoMovieHumanHandPalm {
           const key: string = a < b ? `${a}:${b}` : `${b}:${a}`;
           uses.set(key, (uses.get(key) ?? 0) + (a < b ? 1 : -1));
         }
-      return new Map([...uses].filter(([, winding]): boolean => winding !== 0));
+      return new Map([...uses].filter(([, winding]: [string, number]): boolean => winding !== 0));
     };
     const prior: Map<string, number> = boundary(old), next: Map<string, number> = boundary(tiles);
-    const direction: Set<number> = new Set([...prior].map(([edge, sign]): number => sign * (next.get(edge) ?? 0)));
+    const direction: Set<number> = new Set([...prior].map(([edge, sign]: [string, number]): number => sign * (next.get(edge) ?? 0)));
     if (prior.size !== next.size || direction.size !== 1 || direction.has(0))
       throw new Error("The world-space palm collar changed the observed rim indices");
     if (direction.has(-1))

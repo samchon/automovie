@@ -11,7 +11,9 @@ import leftThumb from "./AutoMovieHumanHandF1LeftThumb.json";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
 type Vec3 = AutoMovieHumanArmCurveSpec.Vec3;
+/** Absolute points in the fixed hand's declared world chart. */
 type V3 = Vec3;
+/** Call-owned indexed geometry returned by the fixed F1 arm owner. */
 type FixedMesh = AutoMovieHumanArmF1Lines.IFixedMesh;
 
 /**
@@ -65,24 +67,29 @@ export namespace AutoMovieHumanHandPorts {
 
   /** Sew the measured palm, fan and digits, leaving only the shared armscye open. */
   export function fixed(arm: FixedMesh, armscye: readonly V3[], input: IFixed): FixedMesh {
-    const native = (mesh: FixedMesh): FixedMesh => ({
+    /** Enter the native metre chart once while retaining every arm index. */
+    const native: (mesh: FixedMesh) => FixedMesh = (mesh: FixedMesh): FixedMesh => ({
       positions: mesh.positions.map((v: number, i: number): number => v * (i % 3 === 2 ? -0.001 : 0.001)), indices: mesh.indices,
     });
-    const loft = (model: IAutoMovieContourLoft64): { mesh: FixedMesh; ring(section: number, loop: number): V3[] } => {
+
+    /** Keep qualified branch incidence and expose its exact evaluated port rings. */
+    const loft: (model: IAutoMovieContourLoft64) => { mesh: FixedMesh; ring(section: number, loop: number): V3[] } = (model: IAutoMovieContourLoft64): { mesh: FixedMesh; ring(section: number, loop: number): V3[] } => {
       const generated: IAutoMovieContourLoft64.IResult = tessellateAutoMovieContourLoft64(model);
-      if (generated.mesh.indices === null || generated.unresolved.length !== 0 || generated.stripObservations?.some(({ qualified }): boolean => !qualified))
+      if (generated.mesh.indices === null || generated.unresolved.length !== 0 || generated.stripObservations?.some(({ qualified }: NonNullable<IAutoMovieContourLoft64.IResult["stripObservations"]>[number]): boolean => !qualified))
         throw new Error(`The authored F1 hand branch has an unresolved strip: ${JSON.stringify(generated.unresolved)}`);
       return { mesh: { positions: generated.mesh.positions, indices: generated.mesh.indices },
         ring(section: number, loop: number): V3[] {
-          const found: IAutoMovieContourLoft64.IResult["construction"][number] | undefined = generated.construction.find(({ id }): boolean => id.endsWith(`.section.${section}.loop.${loop}`));
+          const found: IAutoMovieContourLoft64.IResult["construction"][number] | undefined = generated.construction.find(({ id }: IAutoMovieContourLoft64.IResult["construction"][number]): boolean => id.endsWith(`.section.${section}.loop.${loop}`));
           if (found === undefined) throw new Error("The authored F1 port has no evaluated ring");
           return found.points;
         },
       };
     };
-    const makeDigit = (name: keyof IFixed["digits"]): { mesh: FixedMesh; rim: V3[] } => {
+
+    /** Preserve the digit's original 72-phase root and measured conic course. */
+    const makeDigit: (name: keyof IFixed["digits"]) => { mesh: FixedMesh; rim: V3[] } = (name: keyof IFixed["digits"]): { mesh: FixedMesh; rim: V3[] } => {
       const mesh: FixedMesh = native(AutoMovieHumanHandDigits.fixed(input.digits[name]));
-      return { mesh, rim: Array.from({ length: 72 }, (_, i): V3 => mesh.positions.slice(i * 3, i * 3 + 3) as V3) };
+      return { mesh, rim: Array.from({ length: 72 }, (_: unknown, i: number): V3 => mesh.positions.slice(i * 3, i * 3 + 3) as V3) };
     };
 
     // The middle digit continues the open fan. Every other digit owns its
@@ -92,7 +99,7 @@ export namespace AutoMovieHumanHandPorts {
     const fanWithMiddle: IIndexedMesh = joinRims(fan.mesh, middle.mesh, fan.ring(lastFan, input.fan.names.middle), middle.rim, [input.fan.normalLast, input.fan.normalMiddle]);
     const branch: ReturnType<typeof loft> = loft(input.branch.model), body: FixedMesh = native(arm);
     const lastBranch: number = input.branch.model.sections.length - 1;
-    const { origin, axis, thumb } = input.branch;
+    const { origin, axis, thumb }: IFixed["branch"] = input.branch;
     const palm: IIndexedMesh = sewExactRim(body, branch.mesh, exactFreeRim(body, origin, axis), exactFreeRim(branch.mesh, origin, axis));
     let hand: IIndexedMesh = joinRims(palm, fanWithMiddle, branch.ring(lastBranch, 1 - thumb), fan.ring(0, 0), [axis, input.fan.normalFirst], input.hostRims);
     for (const name of ["thumb", "index", "ring", "pinky"] as const) {
@@ -117,16 +124,16 @@ export namespace AutoMovieHumanHandPorts {
         const a: number = mesh.indices[i + j]!, b: number = mesh.indices[i + (j + 1) % 3]!;
         const key: string = a < b ? `${a}:${b}` : `${b}:${a}`;
         const direction: number = a < b ? 1 : -1;
-        const known = edges.get(key);
+        const known: ReturnType<typeof edges.get> = edges.get(key);
         if (known) {
           ++known.count;
           known.winding += direction;
         } else edges.set(key, { a, b, count: 1, winding: direction });
       }
-    const key = (a: string, b: string): string => a < b ? `${a}:${b}` : `${b}:${a}`;
-    const expected: string[] = root.map(([x, y, z]): string => [x * 0.001, y * 0.001, -z * 0.001].join(","));
-    const seam: Set<string> = new Set(expected.map((a, i): string => key(a, expected[(i + 1) % expected.length]!)));
-    const point = (index: number): string => mesh.positions.slice(3 * index, 3 * index + 3).join(",");
+    const key: (a: string, b: string) => string = (a: string, b: string): string => a < b ? `${a}:${b}` : `${b}:${a}`;
+    const expected: string[] = root.map(([x, y, z]: V3): string => [x * 0.001, y * 0.001, -z * 0.001].join(","));
+    const seam: Set<string> = new Set(expected.map((a: string, i: number): string => key(a, expected[(i + 1) % expected.length]!)));
+    const point: (index: number) => string = (index: number): string => mesh.positions.slice(3 * index, 3 * index + 3).join(",");
     for (const { a, b, count, winding } of edges.values()) {
       if (count === 1 && seam.delete(key(point(a), point(b)))) continue;
       if (count !== 2 || winding !== 0) throw new Error("Hand assembly has an unexpected free or inconsistently oriented edge");
@@ -134,22 +141,24 @@ export namespace AutoMovieHumanHandPorts {
     if (seam.size !== 0) throw new Error("Hand assembly changed a shared armscye edge");
   }
 
+  /** Immutable indexed operand in the join's declared metre chart. */
   type IIndexedMesh = { positions: readonly number[]; indices: readonly number[] };
+  /** A complete free cycle retaining both mesh identity and physical order. */
   type IFreeRim = { ids: number[]; points: V3[] };
 
   /** Find the one complete open contour in its authored plane. */
   export function exactFreeRim(mesh: IIndexedMesh, originMm: V3, normal: V3): IFreeRim {
     const S: typeof AutoMovieHumanArmCurveSpec = AutoMovieHumanArmCurveSpec;
     const edges: Map<string, { a: number; b: number; count: number }> = new Map();
-    const point = (index: number): V3 => mesh.positions.slice(index * 3, index * 3 + 3) as V3;
-    const inPlane = (index: number): boolean => Math.abs(S.dot(AutoMovieHumanHandVector.sub(AutoMovieHumanHandVector.scale(point(index), 1000), originMm), normal)) < 1e-6;
+    const point: (index: number) => V3 = (index: number): V3 => mesh.positions.slice(index * 3, index * 3 + 3) as V3;
+    const inPlane: (index: number) => boolean = (index: number): boolean => Math.abs(S.dot(AutoMovieHumanHandVector.sub(AutoMovieHumanHandVector.scale(point(index), 1000), originMm), normal)) < 1e-6;
     for (let i: number = 0; i < mesh.indices.length; i += 3)
       for (let j: number = 0; j < 3; ++j) {
         const a: number = mesh.indices[i + j]!;
         const b: number = mesh.indices[i + (j + 1) % 3]!;
         if (!inPlane(a) || !inPlane(b)) continue;
         const key: string = a < b ? `${a}:${b}` : `${b}:${a}`;
-        const prior = edges.get(key);
+        const prior: ReturnType<typeof edges.get> = edges.get(key);
         if (prior) ++prior.count;
         else edges.set(key, { a, b, count: 1 });
       }
@@ -182,22 +191,22 @@ export namespace AutoMovieHumanHandPorts {
     next: IFreeRim,
   ): { positions: number[]; indices: number[]; shared: number } {
     const positions: number[] = [...before.positions];
-    const matches: number[] = next.points.map((point): number => {
-      const close: number[] = root.points.flatMap((other, i): number[] =>
+    const matches: number[] = next.points.map((point: V3): number => {
+      const close: number[] = root.points.flatMap((other: V3, i: number): number[] =>
         Math.hypot(...AutoMovieHumanHandVector.sub(point, other)) < 1e-10 ? [i] : []);
       if (close.length !== 1) throw new Error("The new branch does not match one exact existing palm edge vertex");
       return close[0]!;
     });
     if (matches.length !== root.ids.length || new Set(matches).size !== root.ids.length)
       throw new Error(`The palm rim count changed (${root.ids.length} original versus ${matches.length} branch, ${new Set(matches).size} unique matches)`);
-    const forward: boolean = matches.every((index, i): boolean =>
+    const forward: boolean = matches.every((index: number, i: number): boolean =>
       (index + 1) % root.ids.length === matches[(i + 1) % matches.length]);
-    const reverse: boolean = matches.every((index, i): boolean =>
+    const reverse: boolean = matches.every((index: number, i: number): boolean =>
       (index + root.ids.length - 1) % root.ids.length === matches[(i + 1) % matches.length]);
     if (forward === reverse)
       throw new Error("The branch did not retain the original indexed palm edge order");
-    const remap: Map<number, number> = new Map(next.ids.map((index, i): [number, number] => [index, root.ids[matches[i]!]!]));
-    const indices: number[] = after.indices.map((index): number => {
+    const remap: Map<number, number> = new Map(next.ids.map((index: number, i: number): [number, number] => [index, root.ids[matches[i]!]!]));
+    const indices: number[] = after.indices.map((index: number): number => {
       const prior: number | undefined = remap.get(index);
       if (prior !== undefined) return prior;
       const created: number = positions.length / 3;
@@ -222,7 +231,7 @@ export namespace AutoMovieHumanHandPorts {
   ): IIndexedMesh {
     const positions: number[] = [...fan.positions, ...middle.positions];
     const base: number = fan.positions.length / 3;
-    const directedFree = (indices: readonly number[]): Map<string, 1 | -1 | 0> => {
+    const directedFree: (indices: readonly number[]) => Map<string, 1 | -1 | 0> = (indices: readonly number[]): Map<string, 1 | -1 | 0> => {
       const edges: Map<string, 1 | -1 | 0> = new Map();
       for (let i: number = 0; i < indices.length; i += 3) {
         for (let j: number = 0; j < 3; ++j) {
@@ -236,9 +245,9 @@ export namespace AutoMovieHumanHandPorts {
     };
     const fanEdges: ReturnType<typeof directedFree> = directedFree(fan.indices);
     const middleEdges: ReturnType<typeof directedFree> = directedFree(middle.indices);
-    const key = (a: number, b: number): string => a < b ? `${a}:${b}` : `${b}:${a}`;
-    const pointKey = (point: V3): string => point.join(",");
-    const idsOf = (mesh: IIndexedMesh, edges: Map<string, 1 | -1 | 0>, ring: V3[]): number[] => {
+    const key: (a: number, b: number) => string = (a: number, b: number): string => a < b ? `${a}:${b}` : `${b}:${a}`;
+    const pointKey: (point: V3) => string = (point: V3): string => point.join(",");
+    const idsOf: (mesh: IIndexedMesh, edges: Map<string, 1 | -1 | 0>, ring: V3[]) => number[] = (mesh: IIndexedMesh, edges: Map<string, 1 | -1 | 0>, ring: V3[]): number[] => {
       const freeVertices: Map<string, number[]> = new Map();
       for (const [edge, direction] of edges)
         if (direction !== 0)
@@ -248,7 +257,7 @@ export namespace AutoMovieHumanHandPorts {
             if (!found.includes(id)) found.push(id);
             freeVertices.set(xyz, found);
           }
-      return ring.map((point): number => {
+      return ring.map((point: V3): number => {
         const found: number[] = freeVertices.get(pointKey(point)) ?? [];
         if (found.length !== 1) throw new Error("The construction point has no unique free mesh vertex");
         return found[0]!;
@@ -259,7 +268,7 @@ export namespace AutoMovieHumanHandPorts {
     const S: typeof AutoMovieHumanArmCurveSpec = AutoMovieHumanArmCurveSpec;
     // Align physical perimeter directions before lofting. The indexed
     // triangle winding is normalized separately once the seams are checked.
-    const physicalSigns: [number, number] = [fanRing, middleRing].map((ring, i): number =>
+    const physicalSigns: [number, number] = [fanRing, middleRing].map((ring: V3[], i: number): number =>
       Math.sign(S.dot(AutoMovieMeshCourse.newell(ring), normals[i]!))) as [number, number];
     if (physicalSigns.includes(0)) throw new Error("A source rim does not have a physical orientation on its actual plane");
     if (physicalSigns[0] !== physicalSigns[1]) {
@@ -267,8 +276,8 @@ export namespace AutoMovieHumanHandPorts {
       middleRing.reverse();
     }
     const identity: Map<V3, number> = new Map([
-      ...fanRing.map((point, i): [V3, number] => [point, fanIds[i]!]),
-      ...middleRing.map((point, i): [V3, number] => [point, base + middleIds[i]!]),
+      ...fanRing.map((point: V3, i: number): [V3, number] => [point, fanIds[i]!]),
+      ...middleRing.map((point: V3, i: number): [V3, number] => [point, base + middleIds[i]!]),
     ]);
     const patch: number[] = [];
     const inner: number[][] = [];
@@ -277,7 +286,7 @@ export namespace AutoMovieHumanHandPorts {
       const direction: number = Math.sign(S.dot(AutoMovieMeshCourse.newell(section.points), section.normal));
       if (direction === 0) throw new Error("An original intermediate ring is degenerate");
       const points: V3[] = direction === physicalSigns[0] ? section.points : [...section.points].reverse();
-      inner.push(points.map((p): number => {
+      inner.push(points.map((p: V3): number => {
         const id: number = positions.length / 3;
         positions.push(...p);
         identity.set(p, id);
@@ -287,14 +296,14 @@ export namespace AutoMovieHumanHandPorts {
     }
     rings.push(middleRing);
     for (let i: number = 0; i + 1 < rings.length; ++i)
-      tessellateAutoMovieContourStrip64(rings[i]!, rings[i + 1]!, (a, b, c): void => {
+      tessellateAutoMovieContourStrip64(rings[i]!, rings[i + 1]!, (a: V3, b: V3, c: V3): void => {
         for (const point of [a, b, c]) {
           const id: number | undefined = identity.get(point);
           if (id === undefined) throw new Error("The measured strip added an unowned point");
           patch.push(id);
         }
-      }, (point): string | undefined => identity.get(point)?.toString(),
-      ({ qualified, diagnostics }): void => {
+      }, (point: V3): string | undefined => identity.get(point)?.toString(),
+      ({ qualified, diagnostics }: Parameters<NonNullable<Parameters<typeof tessellateAutoMovieContourStrip64>[4]>>[0]): void => {
         if (!qualified) throw new Error(`The measured strip was unqualified: ${diagnostics.join("; ")}`);
       });
     const use: Map<string, number[]> = new Map();
@@ -305,17 +314,17 @@ export namespace AutoMovieHumanHandPorts {
         use.set(edge, [...(use.get(edge) ?? []), a < b ? 1 : -1]);
       }
     for (const ids of inner)
-      if (ids.some((a, i): boolean => {
+      if (ids.some((a: number, i: number): boolean => {
         const list: number[] = use.get(key(a, ids[(i + 1) % ids.length]!)) ?? [];
         return list.length !== 2 || list[0] === list[1];
       })) throw new Error("An intermediate ring does not share every actual edge twice in opposite directions");
-    const shiftedMiddle: number[] = middle.indices.map((index): number => base + index);
-    const shifts = (ids: number[]): number[] => ids.map((index): number => base + index);
+    const shiftedMiddle: number[] = middle.indices.map((index: number): number => base + index);
+    const shifts: (ids: number[]) => number[] = (ids: number[]): number[] => ids.map((index: number): number => base + index);
     const middleWorldIds: number[] = shifts(middleIds);
     const parts: ReturnType<typeof directedFree>[] = [fanEdges, directedFree(shiftedMiddle)];
     const patchEdges: ReturnType<typeof directedFree> = directedFree(patch);
-    const seamSigns: number[] = [fanIds, middleWorldIds].map((ids, r): number => {
-      const signs: Set<number> = new Set(ids.map((a, i): number => {
+    const seamSigns: number[] = [fanIds, middleWorldIds].map((ids: number[], r: number): number => {
+      const signs: Set<number> = new Set(ids.map((a: number, i: number): number => {
         const b: number = ids[(i + 1) % ids.length]!;
         const edge: string = key(a, b);
         return (parts[r]!.get(edge) ?? 0) * (patchEdges.get(edge) ?? 0);
@@ -323,7 +332,7 @@ export namespace AutoMovieHumanHandPorts {
       if (signs.size !== 1 || signs.has(0)) throw new Error("The strip did not reuse every exact ordered boundary edge");
       return [...signs][0]!;
     });
-    const flip = (triangles: number[]): void => {
+    const flip: (triangles: number[]) => void = (triangles: number[]): void => {
       for (let i: number = 0; i < triangles.length; i += 3)
         [triangles[i + 1], triangles[i + 2]] = [triangles[i + 2]!, triangles[i + 1]!];
     };

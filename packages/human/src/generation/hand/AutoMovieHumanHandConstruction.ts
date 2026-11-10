@@ -74,7 +74,9 @@ export namespace AutoMovieHumanHandConstruction {
     branch: IAutoMovieContourLoft64,
   ): AutoMovieHumanHandPorts.IFixed {
     const point: typeof AutoMovieHumanHandPalm.fixedPoint = AutoMovieHumanHandPalm.fixedPoint;
-    const rings = (rows: { points: number[][]; normal: number[] }[]): { points: Vec3[]; normal: Vec3 }[] =>
+
+    /** Restore tuple widths while preserving source order and every coefficient. */
+    const rings: (rows: { points: number[][]; normal: number[] }[]) => { points: Vec3[]; normal: Vec3 }[] = (rows: { points: number[][]; normal: number[] }[]): { points: Vec3[]; normal: Vec3 }[] =>
       rows.map((row: typeof rows[number]): { points: Vec3[]; normal: Vec3 } =>
         ({ ...row, points: row.points.map(point), normal: point(row.normal) }));
     const joins: AutoMovieHumanHandPorts.IFixed["joins"] = {

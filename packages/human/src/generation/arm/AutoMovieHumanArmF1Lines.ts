@@ -111,7 +111,9 @@ export namespace AutoMovieHumanArmF1Lines {
     const positions: number[] = [];
     const indices: number[] = [];
     const identity: Map<V3, number> = new Map();
-    const orientation = (ring: IFixedRing): number =>
+
+    /** Read each original perimeter against its own measured distal normal. */
+    const orientation: (ring: IFixedRing) => number = (ring: IFixedRing): number =>
       Math.sign(AutoMovieHumanArmCurveSpec.dot(AutoMovieMeshCourse.newell(ring.points), ring.normal));
     const sign: number = -orientation(wrist);
     if (sign === 0) throw new Error("The measured F1 wrist has no physical orientation");
@@ -129,7 +131,7 @@ export namespace AutoMovieHumanArmF1Lines {
     for (let i: number = 1; i < walks.length; ++i)
       tessellateAutoMovieContourStrip64(walks[i - 1]!, walks[i]!, (a: V3, b: V3, c: V3): void => {
         indices.push(identity.get(a)!, identity.get(b)!, identity.get(c)!);
-      }, (point: V3): string => String(identity.get(point)), ({ qualified, diagnostics }): void => {
+      }, (point: V3): string => String(identity.get(point)), ({ qualified, diagnostics }: Parameters<NonNullable<Parameters<typeof tessellateAutoMovieContourStrip64>[4]>>[0]): void => {
         if (!qualified) throw new Error(`F1 measured arm strip ${i} refused: ${diagnostics.join("; ")}`);
       });
 
