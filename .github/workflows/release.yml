@@ -38,7 +38,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 22.x
+          # npm trusted publishing (OIDC) needs npm 11.5.1+, which Node 24 bundles.
+          node-version: 24.x
           registry-url: https://registry.npmjs.org/
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
       - name: Validate release context
@@ -71,7 +72,12 @@ jobs:
             git commit -m "chore(release): bump ${NPM_TAG} to ${RELEASE_VERSION} [skip ci]"
             git push origin HEAD:${GITHUB_REF_NAME}
           fi
-      # Every package's `prepack` builds its own `lib/` before it is packed, and
+      # `package:*` runs `package:prepare` first: it builds every published
+      # package and verifies each published entry point exists, and only then
+      # starts `pnpm -r publish`, which walks the packages one at a time and
+      # ships the prebuilt `lib/` as is (the manifests carry no `prepack`
+      # rebuild). A build failure therefore stops the job before anything
+      # reaches npm, instead of leaving a half-published version set.
       # `pnpm publish` skips private workspaces.
       - name: Publish to npm
         run: pnpm run "package:${NPM_TAG}" --no-git-checks --provenance

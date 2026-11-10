@@ -14,11 +14,13 @@
 //   node scripts/release-guard.js validate-context
 //   node scripts/release-guard.js bump-if-needed
 //   node scripts/release-guard.js validate-package-versions
+//   node scripts/release-guard.js validate-build-output
 
 "use strict";
 
 const childProcess = require("node:child_process");
 const fs = require("node:fs");
+const path = require("node:path");
 
 const STABLE_VERSION = /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/;
 const PRERELEASE_PATTERNS = {
@@ -130,6 +132,47 @@ function bumpIfNeeded() {
   );
 }
 
+// `package:*` builds every package before the first publish and then publishes
+// the prebuilt `lib/` as is (no `prepack` rebuild), so a missing entry point
+// would otherwise ship silently: `pnpm publish` does not check that `main`,
+// `types`, `bin`, or `exports` targets exist. Resolve every published entry
+// from `publishConfig` and refuse to publish when one is absent.
+function publishedEntries(publishConfig) {
+  const entries = new Set();
+  const visit = (value) => {
+    if (typeof value === "string") entries.add(path.normalize(value));
+    else if (value && typeof value === "object")
+      for (const nested of Object.values(value)) visit(nested);
+  };
+  for (const key of ["main", "types"]) visit(publishConfig[key]);
+  visit(publishConfig.bin);
+  visit(publishConfig.exports);
+  return [...entries];
+}
+
+function validateBuildOutput() {
+  const missing = [];
+  let checked = 0;
+  for (const file of packageJsonFiles()) {
+    if (!/^packages\/[^/]+\/package\.json$/.test(file)) continue;
+    const json = JSON.parse(fs.readFileSync(file, "utf8"));
+    if (json.private) continue;
+    const dir = path.dirname(file);
+    for (const entry of publishedEntries(json.publishConfig ?? {})) {
+      checked += 1;
+      if (!fs.existsSync(path.join(dir, entry)))
+        missing.push(`${json.name}: ${entry}`);
+    }
+  }
+  if (checked === 0) fail("no published entry points found under packages/*");
+  if (missing.length) {
+    console.error("Build output is missing published entry points:");
+    for (const line of missing) console.error(`- ${line}`);
+    process.exit(1);
+  }
+  console.log(`Verified ${checked} published entry points.`);
+}
+
 switch (command) {
   case "validate-context":
     validateContext();
@@ -140,8 +183,11 @@ switch (command) {
   case "validate-package-versions":
     assertPackageVersions(process.env.RELEASE_VERSION);
     break;
+  case "validate-build-output":
+    validateBuildOutput();
+    break;
   default:
     fail(
-      "usage: release-guard.js <validate-context|bump-if-needed|validate-package-versions>",
+      "usage: release-guard.js <validate-context|bump-if-needed|validate-package-versions|validate-build-output>",
     );
 }

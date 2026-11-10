@@ -13,7 +13,6 @@
   "scripts": {
     "build": "rimraf lib && ttsc",
     "start": "ttsx src/bin.ts",
-    "prepack": "pnpm run build",
     "evidence": "evidence"
   },
   "keywords": [
