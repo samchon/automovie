@@ -26,6 +26,6 @@ Compute the reach before posing: the root-to-target distance against the limb's 
 
 Fit supports before reaching limbs: feet on the floor, seat bones on the seat, hands on a held bar. A later fit can pull an earlier contact away, so check every earlier contact after each later fit.
 
-A bend hint chooses which side the elbow or knee falls on. A solver may still prefer the side its range-of-motion cost favours, so check that the solved middle joint follows the hint. When no hint is given, keep the side the current pose already bends toward.
+A bend hint chooses which side the elbow or knee falls on. A solver may still prefer the side its range-of-motion cost favours, so check that the solved middle joint follows the hint. When no hint is given, keep the side the pose being fitted already bends toward at that instant.
 
 When two limbs rest on each other, as in crossed arms, place them in one direction. Fit the first against the body, then the second against the first as solved. Re-placing each against the other in turn oscillates between swivel branches and does not converge.
