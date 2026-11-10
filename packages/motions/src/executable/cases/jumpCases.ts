@@ -154,7 +154,7 @@ export function jumpCases(
           if (t >= touchdown && -p.y > sink.value)
             sink = {
               value: -p.y,
-              where: `k=${k} ${side} ${socket} t=${t.toFixed(3)}`,
+              where: `k=${k} ${side} ${socket} t=${t.toFixed(3)} (${t < takeoff ? (t < at ? "walk" : "push-off") : "landing"})`,
             };
           const key: string = `${side}${w}${socket}`;
           if (w < 0 || p.y > 0.01 || socket === "toe") {
@@ -195,9 +195,14 @@ export function jumpCases(
     const before = velocity(at - 2 * h, h);
     const after = velocity(at + 2 * h, h);
     let change: number = 0;
+    let jumped: string = "";
     for (const [bone, v] of before) {
       const w: IAutoMovieVector3 = after.get(bone)!;
-      change = Math.max(change, Math.hypot(w.x - v.x, w.y - v.y, w.z - v.z));
+      const c: number = Math.hypot(w.x - v.x, w.y - v.y, w.z - v.z);
+      if (c > change) {
+        change = c;
+        jumped = `${bone} ${Math.hypot(v.x, v.y, v.z).toFixed(2)}->${Math.hypot(w.x, w.y, w.z).toFixed(2)} m/s`;
+      }
     }
     let peak: number = 0;
     for (
@@ -208,7 +213,10 @@ export function jumpCases(
       for (const v of velocity(t, h).values())
         peak = Math.max(peak, Math.hypot(v.x, v.y, v.z));
     if (change / peak > jumpRatio.value)
-      jumpRatio = { value: change / peak, where: `k=${k}` };
+      jumpRatio = {
+        value: change / peak,
+        where: `k=${k} ${jumped}, peak ${peak.toFixed(2)} m/s`,
+      };
 
     // Flight: least-squares parabola with gravity fixed.
     const samples: { t: number; p: IAutoMovieVector3 }[] = [];

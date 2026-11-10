@@ -35,8 +35,9 @@ import { standUpright } from "./standUpright";
  * follows a quintic Hermite path from the entry root and velocity to the
  * take-off root and velocity over `PUSH` seconds. The take-off foot is the
  * planted one (the front one when both are, the rear being about to leave),
- * held on the floor while its heel rises about its ball from its entry pitch
- * to 40° and its toes extend, the forefoot rocker of a
+ * held on the floor while it comes down about its heel if it was still in its
+ * heel rocker and then rises about the toes' joint from its entry pitch to
+ * 40°, its toes extending, the stance rockers in order and the forefoot rocker of a
  * push-off; the other leg, the reaching leg, leaves the floor at the cut and
  * withdraws under the body, its
  * ankle drawn under the hip and raised to 0.3 hip heights, the free-leg tuck
@@ -164,12 +165,19 @@ export namespace jump {
       Math.PI;
     const arm = (side: "left" | "right"): number =>
       entry.posture.joints[`${side}UpperArm`]?.[0] ?? 0;
-    const ball: IAutoMovieVector3 = HumanFoot.point(
+    // A foot still in its heel rocker comes down about its heel first; the
+    // push then rises about the toes' joint of the flat foot.
+    const heel: IAutoMovieVector3 = HumanFoot.point(
       body,
       takeoff,
-      "mtp",
+      "heel",
       support,
     );
+    const flat: HumanFoot.IPlacement =
+      supportPitch > 0
+        ? HumanFoot.pivot(body, takeoff, "heel", heel, supportHeading, 0)
+        : support;
+    const ball: IAutoMovieVector3 = HumanFoot.point(body, takeoff, "mtp", flat);
     const upright: standUpright.IAlignment = standUpright.of(body);
     const model = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const offset = (posture: IHumanPosture): IAutoMovieVector3 => {
@@ -444,8 +452,8 @@ export namespace jump {
           const foot: HumanFoot.IPlacement = HumanFoot.pivot(
             body,
             takeoff,
-            "mtp",
-            ball,
+            pitch > 0 ? "heel" : "mtp",
+            pitch > 0 ? heel : ball,
             supportHeading,
             pitch,
           );
