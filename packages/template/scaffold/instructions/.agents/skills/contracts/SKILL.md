@@ -10,7 +10,7 @@ This tree holds the questions Evidence asks. Read only the family and contracts 
 | Family | Respondents | Where they answer |
 | --- | --- | --- |
 | [Development](development/SKILL.md) | Source declarations and tests | Their doc comments |
-| [Story](story/SKILL.md) | Research studies, settings or brief, treatments, scripts and screenplay units and populations, discovery results and review records | Where [respondent placement](../story/evidence/respondents.md) puts them |
+| [Story](story/SKILL.md) | Research studies, settings or brief, treatments, scripts and screenplay units and populations, discovery results and review records | Where [respondent placement](../story/evidence/answer-placement.md) puts them |
 
 ## Items and statements {#items-and-statements}
 

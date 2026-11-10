@@ -6,13 +6,21 @@ Test what the chain promises: that each research outcome table is consistent and
 
 ## Motion checks
 
-The bounded checks [motion verification](../motion/verification.md) lists belong here for a production law: evaluate the resolved plan at its event times and assert each bound on the result, across bodies of several statures and proportions. A test that needs a person takes a body the installed human package prepares at fixed parameters, without drawing it. Preparing a body can be slow, so prepare each one once per run and share it between tests. The installed motion vocabulary's actions carry their own checks and are not tested again.
+The bounded checks [motion verification](../motion/verification.md) lists belong here for a production law: evaluate the resolved plan at its event times and assert each bound on the result, across bodies of several statures and proportions.
+
+A test that needs a person takes a body the installed human package prepares at fixed parameters, without drawing it. Preparing a body can be slow, so prepare each one once per run and share it between tests.
+
+The installed motion vocabulary's actions carry their own checks and are not tested again.
 
 What only a picture shows belongs to the stills of the [catalog case](../motion/catalog-cases.md), not to a test.
 
 ## What a test is not
 
-Do not write end-to-end tests, long simulations, tests that build drawn figures or scenes, monkey-patched globals or internals, golden outputs or expectations copied from the code's own output, or recorded fixtures: they are slow, freeze defects, or prove only that the code repeats itself. Rendered pictures, decoded media and anything the user watches or hears are production acceptance, recorded in the [acceptance record](../review/delivery.md#acceptance-record), not tests. Test geometry operators on made inputs as 3D modeling's [Crafting](../3d-modeling/crafting.md#tests) describes.
+Do not write end-to-end tests, long simulations, tests that build drawn figures or scenes, monkey-patched globals or internals, golden outputs or expectations copied from the code's own output, or recorded fixtures: they are slow, freeze defects, or prove only that the code repeats itself.
+
+Rendered pictures, decoded media and anything the user watches or hears are production acceptance, recorded in the [acceptance record](../review/delivery.md#acceptance-record), not tests.
+
+Test geometry operators on made inputs as 3D modeling's [Crafting](../3d-modeling/crafting.md#tests) describes.
 
 ## Files and runs
 

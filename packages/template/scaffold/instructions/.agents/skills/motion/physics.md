@@ -8,7 +8,7 @@ Realize [effector goals](authoring.md) with the installed engine's solvers, as i
 
 Under the single transform owner [staging](staging.md) requires, a carried prop rides one hand and receives the other hand as a goal, and a mount carries the rider's seated support and receives the hands and feet as goals on its regions.
 
-A residual, refusal or range-limited pose marks an unreachable goal, repaired at its owner as staging directs; a solver the engine lacks is handled under [installed packages](../development/SKILL.md#installed-packages).
+A residual, refusal or range-limited pose marks an unreachable goal, repaired at its owner as staging directs; a solver the engine lacks is handled under [installed packages](../development/reuse.md#installed-packages).
 
 Choose each scene's physical mode in its composition, with a scene default and explicit body overrides, among the modes the installed engine documents: authored motion for a hint or a deliberate stylization, solved physics when the promise requires it, and a stated departure from the solved result when impulse, gravity or compliance is exaggerated.
 

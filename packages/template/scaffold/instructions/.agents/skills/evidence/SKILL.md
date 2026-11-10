@@ -13,4 +13,4 @@ Connect each required achievement to the work that can establish it. The [contra
 | Configure the graph for the commissioned route and work | [Configuration](configuration.md) |
 | Write or audit source and test answers | [Answering](answering.md) |
 
-Creative answers follow [story evidence](../story/evidence/writing.md). A passing graph shows that the selected answers and citations exist; [review](../review/SKILL.md) judges whether they are true, and [delivery review](../review/delivery.md) whether the commissioned result works.
+Creative answers follow [story evidence](../story/evidence/answer-writing.md). A passing graph shows that the selected answers and citations exist; [review](../review/SKILL.md) judges whether they are true, and [delivery review](../review/delivery.md) whether the commissioned result works.

@@ -4,7 +4,7 @@ Build the subjects the commission's scenes need, each in the entity folder [sour
 
 ## Scope {#scope}
 
-Read [project context](../production/project-context.md) first. Before building a subject, search the installed packages' READMEs for one that already provides it, under [installed packages](SKILL.md#installed-packages). A standalone asset defines its views and controls without a screenplay.
+Read [project context](../production/project-context.md) first. Before building a subject, search the installed packages' READMEs for one that already provides it, under [installed packages](reuse.md#installed-packages). A standalone asset defines its views and controls without a screenplay.
 
 ## Coarse first {#coarse-first}
 
@@ -14,7 +14,7 @@ A motion hint guides video-to-video diffusion, which supplies the look. So model
 
 A person is the polygon man. The installed viewer draws it from the canonical body that the installed human package prepares from parameters, and those parameters come from the cast record's body facts.
 
-The same prepared body is the one the installed motion vocabulary plans for, so the figure on screen and the body the motion was solved on are one. [Installed packages](SKILL.md#installed-packages) names the three packages, and their READMEs give the calls.
+The same prepared body is the one the installed motion vocabulary plans for, so the figure on screen and the body the motion was solved on are one. [Installed packages](reuse.md#installed-packages) names the three packages, and their READMEs give the calls.
 
 ### Everything else
 

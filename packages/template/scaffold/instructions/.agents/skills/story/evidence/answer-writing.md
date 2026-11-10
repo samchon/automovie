@@ -10,11 +10,11 @@ Where an item has [statements](../../contracts/SKILL.md#items-and-statements), c
 
 Answer only what the question asks; an unneeded inventory becomes a stale fact. Group a repeated cause and cite its grounds once.
 
-An inapplicable question states its inspected scope and reason through the mechanism its relationship permits, and a population exclusion requires the whole population to be inapplicable. [Respondent placement](respondents.md) says where each answer goes.
+An inapplicable question states its inspected scope and reason through the mechanism its relationship permits, and a population exclusion requires the whole population to be inapplicable. [Respondent placement](answer-placement.md) says where each answer goes.
 
 After an edit within the open pass, reconcile its dependent answers in the same repair; changes touching closed work follow [upstream repair](../correction/repair.md).
 
-Hand the body and answers to [workflow](../workflow.md) for construction or [rewriting procedure](../naturalness/procedure.md) for expression. Independent [review](../../review/rounds.md) judges the body before auditing these answers, and a refreshed hash grants no creative judgment.
+Hand the body and answers to [workflow](../workflow.md) for construction or [rewriting procedure](../naturalness/transfer.md) for expression. Independent [review](../../review/rounds.md) judges the body before auditing these answers, and a refreshed hash grants no creative judgment.
 
 ## Grounds for retaining a candidate
 

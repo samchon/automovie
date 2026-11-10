@@ -16,7 +16,7 @@ Inspect the actual process, artifacts and errors before calling a quiet run stal
 
 A changed input starts a new result; a restart inherits no verdict.
 
-A capability an installed package lacks is handled under [installed packages](../development/SKILL.md#installed-packages) while independent work continues.
+A capability an installed package lacks is handled under [installed packages](../development/reuse.md#installed-packages) while independent work continues.
 
 ## Observe
 

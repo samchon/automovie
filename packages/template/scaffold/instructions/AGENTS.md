@@ -35,7 +35,7 @@ A film [only composes](.agents/skills/contracts/development/composition.md#compo
 
 ### Reuse before writing
 
-Search the installed packages first, compose every person's motion from the installed human motion vocabulary, and vary a module by its parameters and seed instead of copying it, under [development](.agents/skills/development/SKILL.md#installed-packages).
+Search the installed packages first, compose every person's motion from the installed human motion vocabulary, and vary a module by its parameters and seed instead of copying it, under [development](.agents/skills/development/reuse.md#installed-packages).
 
 Divide programming by responsibility, give each module meaningful unit tests, and assemble verified parts through their actual consumers.
 

@@ -9,5 +9,5 @@ Answer the [story contracts](../../contracts/story/SKILL.md) from the corrected 
 
 | Task | Read |
 | --- | --- |
-| Write accountable answers from the current body | [Writing](writing.md) |
-| Place answers, working comments and exclusions | [Respondents](respondents.md) |
+| Write accountable answers from the current body | [Writing](answer-writing.md) |
+| Place answers, working comments and exclusions | [Respondents](answer-placement.md) |

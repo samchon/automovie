@@ -11,7 +11,7 @@ The detailed statements of the [review unit principles](../../principles/review.
 5. A factual objection is resolved with the actual quotation, definition, permitted exception and parent or cited record.
 6. Upstream knowledge fills no gap the recipient experienced, and author confidence, repair cost, previous verdicts and taste dismiss no loss.
 7. Named failures were classified under the [selected decision rule](../../naturalness/common.md#reads-as-written) before author defenses, and the independent classifier resolved ambiguity in context.
-8. A named failure is protected only under a proven contractual exception. Other candidates use the [retention test](../../../../../story/evidence/writing.md#grounds-for-retaining-a-candidate).
+8. A named failure is protected only under a proven contractual exception. Other candidates use the [retention test](../../../../../story/evidence/answer-writing.md#grounds-for-retaining-a-candidate).
 9. Fragile achievements are recorded with quotations and functions, or the record states that none were identified. Their function is protected, not a defective sentence.
 10. The review gives repair directions, not prose for adoption. Counterfactual sentences belong only to the retention comparison.
 11. Narrative and expressive quality is reviewed separately from the truth of evidence answers.

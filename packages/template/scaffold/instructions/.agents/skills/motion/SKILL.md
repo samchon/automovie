@@ -22,7 +22,7 @@ Motion is authored and accepted on the coarse entities, whatever detail a delive
 
 Compose each person's performance from the installed human motion vocabulary, as its README and public types give it. The package owns its actions with their studies and checks, so a second implementation in the production duplicates that work without its checks. [Source layout](../development/layout.md#how-the-parts-work-together) says how a cast entity's capabilities carry those actions into a scene.
 
-When a vocabulary action misbehaves in a case, hand the user the case and its numbers under [installed packages](../development/SKILL.md#installed-packages) rather than patching it in the production, because a local patch hides the defect from every other production.
+When a vocabulary action misbehaves in a case, hand the user the case and its numbers under [installed packages](../development/reuse.md#installed-packages) rather than patching it in the production, because a local patch hides the defect from every other production.
 
 ## Write a production law {#write-a-production-law}
 

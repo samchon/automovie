@@ -2,7 +2,7 @@
 
 Keep current reviews in the review locations of the [document layout](../story/layout.md#documents), mirroring every authored file and H2, with one verdict document for whole-pass duties.
 
-Construction reviews target construction and naturalness reviews the working text. Each body-clean unit carries its native current fingerprint review, which covers the body, not the truth of its answers; after [expression transfer](../story/naturalness/procedure.md#transfer), construction judgments stay with their frozen edition.
+Construction reviews target construction and naturalness reviews the working text. Each body-clean unit carries its native current fingerprint review, which covers the body, not the truth of its answers; after [expression transfer](../story/naturalness/transfer.md#transfer), construction judgments stay with their frozen edition.
 
 Use one independent reviewer per pass, and a fresh closing reviewer only as the grading below requires, adding another reader only for a question the first cannot judge.
 
@@ -18,7 +18,7 @@ An item judged an observation in an earlier round becomes a finding only on new 
 
 Grade each body finding: it is minor when its repair changes wording only, with no fact, decision, event or audience experience beyond that passage, and moderate or higher otherwise. After a moderate-or-higher repair, a fresh reviewer's closing round rereads every current H2 and judges afresh; when only minor findings were repaired, the scoped round that confirms them closes creative review. A complete round with no body finding closes it directly.
 
-Once creative review closes, audit the evidence once under [evidence writing](../story/evidence/writing.md). A round whose only findings are evidence statements closes when the author corrects those statements and the reviewer confirms them in the same record, provided the body, inputs and requirements are unchanged; a body defect found there returns to creative review.
+Once creative review closes, audit the evidence once under [evidence writing](../story/evidence/answer-writing.md). A round whose only findings are evidence statements closes when the author corrects those statements and the reviewer confirms them in the same record, provided the body, inputs and requirements are unchanged; a body defect found there returns to creative review.
 
 Close with the actual result, not a stage flag. Raw blind reads and sentence tables stay in ignored `.cache/`.
 

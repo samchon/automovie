@@ -1,6 +1,6 @@
 # Expression procedure
 
-Work in the ignored frozen and working locations of the [document layout](../layout.md), with matching relative paths and the same H1 and H2 identities and order. Write the complete working edition while its pass is disabled, following the [rewriting method](method.md), and finish author inspection, fidelity comparison and cause corrections before opening evidence.
+Work in the ignored frozen and working locations of the [document layout](../layout.md), with matching relative paths and the same H1 and H2 identities and order. Write the complete working edition while its pass is disabled, following the [rewriting method](rewriting.md), and finish author inspection, fidelity comparison and cause corrections before opening evidence.
 
 ## Transfer
 

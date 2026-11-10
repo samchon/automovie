@@ -9,5 +9,5 @@ Rewrite how the screenplay is seen and heard while its decided meaning stays fro
 
 | Task | Read |
 | --- | --- |
-| Rewrite expression against its frozen meaning | [Method](method.md) |
-| Freeze, submit or transfer expression work | [Procedure](procedure.md) |
+| Rewrite expression against its frozen meaning | [Method](rewriting.md) |
+| Freeze, submit or transfer expression work | [Procedure](transfer.md) |

@@ -44,7 +44,7 @@ Asset-only work has no narrative passes. Choose form and scale through [directio
 Inherit through actual parents, repairing a missing handoff rather than bypassing it, and run [discovery](planning/discovery.md) before bulk settings or brief and again at each of its [checkpoints](planning/discovery.md#checkpoints).
 
 1. Finish the whole body while its pass is disabled.
-2. Complete [inspection and cause repair](correction/repair.md#cause-rounds), enable the stage through [evidence configuration](../evidence/configuration.md), and write [answers](evidence/writing.md).
+2. Complete [inspection and cause repair](correction/repair.md#cause-rounds), enable the stage through [evidence configuration](../evidence/configuration.md), and write [answers](evidence/answer-writing.md).
 3. Submit the body, boundaries and population to independent [review](../review/SKILL.md) through creative closure and evidence audit under [review rounds](../review/rounds.md).
 4. Repair findings at their owners until the pass closes under [review rounds](../review/rounds.md).
 

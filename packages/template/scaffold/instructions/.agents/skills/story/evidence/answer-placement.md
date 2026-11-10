@@ -6,7 +6,7 @@ Detached documents do not support exclusion or exclusion-review rows. Put a perm
 
 Script expression answers belong to its detached construction units and population files. Screenplay naturalness answers stay in HTML comments attached to their working unit in the working edition.
 
-Place H2-owned answers directly beneath their H2, before its subordinate H3 headings, and a file answer before the file's first heading. Keep them with that edition when reviewed text is transferred; [rewriting procedure](../naturalness/procedure.md#transfer) owns the comment-free transfer and [upstream repair](../correction/repair.md) its closed-proof boundary.
+Place H2-owned answers directly beneath their H2, before its subordinate H3 headings, and a file answer before the file's first heading. Keep them with that edition when reviewed text is transferred; [rewriting procedure](../naturalness/transfer.md#transfer) owns the comment-free transfer and [upstream repair](../correction/repair.md) its closed-proof boundary.
 
 Review records and their fingerprints follow [review rounds](../../review/rounds.md).
 

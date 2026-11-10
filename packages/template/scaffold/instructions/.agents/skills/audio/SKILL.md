@@ -9,7 +9,9 @@ You cannot hear, so you cannot judge or tune audio you produce: you measure what
 
 ## Generated sound
 
-A generated film's voices, effects and ambience come from the video model, which generates them in sync with the picture. The production's audio work is to decide what each shot sounds like, from the screenplay's speech and sound decisions, and write it into that shot's prompt in the selected model's syntax under [video](../video/SKILL.md). The model times and lip-syncs speech inside the clip it generates, so keep each shot's lines speakable at a natural pace within that clip's duration, about one or two short exchanges per four seconds.
+A generated film's voices, effects and ambience come from the video model, which generates them in sync with the picture. The production's audio work is to decide what each shot sounds like, from the screenplay's speech and sound decisions, and write it into that shot's prompt in the selected model's syntax under [video](../video/SKILL.md).
+
+The model times and lip-syncs speech inside the clip it generates, so keep each shot's lines speakable at a natural pace within that clip's duration, about one or two short exchanges per four seconds.
 
 When the selected model or mode generates no sound, report it to the user with two choices, a sound-generating model or mode, or a separate video-to-audio pass over the accepted take, and follow their choice.
 
@@ -19,6 +21,10 @@ Make a preview only when the user wants to hear the voices before video generati
 
 ## Commissioned soundtrack {#commissioned-soundtrack}
 
-A motion hint and a direct 3D film are silent unless the commission asks for sound, and no stage waits on a soundtrack nobody commissioned. When one is commissioned, record its tracks and loudness target in the [delivery profile](../production/project-context.md), acquire its material under [acquisition](acquisition.md), build it under [sound effects](sound-effects.md), and have the user listen at every acceptance: each adopted take, each mixed passage with its picture, and the delivered file. Record which takes and passages the user heard, because a measurement cannot stand for a listening.
+A motion hint and a direct 3D film are silent unless the commission asks for sound, and no stage waits on a soundtrack nobody commissioned.
+
+When one is commissioned, record its tracks and loudness target in the [delivery profile](../production/project-context.md), acquire its material under [acquisition](acquisition.md), build it under [sound effects](sound-effects.md), and have the user listen at every acceptance: each adopted take, each mixed passage with its picture, and the delivered file.
+
+Record which takes and passages the user heard, because a measurement cannot stand for a listening.
 
 Source changes follow [development](../development/SKILL.md).

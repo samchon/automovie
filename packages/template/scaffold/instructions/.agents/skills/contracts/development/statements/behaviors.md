@@ -9,7 +9,7 @@ The detailed statements of the [behaviors contract](../behaviors.md), one sectio
 3. The unit tests compare the behavior's results with the study's values.
 4. The behavior was written after its study, and it performs no action the study does not record.
 5. Durations and speeds scale with the body, under [time scale](../../../motion/laws.md#scale-time-with-the-body).
-6. The action is not one the installed motion vocabulary performs. A vocabulary defect is reported under [installed packages](../../../development/SKILL.md#installed-packages), never reimplemented.
+6. The action is not one the installed motion vocabulary performs. A vocabulary defect is reported under [installed packages](../../../development/reuse.md#installed-packages), never reimplemented.
 7. A deliberately stylized departure states its factor and reason.
 
 ## Relational goals {#relational-goals}

@@ -12,7 +12,7 @@ Read each layer as its recipient: settings as treatment writer and designer, a b
 
 A recipient's loss stays a finding even when upstream knowledge explains it, and a defective parent is reported with its earliest owner under [upstream repair](../story/correction/repair.md#upstream-defects).
 
-Apply the contract's decision rule to named failures and the [retention test](../story/evidence/writing.md#grounds-for-retaining-a-candidate) to other candidates; intent or a function label cannot overturn the locked judgment.
+Apply the contract's decision rule to named failures and the [retention test](../story/evidence/answer-writing.md#grounds-for-retaining-a-candidate) to other candidates; intent or a function label cannot overturn the locked judgment.
 
 For screenplay expression, judge the [audiovisual voice](../contracts/story/shared/naturalness/screenplay.md#audiovisual-voice) of the whole unit from its actual speech, performance, image, sound and timing.
 

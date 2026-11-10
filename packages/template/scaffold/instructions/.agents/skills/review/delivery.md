@@ -12,8 +12,10 @@ Then read every current body, frozen edition, contract and answer, and compare t
 
 You judge a film on stills, in two passes that answer different questions:
 
-- The source pass draws the film's source with the README's frame capture. It shows pose, contact, staging, camera and timing at any second and from any view, and it never opens the encoded file.
-- The artifact pass extracts stills from the delivered or generated file itself, at matched seconds, with the production's FFmpeg. It shows what the audience receives: every scene present, the raster, the transitions, the encode, and for a generated film the picture itself.
+| Pass | Stills come from | Shows |
+| --- | --- | --- |
+| Source | The film's source, drawn with the README's frame capture | Pose, contact, staging, camera and timing at any second and from any view; it never opens the encoded file |
+| Artifact | The delivered or generated file itself, extracted at matched seconds with the production's FFmpeg | What the audience receives: every scene present, the raster, the transitions, the encode, and for a generated film the picture itself |
 
 Make both passes for every delivery claim, because an accepted source pass does not show that the file holds it.
 

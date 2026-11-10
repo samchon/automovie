@@ -38,8 +38,8 @@ This skill keeps what spans them:
 | Task | Read |
 | --- | --- |
 | Establish scope, the delivery profile, decisions and setup authority | [Project context](project-context.md) |
-| Run, observe or resume sustained work | [Campaign execution](sustained-runs.md) |
+| Run, observe or resume sustained work | [Sustained runs](sustained-runs.md) |
 | Cache and resume expensive stages | [Stage caches](stage-caches.md) |
-| Save generated, acquired and pipeline media with their records | [Media](media-records.md) |
-| Sync instructions or reorganize the production | [Ownership and customization](sync-and-reorganization.md) |
+| Save generated, acquired and pipeline media with their records | [Media records](media-records.md) |
+| Sync instructions or reorganize the production | [Sync and reorganization](sync-and-reorganization.md) |
 | Assemble the film, render it once and hand it off | [Assembly and handoff](assembly.md) |

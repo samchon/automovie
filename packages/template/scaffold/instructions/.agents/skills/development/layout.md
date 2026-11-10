@@ -46,13 +46,17 @@ Imports point down the chain: host and commands to films, films to scenes, scene
 
 A subject never imports another subject and a scene never imports another scene: an interaction relates subjects by role, and a film orders scenes.
 
-Playback, transport, controls, inspection overlays, the physics runtime and mixing serve every production, so they belong to the installed packages and never grow as a production folder; a missing one follows [installed packages](SKILL.md#installed-packages). Node-only tooling (processes, files, browser launch, FFmpeg) is not published: the production owns the scaffold-supplied copy under `src/executable` and keeps it in step with the scaffold.
+Playback, transport, controls, inspection overlays, the physics runtime and mixing serve every production, so they belong to the installed packages and never grow as a production folder; a missing one follows [installed packages](reuse.md#installed-packages). Node-only tooling (processes, files, browser launch, FFmpeg) is not published: the production owns the scaffold-supplied copy under `src/executable` and keeps it in step with the scaffold.
 
 Each file exports one declaration named as the file and stays under 500 lines; a larger one is a responsibility to split into fragments. A new subject starts from its settings or brief record, then its entity folder and tests. A new action starts from the installed motion vocabulary, and only when the vocabulary lacks it from its research, then its law and the interaction that uses it. A new scene starts from its screenplay H2 and beats, then its composition folder and its place in the film.
 
 ## Shared modules {#shared-modules}
 
-A module a second production of the workspace needs moves to a workspace package under `packages/<name>` and is imported by both, because a copied entity or law is a [copied variant](SKILL.md#one-module) at workspace scale. The shared module takes what differed between the productions as constructor input or parameters instead of citing one production's records, and keeps its unit tests with it. Each production still answers for its own use: its entity or scene cites its own settings or brief facts and passes them in. A single production has no workspace packages and keeps its modules in `src`.
+A module a second production of the workspace needs moves to a workspace package under `packages/<name>` and is imported by both, because a copied entity or law is a [copied variant](reuse.md#one-module) at workspace scale.
+
+The shared module takes what differed between the productions as constructor input or parameters instead of citing one production's records, and keeps its unit tests with it. Each production still answers for its own use: its entity or scene cites its own settings or brief facts and passes them in.
+
+A single production has no workspace packages and keeps its modules in `src`.
 
 ## Execution and runtime setup
 
