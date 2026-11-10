@@ -29,7 +29,6 @@
   "scripts": {
     "build": "rimraf lib && ttsc",
     "prepack": "pnpm run build",
-    "evidence": "evidence",
     "node:capture": "ttsx --no-plugins --noCheck -P tsconfig.executable.json src/executable/motionCapture.ts"
   },
   "keywords": [],
