@@ -23,11 +23,11 @@ The production's [source layout](../../../packages/template/scaffold/instruction
 
 ## Outputs and routes
 
-The primary output is a whole deterministic motion-video hint from a complete LLM-authored screenplay: program the main scenes' motion and staging, then assemble the full video. Stills or pilot clips do not complete that commission.
+The [product contract](../project/SKILL.md#commissions) defines the commissions and the two story routes. The primary output is the whole deterministic motion-video hint, and stills or pilot clips do not complete it.
 
-Keep separately commissioned screenplay, whole motion hint, finished direct 3D film, and finished post-diffusion film distinct. Direct 3D needs no diffusion, and a motion hint needs no finished diffusion film.
+Keep the separately commissioned outputs distinct: a screenplay, a whole motion hint, a finished direct 3D film and a finished post-diffusion film. Direct 3D needs no diffusion, and a motion hint needs no finished diffusion film.
 
-Long-form work preserves settings → treatments → scripts → final screenplay, with construction, expression revision, evidence, current independent review, and whole-work completion. Short video runs brief → final screenplay, and asset-only work has no narrative. Compact questions within those responsibilities rather than removing the architecture.
+Long-form work keeps its four layers, with construction, expression revision, evidence, current independent review and whole-work completion, and asset-only work has no narrative. Compact questions within those responsibilities rather than removing the architecture.
 
 Default lint and evidence configurations serve ordinary TypeScript development; narrative work opts into its additional workflow while retaining engineering checks.
 
@@ -47,7 +47,7 @@ The scaffold has three layers:
 | `production` | A single production's root, and each workspace `movies/<shorts|series>/<name>` |
 | `workspace` | A workspace root only |
 
-Instruction files take no token and stay layout-neutral: a project path they name is the production's, never a link out of `.agents`, and the production layer reaches the shared skills through `{{skills}}`. Shorts run brief → screenplay and series the whole long route.
+Instruction files take no token and stay layout-neutral: a project path they name is the production's, never a link out of `.agents`, and the production layer reaches the shared skills through `{{skills}}`.
 
 Untracked files under `scaffold` still ship, so remove stale copies from a checkout before packaging.
 
