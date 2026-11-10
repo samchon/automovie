@@ -20,7 +20,11 @@ Organize authoring modules by part and group responsibility, reusing one definit
 
 A source-module boundary need not cut the rendered surface. Put shared dimensions, frames, curves and surfaces with one owner, and derive dependent geometry, construction and attachments from their actual generating definitions rather than independent approximations; otherwise a local edit can leave a neighbor or diagnostic describing an old shape.
 
-Keep logical parts, source controls, generating streams and surface charts distinct. Map a logical member to its actual subdomains rather than copying geometry to preserve a name. An edit follows the true dependency graph: coupled constraints can affect several regions, while unchanged inputs may reuse equivalent prepared work. Shared sewn boundaries consume one material-coordinate and binding owner through their chart maps; coincident contact can retain distinct material sheets. Shape or chart changes invalidate their dependent bindings, while changed joint/rest frames also invalidate inverse binds under [Rigging](rigging.md). A surface repartition alone does not create a joint or change an unaffected bone.
+Keep logical parts, source controls, generating streams and surface charts distinct. Map a logical member to its actual subdomains rather than copying geometry to preserve a name.
+
+An edit follows the true dependency graph: coupled constraints can affect several regions, while unchanged inputs may reuse equivalent prepared work. Shared sewn boundaries consume one material-coordinate and binding owner through their chart maps; coincident contact can retain distinct material sheets.
+
+Shape or chart changes invalidate their dependent bindings, while changed joint/rest frames also invalidate inverse binds under [Rigging](rigging.md). A surface repartition alone does not create a joint or change an unaffected bone.
 
 ## Explanation
 

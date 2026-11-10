@@ -1,4 +1,4 @@
-# Choose a video model
+# Video diffusion models
 
 The models below are representative examples, not a complete or required list; any model the user prefers or a newer release can serve. Their values change between versions, so the linked documentation, read when planning, owns them; the table only shows how differently models take a hint.
 

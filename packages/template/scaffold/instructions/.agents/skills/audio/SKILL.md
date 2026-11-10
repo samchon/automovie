@@ -19,6 +19,6 @@ Make a preview only when the user wants to hear the voices before video generati
 
 ## Commissioned soundtrack {#commissioned-soundtrack}
 
-A motion hint and a direct 3D film are silent unless the commission asks for sound, and no stage waits on a soundtrack nobody commissioned. When one is commissioned, record its tracks and loudness target in the [delivery profile](../production/profile.md), acquire its material under [acquisition](acquisition.md), build it under [sound effects](sound-effects.md), and have the user listen at every acceptance: each adopted take, each mixed passage with its picture, and the delivered file. Record which takes and passages the user heard, because a measurement cannot stand for a listening.
+A motion hint and a direct 3D film are silent unless the commission asks for sound, and no stage waits on a soundtrack nobody commissioned. When one is commissioned, record its tracks and loudness target in the [delivery profile](../production/project-context.md), acquire its material under [acquisition](acquisition.md), build it under [sound effects](sound-effects.md), and have the user listen at every acceptance: each adopted take, each mixed passage with its picture, and the delivered file. Record which takes and passages the user heard, because a measurement cannot stand for a listening.
 
 Source changes follow [development](../development/SKILL.md).

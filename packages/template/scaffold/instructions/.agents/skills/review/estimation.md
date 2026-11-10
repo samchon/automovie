@@ -4,11 +4,19 @@ Use this only for a requested read-only quality assessment. Do not edit files, r
 
 ## Scope
 
-Fix the requested scope and artifact role; without a narrower request, assess every selected layer under `docs/body` and its frozen edition under `docs/revision`. A motion hint is assessed for its visible action, staging and conditioning information, not as an uncommissioned generated film, and media in scope is inspected as stills of the actual complete file, at the spacing [delivery review](delivery.md#measure-and-compare) gives. Before judging the screenplay or video, choose at most two central experience axes from the declared promise, or state that none was declared.
+Fix the requested scope and artifact role; without a narrower request, assess every selected layer under `docs/body` and its frozen edition under `docs/revision`.
+
+A motion hint is assessed for its visible action, staging and conditioning information, not as an uncommissioned generated film, and media in scope is inspected as stills of the actual complete file, at the spacing [delivery review](delivery.md#measure-and-compare) gives. Before judging the screenplay or video, choose at most two central experience axes from the declared promise, or state that none was declared.
 
 ## Judges
 
-Use at least two fresh judges with the author's model, each making two independent judgments; a light request may use one and must say so. Give them the promise, scope, this method and annotation-free bodies or media, and withhold author identity, generation method, contracts, evidence, reviews and each other's results. The coordinator assigns and aggregates without voting. Judges read every selected unit, in non-overlapping chunks with a read inventory when needed, and lock reactions per file for settings, brief and treatments and per scene or sequence for scripts, screenplay and video before scoring.
+Use at least two fresh judges with the author's model, each making two independent judgments; a light request may use one and must say so.
+
+Give them the promise, scope, this method and annotation-free bodies or media, and withhold author identity, generation method, contracts, evidence, reviews and each other's results.
+
+The coordinator assigns and aggregates without voting.
+
+Judges read every selected unit, in non-overlapping chunks with a read inventory when needed, and lock reactions per file for settings, brief and treatments and per scene or sequence for scripts, screenplay and video before scoring.
 
 ## Axes and anchors
 
@@ -35,6 +43,8 @@ An 80 or 100 needs two supported effects and a 20 or 40 two supported losses; ot
 
 ## Comparison and report
 
-Compare a frozen or previous edition with the current one in both presentation orders; an order-dependent result is similar, and more edits or length do not establish improvement. Average judgments per axis, then axes per card, keep a separate final-experience figure, and report each judge's range as disagreement. Unassessed and not-applicable entries never become zeros.
+Compare a frozen or previous edition with the current one in both presentation orders; an order-dependent result is similar, and more edits or length do not establish improvement.
+
+Average judgments per axis, then axes per card, keep a separate final-experience figure, and report each judge's range as disagreement. Unassessed and not-applicable entries never become zeros.
 
 Return the scope and editions, promise and central axes, judge models and counts, read inventory, unavailable inspection, each card's reactions, scores, calculation inputs, strongest effects and losses and comparisons, and whether human judgment exists. Compare scores only under the same models, scope, editions, axes and method.

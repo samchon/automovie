@@ -1,6 +1,8 @@
 # Write video prompts
 
-A video prompt tells a model what the hint cannot show: who each figure is, what the place and light look like, and what the shot sounds like. The hint, its control channels and the references already fix positions, timing and camera, so prose that restates or contradicts them competes with the stronger input. Follow the selected model's own prompting guide, linked in [models](models.md); the rules here are what those guides share.
+A video prompt tells a model what the hint cannot show: who each figure is, what the place and light look like, and what the shot sounds like. The hint, its control channels and the references already fix positions, timing and camera, so prose that restates or contradicts them competes with the stronger input.
+
+Follow the selected model's own prompting guide, linked in [diffusion models](diffusion.md); the rules here are what those guides share.
 
 ## Content
 

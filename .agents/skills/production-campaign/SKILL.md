@@ -5,7 +5,7 @@ description: Coordinates writing, review and media execution across commissioned
 
 # Production campaign
 
-Carry the commissioned work through its actual authoring and delivery owners. The production's [campaign guide](../../../packages/template/scaffold/instructions/.agents/skills/production/campaign.md) owns its run record, dispatch, film and module ownership and resumption; its specialist skills own creation and acceptance. This skill owns how the coordinator of a campaign run from this repository launches, watches and connects those workers and compares productions. Repository [issue campaigns](../issue-campaign/SKILL.md) own broad engineering audits and issue publication.
+Carry the commissioned work through its actual authoring and delivery owners. The production's [campaign guide](../../../packages/template/scaffold/instructions/.agents/skills/production/sustained-runs.md) owns its run record, dispatch, film and module ownership and resumption; its specialist skills own creation and acceptance. This skill owns how the coordinator of a campaign run from this repository launches, watches and connects those workers and compares productions. Repository [issue campaigns](../issue-campaign/SKILL.md) own broad engineering audits and issue publication.
 
 Keep these rules here rather than in the scaffold, because the scaffold ships to everyone who installs AutoMovie and their productions are not bound to this repository's process launching or observation. Within the production's guide, which leaves observation to an available scheduler and additional agents to the user's authorization, this repository chooses an observer subagent as that scheduler and CLI processes as those agents.
 

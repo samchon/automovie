@@ -5,7 +5,7 @@ description: Authors a video's research, requirements, direction, settings or a 
 
 # Story
 
-Make the commissioned audience experience and a usable handoff to the next layer. Read the request, [project context](../production/profile.md) and current work to find the task, layer, pass and revision, then enter only the part it needs.
+Make the commissioned audience experience and a usable handoff to the next layer. Read the request, [project context](../production/project-context.md) and current work to find the task, layer, pass and revision, then enter only the part it needs.
 
 | Part | Covers |
 | --- | --- |

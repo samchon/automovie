@@ -1,6 +1,8 @@
 # Motion and conditioning references
 
-Use this when writing a production law for what is not a person, or for an action the installed human motion vocabulary lacks; for a person's ordinary movement the vocabulary has already made these choices. Take movement evidence from the [performance study](../story/planning/research.md#performance-study) and its retained references; the sources below inform implementation methods and failure checks only. Read the installed engine's README before adopting a method, because it may already provide one. Their experiments, embodiments and hardware neither validate this production nor supply an installed solver, so check an adopted principle through the current host and commissioned output.
+Use this when writing a production law for what is not a person, or for an action the installed human motion vocabulary lacks; for a person's ordinary movement the vocabulary has already made these choices.
+
+Take movement evidence from the [performance study](../story/planning/research.md#performance-study) and its retained references; the sources below inform implementation methods and failure checks only. Read the installed engine's README before adopting a method, because it may already provide one. Their experiments, embodiments and hardware neither validate this production nor supply an installed solver, so check an adopted principle through the current host and commissioned output.
 
 | Primary source | Decision informed here |
 | --- | --- |
@@ -16,4 +18,6 @@ Use this when writing a production law for what is not a person, or for an actio
 | [Wan-Animate preprocessing](https://github.com/Wan-Video/Wan2.2/blob/main/wan/modules/animate/preprocess/UserGuider.md) | Inspect the actual pose/mask intermediate outputs, body-proportion retargeting and the selected mode's supported subject interactions before generation |
 | [ControlNet](https://github.com/lllyasviel/ControlNet) | A conditioning mechanism has a concrete input contract; an arbitrary stick figure or depth-like image is not automatically a compatible signal |
 
-[Retargeting](retargeting.md), [physical feedback](physics.md) and [frame evaluation](timeline.md) own the production procedure. [Control channels](conditioning.md) owns the hint's passes, and [video generation](../video/generation.md) service integration and take adoption. Preserve sources and contacts through conversion and inspect actual outputs; promising research does not justify live generation inside deterministic replay.
+[Retargeting](retargeting.md), [physical feedback](physics.md) and [frame evaluation](frame-evaluation.md) own the production procedure. [Control channels](control-channels.md) owns the hint's passes, and [video generation](../video/generation.md) service integration and take adoption.
+
+Preserve sources and contacts through conversion and inspect actual outputs; promising research does not justify live generation inside deterministic replay.

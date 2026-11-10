@@ -8,7 +8,7 @@ Test what the chain promises: that each research outcome table is consistent and
 
 The bounded checks [motion verification](../motion/verification.md) lists belong here for a production law: evaluate the resolved plan at its event times and assert each bound on the result, across bodies of several statures and proportions. A test that needs a person takes a body the installed human package prepares at fixed parameters, without drawing it. Preparing a body can be slow, so prepare each one once per run and share it between tests. The installed motion vocabulary's actions carry their own checks and are not tested again.
 
-What only a picture shows belongs to the stills of the [catalog case](../motion/SKILL.md#catalog-cases), not to a test.
+What only a picture shows belongs to the stills of the [catalog case](../motion/catalog-cases.md), not to a test.
 
 ## What a test is not
 

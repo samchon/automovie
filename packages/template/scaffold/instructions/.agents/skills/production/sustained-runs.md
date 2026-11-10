@@ -8,9 +8,15 @@ Read the current instructions, bodies, source, outputs and run record before ass
 
 ## Execute and support
 
-Dispatch each task through the skill that owns it in the production's [routing table](SKILL.md#route-the-work). One writer owns a changing body, and one owner holds a film's screenplay, scene and film composition and camera together, because the camera realizes the screenplay's camera decisions through that composition. Entity, motion and sound modules can have their own owners, who repair the module defects the film owner reports. Use additional agents only when authorized and give them disjoint write scopes. [Review](../review/SKILL.md) owns who may review and what counts as independent.
+Dispatch each task through the skill that owns it in the production's [routing table](SKILL.md#route-the-work). One writer owns a changing body, and one owner holds a film's screenplay, scene and film composition and camera together, because the camera realizes the screenplay's camera decisions through that composition. Entity, motion and sound modules can have their own owners, who repair the module defects the film owner reports.
 
-Inspect the actual process, artifacts and errors before calling a quiet run stalled, and resume a stopped run from its last valid output and [saved stages](stages.md), keeping its failure. A changed input starts a new result; a restart inherits no verdict. A capability an installed package lacks is handled under [installed packages](../development/SKILL.md#installed-packages) while independent work continues.
+Use additional agents only when authorized and give them disjoint write scopes. [Review](../review/SKILL.md) owns who may review and what counts as independent.
+
+Inspect the actual process, artifacts and errors before calling a quiet run stalled, and resume a stopped run from its last valid output and [saved stages](stage-caches.md), keeping its failure.
+
+A changed input starts a new result; a restart inherits no verdict.
+
+A capability an installed package lacks is handled under [installed packages](../development/SKILL.md#installed-packages) while independent work continues.
 
 ## Observe
 

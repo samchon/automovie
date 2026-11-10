@@ -4,7 +4,15 @@ Use this resource when syncing instructions or reorganizing the production.
 
 ## Sync and ownership
 
-Package upgrades never rewrite this production. Authorized AutoMovie CLI sync updates generated routers and bundled task resources while preserving contracts, configuration, project decisions, content and proof. Inspect its check result before applying; the installed CLI's README and help own the invocation and baseline handling. Stored instruction digests detect local conflicts, and differing legacy instructions need their declared prior baseline. A sync keeps an instruction file the scaffold no longer ships and reports it as retired; once nothing local links to it, delete it, because a retired file still reads as a current rule. In a workspace the shared instructions, their sync state and their sync belong to the workspace root, never to one production. Keep custom criteria and decisions with their production owners. Reusable checking belongs to the installed evidence package; adapting paths, language or tools preserves the route's duties and actual relationships.
+Package upgrades never rewrite this production. Authorized AutoMovie CLI sync updates generated routers and bundled task resources while preserving contracts, configuration, project decisions, content and proof. Inspect its check result before applying; the installed CLI's README and help own the invocation and baseline handling.
+
+Stored instruction digests detect local conflicts, and differing legacy instructions need their declared prior baseline.
+
+A sync keeps an instruction file the scaffold no longer ships, including one it moved or renamed, and reports it as retired; once nothing local links to it, delete it, because a retired file still reads as a current rule.
+
+In a workspace the shared instructions, their sync state and their sync belong to the workspace root, never to one production.
+
+Keep custom criteria and decisions with their production owners. Reusable checking belongs to the installed evidence package; adapting paths, language or tools preserves the route's duties and actual relationships.
 
 ## What a production may reorganize
 

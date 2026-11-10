@@ -1,16 +1,18 @@
 # Assemble, render and hand off
 
-Turn the composed scenes or accepted takes into the complete delivered video. Read [project context](profile.md), the actual source and media and the installed runtime documentation.
+Turn the composed scenes or accepted takes into the complete delivered video. Read [project context](project-context.md), the actual source and media and the installed runtime documentation.
 
 ## Assemble
 
-Each screenplay file becomes one film under [source layout](../development/layout.md#source), and every scene and beat reaches it through the scene composition that cites it; resolve missing, duplicated or omitted material before rendering. A motion hint or direct 3D film assembles its programmed scenes, a generated film its [accepted takes](../video/generation.md), and control channels keep their meaning through the [control channels](../motion/conditioning.md) rules.
+Each screenplay file becomes one film under [source layout](../development/layout.md#source), and every scene and beat reaches it through the scene composition that cites it; resolve missing, duplicated or omitted material before rendering. A motion hint or direct 3D film assembles its programmed scenes, a generated film its [accepted takes](../video/generation.md), and control channels keep their meaning through the [control channels](../motion/control-channels.md) rules.
 
-Assembly decides nothing. The screenplay owns the order of scenes, the cuts, transitions, pauses and titles, and the [composition contract](../contracts/development/composition.md#screenplay-realization) holds the film to them. When the assembled film shows that a decision does not work, repair the screenplay under [upstream repair](../story/correction/repair.md) and realize the repair, because a trim or reorder made here leaves a film that no longer realizes the screenplay it cites. [Frame evaluation](../motion/timeline.md) owns frame schedules and the checks at both sides of every cut.
+Assembly decides nothing. The screenplay owns the order of scenes, the cuts, transitions, pauses and titles, and the [composition contract](../contracts/development/composition.md#screenplay-realization) holds the film to them. When the assembled film shows that a decision does not work, repair the screenplay under [upstream repair](../story/correction/repair.md) and realize the repair, because a trim or reorder made here leaves a film that no longer realizes the screenplay it cites.
+
+[Frame evaluation](../motion/frame-evaluation.md) owns frame schedules and the checks at both sides of every cut.
 
 ## Render {#render}
 
-Before scaling a new host, run one small path through capture or take ingestion, a join and the encoded file, and inspect stills extracted from that file. Then make the single [delivery render](stages.md#render-the-whole-film-once) of the complete scope with the README's render command, at the [delivery profile](profile.md) project context records, and measure the file's actual profile and extent against it.
+Before scaling a new host, run one small path through capture or take ingestion, a join and the encoded file, and inspect stills extracted from that file. Then make the single [delivery render](stage-caches.md#render-the-whole-film-once) of the complete scope with the README's render command, at the [delivery profile](project-context.md) project context records, and measure the file's actual profile and extent against it.
 
 ## Repair and deliver
 

@@ -1,6 +1,6 @@
 # Generate and adopt takes
 
-Use this once the [video skill](SKILL.md) has chosen the model, planned the requests and written the prompts. Read the provider and setup authority in [project context](../production/profile.md) and use the selected service's existing connector, CLI or API.
+Use this once the [video skill](SKILL.md) has chosen the model, planned the requests and written the prompts. Read the provider and setup authority in [project context](../production/project-context.md) and use the selected service's existing connector, CLI or API.
 
 ## Prove one path first
 
@@ -8,7 +8,7 @@ Before a batch, prove one representative request end to end on a case with the i
 
 ## Submit
 
-Bind each request to its exact input bytes and source revision and record it under [media](../production/media.md#records). Check the existing job state before retrying, since a retry can bill another job, and keep to the adopted cost and quality limits. A transient URL, seed or finished job is not a take: keep the downloaded original apart from its derivatives.
+Bind each request to its exact input bytes and source revision and record it under [media](../production/media-records.md#records). Check the existing job state before retrying, since a retry can bill another job, and keep to the adopted cost and quality limits. A transient URL, seed or finished job is not a take: keep the downloaded original apart from its derivatives.
 
 ## Inspect and choose
 
@@ -22,4 +22,4 @@ Map a take's decoded timestamps and time base into the film; a nominal frame rat
 
 ## Hand off
 
-Measure the accepted takes' actual timing and hand them with their source relationships and limits to [assembly](../production/finishing.md).
+Measure the accepted takes' actual timing and hand them with their source relationships and limits to [assembly](../production/assembly.md).

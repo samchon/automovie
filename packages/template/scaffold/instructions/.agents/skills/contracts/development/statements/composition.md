@@ -8,7 +8,7 @@ The detailed statements of the [composition contract](../composition.md), one se
 2. It omits, alters and adds none of them.
 3. Each state continues across cuts until a beat changes it.
 4. A film plays every scene in screenplay order with the screenplay's transitions, titles and subtitles, and fills its running time.
-5. A film takes its raster, frame rate and running time from the delivery profile in [project context](../../../production/profile.md), and its grade and control channels from the screenplay and that record.
+5. A film takes its raster, frame rate and running time from the delivery profile in [project context](../../../production/project-context.md), and its grade and control channels from the screenplay and that record.
 6. The scene's comment opens with its screenplay citation and a summary of what happens.
 7. A `Concretization:` paragraph names each decision the code had to make where the screenplay was vague. It never holds an exchange, an outcome or a reaction, which only the screenplay decides.
 8. The same change records each concretization in the screenplay, under [concretization](../../../story/correction/repair.md#concretization).

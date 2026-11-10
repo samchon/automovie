@@ -8,8 +8,12 @@ Render only the channels the actual receiver needs, such as the hint video, pose
 
 ## Keep channels aligned
 
-Give time-matched channels one frame format, camera, crop and time mapping, resolved through [frame evaluation](timeline.md), and capture each from the same evaluated performance and view; switching render mode must not advance or restart motion. A matching frame count does not prove matching poses or events. Read each pass's limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities or only positional colors. A structural pass keeps its values free of exposure, tone mapping or overlays. Return borrowed scene and renderer state after each pass.
+Give time-matched channels one frame format, camera, crop and time mapping, resolved through [frame evaluation](frame-evaluation.md), and capture each from the same evaluated performance and view; switching render mode must not advance or restart motion. A matching frame count does not prove matching poses or events.
+
+Read each pass's limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities or only positional colors. A structural pass keeps its values free of exposure, tone mapping or overlays. Return borrowed scene and renderer state after each pass.
 
 ## Hand off
 
-Keep accepted control files, mappings, palettes and sidecars with their content digests under the film's [media](../production/media.md) folder, apart from any viewing encode, because lossy encoding, color conversion and transitions change depth values and invent mask colors. Inspect stills of the complete sequence at matched frames, including contacts, cuts and the ending, then the files through the receiver's input path when one is selected. Hand them with their observed limits to [assembly](../production/finishing.md) or [video generation](../video/generation.md).
+Keep accepted control files, mappings, palettes and sidecars with their content digests under the film's [media](../production/media-records.md) folder, apart from any viewing encode, because lossy encoding, color conversion and transitions change depth values and invent mask colors.
+
+Inspect stills of the complete sequence at matched frames, including contacts, cuts and the ending, then the files through the receiver's input path when one is selected. Hand them with their observed limits to [assembly](../production/assembly.md) or [video generation](../video/generation.md).

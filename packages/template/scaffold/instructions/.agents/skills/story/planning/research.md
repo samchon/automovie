@@ -12,11 +12,13 @@ Study real practice at the depicted level, such as a sport, fight, dance, craft 
 
 ## Sources
 
-Use originals: rulebooks, coaching and training texts, measured studies, analyses of real top-level performances and productions, official documentation and footage of qualified practitioners; search results only locate them. Read each passage in context and study footage as consecutive frames through its connected phases. Keep each value as a range from the depicted discipline and level with its unit, method and conditions; a value taken from another discipline or read from an adjective states its translation. Cross-check disputed claims and record what stays unavailable.
+Use originals: rulebooks, coaching and training texts, measured studies, analyses of real top-level performances and productions, official documentation and footage of qualified practitioners; search results only locate them.
+
+Read each passage in context and study footage as consecutive frames through its connected phases. Keep each value as a range from the depicted discipline and level with its unit, method and conditions; a value taken from another discipline or read from an adjective states its translation.
+
+Cross-check disputed claims and record what stays unavailable.
 
 Save permitted originals in `references/`, rights-unconfirmed ones in ignored `references/private/` and footage in ignored `media/acquired/videos/`, then open the saved files. Keep one `docs/research/index.md` naming each original's creator, URL, retrieval date, locator, rights and use, and write each study in `docs/research/<discipline>/<topic>.md`. A URL or an empty index is not a retained source.
-
-A source is verified once, here, when its study records it with a locator. Later authors and reviewers work from the study and [trust its citations](../../review/SKILL.md#cited-sources).
 
 ## Use
 

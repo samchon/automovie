@@ -22,7 +22,9 @@ The action's study supplies the shape prior and the windows. Take joint values s
 
 ## Decide what happens out of reach
 
-Compute the reach before posing: the root-to-target distance against the limb's reachable band. Declare the rule for a target outside it. The action either refuses with the feasible range, or takes a declared alternative that still reaches the goal, such as a step, a lean or a support hand. An alternative that changes the outcome, such as a stumble, applies only when the caller selects it, because the outcome belongs to whoever decided the scene. A silent clamp moves the contact somewhere the screenplay did not ask for and hides the miss from every check. The action's documentation says which rule it follows, and the code must match that sentence.
+Compute the reach before posing: the root-to-target distance against the limb's reachable band. Declare the rule for a target outside it. The action either refuses with the feasible range, or takes a declared alternative that still reaches the goal, such as a step, a lean or a support hand. An alternative that changes the outcome, such as a stumble, applies only when the caller selects it, because the outcome belongs to whoever decided the scene.
+
+A silent clamp moves the contact somewhere the screenplay did not ask for and hides the miss from every check. The action's documentation says which rule it follows, and the code must match that sentence.
 
 ## Order the fits
 

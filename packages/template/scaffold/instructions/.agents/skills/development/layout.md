@@ -13,20 +13,20 @@ One folder owns each responsibility, and the folders follow the chain from setti
 | `src/interactions/<discipline>/` | Relations between entities by role: alignment, timing and rule-first outcomes, including how cameras and lights follow the action | Research and world rules, behaviors |
 | `src/consequences/effects/`, `src/consequences/sound/` | What computed outcomes leave: sweat, scuffs, dust and other marks, and the effect cues a preview or commissioned soundtrack uses | Research, behaviors |
 | `src/composition/scenes/<film>/<scene>/` | One screenplay scene's composition | That scene and its beats, [composition](../contracts/development/composition.md) |
-| `src/composition/scenes/catalog/<module>/` | One module's [catalog case](../motion/SKILL.md#catalog-cases) composition, which takes the case parameters: the action with its target, partner response and outcome, the movement, the behavior, the fall or the entity state | The research section or settings or brief fact it exhibits, composition |
+| `src/composition/scenes/catalog/<module>/` | One module's [catalog case](../motion/catalog-cases.md) composition, which takes the case parameters: the action with its target, partner response and outcome, the movement, the behavior, the fall or the entity state | The research section or settings or brief fact it exhibits, composition |
 | `src/composition/films/catalog.ts`, registered in `src/composition/films/index.ts` | The review catalog: every case row the screenplay uses, in its own labelled interval with named review views; never delivered | Its cases' research and settings or brief, composition |
-| `src/composition/films/<film>.ts`, registered in `src/composition/films/index.ts` | One delivered video: scene order, transitions, titles and subtitles, grade, the [delivery profile](../production/profile.md) and control channels | The screenplay file, composition |
+| `src/composition/films/<film>.ts`, registered in `src/composition/films/index.ts` | One delivered video: scene order, transitions, titles and subtitles, grade, the [delivery profile](../production/project-context.md) and control channels | The screenplay file, composition |
 | `src/*.ts` | The Viewer host entry, the film interfaces and the film selector | Nothing |
 | `src/executable/` | The Node commands the README documents and the Node tooling they run, shipped with the scaffold | Nothing |
 | `src/integrations/<provider>/` | Code for a provider or local tool the production adopts, such as a video-generation service | The generation requests in `docs/prompts/` for providers |
 | `test/features/<source path>/` | Logic unit tests of the source at the same path | Nothing |
-| `public/` | Small fixed browser inputs; audio and video belong in [media](../production/media.md) | Nothing |
+| `public/` | Small fixed browser inputs; audio and video belong in [media](../production/media-records.md) | Nothing |
 | Runtime `README.md` and `.env.example` | Nonsecret setup, commands, environment-variable names and example configuration | Nothing |
 | Ignored local `.env` | Secret values required by adopted integrations | Nothing |
 
 Settings or brief domains map onto code: cast, crowds, props and sets become entities of the same kind, cinematography becomes camera and light entities, world rules become laws and interactions, and sound palettes become each shot's sound description in the video-diffusion prompt under [audio](../audio/SKILL.md). Weather and atmosphere are a set's state by story day, and ambience reads the same state.
 
-`<film>` is the screenplay file's path under `docs/body/screenplay/` without `.md`, with `/` replaced by `--`, such as `duet` or `001-part--001-episode`. The same name reaches `media/automovie/<film>/`, so screenplay, scene, film and video pair by path and two parts' episodes cannot collide. Rendered frames, videos and control channels go to [media](../production/media.md), never into `src`.
+`<film>` is the screenplay file's path under `docs/body/screenplay/` without `.md`, with `/` replaced by `--`, such as `duet` or `001-part--001-episode`. The same name reaches `media/automovie/<film>/`, so screenplay, scene, film and video pair by path and two parts' episodes cannot collide. Rendered frames, videos and control channels go to [media](../production/media-records.md), never into `src`.
 
 ## How the parts work together {#how-the-parts-work-together}
 
@@ -56,4 +56,4 @@ A module a second production of the workspace needs moves to a workspace package
 
 ## Execution and runtime setup
 
-Read the actual source entry, runtime configuration and installed APIs before adopting a host or integration, and record the choice and its authority in [project context](../production/profile.md); [assembly](../production/finishing.md) verifies export on the assembled film.
+Read the actual source entry, runtime configuration and installed APIs before adopting a host or integration, and record the choice and its authority in [project context](../production/project-context.md); [assembly](../production/assembly.md) verifies export on the assembled film.

@@ -5,7 +5,7 @@ description: Keeps what belongs to the production as a whole and to no single ta
 
 # Production
 
-Carry the commission from its adopted scope to the handed-off output. Read the request and [project context](profile.md) first, because the commissioned output decides which skills run and what completes the work.
+Carry the commission from its adopted scope to the handed-off output. Read the request and [project context](project-context.md) first, because the commissioned output decides which skills run and what completes the work.
 
 ## Commissioned outputs {#commissioned-outputs}
 
@@ -37,9 +37,9 @@ This skill keeps what spans them:
 
 | Task | Read |
 | --- | --- |
-| Establish scope, the delivery profile, decisions and setup authority | [Project context](profile.md) |
-| Run, observe or resume sustained work | [Campaign execution](campaign.md) |
-| Cache and resume expensive stages | [Stage caches](stages.md) |
-| Save generated, acquired and pipeline media with their records | [Media](media.md) |
-| Sync instructions or reorganize the production | [Ownership and customization](customization.md) |
-| Assemble the film, render it once and hand it off | [Assembly and handoff](finishing.md) |
+| Establish scope, the delivery profile, decisions and setup authority | [Project context](project-context.md) |
+| Run, observe or resume sustained work | [Campaign execution](sustained-runs.md) |
+| Cache and resume expensive stages | [Stage caches](stage-caches.md) |
+| Save generated, acquired and pipeline media with their records | [Media](media-records.md) |
+| Sync instructions or reorganize the production | [Ownership and customization](sync-and-reorganization.md) |
+| Assemble the film, render it once and hand it off | [Assembly and handoff](assembly.md) |

@@ -11,13 +11,23 @@ Read the production's current source and the installed package APIs before choos
 - Answer the [contracts](../contracts/SKILL.md) of the declarations you change, as the [development contracts](../contracts/development/SKILL.md) map them onto the source folders.
 - Read [entity work](entities.md) when building or changing a subject.
 - Read [testing](testing.md) when choosing behavioral checks.
-- Read [stage caches](../production/stages.md) when adding or changing an expensive stage.
+- Read [stage caches](../production/stage-caches.md) when adding or changing an expensive stage.
 - Read [source layout](layout.md) when placing source, tests or runtime setup, or adding a subject, practice or scene.
 - Write READMEs, evidence prose and doc comments with [documentation](../documentation/SKILL.md). A production module's doc comment is the next agent's manual: beyond the [Meaningful documentation](../contracts/development/common.md#meaningful-documentation) item, it shows one short composition example, states the invariants it keeps, and cites what it realizes. Write instructions with [prompting](../prompting/SKILL.md). Creative bodies follow the production's adopted language, voice and form under [story contracts](../contracts/story/SKILL.md) in place of those writing rules, keeping fixed quotations and creative choices such as purposeful repetition, nonstandard speech and punctuation.
 
 ## Installed packages {#installed-packages}
 
 Search the installed packages before writing a capability, and use what they provide: their READMEs, public types and JSDoc say what exists. A capability written a second time in the production diverges from the package at its first repair.
+
+The skills name installed packages by role, and this table is the one place that says which package each role is:
+
+| Role in the skills | Package |
+| --- | --- |
+| Human motion vocabulary | `@automovie/motions` |
+| Human package, which prepares the canonical body | `@automovie/human` |
+| Viewer, which draws the polygon man | `@automovie/viewer` |
+| Engine | `@automovie/engine` |
+| Evidence package | `@automovie/evidence` |
 
 A production cannot repair an installed package. An edit under `node_modules` or a vendored copy disappears at the next install and hides the defect from every other production. When a package misbehaves or lacks something the work needs, hand the user the failing case, its numbers and the installed package version for the issue tracker the package's `repository` field names. Then continue with the work that does not depend on it, or with a local stand-in that is marked as one, names the report it waits on, and is removed when the package ships the fix.
 
