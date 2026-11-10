@@ -17,7 +17,9 @@ Completeness means covering what the reader needs, never longer phrasing.
 
 ## Terms
 
-Use one term per concept across a set of documents, because a second word reads as a second thing. Take the term the field already uses over a coined one, and plain words where the field has none. Explain a field term in plain words where a newcomer to that document first meets it, or link the document that explains it.
+Use one term per concept across a set of documents, because a second word reads as a second thing. Name the concept with the field's established term, or with plain words where the field has none, never with a coined word. Explain a field term in plain words where a newcomer to that document first meets it, or link the document that explains it.
+
+A metaphor or a plain picture may explain a concept once in prose, but it never becomes the concept's name in a heading, a label, a description or later text. A reader who knows the field cannot find the concept under a private name, and a reader who does not takes the picture literally.
 
 ## A person wrote it
 
