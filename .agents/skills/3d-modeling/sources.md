@@ -6,7 +6,7 @@ The channels below are examples, not a complete list; search further for the sub
 
 ## Poly Haven
 
-[Poly Haven](https://polyhaven.com/license) offers curated photoreal models, HDRIs and textures under CC0, with a [public API](https://api.polyhaven.com) for scripted fetching. Its HDRIs suit environment light; its models are fewer than its HDRIs and textures, so expect common props and furniture rather than a specific subject.
+[Poly Haven](https://polyhaven.com/license) offers photoreal models, HDRIs and textures under CC0, with a [public API](https://api.polyhaven.com) for scripted fetching. Its HDRIs suit environment light; its models are fewer than its HDRIs and textures, so expect common props and furniture rather than a specific subject.
 
 ## ambientCG
 
@@ -22,7 +22,7 @@ The [codepawl datasets](https://huggingface.co/datasets/codepawl/abo-glb) on Hug
 
 ## Quixel Megascans
 
-[Quixel Megascans](https://www.fab.com/sellers/Quixel%20Megascans) on Fab offers a large free library of high-fidelity photoscanned 3D assets, surfaces and vegetation under the [Fab Standard License](https://www.fab.com/eula): commercial use and modification in any tool, but no standalone redistribution, so the files stay out of public commits. Downloads need a Fab account. The scans are dense; choose a lower level of detail or simplify when an identifiable form is enough.
+[Quixel Megascans](https://www.fab.com/sellers/Quixel%20Megascans) on Fab offers free photoscanned 3D assets, surfaces and vegetation under the [Fab Standard License](https://www.fab.com/eula): commercial use and modification in any tool, but no standalone redistribution, so the files stay out of public commits. Downloads need a Fab account. The scans are dense; choose a lower level of detail or simplify when an identifiable form is enough.
 
 ## 100STYLE
 
