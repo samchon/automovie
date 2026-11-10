@@ -1,7 +1,8 @@
-import { AutoMovieCurveMath64 as M } from "@automovie/engine";
+import { AutoMovieCurveMath64 as M, AutoMovieMeshCourse } from "@automovie/engine";
 
 import { AutoMovieHumanLoftMesh as Mesh } from "../../lofting/AutoMovieHumanLoftMesh";
 import type { AutoMovieHumanF1Fork } from "../trunk/AutoMovieHumanF1Fork";
+import { AutoMovieHumanArmCurveSpec as Geometry } from "../arm/AutoMovieHumanArmCurveSpec";
 import { AutoMovieHumanLegF1Lines as Lines } from "./AutoMovieHumanLegF1Lines";
 import { AutoMovieHumanLegF1World as World } from "./AutoMovieHumanLegF1World";
 import native from "./AutoMovieHumanLegF1Native.json";
@@ -12,6 +13,10 @@ type V3 = M.V;
 type Context = Mesh.IContext;
 /** Ordered measured open section, exit arclengths in mm and geometric phases in radians. */
 type Row = { station: number; ids: number[]; ends: [number, number]; phases: number[] };
+/** One exact support or evaluated point along a local collar cross-curve. */
+type CollarKnot = { id: number; t: number };
+/** Original arc-plane intersection with one indexed collar cross-edge. */
+type CollarCrossing = { k: string; t: number; point: V3 };
 
 /**
  * F1's original open proximal sections, in absolute ISB world millimetres.
@@ -30,10 +35,10 @@ export namespace AutoMovieHumanLegF1Hip {
     const source: (typeof native.patches)[number] | undefined = native.patches.find((piece: (typeof native.patches)[number]): boolean => piece.name === `leg.${side}.hip.native`);
     if (source?.info.entry === undefined || source.info.exit === undefined || source.info.start === undefined)
       throw new Error("The measured F1 proximal surface has no original boundary curves");
-    const { frame, entry, arcs }: ReturnType<typeof Lines.fixedHip> = Lines.fixedHip(side);
+    const { frame, entry, arcs, rings }: ReturnType<typeof Lines.fixedHip> = Lines.fixedHip(side);
     const boundary: number[] = Mesh.vertices(mesh, World.forkClock(fork[side], frame));
     const start: number[] = Mesh.vertices(mesh, World.forkClock(entry, frame));
-    World.fixedCollar(boundary, start, arcs, mesh.positions, mesh.indices);
+    collar(boundary, start, arcs, rings[1]!, mesh.positions, mesh.indices);
 
     /** Scalar product in the unchanged physical world chart. */
     const dot: (a: V3, b: V3) => number = (a: V3, b: V3): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
@@ -287,6 +292,108 @@ export namespace AutoMovieHumanLegF1Hip {
           break;
         }
       if (!found) throw new Error("An exact F1 exit rail has no existing regular-thigh boundary edge");
+    }
+  }
+
+  /**
+   * Fair only the original fork-collar cross-curves covered by its five arcs.
+   * Fork/entry indices and every observed arc knot remain exact world-mm
+   * values. The next healthy closed curve (transition 2, not entry itself)
+   * supplies an inferred continuation: closest segment is a geometric
+   * correspondence, not material measurement or a G1 certificate.
+   * Existing PCHIP slopes and Hermite cubics replace PL kinks on those paths;
+   * other paths retain their original straight connection. Adaptive cubic
+   * chord error is at most the existing 0.5 mm tracing tolerance. This local
+   * artifact correction is separately recoverable from revision 363bbd86e7.
+   */
+  function collar(boundary: number[], next: number[], arcs: readonly V3[][], healthy: readonly V3[], positions: number[], indices: number[]): void {
+    const strip: number[] = [];
+    World.stitchRows(boundary, next, positions, strip, "length");
+
+    /** Read a retained boundary or observed support without moving it. */
+    const at: (id: number) => V3 = (id: number): V3 => [positions[3 * id]!, positions[3 * id + 1]!, positions[3 * id + 2]!];
+    const top: Set<number> = new Set(boundary);
+
+    /** Shared generated cross-edge identity, independent of coordinate proximity. */
+    const key: (a: number, b: number) => string = (a: number, b: number): string => a < b ? `${a}:${b}` : `${b}:${a}`;
+    const edges: Map<string, [number, number]> = new Map();
+    for (let i: number = 0; i < strip.length; i += 3) {
+      const a: number = strip[i]!, b: number = strip[i + 1]!;
+      edges.set(key(a, b), top.has(a) ? [a, b] : [b, a]);
+    }
+    const interior: Map<string, CollarKnot[]> = new Map();
+    for (const arc of arcs) {
+      const normal: V3 = Geometry.unit(AutoMovieMeshCourse.newell(arc)), offset: number = Geometry.dot(arc[0]!, normal);
+      const candidates: CollarCrossing[] = [...edges].flatMap(([k, [a, b]]: [string, [number, number]]): CollarCrossing[] => {
+        const from: V3 = at(a), to: V3 = at(b);
+        const da: number = Geometry.dot(from, normal) - offset, db: number = Geometry.dot(to, normal) - offset, t: number = da / (da - db);
+        return t > 0 && t < 1 ? [{ k, t, point: M.add(from, M.scale(M.sub(to, from), t)) }] : [];
+      });
+      const matches: CollarCrossing[][] | undefined = [2, 0].map((axis: number): CollarCrossing[][] => arc.map((point: V3): CollarCrossing[] => candidates.filter(
+        (candidate: CollarCrossing): boolean => Math.abs(point[axis]! - candidate.point[axis]!) < 1e-6))).find(
+        (list: CollarCrossing[][]): boolean => list.every((value: CollarCrossing[]): boolean => value.length === 1) && new Set(list.map((value: CollarCrossing[]): string => value[0]!.k)).size === arc.length);
+      if (matches === undefined) throw new Error("A measured F1 fork arc has no unique physical cross-edge correspondence");
+      for (const [i, point] of arc.entries()) {
+        const { k, t }: CollarCrossing = matches[i]![0]!;
+        const list: CollarKnot[] = interior.get(k) ?? [];
+        list.push({ id: positions.push(...point) / 3 - 1, t }); interior.set(k, list);
+      }
+    }
+    const paths: Map<string, CollarKnot[]> = new Map();
+
+    /** Reuse one continuous cubic path on both incident ordinary loft panels. */
+    const path: (from: number, to: number) => CollarKnot[] = (from: number, to: number): CollarKnot[] => {
+      const k: string = key(from, to), a: number = top.has(from) ? from : to, b: number = top.has(from) ? to : from;
+      let samples: CollarKnot[] | undefined = paths.get(k);
+      if (samples === undefined) {
+        const knots: CollarKnot[] = [{ id: a, t: 0 }, ...(interior.get(k) ?? []).slice().sort((x: CollarKnot, y: CollarKnot): number => x.t - y.t), { id: b, t: 1 }];
+        samples = [knots[0]!];
+        if (knots.length === 2) samples.push(knots[1]!);
+        else {
+          const end: V3 = at(b);
+          let nearest: V3 | undefined, distance: number = Infinity;
+          for (let i: number = 0; i < healthy.length; ++i) {
+            const p: V3 = healthy[i]!, d: V3 = M.sub(healthy[(i + 1) % healthy.length]!, p), l2: number = Geometry.dot(d, d);
+            const t: number = l2 === 0 ? 0 : Math.max(0, Math.min(1, Geometry.dot(M.sub(end, p), d) / l2));
+            const candidate: V3 = M.add(p, M.scale(d, t)), gap: number = Math.hypot(...M.sub(candidate, end));
+            if (gap < distance) { distance = gap; nearest = candidate; }
+          }
+          const width: number = Math.hypot(...M.sub(end, at(a)));
+          if (nearest === undefined || !(distance > 0 && width > 0)) throw new Error("The observed F1 collar has no distinct healthy continuation");
+          const coordinates: number[] = [...knots.map((knot: CollarKnot): number => knot.t), 1 + distance / width];
+          const values: V3[][] = [...knots.map((knot: CollarKnot): V3[] => [at(knot.id)]), [nearest]];
+          const derivatives: V3[][] = M.fieldSlopes(coordinates, values);
+
+          /** Subdivide exact Hermite coefficients until their control hull fits the chord. */
+          const sample: (span: M.Span, t0: number, t1: number, endId: number, depth: number) => void = (span: M.Span, t0: number, t1: number, endId: number, depth: number): void => {
+            const d: V3 = M.sub(span[3], span[0]), l2: number = Geometry.dot(d, d);
+            const error: number = Math.max(...span.slice(1, 3).map((p: V3): number => {
+              const q: V3 = M.sub(p, span[0]), t: number = l2 === 0 ? 0 : Math.max(0, Math.min(1, Geometry.dot(q, d) / l2));
+              return Math.hypot(...M.sub(q, M.scale(d, t)));
+            }));
+            if (error <= 0.5) { samples!.push({ id: endId, t: t1 }); return; }
+            if (depth === 30) throw new Error("The local F1 collar cubic cannot meet its tracing chord tolerance");
+            const [left, right]: [M.Span, M.Span] = M.split(span, 0.5), middle: number = positions.push(...left[3]) / 3 - 1, t: number = (t0 + t1) / 2;
+            sample(left, t0, t, middle, depth + 1); sample(right, t, t1, endId, depth + 1);
+          };
+          for (let i: number = 1; i < knots.length; ++i) {
+            const lower: CollarKnot = knots[i - 1]!, upper: CollarKnot = knots[i]!;
+            sample(M.hermite(at(lower.id), at(upper.id), derivatives[i - 1]![0]!, derivatives[i]![0]!, upper.t - lower.t), lower.t, upper.t, upper.id, 0);
+          }
+        }
+        paths.set(k, samples);
+      }
+      return top.has(from) ? samples : samples.slice().reverse().map(({ id, t }: CollarKnot): CollarKnot => ({ id, t: 1 - t }));
+    };
+    for (let i: number = 0; i < strip.length; i += 3) {
+      const face: number[] = strip.slice(i, i + 3), k: number = face.findIndex((id: number, j: number): boolean => top.has(id) === top.has(face[(j + 1) % 3]!));
+      const left: CollarKnot[] = path(face[k]!, face[(k + 2) % 3]!), right: CollarKnot[] = path(face[(k + 1) % 3]!, face[(k + 2) % 3]!);
+      let l: number = 0, r: number = 0;
+      while (l + 1 < left.length || r + 1 < right.length) {
+        const a: number = left[l]!.id, b: number = right[r]!.id;
+        const c: number = (left[l + 1]?.t ?? Infinity) < (right[r + 1]?.t ?? Infinity) ? left[++l]!.id : right[++r]!.id;
+        if (a !== c && b !== c) indices.push(a, b, c);
+      }
     }
   }
 

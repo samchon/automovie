@@ -1,4 +1,4 @@
-import { AutoMovieCurveMath64, AutoMovieMeshCourse, AutoMovieViewAxis } from "@automovie/engine";
+import { AutoMovieCurveMath64, AutoMovieViewAxis } from "@automovie/engine";
 
 import { AutoMovieHumanArmCurveSpec as Geometry } from "../arm/AutoMovieHumanArmCurveSpec";
 
@@ -21,65 +21,6 @@ const sub: typeof AutoMovieCurveMath64.sub = AutoMovieCurveMath64.sub;
  * take them through `AutoMovieHumanLegF1Rebase`.
  */
 export namespace AutoMovieHumanLegF1World {
-  /**
-   * Reuse the fixed fork collar's measured posterior and lateral arcs.
-   * An arc can refine a crossing only if its measured X or Z phase matches
-   * that indexed crossing on its own physical plane. The fork is untouched.
-   */
-  export function fixedCollar(boundary: number[], next: number[], arcs: readonly V3[][], positions: number[], indices: number[]): void {
-    const strip: number[] = [];
-    stitchRows(boundary, next, positions, strip, "length");
-    const at = (id: number): V3 => [positions[3 * id]!, positions[3 * id + 1]!, positions[3 * id + 2]!];
-    const top: Set<number> = new Set(boundary);
-    const key = (a: number, b: number): string => a < b ? `${a}:${b}` : `${b}:${a}`;
-    const edge: Map<string, [number, number]> = new Map();
-    for (let i: number = 0; i < strip.length; i += 3) {
-      const a: number = strip[i]!;
-      const b: number = strip[i + 1]!;
-      edge.set(key(a, b), top.has(a) ? [a, b] : [b, a]);
-    }
-    const interior: Map<string, { id: number; t: number }[]> = new Map();
-    for (const arc of arcs) {
-      const normal: V3 = Geometry.unit(AutoMovieMeshCourse.newell(arc));
-      const offset: number = Geometry.dot(arc[0]!, normal);
-      const candidates = [...edge].flatMap(([k, [a, b]]) => {
-        const from: V3 = at(a), to: V3 = at(b);
-        const da: number = Geometry.dot(from, normal) - offset, db: number = Geometry.dot(to, normal) - offset;
-        const t: number = da / (da - db);
-        if (!(t > 0 && t < 1)) return [];
-        return [{ k, t, point: AutoMovieCurveMath64.add(from, AutoMovieCurveMath64.scale(sub(to, from), t)) }];
-      });
-      const matches = [2, 0].map(axis => arc.map(point => candidates.filter(candidate =>
-        Math.abs(point[axis]! - candidate.point[axis]!) < 1e-6))).find(list =>
-        list.every(value => value.length === 1) && new Set(list.map(value => value[0]!.k)).size === arc.length);
-      if (matches === undefined) throw new Error("A measured F1 fork arc has no unique physical cross-edge correspondence");
-      for (const [i, point] of arc.entries()) {
-        const { k, t } = matches[i]![0]!;
-        const id: number = positions.push(...point) / 3 - 1;
-        const list = interior.get(k) ?? [];
-        list.push({ id, t });
-        interior.set(k, list);
-      }
-    }
-    const path = (from: number, to: number): { id: number; t: number }[] => [
-      { id: from, t: 0 },
-      ...(interior.get(key(from, to)) ?? []).map(({ id, t }) => ({ id, t: top.has(from) ? t : 1 - t })).sort((a, b): number => a.t - b.t),
-      { id: to, t: 1 },
-    ];
-    for (let i: number = 0; i < strip.length; i += 3) {
-      const face: number[] = strip.slice(i, i + 3);
-      const k: number = face.findIndex((id, j): boolean => top.has(id) === top.has(face[(j + 1) % 3]!));
-      const left = path(face[k]!, face[(k + 2) % 3]!);
-      const right = path(face[(k + 1) % 3]!, face[(k + 2) % 3]!);
-      let l: number = 0, r: number = 0;
-      while (l + 1 < left.length || r + 1 < right.length) {
-        const a: number = left[l]!.id, b: number = right[r]!.id;
-        const c: number = (left[l + 1]?.t ?? Infinity) < (right[r + 1]?.t ?? Infinity) ? left[++l]!.id : right[++r]!.id;
-        if (a !== c && b !== c) indices.push(a, b, c);
-      }
-    }
-  }
-
   /** Keep each fixed observed section frame and evaluate only between its measured neighbours. */
   export function archivedAxis(stations: number[], frames: Frame[]): AutoMovieViewAxis.IAxis {
     const exact: Map<number, Frame> = new Map(stations.map((s, i): [number, Frame] => [s, frames[i]!]));
