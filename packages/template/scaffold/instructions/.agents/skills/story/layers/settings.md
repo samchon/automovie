@@ -36,4 +36,4 @@ Before splitting or moving records, map old addresses to their new owners and up
 
 Keep settings current as a continuity record: when a treatment, script or screenplay establishes a lasting state that later units or code must keep, such as a wound, a learned habit or a revealed relationship, add it as a new anchored fact in its subject's state facet, citing the establishing unit, in the same repair. A new fact receives its own answers and review under [closed passes](../correction/repair.md#closed-passes) and leaves existing judgments in place.
 
-Settings has no separate expression pass: complete facts, explanation and organization in [construction](../workflow.md#construction).
+Complete the facts, their explanation and their organization in [construction](../workflow.md#construction).

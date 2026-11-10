@@ -45,7 +45,7 @@ Author every body movement, composed or written, as end effectors brought to tar
 | [Laws](laws.md) | Designing an action: its plan, entry state, events, outcome and time scale |
 | [Variation](variation.md) | A performance differs by parameters, skill or seed |
 | [Transitions](transitions.md) | A performance changes action or target mid-motion |
-| [Contacts](contacts.md) | It plants, sits, grips, hands over or meets another body |
+| [Contacts](contacts.md) | It plants, sits, grips, hands over or touches another body |
 | [Layers](layers.md) | Gaze, breathing and other motion runs over every action |
 | [Verification](verification.md) | A case needs its bounded checks and frame review |
 

@@ -6,7 +6,7 @@ Statements: [statements/obligations/screenplay.md](../statements/obligations/scr
 
 ## Does the complete audiovisual plan realize its parents and delivery promise? {#complete-realization}
 
-Does every parent decision reach a final unit, and does the whole meet its declared duration and format, as a plan at construction and as the measured film at delivery? Code references and source checks cannot prove output realization.
+Does every parent decision reach a final unit, and does the whole match its declared duration and format, as a plan at construction and as the measured film at delivery? Code references and source checks cannot prove output realization.
 
 ## Are revisions accountable to the delivered version? {#published-version}
 

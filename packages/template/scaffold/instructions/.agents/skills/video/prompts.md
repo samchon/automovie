@@ -1,6 +1,6 @@
 # Video prompts
 
-A video prompt tells a model what the hint cannot show: who each figure is, what the place and light look like, and what the shot sounds like. The hint, its control channels and the references already fix positions, timing and camera, so prose that restates or contradicts them competes with the stronger input.
+A video prompt tells a model what the motion hint cannot show: who each figure is, what the place and light look like, and what the shot sounds like. The hint, its control channels and the references already fix positions, timing and camera, so prose that restates or contradicts them competes with the stronger input.
 
 Follow the selected model's own prompting guide, linked in [diffusion models](diffusion.md); the rules here are what those guides share.
 
@@ -28,7 +28,7 @@ Keep duration, size, frame rate and seed in the request's settings. Prose such a
 
 ## Coarse figures and controls
 
-The hint's figures are gray coarse figures. At low strength a model keeps their look and returns mannequins, robots or clay; at high strength it frees the look but loses the motion. Choose the input so motion and appearance arrive through different channels.
+The hint's figures are gray and coarse. Strength is the setting for how far a model may depart from its input video: at low strength a model keeps their look and returns mannequins, robots or clay; at high strength it frees the look but loses the motion. Choose the input so motion and appearance arrive through different channels.
 
 ### Structural control
 

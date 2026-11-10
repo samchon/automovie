@@ -25,7 +25,7 @@ Contract: [entities.md](../entities.md).
 ## Controls and source {#controls-and-source}
 
 1. The entity exposes the controls its scenes' behaviors and variation use. Rig complexity no scene uses is not required. Exception: a deformation a scene needs is required, and its absence is a defect.
-2. Every flavor of the subject the scenes use is a parameter or the seed of this module. No copy of the module with edited constants exists.
+2. Every version of the subject the scenes use is a parameter or the seed of this module. No copy of the module with edited constants exists.
 3. The coarse form is the default, and each commissioned detail builds from the same definition.
 4. A subject an installed package already provides is taken from it and not rebuilt.
 5. The entity rebuilds from a fixed source with its usage rights.

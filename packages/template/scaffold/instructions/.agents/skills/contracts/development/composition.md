@@ -20,7 +20,7 @@ Does the declaration only combine the capabilities of accepted modules, through 
 
 State the capabilities it combines and where it places absolute time.
 
-## Is every presence alive and every target met? {#living-scene}
+## Is every presence alive and every target reached? {#living-scene}
 
 Does everyone and everything on screen perform its role for its whole presence, move through the set as the beats decide, and aim at the research's measurable targets for what a viewer sees and hears? A scene of isolated single actions, an idle participant or an unmotivated static camera shows the audience a rehearsal instead of the practice.
 

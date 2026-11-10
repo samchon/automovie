@@ -7,6 +7,8 @@ description: Holds the checklists Evidence asks, in two families: development fo
 
 This tree holds the questions Evidence asks. Read only the family and contracts the calling task selects. This file is not an evidence target.
 
+A respondent is whoever answers an item: a declaration, a document or a record.
+
 | Family | Respondents | Where they answer |
 | --- | --- | --- |
 | [Development](development/SKILL.md) | Source declarations and tests | Their doc comments |

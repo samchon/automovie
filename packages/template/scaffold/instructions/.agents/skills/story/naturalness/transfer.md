@@ -4,7 +4,7 @@ Work in the ignored frozen and working locations of the [document layout](../lay
 
 ## Transfer
 
-Open the working edition's stage and claims together, write the answers in comments, and submit the working and frozen inputs through [review rounds](../../review/rounds.md).
+Open the working edition's stage and claims together, write the answers in comments, and submit the working and frozen inputs through [narrative rounds](../../review/rounds.md).
 
 After the closing round, copy each working file to its body counterpart with HTML comments removed and every other byte preserved; the initial transfer must equal the reviewed edition exactly, and until it happens nothing downstream may consume the text.
 

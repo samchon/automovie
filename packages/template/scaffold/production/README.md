@@ -1,6 +1,6 @@
 # {{name}}
 
-Use an LLM to author a complete movie screenplay, then program the main scenes' motion, staging and camera and assemble the whole video as a reproducible film-generation hint. Every person is a polygon man, drawn from the body the installed Human package prepares, and every other subject is the simplest form that identifies it, as [entity work]({{skills}}/development/entities.md#coarse-first) sets; the accuracy goes to motion. Stills and pilot clips alone do not complete a movie hint.
+Use an LLM to author a complete movie screenplay, then program the main scenes' motion, staging and camera and assemble the whole video as a reproducible motion hint. Every person is a polygon man, drawn from the body the installed Human package prepares, and every other subject is the simplest form that identifies it, as [entity work]({{skills}}/development/entities.md#coarse-first) sets; the accuracy goes to motion. Stills and pilot clips alone do not complete a movie hint.
 
 ## First run
 
@@ -75,7 +75,7 @@ A separately commissioned screenplay ends with its text duties; a standalone ass
 
 | Command | Purpose |
 | --- | --- |
-| `pnpm ttsc --watch`, run in `test/` | The single compile checker kept running while you edit; read compile errors from its output |
+| `npx ttsc --watch`, run in `test/` | The single compile checker kept running while you edit; read compile errors from its output |
 | `npm run lint` | TypeScript and source correctness |
 | `npm run evidence` | Source/test checklists and the selected path's active evidence obligations |
 | `npm test` | Run exported `test_*` functions under `test/features` through `tsconfig.test.json`; an empty selection fails |

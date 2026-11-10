@@ -60,7 +60,7 @@ What the modules can perform:
 
 Measurements:
 
-12. Every measurement is left to the research laws that determine it and the code that derives it: no coordinate, offset or time between exchanges is written. Exception: a true anchor, namely a line, lyric or music event the picture syncs to, a count the audience perceives, or a key event the edit meets.
+12. Every measurement is left to the research laws that determine it and the code that derives it: no coordinate, offset or time between exchanges is written. Exception: a true anchor, namely a line, lyric or music event the picture syncs to, a count the audience perceives, or a key event the edit lands on.
 13. No decision is expressed only as a number, because the number leaves its meaning undecided.
 
 Breakdown and addresses:

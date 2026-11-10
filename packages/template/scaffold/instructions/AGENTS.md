@@ -25,11 +25,13 @@ In a workspace the production's folder fixes its [story route](.agents/skills/st
 
 ### Principles
 
-- Models stay coarse and motion is authored in detail, as [entity work](.agents/skills/development/entities.md#coarse-first) sets.
-- The screenplay decides every exchange, outcome and reaction, and code never chooses one, as the [screenplay layer](.agents/skills/story/layers/screenplay.md) holds.
-- A film [only composes](.agents/skills/contracts/development/composition.md#composition-only) modules accepted in their [catalog cases](.agents/skills/motion/catalog-cases.md), so a film defect is repaired in its module.
-- Search the installed packages before writing, and vary a module instead of copying it, under [reuse](.agents/skills/development/reuse.md).
-- Divide programming by responsibility and test each module, under [development](.agents/skills/development/SKILL.md).
+| Principle | Owner |
+| --- | --- |
+| Models stay coarse and motion is authored in detail | [Entity work](.agents/skills/development/entities.md#coarse-first) |
+| The screenplay decides every exchange, outcome and reaction, and code never chooses one | [Screenplay layer](.agents/skills/story/layers/screenplay.md) |
+| A film only composes accepted modules, so a film defect is repaired in its module | [Composition contract](.agents/skills/contracts/development/composition.md#composition-only), [catalog cases](.agents/skills/motion/catalog-cases.md) |
+| Search the installed packages before writing, and vary a module instead of copying it | [Reuse](.agents/skills/development/reuse.md) |
+| Divide programming by responsibility and test each module | [Development](.agents/skills/development/SKILL.md) |
 
 ### What you can observe
 

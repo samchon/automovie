@@ -19,7 +19,7 @@ Follow [independent reading](reading.md) before opening author records, and reco
 The author repairs each finding under [cause rounds](../story/correction/repair.md#cause-rounds) or raises a factual objection:
 
 - the quotation is absent;
-- the passage does not meet the definition;
+- the passage does not match the definition;
 - a permitted exception applies;
 - the parent contradicts the finding.
 

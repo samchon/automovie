@@ -8,6 +8,6 @@ Script expression answers belong to its detached construction units and populati
 
 Place H2-owned answers directly beneath their H2, before its subordinate H3 headings, and a file answer before the file's first heading. Keep them with that edition when reviewed text is transferred; [expression transfer](../naturalness/transfer.md#transfer) owns the comment-free transfer and [upstream repair](../correction/repair.md) its closed-proof boundary.
 
-Review records and their fingerprints follow [review rounds](../../review/rounds.md).
+Review records and their fingerprints follow [narrative rounds](../../review/rounds.md).
 
 A work- or language-specific question is adopted through [adoption](../../evidence/adoption.md), which also says where it lives; a unit answers for its own behavior and a designated population respondent for a whole-work duty.

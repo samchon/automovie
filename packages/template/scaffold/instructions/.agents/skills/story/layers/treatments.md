@@ -6,4 +6,4 @@ Design from the first encounter with the promised experience through accumulatin
 
 Cite the settings each event uses, and decide the details that determine cause or result while leaving dialogue, blocking and final realization to their owners; [scripts](scripts.md) choose the partition.
 
-Read the whole sequence in screen order before evidence, because clear events can still omit a cause or payoff. Treatments have no separate expression pass, and a defective inherited fact is repaired under [upstream repair](../correction/repair.md#upstream-defects) before designing from it.
+Read the whole sequence in screen order before evidence, because clear events can still omit a cause or payoff. A defective inherited fact is repaired under [upstream repair](../correction/repair.md#upstream-defects) before designing from it.

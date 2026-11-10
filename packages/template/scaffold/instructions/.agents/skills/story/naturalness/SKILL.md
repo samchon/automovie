@@ -5,7 +5,7 @@ description: Rewrites the final screenplay's expression against its frozen const
 
 # Naturalness
 
-Rewrite how the screenplay is seen and heard while its decided meaning stays frozen; scripts finish their expression within construction instead.
+Rewrite how the screenplay is seen and heard while its decided meaning stays frozen.
 
 | Task | Read |
 | --- | --- |
