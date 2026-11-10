@@ -35,7 +35,7 @@ A first frame gives an image-to-video model the look while the hint gives the mo
 
 ## Turnaround views for modelling
 
-Generated views carry no camera calibration or scale and disagree with each other at pixel level, so they serve as modelling references or image-to-3D input, never as measurements; real dimensions come from the settings. When the hint already has the form, render its own turnaround from fixed cameras and restyle each view with depth or normal control and the identity references, so the views agree by construction. Use them as a form source under [3D modeling](../3d-modeling/SKILL.md).
+Generated views carry no camera calibration or scale and disagree with each other at pixel level, so they serve as modelling references or image-to-3D input, never as measurements; real dimensions come from the research and the entity's code. When the hint already has the form, render its own turnaround from fixed cameras and restyle each view with depth or normal control and the identity references, so the views agree by construction. Use them as a form source under [3D modeling](../3d-modeling/SKILL.md).
 
 ## Prompts
 

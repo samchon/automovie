@@ -26,4 +26,4 @@ Inspect a model or visual export through its intended consumer, required views a
 
 ## Record and repair
 
-Record the revision, media and output identities, completed checks, observations and unverified limits, recheck [production coverage](../contracts/story/shared/discovery/common.md#production-coverage), and confirm the handoff carries its fixed inputs, provenance, commands, rights and attribution. Repair media findings through their owners under [finishing](../production/finishing.md#repair-and-deliver) and inspect the affected output again; narrative changes follow [upstream repair](../story/correction/repair.md).
+Record the revision, media and output identities, completed checks, observations and unverified limits, recheck [production coverage](../contracts/story/shared/discovery/common.md#requirement-ownership), and confirm the handoff carries its fixed inputs, provenance, commands, rights and attribution. Repair media findings through their owners under [finishing](../production/finishing.md#repair-and-deliver) and inspect the affected output again; narrative changes follow [upstream repair](../story/correction/repair.md).

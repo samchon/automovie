@@ -1,6 +1,6 @@
 # Treatment requirement discovery
 
-The discovery result covers the complete declared event population under the [common discovery boundary](common.md#shared-work-boundary).
+The discovery result covers the complete declared event population under the [common discovery boundary](common.md#requirement-ownership).
 
 ## Are this work's event and document rules discovered? {#treatment-requirements}
 

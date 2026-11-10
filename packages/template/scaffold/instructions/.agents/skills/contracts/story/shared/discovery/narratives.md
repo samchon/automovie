@@ -1,6 +1,6 @@
 # Narrative requirement discovery
 
-The discovery result covers the complete current treatment, script or final screenplay population under the [common discovery boundary](common.md#shared-work-boundary), not every H2 independently.
+The discovery result covers the complete current treatment, script or final screenplay population under the [common discovery boundary](common.md#requirement-ownership), not every H2 independently.
 
 ## Are work-specific narrative needs assigned to honest respondents? {#narrative-requirements}
 

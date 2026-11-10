@@ -1,6 +1,6 @@
 # Final screenplay requirement discovery
 
-The discovery result covers the complete declared audiovisual plan under the [common discovery boundary](common.md#shared-work-boundary).
+The discovery result covers the complete declared audiovisual plan under the [common discovery boundary](common.md#requirement-ownership).
 
 ## Is its observed audiovisual form owned and testable? {#screenplay-requirements}
 
