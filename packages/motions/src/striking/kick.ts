@@ -397,7 +397,10 @@ export namespace kick {
         body,
         support,
         StrikingTarget.slide(feet[support], line, stepped, step > 0 ? 0.015 * m.stature * 4 * minimumJerk(t / chamber).s * (1 - minimumJerk(t / chamber).s) : 0),
-        PIVOT.turn * Math.sign(turn) * amplitude * w,
+        // The support foot turns with the pelvis (at most the pivot's own
+        // range), so the support hip's twist stays where it was for either
+        // stance and either leg.
+        Math.sign(turn) * Math.min(Math.abs(turn), PIVOT.turn * amplitude) * w,
         PIVOT.raise * w,
       );
       // The pelvis tips at most PELVIS_ROLL away from the kick; the rest of
@@ -652,7 +655,14 @@ export namespace kick {
       // would slide it).
       const rest: number = Math.max(1e-3, timing.duration - s - StrikingStroke.DWELL);
       const tau: number = t <= s + StrikingStroke.DWELL ? s : s + ((t - s - StrikingStroke.DWELL) * (timing.duration - s)) / rest;
-      return { base: parts.base(tau), hint: parts.hint(tau), rotation: parts.rotation(tau) };
+
+      // The knee holds its side at the stop for the dwell, then folds back
+      // through the chamber's knee to the stance's, never swinging forward
+      // toward the contact it no longer reaches.
+      const w: number = minimumJerk((t - s - StrikingStroke.DWELL) / rest).s;
+      const hint: IAutoMovieVector3 =
+        w < 0.5 ? Vector3.lerp(parts.hint(s), parts.hint(timing.chamber), 2 * w) : Vector3.lerp(parts.hint(timing.chamber), parts.hint(timing.duration), 2 * w - 1);
+      return { base: parts.base(tau), hint, rotation: parts.rotation(tau) };
     };
     return {
       ...parts,
