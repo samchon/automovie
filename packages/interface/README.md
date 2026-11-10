@@ -20,4 +20,4 @@ import type { IAutoMovieModel, IAutoMovieShot } from "@automovie/interface";
 
 ## Where to look
 
-Everything is exported from the package root. The source has one folder per domain: `core`, `geometry`, `construction`, `skeleton`, `pose`, `motion`, `model`, `material`, `expression`, `scene`, `cinematics`, `authoring`, `harness`, `production`, `render`, `validation`, `architecture`, `service`, `analysis`, `drawing`, `soft`, `fluid`, `color`, `physics` and `recovery`.
+Everything is exported from the package root, and the source has one folder per domain. Start from `IAutoMovieModel` for a figure or prop and `IAutoMovieShot` for a shot.

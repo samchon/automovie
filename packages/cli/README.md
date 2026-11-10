@@ -18,7 +18,7 @@ The package name is `--name`, otherwise it is derived from the directory name. F
 
 ## add
 
-Run `add` from a workspace root, the directory that holds `pnpm-workspace.yaml`. It does not search parent directories. `add shorts/<name>` writes a production into `movies/shorts/<name>`, and `add series/<name>` into `movies/series/<name>`. A short goes from settings to screenplay; a series runs the whole long route. The new production takes its dependencies from the root's catalogs and its skills from the root's `.agents/skills`, so it gets no instruction copy of its own.
+Run `add` from a workspace root, the directory that holds `pnpm-workspace.yaml`. It does not search parent directories. `add shorts/<name>` writes a production into `movies/shorts/<name>`, and `add series/<name>` into `movies/series/<name>`. A short goes from a brief to the screenplay; a series runs the whole long route. The new production takes its dependencies from the root's catalogs and its skills from the root's `.agents/skills`, so it gets no instruction copy of its own.
 
 `create` and `add` refuse a non-empty target unless `--force` is given. With `--force`, files at the same paths are replaced.
 

@@ -1,4 +1,4 @@
-import { createAutoMovieStickman } from "@automovie/archetypes";
+import { createAutoMovieStickman } from "../internal/createAutoMovieStickman";
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,

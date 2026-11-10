@@ -1,6 +1,6 @@
 # AutoMovie
 
-AutoMovie lets an LLM write a film's screenplay and then program the staging, motion and camera that convey it. The output is a reproducible motion video that a video diffusion model takes as a hint.
+AutoMovie lets an LLM write a film's screenplay and then program the staging, motion and camera that convey it. The output is a reproducible motion-hint video for a video diffusion model.
 
 You direct a coding agent in natural language. The agent writes the screenplay and authors the scenes as code, and AutoMovie's engine computes the same frames from that code every time, so a result can be inspected and corrected instead of regenerated. AutoMovie contains no LLM and no authoring server: you bring the coding agent, any media providers and the machine that renders.
 
@@ -31,7 +31,8 @@ To keep several productions in one repository, `npx automovie create <directory>
 | --- | --- |
 | [`@automovie/interface`](./packages/interface) | The pure-type authoring AST an LLM emits |
 | [`@automovie/engine`](./packages/engine) | Deterministic validation and computation of everything a frame needs |
-| [`@automovie/archetypes`](./packages/archetypes) | Ready-made figures and props |
+
+
 | [`@automovie/human`](./packages/human) | A human figure generated from typed parameters by code (being rebuilt) |
 | [`@automovie/motions`](./packages/motions) | Human action laws that author deterministic motion |
 | [`@automovie/ingest`](./packages/ingest) | Deterministic import of glTF, GLB, VRM, WAVE and PPM inputs |
@@ -45,7 +46,7 @@ To keep several productions in one repository, `npx automovie create <directory>
 
 ## Repository development
 
-Node.js 22.23.2 or later and pnpm 10.
+Use Node.js 22.23.2 or later and pnpm 10.
 
 ```bash
 pnpm install

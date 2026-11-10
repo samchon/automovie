@@ -3,7 +3,6 @@
 
 /** Dependency versions baked into the scaffold, kept in sync with this repo. */
 export const AUTOMOVIE_TEMPLATE_VERSIONS: Record<string, string> = {
-  archetypes: "^0.1.0",
   cli: "^0.1.0",
   engine: "^0.1.0",
   evidence: "^0.1.0",

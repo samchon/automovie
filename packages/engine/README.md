@@ -30,11 +30,11 @@ Everything is exported from the package root, and each function's JSDoc states i
 | Folder | Owns |
 | --- | --- |
 | `math`, `geometry`, `kinematics`, `skinning`, `rom`, `motion` | Vectors and quaternions, tessellation and lofted surfaces, skeletal kinematics, skinned vertices, range of motion, motion sampling |
-| `perform`, `film`, `scene`, `resolve` | Performance synthesis, staging, shots and edits |
+| `perform`, `film`, `scene`, `resolve`, `composition` | Performance synthesis, staging, shots and edits, and composing actions on one schedule |
 | `physics`, `soft`, `fluid` | Rigid-body performance, soft bodies and bounded fluid solves |
 | `architecture`, `space`, `service`, `drawing`, `analysis` | Buildings, spaces, service networks, drawings and environmental analyses |
 | `render`, `effectRuntime`, `populationRuntime`, `sound`, `text` | Render facts and budgets, runtime effects and populations, sound and text |
-| `validation`, `constants` | Shared admission and constants |
+| `validation`, `constants` | Input validation and shared constants |
 
 Staging a film starts at `stageScene`, `performShot` and `cutSequence` in `film`.
 

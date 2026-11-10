@@ -8,7 +8,7 @@ Reconstruction reads no original mesh positions, faces or normals. The generated
 
 Node.js 22.23.2 or later.
 
-```sh
+```bash
 npm install @automovie/recovery
 ```
 
@@ -57,5 +57,5 @@ Every operation returns a status. `complete` and `partial` carry a `value`; `ref
 ## Limits
 
 - The image path needs horizontal orthographic cameras you supply, a fixed background colour, and one connected foreground interval per row. Caps, interiors and hidden concavities stay unknown.
-- Camera estimation is an experimental operating point. It needs known pinhole intrinsics and a static scene, returns poses of unknown physical scale, and can refuse on repeated texture, occlusion, a weak baseline or a planar scene. In the [frozen TempleSparseRing confirmation](https://github.com/samchon/automovie/issues/2874#issuecomment-6284424010) it accepted two of four reserved pairs. It produces sparse points, not a surface.
+- Camera estimation is experimental. It needs known pinhole intrinsics and a static scene, returns poses of unknown physical scale, and can refuse on repeated texture, occlusion, a weak baseline or a planar scene. It produces sparse points, not a surface.
 - Curve conversion handles cubic curves. It does not repair missing geometry.

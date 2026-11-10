@@ -48,7 +48,6 @@
     "self-check": "tsx src/review/self-check.ts"
   },
   "dependencies": {
-    "@automovie/archetypes": "workspace:^",
     "automovie": "workspace:^",
     "@automovie/engine": "workspace:^",
     "@automovie/human": "workspace:^",

@@ -22,7 +22,6 @@
     "physics": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json src/executable/physics.ts"
   },
   "dependencies": {
-    "@automovie/archetypes": "workspace:^",
     "@automovie/engine": "workspace:^",
     "@automovie/human": "workspace:^",
     "@automovie/ingest": "workspace:^",

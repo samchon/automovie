@@ -1,11 +1,24 @@
 # @automovie/ingest
 
-Turns external media bytes into AutoMovie records. glTF, GLB and VRM documents become models, skeletons and clips, RIFF/WAVE audio becomes its format facts and a mono sample buffer, and a P6 PPM becomes an RGB image. The same bytes always give the same records.
+Turns external media bytes into AutoMovie records. glTF, GLB and VRM documents become models, skeletons and clips, RIFF/WAVE audio becomes its format facts and a mono sample buffer, and a P6 PPM becomes an RGB image. Decoding depends only on the bytes.
 
 The package only reads bytes the host hands it. Opening files, downloading and anything browser-side stay with the host.
 
 ```bash
 npm install @automovie/ingest
+```
+
+```ts
+import { decodeAutoMoviePpmImage } from "@automovie/ingest";
+
+declare const bytes: Uint8Array;
+
+const image = decodeAutoMoviePpmImage(bytes, {
+  maxPixels: 1920 * 1080,
+  maxHeaderBytes: 100,
+  transfer: "srgb",
+});
+// image.width, image.height and image.rgb8
 ```
 
 | Function | Use it to |

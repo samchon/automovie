@@ -4,7 +4,7 @@ import type {
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 
-import { createAutoMovieStickman } from "../../../../packages/archetypes/src/createAutoMovieStickman";
+import { createAutoMovieStickman } from "./createAutoMovieStickman";
 import { derivePhysicalProfile } from "../../../../packages/engine/src/physics/derivePhysicalProfile";
 import { makeProp } from "./makeProp";
 import { material } from "./material";
