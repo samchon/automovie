@@ -1,17 +1,24 @@
 ---
 name: documentation
-description: Owns the writing rules for technical documents, READMEs and doc comments. Use before writing or changing one, and with prompting before changing AGENTS.md or a skill.
+description: Owns how any document is written, with its sentences, terms, paragraphs and lists, and what a README and a doc comment hold. Use before writing or changing a technical document, README or doc comment; instructions for an agent add the prompting skill's rules.
 ---
 
 # Documentation
 
-Good writing is the same for every reader: deliver the core point concisely and clearly. Only the reader, and so what the reader needs, differs by document; agent prompts add the rules in the [prompting skill](../prompting/SKILL.md).
+This skill owns how a document is written, whoever reads it. Good writing is the same for every reader: deliver the core point concisely and clearly. Only the reader, and so what the reader needs, differs by document.
 
 Every document follows [Writing](writing.md).
 
-## READMEs
+## READMEs {#readmes}
 
-A README is for the user of its project or package: what it is, when to use it, how to set it up, the smallest working use, and its public surface. Take every code example from code that runs.
+Write a README only from the view of the person who uses its project or package, and keep it to the essentials:
+
+- what it is and when to use it;
+- how to install and start it;
+- the few entry points;
+- where the detail lives.
+
+A README lists no API that the source and its types already own, because that list goes stale at the next change. It carries nothing only a maintainer needs. Every name, command and sample in it exists in the code, and every sample runs.
 
 ## Doc Comments
 
