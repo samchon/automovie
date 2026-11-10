@@ -23,7 +23,8 @@ import { physicalShapeBounds } from "../physics/physicalShapeBounds";
  * extents and the limb radii are read from the colliders of the
  * matching profile segments by their exact axis bounds at rest
  * (`physicalShapeBounds`). The hand runs from the wrist to the farthest point
- * of the hand segment's colliders along the forearm. A limb radius is the
+ * along the forearm of the hand segment's colliders and its finger segments'
+ * when the profile has them, the middle fingertip. A limb radius is the
  * largest sphere or capsule radius on its segment, or half the smaller
  * transverse extent of a box. The eye height falls back to the head joint
  * when the rig has no eyes.
@@ -103,12 +104,21 @@ export function measureAutoMovieHumanoidBody(
   const hand = (side: "left" | "right"): number => {
     const wrist: IAutoMovieVector3 = at(bone(side, "Hand"));
     const axis: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(wrist, at(bone(side, "LowerArm"))));
-    const b: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(bone(side, "Hand"));
+    // The hand's colliders and, when the profile has them, its fingers'.
+    const parts: AutoMovieHumanoidBone[] = [
+      bone(side, "Hand"),
+      ...profile.segments
+        .map((x: P.ISegment): AutoMovieHumanoidBone => x.bone as AutoMovieHumanoidBone)
+        .filter((x: AutoMovieHumanoidBone): boolean => x.startsWith(side) && /(Thumb|Index|Middle|Ring|Little)/.test(x)),
+    ];
     let far: number = 0;
-    for (const x of [b.min.x, b.max.x])
-      for (const y of [b.min.y, b.max.y])
-        for (const z of [b.min.z, b.max.z])
-          far = Math.max(far, Vector3.dot(Vector3.subtract({ x, y, z }, wrist), axis));
+    for (const part of parts) {
+      const b: { min: IAutoMovieVector3; max: IAutoMovieVector3 } = bounds(part);
+      for (const x of [b.min.x, b.max.x])
+        for (const y of [b.min.y, b.max.y])
+          for (const z of [b.min.z, b.max.z])
+            far = Math.max(far, Vector3.dot(Vector3.subtract({ x, y, z }, wrist), axis));
+    }
     return far;
   };
   // The foot's extents span the toes too when the profile gives them their own segment.
