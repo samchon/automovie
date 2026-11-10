@@ -40,24 +40,6 @@ type Vec3 = AutoMovieHumanArmCurveSpec.Vec3;
  * `q = -sqrt(L - s)`.
  */
 export namespace AutoMovieHumanHandDigits {
-  /** Restore the measured digit input after JSON has widened tuples and literal tags. */
-  export function fixedInput(value: typeof import("./AutoMovieHumanHandF1RightInputs.json").digits.thumb): IFixed {
-    const point: typeof AutoMovieHumanHandPalm.fixedPoint = AutoMovieHumanHandPalm.fixedPoint;
-    const shoulders: IAutoMovieViewPart.IOutline[] = value.part.fullness.shoulders;
-    if (shoulders.length !== 4 || value.part.fullness.kind !== "top")
-      throw new Error("A fixed F1 digit needs its four observed conic shoulder runs");
-    return {
-      ...value,
-      charts: value.charts.map((chart: typeof value.charts[number]): AutoMovieHumanArmAxis.IFixedChart => ({
-        ...chart, originMm: point(chart.originMm), u: point(chart.u), v: point(chart.v),
-      })),
-      part: { ...value.part, fullness: { ...value.part.fullness, kind: value.part.fullness.kind,
-        shoulders: [shoulders[0]!, shoulders[1]!, shoulders[2]!, shoulders[3]!] } },
-      distal: value.distal.map(AutoMovieHumanHandPalm.fixedSection), tip: point(value.tip),
-      terminal: { ...value.terminal, maximum: { ...value.terminal.maximum, pointsMm: value.terminal.maximum.pointsMm.map(point) } },
-    };
-  }
-
   /** A digit's measured course, conic control outlines and observed tip continuation. */
   export interface IFixed {
     /** Absolute measured section charts in the native digit pose. */
