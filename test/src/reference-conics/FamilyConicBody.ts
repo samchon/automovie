@@ -77,7 +77,7 @@ namespace FamilyConicBody {
     const parts: IPart[] = (
       [
         { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r")], halves: [30], up: [1, 0, 0], domain: [76, 500], mirrored: true, layouts: LIMB, reliefs: [] },
-        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r")], halves: [40], up: [1, 0, 0], domain: [124, 820], mirrored: true, layouts: LIMB, reliefs: [] },
+        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r")], halves: [40], up: [1, 0, 0], domain: [124, 800], mirrored: true, layouts: LIMB, reliefs: [] },
         { name: "trunk", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [150, 492], mirrored: false, layouts: LIMB, reliefs: [
           { name: "trunk.back", stations: [60, 582], phases: [Math.PI - 1, Math.PI + 1], axis: [1, 0, 0], rows: 21, columns: 19, mirror: true },
           { name: "trunk.front", stations: [60, 582], phases: [-1, 1], axis: [-1, 0, 0], rows: 21, columns: 19, mirror: true },
