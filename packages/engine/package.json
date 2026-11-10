@@ -1,6 +1,6 @@
 {
   "name": "@automovie/engine",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "automovie deterministic engine, kinematics, ROM validation, motion sampling, tessellation",
   "main": "src/index.ts",
   "exports": {
@@ -9,7 +9,6 @@
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
-    "prepack": "pnpm run build",
     "evidence": "evidence"
   },
   "keywords": [],

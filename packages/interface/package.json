@@ -1,6 +1,6 @@
 {
   "name": "@automovie/interface",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "AutoMovie type contracts for code-native authoring, deterministic film data, production evidence, review, and delivery.",
   "main": "src/index.ts",
   "exports": {
@@ -9,7 +9,6 @@
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
-    "prepack": "pnpm run build",
     "evidence": "evidence"
   },
   "keywords": [

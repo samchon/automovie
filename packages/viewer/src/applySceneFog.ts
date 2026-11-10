@@ -15,7 +15,7 @@ import * as THREE from "three";
  * disagree about what `0.5` means.
  *
  * Exported, and separate from {@link buildScene}, for the reason `buildLight`
- * is: a host that assembles its own scene graph (the playground's film page,
+ * is: a host that assembles its own scene graph (a production's film page,
  * which is what the offline renderer captures) must apply the FILM's atmosphere
  * through this one call rather than decorating its page with fog of its own. A
  * page that fogs itself proves nothing about the production.

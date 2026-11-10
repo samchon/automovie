@@ -15,8 +15,8 @@ import { SPACE_GROUP_NAME } from "./SPACE_GROUP_NAME.js";
  * void. Building them as real meshes is enough: every structural pass collects
  * geometry by traversing the scene and checking isMesh, then replaces its material, so the
  * ground joins depth, mask, normal, and outline with no pass-side special case,
- * unlike the playground's `GridHelper`, which is a `LineSegments` and is hidden
- * before every structural pass.
+ * unlike a `GridHelper`, which is a `LineSegments` and must be hidden before
+ * every structural pass.
  *
  * The ordinary material writes neither colour nor depth. A support patch is a
  * semantic declaration used by grounding and locomotion, not proof that an

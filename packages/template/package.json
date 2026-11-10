@@ -1,6 +1,6 @@
 {
   "name": "@automovie/template",
-  "version": "0.1.5",
+  "version": "0.0.0",
   "description": "The self-contained scaffold every AutoMovie production is created from and the library that materializes it.",
   "main": "src/index.ts",
   "exports": {
@@ -12,7 +12,6 @@
     "build:versions": "ttsx --no-plugins build/resolveTemplateVersions.ts",
     "build:instructions": "ttsx --no-plugins build/syncScaffoldInstructions.ts",
     "build": "pnpm run build:versions && rimraf lib && pnpm run build:instructions && ttsc",
-    "prepack": "pnpm run build",
     "evidence": "evidence"
   },
   "keywords": [

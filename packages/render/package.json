@@ -1,6 +1,6 @@
 {
   "name": "@automovie/render",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "automovie render: deterministic frame schedule + encode plan from a render spec",
   "main": "src/index.ts",
   "exports": {
@@ -9,7 +9,6 @@
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
-    "prepack": "pnpm run build",
     "evidence": "evidence"
   },
   "author": "Samchon",

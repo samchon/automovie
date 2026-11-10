@@ -1,6 +1,6 @@
 # Head input delivery audit
 
-This is the f1-only original-shape inspection. It follows all 25 static head measurement leaves, two explicitly supplied motion-capacity leaves, and the body context the head receives. Values below are rounded for reading; the untouched exact inputs are in [f1.ts](../../../playground/src/human-parameters/f1.ts). No geometry correction, new person, expression or final-skin approval follows merely from this table.
+This is the f1-only original-shape inspection. It follows all 25 static head measurement leaves, two explicitly supplied motion-capacity leaves, and the body context the head receives. Values below are rounded for reading. No geometry correction, new person, expression or final-skin approval follows merely from this table.
 
 ## Declaration and resolution
 
