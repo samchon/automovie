@@ -15,7 +15,7 @@ Nothing outside the key may reach the stage: a key that misses an input returns 
 
 Record each stage's input and output digests. A rerun reuses a stage whose key is unchanged once its stored artifact matches the recorded output digest, and recomputes only stages whose key changed; a recomputed output whose digest is unchanged stops recomputation of the stages after it, the early cutoff of [Build Systems à la Carte](https://www.microsoft.com/en-us/research/wp-content/uploads/2018/03/build-systems.pdf).
 
-A captured frame is reusable only as a pure function of the resolved state and frame index under [frame evaluation](../motion/frame-evaluation.md#separate-sampling-from-retained-state), and a physics bake resumes only from a complete checkpoint under [physical feedback](../motion/physics.md).
+A captured frame is reusable only as a pure function of the resolved state and frame index under [frame evaluation](../motion/frame-evaluation.md#separate-sampling-from-retained-state), and a physics bake resumes only from a complete checkpoint under [physical feedback](../motion/physical-feedback.md).
 
 Supply these digests through the caches the installed packages provide, as their READMEs document, rather than writing a cache in the production. A cache they lack is handled under [installed packages](../development/reuse.md#installed-packages).
 

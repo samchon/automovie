@@ -2,7 +2,7 @@
 
 ## Records
 
-Keep current reviews in the review locations of the [document layout](../story/layout.md#documents), mirroring every authored file and H2, with one verdict document for whole-pass duties. Construction reviews target construction and naturalness reviews the working text.
+Keep current reviews in the review locations of the [document layout](../story/document-layout.md#documents), mirroring every authored file and H2, with one verdict document for whole-pass duties. Construction reviews target construction and naturalness reviews the working text.
 
 Each unit with no body finding carries its native current fingerprint review, which covers the body, not the truth of its answers. After [expression transfer](../story/naturalness/transfer.md#transfer), construction judgments stay with their frozen edition.
 
@@ -12,7 +12,7 @@ Raw independent reads and sentence tables stay in ignored `.cache/`.
 
 Use one independent reviewer per pass, and a fresh closing reviewer only as the [grading](#grading-and-closure) requires. Add another reader only for a question the first cannot judge.
 
-Follow [independent reading](reading.md) before opening author records, and record the revision, inputs, scope, findings with literal support, causes, protected achievements, author responses, limits and outcome. Send a recurring uncovered loss to [discovery](../story/planning/discovery.md).
+Follow [independent reading](independent-reading.md) before opening author records, and record the revision, inputs, scope, findings with literal support, causes, protected achievements, author responses, limits and outcome. Send a recurring uncovered loss to [discovery](../story/planning/discovery.md).
 
 ## Findings and objections
 

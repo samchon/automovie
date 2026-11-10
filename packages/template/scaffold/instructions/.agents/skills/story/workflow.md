@@ -48,13 +48,13 @@ Inherit through actual parents, repairing a missing handoff rather than bypassin
 3. Submit the body, boundaries and population to independent [review](../review/SKILL.md).
 4. Repair findings at their owners until the pass closes.
 
-Review runs through creative closure and the evidence audit, and [narrative rounds](../review/rounds.md) says when a pass closes.
+Review runs through creative closure and the evidence audit, and [narrative rounds](../review/narrative-rounds.md) says when a pass closes.
 
 ## Completion
 
 Run the README's evidence command and read its whole report; a passing graph shows the recorded relationships, and review judges the creative result.
 
-Whole-work completion needs the selected passes, current closed review, passing unfiltered validation, the compiler and source checks and required tests, and [delivery review](../review/delivery.md) of any commissioned media.
+Whole-work completion needs the selected passes, current closed review, passing unfiltered validation, the compiler and source checks and required tests, and [delivery review](../review/delivery-review.md) of any commissioned media.
 
 A manuscript with its closed review may be delivered with its revision and named remaining diagnostics, but that is not fully validated completion. A creative defect, missing parent, pending transfer, unfinished review or unverified media blocks its completion, and until review finishes the result is a draft.
 

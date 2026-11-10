@@ -18,6 +18,6 @@ Take movement evidence from the [performance study](../story/planning/research.m
 | [Wan-Animate preprocessing](https://github.com/Wan-Video/Wan2.2/blob/main/wan/modules/animate/preprocess/UserGuider.md) | Inspect the actual pose/mask intermediate outputs, body-proportion retargeting and the selected mode's supported subject interactions before generation |
 | [ControlNet](https://github.com/lllyasviel/ControlNet) | A conditioning mechanism has a concrete input contract; an arbitrary stick figure or depth-like image is not automatically a compatible signal |
 
-[Retargeting](retargeting.md), [physical feedback](physics.md) and [frame evaluation](frame-evaluation.md) own the production procedure. [Control channels](control-channels.md) owns the hint's passes, and [video generation](../video/generation.md) service integration and take adoption.
+[Retargeting](retargeting.md), [physical feedback](physical-feedback.md) and [frame evaluation](frame-evaluation.md) own the production procedure. [Control channels](control-channels.md) owns the hint's passes, and [video generation](../video/generation.md) service integration and take adoption.
 
 Preserve sources and contacts through conversion and inspect actual outputs; promising research does not justify live generation inside deterministic replay.

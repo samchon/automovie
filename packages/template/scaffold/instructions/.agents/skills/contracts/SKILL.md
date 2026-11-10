@@ -34,4 +34,4 @@ Statement documents are not evidence targets: no selector reaches them, and a ci
 
 An item asks only what its authored respondent can establish from its own content and the references it cites. What a rendered or generated picture shows, and what a sound is, can only be observed, so generation requests, prompts, control channels and delivered media have no contract family.
 
-[Review](../review/SKILL.md) judges them on stills and through the user's ears, and records the observations in the [acceptance record](../review/delivery.md#acceptance-record). An answer that records such an observation in place of the work it describes adds paperwork, not evidence.
+[Review](../review/SKILL.md) judges them on stills and through the user's ears, and records the observations in the [acceptance record](../review/delivery-review.md#acceptance-record). An answer that records such an observation in place of the work it describes adds paperwork, not evidence.

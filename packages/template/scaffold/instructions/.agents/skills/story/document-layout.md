@@ -18,11 +18,11 @@ Keep one current record per purpose, identified by its actual inputs; Git preser
 | `docs/body/brief/<domain>/<subject>.md` | A short's shared decisions in the settings domains, with its fixed conditions in `world/work.md` |
 | `docs/body/treatments/NNN-event.md` | Flat ordered events, causes, consequences, and information release |
 | `docs/body/scripts/NNN-part/NNN-episode.md` | Executable scenes and release partition, with part indexes |
-| `docs/body/screenplay/<film>.md`, or `NNN-part/NNN-episode.md` for several videos | Complete final audiovisual text, one file per delivered video, from whose path the [film name](../development/layout.md#source) derives; long work preserves its script partition |
+| `docs/body/screenplay/<film>.md`, or `NNN-part/NNN-episode.md` for several videos | Complete final audiovisual text, one file per delivered video, from whose path the [film name](../development/source-layout.md#source) derives; long work preserves its script partition |
 | `docs/research/index.md`, `docs/research/<discipline>/<topic>.md` | The source index and the studies of each practice and style: laws, outcome tables and measurable targets, under [research](planning/research.md) |
 | `references/`, ignored `references/private/` | Retained research originals: permitted copies, and those whose rights are unconfirmed |
 | `docs/contracts/work/...`, `docs/contracts/language/...` | This production's own story contracts supplementing the shared ones, cited as `work/...` and `language/...`; discovery writes `work/discovery/results.md` |
-| `docs/acceptance/<film>.md` | The film's tracked acceptance record, and in `catalog.md` the catalog's accepted cases, under [delivery review](../review/delivery.md#acceptance-record) |
+| `docs/acceptance/<film>.md` | The film's tracked acceptance record, and in `catalog.md` the catalog's accepted cases, under [delivery review](../review/delivery-review.md#acceptance-record) |
 | `docs/evidence/construction/{units,files}/<layer>/...` | Separate construction answers for units and whole files, including `files/research/` for the research studies |
 | Ignored `docs/review/{draft,final}/<layer>/<relative-file>.md` | Current independent unit reviews mirroring the actual body or working edition |
 | Ignored `docs/review/{draft,final}/<layer>/verdict/index.md` | Current complete-population verdict, findings and author decisions |
@@ -30,7 +30,7 @@ Keep one current record per purpose, identified by its actual inputs; Git preser
 
 `PROJECT.md` is kept under [project context](../production/project-context.md) and generation requests under [media records](../production/media-records.md).
 
-A part can be an act, release block, or another division suited to the format. An episode file can hold a suitable sequence in a continuous film; its filename does not force an episodic release. Narrative partition and [source organization](../development/layout.md) are separate choices.
+A part can be an act, release block, or another division suited to the format. An episode file can hold a suitable sequence in a continuous film; its filename does not force an episodic release. Narrative partition and [source organization](../development/source-layout.md) are separate choices.
 
 ## Intake of existing work
 

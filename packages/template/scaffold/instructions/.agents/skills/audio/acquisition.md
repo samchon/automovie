@@ -2,7 +2,7 @@
 
 Audio is acquired only for a requested voice preview or a [commissioned soundtrack](SKILL.md#commissioned-soundtrack); a generated film's sound needs none of it.
 
-Audio generation and recording happen outside deterministic replay. Read the installed packages' contracts for admitted formats and mixing, and this production's host, before wiring audio into a render; a decoder's presence does not mean the delivery entry uses it. Setup and secrets follow [source layout](../development/layout.md).
+Audio generation and recording happen outside deterministic replay. Read the installed packages' contracts for admitted formats and mixing, and this production's host, before wiring audio into a render; a decoder's presence does not mean the delivery entry uses it. Setup and secrets follow [source layout](../development/source-layout.md).
 
 ## Choose a source
 

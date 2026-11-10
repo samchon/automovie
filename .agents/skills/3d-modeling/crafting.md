@@ -20,16 +20,16 @@ Never shape a form by placing vertices, triangles, or polygons by hand; vertices
 
 A coding agent works under four limits, and each favors these representations over hand-placed geometry:
 
-- It changes text by meaning, so named values let it reason about each change, while a hand-placed coordinate means nothing.
-- It holds only part of a form in mind, so parts let it build the form piece by piece, while hand-placed geometry runs into thousands of coordinates.
-- It cannot see the surface while it edits, so local edits keep a fix where it was made, while moving a hand-placed vertex disturbs neighbors it cannot see.
-- It judges a render it did not draw, so a construction drawn beside the surface, such as sections, sketches, or a generation skeleton, traces each defect to the value that made it, while a hand-placed mesh has no construction to trace.
+| The agent | What serves it | Hand-placed geometry |
+| --- | --- | --- |
+| Changes text by meaning | Named values let it reason about each change | A coordinate means nothing |
+| Holds only part of a form in mind | Parts let it build the form piece by piece | The form runs into thousands of coordinates |
+| Cannot see the surface while it edits | Local edits keep a fix where it was made | Moving a vertex disturbs neighbors it cannot see |
+| Judges a render it did not draw | A construction drawn beside the surface, such as sections, sketches or a generation skeleton, traces each defect to the value that made it | A mesh has no construction to trace |
 
-## Generating Definition
+## Generating definition
 
-Keep a loft's sections, guides and parameter directions related through one generating definition, and another representation's sketches, fields or procedural structure likewise. Evaluate every geometric quantity of the form on that definition: placements, attachments, skin weights, texture coordinates, measurements and the joins between parts.
-
-Measure the displayed surface as the definition evaluates it, such as a subdivision limit surface rather than its cage.
+Keep a loft's sections, guides and parameter directions related through one generating definition, and another representation's sketches, fields or procedural structure likewise. Evaluate every geometric quantity of the form on that definition: placements, attachments, skin weights, texture coordinates, measurements and the joins between parts. Measure the displayed surface as the definition evaluates it, such as a subdivision limit surface rather than its cage.
 
 Tessellation is the last step, made for renderers and exporters, and nothing is read back from it; a quantity found by reading, searching, clipping, ray casting or relaxing the emitted triangles moves with the detail setting, so it drifts between preview and final render and answers to no input.
 
@@ -69,7 +69,7 @@ Check each input on the finished form at its own definition, such as a measureme
 
 Express stylization, such as exaggerated proportions or fantasy features, as a separate layer of transforms over the generating curves and parts rather than as edits inside their construction. The base construction and its tests then stay valid underneath, and every repair to the base reaches the stylized variant. Record an adopted stylization where the project records its decisions.
 
-## Order Of Work
+## Order of work
 
 Build the whole form first, then each finer detail as the block-out of a smaller region placed on the coarser form, so a coarse change carries its details with it.
 

@@ -12,7 +12,7 @@ Set root scale from meaningful dimensions, then confirm facing, root path, reach
 
 ## Preserve contacts and time
 
-Bind supports and grasps to their actual ground or object frame, and check sliding, penetration, floating, reach, support transfer and release through the motion, using [physical feedback](physics.md) for supported correction.
+Bind supports and grasps to their actual ground or object frame, and check sliding, penetration, floating, reach, support transfer and release through the motion, using [physical feedback](physical-feedback.md) for supported correction.
 
 Recheck interpolation, root path and contacts at the actual output times, extrema and cut boundaries, under [frame evaluation](frame-evaluation.md).
 

@@ -34,6 +34,6 @@ Scene headings, useful parentheticals, first-entry appearance and the screenplay
 
 ## Evidence audit
 
-Finish creative correction before the evidence audit, under [rounds](rounds.md). Then compare each answer with its whole respondent, its parents and the item's [statements](../contracts/SKILL.md#items-and-statements), searching the whole scope for counterexamples to negatives.
+Finish creative correction before the evidence audit, under [rounds](narrative-rounds.md). Then compare each answer with its whole respondent, its parents and the item's [statements](../contracts/SKILL.md#items-and-statements), searching the whole scope for counterexamples to negatives.
 
 A truthful answer and a usable scene are separate achievements.

@@ -1,4 +1,4 @@
-# Visual Debugging
+# Visual debugging
 
 Readiness or numerical success proves no appearance; only an observed render does.
 
@@ -10,25 +10,38 @@ Repair a missing capability at the owner of that capability, then reconnect and 
 
 Inspect the actual consumer with current source on a hardware renderer, recording the source revision, asset identities, input, time or pose, camera, renderer and detail settings needed to repeat the observation.
 
-## Correction Rounds
+## Correction rounds
 
-Before editing, inspect the whole affected asset at every scale, moving the camera freely through whole views, regions, neighbors and close-ups from every needed direction, and write down every observed defect with its construction and comparison conditions.
+### Inspect before editing
 
-Trace causes through generation and display, including shared boundaries and derived outputs. Where causes or their interactions are unclear, plan the controlled comparisons that separate them as one set, run the whole set without changing the source, and record the results.
+Inspect the whole affected asset at every scale, moving the camera freely through whole views, regions, neighbors and close-ups from every needed direction. Write down every observed defect with its construction and comparison conditions.
 
-Map each proposed change to all defects and parts it affects.
+Inspect each defining curve and part in isolation against the reference. Then choose groups that share boundaries or affect one another and inspect them together against that reference, before judging the assembly. Repeat the individual and grouped selections from front, side and top, around the back and from high and low obliques as the form requires.
 
-Inspect each defining curve and part in isolation against the reference, then choose groups that share boundaries or affect one another and inspect them together against that reference, before judging the assembly.
+Keep enough reference visible to read placement and depth; a hidden reference, an empty selection or separate passing close-ups establishes no relationship between neighbors.
 
-Keep enough reference visible to read placement and depth; a hidden reference, an empty selection or separate passing close-ups establishes no relationship between neighbours. Repeat the individual and grouped selections from front, side and top, around the back and from high and low obliques as the form requires.
+### Forms defined by 2D views
 
-For a form defined by original 2D views, establish each part's original curves' placement and form before accepting the algorithm's lofting curves and realized surface. A completed observation round is not a passed construction: correct the affected defining-curve causes together and repeat their comparison, because a smooth downstream surface can still express the wrong input.
+For a form defined by original 2D views, establish the placement and form of each part's original curves before accepting the algorithm's lofting curves and realized surface. A completed observation round is not a passed construction: correct the affected defining-curve causes together and repeat their comparison, because a smooth downstream surface can still express the wrong input.
 
-Take a part with accepted 2D definitions straight to the 3D passes below with its neighbours; unrelated parts need not be complete.
+Take a part with accepted 2D definitions straight to the [3D passes](#construction) with its neighbors; unrelated parts need not be complete.
 
-Fix all identified causes in one combined change at their sources, and judge it on the assembled asset.
+### Trace the causes
 
-A cause that crosses a part boundary is changed by both owners in the same round. Editing after each observed defect, changing one value and rendering to see its effect, rendering after each single fix, and leaving a traced cause to a later round or finer scale are the whack-a-mole patterns this procedure replaces, however cheap a render is.
+Trace causes through generation and display, including shared boundaries and derived outputs. Where causes or their interactions are unclear, plan the controlled comparisons that separate them as one set, run the whole set without changing the source, and record the results. Map each proposed change to all defects and parts it affects.
+
+### Fix in one change
+
+Fix all identified causes in one combined change at their sources, and judge it on the assembled asset. A cause that crosses a part boundary is changed by both owners in the same round.
+
+This procedure replaces these whack-a-mole patterns, however cheap a render is:
+
+- editing after each observed defect;
+- changing one value and rendering to see its effect;
+- rendering after each single fix;
+- leaving a traced cause to a later round or finer scale.
+
+### Compare again
 
 Rerun the original comparison across every affected part, view, identity, resolution and motion state, checking both the recorded defects and regressions. Account for every recorded defect before accepting the round; new or unexplained defects keep it open.
 
@@ -54,13 +67,15 @@ Judge a surface only with the construction that generated it, because the surfac
 - an implicit surface's primitives;
 - a field's defining curves.
 
-Every set of views, whole sweeps, selected parts, neighbour groups and each defect's close-up alike, shows the same cameras three times: 3D construction alone (the actual lofting curves for a lofted form), that construction over the ordinary shaded surface, then the surface alone.
+Every set of views shows the same cameras three times: the 3D construction alone (the actual lofting curves for a lofted form), that construction over the ordinary shaded surface, then the surface alone. This holds for whole sweeps, selected parts, neighbor groups and each defect's close-up alike.
 
-Keep the reference in the comparison passes and distinguish original 2D definitions, the algorithm's 3D curves, unconnected studies, raw operands and realized joins. An uncomputed surface is unavailable evidence; hiding a joining surface can create a false defect. Verify the selected ids and observation stage through the actual viewer controls.
+Keep the reference in the comparison passes and distinguish original 2D definitions, the algorithm's 3D curves, unconnected studies, raw operands and realized joins. Verify the selected ids and observation stage through the actual viewer controls.
 
-## Light And Material
+An uncomputed surface is unavailable evidence, and hiding a joining surface can create a false defect.
 
-Judge form under raking light with fine material detail such as normal maps turned off, and judge materials and lighting in beauty. Use structural passes only for the quantities they document.
+## Light and material
+
+Judge form under raking light with fine material detail such as normal maps turned off, and judge materials and lighting in the beauty render, the fully shaded image. Use structural passes only for the quantities they document.
 
 ## Cost
 

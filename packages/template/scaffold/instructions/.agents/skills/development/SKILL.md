@@ -13,7 +13,7 @@ Read the production's current source and the installed package APIs before choos
 | Change existing behavior or fix a defect | [Repair](repair.md) |
 | Build or change a subject | [Entity work](entities.md) |
 | Choose behavioral checks | [Testing](testing.md) |
-| Place source, tests or runtime setup, or add a subject, practice or scene | [Source layout](layout.md) |
+| Place source, tests or runtime setup, or add a subject, practice or scene | [Source layout](source-layout.md) |
 | Add or change an expensive stage | [Stage caches](../production/stage-caches.md) |
 
 Answer the [contracts](../contracts/SKILL.md) of the declarations you change, as the [development contracts](../contracts/development/SKILL.md) map them onto the source folders.

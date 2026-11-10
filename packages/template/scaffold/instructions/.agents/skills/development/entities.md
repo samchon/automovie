@@ -1,6 +1,6 @@
 # Entity work
 
-Build the subjects the commission's scenes need, each in the entity folder [source layout](layout.md) gives, under the [entities contract](../contracts/development/entities.md).
+Build the subjects the commission's scenes need, each in the entity folder [source layout](source-layout.md) gives, under the [entities contract](../contracts/development/entities.md).
 
 ## Scope
 

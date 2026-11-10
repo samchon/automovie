@@ -44,7 +44,7 @@ What cutting must not lose:
 Deciding and retaining:
 
 24. Every sentence was tested against the applicable named failures by the [independent classification](../../../../../story/correction/inspection.md#independent-classification), and their connections were read for insufficiency.
-25. An ambiguous candidate was decided by the independent classifier, who read its context for whether the named failure causes the recipient's loss. The author chose the repair and could raise a factual objection under [narrative rounds](../../../../../review/rounds.md), and did not settle that literary judgment.
+25. An ambiguous candidate was decided by the independent classifier, who read its context for whether the named failure causes the recipient's loss. The author chose the repair and could raise a factual objection under [narrative rounds](../../../../../review/narrative-rounds.md), and did not settle that literary judgment.
 26. A revised passage received another yes only for a clear applicable failure.
 27. A named failure is retained only under one of these exceptions, supported by the passage: useful execution directions, meaningful silence, thought carrying new understanding, expectation or burden, adopted narration and form, functional lies, refrains, speech habits and formal regularity.
 28. Retained narration realizes its adopted contribution through wording, placement or image-sound relations.

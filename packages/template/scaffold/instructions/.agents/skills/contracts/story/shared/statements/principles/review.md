@@ -27,6 +27,6 @@ Contract: [principles/review.md](../../principles/review.md).
 5. An exclusion has its complete defined negative scope and inspection method.
 6. A creative reading records the literal audit as pending and does not claim to perform it.
 7. The [inspection record](../../../../../story/correction/inspection.md) covered every required sentence and parent comparison at the actual snapshot, before author evidence, and rechecked all changed dependencies without silently reversing unchanged tests.
-8. The body was compared with its parents and requirements independently of the relationship rows, following [independent reading](../../../../../review/reading.md), every decision against its inherited parent.
+8. The body was compared with its parents and requirements independently of the relationship rows, following [independent reading](../../../../../review/independent-reading.md), every decision against its inherited parent.
 9. Nearby relationships were compared by exchanging their names, predicates and conditions, so support and refutation stay specific to the actual relation. Similar wording prompts inspection, not automatic failure.
 10. A false edge is repaired at its owner, and a pasted answer never requires changing the story. Structural validity belongs to the evidence checker and never substitutes for semantic truth.

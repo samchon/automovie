@@ -12,7 +12,7 @@ One beat may need several camera setups and one setup may span several beats; ea
 
 Stage in the set's zones and landmarks, never in coordinates: each beat's spatial change moves its participants between them through entity capabilities, and the set entity resolves where that is.
 
-Program anticipation, action, reaction, pauses and result through interactions, [physical feedback](physics.md) and [retargeting](retargeting.md). Program everyone present as [living scene](../contracts/development/composition.md#living-scene) asks, so an official repositions, a crowd reacts and a partner keeps reading the action.
+Program anticipation, action, reaction, pauses and result through interactions, [physical feedback](physical-feedback.md) and [retargeting](retargeting.md). Program everyone present as [living scene](../contracts/development/composition.md#living-scene) asks, so an official repositions, a crowd reacts and a partner keeps reading the action.
 
 Each entity has one transform owner, so a clip, an attachment and a procedural driver never fight for the same state; a reach or scale mismatch is fixed at its owner, not by changing the outcome.
 

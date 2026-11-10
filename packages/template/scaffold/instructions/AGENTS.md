@@ -10,7 +10,7 @@ A production is the directory holding its `PROJECT.md`: this repository root for
 
 The skills and bundled contracts under `.agents/skills` serve every production; a production's own work and language contracts live in its `docs/contracts`.
 
-In a workspace the production's folder fixes its [story route](.agents/skills/story/workflow.md#route-and-parents). `packages/<name>` holds the workspace's own libraries, where a module a second production needs [moves](.agents/skills/development/layout.md#shared-modules); code serving one production stays in that production. The workspace README lists its commands, including the one that adds a production.
+In a workspace the production's folder fixes its [story route](.agents/skills/story/workflow.md#route-and-parents). `packages/<name>` holds the workspace's own libraries, where a module a second production needs [moves](.agents/skills/development/source-layout.md#shared-modules); code serving one production stays in that production. The workspace README lists its commands, including the one that adds a production.
 
 ## Attitude
 
@@ -35,7 +35,7 @@ In a workspace the production's folder fixes its [story route](.agents/skills/st
 
 ### What you can observe
 
-You see pictures only as still images and cannot hear. Judge motion from stills dense enough to show it, on consecutive frames at every contact and cut, as [delivery review](.agents/skills/review/delivery.md#measure-and-compare) samples them. Ask the user to watch playback where continuous motion is the claim, and to listen to any sound.
+You see pictures only as still images and cannot hear. Judge motion from stills dense enough to show it, on consecutive frames at every contact and cut, as [delivery review](.agents/skills/review/delivery-review.md#measure-and-compare) samples them. Ask the user to watch playback where continuous motion is the claim, and to listen to any sound.
 
 Keep the Viewer and the frame capture working, and restore a broken one before other work, because every judgment of the film passes through them.
 

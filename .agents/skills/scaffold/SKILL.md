@@ -7,7 +7,7 @@ description: Maintains the generated-project scaffold under packages/template an
 
 A production's own `AGENTS.md`, `README.md`, and source own its meaning; read them and the installed package APIs before interpreting, authoring, or reviewing it. Repository instructions never override them.
 
-[Scaffold prompting](../scaffold-prompting/SKILL.md) owns the design of shipped task skills, contracts and routers, with the [product principles](../scaffold-prompting/SKILL.md#product-principles) they serve. This skill owns their distribution and production ownership boundaries; [development](../development/SKILL.md) owns implementation changes to the materializer and checker.
+[Scaffold prompting](../scaffold-prompting/SKILL.md) owns the design of shipped task skills, contracts and routers, with the [product principles](../scaffold-prompting/SKILL.md#product-principles) they serve. This skill owns their distribution and production ownership boundaries; [development](../development/SKILL.md) owns implementation changes to the checker and to the materializer, the template library that renders the scaffold into a project's files.
 
 ## What the scaffold owns
 
@@ -19,15 +19,15 @@ Installed package APIs own API documentation, and the scaffold does not duplicat
 
 ## Source layout
 
-The production's [source layout](../../../packages/template/scaffold/instructions/.agents/skills/development/layout.md) is its backbone. A folder change moves the layout table, the development stages of `@automovie/evidence` and the contract respondents together, or they disagree about where code belongs. The scaffold `lint.config.ts` stays generic and names no folder.
+The production's [source layout](../../../packages/template/scaffold/instructions/.agents/skills/development/source-layout.md) is its backbone. A folder change moves the layout table, the development stages of `@automovie/evidence` and the contract respondents together, or they disagree about where code belongs. The scaffold `lint.config.ts` stays generic and names no folder.
 
 ## Outputs and routes
 
-The primary output is a whole deterministic motion-video hint from a complete LLM-authored screenplay: program the main scenes' motion and staging, then assemble the full video. Stills or pilot clips do not complete that commission.
+The [product contract](../project/SKILL.md#commissions) defines the commissions and the two story routes. The primary output is the whole deterministic motion-video hint, and stills or pilot clips do not complete it.
 
-Keep separately commissioned screenplay, whole motion hint, finished direct 3D film, and finished post-diffusion film distinct. Direct 3D needs no diffusion, and a motion hint needs no finished diffusion film.
+Keep the separately commissioned outputs distinct: a screenplay, a whole motion hint, a finished direct 3D film and a finished post-diffusion film. Direct 3D needs no diffusion, and a motion hint needs no finished diffusion film.
 
-Long-form work preserves settings → treatments → scripts → final screenplay, with construction, expression revision, evidence, current independent review, and whole-work completion. Short video runs brief → final screenplay, and asset-only work has no narrative. Compact questions within those responsibilities rather than removing the architecture.
+Long-form work keeps its four story layers, settings → treatments → scripts → screenplay, with construction, expression revision, evidence, current independent review and whole-work completion, and asset-only work has no narrative. Compact items within those responsibilities rather than removing the architecture.
 
 Default lint and evidence configurations serve ordinary TypeScript development; narrative work opts into its additional workflow while retaining engineering checks.
 
@@ -44,10 +44,10 @@ The scaffold has three layers:
 | Layer | Ships at |
 | --- | --- |
 | `instructions` | A single production's root, and a workspace root |
-| `production` | A single production's root, and each workspace `movies/<shorts|series>/<name>` |
+| `production` | A single production's root, and each workspace `movies/shorts/<name>` or `movies/series/<name>` |
 | `workspace` | A workspace root only |
 
-Instruction files take no token and stay layout-neutral: a project path they name is the production's, never a link out of `.agents`, and the production layer reaches the shared skills through `{{skills}}`. Shorts run brief → screenplay and series the whole long route.
+Instruction files take no token and stay layout-neutral: a project path they name is the production's, never a link out of `.agents`, and the production layer reaches the shared skills through `{{skills}}`.
 
 Untracked files under `scaffold` still ship, so remove stale copies from a checkout before packaging.
 
@@ -59,7 +59,7 @@ Runtime README and `.env.example` own nonsecret operational setup and variable n
 
 ## Updating productions
 
-Package upgrades do not rewrite productions. Explicit instruction updates use the CLI sync documented in the [CLI README](../../../packages/cli/README.md), which updates routers and bundled task resources while preserving contracts, project decisions, configuration and authored content. A scaffold edit alone reaches only future installations until sync is run.
+Package upgrades do not rewrite productions. Explicit instruction updates use the CLI sync documented in the [CLI README](../../../packages/cli/README.md), which updates routers and bundled task resources while preserving contracts, project decisions, configuration and authored content. Reusable package implementation stays with its package. A scaffold edit alone reaches only future installations until sync is run.
 
 For an authorized update to an existing production:
 

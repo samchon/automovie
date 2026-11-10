@@ -6,7 +6,7 @@ Statements: [statements/obligations/review.md](../statements/obligations/review.
 
 ## Did this round inspect the entire current surface and every finding class? {#complete-current-round}
 
-Did the round read everything its kind requires under [narrative rounds](../../../../review/rounds.md), and collect every member of each finding class? Local passes, earlier clean snapshots or an exhausted review budget cannot establish the current state.
+Did the round read everything its kind requires under [narrative rounds](../../../../review/narrative-rounds.md), and collect every member of each finding class? Local passes, earlier clean snapshots or an exhausted review budget cannot establish the current state.
 
 ## Is the verdict a truthful basis for the next round or delivery? {#round-accountability}
 

@@ -12,12 +12,12 @@ Carry the commission from its adopted scope to the handed-off output. Read the r
 | Output | Complete when |
 | --- | --- |
 | Screenplay | Its text passes the [writing workflow](../story/workflow.md#completion); no source or media is owed |
-| Standalone asset | Its views and controls pass the asset part of [delivery review](../review/delivery.md); no narrative is owed |
+| Standalone asset | Its views and controls pass the asset part of [delivery review](../review/delivery-review.md); no narrative is owed |
 | Whole motion hint | Every main scene is programmed and the whole timeline is assembled; no generator is owed, and stills or pilot clips do not complete it |
 | Direct 3D film | The programmed film is rendered at its commissioned detail; no diffusion is owed |
 | Generated film | Accepted takes of the chosen video model are assembled; the motion hint behind them is a separate output |
 
-[Delivery review](../review/delivery.md) accepts each one, and a report discloses what was not produced.
+[Delivery review](../review/delivery-review.md) accepts each one, and a report discloses what was not produced.
 
 ## Route the work
 

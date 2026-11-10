@@ -14,7 +14,7 @@ An inapplicable question states its inspected scope and reason through the mecha
 
 After an edit within the open pass, reconcile its dependent answers in the same repair; changes touching closed work follow [upstream repair](../correction/repair.md).
 
-Hand the body and answers to [workflow](../workflow.md) for construction or [expression transfer](../naturalness/transfer.md) for expression. Independent [review](../../review/rounds.md) judges the body before auditing these answers, and a refreshed hash grants no creative judgment.
+Hand the body and answers to [workflow](../workflow.md) for construction or [expression transfer](../naturalness/transfer.md) for expression. Independent [review](../../review/narrative-rounds.md) judges the body before auditing these answers, and a refreshed hash grants no creative judgment.
 
 ## Grounds for retaining a candidate
 

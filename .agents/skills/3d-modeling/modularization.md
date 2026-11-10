@@ -2,19 +2,19 @@
 
 A named part makes a change local; a group makes its members move and change together. This structure applies to crafted forms, rebuilt diffusion output, and generated meshes placed directly, because their source does not change how they belong to an assembly.
 
-## Parts And Groups
+## Parts and groups
 
 Split an asset into fine named parts and group them as the object is assembled and moves. A part owns its shape; a group references its members rather than copying their shapes, so editing a member cannot leave a second definition behind.
 
 For placement and motion, a group is a node with children: its frame is the pivot of its subtree and its rotation limit is the subtree's range of motion. Put the frame on the real axis, such as a hinge, and link across branches with a driver, never a second parent, so a member's transform has one owner. A rigid member moves through its transform; a deforming one needs the [rig](rigging.md) its performance requires.
 
-## Frames And Connections
+## Frames and connections
 
 Express each member's placement relative to its parent so a change to the parent carries the assembly together. Keep one unit and one frame inside a declaration, converting only where declarations meet, in one named step; repeated conversions obscure which coordinates a formula consumes.
 
 Define each connection once for both parts to consume, including its intended continuity, contact or clearance. Two independently authored boundaries can agree in one pose and separate when a dimension or motion changes.
 
-## Source Modules
+## Source modules
 
 Organize authoring modules by part and group responsibility, reusing one definition for repeated members. Keep shape or placement rules with their owner and have dependent modules consume that definition, so an agent can read and change one responsibility without reconstructing the whole asset.
 

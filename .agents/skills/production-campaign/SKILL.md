@@ -5,14 +5,35 @@ description: Coordinates writing, review and media execution across commissioned
 
 # Production campaign
 
-Carry the commissioned work through its actual authoring and delivery owners. The production's [campaign guide](../../../packages/template/scaffold/instructions/.agents/skills/production/sustained-runs.md) owns its run record, dispatch, film and module ownership and resumption; its specialist skills own creation and acceptance. This skill owns how the coordinator of a campaign run from this repository launches, watches and connects those workers and compares productions. Repository [issue campaigns](../issue-campaign/SKILL.md) own broad engineering audits and issue publication.
+A campaign carries commissioned work through its actual authoring and delivery owners. Its coordinator, working from this repository, launches, watches and connects the workers and compares productions.
 
-Keep these rules here rather than in the scaffold, because the scaffold ships to everyone who installs AutoMovie and their productions are not bound to this repository's process launching or observation. Within the production's guide, which leaves observation to an available scheduler and additional agents to the user's authorization, this repository chooses an observer subagent as that scheduler and CLI processes as those agents.
+| Task | Read |
+| --- | --- |
+| Preparing a production, launching writers and reviewers, their write scope | [Launching workers](launching-workers.md) |
+| Writing the run record, resuming a run, handing off | [Run records](run-records.md) |
+| The observer subagent's ticks and the revival of a stopped run | [Observing runs](observing-runs.md) |
+| Fixing a submission, launching an independent reviewer, relaying verdicts and rebuttals | [Connecting review](connecting-review.md) |
+| Staging and committing beside other workers | [Git ownership](git-ownership.md) |
+| Comparing productions | [Comparing productions](comparing-productions.md) |
 
-A campaign the user starts authorizes its writers, reviewers and observer within the requested productions and scope; a request only to observe authorizes resuming existing runs, not starting new writers. Keep that scope and the current baseline explicit. A single film's observed execution establishes that film's behavior, not comparative quality across productions, and instruction edits alone establish no improvement in a screenplay or film.
+Give [Observing runs](observing-runs.md) to the observer as its brief.
 
-Read the procedure for the current task.
+## Owners
 
-- [Run](run.md): preparation, CLI launch, run records, write scope, missing capabilities, comparison and Git ownership.
-- [Observe](observe.md): the observer subagent's ticks and the revival of a stopped run. Give it to the observer as its brief.
-- [Review](review.md): fixing a submission, launching an independent reviewer, relaying verdicts and rebuttals.
+The production's [sustained runs guide](../../../packages/template/scaffold/instructions/.agents/skills/production/sustained-runs.md) owns its run record, dispatch, film and module ownership and resumption, and its specialist skills own creation and acceptance. Repository [issue campaigns](../issue-campaign/SKILL.md) own broad engineering audits and issue publication.
+
+These rules stay here rather than in the scaffold, because the scaffold ships to everyone who installs AutoMovie and their productions are not bound to this repository's process launching or observation. The production's guide leaves observation to an available scheduler and additional agents to the user's authorization; this repository chooses an observer subagent as that scheduler and CLI processes as those agents.
+
+## Authority
+
+A campaign the user starts authorizes its writers, reviewers and observer within the requested productions and scope. A request only to observe authorizes resuming existing runs, not starting new writers. Keep that scope and the current baseline explicit.
+
+A single film's observed execution establishes that film's behavior, not comparative quality across productions, and instruction edits alone establish no improvement in a screenplay or film.
+
+## Missing capabilities and viewers
+
+A missing capability that a real authoring or playback task exposes is work to complete, not a reason to lower the commission or hide a local substitute. Trace it through [project ownership](../project/SKILL.md#packages), implement and validate it through [development](../development/SKILL.md), then reconnect its actual production consumer.
+
+Use [scaffold](../scaffold/SKILL.md) for explicit instruction sync; source, configuration and contract migrations remain deliberate project changes.
+
+Apply the production's viewer recovery priority before continuing dependent creative or visual judgments. A working preview does not certify capture, encoded-video playback or final delivery. Follow the exact failing path through repair and report observed and unperformed checks separately.

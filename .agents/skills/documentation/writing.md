@@ -1,11 +1,13 @@
 # Writing
 
+How the text of any document is put together, from its sentences up to its lists.
+
 ## Sentences
 
 - Write only what the reader needs and would not otherwise know.
-- Say simply what can be said simply: where one short sentence carries the rule, the long version goes.
-- Cut padding, repetition, preamble, filler and closing summaries.
-- Cut a qualification that changes nothing, an example that restates the rule, and a second sentence that repeats the first.
+- Say simply what can be said simply.
+- Cut padding, preamble, filler and closing summaries.
+- Cut a qualification that changes nothing, an example that restates the rule, and a sentence that repeats another.
 - Make one point in one sentence in one place.
 - Give the reason when it is not obvious.
 - Say what to do rather than what to avoid, and name the concrete pattern when a prohibition is needed.
@@ -15,25 +17,26 @@ Completeness means covering what the reader needs, never longer phrasing.
 
 ## Terms
 
-Use one term per concept across a set of documents, because a second word reads as a second thing. Explain a term where a newcomer to that document first meets it, or link the document that explains it.
+Use one term per concept across a set of documents, because a second word reads as a second thing. Name the concept with the field's established term, or with plain words where the field has none, never with a coined word. Explain a field term in plain words where a newcomer to that document first meets it, or link the document that explains it.
 
-## A person wrote it {#a-person-wrote-it}
+A metaphor or a plain picture may explain a concept once in prose, but it never becomes the concept's name in a heading, a label, a description or later text. A reader who knows the field cannot find the concept under a private name, and a reader who does not takes the picture literally.
+
+## A person wrote it
 
 Text reads as written by a person for this reader. These habits mark text as produced without thought, and a reader who spots one stops trusting the rest:
 
 - stock AI phrasing;
 - a sentence frame or opener repeated across sibling documents;
 - one template stamped on every document, whatever it holds;
-- three parallel items where the content has two or four;
-- a closing summary of what was just said.
+- three parallel items where the content has two or four.
 
-## Paragraphs {#paragraphs}
+## Paragraphs
 
 A paragraph is one topic. Start a new one when the topic changes, keep sentences on the same topic together, and write each paragraph on one source line.
 
 Gluing several topics into one long paragraph to keep the paragraph count low is a failure, not concision, because the reader cannot find the second topic. Giving every sentence its own paragraph is the opposite failure, because the reader cannot see which sentences belong together.
 
-## Lists, tables and code {#lists}
+## Lists, tables and code
 
 A list is for parallel items short enough to take in at a glance, one line each, and for steps whose order changes the result. Mark a sublist differently from its parent, such as `-` items under a numbered list.
 

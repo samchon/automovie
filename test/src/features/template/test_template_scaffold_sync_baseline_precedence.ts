@@ -33,7 +33,7 @@ export function test_template_scaffold_sync_baseline_precedence(): void {
   );
   try {
     const router: string = "AGENTS.md";
-    const physics: string = ".agents/skills/motion/physics.md";
+    const physics: string = ".agents/skills/motion/physical-feedback.md";
     const files: Record<string, string> = renderScaffold({
       name: "precedence-case",
     });

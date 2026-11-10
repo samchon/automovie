@@ -20,7 +20,7 @@ Motion is authored and accepted on the coarse entities, whatever detail a delive
 
 ## Compose the vocabulary {#compose-the-vocabulary}
 
-Compose each person's performance from the installed human motion vocabulary, as its README and public types give it. The package owns its actions with their studies and checks, so a second implementation in the production duplicates that work without its checks. [Source layout](../development/layout.md#how-the-parts-work-together) says how a cast entity's capabilities carry those actions into a scene.
+Compose each person's performance from the installed human motion vocabulary, as its README and public types give it. The package owns its actions with their studies and checks, so a second implementation in the production duplicates that work without its checks. [Source layout](../development/source-layout.md#how-the-parts-work-together) says how a cast entity's capabilities carry those actions into a scene.
 
 When a vocabulary action misbehaves in a case, hand the user the case and its numbers under [installed packages](../development/reuse.md#installed-packages) rather than patching it in the production, because a local patch hides the defect from every other production.
 
@@ -28,7 +28,7 @@ When a vocabulary action misbehaves in a case, hand the user the case and its nu
 
 Write a law only for an action the vocabulary lacks and for what is not a person, such as an animal, a vehicle, a crowd moving as a mass, a camera or a light.
 
-Confirm its [research](../story/planning/research.md) study first, because a law written without one invents the practice. Design it under the [shared motion rules](#shared-motion-rules), answer the [behaviors contract](../contracts/development/behaviors.md), and unit-test it against its study's values through [testing](../development/testing.md). Contact and reactions use the installed engine through [physical feedback](physics.md).
+Confirm its [research](../story/planning/research.md) study first, because a law written without one invents the practice. Design it under the [shared motion rules](#shared-motion-rules), answer the [behaviors contract](../contracts/development/behaviors.md), and unit-test it against its study's values through [testing](../development/testing.md). Contact and reactions use the installed engine through [physical feedback](physical-feedback.md).
 
 ## Compose the film {#compose-the-film}
 

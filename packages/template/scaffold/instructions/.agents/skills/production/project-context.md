@@ -22,4 +22,4 @@ The recorded scope selects the skills and the acceptance boundary. An adopted us
 
 The delivery profile has this one owner. A brief or settings scope record states running time and frame as the story conditions they are and must agree with it, and each film module realizes it. When the three disagree, correct the profile from the user's commission first and the other two from the profile, because each check otherwise passes against its own copy.
 
-Keep every other fact with its owner and link to it: creative instructions in `docs/instructions`, canon and text in their layers, findings and reviews in their records, and setup and secrets under [source layout](../development/layout.md). A recorded preference proves no execution or approval.
+Keep every other fact with its owner and link to it: creative instructions in `docs/instructions`, canon and text in their layers, findings and reviews in their records, and setup and secrets under [source layout](../development/source-layout.md). A recorded preference proves no execution or approval.

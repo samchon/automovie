@@ -16,7 +16,7 @@ The installed motion vocabulary's actions carry their own checks and are not tes
 
 Do not write end-to-end tests, long simulations, tests that build drawn figures or scenes, monkey-patched globals or internals, golden outputs or expectations copied from the code's own output, or recorded fixtures: they are slow, freeze defects, or prove only that the code repeats itself.
 
-Rendered pictures, decoded media and anything the user watches or hears are production acceptance, recorded in the [acceptance record](../review/delivery.md#acceptance-record), not tests.
+Rendered pictures, decoded media and anything the user watches or hears are production acceptance, recorded in the [acceptance record](../review/delivery-review.md#acceptance-record), not tests.
 
 Test geometry operators on made inputs as 3D modeling's [Crafting](../3d-modeling/crafting.md#tests) describes.
 

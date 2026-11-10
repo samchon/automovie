@@ -1,4 +1,4 @@
-# Observe
+# Observing runs
 
 While a campaign runs, one subagent of the coordinator observes every launched run and revives a stopped one itself. A plain script or timer does not stand in for it, because a configured timer neither proves that a check ran nor can judge a failure and resume a session.
 
@@ -26,11 +26,19 @@ Run one tick every 15 minutes, or at the user's interval, and keep going while a
 
 A failure is proven only when the process is gone, the log has stopped well past its usual gap, and neither a completion nor an intended-stop marker exists. A quiet or slow run, or one waiting on a user decision or a review, has not failed.
 
-Before resuming, confirm that the old run ended, which outputs to keep and the cause. Issue the resume command once, confirm the new process started and move to the next tick; never run the same work twice. If a writer's session cannot be resumed under a campaign, start a new writer process that reads the production and its run record and takes over, with verdicts standing as the production's campaign guide sets for a restart; under a request only to observe, mark the run `ATTENTION` and start nothing. A reviewer whose session cannot be resumed is relaunched fresh as [review](review.md#launch-the-reviewer) describes, receiving earlier verdicts only in the order it sets.
+Before resuming, confirm that the old run ended, which outputs to keep and the cause. Issue the resume command once, confirm the new process started and move to the next tick; never run the same work twice.
 
-Remove a stale Git lock as [run](run.md#git-ownership) allows.
+A session that cannot be resumed is handled by role:
 
-Report an intended stop with its marker instead of reviving it; a user's cancellation is one, and after it the observer starts no work. A retry count or a missed record line does not stop the film. Leave unrelated productions, paths and processes alone, and take no commit, publication or merge authority from observation.
+| Session | Handling |
+| --- | --- |
+| A writer, under a campaign | Start a new writer process that reads the production and its run record and takes over, with verdicts standing as the production's campaign guide sets for a restart |
+| A writer, under a request only to observe | Mark the run `ATTENTION` and start nothing |
+| A reviewer | Relaunch it fresh as [connecting review](connecting-review.md#launch-the-reviewer) describes, receiving earlier verdicts only in the order it sets |
+
+Report an intended stop with its marker instead of reviving it; a user's cancellation is one, and after it the observer starts no work. A retry count or a missed record line does not stop the film.
+
+Remove a stale Git lock as [Git ownership](git-ownership.md#the-lock) allows. Leave unrelated productions, paths and processes alone, and take no commit, publication or merge authority from observation.
 
 ## Report
 

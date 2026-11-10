@@ -1,8 +1,12 @@
 # Contacts and supports
 
+A contact is where the body touches something and must not slip: a planted foot, a seat, a grip, a carried object, another performer.
+
 ## Windows and support frames
 
-Each contact holds through a declared window: a plant, a seat, a grip, a rest or a hang. Each window names its support frame: the ground, a prop or another performer. Slip and penetration are measured in that frame, so a hand on a moving rail or a rider on a moving mount is not reported as sliding.
+Each contact holds through a declared window: a plant, a seat, a grip, a rest or a hang. Each window names its support frame, the thing the contact rests on and moves with: the ground, a prop or another performer. Slip and penetration are measured in that frame, so a hand on a moving rail or a rider on a moving mount is not reported as sliding.
+
+Release a support only after the next one bears the weight, as the heel lands before the other toe leaves and the feet bear the weight before the seat is left. Releasing first makes the body float or drop.
 
 ## Feet
 
@@ -26,8 +30,10 @@ At a handover:
 
 ## Contact between performers
 
+Compute the shared target of a handshake, a handover or a clinch once, from both bodies' reach, and give it to each performer as its target. Two performers each aiming at where the other is chase each other.
+
 Judge a contact against each performer's final displayed pose. A contact stop, the instant a moving limb is halted at contact, committed against a provisional pose lands at the wrong instant and lets one body pass into the other. When a contact stop changes what is displayed, resolve the contacts again against the new display, or resolve both performers together at each instant.
 
-A contact stop changes the pose only. The action keeps its duration, its events and its [decisive instant](laws.md#declare-events-and-the-decisive-instant), so a partner and the sound still meet it at the planned time. Resolve contacts that fall in the same span in time order, each later one seeing the earlier stops.
+A contact stop changes the pose only. The action keeps its duration, its events and its decisive instant, such as an impact or a landing, so a partner and the sound still match it at the planned time. Resolve contacts that fall in the same span in time order, each later one seeing the earlier stops.
 
 Measure penetration against each part's own collider, not against one radius shared by a whole limb.

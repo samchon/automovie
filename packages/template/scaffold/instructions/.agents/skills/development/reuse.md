@@ -33,4 +33,4 @@ A workspace's own `packages/<name>` is the exception: the workspace owns that co
 
 Every object and motion is a module the films reuse. A different version of a subject, such as a taller fighter or a second referee, or a different performance of an action, such as a tired walk, is the same module with other parameters or another seed, never a copy with edited constants, because a repair reaches only one copy.
 
-When one needs something the module cannot express, give the module that parameter. A module a second production needs moves to a [workspace package](layout.md#shared-modules).
+When one needs something the module cannot express, give the module that parameter. A module a second production needs moves to a [workspace package](source-layout.md#shared-modules).

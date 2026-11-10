@@ -5,22 +5,22 @@ description: Owns the design of what AutoMovie productions receive, namely the p
 
 # Scaffold prompting
 
-This skill owns the design of what productions receive. It builds on [prompting](../prompting/SKILL.md) for what makes an instruction work and on the documentation [writing rules](../documentation/writing.md) for how text is written, and repeats neither.
+Scaffold prompting designs what productions receive. It builds on [prompting](../prompting/SKILL.md) for what makes an instruction work and on the documentation [writing rules](../documentation/writing.md) for how text is written, and repeats neither.
 
 | Task | Read |
 | --- | --- |
-| Change a strategy, a responsibility or a route | [Task design](design.md) |
-| Change a question, its statements or its judgment boundary | [Contract design](contracts.md) |
-| Find a primary source for a new instruction | [Primary research routes](references.md) |
+| Change a strategy, a responsibility or a route | [Task design](task-design.md) |
+| Change an item, its statements or its judgment boundary | [Contract design](contract-design.md) |
+| Find a primary source for a new instruction | [Research routes](research-routes.md) |
 | Check the change before reporting it | [Verification](verification.md) |
 
 ## Product principles {#product-principles}
 
-Every shipped skill serves these six principles, and a shipped sentence that works against one is a defect. The [project contract](../project/SKILL.md) fixes the product's purpose and scope beside them.
+Every shipped skill serves these six principles, and a shipped sentence that works against one is a defect. The [project contract](../project/SKILL.md) fixes the product's purpose and scope; each principle here says what that means for a shipped instruction.
 
 ### Coarse models, detailed motion
 
-A production's person is the polygon man, every other model is the simplest form that identifies it, and motion is authored in detail. Detail is an option switched on for a delivery, while development stays on the coarse form, because a hint's look comes from diffusion and its value from motion.
+The product contract sets [coarse models and detailed motion](../project/SKILL.md#coarse-models-detailed-motion). A shipped skill therefore never asks for surface detail to make a scene work: a hint's look comes from diffusion and its value from motion.
 
 ### The screenplay carries the detail
 
@@ -32,11 +32,11 @@ A production composes what its installed packages provide and writes only what t
 
 ### Two story routes
 
-A short runs brief → screenplay. Long work, for a series or a very long film, runs settings → treatments → scripts → screenplay. The evidence graph and a strong workflow hold both to their instructions.
+The product contract sets the [two routes](../project/SKILL.md#commissions): a short, and long work for a series or a very long film. The evidence graph and the story workflow hold both routes to their instructions.
 
 ### Strategy in skills, tactics in contracts
 
-A task skill gives direction, and contracts ask the detailed questions. Contracts stay few, with one broad item per theme and the detail in statements, as [contract design](contracts.md#items-and-statements) defines.
+A task skill gives direction, and contracts ask the detailed questions. Contracts stay few, with one broad item per theme and the detail in statements, as [contract design](contract-design.md#items-and-statements) defines.
 
 ### Stills only
 
@@ -50,9 +50,9 @@ Keep the scaffold production-neutral and usable without repository operating ski
 
 ## Design from the commissioned result
 
-Design task guidance and its quality questions around the same commissioned result. Start with the user's goal and the actual authoring or production failure, and distinguish a rule the agent missed from a result the current rules permit.
+Design task guidance and its contract items around the same commissioned result. Start with the user's goal and the actual authoring or production failure, and distinguish a rule the agent missed from a result the current rules permit.
 
-Repair application and evidence when an existing question already covers the loss, and change the design when the needed judgment is absent or contradictory. A new symptom does not automatically need a new question.
+Repair application and evidence when an existing item already covers the loss, and change the design when the needed judgment is absent or contradictory.
 
 Compliant records cannot substitute for a usable film, so connect each observed failure back to the author or production owner that can repair it.
 

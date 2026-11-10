@@ -4,7 +4,7 @@ Turn the composed scenes or accepted takes into the complete delivered video. Re
 
 ## Assemble
 
-Each screenplay file becomes one film under [source layout](../development/layout.md#source), and every scene and beat reaches it through the scene composition that cites it; resolve missing, duplicated or omitted material before rendering. A motion hint or direct 3D film assembles its programmed scenes, a generated film its [accepted takes](../video/generation.md), and control channels keep their meaning through the [control channels](../motion/control-channels.md) rules.
+Each screenplay file becomes one film under [source layout](../development/source-layout.md#source), and every scene and beat reaches it through the scene composition that cites it; resolve missing, duplicated or omitted material before rendering. A motion hint or direct 3D film assembles its programmed scenes, a generated film its [accepted takes](../video/generation.md), and control channels keep their meaning through the [control channels](../motion/control-channels.md) rules.
 
 Assembly decides nothing. The screenplay owns the order of scenes, the cuts, transitions, pauses and titles, and the [composition contract](../contracts/development/composition.md#screenplay-realization) holds the film to them. When the assembled film shows that a decision does not work, repair the screenplay under [upstream repair](../story/correction/repair.md) and realize the repair, because a trim or reorder made here leaves a film that no longer realizes the screenplay it cites.
 
@@ -27,4 +27,4 @@ Hand off, without credentials:
 - rights and attribution, with each generation request traceable to the derivatives the film uses;
 - the remaining limits.
 
-A programmed motion hint and a generated film are separate outputs. [Delivery review](../review/delivery.md) accepts the result.
+A programmed motion hint and a generated film are separate outputs. [Delivery review](../review/delivery-review.md) accepts the result.

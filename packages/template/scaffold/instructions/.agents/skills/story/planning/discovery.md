@@ -17,4 +17,4 @@ Update the discovery result at each one, and leave a checkpoint that was not run
 
 ## Result
 
-Write the discovery result where the [document layout](../layout.md) puts it, from actual findings and inspected negatives. If no independent requirement remains, record the inspected scope, the risks examined and the owners that cover them. A finding in one area does not establish absence elsewhere, and a blank production never receives a fabricated negative.
+Write the discovery result where the [document layout](../document-layout.md) puts it, from actual findings and inspected negatives. If no independent requirement remains, record the inspected scope, the risks examined and the owners that cover them. A finding in one area does not establish absence elsewhere, and a blank production never receives a fabricated negative.

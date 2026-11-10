@@ -11,14 +11,14 @@ A self-review is labeled as one and never stands for independent acceptance, and
 
 | Task | Read |
 | --- | --- |
-| Read a narrative independently before auditing author records | [Independent reading](reading.md) |
-| Judge a narrative pass, exchange findings and close its round | [Narrative rounds](rounds.md) |
+| Read a narrative independently before auditing author records | [Independent reading](independent-reading.md) |
+| Judge a narrative pass, exchange findings and close its round | [Narrative rounds](narrative-rounds.md) |
 | Review source, its tests and the truth of its answers | [Source review](source-review.md) |
-| Accept the complete commissioned output: text, video or asset | [Delivery review](delivery.md) |
+| Accept the complete commissioned output: text, video or asset | [Delivery review](delivery-review.md) |
 | Estimate quality or compare editions without approving anything | [Estimation](estimation.md) |
 
 Reviewing segments while implementing motion belongs to the author, under [segment review](../motion/segment-review.md).
 
 ## What a reviewer observes
 
-Judge motion and picture on stills at the spacing [delivery review](delivery.md#measure-and-compare) gives, and report playback and sound only as what the user watched or heard, because of [what an agent can observe](../../../AGENTS.md#what-you-can-observe). A review that claims an observation it could not make is worse than one that names the gap.
+Judge motion and picture on stills at the spacing [delivery review](delivery-review.md#measure-and-compare) gives, and report playback and sound only as what the user watched or heard, because of [what an agent can observe](../../../AGENTS.md#what-you-can-observe). A review that claims an observation it could not make is worse than one that names the gap.

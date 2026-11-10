@@ -22,4 +22,4 @@ Save permitted originals in `references/`, rights-unconfirmed ones in ignored `r
 
 ## Use
 
-Test the adopted values in the real entity, behavior or sound and compare the result with the footage frame by frame. The study informs the work; [delivery review](../../review/delivery.md) measures its targets on the picture and judges what it produced.
+Test the adopted values in the real entity, behavior or sound and compare the result with the footage frame by frame. The study informs the work; [delivery review](../../review/delivery-review.md) measures its targets on the picture and judges what it produced.
