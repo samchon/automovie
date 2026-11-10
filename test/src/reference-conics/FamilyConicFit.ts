@@ -326,7 +326,7 @@ export namespace FamilyConicFit {
   }
 
   /** Solve a symmetric positive-definite system by Cholesky factorisation in place; null when it is not positive definite. */
-  function solve(A: number[][], b: number[]): number[] | null {
+  export function solve(A: number[][], b: number[]): number[] | null {
     const n: number = b.length;
     for (let j: number = 0; j < n; ++j) {
       const row: number[] = A[j]!;

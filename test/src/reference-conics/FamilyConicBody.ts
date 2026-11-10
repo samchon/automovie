@@ -10,6 +10,8 @@ import { NodeCanvasCamera } from "../../../packages/human/src/inspection/NodeCan
 import type { NodeCanvasTypes as N } from "../../../packages/human/src/inspection/NodeCanvasTypes";
 import { FamilyConicFit as F } from "./FamilyConicFit";
 import { FamilyConicLoft as K } from "./FamilyConicLoft";
+import { FamilyConicRelief as H } from "./FamilyConicRelief";
+import { AutoMovieViewChain as Q } from "../../../packages/engine/src/geometry/construction/AutoMovieViewChain";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 
@@ -57,6 +59,9 @@ namespace FamilyConicBody {
 
     /** Section layouts to try in order, each starting from the previous one's result when `refines` says it is that layout split once. */
     layouts: { layout: C.ILayout; refines: boolean }[];
+
+    /** Relief windows for what lies inside the tape wall. */
+    reliefs: H.IWindow[];
   }
 
   /** Run every part and write the receipt and the renders. */
@@ -71,9 +76,12 @@ namespace FamilyConicBody {
     const only: string[] = process.argv.slice(2);
     const parts: IPart[] = (
       [
-        { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r")], halves: [30], up: [1, 0, 0], domain: [76, 500], mirrored: true, layouts: LIMB },
-        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r")], halves: [40], up: [1, 0, 0], domain: [124, 820], mirrored: true, layouts: LIMB },
-        { name: "trunk", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [150, 492], mirrored: false, layouts: LIMB },
+        { name: "arm", centres: [joint("upperarm_r"), joint("lowerarm_r"), joint("hand_r")], halves: [30], up: [1, 0, 0], domain: [76, 500], mirrored: true, layouts: LIMB, reliefs: [] },
+        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r")], halves: [40], up: [1, 0, 0], domain: [124, 820], mirrored: true, layouts: LIMB, reliefs: [] },
+        { name: "trunk", centres: [[0, 780, 0], [0, 1480, 0]], halves: [], up: [1, 0, 0], domain: [150, 492], mirrored: false, layouts: LIMB, reliefs: [
+          { name: "trunk.back", stations: [60, 582], phases: [Math.PI - 1, Math.PI + 1], axis: [1, 0, 0], rows: 21, columns: 19, mirror: true },
+          { name: "trunk.front", stations: [60, 582], phases: [-1, 1], axis: [-1, 0, 0], rows: 21, columns: 19, mirror: true },
+        ] },
       ] satisfies IPart[]
     ).filter((part: IPart): boolean => only.length === 0 || only.includes(part.name));
     const meshes: N.Mesh[] = [];
@@ -86,6 +94,7 @@ namespace FamilyConicBody {
       const rows: F.IRow[] = [];
       const skipped: number[] = [];
       const hollows: string[] = [];
+      const skins: C.P[][] = [];
       for (let s: number = part.domain[0], i: number = 0; s <= part.domain[1] + 1e-9; s += STEP_MM / 2, ++i) {
         const cut: R.ICut = R.cut(source.body, axis.at(s));
         if (cut.loop === null) skipped.push(s);
@@ -93,6 +102,7 @@ namespace FamilyConicBody {
           // The family is the tape wall: it reads the section's convex hull. How far the skin lies inside that hull is measured apart, as relief.
           const wall: C.P[] = R.hull(cut.loop);
           rows.push({ s, points: wall, heldout: i % 2 === 1 });
+          skins.push(cut.loop);
           let deepest: number = 0;
           let where: number = 0;
           for (const p of cut.loop) {
@@ -145,6 +155,23 @@ namespace FamilyConicBody {
       const stored: string = JSON.stringify({ name: part.name, centres: part.centres.map((c: R.V): number[] => c.map(round)), halves: part.halves, up: part.up, layout: best.layout, knots: best.knots.map(round), values: best.values.map((field: number[], f: number): number[] => field.map(C.units(best!.layout)[f] === "mm" ? round : round4)) });
       await fs.writeFile(path.join(out, part.name + ".family.json"), stored);
       const definition: K.IStored = JSON.parse(stored) as K.IStored;
+
+      // Reliefs: fitted on the stored wall, so they also absorb what the wall leaves inside their windows.
+      if (part.reliefs.length > 0) {
+        const read: (s: number) => number[] = K.reader(definition);
+        const course: AutoMovieViewAxis.IAxis = K.axis(definition);
+        definition.reliefs = [];
+        for (const window of part.reliefs) {
+          const fitted: H.IResult = H.fit(window, rows.map((row: F.IRow, i: number): H.IRow => {
+            const section: Q.ISection = C.chain(read(row.s), definition.layout);
+            const frame: AutoMovieLoftFrame.IFrame = course.at(row.s);
+            return { s: row.s, skin: skins[i]!, heldout: row.heldout, wall: (phi: number): C.P => { const r: number = Q.radius(section, phi); return [r * Math.cos(phi), r * Math.sin(phi)]; }, axis: [window.axis[0] * frame.u[0] + window.axis[1] * frame.u[1] + window.axis[2] * frame.u[2], window.axis[0] * frame.v[0] + window.axis[1] * frame.v[1] + window.axis[2] * frame.v[2]] };
+          }));
+          definition.reliefs.push(fitted.relief);
+          log("family-body-relief", { part: part.name, relief: window.name, scalars: fitted.scalars, deepestMm: round(fitted.deepestMm), trainMaxMm: round(fitted.trainMaxMm), heldMaxMm: round(fitted.heldMaxMm) });
+        }
+        await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
+      }
       const stations: number[] = rows.map((row: F.IRow): number => row.s);
       const lofted: number = performance.now();
       const loft: L.IResult = K.create(definition, stations);
@@ -159,17 +186,30 @@ namespace FamilyConicBody {
       let maximum: number = 0;
       let sum: number = 0;
       let n: number = 0;
-      for (const row of rows) {
+      const worstRows: string[] = [];
+      rows.forEach((row: F.IRow, i: number): void => {
+        // The regenerated section as a dense chart polyline; every observed skin vertex is measured to it.
         const frame: AutoMovieLoftFrame.IFrame = stage.at(row.s);
-        for (const vertex of row.points) {
-          const p: R.V = AutoMovieLoftChain.point(chain, row.s, Math.atan2(vertex[1], vertex[0])) as R.V;
+        const ring: C.P[] = Array.from({ length: 512 }, (_: unknown, j: number): C.P => {
+          const p: R.V = AutoMovieLoftChain.point(chain, row.s, (2 * Math.PI * j) / 512) as R.V;
           const d: R.V = [p[0] - frame.origin[0], p[1] - frame.origin[1], p[2] - frame.origin[2]];
-          const e: number = Math.abs(Math.hypot(d[0] * frame.u[0] + d[1] * frame.u[1] + d[2] * frame.u[2], d[0] * frame.v[0] + d[1] * frame.v[1] + d[2] * frame.v[2]) - Math.hypot(vertex[0], vertex[1]));
-          maximum = Math.max(maximum, e);
+          return [d[0] * frame.u[0] + d[1] * frame.u[1] + d[2] * frame.u[2], d[0] * frame.v[0] + d[1] * frame.v[1] + d[2] * frame.v[2]];
+        });
+        let rowMaximum: number = 0;
+        let rowPhase: number = 0;
+        for (const vertex of skins[i]!) {
+          const e: number = distance(vertex, ring);
+          if (e > rowMaximum) {
+            rowMaximum = e;
+            rowPhase = Math.atan2(vertex[1], vertex[0]);
+          }
           sum += e;
           ++n;
         }
-      }
+        maximum = Math.max(maximum, rowMaximum);
+        if (rowMaximum > TARGET_MM && i % 4 === 0) worstRows.push(row.s.toFixed(0) + ":" + rowMaximum.toFixed(1) + "@" + ((rowPhase * 180) / Math.PI).toFixed(0));
+      });
+      log("family-body-skin", { part: part.name, over: worstRows.join(" ") });
       const engine = { storedBytes: Buffer.byteLength(stored), fields: best.values.length, knots: best.knots.length, scalars: best.knots.length * (1 + best.values.length), fitTrainMaxMm: round(best.training.maximumMm), fitHeldMaxMm: round(best.heldout.maximumMm), engineMaxMm: round(maximum), engineMeanMm: round(sum / n), loftMs: Math.round(loftMs), diagnostics: loft.diagnostics };
       log("family-body-engine", { part: part.name, ...engine });
       receipt.push({ part: part.name, domainMm: part.domain, sections: rows.length, skipped, trail, engine });
@@ -211,6 +251,20 @@ namespace FamilyConicBody {
     }
     await fs.writeFile(path.join(out, "receipt.json"), JSON.stringify({ schema: "f1-family-conic-body-v1", targetMm: TARGET_MM, parts: receipt, frames, milliseconds: performance.now() - started }, null, 2));
     log("family-body-complete", { out });
+  }
+
+  /** Distance from a chart point to a closed polyline, mm. */
+  function distance(p: C.P, ring: readonly C.P[]): number {
+    let best: number = Infinity;
+    for (let i: number = 0; i < ring.length; ++i) {
+      const a: C.P = ring[i]!;
+      const b: C.P = ring[(i + 1) % ring.length]!;
+      const dx: number = b[0] - a[0];
+      const dy: number = b[1] - a[1];
+      const t: number = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy || 1)));
+      best = Math.min(best, Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy));
+    }
+    return best;
   }
 
   /** Round to a hundredth: the stored precision of a length in millimetres. */

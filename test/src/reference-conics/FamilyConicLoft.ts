@@ -2,6 +2,7 @@ import { AutoMovieNaturalSpline as S } from "../../../packages/engine/src/geomet
 import { AutoMovieViewAxis } from "../../../packages/engine/src/geometry/construction/AutoMovieViewAxis";
 import { AutoMovieViewLoft as L } from "../../../packages/engine/src/geometry/construction/AutoMovieViewLoft";
 import type { IAutoMovieViewPart as V } from "../../../packages/engine/src/geometry/construction/IAutoMovieViewPart";
+import type { IAutoMovieLoftRelief } from "../../../packages/engine/src/geometry/construction/IAutoMovieLoftRelief";
 import { FamilyConicSection as C } from "./FamilyConicSection";
 
 /**
@@ -35,6 +36,9 @@ export namespace FamilyConicLoft {
 
     /** Knot values by `FamilyConicSection` field then knot. */
     values: number[][];
+
+    /** Reliefs composed onto the wall, for what lies inside the tape hull; absent means none. */
+    reliefs?: IAutoMovieLoftRelief[];
   }
 
   /** The part's course as the engine reads it. */
@@ -100,6 +104,7 @@ export namespace FamilyConicLoft {
       fullness: { kind: "top", shoulders: quarters((q: number): V.IOutline => outline((chain: C.IChain): number => chain.input.shoulders[guides[q]!]!)), touch: quarters((q: number): V.IOutline => coordinate(q, q % 2 === 0 ? 1 : 0)), pieces: quarters(pieces) },
       order: 32,
       samples: 128,
+      ...(stored.reliefs === undefined || stored.reliefs.length === 0 ? {} : { reliefs: stored.reliefs }),
     };
     return L.create(part);
   }
