@@ -1,5 +1,16 @@
-import { IAutoMovieRestFrame, resolveMorphTargetWeights, resolvePose } from "@automovie/engine";
-import { AutoMovieHumanoidBone, IAutoMovieMeshMorphTarget, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieTransform, type IAutoMovieJointAxes } from "@automovie/interface";
+import {
+  IAutoMovieRestFrame,
+  resolveMorphTargetWeights,
+  resolvePose,
+} from "@automovie/engine";
+import {
+  AutoMovieHumanoidBone,
+  type IAutoMovieJointAxes,
+  IAutoMovieMeshMorphTarget,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+  IAutoMovieTransform,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";

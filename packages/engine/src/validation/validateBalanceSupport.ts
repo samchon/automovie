@@ -1,4 +1,12 @@
-import { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotion, IAutoMovieSkeleton, IAutoMovieValidation, IAutoMovieVector3, type IAutoMovieJointAxes } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieBone,
+  type IAutoMovieJointAxes,
+  IAutoMovieMotion,
+  IAutoMovieSkeleton,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { indexSkeletonTopology, resolvePose } from "../kinematics";
 import { convexHull2D } from "../math/convexHull2D";

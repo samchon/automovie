@@ -1,13 +1,14 @@
+import { AutoMovieNaturalSpline } from "@automovie/engine";
+
 import { AutoMovieHumanSex } from "../../typings/AutoMovieHumanSex";
 import { AutoMovieHumanLegSectionProportion } from "../AutoMovieHumanLegSectionProportion";
 import { AutoMovieHumanLegSites } from "../AutoMovieHumanLegSites";
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
-import { AutoMovieNaturalSpline } from "@automovie/engine";
-import { AutoMovieHumanLegBones } from "./AutoMovieHumanLegBones";
-import { AutoMovieHumanLegMassPrior } from "./AutoMovieHumanLegMassPrior";
 import { AutoMovieHumanSuprapatella } from "../AutoMovieHumanSuprapatella";
-import { AutoMovieHumanLegGirth } from "./AutoMovieHumanLegGirth";
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
+import { AutoMovieHumanLegBones } from "./AutoMovieHumanLegBones";
+import { AutoMovieHumanLegGirth } from "./AutoMovieHumanLegGirth";
+import { AutoMovieHumanLegMassPrior } from "./AutoMovieHumanLegMassPrior";
 import type { AutoMovieHumanLegWalk } from "./AutoMovieHumanLegWalk";
 
 /**
@@ -74,39 +75,89 @@ export namespace AutoMovieHumanLegLaws {
     side: "left" | "right",
   ): AutoMovieHumanLegWalk.ILaw {
     const female: boolean = measures.sex === AutoMovieHumanSex.Female;
-    const patella: number = MIDPATELLA[female ? 0 : 1] * measures.stature * scale;
+    const patella: number =
+      MIDPATELLA[female ? 0 : 1] * measures.stature * scale;
     const hip: number = AutoMovieHumanLegBones.HIP * measures.stature * scale;
     const rows: { height: number; value: number }[] = [
-      ...AutoMovieHumanLegMassPrior.THIGH.map((row: AutoMovieHumanLegMassPrior.IRow): { height: number; value: number } => ({ height: hip + row.share * (knee - hip), value: row.front })),
-      ...AutoMovieHumanLegMassPrior.SHANK.map((row: AutoMovieHumanLegMassPrior.IRow): { height: number; value: number } => ({ height: knee + row.share * (malleolus - knee), value: row.front })),
-    ].sort((a: { height: number }, b: { height: number }): number => a.height - b.height);
-    const skin: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(rows.map((row: { height: number }): number => row.height), rows.map((row: { value: number }): number => row.value));
-    const frontShare = (height: number): number => AutoMovieNaturalSpline.evaluate(skin, Math.max(rows[0]!.height, Math.min(rows.at(-1)!.height, height)));
+      ...AutoMovieHumanLegMassPrior.THIGH.map(
+        (
+          row: AutoMovieHumanLegMassPrior.IRow,
+        ): { height: number; value: number } => ({
+          height: hip + row.share * (knee - hip),
+          value: row.front,
+        }),
+      ),
+      ...AutoMovieHumanLegMassPrior.SHANK.map(
+        (
+          row: AutoMovieHumanLegMassPrior.IRow,
+        ): { height: number; value: number } => ({
+          height: knee + row.share * (malleolus - knee),
+          value: row.front,
+        }),
+      ),
+    ].sort(
+      (a: { height: number }, b: { height: number }): number =>
+        a.height - b.height,
+    );
+    const skin: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
+      rows.map((row: { height: number }): number => row.height),
+      rows.map((row: { value: number }): number => row.value),
+    );
+    const frontShare = (height: number): number =>
+      AutoMovieNaturalSpline.evaluate(
+        skin,
+        Math.max(rows[0]!.height, Math.min(rows.at(-1)!.height, height)),
+      );
 
     // The lateral share of the breadth about the bone line: the thigh's from
     // the knee centre toward the crotch, the shank's from the ankle's site to
     // the knee centre.
-    const T: typeof AutoMovieHumanReferenceOutlines = AutoMovieHumanReferenceOutlines;
+    const T: typeof AutoMovieHumanReferenceOutlines =
+      AutoMovieHumanReferenceOutlines;
     const lateral = (height: number): number =>
-      height >= knee ? T.at(T.THIGH_SPLIT, "lateral", (height - knee) / (crotch - knee)) : T.at(T.SHANK_SPLIT, "lateral", (height - ankle) / (knee - ankle));
+      height >= knee
+        ? T.at(T.THIGH_SPLIT, "lateral", (height - knee) / (crotch - knee))
+        : T.at(T.SHANK_SPLIT, "lateral", (height - ankle) / (knee - ankle));
 
     // A site's box from its girth: the estimated breadth over depth at the
     // site's share of the ankle-to-crotch span (`AutoMovieHumanLegSectionProportion`,
     // estimated from the private reference set: no published source found).
-    const law = (height: number, girth: number): AutoMovieHumanLegWalk.ISiteLaw => {
+    const law = (
+      height: number,
+      girth: number,
+    ): AutoMovieHumanLegWalk.ISiteLaw => {
       const span: number = (height - malleolus) / (crotch - malleolus);
-      const box: { breadth: number; depth: number } = AutoMovieHumanLegSectionProportion.box(girth, span);
+      const box: { breadth: number; depth: number } =
+        AutoMovieHumanLegSectionProportion.box(girth, span);
       const front: number = frontShare(height);
       const out: number = lateral(height) * box.breadth;
       const inward: number = box.breadth - out;
-      const [plus, minus]: [number, number] = side === "left" ? [out, inward] : [inward, out];
-      return { height, edges: [box.depth * front, plus, -box.depth * (1 - front), -minus], girth };
+      const [plus, minus]: [number, number] =
+        side === "left" ? [out, inward] : [inward, out];
+      return {
+        height,
+        edges: [box.depth * front, plus, -box.depth * (1 - front), -minus],
+        girth,
+      };
     };
     const laws: Record<string, AutoMovieHumanLegWalk.ISiteLaw> = {
-      thigh: law(measures.glutealFurrowHeight * scale, measures.thighCircumference * scale),
-      lowerThigh: law(AutoMovieHumanSuprapatella.height(measures) * scale, measures.lowerThighCircumference * scale),
+      thigh: law(
+        measures.glutealFurrowHeight * scale,
+        measures.thighCircumference * scale,
+      ),
+      lowerThigh: law(
+        AutoMovieHumanSuprapatella.height(measures) * scale,
+        measures.lowerThighCircumference * scale,
+      ),
       knee: law(patella, measures.kneeCircumference * scale),
-      calf: law(AutoMovieHumanLegSites.calf(measures, malleolus / scale, patella / scale) * scale, measures.calfCircumference * scale),
+      calf: law(
+        AutoMovieHumanLegSites.calf(
+          measures,
+          malleolus / scale,
+          patella / scale,
+        ) * scale,
+        measures.calfCircumference * scale,
+      ),
       ankle: law(ankle, measures.ankleCircumference * scale),
     };
     // Retained four-reference thigh-girth ratios author intermediate shape
@@ -116,14 +167,18 @@ export namespace AutoMovieHumanLegLaws {
     const intermediate: string[] = [];
     for (const [share, ratio] of AutoMovieHumanLegGirth.THIGH) {
       const height: number = hip + share * (knee - hip);
-      if (!(height < laws.thigh!.height && height > laws.lowerThigh!.height)) continue;
+      if (!(height < laws.thigh!.height && height > laws.lowerThigh!.height))
+        continue;
       const site: string = `shape.thigh.${share}`;
       laws[site] = law(height, ratio * measures.thighCircumference * scale);
       intermediate.push(site);
     }
-    const resolve: AutoMovieHumanLegWalk.ILaw = (site: string): AutoMovieHumanLegWalk.ISiteLaw => {
+    const resolve: AutoMovieHumanLegWalk.ILaw = (
+      site: string,
+    ): AutoMovieHumanLegWalk.ISiteLaw => {
       const found: AutoMovieHumanLegWalk.ISiteLaw | undefined = laws[site];
-      if (found === undefined) throw new Error(`No leg law at the site ${site}`);
+      if (found === undefined)
+        throw new Error(`No leg law at the site ${site}`);
       return found;
     };
     return Object.assign(resolve, { intermediate });

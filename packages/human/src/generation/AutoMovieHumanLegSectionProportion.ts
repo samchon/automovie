@@ -63,14 +63,19 @@ export namespace AutoMovieHumanLegSectionProportion {
   export function at(share: number): { ratio: number; fullness: number } {
     const first: IRow = ROWS[0]!;
     const last: IRow = ROWS[ROWS.length - 1]!;
-    if (share <= first.share) return { ratio: first.ratio, fullness: first.fullness };
-    if (share >= last.share) return { ratio: last.ratio, fullness: last.fullness };
+    if (share <= first.share)
+      return { ratio: first.ratio, fullness: first.fullness };
+    if (share >= last.share)
+      return { ratio: last.ratio, fullness: last.fullness };
     let i: number = 0;
     while (ROWS[i + 1]!.share < share) i++;
     const a: IRow = ROWS[i]!;
     const b: IRow = ROWS[i + 1]!;
     const t: number = (share - a.share) / (b.share - a.share);
-    return { ratio: a.ratio + t * (b.ratio - a.ratio), fullness: a.fullness + t * (b.fullness - a.fullness) };
+    return {
+      ratio: a.ratio + t * (b.ratio - a.ratio),
+      fullness: a.fullness + t * (b.fullness - a.fullness),
+    };
   }
 
   /**
@@ -80,10 +85,14 @@ export namespace AutoMovieHumanLegSectionProportion {
    * @param share Share of the ankle-to-crotch span.
    * @returns Breadth and depth, mm.
    */
-  export function box(girth: number, share: number): { breadth: number; depth: number } {
+  export function box(
+    girth: number,
+    share: number,
+  ): { breadth: number; depth: number } {
     const { ratio, fullness } = at(share);
     const diagonal: number = Math.sqrt(ratio * ratio + 1);
-    const depth: number = girth / (2 * (diagonal + fullness * (ratio + 1 - diagonal)));
+    const depth: number =
+      girth / (2 * (diagonal + fullness * (ratio + 1 - diagonal)));
     return { breadth: ratio * depth, depth };
   }
 }
