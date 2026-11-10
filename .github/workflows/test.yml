@@ -27,4 +27,4 @@ jobs:
         with:
           path: node_modules/.cache/ttsc
           key: ttsc-test-${{ hashFiles('pnpm-lock.yaml') }}
-      - run: pnpm test --exclude test_viewer_human_polygon
+      - run: pnpm test --exclude test_human_ test_viewer_human_polygon

@@ -16,13 +16,13 @@ import { nclose } from "../internal/predicates";
  * 3. All four cyclic starts and three physical scales preserve each corner's
  * periodic correspondence without mutating any source coordinate.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the actual Human polygon phase owner on simple closed sections and checks every returned phase and unchanged source point; catches NaN arclength propagation when a fractional last-edge crossing rounds to the exact closing knot, while allowing equivalent phases separated by full turns.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the actual engine polygon phase owner on simple closed sections and checks every returned phase and unchanged source point; catches NaN arclength propagation when a fractional last-edge crossing rounds to the exact closing knot, while allowing equivalent phases separated by full turns.
  * @evidence contracts/development/testing.md#independent-expectations A unit diamond has four equal sides and its front/right/back/left corners have periodic phases 0, pi/2, pi and 3pi/2. The authored perturbation is below a double's relative epsilon, so a 1e-12 radian circular tolerance bounds its negligible geometric displacement rather than copying the implementation's interpolation. Physical scaling and cyclic reindexing do not change this geometric correspondence.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers rounded closing endpoint, exact knot, adjacent nonclosing crossing, all cyclic starts, positive small/unit/large scales and the unaffected polar rule as well as both anchored rules; full body generation and the actual six-course exterior consumer are owned by the production browser verification.
  * @evidence contracts/development/testing.md#execution-ownership This portable unit imports the numerical owner directly and starts no Human generator, browser, renderer, process or installation; its only runtime work is phase computation over four-point polygons.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A diamond whose front vertex is Number.EPSILON/16 above its axis makes).
  */
-export function test_human_loft_phase_endpoint(): void {
+export function test_geometry_loft_phase_endpoint(): void {
   const defects: string[] = [];
   for (const rule of ["arclength", "sagittal", "polar"] as const)
     for (const scale of [0.001, 1, 1000])
