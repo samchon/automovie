@@ -15,15 +15,15 @@ You judge a film on stills, in two passes that answer different questions:
 | Pass | Stills come from | Shows |
 | --- | --- | --- |
 | Source | The film's source, drawn with the README's frame capture | Pose, contact, staging, camera and timing at any second and from any view; it never opens the encoded file |
-| Artifact | The delivered or generated file itself, extracted at matched seconds with the production's FFmpeg | What the audience receives: every scene present, the raster, the transitions, the encode, and for a generated film the picture itself |
+| Artifact | The delivered or generated file itself, extracted at matched seconds as the README's section on stills from an encoded file gives | What the audience receives: every scene present, the raster, the transitions, the encode, and for a generated film the picture itself |
 
 Make both passes for every delivery claim, because an accepted source pass does not show that the file holds it.
 
-Review as an audience that has not read the plans, and lock that response before opening the screenplay or code, covering the opening, ending, middle and every join. A whole motion hint contains the programmed main scenes and the complete timeline, and carries staging, identity, camera, action and timing at its adopted representation, which polygon men and coarse forms do.
+Review as an audience that has not read the plans, and lock that response before opening the screenplay or code, covering the opening, ending, middle and every join. A whole motion hint, as [commissioned outputs](../production/SKILL.md#commissioned-outputs) define it, carries staging, identity, camera, action and timing at its adopted representation, which polygon men and coarse forms do.
 
 Inspect contacts, support, facing, reactions, occlusion and continuity through the motion. Every screenplay beat reaches the picture through the scene that cites it; a function name or citation proves neither invocation nor visibility.
 
-Check control channels against their [control channels](../motion/control-channels.md) at matched frames, and a selected generator's actual accepted inputs and takes under [generation](../video/generation.md). A finished direct 3D or generated film is judged by its own picture for preserved action, identity, continuity and audience effect, not by its conditioning.
+Check control channels at matched frames under [control channels](../motion/control-channels.md), and a selected generator's actual accepted inputs and takes under [generation](../video/generation.md). A finished direct 3D or generated film is judged by its own picture for preserved action, identity, continuity and audience effect, not by its conditioning.
 
 Measure the delivered file against the [delivery profile](../production/project-context.md) by reading the file: container, codec, dimensions, frame rate, frame count and duration. An encoder exit or a matching nominal duration is not a measurement.
 

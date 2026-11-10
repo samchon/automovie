@@ -22,7 +22,7 @@ Long work runs settings → treatments → scripts → screenplay construction, 
 
 A short runs brief → screenplay construction, then screenplay naturalness. Its [brief](layers/brief.md) is canon like settings, with its own folders, contracts, evidence and review, and holds the fixed conditions and the decisions the films share; the screenplay decides everything else and repairs the brief upstream when writing exposes a gap.
 
-There are no settings, treatment, script or outline files. Wherever a skill or contract cites settings facts, a short cites its brief.
+A short has no settings, treatment, script or outline files. Wherever a skill or contract cites settings facts, a short cites its brief.
 
 Choose the long route when the work's causes, setups and payoffs span many scenes or releases, such as a feature, an episode or a series, because they need treatments to design events and scripts to partition them before the screenplay. Choose the short route when each film is a few minutes at most and its events fit one screenplay, alone or as several shorts sharing a world.
 

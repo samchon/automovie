@@ -4,16 +4,17 @@ Contract: [principles/scripts.md](../../principles/scripts.md).
 
 ## Executable scene {#executable-scene}
 
-1. The scene starts in an executable block, not a planning summary, and establishes time, space, participants or forces, access, inherited pressure and the initiating condition.
-2. It performs action, process, exchange and reaction, and ends in an observable exit state that follows from the final operation without restating its meaning.
-3. Blocks follow meaningful changes of action, response, process, time, space, form or view. Speakers are separated, and interruption, silence and simultaneous action sit beside the operation they change.
-4. Block length and division carry urgency, duration, humor or stillness; [execution rhythm](../../naturalness/scripts.md#execution-rhythm) judges their molds.
-5. Consequential questions, lies, bargains, refusals, interruptions and silences have the actual words, tactics, actions and reactions that change choice, knowledge, power or relationship.
-6. Delivery is specified where tone, volume, pace or interruption changes meaning.
-7. Movement, objects, environment, physical limits and time that affect the exchange are included.
-8. Preparation, interaction, response and resulting state are executable, with no isolated pose and no result the next author must invent.
-9. An observational, ritual, nonhuman or formal process has its actual operation, not an invented conflict.
-10. No exchange is reported, no transition or reaction omitted, and no redundant explanation or incidental instruction conceals the decisive operation.
+1. The scene starts in an executable block, not a planning summary.
+2. It establishes time, space, participants or forces, access, inherited pressure and the initiating condition.
+3. It performs action, process, exchange and reaction, and ends in an observable exit state that follows from the final operation without restating its meaning.
+4. Blocks follow meaningful changes of action, response, process, time, space, form or view. Speakers are separated, and interruption, silence and simultaneous action sit beside the operation they change.
+5. Block length and division carry urgency, duration, humor or stillness; [execution rhythm](../../naturalness/scripts.md#execution-rhythm) judges their molds.
+6. Consequential questions, lies, bargains, refusals, interruptions and silences have the actual words, tactics, actions and reactions that change choice, knowledge, power or relationship.
+7. Delivery is specified where tone, volume, pace or interruption changes meaning.
+8. Movement, objects, environment, physical limits and time that affect the exchange are included.
+9. Preparation, interaction, response and resulting state are executable, with no isolated pose and no result the next author must invent.
+10. An observational, ritual, nonhuman or formal process has its actual operation, not an invented conflict.
+11. No exchange is reported, no transition or reaction omitted, and no redundant explanation or incidental instruction conceals the decisive operation.
 
 ## Audiovisual staging {#audiovisual-staging}
 

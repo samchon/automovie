@@ -6,6 +6,6 @@ A new question names one achievement, why its recipient needs it, its observable
 
 Give it the narrowest respondent that can establish it: a unit answers for itself, and a whole-work duty needs its population respondent.
 
-Put a production- or language-specific question in the production's `docs/contracts/work` or `docs/contracts/language` family, supplementing the shared questions rather than replacing them. Keep its statements in `docs/contracts/statements`, outside those two families, because the graph reads every document under `docs/contracts/work` as a respondent.
+Put a production- or language-specific question in the production's `docs/contracts/work` or `docs/contracts/language` family, supplementing the shared questions rather than replacing them. Keep its statements in `docs/contracts/statements`, outside those two families, because the graph reads the documents under those two folders as contracts and respondents.
 
 Adopt the question, its respondents and their [configuration](configuration.md) together, and update every consumer when you change, merge or retire one. Changes that touch closed narrative work follow [upstream repair](../story/correction/repair.md). Never weaken a question or narrow its population to hide a defect.

@@ -18,7 +18,7 @@ A respondent is whoever answers an item: a declaration, a document or a record.
 
 Each H2 is one item, and a separate answer establishes it. An item is one broad question with its reason: what to achieve, and what its recipient loses when it is missed. Items stay few. A new concern on a theme an item already covers joins that item, because every item costs every respondent an answer.
 
-The detail lives one level down. An item's statements are single assertions that can each be checked, with their exceptions, listed under the item's anchor in a `statements` document beside its contract. An item that is already one short question has none.
+The detail lives one level down. An item's statements are single assertions that can each be checked, with their exceptions, listed under the item's anchor in a `statements` document beside its contract.
 
 Statements are how you question your own compliance:
 
@@ -28,7 +28,11 @@ Statements are how you question your own compliance:
 
 A reviewer audits the answer against the same list. Unless an item says its statements are its whole boundary, another proven loss on the item's question is still a finding.
 
-Statement documents are not evidence targets: no selector reaches them, and a citation names the item, never a statement. An enumeration in an item or a statement defines what to compare, not ingredients to add to the respondent. An item and its statements carry their own reasons and exceptions and point at no outside source for them.
+Statement documents are not evidence targets: no selector reaches them, and a citation names the item, never a statement.
+
+An enumeration in an item or a statement defines what to compare, not ingredients to add to the respondent.
+
+An item and its statements cite no research or reference source; a statement may link the skill document or sibling statement that owns a rule it applies.
 
 ## What the graph does not hold
 

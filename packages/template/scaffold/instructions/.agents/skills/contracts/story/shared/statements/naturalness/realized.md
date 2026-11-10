@@ -11,4 +11,4 @@ Contract: [naturalness/realized.md](../../naturalness/realized.md).
 5. What each participant says, wants, knows, gains and loses is preserved.
 6. Adopted ritual questions, authority exercised through general statements, weaponized proverbs, consequential repetition and speech habits may work in context.
 7. Nothing is standardized into short lines, interruptions, hidden meanings or added conflict, and no new demand, fact, victory or outcome is invented.
-8. Named failures follow the decision, exception and record rules of [common expression](common.md#reads-as-written).
+8. Named failures follow the decision and exception rules of [common expression](common.md#reads-as-written).

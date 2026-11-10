@@ -23,17 +23,28 @@ These are representative examples, not a complete or required list; read the cho
 
 Prompting alone suffices when no camera or pose has to match: canon sheets, set plates, style frames and early exploration.
 
-Use the hint when the image must agree with it, as for a shot's first or last frame, figures whose eyelines, contact or depth order matter, a specific pose, a held prop or a screen direction that must survive a cut, or when a control-conditioned video model will follow the hint. In rising cost and precision:
+Use the hint when the image must agree with it:
+
+- a shot's first or last frame;
+- polygon men whose eyelines, contact or depth order matter;
+- a specific pose, a held prop or a screen direction that must survive a cut;
+- a control-conditioned video model that will follow the hint.
+
+The hint can control the image in three ways, in rising cost and precision:
 
 1. A prompt with canon references.
 2. The hint render as an extra input labeled "pose and camera reference only", which hosted models follow loosely.
 3. Control channels rendered from the hint, such as depth, normal, pose skeleton and outline, through ControlNet with identity from IP-Adapter or a LoRA.
 
-Render control channels from the hint scene itself, under [control channels](../motion/control-channels.md), because pose and depth estimators fail on featureless coarse figures. When the cast's build differs from the coarse figure, weight pose above depth, since depth imprints the coarse figure's silhouette.
+Render control channels from the hint scene itself, under [control channels](../motion/control-channels.md), because pose and depth estimators fail on featureless polygon men. When the cast's build differs from the polygon man, weight pose above depth, since depth imprints the polygon man's silhouette.
 
 ## Canon references
 
-Video models cap references per subject at about three or four images and read each image as one view, so give each character separate images rather than one collage: a front full-body view in a neutral pose, a face close-up, and three-quarter or profile views as the shots need, on a plain background with flat light and the canonical wardrobe.
+Video models cap references per subject at about three or four images and read each image as one view. Give each character separate images rather than one collage, on a plain background with flat light and the canonical wardrobe:
+
+- a front full-body view in a neutral pose;
+- a face close-up;
+- three-quarter or profile views as the shots need.
 
 A wardrobe change is its own set. Give each set a plate without people in the shot's light, and each prop a plain-background view. Reuse the same files and the same description wording wherever the subject appears.
 

@@ -6,7 +6,7 @@ Resolve an overview question first so local repairs follow its direction. An ans
 
 Support each assertion with exact quotations and owner addresses checked against the current body or parent, and check claimed counts, sequence, causes, places and states across the whole scope.
 
-Where an item has [statements](../../contracts/SKILL.md#items-and-statements), check the body against every one before answering and repair what fails; the answer is true against all of them and names each one that does not apply.
+Where an item has statements, follow [items and statements](../../contracts/SKILL.md#items-and-statements) before answering.
 
 Answer only what the question asks; an unneeded inventory becomes a stale fact. Group a repeated cause and cite its grounds once.
 

@@ -5,7 +5,7 @@ description: Decides what each shot sounds like for the video model to generate,
 
 # Audio
 
-Because [you cannot hear](../../../AGENTS.md#what-you-can-observe), you measure what decoded bytes show and the user accepts every sound by listening. That splits audio work into three cases.
+Because [you cannot hear](../../../AGENTS.md#what-you-can-observe), you measure what decoded bytes show and the user accepts every sound by listening. Audio work has three cases. Source changes follow [development](../development/SKILL.md).
 
 ## Generated sound
 
@@ -26,5 +26,3 @@ A motion hint and a direct 3D film are silent unless the commission asks for sou
 When one is commissioned, record its tracks and loudness target in the [delivery profile](../production/project-context.md), acquire its material under [acquisition](acquisition.md), build it under [sound effects](sound-effects.md), and have the user listen at every acceptance: each adopted take, each mixed passage with its picture, and the delivered file.
 
 Record which takes and passages the user heard, because a measurement cannot stand for a listening.
-
-Source changes follow [development](../development/SKILL.md).

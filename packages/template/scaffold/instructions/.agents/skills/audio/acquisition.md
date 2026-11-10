@@ -12,7 +12,7 @@ Check each asset's license for commercial use, adaptation, attribution and deliv
 
 ## Adopt a take
 
-Keep accepted bytes and their record under [media records](../production/media-records.md#records); a regeneration is a new take until the user has heard it. Convert to the installed decoder's admitted format while keeping the original.
+Keep accepted bytes and their record under [media records](../production/media-records.md#records); a regeneration is a new take until the user has heard it. Convert to a format the installed packages admit while keeping the original.
 
 For a commissioned soundtrack, keep an accepted music take's tempo map and cue sheet beside it: they are the anchors the screenplay's music events and the scenes' timing cite.
 
@@ -20,6 +20,6 @@ Measure durations and trims from the accepted bytes, place dialogue, captions, c
 
 ## Have it heard
 
-Measure what decoded bytes show, such as duration, silence, clipping and loudness, and ask the user to listen to each adopted take for words, pronunciation, performance and noise. For a commissioned soundtrack, ask the user to listen to the delivered audio with its picture for intelligibility, missing cues, transitions and the ending.
+Measure what decoded bytes show, such as duration, silence, clipping and loudness, and ask the user to listen to each adopted take for words, pronunciation, performance and noise. The [audio skill](SKILL.md#commissioned-soundtrack) sets when the user listens; in the delivered audio the user listens for intelligibility, missing cues, transitions and the ending.
 
 A waveform, timing report or successful render does not establish that the intended recording is audible. Fix acquisition, identity, timing or wiring at its owner.

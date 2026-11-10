@@ -26,7 +26,7 @@ Describe what to show, not what to avoid, because a negated word still primes it
 
 Keep duration, size, frame rate and seed in the request's settings. Prose such as "make it longer" changes nothing.
 
-## Coarse figures and controls
+## Polygon men and controls
 
 The hint's figures are gray and coarse. Strength is the setting for how far a model may depart from its input video: at low strength a model keeps their look and returns mannequins, robots or clay; at high strength it frees the look but loses the motion. Choose the input so motion and appearance arrive through different channels.
 
@@ -36,7 +36,7 @@ With a pose, depth, edge or layout control, describe appearance, material, light
 
 ### Raw hint video
 
-State the video's role in one sentence ("the input video supplies only camera, positions, timing and occlusion") and map each coarse figure to its reference. Never describe the gray look positively: words such as "3D", "render", "clay", "gray" or "model" in the positive prompt pull the result toward the coarse figure.
+State the video's role in one sentence ("the input video supplies only camera, positions, timing and occlusion") and map each polygon man to its reference. Never describe the gray look positively: words such as "3D", "render", "clay", "gray" or "model" in the positive prompt pull the result toward the polygon man.
 
 ### First frame or keyframe
 

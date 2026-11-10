@@ -6,18 +6,20 @@ Contract: [obligations/review.md](../../obligations/review.md).
 
 Extent:
 
-1. The verdict identifies the exact revision, declared layer and pass, files, H2s, upstream relationships, descendants and observations reviewed, and reconciles the inventory and defined measurements with what was read.
-2. The round's extent is the one [narrative rounds](../../../../../review/narrative-rounds.md) requires for its kind, a full fresh reading or a scoped confirmation, and each carried judgment identifies its source, reader and grounds.
-3. Stable sentence classifications follow [inspection](../../../../../story/correction/inspection.md#verify-changed-work). They waive no whole reading and carry no unit approval.
-4. Closed layers stay closed under the [closed-pass boundary](../../../../../story/correction/repair.md#closed-passes), and partial or unavailable inspection is stated.
-5. The current review tree holds the complete inventory and verdict, including explicit carries, without relying on missing units in earlier folders.
+1. The verdict identifies the exact revision, declared layer and pass, files, H2s, upstream relationships, descendants and observations reviewed.
+2. It reconciles the inventory and defined measurements with what was read.
+3. The round's extent is the one [narrative rounds](../../../../../review/narrative-rounds.md) requires for its kind, a full fresh reading or a scoped confirmation, and each carried judgment identifies its source, reader and grounds.
+4. Stable sentence classifications follow [inspection](../../../../../story/correction/inspection.md#verify-changed-work). They waive no whole reading and carry no unit approval.
+5. Closed layers stay closed under the [closed-pass boundary](../../../../../story/correction/repair.md#closed-passes), and partial or unavailable inspection is stated.
+6. The current review tree holds the complete inventory and verdict, including explicit carries, without relying on missing units in earlier folders.
 
 Audit and classes:
 
-6. The evidence audit follows completed creative correction and compares every required target with its selected hosts and every host with its required targets, including negative scopes. During creative correction the audit is recorded as pending.
-7. Each supported finding class is collected with all discovered members, quotations and locators, the violated obligation, the earliest owner and affected edges, with reproducible inspection methods and the revision identity.
-8. Body completeness and settings navigation are checked where relevant, and the evidence audit checks answer completeness and literal relationship support.
-9. Population classifications and the actual function behind whole-scope negatives, such as silence or refrain, are compared. Similar length, repeated syntax or annotation ratios prompt rereading and establish no defect, and a class table introduces no finding unsupported by an inspected unit.
+7. The evidence audit follows completed creative correction and compares every required target with its selected hosts and every host with its required targets, including negative scopes. During creative correction the audit is recorded as pending.
+8. Each supported finding class is collected with all discovered members, quotations and locators, the violated obligation, the earliest owner and affected edges.
+9. Inspection methods are reproducible, and the revision identity is recorded.
+10. Body completeness and settings navigation are checked where relevant, and the evidence audit checks answer completeness and literal relationship support.
+11. Population classifications and the actual function behind whole-scope negatives, such as silence or refrain, are compared. Similar length, repeated syntax or annotation ratios prompt rereading and establish no defect, and a class table introduces no finding unsupported by an inspected unit.
 
 ## Round accountability {#round-accountability}
 

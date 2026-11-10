@@ -1,6 +1,6 @@
 # Frame evaluation
 
-The installed engine and render planners own frame schedules, trims, transitions and shot-local time; use them rather than reproducing their arithmetic in the host. A deterministic schedule does not make a stateful animation independent of its evaluation history.
+The installed engine and renderer own frame schedules, trims, transitions and shot-local time; use them rather than reproducing their arithmetic in the host. A deterministic schedule does not make a stateful animation independent of its evaluation history.
 
 ## Map output time to performance
 

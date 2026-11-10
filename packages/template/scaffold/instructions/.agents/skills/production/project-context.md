@@ -11,7 +11,7 @@ Record only what this project needs; an instance-only request needs no story, an
 | Overview | What is made, in a sentence or two, linking the canon record that owns the audience and the intended experience |
 | Commissioned scope | The [commissioned output](SKILL.md#commissioned-outputs) and its boundary, with any authorized slice, deferred work and exclusions |
 | Representation | That people are polygon men and other subjects coarse forms, and which delivery, if any, selects which [detail option](../development/entities.md#detail) |
-| Delivery profile | For each delivered video: dimensions, frame rate, running time, container and codec, color and caption tracks, and audio tracks only for a [commissioned soundtrack](../audio/SKILL.md#commissioned-soundtrack) |
+| Delivery profile | For each delivered video: dimensions, frame rate, running time, container and codec, color and caption tracks, and, only for a [commissioned soundtrack](../audio/SKILL.md#commissioned-soundtrack), audio tracks, the loudness target and any stems or music-and-effects mix it requires |
 | Adopted approach | The story route, required control channels, engine feedback and sound, with the reasons and limits that affect later choices |
 | Tools and operating constraints | Chosen providers or local tools, the video model, runtime, hardware, time, cost and rights limits, and approved setup |
 | Authority and unresolved choices | What the user fixed, what the agent decided within delegation and why, and what remains open |

@@ -7,10 +7,11 @@ Contract: [behaviors.md](../behaviors.md).
 1. Key poses in the performer's own body frame, their timing, reach, contact surfaces, legal and illegal actions, outcome rules and variation ranges come from the cited study.
 2. Every constant is a named law that states its source or derivation. None was tuned until a scene looked right.
 3. The unit tests compare the behavior's results with the study's values.
-4. The behavior was written after its study, and it performs no action the study does not record.
-5. Durations and speeds scale with the body, under [time scale](../../../motion/laws.md#scale-time-with-the-body).
-6. The action is not one the installed motion vocabulary performs. A vocabulary defect is reported under [installed packages](../../../development/reuse.md#installed-packages), never reimplemented.
-7. A deliberately stylized departure states its factor and reason.
+4. The behavior was written after its study.
+5. It performs no action the study does not record.
+6. Durations and speeds scale with the body, under [time scale](../../../motion/laws.md#scale-time-with-the-body).
+7. The action is not one the installed motion vocabulary performs. A vocabulary defect is reported under [installed packages](../../../development/reuse.md#installed-packages), never reimplemented.
+8. A deliberately stylized departure states its factor and reason.
 
 ## Goals and bounds {#relational-goals}
 

@@ -16,17 +16,18 @@ Contract: [principles/review.md](../../principles/review.md).
 10. The review gives repair directions, not prose for adoption. Counterfactual sentences belong only to the retention comparison.
 11. Narrative and expressive quality is reviewed separately from the truth of evidence answers.
 12. The applicable question's defined scope is judged: examples may permit another proven loss, and a named-failure boundary is not expanded by taste.
-13. A revised passage gets another yes only for a clear applicable failure, and an unchanged classification reopens only on new body or source evidence, under [inspection](../../../../../story/correction/inspection.md#verify-changed-work).
+13. Revised passages and unchanged classifications were handled under [inspection](../../../../../story/correction/inspection.md#verify-changed-work).
 
 ## Literal and class audit {#literal-and-class-audit}
 
-1. Each finding class records its inspected scope, a reproducible search or comparison, every discovered member and affected relation, and the earliest owner, and references other review units where they inspected a member. A genuinely isolated finding states its reason.
-2. Quotations and locators match the inspected revision.
-3. In the evidence audit after creative correction, each acknowledgment is compared with the full target requirement and complete host support: host kind, family, semantic role, lineage, predicate and actual realization.
-4. A claim about checking itself, repeated vocabulary, another event or partial support proves no relationship.
-5. An exclusion has its complete defined negative scope and inspection method.
-6. A creative reading records the literal audit as pending and does not claim to perform it.
-7. The [inspection record](../../../../../story/correction/inspection.md) covered every required sentence and parent comparison at the actual snapshot, before author evidence, and rechecked all changed dependencies without silently reversing unchanged tests.
-8. The body was compared with its parents and requirements independently of the relationship rows, following [independent reading](../../../../../review/independent-reading.md), every decision against its inherited parent.
-9. Nearby relationships were compared by exchanging their names, predicates and conditions, so support and refutation stay specific to the actual relation. Similar wording prompts inspection, not automatic failure.
-10. A false edge is repaired at its owner, and a pasted answer never requires changing the story. Structural validity belongs to the evidence checker and never substitutes for semantic truth.
+1. Each finding class records its inspected scope, a reproducible search or comparison, every discovered member and affected relation, and the earliest owner.
+2. It references other review units where they inspected a member, and a genuinely isolated finding states its reason.
+3. Quotations and locators match the inspected revision.
+4. In the evidence audit after creative correction, each acknowledgment is compared with the full target requirement and complete host support: host kind, family, semantic role, lineage, predicate and actual realization.
+5. A claim about checking itself, repeated vocabulary, another event or partial support proves no relationship.
+6. An exclusion has its complete defined negative scope and inspection method.
+7. A creative reading records the literal audit as pending and does not claim to perform it.
+8. The [inspection record](../../../../../story/correction/inspection.md) covered every required sentence and parent comparison at the actual snapshot, before author evidence, and rechecked all changed dependencies without silently reversing unchanged tests.
+9. The body was compared with its parents and requirements independently of the relationship rows, following [independent reading](../../../../../review/independent-reading.md), every decision against its inherited parent.
+10. Nearby relationships were compared by exchanging their names, predicates and conditions, so support and refutation stay specific to the actual relation. Similar wording prompts inspection, not automatic failure.
+11. A false edge is repaired at its owner, and a pasted answer never requires changing the story. Structural validity belongs to the evidence checker and never substitutes for semantic truth.

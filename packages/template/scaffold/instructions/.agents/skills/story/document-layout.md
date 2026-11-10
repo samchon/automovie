@@ -1,6 +1,6 @@
 # Document layout
 
-Where each creative document, its evidence and its review go, and how existing work is taken over. These are default locations, not a request to create empty trees.
+Each creative document, its evidence and its review has a default location here, and supplied work enters through intake. These are default locations, not a request to create empty trees.
 
 The evidence and review locations below are the installed evidence package's defaults, and its documentation owns supported layouts and selectors. This table is the one place the skills show them; [evidence configuration](../evidence/configuration.md) owns their use.
 
@@ -22,6 +22,7 @@ Keep one current record per purpose, identified by its actual inputs; Git preser
 | `docs/research/index.md`, `docs/research/<discipline>/<topic>.md` | The source index and the studies of each practice and style: laws, outcome tables and measurable targets, under [research](planning/research.md) |
 | `references/`, ignored `references/private/` | Retained research originals: permitted copies, and those whose rights are unconfirmed |
 | `docs/contracts/work/...`, `docs/contracts/language/...` | This production's own story contracts supplementing the shared ones, cited as `work/...` and `language/...`; discovery writes `work/discovery/results.md` |
+| `docs/contracts/statements/...` | The statements of this production's own contracts, which no evidence stage selects |
 | `docs/acceptance/<film>.md` | The film's tracked acceptance record, and in `catalog.md` the catalog's accepted cases, under [delivery review](../review/delivery-review.md#acceptance-record) |
 | `docs/evidence/construction/{units,files}/<layer>/...` | Separate construction answers for units and whole files, including `files/research/` for the research studies |
 | Ignored `docs/review/{draft,final}/<layer>/<relative-file>.md` | Current independent unit reviews mirroring the actual body or working edition |

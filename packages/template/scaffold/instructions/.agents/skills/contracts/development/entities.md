@@ -2,7 +2,9 @@
 
 Each exported declaration under `src/entities/` answers these items in its doc comment, beside [common](common.md), [design](design.md) and [implementation](implementation.md).
 
-An entity is one cast member, crowd, prop, set, camera or light, and its [settings realization](#settings-realization) answer names each settings or brief fact it realizes as `docs/body/settings/<domain>/<subject>.md#<fact>` or `docs/body/brief/<domain>/<subject>.md#<fact>` with how it is realized, and each measurement's study as `docs/research/<discipline>/<topic>.md` with the section it uses.
+An entity is one cast member, crowd, prop, set, camera or light.
+
+Its [settings realization](#settings-realization) answer names each settings or brief fact it realizes as `docs/body/settings/<domain>/<subject>.md#<fact>` or `docs/body/brief/<domain>/<subject>.md#<fact>` with how it is realized, and each measurement's study as `docs/research/<discipline>/<topic>.md` with the section it uses.
 
 Statements: [statements/entities.md](statements/entities.md).
 

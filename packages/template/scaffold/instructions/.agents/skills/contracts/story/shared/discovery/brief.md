@@ -6,4 +6,4 @@ Statements: [statements/discovery/brief.md](../statements/discovery/brief.md).
 
 ## Were instructions and planned films translated into needed owners and a usable form? {#instructions-and-backcast}
 
-Before bulk brief writing, was every instruction broken into its consequential elements and given an owner, and were the planned films read for what they would otherwise invent? An instruction nobody took apart is kept only by luck.
+Before bulk brief writing, was each instruction taken apart into what it actually requires, with an owner for every part, and were the planned films read for the decisions they would otherwise make up? A requirement left whole is easy to believe kept and hard to check.

@@ -16,7 +16,7 @@ Keep the work's fixed conditions in `docs/body/brief/world/work.md`:
 
 Each file has one H1 naming the subject, an H2 per facet and an H3 per decision with an explicit anchor; screenplays cite a decision by its path and anchor, so never reuse or renumber one.
 
-Write only the facets the planned films use, and keep measurements out, as [settings](settings.md#records) records do.
+Write only the facets the planned films use, and keep measurements out, under the [settings rule](settings.md#records).
 
 User-fixed interpretations are canon; report a conflict between an instruction and its source instead of changing it.
 

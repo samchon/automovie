@@ -17,4 +17,4 @@ Contract: [naturalness/screenplay.md](../../naturalness/screenplay.md).
 1. The unit holds no copied planning label, source-status or research commentary inserted into the scene, explanatory category name nobody in the world would use, or shot list with no finished audiovisual relation.
 2. Repeated introductions, redundant delivery labels and authoring jargon are judged under [common expression](common.md#reads-as-written), not here.
 3. Genuine world names, titles and terms, useful time transitions, adopted documentary quotations, captions, and narration that realizes the adopted voice and audience access are preserved.
-4. Named failures follow the decision, exception and record rules of [common expression](common.md#reads-as-written), and no event or canonical value is changed to escape an awkward register.
+4. Named failures follow the decision and exception rules of [common expression](common.md#reads-as-written), and no event or canonical value is changed to escape an awkward register.

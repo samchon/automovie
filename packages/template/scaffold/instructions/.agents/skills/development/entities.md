@@ -14,7 +14,7 @@ A motion hint guides video-to-video diffusion, which supplies the look. So model
 
 A person is the polygon man. The installed viewer draws it from the canonical body that the installed human package prepares from parameters, and those parameters come from the cast record's body facts.
 
-The same prepared body is the one the installed motion vocabulary plans for, so the figure on screen and the body the motion was solved on are one. [Installed packages](reuse.md#installed-packages) names the three packages, and their READMEs give the calls.
+The same prepared body is the one the installed motion vocabulary plans for, so the figure on screen and the body the motion was solved on are one. [Installed packages](reuse.md#installed-packages) names these packages, and their READMEs give the calls.
 
 ### Everything else
 
@@ -30,7 +30,7 @@ A fact the coarse form cannot show, such as a face, a fabric or a makeup state, 
 
 A commission may ask for more than identification, such as a direct 3D film. Detail is then an option of the entity whose default is the coarse form, and one definition builds both, so no placement, contact or control moves when the option changes.
 
-Author motion, accept catalog cases and review segments at the default. The coarse form shows joints and contacts plainly and captures quickly, and a defect repaired on a detailed model lets the coarse one rot.
+Author motion, accept catalog cases and review segments at the default. The coarse form shows joints and contacts plainly and captures quickly, and a defect repaired on a detailed model leaves the coarse one unrepaired.
 
 Select the detailed form only for the delivery that commissions it, record that choice in [project context](../production/project-context.md), and compare the same segments for changed proportions, pivots, contact, timing and silhouette.
 

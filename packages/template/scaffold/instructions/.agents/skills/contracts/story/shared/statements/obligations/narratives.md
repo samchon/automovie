@@ -4,13 +4,16 @@ Contract: [obligations/narratives.md](../../obligations/narratives.md).
 
 ## Continuity and progression {#continuity-and-progression}
 
-1. Every unit is classified by its actual event, understanding, relationship, emotion, pressure, rhythm or formal contribution. Functionless duplication and independently addressable progressions hidden together are identified. Exception: inseparable montage, continuous action, parallel and other owned forms are preserved.
-2. Exits and entries connect through their causal or declared formal relation. The order of movable units is tested for what it contributes, without imposing linearity on episodic, nonlinear or nonhuman work.
-3. Inherited time, place, knowledge, injury, appearance, clothing, possession, resources, status, relationships and promises are compared across units.
-4. Recurring agents' drives, beliefs, interpretations, experiences and actions are followed across units. Unsupported reversals and thresholds crossed without pressure or cost are reported with the earliest contradictory owner and any contradiction derived across facts.
-5. An unchanged or unreached threshold has its owned scope or purpose.
-6. Where a protagonist's pursuit holds the work together, the answer identifies that desire, its first audience recognition, the actions it drives and how major-unit goals continue or transform it. Exception: an ensemble may sustain competing pursuits, and another form another center.
-7. Local tasks alone do not establish the whole, and no shared goal is invented.
+1. Every unit is classified by its actual event, understanding, relationship, emotion, pressure, rhythm or formal contribution.
+2. Functionless duplication and independently addressable progressions hidden together are identified, while inseparable montage, continuous action, parallel and other owned forms are preserved.
+3. Exits and entries connect through their causal or declared formal relation.
+4. The order of movable units is tested for what it contributes, without imposing linearity on episodic, nonlinear or nonhuman work.
+5. Inherited time, place, knowledge, injury, appearance, clothing, possession, resources, status, relationships and promises are compared across units.
+6. Recurring agents' drives, beliefs, interpretations, experiences and actions are followed across units.
+7. Unsupported reversals and thresholds crossed without pressure or cost are reported with the earliest contradictory owner and any contradiction derived across facts.
+8. An unchanged or unreached threshold has its owned scope or purpose.
+9. Where a protagonist's pursuit holds the work together, the answer identifies that desire, its first audience recognition, the actions it drives and how major-unit goals continue or transform it. Exception: an ensemble may sustain competing pursuits, and another form another center.
+10. Local tasks alone do not establish the whole, and no shared goal is invented.
 
 ## Promises and distribution {#promises-and-distribution}
 

@@ -10,7 +10,7 @@ A production is the directory holding its `PROJECT.md`: this repository root for
 
 The skills and bundled contracts under `.agents/skills` serve every production; a production's own work and language contracts live in its `docs/contracts`.
 
-In a workspace the production's folder fixes its [story route](.agents/skills/story/workflow.md#route-and-parents). `packages/<name>` holds the workspace's own libraries, where a module a second production needs [moves](.agents/skills/development/source-layout.md#shared-modules); code serving one production stays in that production. The workspace README lists its commands, including the one that adds a production.
+In a workspace the production's folder fixes its [story route](.agents/skills/story/workflow.md#route-and-parents). `packages/<name>` holds the workspace's [shared modules](.agents/skills/development/source-layout.md#shared-modules). The workspace README lists its commands, including the one that adds a production.
 
 ## Attitude
 
@@ -29,7 +29,7 @@ In a workspace the production's folder fixes its [story route](.agents/skills/st
 | --- | --- |
 | Models stay coarse and motion is authored in detail | [Entity work](.agents/skills/development/entities.md#coarse-first) |
 | The screenplay decides every exchange, outcome and reaction, and code never chooses one | [Screenplay layer](.agents/skills/story/layers/screenplay.md) |
-| A film only composes accepted modules, so a film defect is repaired in its module | [Composition contract](.agents/skills/contracts/development/composition.md#composition-only), [catalog cases](.agents/skills/motion/catalog-cases.md) |
+| A film only composes accepted modules | [Composition contract](.agents/skills/contracts/development/composition.md#composition-only), [catalog cases](.agents/skills/motion/catalog-cases.md) |
 | Search the installed packages before writing, and vary a module instead of copying it | [Reuse](.agents/skills/development/reuse.md) |
 | Divide programming by responsibility and test each module | [Development](.agents/skills/development/SKILL.md) |
 
@@ -66,7 +66,7 @@ Read the production's `PROJECT.md` for the adopted scope, then enter the request
 | [production](.agents/skills/production/SKILL.md) | Starting, resuming, restructuring or handing off a production: project context, sustained runs, stage caches, media records, instruction sync and final assembly |
 | [story](.agents/skills/story/SKILL.md) | Research, and planning, writing, continuing or revising a brief, settings, treatments, scripts, final screenplay, expression pass, narrative evidence or cause-based repair |
 | [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | A detailed asset representation, geometry, rig or authored control, when [entity work](.agents/skills/development/entities.md) says a commission needs one |
-| [motion](.agents/skills/motion/SKILL.md) | Programmed performance by end-effector goals, catalog cases, staging, camera, physical responses, frame-time evaluation, the motion hint's control channels and motion verification |
+| [motion](.agents/skills/motion/SKILL.md) | Programmed performance by end-effector goals, catalog cases, staging, camera, physical responses, frame evaluation, the motion hint's control channels and motion verification |
 | [image](.agents/skills/image/SKILL.md) | Canon reference images, shot frames, style frames or turnaround views |
 | [video](.agents/skills/video/SKILL.md) | Choosing the video model, planning requests, writing video prompts, and generating and adopting takes |
 | [audio](.agents/skills/audio/SKILL.md) | A shot's sound for the video model's prompt, a voice preview, or a commissioned soundtrack the user accepts by ear |

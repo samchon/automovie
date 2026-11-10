@@ -1,5 +1,7 @@
 # Creative requirements
 
+What the user fixed or delegated about the work itself is recorded here before anything relies on it.
+
 ## Requirements
 
 Record each requirement adopted from the conversation and the user's materials before relying on it, in `docs/instructions/` with one H1 per topic and an anchored H2 per independently changeable requirement.

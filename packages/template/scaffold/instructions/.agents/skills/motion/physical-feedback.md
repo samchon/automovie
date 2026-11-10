@@ -1,6 +1,6 @@
 # Physical feedback
 
-Physical feedback serves what is not a person and the actions the installed human motion vocabulary lacks; the vocabulary already resolves a person's goals, plants and contacts.
+Physical feedback serves what is not a person and the actions the installed motion vocabulary lacks; the vocabulary already resolves a person's goals, plants and contacts.
 
 Read the installed engine's public contracts for the physical interaction at issue, and use its kinematics, range-of-motion checks, rigid impacts or other relevant computations to derive consequential action or expose an unworkable performance. Authored timing and dramatic intent still choose what the audience sees, so simulate only where the promise needs it.
 

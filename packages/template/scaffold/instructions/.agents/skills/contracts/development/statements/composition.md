@@ -4,19 +4,18 @@ Contract: [composition.md](../composition.md).
 
 ## Screenplay realization {#screenplay-realization}
 
-1. The scene composes each cited beat's cast, intent, outcome, consequence, spatial change, camera, requested sound layers and continuity.
-2. It omits, alters and adds none of them.
-3. Each state continues across cuts until a beat changes it.
-4. A film plays every scene in screenplay order with the screenplay's transitions, titles and subtitles, and fills its running time.
-5. A film takes its raster, frame rate and running time from the delivery profile in [project context](../../../production/project-context.md), and its grade and control channels from the screenplay and that record.
-6. The scene's comment opens with its screenplay citation and a summary of what happens.
-7. A `Concretization:` paragraph names each decision the code had to make where the screenplay was vague. It never holds an exchange, an outcome or a reaction, which only the screenplay decides.
-8. The same change records each concretization in the screenplay, under [concretization](../../../story/correction/repair.md#concretization).
-9. A catalog case composition takes its case parameters and cites the research section or fact each row exhibits, and the catalog film lists every row the screenplay uses.
+1. The scene composes each cited beat's cast, intent, outcome, consequence, spatial change, camera, requested sound layers and continuity, omitting, altering and adding none.
+2. Each state continues across cuts until a beat changes it.
+3. A film plays every scene in screenplay order with the screenplay's transitions, titles and subtitles, and fills its running time.
+4. A film takes its raster, frame rate and running time from the delivery profile in [project context](../../../production/project-context.md), and its grade and control channels from the screenplay and that record.
+5. The scene's comment opens with its screenplay citation and a summary of what happens.
+6. A `Concretization:` paragraph names each decision the code had to make where the screenplay was vague. It never holds an exchange, an outcome or a reaction, which only the screenplay decides.
+7. The same change records each concretization in the screenplay, under [concretization](../../../story/correction/repair.md#concretization).
+8. A catalog case composition takes its case parameters and cites the research section or fact each case exhibits, and the catalog film lists every case the screenplay uses.
 
 ## Composition only {#composition-only}
 
-1. The declaration only combines entity capabilities, interaction entry points and consequences, through the installed combinators.
+1. The declaration only combines entity capabilities, interaction entry points and consequences, through the installed engine's combinators.
 2. It places absolute time only at the screenplay's anchors.
 3. It holds no calculation, constant, coordinate, direct law import, URL parameter, archive load or runtime selection. Each of these is a capability missing from its owner and is added there.
 4. A person's action reaches the scene through the cast entity's capability, an action of the installed motion vocabulary included.

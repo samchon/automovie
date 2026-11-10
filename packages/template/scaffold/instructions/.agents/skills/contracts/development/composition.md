@@ -2,7 +2,11 @@
 
 Each exported function and method under `src/composition/` answers these items in its doc comment, beside [common](common.md) and [implementation](implementation.md).
 
-A scene in `src/composition/scenes/<film>/<scene>/` cites each screenplay scene or beat it realizes as `@evidence docs/body/screenplay/<film>.md#<anchor> <what it realizes>`, and a film in `src/composition/films/` cites its screenplay file; every scene, beat and screenplay file is realized, and an `OMITTED` one is covered by an `@evidenceExclude` on the scene that would have realized it, or on a neighboring scene when the whole scene is omitted.
+A scene in `src/composition/scenes/<film>/<scene>/` cites each screenplay scene or beat it realizes as `@evidence docs/body/screenplay/<film>.md#<anchor> <what it realizes>`, and a film in `src/composition/films/` cites its screenplay file.
+
+Every scene, beat and screenplay file is realized.
+
+An `OMITTED` one is covered by an `@evidenceExclude` on the scene that would have realized it, or on a neighboring scene when the whole scene is omitted.
 
 A catalog case in `src/composition/scenes/catalog/<module>/` and the catalog film cite the research section or settings or brief fact each case exhibits in place of a screenplay, and answer the other items.
 
@@ -16,7 +20,7 @@ State the beats realized and what happens in them, each decision the code had to
 
 ## Does it only compose? {#composition-only}
 
-Does the declaration only combine the capabilities of accepted modules, through the installed combinators, along the screenplay? Logic written into one scene cannot be reused, tested or accepted in a catalog case, so anything else found here is a capability missing from its owner.
+Does the declaration only combine the capabilities of accepted modules, through the installed engine's combinators, along the screenplay? Logic written into one scene cannot be reused, tested or accepted in a catalog case, so anything else found here is a capability missing from its owner, and a defect a film shows is repaired in its module, never in the scene.
 
 State the capabilities it combines and where it places absolute time.
 

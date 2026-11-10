@@ -1,6 +1,6 @@
 # {{name}}
 
-Use an LLM to author a complete movie screenplay, then program the main scenes' motion, staging and camera and assemble the whole video as a reproducible motion hint. Every person is a polygon man, drawn from the body the installed Human package prepares, and every other subject is the simplest form that identifies it, as [entity work]({{skills}}/development/entities.md#coarse-first) sets; the accuracy goes to motion. Stills and pilot clips alone do not complete a movie hint.
+Use an LLM to author a complete movie screenplay, then program the main scenes' motion, staging and camera and assemble the whole video as a reproducible motion hint. Every person is a polygon man, drawn from the body the installed Human package prepares, and every other subject is the simplest form that identifies it, as [entity work]({{skills}}/development/entities.md#coarse-first) sets; the accuracy goes to motion. Stills and pilot clips alone do not complete a motion hint.
 
 ## First run
 
@@ -25,7 +25,7 @@ The public Render runner writes `media/automovie/<film>/videos/film.mp4` and the
 
 ## Node frame capture
 
-`npm run capture -- --film <name>` draws film frames directly in Node, with no Viewer server, browser or GPU: it mounts the film through its own `create()` and `seek()` and rasterizes each second on the CPU through the installed Viewer's Node rasterizer. It is the one route to stills: by default it samples the ten-second window from `--from <s>` (0) at 5 frames per second on the film's frame grid and writes 50 frames `t<seconds>.png` with the second stamped in the corner, one 50-cell contact sheet `sheet-<from>-<to>.png` with a JSON cell index, and `manifest.json` into `media/automovie/<film>/frames/capture/<from>-<to>/`, the same path on every run. The script runs through `ttsx --no-plugins --noCheck`, so no type check or compiler plugin delays the drawing; the [compile checker]({{skills}}/development/SKILL.md) reports compile errors.
+`npm run capture -- --film <name>` draws film frames directly in Node, with no Viewer server, browser or GPU: it mounts the film through its own `create()` and `seek()` and rasterizes each second on the CPU through the installed Viewer's Node rasterizer. It is the one route to stills of the source: by default it samples the ten-second window from `--from <s>` (0) at 5 frames per second on the film's frame grid and writes 50 frames `t<seconds>.png` with the second stamped in the corner, one 50-cell contact sheet `sheet-<from>-<to>.png` with a JSON cell index, and `manifest.json` into `media/automovie/<film>/frames/capture/<from>-<to>/`, the same path on every run. The script runs through `ttsx --no-plugins --noCheck`, so no type check or compiler plugin delays the drawing; the [compile checker]({{skills}}/development/SKILL.md) reports compile errors.
 
 | Option | Effect |
 | --- | --- |
@@ -50,24 +50,35 @@ npm run capture -- --film <name> --from 60
 
 The frames are flat-shaded diagnostics of pose, contact, staging and framing under the scene's lights, without textures, shadows or post-processing; their manifest counts objects that were not drawn. Film code must therefore run in plain Node: no DOM, no URL-loaded textures and no `import.meta.env`, with any development-server request falling back when absent. Delivered pixels still come from the Viewer through `npm run render`.
 
+## Stills from an encoded file
+
+The Node capture draws the source, so it cannot show what an encoded or generated file holds. Extract stills from such a file with the FFmpeg this project already uses, the `ffmpeg-static` executable or the one `FFMPEG_PATH` names, written as `ffmpeg` below. The first line writes one still at a second under review, and the second samples a run of them at a fixed rate.
+
+```bash
+ffmpeg -ss <seconds> -i <file> -frames:v 1 <still>.png
+ffmpeg -i <file> -vf fps=<rate> <folder>/t%04d.png
+```
+
+No npm script wraps this. Keep the stills under `media/automovie/<film>/frames/`.
+
 ## Physical performance review
 
 [Physical feedback]({{skills}}/motion/physical-feedback.md) chooses each scene's physical mode; the installed Engine's README and public declarations own its profiles, simulation, checkpoints, archives and audits. Supply `IFilmProduction.performance` from the displayed state to enable the shared inspection overlays; the starter's empty scene supplies none.
 
-Run `npm run review:setup` once to install Playwright's recording FFmpeg, and set `CHROME_PATH` to an installed Chrome or Chromium executable. `npm run review -- playback <viewer-url> <observation-seconds>` records actual Play-button playback as a video with its displayed clock and browser errors into `media/automovie/<film>/videos/review/`, unless a final directory argument names another.
+Run `npm run review:setup` once to install Playwright's recording FFmpeg, and set `CHROME_PATH` to an installed Chrome or Chromium executable. `npm run review -- playback <viewer-url> <observation-seconds>` records actual Play-button playback as a video with its displayed clock and browser errors into `media/automovie/<film>/videos/review/`, unless a final directory argument names another, for the user to watch.
 
 In the Viewer, URL parameters `rig=1` and `contacts=1` show the review skeleton and contact force vectors, and `view` an inspection camera: a named view or `x,y,z:tx,ty,tz` in world metres, as for capture. Omit them for delivered captures. Judge a correction at the same source revision, film seconds and camera.
 
-`npm run physics -- <input-module.ts> <output.amphys> [maximum-bytes]` computes a simulated performance once from a Node module exporting `createPhysicalInput()` and writes the archive with its JSON manifest, limited to 256 MiB by default. Keep the archive as a [saved stage]({{skills}}/production/stage-caches.md) under `.cache/` and regenerate it after changing physical inputs; playback, seeking and capture read it through the installed Engine's physical playback, which checks it against the current input's identity.
+`npm run physics -- <input-module.ts> <output.amphys> [maximum-bytes]` computes a simulated performance once from a Node module exporting `createPhysicalInput()` and writes the archive with its JSON manifest, limited to 256 MiB by default. Keep the archive as a [stage cache]({{skills}}/production/stage-caches.md) under `.cache/` and regenerate it after changing physical inputs; playback, seeking and capture read it through the installed Engine's physical playback, which checks it against the current input's identity.
 
 ## Make a motion hint
 
 1. Adopt the request, output boundary and operating choices, including the intended execution/capture path, in [PROJECT.md](PROJECT.md) through [project context]({{skills}}/production/project-context.md). Make routine choices within the user's delegation and keep creative requirements with their owners.
 2. Study every practice and style the film shows through [research]({{skills}}/story/planning/research.md), write the [settings]({{skills}}/story/layers/settings.md), or a short's [brief]({{skills}}/story/layers/brief.md), that draw on it, then write the complete [screenplay]({{skills}}/story/SKILL.md) along its [writing route]({{skills}}/story/workflow.md#route-and-parents), with evidence and independent review.
-3. Build the entities, laws, interactions and consequences with their tests, from suitable retained assets or newly authored [representations and controls]({{skills}}/3d-modeling/SKILL.md) at low cost, and accept them case by case under [motion]({{skills}}/motion/SKILL.md).
+3. Build the coarse entities under [entity work]({{skills}}/development/entities.md), compose people's actions from the installed motion vocabulary, write laws, interactions and consequences only for what it lacks, with their tests, and accept every module in its [catalog cases]({{skills}}/motion/catalog-cases.md).
 4. Compose every required main scene from the accepted modules under [motion]({{skills}}/motion/SKILL.md) and [staging for the camera]({{skills}}/motion/staging.md), in the folders [source layout]({{skills}}/development/source-layout.md) gives. [Audio]({{skills}}/audio/SKILL.md) describes each shot's sound for the video-diffusion prompt.
-5. Prepare the [motion hint and requested companion controls]({{skills}}/motion/control-channels.md) from the same actual performance, with aligned frame/camera mapping for time-matched channels. Use the supplied Viewer/export host or document the production's adopted replacement here.
-6. Assemble and encode the complete work through [finishing]({{skills}}/production/assembly.md), then inspect the actual output through [delivery review]({{skills}}/review/delivery-review.md). Hand off the fixed inputs, source, commands, observed result and remaining limits.
+5. Prepare the [motion hint and its control channels]({{skills}}/motion/control-channels.md) from the same actual performance, with aligned frame/camera mapping for time-matched channels. Use the supplied Viewer/export host or document the production's adopted replacement here.
+6. Assemble and encode the complete work through [assembly]({{skills}}/production/assembly.md), then inspect the actual output through [delivery review]({{skills}}/review/delivery-review.md). Hand off the fixed inputs, source, commands, observed result and remaining limits.
 
 A separately commissioned screenplay ends with its text duties; a standalone asset needs no invented narrative. A whole motion hint needs no finished diffusion film. A requested direct 3D film finishes through its actual renderer, with sound only as [audio]({{skills}}/audio/SKILL.md) sets; [generated video]({{skills}}/video/generation.md) uses the model, requests and prompts [video]({{skills}}/video/SKILL.md) sets and accepted fixed takes before the final edit. Their delivery boundaries stay explicit in PROJECT.md.
 
@@ -94,12 +105,10 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 
 - `.agents/skills`, at this project's root or at its workspace root, holds the task entry points `AGENTS.md` lists, their resources and the contracts. `AGENTS.md` groups creation, implementation/evidence, writing and assessment; `story` routes to its planning, layers, naturalness, correction and evidence parts.
 - `PROJECT.md` holds the project overview, commissioned scope, current choices, constraints and setup authority.
-- `docs/instructions` holds creative writing requirements; other `docs` locations hold research studies, bodies, working editions, evidence, reviews and acceptance records when needed, and `references/` the retained research originals. [Document layout]({{skills}}/story/document-layout.md), [source layout]({{skills}}/development/source-layout.md) and [media]({{skills}}/production/media-records.md) explain their owners.
+- `docs/instructions` holds creative writing requirements; other `docs` locations hold research studies, bodies, working editions, evidence, reviews and acceptance records when needed, and `references/` the retained research originals. [Document layout]({{skills}}/story/document-layout.md), [source layout]({{skills}}/development/source-layout.md) and [media records]({{skills}}/production/media-records.md) explain their owners.
 - `src` holds entities, laws, interactions, consequences, scene and film composition, host entries and commands as [source layout]({{skills}}/development/source-layout.md) assigns, with optional provider or local-tool code in `src/integrations`; `test` holds tests and their runner; `public` holds small fixed browser inputs, while audio and video belong in `media/`.
 - Runtime README instructions and `.env.example` hold nonsecret setup and variable names. Keep actual secrets in ignored local `.env`.
 - `evidence.config.ts` selects duties through installed `@automovie/evidence`; `npm run evidence` evaluates the selected native graph.
 - `lint.config.ts` configures generic source lint; the dependency direction between source folders is the [source layout]({{skills}}/development/source-layout.md)'s rule; `tsconfig.json` owns compiler settings and `tsconfig.test.json` scopes pure TypeScript unit tests. `package.json` owns dependencies and commands.
 
-Package upgrades leave this project unchanged. `automovie sync <directory> --check`, run on the directory holding `AGENTS.md` (this project or its workspace root), previews generated instruction updates, and omitting `--check` applies a conflict-free plan that preserves contracts, project decisions, README, configuration, authored content and proof. Keep `.automovie/scaffold-state.json` beside that `AGENTS.md`; [ownership and customization]({{skills}}/production/sync-and-reorganization.md) covers baselines, retired paths and approvals. Installed package READMEs, public types and JSDoc own API behavior.
-
-Video realization turns the screenplay into image, sound, performance and editing decisions; the installed `@automovie/evidence` owns the evidence graph.
+Package upgrades leave this project unchanged. `automovie sync <directory> --check`, run on the directory holding `AGENTS.md` (this project or its workspace root), previews generated instruction updates, and omitting `--check` applies a conflict-free plan that preserves contracts, project decisions, README, configuration, authored content and proof. Keep `.automovie/scaffold-state.json` beside that `AGENTS.md`; [sync and reorganization]({{skills}}/production/sync-and-reorganization.md) covers baselines, retired paths and approvals. Installed package READMEs, public types and JSDoc own API behavior.

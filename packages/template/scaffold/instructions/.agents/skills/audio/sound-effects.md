@@ -24,6 +24,6 @@ Cap overlapping instances per sound and per source, as game engines bound [sound
 
 For a commissioned soundtrack, measure on the decoded mix that every spoken line rises over the bed and that loudness, measured as [ITU-R BS.1770](https://www.itu.int/rec/R-REC-BS.1770) defines it, reaches the target the [delivery profile](../production/project-context.md) records, which may be dialogue-gated.
 
-Ask the user to listen to the complete working passage with moving picture at normal speed, replaying uncertain contacts and transitions, and to report synchronization, repetition, perspective and balance with speech and ambience together.
+At each listening the [audio skill](SKILL.md#commissioned-soundtrack) sets, the user hears the complete working passage with moving picture at normal speed, replays uncertain contacts and transitions, and reports synchronization, repetition, perspective and balance with speech and ambience together.
 
 Hand accepted bytes and measured cues to [assembly](../production/assembly.md) for a commissioned soundtrack, and ask for the affected listening again after either picture or sound changes.

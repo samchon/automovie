@@ -4,7 +4,7 @@ Study what the film must show truthfully before the screenplay decides it or cod
 
 ## What needs a study {#what-needs-a-study}
 
-Read the installed human motion vocabulary's README before deciding what to study. Its actions carry their own studies, so a movement it performs, everyday movement included, needs no production study: the screenplay names the action and the scenes compose it. Study what the vocabulary does not carry: a specialist practice, or the level and patterns of one, what is not a person, the conduct of officials and crowds, and how the genre is shot and heard. A study that no behavior follows has no consumer, and the evidence graph reports it.
+Read the installed motion vocabulary's README before deciding what to study. Its actions carry their own studies, so a movement it performs, everyday movement included, needs no production study: the screenplay names the action and the scenes compose it. Study what the vocabulary does not carry: a specialist practice or its level and patterns, and what is not a person. A study that no behavior follows has no consumer, and the evidence graph reports it.
 
 ## Performance study {#performance-study}
 

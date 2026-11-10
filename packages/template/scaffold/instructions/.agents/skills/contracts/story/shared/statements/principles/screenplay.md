@@ -20,12 +20,13 @@ Performance:
 
 Orientation and access:
 
-9. The audience can follow who, when, where, what is happening, what a reference means and what its access permits. Orientation arrives when a name, relationship, world fact or spatial arrangement first matters, without a lecture that stops the action.
-10. Across joins, consequential position, direction, gaze, object and bodily state, and the source and temporal relation of sound are preserved, or their deliberate change is legible.
-11. Visible and off-screen speech, audience-only narration, screen text, and simultaneous or successive actions are distinguished where that changes meaning.
-12. What the camera shows a character cannot see grants that character no knowledge. Changes of access have legible boundaries, and withholding has a reason within the declared form.
-13. Deliberate ambiguity or fragmentation still lets the audience tell its rule from an accidental omission.
-14. Concise connection and summary may serve the selected experience, while sustained tension, humor or loss receives the time needed to be felt.
+9. The audience can follow who, when, where, what is happening, what a reference means and what its access permits.
+10. Orientation arrives when a name, relationship, world fact or spatial arrangement first matters, without a lecture that stops the action.
+11. Across joins, consequential position, direction, gaze, object and bodily state, and the source and temporal relation of sound are preserved, or their deliberate change is legible.
+12. Visible and off-screen speech, audience-only narration, screen text, and simultaneous or successive actions are distinguished where that changes meaning.
+13. What the camera shows a character cannot see grants that character no knowledge. Changes of access have legible boundaries, and withholding has a reason within the declared form.
+14. Deliberate ambiguity or fragmentation still lets the audience tell its rule from an accidental omission.
+15. Concise connection and summary may serve the selected experience, while sustained tension, humor or loss receives the time needed to be felt.
 
 ## Attention and duration {#attention-and-duration}
 
@@ -54,9 +55,9 @@ What each beat decides:
 
 What the modules can perform:
 
-9. Each action is one the installed human motion vocabulary performs, or the one its cited research law describes.
+9. Each action is one the installed motion vocabulary performs, or the one its cited research law describes.
 10. Each outcome is one the cited outcome table permits for the written intents and the performers' settings. An outcome the table forbids, or one no table covers, is undecided, not dramatic license.
-11. The beat asks nothing the adopted representation cannot show, such as a facial expression of a faceless figure.
+11. The beat asks nothing the adopted representation cannot show, such as a facial expression on a polygon man.
 
 Measurements:
 
