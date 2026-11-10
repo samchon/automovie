@@ -489,12 +489,8 @@ export namespace HumanSegment {
         transition.offset(Math.max(0, seconds - transition.cut), pose),
         body.skeleton,
       );
-      for (const limb of [
-        "leftLeg",
-        "rightLeg",
-        "leftArm",
-        "rightArm",
-      ] as const) {
+      // Attached goals are fitted after the limb they ride on (resolveHumanPosture.order).
+      for (const limb of resolveHumanPosture.order(posture.limbs)) {
         const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
         if (goal?.planted === true)
           pose = resolveHumanPosture.limb(body, pose, limb, goal);

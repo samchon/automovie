@@ -77,5 +77,19 @@ export namespace IHumanPosture {
      * foot pivots on its ball.
      */
     contact?: IAutoMovieVector3;
+
+    /**
+     * The bone the goal is attached to, when it moves with the body rather
+     * than staying in the world: `point` and `bend` are then in the bone's
+     * posed frame (relative to its posed world position and rotation) and
+     * `rotation` composes after the bone's. The resolver carries them into the
+     * world from the pose being fitted, after the trunk, the head, any layer
+     * and any transition offset have placed the bone, so a palm on the chin or
+     * in a pocket stays there when breathing or a glance moves the body. A
+     * limb attached to another limb's bone is fitted after it; a bone of the
+     * limb's own chain, or two limbs attached to each other, is refused
+     * (`resolveHumanPosture.order`, `resolveHumanPosture.world`).
+     */
+    on?: AutoMovieHumanoidBone;
   }
 }

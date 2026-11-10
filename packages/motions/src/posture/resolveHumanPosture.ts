@@ -19,6 +19,7 @@ import type {
 import type { IHumanBody } from "../body/IHumanBody";
 import { HumanFoot } from "./HumanFoot";
 import type { IHumanPosture } from "./IHumanPosture";
+import { poseBones } from "./poseBones";
 
 /**
  * Resolve a posture into a canonical pose: the root from the posture's
@@ -90,7 +91,7 @@ export function resolveHumanPosture(
     },
     body.skeleton,
   );
-  for (const limb of ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
+  for (const limb of resolveHumanPosture.order(posture.limbs)) {
     const goal: IHumanPosture.IGoal | undefined = posture.limbs[limb];
     if (goal === undefined) continue;
     pose = fitLimb(body, pose, limb, goal);
@@ -151,45 +152,52 @@ export namespace resolveHumanPosture {
     const b: number = body.measure.shank;
     const phi: number = (knee * Math.PI) / 180;
     const limit: number = Math.sqrt(a * a + b * b + 2 * a * b * Math.cos(phi));
-    const legs = (["left", "right"] as const).filter(
-      (side) => posture.limbs[`${side}Leg`]?.planted === true,
-    );
+    // Only world-anchored plants are lowered for: a leg goal attached to a
+    // bone moves with that bone, so the root cannot be solved against it here.
+    const legs: { side: "left" | "right"; goal: IAutoMovieVector3 }[] = [];
+    for (const side of ["left", "right"] as const) {
+      const goal: IHumanPosture.IGoal | undefined = posture.limbs[`${side}Leg`];
+      if (goal?.planted === true && goal.on === undefined)
+        legs.push({ side, goal: goal.point });
+    }
     if (legs.length === 0) return posture;
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      resolvePose(
-        {
-          skeleton: body.skeleton.id,
-          root: {
-            translation: posture.root,
-            rotation: heading(posture),
-            scale: { x: 1, y: 1, z: 1 },
-          },
-          joints: Object.entries(posture.joints)
-            .filter(([bone]) => bone === "hips")
-            .map(([bone, j]) => ({
-              bone: bone as AutoMovieHumanoidBone,
-              flexion: j![0],
-              abduction: j![1],
-              twist: j![2],
-            })),
+    // The hip joints depend only on the root, the heading and the pelvis joint.
+    const pelvis: readonly [number, number, number] | undefined =
+      posture.joints.hips;
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      {
+        skeleton: body.skeleton.id,
+        root: {
+          translation: posture.root,
+          rotation: heading(posture),
+          scale: { x: 1, y: 1, z: 1 },
         },
-        body.skeleton,
-        HUMANOID_JOINT_AXES,
-        HUMANOID_REST_FRAME,
-      ).map(
-        (
-          r: IAutoMovieResolvedBone,
-        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-      ),
+        joints:
+          pelvis === undefined
+            ? []
+            : [
+                {
+                  bone: "hips",
+                  flexion: pelvis[0],
+                  abduction: pelvis[1],
+                  twist: pelvis[2],
+                },
+              ],
+      },
     );
     let drop: number = 0;
-    for (const side of legs) {
-      const hip: IAutoMovieVector3 = bones.get(
+    for (const { side, goal } of legs) {
+      const hip: IAutoMovieResolvedBone | undefined = bones.get(
         `${side}UpperLeg`,
-      )!.worldPosition;
-      const goal: IAutoMovieVector3 = posture.limbs[`${side}Leg`]!.point;
-      const dh: number = Math.hypot(hip.x - goal.x, hip.z - goal.z);
-      const dv: number = hip.y - goal.y;
+      );
+      if (hip === undefined)
+        throw new Error(
+          `The rig lacks ${side}UpperLeg, so the root cannot be lowered`,
+        );
+      const at: IAutoMovieVector3 = hip.worldPosition;
+      const dh: number = Math.hypot(at.x - goal.x, at.z - goal.z);
+      const dv: number = at.y - goal.y;
       if (Math.hypot(dh, dv) > limit && dh < limit)
         drop = Math.max(drop, dv - Math.sqrt(limit * limit - dh * dh));
     }
@@ -215,20 +223,153 @@ export namespace resolveHumanPosture {
   ): IAutoMoviePose {
     return fitLimb(body, pose, limb, goal);
   }
+
+  /**
+   * The order to fit a posture's limbs in: arms then legs, each limb after
+   * any limb whose bones its goal is attached to (`on`), so an attachment
+   * reads that limb's solved frame (a palm under the other elbow follows the
+   * other arm). A limb's bones are its chain, its hand or foot, and the
+   * fingers or toes beyond them. Two limbs attached to each other (crossed
+   * arms, each palm on the other arm) cannot be ordered and are refused; a
+   * law that wants them solves the pair itself and attaches to a shared bone
+   * such as the chest.
+   *
+   * @param limbs The posture's limb goals.
+   * @returns Every limb, in fitting order.
+   * @throws {Error} When two limbs' goals are attached to each other, naming both.
+   */
+  export function order(limbs: IHumanPosture["limbs"]): IHumanPosture.Limb[] {
+    const all: readonly IHumanPosture.Limb[] = [
+      "leftArm",
+      "rightArm",
+      "leftLeg",
+      "rightLeg",
+    ];
+    // The limb a bone belongs to, when it belongs to one.
+    const owner = (
+      bone: AutoMovieHumanoidBone,
+    ): IHumanPosture.Limb | undefined =>
+      all.find((limb: IHumanPosture.Limb): boolean => {
+        const side: string = limb.startsWith("left") ? "left" : "right";
+        return limb.endsWith("Arm")
+          ? bone.startsWith(side) &&
+              /(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/.test(
+                bone,
+              )
+          : bone.startsWith(side) &&
+              /(UpperLeg|LowerLeg|Foot|Toes|Hallux)/.test(bone);
+      });
+    const after = (
+      limb: IHumanPosture.Limb,
+    ): IHumanPosture.Limb | undefined => {
+      const on: AutoMovieHumanoidBone | undefined = limbs[limb]?.on;
+      const first: IHumanPosture.Limb | undefined =
+        on === undefined ? undefined : owner(on);
+      return first === limb ? undefined : first;
+    };
+    for (const limb of all) {
+      const first: IHumanPosture.Limb | undefined = after(limb);
+      if (first !== undefined && after(first) === limb)
+        throw new Error(
+          `The ${limb} and ${first} goals are attached to each other and cannot be ordered`,
+        );
+    }
+    // With at most one dependency per limb and no two-cycle, placing each limb
+    // after its dependency in one pass is a topological order of four nodes.
+    const out: IHumanPosture.Limb[] = [];
+    const visit = (limb: IHumanPosture.Limb, depth: number): void => {
+      if (out.includes(limb)) return;
+      if (depth > all.length)
+        throw new Error("Limb goal attachments form a cycle");
+      const first: IHumanPosture.Limb | undefined = after(limb);
+      if (first !== undefined) visit(first, depth + 1);
+      out.push(limb);
+    };
+    for (const limb of all) visit(limb, 0);
+    return out;
+  }
+
+  /**
+   * A limb goal in world terms: unchanged when it has no `on` bone, otherwise
+   * its point and bend carried from the bone's posed frame to the world
+   * (`p_world = P + R p`) and its rotation composed after the bone's
+   * (`R q`), with the bone placed by the given pose. The attachment is
+   * refused for a bone of the limb's own chain (its upper bone, its lower
+   * bone or its end), because fitting the limb moves that bone and the goal
+   * would chase itself.
+   *
+   * @param body The performer's body.
+   * @param pose The pose that places the attachment bone, before the limb is fitted.
+   * @param limb The limb the goal is for.
+   * @param goal The goal, attached or not.
+   * @returns The goal with world point, bend and rotation and no `on`.
+   * @throws {Error} When the goal is attached to a bone of its own limb's chain, or to a bone the rig lacks.
+   */
+  export function world(
+    body: IHumanBody,
+    pose: IAutoMoviePose,
+    limb: IHumanPosture.Limb,
+    goal: IHumanPosture.IGoal,
+  ): IHumanPosture.IGoal {
+    const on: AutoMovieHumanoidBone | undefined = goal.on;
+    if (on === undefined) return goal;
+    const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+    const chain: readonly AutoMovieHumanoidBone[] = limb.endsWith("Arm")
+      ? [`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`]
+      : [`${side}UpperLeg`, `${side}LowerLeg`, `${side}Foot`];
+    if (chain.includes(on))
+      throw new Error(
+        `A ${limb} goal cannot be attached to ${on}, a bone of its own chain`,
+      );
+    const frame: IAutoMovieResolvedBone | undefined = poseBones(body, pose).get(
+      on,
+    );
+    if (frame === undefined)
+      throw new Error(
+        `A ${limb} goal is attached to ${on}, which the rig lacks`,
+      );
+    const place = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+      Vector3.add(
+        frame.worldPosition,
+        Quaternion.rotateVector(frame.worldRotation, p),
+      );
+    const { on: _attached, ...rest } = goal;
+    return {
+      ...rest,
+      point: place(goal.point),
+      bend: place(goal.bend),
+      ...(goal.rotation === undefined
+        ? {}
+        : {
+            rotation: Quaternion.normalize(
+              Quaternion.multiply(frame.worldRotation, goal.rotation),
+            ),
+          }),
+    };
+  }
 }
 
 /**
  * The fit of one limb by the engine's two-bone solver; with a contact, the end
  * joint is re-aimed twice so the contact stays put under the rotation the
  * limb actually reached (`HumanFoot.heelOff`), and a foot's toes take back
- * the pitch it lost.
+ * the pitch it lost. A goal attached to a bone (`on`) is first carried into
+ * the world by that bone as the pose being fitted places it, so whatever
+ * moved the bone before the fit (a trunk joint, a layer, a transition
+ * offset) moves the goal with it.
  */
 function fitLimb(
   body: IHumanBody,
   pose: IAutoMoviePose,
   limb: IHumanPosture.Limb,
-  goal: IHumanPosture.IGoal,
+  attached: IHumanPosture.IGoal,
 ): IAutoMoviePose {
+  const goal: IHumanPosture.IGoal = resolveHumanPosture.world(
+    body,
+    pose,
+    limb,
+    attached,
+  );
   let fitted: IAutoMoviePose = fitOnce(body, pose, limb, goal);
   if (goal.contact === undefined || goal.rotation === undefined) return fitted;
   const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
