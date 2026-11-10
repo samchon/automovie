@@ -1,6 +1,6 @@
 # automovie
 
-`automovie` installs the AutoMovie scaffold as a single production repository or a pnpm workspace of productions.
+The command that starts an AutoMovie production. It installs the scaffold a coding agent works in: instructions, configuration and package dependencies, with no film content.
 
 ```text
 npx automovie create <directory> [--workspace] [--name <name>] [--force]
@@ -8,18 +8,31 @@ pnpm automovie add <shorts|series>/<name> [--name <name>] [--force]
 npx automovie sync <directory> [--check] [--baseline <directory>]
 ```
 
-`create` takes exactly one target directory. It installs a single production, or with `--workspace` a pnpm workspace root: shared `AGENTS.md`, `CLAUDE.md` and `.agents/skills`, a `pnpm-workspace.yaml` whose members are `movies/shorts/*`, `movies/series/*` and `packages/*` and whose named `catalogs` (`automovie`, `samchon`, `three`, `media` and the rest, with one anchor per release group) pin every production dependency, and a root `package.json` with `automovie` as a development dependency. The package name is `--name`, else derived from the target's directory name; for the current directory itself, such as `.`, an interactive terminal is asked and offers `automovie-examples`, which is used without asking when no terminal is attached.
+The smallest use is `npx automovie create my-film`.
 
-`add` runs at a workspace root, the working directory, which must hold `pnpm-workspace.yaml`; it never searches for one. `add shorts/<name>` or `add series/<name>` writes a production into `movies/shorts/<name>` or `movies/series/<name>` with `catalog:<name>` dependencies, evidence and links reaching the root's shared skills, and no instruction copy. Its package name is `--name`, else derived from `<name>` as `create` derives one, lowercase and npm-safe. Shorts run settings → screenplay and series the whole long route.
+A generated production needs Node.js 22.23.2 or later, and a workspace also needs pnpm. The commands of the generated production are in its [README](../template/scaffold/production/README.md).
 
-`create` and `add` refuse a non-empty target unless `--force` is given, which also replaces same-path ordinary files. Help (`-h`, `--help`) and version (`-v`, `--version`) are standalone requests. Every other argument is refused before anything is written.
+## `create`
 
-Package upgrades leave installed files untouched. Explicit `sync`, run on a single production or a workspace root, updates only `AGENTS.md`, `CLAUDE.md`, bundled non-contract skill resources and their retained license. Contracts, custom skills absent from the bundle, `PROJECT.md`, README, configuration, source, creative bodies and proof remain project-owned. `--check` writes nothing and exits 1 when changes or conflicts remain. New projects store their generated instruction digests in `.automovie/scaffold-state.json`; differing existing files without that state require a verified previous adopted instruction root through `--baseline`. An explicit `--baseline` governs over the stored digests for every file it supplies, so it also resolves files that are verbatim older editions the stored state never recorded. Local changes conflict before any write. Retired generated paths are reported and retained for explicit retirement, never silently deleted. Publication retains completed or partial effects on failure and advances state only after the instruction writes succeed. The [scaffold README](../template/scaffold/production/README.md) lists the generated project's commands.
+`create` takes one target directory and installs a single production there. With `--workspace` it installs a pnpm workspace root instead: one shared `AGENTS.md`, `CLAUDE.md` and `.agents/skills`, and a `pnpm-workspace.yaml` whose members are `movies/shorts/*`, `movies/series/*` and `packages/*` and whose catalogs pin every production dependency.
 
-## API
+The package name is `--name` when given and otherwise comes from the directory name. For the current directory (`create .`) the command asks for a name and offers `automovie-examples`, which it uses without asking when no terminal is attached.
 
-The package exports `run`, the argument parser `readAutoMovieCommandArguments` with its per-command grammars, the name rules `deriveAutoMovieProjectName` and `selectAutoMovieProjectName` with `AUTOMOVIE_DEFAULT_PROJECT_NAME` and the terminal prompt, and the next-step text `renderAutoMovieScaffoldNextSteps`.
+## `add`
 
-## Development checks
+Run `add` from a workspace root, the directory that holds `pnpm-workspace.yaml`. It does not search parent directories. `add shorts/<name>` writes a production into `movies/shorts/<name>`, and `add series/<name>` into `movies/series/<name>`. A short is written as a brief and then the screenplay; a series is written in four layers: settings, treatments, scripts and screenplay. The new production takes its dependencies from the root's catalogs and its skills from the root's `.agents/skills`, so it gets no instruction copy of its own. `--name` sets the package name as in `create`.
 
-`pnpm run build` compiles with source correctness lint and the shared evidence declaration guards. `pnpm run evidence` checks the declarations' checklist answers with `@wrtnlabs/evidence`.
+## `sync`
+
+Upgrading `automovie` never changes an installed project. `sync` is the explicit update, run on a single production or a workspace root. It rewrites `AGENTS.md`, `CLAUDE.md` and the bundled skill files, except the contracts, the checklists a production's code and writing answer. Contracts, your own skills, `PROJECT.md`, the README, configuration, source and written content stay as they are.
+
+- `--check` writes nothing and exits 1 when updates or conflicts remain.
+- `--baseline <directory>` names the instruction files the project was installed from. It is required when files differ and the project has no `.automovie/scaffold-state.json`, and it takes precedence over that state for the files it holds.
+
+An instruction file you edited locally is reported as a conflict, and nothing is written until it is resolved. Resolve it by restoring the file and keeping your edit in a skill of your own, then run `sync` again. Instruction files that the new scaffold no longer ships are reported and kept.
+
+## Other options
+
+`create` and `add` refuse a non-empty target unless `--force` is given. With `--force`, files at the same paths are replaced.
+
+`-h`, `--help`, `-v` and `--version` must each be the only argument. Any unknown command or option is refused before anything is written.

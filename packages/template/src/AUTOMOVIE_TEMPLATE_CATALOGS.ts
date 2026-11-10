@@ -12,7 +12,6 @@
  * Bound retention and release resources: One fixed record for the module lifetime.
  */
 export const AUTOMOVIE_TEMPLATE_CATALOGS: Readonly<Record<string, string>> = {
-  archetypes: "automovie",
   cli: "automovie",
   engine: "automovie",
   evidence: "automovie",

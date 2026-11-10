@@ -7,7 +7,6 @@ packages:
 catalogs:
   automovie:
     automovie: &automovie "{{version:cli}}"
-    "@automovie/archetypes": *automovie
     "@automovie/engine": *automovie
     "@automovie/evidence": *automovie
     "@automovie/human": *automovie

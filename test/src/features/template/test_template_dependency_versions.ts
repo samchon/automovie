@@ -1,4 +1,4 @@
-﻿import {
+import {
   type IAutoMovieWorkspacePackageVersions,
   resolveAutoMovieTemplateDependencyVersions,
 } from "@automovie/template";
@@ -15,13 +15,12 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls resolveAutoMovieTemplateDependencyVersions and compares the complete returned table, detecting an omitted or misowned dependency, changed workspace range, missed scalar alias, or caret and tilde stripping applied to the wrong dependency group.
  * @evidence contracts/development/testing.md#independent-expectations The expected table is written from the supplied workspace package ranges and literal catalog entries; only the three documented fixed-runtime entries lose a leading caret or tilde. Distinct external version numbers identify catalog mapping mistakes without reading generated versions or resolver output.
- * @evidence contracts/development/testing.md#distinguishing-cases One complete document covers all twelve workspace ranges and nineteen external mappings, shared aliases, caret and tilde exact conversion, an already exact runtime version, and preserved compiler, evidence and test-tool ranges. Missing or malformed YAML and ownership refusals belong to test_template_catalog_resolution.
+ * @evidence contracts/development/testing.md#distinguishing-cases One complete document covers all eleven workspace ranges and twenty-two external mappings, shared aliases, caret and tilde exact conversion, an already exact runtime version, and preserved compiler, evidence and test-tool ranges. Missing or malformed YAML and ownership refusals belong to test_template_catalog_resolution.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable exported test_template_dependency_versions entry resolves caller-supplied text in-process and asserts one returned record; it reads no workspace file, installs no generated consumer and starts no process or native host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Complete workspace library ranges survive unchanged and every external).
  */
 export function test_template_dependency_versions(): void {
   const packages: IAutoMovieWorkspacePackageVersions = {
-    archetypes: "^2.0.0",
     cli: "^2.0.0",
     engine: "^2.0.0",
     evidence: "^2.3.0",
