@@ -5,11 +5,11 @@ description: Implements and tests production source, integrations, dependencies 
 
 # Development
 
-Read the production's current source and the installed package APIs before choosing an implementation. Divide behavior into responsibilities with explicit inputs, outputs and state owners, give each module [unit tests](testing.md), then verify their composition through the actual consumer.
+Read the production's current source and the [installed package APIs](reuse.md#reading-a-package) before choosing an implementation. Divide behavior into responsibilities with explicit inputs, outputs and state owners, give each module [unit tests](testing.md), then verify their composition through the actual consumer.
 
 | Task | Read |
 | --- | --- |
-| Use an installed package, report a defect in one, or vary and share a module | [Reuse](reuse.md) |
+| Find what an installed package is for and read its API, report a defect in one, or vary and share a module | [Reuse](reuse.md) |
 | Change existing behavior or fix a defect | [Repair](repair.md) |
 | Build or change a subject | [Entity work](entities.md) |
 | Choose behavioral checks | [Testing](testing.md) |

@@ -4,9 +4,11 @@ This repository holds AutoMovie productions. A production primarily turns an LLM
 
 The [production skill](.agents/skills/production/SKILL.md) routes the commissioned output and its working files.
 
+A production is built with the installed AutoMovie packages. [Installed packages](.agents/skills/development/reuse.md#installed-packages) says what each one is for and where its API is written.
+
 ## Layout
 
-A production is the directory holding its `PROJECT.md`: this repository root for a single production, or each `movies/shorts/<name>` and `movies/series/<name>` of an AutoMovie workspace. Every project path a skill names, such as `PROJECT.md`, `README.md`, `src`, `test`, `docs`, `references`, `media`, `package.json` and its configurations, is that production's, and its commands run in its directory.
+A production is the directory holding its `PROJECT.md`: this repository root for a single production, or each `movies/shorts/<name>` and `movies/series/<name>` of an AutoMovie workspace. Every project path a skill names, such as `PROJECT.md`, `README.md`, `src`, `test`, `docs`, `references`, `media`, `package.json` and its configurations, is that production's. Its `README.md` lists its commands, which run in its directory.
 
 The skills and bundled contracts under `.agents/skills` serve every production; a production's own work and language contracts live in its `docs/contracts`.
 
