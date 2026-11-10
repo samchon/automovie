@@ -35,6 +35,7 @@ The [root README](../../../README.md#packages) and package READMEs own inventori
 - `recovery` owns reference-mesh reconstruction algorithms, policy, workflows, APIs and hosts. Its shared declarative input contracts stay in `interface`, existing reusable mathematics and surface generation stay in `engine`, and display stays in `viewer`; recovery-specific algorithms do not move into `engine`.
 - `viewer` is the only library importing `three.js` (GPU display, capture, inspection transport); `playground` mounts it and owns example parameter sets. The parameter-only Human surface has no viewer or capture entry point.
 - `human` owns the human figure generated from typed parameters by code.
+- `motions` owns human action content: the action laws with their interrupt tables, the chain an author drives, the performance that resolves several performers, and the capture with its verdicts. `engine` keeps only universal motion primitives with cited practice and no action vocabulary, such as chain fitting, minimum jerk, inertialization and contact events.
 - `archetypes` owns the shipped figure and prop catalogue; a customer's own content stays in its production.
 - `evidence` owns reusable engineering defaults, optional narrative evidence composition for native checking. `template/scaffold` owns the generated production instructions, editable contracts, and thin configuration; `cli` installs them.
 - The four productions under `experimental/` feed the public website and are not disposable.

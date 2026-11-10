@@ -2,13 +2,11 @@
 
 ## Pose as a function of time
 
-A displayed pose is a pure function of its time, its inputs and its seed. Playback, seeking and capture sample the same performance at different instants and rates, and they agree only when no pose reads the previous frame or a state accumulated over a sampling grid. A solver's reference pose is likewise taken from a fixed instant, such as the plan's previous contact event, never from the frame before. Memoize only at exact event times.
-
-Seeded variation draws from a smooth noise of the seed, and proficiency scales timing and accuracy, so two takes differ believably and the same take replays exactly.
+Evaluating a pose from its time alone has two consequences specific to motion. A solver's reference pose comes from a fixed instant, such as the plan's previous contact event, never from the frame before. A memo is keyed only by exact event times, never by sampled frames. Either way, playback, seeking and capture at different rates still agree.
 
 ## Declared cuts
 
-Each action declares the actions it may be cut into, the window of each cut (a share of the action, or one of its events), and the transition kind. A cut the table does not list is refused when the chain is built, so an impossible change of plan surfaces before the film renders.
+Each action declares the actions it may be cut into, the window of each cut (a share of the action, or one of its events), and the transition kind. Refuse a cut the table does not list where the chain or schedule is built, so an impossible change of plan surfaces before the film renders.
 
 ## Changing action
 

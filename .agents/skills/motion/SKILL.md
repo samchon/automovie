@@ -17,13 +17,12 @@ Those four files ship unchanged to productions, so they name roles rather than t
 
 ## Owners
 
-- `@automovie/motions` holds human action content: the laws with their interrupt tables, the chain an author drives, the performance that resolves several performers, and the Node capture with its verdicts.
-- `engine` holds only universal motion primitives with cited practice and no action vocabulary: chain fitting, minimum jerk, inertialization, smooth noise, contact events, centre of mass. `interface` holds the types, and `viewer` the overlays.
+- The [package boundaries](../project/SKILL.md#packages) place action content in `motions` and universal motion primitives in `engine`.
 - Each algorithm has one owner. Read the owning package's exports before writing a helper; a second segment distance or angle wrap drifts from the first and leaves two bugs to fix.
 
 ## Bodies, research and captures
 
 - Verify human motion only on the polygon man at Human parameters through the canonical skeleton path, under [human](../human/SKILL.md).
-- Each action family keeps its scope, current state and primary references in its sub-issue of the motions campaign issue. Read that sub-issue before authoring, and add the sources you use there, so the next author starts from them.
-- Captures run with `pnpm --dir packages/motions node:capture -- --case <name>` and write `packages/motions/media/capture/<name>/manifest.json` with stills. The command exits with code 1 whenever a verdict fails, so pnpm's lifecycle error after the manifests are written reports a failed verdict, not a crash.
-- Body tests that prepare polygon men are named `test_human_*`. CI excludes them, so run them locally with `--include`.
+- Each action family keeps its scope, current state and primary references in its sub-issue of the motions campaign, #3201. Read that sub-issue before authoring, and add the sources you use there, so the next author starts from them.
+- Captures run with `pnpm --dir packages/motions node:capture -- --case <key>`. A key can expand into several cases, such as one per gesture or per body, and each case writes `packages/motions/media/capture/<case>/manifest.json` with its stills and verdicts. The command exits with code 1 whenever a verdict fails, so pnpm's lifecycle error after the manifests are written reports a failed verdict, not a crash.
+- The test workflow (`.github/workflows/test.yml`) excludes the tests that prepare polygon men by name, so run them locally with `--include`.
