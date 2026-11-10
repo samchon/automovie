@@ -5,7 +5,7 @@ description: Inspects a narrative body and repairs it by cause, at its earliest 
 
 # Correction
 
-Find every defect of a round first, then repair them together at their owners, because one finding at a time leaves the rest of its class and its upstream cause.
+Correction applies repair by cause to a narrative body: inspect the whole of it, then repair each cause at its earliest owner, within closed boundaries.
 
 | Task | Read |
 | --- | --- |

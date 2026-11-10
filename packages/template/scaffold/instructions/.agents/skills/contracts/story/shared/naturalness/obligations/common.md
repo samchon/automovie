@@ -2,8 +2,8 @@
 
 The scripts construction population and the revised screenplay population each answer once at file level in the edition that settles their expression. Read the whole selected population, recording convergence candidates with actual passages, repairs and reasons for preserving a form. Identify the inspected scope when none are found; representative examples and fixed counts cannot prove completeness.
 
-## Does recurrent expression follow material rather than a default mold? {#recurrent-frames}
+Statements: [statements/naturalness/obligations/common.md](../../statements/naturalness/obligations/common.md).
 
-Across every scene and delivery unit, compare sentence and direction molds, closing formulas, gestures, reactions, block shapes, and repeated modifiers against the circumstances they serve. Different props or synonyms do not change a repeated operation. A functionless convergence may fail even when each occurrence reads naturally alone. Compare preserved refrains, speech habits, contrasts, and declared regularity with a workable population without that mold and show the lost function. Repair the whole discovered cause and its members before the next full reading; bulk synonym replacement or another kind of padding is not repair. Frequency locates a pattern but does not decide whether it works.
+## Does recurrent expression follow material rather than a default pattern? {#recurrent-frames}
 
-Read the complete population in its actual language for recurring translation interference, awkward combinations, unnecessary pronouns, relationship-erasing registers, and sentence or narration endings that impose one rhythm on different material. Local grammatical correctness does not establish natural whole-work reception. Protect adopted tense, voice, period and institutional language, dialect, and purposeful recurrence through their effect; rotating endings or varying syntax to equalize counts cannot repair the experience.
+Across every scene and delivery unit, does each recurring form serve the circumstances it appears in? A functionless convergence may fail even when each occurrence reads naturally alone.

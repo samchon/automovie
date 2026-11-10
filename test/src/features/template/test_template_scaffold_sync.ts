@@ -123,7 +123,7 @@ export function test_template_scaffold_sync(): void {
       expectedRouter,
     );
 
-    const missing: string = ".agents/skills/motion/physics.md";
+    const missing: string = ".agents/skills/motion/physical-feedback.md";
     fs.unlinkSync(path.join(root, missing));
     fs.writeFileSync(path.join(root, "AGENTS.md"), "Local author choice.\n");
     const conflict: ReturnType<typeof syncScaffold> = syncScaffold(props);

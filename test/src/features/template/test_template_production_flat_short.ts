@@ -15,7 +15,7 @@ import path from "node:path";
 import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture";
 
 /**
- * Native selectors reach plain short screenplays and compact settings.
+ * Native selectors reach flat screenplays and plain settings files.
  *
  * Scenarios:
  * 1. A flat screenplay and a plain settings file each contribute their actual H2.

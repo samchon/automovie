@@ -19,7 +19,7 @@ Installed package APIs own API documentation, and the scaffold does not duplicat
 
 ## Source layout
 
-The production's [source layout](../../../packages/template/scaffold/instructions/.agents/skills/development/layout.md) is its backbone. A folder change moves the layout table, the development stages of `@automovie/evidence` and the contract respondents together, or they disagree about where code belongs. The scaffold `lint.config.ts` stays generic and names no folder.
+The production's [source layout](../../../packages/template/scaffold/instructions/.agents/skills/development/source-layout.md) is its backbone. A folder change moves the layout table, the development stages of `@automovie/evidence` and the contract respondents together, or they disagree about where code belongs. The scaffold `lint.config.ts` stays generic and names no folder.
 
 ## Outputs and routes
 
