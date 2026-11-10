@@ -16,6 +16,6 @@ Contract: [principles/brief.md](../../principles/brief.md).
 
 1. The definition, settled content, conditions and open matters come in a consistent order.
 2. Each independently used subject has one file with its inseparable attributes together, one term per concept and one owner per fact.
-3. The record states facts in prose for readers and never describes code.
+3. The brief is prose a screenplay author reads, with no description of code.
 4. It holds baseline states and change conditions and leaves events, action and reveal order to the screenplay.
 5. A decision a screenplay established that another scene or film must keep is recorded here and cites the unit that established it.

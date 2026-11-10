@@ -52,7 +52,7 @@ The frames are flat-shaded diagnostics of pose, contact, staging and framing und
 
 ## Stills from an encoded file
 
-The Node capture draws the source, so it cannot show what an encoded or generated file holds. Extract stills from such a file with the FFmpeg this project already uses, the `ffmpeg-static` executable or the one `FFMPEG_PATH` names, written as `ffmpeg` below. The first line writes one still at a second under review, and the second samples a run of them at a fixed rate.
+The Node capture draws the source, so it cannot show what an encoded or generated file holds. Extract stills from such a file with the FFmpeg this project already uses, the `ffmpeg-static` executable or the one `FFMPEG_PATH` names, written as `ffmpeg` below; `node -p "require('ffmpeg-static')"` prints the path of the first. The first line writes one still at a second under review, and the second samples a run of them at a fixed rate.
 
 ```bash
 ffmpeg -ss <seconds> -i <file> -frames:v 1 <still>.png

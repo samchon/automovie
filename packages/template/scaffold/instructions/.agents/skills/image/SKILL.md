@@ -26,7 +26,7 @@ Prompting alone suffices when no camera or pose has to match: canon sheets, set 
 Use the hint when the image must agree with it:
 
 - a shot's first or last frame;
-- polygon men whose eyelines, contact or depth order matter;
+- people whose facing, contact or depth order matter;
 - a specific pose, a held prop or a screen direction that must survive a cut;
 - a control-conditioned video model that will follow the hint.
 
@@ -52,7 +52,7 @@ A wardrobe change is its own set. Give each set a plate without people in the sh
 
 A first frame gives an image-to-video model the look while the hint gives the motion; when the two disagree on pose or camera, the result drifts.
 
-Render the hint's first frame at the video model's exact output size and aspect, generate the frame from that structure and the canon identity, then overlay it on the hint render and regenerate when silhouettes, horizon or eyelines move. Make a last frame the same way only when the shot's end pose matters, such as a matched cut.
+Render the hint's first frame at the video model's exact output size and aspect, generate the frame from that structure and the canon identity, then overlay it on the hint render and regenerate when silhouettes, horizon or facing move. Make a last frame the same way only when the shot's end pose matters, such as a matched cut.
 
 ## Turnaround views for modeling
 

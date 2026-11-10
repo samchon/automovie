@@ -13,17 +13,17 @@ Do not make every scene testify for an entire film or attach a conditional requi
 
 | Family | Unit or record questions | Complete-population questions |
 | --- | --- | --- |
-| Shared ownership | [Common principles](shared/principles/common.md) | [Common obligations](shared/obligations/common.md) |
-| Research | [Studied practice and sources](shared/principles/research.md), answered by each study | |
-| Settings | [Needed decisions and boundaries](shared/principles/settings.md) | [Promise, scope, and a coherent world](shared/obligations/settings.md) |
-| Brief, short route | [Needed decisions and currency](shared/principles/brief.md) | [A coherent brief](shared/obligations/brief.md) |
-| Settings index | [Reference groups](shared/principles/index.md) | [Whole-index navigation](shared/obligations/index.md) |
-| Treatments | [Decided events and information](shared/principles/treatments.md) | [Whole event design and handoff](shared/obligations/treatments.md) |
-| Scripts | [Executable scenes and staging](shared/principles/scripts.md) | [Partition and complete execution](shared/obligations/scripts.md) |
-| Final screenplay | [Audiovisual realization and beat decisions](shared/principles/screenplay.md) | [Delivery and version accountability](shared/obligations/screenplay.md) |
-| Narrative | [Progression and layer contribution](shared/principles/narratives.md) | [Continuity, promises, and distribution](shared/obligations/narratives.md) |
-| Actual speech | [Speakers and action order](shared/principles/realized.md) | [Finished voice distribution](shared/naturalness/obligations/realized.md) |
-| Independent review | [Grounded reading and literal audit](shared/principles/review.md) | [Complete rounds and verdict](shared/obligations/review.md) |
+| Shared ownership | [Common authoring principles](shared/principles/common.md): common principles | [Common population obligations](shared/obligations/common.md): common obligations |
+| Research | [Research principles](shared/principles/research.md): studied practice and sources, answered by each study | |
+| Settings | [Settings principles](shared/principles/settings.md): needed decisions and boundaries | [Settings population obligations](shared/obligations/settings.md): promise, scope, and a coherent world |
+| Brief, short route | [Brief principles](shared/principles/brief.md): needed decisions and currency | [Brief population obligations](shared/obligations/brief.md): a coherent brief |
+| Settings index | [Settings index section principles](shared/principles/index.md): reference groups | [Settings index population obligations](shared/obligations/index.md): whole-index navigation |
+| Treatments | [Treatment principles](shared/principles/treatments.md): decided events and information | [Treatment population obligations](shared/obligations/treatments.md): whole event design and handoff |
+| Scripts | [Script principles](shared/principles/scripts.md): executable scenes and staging | [Script population obligations](shared/obligations/scripts.md): partition and complete execution |
+| Final screenplay | [Final screenplay principles](shared/principles/screenplay.md): audiovisual realization and beat decisions | [Final screenplay population obligations](shared/obligations/screenplay.md): delivery and version accountability |
+| Narrative | [Narrative unit principles](shared/principles/narratives.md): progression and layer contribution | [Narrative population obligations](shared/obligations/narratives.md): continuity, promises, and distribution |
+| Actual speech | [Realized speech principles](shared/principles/realized.md): speakers and action order | [Speech expression population obligation](shared/naturalness/obligations/realized.md): finished voice distribution |
+| Independent review | [Review unit principles](shared/principles/review.md): grounded reading and literal audit | [Review population obligations](shared/obligations/review.md): complete rounds and verdict |
 
 ## The short route
 

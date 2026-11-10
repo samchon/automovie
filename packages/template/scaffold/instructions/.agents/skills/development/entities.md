@@ -32,7 +32,7 @@ A commission may ask for more than identification, such as a direct 3D film. Det
 
 Author motion, accept catalog cases and review segments at the default. The coarse form shows joints and contacts plainly and captures quickly, and a defect repaired on a detailed model leaves the coarse one unrepaired.
 
-Select the detailed form only for the delivery that commissions it, record that choice in [project context](../production/project-context.md), and compare the same segments for changed proportions, pivots, contact, timing and silhouette.
+Select the detailed form only for the delivery that commissions it, record that choice in [project context](../production/project-context.md), and compare the same segments for changed proportions, pivots, contact, deformation, visibility, timing and silhouette.
 
 [3D modeling](../3d-modeling/SKILL.md) owns how a detailed form is made, rigged and verified. Enter it only for a commissioned detail or for a form that primitives cannot make identifiable, and build only what the subject's visible role needs.
 
