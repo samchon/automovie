@@ -1,18 +1,15 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   curlChainUntilContact,
   minimumJerk,
   resolveAutoMovieMutualGoal,
-  resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieBodyMeasure,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -20,11 +17,13 @@ import type {
 import type { HumanActionName } from "../HumanActionName";
 import { stand } from "../actions/stand";
 import type { IHumanBody } from "../body/IHumanBody";
+import { HumanTrunk } from "../everyday/HumanTrunk";
 import type { IHumanActionContext } from "../law/IHumanActionContext";
 import type { IHumanActionLaw } from "../law/IHumanActionLaw";
 import type { IHumanActionPlan } from "../law/IHumanActionPlan";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
@@ -40,18 +39,21 @@ import { HumanPrehension } from "./HumanPrehension";
  * facing the partner's palm across the line between the two people and the
  * fingers pointing at the partner, so two right hands meet web to web with
  * their thumbs up; each hand then turns in its palm's plane to the tilt its
- * own arm can reach (`HumanGrasp.reachable`), the palms' contact unchanged. Inverse kinematics solves each arm (`HumanHand.place`, the
- * Final IK and Unreal Control Rig practice of an effector socket on a world
- * target); the feet stay planted as the stand law places them. Both partners
- * compute the same point from the same two shoulders, so the palms meet
- * without either reading the other's moving hand. The comfortable reach is
- * the shoulder-to-palm distance of an arm offering a hand: the upper arm 20
- * degrees forward of hanging and the elbow flexed 80 degrees (an inside angle
- * of 100 degrees, the middle of the 90 to 110 degrees at which a hand is held
- * out with the forearm forward), both provisional, as no measurement of the
- * offering arm was located; `gap` is the shoulder gap at which both such arms
- * meet, the distance partners stand at to shake hands. The limit is the straight arm less the pump's amplitude, so the
- * pump stays within reach above and below the meeting point.
+ * own arm can reach at the clasp and at the pump's top and bottom alike
+ * (`HumanGrasp.reachable`), the palms' contact unchanged. Inverse kinematics
+ * solves each arm (`HumanHand.place`, the Final IK and Unreal Control Rig
+ * practice of an effector socket on a world target), and through the clasp
+ * and the pump the arm keeps the configuration it clasped in
+ * (`IHumanPosture.IGoal.reference`); the feet stay planted as the stand law
+ * places them. Both partners compute the same point from the same two
+ * shoulders, so the palms meet without either reading the other's moving
+ * hand. The comfortable reach is the shoulder-to-palm distance of an arm
+ * offering a hand: the upper arm 30 degrees forward of hanging and the elbow
+ * flexed 60 degrees, which holds the forearm level, both provisional, as no
+ * measurement of the offering arm was located; `gap` is the chest gap at
+ * which both such arms meet, the distance partners stand at to shake hands.
+ * The limit is the straight arm less the pump's amplitude, so the pump stays
+ * within reach above and below the meeting point.
  *
  * Phases, the handshake's reach, grasp, shake and release (Jindai et al.,
  * reviewed by Prasad et al. 2022, Human-Robot Handshaking: A Review, Int. J.
@@ -107,10 +109,10 @@ export namespace handshake {
   }
 
   /** Elbow flexion of the offering arm, degrees; provisional. */
-  export const ELBOW: number = 80;
+  export const ELBOW: number = 60;
 
   /** Shoulder flexion of the offering arm, degrees; provisional. */
-  export const SHOULDER: number = 20;
+  export const SHOULDER: number = 30;
 
   /** Pump frequency, hertz (Tagne et al. 2016, greeting). */
   export const FREQUENCY: number = 2.43;
@@ -134,15 +136,17 @@ export namespace handshake {
       throw new Error("A handshake pumps a positive whole number of times");
     const body: IHumanBody = context.body;
     const partner: IHumanBody = context.performer(context.params.partner).body;
+    const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
 
     // The meeting point from both acting shoulders at the start.
-    const shoulder = (
-      bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    ): IAutoMovieVector3 => bones.get(`${side}UpperArm`)!.worldPosition;
-    const mine: IAutoMovieVector3 = shoulder(fk(body, context.entry.pose));
-    const theirs: IAutoMovieVector3 = shoulder(
-      context.performer(context.params.partner).bones(context.start),
-    );
+    const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      poseBones(body, context.entry.pose);
+    const mine: IAutoMovieVector3 = entered.get(`${side}UpperArm`)!
+      .worldPosition;
+    const theirs: IAutoMovieVector3 = context
+      .performer(context.params.partner)
+      .bones(context.start)
+      .get(`${side}UpperArm`)!.worldPosition;
     const meet: IAutoMovieVector3 = resolveAutoMovieMutualGoal({
       a: arm(body, side, mine),
       b: arm(partner, side, theirs),
@@ -172,19 +176,21 @@ export namespace handshake {
       side === "right" ? left : Vector3.scale(left, -1);
     // Each hand may turn in its palm's plane (the palms' contact is the same)
     // to the tilt its own arm can reach, as hands cross at an angle in a real
-    // handshake; each partner computes both choices from both standing
-    // postures, so they agree.
-    const tilt = (
+    // handshake; the same tilt must hold at the pump's top and bottom, so
+    // those are keys of the choice. Each partner computes both choices from
+    // both standing postures, so they agree.
+    const clasping = (
       who: IHumanBody,
       posture: IHumanPosture,
       normal: IAutoMovieVector3,
       fingers: IAutoMovieVector3,
-    ): HumanHand.IWrist =>
-      HumanGrasp.reachable(
+    ): HumanGrasp.IReach => {
+      const bend: IAutoMovieVector3 = HumanHand.elbow(who, posture, side);
+      return HumanGrasp.reachable(
         who,
         posture,
         side,
-        HumanHand.elbow(who, posture, side),
+        bend,
         (angle: number): HumanHand.IWrist =>
           HumanHand.place(
             who,
@@ -199,42 +205,32 @@ export namespace handshake {
             ),
             "flat",
           ),
-      ).wrist;
-    const shown = (
-      who: IHumanBody,
-      posture: IHumanPosture,
-      wrist: HumanHand.IWrist,
-    ): HumanHand.IWrist => {
-      const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
-      const hand = fk(
-        who,
-        resolveHumanPosture(who, {
-          ...posture,
-          limbs: {
-            ...posture.limbs,
-            [limb]: {
-              point: wrist.point,
-              rotation: wrist.rotation,
-              bend: HumanHand.elbow(who, posture, side),
-            },
-          },
-        }),
-      ).get(`${side}Hand`)!;
-      return { point: hand.worldPosition, rotation: hand.worldRotation };
+        [0],
+        (wrist: HumanHand.IWrist): HumanGrasp.IKey[] =>
+          [-AMPLITUDE, AMPLITUDE].map(
+            (lift: number): HumanGrasp.IKey => ({
+              posture,
+              wrist: {
+                point: { ...wrist.point, y: wrist.point.y + lift },
+                rotation: wrist.rotation,
+              },
+              bend,
+            }),
+          ),
+      );
     };
-    const clasp: HumanHand.IWrist = tilt(
+    const own: HumanGrasp.IReach = clasping(
       body,
       base.posture(reach),
       palm,
       across,
     );
+    const clasp: HumanHand.IWrist = own.wrist;
     const turn: IAutoMovieQuaternion = clasp.rotation;
 
     // Where the hand starts and where it returns to.
-    const entry: IAutoMovieResolvedBone = fk(body, context.entry.pose).get(
-      `${side}Hand`,
-    )!;
-    const rest: IAutoMovieResolvedBone = fk(
+    const entry: IAutoMovieResolvedBone = entered.get(`${side}Hand`)!;
+    const rest: IAutoMovieResolvedBone = poseBones(
       body,
       resolveHumanPosture(body, base.posture(duration)),
     ).get(`${side}Hand`)!;
@@ -257,47 +253,33 @@ export namespace handshake {
     const peak: number = HumanPrehension.peak(context.random("peak"));
 
     // The fingers close round the partner's hand as it will lie at the clasp:
-    // the partner's palm on the same point, turned to face this palm.
+    // the partner's palm on the same point, turned to face this palm. The
+    // partner's hand, forearm and open thumb, posed as the partner's arm will
+    // be at the clasp, are what the closing digits stop on.
     const standing: IHumanPosture = HumanGrasp.standing(
       partner,
       context.performer(context.params.partner).bones(context.start),
     );
-    const their: HumanHand.IWrist = shown(
+    const their: HumanHand.IWrist = clasping(
       partner,
       standing,
-      tilt(
-        partner,
-        standing,
-        Vector3.scale(palm, -1),
-        Vector3.scale(across, -1),
-      ),
-    );
-    // The partner's hand, forearm and open thumb, posed as the partner's arm
-    // will be at the clasp, are what the closing digits stop on.
-    const limbOf: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
-    const partnerPose = resolveHumanPosture(partner, {
+      Vector3.scale(palm, -1),
+      Vector3.scale(across, -1),
+    ).wrist;
+    const partnerPose: IAutoMoviePose = resolveHumanPosture(partner, {
       ...standing,
       joints: { ...standing.joints, ...HumanHand.shape(side, "flat") },
       limbs: {
         ...standing.limbs,
-        [limbOf]: {
+        [limb]: {
           point: their.point,
           rotation: their.rotation,
           bend: HumanHand.elbow(partner, standing, side),
         },
       },
     });
-    const partnerBones: Map<
-      AutoMovieHumanoidBone,
-      { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }
-    > = new Map(
-      [...fk(partner, partnerPose)].map(
-        ([bone, r]): [
-          AutoMovieHumanoidBone,
-          { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion },
-        ] => [bone, { position: r.worldPosition, rotation: r.worldRotation }],
-      ),
-    );
+    const partnerBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      poseBones(partner, partnerPose);
     const colliders: curlChainUntilContact.ICollider[] =
       partner.profile.segments
         .filter(
@@ -309,21 +291,28 @@ export namespace handshake {
         .flatMap(
           (
             s: IAutoMoviePhysicalProfile.ISegment,
-          ): curlChainUntilContact.ICollider[] =>
-            s.shapes.map(
+          ): curlChainUntilContact.ICollider[] => {
+            const bone: IAutoMovieResolvedBone = partnerBones.get(
+              s.bone as AutoMovieHumanoidBone,
+            )!;
+            return s.shapes.map(
               (
                 shape: IAutoMoviePhysicalProfile.IShape,
               ): curlChainUntilContact.ICollider => ({
                 shape,
-                frame: partnerBones.get(s.bone as AutoMovieHumanoidBone)!,
+                frame: {
+                  position: bone.worldPosition,
+                  rotation: bone.worldRotation,
+                },
               }),
-            ),
+            );
+          },
         );
     const fingers: IHumanPosture["joints"] = HumanGrip.close(
       body,
       side,
       "power",
-      shown(body, base.posture(reach), clasp),
+      own.shown,
       colliders,
     ).joints;
     const shapes = {
@@ -336,8 +325,6 @@ export namespace handshake {
       open: HumanHand.shape(side, "flat"),
       closed: HumanHand.shape(side, "relaxed"),
     };
-
-    const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
     return {
       duration,
       events: [
@@ -399,11 +386,49 @@ export namespace handshake {
               point: wrist,
               rotation,
               bend: HumanHand.elbow(body, posture, side),
-              ...(gripping ? { planted: true } : {}),
+              // The clasp's own arm solution anchors the pump; the reach
+              // arrives at it and the return leaves it unanchored.
+              ...(gripping ? { planted: true, reference: own.reference } : {}),
             },
           },
         };
       },
+    };
+  }
+
+  /** Where a standing body's chest and acting shoulder lie from its floor point. */
+  export interface IStance {
+    /** How far the sternum region lies ahead of the floor point, metres. */
+    sternum: number;
+
+    /** How far the shoulder joint lies ahead of the floor point, metres. */
+    shoulder: number;
+
+    /** How far the shoulder joint lies to the side of the floor point, metres. */
+    across: number;
+  }
+
+  /**
+   * A body's chest and shoulder offsets in the stand law's own posture, read
+   * on the body itself and not estimated from its measures, so a case or an
+   * approach places partners by the geometry the handshake will meet.
+   *
+   * @param body The body.
+   * @param side The acting arm; `right` when absent.
+   * @returns The offsets.
+   */
+  export function stance(
+    body: IHumanBody,
+    side: HumanHand.Side = "right",
+  ): IStance {
+    const posture: IHumanPosture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, posture).get(
+      `${side}UpperArm`,
+    )!.worldPosition;
+    return {
+      sternum: HumanTrunk.region(body, posture, "sternum").point.z,
+      shoulder: shoulder.z,
+      across: Math.abs(shoulder.x),
     };
   }
 
@@ -412,37 +437,42 @@ export namespace handshake {
    * other shake hands, the gap an approach stops at.
    *
    * Each offering arm reaches forward `u sin(SHOULDER) + l sin(SHOULDER +
-   * ELBOW)` from its shoulder, the forearm `l` carrying the palm's centre at
-   * 0.27 of the hand's length past the wrist (half the wrist-to-knuckle
-   * length; provisional, measured on the polygon man's palm socket); the two
-   * reaches sum to the shoulders' horizontal distance, across which the
-   * shaking shoulders sit `shoulderHalfWidth` each to the side, and each
-   * sternum leads its shoulder line by half the chest's depth. Only the
-   * measures are read, so an approach can call it with an estimated partner.
-   * Both shaking hands are the same side, which the mirror symmetry of the
-   * measure makes irrelevant here.
+   * ELBOW)` from its shoulder, the forearm `l` carrying the palm socket as
+   * `arm` does; the two reaches sum to the shoulders' horizontal distance,
+   * across which the shaking shoulders sit each to its own side, and each
+   * sternum leads its shoulder as the standing body places them
+   * ({@link stance}). Partners whose floor points stand this gap plus both
+   * sternum offsets apart therefore meet palm to palm with both arms at the
+   * comfortable reach.
    *
-   * @param a One partner's measure.
-   * @param b The other's.
+   * @param a One partner.
+   * @param b The other.
+   * @param side The shaking hand of both; `right` when absent.
    * @returns Metres.
    */
   export function gap(
-    a: IAutoMovieBodyMeasure,
-    b: IAutoMovieBodyMeasure,
+    a: IHumanBody,
+    b: IHumanBody,
+    side: HumanHand.Side = "right",
   ): number {
-    const ahead = (m: IAutoMovieBodyMeasure): number => {
+    const ahead = (body: IHumanBody): number => {
       const s: number = (SHOULDER * Math.PI) / 180;
       const e: number = ((SHOULDER + ELBOW) * Math.PI) / 180;
       return (
-        m.upperArm * Math.sin(s) + (m.forearm + 0.27 * m.hand) * Math.sin(e)
+        body.measure.upperArm * Math.sin(s) +
+        (body.measure.forearm +
+          Vector3.length(HumanHand.offset(body, side, "palm").point)) *
+          Math.sin(e)
       );
     };
+    const sa: IStance = stance(a, side);
+    const sb: IStance = stance(b, side);
     const shoulders: number = ahead(a) + ahead(b);
-    const across: number = a.shoulderHalfWidth + b.shoulderHalfWidth;
+    const across: number = sa.across + sb.across;
     return (
       Math.sqrt(Math.max(0, shoulders * shoulders - across * across)) -
-      a.chestDepth / 2 -
-      b.chestDepth / 2
+      (sa.sternum - sa.shoulder) -
+      (sb.sternum - sb.shoulder)
     );
   }
 
@@ -474,24 +504,4 @@ export namespace handshake {
       limit: upper + lower - AMPLITUDE,
     };
   }
-}
-
-/** World bones of a pose. */
-function fk(
-  body: IHumanBody,
-  pose: Parameters<typeof resolvePose>[0],
-): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-  return new Map(
-    resolvePose(
-      pose,
-      body.skeleton,
-      HUMANOID_JOINT_AXES,
-      HUMANOID_REST_FRAME,
-      body.topology,
-    ).map(
-      (
-        r: IAutoMovieResolvedBone,
-      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],
-    ),
-  );
 }

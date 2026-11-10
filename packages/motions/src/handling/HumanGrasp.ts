@@ -1,16 +1,14 @@
 import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
   type IAutoMovieResolvedBone,
   Quaternion,
   Vector3,
   type curlChainUntilContact,
-  resolvePose,
 } from "@automovie/engine";
 import type {
   AutoMovieGripKind,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
@@ -23,6 +21,7 @@ import type { IHumanProp } from "../perform/IHumanProp";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import type { IHumanPosture } from "../posture/IHumanPosture";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
@@ -231,13 +230,24 @@ export namespace HumanGrasp {
    * planning using shape primitives), since an authored grip frame alone may
    * ask the wrist for more deviation than it has.
    *
+   * A grip is held through a stroke, not at one instant: a lifted bottle is
+   * still in the same grip at the top of the lift, a clasped hand at both
+   * ends of the pump. `stroke` names those further key poses for a candidate
+   * grip, and a candidate's error is the worst over the grasp and its keys,
+   * so the chosen grip is the one the arm keeps over the whole stroke. Each
+   * key is fitted with the grasp's own arm solution as its reference, the way
+   * the law will show it. The returned `reference` is that solution, for the
+   * law to pass on every goal of the stroke
+   * (`IHumanPosture.IGoal.reference`).
+   *
    * @param body The body.
    * @param posture The posture the arm is fitted in (its other limbs and trunk).
    * @param side The arm.
    * @param bend The elbow hint.
    * @param goal The wrist goal of a turn and a tilt, degrees.
    * @param tilts The tilts tried at each turn; only the authored one when absent.
-   * @returns The best turn and tilt, their goal, and the hand the arm achieves for it.
+   * @param stroke The further key poses the same grip must reach, from its grasp goal; none when absent.
+   * @returns The best turn and tilt, their goal, the hand the arm achieves for it, and the arm's solution there.
    */
   export function reachable(
     body: IHumanBody,
@@ -246,73 +256,101 @@ export namespace HumanGrasp {
     bend: IAutoMovieVector3,
     goal: (turn: number, tilt: number) => HumanHand.IWrist,
     tilts: readonly number[] = [0],
-  ): {
-    turn: number;
-    tilt: number;
-    wrist: HumanHand.IWrist;
-    shown: HumanHand.IWrist;
-  } {
+    stroke?: (wrist: HumanHand.IWrist) => readonly IKey[],
+  ): IReach {
     const limb: IHumanPosture.Limb = side === "left" ? "leftArm" : "rightArm";
-    let best:
-      | {
-          turn: number;
-          tilt: number;
-          wrist: HumanHand.IWrist;
-          shown: HumanHand.IWrist;
-          cost: number;
-        }
-      | undefined;
+    // One key pose fitted: the pose and the error the arm leaves there, the
+    // rotation in degrees plus the position in millimetres.
+    const fit = (
+      key: IKey,
+      reference: IHumanPosture.IReference | undefined,
+    ): { pose: IAutoMoviePose; shown: HumanHand.IWrist; miss: number } => {
+      const pose: IAutoMoviePose = resolveHumanPosture(body, {
+        ...key.posture,
+        limbs: {
+          ...key.posture.limbs,
+          [limb]: {
+            point: key.wrist.point,
+            rotation: key.wrist.rotation,
+            bend: key.bend,
+            ...(reference === undefined ? {} : { reference }),
+          },
+        },
+      });
+      const hand: IAutoMovieResolvedBone = poseBones(body, pose).get(
+        `${side}Hand`,
+      )!;
+      const dot: number = Math.min(
+        1,
+        Math.abs(
+          hand.worldRotation.x * key.wrist.rotation.x +
+            hand.worldRotation.y * key.wrist.rotation.y +
+            hand.worldRotation.z * key.wrist.rotation.z +
+            hand.worldRotation.w * key.wrist.rotation.w,
+        ),
+      );
+      return {
+        pose,
+        shown: { point: hand.worldPosition, rotation: hand.worldRotation },
+        miss:
+          (2 * Math.acos(dot) * 180) / Math.PI +
+          1000 *
+            Vector3.length(
+              Vector3.subtract(hand.worldPosition, key.wrist.point),
+            ),
+      };
+    };
+    let best: (IReach & { cost: number }) | undefined;
     for (let turn: number = -90; turn <= 90; turn += 15)
       for (const tilt of tilts) {
         const wrist: HumanHand.IWrist = goal(turn, tilt);
-        const pose = resolveHumanPosture(body, {
-          ...posture,
-          limbs: {
-            ...posture.limbs,
-            [limb]: { point: wrist.point, rotation: wrist.rotation, bend },
-          },
-        });
-        const shown = new Map(
-          resolvePose(
-            pose,
-            body.skeleton,
-            HUMANOID_JOINT_AXES,
-            HUMANOID_REST_FRAME,
-            body.topology,
-          ).map((r) => [r.bone, r]),
-        ).get(`${side}Hand`)!;
-        const dot: number = Math.min(
-          1,
-          Math.abs(
-            shown.worldRotation.x * wrist.rotation.x +
-              shown.worldRotation.y * wrist.rotation.y +
-              shown.worldRotation.z * wrist.rotation.z +
-              shown.worldRotation.w * wrist.rotation.w,
-          ),
-        );
-        const cost: number =
-          (2 * Math.acos(dot) * 180) / Math.PI +
-          1000 *
-            Vector3.length(Vector3.subtract(shown.worldPosition, wrist.point)) +
-          0.01 * (Math.abs(turn) + Math.abs(tilt));
+        const grasp = fit({ posture, wrist, bend }, undefined);
+        const reference: IHumanPosture.IReference =
+          resolveHumanPosture.reference(grasp.pose, limb);
+        let miss: number = grasp.miss;
+        for (const key of stroke?.(wrist) ?? [])
+          miss = Math.max(miss, fit(key, reference).miss);
+        const cost: number = miss + 0.01 * (Math.abs(turn) + Math.abs(tilt));
         if (best === undefined || cost < best.cost)
-          best = {
-            turn,
-            tilt,
-            wrist,
-            shown: {
-              point: shown.worldPosition,
-              rotation: shown.worldRotation,
-            },
-            cost,
-          };
+          best = { turn, tilt, wrist, shown: grasp.shown, reference, cost };
       }
     return {
       turn: best!.turn,
       tilt: best!.tilt,
       wrist: best!.wrist,
       shown: best!.shown,
+      reference: best!.reference,
     };
+  }
+
+  /** A key pose of a stroke: the posture the arm is fitted in, the wrist goal and the elbow hint. */
+  export interface IKey {
+    /** The posture's other limbs and trunk at the key. */
+    posture: IHumanPosture;
+
+    /** The wrist goal at the key. */
+    wrist: HumanHand.IWrist;
+
+    /** The elbow hint at the key, world metres. */
+    bend: IAutoMovieVector3;
+  }
+
+  /** The reachable grip {@link reachable} chose. */
+  export interface IReach {
+    /** Degrees of the chosen turn. */
+    turn: number;
+
+    /** Degrees of the chosen tilt. */
+    tilt: number;
+
+    /** The wrist goal of that turn and tilt. */
+    wrist: HumanHand.IWrist;
+
+    /** The hand the arm achieves for it. */
+    shown: HumanHand.IWrist;
+
+    /** The arm's solution at the grasp, the reference of the whole stroke. */
+    reference: IHumanPosture.IReference;
   }
 
   /**
@@ -454,6 +492,23 @@ export namespace HumanGrasp {
     colliders: readonly curlChainUntilContact.ICollider[],
     axis: IAutoMovieVector3,
   ): number {
+    const [lo, hi]: readonly [number, number] = span(colliders, axis);
+    return hi - lo;
+  }
+
+  /**
+   * The interval colliders cover along an axis: the lowest and highest
+   * projections of their union onto it, so an object's middle along the
+   * vertical is the mean of the two.
+   *
+   * @param colliders Placed colliders.
+   * @param axis A unit direction.
+   * @returns The low and high projections, metres along the axis from the world origin.
+   */
+  export function span(
+    colliders: readonly curlChainUntilContact.ICollider[],
+    axis: IAutoMovieVector3,
+  ): readonly [number, number] {
     let lo: number = Infinity;
     let hi: number = -Infinity;
     for (const c of colliders) {
@@ -481,6 +536,6 @@ export namespace HumanGrasp {
       lo = Math.min(lo, centre - half);
       hi = Math.max(hi, centre + half);
     }
-    return hi - lo;
+    return [lo, hi];
   }
 }

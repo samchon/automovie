@@ -91,5 +91,29 @@ export namespace IHumanPosture {
      * (`resolveHumanPosture.order`, `resolveHumanPosture.world`).
      */
     on?: AutoMovieHumanoidBone;
+
+    /**
+     * The limb's own solution at one instant of the action the law names (the
+     * grasp, the clasp, the placement): the clinical angles of its upper and
+     * lower bones there, as `resolveHumanPosture.reference` reads them. Where
+     * the goal can be met by more than one arm or leg configuration, the fit
+     * keeps the one nearest this reference, so the limb stays on one side of
+     * the choice for the whole stroke. It is a constant of the plan, never a
+     * previous frame, so the pose stays a function of time alone. A degree of
+     * joint turn from the reference counts like a degree of hand or foot
+     * rotation error, so a law gives it from the named instant on (the hold
+     * after a grasp) and leaves the reach toward that instant without one:
+     * the unanchored reach arrives at the very solution the reference holds.
+     */
+    reference?: IHumanPosture.IReference;
+  }
+
+  /** A limb's reference solution: its upper and lower bones' clinical degrees. */
+  export interface IReference {
+    /** The upper bone's `[flexion, abduction, twist]`, degrees. */
+    upper: readonly [number, number, number];
+
+    /** The lower bone's `[flexion, abduction, twist]`, degrees. */
+    lower: readonly [number, number, number];
   }
 }

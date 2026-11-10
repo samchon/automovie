@@ -265,6 +265,32 @@ export namespace resolveHumanPosture {
   }
 
   /**
+   * A limb's reference solution read off a pose: the clinical angles of its
+   * upper and lower bones. A law solves the limb once at the instant its
+   * action is about (the grasp, the clasp, the placement) and hands the
+   * result to every goal of the stroke as `IHumanPosture.IGoal.reference`.
+   *
+   * @param pose The pose the limb was solved in.
+   * @param limb The limb.
+   * @returns The reference.
+   */
+  export function reference(
+    pose: IAutoMoviePose,
+    limb: IHumanPosture.Limb,
+  ): IHumanPosture.IReference {
+    const chain: IChain = chainOf(limb);
+    const read = (
+      bone: AutoMovieHumanoidBone,
+    ): readonly [number, number, number] => {
+      const joint: IAutoMovieJointPose | undefined = pose.joints.find(
+        (j: IAutoMovieJointPose): boolean => j.bone === bone,
+      );
+      return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];
+    };
+    return { upper: read(chain.upper), lower: read(chain.lower) };
+  }
+
+  /**
    * The order to fit a posture's limbs in: arms then legs, each limb after
    * any limb whose bones its goal is attached to (`on`), so an attachment
    * reads that limb's solved frame (a palm under the other elbow follows the
@@ -389,6 +415,34 @@ export namespace resolveHumanPosture {
   }
 }
 
+/** The three bones of a limb's chain. */
+interface IChain {
+  /** The bone at the shoulder or the hip. */
+  upper: AutoMovieHumanoidBone;
+
+  /** The bone at the elbow or the knee. */
+  lower: AutoMovieHumanoidBone;
+
+  /** The hand or the foot. */
+  effector: AutoMovieHumanoidBone;
+}
+
+/** The chain of a limb. */
+function chainOf(limb: IHumanPosture.Limb): IChain {
+  const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+  return limb.endsWith("Arm")
+    ? {
+        upper: `${side}UpperArm`,
+        lower: `${side}LowerArm`,
+        effector: `${side}Hand`,
+      }
+    : {
+        upper: `${side}UpperLeg`,
+        lower: `${side}LowerLeg`,
+        effector: `${side}Foot`,
+      };
+}
+
 /**
  * The fit of one limb by the engine's two-bone solver; with a contact, the end
  * joint is re-aimed twice so the contact stays put under the rotation the
@@ -458,25 +512,34 @@ function fitOnce(
   limb: IHumanPosture.Limb,
   goal: IHumanPosture.IGoal,
 ): IAutoMoviePose {
-  const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
-  const arm: boolean = limb.endsWith("Arm");
+  const chain: IChain = chainOf(limb);
+  const angles = (
+    bone: AutoMovieHumanoidBone,
+    of: readonly [number, number, number],
+  ): IAutoMovieJointPose => ({
+    bone,
+    flexion: of[0],
+    abduction: of[1],
+    twist: of[2],
+  });
   return fitChainToTarget({
     skeleton: body.skeleton,
     pose,
-    chain: arm
-      ? {
-          upper: `${side}UpperArm`,
-          lower: `${side}LowerArm`,
-          effector: `${side}Hand`,
-        }
-      : {
-          upper: `${side}UpperLeg`,
-          lower: `${side}LowerLeg`,
-          effector: `${side}Foot`,
-        },
+    chain,
     target: goal.point,
     bend: goal.bend,
     ...(goal.rotation === undefined ? {} : { effectorRotation: goal.rotation }),
+    ...(goal.reference === undefined
+      ? {}
+      : {
+          referencePose: {
+            ...pose,
+            joints: [
+              angles(chain.upper, goal.reference.upper),
+              angles(chain.lower, goal.reference.lower),
+            ],
+          },
+        }),
     topology: body.topology,
     jointAxes: HUMANOID_JOINT_AXES,
     restFrames: HUMANOID_REST_FRAME,

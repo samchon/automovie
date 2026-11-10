@@ -63,8 +63,8 @@ import type { humanPolygonMan } from "../humanPolygonMan";
  *   `handshake.gap`; key frames at the offer's start, `offered`,
  *   `gripClosed`, the shared hold, `release` and the end; the bottle's path
  *   is a trail and the chests' midpoint is marked. Verdicts: the release
- *   after the receiver's grip, the exchange within 0.15 m of the chests'
- *   midpoint, no jump of the bottle, the receiver's hold within 1 mm, no
+ *   after the receiver's grip, the bottle's middle within 0.15 m of the
+ *   chests' midpoint at the exchange, no jump of the bottle, the receiver's hold within 1 mm, no
  *   hand or forearm interpenetration beyond 10 mm, ankle slip and the range
  *   of motion.
  *
@@ -102,9 +102,9 @@ export function handlingCases(
       // The partners stand where their offering arms meet.
 
       const D: number =
-        handshake.gap(a.measure, b.measure) +
-        a.measure.chestDepth / 2 +
-        b.measure.chestDepth / 2;
+        handshake.gap(a, b) +
+        handshake.stance(a).sternum +
+        handshake.stance(b).sternum;
       const performance: HumanPerformance = new HumanPerformance({
         seed: `handling-handshake-${first}-${second}`,
         performers: [
@@ -714,9 +714,9 @@ export function handlingCases(
         affordances: [grip("low", 0.06, -1), grip("high", 0.15, 1)],
       };
       const D: number =
-        handshake.gap(a.measure, b.measure) +
-        a.measure.chestDepth / 2 +
-        b.measure.chestDepth / 2;
+        handshake.gap(a, b) +
+        handshake.stance(a).sternum +
+        handshake.stance(b).sternum;
       const performance: HumanPerformance = new HumanPerformance({
         seed: `handling-handover-${first}-${second}`,
         performers: [
@@ -782,10 +782,7 @@ export function handlingCases(
         Vector3.add(sternum("a", a, closed), sternum("b", b, closed)),
         0.5,
       );
-      const exchange: number = distance(
-        performance.prop("bottle", closed).position,
-        middle,
-      );
+      const exchange: number = distance(centre(closed), middle);
       let jump: number = 0;
       let previous: IAutoMovieVector3 = performance.prop("bottle", 0).position;
       for (let t: number = 1 / 240; t <= performance.duration; t += 1 / 240) {

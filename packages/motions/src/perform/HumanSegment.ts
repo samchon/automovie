@@ -114,8 +114,28 @@ export namespace HumanSegment {
     /** Film second a later action takes the hand over; infinite while none has. */
     until: number;
 
-    /** The hand's grip frame in the chest's frame, captured when the carry starts. */
-    carry?: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
+    /** The holding arm relative to the chest, captured when the carry starts. */
+    carry?: ICarry;
+  }
+
+  /**
+   * A holding arm as its action left it, which the carry keeps: the hand's
+   * frame and the elbow in the chest's frame, and the arm's own solution
+   * (`IHumanPosture.IGoal.reference`), so the carried arm stays in the
+   * configuration it took hold in.
+   */
+  export interface ICarry {
+    /** The hand joint in the chest's frame, metres. */
+    position: IAutoMovieVector3;
+
+    /** The hand's rotation in the chest's frame. */
+    rotation: IAutoMovieQuaternion;
+
+    /** The elbow in the chest's frame, metres: the carry's bend hint. */
+    elbow: IAutoMovieVector3;
+
+    /** The arm's solution there. */
+    reference: IHumanPosture.IReference;
   }
 
   /**
@@ -420,12 +440,9 @@ export namespace HumanSegment {
           ),
           bend: Vector3.add(
             chest.worldPosition,
-            Quaternion.rotateVector(chest.worldRotation, {
-              x: h.side === "left" ? 0.5 : -0.5,
-              y: -0.5,
-              z: -0.3,
-            }),
+            Quaternion.rotateVector(chest.worldRotation, h.carry.elbow),
           ),
+          reference: h.carry.reference,
           planted: true,
         };
         const limb: "leftArm" | "rightArm" =
@@ -553,23 +570,33 @@ export namespace HumanSegment {
     return poseBones(person.performer.body, pose);
   }
 
-  /** A held hand's frame in the chest's frame at the end of the action that took hold. */
-  function capture(
-    person: IPerson,
-    held: IHeld,
-  ): { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion } {
+  /** A holding arm relative to the chest at the end of the action that took hold. */
+  function capture(person: IPerson, held: IHeld): ICarry {
     const at: number = Math.max(held.from, held.source.end);
-    const map = bones(person, of(person, held.source, at));
+    const pose: IAutoMoviePose = of(person, held.source, at);
+    const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
+      person,
+      pose,
+    );
     const chest: IAutoMovieResolvedBone = map.get("chest")!;
     const hand: IAutoMovieResolvedBone = map.get(`${held.side}Hand`)!;
-    const inverse = Quaternion.inverse(chest.worldRotation);
-    return {
-      position: Quaternion.rotateVector(
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      chest.worldRotation,
+    );
+    const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+      Quaternion.rotateVector(
         inverse,
-        Vector3.subtract(hand.worldPosition, chest.worldPosition),
-      ),
+        Vector3.subtract(point, chest.worldPosition),
+      );
+    return {
+      position: local(hand.worldPosition),
       rotation: Quaternion.normalize(
         Quaternion.multiply(inverse, hand.worldRotation),
+      ),
+      elbow: local(map.get(`${held.side}LowerArm`)!.worldPosition),
+      reference: resolveHumanPosture.reference(
+        pose,
+        held.side === "left" ? "leftArm" : "rightArm",
       ),
     };
   }

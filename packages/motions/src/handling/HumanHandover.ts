@@ -1,6 +1,7 @@
 import {
   type IAutoMovieResolvedBone,
   Vector3,
+  resolveAutoMovieHumanoidSurfaces,
   resolveAutoMovieMutualGoal,
 } from "@automovie/engine";
 import type {
@@ -30,13 +31,13 @@ import { handshake } from "./handshake";
  * - Where: the object's receiving grip lands on the mutual goal of the
  *   giver's and the receiver's acting shoulders (`resolveAutoMovieMutualGoal`
  *   with the handshake's comfortable reach): handovers take place midway
- *   between the partners (Hansen et al. 2017), and the exchange height rises
- *   with the partners' stature (Sutiphotinun et al. 2020; both reviewed by
- *   Kopnarski et al. 2023). The object keeps the orientation the giver holds
- *   it in, so the receiver grasps the grip its author named as the one
- *   offered.
- * - When: the giver's transport takes the reach-to-grasp movement time over
- *   its travel; the receiver's reach, timed the same way for its travel and
+ *   between the partners (Hansen et al. 2017, reviewed by Kopnarski et al.
+ *   2023), with the object's middle at {@link EXCHANGE} of the partners' mean
+ *   sternum height, moved only as far as both arms' reach demands. The object
+ *   keeps the orientation the giver holds it in, so the receiver grasps the
+ *   grip its author named as the one offered.
+ * - When: the giver's transport takes the loaded-carry time over its travel
+ *   (`HumanPrehension.carry`); the receiver's reach, timed for its travel and
  *   the grasped width, starts so it ends no earlier than the giver's (the
  *   receiver begins reaching during the giver's transport, Kopnarski 2023),
  *   and its grip closes at `gripClosed`. Both hands then hold the object for
@@ -62,6 +63,14 @@ import { handshake } from "./handshake";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns plain data.
  */
 export namespace HumanHandover {
+  /**
+   * The height of the handed object's middle as a share of the partners' mean
+   * sternum height: human pairs exchange an object at about 0.9 of chest
+   * height (Khanna, Björkman and Smith 2023, arXiv 2304.02154, fig. 12).
+   * Reading their chest marker as this rig's sternum region is provisional.
+   */
+  export const EXCHANGE: number = 0.9;
+
   /** How the handover ends. */
   export type Outcome = "transfer" | "withdraw" | "decline";
 
@@ -130,6 +139,9 @@ export namespace HumanHandover {
     /** The receiver's hand as its arm achieves the grasp, where the digits close. */
     receiverShown: HumanHand.IWrist;
 
+    /** The receiver's arm solution at the grasp, which its hold and take-away keep. */
+    receiverReference: IHumanPosture.IReference;
+
     /** The giver's transport time. */
     offer: number;
 
@@ -170,8 +182,26 @@ export namespace HumanHandover {
     const giverFrom: HumanHand.IWrist = hand(giver, input.giver.side);
     const receiverFrom: HumanHand.IWrist = hand(receiver, input.receiver.side);
 
-    // Where: the receiving grip on the mutual goal, the prop turned as held.
+    // Where: the receiving grip on the mutual goal, the prop turned as held,
+    // its middle at the exchange share of the mean sternum height.
+    const atStart: HumanGrasp.ITarget = HumanGrasp.at(
+      input.prop,
+      input.handle,
+      input.frame,
+    );
+    const sternum = (person: IPerson): number =>
+      resolveAutoMovieHumanoidSurfaces.place(
+        person.body.surfaces.regions.sternum,
+        person.bones.get(person.body.surfaces.regions.sternum.bone)!,
+      ).point.y;
+    const [bottom, top]: readonly [number, number] = HumanGrasp.span(
+      atStart.colliders,
+      { x: 0, y: 1, z: 0 },
+    );
     const meet: IAutoMovieVector3 = resolveAutoMovieMutualGoal({
+      height:
+        (EXCHANGE * (sternum(input.giver) + sternum(input.receiver))) / 2 -
+        ((bottom + top) / 2 - atStart.point.y),
       a: handshake.arm(
         input.giver.body,
         input.giver.side,
@@ -183,11 +213,6 @@ export namespace HumanHandover {
         receiver.get(`${input.receiver.side}UpperArm`)!.worldPosition,
       ),
     }).point;
-    const atStart: HumanGrasp.ITarget = HumanGrasp.at(
-      input.prop,
-      input.handle,
-      input.frame,
-    );
     const shift: IAutoMovieVector3 = Vector3.subtract(meet, atStart.point);
     const offered: IHumanProp.IFrame = {
       position: Vector3.add(input.frame.position, shift),
@@ -208,7 +233,7 @@ export namespace HumanHandover {
       input.receiver.body,
       receiver,
     );
-    const chosen = HumanGrasp.reachable(
+    const chosen: HumanGrasp.IReach = HumanGrasp.reachable(
       input.receiver.body,
       standing,
       input.receiver.side,
@@ -226,7 +251,7 @@ export namespace HumanHandover {
 
     // When: the giver's offer, the receiver's reach ending no earlier, the
     // shared hold by mass, then the release.
-    const offer: number = HumanPrehension.nominal(Vector3.length(shift), 0);
+    const offer: number = HumanPrehension.carry(Vector3.length(shift));
     const reach: number = HumanPrehension.nominal(
       Vector3.length(Vector3.subtract(receiverAt.point, receiverFrom.point)),
       target.width,
@@ -248,6 +273,7 @@ export namespace HumanHandover {
       target,
       receiverAt,
       receiverShown,
+      receiverReference: chosen.reference,
       offer,
       reachStart,
       reach,

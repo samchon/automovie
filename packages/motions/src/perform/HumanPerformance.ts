@@ -14,6 +14,7 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionTarget,
   IAutoMoviePose,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -277,30 +278,40 @@ export class HumanPerformance {
     const window: (typeof grips)[number] | undefined = active ?? released;
     if (window === undefined) return prop.frame;
     const at: number = Math.min(seconds, window.to);
-    window.offset ??= ((): IHumanProp.IFrame => {
-      const before: IHumanProp.IFrame = this.prop(subject, window!.from - 1e-6);
-      const hand: IHumanProp.IFrame = this.hand(
-        window!.subject,
-        window!.side,
-        window!.from,
+    // A window opening on a hand that already holds the prop (a put down
+    // after a pick up) keeps that grip's offset: the hand never re-seats what
+    // it holds, so no action boundary moves the prop in the hand.
+    const seat = (w: (typeof grips)[number]): IHumanProp.IFrame => {
+      if (w.offset !== undefined) return w.offset;
+      const earlier: (typeof grips)[number] | undefined = grips.find(
+        (g: (typeof grips)[number]): boolean =>
+          g !== w &&
+          g.subject === w.subject &&
+          g.side === w.side &&
+          g.from < w.from &&
+          g.to >= w.from - 1e-6,
       );
-      const inverse = Quaternion.inverse(hand.rotation);
-      return {
+      if (earlier !== undefined) return (w.offset = seat(earlier));
+      const before: IHumanProp.IFrame = this.prop(subject, w.from - 1e-6);
+      const hand: IHumanProp.IFrame = this.hand(w.subject, w.side, w.from);
+      const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.rotation);
+      return (w.offset = {
         position: Quaternion.rotateVector(
           inverse,
           Vector3.subtract(before.position, hand.position),
         ),
         rotation: Quaternion.multiply(inverse, before.rotation),
-      };
-    })();
+      });
+    };
+    const offset: IHumanProp.IFrame = seat(window);
     const hand: IHumanProp.IFrame = this.hand(window.subject, window.side, at);
     return {
       position: Vector3.add(
         hand.position,
-        Quaternion.rotateVector(hand.rotation, window.offset.position),
+        Quaternion.rotateVector(hand.rotation, offset.position),
       ),
       rotation: Quaternion.normalize(
-        Quaternion.multiply(hand.rotation, window.offset.rotation),
+        Quaternion.multiply(hand.rotation, offset.rotation),
       ),
     };
   }

@@ -247,9 +247,9 @@ const HAND: string[] = [
 /** Root distance that puts the sternums the handshake gap apart, where both offering arms meet. */
 function spacing(a: IHumanBody, b: IHumanBody): number {
   return (
-    handshake.gap(a.measure, b.measure) +
-    a.measure.chestDepth / 2 +
-    b.measure.chestDepth / 2
+    handshake.gap(a, b) +
+    handshake.stance(a).sternum +
+    handshake.stance(b).sternum
   );
 }
 

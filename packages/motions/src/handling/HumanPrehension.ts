@@ -71,6 +71,15 @@ export namespace HumanPrehension {
   /** The shortest amplitude the fit was measured at, metres. */
   export const SHORTEST: number = 0.17;
 
+  /**
+   * Peak wrist speed while an object is carried in the hand, metres per
+   * second; provisional. McIntosh's fit times a fast unloaded reach, and no
+   * absolute transport time of a giver's loaded arm was located (Kopnarski
+   * 2023 reviews none), so the loaded transports are capped at a moderate
+   * peak instead.
+   */
+  export const CARRY_PEAK: number = 1.0;
+
   /** Peak-aperture slope on the object's width (Smeets and Brenner 1999). */
   export const APERTURE_SLOPE: number = 0.8;
 
@@ -115,6 +124,18 @@ export namespace HumanPrehension {
       AMPLITUDE * Math.log10(1000 * Math.max(SHORTEST, distance)) +
       WIDTH * Math.max(0, width)
     );
+  }
+
+  /**
+   * The time of a direct transport with an object in the hand, seconds: the
+   * reach time, lengthened until the minimum-jerk peak speed (1.875 times the
+   * mean) stays at or under {@link CARRY_PEAK}.
+   *
+   * @param distance Wrist travel, metres.
+   * @returns Seconds.
+   */
+  export function carry(distance: number): number {
+    return Math.max(nominal(distance, 0), (1.875 * distance) / CARRY_PEAK);
   }
 
   /**
@@ -174,18 +195,30 @@ export namespace HumanPrehension {
       to,
       Vector3.scale(Vector3.normalize(approach), setback),
     );
-    const units: superposeMinimumJerk.IUnit[] = [
-      {
-        displacement: Vector3.subtract(via, from),
-        start: 0,
-        duration: APPROACH.end * seconds,
-      },
-      {
-        displacement: Vector3.subtract(to, via),
-        start: APPROACH.start * seconds,
-        duration: (1 - APPROACH.start) * seconds,
-      },
-    ];
+    // A direct reach has no approach stretch: one unit spans the whole time,
+    // so its peak speed is the minimum-jerk 1.875 times the mean and not the
+    // first unit's share squeezed into three quarters of it.
+    const units: superposeMinimumJerk.IUnit[] =
+      setback === 0
+        ? [
+            {
+              displacement: Vector3.subtract(to, from),
+              start: 0,
+              duration: seconds,
+            },
+          ]
+        : [
+            {
+              displacement: Vector3.subtract(via, from),
+              start: 0,
+              duration: APPROACH.end * seconds,
+            },
+            {
+              displacement: Vector3.subtract(to, via),
+              start: APPROACH.start * seconds,
+              duration: (1 - APPROACH.start) * seconds,
+            },
+          ];
     return {
       duration: seconds,
       wrist: (t: number): IAutoMovieVector3 =>
