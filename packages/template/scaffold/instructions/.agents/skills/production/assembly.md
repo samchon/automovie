@@ -1,6 +1,6 @@
 # Assembly and handoff
 
-Turn the composed scenes or accepted takes into the complete delivered video. Read [project context](project-context.md), the actual source and media and the installed runtime documentation.
+Turn the composed scenes or accepted takes into the complete delivered video. Read [project context](project-context.md), the actual source and media and the installed packages' documentation.
 
 ## Assemble
 

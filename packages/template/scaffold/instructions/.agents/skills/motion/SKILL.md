@@ -37,7 +37,7 @@ A defect the film shows in a body, contact or behavior goes back to its module a
 
 ## Shared motion rules {#shared-motion-rules}
 
-Author every body movement, composed or written, as end effectors brought to targets rather than as coordinates or tuned joint angles, under [end-effector goals](authoring.md): a fist to the opponent's struck region, each foot to the floor at its step, both hands to a prop's grip, the hips to a seat or mount. The other rules build on that one:
+Author every body movement, composed or written, as [end-effector goals](authoring.md) on targets, never as coordinates or tuned joint angles: a fist on the opponent's struck region, each foot on the floor at its step, both hands on a prop's grip, the hips on a seat or mount. The other rules build on that one:
 
 | Rule | Read when |
 | --- | --- |
@@ -45,7 +45,7 @@ Author every body movement, composed or written, as end effectors brought to tar
 | [Variation](variation.md) | A performance differs by parameters, skill or seed |
 | [Transitions](transitions.md) | A performance changes action or target mid-motion |
 | [Contacts](contacts.md) | It plants, sits, grips, hands over or touches another body |
-| [Layers](layers.md) | Gaze, breathing and other motion runs over every action |
+| [Layers](layers.md) | Gaze, breathing or another layer runs over the action |
 | [Verification](verification.md) | A case needs its bounded checks and frame review |
 
 ## Other resources

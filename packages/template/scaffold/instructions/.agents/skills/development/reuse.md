@@ -10,7 +10,7 @@ The skills name installed packages by role, and this table is the one place that
 
 | Role in the skills | Package |
 | --- | --- |
-| Human motion vocabulary | `@automovie/motions` |
+| Motion vocabulary | `@automovie/motions` |
 | Human package, which prepares the canonical body | `@automovie/human` |
 | Viewer, which draws the polygon man | `@automovie/viewer` |
 | Engine | `@automovie/engine` |

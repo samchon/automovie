@@ -1,6 +1,6 @@
 # Retargeting
 
-Recorded, generated or imported motion is retargeted before use, and again when a character's proportions or rig change. Read the accepted source, the [rig characterization](../3d-modeling/rigging.md), the screenplay's decisions and the installed kinematics and import contracts; establish a clip's timing, contacts and meaning from its data rather than its name.
+Recorded, generated or imported motion is retargeted before use, and again when a character's proportions or rig change. Read the accepted source, the [rig characterization](../3d-modeling/rigging.md), the screenplay's decisions and the installed packages' kinematics and import contracts; establish a clip's timing, contacts and meaning from its data rather than its name.
 
 ## Establish the source and target meanings
 

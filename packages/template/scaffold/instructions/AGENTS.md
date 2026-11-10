@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This repository holds AutoMovie productions. A production primarily turns an LLM-authored screenplay into a deterministic whole motion hint, the coarse film whose staging and motion guide video diffusion, and can also deliver a separately commissioned screenplay, standalone asset, or requested direct 3D or generated film.
+This repository holds AutoMovie productions. A production primarily turns an LLM-authored screenplay into a deterministic whole motion hint, the coarse film whose staging and motion guide video diffusion. A screenplay, a standalone asset, a direct 3D film or a generated film can also be commissioned on its own.
 
 The [production skill](.agents/skills/production/SKILL.md) routes the commissioned output and its working files.
 
@@ -19,7 +19,7 @@ In a workspace the production's folder fixes its [story route](.agents/skills/st
 - Answer a question from the user before continuing any work.
 - Write everything the user sees in the user's language.
 - Finish each inspection round, then repair all its findings together by cause, with their owners and affected consumers.
-- Use installed package READMEs, public types and JSDoc for APIs, and do not copy them into instructions.
+- Do not copy a package's API into instructions.
 - Keep external generation outside deterministic playback, and retain the actual media used.
 - Save each expensive stage's result and resume from it under [stage caches](.agents/skills/production/stage-caches.md).
 

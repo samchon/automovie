@@ -9,7 +9,7 @@ The [writing workflow](../../story/workflow.md#route-and-parents) sets the layer
 
 Each checklist H2 asks its named respondent a question. Principles apply to an authored H2, obligations to one document for a complete declared population, discovery to the inspected scope's discovery result, and review questions to review records.
 
-Do not make every scene testify for an entire film or attach a conditional requirement to unrelated hosts. The evidence configuration owns the actual selected populations and relationships; installed Evidence APIs own its mechanics.
+Do not make every scene testify for an entire film or attach a conditional requirement to unrelated hosts. The evidence configuration owns the actual selected populations and relationships; the installed evidence package owns its mechanics.
 
 | Family | Unit or record questions | Complete-population questions |
 | --- | --- | --- |

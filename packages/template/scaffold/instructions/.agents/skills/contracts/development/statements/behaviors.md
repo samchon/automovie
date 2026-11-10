@@ -29,6 +29,6 @@ Contract: [behaviors.md](../behaviors.md).
 2. It plans from the [entry state](../../../motion/laws.md#continue-from-the-entry-state): the displayed pose and velocity, the planted feet and what the hands hold.
 3. It names its [events and decisive instant](../../../motion/laws.md#declare-events-and-the-decisive-instant).
 4. It declares the [cuts](../../../motion/transitions.md#declared-cuts) it admits, with their windows and kinds, and an unlisted cut is refused when the plan is built.
-5. Variation draws from the installed seeded generator, from a [stream](../../../motion/variation.md#draws-that-do-not-disturb-each-other) keyed by the film seed and stable identities, and never from `Math.random` or a clock.
+5. Variation draws from the installed packages' seeded generator, from a [stream](../../../motion/variation.md#draws-that-do-not-disturb-each-other) keyed by the film seed and stable identities, and never from `Math.random` or a clock.
 6. Variation stays within the domain its cited law bounds, and no seed or skill value changes an outcome class.
 7. No result depends on history that only sequential playback builds or on a transient source. Exception: a stated limitation that names the consumer it affects.
