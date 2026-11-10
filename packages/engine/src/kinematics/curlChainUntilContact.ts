@@ -11,7 +11,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
+import { physicalShapeSegmentDistance } from "../physics/physicalShapeSegmentDistance";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
@@ -144,8 +144,12 @@ export function curlChainUntilContact(
         for (const collider of input.colliders)
           least = Math.min(
             least,
-            segmentShapeDistance(from.worldPosition, to, collider) -
-              chain.radius,
+            physicalShapeSegmentDistance(
+              collider.frame,
+              collider.shape,
+              from.worldPosition,
+              to,
+            ) - chain.radius,
           );
       }
       return least;
@@ -293,89 +297,4 @@ function validate(shape: P.IShape): void {
           shape.halfExtents.z > 0;
   if (!ok)
     throw new Error(`A collider ${shape.id} has non-positive dimensions`);
-}
-
-/** The signed distance from a segment to a placed shape, metres; negative inside. */
-function segmentShapeDistance(
-  a: IAutoMovieVector3,
-  b: IAutoMovieVector3,
-  collider: curlChainUntilContact.ICollider,
-): number {
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-    collider.frame.rotation,
-    collider.shape.transform.rotation,
-  );
-  const centre: IAutoMovieVector3 = Vector3.add(
-    collider.frame.position,
-    Quaternion.rotateVector(
-      collider.frame.rotation,
-      collider.shape.transform.position,
-    ),
-  );
-  const shape: P.IShape = collider.shape;
-  if (shape.kind === "sphere")
-    return (
-      closestPointsBetweenSegments(a, b, centre, centre).distance - shape.radius
-    );
-  if (shape.kind === "capsule") {
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-      x: 0,
-      y: shape.halfLength,
-      z: 0,
-    });
-    return (
-      closestPointsBetweenSegments(
-        a,
-        b,
-        Vector3.subtract(centre, axis),
-        Vector3.add(centre, axis),
-      ).distance - shape.radius
-    );
-  }
-
-  // A box's signed distance is convex in space, so along a segment it is a
-  // convex function of the parameter: golden-section search finds its least
-  // value without missing a penetration.
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
-  const local = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-    Quaternion.rotateVector(inverse, Vector3.subtract(p, centre));
-  const la: IAutoMovieVector3 = local(a);
-  const lb: IAutoMovieVector3 = local(b);
-  const h: IAutoMovieVector3 = shape.halfExtents;
-  const sdf = (t: number): number => {
-    const q: IAutoMovieVector3 = {
-      x: Math.abs(la.x + (lb.x - la.x) * t) - h.x,
-      y: Math.abs(la.y + (lb.y - la.y) * t) - h.y,
-      z: Math.abs(la.z + (lb.z - la.z) * t) - h.z,
-    };
-    const outside: number = Math.hypot(
-      Math.max(q.x, 0),
-      Math.max(q.y, 0),
-      Math.max(q.z, 0),
-    );
-    return outside + Math.min(Math.max(q.x, q.y, q.z), 0);
-  };
-  const ratio: number = (Math.sqrt(5) - 1) / 2;
-  let lo: number = 0;
-  let hi: number = 1;
-  let c: number = hi - ratio * (hi - lo);
-  let d: number = lo + ratio * (hi - lo);
-  let fc: number = sdf(c);
-  let fd: number = sdf(d);
-  for (let i: number = 0; i < 44; i++) {
-    if (fc <= fd) {
-      hi = d;
-      d = c;
-      fd = fc;
-      c = hi - ratio * (hi - lo);
-      fc = sdf(c);
-    } else {
-      lo = c;
-      c = d;
-      fc = fd;
-      d = lo + ratio * (hi - lo);
-      fd = sdf(d);
-    }
-  }
-  return Math.min(sdf(0), sdf(1), fc, fd);
 }

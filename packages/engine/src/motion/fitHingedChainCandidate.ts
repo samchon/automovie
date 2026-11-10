@@ -13,6 +13,7 @@ import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { swingTwist } from "../math/swingTwist";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import type { IAutoMovieSolvedChainPlant } from "./IAutoMovieSolvedChainPlant";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
@@ -195,10 +196,13 @@ export function fitHingedChainCandidate(
 /**
  * How far, in degrees, the effector misses a requested rotation once a
  * hinged candidate's mid bone has taken its distal twist share and the
- * effector its swing, each clamped to the rig's range: the same split
- * `splitDistalTwist` and `orientEffector` then apply. A swing-twist
- * decomposition about the mid bone's twist axis, the clinical clamp of each
- * joint, then the geodesic angle between rotations.
+ * effector its swing, each clamped to the rig's range: the split that
+ * `splitDistalTwist` and `orientChainEffector` later apply to the chosen
+ * candidate, evaluated here for every candidate so the ranking sees the
+ * hand the fit will actually show. The twist share comes from the engine's
+ * single swing-twist owner (`swingTwist`); each joint is clamped through its
+ * clinical domain as the fit clamps it; the error is the geodesic angle
+ * `2 acos |<shown, requested>|` between the shown and the requested rotation.
  *
  * @param props The fit request.
  * @param prepared The chain's preparation.
@@ -218,7 +222,6 @@ function rotationError(
       .rotation ?? Quaternion.identity();
   const effectorAxes: IAutoMovieJointAxes | undefined =
     props.jointAxes?.[effector];
-  const twistAxis: IAutoMovieVector3 = Vector3.normalize(axes.twist);
   const clamped = (
     bone: AutoMovieHumanoidBone,
     q: IAutoMovieQuaternion,
@@ -251,18 +254,8 @@ function rotationError(
         rotation,
       ),
     );
-    const along: number =
-      needed.x * twistAxis.x + needed.y * twistAxis.y + needed.z * twistAxis.z;
-    const length: number = Math.hypot(along, needed.w);
-    const twist: IAutoMovieQuaternion =
-      length < 1e-12
-        ? Quaternion.identity()
-        : {
-            x: (twistAxis.x * along) / length,
-            y: (twistAxis.y * along) / length,
-            z: (twistAxis.z * along) / length,
-            w: needed.w / length,
-          };
+    // The share the mid bone takes, exactly as splitDistalTwist assigns it.
+    const { twist } = swingTwist(needed, axes.twist);
     const mid: IAutoMovieQuaternion = Quaternion.multiply(
       above,
       clamped(

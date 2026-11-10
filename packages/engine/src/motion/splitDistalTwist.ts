@@ -4,14 +4,13 @@ import type {
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
+import { swingTwist } from "../math/swingTwist";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";
 import type { IFitChainToTargetProps } from "./IFitChainToTargetProps";
@@ -25,7 +24,8 @@ import { resolveBoneMap } from "./resolveBoneMap";
  *
  * The effector's rotation in the mid bone's frame, `Q` (the mid bone's world
  * rotation undone from the requested rotation), is split by the
- * swing-twist decomposition about the mid bone's twist axis, `Q = S T`: the
+ * swing-twist decomposition about the mid bone's twist axis (`swingTwist`),
+ * `Q = S T`: the
  * twist `T` moves to the mid joint, where a distal twist composes after the
  * flexion (`A' = A T`), and what the effector is left with, `T^-1 S T`, is a
  * pure swing. The mid joint is read back as clinical angles in its domain and
@@ -69,17 +69,11 @@ export function splitDistalTwist(
   const needed: IAutoMovieQuaternion = Quaternion.normalize(
     Quaternion.multiply(Quaternion.inverse(world.worldRotation), rotation),
   );
-  const axis: IAutoMovieVector3 = Vector3.normalize(lowerAxes.twist);
-  const along: number =
-    needed.x * axis.x + needed.y * axis.y + needed.z * axis.z;
-  const length: number = Math.hypot(along, needed.w);
-  if (length < 1e-12) return pose;
-  const twist: IAutoMovieQuaternion = {
-    x: (axis.x * along) / length,
-    y: (axis.y * along) / length,
-    z: (axis.z * along) / length,
-    w: needed.w / length,
-  };
+  const { twist } = swingTwist(needed, lowerAxes.twist);
+  // A half turn perpendicular to the forearm has no defined twist share
+  // (swingTwist returns the exact identity then): nothing moves to the mid joint.
+  if (twist.w === 1 && twist.x === 0 && twist.y === 0 && twist.z === 0)
+    return pose;
   const current: IAutoMovieJointPose = pose.joints.find(
     (j: IAutoMovieJointPose): boolean => j.bone === props.chain.lower,
   ) ?? { bone: props.chain.lower, flexion: null, abduction: null, twist: null };
