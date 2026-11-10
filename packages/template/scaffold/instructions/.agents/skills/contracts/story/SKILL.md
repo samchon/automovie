@@ -5,7 +5,7 @@ description: Maps the story checklists, from research and settings or a short's 
 
 # Story contracts
 
-The [writing workflow](../../story/workflow.md#route-and-parents) sets the layers and passes each route runs; standalone asset work has no narrative population. An explicit user waiver may change the path; document its actual scope without claiming an omitted stage passed.
+The [writing workflow](../../story/workflow.md#route-and-parents) sets the layers and passes each route runs; standalone asset work has no narrative population. A stage the user waived is recorded with its actual scope and never claimed as passed.
 
 Each checklist H2 asks its named respondent a question. Principles apply to an authored H2, obligations to one document for a complete declared population, discovery to the inspected scope's discovery result, and review questions to review records. Do not make every scene testify for an entire film or attach a conditional requirement to unrelated hosts. The evidence configuration owns the actual selected populations and relationships; installed Evidence APIs own its mechanics.
 
@@ -22,6 +22,10 @@ Each checklist H2 asks its named respondent a question. Principles apply to an a
 | Narrative | [Progression and layer contribution](shared/principles/narratives.md) | [Continuity, promises, and distribution](shared/obligations/narratives.md) |
 | Actual speech | [Speakers and action order](shared/principles/realized.md) | [Finished voice distribution](shared/naturalness/obligations/realized.md) |
 | Independent review | [Grounded reading and literal audit](shared/principles/review.md) | [Complete rounds and verdict](shared/obligations/review.md) |
+
+A short has no treatments, scripts or settings index, so those rows have no respondent there. Its event design and scene execution are asked of the screenplay instead: [audiovisual realization](shared/principles/screenplay.md#audiovisual-realization) and [beat decisions](shared/principles/screenplay.md#beat-decisions) for each scene, and [continuity](shared/obligations/narratives.md#continuity-and-progression), [promises](shared/obligations/narratives.md#promises-and-distribution) and [complete realization](shared/obligations/screenplay.md#complete-realization) for the whole, which cover setup and payoff, the ending and the established space.
+
+An item whose judgment needs more detail than its question keeps [statements](../SKILL.md#items-and-statements) under its anchor: [expression](shared/statements/expression.md) for the common expression items, [screenplay](shared/statements/screenplay.md) for beat decisions and [research](shared/statements/research.md) for the depicted practice. Check them before answering.
 
 Use [common discovery](shared/discovery/common.md), then [settings](shared/discovery/settings.md) or [brief](shared/discovery/brief.md), [treatments](shared/discovery/treatments.md), [scripts](shared/discovery/scripts.md), [screenplay](shared/discovery/screenplay.md), and [narrative](shared/discovery/narratives.md) for the actual selected populations; [discovery](../../story/planning/discovery.md) writes their result.
 

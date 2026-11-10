@@ -4,7 +4,7 @@ Use this only for a requested read-only quality assessment. Do not edit files, r
 
 ## Scope
 
-Fix the requested scope and artifact role; without a narrower request, assess every selected layer under `docs/body` and its frozen edition under `docs/revision`. A motion hint is assessed for its visible action, staging and conditioning information, not as an uncommissioned generated film, and media in scope is inspected as the actual complete artifact. Before judging the screenplay or video, choose at most two central experience axes from the declared promise, or state that none was declared.
+Fix the requested scope and artifact role; without a narrower request, assess every selected layer under `docs/body` and its frozen edition under `docs/revision`. A motion hint is assessed for its visible action, staging and conditioning information, not as an uncommissioned generated film, and media in scope is inspected as stills of the actual complete file, at the spacing [delivery review](delivery.md#measure-and-compare) gives. Before judging the screenplay or video, choose at most two central experience axes from the declared promise, or state that none was declared.
 
 ## Judges
 
@@ -18,7 +18,7 @@ Use at least two fresh judges with the author's model, each making two independe
 | Treatments | Story force, structure, attention and tension, consequential choices, emotional progression, ending, distinctiveness, usable specificity, expressive quality |
 | Scripts | Unit composition, playable scene force, attention and tension, spoken language, agents, staging, distinctiveness |
 | Final screenplay | Comprehension and attention, engagement, structure, agents, emotion and aftermath, audiovisual voice and rhythm, concrete realization, distinctiveness |
-| Delivered video, if observed | The screenplay axes as seen and heard, plus intelligibility and continuity |
+| Delivered video, if observed | The screenplay axes as its stills show them, plus intelligibility and continuity; sound axes only from a listener's report |
 | Across layers | Arrival of the promise, upstream handoff, whole-work rhythm, identity of the work |
 
 Score only axes that fit the layer's recipient; an unwaived frozen construction marks expression axes not applicable.

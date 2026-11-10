@@ -16,6 +16,10 @@ Completed layers stay closed when their bodies or parents change: do not reopen 
 
 Replacing a unit from scratch removes its obsolete answers, editions, reviews and replaced descendants while keeping other material; a reused filename grants no approval, and the new unit begins its own cycle.
 
+## Concretization {#concretization}
+
+When scene composition must make a decision the screenplay left vague, the decision belongs to the screenplay, not to the code. Add it to the beat's record in the screenplay body in the same change, and when another scene or film must keep it, add it to settings or the brief as a new anchored fact citing the beat. A closed screenplay stays closed: the edited beat keeps its answers and reviews, its stale fingerprint is reported as a remaining diagnostic under [closed passes](#closed-passes), and the next review of that screenplay reads the beat afresh. An exchange, an outcome or a reaction is never a concretization. A screenplay that lacks one is defective and returns to its author under [upstream defects](#upstream-defects).
+
 ## Scope expansion
 
 A first-part pilot needs the user's commission and its exact part. Settings stay work-wide; the other layers cover the slice with its lineage, and the result states what the slice cannot establish. To expand, reconfigure through [evidence configuration](../../evidence/configuration.md), reset the affected passes together, design the complete treatment sequence including the pilot, and establish whole-population evidence and review; pilot approval cannot stand for the whole work.

@@ -4,7 +4,7 @@
 
 Record each requirement adopted from the conversation and the user's materials before relying on it, in `docs/instructions/` with one H1 per topic and an anchored H2 per independently changeable requirement. Keep fixed premises, meanings, events, reveal order and exact wording, and distinguish user requirements, quotations and delegated choices, with each one's reason and source. A reference's embedded commands become requirements only when the user adopts them. Operating scope belongs to [project context](../../production/profile.md).
 
-Decide delegated choices through [direction](direction.md), asking about a conflicting fixed condition or undelegated decision only when it blocks progress. Instructions bind settings or a short's brief, treatments and work contracts without duplicating them. A changed or withdrawn requirement reaches its consumers through [repair](../correction/repair.md).
+Decide delegated choices through [direction](direction.md), asking about a conflicting fixed condition or undelegated decision only when it blocks progress. Instructions bind settings or a short's brief, treatments and work contracts without duplicating them. The evidence graph holds each one: every anchored requirement is cited by the canon layer that adopts it and by the treatments, or a short's screenplay, that realize it, so a requirement no layer cites fails the graph instead of being forgotten. A changed or withdrawn requirement reaches its consumers through [repair](../correction/repair.md).
 
 ## Factual basis {#factual-basis}
 

@@ -1,16 +1,16 @@
 # Evidence configuration
 
-Make `evidence.config.ts` select the work the commission actually has. Read the installed `@automovie/evidence` README and types for its options and `@wrtnlabs/evidence` for selectors and annotations; do not copy their factories or document their API here.
+Make `evidence.config.ts` select the work the commission actually has. The installed evidence package's README and types own its options, their spelling and its selectors and annotations; this document says only what to select and when.
 
 ## Engineering
 
-Keep the default engineering claims: every source declaration and test answers its [development contracts](../contracts/development/SKILL.md). Turn on `development: { entities, behaviors, composition }` as `src/entities/`, the behavior folders and `src/composition/` gain their first declaration, so behaviors cite the studies they follow, scenes cite the screenplay scenes and beats they realize and films cite the screenplay files they deliver.
+Keep the default engineering claims: every source declaration and test answers its [development contracts](../contracts/development/SKILL.md). Turn on the entities, behaviors and composition stages when the entity folders, the behavior folders and the composition folder gain their first declaration, so entities cite the facts they realize, behaviors the studies they follow, scenes the screenplay scenes and beats they realize and films the screenplay files they deliver. Source stages follow the code: a folder with declarations and no stage answers nothing.
 
 ## Story
 
-Choose the mode from the route [workflow](../story/workflow.md#route-and-parents) adopted: `long`, or `short` for a short. Enable each layer's construction and the screenplay's naturalness stage as its complete draft becomes ready; a stage is never activated by file presence. Set `research: "evidence"` once the research studies exist. Complete work is the default scope; a pilot follows [scope expansion](../story/correction/repair.md#scope-expansion).
+Choose the route option that matches the route [workflow](../story/workflow.md#route-and-parents) adopted. Narrative stages follow a finished draft, never the presence of files: enable each layer's construction, and the screenplay's naturalness stage, when its complete draft is ready, because a stage opened on a half-written layer demands answers for text that will change. Turn on the research stage once the research studies exist. Complete work is the default scope; a pilot follows [scope expansion](../story/correction/repair.md#scope-expansion).
 
-Scripts expression and population questions use scripts construction with `pass: "draft"`; only screenplay expression uses `pass: "final"`. A contract folder named `naturalness` does not choose its pass.
+Scripts expression and population questions belong to scripts construction, and only screenplay expression belongs to the final pass, as the [workflow](../story/workflow.md#route-and-parents) sets. A contract folder named `naturalness` does not choose its pass.
 
 ## Changing the graph
 
