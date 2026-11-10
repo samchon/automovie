@@ -42,9 +42,6 @@ Work in this order, because each step fixes what the next one builds on.
    One direction is the actions this one may be cut into. The other is this action as a cut target, in the tables of the actions that lead into it.
 
 5. Give the action isolated cases with bounded checks under [verification](verification.md).
-
-   The cases run across bodies, against partners and props, cut at each listed window and redirected mid-motion.
-
 6. Capture the cases, review their frames, and repair every finding of the round together by cause.
 
    Keep a round only under the [round rule](verification.md#judge-rounds-honestly).
