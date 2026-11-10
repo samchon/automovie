@@ -1,6 +1,6 @@
 # Document layout and supplied material
 
-Use this resource when choosing where a creative document, its evidence or its review goes, or when taking over existing work. These are default locations, not a request to create empty trees. Installed `@automovie/evidence` documentation owns supported layouts and selectors; [evidence configuration](../evidence/configuration.md) owns their use.
+Use this resource when choosing where a creative document, its evidence or its review goes, or when taking over existing work. These are default locations, not a request to create empty trees. The evidence and review locations below are the installed evidence package's defaults, and its documentation owns supported layouts and selectors. This table is the one place the skills show them; [evidence configuration](../evidence/configuration.md) owns their use.
 
 ## Documents
 
@@ -14,11 +14,11 @@ Commit instructions, creative bodies and evidence answers. Review, naturalness a
 | `docs/body/brief/<domain>/<subject>.md` | A short's shared decisions in the settings domains, with its fixed conditions in `world/work.md` |
 | `docs/body/treatments/NNN-event.md` | Flat ordered events, causes, consequences, and information release |
 | `docs/body/scripts/NNN-part/NNN-episode.md` | Executable scenes and release partition, with part indexes |
-| `docs/body/screenplay/<film>.md`, or `NNN-part/NNN-episode.md` for several videos | Complete final audiovisual text, one file per delivered video, whose name the film and its media reuse; long work preserves its script partition |
+| `docs/body/screenplay/<film>.md`, or `NNN-part/NNN-episode.md` for several videos | Complete final audiovisual text, one file per delivered video, from whose path the [film name](../development/layout.md#source) derives; long work preserves its script partition |
 | `docs/research/index.md`, `docs/research/<discipline>/<topic>.md` | The source index and the studies of each practice and style: laws, outcome tables and measurable targets, under [research](planning/research.md) |
 | `references/`, ignored `references/private/` | Retained research originals: permitted copies, and those whose rights are unconfirmed |
 | `docs/contracts/work/...`, `docs/contracts/language/...` | This production's own story contracts supplementing the shared ones, cited as `work/...` and `language/...`; discovery writes `work/discovery/results.md` |
-| `docs/acceptance/<film>.md` | The film's tracked acceptance checklist and its observed results, under [delivery review](../review/delivery.md) |
+| `docs/acceptance/<film>.md` | The film's tracked acceptance record, and in `catalog.md` the catalog's accepted cases, under [delivery review](../review/delivery.md#acceptance-record) |
 | `docs/evidence/construction/{units,files}/<layer>/...` | Separate construction answers for units and whole files, including `files/research/` for the research studies |
 | Ignored `docs/review/{draft,final}/<layer>/<relative-file>.md` | Current independent unit reviews mirroring the actual body or working edition |
 | Ignored `docs/review/{draft,final}/<layer>/verdict/index.md` | Current complete-population verdict, findings and author decisions |

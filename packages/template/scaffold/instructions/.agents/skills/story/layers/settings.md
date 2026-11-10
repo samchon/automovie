@@ -4,12 +4,12 @@ Write down the decisions about the world, its people, places and objects that la
 
 ## Records
 
-Give each subject one file in its domain under the [document layout](../layout.md): one H1 naming the subject, an H2 per facet and an H3 per fact with an explicit anchor such as `{#hesitates-before-jumps}`. Later layers cite a fact by its file path and anchor, so never reuse or renumber one. Write only the facets the planned scenes and arcs use; an unused facet is left out rather than marked `N/A`, and a dimension the commission excludes is excluded once in the work's scope record. Measurements such as dimensions, light positions and timings go to [research](../planning/research.md) for their sources and to code for their values, unless the value is itself a story decision.
+Give each subject one file in its domain under the [document layout](../layout.md): one H1 naming the subject, an H2 per facet and an H3 per fact with an explicit anchor such as `{#hesitates-before-jumps}`. Later layers cite a fact by its file path and anchor, so never reuse or renumber one. Write only the facets the planned scenes and arcs use; an unused facet is left out rather than marked `N/A`, and a dimension the commission excludes is excluded once in the work's scope record, which also states the adopted representation and what it cannot show. Measurements such as dimensions, light positions and timings go to [research](../planning/research.md) for their sources and to code for their values, unless the value is itself a story decision.
 
 | Domain | Facets the scenes may need |
 | --- | --- |
 | `world` | Rules of the world and of any practice shown, such as a sport's or ceremony's rules; time of day, weather and season defaults; tone |
-| `cast` | Identity; recognizable body and model sheet; wardrobe, makeup and wounds by story day; carried props; movement style; repertoire and proficiency; habits and tells, each with its trigger and response; speech and voice; values, worldview and motives; relationships; knowledge; state changes over story time |
+| `cast` | Identity; the body facts a polygon man's parameters derive from, and canon images; wardrobe, makeup and wounds by story day; carried props; movement style; repertoire and proficiency; habits and tells, each with its trigger and response; speech and voice; values, worldview and motives; relationships; knowledge; state changes over story time |
 | `crowds` | Makeup, arrangement and what the crowd does and reacts to |
 | `props` | Form, material and markings; how people hold, use or ride it; state changes; vehicles and animals included |
 | `sets` | Shape, zones and landmarks; routes, entrances and levels; dressing; how people use the space; state changes |
