@@ -2,15 +2,28 @@
 
 An existing asset is a source beside crafting and generation. Use it as supplied when it serves the shot, or [recover](recovery.md) its curves when the shot needs dimensions, deformation or controls the asset cannot give. Propose, fetch or adopt one when a shot needs it or the user asks.
 
-Adopt an asset only when its licence permits everything the production does with it: commercial release, modification, rendering into conditioning and redistributing the committed bytes. Terms as permissive as MIT or Apache, such as CC0 and CC BY 4.0, pass. A licence that permits the rest but forbids standalone redistribution, such as the Fab Standard License, passes only while the files stay out of every public commit and the media record lets the user restore them. Read the licence of the item itself when fetching it, because one channel can mix terms and change them later, and record its source, licence, required credit and content digest in the project's media record.
+The channels below are examples, not a complete list; search further for the subject at hand.
 
-These channels are representative examples, not a complete or required list. Search further for the subject at hand and apply the same licence test to any other source.
+## Poly Haven
 
-| Channel | Offers | Licence |
-| --- | --- | --- |
-| [Poly Haven](https://polyhaven.com/license) | Models, HDRIs and textures, with a public API | CC0 |
-| [ambientCG](https://docs.ambientcg.com/license/) | PBR materials and HDRIs | CC0 |
-| [Kenney](https://kenney.nl/assets/category:3D) | Low-poly kits and characters | CC0 |
-| [Quixel Megascans](https://www.fab.com/sellers/Quixel%20Megascans) on Fab | Free photoscanned 3D assets, surfaces and vegetation | [Fab Standard License](https://www.fab.com/eula): no standalone redistribution |
-| [codepawl GLB repacks](https://huggingface.co/datasets/codepawl/abo-glb) on Hugging Face: `abo-glb`, `scanned-objects-glb`, `simready-glb` | Amazon Berkeley Objects, Google Scanned Objects and NVIDIA SimReady object meshes as GLB | CC BY 4.0 |
-| [100STYLE](https://www.ianxmason.com/100style/) | Stylised locomotion motion capture in BVH | CC BY 4.0 |
+[Poly Haven](https://polyhaven.com/license) offers curated photoreal models, HDRIs and textures under CC0, with a [public API](https://api.polyhaven.com) for scripted fetching. Its HDRIs suit environment light; its models are fewer than its HDRIs and textures, so expect common props and furniture rather than a specific subject.
+
+## ambientCG
+
+[ambientCG](https://docs.ambientcg.com/license/) offers PBR materials and HDRIs under CC0. Use it for surfaces on crafted or recovered geometry, not for meshes.
+
+## Kenney
+
+[Kenney](https://kenney.nl/assets/category:3D) offers consistent low-poly kits and characters under CC0. Their coarse, uniform style fits identifiable stand-ins and fast blocking.
+
+## codepawl GLB repacks
+
+The [codepawl datasets](https://huggingface.co/datasets/codepawl/abo-glb) on Hugging Face repack Amazon Berkeley Objects (`abo-glb`), Google Scanned Objects (`scanned-objects-glb`) and NVIDIA SimReady (`simready-glb`) as GLB under CC BY 4.0, so each use needs its credit. These are real household and product objects at real-world scale, downloadable in bulk.
+
+## Quixel Megascans
+
+[Quixel Megascans](https://www.fab.com/sellers/Quixel%20Megascans) on Fab offers a large free library of high-fidelity photoscanned 3D assets, surfaces and vegetation under the [Fab Standard License](https://www.fab.com/eula): commercial use and modification in any tool, but no standalone redistribution, so the files stay out of public commits. Downloads need a Fab account. The scans are dense; choose a lower level of detail or simplify when an identifiable form is enough.
+
+## 100STYLE
+
+[100STYLE](https://www.ianxmason.com/100style/) offers stylised locomotion motion capture in BVH under CC BY 4.0. Use it as a gait or style reference to retarget or recover, with its credit.
